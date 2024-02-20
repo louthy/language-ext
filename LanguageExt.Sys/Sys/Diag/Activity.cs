@@ -16,10 +16,13 @@ namespace LanguageExt.Sys.Diag;
 /// </summary>
 /// <typeparam name="M">Reader, Resource, and monad trait</typeparam>
 /// <typeparam name="RT">Runtime</typeparam>
-public static class Activity<M, RT>
+public class Activity<M, RT>
     where M : Reader<M, RT>, Resource<M>, Monad<M>
-    where RT : HasActivitySource<RT>, HasIO<RT>
+    where RT : Has<M, ActivitySourceIO>
 {
+    static readonly K<M, ActivitySourceIO> trait = 
+        Reader.asksM<M, RT, ActivitySourceIO>(e => e.Trait);
+    
     static K<M, Activity> startActivity(
         string name,
         ActivityKind activityKind,
@@ -28,7 +31,7 @@ public static class Activity<M, RT>
         DateTimeOffset startTime,
         ActivityContext? parentContext = default) =>
         from rt in Reader.ask<M, RT>()
-        from src in rt.ActivitySourceEff
+        from src in trait
         from act in Resource.use<M, Activity>(
             src.StartActivity(
                 name,

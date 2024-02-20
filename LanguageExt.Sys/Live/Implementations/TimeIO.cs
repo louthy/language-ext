@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Sys.Live;
+namespace LanguageExt.Sys.Live.Implementations;
 
 public readonly struct TimeIO : Sys.Traits.TimeIO
 {

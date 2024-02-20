@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System.Diagnostics;
 
-namespace LanguageExt.Sys.Live;
+namespace LanguageExt.Sys.Live.Implementations;
 
 public record ActivitySourceIO(ActivitySource Source) : LanguageExt.Sys.Traits.ActivitySourceIO
 {

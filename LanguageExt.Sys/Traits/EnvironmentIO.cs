@@ -1,6 +1,4 @@
 using System;
-using LanguageExt.Attributes;
-using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Sys.Traits;
 
@@ -40,19 +38,4 @@ public interface EnvironmentIO
     IO<string> UserName();
     IO<Version> Version();
     IO<long> WorkingSet();
-}
-
-/// <summary>
-/// Type-class giving a struct the trait of supporting Environment IO
-/// </summary>
-/// <typeparam name="RT">Runtime</typeparam>
-[Trait("*")]
-public interface HasEnvironment<RT> : HasIO<RT>
-    where RT : HasEnvironment<RT>
-{
-    /// <summary>
-    /// Access the environment synchronous effect environment
-    /// </summary>
-    /// <returns>Environment synchronous effect environment</returns>
-    IO<EnvironmentIO> EnvironmentIO { get; }
 }

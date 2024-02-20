@@ -9,10 +9,10 @@ namespace LanguageExt.Sys;
 /// </summary>
 public static class Environment<M, RT>
     where M : Reader<M, RT>, Monad<M>
-    where RT : HasEnvironment<RT>
+    where RT : Has<M, EnvironmentIO>
 {
     static readonly K<M, EnvironmentIO> trait = 
-        Reader.asks<M, RT, IO<EnvironmentIO>>(e => e.EnvironmentIO).Bind(M.LiftIO);
+        Reader.asksM<M, RT, EnvironmentIO>(e => e.Trait);
     
     /// <summary>
     /// Gets the command line for this process.

@@ -1,7 +1,5 @@
 using System;
 using System.IO;
-using LanguageExt.Attributes;
-using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Sys.Traits;
 
@@ -157,19 +155,4 @@ public interface DirectoryIO
     /// Get the logical drives
     /// </summary>
     IO<Seq<string>> GetLogicalDrives();
-}
-    
-/// <summary>
-/// Type-class giving a struct the trait of supporting File IO
-/// </summary>
-/// <typeparam name="RT">Runtime</typeparam>
-[Trait("*")]
-public interface HasDirectory<RT> : HasIO<RT>
-    where RT : HasDirectory<RT>
-{
-    /// <summary>
-    /// Access the directory synchronous effect environment
-    /// </summary>
-    /// <returns>Directory synchronous effect environment</returns>
-    IO<DirectoryIO> DirectoryIO { get; }
 }

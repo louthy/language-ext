@@ -68,9 +68,9 @@ namespace LanguageExt.Sys
         }
 
         // Mutable
-        public ConcurrentDictionary<string, string> ProcessEnvironmentVariables;
-        public ConcurrentDictionary<string, string> UserEnvironmentVariables;
-        public ConcurrentDictionary<string, string> SystemEnvironmentVariables;
+        public ConcurrentDictionary<string, Option<string>> ProcessEnvironmentVariables;
+        public ConcurrentDictionary<string, Option<string>> UserEnvironmentVariables;
+        public ConcurrentDictionary<string, Option<string>> SystemEnvironmentVariables;
         public int ExitCode;
         public bool HasShutdownStarted;
         
@@ -88,7 +88,7 @@ namespace LanguageExt.Sys
         public readonly string StackTrace;
         public readonly string SystemDirectory;
         public readonly int SystemPageSize;
-        public readonly int TickCount;
+        public readonly long TickCount;
         public readonly string UserDomainName;
         public readonly bool UserInteractive;
         public readonly string UserName;
@@ -117,7 +117,7 @@ namespace LanguageExt.Sys
             string? StackTrace = null, 
             string? SystemDirectory = null, 
             int? SystemPageSize = null, 
-            int? TickCount = null, 
+            long? TickCount = null, 
             string? UserDomainName = null, 
             bool? UserInteractive = null, 
             string? UserName = null, 

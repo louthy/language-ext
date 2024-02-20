@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using LanguageExt.Attributes;
-using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Sys.Traits;
 
@@ -92,19 +90,4 @@ public interface FileIO
     /// Open a file-stream
     /// </summary>
     IO<Stream> OpenWrite(string path);
-}
-    
-/// <summary>
-/// Type-class giving a struct the trait of supporting File IO
-/// </summary>
-/// <typeparam name="RT">Runtime</typeparam>
-[Trait("*")]
-public interface HasFile<RT> : HasIO<RT>, HasEncoding<RT>
-    where RT : HasIO<RT>, HasEncoding<RT>
-{
-    /// <summary>
-    /// Access the file synchronous effect environment
-    /// </summary>
-    /// <returns>File synchronous effect environment</returns>
-    IO<FileIO> FileIO { get; }
 }

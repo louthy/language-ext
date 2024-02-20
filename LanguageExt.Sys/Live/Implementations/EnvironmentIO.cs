@@ -3,7 +3,7 @@ using System.Collections;
 using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Sys.Live;
+namespace LanguageExt.Sys.Live.Implementations;
 
 public record EnvironmentIO : Sys.Traits.EnvironmentIO
 {

@@ -1,7 +1,7 @@
 using System;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Sys.Live;
+namespace LanguageExt.Sys.Live.Implementations;
 
 public record ConsoleIO : Sys.Traits.ConsoleIO
 {

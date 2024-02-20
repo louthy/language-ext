@@ -12,12 +12,12 @@ namespace LanguageExt.Sys.IO;
 /// <summary>
 /// File IO 
 /// </summary>
-public static class File<M, RT>
+public class File<M, RT>
     where M : Reader<M, RT>, Resource<M>, Monad<M>
-    where RT : HasFile<RT>
+    where RT : Has<M, FileIO>, HasEncoding
 {
     static readonly K<M, FileIO> trait = 
-        Reader.asks<M, RT, IO<FileIO>>(e => e.FileIO).Bind(M.LiftIO); 
+        Reader.asksM<M, RT, FileIO>(e => e.Trait); 
     
     /// <summary>
     /// Copy file 
@@ -36,7 +36,7 @@ public static class File<M, RT>
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, Unit> appendAllLines(string path, IEnumerable<string> contents) =>
-        from en in Enc<RT, M>.encoding
+        from en in Enc<M, RT>.encoding
         from rs in trait.Bind(e => e.AppendAllLines(path, contents, en))
         select rs;
 
@@ -45,7 +45,7 @@ public static class File<M, RT>
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, Seq<string>> readAllLines(string path) =>
-        from en in Enc<RT, M>.encoding
+        from en in Enc<M, RT>.encoding
         from rs in trait.Bind(e => e.ReadAllLines(path, en))
         select rs;
 
@@ -54,7 +54,7 @@ public static class File<M, RT>
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, Unit> writeAllLines(string path, Seq<string> lines) =>
-        from en in Enc<RT, M>.encoding
+        from en in Enc<M, RT>.encoding
         from rs in trait.Bind(e => e.WriteAllLines(path, lines, en))
         select rs;
 
@@ -63,7 +63,7 @@ public static class File<M, RT>
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, string> readAllText(string path) =>
-        from en in Enc<RT, M>.encoding
+        from en in Enc<M, RT>.encoding
         from rs in trait.Bind(e => e.ReadAllText(path, en))
         select rs;
 
@@ -79,7 +79,7 @@ public static class File<M, RT>
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, Unit> writeAllText(string path, string text) =>
-        from en in Enc<RT, M>.encoding
+        from en in Enc<M, RT>.encoding
         from rs in trait.Bind(e => e.WriteAllText(path, text, en))
         select rs;
 

@@ -11,11 +11,11 @@ namespace LanguageExt.Sys;
 /// Time IO 
 /// </summary>
 public static class Console<M, RT>
-    where RT : HasConsole<RT>
+    where RT : Has<M, ConsoleIO>
     where M : Reader<M, RT>, Monad<M>
 {
     static readonly K<M, ConsoleIO> trait = 
-        Reader.asks<M, RT, IO<ConsoleIO>>(e => e.ConsoleIO).Bind(M.LiftIO);
+        Reader.asksM<M, RT, ConsoleIO>(e => e.Trait);
 
     /// <summary>
     /// Read a key from the console

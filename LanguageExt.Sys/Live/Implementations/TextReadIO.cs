@@ -1,9 +1,8 @@
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Sys.Live;
+namespace LanguageExt.Sys.Live.Implementations;
 
 public record TextReadIO : Sys.Traits.TextReadIO
 {

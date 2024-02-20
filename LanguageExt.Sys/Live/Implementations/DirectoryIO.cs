@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Sys.Live;
+namespace LanguageExt.Sys.Live.Implementations;
 
 public record DirectoryIO : Traits.DirectoryIO
 {

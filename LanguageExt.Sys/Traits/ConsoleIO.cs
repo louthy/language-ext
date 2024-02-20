@@ -1,6 +1,4 @@
 using System;
-using LanguageExt.Attributes;
-using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Sys.Traits;
 
@@ -23,19 +21,4 @@ public interface ConsoleIO
 
     IO<ConsoleColor> BgColor { get; }
     IO<ConsoleColor> Color { get; }
-}
-
-/// <summary>
-/// Type-class giving a struct the trait of supporting Console IO
-/// </summary>
-/// <typeparam name="RT">Runtime</typeparam>
-[Trait("*")]
-public interface HasConsole<out RT> : HasIO<RT>
-    where RT : HasConsole<RT>
-{
-    /// <summary>
-    /// Access the console synchronous effect environment
-    /// </summary>
-    /// <returns>Console synchronous effect environment</returns>
-    IO<ConsoleIO> ConsoleIO { get; }
 }

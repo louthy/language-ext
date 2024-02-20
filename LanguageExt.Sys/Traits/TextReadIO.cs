@@ -1,7 +1,5 @@
 using System;
 using System.IO;
-using LanguageExt.Attributes;
-using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Sys.Traits;
 
@@ -27,19 +25,4 @@ public interface TextReadIO
     /// Close the reader
     /// </summary>
     IO<Unit> Close(TextReader reader);        
-}
-    
-/// <summary>
-/// Type-class giving a struct the trait of supporting TextReader IO
-/// </summary>
-/// <typeparam name="RT">Runtime</typeparam>
-[Trait("*")]
-public interface HasTextRead<RT> : HasIO<RT>
-    where RT : HasTextRead<RT>
-{
-    /// <summary>
-    /// Access the TextReader synchronous effect environment
-    /// </summary>
-    /// <returns>TextReader synchronous effect environment</returns>
-    IO<TextReadIO> TextReadIO { get; }
 }

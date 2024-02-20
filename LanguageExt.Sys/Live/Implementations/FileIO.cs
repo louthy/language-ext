@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Sys.Live;
+namespace LanguageExt.Sys.Live.Implementations;
 
 /// <summary>
 /// Real world interaction with the file-system

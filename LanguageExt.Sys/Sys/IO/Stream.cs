@@ -2,16 +2,13 @@ using System.IO;
 using System.Buffers;
 using LanguageExt.Pipes;
 using System.Collections.Generic;
-using LanguageExt.Effects.Traits;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 using LanguageExt.UnsafeValueAccess;
 
 namespace LanguageExt.Sys.IO;
 
-public static class Stream<M, RT> 
-    where RT : HasIO<RT>
-    where M : Reader<M, RT>, Monad<M>
+public class Stream<M> where M : Monad<M>
 {
     /// <summary>
     /// Get a pipe of chunks from a Stream

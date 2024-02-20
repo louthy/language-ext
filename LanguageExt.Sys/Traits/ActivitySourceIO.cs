@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using LanguageExt.Attributes;
 using LanguageExt.Effects.Traits;
+using LanguageExt.Traits;
 
 namespace LanguageExt.Sys.Traits;
 
@@ -55,20 +56,21 @@ public interface ActivitySourceIO
         Seq<ActivityLink> links = default, 
         DateTimeOffset startTime = default);        
 }
-        
+
 /// <summary>
 /// Type-class giving a struct the trait of supporting ActivitySource IO
 /// </summary>
+/// <typeparam name="M">Monad and reader trait</typeparam>
 /// <typeparam name="RT">Runtime</typeparam>
 [Trait("*")]
-public interface HasActivitySource<RT>
-    where RT : HasActivitySource<RT>, HasIO<RT>
+public interface HasActivitySource<in M, out RT>
+    where M : Monad<M>
 {
     /// <summary>
     /// Access the activity-source synchronous effect environment
     /// </summary>
     /// <returns>Activity-source synchronous effect environment</returns>
-    IO<ActivitySourceIO> ActivitySourceEff { get; }
+    K<M, ActivitySourceIO> ActivitySourceIO { get; }
         
     /// <summary>
     /// Set the current activity and update the ParentId automatically

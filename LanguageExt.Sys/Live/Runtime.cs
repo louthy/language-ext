@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Text;
+using LanguageExt.Traits;
 using LanguageExt.Sys.Traits;
 using static LanguageExt.Prelude;
 
@@ -9,86 +10,84 @@ namespace LanguageExt.Sys.Live;
 /// <summary>
 /// Live IO runtime
 /// </summary>
-public record Runtime(RuntimeEnv Env) : 
-    HasActivitySource<Runtime>,
-    HasConsole<Runtime>,
-    HasFile<Runtime>,
-    HasTextRead<Runtime>,
-    HasTime<Runtime>,
-    HasEnvironment<Runtime>,
-    HasDirectory<Runtime>
+public record Runtime<M>(RuntimeEnv Env) : 
+    Has<M, ActivitySourceIO>,
+    Has<M, ConsoleIO>,
+    Has<M, FileIO>,
+    Has<M, TextReadIO>,
+    Has<M, TimeIO>,
+    Has<M, EnvironmentIO>,
+    Has<M, DirectoryIO>
+    where M : Reader<M, Runtime<M>>, Monad<M>
 {
     /// <summary>
     /// Constructor function
     /// </summary>
-    public static Runtime New() =>
+    public static Runtime<M> New() =>
         new (new RuntimeEnv(ActivityEnv.Default, EnvIO.New(), Encoding.Default));
 
+    public Runtime<M> WithActivity(Activity? activity) =>
+        new(Env with
+                {
+                    Activity = Env.Activity with { Activity = activity, ParentId = Env.Activity.Activity?.Id ?? "" }
+                });
+
+    public Activity? CurrentActivity =>
+        Env.Activity.Activity;
+
+    public Runtime<M> WithIO(EnvIO envIO) =>
+        new (Env with { EnvIO = envIO });
+
+    public EnvIO EnvIO =>
+        Env.EnvIO;
+
     /// <summary>
-    /// Get encoding
+    /// Activity
     /// </summary>
-    /// <returns></returns>
-    public Encoding Encoding =>
-        Env.Encoding;
+    K<M, ActivitySourceIO> Has<M, ActivitySourceIO>.Trait => 
+        M.Asks(rt => new Implementations.ActivitySourceIO(rt.Env.Activity.ActivitySource));
 
     /// <summary>
     /// Access the console environment
     /// </summary>
     /// <returns>Console environment</returns>
-    public Eff<Runtime, Traits.ConsoleIO> ConsoleIO =>
-        Pure(Live.ConsoleIO.Default);
+    K<M, ConsoleIO> Has<M, ConsoleIO>.Trait { get; } =
+        M.Pure(Implementations.ConsoleIO.Default);
 
     /// <summary>
     /// Access the file environment
     /// </summary>
     /// <returns>File environment</returns>
-    public Eff<Runtime, Traits.FileIO> FileEff =>
-        Pure(FileIO.Default);
-
-    /// <summary>
-    /// Access the directory environment
-    /// </summary>
-    /// <returns>Directory environment</returns>
-    public Eff<Runtime, Traits.DirectoryIO> DirectoryIO =>
-        Pure(Live.DirectoryIO.Default);
+    K<M, FileIO> Has<M, FileIO>.Trait { get; } =
+        M.Pure(Implementations.FileIO.Default);
 
     /// <summary>
     /// Access the TextReader environment
     /// </summary>
     /// <returns>TextReader environment</returns>
-    public Eff<Runtime, Traits.TextReadIO> TextReadEff =>
-        Pure(TextReadIO.Default);
-
+    K<M, TextReadIO> Has<M, TextReadIO>.Trait { get; } =
+        M.Pure(Implementations.TextReadIO.Default);
+ 
     /// <summary>
     /// Access the time environment
     /// </summary>
     /// <returns>Time environment</returns>
-    public Eff<Runtime, Traits.TimeIO> TimeIO  =>
-        Pure(Live.TimeIO.Default);
+    K<M, TimeIO> Has<M, TimeIO>.Trait { get; } =
+        M.Pure(Implementations.TimeIO.Default);
 
     /// <summary>
     /// Access the operating-system environment
     /// </summary>
     /// <returns>Operating-system environment environment</returns>
-    public Eff<Runtime, Traits.EnvironmentIO> EnvironmentIO =>
-        Pure(Live.EnvironmentIO.Default);
+    K<M, EnvironmentIO> Has<M, EnvironmentIO>.Trait { get; } =
+        M.Pure(Implementations.EnvironmentIO.Default);
 
-    public Eff<Runtime, Traits.ActivitySourceIO> ActivitySourceEff =>
-        lift<Runtime, Traits.ActivitySourceIO>(rt => new ActivitySourceIO(rt.Env.Activity.ActivitySource));
-        
-    public Runtime WithActivity(Activity? activity) => 
-        new (Env 
-                 with {Activity = Env.Activity 
-                                      with {Activity = activity, ParentId = Env.Activity.Activity?.Id ?? ""}});
-
-    public Activity? CurrentActivity =>
-        Env.Activity.Activity;
-
-    public Runtime WithIO(EnvIO envIO) =>
-        new (Env with { EnvIO = envIO });
-
-    public EnvIO EnvIO =>
-        Env.EnvIO;
+    /// <summary>
+    /// Access the directory environment
+    /// </summary>
+    /// <returns>Directory environment</returns>
+    K<M, DirectoryIO> Has<M, DirectoryIO>.Trait { get; } =
+        M.Pure(Implementations.DirectoryIO.Default);
 }
 
 public record RuntimeEnv(ActivityEnv Activity, EnvIO EnvIO, Encoding Encoding) : IDisposable

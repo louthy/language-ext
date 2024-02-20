@@ -5,12 +5,12 @@ using LanguageExt.Traits;
 
 namespace LanguageExt.Sys.IO;
 
-public static class Directory<M, RT>
-    where RT : HasDirectory<RT>
+public class Directory<M, RT>
+    where RT : HasDirectory<M>
     where M : Reader<M, RT>, Monad<M>
 {
     static readonly K<M, DirectoryIO> trait = 
-        Reader.asks<M, RT, IO<DirectoryIO>>(e => e.DirectoryIO).Bind(M.LiftIO); 
+        Reader.asksM<M, RT, DirectoryIO>(e => e.DirectoryIO); 
     
     /// <summary>
     /// Create a directory
