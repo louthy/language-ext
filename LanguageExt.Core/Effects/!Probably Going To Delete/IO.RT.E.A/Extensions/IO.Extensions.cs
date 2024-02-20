@@ -244,7 +244,7 @@ public static partial class IOExtensions
     /// Natural transformation to `Eff`
     /// </summary>
     public static Eff<RT, Unit> ToEff<RT, A>(this Guard<Error, A> guard) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         guard.Flag
             ? Pure(unit)
             : Fail(guard.OnFalse());

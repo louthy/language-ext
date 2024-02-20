@@ -25,7 +25,7 @@ public class Resources : IDisposable
         return resources.TryAdd(obj, new ResourceDisposable<A>(value));
     }
 
-    public Unit Acquire<A>(A value, Func<A, IO<Unit>> release) where A : class
+    public Unit Acquire<A>(A value, Func<A, IO<Unit>> release) 
     {
         var obj = (object?)value;
         if (obj is null) throw new InvalidCastException();

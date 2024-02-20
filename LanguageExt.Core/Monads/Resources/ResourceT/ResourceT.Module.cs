@@ -16,8 +16,7 @@ public partial class ResourceT<M>
     public static ResourceT<M, A> liftIO<A>(IO<A> ma) => 
         ResourceT<M, A>.LiftIO(ma);
 
-    public static ResourceT<M, A> use<A>(IO<A> ma, Action<A> release)
-        where A : class =>
+    public static ResourceT<M, A> use<A>(IO<A> ma, Action<A> release) =>
         use(ma,
             value => IO<Unit>.Lift(
                 _ =>
@@ -26,8 +25,7 @@ public partial class ResourceT<M>
                     return Prelude.unit;
                 }));
 
-    public static ResourceT<M, A> use<A>(IO<A> ma, Func<A, IO<Unit>> release) 
-        where A : class =>
+    public static ResourceT<M, A> use<A>(IO<A> ma, Func<A, IO<Unit>> release)=>
         liftIO(ma).Bind(
             a => ResourceT<M, A>.Asks(
                 rs =>

@@ -2,9 +2,7 @@
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.Common;
-using LanguageExt.Effects;
 using static LanguageExt.Prelude;
-using LanguageExt.Effects.Traits;
 
 namespace LanguageExt;
 
@@ -18,20 +16,6 @@ public readonly struct EffCatch<A>
     public EffCatch(Func<Error, bool> predicate, Func<Error, Eff<A>> fail) :
         this(e => predicate(e) ? fail(e) : Eff<A>.Fail(e))
     { }
-
-    /*
-    public IOCatch<MinRT, Error, A> As()
-    {
-        var f = fail;
-        return new IOCatch<MinRT, Error, A>(e => f(e).Morphism);
-    }
-
-    public IOCatch<RT, Error, A> As<RT>() where RT : HasIO<RT, Error>
-    {
-        var f = fail;
-        return new IOCatch<RT, Error, A>(e => Transducer.compose(MinRT.convert<RT>(), f(e).Morphism));
-    }
-    */
 
     [Pure, MethodImpl(Opt.Default)]
     public Eff<A> Run(Error error) =>

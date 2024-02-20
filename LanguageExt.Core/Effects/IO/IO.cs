@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
+using LanguageExt.Effects.Traits;
 using LanguageExt.Traits;
 using LanguageExt.TypeClasses;
 
@@ -331,13 +332,32 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         where M : Monad<M>, Alternative<M> =>
         OptionT<M, A>.LiftIO(this).SelectMany(bind, project);
 
+    public TryT<M, C> SelectMany<M, B, C>(Func<A, TryT<M, B>> bind, Func<A, B, C> project)
+        where M : Monad<M>, Alternative<M> =>
+        TryT<M, A>.LiftIO(this).SelectMany(bind, project);
+
+    public EitherT<L, M, C> SelectMany<L, M, B, C>(Func<A, EitherT<L, M, B>> bind, Func<A, B, C> project)
+        where M : Monad<M>, Alternative<M> =>
+        EitherT<L, M, A>.LiftIO(this).SelectMany(bind, project);
+
     public ReaderT<Env, M, C> SelectMany<Env, M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
         where M : Monad<M>, Alternative<M> =>
         ReaderT<Env, M, A>.LiftIO(this).SelectMany(bind, project);
 
+    public StateT<S, M, C> SelectMany<S, M, B, C>(Func<A, StateT<S, M, B>> bind, Func<A, B, C> project)
+        where M : Monad<M>, Alternative<M> =>
+        StateT<S, M, A>.LiftIO(this).SelectMany(bind, project);
+
     public ResourceT<M, C> SelectMany<M, B, C>(Func<A, ResourceT<M, B>> bind, Func<A, B, C> project)
         where M : Monad<M>, Alternative<M> =>
         ResourceT<M, A>.LiftIO(this).SelectMany(bind, project);
+
+    public Eff<C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>
+        Eff<A>.LiftIO(this).SelectMany(bind, project);
+
+    public Eff<RT, C> SelectMany<RT, B, C>(Func<A, Eff<RT, B>> bind, Func<A, B, C> project)
+        where RT : HasIO<RT> =>
+        Eff<RT, A>.LiftIO(this).SelectMany(bind, project);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -502,6 +522,12 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
 
     public static implicit operator IO<A>(Fail<Exception> ma) =>
         Lift(() => ma.Value.Rethrow<A>());
+
+    public static implicit operator IO<A>(Lift<EnvIO, A> ma) =>
+        Lift(ma.Function);
+
+    public static implicit operator IO<A>(Lift<A> ma) =>
+        Lift(ma.Function);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

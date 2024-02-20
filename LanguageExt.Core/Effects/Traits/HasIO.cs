@@ -1,5 +1,4 @@
 ﻿using LanguageExt.Attributes;
-using LanguageExt.Common;
 
 namespace LanguageExt.Effects.Traits;
 
@@ -7,21 +6,17 @@ namespace LanguageExt.Effects.Traits;
 /// Minimal collection of traits for IO operations
 /// </summary>
 /// <typeparam name="RT">Runtime</typeparam>
-/// <typeparam name="E">User specified error type</typeparam>
 [Trait("*")]
-public interface HasIO<out RT> : HasCancel<RT>, HasSyncContext<RT>
-    where RT : 
-    HasCancel<RT>,
-    HasSyncContext<RT>;
-
-/// <summary>
-/// Minimal collection of traits for IO operations
-/// </summary>
-/// <typeparam name="RT">Runtime</typeparam>
-/// <typeparam name="E">User specified error type</typeparam>
-[Trait("*")]
-public interface HasIO<out RT, out E> : HasIO<RT>, HasFromError<RT, E>
-    where RT : 
-    HasCancel<RT>,
-    HasSyncContext<RT>,
-    HasFromError<RT, E>;
+public interface HasIO<out RT> 
+    where RT : HasIO<RT>
+{
+    /// <summary>
+    /// Injects a new IO state into the runtime 
+    /// </summary>
+    RT WithIO(EnvIO envIO);
+    
+    /// <summary>
+    /// Get the IO environment from the runtime state 
+    /// </summary>
+    EnvIO EnvIO { get; }
+}

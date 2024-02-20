@@ -14,7 +14,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
     public static Eff<RT, A> retry<RT, A>(Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.Retry();
 
     /// <summary>
@@ -26,7 +26,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
     public static Eff<RT, A> retry<RT, A>(Schedule schedule, Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.Retry(schedule);
 
     /// <summary>
@@ -38,7 +38,7 @@ public static partial class Prelude
     /// <returns>The result of the last invocation of ma</returns>
     public static Eff<RT, A> retryWhile<RT, A>(
         Eff<RT, A> ma,
-        Func<Error, bool> predicate) where RT : HasIO<RT, Error> =>
+        Func<Error, bool> predicate) where RT : HasIO<RT> =>
         ma.RetryWhile(predicate);
 
     /// <summary>
@@ -53,7 +53,7 @@ public static partial class Prelude
         Schedule schedule,
         Eff<RT, A> ma,
         Func<Error, bool> predicate)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.RetryWhile(schedule, predicate);
 
     /// <summary>
@@ -66,7 +66,7 @@ public static partial class Prelude
     public static Eff<RT, A> retryUntil<RT, A>(
         Eff<RT, A> ma,
         Func<Error, bool> predicate)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.RetryUntil(predicate);
 
     /// <summary>
@@ -81,6 +81,6 @@ public static partial class Prelude
         Schedule schedule,
         Eff<RT, A> ma,
         Func<Error, bool> predicate)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.RetryUntil(schedule, predicate);
 }

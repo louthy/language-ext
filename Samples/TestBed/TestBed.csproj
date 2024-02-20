@@ -24,7 +24,6 @@
         <ProjectReference Include="..\..\LanguageExt.FSharp\LanguageExt.FSharp.csproj" />
         <ProjectReference Include="..\..\LanguageExt.Parsec\LanguageExt.Parsec.csproj" />
         <ProjectReference Include="..\..\LanguageExt.Rx\LanguageExt.Rx.csproj" />
-        <ProjectReference Include="..\..\LanguageExt.SysX\LanguageExt.SysX.csproj" />
         <ProjectReference Include="..\..\LanguageExt.Sys\LanguageExt.Sys.csproj" />
         <ProjectReference Include="..\..\LanguageExt.Transformers\LanguageExt.Transformers.csproj" />
     </ItemGroup>

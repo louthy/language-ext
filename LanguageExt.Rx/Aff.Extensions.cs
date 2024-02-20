@@ -52,7 +52,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound type</typeparam>
         /// <returns>Aff of unit</returns>
         public static Aff<RT, Unit> Consume<RT, A>(this IObservable<A> ma, Func<A, Aff<RT, Unit>> next)
-            where RT : HasIO<RT, Error> =>
+            where RT : HasIO<RT> =>
             AffMaybe<RT, Unit>(
                 async env =>
                 {
@@ -125,7 +125,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound type</typeparam>
         /// <returns>Aff of S</returns>
         public static Aff<RT, S> Fold<RT, S, A>(this IObservable<A> ma, S state, Func<S, A, Aff<RT, S>> next)
-            where RT : HasIO<RT, Error> =>
+            where RT : HasIO<RT> =>
             AffMaybe<RT, S>(
                 async env =>
                 {

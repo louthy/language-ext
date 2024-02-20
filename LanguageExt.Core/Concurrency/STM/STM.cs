@@ -82,7 +82,7 @@ public static class STM
     /// If a transaction is already running, then this becomes part of the parent transaction
     /// </summary>
     internal static Eff<RT, R> DoTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         transaction.Value == null
             ? RunTransaction(op, isolation)
             : op;
@@ -133,7 +133,7 @@ public static class STM
     /// Runs the transaction
     /// </summary>
     static Eff<RT, R> RunTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         lift((RT env) =>
         {
             SpinWait sw = default;

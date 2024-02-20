@@ -124,7 +124,7 @@ public sealed class Ref<A> : IEquatable<A>
     /// </summary>
     /// <param name="f">Swap function</param>
     /// <returns>The value returned from `f`</returns>
-    public Eff<RT, A> SwapEff<RT>(Func<A, Eff<RT, A>> f) where RT : HasIO<RT, Error> =>
+    public Eff<RT, A> SwapEff<RT>(Func<A, Eff<RT, A>> f) where RT : HasIO<RT> =>
         lift((RT env) =>
         {
             var fv = f(Value).Run(env);
@@ -180,7 +180,7 @@ public sealed class Ref<A> : IEquatable<A>
     /// </summary>
     /// <param name="f">Swap function</param>
     /// <returns>The value returned from `f`</returns>
-    public Eff<RT, A> SwapEff<X, Y, RT>(X x, Y y, Func<X, Y, A, Eff<RT, A>> f) where RT : HasIO<RT, Error> =>
+    public Eff<RT, A> SwapEff<X, Y, RT>(X x, Y y, Func<X, Y, A, Eff<RT, A>> f) where RT : HasIO<RT> =>
         lift((RT env) =>
         {
             var fv = f(x, y, Value).Run(env);
@@ -236,7 +236,7 @@ public sealed class Ref<A> : IEquatable<A>
     /// </summary>
     /// <param name="f">Swap function</param>
     /// <returns>The value returned from `f`</returns>
-    public Eff<RT, A> SwapEff<X, RT>(X x, Func<X, A, Eff<RT, A>> f) where RT : HasIO<RT, Error> =>
+    public Eff<RT, A> SwapEff<X, RT>(X x, Func<X, A, Eff<RT, A>> f) where RT : HasIO<RT> =>
         lift((RT env) =>
         {
             var fv = f(x, Value).Run(env);

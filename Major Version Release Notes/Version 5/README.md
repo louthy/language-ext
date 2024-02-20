@@ -469,6 +469,12 @@ This is my '.NET Framework to .NET Core' moment.  I realise that.  And I an trul
 	* Mitigtation: use effect monads with `@catch`
 
 
+## Libraries removed outright
+
+
+* `LanguageExt.SysX` - this was only needed to partition newer .NET Core code from .NET Standard.  This has now been merged into `LanguageExt.Sys`
+* `LanguageExt.CodeGen` - is deprecated from now.  To be replaced later by `LanguageExt.SourceGen`.  Note, this library has always been standalone and can therefore continue to work without new versions being released.
+
 
 # TODO
 

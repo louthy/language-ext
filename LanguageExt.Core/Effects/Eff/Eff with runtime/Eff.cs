@@ -14,8 +14,8 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
-    where RT : HasIO<RT, Error>
+public readonly struct Eff<RT, A> : K<Eff.R<RT>, A>
+    where RT : HasIO<RT>
 {
     /// <summary>
     /// Underlying monad transformer stack that captures all of the IO behaviour 
@@ -26,7 +26,7 @@ public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
     //
     // Transformer helpers
     //
-    
+
     static ReaderT<RT, ResourceT<IO>, X> asksM<X>(Func<RT, K<ResourceT<IO>, X>> f) =>
         ReaderT.asksM(f);
 
@@ -57,12 +57,12 @@ public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
         ReaderT<RT, ResourceT<IO>, X>.Pure(value);
 
     internal Eff<RT2, B> MapReader<RT2, B>(Func<ReaderT<RT, ResourceT<IO>, A>, ReaderT<RT2, ResourceT<IO>, B>> f)
-        where RT2 : HasIO<RT2, Error> =>
+        where RT2 : HasIO<RT2> =>
         new(f(effect));
 
     internal Eff<RT, B> MapResource<B>(Func<ResourceT<IO, A>, ResourceT<IO, B>> f) =>
         MapReader(reader => reader.MapT(resource => f(resource.As())));
-        
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Constructors
@@ -129,6 +129,18 @@ public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
         : this(liftIO(effect))
     { }
 
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Local environment
+    //
+    
+    /// <summary>
+    /// Map the runtime
+    /// </summary>
+    public Eff<RT1, A> With<RT1>(Func<RT1, RT> f) where RT1 : HasIO<RT1> =>
+        new(effect.With(f));
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Invoking
@@ -141,10 +153,7 @@ public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
     public Fin<A> Run(RT env) =>
         effect.Run(env).As()
               .Run().As()
-              .Run(EnvIO.New(
-                       env.CancellationToken,
-                       env.CancellationTokenSource,
-                       env.SynchronizationContext));
+              .Run(env.EnvIO);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -178,7 +187,7 @@ public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> Fail(Error error) =>
         new(error);
-
+    
     /// <summary>
     /// Lift an effect into the `Eff` monad
     /// </summary>
@@ -448,7 +457,7 @@ public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
     /// <param name="f">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, B> Bind<B>(Func<A, K<Eff.Runtime<RT>, B>> f) =>
+    public Eff<RT, B> Bind<B>(Func<A, K<Eff.R<RT>, B>> f) =>
         Bind(a => f(a).As());
 
     /// <summary>
@@ -508,7 +517,7 @@ public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
     /// <param name="bind">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, C> SelectMany<B, C>(Func<A, K<Eff.Runtime<RT>, B>> bind, Func<A, B, C> project) =>
+    public Eff<RT, C> SelectMany<B, C>(Func<A, K<Eff.R<RT>, B>> bind, Func<A, B, C> project) =>
         SelectMany(x => bind(x).As(), project);
 
     /// <summary>

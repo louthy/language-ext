@@ -307,7 +307,7 @@ public readonly record struct Eff<A>(Eff<MinRT,A> effect) : K<Eff, A>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, B> Bind<RT, B>(Func<A, Eff<RT, B>> f)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         WithRuntime<RT>().Bind(f);
 
     /// <summary>
@@ -318,8 +318,8 @@ public readonly record struct Eff<A>(Eff<MinRT,A> effect) : K<Eff, A>
     /// <param name="f">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, B> Bind<RT, B>(Func<A, K<Eff.Runtime<RT>, B>> f)
-        where RT : HasIO<RT, Error> =>
+    public Eff<RT, B> Bind<RT, B>(Func<A, K<Eff.R<RT>, B>> f)
+        where RT : HasIO<RT> =>
         Bind(a => f(a).As());
 
     /// <summary>
@@ -380,7 +380,7 @@ public readonly record struct Eff<A>(Eff<MinRT,A> effect) : K<Eff, A>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, C> SelectMany<RT, B, C>(Func<A, Eff<RT, B>> bind, Func<A, B, C> project)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     /// <summary>
@@ -391,8 +391,8 @@ public readonly record struct Eff<A>(Eff<MinRT,A> effect) : K<Eff, A>
     /// <param name="bind">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, C> SelectMany<RT, B, C>(Func<A, K<Eff.Runtime<RT>, B>> bind, Func<A, B, C> project)
-        where RT : HasIO<RT, Error> =>
+    public Eff<RT, C> SelectMany<RT, B, C>(Func<A, K<Eff.R<RT>, B>> bind, Func<A, B, C> project)
+        where RT : HasIO<RT> =>
         SelectMany(x => bind(x).As(), project);
 
     /// <summary>
@@ -649,7 +649,7 @@ public readonly record struct Eff<A>(Eff<MinRT,A> effect) : K<Eff, A>
     /// Convert to an `Eff` monad with a runtime
     /// </summary>
     public Eff<RT, A> WithRuntime<RT>()
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         effect.MapReader(rdr => rdr.With<RT>(rt => rt.ToMin()));
 
     /// <summary>
@@ -848,7 +848,7 @@ public readonly record struct Eff<A>(Eff<MinRT,A> effect) : K<Eff, A>
     /// <summary>
     /// Lift a value into the `Eff` monad
     /// </summary>
-    [Obsolete("Use either: `Eff<A>.Lift`, `Prelude.liftEff`, or `lift`")]
+    [Obsolete("Use either: `Prelude.Pure` or `Eff<A>.Pure`")]
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> Success(A value) =>
         Pure(value);
@@ -856,7 +856,7 @@ public readonly record struct Eff<A>(Eff<MinRT,A> effect) : K<Eff, A>
     /// <summary>
     /// Lift a synchronous effect into the `Eff` monad
     /// </summary>
-    [Obsolete("Use either: `Eff<A>.Lift`, `Prelude.liftEff`, or `lift`")]
+    [Obsolete("Use either: `Prelude.lift` or `Eff<A>.Lift`")]
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> Effect(Func<A> f) =>
         Lift(_ => f());
@@ -864,7 +864,7 @@ public readonly record struct Eff<A>(Eff<MinRT,A> effect) : K<Eff, A>
     /// <summary>
     /// Lift a synchronous effect into the `Eff` monad
     /// </summary>
-    [Obsolete("Use either: `Eff<A>.Lift`, `Prelude.liftEff`, or `lift`")]
+    [Obsolete("Use either: `Prelude.lift` or `Eff<A>.Lift`")]
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> EffectMaybe(Func<Fin<A>> f) =>
         Lift(_ => f());

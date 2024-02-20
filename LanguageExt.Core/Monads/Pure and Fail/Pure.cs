@@ -115,7 +115,7 @@ public readonly record struct Pure<A>(A Value)
         IO<A>.Pure(Value);
     
     public Eff<RT, A> ToEff<RT>()
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         Eff<RT, A>.Pure(Value);
     
     public Eff<A> ToEff() =>
@@ -133,7 +133,7 @@ public readonly record struct Pure<A>(A Value)
         bind(Value);
 
     public Eff<RT, B> Bind<RT, B>(Func<A, Eff<RT, B>> bind)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         bind(Value);
 
     public Eff<B> Bind<B>(Func<A, Eff<B>> bind) =>
@@ -177,7 +177,7 @@ public readonly record struct Pure<A>(A Value)
         Bind(x => bind(x).Map(y => project(x, y)));
 
     public Eff<RT, C> SelectMany<RT, B, C>(Func<A, Eff<RT, B>> bind, Func<A, B, C> project)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     public Eff<C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>

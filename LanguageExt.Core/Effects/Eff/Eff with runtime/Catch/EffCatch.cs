@@ -8,7 +8,7 @@ using LanguageExt.Effects.Traits;
 namespace LanguageExt;
 
 public readonly struct EffCatch<RT, A>(Func<Error, Eff<RT, A>> fail)
-    where RT : HasIO<RT, Error>
+    where RT : HasIO<RT>
 {
     public EffCatch(Func<Error, bool> predicate, Func<Error, Eff<RT, A>> fail) :
         this(e => predicate(e) ? fail(e) : Eff<RT, A>.Fail(e))

@@ -15,7 +15,7 @@ namespace LanguageExt.Sys.Traits
         HasTime<RT>
         where RT : 
             struct, 
-            HasIO<RT, Error>, 
+            HasIO<RT>, 
             HasConsole<RT>, 
             HasFile<RT>,
             HasDirectory<RT>,

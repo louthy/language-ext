@@ -8,5 +8,5 @@ namespace LanguageExt.Effects.Traits;
 /// </summary>
 /// <typeparam name="RT">Runtime</typeparam>
 [Trait("*")]
-public interface HasEff<out RT> : HasIO<RT, Error>
-    where RT : HasIO<RT, Error>;
+public interface HasEff<out RT> : HasIO<RT>
+    where RT : HasIO<RT>;

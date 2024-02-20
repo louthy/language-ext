@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 
 namespace LanguageExt;
@@ -8,7 +9,7 @@ namespace LanguageExt;
 public record EnvIO(
     CancellationToken Token,
     CancellationTokenSource Source,
-    SynchronizationContext? SyncContext)
+    SynchronizationContext? SyncContext) : IDisposable
 {
     public static EnvIO New(
         CancellationToken token,
@@ -24,5 +25,20 @@ public record EnvIO(
     
     public static EnvIO New(CancellationTokenSource src) =>
         new (src.Token, src, SynchronizationContext.Current);
+
+    public EnvIO LocalCancel
+    {
+        get
+        {
+            var src = new CancellationTokenSource();
+            return new EnvIO(src.Token, src, SyncContext);
+        }
+    }
+
+    public EnvIO LocalSyncContext =>
+        this with { SyncContext = SynchronizationContext.Current };
+
+    public void Dispose() => 
+        Source.Dispose();
 }
     

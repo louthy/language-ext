@@ -27,8 +27,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Sys", "Language
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EffectsExamples", "Samples\EffectsExamples\EffectsExamples.csproj", "{A23ED3D6-6A1A-457C-A55A-21BCDC886A47}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.SysX", "LanguageExt.SysX\LanguageExt.SysX.csproj", "{A5CEDB48-F840-4462-8BE9-65BF35C8D5A2}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Transformers", "LanguageExt.Transformers\LanguageExt.Transformers.csproj", "{108E970C-900C-46C4-BAEB-5F84AFA6842E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestBed.WPF", "Samples\TestBed.WPF\TestBed.WPF.csproj", "{F17CB314-8CC5-4343-AAE8-7292B700E5BA}"

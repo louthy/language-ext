@@ -178,7 +178,7 @@ public static partial class Prelude
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Eff<RT, R> atomic<RT, R>(Eff<RT, R> op, Isolation isolation = Isolation.Snapshot) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         STM.DoTransaction(op, isolation);
 
     /// <summary>
@@ -399,7 +399,7 @@ public static partial class Prelude
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Eff<RT, R> snapshot<RT, R>(Eff<RT, R> op) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         STM.DoTransaction(op, Isolation.Snapshot);
 
     /// <summary>
@@ -559,7 +559,7 @@ public static partial class Prelude
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Eff<RT, R> serial<RT, R>(Eff<RT, R> op) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         STM.DoTransaction(op, Isolation.Snapshot);
 
     /// <summary>
@@ -760,7 +760,7 @@ public static partial class Prelude
     /// <returns>The value returned from `f`</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Eff<RT, A> swapEff<RT, A>(Ref<A> r, Func<A, Eff<RT, A>> f)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         r.SwapEff(f);
 
     /// <summary>
@@ -805,7 +805,7 @@ public static partial class Prelude
     /// <returns>The value returned from `f`</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Eff<RT, A> swapEff<RT, X, A>(Ref<A> r, X x, Func<X, A, Eff<RT, A>> f) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         r.SwapEff(x, f);
 
     /// <summary>
@@ -850,7 +850,7 @@ public static partial class Prelude
     /// <returns>The value returned from `f`</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Eff<RT, A> swapEff<RT, X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, Eff<RT, A>> f) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         r.SwapEff(x, y, f);        
         
     /// <summary>
@@ -1071,7 +1071,7 @@ public static partial class Prelude
     /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
     /// validation passed. Failure state otherwise</returns>
     public static Eff<RT, A> swapEff<RT, A>(Atom<A> ma, Func<A, Eff<RT, A>> f) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.SwapEff(f);
 
     /// <summary>
@@ -1119,7 +1119,7 @@ public static partial class Prelude
     /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
     /// validation passed. Failure state otherwise</returns>
     public static Eff<RT, A> swapEff<RT, X, A>(Atom<A> ma, X x, Func<X, A, Eff<RT, A>> f) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.SwapEff(x, f);
 
     /// <summary>
@@ -1171,7 +1171,7 @@ public static partial class Prelude
     /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
     /// validation passed. Failure state otherwise</returns>
     public static Eff<RT, A> swapEff<RT, X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, Eff<RT, A>> f) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.SwapEff(x, y, f);
 
     /// <summary>
@@ -1218,7 +1218,7 @@ public static partial class Prelude
     /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
     /// validation passed. Failure state otherwise</returns>
     public static Eff<RT, A> swapEff<RT, M, A>(Atom<M, A> ma, Func<M, A, Eff<RT, A>> f) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.SwapEff(f);
 
     /// <summary>
@@ -1266,7 +1266,7 @@ public static partial class Prelude
     /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
     /// validation passed. Failure state otherwise</returns>
     public static Eff<RT, A> swapEff<RT, M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, Eff<RT, A>> f) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.SwapEff(x, f);
 
     /// <summary>
@@ -1318,7 +1318,7 @@ public static partial class Prelude
     /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
     /// validation passed. Failure state otherwise</returns>
     public static Eff<RT, A> swapEff<RT, M, X, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, Eff<RT, A>> f) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.SwapEff(x, y, f);
 
     /// <summary>

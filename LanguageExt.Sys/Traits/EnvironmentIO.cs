@@ -3,60 +3,57 @@ using LanguageExt.Attributes;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
-namespace LanguageExt.Sys.Traits
-{
-    public interface EnvironmentIO
-    {
-        string CommandLine();
-        int CurrentManagedThreadId();
-        Unit Exit(int exitCode);
-        int ExitCode();
-        Unit SetExitCode(int exitCode);
-        string ExpandEnvironmentVariables(string name);
-        Unit FailFast(Option<string> message);
-        Unit FailFast(Option<string> message, Option<Exception> exception);
-        Seq<string> GetCommandLineArgs();
-        Option<string> GetEnvironmentVariable(string variable);
-        Option<string> GetEnvironmentVariable(string variable, EnvironmentVariableTarget target);
-        HashMap<string, string> GetEnvironmentVariables();
-        HashMap<string, string> GetEnvironmentVariables(EnvironmentVariableTarget target);
-        string GetFolderPath(System.Environment.SpecialFolder folder);
-        string GetFolderPath(System.Environment.SpecialFolder folder, System.Environment.SpecialFolderOption option);
-        Seq<string> GetLogicalDrives();
-        bool HasShutdownStarted();
-        bool Is64BitOperatingSystem();
-        bool Is64BitProcess();
-        string MachineName();
-        string NewLine();
-        OperatingSystem OSVersion();
-        int ProcessorCount();
-        Unit SetEnvironmentVariable(string variable, Option<string> value);
-        Unit SetEnvironmentVariable(string variable, Option<string> value, EnvironmentVariableTarget target);
-        string StackTrace();
-        string SystemDirectory();
-        int SystemPageSize();
-        int TickCount();
-        // This seems to be a newer interface, but I'm not sure how to handle it
-        // long TickCount64();
-        string UserDomainName();
-        bool UserInteractive();
-        string UserName();
-        Version Version();
-        long WorkingSet();
-    }
+namespace LanguageExt.Sys.Traits;
 
+public interface EnvironmentIO
+{
+    IO<string> CommandLine();
+    IO<int> CurrentManagedThreadId();
+    IO<Unit> Exit(int exitCode);
+    IO<int> ExitCode();
+    IO<Unit> SetExitCode(int exitCode);
+    IO<string> ExpandEnvironmentVariables(string name);
+    IO<Unit> FailFast(Option<string> message);
+    IO<Unit> FailFast(Option<string> message, Option<Exception> exception);
+    IO<Seq<string>> GetCommandLineArgs();
+    IO<Option<string>> GetEnvironmentVariable(string variable);
+    IO<Option<string>> GetEnvironmentVariable(string variable, EnvironmentVariableTarget target);
+    IO<HashMap<string, Option<string>>> GetEnvironmentVariables();
+    IO<HashMap<string, Option<string>>> GetEnvironmentVariables(EnvironmentVariableTarget target);
+    IO<string> GetFolderPath(Environment.SpecialFolder folder);
+    IO<string> GetFolderPath(Environment.SpecialFolder folder, Environment.SpecialFolderOption option);
+    IO<Seq<string>> GetLogicalDrives();
+    IO<bool> HasShutdownStarted();
+    IO<bool> Is64BitOperatingSystem();
+    IO<bool> Is64BitProcess();
+    IO<string> MachineName();
+    IO<string> NewLine();
+    IO<OperatingSystem> OSVersion();
+    IO<int> ProcessorCount();
+    IO<Unit> SetEnvironmentVariable(string variable, Option<string> value);
+    IO<Unit> SetEnvironmentVariable(string variable, Option<string> value, EnvironmentVariableTarget target);
+    IO<string> StackTrace();
+    IO<string> SystemDirectory();
+    IO<int> SystemPageSize();
+    IO<long> TickCount();
+    IO<string> UserDomainName();
+    IO<bool> UserInteractive();
+    IO<string> UserName();
+    IO<Version> Version();
+    IO<long> WorkingSet();
+}
+
+/// <summary>
+/// Type-class giving a struct the trait of supporting Environment IO
+/// </summary>
+/// <typeparam name="RT">Runtime</typeparam>
+[Trait("*")]
+public interface HasEnvironment<RT> : HasIO<RT>
+    where RT : HasEnvironment<RT>
+{
     /// <summary>
-    /// Type-class giving a struct the trait of supporting Environment IO
+    /// Access the environment synchronous effect environment
     /// </summary>
-    /// <typeparam name="RT">Runtime</typeparam>
-    [Trait("*")]
-    public interface HasEnvironment<RT> : HasIO<RT, Error>
-        where RT : HasEnvironment<RT>
-    {
-        /// <summary>
-        /// Access the environment synchronous effect environment
-        /// </summary>
-        /// <returns>Environment synchronous effect environment</returns>
-        Eff<RT, EnvironmentIO> EnvironmentEff { get; }
-    }
+    /// <returns>Environment synchronous effect environment</returns>
+    Eff<RT, EnvironmentIO> EnvironmentEff { get; }
 }

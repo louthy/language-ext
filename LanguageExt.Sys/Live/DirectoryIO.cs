@@ -1,130 +1,101 @@
 using System;
 using System.IO;
+using static LanguageExt.Prelude;
 
-namespace LanguageExt.Sys.Live
+namespace LanguageExt.Sys.Live;
+
+public record DirectoryIO : Traits.DirectoryIO
 {
-    public class DirectoryIO : Traits.DirectoryIO
-    {
-        public static readonly Traits.DirectoryIO Default = new DirectoryIO();
-        
-        public Unit Create(string path)
-        {
-            System.IO.Directory.CreateDirectory(path);
-            return default;
-        }
+    public static readonly Traits.DirectoryIO Default = 
+        new DirectoryIO();
 
-        public Unit Delete(string path, bool recursive = true)
-        {
-            System.IO.Directory.Delete(path, recursive);
-            return default;
-        }
+    public IO<DirectoryInfo> Create(string path) =>
+        lift(() => Directory.CreateDirectory(path));
 
-        public Option<DirectoryInfo> GetParent(string path) =>
-            System.IO.Directory.GetParent(path);
+    public IO<Unit> Delete(string path, bool recursive = true) =>
+        lift(() => Directory.Delete(path, recursive));
 
-        public bool Exists(string path) =>
-            System.IO.Directory.Exists(path);
+    public IO<Option<DirectoryInfo>> GetParent(string path) =>
+        lift(() => Optional(Directory.GetParent(path)));
 
-        public Unit SetCreationTime(string path, DateTime creationTime)
-        {
-            System.IO.Directory.SetCreationTime(path, creationTime);
-            return default;
-        }
+    public IO<bool> Exists(string path) =>
+        lift(() => Directory.Exists(path));
 
-        public Unit SetCreationTimeUtc(string path, DateTime creationTimeUtc)
-        {
-            System.IO.Directory.SetCreationTimeUtc(path, creationTimeUtc);
-            return default;
-        }
+    public IO<Unit> SetCreationTime(string path, DateTime creationTime) =>
+        lift(() => Directory.SetCreationTime(path, creationTime));
 
-        public DateTime GetCreationTime(string path) =>
-            System.IO.Directory.GetCreationTime(path);
+    public IO<Unit> SetCreationTimeUtc(string path, DateTime creationTimeUtc) =>
+        lift(() => Directory.SetCreationTimeUtc(path, creationTimeUtc));
 
-        public DateTime GetCreationTimeUtc(string path) =>
-            System.IO.Directory.GetCreationTimeUtc(path);
+    public IO<DateTime> GetCreationTime(string path) =>
+        lift(() => Directory.GetCreationTime(path));
 
-        public Unit SetLastWriteTime(string path, DateTime lastWriteTime) 
-        {
-            System.IO.Directory.SetLastWriteTime(path, lastWriteTime);
-            return default;
-        }
+    public IO<DateTime> GetCreationTimeUtc(string path) =>
+        lift(() => Directory.GetCreationTimeUtc(path));
 
-        public Unit SetLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc)
-        {    
-            System.IO.Directory.SetLastWriteTime(path, lastWriteTimeUtc);
-            return default;
-        }
+    public IO<Unit> SetLastWriteTime(string path, DateTime lastWriteTime) =>
+        lift(() => Directory.SetLastWriteTime(path, lastWriteTime));
 
-        public DateTime GetLastWriteTime(string path) =>
-            System.IO.Directory.GetLastWriteTime(path);
+    public IO<Unit> SetLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc) =>
+        lift(() => Directory.SetLastWriteTime(path, lastWriteTimeUtc));
 
-        public DateTime GetLastWriteTimeUtc(string path) =>
-            System.IO.Directory.GetLastWriteTimeUtc(path);
+    public IO<DateTime> GetLastWriteTime(string path) =>
+        lift(() => Directory.GetLastWriteTime(path));
 
-        public Unit SetLastAccessTime(string path, DateTime lastAccessTime)
-        {
-            System.IO.Directory.SetLastAccessTime(path, lastAccessTime);
-            return default;
-        }
+    public IO<DateTime> GetLastWriteTimeUtc(string path) =>
+        lift(() => Directory.GetLastWriteTimeUtc(path));
 
-        public Unit SetLastAccessTimeUtc(string path, DateTime lastAccessTimeUtc)
-        {
-            System.IO.Directory.SetLastAccessTimeUtc(path, lastAccessTimeUtc);
-            return default;
-        }
+    public IO<Unit> SetLastAccessTime(string path, DateTime lastAccessTime) =>
+        lift(() => Directory.SetLastAccessTime(path, lastAccessTime));
 
-        public DateTime GetLastAccessTime(string path) =>
-            System.IO.Directory.GetLastAccessTime(path);
+    public IO<Unit> SetLastAccessTimeUtc(string path, DateTime lastAccessTimeUtc) =>
+        lift(() => Directory.SetLastAccessTimeUtc(path, lastAccessTimeUtc));
 
-        public DateTime GetLastAccessTimeUtc(string path) =>
-            System.IO.Directory.GetLastAccessTimeUtc(path);
+    public IO<DateTime> GetLastAccessTime(string path) =>
+        lift(() => Directory.GetLastAccessTime(path));
 
-        public Seq<string> EnumerateDirectories(string path) =>
-            System.IO.Directory.EnumerateDirectories(path).ToSeq();
+    public IO<DateTime> GetLastAccessTimeUtc(string path) =>
+        lift(() => Directory.GetLastAccessTimeUtc(path));
 
-        public Seq<string> EnumerateDirectories(string path, string searchPattern) =>
-            System.IO.Directory.EnumerateDirectories(path, searchPattern).ToSeq();
+    public IO<Seq<string>> EnumerateDirectories(string path) =>
+        lift(() => Directory.EnumerateDirectories(path).ToSeq());
 
-        public Seq<string> EnumerateDirectories(string path, string searchPattern, SearchOption searchOption) =>
-            System.IO.Directory.EnumerateDirectories(path, searchPattern, searchOption).ToSeq();
+    public IO<Seq<string>> EnumerateDirectories(string path, string searchPattern) =>
+        lift(() => Directory.EnumerateDirectories(path, searchPattern).ToSeq());
 
-        public Seq<string> EnumerateFiles(string path) =>
-            System.IO.Directory.EnumerateFiles(path).ToSeq();
+    public IO<Seq<string>> EnumerateDirectories(string path, string searchPattern, SearchOption searchOption) =>
+        lift(() => Directory.EnumerateDirectories(path, searchPattern, searchOption).ToSeq());
 
-        public Seq<string> EnumerateFiles(string path, string searchPattern) =>
-            System.IO.Directory.EnumerateFiles(path, searchPattern).ToSeq();
+    public IO<Seq<string>> EnumerateFiles(string path) =>
+        lift(() => Directory.EnumerateFiles(path).ToSeq());
 
-        public Seq<string> EnumerateFiles(string path, string searchPattern, SearchOption searchOption) =>
-            System.IO.Directory.EnumerateFiles(path, searchPattern, searchOption).ToSeq();
+    public IO<Seq<string>> EnumerateFiles(string path, string searchPattern) =>
+        lift(() => Directory.EnumerateFiles(path, searchPattern).ToSeq());
 
-        public Seq<string> EnumerateFileSystemEntries(string path) =>
-            System.IO.Directory.EnumerateFileSystemEntries(path).ToSeq();
+    public IO<Seq<string>> EnumerateFiles(string path, string searchPattern, SearchOption searchOption) =>
+        lift(() => Directory.EnumerateFiles(path, searchPattern, searchOption).ToSeq());
 
-        public Seq<string> EnumerateFileSystemEntries(string path, string searchPattern) =>
-            System.IO.Directory.EnumerateFileSystemEntries(path, searchPattern).ToSeq();
+    public IO<Seq<string>> EnumerateFileSystemEntries(string path) =>
+        lift(() => Directory.EnumerateFileSystemEntries(path).ToSeq());
 
-        public Seq<string> EnumerateFileSystemEntries(string path, string searchPattern, SearchOption searchOption) =>
-            System.IO.Directory.EnumerateFileSystemEntries(path, searchPattern, searchOption).ToSeq();
+    public IO<Seq<string>> EnumerateFileSystemEntries(string path, string searchPattern) =>
+        lift(() => Directory.EnumerateFileSystemEntries(path, searchPattern).ToSeq());
 
-        public string GetDirectoryRoot(string path) =>
-            System.IO.Directory.GetDirectoryRoot(path);
+    public IO<Seq<string>> EnumerateFileSystemEntries(string path, string searchPattern, SearchOption searchOption)  =>
+        lift(() => Directory.EnumerateFileSystemEntries(path, searchPattern, searchOption).ToSeq());
 
-        public string GetCurrentDirectory() =>
-            System.IO.Directory.GetCurrentDirectory();
+    public IO<string> GetDirectoryRoot(string path) =>
+        lift(() => Directory.GetDirectoryRoot(path));
 
-        public Unit SetCurrentDirectory(string path)
-        {
-            System.IO.Directory.SetCurrentDirectory(path);
-            return default;
-        }
+    public IO<string> GetCurrentDirectory()  =>
+        lift(Directory.GetCurrentDirectory);
 
-        public Unit Move(string sourceDirName, string destDirName)
-        {
-            System.IO.Directory.Move(sourceDirName, destDirName);
-            return default;
-        }
+    public IO<Unit> SetCurrentDirectory(string path) =>
+        lift(() => Directory.SetCurrentDirectory(path));
 
-        public Seq<string> GetLogicalDrives() =>
-            System.IO.Directory.GetLogicalDrives().ToSeq();
-    }
+    public IO<Unit> Move(string sourceDirName, string destDirName) =>
+        lift(() => Directory.Move(sourceDirName, destDirName));
+
+    public IO<Seq<string>> GetLogicalDrives() =>
+        lift(() => Directory.GetLogicalDrives().ToSeq());
 }

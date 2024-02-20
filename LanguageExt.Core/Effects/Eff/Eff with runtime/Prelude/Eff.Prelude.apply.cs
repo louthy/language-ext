@@ -1,5 +1,4 @@
 ﻿using System;
-using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
 namespace LanguageExt;
@@ -13,7 +12,7 @@ public static partial class Prelude
     public static Eff<RT, B> apply<RT, A, B>(
         Eff<RT, Func<A, B>> mf,
         Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mf.Apply(ma);
 
     /// <summary>
@@ -24,7 +23,7 @@ public static partial class Prelude
         Eff<RT, Func<A, B, C>> mf,
         Eff<RT, A> ma,
         Eff<RT, B> mb)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mf.Map(curry).Apply(ma).Apply(mb);
 
     /// <summary>
@@ -34,7 +33,7 @@ public static partial class Prelude
     public static Eff<RT, Func<B, C>> apply<RT, A, B, C>(
         Eff<RT, Func<A, B, C>> mf,
         Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mf.Map(curry).Apply(ma);
 
     /// <summary>
@@ -46,7 +45,7 @@ public static partial class Prelude
         Eff<RT, A> ma,
         Eff<RT, B> mb,
         Eff<RT, C> mc)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mf.Map(curry).Apply(ma).Apply(mb).Apply(mc);
 
     /// <summary>
@@ -57,7 +56,7 @@ public static partial class Prelude
         Eff<RT, Func<A, B, C, D>> mf,
         Eff<RT, A> ma,
         Eff<RT, B> mb)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mf.Map(curry).Apply(ma).Apply(mb);
 
     /// <summary>
@@ -67,7 +66,7 @@ public static partial class Prelude
     public static Eff<RT, Func<B, Func<C, D>>> apply<RT, A, B, C, D>(
         Eff<RT, Func<A, B, C, D>> mf,
         Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mf.Map(curry).Apply(ma);
 
     /// <summary>
@@ -80,7 +79,7 @@ public static partial class Prelude
         Eff<RT, B> mb,
         Eff<RT, C> mc,
         Eff<RT, D> md)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mf.Map(curry).Apply(ma).Apply(mb).Apply(mc).Apply(md);
 
     /// <summary>
@@ -92,7 +91,7 @@ public static partial class Prelude
         Eff<RT, A> ma,
         Eff<RT, B> mb,
         Eff<RT, C> mc)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mf.Map(curry).Apply(ma).Apply(mb).Apply(mc);
 
     /// <summary>
@@ -103,7 +102,7 @@ public static partial class Prelude
         Eff<RT, Func<A, B, C, D, E>> mf,
         Eff<RT, A> ma,
         Eff<RT, B> mb)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mf.Map(curry).Apply(ma).Apply(mb);
 
     /// <summary>
@@ -113,7 +112,7 @@ public static partial class Prelude
     public static Eff<RT, Func<B, Func<C, Func<D, E>>>> apply<RT, A, B, C, D, E>(
         Eff<RT, Func<A, B, C, D, E>> mf,
         Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mf.Map(curry).Apply(ma);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -128,7 +127,7 @@ public static partial class Prelude
     public static Eff<RT, B> apply<RT, A, B>(
         Func<A, B> f,
         Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         LanguageExt.Eff<RT, Func<A, B>>.Pure(f).Apply(ma);
 
     /// <summary>
@@ -139,7 +138,7 @@ public static partial class Prelude
         Func<A, B, C> f,
         Eff<RT, A> ma,
         Eff<RT, B> mb)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         LanguageExt.Eff<RT, Func<A, B, C>>.Pure(f).Apply(ma, mb);
 
     /// <summary>
@@ -149,7 +148,7 @@ public static partial class Prelude
     public static Eff<RT, Func<B, C>> apply<RT, A, B, C>(
         Func<A, B, C> f,
         Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         LanguageExt.Eff<RT, Func<A, B, C>>.Pure(f).Apply(ma);
 
     /// <summary>
@@ -161,7 +160,7 @@ public static partial class Prelude
         Eff<RT, A> ma,
         Eff<RT, B> mb,
         Eff<RT, C> mc)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         LanguageExt.Eff<RT, Func<A, B, C, D>>.Pure(f).Apply(ma, mb, mc);
 
     /// <summary>
@@ -172,7 +171,7 @@ public static partial class Prelude
         Func<A, B, C, D> f,
         Eff<RT, A> ma,
         Eff<RT, B> mb)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         LanguageExt.Eff<RT, Func<A, B, C, D>>.Pure(f).Apply(ma, mb);
 
     /// <summary>
@@ -182,7 +181,7 @@ public static partial class Prelude
     public static Eff<RT, Func<B, Func<C, D>>> apply<RT, A, B, C, D>(
         Func<A, B, C, D> f,
         Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         LanguageExt.Eff<RT, Func<A, B, C, D>>.Pure(f).Apply(ma);
 
     /// <summary>
@@ -195,7 +194,7 @@ public static partial class Prelude
         Eff<RT, B> mb,
         Eff<RT, C> mc,
         Eff<RT, D> md)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         LanguageExt.Eff<RT, Func<A, B, C, D, E>>.Pure(f).Apply(ma, mb, mc, md);
 
     /// <summary>
@@ -207,7 +206,7 @@ public static partial class Prelude
         Eff<RT, A> ma,
         Eff<RT, B> mb,
         Eff<RT, C> mc)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         LanguageExt.Eff<RT, Func<A, B, C, D, E>>.Pure(f).Apply(ma, mb, mc);
 
     /// <summary>
@@ -218,7 +217,7 @@ public static partial class Prelude
         Func<A, B, C, D, E> f,
         Eff<RT, A> ma,
         Eff<RT, B> mb)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         LanguageExt.Eff<RT, Func<A, B, C, D, E>>.Pure(f).Apply(ma, mb);
 
     /// <summary>
@@ -228,6 +227,6 @@ public static partial class Prelude
     public static Eff<RT, Func<B, Func<C, Func<D, E>>>> apply<RT, A, B, C, D, E>(
         Func<A, B, C, D, E> f,
         Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         LanguageExt.Eff<RT, Func<A, B, C, D, E>>.Pure(f).Apply(ma);
 }    

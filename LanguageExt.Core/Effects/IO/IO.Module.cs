@@ -13,6 +13,13 @@ public partial class IO
     
     public static readonly IO<EnvIO> envIO = 
         IO<EnvIO>.LiftAsync(ValueTask.FromResult);
+
+    public static IO<Unit> lift(Action f) =>
+        lift(() =>
+             {
+                 f();
+                 return unit;
+             });
     
     public static IO<A> lift<A>(Func<A> f) => 
         IO<A>.Lift(f);

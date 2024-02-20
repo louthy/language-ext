@@ -11,7 +11,7 @@ namespace LanguageExt.Sys.Traits
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
     [Trait("*")]
-    public interface HasEncoding<out RT> : HasIO<RT, Error>
+    public interface HasEncoding<out RT> : HasIO<RT>
         where RT : HasEncoding<RT>
     {
         /// <summary>

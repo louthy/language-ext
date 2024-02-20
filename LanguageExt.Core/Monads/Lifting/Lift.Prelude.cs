@@ -80,6 +80,22 @@ public static partial class Prelude
     /// </summary>
     /// <param name="function">Function</param>
     /// <returns>Value that can be used with monadic types in LINQ expressions</returns>
+    public static IO<A> liftVIO<A>(Func<ValueTask<A>> function) =>
+        IO<A>.LiftAsync(function);
+
+    /// <summary>
+    /// Lift a asynchronous IO function 
+    /// </summary>
+    /// <param name="function">Function</param>
+    /// <returns>Value that can be used with monadic types in LINQ expressions</returns>
     public static IO<A> liftIO<A>(Func<EnvIO, Task<A>> function) =>
         IO<A>.LiftAsync(async e => await function(e).ConfigureAwait(false));
+
+    /// <summary>
+    /// Lift a asynchronous IO function 
+    /// </summary>
+    /// <param name="function">Function</param>
+    /// <returns>Value that can be used with monadic types in LINQ expressions</returns>
+    public static IO<A> liftVIO<A>(Func<EnvIO, ValueTask<A>> function) =>
+        IO<A>.LiftAsync(function);
 }

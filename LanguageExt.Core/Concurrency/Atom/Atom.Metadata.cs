@@ -150,7 +150,7 @@ public sealed class Atom<M, A>
     /// <param name="f">Function to update the atom</param>
     /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
     /// validation passed. Failure state otherwise</returns>
-    public Eff<RT, A> SwapEff<RT>(Func<M, A, Eff<RT, A>> f) where RT : HasIO<RT, Error> =>
+    public Eff<RT, A> SwapEff<RT>(Func<M, A, Eff<RT, A>> f) where RT : HasIO<RT> =>
         lift((RT env) =>
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
@@ -291,7 +291,7 @@ public sealed class Atom<M, A>
     /// <param name="f">Function to update the atom</param>
     /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
     /// validation passed. Failure state otherwise</returns>
-    public Eff<RT, A> SwapEff<RT, X>(X x, Func<M, X, A, Eff<RT, A>> f) where RT : HasIO<RT, Error> =>
+    public Eff<RT, A> SwapEff<RT, X>(X x, Func<M, X, A, Eff<RT, A>> f) where RT : HasIO<RT> =>
         lift((RT env) =>
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
@@ -436,7 +436,7 @@ public sealed class Atom<M, A>
     /// <param name="f">Function to update the atom</param>
     /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
     /// validation passed. Failure state otherwise</returns>
-    public Eff<RT, A> SwapEff<RT, X, Y>(X x, Y y, Func<M, X, Y, A, Eff<RT, A>> f) where RT : HasIO<RT, Error> =>
+    public Eff<RT, A> SwapEff<RT, X, Y>(X x, Y y, Func<M, X, Y, A, Eff<RT, A>> f) where RT : HasIO<RT> =>
         lift((RT env) =>
         {
             f = f ?? throw new ArgumentNullException(nameof(f));

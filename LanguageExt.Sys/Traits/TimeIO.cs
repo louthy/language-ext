@@ -40,7 +40,7 @@ namespace LanguageExt.Sys.Traits
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
     [Trait("*")]
-    public interface HasTime<RT> : HasIO<RT, Error> 
+    public interface HasTime<RT> : HasIO<RT> 
         where RT : HasTime<RT>
     {
         /// <summary>

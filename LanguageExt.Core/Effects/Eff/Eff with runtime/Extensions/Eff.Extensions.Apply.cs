@@ -1,5 +1,4 @@
 ﻿using System;
-using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
 
@@ -14,7 +13,7 @@ public static partial class EffExtensions
     public static Eff<RT, B> Apply<RT, A, B>(
         this Eff<RT, Func<A, B>> mf,
         Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         from tf in mf.Fork()
         from ta in ma.Fork()
         from rf in tf.Await
@@ -29,7 +28,7 @@ public static partial class EffExtensions
         this Eff<RT, Func<A, B, C>> mf,
         Eff<RT, A> ma,
         Eff<RT, B> mb)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mf.Map(curry).Apply(ma).Apply(mb);
 
     /// <summary>
@@ -39,7 +38,7 @@ public static partial class EffExtensions
     public static Eff<RT, Func<B, C>> Apply<RT, A, B, C>(
         this Eff<RT, Func<A, B, C>> mf,
         Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mf.Map(curry).Apply(ma);
 
     /// <summary>
@@ -51,7 +50,7 @@ public static partial class EffExtensions
         Eff<RT, A> ma,
         Eff<RT, B> mb,
         Eff<RT, C> mc)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mf.Map(curry).Apply(ma).Apply(mb).Apply(mc);
 
     /// <summary>
@@ -62,7 +61,7 @@ public static partial class EffExtensions
         this Eff<RT, Func<A, B, C, D>> mf,
         Eff<RT, A> ma,
         Eff<RT, B> mb)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mf.Map(curry).Apply(ma).Apply(mb);
 
     /// <summary>
@@ -72,7 +71,7 @@ public static partial class EffExtensions
     public static Eff<RT, Func<B, Func<C, D>>> Apply<RT, A, B, C, D>(
         this Eff<RT, Func<A, B, C, D>> mf,
         Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mf.Map(curry).Apply(ma);
 
     /// <summary>
@@ -85,7 +84,7 @@ public static partial class EffExtensions
         Eff<RT, B> mb,
         Eff<RT, C> mc,
         Eff<RT, D> md)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mf.Map(curry).Apply(ma).Apply(mb).Apply(mc).Apply(md);
 
     /// <summary>
@@ -97,7 +96,7 @@ public static partial class EffExtensions
         Eff<RT, A> ma,
         Eff<RT, B> mb,
         Eff<RT, C> mc)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mf.Map(curry).Apply(ma).Apply(mb).Apply(mc);
 
     /// <summary>
@@ -108,7 +107,7 @@ public static partial class EffExtensions
         this Eff<RT, Func<A, B, C, D, E>> mf,
         Eff<RT, A> ma,
         Eff<RT, B> mb)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mf.Map(curry).Apply(ma).Apply(mb);
 
     /// <summary>
@@ -118,7 +117,7 @@ public static partial class EffExtensions
     public static Eff<RT, Func<B, Func<C, Func<D, E>>>> Apply<RT, A, B, C, D, E>(
         this Eff<RT, Func<A, B, C, D, E>> mf,
         Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mf.Map(curry).Apply(ma);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,7 +132,7 @@ public static partial class EffExtensions
     public static Eff<RT, B> Apply<RT, A, B>(
         this Func<A, B> f,
         Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         Eff<RT, Func<A, B>>.Pure(f).Apply(ma);
 
     /// <summary>
@@ -144,7 +143,7 @@ public static partial class EffExtensions
         this Func<A, B, C> f,
         Eff<RT, A> ma,
         Eff<RT, B> mb)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         Eff<RT, Func<A, B, C>>.Pure(f).Apply(ma, mb);
 
     /// <summary>
@@ -154,7 +153,7 @@ public static partial class EffExtensions
     public static Eff<RT, Func<B, C>> Apply<RT, A, B, C>(
         this Func<A, B, C> f,
         Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         Eff<RT, Func<A, B, C>>.Pure(f).Apply(ma);
 
     /// <summary>
@@ -166,7 +165,7 @@ public static partial class EffExtensions
         Eff<RT, A> ma,
         Eff<RT, B> mb,
         Eff<RT, C> mc)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         Eff<RT, Func<A, B, C, D>>.Pure(f).Apply(ma, mb, mc);
 
     /// <summary>
@@ -177,7 +176,7 @@ public static partial class EffExtensions
         this Func<A, B, C, D> f,
         Eff<RT, A> ma,
         Eff<RT, B> mb)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         Eff<RT, Func<A, B, C, D>>.Pure(f).Apply(ma, mb);
 
     /// <summary>
@@ -187,7 +186,7 @@ public static partial class EffExtensions
     public static Eff<RT, Func<B, Func<C, D>>> Apply<RT, A, B, C, D>(
         this Func<A, B, C, D> f,
         Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         Eff<RT, Func<A, B, C, D>>.Pure(f).Apply(ma);
 
     /// <summary>
@@ -200,7 +199,7 @@ public static partial class EffExtensions
         Eff<RT, B> mb,
         Eff<RT, C> mc,
         Eff<RT, D> md)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         Eff<RT, Func<A, B, C, D, E>>.Pure(f).Apply(ma, mb, mc, md);
 
     /// <summary>
@@ -212,7 +211,7 @@ public static partial class EffExtensions
         Eff<RT, A> ma,
         Eff<RT, B> mb,
         Eff<RT, C> mc)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         Eff<RT, Func<A, B, C, D, E>>.Pure(f).Apply(ma, mb, mc);
 
     /// <summary>
@@ -223,7 +222,7 @@ public static partial class EffExtensions
         this Func<A, B, C, D, E> f,
         Eff<RT, A> ma,
         Eff<RT, B> mb)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         Eff<RT, Func<A, B, C, D, E>>.Pure(f).Apply(ma, mb);
 
     /// <summary>
@@ -233,7 +232,7 @@ public static partial class EffExtensions
     public static Eff<RT, Func<B, Func<C, Func<D, E>>>> Apply<RT, A, B, C, D, E>(
         this Func<A, B, C, D, E> f,
         Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         Eff<RT, Func<A, B, C, D, E>>.Pure(f).Apply(ma);
         
     /// <summary>
@@ -242,7 +241,7 @@ public static partial class EffExtensions
     public static Eff<RT, B> Action<RT, A, B>(
         this Eff<RT, A> ma,
         Eff<RT, B> mb)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         from a in ma.Fork()
         from b in mb
         select b;

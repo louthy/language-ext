@@ -1,3 +1,6 @@
+/*
+// TODO: Decide whether to keep this
+    
 using System.Threading;
 using LanguageExt.Attributes;
 
@@ -24,3 +27,4 @@ public interface HasSyncContext<out RT>
     /// <returns>SynchronizationContext</returns>
     SynchronizationContext? SynchronizationContext { get; }
 }
+*/

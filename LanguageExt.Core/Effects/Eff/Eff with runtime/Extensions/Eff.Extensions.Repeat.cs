@@ -1,5 +1,4 @@
 using System;
-using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
 namespace LanguageExt;
@@ -14,7 +13,7 @@ public static partial class EffExtensions
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> Repeat<RT, A>(this Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.MapIO(io => io.Repeat());
 
     /// <summary>
@@ -26,7 +25,7 @@ public static partial class EffExtensions
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> Repeat<RT, A>(this Eff<RT, A> ma, Schedule schedule)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.MapIO(io => io.Repeat(schedule));
 
     /// <summary>
@@ -37,7 +36,7 @@ public static partial class EffExtensions
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> RepeatWhile<RT, A>(this Eff<RT, A> ma, Func<A, bool> predicate) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.MapIO(io => io.RepeatWhile(predicate));
 
     /// <summary>
@@ -52,7 +51,7 @@ public static partial class EffExtensions
         this Eff<RT, A> ma,
         Schedule schedule,
         Func<A, bool> predicate)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.MapIO(io => io.RepeatWhile(schedule, predicate));
 
     /// <summary>
@@ -65,7 +64,7 @@ public static partial class EffExtensions
     public static Eff<RT, A> RepeatUntil<RT, A>(
         this Eff<RT, A> ma,
         Func<A, bool> predicate)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.MapIO(io => io.RepeatUntil(predicate));
 
     /// <summary>
@@ -80,6 +79,6 @@ public static partial class EffExtensions
         this Eff<RT, A> ma,
         Schedule schedule,
         Func<A, bool> predicate)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.MapIO(io => io.RepeatUntil(schedule, predicate));
 }

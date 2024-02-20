@@ -1,5 +1,4 @@
 using System;
-using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
 namespace LanguageExt;
@@ -14,7 +13,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> repeat<RT, A>(Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.Repeat();
 
     /// <summary>
@@ -26,7 +25,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> repeat<RT, A>(Schedule schedule, Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.Repeat(schedule);
 
     /// <summary>
@@ -38,7 +37,7 @@ public static partial class Prelude
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> repeatWhile<RT, A>(
         Eff<RT, A> ma,
-        Func<A, bool> predicate) where RT : HasIO<RT, Error> =>
+        Func<A, bool> predicate) where RT : HasIO<RT> =>
         ma.RepeatWhile(predicate);
 
     /// <summary>
@@ -53,7 +52,7 @@ public static partial class Prelude
         Schedule schedule,
         Eff<RT, A> ma,
         Func<A, bool> predicate)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.RepeatWhile(schedule, predicate);
 
     /// <summary>
@@ -66,7 +65,7 @@ public static partial class Prelude
     public static Eff<RT, A> repeatUntil<RT, A>(
         Eff<RT, A> ma,
         Func<A, bool> predicate)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.RepeatUntil(predicate);
 
     /// <summary>
@@ -81,6 +80,6 @@ public static partial class Prelude
         Schedule schedule,
         Eff<RT, A> ma,
         Func<A, bool> predicate)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.RepeatUntil(schedule, predicate);
 }

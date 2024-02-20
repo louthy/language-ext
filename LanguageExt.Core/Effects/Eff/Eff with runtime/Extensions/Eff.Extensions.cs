@@ -1,5 +1,4 @@
 using System;
-using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using LanguageExt.Traits;
 
@@ -10,8 +9,8 @@ public static partial class EffExtensions
     /// <summary>
     /// Cast type to its Kind
     /// </summary>
-    public static Eff<RT, A> As<RT, A>(this K<Eff.Runtime<RT>, A> ma)
-        where RT : HasIO<RT, Error> =>
+    public static Eff<RT, A> As<RT, A>(this K<Eff.R<RT>, A> ma)
+        where RT : HasIO<RT> =>
         (Eff<RT, A>)ma;
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -30,7 +29,7 @@ public static partial class EffExtensions
     /// <typeparam name="A">Bound value</typeparam>
     /// <returns>Flattened IO monad</returns>
     public static Eff<RT, A> Flatten<RT, A>(this Eff<RT, Eff<RT, A>> mma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mma.Bind(ma => ma);
     
 
@@ -46,7 +45,7 @@ public static partial class EffExtensions
         this (Eff<RT, A> First, Eff<RT, B> Second) self,
         Func<(A First, B Second), Eff<RT, C>> bind,
         Func<(A First, B Second), C, D> project)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         self.Zip().Bind(ab => bind(ab).Map(c => project(ab, c)));
 
     /// <summary>
@@ -56,7 +55,7 @@ public static partial class EffExtensions
         this Eff<RT, A> self,
         Func<A, (Eff<RT, B> First, Eff<RT, C> Second)> bind,
         Func<A, (B First, C Second), D> project)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         self.Bind(a => bind(a).Zip().Map(cd => project(a, cd)));
 
     /// <summary>
@@ -66,7 +65,7 @@ public static partial class EffExtensions
         this (Eff<RT, A> First, Eff<RT, B> Second, Eff<RT, C> Third) self,
         Func<(A First, B Second, C Third), Eff<RT, D>> bind,
         Func<(A First, B Second, C Third), D, E> project)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         self.Zip().Bind(ab => bind(ab).Map(c => project(ab, c)));
 
     /// <summary>
@@ -76,7 +75,7 @@ public static partial class EffExtensions
         this Eff<RT, A> self,
         Func<A, (Eff<RT, B> First, Eff<RT, C> Second, Eff<RT, D> Third)> bind,
         Func<A, (B First, C Second, D Third), E> project)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         self.Bind(a => bind(a).Zip().Map(cd => project(a, cd)));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -98,7 +97,7 @@ public static partial class EffExtensions
     /// <returns>IO monad</returns>
     public static Eff<RT, (A First, B Second)> Zip<RT, A, B>(
         this (Eff<RT, A> First, Eff<RT, B> Second) tuple)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         from e1 in tuple.First.Fork()
         from e2 in tuple.Second.Fork()
         from r1 in e1.Await
@@ -122,7 +121,7 @@ public static partial class EffExtensions
         this (Eff<RT, A> First,
               Eff<RT, B> Second,
               Eff<RT, C> Third) tuple)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         from e1 in tuple.First.Fork()
         from e2 in tuple.Second.Fork()
         from e3 in tuple.Third.Fork()
@@ -150,7 +149,7 @@ public static partial class EffExtensions
               Eff<RT, B> Second, 
               Eff<RT, C> Third, 
               Eff<RT, D> Fourth) tuple)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         from e1 in tuple.First.Fork()
         from e2 in tuple.Second.Fork()
         from e3 in tuple.Third.Fork()
@@ -175,7 +174,7 @@ public static partial class EffExtensions
     public static Eff<RT, (A First, B Second)> Zip<RT, A, B>(
         this Eff<RT, A> First,
         Eff<RT, B> Second)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         (First, Second).Zip();
 
     /// <summary>
@@ -195,7 +194,7 @@ public static partial class EffExtensions
         this Eff<RT, A> First, 
         Eff<RT, B> Second, 
         Eff<RT, C> Third)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         (First, Second, Third).Zip();
     
     /// <summary>
@@ -217,6 +216,6 @@ public static partial class EffExtensions
         Eff<RT, B> Second, 
         Eff<RT, C> Third, 
         Eff<RT, D> Fourth)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         (First, Second, Third, Fourth).Zip();
 }

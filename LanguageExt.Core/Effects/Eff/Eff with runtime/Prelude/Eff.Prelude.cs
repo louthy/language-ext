@@ -18,7 +18,7 @@ public static partial class Prelude
     /// <returns>Synchronous IO monad that captures the pure value</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> SuccessEff<RT, A>(A value) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         LanguageExt.Eff<RT, A>.Pure(value);
 
     /// <summary>
@@ -29,7 +29,7 @@ public static partial class Prelude
     /// <returns>Synchronous IO monad that captures the failure</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> FailEff<RT, A>(Error error) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         LanguageExt.Eff<RT, A>.Fail(error);    
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,8 +41,8 @@ public static partial class Prelude
     /// Make the runtime into the bound value
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, RT> runtimeEff<RT>()
-        where RT : HasIO<RT, Error> =>
+    public static Eff<RT, RT> runtime<RT>()
+        where RT : HasIO<RT> =>
         liftEff<RT, RT>(rt => rt);
 
     /// <summary>
@@ -52,25 +52,28 @@ public static partial class Prelude
     /// <typeparam name="RT">Runtime environment</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>An asynchronous effect that captures the operation running in context</returns>
-    public static Eff<RT, A> localCancelEff<RT, A>(Eff<RT, A> ma) where RT : HasIO<RT, Error> =>
+    public static Eff<RT, A> localCancel<RT, A>(Eff<RT, A> ma) where RT : HasIO<RT> =>
         liftEff<RT, A>(
             rt =>
             {
-                var rt1 = rt.LocalCancel;
-                using (rt1.CancellationTokenSource)
+                var rt1 = rt.WithIO(rt.EnvIO.LocalCancel);
+                using (rt1.EnvIO.Source)
                 {
                     return ma.Run(rt1);
                 }
             });
-
+    
     /// <summary>
-    /// Cancellation token
+    /// Create a new local context for the environment by mapping the outer environment and then
+    /// using the result as a new context when running the IO monad provided
     /// </summary>
-    /// <typeparam name="RT">Runtime environment</typeparam>
-    /// <returns>CancellationToken</returns>
-    public static Eff<RT, CancellationToken> cancelTokenEff<RT>()
-        where RT : HasIO<RT, Error> =>
-        liftEff<RT, CancellationToken>(env => env.CancellationToken);
+    /// <param name="f">Function to map the outer environment into a new one to run `ma`</param>
+    /// <param name="ma">IO monad to run in the new context</param>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<OuterRT, A> localEff<OuterRT, InnerRT, A>(Func<OuterRT, InnerRT> f, Eff<InnerRT, A> ma)
+        where InnerRT : HasIO<InnerRT>
+        where OuterRT : HasIO<OuterRT> =>
+        ma.With(f);
  
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -90,7 +93,7 @@ public static partial class Prelude
     /// <returns>Flattened IO monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> flatten<RT, A>(Eff<RT, Eff<RT, A>> mma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         mma.Bind(x => x);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,7 +116,7 @@ public static partial class Prelude
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, (A First, B Second)> zip<RT, A, B>(
         (Eff<RT, A> First, Eff<RT, B> Second) tuple)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         from e1 in tuple.First.Fork()
         from e2 in tuple.Second.Fork()
         from r1 in e1.Await
@@ -138,7 +141,7 @@ public static partial class Prelude
         (Eff<RT, A> First,
          Eff<RT, B> Second,
          Eff<RT, C> Third) tuple)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         from e1 in tuple.First.Fork()
         from e2 in tuple.Second.Fork()
         from e3 in tuple.Third.Fork()
@@ -166,7 +169,7 @@ public static partial class Prelude
          Eff<RT, B> Second,
          Eff<RT, C> Third,
          Eff<RT, D> Fourth) tuple)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         from e1 in tuple.First.Fork()
         from e2 in tuple.Second.Fork()
         from e3 in tuple.Third.Fork()
@@ -192,7 +195,7 @@ public static partial class Prelude
     public static Eff<RT, (A First, B Second)> zip<RT, A, B>(
         Eff<RT, A> First,
         Eff<RT, B> Second)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         (First, Second).Zip();
 
     /// <summary>
@@ -212,7 +215,7 @@ public static partial class Prelude
         Eff<RT, A> First, 
         Eff<RT, B> Second, 
         Eff<RT, C> Third)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         (First, Second, Third).Zip();
     
     /// <summary>
@@ -233,7 +236,7 @@ public static partial class Prelude
         Eff<RT, B> Second, 
         Eff<RT, C> Third, 
         Eff<RT, D> Fourth)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         (First, Second, Third, Fourth).Zip();
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -246,7 +249,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> liftEff<RT, A>(Func<RT, Either<Error, A>> f) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         LanguageExt.Eff<RT, A>.Lift(f);
 
     /// <summary>
@@ -254,7 +257,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> liftEff<RT, A>(Func<RT, Fin<A>> f) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         LanguageExt.Eff<RT, A>.Lift(f);
 
     /// <summary>
@@ -262,7 +265,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> liftEff<RT, A>(Func<RT, A> f) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         LanguageExt.Eff<RT, A>.Lift(f);
 
     /// <summary>
@@ -270,7 +273,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> liftEff<RT, A>(Func<RT, ValueTask<A>> f) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         LanguageExt.Eff<RT, A>.LiftIO(f);
 
     /// <summary>
@@ -278,7 +281,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> liftEff<RT, A>(IO<A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         LanguageExt.Eff<RT, A>.LiftIO(ma);
 
     
@@ -296,7 +299,7 @@ public static partial class Prelude
     /// </returns>
     [MethodImpl(Opt.Default)]
     public static Eff<RT, ForkIO<A>> fork<RT, A>(Eff<RT, A> ma, Option<TimeSpan> timeout = default) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.Fork(timeout);    
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -311,7 +314,7 @@ public static partial class Prelude
     /// <returns>Mapped IO monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, B> map<RT, A, B>(Eff<RT, A> ma, Func<A, B> f)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.Map(f);
 
     /// <summary>
@@ -321,7 +324,7 @@ public static partial class Prelude
     /// <returns>Mapped IO monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> mapFail<RT, A>(Eff<RT, A> ma, Func<Error, Error> f)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.MapFail(f);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -338,7 +341,7 @@ public static partial class Prelude
     /// <returns>Mapped IO monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, B> bimap<RT, A, B>(Eff<RT, A> ma, Func<A, B> Succ, Func<Error, Error> Fail)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.BiMap(Succ, Fail);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -354,7 +357,7 @@ public static partial class Prelude
     /// <returns>IO in a success state</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, B> match<RT, A, B>(Eff<RT, A> ma, Func<A, B> Succ, Func<Error, B> Fail)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.Match(Succ, Fail);
 
     /// <summary>
@@ -364,7 +367,7 @@ public static partial class Prelude
     /// <returns>IO in a success state</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> ifFail<RT, A>(Eff<RT, A> ma, Func<Error, A> Fail)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.IfFail(Fail);
 
     /// <summary>
@@ -374,7 +377,7 @@ public static partial class Prelude
     /// <returns>IO that encapsulates that IfFail</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> ifFailEff<RT, A>(Eff<RT, A> ma, Func<Error, Eff<RT, A>> Fail)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.IfFailEff(Fail);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -389,7 +392,7 @@ public static partial class Prelude
     /// <returns>Filtered IO</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> filter<RT, A>(Eff<RT, A> ma, Func<A, bool> predicate)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.Filter(predicate);
 
     
@@ -411,7 +414,7 @@ public static partial class Prelude
     /// <param name="f">Transducer</param>
     /// <returns></returns>
     public static Eff<RT, A> post<RT, A>(Eff<RT, A> ma)
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         ma.Post();
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -425,10 +428,10 @@ public static partial class Prelude
     /// <param name="f">Function to capture the effect</param>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Synchronous IO monad that captures the effect</returns>
-    [Obsolete("Use either: `Eff<RT, A>.Lift`, `Prelude.liftEff`, or `Transducer.lift`")]
+    [Obsolete("Use either: `Prelude.lift` or `Eff<RT, A>.Lift`")]
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> EffMaybe<RT, A>(Func<RT, Fin<A>> f) 
-        where RT : HasIO<RT, Error> =>
+        where RT : HasIO<RT> =>
         LanguageExt.Eff<RT, A>.Lift(f);
     
     /// <summary>
@@ -437,9 +440,9 @@ public static partial class Prelude
     /// <param name="f">Function to capture the effect</param>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Synchronous IO monad that captures the effect</returns>
-    [Obsolete("Use either: `Eff<RT, A>.Lift`, `Prelude.liftEff`, or `Transducer.lift`")]
+    [Obsolete("Use either: `Prelude.lift` or `Eff<RT, A>.Lift`")]
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> Eff<RT, A>(Func<RT, A> f) 
-        where RT : HasIO<RT, Error>  =>
+        where RT : HasIO<RT>  =>
         LanguageExt.Eff<RT, A>.Lift(f);
 }

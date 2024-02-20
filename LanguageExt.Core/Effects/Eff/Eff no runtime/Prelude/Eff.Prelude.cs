@@ -44,7 +44,7 @@ public static partial class Prelude
     /// Make the runtime into the bound value
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<MinRT> runtimeEff() =>
+    internal static Eff<MinRT> runtimeMinRT() =>
         LanguageExt.Eff<MinRT>.Lift(rt => rt);
 
     /// <summary>
@@ -53,15 +53,15 @@ public static partial class Prelude
     /// <param name="ma">Operation to run in the next context</param>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>An asynchronous effect that captures the operation running in context</returns>
-    public static Eff<A> localCancelEff<A>(Eff<A> ma) =>
-        localCancelEff(ma.effect).As();
+    public static Eff<A> localCancel<A>(Eff<A> ma) =>
+        localCancel(ma.effect).As();
 
     /// <summary>
     /// Cancellation token
     /// </summary>
     /// <returns>CancellationToken</returns>
     public static Eff<CancellationToken> cancelTokenEff() =>
-        LanguageExt.Eff<CancellationToken>.Lift(static env => env.CancellationToken);
+        LanguageExt.Eff<CancellationToken>.Lift(static env => env.EnvIO.Token);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
