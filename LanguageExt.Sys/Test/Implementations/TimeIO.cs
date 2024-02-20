@@ -51,11 +51,11 @@ public class TimeIO : Sys.Traits.TimeIO, IDisposable
     /// Pause a task until a specified time
     /// </summary>
     public IO<Unit> SleepUntil(DateTime dt) =>
-        Live.TimeIO.Default.SleepUntil(dt);
+        Live.Implementations.TimeIO.Default.SleepUntil(dt);
 
     /// <summary>
     /// Pause a task until for a specified length of time
     /// </summary>
     public IO<Unit> SleepFor(TimeSpan ts) =>
-        Live.TimeIO.Default.SleepFor(ts);
+        Live.Implementations.TimeIO.Default.SleepFor(ts);
 }

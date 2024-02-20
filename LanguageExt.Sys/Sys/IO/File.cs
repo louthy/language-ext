@@ -14,10 +14,10 @@ namespace LanguageExt.Sys.IO;
 /// </summary>
 public class File<M, RT>
     where M : Reader<M, RT>, Resource<M>, Monad<M>
-    where RT : Has<M, FileIO>, HasEncoding
+    where RT : Has<M, FileIO>, Has<M, EncodingIO>
 {
     static readonly K<M, FileIO> trait = 
-        Reader.asksM<M, RT, FileIO>(e => e.Trait); 
+        Reader.asksM<M, RT, FileIO>(e => (e as Has<M, FileIO>).Trait); 
     
     /// <summary>
     /// Copy file 
