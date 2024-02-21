@@ -15,7 +15,7 @@ public readonly struct Runtime<M> :
     Has<M, TimeIO>,
     Has<M, EnvironmentIO>,
     Has<M, DirectoryIO>
-    where M : Reader<M, Runtime<M>>, Monad<M>
+    where M : State<M, Runtime<M>>, Monad<M>
 {
     public readonly RuntimeEnv env;
 
@@ -91,7 +91,7 @@ public readonly struct Runtime<M> :
     /// </summary>
     /// <returns>Console environment</returns>
     K<M, ConsoleIO> Has<M, ConsoleIO>.Trait => 
-        M.Asks(rt => new Implementations.ConsoleIO(rt.Env.Console));
+        M.Gets(rt => new Implementations.ConsoleIO(rt.Env.Console));
 
     /// <summary>
     /// Access the file environment
@@ -99,7 +99,7 @@ public readonly struct Runtime<M> :
     /// <returns>File environment</returns>
     K<M, FileIO> Has<M, FileIO>.Trait => 
         from n in Time<M, Runtime<M>>.now
-        from r in M.Asks(rt => new Implementations.FileIO(rt.Env.FileSystem, n))
+        from r in M.Gets(rt => new Implementations.FileIO(rt.Env.FileSystem, n))
         select r;
 
     /// <summary>
@@ -107,21 +107,21 @@ public readonly struct Runtime<M> :
     /// </summary>
     /// <returns>TextReader environment</returns>
     K<M, TextReadIO> Has<M, TextReadIO>.Trait => 
-        M.Asks(_ => Implementations.TextReadIO.Default);
+        M.Gets(_ => Implementations.TextReadIO.Default);
 
     /// <summary>
     /// Access the time environment
     /// </summary>
     /// <returns>Time environment</returns>
     K<M, TimeIO> Has<M, TimeIO>.Trait => 
-        M.Asks(rt => new Implementations.TimeIO(rt.Env.TimeSpec));
+        M.Gets(rt => new Implementations.TimeIO(rt.Env.TimeSpec));
 
     /// <summary>
     /// Access the operating-system environment
     /// </summary>
     /// <returns>Operating-system environment environment</returns>
     K<M, EnvironmentIO> Has<M, EnvironmentIO>.Trait => 
-        M.Asks(rt => new Implementations.EnvironmentIO(rt.Env.SysEnv));
+        M.Gets(rt => new Implementations.EnvironmentIO(rt.Env.SysEnv));
 
     /// <summary>
     /// Access the directory environment
@@ -129,7 +129,7 @@ public readonly struct Runtime<M> :
     /// <returns>Directory environment</returns>
     K<M, DirectoryIO> Has<M, DirectoryIO>.Trait =>
         from n in Time<M, Runtime<M>>.now
-        from r in M.Asks(rt => new Implementations.DirectoryIO(rt.Env.FileSystem, n))
+        from r in M.Gets(rt => new Implementations.DirectoryIO(rt.Env.FileSystem, n))
         select r;
 }
     

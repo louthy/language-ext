@@ -69,6 +69,14 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
         new(state => M.Pure((f(state), state)));
 
     /// <summary>
+    /// Extracts the state value and maps it to the bound value
+    /// </summary>
+    /// <param name="f">State mapping function</param>
+    /// <returns>`StateT`</returns>
+    public static StateT<S, M, A> GetsM(Func<S, K<M, A>> f) =>
+        new(state => M.Map(v => (v, state), f(state)));
+
+    /// <summary>
     /// Lifts a given monad into the transformer
     /// </summary>
     /// <param name="monad">Monad to lift</param>
@@ -101,11 +109,21 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
     /// <returns>`StateT`</returns>
     public static StateT<S, M, A> LiftIO(IO<A> ma) =>
         Lift(M.LiftIO(ma));
-
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Map
     //
+
+    /// <summary>
+    /// Maps the given monad
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="M1">Trait of the monad to map to</typeparam>
+    /// <returns>`ReaderT`</returns>
+    public StateT<S, M1, B> MapT<M1, B>(Func<K<M, (A Value, S State)>, K<M1, (B Value, S State)>> f)
+        where M1 : Monad<M1>, Alternative<M1> =>
+        new (state => f(runState(state)));
 
     /// <summary>
     /// Maps the bound value

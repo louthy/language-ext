@@ -12,13 +12,14 @@ namespace LanguageExt.Sys.Live;
 /// </summary>
 public record Runtime<M>(RuntimeEnv Env) : 
     Has<M, ActivitySourceIO>,
+    Mutates<M, Runtime<M>, ActivityEnv>,
     Has<M, ConsoleIO>,
     Has<M, FileIO>,
     Has<M, TextReadIO>,
     Has<M, TimeIO>,
     Has<M, EnvironmentIO>,
     Has<M, DirectoryIO>
-    where M : Reader<M, Runtime<M>>, Monad<M>
+    where M : State<M, Runtime<M>>, Monad<M>
 {
     /// <summary>
     /// Constructor function
@@ -44,8 +45,20 @@ public record Runtime<M>(RuntimeEnv Env) :
     /// <summary>
     /// Activity
     /// </summary>
-    K<M, ActivitySourceIO> Has<M, ActivitySourceIO>.Trait => 
-        M.Asks(rt => new Implementations.ActivitySourceIO(rt.Env.Activity.ActivitySource));
+    K<M, ActivitySourceIO> Has<M, ActivitySourceIO>.Trait =>
+        M.Gets(rt => new Implementations.ActivitySourceIO(rt.Env.Activity));
+
+    /// <summary>
+    /// Modify the activity state
+    /// </summary>
+    public K<M, Unit> Modify(Func<ActivityEnv, ActivityEnv> f) =>
+        M.Modify(rt => rt with { Env = rt.Env with { Activity = f(rt.Env.Activity) } });
+
+    /// <summary>
+    /// Read the activity state
+    /// </summary>
+    public K<M, ActivityEnv> Get =>
+        M.Gets(rt => rt.Env.Activity);
 
     /// <summary>
     /// Access the console environment

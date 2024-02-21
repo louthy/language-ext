@@ -295,7 +295,29 @@ public readonly record struct Eff<A>(Eff<MinRT,A> effect) : K<Eff, A>
     /// <param name="f">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<B> Bind<B>(Func<A, Ask<MinRT, B>> f) =>
+    public Eff<B> Bind<B>(Func<A, Gets<MinRT, B>> f) =>
+        new(effect.Bind(f));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="f">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<Unit> Bind(Func<A, Put<MinRT>> f) =>
+        new(effect.Bind(f));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="f">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<Unit> Bind(Func<A, Modify<MinRT>> f) =>
         new(effect.Bind(f));
 
     /// <summary>
@@ -436,7 +458,29 @@ public readonly record struct Eff<A>(Eff<MinRT,A> effect) : K<Eff, A>
     /// <param name="bind">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<C> SelectMany<B, C>(Func<A, Ask<MinRT, B>> bind, Func<A, B, C> project) =>
+    public Eff<C> SelectMany<B, C>(Func<A, Gets<MinRT, B>> bind, Func<A, B, C> project) =>
+        new(effect.SelectMany(bind, project));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="bind">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<C> SelectMany<C>(Func<A, Modify<MinRT>> bind, Func<A, Unit, C> project) =>
+        new(effect.SelectMany(bind, project));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="bind">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<C> SelectMany<C>(Func<A, Put<MinRT>> bind, Func<A, Unit, C> project) =>
         new(effect.SelectMany(bind, project));
 
     /// <summary>
@@ -649,8 +693,13 @@ public readonly record struct Eff<A>(Eff<MinRT,A> effect) : K<Eff, A>
     /// Convert to an `Eff` monad with a runtime
     /// </summary>
     public Eff<RT, A> WithRuntime<RT>()
-        where RT : HasIO<RT> =>
-        effect.MapReader(rdr => rdr.With<RT>(rt => rt.ToMin()));
+        where RT : HasIO<RT>
+    {
+        var e = effect;
+        return new((from irt in State.gets<StateT<RT, ResourceT<IO>>, RT, MinRT>(rt => rt.ToMin())
+                    let ires = e.RunUnsafe(irt)
+                    select ires.Value).As());
+    }
 
     /// <summary>
     /// Convert to an `Eff` monad

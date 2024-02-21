@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -33,15 +36,14 @@ public static class Proxy
     /// </summary>
     /// <remarks>A `Queue` is a `Producer` with an `Enqueue`, and a `Done` to cancel the operation</remarks>
     // [Pure, MethodImpl(mops)]
-    // public static Queue<A, M, Unit> Queue<M, A>() 
-    //     where M : Monad<M>
-    // {
-    //     var c = new Channel<A>();
-    //     var p = Producer.yieldAll<M, A>(c);
-    //     return new Queue<A, M, Unit>(p, c);
-    // }
+    public static Queue<A, M, Unit> Queue<M, A>() 
+        where M : Monad<M>
+    {
+        var c = new Channel<A>();
+        var p = Producer.yieldAll<M, A>(c);
+        return new Queue<A, M, Unit>(p, c);
+    }
 
-    // TODO: Decide whether I want to put these back or not
     /// <summary>
     /// Create a `Producer` from an `IEnumerable`.  This will automatically `yield` each value of the
     /// `IEnumerable` down stream
@@ -49,37 +51,51 @@ public static class Proxy
     /// <param name="xs">Items to `yield`</param>
     /// <typeparam name="X">Type of the value to `yield`</typeparam>
     /// <returns>`Producer`</returns>
-    // [Pure, MethodImpl(mops)]
-    // public static Producer<X, Unit> yieldAll<X>(IEnumerable<X> xs) =>
-    //     from x in many(xs)
-    //     from _ in PureProxy.ProducerYield<X>(x)
-    //     select unit;
-    //
-    // /// <summary>
-    // /// Create a `Producer` from an `IAsyncEnumerable`.  This will automatically `yield` each value of the
-    // /// `IEnumerable` down stream
-    // /// </summary>
-    // /// <param name="xs">Items to `yield`</param>
-    // /// <typeparam name="X">Type of the value to `yield`</typeparam>
-    // /// <returns>`Producer`</returns>
-    // [Pure, MethodImpl(mops)]
-    // public static Producer<X, Unit> yieldAll<X>(IAsyncEnumerable<X> xs) =>
-    //     from x in many(xs)
-    //     from _ in PureProxy.ProducerYield<X>(x)
-    //     select unit;
-    //
-    // /// <summary>
-    // /// Create a `Producer` from an `IObservable`.  This will automatically `yield` each value of the
-    // /// `IObservable` down stream
-    // /// </summary>
-    // /// <param name="xs">Items to `yield`</param>
-    // /// <typeparam name="X">Type of the value to `yield`</typeparam>
-    // /// <returns>`Producer`</returns>
-    // [Pure, MethodImpl(mops)]
-    // public static Producer<X, Unit> yieldAll<X>(IObservable<X> xs) =>
-    //     from x in many(xs)
-    //     from _ in PureProxy.ProducerYield<X>(x)
-    //  select unit;
+    // TODO: TEMPORARY SOLUTION -- THIS IS STACK BLOWING -- DECIDE HOW WE WANT TO DEAL WITH RECURSION
+    [Pure, MethodImpl(mops)]
+    public static Producer<X, Unit> yieldAll<X>(IEnumerable<X> xs) =>
+        from i in PureProxy.ProducerLiftIO<X, IEnumerator<X>>(IO<IEnumerator<X>>.Lift(_ => xs.GetEnumerator()))
+        from r in yieldAll(i)
+        let _ = Dispose(i)
+        select r;
+
+    static Unit Dispose(IDisposable d)
+    {
+        d.Dispose();
+        return default;
+    }
+
+    // TODO: TEMPORARY SOLUTION -- THIS IS STACK BLOWING -- DECIDE HOW WE WANT TO DEAL WITH RECURSION
+    static Producer<X, Unit> yieldAll<X>(IEnumerator<X> xs) =>
+        xs.MoveNext()
+            ? PureProxy.ProducerYield(xs.Current).Bind(_ => yieldAll(xs))
+            : PureProxy.ProducerPure<X, Unit>(unit);
+
+    /// <summary>
+    /// Create a `Producer` from an `IAsyncEnumerable`.  This will automatically `yield` each value of the
+    /// `IEnumerable` down stream
+    /// </summary>
+    /// <param name="xs">Items to `yield`</param>
+    /// <typeparam name="X">Type of the value to `yield`</typeparam>
+    /// <returns>`Producer`</returns>
+    [Pure, MethodImpl(mops)]
+    public static Producer<X, Unit> yieldAll<X>(IAsyncEnumerable<X> xs) =>
+        // TODO: TEMPORARY SOLUTION -- THIS IS STACK BLOWING AND BLOCKS
+        // TODO: DECIDE HOW WE WANT TO DEAL WITH RECURSION
+        yieldAll(xs.ToBlockingEnumerable());
+
+    /// <summary>
+    /// Create a `Producer` from an `IObservable`.  This will automatically `yield` each value of the
+    /// `IObservable` down stream
+    /// </summary>
+    /// <param name="xs">Items to `yield`</param>
+    /// <typeparam name="X">Type of the value to `yield`</typeparam>
+    /// <returns>`Producer`</returns>
+    [Pure, MethodImpl(mops)]
+    public static Producer<X, Unit> yieldAll<X>(IObservable<X> xs) =>
+        // TODO: TEMPORARY SOLUTION -- THIS IS STACK BLOWING AND IGNORES CANCELLATION
+        // TODO: DECIDE HOW WE WANT TO DEAL WITH RECURSION
+        yieldAll(xs.ToAsyncEnumerable(new CancellationToken()));
 
     // TODO: IMPLEMENT TAIL CALLS
     [Pure, MethodImpl(mops)]

@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace LanguageExt.Sys.Live.Implementations;
 
-public record ActivitySourceIO(ActivitySource Source) : LanguageExt.Sys.Traits.ActivitySourceIO
+public record ActivitySourceIO(ActivityEnv Env) : LanguageExt.Sys.Traits.ActivitySourceIO
 {
     /// <summary>
     /// Creates a new activity if there are active listeners for it, using the specified name and activity kind.
@@ -15,7 +15,7 @@ public record ActivitySourceIO(ActivitySource Source) : LanguageExt.Sys.Traits.A
     /// <returns>The created activity object, if it had active listeners, or `None` if it has no event
     /// listeners.</returns>
     public IO<Activity?> StartActivity(string name, ActivityKind kind) =>
-        lift(() => Source.StartActivity(name, kind));
+        lift(() => Env.ActivitySource.StartActivity(name, kind));
 
     /// <summary>
     /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
@@ -36,7 +36,7 @@ public record ActivitySourceIO(ActivitySource Source) : LanguageExt.Sys.Traits.A
         HashMap<string, object> tags = default,
         Seq<ActivityLink> links = default,
         DateTimeOffset startTime = default) =>
-        lift(() => Source.StartActivity(
+        lift(() => Env.ActivitySource.StartActivity(
                  name,
                  kind,
                  parentContext,
@@ -62,7 +62,7 @@ public record ActivitySourceIO(ActivitySource Source) : LanguageExt.Sys.Traits.A
         HashMap<string, object> tags = default,
         Seq<ActivityLink> links = default,
         DateTimeOffset startTime = default) =>
-        lift(() => Source.StartActivity(
+        lift(() => Env.ActivitySource.StartActivity(
                  name,
                  kind,
                  parentId,
@@ -70,4 +70,9 @@ public record ActivitySourceIO(ActivitySource Source) : LanguageExt.Sys.Traits.A
                  links,
                  startTime));
 
+    public IO<Unit> MapActivity(Func<Activity?, Activity?> f) => 
+        throw new NotImplementedException();
+
+    public IO<Activity?> CurrentActivity =>
+        throw new NotImplementedException();
 }

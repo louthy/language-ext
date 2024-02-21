@@ -12,10 +12,10 @@ namespace LanguageExt.Sys;
 /// </summary>
 public static class Console<M, RT>
     where RT : Has<M, ConsoleIO>
-    where M : Reader<M, RT>, Monad<M>
+    where M : State<M, RT>, Monad<M>
 {
     static readonly K<M, ConsoleIO> trait = 
-        Reader.asksM<M, RT, ConsoleIO>(e => e.Trait);
+        State.getsM<M, RT, ConsoleIO>(e => e.Trait);
 
     /// <summary>
     /// Read a key from the console

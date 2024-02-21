@@ -1,13 +1,11 @@
-using System;
-using System.Threading;
-using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Effects;
 
 public static class MinRTExtensions
 {
-    public static MinRT ToMin<RT>(this RT rt) where RT : HasIO<RT> =>
+    public static MinRT ToMin<RT>(this RT rt) 
+        where RT : HasIO<RT> =>
         new (rt.EnvIO);
 }
 

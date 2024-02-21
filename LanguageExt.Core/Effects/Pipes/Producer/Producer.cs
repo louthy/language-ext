@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt.Traits;
 using static LanguageExt.Pipes.Proxy;
 using static LanguageExt.Prelude;
@@ -44,27 +47,41 @@ public static class Producer
         where M : Monad<M> =>
         respond<Void, Unit, Unit, OUT, M>(value).ToProducer();
 
-    // TODO: Decide whether I want to put these back or not
-    // [Pure, MethodImpl(mops)]
-    // public static Producer<X, Unit> yieldAll<M, X>(IEnumerable<X> xs)
-    //     where M : Monad<M> =>
-    //     from x in many(xs)
-    //     from _ in yield<X, M>(x)
-    //     select unit;
-    //     
-    // [Pure, MethodImpl(mops)]
-    // public static Producer<X, M, Unit> yieldAll<M, X>(IAsyncEnumerable<X> xs)
-    //     where M : Monad<M> =>
-    //     from x in many(xs)
-    //     from _ in yield<X, M>(x)
-    //     select unit;
-    //     
-    // [Pure, MethodImpl(mops)]
-    // public static Producer<X, M, Unit> yieldAll<M, X>(IObservable<X> xs)
-    //     where M : Monad<M> =>
-    //     from x in many(xs)
-    //     from _ in yield<X, M>(x)
-    //     select unit;
+    // TODO: TEMPORARY SOLUTION -- THIS IS STACK BLOWING -- DECIDE HOW WE WANT TO DEAL WITH RECURSION
+    [Pure, MethodImpl(mops)]
+    public static Producer<X, M, Unit> yieldAll<M, X>(IEnumerable<X> xs)
+        where M : Monad<M> =>
+        from i in PureProxy.ProducerLiftIO<X, IEnumerator<X>>(IO<IEnumerator<X>>.Lift(_ => xs.GetEnumerator()))
+        from r in yieldAll<M, X>(i)
+        let _ = Dispose(i)
+        select r;
+    
+    static Unit Dispose(IDisposable d)
+    {
+        d.Dispose();
+        return default;
+    }
+
+    // TODO: TEMPORARY SOLUTION -- THIS IS STACK BLOWING -- DECIDE HOW WE WANT TO DEAL WITH RECURSION
+    static Producer<X, M, Unit> yieldAll<M, X>(IEnumerator<X> xs)
+        where M : Monad<M> =>
+        xs.MoveNext()
+            ? yield<X, M>(xs.Current).Bind(_ => yieldAll<M, X>(xs))
+            : PureProxy.ProducerPure<X, Unit>(unit);
+    
+    [Pure, MethodImpl(mops)]
+    public static Producer<X, M, Unit> yieldAll<M, X>(IAsyncEnumerable<X> xs)
+        where M : Monad<M> =>
+        // TODO: TEMPORARY SOLUTION -- THIS IS STACK BLOWING AND BLOCKS
+        // TODO: DECIDE HOW WE WANT TO DEAL WITH RECURSION
+        yieldAll<M, X>(xs.ToBlockingEnumerable());
+
+    [Pure, MethodImpl(mops)]
+    public static Producer<X, M, Unit> yieldAll<M, X>(IObservable<X> xs)
+        where M : Monad<M> =>
+        // TODO: TEMPORARY SOLUTION -- THIS IS STACK BLOWING AND IGNORES CANCELLATION
+        // TODO: DECIDE HOW WE WANT TO DEAL WITH RECURSION
+        yieldAll<M, X>(xs.ToAsyncEnumerable(new CancellationToken()));
 
     /// <summary>
     /// Repeat a monadic action indefinitely, yielding each result

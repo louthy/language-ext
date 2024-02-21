@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt.Traits;
 

@@ -8,11 +8,11 @@ namespace LanguageExt.Sys;
 /// Environment IO
 /// </summary>
 public static class Environment<M, RT>
-    where M : Reader<M, RT>, Monad<M>
+    where M : State<M, RT>, Monad<M>
     where RT : Has<M, EnvironmentIO>
 {
     static readonly K<M, EnvironmentIO> trait = 
-        Reader.asksM<M, RT, EnvironmentIO>(e => e.Trait);
+        State.getsM<M, RT, EnvironmentIO>(e => e.Trait);
     
     /// <summary>
     /// Gets the command line for this process.

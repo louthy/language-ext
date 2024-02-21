@@ -2,7 +2,7 @@
 
 namespace LanguageExt.Traits;
 
-public static class Resource
+public static partial class Resource
 {
     public static K<M, A> use<M, A>(IO<A> ma, Func<A, IO<Unit>> release)
         where M : Resource<M> =>

@@ -6,25 +6,10 @@ using LanguageExt.ClassInstances;
 
 namespace LanguageExt;
 
-#nullable disable   // THIS IS TO RETAIN THE ORIGINAL CAPABILITY --- LEAVE IT DISABLED UNTIL YOU CAN PROVE IT WORKS OTHERWISE
+#nullable disable   //TODO:  THIS IS TO RETAIN THE ORIGINAL CAPABILITY --- LEAVE IT DISABLED UNTIL YOU CAN PROVE IT WORKS OTHERWISE
 
 public static class ObjectExt
 {
-    /// <summary>
-    /// Returns true if the value is equal to this type's
-    /// default value.
-    /// </summary>
-    /// <example>
-    ///     0.IsDefault()  // true
-    ///     1.IsDefault()  // false
-    /// </example>
-    /// <returns>True if the value is equal to this type's
-    /// default value</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsDefault<A>(this A value) =>
-        Check<A>.IsDefault(value);
-
     /// <summary>
     /// Returns true if the value is null, and does so without
     /// boxing of any value-types.  Value-types will always

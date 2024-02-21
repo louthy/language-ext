@@ -4,11 +4,11 @@ using LanguageExt.Traits;
 namespace LanguageExt.Sys;
 
 public static class Enc<M, RT>
-    where M : Reader<M, RT>, Monad<M>
+    where M : State<M, RT>, Monad<M>
     where RT : Has<M, EncodingIO>
 {
     static readonly K<M, EncodingIO> trait = 
-        Reader.asksM<M, RT, EncodingIO>(e => e.Trait);
+        State.getsM<M, RT, EncodingIO>(e => e.Trait);
 
     /// <summary>
     /// Encoding

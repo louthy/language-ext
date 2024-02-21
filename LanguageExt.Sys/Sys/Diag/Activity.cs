@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using LanguageExt.Effects.Traits;
 using LanguageExt.Sys.Traits;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
@@ -17,12 +16,27 @@ namespace LanguageExt.Sys.Diag;
 /// <typeparam name="M">Reader, Resource, and monad trait</typeparam>
 /// <typeparam name="RT">Runtime</typeparam>
 public class Activity<M, RT>
-    where M : Reader<M, RT>, Resource<M>, Monad<M>
-    where RT : Has<M, ActivitySourceIO>
+    where M :
+        State<M, RT>,
+        Resource<M>,
+        Monad<M>
+
+    where RT :
+        Has<M, ActivitySourceIO>,
+        Mutates<M, RT, ActivityEnv>
 {
-    static readonly K<M, ActivitySourceIO> trait = 
-        Reader.asksM<M, RT, ActivitySourceIO>(e => e.Trait);
-    
+    static readonly K<M, ActivitySourceIO> trait =
+        State.getsM<M, RT, ActivitySourceIO>(e => e.Trait);
+
+    static K<M, Unit> mutate(Func<ActivityEnv, ActivityEnv> f) =>
+        State.getsM<M, RT, Unit>(e => e.Modify(f));
+
+    static K<M, ActivityEnv> env =>
+        State.getsM<M, RT, ActivityEnv>(e => e.Get);
+
+    static K<M, Activity?> currentActivity =>
+        env.Map(e => e.Activity);
+
     static K<M, Activity> startActivity(
         string name,
         ActivityKind activityKind,
@@ -30,15 +44,15 @@ public class Activity<M, RT>
         Seq<ActivityLink> activityLinks,
         DateTimeOffset startTime,
         ActivityContext? parentContext = default) =>
-        from rt in Reader.ask<M, RT>()
         from src in trait
+        from cur in currentActivity
         from act in Resource.use<M, Activity>(
             src.StartActivity(
                 name,
                 activityKind,
-                rt.CurrentActivity != null
-                    ? parentContext ?? rt.CurrentActivity.Context
-                    : default,
+                cur is null
+                    ? default
+                    : parentContext ?? cur.Context,
                 activityTags,
                 activityLinks,
                 startTime))
@@ -65,7 +79,7 @@ public class Activity<M, RT>
     public static K<M, A> span<A>(
         string name,
         ActivityKind activityKind,
-        K<M, A> operation) => 
+        K<M, A> operation) =>
         span(name, activityKind, default, default, DateTimeOffset.Now, operation);
 
     /// <summary>
@@ -81,7 +95,7 @@ public class Activity<M, RT>
         string name,
         ActivityKind activityKind,
         HashMap<string, object> activityTags,
-        K<M, A> operation) => 
+        K<M, A> operation) =>
         span(name, activityKind, activityTags, default, DateTimeOffset.Now, operation);
 
     /// <summary>
@@ -103,7 +117,7 @@ public class Activity<M, RT>
         DateTimeOffset startTime,
         K<M, TA> operation) =>
         from a in startActivity(name, activityKind, activityTags, activityLinks, startTime)
-        from r in Reader.local<M, RT, TA>(rt => rt.WithActivity(a), operation)
+        from r in State.bracket<M, RT, TA>(mutate(e => e with { Activity = a }), operation)
         select r;
 
     /// <summary>
@@ -134,7 +148,7 @@ public class Activity<M, RT>
             activityLinks,
             startTime,
             parentContext)
-        from r in Reader.local<M, RT, A>(rt => rt.WithActivity(a), operation)
+        from r in State.bracket<M, RT, A>(mutate(e => e with { Activity = a }), operation)
         select r;
 
     /// <summary>
@@ -143,13 +157,10 @@ public class Activity<M, RT>
     /// <param name="traceStateString">Trace state string</param>
     /// <returns>Unit effect</returns>
     public static K<M, Unit> setTraceState(string traceStateString) =>
-        Reader.asks<M, RT, Unit>(
-            rt =>
+        currentActivity.Map(
+            a =>
             {
-                if (rt.CurrentActivity is not null)
-                {
-                    rt.CurrentActivity.TraceStateString = traceStateString;
-                }
+                if (a is not null) a.TraceStateString = traceStateString;
                 return unit;
             });
 
@@ -157,15 +168,13 @@ public class Activity<M, RT>
     /// Read the trace-state string of the current activity
     /// </summary>
     public static K<M, Option<string>> traceState =>
-        Reader.asks<M, RT, Option<string>>(
-            rt => Optional(rt.CurrentActivity?.TraceStateString));
+        currentActivity.Map(a => Optional(a?.TraceStateString));
 
     /// <summary>
     /// Read the trace ID of the current activity
     /// </summary>
     public static K<M, Option<ActivityTraceId>> traceId =>
-        Reader.asks<M, RT, Option<ActivityTraceId>>(
-            rt => Optional(rt.CurrentActivity?.TraceId));
+        currentActivity.Map(a => Optional(a?.TraceId));
 
     /// <summary>
     /// Add baggage to the current activity
@@ -174,10 +183,10 @@ public class Activity<M, RT>
     /// <param name="value">Baggage value</param>
     /// <returns>Unit effect</returns>
     public static K<M, Unit> addBaggage(string key, string? value) =>
-        Reader.asks<M, RT, Unit>(
-            rt =>
+        currentActivity.Map(
+            a =>
             {
-                rt.CurrentActivity?.AddBaggage(key, value);
+                a?.AddBaggage(key, value);
                 return unit;
             });
 
@@ -185,10 +194,10 @@ public class Activity<M, RT>
     /// Read the baggage of the current activity
     /// </summary>
     public static K<M, HashMap<string, string?>> baggage =>
-        Reader.asks<M, RT, HashMap<string, string?>>(
-            rt => rt.CurrentActivity is not null
-                      ? rt.CurrentActivity.Baggage.ToHashMap()
-                      : HashMap<string, string?>());
+        currentActivity.Map(
+            a => a is not null
+                     ? a.Baggage.ToHashMap()
+                     : HashMap<string, string?>());
 
     /// <summary>
     /// Add tag to the current activity
@@ -197,10 +206,10 @@ public class Activity<M, RT>
     /// <param name="value">Tag value</param>
     /// <returns>Unit effect</returns>
     public static K<M, Unit> addTag(string name, string? value) =>
-        Reader.asks<M, RT, Unit>(
-            rt =>
+        currentActivity.Map(
+            a =>
             {
-                rt.CurrentActivity?.AddTag(name, value);
+                a?.AddTag(name, value);
                 return unit;
             });
 
@@ -210,10 +219,10 @@ public class Activity<M, RT>
     /// <param name="name">Tag name</param>
     /// <param name="value">Tag value</param>
     public static K<M, Unit> addTag(string name, object? value) =>
-        Reader.asks<M, RT, Unit>(
-            rt =>
+        currentActivity.Map(
+            a =>
             {
-                rt.CurrentActivity?.AddTag(name, value);
+                a?.AddTag(name, value);
                 return unit;
             });
 
@@ -221,45 +230,43 @@ public class Activity<M, RT>
     /// Read the tags of the current activity
     /// </summary>
     public static K<M, HashMap<string, string?>> tags =>
-        Reader.asks<M, RT, HashMap<string, string?>>(
-            rt => rt.CurrentActivity is not null
-                ? rt.CurrentActivity.Tags.ToHashMap()
-                : HashMap<string, string?>());
+        currentActivity.Map(
+            a => a is not null
+                     ? a.Tags.ToHashMap()
+                     : HashMap<string, string?>());
 
     /// <summary>
     /// Read the tags of the current activity
     /// </summary>
     public static K<M, HashMap<string, object?>> tagObjects =>
-        Reader.asks<M, RT, HashMap<string, object?>>(
-            rt => rt.CurrentActivity is not null
-                      ? rt.CurrentActivity.TagObjects.ToHashMap()
-                      : HashMap<string, object?>());
+        currentActivity.Map(
+            a => a is not null
+                     ? a.TagObjects.ToHashMap()
+                     : HashMap<string, object?>());
 
     /// <summary>
     /// Read the context of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
     public static K<M, Option<ActivityContext>> context =>
-        Reader.asks<M, RT, Option<ActivityContext>>(
-            rt => Optional(rt.CurrentActivity?.Context));
+        currentActivity.Map(a => Optional(a?.Context));
 
     /// <summary>
     /// Read the duration of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
     public static K<M, Option<TimeSpan>> duration =>
-        Reader.asks<M, RT, Option<TimeSpan>>(
-            rt => Optional(rt.CurrentActivity?.Duration));
+        currentActivity.Map(a => Optional(a?.Duration));
 
     /// <summary>
     /// Add an event to the current activity
     /// </summary>
     /// <param name="event">Event</param>
     public static K<M, Unit> addEvent(ActivityEvent @event) =>
-        Reader.asks<M, RT, Unit>(
-            rt =>
+        currentActivity.Map(
+            a =>
             {
-                rt.CurrentActivity?.AddEvent(@event);
+                a?.AddEvent(@event);
                 return unit;
             });
 
@@ -267,105 +274,94 @@ public class Activity<M, RT>
     /// Read the events of the current activity
     /// </summary>
     public static K<M, Seq<ActivityEvent>> events =>
-        Reader.asks<M, RT, Seq<ActivityEvent>>(
-            rt => rt.CurrentActivity is not null
-                      ? rt.CurrentActivity.Events.ToSeq()
-                      : Seq<ActivityEvent>());
+        currentActivity.Map(
+            a => a is not null
+                     ? a.Events.ToSeq()
+                     : Seq<ActivityEvent>());
 
     /// <summary>
     /// Read the ID of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
     public static K<M, Option<string>> id =>
-        Reader.asks<M, RT, Option<string>>(
-            rt => Optional(rt.CurrentActivity?.Id));
+        currentActivity.Map(a => Optional(a?.Id));
 
     /// <summary>
     /// Read the kind of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
     public static K<M, Option<ActivityKind>> kind =>
-        Reader.asks<M, RT, Option<ActivityKind>>(
-            rt => Optional(rt.CurrentActivity?.Kind));
+        currentActivity.Map(a => Optional(a?.Kind));
 
     /// <summary>
     /// Read the links of the current activity
     /// </summary>
     public static K<M, Seq<ActivityLink>> links =>
-        Reader.asks<M, RT, Seq<ActivityLink>>(
-            rt => rt.CurrentActivity is not null
-                      ? rt.CurrentActivity.Links.ToSeq()
-                      : Seq<ActivityLink>());
+        currentActivity.Map(
+            a => a is not null
+                     ? a.Links.ToSeq()
+                     : Seq<ActivityLink>());
 
     /// <summary>
     /// Read the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
     public static K<M, Option<Activity>> current =>
-        Reader.asks<M, RT, Option<Activity>>(
-            rt => Optional(rt.CurrentActivity));
+        currentActivity.Map(a => Optional(a));
 
     /// <summary>
     /// Read the parent ID of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
     public static K<M, Option<string>> parentId =>
-        Reader.asks<M, RT, Option<string>>(
-            rt => Optional(rt.CurrentActivity?.ParentId));
+        currentActivity.Map(a => Optional(a?.ParentId));
 
     /// <summary>
     /// Read the parent span ID of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
     public static K<M, Option<ActivitySpanId>> parentSpanId =>
-        Reader.asks<M, RT, Option<ActivitySpanId>>(
-            rt => Optional(rt.CurrentActivity?.ParentSpanId));
+        currentActivity.Map(a => Optional(a?.ParentSpanId));
 
     /// <summary>
     /// Read the recorded flag of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
     public static K<M, Option<bool>> recorded =>
-        Reader.asks<M, RT, Option<bool>>(
-            rt => Optional(rt.CurrentActivity?.Recorded));
+        currentActivity.Map(a => Optional(a?.Recorded));
 
     /// <summary>
     /// Read the display-name of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
     public static K<M, Option<string>> displayName =>
-        Reader.asks<M, RT, Option<string>>(
-            rt => Optional(rt.CurrentActivity?.DisplayName));
+        currentActivity.Map(a => Optional(a?.DisplayName));
 
     /// <summary>
     /// Read the operation-name of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
     public static K<M, Option<string>> operationName =>
-        Reader.asks<M, RT, Option<string>>(
-            rt => Optional(rt.CurrentActivity?.OperationName));
+        currentActivity.Map(a => Optional(a?.OperationName));
 
     /// <summary>
     /// Read the root ID of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
     public static K<M, Option<string>> rootId =>
-        Reader.asks<M, RT, Option<string>>(
-            rt => Optional(rt.CurrentActivity?.RootId));
+        currentActivity.Map(a => Optional(a?.RootId));
 
     /// <summary>
     /// Read the span ID of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
     public static K<M, Option<ActivitySpanId>> spanId =>
-        Reader.asks<M, RT, Option<ActivitySpanId>>(
-            rt => Optional(rt.CurrentActivity?.SpanId));
+        currentActivity.Map(a => Optional(a?.SpanId));
 
     /// <summary>
     /// Read the start-time of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
     public static K<M, Option<DateTime>> startTimeUTC =>
-        Reader.asks<M, RT, Option<DateTime>>(
-            rt => Optional(rt.CurrentActivity?.StartTimeUtc));
+        currentActivity.Map(a => Optional(a?.StartTimeUtc));
 }

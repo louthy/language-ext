@@ -54,9 +54,10 @@ public interface ActivitySourceIO
         string parentId,
         HashMap<string,object> tags = default, 
         Seq<ActivityLink> links = default, 
-        DateTimeOffset startTime = default);        
+        DateTimeOffset startTime = default);
 }
 
+/*
 /// <summary>
 /// Type-class giving a struct the trait of supporting ActivitySource IO
 /// </summary>
@@ -84,3 +85,4 @@ public interface HasActivitySource<in M, out RT>
     /// </summary>
     Activity? CurrentActivity { get; }
 }
+*/

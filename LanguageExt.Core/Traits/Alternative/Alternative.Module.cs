@@ -4,7 +4,7 @@ namespace LanguageExt.Traits;
 /// A monoid on applicative functors
 /// </summary>
 /// <typeparam name="F">Applicative functor</typeparam>
-public static class Alternative
+public static partial class Alternative
 {
     /// <summary>
     /// Identity
@@ -21,9 +21,9 @@ public static class Alternative
     /// <remarks>
     /// If none succeed, the last applicative functor will be returned.
     /// </remarks>
-    public static K<F, A> oneOf<F, A>(K<F, A> mx, params K<F, A>[] mxs)
+    public static K<F, A> oneOf<F, A>(params K<F, A>[] ms)
         where F : Alternative<F> =>
-        oneOf(mx, mxs.ToSeq());
+        oneOf(ms.ToSeq());
 
     /// <summary>
     /// Given a set of applicative functors, return the first one to succeed.
@@ -31,11 +31,11 @@ public static class Alternative
     /// <remarks>
     /// If none succeed, the last applicative functor will be returned.
     /// </remarks>
-    public static K<F, A> oneOf<F, A>(K<F, A> mx, Seq<K<F, A>> mxs)
+    public static K<F, A> oneOf<F, A>(Seq<K<F, A>> ms)
         where F : Alternative<F> =>
-        mxs.IsEmpty
-            ? mx
-            : F.Or(mx, oneOf(mxs.Head, mxs.Tail));
+        ms.IsEmpty
+            ? F.Empty<A>()
+            : F.Or(ms.Head, oneOf(ms.Tail));
 
     /// <summary>
     /// One or more...

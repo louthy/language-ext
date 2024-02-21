@@ -6,11 +6,11 @@ using LanguageExt.Traits;
 namespace LanguageExt.Sys.IO;
 
 public class Directory<M, RT>
-    where RT : HasDirectory<M>
-    where M : Reader<M, RT>, Monad<M>
+    where RT : Has<M, DirectoryIO>
+    where M : State<M, RT>, Monad<M>
 {
     static readonly K<M, DirectoryIO> trait = 
-        Reader.asksM<M, RT, DirectoryIO>(e => e.DirectoryIO); 
+        State.getsM<M, RT, DirectoryIO>(e => e.Trait); 
     
     /// <summary>
     /// Create a directory

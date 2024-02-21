@@ -13,6 +13,7 @@ public static partial class Semigroup
     /// <param name="y">The right hand side of the operation</param>
     /// <returns>The result of the operation</returns>
     [Pure]
-    public static A append<A>(A x, A y) where A : Semigroup<A> =>
+    public static A Append<A>(this A x, A y) 
+        where A : Semigroup<A> =>
         x + y;
 }

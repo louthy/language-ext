@@ -486,3 +486,4 @@ This is my '.NET Framework to .NET Core' moment.  I realise that.  And I an trul
 * `EitherT`, `TryT` (derives `EitherT<M, Error, A>)`, `Try` (derives `TryT<Identity, A>`)
 * `yieldAll`, `many`, and `repeat` for Pipes needs tail recursion support
 	* `yieldAll`, `many` have been temporarily removed
+* `yieldAll` in Pipes has a temporary solution - need proper recursion strategy

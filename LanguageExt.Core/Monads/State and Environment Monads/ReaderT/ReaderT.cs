@@ -85,6 +85,11 @@ public record ReaderT<Env, M, A>(Func<Env, K<M, A>> runReader) : K<ReaderT<Env, 
     public ReaderT<Env, M, A> Local(Func<Env, Env> f) =>
         new (env1 => runReader(f(env1)));
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Map
+    //
+
     /// <summary>
     /// Maps the given monad
     /// </summary>
@@ -94,11 +99,6 @@ public record ReaderT<Env, M, A>(Func<Env, K<M, A>> runReader) : K<ReaderT<Env, 
     public ReaderT<Env, M1, B> MapT<M1, B>(Func<K<M, A>, K<M1, B>> f)
         where M1 : Monad<M1>, Alternative<M1> =>
         new (env => f(runReader(env)));
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Map
-    //
 
     /// <summary>
     /// Maps the bound value

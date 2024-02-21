@@ -35,6 +35,9 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     
     public static IO<A> Pure(A value) => 
         new(_ => value);
+    
+    public static IO<A> Fail(Error value) => 
+        new(_ => value.Throw<A>());
 
     public static readonly IO<A> Empty =
         new(_ => throw new ManyExceptions([]));

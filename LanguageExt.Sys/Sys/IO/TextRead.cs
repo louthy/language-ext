@@ -14,10 +14,10 @@ namespace LanguageExt.Sys.IO;
 
 public static class TextRead<M, RT>
     where RT : Has<M, TextReadIO>
-    where M : Reader<M, RT>, Monad<M>
+    where M : State<M, RT>, Monad<M>
 {
     static readonly K<M, TextReadIO> trait = 
-        Reader.asksM<M, RT, TextReadIO>(e => e.Trait); 
+        State.getsM<M, RT, TextReadIO>(e => e.Trait); 
     
     /// <summary>
     /// Open a text file and streams the lines through the pipe

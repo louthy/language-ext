@@ -83,6 +83,10 @@ public partial class StateT
         where M : Monad<M>, Alternative<M> => 
         StateT<S, M, A>.Gets(f);
 
+    public static StateT<S, M, A> getsM<S, M, A>(Func<S, K<M, A>> f) 
+        where M : Monad<M>, Alternative<M> => 
+        StateT<S, M, A>.GetsM(f);
+
     public static StateT<S, M, Unit> put<S, M>(S state)  
         where M : Monad<M>, Alternative<M> => 
         StateT<S, M, Unit>.Put(state);

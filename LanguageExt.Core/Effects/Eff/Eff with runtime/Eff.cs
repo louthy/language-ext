@@ -20,48 +20,51 @@ public readonly struct Eff<RT, A> : K<Eff.R<RT>, A>
     /// <summary>
     /// Underlying monad transformer stack that captures all of the IO behaviour 
     /// </summary>
-    readonly ReaderT<RT, ResourceT<IO>, A> effect;
+    readonly StateT<RT, ResourceT<IO>, A> effect;
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Transformer helpers
     //
 
-    static ReaderT<RT, ResourceT<IO>, X> asksM<X>(Func<RT, K<ResourceT<IO>, X>> f) =>
-        ReaderT.asksM(f);
+    static StateT<RT, ResourceT<IO>, X> getsM<X>(Func<RT, K<ResourceT<IO>, X>> f) =>
+        StateT.getsM(f);
 
-    static ReaderT<RT, ResourceT<IO>, X> asksIO<X>(Func<EnvIO, RT, ValueTask<X>> f) =>
-        asksM(rt => ResourceT<IO>.liftIO(IO.liftAsync(eio => f(eio, rt))));
+    static StateT<RT, ResourceT<IO>, X> getsIO<X>(Func<EnvIO, RT, ValueTask<X>> f) =>
+        getsM(rt => ResourceT<IO>.liftIO(IO.liftAsync(eio => f(eio, rt))));
 
-    static ReaderT<RT, ResourceT<IO>, X> asksIO<X>(Func<RT, ValueTask<X>> f) =>
-        asksIO<X>((_, rt) => f(rt));
+    static StateT<RT, ResourceT<IO>, X> getsIO<X>(Func<RT, ValueTask<X>> f) =>
+        getsIO<X>((_, rt) => f(rt));
 
-    static ReaderT<RT, ResourceT<IO>, X> asks<X>(Func<RT, X> f) =>
-        ReaderT.asks<RT, ResourceT<IO>, X>(f);
+    static StateT<RT, ResourceT<IO>, X> gets<X>(Func<RT, X> f) =>
+        StateT.gets<RT, ResourceT<IO>, X>(f);
 
-    static ReaderT<RT, ResourceT<IO>, X> asks<X>(Func<RT, Fin<X>> f) =>
-        asksM<X>(rt => f(rt).Match(Succ: ResourceT.Pure<IO, X>,
+    static StateT<RT, ResourceT<IO>, X> gets<X>(Func<RT, Fin<X>> f) =>
+        getsM<X>(rt => f(rt).Match(Succ: ResourceT.Pure<IO, X>,
                                    Fail: e => ResourceT.liftIO<IO, X>(IO<X>.Lift(e.Throw<X>))));
 
-    static ReaderT<RT, ResourceT<IO>, X> asks<X>(Func<RT, Either<Error, X>> f) =>
-        asksM<X>(rt => f(rt).Match(Right: ResourceT.Pure<IO, X>,
+    static StateT<RT, ResourceT<IO>, X> gets<X>(Func<RT, Either<Error, X>> f) =>
+        getsM<X>(rt => f(rt).Match(Right: ResourceT.Pure<IO, X>,
                                    Left: e => ResourceT.liftIO<IO, X>(IO<X>.Lift(e.Throw<X>))));
 
-    static ReaderT<RT, ResourceT<IO>, X> liftIO<X>(IO<X> ma) =>
-        ReaderT.liftIO<RT, ResourceT<IO>, X>(ma);
+    static StateT<RT, ResourceT<IO>, X> liftIO<X>(IO<X> ma) =>
+        StateT.liftIO<RT, ResourceT<IO>, X>(ma);
 
-    static ReaderT<RT, ResourceT<IO>, X> fail<X>(Error value) =>
-        asksM(_ => ResourceT.lift(IO<X>.Lift(value.Throw<X>)));
+    static StateT<RT, ResourceT<IO>, X> fail<X>(Error value) =>
+        getsM(_ => ResourceT.lift(IO<X>.Lift(value.Throw<X>)));
 
-    static ReaderT<RT, ResourceT<IO>, X> pure<X>(X value) =>
-        ReaderT<RT, ResourceT<IO>, X>.Pure(value);
+    static StateT<RT, ResourceT<IO>, X> pure<X>(X value) =>
+        StateT<RT, ResourceT<IO>, X>.Pure(value);
 
-    internal Eff<RT2, B> MapReader<RT2, B>(Func<ReaderT<RT, ResourceT<IO>, A>, ReaderT<RT2, ResourceT<IO>, B>> f)
+    Eff<RT2, B> MapState<RT2, B>(Func<StateT<RT, ResourceT<IO>, A>, StateT<RT2, ResourceT<IO>, B>> f)
         where RT2 : HasIO<RT2> =>
         new(f(effect));
 
-    internal Eff<RT, B> MapResource<B>(Func<ResourceT<IO, A>, ResourceT<IO, B>> f) =>
-        MapReader(reader => reader.MapT(resource => f(resource.As())));
+    Eff<RT, B> MapResource1<B>(Func<ResourceT<IO, (A Value, RT Env)>, ResourceT<IO, (B Value, RT Env)>> f) =>
+        MapState(State => State.MapT(resource => f(resource.As())));
+
+    Eff<RT, B> MapResource<B>(Func<ResourceT<IO, A>, ResourceT<IO, B>> f) =>
+        MapResource1(res => res.Bind(r => f(ResourceT<IO, A>.Pure(r.Value)).Map(b => (b, r.Env))));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -69,7 +72,7 @@ public readonly struct Eff<RT, A> : K<Eff.R<RT>, A>
     //
 
     [MethodImpl(Opt.Default)]
-    internal Eff(ReaderT<RT, ResourceT<IO>, A> effect) =>
+    internal Eff(StateT<RT, ResourceT<IO>, A> effect) =>
         this.effect = effect;
 
     /// <summary>
@@ -77,7 +80,7 @@ public readonly struct Eff<RT, A> : K<Eff.R<RT>, A>
     /// </summary>
     [MethodImpl(Opt.Default)]
     internal Eff(Func<RT, ValueTask<A>> effect)
-        : this(asksIO(effect))
+        : this(getsIO(effect))
     { }
 
     /// <summary>
@@ -101,7 +104,7 @@ public readonly struct Eff<RT, A> : K<Eff.R<RT>, A>
     /// </summary>
     [MethodImpl(Opt.Default)]
     Eff(Func<RT, A> effect) 
-        : this(asks(effect))
+        : this(gets(effect))
     { }
 
     /// <summary>
@@ -109,7 +112,7 @@ public readonly struct Eff<RT, A> : K<Eff.R<RT>, A>
     /// </summary>
     [MethodImpl(Opt.Default)]
     Eff(Func<RT, Fin<A>> effect)
-        : this(asks(effect))
+        : this(gets(effect))
     {
     }
 
@@ -118,7 +121,7 @@ public readonly struct Eff<RT, A> : K<Eff.R<RT>, A>
     /// </summary>
     [MethodImpl(Opt.Default)]
     Eff(Func<RT, Either<Error, A>> effect) 
-        : this(asks(effect))
+        : this(gets(effect))
     { }
 
     /// <summary>
@@ -138,8 +141,8 @@ public readonly struct Eff<RT, A> : K<Eff.R<RT>, A>
     /// <summary>
     /// Map the runtime
     /// </summary>
-    public Eff<RT1, A> With<RT1>(Func<RT1, RT> f) where RT1 : HasIO<RT1> =>
-        new(effect.With(f));
+    //public Eff<RT1, A> With<RT1>(Func<RT1, RT> f) where RT1 : HasIO<RT1> =>
+     //   new(effect.With(f));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -149,12 +152,49 @@ public readonly struct Eff<RT, A> : K<Eff.R<RT>, A>
     /// <summary>
     /// Invoke the effect
     /// </summary>
+    /// <remarks>
+    /// Returns the result value only 
+    /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
     public Fin<A> Run(RT env) =>
+        RunRT(env).Map(x => x.Value);
+    
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// Returns the result value and the runtime (which carries state) 
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public Fin<(A Value, RT Runtime)> RunRT(RT env)
+    {
+        try
+        {
+            return RunUnsafe(env);
+        }
+        catch (ErrorException e)
+        {
+            return e.ToError();
+        }
+        catch(Exception e)
+        {
+            return Error.New(e);
+        }
+    }
+
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// This is labelled 'unsafe' because it can throw an exception, whereas
+    /// `Run` will capture any errors and return a `Fin` type.
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public (A Value, RT Runtime) RunUnsafe(RT env) =>
         effect.Run(env).As()
               .Run().As()
               .Run(env.EnvIO);
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Timeout
@@ -416,6 +456,7 @@ public readonly struct Eff<RT, A> : K<Eff.R<RT>, A>
     public Eff<RT, B> Bind<B>(Func<A, IO<B>> f) =>
         new(effect.Bind(f));
 
+    /*
     /// <summary>
     /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
     /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
@@ -425,6 +466,40 @@ public readonly struct Eff<RT, A> : K<Eff.R<RT>, A>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, B> Bind<B>(Func<A, Ask<RT, B>> f) =>
+        new(effect.Bind(f));
+        */
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="f">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, Unit> Bind(Func<A, Put<RT>> f) =>
+        new(effect.Bind(f));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="f">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, B> Bind<B>(Func<A, Gets<RT, B>> f) =>
+        new(effect.Bind(f));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="f">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, Unit> Bind(Func<A, Modify<RT>> f) =>
         new(effect.Bind(f));
     
     /// <summary>
@@ -553,6 +628,7 @@ public readonly struct Eff<RT, A> : K<Eff.R<RT>, A>
     public Eff<RT, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
         new(effect.SelectMany(bind, project));
 
+    /*
     /// <summary>
     /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
     /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
@@ -562,6 +638,40 @@ public readonly struct Eff<RT, A> : K<Eff.R<RT>, A>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, C> SelectMany<B, C>(Func<A, Ask<RT, B>> bind, Func<A, B, C> project) =>
+        new(effect.SelectMany(bind, project));
+        */
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="bind">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, C> SelectMany<C>(Func<A, Put<RT>> bind, Func<A, Unit, C> project) =>
+        new(effect.SelectMany(bind, project));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="bind">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, C> SelectMany<B, C>(Func<A, Gets<RT, B>> bind, Func<A, B, C> project) =>
+        new(effect.SelectMany(bind, project));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="bind">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, C> SelectMany<C>(Func<A, Modify<RT>> bind, Func<A, Unit, C> project) =>
         new(effect.SelectMany(bind, project));
 
     /// <summary>
@@ -876,7 +986,7 @@ public readonly struct Eff<RT, A> : K<Eff.R<RT>, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, Fail<Error> error) =>
-        new (ma.effect | error);
+        new (ma.effect | IO<A>.Fail(error.Value));
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -887,7 +997,7 @@ public readonly struct Eff<RT, A> : K<Eff.R<RT>, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, Error error) =>
-        new (ma.effect | error);
+        new (ma.effect | IO<A>.Fail(error));
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
