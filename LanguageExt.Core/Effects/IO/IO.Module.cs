@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -8,6 +9,9 @@ namespace LanguageExt;
 
 public partial class IO
 {
+    public static IO<A> Fail<A>(Error value) =>
+        IO<A>.Fail(value);
+    
     public static readonly IO<Unit> unitIO = 
         IO<Unit>.Pure(default);
     

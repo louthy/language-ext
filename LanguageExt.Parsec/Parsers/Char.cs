@@ -57,7 +57,7 @@ namespace LanguageExt.Parsec
         /// <typeparam name="EQ">Eq<char> trait</typeparam>
         /// <returns>The parsed character</returns>
         public static Parser<char> ch<EQ>(char c) where EQ : Eq<char> =>
-            satisfy(x => default(EQ).Equals(x, c)).label($"'{c}'");
+            satisfy(x => EQ.Equals(x, c)).label($"'{c}'");
 
         /// <summary>
         /// The parser satisfy(pred) succeeds for any character for which the

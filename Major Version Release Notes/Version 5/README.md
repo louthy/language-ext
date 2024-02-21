@@ -480,7 +480,7 @@ This is my '.NET Framework to .NET Core' moment.  I realise that.  And I an trul
 
 * Traverse / Sequence - generic system using Transducers
 * Make TraverseParallel for Eff
-* Find a way of resolving default implementations for classes now that we're using static interface methods.
+* Find a way of resolving default implementations for classes now that we're using static interface methods (IL.cs).
 * Test that resources are freed correctly in ResourceT when the result of Run is lazy
 	* `bracket`
 * `EitherT`, `TryT` (derives `EitherT<M, Error, A>)`, `Try` (derives `TryT<Identity, A>`)
