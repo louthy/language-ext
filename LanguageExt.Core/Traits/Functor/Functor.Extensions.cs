@@ -3,10 +3,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Traits;
 
-/// <summary>
-/// Functor module
-/// </summary>
-public static class FunctorExtensions
+public static partial class FunctorExtensions
 {
     /// <summary>
     /// Functor map operation
