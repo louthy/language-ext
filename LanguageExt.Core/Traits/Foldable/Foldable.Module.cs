@@ -193,7 +193,7 @@ public static partial class Foldable
         T.ToSeq(ta);
 
     /// <summary>
-    /// List of elements of a structure, from left to right
+    /// Returns true if no values are in the foldable
     /// </summary>
     public static bool isEmpty<T, A>(K<T, A> ta)
         where T : Foldable<T> =>

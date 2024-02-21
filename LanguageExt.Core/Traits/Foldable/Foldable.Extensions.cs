@@ -16,7 +16,7 @@ public static partial class Foldable
     /// starting value (typically the right-identity of the operator), and a
     /// list, reduces the list using the binary operator, from right to left.
     /// </summary>
-    public static S Fold<T, A, S>(this K<T, A> ta, Func<A, S, S> f, S initialState)
+    public static S Fold<T, A, S>(this K<T, A> ta, S initialState, Func<A, S, S> f)
         where T : Foldable<T> =>
         T.Fold(f, initialState, ta);
     
@@ -27,7 +27,7 @@ public static partial class Foldable
     /// starting value (typically the right-identity of the operator), and a
     /// list, reduces the list using the binary operator, from right to left.
     /// </summary>
-    public static S Fold<T, A, S>(this K<T, A> ta, Func<A, Func<S, S>> f, S initialState)
+    public static S Fold<T, A, S>(this K<T, A> ta, S initialState, Func<A, Func<S, S>> f)
         where T : Foldable<T> =>
         T.Fold(f, initialState, ta);
     
@@ -46,7 +46,7 @@ public static partial class Foldable
     /// entire input list must be traversed.  Like all left-associative folds,
     /// `FoldBack' will diverge if given an infinite list.
     /// </remarks>
-    public static S FoldBack<T, A, S>(this K<T, A> ta, Func<S, A, S> f, S initialState)
+    public static S FoldBack<T, A, S>(this K<T, A> ta, S initialState, Func<S, A, S> f)
         where T : Foldable<T> =>
         T.FoldBack(f, initialState, ta);
     
@@ -65,7 +65,7 @@ public static partial class Foldable
     /// entire input list must be traversed.  Like all left-associative folds,
     /// `FoldBack' will diverge if given an infinite list.
     /// </remarks>
-    public static S FoldBack<T, A, S>(this K<T, A> ta, Func<S, Func<A, S>> f, S initialState)
+    public static S FoldBack<T, A, S>(this K<T, A> ta, S initialState, Func<S, Func<A, S>> f)
         where T : Foldable<T> =>
         T.FoldBack(f, initialState, ta);
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using LanguageExt.TypeClasses;
 
 namespace LanguageExt.Traits;
 
@@ -8,6 +7,30 @@ namespace LanguageExt.Traits;
 /// </summary>
 public static partial class Monad
 {
+    /// <summary>
+    /// `As` converts a monadic type, where it's a general type (`K<N, A>`)
+    /// to its downcast concrete version.
+    /// </summary>
+    /// <example>
+    ///
+    ///    var mx = Seq<Option<int>>();
+    ///         
+    ///    var ma = mx.KindT<Seq, Option, Option<int>, int>()
+    ///               .BindT(a => Some(a + 1))
+    ///               .BindT(a => Some(a + 1))
+    ///               .MapT(a => a + 1);
+    ///               .AsT<Seq, Option, Option<int>, int>();
+    ///
+    /// </example>
+    /// <param name="ma">Monadic value</param>
+    /// <typeparam name="M">Monad trait (i.e. `Seq`)</typeparam>
+    /// <typeparam name="MA">Concrete type (i.e. `Seq<int>`)</typeparam>
+    /// <typeparam name="A">Concrete bound value type (i.e. `int`)</typeparam>
+    /// <returns>Concrete version of the general type.</returns>
+    public static K<M, A> As<M, MA, A>(this K<M, A> ma)
+        where MA : K<M, A> =>
+        (MA)ma;    
+    
     /// <summary>
     /// Monad bind operation
     /// </summary>
