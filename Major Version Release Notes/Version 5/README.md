@@ -4,17 +4,202 @@
 
 ## Motivations
 
-### Empower the users of this library to create their own functional types
+* Empower the users
+* Wage war on async (green threads)
+* Support for transducers
+* Once per decade refresh
 
-If you spend any time with Haskell or other languages with higher-kinds, you'll notice a heavy use of 'monad transformers'.  Monad Transformers allow you to _'stack'_ existing monadic types - and in the process compose their behaviours.  A naive way to think of this is a bit like multiple-inheritance in OO (it's much better than that though!)
+### Empower the users
 
-But, because Monad Transformers need higher-kinds they can't be implemented in C#.  However, when you get down to basics, monads are just a particular 'flavour' of function compostion.  Monadic types just inject a few rules in-between the compositions to make them behave to their 'flavour' (like optional values, iterations, logging, reading/writing state, etc.)
+If you spend any time with Haskell or other languages with higher-kinds, you'll notice a heavy use of higher-kinded polymorphism.  From functors, applicatives, monads, foldables, traversables, monad transformers, etc.  This flavour of polymorphism allows for the compositional superpowers that we can only dream of in C#.
 
-> _It is then possible to consider that if one had access to the `Bind` function of `Option` and the `Bind` function of `State` then you could compose them into a new `Bind` function that had the behaviour of both_.  
+Composition of pure functional components always leads to new, more capable components, that are also **automatically** pure.  This is the true power of pure functional composition; unlike OO composition that just collects potential complexity, pure functional composition abstracts away from it.  You can trust the composition to be true.
 
-But, how do we standardise the `Bind` function for any monadic type and make it available for composition?  This is where Transducers come in.  They are literally designed to be compositional pipeline components.  You could think of them as the LEGO bricks of functional programming (after functions of course! but transducers allow us to embelish our functions with addtional functionality, like resource tracking, streaming, optional behaviour, etc.)  
+Much of this library up until this point has been trying to give you the capability to build these compositions.  It's been achieved so far by lots of typing by me and lots of code-gen.  For example, the `LanguageExt.Transformers` library is a code-genned mass of code that combines every monadic type with every other monadic type so that you can work on them nested.  
 
-Therefore I have introduced Transducers as a new core capability in language-ext.  And all of the monadic types are now either implemented with Transducers or have the option to convert to a Transducer.
+I've also written 100s (maybe 1000s) of `Select` and `SelectMany` implementations that give you the impression that C# have generalised monads.  But it doesn't, it's just a lot of typing.  If you create your own monadic type it won't magically work with any existing language-ext types and you can't write general functions that accept any monad and have it just work.
+
+And that is very much because C# doesn't support higher-kinded polymorphism.
+
+That means that you pretty much only get to use what I provide.  That's not acceptable to me.  I want to empower everybody to be able to leverage pure functional composition in the same way that can be done in Haskell (and other languages that have higher-kinds).
+
+### Higher-kinded polymorphism
+
+So, what is higher-kinded polymorphism?  Think of a function like this:
+
+```c#
+public static Option<int> AddOne(Option<int> mx) =>
+	mx.Map(x => x + 1);
+```
+That's a function that takes an `Option` and leverages its `Map` function to add one to the value inside.  The `Map` function makes it a 'Functor'.  Functors map.  
+
+But, if functors map, and all functors have a `Map` method, why can't I write:
+```c#
+public static F<int> AddOne<F>(F<int> mx) where F : Functor =>
+	mx.Map(x => x + 1);
+```
+It's because we can only make the *lower kind* polymorphic.  For example, I can write a function like this:
+```c#
+public static Option<string> Show(Option<A> mx) =>
+	mx.Map(x => x.ToString());
+```
+Where the lower kind, the `A`, is parametric - but not the higher-kind (the `F` in the previous example).
+
+You might think we could just do this with interfaces:
+
+```c#
+
+interface Functor<A>
+{
+    Functor<B> Map<B>(Func<A, B> f);
+}
+
+public class Option<A> : Functor<A>
+{
+    // ...    
+}
+public class Seq<A> : Functor<A>
+{
+    // ...    
+}
+
+```
+On the surface, that looks like we can then just accept `Functor<A>` and call map on it.  The problem is that we really shouldn't mix and match different types of functor (same with monads, applicatives, etc).  We've lost the information on what's inside the functor.  Every time we call `Map` on `Option` it stops being an `Option`, so we can't then call `Bind`, or any other useful functions, we're stuck doing `Map` forever.
+
+### Traits
+
+C# has recently introduced static interface methods and properties.  It allows us to create 'trait types'.  Users of language-ext know this approach from the TypeClasses and ClassInstances technique.  But, with static interface methods the approach has become much more elegant and usable.  
+
+> language-ext is now .NET 8 only - mostly to leverage static interface methods
+
+So, now what we can do is define a really simple type:
+
+```c#
+public interface K<in F, out A>
+```
+This one type will change your life!
+
+Remember, we could't create a higher-kinded type like `F<A>`, but we can create this: `K<F, A>`.  
+
+If you look at any of the major types in language-ext `v5` you'll see the `K` type being used (`K` is short for 'Kind'):
+
+This is `Option<A>`:
+```c#
+public readonly struct Option<A> :
+    K<Option, A>
+{
+    // ...
+}
+```
+It locks its `F` type to be `Option` (notice the lack of an `A`, it's just `Option`).
+
+If you then go and look at `Option`, you'll notice it inherits some really interesting interfaces!
+
+```c#
+public class Option : 
+	Monad<Option>, 
+	Traversable<Option>, 
+	Alternative<Option>
+{
+	// ...
+}
+```
+* `Monad` inherits `Applicative` and `Functor`
+* `Traversable` inherits `Functor` and `Foldable`
+
+And, if you and look at those interfaces you'll see the static interface methods that all leverage the `K` kind-type:
+
+```c#
+public interface Functor<F>  
+    where F : Functor<F>
+{
+    public static abstract K<F, B> Map<A, B>(Func<A, B> f, K<F, A> ma);
+}
+```
+
+Now, let's look at the Haskell defintion of `Functor`:
+
+```haskell
+class Functor f where
+    fmap :: (a -> b) -> f a -> f b
+```
+
+Notice how the type is parameterised by `f` (just like `Functor<F>`), and how it takes a higher-kinded value of `f a`, which is the same as our `K<F, A>`, and it returns a higher-kinded value of `f b`, which is our `K<F, B>`.
+
+We have the same defintion as Haskell.  Exactly the same.
+
+What does this mean?  Well, we can now write generic functions that work with functors, applicatives, monads, monad-transformers, traversables, alternatives, foldables, state monads, reader monads, writer monads...
+
+Here's the example from before:
+
+```c#
+public static K<F, int> AddOne<F>(K<F, int> mx) where F : Functor<F> =>
+	F.Map(x => x + 1, mx);
+```
+It calls the **static** `Map` function on the `F` trait, which is implemented by each type.  Here's the implementation for `Option`
+
+```c#
+public class Option : Monad<Option>, Traversable<Option>, Alternative<Option>
+{
+	// ...
+
+	static K<Option, B> Functor<Option>.Map<A, B>(Func<A, B> f, K<Option, A> ma) => 
+	((Option<A>)ma).Map(f);
+
+	// ...
+
+}
+```
+Remember, `Option<A>` inherits from `K<Option, A>`, so we can just downcast it and call the `Option<A>` implementation of `Map`.
+
+> You may think downcasting is a bit risky here, but really nothing else should inherit from `K<Option, A>`.  Doing so only makes sense for `Option<A>`.  I think the risk of a casting issue is close to zero.
+
+Invoking the trait functions directly isn't that elegant, so there's extension methods that work with all traits.  Here's the above `AddOne` method rewritten to use the `Map` extension instead:
+
+```c#
+public static K<F, int> AddOne<F>(K<F, int> mx) where F : Functor<F> =>
+	mx.Map(x => x + 1);
+```
+
+So, let's try it out by calling it with a number of functors:
+
+```c#
+K<Option, int> mx = AddOne(Option<int>.Some(10));
+K<Seq, int>    my = AddOne(Seq<int>(1, 2, 3, 4));
+K<Fin, int>    mz = AddOne(Fin<int>.Succ(123));
+```
+Note, the return types have the 'trait' baked in.  So you know it's still an option, seq, fin, etc.  Without full support for higher-kinds (from the C# language team) we can't do better than that.  
+
+However, there are extensions to help get back to the original type.  Just call: `As()`.
+
+```c#
+Option<int> mx = AddOne(Option<int>.Some(10)).As();
+Seq<int>    my = AddOne(Seq<int>(1, 2, 3, 4)).As();
+Fin<int>    mz = AddOne(Fin<int>.Succ(123)).As();
+```
+You only need to do that when you 'realise the concrete type'.  Because the trait (`Option`, `Seq`, `Fin`, etc.) is the type that inherits `Monad`, `Applicative`, `Traversable`, etc. (not `Option<A>`, `Seq<A>`, `Fin<A>`, ) - you can just call their capabilities directly off the `K` value:
+
+```c#
+Option<int> mx = AddOne(Option<int>.Some(10))
+                     .Bind(x => Option<int>.Some(x + 10))
+                     .Map(x => x + 20)
+                     .As();
+
+Seq<int> mx = AddOne(Seq<int>(1, 2, 3, 4))
+                  .Bind(x => Seq(x + 10))
+                  .Map(x => x + 20)
+                  .As();
+
+```
+
+
+Just this capability alone has alowed me to [delete nearly 200,000 lines of generated code](https://github.com/louthy/language-ext/commit/c4c9df3b3b2fd9f0eaf0850742ce309948eea0d7).  That is incredible!
+
+
+************ CONTINUE HERE ***************
+
+
+
 
 
 ### Reduce the type and function explosion due to `async`
