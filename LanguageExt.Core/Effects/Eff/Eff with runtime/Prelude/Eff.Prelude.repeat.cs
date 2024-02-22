@@ -1,5 +1,4 @@
 using System;
-using LanguageExt.Effects.Traits;
 
 namespace LanguageExt;
 
@@ -12,8 +11,7 @@ public static partial class Prelude
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
-    public static Eff<RT, A> repeat<RT, A>(Eff<RT, A> ma)
-        where RT : HasIO<RT> =>
+    public static Eff<RT, A> repeat<RT, A>(Eff<RT, A> ma) =>
         ma.Repeat();
 
     /// <summary>
@@ -24,8 +22,7 @@ public static partial class Prelude
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
-    public static Eff<RT, A> repeat<RT, A>(Schedule schedule, Eff<RT, A> ma)
-        where RT : HasIO<RT> =>
+    public static Eff<RT, A> repeat<RT, A>(Schedule schedule, Eff<RT, A> ma) =>
         ma.Repeat(schedule);
 
     /// <summary>
@@ -37,7 +34,7 @@ public static partial class Prelude
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> repeatWhile<RT, A>(
         Eff<RT, A> ma,
-        Func<A, bool> predicate) where RT : HasIO<RT> =>
+        Func<A, bool> predicate) =>
         ma.RepeatWhile(predicate);
 
     /// <summary>
@@ -51,8 +48,7 @@ public static partial class Prelude
     public static Eff<RT, A> repeatWhile<RT, A>(
         Schedule schedule,
         Eff<RT, A> ma,
-        Func<A, bool> predicate)
-        where RT : HasIO<RT> =>
+        Func<A, bool> predicate) =>
         ma.RepeatWhile(schedule, predicate);
 
     /// <summary>
@@ -64,8 +60,7 @@ public static partial class Prelude
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> repeatUntil<RT, A>(
         Eff<RT, A> ma,
-        Func<A, bool> predicate)
-        where RT : HasIO<RT> =>
+        Func<A, bool> predicate) =>
         ma.RepeatUntil(predicate);
 
     /// <summary>
@@ -79,7 +74,6 @@ public static partial class Prelude
     public static Eff<RT, A> repeatUntil<RT, A>(
         Schedule schedule,
         Eff<RT, A> ma,
-        Func<A, bool> predicate)
-        where RT : HasIO<RT> =>
+        Func<A, bool> predicate) =>
         ma.RepeatUntil(schedule, predicate);
 }

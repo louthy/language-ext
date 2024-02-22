@@ -2,10 +2,12 @@
 
 ## Migrating `EffectsExamples` from the `Samples` folder
 
-1. Replace `HasCancel<RT>` with `HasIO<RT>`
+1. Change `Menu<RT>` to `Menu<Eff.R<RT>, RT>`
 
-2. Refactored `startActivity` to use `Eff.use` for automatic tracking of the disposable.
 
+
+
+## Migrating `LanguageExt.Sys` from the `Samples` folder
 
 Then changed:
 ```c#

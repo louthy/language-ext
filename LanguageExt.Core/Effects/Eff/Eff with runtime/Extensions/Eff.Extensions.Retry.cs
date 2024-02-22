@@ -14,8 +14,7 @@ public static partial class EffExtensions
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
     public static Eff<RT, A> Retry<RT, A>(
-        this Eff<RT, A> ma)
-        where RT : HasIO<RT> =>
+        this Eff<RT, A> ma) =>
         ma.MapIO(io => io.Retry());
 
     /// <summary>
@@ -28,8 +27,7 @@ public static partial class EffExtensions
     /// <returns>The result of the last invocation of ma</returns>
     public static Eff<RT, A> Retry<RT, A>(
         this Eff<RT, A> ma, 
-        Schedule schedule)
-        where RT : HasIO<RT> =>
+        Schedule schedule) =>
         ma.MapIO(io => io.Retry(schedule));
 
     /// <summary>
@@ -41,8 +39,7 @@ public static partial class EffExtensions
     /// <returns>The result of the last invocation of ma</returns>
     public static Eff<RT, A> RetryWhile<RT, A>(
         this Eff<RT, A> ma, 
-        Func<Error, bool> predicate) 
-        where RT : HasIO<RT> =>
+        Func<Error, bool> predicate) =>
         ma.MapIO(io => io.RetryWhile(predicate));
 
     /// <summary>
@@ -56,8 +53,7 @@ public static partial class EffExtensions
     public static Eff<RT, A> RetryWhile<RT, A>(
         this Eff<RT, A> ma,
         Schedule schedule,
-        Func<Error, bool> predicate)
-        where RT : HasIO<RT> =>
+        Func<Error, bool> predicate) =>
         ma.MapIO(io => io.RetryWhile(schedule, predicate));
 
     /// <summary>
@@ -69,8 +65,7 @@ public static partial class EffExtensions
     /// <returns>The result of the last invocation of ma</returns>
     public static Eff<RT, A> RetryUntil<RT, A>(
         this Eff<RT, A> ma,
-        Func<Error, bool> predicate)
-        where RT : HasIO<RT> =>
+        Func<Error, bool> predicate) =>
         ma.MapIO(io => io.RetryUntil(predicate));
 
     /// <summary>
@@ -84,7 +79,6 @@ public static partial class EffExtensions
     public static Eff<RT, A> RetryUntil<RT, A>(
         this Eff<RT, A> ma,
         Schedule schedule,
-        Func<Error, bool> predicate)
-        where RT : HasIO<RT> =>
+        Func<Error, bool> predicate) =>
         ma.MapIO(io => io.RetryUntil(schedule, predicate));
 }

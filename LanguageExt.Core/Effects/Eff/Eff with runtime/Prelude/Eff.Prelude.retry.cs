@@ -1,6 +1,5 @@
 using System;
 using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
 
 namespace LanguageExt;
 
@@ -13,8 +12,7 @@ public static partial class Prelude
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
-    public static Eff<RT, A> retry<RT, A>(Eff<RT, A> ma)
-        where RT : HasIO<RT> =>
+    public static Eff<RT, A> retry<RT, A>(Eff<RT, A> ma) =>
         ma.Retry();
 
     /// <summary>
@@ -25,8 +23,7 @@ public static partial class Prelude
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
-    public static Eff<RT, A> retry<RT, A>(Schedule schedule, Eff<RT, A> ma)
-        where RT : HasIO<RT> =>
+    public static Eff<RT, A> retry<RT, A>(Schedule schedule, Eff<RT, A> ma) =>
         ma.Retry(schedule);
 
     /// <summary>
@@ -38,7 +35,7 @@ public static partial class Prelude
     /// <returns>The result of the last invocation of ma</returns>
     public static Eff<RT, A> retryWhile<RT, A>(
         Eff<RT, A> ma,
-        Func<Error, bool> predicate) where RT : HasIO<RT> =>
+        Func<Error, bool> predicate) =>
         ma.RetryWhile(predicate);
 
     /// <summary>
@@ -52,8 +49,7 @@ public static partial class Prelude
     public static Eff<RT, A> retryWhile<RT, A>(
         Schedule schedule,
         Eff<RT, A> ma,
-        Func<Error, bool> predicate)
-        where RT : HasIO<RT> =>
+        Func<Error, bool> predicate) =>
         ma.RetryWhile(schedule, predicate);
 
     /// <summary>
@@ -65,8 +61,7 @@ public static partial class Prelude
     /// <returns>The result of the last invocation of ma</returns>
     public static Eff<RT, A> retryUntil<RT, A>(
         Eff<RT, A> ma,
-        Func<Error, bool> predicate)
-        where RT : HasIO<RT> =>
+        Func<Error, bool> predicate) =>
         ma.RetryUntil(predicate);
 
     /// <summary>
@@ -80,7 +75,6 @@ public static partial class Prelude
     public static Eff<RT, A> retryUntil<RT, A>(
         Schedule schedule,
         Eff<RT, A> ma,
-        Func<Error, bool> predicate)
-        where RT : HasIO<RT> =>
+        Func<Error, bool> predicate) =>
         ma.RetryUntil(schedule, predicate);
 }

@@ -63,8 +63,7 @@ public static class FailExtensions
         where F : Monoid<F> =>
         Validation<F, A>.Fail(fail.Value);
     
-    public static Eff<RT, A> ToEff<RT, A>(this Fail<Error> fail)
-        where RT : HasIO<RT> =>
+    public static Eff<RT, A> ToEff<RT, A>(this Fail<Error> fail) =>
         Eff<RT, A>.Fail(fail.Value);
     
     public static Eff<A> ToEff<A>(this Fail<Error> fail) =>

@@ -5,13 +5,15 @@ using LanguageExt.Sys;
 using LanguageExt.Sys.Traits;
 using static LanguageExt.Prelude;
 using LanguageExt.Effects.Traits;
+using LanguageExt.Traits;
+using Microsoft.FSharp.Data.UnitSystems.SI.UnitNames;
 
 namespace EffectsExamples
 {
     public class Menu<RT>
-        where RT : struct,
-        HasCancel<RT>,
-        HasFile<RT>,
+        where RT :
+        HasIO<RT>,
+        Has<Eff<RT>, FileIO>,
         HasTextRead<RT>,
         HasTime<RT>,
         HasConsole<RT>

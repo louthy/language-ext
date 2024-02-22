@@ -14,7 +14,7 @@ public static partial class Prelude
     /// <returns>The result of the last invocation of ma</returns>
     public static Eff<A> retry<A>(
         Eff<A> ma) =>
-        new(ma.Retry());
+        ma.Retry();
 
     /// <summary>
     /// Keeps retrying the computation, until the scheduler expires  
@@ -27,7 +27,7 @@ public static partial class Prelude
     public static Eff<A> retry<A>(
         Eff<A> ma, 
         Schedule schedule) =>
-        new(ma.Retry(schedule));
+        ma.Retry(schedule);
 
     /// <summary>
     /// Keeps retrying the computation until the predicate returns false
@@ -39,7 +39,7 @@ public static partial class Prelude
     public static Eff<A> retryWhile<A>(
         Eff<A> ma, 
         Func<Error, bool> predicate) => 
-        new(ma.RetryWhile(predicate));
+        ma.RetryWhile(predicate);
 
     /// <summary>
     /// Keeps retrying the computation, until the scheduler expires, or the predicate returns false
@@ -53,7 +53,7 @@ public static partial class Prelude
         Eff<A> ma,
         Schedule schedule,
         Func<Error, bool> predicate) =>
-        new(ma.RetryWhile(schedule, predicate));
+        ma.RetryWhile(schedule, predicate);
 
     /// <summary>
     /// Keeps retrying the computation until the predicate returns true
@@ -65,7 +65,7 @@ public static partial class Prelude
     public static Eff<A> retryUntil<A>(
         Eff<A> ma,
         Func<Error, bool> predicate) =>
-        new(ma.RetryUntil(predicate));
+        ma.RetryUntil(predicate);
 
     /// <summary>
     /// Keeps retrying the computation, until the scheduler expires, or the predicate returns true
@@ -79,5 +79,5 @@ public static partial class Prelude
         Eff<A> ma,
         Schedule schedule,
         Func<Error, bool> predicate) =>
-        new(ma.RetryUntil(schedule, predicate));
+        ma.RetryUntil(schedule, predicate);
 }

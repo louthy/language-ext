@@ -14,7 +14,12 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly record struct Eff<A>(Eff<MinRT,A> effect) : K<Eff, A>
+public readonly record struct Eff<A>(Eff<MinRT, A> effect) : 
+    K<Eff, A>,
+    State<Eff<A>, A>, 
+    Resource<Eff<A>>,
+    Alternative<Eff<A>>, 
+    Monad<Eff<A>>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -340,7 +345,7 @@ public readonly record struct Eff<A>(Eff<MinRT,A> effect) : K<Eff, A>
     /// <param name="f">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, B> Bind<RT, B>(Func<A, K<Eff.R<RT>, B>> f)
+    public Eff<RT, B> Bind<RT, B>(Func<A, K<Eff<RT>, B>> f)
         where RT : HasIO<RT> =>
         Bind(a => f(a).As());
 
@@ -413,7 +418,7 @@ public readonly record struct Eff<A>(Eff<MinRT,A> effect) : K<Eff, A>
     /// <param name="bind">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, C> SelectMany<RT, B, C>(Func<A, K<Eff.R<RT>, B>> bind, Func<A, B, C> project)
+    public Eff<RT, C> SelectMany<RT, B, C>(Func<A, K<Eff<RT>, B>> bind, Func<A, B, C> project)
         where RT : HasIO<RT> =>
         SelectMany(x => bind(x).As(), project);
 
@@ -917,4 +922,51 @@ public readonly record struct Eff<A>(Eff<MinRT,A> effect) : K<Eff, A>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> EffectMaybe(Func<Fin<A>> f) =>
         Lift(_ => f());
+    
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Trait implementations for `Eff<RT, A>`
+    //
+    // It's important to remember that the code below is the trait implementations for `Eff<RT, A>`, and not
+    // related to `Eff<A>` in any way at all.  `A` in this instance is the `RT` in `Eff<RT, A>`.  
+    //
+    // It is this way to make it easier to work with Eff traits, even if this is a bit ugly.
+    //
+
+    static K<Eff<A>, U> Monad<Eff<A>>.Bind<T, U>(K<Eff<A>, T> ma, Func<T, K<Eff<A>, U>> f) => 
+        ma.As().Bind(f);
+
+    static K<Eff<A>, U> Functor<Eff<A>>.Map<T, U>(Func<T, U> f, K<Eff<A>, T> ma) => 
+        ma.As().Map(f);
+
+    static K<Eff<A>, T> Applicative<Eff<A>>.Pure<T>(T value) => 
+        Eff<A, T>.Pure(value);
+
+    static K<Eff<A>, U> Applicative<Eff<A>>.Apply<T, U>(K<Eff<A>, Func<T, U>> mf, K<Eff<A>, T> ma) => 
+        mf.As().Apply(ma.As());
+
+    static K<Eff<A>, U> Applicative<Eff<A>>.Action<T, U>(K<Eff<A>, T> ma, K<Eff<A>, U> mb) => 
+        ma.As().Action(mb.As());
+
+    static K<Eff<A>, T> Alternative<Eff<A>>.Empty<T>() => 
+        Eff<A, T>.Fail(Errors.None);
+
+    static K<Eff<A>, T> Alternative<Eff<A>>.Or<T>(K<Eff<A>, T> ma, K<Eff<A>, T> mb) => 
+        ma.As() | mb.As();
+
+    static K<Eff<A>, T> Resource<Eff<A>>.Use<T>(IO<T> ma, Func<T, IO<Unit>> release) =>
+        new Eff<A, T>(StateT<A>.lift(ResourceT<IO>.use(ma, release)));
+
+    static K<Eff<A>, Unit> Resource<Eff<A>>.Release<T>(T value) => 
+        new Eff<A, Unit>(StateT<A>.lift(ResourceT<IO>.release(value)));
+
+    static K<Eff<A>, Unit> State<Eff<A>, A>.Put(A value) =>
+        new Eff<A, Unit>(StateT.put<A, ResourceT<IO>>(value));
+
+    static K<Eff<A>, Unit> State<Eff<A>, A>.Modify(Func<A, A> modify) => 
+        new Eff<A, Unit>(StateT.modify<A, ResourceT<IO>>(modify));
+
+    static K<Eff<A>, T> State<Eff<A>, A>.Gets<T>(Func<A, T> f) => 
+        new Eff<A, T>(StateT.gets<A, ResourceT<IO>, T>(f));
 }

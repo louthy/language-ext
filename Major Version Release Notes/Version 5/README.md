@@ -106,7 +106,7 @@ If I continued the way I was before then every monadic type would have an `*Asyn
 
 So, as of now, this library stands against 'declarative async' - i.e. we are  adopting a _'green threads mentality'_.  That is we will not be giving you `*Async` variants of anything.  All IO computation types (`IO` and `Eff`) will support the _lifting_ of both synchronous and asynchronous functions, but you won't see evidence of asynchronicity in any type-signatures.
 
-Those types each have a `Run()` function which _appear_ to run synchronously, i.e. they don't return a `Task<A>`.  In fact, they don't run synchronously, they run _concurrently_.  Internally, they use similar mechanics to `Task` to yield time to your current tread whilst waiting for their own IO operations to complete.  So, calling `operation.Run()` is the same as calling `await operation.RunAsync()` - you just don't need the rest of your code infected by `async`.
+Those types each have a `Run()` function which _appear_ to run synchronously, i.e. they don't return a `Task<A>`.  In fact, they don't run synchronously, they run _concurrently_.  Internally, they use similar mechanics to `Task` to yield time to your current thread whilst waiting for their own IO operations to complete.  So, calling `operation.Run()` is the same as calling `await operation.RunAsync()` - you just don't need the rest of your code infected by `async`.
 
 When you want an operation not to run concurrently, but in parallel instead (i.e. queue the work to be run on the next available `ThreadPool` thread), you can call `operation.Fork()`.  It supports fire-and-forget, so `operation.Fork().Run()` returns immediately, or you can await the result:
 ```c#

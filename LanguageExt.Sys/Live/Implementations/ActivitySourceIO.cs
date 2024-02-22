@@ -69,10 +69,4 @@ public record ActivitySourceIO(ActivityEnv Env) : LanguageExt.Sys.Traits.Activit
                  tags.AsEnumerable().Map(pair => new KeyValuePair<string, object?>(pair.Key, pair.Value)),
                  links,
                  startTime));
-
-    public IO<Unit> MapActivity(Func<Activity?, Activity?> f) => 
-        throw new NotImplementedException();
-
-    public IO<Activity?> CurrentActivity =>
-        throw new NotImplementedException();
 }

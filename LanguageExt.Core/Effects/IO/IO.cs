@@ -358,8 +358,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     public Eff<C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>
         Eff<A>.LiftIO(this).SelectMany(bind, project);
 
-    public Eff<RT, C> SelectMany<RT, B, C>(Func<A, Eff<RT, B>> bind, Func<A, B, C> project)
-        where RT : HasIO<RT> =>
+    public Eff<RT, C> SelectMany<RT, B, C>(Func<A, Eff<RT, B>> bind, Func<A, B, C> project) =>
         Eff<RT, A>.LiftIO(this).SelectMany(bind, project);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
