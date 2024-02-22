@@ -2,48 +2,174 @@
 
 **_WORK IN PROGRESS NOTES_**
 
-## Motivations
+Version 5 of language-ext is huge.  It is both massive in terms of new capabilities delivered but also in _breaking changes_ that will require you to spend some time fixing up compilation failures and making judgements about your code.  An upgrade to `v5` should be considered a day long job for a large code-base - please make sure you have the time before upgrading.
+
+I have made copious notes below to help you understand the changes and to ease the migration.  If, during the migration you encounter issues that are not in these notes, please let me know so I can update them for everybody else.
+
+Language-ext is 10 years old this year, so please consider this my _once per decade refresh_.  It is very much my .NET Framework to .NET Core moment.
+
+# Contents
+
+* [Motivations](#motivations)
+	* [Empower the users](#empower-the-users)
+	* [Wage war on `async` (green threads)](#wage-war-on-async-green-threads)
+	* [Leverage modern C# features](#leverage-modern-c-features)
+* [New Features](#new-features)
+	* [Higher-kinded polymorphism](#higher-kinded-polymorphism)
+		* [Introduction](#introduction)
+		* [Traits](#traits)
+		* [Functor]()
+		* [Applicative]()
+		* [Monad]()
+		* [Foldable]()
+		* [Traversable]()
+		* [Alternative]()
+		* [Monad transformers (MonadT)]()
+		* [Reader and ReaderT]()
+		* [Writer and WriterT]()
+		* [State and StateT]()
+		* [ResourceT]()
+ 	* [IO monad]()
+	* [Auto-resource managment]() (`use` / `release`)
+	* [All computation based monads rewritten to use transformers]()
+	* [Infinite recursion in monads]()
+	* [Streaming effects]()
+	* [Transducers]()
+	* [`Pure` / `Fail` monads]()
+	* [Lifting]()
+	* [Improved guards]()
+	* [Nullable annotations]()
+	* [Collection initialisers]()
+* [Breaking changes](#breaking-changes)
+	* [netstandard2.0 no longer supported](#netstandard20-no-longer-supported)
+	* [`Seq1` made `[Obsolete]`](#seq1-made-obsolete)
+	* ['Trait' types now use static interface methods](#trait-types-now-use-static-interface-methods)
+	* [The 'higher-kind' trait types have all been refactored](#the-higher-kind-trait-types-have-all-been-refactored)
+	* [The `Semigroup<A>` and `Monoid<A>` types have been refactored](#the-semigroupa-and-monoida-types-have-been-refactored)
+	* [The static `TypeClass` class has been renamed `Trait`](#the-static-typeclass-class-has-been-renamed-trait)
+	* [`Apply` extensions that use raw `Func` removed](#apply-extensions-that-use-raw-func-removed)
+	* [Manually written `Sequence` extension methods have been removed (#1)](#manually-written-sequence-extension-methods-have-been-removed-1)
+	* [Manually written `Sequence` extension methods have been removed (#2)](#manually-written-sequence-extension-methods-have-been-removed-2)
+	* [Manually written `Sequence` extension methods have been removed (#2)](#manually-written-traverse-extension-methods-have-been-removed-3)
+	* [`ToComparer` doesn't exist on the `Ord<A>` trait any more](#tocomparer-doesnt-exist-on-the-orda-trait-any-more)
+	* [Renamed `LanguageExt.ClassInstances.Sum`](#renamed-languageextclassinstancessum)
+	* [`Guard<E>` has become `Guard<E, A>`](#guarde-has-become-guarde-a)
+	* [Existing uses of `HasCancel<RT>` should be replaced with `HasIO<RT>`](#existing-uses-of-hascancelrt-should-be-replaced-with-hasiort)
+	* [`UnitsOfMeasaure` namespace converted to a static class](#unitsofmeasaure-namespace-converted-to-a-static-class)
+	* [`Either` doesn't support `IEnumerable<EitherData>` any more](#either-doesnt-support-ienumerableeitherdata-any-more)
+	* [`Either` 'bi' functions have their arguments flipped](#either-bi-functions-have-their-arguments-flipped)
+	* [Nullable (struct) extensions removed](#nullable-struct-extensions-removed)
+	* [Support for `Tuple` and `KeyValuePair` removed](#support-for-tuple-and-keyvaluepair-removed)
+	* [Types removed outright](#types-removed-outright)
+		* [`Some<A>`](#somea)
+		* [`OptionNone`](#optionnone)
+		* [`EitherUnsafe<L, R>`](#eitherunsafel-r)
+		* [`EitherLeft<L>`](#eitherleftl)
+		* [`EitherRight<L>`](#eitherrightl)
+		* [`Try<A>`](#trya)
+		* [`TryOption<A>`](#tryoptiona)
+		* [`TryAsync<A>`](#tryasynca)
+		* [`TryOptionAsync<A>`](#tryoptionasynca)
+		* [`Result<A>`](#resulta)
+		* [`OptionalResult<A>`](#optionalresulta)
+		* [Async extensions for `Option<A>`](#async-extensions-for-optiona)
+		* [`ExceptionMatch`, `ExceptionMatchAsync`, `ExceptionMatchOptionalAsync`](#exceptionmatch-exceptionmatchasync-exceptionmatchoptionalasync)
+	* [Libraries removed outright](#libraries-removed-outright)
+		* [`LanguageExt.SysX`](#languageextsysx)
+		* [`LanguageExt.CodeGen`](#languageextcodegen)	
+		* [`LanguageExt.Transformers`](#languageexttransformers)	
+
+# Motivations
 
 * Empower the users
 * Wage war on async (green threads)
 * Support for transducers
 * Once per decade refresh
 
-### Empower the users
+## Empower the users
 
-If you spend any time with Haskell or other languages with higher-kinds, you'll notice a heavy use of higher-kinded polymorphism.  From functors, applicatives, monads, foldables, traversables, monad transformers, etc.  This flavour of polymorphism allows for the compositional superpowers that we can only dream of in C#.
+If you spend any time with Haskell or other languages with higher-kinds, you'll notice a heavy use of higher-kinded polymorphism.  From functors, applicatives, monads, foldables, traversables, monad transformers, etc.  This flavour of polymorphism allows for compositional superpowers that we can only dream of in C#.
 
-Composition of pure functional components always leads to new, more capable components, that are also **automatically** pure.  This is the true power of pure functional composition; unlike OO composition that just collects potential complexity, pure functional composition abstracts away from it.  You can trust the composition to be true.
+_Composition of pure functional components_ always leads to new, more capable components, that are also **automatically** pure.  This is the true power of pure functional composition; unlike OO composition that just collects potential complexity, pure functional composition abstracts away from it.  You can trust the composition to be sound.
 
-Much of this library up until this point has been trying to give you the capability to build these compositions.  It's been achieved so far by lots of typing by me and lots of code-gen.  For example, the `LanguageExt.Transformers` library is a code-genned mass of code that combines every monadic type with every other monadic type so that you can work on them nested.  
+Much of this library up until this point has been trying to give you the capability to build these compositions.  It's been achieved so far by lots of typing by me and lots of code-gen.  For example, the `LanguageExt.Transformers` library is a code-genned mass of code that combines every monadic type with every other monadic type so that you can work on them nested.  It was 200,000 lines of generated code - and was getting exponentially worse.
 
-I've also written 100s (maybe 1000s) of `Select` and `SelectMany` implementations that give you the impression that C# have generalised monads.  But it doesn't, it's just a lot of typing.  If you create your own monadic type it won't magically work with any existing language-ext types and you can't write general functions that accept any monad and have it just work.
+I've also written 100s (maybe 1000s) of `Select` and `SelectMany` implementations that give you the impression that C# has generalised monads.  But it doesn't, it's just a lot of typing.  If you create your own monadic type it won't magically work with any existing language-ext types and you can't write general functions that accept any monad and have it just work.
 
-And that is very much because C# doesn't support higher-kinded polymorphism.
+> And that is very much because C# doesn't support higher-kinded polymorphism.
 
 That means that you pretty much only get to use what I provide.  That's not acceptable to me.  I want to empower everybody to be able to leverage pure functional composition in the same way that can be done in Haskell (and other languages that have higher-kinds).
 
-### Higher-kinded polymorphism
+## Wage war on `async` (green threads)
 
+If I continued the way I was before then every monadic type would have an `*Async` variant, as would every method and function.  This was getting out of hand.  For something like an IO/effect monad where you could also have an optional error-type and optional runtime-type that meant 8 types.  Each with 1000s of lines of code to define them.  Then, when you think there's 20 or so 30 or so monadic types, it becomes a big maintenence problem.  There's also issues around consistency between each type (making sure everything has a `MapAsync`, `BindAsync`, etc.) - as well as making sure sync types can work with async types, etc.
+
+So, as of now, this library stands against 'declarative async' - i.e. we are  adopting a _'green threads mentality'_.  That is we will not be giving you `*Async` variants of anything.  All IO computation types (`IO` and `Eff`) will support the _lifting_ of both synchronous and asynchronous functions, but you won't see evidence of asynchronicity in any type-signatures.
+
+Those types each have a `Run()` function which _appear_ to run synchronously, i.e. they don't return a `Task<A>`.  In fact, they don't run synchronously, they run _concurrently_.  Internally, they use similar mechanics to `Task` to yield time to your current tread whilst waiting for their own IO operations to complete.  So, calling `operation.Run()` is the same as calling `await operation.RunAsync()` - you just don't need the rest of your code infected by `async`.
+
+When you want an operation not to run concurrently, but in parallel instead (i.e. queue the work to be run on the next available `ThreadPool` thread), you can call `operation.Fork()`.  It supports fire-and-forget, so `operation.Fork().Run()` returns immediately, or you can await the result:
+```c#
+var forkedOperation = from f in operation.Fork() // runs in parallel
+                      from r in f.Await		     // use the ForkIO to await the result
+			          select r;
+
+// This will yield the current thread to allow concurrency, whilst the forked
+// operation runs on another thread.
+var result = forkedOperation.Run();
+```
+To lift an existing `Task` based function into these types you can just call:
+
+* `liftIO(Func<EnvIO, Task<A>> function)`
+* `liftIO(Func<Task<A>> function)`
+
+Which are both in the `Prelude` and allow an `IO` operation to be lifted into any monad that supports IO.  `EnvIO` gives you access to the `CancellationToken`, `CancellationTokenSource`, and `SynchronizationConrext`.  
+
+For example:
+
+```c#
+var operation = from text in liftIO(env => File.ReadAllTextAsync(path, env.Token))
+                let lines = text.Split("\r\n").ToSeq()
+                select lines;
+```
+We can then run that operation:
+```c#
+Seq<string> result = operation.Run();
+```
+And we get a concrete `Seq<string>` - not a `Task<Seq<string>>`, but the operation ran concurrently.
+
+
+## Leverage modern C# features
+
+The library has been held back by the need to support .NET Framework.  As of now this library is .NET (formally known as .NET Core) only.  Instantly jumping to .NET 8.0 (which has Long Term Support).
+
+This opens up: static interface members (which allows the trait/ad-hoc polymorphism support to get a power-up) and collection initialisers for all of the immutable collections - amongst others.
+
+
+# New Features
+
+## Higher-kinded polymorphism
+
+### Introduction
 So, what is higher-kinded polymorphism?  Think of a function like this:
 
 ```c#
-public static Option<int> AddOne(Option<int> mx) =>
+static Option<int> AddOne(Option<int> mx) =>
 	mx.Map(x => x + 1);
 ```
 That's a function that takes an `Option` and leverages its `Map` function to add one to the value inside.  The `Map` function makes it a 'Functor'.  Functors map.  
 
 But, if functors map, and all functors have a `Map` method, why can't I write:
 ```c#
-public static F<int> AddOne<F>(F<int> mx) where F : Functor =>
+static F<int> AddOne<F>(F<int> mx) where F : Functor =>
 	mx.Map(x => x + 1);
 ```
-It's because we can only make the *lower kind* polymorphic.  For example, I can write a function like this:
+It's because we can only make the *lower-kind* polymorphic.  For example, I can write a function like this:
 ```c#
-public static Option<string> Show(Option<A> mx) =>
+static Option<string> Show(Option<A> mx) =>
 	mx.Map(x => x.ToString());
 ```
-Where the lower kind, the `A`, is parametric - but not the higher-kind (the `F` in the previous example).
+Where the lower-kind, the `A`, is parametric - but not the _higher-kind_ (the `F` in the previous example).
 
 You might think we could just do this with interfaces:
 
@@ -66,29 +192,27 @@ public class Seq<A> : Functor<A>
 ```
 On the surface, that looks like we can then just accept `Functor<A>` and call map on it.  The problem is that we really shouldn't mix and match different types of functor (same with monads, applicatives, etc).  We've lost the information on what's inside the functor.  Every time we call `Map` on `Option` it stops being an `Option`, so we can't then call `Bind`, or any other useful functions, we're stuck doing `Map` forever.
 
-### Traits
+## Traits
 
-C# has recently introduced static interface methods and properties.  It allows us to create 'trait types'.  Users of language-ext know this approach from the TypeClasses and ClassInstances technique.  But, with static interface methods the approach has become much more elegant and usable.  
+C# has recently [introduced static interface members](https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/tutorials/static-virtual-interface-members).  It allows us to create ['trait types'](https://en.wikipedia.org/wiki/Trait_%28computer_programming%29).  Users of language-ext know this approach from the TypeClasses and ClassInstances technique.  But, with static interface methods the approach has become much more elegant and usable.  
 
 > language-ext is now .NET 8 only - mostly to leverage static interface methods
 
 So, now what we can do is define a really simple type:
 
 ```c#
-public interface K<in F, out A>
+public interface K<F, A>
 ```
 This one type will change your life!
 
-Remember, we could't create a higher-kinded type like `F<A>`, but we can create this: `K<F, A>`.  
-
-If you look at any of the major types in language-ext `v5` you'll see the `K` type being used (`K` is short for 'Kind'):
+Remember, we could't create a higher-kinded type like `F<A>`, but we can create this: `K<F, A>`.  It has no members, it's a completely empty interface, we simply use this as a 'marker' for our types so that they can leverage higher-kinded polymorphism.  If you look at any of the major types in language-ext `v5` you'll see the `K` type being used (`K` is short for 'Kind'):
 
 This is `Option<A>`:
 ```c#
 public readonly struct Option<A> :
     K<Option, A>
 {
-    // ...
+    ...
 }
 ```
 It locks its `F` type to be `Option` (notice the lack of an `A`, it's just `Option`).
@@ -126,7 +250,7 @@ class Functor f where
 
 Notice how the type is parameterised by `f` (just like `Functor<F>`), and how it takes a higher-kinded value of `f a`, which is the same as our `K<F, A>`, and it returns a higher-kinded value of `f b`, which is our `K<F, B>`.
 
-We have the same defintion as Haskell.  Exactly the same.
+> We have the same defintion as Haskell.  Exactly the same!
 
 What does this mean?  Well, we can now write generic functions that work with functors, applicatives, monads, monad-transformers, traversables, alternatives, foldables, state monads, reader monads, writer monads...
 
@@ -139,22 +263,29 @@ public static K<F, int> AddOne<F>(K<F, int> mx) where F : Functor<F> =>
 It calls the **static** `Map` function on the `F` trait, which is implemented by each type.  Here's the implementation for `Option`
 
 ```c#
-public class Option : Monad<Option>, Traversable<Option>, Alternative<Option>
+public class Option :
+	Monad<Option>, 
+	Traversable<Option>, 
+	Alternative<Option>
 {
 	// ...
 
-	static K<Option, B> Functor<Option>.Map<A, B>(Func<A, B> f, K<Option, A> ma) => 
-	((Option<A>)ma).Map(f);
+	public static K<Option, B> Map<A, B>(Func<A, B> f, K<Option, A> ma) => 
+	    ma.As().Map(f);
 
 	// ...
 
 }
 ```
-Remember, `Option<A>` inherits from `K<Option, A>`, so we can just downcast it and call the `Option<A>` implementation of `Map`.
+Remember, `Option<A>` inherits from `K<Option, A>`, so we can just downcast it and call the `Option<A>` implementation of `Map`.  The `As()` method does the downcast from `K<Option, A>` to `Option<A>`.
 
 > You may think downcasting is a bit risky here, but really nothing else should inherit from `K<Option, A>`.  Doing so only makes sense for `Option<A>`.  I think the risk of a casting issue is close to zero.
 
-Invoking the trait functions directly isn't that elegant, so there's extension methods that work with all traits.  Here's the above `AddOne` method rewritten to use the `Map` extension instead:
+So, just to be clear.  Every type, like `Option<A>`, `Seq<A>`, `Eff<A>`, etc. has a sibling type of the same name with the last generic parameter removed. So, `Option<A>` has a sibling type of `Option`, `Seq<A>` has `Seq`, etc.  Those sibling types implement the traits, like `Monad<M>`, `Functor<F>`, etc.  And, because `Option<A>`, `Seq<A>`, etc. all inherit from `K<TRAIT, A>` - where `TRAIT` is `Option`, `Seq`, `Eff`; this allows generic functions that have constriants like `where F : Functor<F>` to 'find' the bespoke implementation.
+
+> Types like `Either<L, R>`, that have multiple generic arguments, again just lose the last argument for their sibling type: `Either<L>`.
+
+Invoking the trait functions directly isn't that elegant - although perfectly usable - so there's extension methods that work with all of the abstract traits.  Here's the above `AddOne` method rewritten to use the `Map` extension instead:
 
 ```c#
 public static K<F, int> AddOne<F>(K<F, int> mx) where F : Functor<F> =>
@@ -168,7 +299,9 @@ K<Option, int> mx = AddOne(Option<int>.Some(10));
 K<Seq, int>    my = AddOne(Seq<int>(1, 2, 3, 4));
 K<Fin, int>    mz = AddOne(Fin<int>.Succ(123));
 ```
-Note, the return types have the 'trait' baked in.  So you know it's still an option, seq, fin, etc.  Without full support for higher-kinds (from the C# language team) we can't do better than that.  
+Note, the return types have the 'trait' baked in.  So you know it's still an option, seq, fin, etc.  
+
+> Without full support for higher-kinds (from the C# language team) we can't do better than that.  
 
 However, there are extensions to help get back to the original type.  Just call: `As()`.
 
@@ -193,7 +326,7 @@ Seq<int> mx = AddOne(Seq<int>(1, 2, 3, 4))
 ```
 
 
-Just this capability alone has alowed me to [delete nearly 200,000 lines of generated code](https://github.com/louthy/language-ext/commit/c4c9df3b3b2fd9f0eaf0850742ce309948eea0d7).  That is incredible!
+Just this capability alone has alowed me [to delete nearly 200,000 lines of generated code](https://github.com/louthy/language-ext/commit/c4c9df3b3b2fd9f0eaf0850742ce309948eea0d7).  That is incredible!
 
 
 ************ CONTINUE HERE ***************
@@ -201,16 +334,6 @@ Just this capability alone has alowed me to [delete nearly 200,000 lines of gene
 
 
 
-
-### Reduce the type and function explosion due to `async`
-
-If I continued the way I was before then every monadic type would have an `*Async` variant, as would every method and function.  This was getting out of hand.  For something like an IO/effect monad where you could also have an optional error-type and optional runtime-type that meant 8 types.  Each with 1000s of lines of code to define them.  Then, when you think there's 20 or so 30 or so monadic types, it becomes a big maintenence problem.  There's also issues around consistency between each type (making sure everything has a `MapAsync`, `BindAsync`, etc.) - as well as making sure sync types can work with async types, etc.
-
-So, as of now, this library stands against 'declarative async' - i.e. it's adopting a _'green threads mentality'_.  That is we will not be giving you `*Async` variants of anything.  All computation types (`IO`, `Eff`, `Reader`, `Proxy`, etc.) will support the _lifting_ of both synchronous and asynchronous functions, but you won't see evidence of asynchronicity in any type-signatures.
-
-Many of the `*Async` functions like `MapAsync`, `BindAsync` are also gone.  There is now `Map`, `Bind`, etc. that accept `Transducer` types (as well as the regular `Func` version).  `Transducer` supports `liftAsync` to lift an asynchronous function into a `Transducer` - it can therefore do async operations without lots of extra boilerplate support for async elsewhere.
-
-Of course, if you feel you miss these async variant functions, you can add your own extensions.
 
 ### Leverage modern C# features
 
@@ -324,7 +447,7 @@ High, if you have built your own `Monad`, `Functor`, `Applicative` implementatio
 
 This is rewrite territory.  I would encourage you to look at the new traits and monad transformers - as they're much more effective.
 
-### The `Semigroup<A>` and `Monoid<A>` types has been refactored
+### The `Semigroup<A>` and `Monoid<A>` types have been refactored
 
 The `Append` in `Semigroup<A>` (which `Monoid<A>` inherits) is now an instance method.  Meaning you must derive your semigroup and monoidal types from `Monoid<YOUR_TYPE>` to leverage its capabilities.
 
@@ -548,7 +671,7 @@ Low
 Use `OrdComparer<OrdA, A>.Default` instead of `<OrdA>.ToComparer()`.
 
 
-### Renamed `LanguageExt.ClassInstances.Sum<NUM, A>`
+### Renamed `LanguageExt.ClassInstances.Sum`
 
 Renamed to `LanguageExt.ClassInstances.Addition<SUM, A>`
 
@@ -571,7 +694,7 @@ The `A` is never used, this just allows guards to work in LINQ by enabling the i
 
 * Impact: Zero unless you've written your own code to work with `Guard`.  If you only ever used the `guard` Prelude function this will have no impact.
 
-### Existing uses of `HasCancel<RT>` should be replaced with `HasIO<RT, Error>`
+### Existing uses of `HasCancel<RT>` should be replaced with `HasIO<RT>`
 
 The basic runtime traits needed by the effect monads (`IO`, `Eff`, and `Aff`) has been expanded to `HasCancel<RT>`, `HasFromError<RT, E>`, and `HasSyncContext<RT>`.  These can all be applied manually or you can use the `HasIO<RT, E>` trait which wraps all three traits into a single trait.
 
@@ -624,42 +747,49 @@ I am very, very, very sorry that this will mean you have to fixup everything bef
 
 This is my '.NET Framework to .NET Core' moment.  I realise that.  And I an truly sorry to those that have to do the migration.  Please make sure you have adequate time set aside for the migration.
 
-* `Some<A>`
+### `Some<A>`
 	* Mitigtation: use nullable references instead
-* `OptionUnsafe<A>`
+### `OptionUnsafe<A>`
 	* Mitigtation: use `Option<A?>` instead
-* `OptionNone`:
+### `OptionNone`:
 	* Mitigtation: use `Fail<Unit>` instead
-* `EitherUnsafe<L, R>`:
+### `EitherUnsafe<L, R>`:
 	* Mitigtation: use `Either<L?, R?>` instead
-* `EitherLeft<L>`
+### `EitherLeft<L>`
 	* Mitigtation: use `Fail<L>` instead
-* `EitherRight<L>`:
+### `EitherRight<L>`:
 	* Mitigtation: use `Pure<R>` instead
-* `Try<A>`
+### `Try<A>`
 	* Mitigtation: use `Eff<A>`
-* `TryOption<A>`
+### `TryOption<A>`
 	* Mitigtation: use `IO<Unit, A>` or `Eff<A>`
-* `TryAsync<A>`
+### `TryAsync<A>`
 	* Mitigtation: use `Eff<A>`
-* `TryOptionAsync<A>`
+### `TryOptionAsync<A>`
 	* Mitigtation: use `IO<Unit, A>` or `Eff<A>`
-* `Result<A>`
+### `Result<A>`
 	* Mitigtation: use `Fin<A>`
-* `OptionalResult<A>`
+### `OptionalResult<A>`
 	* Mitigtation: use `Fin<A?>`
-* Async extensions for `Option<A>` 
+### Async extensions for `Option<A>` 
 	* Mitigtation: use `ToAsync()` instead
-* `ExceptionMatch`, `ExceptionMatchAsync`, `ExceptionMatchOptionalAsync`
+### `ExceptionMatch`, `ExceptionMatchAsync`, `ExceptionMatchOptionalAsync`
 	* Mitigtation: use effect monads with `@catch`
 
 
 ## Libraries removed outright
 
+### `LanguageExt.SysX`
 
-* `LanguageExt.SysX` - this was only needed to partition newer .NET Core code from .NET Standard.  This has now been merged into `LanguageExt.Sys`
-* `LanguageExt.CodeGen` - is deprecated from now.  To be replaced later by `LanguageExt.SourceGen`.  Note, this library has always been standalone and can therefore continue to work without new versions being released.
+this was only needed to partition newer .NET Core code from .NET Standard.  This has now been merged into `LanguageExt.Sys`
 
+### `LanguageExt.CodeGen` 
+
+Deprecated from now.  To be replaced later by `LanguageExt.SourceGen`.  Note, this library has always been standalone and can therefore continue to work without new versions being released.
+
+### `LanguageExt.Transformers` 
+
+No need for them now we have proper higher-kind support.
 
 # TODO
 
