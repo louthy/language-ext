@@ -138,8 +138,8 @@ public sealed class Atom<A>
                 }
                 sw.SpinOnce();
             }
-        }); 
-        
+        });
+
     /// <summary>
     /// Atomically updates the value by passing the old value to `f` and updating
     /// the atom with the result.  Note: `f` may be called multiple times, so it
@@ -148,35 +148,40 @@ public sealed class Atom<A>
     /// <param name="f">Function to update the atom</param>
     /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
     /// validation passed. Failure state otherwise</returns>
-    public Eff<RT, A> SwapEff<RT>(Func<A, Eff<RT, A>> f) where RT : HasIO<RT> =>
-        lift((RT env) =>
-        {
-            f = f ?? throw new ArgumentNullException(nameof(f));
-
-            SpinWait sw = default;
-            while (true)
+    public Eff<RT, A> SwapEff<RT>(Func<A, Eff<RT, A>> f) =>
+        from eio in envIO
+        from res in Eff<RT, A>.Lift(
+            env =>
             {
-                var current = value;
-                var newValueFinA = f(Box<A>.GetValue(value)).Run(env);
-                if (newValueFinA.IsFail)
-                {
-                    return newValueFinA;
-                }
+                f = f ?? throw new ArgumentNullException(nameof(f));
 
-                var newValueA = newValueFinA.Value;
-                var newValue = Box<A>.New(newValueA);
-                if (!validator(newValueA))
+                SpinWait sw = default;
+                while (true)
                 {
-                    return FinFail<A>(Error.New("Validation failed for swap"));
+                    var current      = value;
+                    var newValueFinA = f(Box<A>.GetValue(value)).Run(env, eio);
+                    if (newValueFinA.IsFail)
+                    {
+                        return newValueFinA;
+                    }
+
+                    var newValueA = newValueFinA.Value;
+                    var newValue  = Box<A>.New(newValueA);
+                    if (!validator(newValueA))
+                    {
+                        return FinFail<A>(Error.New("Validation failed for swap"));
+                    }
+
+                    if (Interlocked.CompareExchange(ref value, newValue, current) == current)
+                    {
+                        Change?.Invoke(newValueA);
+                        return newValueFinA;
+                    }
+
+                    sw.SpinOnce();
                 }
-                if(Interlocked.CompareExchange(ref value, newValue, current) == current)
-                {
-                    Change?.Invoke(newValueA);
-                    return newValueFinA;
-                }
-                sw.SpinOnce();
-            }
-        });
+            })
+        select res;
 
     /// <summary>
     /// Atomically updates the value by passing the old value to `f` and updating
@@ -278,8 +283,8 @@ public sealed class Atom<A>
                 }
                 sw.SpinOnce();
             }
-        }); 
-        
+        });
+
     /// <summary>
     /// Atomically updates the value by passing the old value to `f` and updating
     /// the atom with the result.  Note: `f` may be called multiple times, so it
@@ -289,35 +294,40 @@ public sealed class Atom<A>
     /// <param name="f">Function to update the atom</param>
     /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
     /// validation passed. Failure state otherwise</returns>
-    public Eff<RT, A> SwapEff<RT, X>(X x, Func<X, A, Eff<RT, A>> f) where RT : HasIO<RT> =>
-        lift((RT env) =>
-        {
-            f = f ?? throw new ArgumentNullException(nameof(f));
-
-            SpinWait sw = default;
-            while (true)
+    public Eff<RT, A> SwapEff<RT, X>(X x, Func<X, A, Eff<RT, A>> f) =>
+        from eio in envIO
+        from res in Eff<RT, A>.Lift(
+            env =>
             {
-                var current = value;
-                var newValueFinA = f(x, Box<A>.GetValue(value)).Run(env);
-                if (newValueFinA.IsFail)
-                {
-                    return newValueFinA;
-                }
+                f = f ?? throw new ArgumentNullException(nameof(f));
 
-                var newValueA = newValueFinA.Value;
-                var newValue = Box<A>.New(newValueA);
-                if (!validator(newValueA))
+                SpinWait sw = default;
+                while (true)
                 {
-                    return FinFail<A>(Error.New("Validation failed for swap"));
+                    var current      = value;
+                    var newValueFinA = f(x, Box<A>.GetValue(value)).Run(env, eio);
+                    if (newValueFinA.IsFail)
+                    {
+                        return newValueFinA;
+                    }
+
+                    var newValueA = newValueFinA.Value;
+                    var newValue  = Box<A>.New(newValueA);
+                    if (!validator(newValueA))
+                    {
+                        return FinFail<A>(Error.New("Validation failed for swap"));
+                    }
+
+                    if (Interlocked.CompareExchange(ref value, newValue, current) == current)
+                    {
+                        Change?.Invoke(newValueA);
+                        return newValueFinA;
+                    }
+
+                    sw.SpinOnce();
                 }
-                if(Interlocked.CompareExchange(ref value, newValue, current) == current)
-                {
-                    Change?.Invoke(newValueA);
-                    return newValueFinA;
-                }
-                sw.SpinOnce();
-            }
-        });
+            })
+        select res;
 
     /// <summary>
     /// Atomically updates the value by passing the old value to `f` and updating
@@ -422,8 +432,8 @@ public sealed class Atom<A>
                 }
                 sw.SpinOnce();
             }
-        }); 
-        
+        });
+
     /// <summary>
     /// Atomically updates the value by passing the old value to `f` and updating
     /// the atom with the result.  Note: `f` may be called multiple times, so it
@@ -434,35 +444,40 @@ public sealed class Atom<A>
     /// <param name="f">Function to update the atom</param>
     /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
     /// validation passed. Failure state otherwise</returns>
-    public Eff<RT, A> SwapEff<RT, X, Y>(X x, Y y, Func<X, Y, A, Eff<RT, A>> f) where RT : HasIO<RT> =>
-        lift((RT env) =>
-        {
-            f = f ?? throw new ArgumentNullException(nameof(f));
-
-            SpinWait sw = default;
-            while (true)
+    public Eff<RT, A> SwapEff<RT, X, Y>(X x, Y y, Func<X, Y, A, Eff<RT, A>> f) =>
+        from eio in envIO
+        from res in Eff<RT, A>.Lift(
+            env =>
             {
-                var current = value;
-                var newValueFinA = f(x, y, Box<A>.GetValue(value)).Run(env);
-                if (newValueFinA.IsFail)
-                {
-                    return newValueFinA;
-                }
+                f = f ?? throw new ArgumentNullException(nameof(f));
 
-                var newValueA = newValueFinA.Value;
-                var newValue = Box<A>.New(newValueA);
-                if (!validator(newValueA))
+                SpinWait sw = default;
+                while (true)
                 {
-                    return FinFail<A>(Error.New("Validation failed for swap"));
+                    var current      = value;
+                    var newValueFinA = f(x, y, Box<A>.GetValue(value)).Run(env, eio);
+                    if (newValueFinA.IsFail)
+                    {
+                        return newValueFinA;
+                    }
+
+                    var newValueA = newValueFinA.Value;
+                    var newValue  = Box<A>.New(newValueA);
+                    if (!validator(newValueA))
+                    {
+                        return FinFail<A>(Error.New("Validation failed for swap"));
+                    }
+
+                    if (Interlocked.CompareExchange(ref value, newValue, current) == current)
+                    {
+                        Change?.Invoke(newValueA);
+                        return newValueFinA;
+                    }
+
+                    sw.SpinOnce();
                 }
-                if(Interlocked.CompareExchange(ref value, newValue, current) == current)
-                {
-                    Change?.Invoke(newValueA);
-                    return newValueFinA;
-                }
-                sw.SpinOnce();
-            }
-        });
+            })
+        select res;
 
     /// <summary>
     /// Atomically updates the value by passing the old value to `f` and updating

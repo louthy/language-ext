@@ -1,3 +1,6 @@
+using System;
+using static LanguageExt.Prelude;
+
 namespace LanguageExt.Traits;
 
 /// <summary>
@@ -6,6 +9,20 @@ namespace LanguageExt.Traits;
 /// <typeparam name="F">Applicative functor</typeparam>
 public static partial class Alternative
 {
+    /// <summary>
+    /// Results in Empty if the predicate results in `false` 
+    /// </summary>
+    public static K<M, A> Filter<M, A>(this K<M, A> ma, Func<A, bool> predicate)
+        where M : Alternative<M>, Monad<M> =>
+        M.Bind(ma, a => predicate(a) ? M.Pure(a) : M.Empty<A>());
+    
+    /// <summary>
+    /// Results in Empty if the predicate results in `false` 
+    /// </summary>
+    public static K<M, A> Where<M, A>(this K<M, A> ma, Func<A, bool> predicate)
+        where M : Alternative<M>, Monad<M> =>
+        M.Bind(ma, a => predicate(a) ? M.Pure(a) : M.Empty<A>());
+    
     /// <summary>
     /// Given a set of applicative functors, return the first one to succeed.
     /// </summary>

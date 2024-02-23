@@ -29,7 +29,7 @@ public static partial class EffExtensions
     [Pure, MethodImpl(Opt.Default)]
     public static Fin<A> Run<RT, A>(this Eff<RT, A> ma, RT env)
         where RT : HasIO<RT> =>
-        ma.RunRT(env).Map(x => x.Value);
+        ma.Run(env, env.EnvIO);
     
     /// <summary>
     /// Invoke the effect
@@ -39,21 +39,8 @@ public static partial class EffExtensions
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
     public static Fin<(A Value, RT Runtime)> RunRT<RT, A>(this Eff<RT, A> ma, RT env)
-        where RT : HasIO<RT>
-    {
-        try
-        {
-            return ma.RunUnsafe(env);
-        }
-        catch (ErrorException e)
-        {
-            return e.ToError();
-        }
-        catch(Exception e)
-        {
-            return Error.New(e);
-        }
-    }
+        where RT : HasIO<RT> =>
+        ma.RunRT(env, env.EnvIO);
 
     /// <summary>
     /// Invoke the effect
@@ -65,54 +52,8 @@ public static partial class EffExtensions
     [Pure, MethodImpl(Opt.Default)]
     public static (A Value, RT Runtime) RunUnsafe<RT, A>(this Eff<RT, A> ma, RT env) 
         where RT : HasIO<RT> =>
-        ma.effect
-          .Run(env).As()
-          .Run().As()
-          .Run(env.EnvIO);
+        ma.RunUnsafe(env, env.EnvIO);
     
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Matching
-    //
-
-    /// <summary>
-    /// Map the failure to a new IO effect
-    /// </summary>
-    /// <param name="f">Function to map the fail value</param>
-    /// <returns>IO that encapsulates that IfFail</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> IfFailEff<RT, A>(this Eff<RT, A> ma, Func<Error, Eff<A>> Fail)
-        where RT : HasIO<RT> =>
-        ma.Match(Succ: Eff<RT, A>.Pure, Fail: x => Fail(x).WithRuntime<RT>()).Flatten();    
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Monadic bind
-    //
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, B> Bind<RT, A, B>(this Eff<RT, A> ma, Func<A, Eff<B>> f)
-        where RT : HasIO<RT> =>
-        ma.Bind(x => f(x).WithRuntime<RT>());
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, B> Bind<RT, A, B>(this Eff<RT, A> ma, Func<A, K<Eff, B>> f)
-        where RT : HasIO<RT> =>
-        ma.Bind(a => f(a).As());    
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -137,30 +78,6 @@ public static partial class EffExtensions
     //
     //  SelectMany extensions
     //
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="bind">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, C> SelectMany<RT, A, B, C>(this Eff<RT, A> ma, Func<A, Eff<B>> bind, Func<A, B, C> project) 
-        where RT : HasIO<RT> =>
-        ma.Bind(x => bind(x).Map(y => project(x, y)));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="bind">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, C> SelectMany<RT, A, B, C>(this Eff<RT, A> ma, Func<A, K<Eff, B>> bind, Func<A, B, C> project) 
-        where RT : HasIO<RT> =>
-        ma.SelectMany(x => bind(x).As(), project);
 
     /// <summary>
     /// Monadic bind and project with paired IO monads

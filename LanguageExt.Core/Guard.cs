@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt.Common;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
@@ -85,6 +86,64 @@ public readonly struct Guard<E, A>
 
 public static class GuardExtensions
 {
+    /// <summary>
+    /// Natural transformation to `Eff`
+    /// </summary>
+    public static Eff<Unit> ToEff(this Guard<Error, Unit> guard) =>
+        guard.Flag
+            ? Pure(unit)
+            : Fail(guard.OnFalse());
+
+    /// <summary>
+    /// Monadic binding support for `Eff`
+    /// </summary>
+    public static Eff<B> Bind<B>(
+        this Guard<Error, Unit> guard,
+        Func<Unit, Eff<B>> f) =>
+        guard.Flag
+            ? f(default)
+            : Fail(guard.OnFalse());
+       
+    /// <summary>
+    /// Monadic binding support for `Eff`
+    /// </summary>
+    public static Eff<C> SelectMany<B, C>(
+        this Guard<Error, Unit> guard,
+        Func<Unit, Eff<B>> bind, 
+        Func<Unit, B, C> project) =>
+        guard.Flag
+            ? bind(default).Map(b => project(default, b))
+            : Fail(guard.OnFalse());    
+    
+    /// <summary>
+    /// Natural transformation to `Eff`
+    /// </summary>
+    public static Eff<RT, Unit> ToEff<RT>(this Guard<Error, Unit> guard) =>
+        guard.Flag
+            ? Pure(unit)
+            : Fail(guard.OnFalse());
+
+    /// <summary>
+    /// Monadic binding support for `Eff`
+    /// </summary>
+    public static Eff<RT, B> Bind<RT, B>(
+        this Guard<Error, Unit> guard,
+        Func<Unit, Eff<RT, B>> f) =>
+        guard.Flag
+            ? f(default)
+            : Fail(guard.OnFalse());
+       
+    /// <summary>
+    /// Monadic binding support for `Eff`
+    /// </summary>
+    public static Eff<RT, C> SelectMany<RT, B, C>(
+        this Guard<Error, Unit> guard,
+        Func<Unit, Eff<RT, B>> bind, 
+        Func<Unit, B, C> project) =>
+        guard.Flag
+            ? bind(default).Map(b => project(default, b))
+            : Fail(guard.OnFalse());    
+    
     /// <summary>
     /// Natural transformation to `Validation`
     /// </summary>

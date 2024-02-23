@@ -5,6 +5,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <LangVersion>default</LangVersion>
         <RoslynCodeGenVersion>0.6.1</RoslynCodeGenVersion>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>

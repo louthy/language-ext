@@ -9,15 +9,15 @@ namespace LanguageExt;
 
 public partial class IO
 {
+    /// <summary>
+    /// Put the IO into a failure state
+    /// </summary>
+    /// <param name="value">Error value</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>IO in a failed state.  Always yields an error.</returns>
     public static IO<A> Fail<A>(Error value) =>
         IO<A>.Fail(value);
     
-    public static readonly IO<Unit> unitIO = 
-        IO<Unit>.Pure(default);
-    
-    public static readonly IO<EnvIO> envIO = 
-        IO<EnvIO>.LiftAsync(ValueTask.FromResult);
-
     public static IO<Unit> lift(Action f) =>
         lift(() =>
              {

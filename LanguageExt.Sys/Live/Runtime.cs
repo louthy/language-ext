@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Text;
 using LanguageExt.Traits;
 using LanguageExt.Sys.Traits;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Sys.Live;
 
@@ -57,7 +56,7 @@ public record Runtime<M>(RuntimeEnv Env) :
     /// <summary>
     /// Read the activity state
     /// </summary>
-    public K<M, ActivityEnv> Get =>
+    public K<M, ActivityEnv> Get { get; } =
         M.Gets(rt => rt.Env.Activity);
 
     /// <summary>

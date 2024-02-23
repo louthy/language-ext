@@ -3,7 +3,7 @@ using System;
 namespace LanguageExt.Traits;
 
 /// <summary>
-/// Makes a value, within a bound `State`, mutable via a mapping function
+/// Makes a value, within a bound `State`, mutable via a mapping function (this is effectively a Lens)
 /// </summary>
 /// <typeparam name="M">State trait</typeparam>
 /// <typeparam name="OUTER_STATE">The internal state of the `M` type</typeparam>

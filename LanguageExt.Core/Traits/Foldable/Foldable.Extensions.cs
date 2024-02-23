@@ -1,6 +1,7 @@
 using System;
 using System.Numerics;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 using LanguageExt.Core;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
@@ -9,6 +10,44 @@ namespace LanguageExt.Traits;
 
 public static partial class Foldable
 {
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="A">Initial bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>M<C></returns>
+    public static K<F, C> SelectMany<F, A, C>(
+        this K<F, A> ma,
+        Func<A, Guard<Error, Unit>> bind,
+        Func<A, Unit, C> project)
+        where F : Functor<F> =>
+        F.Map(a => bind(a) switch
+                   {
+                       { Flag: true } => project(a, default),
+                       var guard      => guard.OnFalse().Throw<C>()
+                   }, ma);
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>M<C></returns>
+    public static K<F, C> SelectMany<F, B, C>(
+        this Guard<Error, Unit> ma,
+        Func<Unit, K<F, B>> bind,
+        Func<Unit, B, C> project)
+        where F : Functor<F> =>
+        ma switch
+        {
+            { Flag: true } => F.Map(b => project(default, b), bind(default)),
+            var guard      => guard.OnFalse().Throw<K<F, C>>()
+        };
+    
     /// <summary>
     /// Right-associative fold of a structure, lazy in the accumulator.
     ///

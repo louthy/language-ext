@@ -55,7 +55,6 @@ public readonly struct Eff<RT, A> : K<Eff<RT>, A>
         StateT<RT, ResourceT<IO>, X>.Pure(value);
 
     Eff<RT2, B> MapState<RT2, B>(Func<StateT<RT, ResourceT<IO>, A>, StateT<RT2, ResourceT<IO>, B>> f) =>
-        //where RT2 : HasIO<RT2> =>
         new(f(effect));
 
     Eff<RT, B> MapResource1<B>(Func<ResourceT<IO, (A Value, RT Env)>, ResourceT<IO, (B Value, RT Env)>> f) =>
@@ -129,18 +128,6 @@ public readonly struct Eff<RT, A> : K<Eff<RT>, A>
     Eff(IO<A> effect) 
         : this(liftIO(effect))
     { }
-
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Local environment
-    //
-    
-    /// <summary>
-    /// Map the runtime
-    /// </summary>
-    //public Eff<RT1, A> With<RT1>(Func<RT1, RT> f) where RT1 : HasIO<RT1> =>
-     //   new(effect.With(f));
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -316,7 +303,7 @@ public readonly struct Eff<RT, A> : K<Eff<RT>, A>
     //
     // Matching
     //
-
+    
     /// <summary>
     /// Pattern match the success or failure values and collapse them down to a success value
     /// </summary>
@@ -344,6 +331,15 @@ public readonly struct Eff<RT, A> : K<Eff<RT>, A>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, A> IfFailEff(Func<Error, Eff<RT, A>> Fail) =>
         Match(Succ: Pure, Fail: Fail).Flatten();
+
+    /// <summary>
+    /// Map the failure to a new IO effect
+    /// </summary>
+    /// <param name="f">Function to map the fail value</param>
+    /// <returns>IO that encapsulates that IfFail</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, A> IfFailEff(Func<Error, Eff<A>> Fail) =>
+        Match(Succ: Pure, Fail: x => Fail(x).WithRuntime<RT>()).Flatten();    
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -394,19 +390,6 @@ public readonly struct Eff<RT, A> : K<Eff<RT>, A>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, B> Bind<B>(Func<A, IO<B>> f) =>
         new(effect.Bind(f));
-
-    /*
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, B> Bind<B>(Func<A, Ask<RT, B>> f) =>
-        new(effect.Bind(f));
-        */
 
     /// <summary>
     /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
@@ -474,6 +457,28 @@ public readonly struct Eff<RT, A> : K<Eff<RT>, A>
     public Eff<RT, A> Bind(Func<A, Fail<Error>> f) =>
         Bind(x => Fail(f(x).Value));
 
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="f">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, B> Bind<B>(Func<A, Eff<B>> f) =>
+        Bind(x => f(x).WithRuntime<RT>());
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="f">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, B> Bind<B>(Func<A, K<Eff, B>> f) =>
+        Bind(a => f(a).As());    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Monadic binding and projection
@@ -522,19 +527,6 @@ public readonly struct Eff<RT, A> : K<Eff<RT>, A>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
         new(effect.SelectMany(bind, project));
-
-    /*
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="bind">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, C> SelectMany<B, C>(Func<A, Ask<RT, B>> bind, Func<A, B, C> project) =>
-        new(effect.SelectMany(bind, project));
-        */
 
     /// <summary>
     /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
@@ -613,6 +605,28 @@ public readonly struct Eff<RT, A> : K<Eff<RT>, A>
                       var g          => Eff<RT, Unit>.Fail(g.OnFalse().Value)
                   }
         select project(x, unit);
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="bind">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>
+        Bind(x => bind(x).Map(y => project(x, y)));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="bind">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, C> SelectMany<B, C>(Func<A, K<Eff, B>> bind, Func<A, B, C> project) =>
+        SelectMany(x => bind(x).As(), project);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -844,6 +858,13 @@ public readonly struct Eff<RT, A> : K<Eff<RT>, A>
         ma.Match(Succ: Pure, Fail: Fail);
 
     /// <summary>
+    /// Convert to an `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static implicit operator Eff<RT, A>(in Eff<A> ma) =>
+        ma.WithRuntime<RT>();
+
+    /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
     /// result of the first without running the second.
     /// </summary>
@@ -972,9 +993,72 @@ public readonly struct Eff<RT, A> : K<Eff<RT>, A>
     /// <param name="mb">Alternative IO operation</param>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, EffCatch<RT, A> mb) =>
-        ma.IfFailEff(mb.Run);
+    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchM<Eff<RT>, A> mb) =>
+        ma.IfFailEff(e => mb.Run(e, Fail(e)).As());
 
+    /// <summary>
+    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// result of the first without running the second.
+    /// </summary>
+    /// <param name="ma">First IO operation</param>
+    /// <param name="mb">Alternative IO operation</param>
+    /// <returns>Result of either the first or second operation</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchM<Eff, A> mb) =>
+        ma.IfFailEff(e => mb.Run(e, Eff<A>.Fail(e)).As().WithRuntime<RT>());
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Invoking
+    //
+
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// Returns the result value only 
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public Fin<A> Run(RT env, EnvIO envIO) =>
+        RunRT(env, envIO).Map(x => x.Value);    
+    
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// Returns the result value and the runtime (which carries state) 
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public Fin<(A Value, RT Runtime)> RunRT(RT env, EnvIO envIO)
+    {
+        try
+        {
+            return RunUnsafe(env, envIO);
+        }
+        catch (ErrorException e)
+        {
+            return e.ToError();
+        }
+        catch(Exception e)
+        {
+            return Error.New(e);
+        }
+    }
+
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// This is labelled 'unsafe' because it can throw an exception, whereas
+    /// `Run` will capture any errors and return a `Fin` type.
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public (A Value, RT Runtime) RunUnsafe(RT env, EnvIO envIO) => 
+        effect
+          .Run(env).As()
+          .Run().As()
+          .Run(envIO);
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Obsolete

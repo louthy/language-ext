@@ -8,7 +8,7 @@ namespace LanguageExt;
 /// </summary>
 public class Resources : IDisposable
 {
-    readonly AtomHashMap<object, Resource> resources = AtomHashMap<object, Resource>();
+    readonly AtomHashMap<object, TrackedResource> resources = AtomHashMap<object, TrackedResource>();
 
     public void Dispose()
     {
@@ -22,14 +22,14 @@ public class Resources : IDisposable
     {
         var obj = (object?)value;
         if (obj is null) throw new InvalidCastException();
-        return resources.TryAdd(obj, new ResourceDisposable<A>(value));
+        return resources.TryAdd(obj, new TrackedResourceDisposable<A>(value));
     }
 
     public Unit Acquire<A>(A value, Func<A, IO<Unit>> release) 
     {
         var obj = (object?)value;
         if (obj is null) throw new InvalidCastException();
-        return resources.TryAdd(obj, new ResourceWithFree<A>(value, release));
+        return resources.TryAdd(obj, new TrackedResourceWithFree<A>(value, release));
     }
 
     public IO<Unit> Release<A>(A value)
@@ -42,11 +42,11 @@ public class Resources : IDisposable
                                          resources.Remove(obj);
                                          return f.Release();
                                      },
-                               None: () => IO.unitIO);
+                               None: () => unitIO);
     }
 }
 
-abstract record Resource
+abstract record TrackedResource
 {
     public abstract IO<Unit> Release();
 }
@@ -54,7 +54,7 @@ abstract record Resource
 /// <summary>
 /// Holds a resource with its disposal function
 /// </summary>
-record ResourceWithFree<A>(A Value, Func<A, IO<Unit>> Dispose) : Resource
+record TrackedResourceWithFree<A>(A Value, Func<A, IO<Unit>> Dispose) : TrackedResource
 {
     public override IO<Unit> Release() => 
         Dispose(Value);
@@ -63,7 +63,7 @@ record ResourceWithFree<A>(A Value, Func<A, IO<Unit>> Dispose) : Resource
 /// <summary>
 /// Holds a resource with its disposal function
 /// </summary>
-record ResourceDisposable<A>(A Value) : Resource
+record TrackedResourceDisposable<A>(A Value) : TrackedResource
     where A : IDisposable
 {
     public override IO<Unit> Release() =>

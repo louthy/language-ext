@@ -1,5 +1,5 @@
 using System;
-using LanguageExt.Effects.Traits;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -12,8 +12,8 @@ public static partial class EffExtensions
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
-    public static Eff<RT, A> Repeat<RT, A>(this Eff<RT, A> ma) =>
-        ma.MapIO(io => io.Repeat());
+    public static Eff<RT, A> Repeat<RT, A>(this K<Eff<RT>, A> ma) =>
+        ma.As().MapIO(io => io.Repeat());
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires  
@@ -23,8 +23,8 @@ public static partial class EffExtensions
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
-    public static Eff<RT, A> Repeat<RT, A>(this Eff<RT, A> ma, Schedule schedule) =>
-        ma.MapIO(io => io.Repeat(schedule));
+    public static Eff<RT, A> Repeat<RT, A>(this K<Eff<RT>, A> ma, Schedule schedule) =>
+        ma.As().MapIO(io => io.Repeat(schedule));
 
     /// <summary>
     /// Keeps repeating the computation until the predicate returns false
@@ -33,8 +33,8 @@ public static partial class EffExtensions
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
-    public static Eff<RT, A> RepeatWhile<RT, A>(this Eff<RT, A> ma, Func<A, bool> predicate) =>
-        ma.MapIO(io => io.RepeatWhile(predicate));
+    public static Eff<RT, A> RepeatWhile<RT, A>(this K<Eff<RT>, A> ma, Func<A, bool> predicate) =>
+        ma.As().MapIO(io => io.RepeatWhile(predicate));
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns false
@@ -45,10 +45,10 @@ public static partial class EffExtensions
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> RepeatWhile<RT, A>(
-        this Eff<RT, A> ma,
+        this K<Eff<RT>, A> ma,
         Schedule schedule,
         Func<A, bool> predicate) =>
-        ma.MapIO(io => io.RepeatWhile(schedule, predicate));
+        ma.As().MapIO(io => io.RepeatWhile(schedule, predicate));
 
     /// <summary>
     /// Keeps repeating the computation until the predicate returns true
@@ -58,9 +58,9 @@ public static partial class EffExtensions
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> RepeatUntil<RT, A>(
-        this Eff<RT, A> ma,
+        this K<Eff<RT>, A> ma,
         Func<A, bool> predicate) =>
-        ma.MapIO(io => io.RepeatUntil(predicate));
+        ma.As().MapIO(io => io.RepeatUntil(predicate));
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns true
@@ -71,8 +71,8 @@ public static partial class EffExtensions
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> RepeatUntil<RT, A>(
-        this Eff<RT, A> ma,
+        this K<Eff<RT>, A> ma,
         Schedule schedule,
         Func<A, bool> predicate) =>
-        ma.MapIO(io => io.RepeatUntil(schedule, predicate));
+        ma.As().MapIO(io => io.RepeatUntil(schedule, predicate));
 }

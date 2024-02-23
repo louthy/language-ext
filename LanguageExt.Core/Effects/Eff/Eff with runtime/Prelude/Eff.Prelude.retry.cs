@@ -1,5 +1,6 @@
 using System;
 using LanguageExt.Common;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -12,7 +13,7 @@ public static partial class Prelude
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
-    public static Eff<RT, A> retry<RT, A>(Eff<RT, A> ma) =>
+    public static Eff<RT, A> retry<RT, A>(K<Eff<RT>, A> ma) =>
         ma.Retry();
 
     /// <summary>
@@ -23,7 +24,7 @@ public static partial class Prelude
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
-    public static Eff<RT, A> retry<RT, A>(Schedule schedule, Eff<RT, A> ma) =>
+    public static Eff<RT, A> retry<RT, A>(Schedule schedule, K<Eff<RT>,A> ma) =>
         ma.Retry(schedule);
 
     /// <summary>
@@ -34,7 +35,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
     public static Eff<RT, A> retryWhile<RT, A>(
-        Eff<RT, A> ma,
+        K<Eff<RT>,A> ma,
         Func<Error, bool> predicate) =>
         ma.RetryWhile(predicate);
 
@@ -48,7 +49,7 @@ public static partial class Prelude
     /// <returns>The result of the last invocation of ma</returns>
     public static Eff<RT, A> retryWhile<RT, A>(
         Schedule schedule,
-        Eff<RT, A> ma,
+        K<Eff<RT>,A> ma,
         Func<Error, bool> predicate) =>
         ma.RetryWhile(schedule, predicate);
 
@@ -60,7 +61,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
     public static Eff<RT, A> retryUntil<RT, A>(
-        Eff<RT, A> ma,
+        K<Eff<RT>,A> ma,
         Func<Error, bool> predicate) =>
         ma.RetryUntil(predicate);
 
@@ -74,7 +75,7 @@ public static partial class Prelude
     /// <returns>The result of the last invocation of ma</returns>
     public static Eff<RT, A> retryUntil<RT, A>(
         Schedule schedule,
-        Eff<RT, A> ma,
+        K<Eff<RT>,A> ma,
         Func<Error, bool> predicate) =>
         ma.RetryUntil(schedule, predicate);
 }

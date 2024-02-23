@@ -55,7 +55,14 @@ public abstract class Producer<OUT, A>
     public Producer<OUT, M, C> SelectMany<B, M, C>(Func<A, K<M, B>> f, Func<A, B, C> project)
         where M : Monad<M> =>
         Bind(a => M.Map(b => project(a, b), f(a)));
-                        
+            
+    public Producer<OUT, C> SelectMany<C>(Func<A, Guard<Error, Unit>> bind, Func<A, Unit, C> project ) =>
+        Map(a => bind(a) switch
+                 {
+                     { Flag: true } => project(a, default),
+                     var g          => g.OnFalse().Throw<C>()
+                 });
+                
     public static implicit operator Producer<OUT, A>(Pure<A> ma) =>
         new Pure(ma.Value);
 

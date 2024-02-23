@@ -4,8 +4,8 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using LanguageExt.Effects;
-using LanguageExt.Effects.Traits;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -37,9 +37,16 @@ public readonly record struct Eff<A>(Eff<MinRT, A> effect) :
     /// Invoke the effect
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
+    public Fin<A> Run(EnvIO envIO) =>
+        Run(new MinRT(envIO));
+
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
     public Fin<A> Run() =>
         Run(new MinRT());
-
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Timeout
@@ -333,8 +340,7 @@ public readonly record struct Eff<A>(Eff<MinRT, A> effect) :
     /// <param name="f">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, B> Bind<RT, B>(Func<A, Eff<RT, B>> f)
-        where RT : HasIO<RT> =>
+    public Eff<RT, B> Bind<RT, B>(Func<A, Eff<RT, B>> f) =>
         WithRuntime<RT>().Bind(f);
 
     /// <summary>
@@ -345,8 +351,7 @@ public readonly record struct Eff<A>(Eff<MinRT, A> effect) :
     /// <param name="f">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, B> Bind<RT, B>(Func<A, K<Eff<RT>, B>> f)
-        where RT : HasIO<RT> =>
+    public Eff<RT, B> Bind<RT, B>(Func<A, K<Eff<RT>, B>> f) =>
         Bind(a => f(a).As());
 
     /// <summary>
@@ -406,8 +411,7 @@ public readonly record struct Eff<A>(Eff<MinRT, A> effect) :
     /// <param name="bind">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, C> SelectMany<RT, B, C>(Func<A, Eff<RT, B>> bind, Func<A, B, C> project)
-        where RT : HasIO<RT> =>
+    public Eff<RT, C> SelectMany<RT, B, C>(Func<A, Eff<RT, B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     /// <summary>
@@ -418,8 +422,7 @@ public readonly record struct Eff<A>(Eff<MinRT, A> effect) :
     /// <param name="bind">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, C> SelectMany<RT, B, C>(Func<A, K<Eff<RT>, B>> bind, Func<A, B, C> project)
-        where RT : HasIO<RT> =>
+    public Eff<RT, C> SelectMany<RT, B, C>(Func<A, K<Eff<RT>, B>> bind, Func<A, B, C> project) =>
         SelectMany(x => bind(x).As(), project);
 
     /// <summary>
@@ -698,12 +701,11 @@ public readonly record struct Eff<A>(Eff<MinRT, A> effect) :
     /// Convert to an `Eff` monad with a runtime
     /// </summary>
     public Eff<RT, A> WithRuntime<RT>()
-        where RT : HasIO<RT>
     {
         var e = effect;
-        return new((from irt in State.gets<StateT<RT, ResourceT<IO>>, RT, MinRT>(rt => rt.ToMin())
-                    let ires = e.RunUnsafe(irt)
-                    select ires.Value).As());
+        return (from eio in Eff<RT, EnvIO>.LiftIO(envIO)
+                let ires = e.RunUnsafe(new MinRT(eio))
+                select ires.Value).As();
     }
 
     /// <summary>
@@ -891,8 +893,8 @@ public readonly record struct Eff<A>(Eff<MinRT, A> effect) :
     /// <param name="mb">Alternative IO operation</param>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, EffCatch<A> mb) =>
-        ma.IfFailEff(mb.Run);
+    public static Eff<A> operator |(Eff<A> ma, CatchM<Eff, A> mb) =>
+        ma.IfFailEff(e => mb.Run(e, Fail(e)).As());
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

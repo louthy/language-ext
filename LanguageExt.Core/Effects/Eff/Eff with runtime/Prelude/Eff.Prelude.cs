@@ -1,7 +1,6 @@
 using System;
 using LanguageExt.Common;
 using System.Threading.Tasks;
-using LanguageExt.Effects.Traits;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
@@ -49,30 +48,31 @@ public static partial class Prelude
     /// <typeparam name="RT">Runtime environment</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>An asynchronous effect that captures the operation running in context</returns>
-    public static Eff<RT, A> localCancel<RT, A>(Eff<RT, A> ma) where RT : HasIO<RT> =>
-        liftEff<RT, A>(
-             rt =>
-             {
-                 var rt1 = rt.WithIO(rt.EnvIO.LocalCancel);
-                 using (rt1.EnvIO.Source)
-                 {
-                     return ma.Run(rt1);
-                 }
-             });
+    public static Eff<RT, A> localCancel<RT, A>(Eff<RT, A> ma) =>
+        from env in envIO
+        from res in liftEff<RT, A>(
+            rt =>
+            {
+                using var lenv = env.LocalCancel;
+                return ma.Run(rt, lenv);
+            })
+        select res;
 
     /// <summary>
+    /// Create a new local context for the environment by mapping the outer environment and then
     /// Create a new local context for the environment by mapping the outer environment and then
     /// using the result as a new context when running the IO monad provided
     /// </summary>
     /// <param name="f">Function to map the outer environment into a new one to run `ma`</param>
     /// <param name="ma">IO monad to run in the new context</param>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<OuterRT, A> localEff<OuterRT, InnerRT, A>(Func<OuterRT, InnerRT> f, Eff<InnerRT, A> ma)
-        where InnerRT : HasIO<InnerRT>
-        where OuterRT : HasIO<OuterRT> =>
-        new((from irt in State.gets<StateT<OuterRT, ResourceT<IO>>, OuterRT, InnerRT>(f)
-             let ires = ma.RunUnsafe(irt)
-             select ires.Value).As());
+    public static Eff<OuterRT, A> localEff<OuterRT, InnerRT, A>(Func<OuterRT, InnerRT> f, Eff<InnerRT, A> ma) =>
+        (from irt in State.gets<Eff<OuterRT>, OuterRT, InnerRT>(f)
+         from eio in Resource.use<Eff<OuterRT>, EnvIO>(envIO.Map(e => e.LocalCancel))
+         let ires = ma.RunUnsafe(irt, eio)
+         from ___ in Resource.release<Eff<OuterRT>, EnvIO>(eio)
+         select ires.Value)
+        .As();
  
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

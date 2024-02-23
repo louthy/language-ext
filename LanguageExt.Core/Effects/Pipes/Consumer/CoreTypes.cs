@@ -91,8 +91,7 @@ public record Consumer<IN, M, A> : Proxy<Unit, IN, Unit, Void, M, A>
     [Pure]
     public Consumer<IN, M, C> SelectMany<B, C>(Func<A, Consumer<IN, M, B>> f, Func<A, B, C> project) => 
         Value.Bind(a => f(a).Map(b => project(a, b))).ToConsumer();
-        
-        
+
     /// <summary>
     /// Monadic bind operation, for chaining `Proxy` computations together.
     /// </summary>

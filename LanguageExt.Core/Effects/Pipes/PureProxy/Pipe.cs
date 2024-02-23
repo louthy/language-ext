@@ -61,6 +61,13 @@ public abstract class Pipe<IN, OUT, A>
         
     public Pipe<IN, OUT, C> SelectMany<B, C>(Func<A, Producer<OUT, B>> f, Func<A, B, C> project) =>
         Bind(a => f(a).Select(b => project(a, b)));
+    
+    public Pipe<IN, OUT, C> SelectMany<C>(Func<A, Guard<Error, Unit>> bind, Func<A, Unit, C> project ) =>
+        Map(a => bind(a) switch
+                 {
+                     { Flag: true } => project(a, default),
+                     var g          => g.OnFalse().Throw<C>()
+                 });
 
     public static implicit operator Pipe<IN, OUT, A>(Pure<A> ma) =>
         new Pure(ma.Value);

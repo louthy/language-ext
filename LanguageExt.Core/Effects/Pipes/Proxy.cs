@@ -48,7 +48,7 @@ namespace LanguageExt.Pipes;
 /// monadic variable.  If the effect represented by the `Proxy` ends, then this will be the result value.
 ///
 /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
-public abstract record Proxy<UOut, UIn, DIn, DOut, M, A>
+public abstract record Proxy<UOut, UIn, DIn, DOut, M, A> //: K<M, A>
     where M : Monad<M>
 {
     /// <summary>

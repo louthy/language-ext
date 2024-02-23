@@ -109,7 +109,7 @@ public static class Testing
                  from x in IO.Pure("Hello")
                  from i in ReaderT<string, IdentityT<IO>>.liftIO(IO.Pure("Hello"))
                  from j in IO.Pure("Hello").Fork()
-                 from r in IO.envIO 
+                 from r in envIO 
                  from y in m2
                  select $"{p} {y} {j}";
 
@@ -128,7 +128,7 @@ public static class Testing
                  from x in IO.Pure("Hello")
                  from i in ReaderT<string, IO>.liftIO(IO.Pure("Hello"))
                  from j in IO.Pure("Hello").Fork()
-                 from r in IO.envIO 
+                 from r in envIO 
                  from y in m2
                  select $"{p} {y} {j}";
 
@@ -147,7 +147,7 @@ public static class Testing
                  from p in ask<string>()
                  from i in liftIO(IO.Pure("Hello"))
                  from j in IO.Pure("Hello").Fork()
-                 from r in IO.envIO 
+                 from r in envIO 
                  from _ in release(f)
                  from y in m2
                  select $"{w} {f} {i}";
@@ -181,7 +181,7 @@ public static class Testing
                  from i in OptionT<StateT<string, IO>>.liftIO(IO.Pure("Hello"))
                  from j in IO.Pure("Hello").Fork()
                  from _ in StateT.put<string, IO>(x)
-                 from r in IO.envIO
+                 from r in envIO
                  from y in m2
                  select $"{w} {j} {i}";
 
@@ -202,7 +202,7 @@ public static class Testing
                  from i in StateT<string, OptionT<IO>>.liftIO(IO.Pure("Hello"))
                  from j in IO.Pure("Hello").Fork()
                  from _ in StateT.put<string, OptionT<IO>>(x)
-                 from r in IO.envIO
+                 from r in envIO
                  from y in m2
                  select $"{w} {j} {i}";
 

@@ -26,7 +26,7 @@ namespace LanguageExt.Pipes;
 public static class Effect
 {
     [Pure]
-    internal static K<M, R> RunEffect<M, R>(this Proxy<Void, Unit, Unit, Void, M, R> ma) 
+    public static K<M, R> RunEffect<M, R>(this Proxy<Void, Unit, Unit, Void, M, R> ma) 
         where M : Monad<M> 
     {
         return Go(ma);

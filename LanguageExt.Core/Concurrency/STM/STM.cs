@@ -3,8 +3,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -81,8 +79,7 @@ public static class STM
     /// Run the op within a new transaction
     /// If a transaction is already running, then this becomes part of the parent transaction
     /// </summary>
-    internal static Eff<RT, R> DoTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) 
-        where RT : HasIO<RT> =>
+    internal static Eff<RT, R> DoTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) =>
         transaction.Value == null
             ? RunTransaction(op, isolation)
             : op;
@@ -128,45 +125,47 @@ public static class STM
             sw.SpinOnce();
         }
     }
-        
+
     /// <summary>
     /// Runs the transaction
     /// </summary>
-    static Eff<RT, R> RunTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) 
-        where RT : HasIO<RT> =>
-        lift((RT env) =>
-        {
-            SpinWait sw = default;
-            while (true)
+    static Eff<RT, R> RunTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) =>
+        from eio in envIO
+        from res in Eff<RT, R>.Lift(
+            env =>
             {
-                // Create a new transaction with a snapshot of the current state
-                var t = new Transaction(state.Items);
-                transaction.Value = t;
-                try
+                SpinWait sw = default;
+                while (true)
                 {
-                    // Try to do the operations of the transaction
-                    var res = op.Run(env);
-                    return res.IsFail 
-                               ? res 
-                               : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
-                }
-                catch (ConflictException)
-                {
-                    // Conflict found, so retry
-                }
-                finally
-                {
-                    // Clear the current transaction on the way out
-                    transaction.Value = null;
-                    
-                    // Announce changes
-                    OnChange(t.changes);
-                }
+                    // Create a new transaction with a snapshot of the current state
+                    var t = new Transaction(state.Items);
+                    transaction.Value = t;
+                    try
+                    {
+                        // Try to do the operations of the transaction
+                        var res = op.Run(env, eio);
+                        return res.IsFail
+                                   ? res
+                                   : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
+                    }
+                    catch (ConflictException)
+                    {
+                        // Conflict found, so retry
+                    }
+                    finally
+                    {
+                        // Clear the current transaction on the way out
+                        transaction.Value = null;
 
-                // Wait one tick before trying again
-                sw.SpinOnce();
-            }
-        });
+                        // Announce changes
+                        OnChange(t.changes);
+                    }
+
+                    // Wait one tick before trying again
+                    sw.SpinOnce();
+                }
+            })
+        select res;
 
     /// <summary>
     /// Runs the transaction
