@@ -8,34 +8,19 @@ namespace LanguageExt.Sys.Test;
 /// <summary>
 /// Test IO runtime
 /// </summary>
-public readonly struct Runtime<M> : 
-    Has<M, ConsoleIO>,
-    Has<M, FileIO>,
-    Has<M, TextReadIO>,
-    Has<M, TimeIO>,
-    Has<M, EnvironmentIO>,
-    Has<M, DirectoryIO>
-    where M : State<M, Runtime<M>>, Monad<M>
+public record Runtime(RuntimeEnv Env) : 
+    Has<Eff<Runtime>, ConsoleIO>,
+    Has<Eff<Runtime>, FileIO>,
+    Has<Eff<Runtime>, TextReadIO>,
+    Has<Eff<Runtime>, TimeIO>,
+    Has<Eff<Runtime>, EnvironmentIO>,
+    Has<Eff<Runtime>, DirectoryIO>
 {
-    public readonly RuntimeEnv env;
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    Runtime(RuntimeEnv env) =>
-        this.env = env;
-
-    /// <summary>
-    /// Configuration environment accessor
-    /// </summary>
-    public RuntimeEnv Env =>
-        env ?? throw new InvalidOperationException("Runtime Env not set.  Perhaps because of using default(Runtime) or new Runtime() rather than Runtime.New()");
-
     /// <summary>
     /// Constructor function
     /// </summary>
     /// <param name="timeSpec">Defines how time works in the runtime</param>
-    public static Runtime<M> New(Implementations.TestTimeSpec? timeSpec = default) =>
+    public static Runtime New(Implementations.TestTimeSpec? timeSpec = default) =>
         new(new RuntimeEnv(EnvIO.New(),
                            Encoding.Default,
                            new MemoryConsole(),
@@ -48,7 +33,7 @@ public readonly struct Runtime<M> :
     /// </summary>
     /// <param name="encoding">Text encoding</param>
     /// <param name="timeSpec">Defines how time works in the runtime</param>
-    public static Runtime<M> New(Encoding encoding, 
+    public static Runtime New(Encoding encoding, 
                                  Implementations.TestTimeSpec? timeSpec = default) =>
         new(new RuntimeEnv(EnvIO.New(),
                            encoding,
@@ -63,7 +48,7 @@ public readonly struct Runtime<M> :
     /// <param name="encoding">Text encoding</param>
     /// <param name="envIO">Environment for the IO monad</param>
     /// <param name="timeSpec">Defines how time works in the runtime</param>
-    public static Runtime<M> New(EnvIO envIO, 
+    public static Runtime New(EnvIO envIO, 
                                  Encoding encoding, 
                                  Implementations.TestTimeSpec? timeSpec = default) =>
         new(new RuntimeEnv(envIO,
@@ -80,56 +65,65 @@ public readonly struct Runtime<M> :
     public Encoding Encoding =>
         Env.Encoding;
 
-    public Runtime<M> WithIO(EnvIO envIO) =>
+    public Runtime WithIO(EnvIO envIO) =>
         new(Env with { EnvIO = envIO });
 
     public EnvIO EnvIO =>
         Env.EnvIO;
 
+    static K<Eff<Runtime>, A> gets<A>(Func<Runtime, A> f) =>
+        State.gets<Eff<Runtime>, Runtime, A>(f);
+    
+    static K<Eff<Runtime>, Unit> modify(Func<RuntimeEnv, RuntimeEnv> f) =>
+        State.modify<Eff<Runtime>, Runtime>(rt => rt with { Env = f(rt.Env) } );
+    
+    static K<Eff<Runtime>, A> pure<A>(A value) =>
+        Eff<Runtime, A>.Pure(value);
+    
     /// <summary>
     /// Access the console environment
     /// </summary>
     /// <returns>Console environment</returns>
-    K<M, ConsoleIO> Has<M, ConsoleIO>.Trait => 
-        M.Gets(rt => new Implementations.ConsoleIO(rt.Env.Console));
+    K<Eff<Runtime>, ConsoleIO> Has<Eff<Runtime>, ConsoleIO>.Trait => 
+        gets(rt => new Implementations.ConsoleIO(rt.Env.Console));
 
     /// <summary>
     /// Access the file environment
     /// </summary>
     /// <returns>File environment</returns>
-    K<M, FileIO> Has<M, FileIO>.Trait => 
-        from n in Time<M, Runtime<M>>.now
-        from r in M.Gets(rt => new Implementations.FileIO(rt.Env.FileSystem, n))
+    K<Eff<Runtime>, FileIO> Has<Eff<Runtime>, FileIO>.Trait => 
+        from n in Time<Eff<Runtime>, Runtime>.now
+        from r in gets(rt => new Implementations.FileIO(rt.Env.FileSystem, n))
         select r;
 
     /// <summary>
     /// Access the TextReader environment
     /// </summary>
     /// <returns>TextReader environment</returns>
-    K<M, TextReadIO> Has<M, TextReadIO>.Trait => 
-        M.Gets(_ => Implementations.TextReadIO.Default);
+    K<Eff<Runtime>, TextReadIO> Has<Eff<Runtime>, TextReadIO>.Trait => 
+        gets(_ => Implementations.TextReadIO.Default);
 
     /// <summary>
     /// Access the time environment
     /// </summary>
     /// <returns>Time environment</returns>
-    K<M, TimeIO> Has<M, TimeIO>.Trait => 
-        M.Gets(rt => new Implementations.TimeIO(rt.Env.TimeSpec));
+    K<Eff<Runtime>, TimeIO> Has<Eff<Runtime>, TimeIO>.Trait => 
+        gets(rt => new Implementations.TimeIO(rt.Env.TimeSpec));
 
     /// <summary>
     /// Access the operating-system environment
     /// </summary>
     /// <returns>Operating-system environment environment</returns>
-    K<M, EnvironmentIO> Has<M, EnvironmentIO>.Trait => 
-        M.Gets(rt => new Implementations.EnvironmentIO(rt.Env.SysEnv));
+    K<Eff<Runtime>, EnvironmentIO> Has<Eff<Runtime>, EnvironmentIO>.Trait => 
+        gets(rt => new Implementations.EnvironmentIO(rt.Env.SysEnv));
 
     /// <summary>
     /// Access the directory environment
     /// </summary>
     /// <returns>Directory environment</returns>
-    K<M, DirectoryIO> Has<M, DirectoryIO>.Trait =>
-        from n in Time<M, Runtime<M>>.now
-        from r in M.Gets(rt => new Implementations.DirectoryIO(rt.Env.FileSystem, n))
+    K<Eff<Runtime>, DirectoryIO> Has<Eff<Runtime>, DirectoryIO>.Trait =>
+        from n in Time<Eff<Runtime>, Runtime>.now
+        from r in gets(rt => new Implementations.DirectoryIO(rt.Env.FileSystem, n))
         select r;
 }
     

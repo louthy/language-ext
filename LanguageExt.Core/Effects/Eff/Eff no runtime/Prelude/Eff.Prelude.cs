@@ -16,6 +16,14 @@ public static partial class Prelude
     public static readonly Eff<Unit> unitEff = Pure(unit);
     
     /// <summary>
+    /// Timeout operation if it takes too long
+    /// </summary>
+    [Pure]
+    [MethodImpl(Opt.Default)]
+    public static Eff<A> timeout<A>(TimeSpan timeout, Eff<A> ma) =>
+        ma.MapIO(io => io.Timeout(timeout));
+    
+    /// <summary>
     /// Construct an successful effect with a pure value
     /// </summary>
     /// <param name="value">Pure value to construct the monad with</param>

@@ -105,7 +105,7 @@ public static class Testing
         var m2 = ReaderT<string>.lift(IdentityT<IO, int>.Lift(IO.Pure(123)));
                 
         var m0 = from w in Pure(123)
-                 from p in ReaderT.ask<string, IdentityT<IO>>()
+                 from p in ReaderT.ask<IdentityT<IO>, string>()
                  from x in IO.Pure("Hello")
                  from i in ReaderT<string, IdentityT<IO>>.liftIO(IO.Pure("Hello"))
                  from j in IO.Pure("Hello").Fork()
@@ -124,7 +124,7 @@ public static class Testing
         var m0 = from w in Pure(123)
                  from q in m1
                  from f in ResourceT<ReaderT<string, IO>>.use(() => File.Open("c:\\test.txt", FileMode.Open))
-                 from p in ReaderT.ask<string, IO>()
+                 from p in ReaderT.ask<IO, string>()
                  from x in IO.Pure("Hello")
                  from i in ReaderT<string, IO>.liftIO(IO.Pure("Hello"))
                  from j in IO.Pure("Hello").Fork()
@@ -158,7 +158,7 @@ public static class Testing
                       .Run(); 
 
         OptionT<ReaderT<Env, ResourceT<IO>>, Env> ask<Env>() =>
-            OptionT.lift(ReaderT.ask<Env, ResourceT<IO>>()); 
+            OptionT.lift(ReaderT.ask<ResourceT<IO>, Env>()); 
         
         OptionT<ReaderT<string, ResourceT<IO>>, A> use<A>(Func<A> f) where A : IDisposable =>
             OptionT.lift(ReaderT<string>.lift(ResourceT<IO>.use(f)));
@@ -177,10 +177,10 @@ public static class Testing
 
         var m0 = from w in Pure(123)
                  from q in m1
-                 from x in StateT.get<string, IO>()
+                 from x in StateT.get<IO, string>()
                  from i in OptionT<StateT<string, IO>>.liftIO(IO.Pure("Hello"))
                  from j in IO.Pure("Hello").Fork()
-                 from _ in StateT.put<string, IO>(x)
+                 from _ in StateT.put<IO, string>(x)
                  from r in envIO
                  from y in m2
                  select $"{w} {j} {i}";
@@ -198,10 +198,10 @@ public static class Testing
 
         var m0 = from w in Pure(123)
                  from q in m1
-                 from x in StateT.get<string, OptionT<IO>>()
+                 from x in StateT.get<OptionT<IO>, string>()
                  from i in StateT<string, OptionT<IO>>.liftIO(IO.Pure("Hello"))
                  from j in IO.Pure("Hello").Fork()
-                 from _ in StateT.put<string, OptionT<IO>>(x)
+                 from _ in StateT.put<OptionT<IO>, string>(x)
                  from r in envIO
                  from y in m2
                  select $"{w} {j} {i}";

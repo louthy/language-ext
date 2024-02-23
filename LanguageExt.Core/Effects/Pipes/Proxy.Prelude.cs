@@ -15,7 +15,7 @@ namespace LanguageExt.Pipes;
 public static class Proxy
 {
     internal const MethodImplOptions mops = MethodImplOptions.AggressiveInlining;
-
+    
     /// <summary>
     /// Wait for a value to flow from upstream (whilst in a `Pipe` or a `Consumer`)
     /// </summary>

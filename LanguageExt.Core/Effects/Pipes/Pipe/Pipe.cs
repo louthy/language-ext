@@ -89,7 +89,7 @@ public static class Pipe
     [Pure, MethodImpl(mops)]
     public static Pipe<A, B, M, R> mapM<A, B, M, R>(Func<A, K<M, B>> f) where M : Monad<M> =>
         cat<A, M, R>()
-           .ForEach(a => lift<A, B, M, B>(f(a)).Bind(yield<A, B, M>).ToPipe());
+           .ForEach(a => lift<A, B, M, B>(f(a)).Bind(x => yield<A, B, M>(x)).ToPipe());
     
     /// <summary>
     /// Apply a monadic function to all values flowing downstream (not the bound value as is usual with Map)
@@ -97,7 +97,7 @@ public static class Pipe
     [Pure, MethodImpl(mops)]
     public static Pipe<A, B, M, R> mapM<A, B, M, R>(Func<A, IO<B>> f) where M : Monad<M> =>
         cat<A, M, R>()
-           .ForEach(a => liftIO<A, B, M, B>(f(a)).Bind(yield<A, B, M>).ToPipe());
+           .ForEach(a => liftIO<A, B, M, B>(f(a)).Bind(x => yield<A, B, M>(x)).ToPipe());
     
     /// <summary>
     /// Lift the IO monad into the Pipe monad transformer (a specialism of the Proxy monad transformer)

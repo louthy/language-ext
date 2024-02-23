@@ -40,7 +40,7 @@ public partial class StateT<S, M>
 /// </summary>
 /// <typeparam name="S">State environment type</typeparam>
 /// <typeparam name="M">Given monad trait</typeparam>
-public partial class StateT
+public class StateT
 {
     public static StateT<S, M, B> bind<S, M, A, B>(StateT<S, M, A> ma, Func<A, StateT<S, M, B>> f) 
         where M : Monad<M>, Alternative<M> => 
@@ -75,27 +75,27 @@ public partial class StateT
         where M : Monad<M>, Alternative<M> =>
         StateT<S, M, A>.LiftIO(effect);
     
-    public static StateT<S, M, S> get<S, M>() 
+    public static StateT<S, M, S> get<M, S>() 
         where M : Monad<M>, Alternative<M> => 
         StateT<S, M, S>.Get;
     
-    public static StateT<S, M, A> gets<S, M, A>(Func<S, A> f) 
+    public static StateT<S, M, A> gets<M, S, A>(Func<S, A> f) 
         where M : Monad<M>, Alternative<M> => 
         StateT<S, M, A>.Gets(f);
 
-    public static StateT<S, M, A> getsM<S, M, A>(Func<S, K<M, A>> f) 
+    public static StateT<S, M, A> getsM<M, S, A>(Func<S, K<M, A>> f) 
         where M : Monad<M>, Alternative<M> => 
         StateT<S, M, A>.GetsM(f);
 
-    public static StateT<S, M, Unit> put<S, M>(S state)  
+    public static StateT<S, M, Unit> put<M, S>(S state)  
         where M : Monad<M>, Alternative<M> => 
         StateT<S, M, Unit>.Put(state);
 
-    public static StateT<S, M, Unit> modify<S, M>(Func<S, S> f)  
+    public static StateT<S, M, Unit> modify<M, S>(Func<S, S> f)  
         where M : Monad<M>, Alternative<M> => 
         StateT<S, M, Unit>.Modify(f);
 
-    public static StateT<S, M, Unit> modifyM<S, M>(Func<S, K<M, S>> f)  
+    public static StateT<S, M, Unit> modifyM<M, S>(Func<S, K<M, S>> f)  
         where M : Monad<M>, Alternative<M> => 
         StateT<S, M, Unit>.ModifyM(f);
 }

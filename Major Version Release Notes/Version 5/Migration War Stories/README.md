@@ -68,8 +68,61 @@
 * Changed: `Queue<RT, *>` to `Queue<Eff<RT>, *>`
 * Changed: `Consumer<RT, *, *>` to `Consumer<*, Eff<RT>, *>`
 * Changed: `Pipe<RT, *, *, *>` to `Pipe<*, *, Eff<RT>, *>`
-* Changed: `Proeducer<RT, *, *>` to `Producer<*, Eff<RT>, *>`
+* Changed: `Producer<RT, *, *>` to `Producer<*, Eff<RT>, *>`
 * Changed: `FailEff<Unit>(Errors.Cancelled)` with `Fail(Errors.Cancelled)`
+* Added: `.As()` to `fork`
+
+### `RetryExample.cs`
+
+* Removed: `HasCancel<RT>` constraint 
+* Changed: `HasConsole` to `Has<Eff<RT>, ConsoleIO>`
+* Replace: `Console<RT>` with `Console<Eff<RT>, RT>`
+
+### `TextFileChunkStreamExample.cs`
+
+* Removed: `struct` constraint
+* Removed: `HasCancel<RT>` constraint 
+* Changed: `HasConsole` to `Has<Eff<RT>, ConsoleIO>`
+* Changed: `HasFile<RT>` to `Has<Eff<RT>, FileIO>`
+* Changed: `HasTextRead<RT>` to `Has<Eff<RT>, TextReadIO>`
+* Replace: `Aff<RT, ` with `Eff<RT, ` 
+* Replace: `Console<RT>` with `Console<Eff<RT>, RT>`
+* Changed: `Consumer<RT, *, *>` to `Consumer<*, Eff<RT>, *>`
+* Changed: `Pipe<RT, *, *, *>` to `Pipe<*, *, Eff<RT>, *>`
+* Changed: `Effect<RT, *>` to `Effect<Eff<RT>, *>`
+
+### `TextFileLineStreamExample.cs`
+
+* Removed: `struct` constraint
+* Removed: `HasCancel<RT>` constraint 
+* Changed: `HasConsole` to `Has<Eff<RT>, ConsoleIO>`
+* Changed: `HasFile<RT>` to `Has<Eff<RT>, FileIO>`
+* Changed: `HasTextRead<RT>` to `Has<Eff<RT>, TextReadIO>`
+* Replace: `Aff<RT, ` with `Eff<RT, ` 
+* Replace: `Console<RT>` with `Console<Eff<RT>, RT>`
+* Changed: `Consumer<RT, *, *>` to `Consumer<*, Eff<RT>, *>`
+* Changed: `Pipe<RT, *, *, *>` to `Pipe<*, *, Eff<RT>, *>`
+* Changed: `Effect<RT, *>` to `Effect<Eff<RT>, *>`
+
+### `TimeExample.cs`
+
+* Added: `using static LanguageExt.UnitsOfMeasure;`
+* Removed: `struct` constraint
+* Removed: `HasCancel<RT>` constraint 
+* Replace: `HasConsole<RT>` constraint to `Has<Eff<RT>, ConsoleIO>`
+* Replace: `HasTime<RT>` constraint to `Has<Eff<RT>, TimeIO>`
+* Replace: `Time<RT>.now` to `Time<Eff<RT>, RT>.now`
+* Replace: `Console<RT>` with `Console<Eff<RT>, RT>`
+
+### `TimeoutExample.cs`
+
+* Added: `using static LanguageExt.UnitsOfMeasure;`
+* Removed: `struct` constraint
+* Removed: `HasCancel<RT>` constraint 
+* Replace: `HasConsole<RT>` constraint to `Has<Eff<RT>, ConsoleIO>`
+* Replace: `HasTime<RT>` constraint to `Has<Eff<RT>, TimeIO>`
+* Replace: `Aff<RT, ` with `Eff<RT, ` 
+
 
 ## Migrating `LanguageExt.Sys` from the `Samples` folder
 

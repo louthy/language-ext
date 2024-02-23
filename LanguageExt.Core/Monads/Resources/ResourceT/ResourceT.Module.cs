@@ -15,6 +15,9 @@ public partial class ResourceT<M>
     public static ResourceT<M, A> liftIO<A>(IO<A> ma) => 
         ResourceT<M, A>.LiftIO(ma);
 
+    public static ResourceT<M, A> lift<A>(K<M, A> ma) => 
+        ResourceT<M, A>.Lift(ma);
+
     public static ResourceT<M, A> use<A>(IO<A> ma, Action<A> release) =>
         use(ma,
             value => IO<Unit>.Lift(

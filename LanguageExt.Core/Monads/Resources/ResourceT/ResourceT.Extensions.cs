@@ -1,5 +1,4 @@
 ﻿using System;
-using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using LanguageExt.Traits;
 

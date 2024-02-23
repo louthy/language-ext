@@ -4,6 +4,7 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using LanguageExt.Effects;
+using LanguageExt.Pipes;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -14,11 +15,11 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly record struct Eff<A>(Eff<MinRT, A> effect) : 
+public readonly record struct Eff<A>(Eff<MinRT, A> effect) :
     K<Eff, A>,
-    State<Eff<A>, A>, 
+    State<Eff<A>, A>,
     Resource<Eff<A>>,
-    Alternative<Eff<A>>, 
+    Alternative<Eff<A>>,
     Monad<Eff<A>>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +47,7 @@ public readonly record struct Eff<A>(Eff<MinRT, A> effect) :
     [Pure, MethodImpl(Opt.Default)]
     public Fin<A> Run() =>
         Run(new MinRT());
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Timeout
@@ -112,6 +113,13 @@ public readonly record struct Eff<A>(Eff<MinRT, A> effect) :
     /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> LiftIO(Func<MinRT, IO<A>> f) =>
+        new(Eff<MinRT, A>.LiftIO(f));
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> LiftIO(IO<A> ma) =>
         new(Eff<MinRT, A>.LiftIO(ma));
 
@@ -142,7 +150,7 @@ public readonly record struct Eff<A>(Eff<MinRT, A> effect) :
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> LiftIO(Func<ValueTask<A>> f) =>
         new(Eff<MinRT, A>.LiftIO(_ => f()));
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 
     // Forking
@@ -896,6 +904,13 @@ public readonly record struct Eff<A>(Eff<MinRT, A> effect) :
     public static Eff<A> operator |(Eff<A> ma, CatchM<Eff, A> mb) =>
         ma.IfFailEff(e => mb.Run(e, Fail(e)).As());
 
+    /// <summary>
+    /// Convert to an `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static implicit operator Eff<A>(in Effect<Eff, A> ma) =>
+        ma.RunEffect().As();
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Obsolete
@@ -924,8 +939,8 @@ public readonly record struct Eff<A>(Eff<MinRT, A> effect) :
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> EffectMaybe(Func<Fin<A>> f) =>
         Lift(_ => f());
-    
-    
+
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Trait implementations for `Eff<RT, A>`
@@ -936,39 +951,50 @@ public readonly record struct Eff<A>(Eff<MinRT, A> effect) :
     // It is this way to make it easier to work with Eff traits, even if this is a bit ugly.
     //
 
-    static K<Eff<A>, U> Monad<Eff<A>>.Bind<T, U>(K<Eff<A>, T> ma, Func<T, K<Eff<A>, U>> f) => 
+    static K<Eff<A>, U> Monad<Eff<A>>.Bind<T, U>(K<Eff<A>, T> ma, Func<T, K<Eff<A>, U>> f) =>
         ma.As().Bind(f);
 
-    static K<Eff<A>, U> Functor<Eff<A>>.Map<T, U>(Func<T, U> f, K<Eff<A>, T> ma) => 
+    static K<Eff<A>, U> Functor<Eff<A>>.Map<T, U>(Func<T, U> f, K<Eff<A>, T> ma) =>
         ma.As().Map(f);
 
-    static K<Eff<A>, T> Applicative<Eff<A>>.Pure<T>(T value) => 
+    static K<Eff<A>, T> Applicative<Eff<A>>.Pure<T>(T value) =>
         Eff<A, T>.Pure(value);
 
-    static K<Eff<A>, U> Applicative<Eff<A>>.Apply<T, U>(K<Eff<A>, Func<T, U>> mf, K<Eff<A>, T> ma) => 
+    static K<Eff<A>, U> Applicative<Eff<A>>.Apply<T, U>(K<Eff<A>, Func<T, U>> mf, K<Eff<A>, T> ma) =>
         mf.As().Apply(ma.As());
 
-    static K<Eff<A>, U> Applicative<Eff<A>>.Action<T, U>(K<Eff<A>, T> ma, K<Eff<A>, U> mb) => 
+    static K<Eff<A>, U> Applicative<Eff<A>>.Action<T, U>(K<Eff<A>, T> ma, K<Eff<A>, U> mb) =>
         ma.As().Action(mb.As());
 
-    static K<Eff<A>, T> Alternative<Eff<A>>.Empty<T>() => 
+    static K<Eff<A>, T> Alternative<Eff<A>>.Empty<T>() =>
         Eff<A, T>.Fail(Errors.None);
 
-    static K<Eff<A>, T> Alternative<Eff<A>>.Or<T>(K<Eff<A>, T> ma, K<Eff<A>, T> mb) => 
+    static K<Eff<A>, T> Alternative<Eff<A>>.Or<T>(K<Eff<A>, T> ma, K<Eff<A>, T> mb) =>
         ma.As() | mb.As();
 
     static K<Eff<A>, T> Resource<Eff<A>>.Use<T>(IO<T> ma, Func<T, IO<Unit>> release) =>
         new Eff<A, T>(StateT<A>.lift(ResourceT<IO>.use(ma, release)));
 
-    static K<Eff<A>, Unit> Resource<Eff<A>>.Release<T>(T value) => 
+    static K<Eff<A>, Unit> Resource<Eff<A>>.Release<T>(T value) =>
         new Eff<A, Unit>(StateT<A>.lift(ResourceT<IO>.release(value)));
 
     static K<Eff<A>, Unit> State<Eff<A>, A>.Put(A value) =>
-        new Eff<A, Unit>(StateT.put<A, ResourceT<IO>>(value));
+        new Eff<A, Unit>(StateT.put<ResourceT<IO>, A>(value));
 
-    static K<Eff<A>, Unit> State<Eff<A>, A>.Modify(Func<A, A> modify) => 
-        new Eff<A, Unit>(StateT.modify<A, ResourceT<IO>>(modify));
+    static K<Eff<A>, Unit> State<Eff<A>, A>.Modify(Func<A, A> modify) =>
+        new Eff<A, Unit>(StateT.modify<ResourceT<IO>, A>(modify));
 
-    static K<Eff<A>, T> State<Eff<A>, A>.Gets<T>(Func<A, T> f) => 
-        new Eff<A, T>(StateT.gets<A, ResourceT<IO>, T>(f));
+    static K<Eff<A>, T> State<Eff<A>, A>.Gets<T>(Func<A, T> f) =>
+        new Eff<A, T>(StateT.gets<ResourceT<IO>, A, T>(f));
+
+    static K<Eff<A>, T> Monad<Eff<A>>.LiftIO<T>(IO<T> ma) =>
+        new Eff<A, T>(StateT.liftIO<A, ResourceT<IO>, T>(ma));
+    
+    static K<Eff<A>, U> Monad<Eff<A>>.WithRunInIO<T, U>(Func<Func<K<Eff<A>, T>, IO<T>>, IO<U>> inner) =>
+        Eff<A, U>.LiftIO(
+            env => inner(ma => ma.As()
+                                 .effect
+                                 .Run(env).As()
+                                 .Run().As()
+                                 .Map(p => p.Value)));
 }

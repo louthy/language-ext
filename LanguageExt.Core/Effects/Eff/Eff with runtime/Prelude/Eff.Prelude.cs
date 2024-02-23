@@ -10,6 +10,14 @@ namespace LanguageExt;
 public static partial class Prelude
 {
     /// <summary>
+    /// Timeout operation if it takes too long
+    /// </summary>
+    [Pure]
+    [MethodImpl(Opt.Default)]
+    public static Eff<RT, A> timeout<RT, A>(TimeSpan timeout, Eff<RT, A> ma) =>
+        ma.MapIO(io => io.Timeout(timeout));
+    
+    /// <summary>
     /// Construct an successful effect with a pure value
     /// </summary>
     /// <param name="value">Pure value to construct the monad with</param>

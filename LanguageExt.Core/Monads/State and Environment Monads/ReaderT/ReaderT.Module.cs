@@ -85,16 +85,16 @@ public partial class ReaderT
         where M : Monad<M>, Alternative<M> =>
         ReaderT<Env, M, A>.LiftIO(effect);
     
-    public static ReaderT<Env, M, Env> ask<Env, M>() 
+    public static ReaderT<Env, M, Env> ask<M, Env>() 
         where M : Monad<M>, Alternative<M> => 
         ReaderT<Env, M, Env>.Asks(Prelude.identity);
 
-    public static ReaderT<Env, M, A> asks<Env, M, A>(Func<Env, A> f)  
+    public static ReaderT<Env, M, A> asks<M, A, Env>(Func<Env, A> f)  
         where M : Monad<M>, Alternative<M> => 
         ReaderT<Env, M, A>.Asks(f);
 
-    public static ReaderT<Env, M, A> asksM<Env, M, A>(Func<Env, K<M, A>> f)  
-        where M : Monad<M>, Alternative<M> => 
+    public static ReaderT<Env, M, A> asksM<M, Env, A>(Func<Env, K<M, A>> f)
+        where M : Monad<M>, Alternative<M> =>
         ReaderT<Env, M, A>.AsksM(f);
 
     public static ReaderT<Env, M, A> local<Env, M, A>(Func<Env, Env> f, ReaderT<Env, M, A> ma) 

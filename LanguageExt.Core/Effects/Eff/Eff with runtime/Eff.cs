@@ -4,6 +4,7 @@ using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using LanguageExt.Pipes;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -28,28 +29,29 @@ public readonly struct Eff<RT, A> : K<Eff<RT>, A>
     static StateT<RT, ResourceT<IO>, X> getsM<X>(Func<RT, K<ResourceT<IO>, X>> f) =>
         StateT.getsM(f);
 
+    static StateT<RT, ResourceT<IO>, X> getsM<X>(Func<RT, IO<X>> f) =>
+        getsM(rt => ResourceT<IO>.liftIO(f(rt)));
+
     static StateT<RT, ResourceT<IO>, X> getsIO<X>(Func<EnvIO, RT, ValueTask<X>> f) =>
-        getsM(rt => ResourceT<IO>.liftIO(IO.liftAsync(eio => f(eio, rt))));
+        getsM(rt => IO.liftAsync(eio => f(eio, rt)));
 
     static StateT<RT, ResourceT<IO>, X> getsIO<X>(Func<RT, ValueTask<X>> f) =>
         getsIO<X>((_, rt) => f(rt));
 
     static StateT<RT, ResourceT<IO>, X> gets<X>(Func<RT, X> f) =>
-        StateT.gets<RT, ResourceT<IO>, X>(f);
+        StateT.gets<ResourceT<IO>, RT, X>(f);
 
     static StateT<RT, ResourceT<IO>, X> gets<X>(Func<RT, Fin<X>> f) =>
-        getsM<X>(rt => f(rt).Match(Succ: ResourceT.Pure<IO, X>,
-                                   Fail: e => ResourceT.liftIO<IO, X>(IO<X>.Lift(e.Throw<X>))));
+        getsM<X>(rt => IO.lift(f(rt)));
 
     static StateT<RT, ResourceT<IO>, X> gets<X>(Func<RT, Either<Error, X>> f) =>
-        getsM<X>(rt => f(rt).Match(Right: ResourceT.Pure<IO, X>,
-                                   Left: e => ResourceT.liftIO<IO, X>(IO<X>.Lift(e.Throw<X>))));
+        getsM<X>(rt => IO.lift(f(rt)));
 
     static StateT<RT, ResourceT<IO>, X> liftIO<X>(IO<X> ma) =>
         StateT.liftIO<RT, ResourceT<IO>, X>(ma);
 
     static StateT<RT, ResourceT<IO>, X> fail<X>(Error value) =>
-        getsM(_ => ResourceT.lift(IO<X>.Lift(value.Throw<X>)));
+        liftIO(IO<X>.Fail(value));
 
     static StateT<RT, ResourceT<IO>, X> pure<X>(X value) =>
         StateT<RT, ResourceT<IO>, X>.Pure(value);
@@ -190,6 +192,13 @@ public readonly struct Eff<RT, A> : K<Eff<RT>, A>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> LiftIO(Func<RT, ValueTask<A>> f) =>
         new (f);
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> LiftIO(Func<RT, IO<A>> f) =>
+        new(getsM(f));
 
     /// <summary>
     /// Lift an effect into the `Eff` monad
@@ -863,6 +872,13 @@ public readonly struct Eff<RT, A> : K<Eff<RT>, A>
     [Pure, MethodImpl(Opt.Default)]
     public static implicit operator Eff<RT, A>(in Eff<A> ma) =>
         ma.WithRuntime<RT>();
+
+    /// <summary>
+    /// Convert to an `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static implicit operator Eff<RT, A>(in Effect<Eff<RT>, A> ma) =>
+        ma.RunEffect().As();
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the

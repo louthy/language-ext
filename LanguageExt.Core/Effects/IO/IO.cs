@@ -69,7 +69,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
                 return f(Run(e));
             });
-                
 
     public IO<A> MapFail(Func<Error, Error> f) => 
         new(e =>

@@ -89,7 +89,7 @@ public static class Producer
     [Pure, MethodImpl(mops)]
     public static Producer<A, M, Unit> repeatM<M, A>(K<M, A> ma) 
         where M : Monad<M> =>
-        repeat(lift<A, M, A>(ma).Bind(yield<A, M>));
+        repeat(lift<A, M, A>(ma).Bind(x => yield<A, M>(x)));
         
     /// <summary>
     /// Lift the IO monad into the Producer monad transformer (a specialism of the Proxy monad transformer)

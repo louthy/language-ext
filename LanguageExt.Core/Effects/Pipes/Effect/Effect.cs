@@ -41,6 +41,28 @@ public static class Effect
                 _                                                 => throw new NotSupportedException()
             };
     }
+    
+    [Pure]
+    public static Proxy<UOut, UIn, DIn, DOut, N, R> Hoist<UOut, UIn, DIn, DOut, M, N, R>(
+        this Proxy<UOut, UIn, DIn, DOut, M, R> ma,
+        Func<K<M, Proxy<UOut, UIn, DIn, DOut, N, R>>, K<N, Proxy<UOut, UIn, DIn, DOut, N, R>>> nat) 
+        where M : Monad<M> 
+        where N : Monad<N> 
+    {
+        return Go(ma);
+
+        Proxy<UOut, UIn, DIn, DOut, N, R> Go(Proxy<UOut, UIn, DIn, DOut, M, R> p) =>
+            p.ToProxy() switch
+            {
+                ProxyM<UOut, UIn, DIn, DOut, M, R> (var mx)          => new ProxyM<UOut, UIn, DIn, DOut, N, R>(nat(mx.Map(Go))),
+                Pure<UOut, UIn, DIn, DOut, M, R> (var r)             => new Pure<UOut, UIn, DIn, DOut, N, R> (r),
+                Request<UOut, UIn, DIn, DOut, M, R> (var a1, var fa) => new Request<UOut, UIn, DIn, DOut, N, R>(a1, a =>Go(fa(a))),
+                Respond<UOut, UIn, DIn, DOut, M, R> (var b, var fb1) => new Respond<UOut, UIn, DIn, DOut, N, R> (b, b1 => Go(fb1(b1))),
+                _                                                      => throw new NotSupportedException()
+            };
+    }
+
+    
         
     [Pure, MethodImpl(mops)]
     public static Effect<M, R> lift<M, R>(K<M, R> ma) 
@@ -51,4 +73,12 @@ public static class Effect
     public static Effect<M, R> liftIO<M, R>(IO<R> ma) 
         where M : Monad<M> =>
         liftIO<Void, Unit, Unit, Void, M, R>(ma).ToEffect();
+
+    [Pure, MethodImpl(mops)]
+    public static Effect<M, C> SelectMany<M, A, B, C>(
+        this K<M, A> ma, 
+        Func<A, Effect<M, B>> bind,
+        Func<A, B, C> project)
+        where M : Monad<M> =>
+        lift(ma).SelectMany(bind, project);
 }

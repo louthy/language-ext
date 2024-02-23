@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
@@ -24,6 +26,17 @@ public partial class IO
                  f();
                  return unit;
              });
+    
+    public static IO<A> lift<A>(Either<Error, A> ma) =>
+        ma.State switch
+        {
+            EitherStatus.IsRight => IO<A>.Pure(ma.RightValue),
+            EitherStatus.IsLeft  => IO<A>.Fail(ma.LeftValue),
+            _  => IO<A>.Fail(Errors.Bottom)
+        };
+    
+    public static IO<A> lift<A>(Fin<A> ma) =>
+        lift(ma.ToEither());
     
     public static IO<A> lift<A>(Func<A> f) => 
         IO<A>.Lift(f);
@@ -52,6 +65,9 @@ public partial class IO
     public static IO<B> map<A, B>(Func<A, B> f, K<IO, A> ma) => 
         ma.As().Map(f);
 
+    public static IO<B> map<A, B>(Func<A, B> f, IO<A> ma) => 
+        ma.Map(f);
+
     public static IO<B> apply<A, B>(K<IO, Func<A, B>> mf, K<IO, A> ma) => 
         mf.As().Bind(ma.As().Map);
 
@@ -63,4 +79,16 @@ public partial class IO
 
     public static IO<A> or<A>(K<IO, A> ma, K<IO, A> mb) => 
         ma.As() | mb.As();
+    
+    /// <summary>
+    /// Queue this IO operation to run on the thread-pool. 
+    /// </summary>
+    /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
+    /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
+    /// the forked IO operation or to await the result of it.
+    /// </returns>
+    [Pure]
+    [MethodImpl(Opt.Default)]
+    public static IO<ForkIO<A>> fork<A>(K<IO, A> ma, Option<TimeSpan> timeout = default) =>
+        ma.As().Fork(timeout);    
 }

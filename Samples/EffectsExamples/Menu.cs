@@ -14,7 +14,8 @@ public class Menu<RT>
     Has<Eff<RT>, FileIO>,
     Has<Eff<RT>, TextReadIO>,
     Has<Eff<RT>, TimeIO>,
-    Has<Eff<RT>, ConsoleIO>
+    Has<Eff<RT>, ConsoleIO>,
+    Has<Eff<RT>, EncodingIO>
 {
     public static Eff<RT, Unit> menu =>
         repeat(from __0 in clearConsole(ConsoleColor.Green)
@@ -37,7 +38,7 @@ public class Menu<RT>
         from __0 in Console<Eff<RT>, RT>.setColor(ConsoleColor.Yellow)
         from __1 in Console<Eff<RT>, RT>.writeLine(exa.Desc)
         from __2 in Console<Eff<RT>, RT>.resetColor()
-        from res in localCancel(exa.Example) | @catchM(logError)
+        from res in localCancel(exa.Example) | @catchM(x => logError(x))
         from __3 in showComplete(5)
         select res;
 

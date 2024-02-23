@@ -171,7 +171,6 @@ public record Effect<M, A> : Proxy<Void, Unit, Unit, Void, M, A>
     [Pure]
     public void Deconstruct(out Proxy<Void, Unit, Unit, Void, M, A> value) =>
         value = Value;
-
         
     /// <summary>
     /// Monadic bind operation, for chaining `Proxy` computations together.
@@ -182,6 +181,16 @@ public record Effect<M, A> : Proxy<Void, Unit, Unit, Void, M, A>
     [Pure]
     public Effect<M, C> SelectMany<B, C>(Func<A, Effect<M, B>> f, Func<A, B, C> project) => 
         Value.Bind(x => f(x).Map(y => project(x, y))).ToEffect();
+
+    /// <summary>
+    /// Monadic bind operation, for chaining `Proxy` computations together.
+    /// </summary>
+    /// <param name="f">The bind function</param>
+    /// <typeparam name="B">The mapped bound value type</typeparam>
+    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
+    [Pure]
+    public Effect<M, C> SelectMany<B, C>(Func<A, IO<B>> f, Func<A, B, C> project) =>
+        SelectMany(a => Effect.liftIO<M, B>(f(a)), project);
 
     /// <summary>
     /// Monadic bind operation, for chaining `Effect` computations together.
