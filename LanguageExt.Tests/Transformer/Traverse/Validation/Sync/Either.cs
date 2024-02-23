@@ -10,7 +10,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.Validation.Sync
         public void LeftIsSuccessLeft()
         {
             var ma = Left<Error, Validation<Error, int>>(Error.New("alt"));
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Success<Error, Either<Error, int>>(Left(Error.New("alt")));
             Assert.Equal(mc, mb);
         }
@@ -19,7 +20,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.Validation.Sync
         public void RightSuccessIsSuccess()
         {
             var ma = Right<Error, Validation<Error, int>>(Success<Error, int>(12));
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Success<Error, Either<Error, int>>(Right(12));
             Assert.Equal(mc, mb);
         }
@@ -28,7 +30,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.Validation.Sync
         public void RightFailIsFail()
         {
             var ma = Right<Error, Validation<Error, int>>(Fail<Error, int>(Error.New("Error")));
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Fail<Error, Either<Error, int>>(Error.New("Error"));
             Assert.Equal(mc, mb);
         }

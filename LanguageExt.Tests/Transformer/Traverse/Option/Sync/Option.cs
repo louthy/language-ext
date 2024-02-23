@@ -10,7 +10,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionT.Sync
         public void NoneIsSomeNone()
         {
             var ma = Option<Option<int>>.None;
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Some(Option<int>.None);
 
             var mr = mb == mc;
@@ -22,7 +23,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionT.Sync
         public void SomeNoneIsNone()
         {
             var ma = Some<Option<int>>(None);
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Option<Option<int>>.None;
 
             var mr = mb == mc;
@@ -34,7 +36,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionT.Sync
         public void SomeSomeIsSomeSome()
         {
             var ma = Some(Some(1234));
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Some(Some(1234));
 
             var mr = mb == mc;

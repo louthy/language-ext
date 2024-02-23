@@ -1,7 +1,5 @@
 using System;
 using System.Diagnostics.Contracts;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
@@ -103,4 +101,8 @@ public record Queue<OUT, M, A> : Producer<OUT, M, A>
     [Pure]
     public static Effect<M, A> operator |(Queue<OUT, M, A> p1, Consumer<OUT, A> p2) => 
         Proxy.compose(p1, p2);
+    
+    [Pure]
+    public override string ToString() => 
+        "queue";
 }

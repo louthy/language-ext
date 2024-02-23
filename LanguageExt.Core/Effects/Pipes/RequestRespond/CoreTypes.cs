@@ -93,6 +93,10 @@ public record Request<UOut, UIn, DIn, DOut, M, A>(UOut Value, Func<UIn, Proxy<UO
     [Pure]
     public override Proxy<UOut, UIn, DIn, DOut, M, S> Map<S>(Func<A, S> f) =>
         new Request<UOut, UIn, DIn, DOut, M, S>(Value, a => Next(a).Map(f));
+    
+    [Pure]
+    public override string ToString() => 
+        "request";
 }
 
 /// <summary>
@@ -186,4 +190,8 @@ public record Respond<UOut, UIn, DIn, DOut, M, A>(DOut Value, Func<DIn, Proxy<UO
     [Pure]
     public void Deconstruct(out DOut value, out Func<DIn, Proxy<UOut, UIn, DIn, DOut, M, A>> fun) =>
         (value, fun) = (Value, Next);
+    
+    [Pure]
+    public override string ToString() => 
+        "respond";
 }

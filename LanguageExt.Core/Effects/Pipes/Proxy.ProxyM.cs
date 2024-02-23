@@ -135,4 +135,8 @@ internal record ProxyM<UOut, UIn, DIn, DOut, M, A>(K<M, Proxy<UOut, UIn, DIn, DO
     [Pure]
     public void Deconstruct(out K<M, Proxy<UOut, UIn, DIn, DOut, M, A>> value) =>
         value = Value;
+    
+    [Pure]
+    public override string ToString() => 
+        "proxyM";
 }

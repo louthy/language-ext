@@ -10,7 +10,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         {
             Arr<Seq<int>> ma = Empty;
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
 
             var mc = Seq<Arr<int>>.Empty;
 
@@ -22,7 +23,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         {
             var ma = Array(Seq(1, 2), Seq(10, 20, 30));
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
 
             var mc = Seq(
                 Array(1, 10),
@@ -40,7 +42,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         {
             var ma = Array(Seq<int>(), Seq<int>(1, 2, 3));
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
 
             var mc = Seq<Arr<int>>.Empty;
 
@@ -52,7 +55,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         {
             var ma = Array(Seq<int>(), Seq<int>());
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
 
             var mc = Seq<Arr<int>>.Empty;
 

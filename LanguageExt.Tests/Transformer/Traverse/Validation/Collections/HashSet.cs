@@ -10,7 +10,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Validation.Collections
         public void EmptyHashSetIsSuccessEmptyHashSet()
         {
             HashSet<Validation<Error, string>> ma = Empty;
-            var mb = ma.Traverse(identity);
+            var mb = ma.Traverse(x => x);
             Assert.Equal(Success<Error, HashSet<string>>(Empty), mb);
         }
 
@@ -18,7 +18,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Validation.Collections
         public void HashSetSuccessIsSuccessHashSet()
         {
             var ma = HashSet(Success<Error, int>(2), Success<Error, int>(8), Success<Error, int>(64));
-            var mb = ma.Traverse(identity);
+            var mb = ma.Traverse(x => x);
             Assert.Equal(Success<Error, HashSet<int>>(HashSet(2, 8, 64)), mb);
         }
 
@@ -26,7 +26,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Validation.Collections
         public void HashSetSuccAndFailIsFailedHashSet()
         {
             var ma = HashSet(Fail<Error, int>(Error.New("failed")), Success<Error, int>(12));
-            var mb = ma.Traverse(identity);
+            var mb = ma.Traverse(x => x);
             Assert.Equal(Fail<Error, HashSet<int>>(Error.New("failed")), mb);
         }
     }

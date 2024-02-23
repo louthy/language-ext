@@ -11,7 +11,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         {
             HashSet<Seq<int>> ma = Empty;
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
 
             var mc = Seq<HashSet<int>>.Empty;
 
@@ -23,7 +24,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         {
             var ma = HashSet(Seq(1, 2), Seq(10, 20, 30));
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
 
             var mc = Seq(
                 HashSet(1, 10),
@@ -41,7 +43,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         {
             var ma = HashSet(Seq<int>(), Seq<int>(1, 2, 3));
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
 
             var mc = Seq<HashSet<int>>.Empty;
 
@@ -53,7 +56,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         {
             var ma = HashSet(Seq<int>(), Seq<int>());
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
 
             var mc = Seq<HashSet<int>>.Empty;
 

@@ -10,7 +10,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.Validation.Sync
         public void NoneIsSuccessNone()
         {
             var ma = Option<Validation<Error, int>>.None;
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Success<Error, Option<int>>(None);
 
             Assert.Equal(mc, mb);
@@ -20,7 +21,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.Validation.Sync
         public void SomeSuccessIsSuccessSome()
         {
             var ma = Some(Success<Error, int>(12));
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Success<Error, Option<int>>(12);
 
             Assert.Equal(mc, mb);
@@ -30,7 +32,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.Validation.Sync
         public void SomeFailIsFailSome()
         {
             var ma = Some(Fail<Error, int>(Error.New("Err")));
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Fail<Error, Option<int>>(Error.New("Err"));
 
             Assert.Equal(mc, mb);

@@ -340,4 +340,8 @@ public record Pipe<IN, OUT, M, A> : Proxy<Unit, IN, Unit, OUT, M, A>
         Pipe<IN, OUT, M, A> lhs,
         Pipe<IN, OUT, M, A> rhs) =>
         lhs.Bind(_ => rhs);
+    
+    [Pure]
+    public override string ToString() => 
+        "pipe";
 }

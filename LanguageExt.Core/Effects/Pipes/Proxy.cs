@@ -1,9 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
 using LanguageExt.Traits;
-using static LanguageExt.Transducer;
 
 namespace LanguageExt.Pipes;
 
@@ -160,4 +157,8 @@ public abstract record Proxy<UOut, UIn, DIn, DOut, M, A> : K<Proxy<UOut, UIn, DI
     [Pure]
     public Proxy<UOut, UIn, DIn, DOut, M, B> Select<B>(Func<A, B> f) =>
         Map(f);
+    
+    [Pure]
+    public override string ToString() => 
+        "proxy";
 }

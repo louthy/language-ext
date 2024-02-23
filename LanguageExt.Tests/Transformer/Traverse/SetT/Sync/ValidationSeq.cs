@@ -12,7 +12,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Sync
         // public void FailIsSingletonFail()
         // {
         //     var ma = Fail<Error, Set<int>>(Error.New("alt"));
-        //     var mb = ma.Sequence();
+        //     var mb = ma.Traverse(mx => mx).As();
+
         //     var mc = Set(Fail<Error, int>(new Exception("alt")));
         //
         //     Assert.True(mb == mc);
@@ -22,7 +23,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Sync
         public void SuccessEmptyIsEmpty()
         {
             var ma = Success<Error, Set<int>>(Empty);
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Set<Validation<Error, int>>();
 
             Assert.True(mb == mc);
@@ -32,7 +34,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Sync
         public void SuccessNonEmptySetIsSetSuccesses()
         {
             var ma = Success<Error, Set<int>>(Set(1, 2, 3, 4));
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Set(Success<Error, int>(1), Success<Error, int>(2), Success<Error, int>(3), Success<Error, int>(4));
             
             Assert.True(mb == mc);

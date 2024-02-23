@@ -15,7 +15,7 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly record struct Eff<A>(Eff<MinRT, A> effect) :
+public record Eff<A>(Eff<MinRT, A> effect) :
     K<Eff, A>,
     State<Eff<A>, A>,
     Resource<Eff<A>>,
@@ -997,4 +997,7 @@ public readonly record struct Eff<A>(Eff<MinRT, A> effect) :
                                  .Run(env).As()
                                  .Run().As()
                                  .Map(p => p.Value)));
+
+    public override string ToString() => 
+        "Eff";
 }

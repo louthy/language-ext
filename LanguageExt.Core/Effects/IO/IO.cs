@@ -875,4 +875,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
             }
         }
     }
+
+    public override string ToString() => 
+        "IO";
 }

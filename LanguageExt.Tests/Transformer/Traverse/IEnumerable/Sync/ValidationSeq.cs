@@ -12,8 +12,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Sync
         [Fact]
         public void FailIsSingletonFail()
         {
-            var ma = Fail<Error, IEnumerable<int>>(Error.New("alt"));
-            var mb = ma.Sequence();
+            var ma = Fail<Error, EnumerableM<int>>(Error.New("alt"));
+            var mb = ma.Traverse(mx => mx).As();
+
             IEnumerable<Validation<Error, int>> mc = new[] { Fail<Error, int>(Error.New("alt")) };
 
             Assert.True(mb.ToSeq() == mc.ToSeq());
@@ -22,8 +23,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Sync
         [Fact]
         public void SuccessEmptyIsEmpty()
         {
-            var ma = Success<Error, IEnumerable<int>>(Enumerable.Empty<int>());
-            var mb = ma.Sequence();
+            var ma = Success<Error, EnumerableM<int>>(EnumerableM.empty<int>());
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Enumerable.Empty<Validation<Error, int>>();
 
             Assert.True(mb.ToSeq() == mc.ToSeq());
@@ -32,8 +34,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Sync
         [Fact]
         public void SuccessNonEmptyIEnumerableIsIEnumerableSuccesses()
         {
-            var ma = Success<Error, IEnumerable<int>>(new[] { 1, 2, 3, 4 });
-            var mb = ma.Sequence();
+            var ma = Success<Error, EnumerableM<int>>([1, 2, 3, 4]);
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = new[]
             {
                 Success<Error, int>(1),

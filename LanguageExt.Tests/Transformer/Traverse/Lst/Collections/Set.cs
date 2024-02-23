@@ -10,7 +10,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
         {
             Set<Lst<int>> ma = Empty;
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
 
             var mc = Lst<Set<int>>.Empty;
             
@@ -22,8 +22,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
         {
             var ma = Set(List(1, 2), List(10, 20, 30));
 
-            var mb = ma.Sequence();
-            var mbb = ma.Traverse(identity);
+            var mb = ma.Traverse(mx => mx).As();
+            var mbb = ma.Traverse(x => x).As();
 
             var mc = List(Set(1, 10), Set(1, 20), Set(1, 30), Set(2, 10), Set(2, 20), Set(2, 30));
             
@@ -37,7 +37,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
         {
             var ma = Set(List<int>(), List(1, 2, 3));
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
 
             var mc = Lst<Set<int>>.Empty;
             
@@ -49,7 +49,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
         {
             var ma = Set(List<int>(), List<int>());
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
 
             var mc = Lst<Set<int>>.Empty;
             

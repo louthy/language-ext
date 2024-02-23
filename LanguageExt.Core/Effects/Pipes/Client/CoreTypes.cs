@@ -209,5 +209,8 @@ public record Client<REQ, RES, M, A> : Proxy<REQ, RES, Unit, Void, M, A>
         Client<REQ, RES, M, A> lhs,
         Client<REQ, RES, M, A> rhs) =>
         lhs.Bind(_ => rhs);
-        
+    
+    [Pure]
+    public override string ToString() => 
+        "client";
 }

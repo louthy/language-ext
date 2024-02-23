@@ -10,7 +10,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Validation.Collections
         public void EmptySetIsSuccessEmptySet()
         {
             Set<Validation<Error, string>> ma = Empty;
-            var mb = ma.Traverse(identity);
+            var mb = ma.Traverse(x => x);
             Assert.Equal(Success<Error, Set<string>>(Empty), mb);
         }
 
@@ -18,7 +18,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Validation.Collections
         public void SetSuccessIsSuccessSet()
         {
             var ma = Set(Success<Error, int>(2), Success<Error, int>(8), Success<Error, int>(64));
-            var mb = ma.Traverse(identity);
+            var mb = ma.Traverse(x => x);
             Assert.Equal(Success<Error, Set<int>>(Set(2, 8, 64)), mb);
         }
 
@@ -26,7 +26,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Validation.Collections
         public void SetSuccAndFailIsFailedSet()
         {
             var ma = Set(Fail<Error, int>(Error.New("failed")), Success<Error, int>(12));
-            var mb = ma.Traverse(identity);
+            var mb = ma.Traverse(x => x);
             Assert.Equal(Fail<Error, Set<int>>(Error.New("failed")), mb);
         }
     }

@@ -244,4 +244,8 @@ public record Consumer<IN, M, A> : Proxy<Unit, IN, Unit, Void, M, A>
         Consumer<IN, M, A> lhs,
         Consumer<IN, M, A> rhs) =>
         lhs.Bind(_ => rhs);
+    
+    [Pure]
+    public override string ToString() => 
+        "consumer";
 }

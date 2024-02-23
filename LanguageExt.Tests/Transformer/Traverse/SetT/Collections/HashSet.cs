@@ -9,7 +9,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Collections
         public void EmptyEmptyIsEmptyEmpty()
         {
             HashSet<Set<int>> ma = Empty;
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Set<HashSet<int>>.Empty;
 
             Assert.True(mb == mc);
@@ -19,7 +20,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Collections
         public void HashSetSetCrossProduct()
         {
             var ma = HashSet(Set(1, 2), Set(10, 20, 30));
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Set(HashSet(1, 10), HashSet(1, 20), HashSet(1, 30), HashSet(2, 10), HashSet(2, 20), HashSet(2, 30));
         
             Assert.True(mb == mc);
@@ -29,7 +31,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Collections
         public void HashSetOfEmptiesAndNonEmptiesIsEmpty()
         {
             var ma = HashSet(Set<int>(), Set(1, 2, 3));
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Set<HashSet<int>>.Empty;
 
             Assert.True(mb == mc);
@@ -39,7 +42,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Collections
         public void HashSetOfEmptiesIsEmpty()
         {
             var ma = HashSet(Set<int>(), Set<int>());
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Set<HashSet<int>>.Empty;
 
             Assert.True(mb == mc);

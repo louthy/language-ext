@@ -10,11 +10,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
         [Fact]
         public void EmptyEmptyIsEmptyEmpty()
         {
-            HashSet<IEnumerable<int>> ma = Empty;
+            HashSet<EnumerableM<int>> ma = Empty;
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Enumerable.Empty<HashSet<int>>();
+            var mc = EnumerableM.empty<HashSet<int>>();
 
             Assert.True(mb.ToSeq() == mc.ToSeq());
         }
@@ -22,9 +22,10 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
         [Fact]
         public void HashSetIEnumerableCrossProduct()
         {
-            var ma = HashSet<IEnumerable<int>>(Seq(1, 2), Seq(10, 20, 30));
+            var ma = HashSet<EnumerableM<int>>([1, 2], [10, 20, 30]);
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
 
             var mc = new[]
                 {
@@ -43,9 +44,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
         [Fact]
         public void HashSetOfEmptiesAndNonEmptiesIsEmpty()
         {
-            var ma = HashSet<IEnumerable<int>>(Seq<int>(), Seq<int>(1, 2, 3));
+            var ma = HashSet<EnumerableM<int>>([], [1, 2, 3]);
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
 
             var mc = Enumerable.Empty<HashSet<int>>();
 
@@ -55,11 +56,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
         [Fact]
         public void HashSetOfEmptiesIsEmpty()
         {
-            var ma = HashSet<IEnumerable<int>>(Seq<int>(), Seq<int>());
+            var ma = HashSet<EnumerableM<int>>([], []);
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Enumerable.Empty<HashSet<int>>();
+            var mc = EnumerableM.empty<HashSet<int>>();
 
             Assert.True(mb.ToSeq() == mc.ToSeq());
         }

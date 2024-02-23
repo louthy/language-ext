@@ -131,4 +131,8 @@ public record Pure<UOut, UIn, DIn, DOut, M, A>(A Value) : Proxy<UOut, UIn, DIn, 
     [Pure]
     public void Deconstruct(out A value) =>
         value = Value;
+    
+    [Pure]
+    public override string ToString() => 
+        "pure";
 }

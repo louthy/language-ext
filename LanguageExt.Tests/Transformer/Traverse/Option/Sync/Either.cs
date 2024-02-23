@@ -10,7 +10,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionT.Sync
         public void LeftIsSomeLeft()
         {
             var ma = Left<Error, Option<int>>(Error.New("alt"));
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Some(Left<Error, int>(Error.New("alt")));
 
             var mr = mb == mc;
@@ -22,7 +23,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionT.Sync
         public void RightNoneIsNone()
         {
             var ma = Right<Error, Option<int>>(None);
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Option<Either<Error, int>>.None;
 
             var mr = mb == mc;
@@ -34,7 +36,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionT.Sync
         public void RightSomeIsSomeRight()
         {
             var ma = Right<Error, Option<int>>(Some(1234));
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Some(Right<Error, int>(1234));
 
             var mr = mb == mc;

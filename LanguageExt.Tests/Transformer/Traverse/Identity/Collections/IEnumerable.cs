@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using LanguageExt.Traits;
 using Xunit;
 using static LanguageExt.Prelude;
 
@@ -9,21 +9,21 @@ namespace LanguageExt.Tests.Transformer.Traverse.Identity.Collections
         [Fact]
         public void EmptyIEnumerableIsEmpty()
         {
-            var ma = Enumerable.Empty<Identity<int>>();
+            var ma = EnumerableM.empty<Identity<int>>();
 
-            var mb = ma.Traverse(identity);
+            var mb = ma.Sequence();
 
-            Assert.Equal(Id(Enumerable.Empty<int>()), mb);
+            Assert.Equal(Id(EnumerableM.empty<int>()), mb);
         }
 
         [Fact]
         public void EnumerableOfIdentitiesIsIdentityOfEnumerable()
         {
-            var ma = List(Id(1), Id(3), Id(5)).AsEnumerable();
+            var ma = List(Id(1), Id(3), Id(5)).AsEnumerableM();
 
-            var mb = ma.Traverse(identity);
+            var mb = ma.Sequence();
 
-            Assert.Equal(Id(List(1, 3, 5).AsEnumerable()), mb);
+            Assert.Equal(Id(List(1, 3, 5).AsEnumerableM()), mb);
         }
     }
 }

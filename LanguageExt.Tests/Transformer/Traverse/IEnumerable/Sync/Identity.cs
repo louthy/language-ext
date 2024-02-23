@@ -10,9 +10,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Sync
         [Fact]
         public void IdEmptyIsEmpty()
         {
-            var ma = Id(Enumerable.Empty<int>());
-            var mb = ma.Traverse(identity);
-            var mc = Enumerable.Empty<Identity<int>>();
+            var ma = Id(EnumerableM.empty<int>());
+            var mb = ma.Traverse(identity).As();
+            var mc = EnumerableM.empty<Identity<int>>();
 
             Assert.True(mb.ToSeq() == mc.ToSeq());
         }
@@ -20,8 +20,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Sync
         [Fact]
         public void IdNonEmptyIEnumerableIsIEnumerableId()
         {
-            var ma = Id(new[] { 1, 2, 3 }.AsEnumerable());
-            var mb = ma.Traverse(identity);
+            var ma = Id(EnumerableM.create([1, 2, 3]));
+            var mb = ma.Traverse(identity).As();
             var mc = new[] { Id(1), Id(2), Id(3) }.AsEnumerable();
 
             Assert.True(mb.ToSeq() == mc.ToSeq());

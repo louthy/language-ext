@@ -11,7 +11,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
         public void LeftIsSingletonLeft()
         {
             var ma = Left<Error, Seq<int>>(Error.New("alt"));
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Seq1(Left<Error, int>(Error.New("alt")));
 
             Assert.True(mb == mc);
@@ -21,7 +22,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
         public void RightEmptyIsEmpty()
         {
             var ma = Right<Error, Seq<int>>(Empty);
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Seq<Either<Error, int>>();
 
             Assert.True(mb == mc);
@@ -31,7 +33,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
         public void RightNonEmptySeqIsSeqRight()
         {
             var ma = Right<Error, Seq<int>>(Seq(1, 2, 3, 4));
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Seq(Right<Error, int>(1), Right<Error, int>(2), Right<Error, int>(3), Right<Error, int>(4));
 
             Assert.True(mb == mc);

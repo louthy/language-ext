@@ -284,4 +284,8 @@ public record Producer<OUT, M, A> : Proxy<Void, Unit, Unit, OUT, M, A>
         Producer<OUT, M, A> lhs,
         Producer<OUT, M, A> rhs) =>
         lhs.Bind(_ => rhs);
+    
+    [Pure]
+    public override string ToString() => 
+        "producer";
 }

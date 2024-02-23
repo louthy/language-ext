@@ -9,7 +9,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Collections
         public void EmptyEmptyIsEmptyEmpty()
         {
             Seq<Set<int>> ma = Empty;
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Set<Seq<int>>.Empty;
             
             Assert.True(mb == mc);
@@ -19,7 +20,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Collections
         public void SeqSetCrossProduct()
         {
             var ma = Seq(Set(1, 2), Set(10, 20, 30));
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Set(Seq(1, 10), Seq(1, 20), Seq(1, 30), Seq(2, 10), Seq(2, 20), Seq(2, 30));
             
             Assert.True(mb == mc);
@@ -29,7 +31,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Collections
         public void SeqOfEmptiesAndNonEmptiesIsEmpty()
         {
             var ma = Seq(Set<int>(), Set(1, 2, 3));
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Set<Seq<int>>.Empty;
             
             Assert.True(mb == mc);
@@ -39,7 +42,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Collections
         public void SeqOfEmptiesIsEmpty()
         {
             var ma = Seq(Set<int>(), Set<int>());
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Set<Seq<int>>.Empty;
             
             Assert.True(mb == mc);

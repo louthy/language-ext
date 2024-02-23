@@ -31,6 +31,13 @@ public static class Monoid
     /// Fold a list using the monoid.
     /// </summary>
     [Pure]
+    public static A concat<A>(Seq<A> xs) where A : Monoid<A> =>
+        xs.Fold(A.Empty, (x, y) => x.Append(y));
+
+    /// <summary>
+    /// Fold a list using the monoid.
+    /// </summary>
+    [Pure]
     public static A concat<A>(params A[] xs) where A : Monoid<A> =>
         xs.Fold(A.Empty, (x, y) => x.Append(y));
 }

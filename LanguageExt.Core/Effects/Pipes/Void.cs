@@ -1,3 +1,4 @@
+using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.Common;
 
@@ -17,4 +18,8 @@ public class Void
     /// </summary>
     [MethodImpl(Proxy.mops)]
     Void() => throw new BottomException();
+    
+    [Pure]
+    public override string ToString() => 
+        "void";
 }

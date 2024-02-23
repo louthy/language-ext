@@ -1,5 +1,4 @@
 ﻿using System;
-using LanguageExt.Common;
 
 namespace LanguageExt.Traits;
 

@@ -210,4 +210,8 @@ public record Effect<M, A> : Proxy<Void, Unit, Unit, Void, M, A>
         Effect<M, A> lhs,
         Effect<M, A> rhs) =>
         lhs.Bind(_ => rhs).ToEffect();
+    
+    [Pure]
+    public override string ToString() => 
+        "effect";
 }

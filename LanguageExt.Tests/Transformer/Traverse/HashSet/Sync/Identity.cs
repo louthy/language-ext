@@ -13,7 +13,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.HashSetT.Sync
         public void IdEmptyIsEmpty()
         {
             var ma = Id<HashSet<int>>(Empty);
-            var mb = ma.Traverse(identity);
+            var mb = ma.Traverse(mx => mx).As();
             var mc = HashSet<Identity<int>>();
 
             Assert.True(mb == mc);
@@ -23,7 +23,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.HashSetT.Sync
         public void IdNonEmptyHashSetIsHashSetId()
         {
             var ma = Id(HashSet(1, 2, 3));
-            var mb = ma.Traverse(identity);
+            var mb = ma.Traverse(mx => mx).As();
             var mc = HashSet(Id(1), Id(2), Id(3));
             
             Assert.True(mb == mc);

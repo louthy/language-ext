@@ -14,13 +14,8 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly struct Eff<RT, A> : K<Eff<RT>, A>
+public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
 {
-    /// <summary>
-    /// Underlying monad transformer stack that captures all of the IO behaviour 
-    /// </summary>
-    internal readonly StateT<RT, ResourceT<IO>, A> effect;
-    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Transformer helpers
@@ -69,10 +64,6 @@ public readonly struct Eff<RT, A> : K<Eff<RT>, A>
     //
     // Constructors
     //
-
-    [MethodImpl(Opt.Default)]
-    internal Eff(StateT<RT, ResourceT<IO>, A> effect) =>
-        this.effect = effect;
 
     /// <summary>
     /// Constructor
@@ -1103,4 +1094,7 @@ public readonly struct Eff<RT, A> : K<Eff<RT>, A>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> EffectMaybe(Func<RT, Fin<A>> f) =>
         Lift(f);
+
+    public override string ToString() => 
+        "Eff";
 }
