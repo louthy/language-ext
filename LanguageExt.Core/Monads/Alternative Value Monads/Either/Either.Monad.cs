@@ -7,7 +7,7 @@ namespace LanguageExt;
 /// Monad trait implementation for `Either<L, R>`
 /// </summary>
 /// <typeparam name="L">Left type parameter</typeparam>
-public class Either<L> : Monad<Either<L>>, Traversable<Either<L>>, Alternative<Either<L>>
+public class Either<L> : Monad<Either<L>>, Traversable<Either<L>>
 {
     static K<Either<L>, B> Applicative<Either<L>>.Apply<A, B>(
         K<Either<L>, Func<A, B>> mf, 
@@ -42,12 +42,6 @@ public class Either<L> : Monad<Either<L>>, Traversable<Either<L>>, Alternative<E
 
     static K<Either<L>, B> Functor<Either<L>>.Map<A, B>(Func<A, B> f, K<Either<L>, A> ma) => 
         ma.As().Map(f);
-
-    static K<Either<L>, A> Alternative<Either<L>>.Empty<A>() => 
-        Either<L, A>.Bottom;
-
-    static K<Either<L>, A> Alternative<Either<L>>.Or<A>(K<Either<L>, A> ma, K<Either<L>, A> mb) => 
-        ma.As().IsRight ? ma : mb;
 
     static K<Either<L>, A> Right<A>(A value) =>
         Either<L, A>.Right(value);

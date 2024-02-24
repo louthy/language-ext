@@ -45,9 +45,9 @@ public readonly record struct Pure<A>(A Value)
     /// Monadic bind
     /// </summary>
     /// <param name="f">Bind function</param>
-    /// <typeparam name="B">Result bound value type</typeparam>
+    /// <typeparam name="L">Result bound value type</typeparam>
     /// <returns>Result of the applying the bind function to the `Pure` value</returns>
-    public Fail<B> Bind<B>(Func<A, Fail<B>> f) =>
+    public Either<L, A> Bind<L>(Func<A, Fail<L>> f) =>
         f(Value);
 
     /// <summary>
@@ -69,6 +69,17 @@ public readonly record struct Pure<A>(A Value)
     /// <returns>Result of the applying the bind and mapping function to the `Pure` value</returns>
     public Pure<C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         new(project(Value, bind(Value).Value));
+
+    /// <summary>
+    /// Monadic bind and project
+    /// </summary>
+    /// <param name="bind">Bind function</param>
+    /// <param name="project">Project function</param>
+    /// <typeparam name="L">Result of the bind operation bound value type</typeparam>
+    /// <typeparam name="C">Result of the mapping operation bound value type</typeparam>
+    /// <returns>Result of the applying the bind and mapping function to the `Pure` value</returns>
+    public Either<L, C> SelectMany<L, C>(Func<A, Fail<L>> bind, Func<A, Unit, C> project) =>
+        bind(Value).Value;
 
     /// <summary>
     /// Monadic bind and project

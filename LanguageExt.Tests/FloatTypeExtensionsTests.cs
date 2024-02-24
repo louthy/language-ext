@@ -1,24 +1,22 @@
-﻿using LanguageExt.ClassInstances;
-using Xunit;
-using System.Linq;
+﻿using Xunit;
+using LanguageExt.ClassInstances;
 
-namespace LanguageExt.Tests
+namespace LanguageExt.Tests;
+
+public class Euros : FloatType<Euros, TDecimal, decimal>
 {
-    public class Euros : FloatType<Euros, TDecimal, decimal>
+    public Euros(decimal value) : base(value) { }
+}
+
+public class FloatTypeExtensionsTests
+{
+    [Fact]
+    public void SumTest()
     {
-        public Euros(decimal value) : base(value) { }
-    }
+        var xs = new[] { Euros.New(10), Euros.New(20), Euros.New(30) };
 
-    public class FloatTypeExtensionsTests
-    {
-        [Fact]
-        public void SumTest()
-        {
-            var xs = new[] { Euros.New(10), Euros.New(20), Euros.New(30) };
+        var res = xs.Sum();
 
-            var res = xs.Sum();
-
-            Assert.True(res == Euros.New(60));
-        }
+        Assert.True(res == Euros.New(60));
     }
 }

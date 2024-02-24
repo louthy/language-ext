@@ -14,7 +14,7 @@ public interface IEither
         get;
     }
 
-    TRes MatchUntyped<TRes>(Func<object?, TRes> Right, Func<object?, TRes> Left);
+    R MatchUntyped<R>(Func<object?, R> Right, Func<object?, R> Left);
 
     Type GetUnderlyingRightType();
     Type GetUnderlyingLeftType();

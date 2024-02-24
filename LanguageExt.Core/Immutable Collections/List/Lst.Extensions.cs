@@ -383,20 +383,6 @@ public static class ListExtensions
         List.map(list, map);
 
     /// <summary>
-    /// Partial application map
-    /// </summary>
-    [Pure]
-    public static IEnumerable<Func<T2, R>> ParMap<T1, T2, R>(this IEnumerable<T1> list, Func<T1, T2, R> func) =>
-        list.Map(curry(func));
-
-    /// <summary>
-    /// Partial application map
-    /// </summary>
-    [Pure]
-    public static IEnumerable<Func<T2, Func<T3, R>>> ParMap<T1, T2, T3, R>(this IEnumerable<T1> list, Func<T1, T2, T3, R> func) =>
-        list.Map(curry(func));
-
-    /// <summary>
     /// Removes items from the list that do not match the given predicate (Where in LINQ)
     /// </summary>
     /// <typeparam name="T">Enumerable item type</typeparam>

@@ -38,4 +38,10 @@ public static partial class Monad
         where M : Functor<M>
         where N : Monad<N> =>
         M.Map(na => N.Bind(na, f), mna);
+
+    public static K<M, K<N, B>> BindT<M, N, A, B>(this K<M, K<N, A>> mna, Func<A, K<M, K<N, B>>> f)
+        where M : Functor<M>
+        where N : Monad<N> =>
+        M.Map(na => N.Bind(na, f), mna);
+    
 }

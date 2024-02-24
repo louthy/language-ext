@@ -134,7 +134,7 @@ public static partial class Prelude
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static T? append<SEMI, T>(T? lhs, T? rhs)
+    public static T? append<T>(T? lhs, T? rhs)
         where T : struct, Semigroup<T>
     {
         if (!lhs.HasValue && !rhs.HasValue) return lhs; // None  + None  = None

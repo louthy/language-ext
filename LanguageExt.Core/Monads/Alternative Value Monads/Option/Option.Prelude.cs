@@ -507,22 +507,6 @@ public static partial class Prelude
         option.BiMap(Some, None);
 
     /// <summary>
-    /// Partial application map
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<Func<T2, R>> parmap<T1, T2, R>(Option<T1> option, Func<T1, T2, R> mapper) =>
-        option.ParMap(mapper);
-
-    /// <summary>
-    /// Partial application map
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<Func<T2, Func<T3, R>>> parmap<T1, T2, T3, R>(Option<T1> option, Func<T1, T2, T3, R> mapper) =>
-        option.ParMap(mapper);
-
-    /// <summary>
     /// Apply a predicate to the bound value (if in a Some state)
     /// </summary>
     /// <param name="pred">Predicate to apply</param>

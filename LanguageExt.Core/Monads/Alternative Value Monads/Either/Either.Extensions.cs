@@ -326,24 +326,24 @@ public static class EitherExtensions
     [Pure]
     public static Validation<L, R> ToValidation<L, R>(this Either<L, R> ma)
         where L : Monoid<L> =>
-        ma.State switch
+        ma switch
         {
-            EitherStatus.IsRight => Pure(ma.RightValue),
-            EitherStatus.IsLeft  => Fail(ma.LeftValue),
-            _                    => throw new BottomException()
+            Right<L, R> => Pure(ma.RightValue),
+            Left<L, R>  => Fail(ma.LeftValue),
+            _           => throw new BottomException()
         };
-    
+
     /// <summary>
     /// Convert to an Eff
     /// </summary>
     /// <returns>Eff monad</returns>
     [Pure]
     public static Eff<R> ToEff<R>(this Either<Error, R> ma) =>
-        ma.State switch
+        ma switch
         {
-            EitherStatus.IsRight => Pure(ma.RightValue),
-            EitherStatus.IsLeft  => Fail(ma.LeftValue),
-            _                    => default // bottom
+            Right<Error, R> => Pure(ma.RightValue),
+            Left<Error, R>  => Fail(ma.LeftValue),
+            _               => throw new BottomException()
         };
 
     /// <summary>
@@ -352,11 +352,11 @@ public static class EitherExtensions
     /// <returns>Eff monad</returns>
     [Pure]
     public static Eff<R> ToEff<R>(this Either<Exception, R> ma) =>
-        ma.State switch
+        ma switch
         {
-            EitherStatus.IsRight => Pure(ma.RightValue),
-            EitherStatus.IsLeft  => Fail<Error>(ma.LeftValue),
-            _                    => default // bottom
+            Right<Exception, R> => Pure(ma.RightValue),
+            Left<Exception, R>  => Fail<Error>(ma.LeftValue),
+            _                   => throw new BottomException()
         };
 
     /// <summary>
@@ -365,10 +365,10 @@ public static class EitherExtensions
     /// <returns>Eff monad</returns>
     [Pure]
     public static Eff<R> ToEff<R>(this Either<string, R> ma) =>
-        ma.State switch
+        ma switch
         {
-            EitherStatus.IsRight => Pure(ma.RightValue),
-            EitherStatus.IsLeft  => Fail(Error.New(ma.LeftValue)),
-            _                    => default // bottom
+            Right<string, R> => Pure(ma.RightValue),
+            Left<string, R>  => Fail(Error.New(ma.LeftValue)),
+            _                => throw new BottomException()
         };
 }

@@ -1,19 +1,10 @@
-﻿using System;
+﻿using Xunit;
+using System;
 using System.Linq;
-using System.Threading.Tasks;
-using LanguageExt;
-using LanguageExt.ClassInstances;
-using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
-using Xunit;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
+using LanguageExt.ClassInstances;
 using System.Runtime.Serialization;
-using static System.Console;
-using LanguageExt.Parsec;
-using static LanguageExt.Parsec.Prim;
-using static LanguageExt.Parsec.Char;
-
-
 
 namespace LanguageExt.Tests
 {
@@ -23,10 +14,11 @@ namespace LanguageExt.Tests
         /// <summary>
         /// https://github.com/louthy/language-ext/issues/207
         /// </summary>
-        public Task<Either<Exception, int>> Issue207() =>
+        public void Issue207() =>
             Initialization
                 .BindT(createUserMapping)
-                .BindT(addUser);
+                .BindT(addUser)
+                .Run();
 
         public Task<Either<Exception, int>> Issue207_2() =>
             from us in Initialization
@@ -34,13 +26,13 @@ namespace LanguageExt.Tests
             from id in addUser(mu)
             select id;
 
-        static Task<Either<Exception, ADUser>> Initialization =>
+        static IO<Either<Exception, ADUser>> Initialization =>
             Right<Exception, ADUser>(ADUser.New("test user")).AsTask();
 
         static Either<Exception, UserMapping> createUserMapping(ADUser user) =>
             Right<Exception, UserMapping>(UserMapping.New(user.ToString() + " mapped"));
 
-        static Task<Either<Exception, int>> addUser(UserMapping user) =>
+        static IO<Either<Exception, int>> addUser(UserMapping user) =>
             Right<Exception, int>(user.ToString().Length).AsTask();
 
         static Try<int> addUser2(UserMapping user) => () =>

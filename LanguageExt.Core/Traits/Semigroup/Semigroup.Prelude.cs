@@ -108,7 +108,7 @@ public static partial class Prelude
     /// <param name="y">The right hand side of the operation</param>
     /// <returns>The result of the operation</returns>
     [Pure]
-    public static IEnumerable<A> append<SEMI, A>(IEnumerable<A> x, IEnumerable<A> y) 
+    public static IEnumerable<A> append<A>(IEnumerable<A> x, IEnumerable<A> y) 
         where A : Semigroup<A>
     {
         foreach (var a in x)

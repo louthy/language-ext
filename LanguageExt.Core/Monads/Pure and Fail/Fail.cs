@@ -47,6 +47,9 @@ public readonly record struct Fail<E>(E Value)
 
     public override string ToString() =>
         $"Fail({Value})";
+
+    public Either<E, B> SelectMany<B, C>(Func<Unit, Pure<B>> bind, Func<Unit, B, C> project) =>
+        this;
 }
 
 public static class FailExtensions

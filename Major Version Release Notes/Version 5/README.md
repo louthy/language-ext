@@ -775,7 +775,9 @@ This is my '.NET Framework to .NET Core' moment.  I realise that.  And I an trul
 ### Async extensions for `Option<A>` 
 	* Mitigtation: use `ToAsync()` instead
 ### `ExceptionMatch`, `ExceptionMatchAsync`, `ExceptionMatchOptionalAsync`
-	* Mitigtation: use effect monads with `@catch`
+	* Mitigtations: 
+		* use effect monads with `@catch`
+		* use `switch` expressions
 
 
 ## Libraries removed outright

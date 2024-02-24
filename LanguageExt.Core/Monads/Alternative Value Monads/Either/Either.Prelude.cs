@@ -91,16 +91,6 @@ public static partial class Prelude
     /// Apply
     /// </summary>
     /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type FB derived from Applicative of B</returns>
-    [Pure]
-    public static Either<L, B> apply<L, A, B>(Func<A, B> fab, Either<L, A> fa) =>
-        fa.Map(fab);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
     /// <param name="fa">Applicative a to apply</param>
     /// <param name="fb">Applicative b to apply</param>
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
@@ -110,19 +100,6 @@ public static partial class Prelude
         from a in fa
         from b in fb
         select f(a, b);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative a to apply</param>
-    /// <param name="fb">Applicative b to apply</param>
-    /// <returns>Applicative of type FC derived from Applicative of C</returns>
-    [Pure]
-    public static Either<L, C> apply<L, A, B, C>(Func<A, B, C> fabc, Either<L, A> fa, Either<L, B> fb) =>
-        from a in fa
-        from b in fb
-        select fabc(a, b);
 
     /// <summary>
     /// Apply
@@ -143,30 +120,10 @@ public static partial class Prelude
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
-    public static Either<L, Func<B, C>> apply<L, A, B, C>(Func<A, B, C> fabc, Either<L, A> fa) =>
-        fa.Map(curry(fabc));
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
-    [Pure]
     public static Either<L, Func<B, C>> apply<L, A, B, C>(Either<L, Func<A, Func<B, C>>> fabc, Either<L, A> fa) =>
         from f in fabc
         from a in fa
         select f(a);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
-    [Pure]
-    public static Either<L, Func<B, C>> apply<L, A, B, C>(Func<A, Func<B, C>> fabc, Either<L, A> fa) =>
-        fa.Map(fabc);
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -335,8 +292,8 @@ public static partial class Prelude
     /// <param name="Left">Function to invoke if in a Left state</param>
     /// <returns>The return value of the invoked function</returns>
     [Pure]
-    public static Ret match<L, R, Ret>(Either<L, R> either, Func<R, Ret> Right, Func<L, Ret> Left) =>
-        either.Match(Right, Left);
+    public static Ret match<L, R, Ret>(Either<L, R> either, Func<L, Ret> Left, Func<R, Ret> Right) =>
+        either.Match(Left, Right);
 
     /// <summary>
     /// Invokes the Right or Left action depending on the state of the Either provided
@@ -347,8 +304,8 @@ public static partial class Prelude
     /// <param name="Right">Action to invoke if in a Right state</param>
     /// <param name="Left">Action to invoke if in a Left state</param>
     /// <returns>Unit</returns>
-    public static Unit match<L, R>(Either<L, R> either, Action<R> Right, Action<L> Left) =>
-        either.Match(Right, Left);
+    public static Unit match<L, R>(Either<L, R> either, Action<L> Left, Action<R> Right) =>
+        either.Match(Left, Right);
 
     /// <summary>
     /// <para>
@@ -440,19 +397,6 @@ public static partial class Prelude
         either.Exists(pred);
 
     /// <summary>
-    /// Invokes a predicate on the value of the Either
-    /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <param name="self">Either to check existence of</param>
-    /// <param name="Right">Right predicate</param>
-    /// <param name="Left">Left predicate</param>
-    /// <returns>True if the predicate returns True.  False otherwise or if the Either is in a bottom state.</returns>
-    [Pure]
-    public static bool biexists<L, R>(Either<L, R> either, Func<L, bool> Left, Func<R, bool> Right) =>
-        either.BiExists(Left, Right);
-
-    /// <summary>
     /// Maps the value in the Either if it's in a Right state
     /// </summary>
     /// <typeparam name="L">Left</typeparam>
@@ -479,26 +423,6 @@ public static partial class Prelude
     [Pure]
     public static Either<LRet, RRet> bimap<L, R, LRet, RRet>(Either<L, R> either, Func<L, LRet> Left, Func<R, RRet> Right) =>
         either.BiMap(Left, Right);
-
-    /// <summary>
-    /// Filter the Either
-    /// </summary>
-    /// <remarks>
-    /// This may give unpredictable results for a filtered value.  The Either won't
-    /// return true for IsLeft or IsRight.  IsBottom is True if the value is filtered and that
-    /// should be checked for.
-    /// </remarks>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <param name="self">Either to filter</param>
-    /// <param name="pred">Predicate function</param>
-    /// <returns>If the Either is in the Left state it is returned as-is.  
-    /// If in the Right state the predicate is applied to the Right value.
-    /// If the predicate returns True the Either is returned as-is.
-    /// If the predicate returns False the Either is returned in a 'Bottom' state.</returns>
-    [Pure]
-    public static Either<L, R> filter<L, R>(Either<L, R> either, Func<R, bool> pred) =>
-        either.Filter(pred);
 
     /// <summary>
     /// Monadic bind function
@@ -599,28 +523,6 @@ public static partial class Prelude
     [Pure]
     public static Arr<L> leftToArray<L, R>(Either<L, R> either) =>
         either.LeftToArray();
-
-    /// <summary>
-    /// Project the Either into an IQueryable of R
-    /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <param name="either">Either to project</param>
-    /// <returns>If the Either is in a Right state, an IQueryable of R with one item.  A zero length IQueryable R otherwise</returns>
-    [Pure]
-    public static IQueryable<R> rightToQuery<L, R>(Either<L, R> either) =>
-        either.RightAsEnumerable().AsQueryable();
-
-    /// <summary>
-    /// Project the Either into an IQueryable of L
-    /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <param name="either">Either to project</param>
-    /// <returns>If the Either is in a Left state, an IQueryable of L with one item.  A zero length IQueryable L otherwise</returns>
-    [Pure]
-    public static IQueryable<L> leftToQuery<L, R>(Either<L, R> either) =>
-        either.LeftAsEnumerable().AsQueryable();
 
     /// <summary>
     /// Extracts from a list of 'Either' all the 'Left' elements.
