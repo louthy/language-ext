@@ -1,6 +1,4 @@
 ﻿using System;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
 using LanguageExt.Traits;
 using LanguageExt.TypeClasses;
 
@@ -153,15 +151,15 @@ public readonly record struct Pure<A>(A Value)
         bind(Value);
     
     public ReaderT<Env, M, B> Bind<Env, M, B>(Func<A, ReaderT<Env, M, B>> bind)
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, SemiAlternative<M> =>
         bind(Value);
     
     public StateT<S, M, B> Bind<S, M, B>(Func<A, StateT<S, M, B>> bind)
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, SemiAlternative<M> =>
         bind(Value);
     
     public ResourceT<M, B> Bind<M, B>(Func<A, ResourceT<M, B>> bind)
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, SemiAlternative<M> =>
         bind(Value);
     
     public OptionT<M, B> Bind<M, B>(Func<A, OptionT<M, B>> bind)
@@ -193,20 +191,36 @@ public readonly record struct Pure<A>(A Value)
          Bind(x => M.Map(y => project(x, y), bind(x)));
     
     public ReaderT<Env, M, C> SelectMany<Env, M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, SemiAlternative<M> =>
         Bind(x => bind(x).Map(y => project(x, y)));
+    
+    public ReaderT<Env, M, C> SelectMany<Env, M, B, C>(Func<A, K<ReaderT<Env, M>, B>> bind, Func<A, B, C> project)
+        where M : Monad<M>, SemiAlternative<M> =>
+        Bind(x => bind(x).As().Map(y => project(x, y)));
     
     public StateT<S, M, C> SelectMany<S, M, B, C>(Func<A, StateT<S, M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, SemiAlternative<M> =>
         Bind(x => bind(x).Map(y => project(x, y)));
     
+    public StateT<S, M, C> SelectMany<S, M, B, C>(Func<A, K<StateT<S, M>, B>> bind, Func<A, B, C> project)
+        where M : Monad<M>, SemiAlternative<M> =>
+        Bind(x => bind(x).As().Map(y => project(x, y)));
+    
     public ResourceT<M, C> SelectMany<M, B, C>(Func<A, ResourceT<M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, SemiAlternative<M> =>
         Bind(x => bind(x).Map(y => project(x, y)));
+    
+    public ResourceT<M, C> SelectMany<M, B, C>(Func<A, K<ResourceT<M>, B>> bind, Func<A, B, C> project)
+        where M : Monad<M>, SemiAlternative<M> =>
+        Bind(x => bind(x).As().Map(y => project(x, y)));
     
     public OptionT<M, C> SelectMany<M, B, C>(Func<A, OptionT<M, B>> bind, Func<A, B, C> project)
         where M : Monad<M> =>
         Bind(x => bind(x).Map(y => project(x, y)));
+    
+    public OptionT<M, C> SelectMany<M, B, C>(Func<A, K<OptionT<M>, B>> bind, Func<A, B, C> project)
+        where M : Monad<M> =>
+        Bind(x => bind(x).As().Map(y => project(x, y)));
 
     public Option<C> SelectMany<B, C>(Func<A, Option<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));

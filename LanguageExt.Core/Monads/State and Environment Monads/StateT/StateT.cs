@@ -12,7 +12,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<StateT<S, M>, A>
-    where M : Monad<M>, Alternative<M>
+    where M : Monad<M>, SemiAlternative<M>
 {
     /// <summary>
     /// Lift a pure value into the monad-transformer
@@ -21,12 +21,6 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
     /// <returns>`StateT`</returns>
     public static StateT<S, M, A> Pure(A value) =>
         Lift(M.Pure(value));
-
-    /// <summary>
-    /// Alternative empty
-    /// </summary>
-    public static StateT<S, M, A> Empty =>
-        Lift(M.Empty<A>());
 
     /// <summary>
     /// Extracts the state value, maps it, and then puts it back into
@@ -122,7 +116,7 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
     /// <typeparam name="M1">Trait of the monad to map to</typeparam>
     /// <returns>`ReaderT`</returns>
     public StateT<S, M1, B> MapT<M1, B>(Func<K<M, (A Value, S State)>, K<M1, (B Value, S State)>> f)
-        where M1 : Monad<M1>, Alternative<M1> =>
+        where M1 : Monad<M1>, SemiAlternative<M1> =>
         new (state => f(runState(state)));
 
     /// <summary>

@@ -66,8 +66,8 @@ public static class Choice
     public static Either<A, B> toEither<CHOICE, CH, A, B>(CH ma)
         where CHOICE : Choice<CH, A, B> =>
         CHOICE.Match(ma,
-                     Left: Left<A, B>,
-                     Right: Right<A, B>);
+                     Left: l => Left<A, B>(l),
+                     Right: r => Right<A, B>(r));
 
     /// <summary>
     /// Convert the structure to a Option

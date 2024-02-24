@@ -23,10 +23,10 @@ public static class TResult
         {
             TContinue<A> r => Fin<A>.Succ(r.Value),
             TComplete<A> r => Fin<A>.Succ(r.Value),
-            TFail<A> r => Fin<A>.Fail(r.Error),
-            TCancelled<A> => Fin<A>.Fail(Errors.Cancelled),
-            TNone<A> => Fin<A>.Fail(Errors.None),
-            _ => Fin<A>.Fail(Errors.Bottom)
+            TFail<A> r     => Fin<A>.Fail(r.Error),
+            TCancelled<A>  => Fin<A>.Fail(Errors.Cancelled),
+            TNone<A>       => Fin<A>.Fail(Errors.None),
+            _              => Fin<A>.Fail(Errors.Bottom)
         };
 
     public static Fin<A> ToFin<A>(this TResult<Sum<Error, A>> ma) =>
@@ -45,26 +45,26 @@ public static class TResult
         {
             TContinue<Sum<E, A>> r => SumToEither(r.Value),
             TComplete<Sum<E, A>> r => SumToEither(r.Value),
-            TFail<Sum<E, A>> r => errorMap(r.Error),
-            TCancelled<Sum<E, A>> => errorMap(Errors.Cancelled),
-            TNone<Sum<E, A>> => errorMap(Errors.None),
-            _ => Either<E, A>.Bottom
+            TFail<Sum<E, A>> r     => errorMap(r.Error),
+            TCancelled<Sum<E, A>>  => errorMap(Errors.Cancelled),
+            TNone<Sum<E, A>>       => errorMap(Errors.None),
+            _                      => throw new NotSupportedException()
         };
 
     static Fin<A> SumToFin<A>(Sum<Error, A> value) =>
         value switch
         {
             SumRight<Error, A> r => Fin<A>.Succ(r.Value),
-            SumLeft<Error, A> l => Fin<A>.Fail(l.Value),
-            _ => Fin<A>.Fail(Errors.Bottom)
+            SumLeft<Error, A> l  => Fin<A>.Fail(l.Value),
+            _                    => Fin<A>.Fail(Errors.Bottom)
         };
 
     static Either<E, A> SumToEither<E, A>(Sum<E, A> value) =>
         value switch
         {
             SumRight<E, A> r => Either<E, A>.Right(r.Value),
-            SumLeft<E, A> l => Either<E, A>.Left(l.Value),
-            _ => Either<E, A>.Bottom
+            SumLeft<E, A> l  => Either<E, A>.Left(l.Value),
+            _                => throw new NotSupportedException()
         };
 }
 

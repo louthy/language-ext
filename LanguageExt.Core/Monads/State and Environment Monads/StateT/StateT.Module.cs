@@ -12,7 +12,7 @@ namespace LanguageExt;
 public class StateT<S>
 {
     public static StateT<S, M, A> lift<M, A>(K<M, A> ma)  
-        where M : Monad<M>, Alternative<M> => 
+        where M : Monad<M>, SemiAlternative<M> => 
         StateT<S, M, A>.Lift(ma);
 }
 
@@ -43,27 +43,27 @@ public partial class StateT<S, M>
 public class StateT
 {
     public static StateT<S, M, B> bind<S, M, A, B>(StateT<S, M, A> ma, Func<A, StateT<S, M, B>> f) 
-        where M : Monad<M>, Alternative<M> => 
+        where M : Monad<M>, SemiAlternative<M> => 
         ma.As().Bind(f);
 
     public static StateT<S, M, B> map<S, M, A, B>(Func<A, B> f, StateT<S, M, A> ma)  
-        where M : Monad<M>, Alternative<M> => 
+        where M : Monad<M>, SemiAlternative<M> => 
         ma.As().Map(f);
 
     public static StateT<S, M, A> Pure<S, M, A>(A value)  
-        where M : Monad<M>, Alternative<M> => 
+        where M : Monad<M>, SemiAlternative<M> => 
         StateT<S, M, A>.Pure(value);
 
     public static StateT<S, M, B> apply<S, M, A, B>(StateT<S, M, Func<A, B>> mf, StateT<S, M, A> ma)  
-        where M : Monad<M>, Alternative<M> => 
+        where M : Monad<M>, SemiAlternative<M> => 
         mf.As().Bind(x =>ma.As().Map(x));
 
     public static StateT<S, M, B> action<S, M, A, B>(StateT<S, M, A> ma, StateT<S, M, B> mb) 
-        where M : Monad<M>, Alternative<M> => 
+        where M : Monad<M>, SemiAlternative<M> => 
         ma.As().Bind(_ => mb);
 
     public static StateT<S, M, A> lift<S, M, A>(K<M, A> ma)  
-        where M : Monad<M>, Alternative<M> => 
+        where M : Monad<M>, SemiAlternative<M> => 
         StateT<S, M, A>.Lift(ma);
 
     /// <summary>
@@ -72,30 +72,30 @@ public class StateT
     /// <param name="effect">Monad to lift</param>
     /// <returns>`StateT`</returns>
     public static StateT<S, M, A> liftIO<S, M, A>(IO<A> effect)
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, SemiAlternative<M> =>
         StateT<S, M, A>.LiftIO(effect);
     
     public static StateT<S, M, S> get<M, S>() 
-        where M : Monad<M>, Alternative<M> => 
+        where M : Monad<M>, SemiAlternative<M> => 
         StateT<S, M, S>.Get;
     
     public static StateT<S, M, A> gets<M, S, A>(Func<S, A> f) 
-        where M : Monad<M>, Alternative<M> => 
+        where M : Monad<M>, SemiAlternative<M> => 
         StateT<S, M, A>.Gets(f);
 
     public static StateT<S, M, A> getsM<M, S, A>(Func<S, K<M, A>> f) 
-        where M : Monad<M>, Alternative<M> => 
+        where M : Monad<M>, SemiAlternative<M> => 
         StateT<S, M, A>.GetsM(f);
 
     public static StateT<S, M, Unit> put<M, S>(S state)  
-        where M : Monad<M>, Alternative<M> => 
+        where M : Monad<M>, SemiAlternative<M> => 
         StateT<S, M, Unit>.Put(state);
 
     public static StateT<S, M, Unit> modify<M, S>(Func<S, S> f)  
-        where M : Monad<M>, Alternative<M> => 
+        where M : Monad<M>, SemiAlternative<M> => 
         StateT<S, M, Unit>.Modify(f);
 
     public static StateT<S, M, Unit> modifyM<M, S>(Func<S, K<M, S>> f)  
-        where M : Monad<M>, Alternative<M> => 
+        where M : Monad<M>, SemiAlternative<M> => 
         StateT<S, M, Unit>.ModifyM(f);
 }

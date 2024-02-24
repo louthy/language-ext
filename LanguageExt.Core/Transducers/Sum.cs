@@ -28,7 +28,7 @@ public static class Sum
         {
             SumRight<L, R> r => r.Value,
             SumLeft<L, R> r  => r.Value,
-            _                => Either<L, R>.Bottom
+            _                => throw new NotSupportedException()
         };
 
     public static Sum<L, R> Flatten<L, R>(this Sum<L, Sum<L, R>> mma) =>

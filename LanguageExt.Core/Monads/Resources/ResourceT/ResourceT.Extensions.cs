@@ -10,7 +10,7 @@ namespace LanguageExt;
 public static partial class ResourceT
 {
     public static ResourceT<M, A> As<M, A>(this K<ResourceT<M>, A> ma)
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, SemiAlternative<M> =>
         (ResourceT<M, A>)ma;
 
     /// <summary>
@@ -18,7 +18,7 @@ public static partial class ResourceT
     /// </summary>
     [Pure]
     public static ResourceT<M, A> Flatten<M, A>(this ResourceT<M, ResourceT<M, A>> mma)
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, SemiAlternative<M> =>
         mma.Bind(x => x);
 
     /// <summary>
@@ -33,7 +33,7 @@ public static partial class ResourceT
         this K<M, A> ma, 
         Func<A, K<ResourceT<M>, B>> bind, 
         Func<A, B, C> project)
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, SemiAlternative<M> =>
         ResourceT<M, A>.Lift(ma).SelectMany(bind, project);
 
     /// <summary>
@@ -48,6 +48,6 @@ public static partial class ResourceT
         this K<M, A> ma, 
         Func<A, ResourceT<M, B>> bind, 
         Func<A, B, C> project)
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, SemiAlternative<M> =>
         ResourceT<M, A>.Lift(ma).SelectMany(bind, project);
 }

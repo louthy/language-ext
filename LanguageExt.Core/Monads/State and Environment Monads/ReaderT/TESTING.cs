@@ -82,7 +82,7 @@ public static class Testing
     }
     
     
-    public static async Task Test4()
+    public static void Test4()
     {
         var m1 = App.Pure(123);
         var m2 = App.Pure(123);
