@@ -30,7 +30,6 @@ namespace LanguageExt;
 /// </remarks>
 /// <typeparam name="L">Left</typeparam>
 /// <typeparam name="R">Right</typeparam>
-[Serializable]
 public abstract record Either<L, R> :
     IEither,
     IEnumerable<R>,
@@ -565,8 +564,8 @@ public abstract record Either<L, R> :
     public static Either<L, R> operator |(Either<L, R> lhs, Either<L, R> rhs) =>
         (lhs, rhs) switch
         {
-            (Right<L, R>, _) => lhs,
-            _                => rhs
+            (Either.Right<L, R>, _) => lhs,
+            _                       => rhs
         };
 
     /// <summary>
@@ -588,14 +587,14 @@ public abstract record Either<L, R> :
     /// </summary>
     [Pure]
     public static bool operator true(Either<L, R> value) =>
-        value is Right<L, R>;
+        value is Either.Right<L, R>;
 
     /// <summary>
     /// Override of the False operator to return True if the Either is Left
     /// </summary>
     [Pure]
     public static bool operator false(Either<L, R> value) =>
-        value is Left<L, R>;
+        value is Either.Left<L, R>;
 
     /// <summary>
     /// CompareTo override
@@ -729,11 +728,11 @@ public abstract record Either<L, R> :
 
     [Pure]
     public static Either<L, R> Right(R value) =>
-        new Right<L, R>(value);
+        new Either.Right<L, R>(value);
 
     [Pure]
     public static Either<L, R> Left(L value) =>
-        new Left<L, R>(value);
+        new Either.Left<L, R>(value);
 
     /// <summary>
     /// Unsafe access to the right-value 

@@ -15,23 +15,7 @@ public struct OrdEither<OrdL, OrdR, L, R> : Ord<Either<L, R>>
     /// </summary>
     [Pure]
     public static int Compare(Either<L, R> x, Either<L, R> y) =>
-        x.State switch
-        {
-            EitherStatus.IsRight => y.State switch
-                                    {
-                                        EitherStatus.IsRight => OrdR.Compare(x.RightValue, y.RightValue),
-                                        EitherStatus.IsLeft  => 1,
-                                        _                    => 1
-                                    },
-            EitherStatus.IsLeft => y.State switch
-                                   {
-                                       EitherStatus.IsLeft  => OrdL.Compare(x.LeftValue, y.LeftValue),
-                                       EitherStatus.IsRight => -1,
-                                       _                    => 1
-                                   },
-            EitherStatus.IsBottom => y.State == EitherStatus.IsBottom ? 0 : -1,
-            _                     => 0
-        };
+        x.CompareTo<OrdL, OrdR>(y);
 
     /// <summary>
     /// Equality test

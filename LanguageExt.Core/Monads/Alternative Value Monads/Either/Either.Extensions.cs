@@ -328,9 +328,9 @@ public static class EitherExtensions
         where L : Monoid<L> =>
         ma switch
         {
-            Right<L, R> => Pure(ma.RightValue),
-            Left<L, R>  => Fail(ma.LeftValue),
-            _           => throw new BottomException()
+            Either.Right<L, R>       => Pure(ma.RightValue),
+            Either.Left<L, R> => Fail(ma.LeftValue),
+            _                 => throw new BottomException()
         };
 
     /// <summary>
@@ -341,9 +341,9 @@ public static class EitherExtensions
     public static Eff<R> ToEff<R>(this Either<Error, R> ma) =>
         ma switch
         {
-            Right<Error, R> => Pure(ma.RightValue),
-            Left<Error, R>  => Fail(ma.LeftValue),
-            _               => throw new BottomException()
+            Either.Right<Error, R>       => Pure(ma.RightValue),
+            Either.Left<Error, R> => Fail(ma.LeftValue),
+            _                     => throw new BottomException()
         };
 
     /// <summary>
@@ -354,9 +354,9 @@ public static class EitherExtensions
     public static Eff<R> ToEff<R>(this Either<Exception, R> ma) =>
         ma switch
         {
-            Right<Exception, R> => Pure(ma.RightValue),
-            Left<Exception, R>  => Fail<Error>(ma.LeftValue),
-            _                   => throw new BottomException()
+            Either.Right<Exception, R> => Pure(ma.RightValue),
+            Either.Left<Exception, R>  => Fail<Error>(ma.LeftValue),
+            _                          => throw new BottomException()
         };
 
     /// <summary>
@@ -367,8 +367,8 @@ public static class EitherExtensions
     public static Eff<R> ToEff<R>(this Either<string, R> ma) =>
         ma switch
         {
-            Right<string, R> => Pure(ma.RightValue),
-            Left<string, R>  => Fail(Error.New(ma.LeftValue)),
-            _                => throw new BottomException()
+            Either.Right<string, R> => Pure(ma.RightValue),
+            Either.Left<string, R>  => Fail(Error.New(ma.LeftValue)),
+            _                       => throw new BottomException()
         };
 }

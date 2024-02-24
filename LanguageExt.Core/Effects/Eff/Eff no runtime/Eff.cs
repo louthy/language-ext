@@ -777,7 +777,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static implicit operator Eff<A>(in Either<Error, A> ma) =>
-        ma.Match(Right: Pure, Left: Fail, Bottom: () => Fail(Errors.Bottom));
+        ma.Match(Left: Fail, Right: Pure);
 
     /// <summary>
     /// Convert to an `Eff` monad

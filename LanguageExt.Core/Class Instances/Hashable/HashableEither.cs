@@ -18,9 +18,9 @@ public readonly struct HashableEither<HashableL, HashableR, L, R> : Hashable<Eit
     public static int GetHashCode(Either<L, R> x) =>
         x switch
         {
-            Right<L, R> => HashableR.GetHashCode(x.RightValue),
-            Left<L, R>  => HashableL.GetHashCode(x.LeftValue),
-            _           => 0
+            Either.Right<L, R> => HashableR.GetHashCode(x.RightValue),
+            Either.Left<L, R>  => HashableL.GetHashCode(x.LeftValue),
+            _                  => 0
         };
 }
     

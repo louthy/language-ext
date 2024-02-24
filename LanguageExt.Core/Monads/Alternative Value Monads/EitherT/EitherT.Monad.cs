@@ -36,8 +36,8 @@ public partial class EitherT<L, M> : MonadT<EitherT<L, M>, M>, SemiAlternative<E
             M.Bind(ma.As().runEither, 
                 ea => ea switch
                       {
-                          Right<L, A> => M.Pure(ea),
-                          Left<L, A>  => mb.As().runEither,
-                          _           => M.Pure(ea)
+                          Either.Right<L, A> => M.Pure(ea),
+                          Either.Left<L, A>  => mb.As().runEither,
+                          _                  => M.Pure(ea)
                       }));
 }

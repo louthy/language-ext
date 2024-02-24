@@ -862,7 +862,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static implicit operator Eff<RT, A>(in Either<Error, A> ma) =>
-        ma.Match(Right: Pure, Left: Fail, Bottom: () => Fail(Errors.Bottom));
+        ma.Match(Left: Fail, Right: Pure);
 
     /// <summary>
     /// Convert to an `Eff` monad

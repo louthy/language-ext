@@ -427,7 +427,6 @@ public static partial class Prelude
     {
         foreach (var item in xs)
         {
-            if (item.IsBottom) continue;
             if (item.IsSucc) yield return Succ(item.Value);
             if (item.IsFail) yield return Fail(item.Error);
         }

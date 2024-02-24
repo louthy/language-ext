@@ -16,21 +16,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         [Pure]
         public static bool Equals(Either<L, R> x, Either<L, R> y) =>
-            x.State switch
-            {
-                EitherStatus.IsRight => y.State switch
-                                        {
-                                            EitherStatus.IsRight => EqR.Equals(x.RightValue, y.RightValue),
-                                            _                    => false
-                                        },
-                EitherStatus.IsLeft => y.State switch
-                                       {
-                                           EitherStatus.IsLeft => EqL.Equals(x.LeftValue, y.LeftValue),
-                                           _                   => false
-                                       },
-                EitherStatus.IsBottom => y.State == EitherStatus.IsBottom,
-                _                     => false
-            };
+            x.Equals<EqL, EqR>(y);
 
 
         /// <summary>

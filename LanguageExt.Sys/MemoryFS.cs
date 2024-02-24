@@ -159,11 +159,11 @@ public class MemoryFS
 
     internal Unit DeleteFolder(string path, bool recursive, DateTime now)
     {
-        machine.Swap(m => m.Delete(ParsePath(path), recursive, now).Case switch
+        machine.Swap(m => m.Delete(ParsePath(path), recursive, now) switch
                           {
-                              Exception ex => throw ex,
-                              Entry m1     => m1,
-                              _            => throw new InvalidOperationException()
+                              Either.Left<Exception, Entry> (var ex)  => throw ex,
+                              Either.Right<Exception, Entry> (var m1) => m1,
+                              _                                       => throw new InvalidOperationException()
                           });
         return default;
     }
@@ -176,13 +176,14 @@ public class MemoryFS
                     ParsePath(path),
                     e => e.SetCreationTime(dt),
                     _ => throw new DirectoryNotFoundException($"Directory not found: {path}"),
-                    now).Case switch
+                    now) 
+                switch
                 {
-                    Exception ex => throw ex,
-                    Entry e      => e,
-                    _            => throw new InvalidOperationException()
-                }
-        );
+                    Either.Left<Exception, Entry> (var ex) => throw ex,
+                    Either.Right<Exception, Entry> (var e) => e,
+                    _                                      => throw new InvalidOperationException()
+                });
+        
         return default;
 
     }
@@ -195,13 +196,14 @@ public class MemoryFS
                     ParsePath(path),
                     e => e.SetLastAccessTime(dt),
                     _ => throw new DirectoryNotFoundException($"Directory not found: {path}"),
-                    now).Case switch
+                    now)
+                switch
                 {
-                    Exception ex => throw ex,
-                    Entry e      => e,
-                    _            => throw new InvalidOperationException()
-                }
-        );
+                    Either.Left<Exception, Entry> (var ex) => throw ex,
+                    Either.Right<Exception, Entry> (var e) => e,
+                    _                                      => throw new InvalidOperationException()
+                });
+        
         return default;
     }
 
@@ -213,13 +215,14 @@ public class MemoryFS
                     ParsePath(path),
                     e => e.SetLastWriteTime(dt),
                     _ => throw new DirectoryNotFoundException($"Directory not found: {path}"),
-                    now).Case switch
+                    now)
+                switch
                 {
-                    Exception ex => throw ex,
-                    Entry e      => e,
-                    _            => throw new InvalidOperationException()
-                }
-        );
+                    Either.Left<Exception, Entry> (var ex) => throw ex,
+                    Either.Right<Exception, Entry> (var e) => e,
+                    _                                      => throw new InvalidOperationException()
+                });
+        
         return default;
     }
 
@@ -247,11 +250,15 @@ public class MemoryFS
     internal Unit Delete(string path, DateTime now)
     {
         machine.Swap(m => FindEntry(m, ParsePath(path)) is FileEntry
-                              ? m.Delete(ParsePath(path), false, now).Case switch
+                              ? m.Delete(ParsePath(path), false, now) switch
                                 {
-                                    Exception => throw new FileNotFoundException("File not found", path),
-                                    Entry m1  => m1,
-                                    _         => throw new InvalidOperationException()
+                                    Either.Left<Exception, Entry> =>
+                                        throw new FileNotFoundException("File not found", path),
+
+                                    Either.Right<Exception, Entry> (var m1) => m1,
+
+                                    _ =>
+                                        throw new InvalidOperationException()
                                 }
                               : throw new FileNotFoundException("File not found", path));
         return default;
@@ -278,14 +285,14 @@ public class MemoryFS
     {
         var path1 = ParsePath(path);
         var file  = new FileEntry(path1.Last, now, now, now, data);
-            
+
         machine.Swap(
             m => FindEntry(m, path1) switch
                  {
                      null => m.Add(path1, file, now).IfLeft(e => throw e),
-                     var _ => overwrite
-                                  ? m.Update(path1, _ => file, _ => new FileNotFoundException(), now).IfLeft(e1 => throw e1)
-                                  : throw new IOException($"File-system entry already exists: {path}")
+                     _ => overwrite
+                              ? m.Update(path1, _ => file, _ => new FileNotFoundException(), now).IfLeft(e1 => throw e1)
+                              : throw new IOException($"File-system entry already exists: {path}")
                  });
         return default;
     }
@@ -635,51 +642,62 @@ public class MemoryFS
                 1 => new FolderEntry(Name, CreationTime, now, now, Entries.AddOrUpdate(entry.Name, entry)),
                 _ => Entries.Find(path.Head).Case switch
                      {
-                         Entry e => e.Add(path.Tail, entry, now).Case switch
+                         Entry e => e.Add(path.Tail, entry, now) switch
                                     {
-                                        Exception ex => ex,
-                                        Entry     ne => new FolderEntry(Name, CreationTime, now, now, Entries.SetItem(ne.Name, ne)), 
-                                        _            => new InvalidOperationException(),
+                                        Either.Left<Exception, Entry> (var ex) => 
+                                            ex,
+                                        
+                                        Either.Right<Exception, Entry> (var ne) => 
+                                            new FolderEntry(Name, CreationTime, now, now, Entries.SetItem(ne.Name, ne)),
+                                        
+                                        _ => new InvalidOperationException(),
                                     },
                          _ => new DirectoryNotFoundException()
                      }
             };
 
-        public override Either<Exception, Entry> Update(Seq<string> path, Func<Entry, Either<Exception, Entry>> update, Func<Entry, Either<Exception, Entry>> notFound, DateTime now) =>
+        public override Either<Exception, Entry> Update(Seq<string> path, Func<Entry, Either<Exception, Entry>> update,
+                                                        Func<Entry, Either<Exception, Entry>> notFound, DateTime now) =>
             path.IsEmpty
                 ? update(this)
                 : Entries.Find(path.Head).Case switch
                   {
-                      Entry e => e.Update(path.Tail, update, notFound, now).Case switch
+                      Entry e => e.Update(path.Tail, update, notFound, now) switch
                                  {
-                                     Exception ex => ex,
-                                     Entry ne     => new FolderEntry(Name, CreationTime, now, now, Entries.SetItem(ne.Name, ne)),
-                                     _            => new InvalidOperationException(),
+                                     Either.Left<Exception, Entry> (var ex) =>
+                                         ex,
+
+                                     Either.Right<Exception, Entry> (var ne) =>
+                                         new FolderEntry(Name, CreationTime, now, now, Entries.SetItem(ne.Name, ne)),
+
+                                     _ => new InvalidOperationException(),
                                  },
-                      _ => notFound(this),
+                      _ => notFound(this)
                   };
-            
+
         public override Either<Exception, Entry> Delete(Seq<string> path, bool recursive, DateTime now) =>
             path.Length switch
             {
                 0 => new DirectoryNotFoundException(),
                 1 => Entries.Find(path.Head).Case switch
                      {
-                         Entry e when recursive || e.IsEmpty => new FolderEntry(Name, CreationTime, now, now, Entries.Remove(e.Name)),
-                         Entry                               => new IOException("Directory not empty"),
-                         _                                   => new IOException("Invalid path")
+                         Entry e when recursive || e.IsEmpty => new FolderEntry(
+                             Name, CreationTime, now, now, Entries.Remove(e.Name)),
+                         Entry => new IOException("Directory not empty"),
+                         _     => new IOException("Invalid path")
                      },
                 _ => Entries.Find(path.Head).Case switch
                      {
-                         Entry e => e.Delete(path.Tail, recursive, now).Case switch
+                         Entry e => e.Delete(path.Tail, recursive, now) switch
                                     {
-                                        Exception ex => ex,
-                                        Entry     ne => new FolderEntry(Name, CreationTime, now, now, Entries.SetItem(ne.Name, ne)), 
-                                        _            => new InvalidOperationException()
+                                        Either.Left<Exception, Entry> (var ex) => ex,
+                                        Either.Right<Exception, Entry> (var ne) => new FolderEntry(
+                                            Name, CreationTime, now, now, Entries.SetItem(ne.Name, ne)),
+                                        _ => new InvalidOperationException()
                                     },
                          _ => new DirectoryNotFoundException()
                      }
-            };        
+            };       
 
         public override Entry? GetChild(string name) =>
             Entries.Find(name).Case switch

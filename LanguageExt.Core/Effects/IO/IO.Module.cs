@@ -28,11 +28,11 @@ public partial class IO
              });
     
     public static IO<A> lift<A>(Either<Error, A> ma) =>
-        ma.State switch
+        ma switch
         {
-            EitherStatus.IsRight => IO<A>.Pure(ma.RightValue),
-            EitherStatus.IsLeft  => IO<A>.Fail(ma.LeftValue),
-            _  => IO<A>.Fail(Errors.Bottom)
+            Either.Right<Error, A> (var r) => IO<A>.Pure(r),
+            Either.Left<Error, A> (var l)  => IO<A>.Fail(l),
+            _                              => IO<A>.Fail(Errors.Bottom)
         };
     
     public static IO<A> lift<A>(Fin<A> ma) =>
