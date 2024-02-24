@@ -12,8 +12,7 @@ public class LstEither
     {
         Lst<Either<Error, int>> ma = Empty;
 
-        var mb = ma.KindT<LanguageExt.Lst, Either<Error>, Either<Error, int>, int>()
-                   .Sequence()
+        var mb = ma.Sequence()
                    .AsT<Either<Error>, LanguageExt.Lst, Lst<int>, int>()
                    .As();
 
@@ -25,8 +24,7 @@ public class LstEither
     {
         var ma = List(Right<Error, int>(1), Right<Error, int>(2), Right<Error, int>(3));
 
-        var mb = ma.KindT<LanguageExt.Lst, Either<Error>, Either<Error, int>, int>()
-                   .Sequence()
+        var mb = ma.Sequence()
                    .AsT<Either<Error>, LanguageExt.Lst, Lst<int>, int>()
                    .As();
 
@@ -38,8 +36,7 @@ public class LstEither
     {
         var ma = List(Right<Error, int>(1), Right<Error, int>(2), Left<Error, int>(Error.New("alternative")));
 
-        var mb = ma.KindT<LanguageExt.Lst, Either<Error>, Either<Error, int>, int>()
-                   .Sequence()
+        var mb = ma.Sequence()
                    .AsT<Either<Error>, LanguageExt.Lst, Lst<int>, int>()
                    .As();
 

@@ -24,7 +24,7 @@ public class Lst : Monad<Lst>, Alternative<Lst>, Traversable<Lst>
     static K<Lst, A> Alternative<Lst>.Empty<A>() =>
         Lst<A>.Empty;
 
-    static K<Lst, A> Alternative<Lst>.Or<A>(K<Lst, A> ma, K<Lst, A> mb) => 
+    static K<Lst, A> SemiAlternative<Lst>.Or<A>(K<Lst, A> ma, K<Lst, A> mb) => 
         ma.As().IsEmpty ? mb : ma;
 
     static S Foldable<Lst>.Fold<A, S>(Func<A, Func<S, S>> f, S initialState, K<Lst, A> ta) => 

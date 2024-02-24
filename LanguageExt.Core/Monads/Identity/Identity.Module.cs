@@ -80,6 +80,6 @@ public class Identity :
     static K<Identity, A> Alternative<Identity>.Empty<A>() => 
         throw new NotSupportedException("Identity<A> doesn't have Alternative support and can't therefore use Alternative.Empty");
 
-    static K<Identity, A> Alternative<Identity>.Or<A>(K<Identity, A> ma, K<Identity, A> mb) => 
+    static K<Identity, A> SemiAlternative<Identity>.Or<A>(K<Identity, A> ma, K<Identity, A> mb) => 
         throw new NotSupportedException("Identity<A> doesn't have Alternative support and can't therefore use Alternative.Or");
 }

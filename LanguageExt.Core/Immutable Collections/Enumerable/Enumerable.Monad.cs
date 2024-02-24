@@ -24,7 +24,7 @@ public partial class EnumerableM : Monad<EnumerableM>, Alternative<EnumerableM>,
     static K<EnumerableM, A> Alternative<EnumerableM>.Empty<A>() =>
         EnumerableM<A>.Empty;
 
-    static K<EnumerableM, A> Alternative<EnumerableM>.Or<A>(K<EnumerableM, A> ma, K<EnumerableM, A> mb)
+    static K<EnumerableM, A> SemiAlternative<EnumerableM>.Or<A>(K<EnumerableM, A> ma, K<EnumerableM, A> mb)
     {
         return new EnumerableM<A>(go());
         IEnumerable<A> go()

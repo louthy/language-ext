@@ -5,9 +5,9 @@ namespace LanguageExt;
 
 public partial class ResourceT<M> : 
     MonadT<ResourceT<M>, M>, 
-    Alternative<ResourceT<M>>,
+    SemiAlternative<ResourceT<M>>,
     Resource<ResourceT<M>>
-    where M : Monad<M>, Alternative<M>
+    where M : Monad<M>, SemiAlternative<M>
 {
     static K<ResourceT<M>, B> Monad<ResourceT<M>>.Bind<A, B>(K<ResourceT<M>, A> ma, Func<A, K<ResourceT<M>, B>> f) => 
         ma.As().Bind(f);
@@ -38,10 +38,7 @@ public partial class ResourceT<M> :
                     run =>
                         inner(ma => run(ma.As().runResource(env)))));
 
-    static K<ResourceT<M>, A> Alternative<ResourceT<M>>.Empty<A>() => 
-        ResourceT<M, A>.Lift(M.Empty<A>());
-
-    static K<ResourceT<M>, A> Alternative<ResourceT<M>>.Or<A>(K<ResourceT<M>, A> ma, K<ResourceT<M>, A> mb) =>
+    static K<ResourceT<M>, A> SemiAlternative<ResourceT<M>>.Or<A>(K<ResourceT<M>, A> ma, K<ResourceT<M>, A> mb) =>
         new ResourceT<M, A>(
             res =>
                 M.Or(ma.As().runResource(res), mb.As().runResource(res)));

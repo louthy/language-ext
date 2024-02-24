@@ -16,11 +16,11 @@ public readonly struct HashableEither<HashableL, HashableR, L, R> : Hashable<Eit
     /// <returns>The hash code of x</returns>
     [Pure]
     public static int GetHashCode(Either<L, R> x) =>
-        x.State switch
+        x switch
         {
-            EitherStatus.IsRight => HashableR.GetHashCode(x.RightValue),
-            EitherStatus.IsLeft  => HashableL.GetHashCode(x.LeftValue),
-            _                    => 0
+            Right<L, R> => HashableR.GetHashCode(x.RightValue),
+            Left<L, R>  => HashableL.GetHashCode(x.LeftValue),
+            _           => 0
         };
 }
     

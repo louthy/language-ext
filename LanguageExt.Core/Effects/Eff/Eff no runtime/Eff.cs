@@ -983,7 +983,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     static K<Eff<A>, T> Alternative<Eff<A>>.Empty<T>() =>
         Eff<A, T>.Fail(Errors.None);
 
-    static K<Eff<A>, T> Alternative<Eff<A>>.Or<T>(K<Eff<A>, T> ma, K<Eff<A>, T> mb) =>
+    static K<Eff<A>, T> SemiAlternative<Eff<A>>.Or<T>(K<Eff<A>, T> ma, K<Eff<A>, T> mb) =>
         ma.As() | mb.As();
 
     static K<Eff<A>, T> Resource<Eff<A>>.Use<T>(IO<T> ma, Func<T, IO<Unit>> release) =>

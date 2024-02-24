@@ -2,8 +2,6 @@ using System.Linq;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using Xunit;
-using static LanguageExt.Prelude;
-using LanguageExt.Traits;
 
 namespace LanguageExt.Tests.Transformer.Traverse.EitherT.Collections;
 
@@ -14,8 +12,7 @@ public class IEnumerableEither
     {
         var ma = EnumerableM.empty<Either<Error, int>>();
 
-        var mb = ma.KindT<EnumerableM, Either<Error>, Either<Error, int>, int>()
-                   .Sequence()
+        var mb = ma.Sequence()
                    .AsT<Either<Error>, EnumerableM, EnumerableM<int>, int>()
                    .As();
 
@@ -30,8 +27,7 @@ public class IEnumerableEither
     {
         var ma = new[] {Right<Error, int>(1), Right<Error, int>(2), Right<Error, int>(3)}.AsEnumerableM();
 
-        var mb = ma.KindT<EnumerableM, Either<Error>, Either<Error, int>, int>()
-                   .Sequence()
+        var mb = ma.Sequence()
                    .AsT<Either<Error>, EnumerableM, EnumerableM<int>, int>()
                    .As();
 
@@ -43,8 +39,7 @@ public class IEnumerableEither
     {
         var ma = new[] {Right<Error, int>(1), Right<Error, int>(2), Left<Error, int>(Error.New("alternative"))}.AsEnumerableM();
 
-        var mb = ma.KindT<EnumerableM, Either<Error>, Either<Error, int>, int>()
-                   .Sequence()
+        var mb = ma.Sequence()
                    .AsT<Either<Error>, EnumerableM, EnumerableM<int>, int>()
                    .As();
 

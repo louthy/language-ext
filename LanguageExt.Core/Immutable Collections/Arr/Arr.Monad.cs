@@ -23,7 +23,7 @@ public partial class Arr : Monad<Arr>, Alternative<Arr>, Traversable<Arr>
     static K<Arr, A> Alternative<Arr>.Empty<A>() =>
         Arr<A>.Empty;
 
-    static K<Arr, A> Alternative<Arr>.Or<A>(K<Arr, A> ma, K<Arr, A> mb) => 
+    static K<Arr, A> SemiAlternative<Arr>.Or<A>(K<Arr, A> ma, K<Arr, A> mb) => 
         ma.As().IsEmpty ? mb : ma;
 
     static S Foldable<Arr>.Fold<A, S>(Func<A, Func<S, S>> f, S initialState, K<Arr, A> ta) => 

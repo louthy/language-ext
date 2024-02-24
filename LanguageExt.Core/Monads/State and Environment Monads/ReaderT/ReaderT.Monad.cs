@@ -11,8 +11,8 @@ namespace LanguageExt;
 public partial class ReaderT<Env, M> :
     MonadT<ReaderT<Env, M>, M>,
     Reader<ReaderT<Env, M>, Env>, 
-    Alternative<ReaderT<Env, M>>
-    where M : Monad<M>, Alternative<M>
+    SemiAlternative<ReaderT<Env, M>>
+    where M : Monad<M>, SemiAlternative<M>
 {
     static K<ReaderT<Env, M>, B> Monad<ReaderT<Env, M>>.Bind<A, B>(K<ReaderT<Env, M>, A> ma, Func<A, K<ReaderT<Env, M>, B>> f) => 
         ma.As().Bind(f);
@@ -52,10 +52,7 @@ public partial class ReaderT<Env, M> :
                     run =>
                         inner(ma => run(ma.As().runReader(env)))));
 
-    static K<ReaderT<Env, M>, A> Alternative<ReaderT<Env, M>>.Empty<A>() => 
-        ReaderT<Env, M, A>.Lift(M.Empty<A>());
-
-    static K<ReaderT<Env, M>, A> Alternative<ReaderT<Env, M>>.Or<A>(
+    static K<ReaderT<Env, M>, A> SemiAlternative<ReaderT<Env, M>>.Or<A>(
         K<ReaderT<Env, M>, A> ma, K<ReaderT<Env, M>, A> mb) =>
         new ReaderT<Env, M, A>(env => M.Or(ma.As().runReader(env), mb.As().runReader(env)));
 

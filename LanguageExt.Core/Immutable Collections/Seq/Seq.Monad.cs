@@ -23,7 +23,7 @@ public partial class Seq : Monad<Seq>, Alternative<Seq>, Traversable<Seq>
     static K<Seq, A> Alternative<Seq>.Empty<A>() =>
         Seq<A>.Empty;
 
-    static K<Seq, A> Alternative<Seq>.Or<A>(K<Seq, A> ma, K<Seq, A> mb) => 
+    static K<Seq, A> SemiAlternative<Seq>.Or<A>(K<Seq, A> ma, K<Seq, A> mb) => 
         ma.As().IsEmpty ? mb : ma;
 
     static S Foldable<Seq>.Fold<A, S>(Func<A, Func<S, S>> f, S initialState, K<Seq, A> ta) => 

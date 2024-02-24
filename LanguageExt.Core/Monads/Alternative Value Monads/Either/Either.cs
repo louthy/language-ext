@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
-using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
 using System.Runtime.CompilerServices;
@@ -1053,7 +1052,7 @@ public readonly struct EitherContext<L, R, Ret>
     /// <returns>Result of the match</returns>
     [Pure]
     public Ret Left(Func<L, Ret> left) =>
-        match(either, rightHandler, left);
+        match(either, left, rightHandler);
 }
 
 /// <summary>
@@ -1071,5 +1070,5 @@ public readonly struct EitherUnitContext<L, R>
     }
 
     public Unit Left(Action<L> leftHandler) =>
-        match(either, rightHandler, leftHandler);
+        match(either, leftHandler, rightHandler);
 }

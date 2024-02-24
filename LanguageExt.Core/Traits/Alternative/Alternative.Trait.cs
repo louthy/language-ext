@@ -7,7 +7,7 @@ namespace LanguageExt.Traits;
 /// A monoid on applicative functors
 /// </summary>
 /// <typeparam name="F">Applicative functor</typeparam>
-public interface Alternative<F> : Applicative<F>
+public interface Alternative<F> : SemiAlternative<F>, Applicative<F>
     where F : Alternative<F>
 {
     /// <summary>
@@ -16,11 +16,6 @@ public interface Alternative<F> : Applicative<F>
     /// <typeparam name="A"></typeparam>
     /// <returns></returns>
     public static abstract K<F, A> Empty<A>();
-    
-    /// <summary>
-    /// Associative binary operator
-    /// </summary>
-    public static abstract K<F, A> Or<A>(K<F, A> ma, K<F, A> mb);
 
     /// <summary>
     /// One or more...

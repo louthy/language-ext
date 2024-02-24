@@ -13,8 +13,7 @@ public class SeqEither
     {
         Seq<Either<Error, int>> ma = Empty;
 
-        var mb = ma.KindT<Seq, Either<Error>, Either<Error, int>, int>()
-                   .Sequence()
+        var mb = ma.Sequence()
                    .AsT<Either<Error>, Seq, Seq<int>, int>()
                    .As();
 
@@ -26,8 +25,7 @@ public class SeqEither
     {
         var ma = Seq(Right<Error, int>(1), Right<Error, int>(2), Right<Error, int>(3));
 
-        var mb = ma.KindT<Seq, Either<Error>, Either<Error, int>, int>()
-                   .Sequence()
+        var mb = ma.Sequence()
                    .AsT<Either<Error>, Seq, Seq<int>, int>()
                    .As();
 

@@ -1,11 +1,10 @@
 using System;
+using LanguageExt.Common;
+using LanguageExt.Traits;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
-using LanguageExt.Common;
-using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -14,16 +13,14 @@ namespace LanguageExt;
 /// Equivalent of `Either<Error, A>`
 /// Called `Fin` because it is expected to be used as the concrete result of a computation
 /// </summary>
-[Serializable]
 public readonly struct Fin<A> : 
     IComparable<Fin<A>>, 
     IComparable, 
     IEquatable<Fin<A>>,
     IEnumerable<A>,
-    ISerializable,
     K<Fin, A>
 {
-    readonly Either<Error, A> either;
+    readonly Either<Error, A>? either;
 
     /// <summary>
     /// Ctor
@@ -62,29 +59,34 @@ public readonly struct Fin<A> :
     public bool IsSucc
     {
         [MethodImpl(Opt.Default)]
-        get => either.IsRight;
+        get => either?.IsRight ?? false;
     }
 
     [Pure]
     public bool IsFail
     {
         [MethodImpl(Opt.Default)]
-        get => either.IsLeft;
+        get => either?.IsLeft ?? true;
     }
 
     [Pure]
     public bool IsBottom
     {
         [MethodImpl(Opt.Default)]
-        get => either.IsBottom;
+        get => either is null;
     }
-        
+
     /// <summary>
     /// Reference version for use in pattern-matching
     /// </summary>
     [Pure]
     public object? Case =>
-        either.Case;
+        either switch
+        {
+            Right<Error, A> r => r.Value,
+            Left<Error, A> l  => l.Value,
+            _                 => null
+        };
 
     /// <summary>
     /// Equality
@@ -96,7 +98,7 @@ public readonly struct Fin<A> :
     /// Get hash code
     /// </summary>
     public override int GetHashCode() =>
-        either.GetHashCode();
+        either?.GetHashCode() ?? 0;
 
     [Pure, MethodImpl(Opt.Default)]
     public static implicit operator Fin<A>(A value) =>
@@ -120,15 +122,25 @@ public readonly struct Fin<A> :
 
     [Pure, MethodImpl(Opt.Default)]
     public static explicit operator A(Fin<A> ma) =>
-        ma.either.RightValue;
+        ma.either is { } e
+          ? e.RightValue
+          : throw new InvalidCastException();
 
     [Pure, MethodImpl(Opt.Default)]
     public static explicit operator Error(Fin<A> ma) =>
-        ma.either.LeftValue;
-        
+        ma.either is { } e
+            ? e.LeftValue
+            : throw new InvalidCastException();
+
     [Pure, MethodImpl(Opt.Default)]
     public static Fin<A> operator |(Fin<A> left, Fin<A> right) =>
-        left.either | right.either;
+        (left.either, right.either) switch
+        {
+            (null, null)  => Fail(Errors.Bottom),
+            (var l, null) => l,
+            (null, var r) => r,
+            var (l, r)    => l | r
+        };
 
     [Pure, MethodImpl(Opt.Default)]
     public static bool operator true(Fin<A> ma) =>
@@ -146,7 +158,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs < rhs</returns>
     [Pure]
     public static bool operator <(Fin<A> lhs, A rhs) =>
-        lhs.either < rhs;
+        lhs < (Fin<A>)rhs;
 
     /// <summary>
     /// Comparison operator
@@ -156,7 +168,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs < rhs</returns>
     [Pure]
     public static bool operator <=(Fin<A> lhs, A rhs) =>
-        lhs.either <= rhs;
+        lhs <= (Fin<A>)rhs;
 
     /// <summary>
     /// Comparison operator
@@ -166,7 +178,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs < rhs</returns>
     [Pure]
     public static bool operator >(Fin<A> lhs, A rhs) =>
-        lhs.either > rhs;
+        lhs > (Fin<A>)rhs;
 
     /// <summary>
     /// Comparison operator
@@ -176,7 +188,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs < rhs</returns>
     [Pure]
     public static bool operator >=(Fin<A> lhs, A rhs) =>
-        lhs.either >= rhs;
+        lhs >= (Fin<A>)rhs;
 
     /// <summary>
     /// Comparison operator
@@ -186,7 +198,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs < rhs</returns>
     [Pure]
     public static bool operator <(A lhs, Fin<A> rhs) =>
-        lhs < rhs.either;
+        (Fin<A>)lhs < rhs;
 
     /// <summary>
     /// Comparison operator
@@ -196,7 +208,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs < rhs</returns>
     [Pure]
     public static bool operator <=(A lhs, Fin<A> rhs) =>
-        lhs <= rhs.either;
+        (Fin<A>)lhs <= rhs;
 
     /// <summary>
     /// Comparison operator
@@ -206,7 +218,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs < rhs</returns>
     [Pure]
     public static bool operator >(A lhs, Fin<A>rhs) =>
-        lhs > rhs.either;
+        (Fin<A>)lhs > rhs;
 
     /// <summary>
     /// Comparison operator
@@ -216,7 +228,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs < rhs</returns>
     [Pure]
     public static bool operator >=(A lhs, Fin<A>  rhs) =>
-        lhs >= rhs.either;
+        (Fin<A>)lhs >= rhs;
 
     /// <summary>
     /// Comparison operator
@@ -226,7 +238,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs < rhs</returns>
     [Pure]
     public static bool operator <(Fin<A> lhs, Fin<A> rhs) =>
-        lhs.either.CompareTo(rhs.either) < 0;
+        lhs.CompareTo(rhs) < 0;
 
     /// <summary>
     /// Comparison operator
@@ -236,7 +248,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs <= rhs</returns>
     [Pure]
     public static bool operator <=(Fin<A> lhs, Fin<A> rhs) =>
-        lhs.either.CompareTo(rhs.either) <= 0;
+        lhs.CompareTo(rhs) <= 0;
 
     /// <summary>
     /// Comparison operator
@@ -246,7 +258,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs > rhs</returns>
     [Pure]
     public static bool operator >(Fin<A> lhs, Fin<A> rhs) =>
-        lhs.either.CompareTo(rhs.either) > 0;
+        lhs.CompareTo(rhs) > 0;
 
     /// <summary>
     /// Comparison operator
@@ -256,14 +268,14 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs >= rhs</returns>
     [Pure]
     public static bool operator >=(Fin<A> lhs, Fin<A> rhs) =>
-        lhs.either.CompareTo(rhs.either) >= 0;
+        lhs.CompareTo(rhs) >= 0;
 
     /// <summary>
     /// Equality operator override
     /// </summary>
     [Pure]
     public static bool operator ==(Fin<A> lhs, Fin<A> rhs) =>
-        lhs.either.Equals(rhs.either);
+        lhs.Equals(rhs);
 
     /// <summary>
     /// Non-equality operator override
@@ -271,21 +283,19 @@ public readonly struct Fin<A> :
     [Pure]
     public static bool operator !=(Fin<A> lhs, Fin<A> rhs) =>
         !(lhs == rhs);
-
-        
         
     /// <summary>
     /// Equality operator override
     /// </summary>
     [Pure]
     public static bool operator ==(Fin<A> lhs, Error rhs) =>
-        lhs.either.Equals(rhs);
+        lhs.Equals(rhs);
 
     /// <summary>
     /// Equality operator override
     /// </summary>
     [Pure]
-    public static bool operator ==(Error lhs, Fin<A>  rhs) =>
+    public static bool operator ==(Error lhs, Fin<A> rhs) =>
         FinFail<A>(lhs).Equals(rhs);
 
     /// <summary>
@@ -305,13 +315,13 @@ public readonly struct Fin<A> :
     internal A Value 
     { 
         [MethodImpl(Opt.Default)]
-        get => either.RightValue;  
+        get => (A)this;  
     }
 
     internal Error Error 
     { 
         [MethodImpl(Opt.Default)]
-        get => either.LeftValue;  
+        get => (Error)this;  
     }
         
     [Pure, MethodImpl(Opt.Default)]
@@ -340,15 +350,29 @@ public readonly struct Fin<A> :
 
     [Pure, MethodImpl(Opt.Default)]
     public int CompareTo(Fin<A> other) =>
-        either.CompareTo(other.either);
+        (either, other.either) switch
+        {
+            (null, null) => 0,
+            (null, _)    => -1,
+            (_, null)    => 1,
+            var (l, r)   => l.CompareTo(r)
+        };
 
     [Pure, MethodImpl(Opt.Default)]
     public bool Equals(Fin<A> other) =>
-        either.Equals(other.either);
+        (either, other.either) switch
+        {
+            (null, null) => true,
+            (null, _)    => false,
+            (_, null)    => false,
+            var (l, r)   => l.Equals(r)
+        };
 
     [Pure, MethodImpl(Opt.Default)]
     public IEnumerator<A> GetEnumerator() =>
-        either.GetEnumerator();
+        either is { } e
+            ? e.GetEnumerator()
+            : Seq<A>.Empty.GetEnumerator();    
 
     [Pure, MethodImpl(Opt.Default)]
     public override string ToString() =>
@@ -357,36 +381,6 @@ public readonly struct Fin<A> :
             : IsFail
                 ? $"Fail({Error})"
                 : "Bottom";
-
-    public void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-        info.AddValue("State", IsSucc);
-        if (IsSucc)
-        {
-            info.AddValue("Succ", either.RightValue);
-        }
-        else if(IsFail)
-        {
-            info.AddValue("Fail", either.LeftValue);
-        }
-        else 
-        {
-            info.AddValue("Fail", Errors.Bottom);
-        }
-    }
-        
-    Fin(SerializationInfo info, StreamingContext context)
-    {
-        var isSucc = (bool?)info.GetValue("State", typeof(bool)) ?? throw new SerializationException();
-        if (isSucc)
-        {
-            either = (A?)info.GetValue("Succ", typeof(A)) ?? throw new SerializationException();
-        }
-        else
-        {
-            either = (Error?)info.GetValue("Fail", typeof(Error)) ?? throw new SerializationException();
-        }
-    }
 
     IEnumerator IEnumerable.GetEnumerator() =>
         GetEnumerator();
@@ -397,51 +391,71 @@ public readonly struct Fin<A> :
 
     [Pure, MethodImpl(Opt.Default)]
     public B Match<B>(Func<A, B> Succ, Func<Error, B> Fail) =>
-        either.Match(Succ, Fail);
+        either is { } e
+            ? e.Match(Fail, Succ)
+            : Fail(Errors.Bottom);    
 
     [MethodImpl(Opt.Default)]
     public Unit Match(Action<A> Succ, Action<Error> Fail) =>
-        either.Match(Succ, Fail);
+        either is { } e
+            ? e.Match(Fail, Succ)
+            : unit;    
 
     [Pure, MethodImpl(Opt.Default)]
     public A IfFail(Func<Error, A> Fail) =>
-        either.IfLeft(Fail);
+        either is { } e
+            ? e.IfLeft(Fail)
+            : Fail(Errors.Bottom);    
 
     [Pure, MethodImpl(Opt.Default)]
     public A IfFail(in A alternative) =>
-        either.IfLeft(alternative);
+        either is { } e
+            ? e.IfLeft(alternative)
+            : alternative;    
 
     [MethodImpl(Opt.Default)]
     public Unit IfFail(Action<Error> Fail) =>
-        either.IfLeft(Fail);
+        either is { } e
+            ? e.IfLeft(Fail)
+            : unit;    
 
     [MethodImpl(Opt.Default)]
     public Unit IfSucc(Action<A> Succ) =>
-        either.IfRight(Succ);
+        either is { } e
+            ? e.IfRight(Succ)
+            : unit;    
 
     [MethodImpl(Opt.Default)]
     public Unit Iter(Action<A> Succ) =>
-        either.Iter(Succ);
+        either is { } e
+            ? e.IfRight(Succ)
+            : unit;    
 
     [Pure, MethodImpl(Opt.Default)]
     public Fin<A> Do(Action<A> Succ) =>
-        either.Do(Succ);
+        either is { } e
+            ? e.Do(Succ)
+            : this;    
 
     [Pure, MethodImpl(Opt.Default)]
     public S Fold<S>(in S state, Func<S, A, S> f) =>
-        either.Fold(state, f);
+        either is { } e
+            ? e.Fold(state, f)
+            : state;    
 
     [Pure, MethodImpl(Opt.Default)]
     public S BiFold<S>(in S state, Func<S, A, S> Succ, Func<S, Error, S> Fail) =>
-        either.BiFold(state, Fail, Succ);
+        either is { } e
+            ? e.BiFold(state, Fail, Succ)
+            : state;    
 
     [Pure, MethodImpl(Opt.Default)]
     public bool Exists(Func<A, bool> f) =>
-        either.Exists(f);
+        either is { } e && e.Exists(f);    
 
     [Pure, MethodImpl(Opt.Default)]
     public bool ForAll(Func<A, bool> f) =>
-        either.ForAll(f);
+        either is not { } e || e.ForAll(f);    
     
     /// <summary>
     /// Map each element of a structure to an action, evaluate these actions from
@@ -459,19 +473,30 @@ public readonly struct Fin<A> :
     
     [Pure, MethodImpl(Opt.Default)]
     public Fin<B> Map<B>(Func<A, B> f) =>
-        either.Map(f);
+        either is { } e
+            ? e.Map(f)
+            : Errors.Bottom;    
 
     [Pure, MethodImpl(Opt.Default)]
     public Fin<B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail) =>
-        either.BiMap(Fail, Succ);
+        either is { } e
+            ? e.BiMap(Fail, Succ)
+            : Fail(Errors.Bottom);    
 
     [Pure, MethodImpl(Opt.Default)]
     public Fin<B> Select<B>(Func<A, B> f) =>
-        either.Select(f);
+        either is { } e
+            ? e.Select(f)
+            : Errors.Bottom;
 
     [Pure, MethodImpl(Opt.Default)]
     public Fin<B> Bind<B>(Func<A, Fin<B>> f) =>
-        either.Bind(x => f(x).either);
+        either switch
+        {
+            Right<Error, A> r => f(r.Value),
+            Left<Error, A> l  => l.Value,
+            _                 => Errors.Bottom
+        };
 
     [Pure, MethodImpl(Opt.Default)]
     public Fin<B> Bind<B>(Func<A, K<Fin, B>> f) =>
@@ -479,15 +504,30 @@ public readonly struct Fin<A> :
 
     [Pure, MethodImpl(Opt.Default)]
     public Fin<B> Bind<B>(Func<A, Pure<B>> f) =>
-        either.Bind(f);
+        either switch
+        {
+            Right<Error, A> r => f(r.Value),
+            Left<Error, A> l  => l.Value,
+            _                 => Errors.Bottom
+        };
 
     [Pure, MethodImpl(Opt.Default)]
     public Fin<A> Bind(Func<A, Fail<Error>> f) =>
-        either.Bind(f);
+        either switch
+        {
+            Right<Error, A> r => f(r.Value),
+            Left<Error, A> l  => l.Value,
+            _                 => Errors.Bottom
+        };
 
     [Pure, MethodImpl(Opt.Default)]
     public Fin<B> BiBind<B>(Func<A, Fin<B>> Succ, Func<Error, Fin<B>> Fail) =>
-        either.BiBind(x => Fail(x).either, x => Succ(x).either);
+        either switch
+        {
+            Right<Error, A> r => Succ(r.Value),
+            Left<Error, A> l  => Fail(l.Value),
+            _                 => Errors.Bottom
+        };
 
     [Pure, MethodImpl(Opt.Default)]
     public Fin<C> SelectMany<B, C>(Func<A, Fin<B>> bind, Func<A, B, C> project) =>
@@ -507,39 +547,54 @@ public readonly struct Fin<A> :
     
     [Pure, MethodImpl(Opt.Default)]
     public Lst<A> ToList() =>
-        either.ToList();
+        either is { } e
+            ? e.ToList()
+            : [];    
 
     [Pure, MethodImpl(Opt.Default)]
     public Seq<A> ToSeq() =>
-        either.ToSeq();
+        either is { } e
+            ? e.ToSeq()
+            : [];    
 
     [Pure, MethodImpl(Opt.Default)]
     public Arr<A> ToArray() =>
-        either.ToArr();
+        either is { } e
+            ? e.ToArr()
+            : [];    
 
     [Pure, MethodImpl(Opt.Default)]
     public Option<A> ToOption() =>
-        either.ToOption();
+        either is { } e
+            ? e.ToOption()
+            : [];    
 
     [Pure, MethodImpl(Opt.Default)]
     public Sum<Error, A> ToSum() =>
-        either.ToSum();
+        either is { } e
+            ? e.ToSum()
+            : throw new BottomException();    
 
     [Pure, MethodImpl(Opt.Default)]
     public Either<Error, A> ToEither() =>
-        either;
+        either ?? throw new BottomException();
 
     [Pure, MethodImpl(Opt.Default)]
     public Eff<A> ToEff() =>
-        either.ToEff();
+        either is { } e
+            ? e.ToEff()
+            : throw new BottomException();    
 
     public A ThrowIfFail()
     {
+        if (IsBottom)
+        {
+            throw new BottomException();
+        }
         if (IsFail)
         {
             Error.Throw();
         }
-
         return Value;
     }
 }

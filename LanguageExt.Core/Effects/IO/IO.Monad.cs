@@ -26,7 +26,7 @@ public partial class IO : Monad<IO>, Alternative<IO>
     static K<IO, A> Alternative<IO>.Empty<A>() =>
         IO<A>.Empty;
 
-    static K<IO, A> Alternative<IO>.Or<A>(K<IO, A> ma, K<IO, A> mb) => 
+    static K<IO, A> SemiAlternative<IO>.Or<A>(K<IO, A> ma, K<IO, A> mb) => 
         ma.As() | mb.As();
 
     static K<IO, A> Monad<IO>.LiftIO<A>(IO<A> ma) => 

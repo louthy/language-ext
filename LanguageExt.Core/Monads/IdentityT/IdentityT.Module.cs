@@ -6,8 +6,8 @@ namespace LanguageExt;
 /// <summary>
 /// Identity module
 /// </summary>
-public class IdentityT<M> : MonadT<IdentityT<M>, M>, Alternative<IdentityT<M>>
-    where M : Monad<M>, Alternative<M>
+public class IdentityT<M> : MonadT<IdentityT<M>, M>, SemiAlternative<IdentityT<M>>
+    where M : Monad<M>, SemiAlternative<M>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -59,9 +59,6 @@ public class IdentityT<M> : MonadT<IdentityT<M>, M>, Alternative<IdentityT<M>>
                 run =>
                     inner(ma => run(ma.As().Value))));
 
-    static K<IdentityT<M>, A> Alternative<IdentityT<M>>.Empty<A>() =>
-        new IdentityT<M, A>(M.Empty<A>());
-
-    static K<IdentityT<M>, A> Alternative<IdentityT<M>>.Or<A>(K<IdentityT<M>, A> ma, K<IdentityT<M>, A> mb) =>
+    static K<IdentityT<M>, A> SemiAlternative<IdentityT<M>>.Or<A>(K<IdentityT<M>, A> ma, K<IdentityT<M>, A> mb) =>
         new IdentityT<M, A>(M.Or(ma.As().Value, mb.As().Value));
 }

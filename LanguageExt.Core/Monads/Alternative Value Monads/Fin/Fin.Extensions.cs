@@ -21,7 +21,7 @@ public static class FinExtensions
     /// Natural transformation from `Either` to `Fin`
     /// </summary>
     public static Fin<A> ToFin<A>(this Either<Error, A> ma) =>
-        ma.Match(Right: FinSucc, Left: FinFail<A>, Bottom: () => FinFail<A>(Errors.Bottom));
+        ma.Match(Right: FinSucc, Left: FinFail<A>);
     
     /// <summary>
     /// Monadic join

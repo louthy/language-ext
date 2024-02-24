@@ -29,7 +29,7 @@ public class Eff :
     static K<Eff, A> Alternative<Eff>.Empty<A>() => 
         Eff<A>.Fail(Errors.None);
 
-    static K<Eff, A> Alternative<Eff>.Or<A>(K<Eff, A> ma, K<Eff, A> mb) => 
+    static K<Eff, A> SemiAlternative<Eff>.Or<A>(K<Eff, A> ma, K<Eff, A> mb) => 
         ma.As() | mb.As();
 
     static K<Eff, A> Resource<Eff>.Use<A>(IO<A> ma, Func<A, IO<Unit>> release) => 

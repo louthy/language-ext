@@ -58,30 +58,24 @@ public class EitherTests
     }
 
     [Fact]
-    public void SomeLinqTest()
-    {
+    public void SomeLinqTest() =>
         (from x in Two
          from y in Four
          from z in Six
          select x + y + z)
-           .Match(
-                Right: r => Assert.True(r == 12),
-                Left:  l => Assert.Fail("Shouldn't get here")
-            );
-    }
+       .Match(
+            Right: r => Assert.True(r == 12),
+            Left:  _ => Assert.Fail("Shouldn't get here"));
 
-    [Fact] public void LeftLinqTest()
-    {
+    [Fact] public void LeftLinqTest() =>
         (from x in Two
          from y in Four
          from _ in ItsLeft
          from z in Six
          select x + y + z)
-           .Match(
-                r => Assert.Fail("Shouldn't get here"),
-                l => Assert.True(l == "Left")
-            );
-    }
+       .Match(
+            l => Assert.True(l == "Left"),
+            _ => Assert.Fail("Shouldn't get here"));
 
     [Fact] public void EitherFluentSomeNoneTest()
     {

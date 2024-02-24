@@ -16,6 +16,13 @@ public static partial class Alternative
         F.Empty<A>();
 
     /// <summary>
+    /// Associative binary operator
+    /// </summary>
+    public static K<F, A> or<F, A>(K<F, A> ma, K<F, A> mb)
+        where F : SemiAlternative<F> =>
+        F.Or(ma, mb);
+    
+    /// <summary>
     /// Given a set of applicative functors, return the first one to succeed.
     /// </summary>
     /// <remarks>

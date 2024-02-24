@@ -33,7 +33,7 @@ public class Option : Monad<Option>, Traversable<Option>, Alternative<Option>
     static K<Option, A> Alternative<Option>.Empty<A>() =>
         None<A>();
 
-    static K<Option, A> Alternative<Option>.Or<A>(K<Option, A> ma, K<Option, A> mb) =>
+    static K<Option, A> SemiAlternative<Option>.Or<A>(K<Option, A> ma, K<Option, A> mb) =>
         ma.As() || mb.As();
 
     static K<Option, X> Some<X>(X value) =>

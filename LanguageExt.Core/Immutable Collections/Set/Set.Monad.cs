@@ -23,7 +23,7 @@ public partial class Set : Monad<Set>, Alternative<Set>, Traversable<Set>
     static K<Set, A> Alternative<Set>.Empty<A>() =>
         Set<A>.Empty;
 
-    static K<Set, A> Alternative<Set>.Or<A>(K<Set, A> ma, K<Set, A> mb) => 
+    static K<Set, A> SemiAlternative<Set>.Or<A>(K<Set, A> ma, K<Set, A> mb) => 
         ma.As().IsEmpty ? mb : ma;
 
     static S Foldable<Set>.Fold<A, S>(Func<A, Func<S, S>> f, S initialState, K<Set, A> ta) => 

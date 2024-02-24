@@ -40,7 +40,7 @@ public partial class Validation<L> :
     static K<Validation<L>, A> Alternative<Validation<L>>.Empty<A>() =>
         Validation<L, A>.Fail(L.Empty);
 
-    static K<Validation<L>, A> Alternative<Validation<L>>.Or<A>(
+    static K<Validation<L>, A> SemiAlternative<Validation<L>>.Or<A>(
         K<Validation<L>, A> ma,
         K<Validation<L>, A> mb) =>
         ma.As() | mb.As();
