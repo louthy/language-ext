@@ -18,7 +18,7 @@ namespace LanguageExt;
 /// <typeparam name="F"></typeparam>
 /// <typeparam name="A"></typeparam>
 [Serializable]
-public readonly record struct Validation<F, A>(Either<F, A> either) : 
+public abstract record Validation<F, A> : 
     IEnumerable<A>,
     IComparable<Validation<F, A>>,
     IComparable<A>,
@@ -26,64 +26,137 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     IEquatable<Pure<A>>,
     IComparable<Pure<A>>,
     IEquatable<A>, 
+    Monoid<Validation<F, A>>,
     K<Validation<F>, A>
     where F : Monoid<F>
 {
-    public Validation(A success) :
-        this(Either<F, A>.Right(success))
-    { }
-
-    public Validation(F fail) :
-        this(Either<F, A>.Left(fail))
-    { }
-
     [Pure]
     public static Validation<F, A> Success(A value) =>
-        new (value);
+        new Validation.Success<F, A>(value);
 
     [Pure]
     public static Validation<F, A> Fail(F value) =>
-        new (value);
+        new Validation.Fail<F, A>(value);
 
     /// <summary>
-    /// Reference version for use in pattern-matching
+    /// Is the Validation in a Success state?
     /// </summary>
-    /// <remarks>
-    ///
-    ///    Fail    = result is F
-    ///    Success = result is A
-    ///    Bottom  = result is null 
-    /// 
-    /// </remarks>
     [Pure]
-    public object? Case =>
-        either.Case;
+    public abstract bool IsSuccess { get; }
 
     /// <summary>
-    /// Is the value in a `Success` state?
+    /// Is the Validation in a Fail state?
     /// </summary>
     [Pure]
-    public bool IsSuccess =>
-        either.IsRight;
+    public abstract bool IsFail { get; }
 
     /// <summary>
-    /// Is the value in a `Fail` state?
+    /// Invokes the Success or Fail function depending on the state of the Validation
+    /// </summary>
+    /// <typeparam name="B">Return type</typeparam>
+    /// <param name="Fail">Function to invoke if in a Fail state</param>
+    /// <param name="Succ">Function to invoke if in a Success state</param>
+    /// <returns>The return value of the invoked function</returns>
+    [Pure]
+    public abstract B Match<B>(Func<A, B> Succ, Func<F, B> Fail);
+
+    /// <summary>
+    /// Empty span
     /// </summary>
     [Pure]
-    public bool IsFail =>
-        either.IsLeft || either.IsBottom;
+    public abstract ReadOnlySpan<F> FailSpan();
 
-    internal F FailValue =>
-        either.IsRight
-            ? throw new InvalidCastException("Can't access fail value when in a Success state")
-            : either.IsBottom
-                ? F.Empty
-                : either.LeftValue;
+    /// <summary>
+    /// Span of right value
+    /// </summary>
+    [Pure]
+    public abstract ReadOnlySpan<A> SuccessSpan();
 
-    internal A SuccessValue =>
-        either.IsLeft || either.IsBottom
-            ? throw new InvalidCastException("Can't access success value when in a Fail state")
-            : either.RightValue;
+    /// <summary>
+    /// Compare this structure to another to find its relative ordering
+    /// </summary>
+    [Pure]
+    public abstract int CompareTo<OrdF, OrdA>(Validation<F, A> other)
+        where OrdF : Ord<F>
+        where OrdA : Ord<A>;
+
+    /// <summary>
+    /// Equality override
+    /// </summary>
+    [Pure]
+    public abstract bool Equals<EqF, EqA>(Validation<F, A> other)
+        where EqF : Eq<F>
+        where EqA : Eq<A>;
+
+    /// <summary>
+    /// Unsafe access to the right-value 
+    /// </summary>
+    /// <exception cref="InvalidCastException"></exception>
+    internal abstract A SuccessValue { get; }
+
+    /// <summary>
+    /// Unsafe access to the left-value 
+    /// </summary>
+    /// <exception cref="InvalidCastException"></exception>
+    internal abstract F FailValue { get; }
+
+    /// <summary>
+    /// Maps the value in the Validation if it's in a Success state
+    /// </summary>
+    /// <typeparam name="F">Fail</typeparam>
+    /// <typeparam name="A">Success</typeparam>
+    /// <typeparam name="B">Mapped Validation type</typeparam>
+    /// <param name="f">Map function</param>
+    /// <returns>Mapped Validation</returns>
+    [Pure]
+    public abstract Validation<F, B> Map<B>(Func<A, B> f);
+
+    /// <summary>
+    /// Bi-maps the value in the Validation if it's in a Success state
+    /// </summary>
+    /// <typeparam name="F">Fail</typeparam>
+    /// <typeparam name="A">Success</typeparam>
+    /// <typeparam name="L2">Fail return</typeparam>
+    /// <typeparam name="R2">Success return</typeparam>
+    /// <param name="Succ">Success map function</param>
+    /// <param name="Fail">Fail map function</param>
+    /// <returns>Mapped Validation</returns>
+    [Pure]
+    public abstract Validation<L2, R2> BiMap<L2, R2>(Func<A, R2> Succ, Func<F, L2> Fail)
+        where L2 : Monoid<L2>;
+
+    /// <summary>
+    /// Monadic bind
+    /// </summary>
+    /// <typeparam name="F">Fail</typeparam>
+    /// <typeparam name="A">Success</typeparam>
+    /// <typeparam name="B">Resulting bound value</typeparam>
+    /// <param name="f">Bind function</param>
+    /// <returns>Bound Validation</returns>
+    [Pure]
+    public abstract Validation<F, B> Bind<B>(Func<A, Validation<F, B>> f);
+
+    /// <summary>
+    /// Bi-bind.  Allows mapping of both monad states
+    /// </summary>
+    [Pure]
+    public abstract Validation<L2, R2> BiBind<L2, R2>(
+        Func<A, Validation<L2, R2>> Succ,
+        Func<F, Validation<L2, R2>> Fail)
+        where L2 : Monoid<L2>;
+
+    /// <summary>
+    /// Semigroup append operator
+    /// </summary>
+    [Pure]
+    public abstract Validation<F, A> Append(Validation<F, A> rhs);
+
+    /// <summary>
+    /// Monoid empty
+    /// </summary>
+    [Pure]
+    public static Validation<F, A> Empty { get; } = 
+        new Validation.Fail<F, A>(F.Empty);
 
     /// <summary>
     /// Explicit conversion operator from `` to `R`
@@ -98,7 +171,7 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// Explicit conversion operator from `Validation` to `L`
     /// </summary>
     /// <param name="value">Value, must not be null.</param>
-    /// <exception cref="InvalidCastException">Value is not in a Left state</exception>
+    /// <exception cref="InvalidCastException">Value is not in a Fail state</exception>
     [Pure]
     public static explicit operator F(Validation<F, A> ma) =>
         ma.FailValue;
@@ -108,25 +181,14 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// </summary>
     [Pure]
     public static implicit operator Validation<F, A>(A value) =>
-        new(value);
+        new Validation.Success<F, A>(value);
 
     /// <summary>
     /// Implicit conversion operator from `F` to `Validation<F, A>`
     /// </summary>
     [Pure]
     public static implicit operator Validation<F, A>(F value) =>
-        new(value);
-
-    /// <summary>
-    /// Invokes the `Succ` or `Fail` function depending on the state of the value
-    /// </summary>
-    /// <typeparam name="B">Return type</typeparam>
-    /// <param name="Succ">Function to invoke if in a Success state</param>
-    /// <param name="Fail">Function to invoke if in a Fail state</param>
-    /// <returns>The return value of the invoked function</returns>
-    [Pure]
-    public B Match<B>(Func<A, B> Succ, Func<F, B> Fail) =>
-        either.Match(Succ, Fail, () => Fail(F.Empty));
+        new Validation.Fail<F, A>(value);
 
     /// <summary>
     /// Invokes the `Succ` or `Fail` action depending on the state of the value
@@ -135,7 +197,7 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// <param name="Fail">Action to invoke if in a Fail state</param>
     /// <returns>Unit</returns>
     public Unit Match(Action<A> Succ, Action<F> Fail) =>
-        either.Match(Succ, Fail, () => Fail(F.Empty));
+        Match(fun(Succ), fun(Fail));
 
     /// <summary>
     /// Executes the `Fail` function if the value is in a Fail state.
@@ -145,9 +207,7 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// <returns>Returns an unwrapped value</returns>
     [Pure]
     public A IfFail(Func<A> Fail) =>
-        either.IsBottom
-            ? Fail()
-            : either.IfLeft(Fail);
+        Match(identity, _ => Fail());
 
     /// <summary>
     /// Executes the `failMap` function if the value is in a Fail state.
@@ -157,9 +217,7 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// <returns>Returns an unwrapped value</returns>
     [Pure]
     public A IfFail(Func<F, A> failMap) =>
-        either.IsBottom
-            ? failMap(F.Empty)
-            : either.IfLeft(failMap);
+        Match(identity, failMap);
 
     /// <summary>
     /// Returns the `successValue` if in a Fail state.
@@ -169,9 +227,7 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// <returns>Returns an unwrapped value</returns>
     [Pure]
     public A IfFail(A successValue) =>
-        either.IsBottom
-            ? successValue
-            : either.IfLeft(successValue);
+        Match(identity, _ => successValue);
 
     /// <summary>
     /// Executes the Fail action if in a Fail state.
@@ -179,9 +235,7 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// <param name="Fail">Function to generate a Success value if in the Fail state</param>
     /// <returns>Returns unit</returns>
     public Unit IfFail(Action<F> Fail) =>
-        either.IsBottom
-            ? unit
-            : either.IfLeft(Fail);
+        Match(_ => { }, Fail);
 
     /// <summary>
     /// Invokes the `Success` action if in a Success state, otherwise does nothing
@@ -189,9 +243,7 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// <param name="Success">Action to invoke</param>
     /// <returns>Unit</returns>
     public Unit IfRight(Action<A> Success) =>
-        either.IsBottom
-            ? unit
-            : either.IfRight(Success);
+        Match(Success, _ => { });
 
     /// <summary>
     /// Match Success and return a context.  You must follow this with `.Fail(...)` to complete the match
@@ -211,35 +263,19 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     public ValidationContext<F, A, B> Success<B>(Func<A, B> success) =>
         new (this, success);
 
-    /// <summary>
-    /// Return a string representation of the value
-    /// </summary>
-    /// <returns>String representation of the value</returns>
-    [Pure]
-    public override string ToString() =>
-        either.Match(
-            Right: x => $"Success({x})",
-            Left: x => $"Fail({x})",
-            Bottom: () => $"Fail({F.Empty})");
-
     IEnumerator IEnumerable.GetEnumerator() => 
         GetEnumerator();
-
-    /// <summary>
-    /// Returns a hash code value
-    /// </summary>
-    /// <returns>Hash code</returns>
-    [Pure]
-    public override int GetHashCode() =>
-        either.GetHashCode();
 
     [Pure]
     public int CompareTo(object? obj) =>
         obj is Validation<F, A> t ? CompareTo(t) : 1;
 
     [Pure]
-    public IEnumerator<A> GetEnumerator() =>
-        either.GetEnumerator();
+    public IEnumerator<A> GetEnumerator()
+    {
+        foreach (var x in SuccessSpan().ToArray()) 
+            yield return x;
+    }
 
     /// <summary>
     /// Project the value into a `Lst<F>`
@@ -247,9 +283,7 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// <returns>If in a Fail state, a `Lst` of `L` with one item.  A zero length `Lst` of `L` otherwise</returns>
     [Pure]
     public Lst<F> FailToList() =>
-        either.IsBottom
-            ? []
-            : either.LeftToList();
+        new(FailSpan());
 
     /// <summary>
     /// Project into an `Arr<F>`
@@ -257,51 +291,44 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// <returns>If in a Fail state, a `Arr` of `L` with one item.  A zero length `Arr` of `L` otherwise</returns>
     [Pure]
     public Arr<F> FailToArray() =>
-        either.IsBottom
-            ? []
-            : either.LeftToArray();
+        new(FailSpan());
 
     /// <summary>
     /// Project into a `Lst<A>`
     /// </summary>
     /// <returns>If in a Success state, a `Lst` of `R` with one item.  A zero length `Lst` of `R` otherwise</returns>
     public Lst<A> ToList() =>
-        either.IsBottom
-            ? []
-            : either.ToList();
+        new(SuccessSpan());
 
     /// <summary>
     /// Project into an `Arr<A>`
     /// </summary>
     /// <returns>If in a Success state, an `Arr` of `R` with one item.  A zero length `Arr` of `R` otherwise</returns>
     public Arr<A> ToArray() =>
-        either.IsBottom
-            ? []
-            : either.ToArray();
+        new(SuccessSpan());
 
     /// <summary>
     /// Convert to sequence of 0 or 1 success values
     /// </summary>
     [Pure]
     public Seq<A> ToSeq() =>
-        either.IsBottom
-            ? []
-            : either.ToSeq();
+        new(SuccessSpan());
 
     /// <summary>
     /// Convert either to sequence of 0 or 1 left values
     /// </summary>
     [Pure]
     public Seq<F> FailToSeq() =>
-        either.IsBottom
-            ? []
-            : either.LeftToSeq();
+        new(FailSpan());
 
     [Pure]
     public Either<F, A> ToEither() =>
-        either.IsBottom
-            ? Either<F, A>.Left(F.Empty)
-            : either;
+        this switch
+        {
+            Validation.Success<F, A> (var x) => new Either.Right<F, A>(x),
+            Validation.Fail<F, A> (var x)    => new Either.Left<F, A>(x),
+            _ => throw new NotSupportedException()
+        };
 
     /// <summary>
     /// Convert to an Option
@@ -309,15 +336,21 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// <returns>Some(Right) or None</returns>
     [Pure]
     public Option<A> ToOption() =>
-        either.IsBottom
-            ? None
-            : either.ToOption();
+        this switch
+        {
+            Validation.Success<F, A> (var x) => Option<A>.Some(x),
+            Validation.Fail<F, A>            => Option<A>.None,
+            _                                => throw new NotSupportedException()
+        };
 
     [Pure, MethodImpl(Opt.Default)]
     public Sum<F, A> ToSum() =>
-        either.IsBottom
-            ? Sum<F, A>.Left(F.Empty)
-            : either.ToSum();
+        this switch
+        {
+            Validation.Success<F, A> (var x) => Sum<F, A>.Right(x),
+            Validation.Fail<F, A> (var x)    => Sum<F, A>.Left(x),
+            _                                => throw new NotSupportedException()
+        };
 
     /// <summary>
     /// Comparison operator
@@ -707,8 +740,10 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// CompareTo override
     /// </summary>
     [Pure]
-    public int CompareTo(Validation<F, A> other) =>
-        CompareTo<OrdDefault<F>, OrdDefault<A>>(other);
+    public int CompareTo(Validation<F, A>? other) =>
+        other is null
+            ? 1
+            : CompareTo<OrdDefault<F>, OrdDefault<A>>(other);
 
     /// <summary>
     /// CompareTo override
@@ -717,15 +752,6 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     public int CompareTo<OrdR>(Validation<F, A> other)
         where OrdR : Ord<A> =>
         CompareTo<OrdDefault<F>, OrdR>(other);
-
-    /// <summary>
-    /// CompareTo override
-    /// </summary>
-    [Pure]
-    public int CompareTo<OrdL, OrdR>(Validation<F, A> other)
-        where OrdL : Ord<F>
-        where OrdR : Ord<A> =>
-        either.CompareTo<OrdL, OrdR>(other.either);
 
     /// <summary>
     /// CompareTo override
@@ -781,24 +807,15 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// Equality override
     /// </summary>
     [Pure]
-    public bool Equals(Validation<F, A> other) =>
-        Equals<EqDefault<F>, EqDefault<A>>(other);
+    public virtual bool Equals(Validation<F, A>? other) =>
+        other is not null && Equals<EqDefault<F>, EqDefault<A>>(other);
 
     /// <summary>
     /// Equality override
     /// </summary>
     [Pure]
-    public bool Equals<EqR>(Validation<F, A> other) where EqR : Eq<A> =>
+    public virtual bool Equals<EqR>(Validation<F, A> other) where EqR : Eq<A> =>
         Equals<EqDefault<F>, EqR>(other);
-
-    /// <summary>
-    /// Equality override
-    /// </summary>
-    [Pure]
-    public bool Equals<EqL, EqR>(Validation<F, A> other)
-        where EqL : Eq<F>
-        where EqR : Eq<A> =>
-        either.Equals<EqL, EqR>(other.either);
 
     /// <summary>
     /// Equality override
@@ -819,21 +836,14 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// </summary>
     [Pure]
     public B MatchUntyped<B>(Func<object?, B> Succ, Func<object?, B> Fail) =>
-        either.MatchUntyped(Succ, Fail);
+        Match(x => Succ(x), x => Fail(x));
 
     /// <summary>
     /// Iterate the value
     /// action is invoked if in the Success state
     /// </summary>
     public Unit Iter(Action<A> Succ) =>
-        either.Iter(Succ);
-
-    /// <summary>
-    /// Iterate the value
-    /// action is invoked if in the Success state
-    /// </summary>
-    public Unit BiIter(Action<A> Succ, Action<F> Fail) =>
-        either.BiIter(Fail, Succ);
+        Match(Succ, _ => { });
 
     /// <summary>
     /// Invokes a predicate on the success value if it's in the Success state
@@ -843,8 +853,8 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// `True` if the in a `Right` state and the predicate returns `True`.  
     /// `False` otherwise.</returns>
     [Pure]
-    public bool ForAll(Func<A, bool> Success) =>
-        either.ForAll(Success);
+    public bool ForAll(Func<A, bool> Succ) =>
+        Match(Succ, _ => true);
 
     /// <summary>
     /// Invokes a predicate on the values 
@@ -857,7 +867,7 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// <returns>True if either Predicate returns true</returns>
     [Pure]
     public bool BiForAll(Func<A, bool> Succ, Func<F, bool> Fail) =>
-        either.BiForAll(Fail, Succ);
+        Match(Succ, Fail);
 
     /// <summary>
     /// Validation types are like lists of 0 or 1 items and therefore follow the 
@@ -869,7 +879,7 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// <returns>The aggregate state</returns>
     [Pure]
     public S Fold<S>(S state, Func<S, A, S> Succ) =>
-        either.Fold(state,Succ);
+        Match(curry(Succ)(state), _ => state);
 
     /// <summary>
     /// Either types are like lists of 0 or 1 items, and therefore follow the 
@@ -883,7 +893,7 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// <returns>The aggregate state</returns>
     [Pure]
     public S BiFold<S>(S state, Func<S, A, S> Succ, Func<S, F, S> Fail) =>
-        either.BiFold(state, Fail, Succ);
+        Match(curry(Succ)(state), curry(Fail)(state));
 
     /// <summary>
     /// Invokes a predicate on the value if it's in the Success state
@@ -892,17 +902,7 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// <returns>True if in a Success state and the predicate returns `True`.  `False` otherwise.</returns>
     [Pure]
     public bool Exists(Func<A, bool> pred) =>
-        either.Exists(pred);
-
-    /// <summary>
-    /// Invokes a predicate on the values 
-    /// </summary>
-    /// <param name="Succ">Right predicate</param>
-    /// <param name="Fail">Left predicate</param>
-    /// <returns>True if the predicate returns True.  False otherwise or if the Either is in a bottom state.</returns>
-    [Pure]
-    public bool BiExists(Func<A, bool> Succ, Func<F, bool> Fail) =>
-        either.BiExists(Fail, Succ);
+        Match(pred, _ => false);
 
     /// <summary>
     /// Impure iteration of the bound values in the structure
@@ -926,16 +926,6 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     public K<AF, Validation<F, B>> Traverse<AF, B>(Func<A, K<AF, B>> f) 
         where AF : Applicative<AF> =>
         AF.Map(x => x.As(), Traversable.traverse(f, this));
-    
-    /// <summary>
-    /// Maps the value if it's in a Success state
-    /// </summary>
-    /// <typeparam name="B">Mapped Either type</typeparam>
-    /// <param name="f">Map function</param>
-    /// <returns>Mapped value</returns>
-    [Pure]
-    public Validation<F, B> Map<B>(Func<A, B> f) =>
-        new(either.Map(f));
 
     /// <summary>
     /// Maps the value in the Either if it's in a Left state
@@ -946,28 +936,9 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// <param name="f">Map function</param>
     /// <returns>Mapped Either</returns>
     [Pure]
-    public Validation<F1, A> MapLeft<F1>(Func<F, F1> f) 
+    public Validation<F1, A> MapLeft<F1>(Func<F, F1> f)
         where F1 : Monoid<F1> =>
-        new(either.MapLeft(f));
-
-    /// <summary>
-    /// Bi-maps the value in the Either if it's in a Right state
-    /// </summary>
-    /// <param name="Succ">Success map function</param>
-    /// <param name="Fail">Fail map function</param>
-    /// <returns>Mapped value</returns>
-    [Pure]
-    public Validation<F1, A1> BiMap<F1, A1>(Func<A, A1> Succ, Func<F, F1> Fail)
-        where F1 : Monoid<F1> =>
-        new(either.BiMap(Fail, Succ));
-
-    /// <summary>
-    /// Monadic bind
-    /// </summary>
-    /// <param name="f">Bind function</param>
-    [Pure]
-    public Validation<F, B> Bind<B>(Func<A, Validation<F, B>> f) =>
-        new(either.Bind(e => f(e).either));
+        Match(Validation<F1, A>.Success, e => Validation<F1, A>.Fail(f(e)));
 
     /// <summary>
     /// Monadic bind
@@ -980,24 +951,6 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     [Pure]
     public Validation<F, B> Bind<B>(Func<A, K<Validation<F>, B>> f) =>
         Bind(x => (Validation<F, B>)f(x));
-
-    /// <summary>
-    /// Bi-bind.  Allows mapping of both monad states
-    /// </summary>
-    [Pure]
-    public Validation<F1, A1> BiBind<F1, A1>(
-        Func<A, Validation<F1, A1>> Succ,
-        Func<F, Validation<F1, A1>> Fail)
-        where F1 : Monoid<F1> =>
-        new(either.BiBind(Left: l => Fail(l).either, Right: r => Succ(r).either));
-
-    /// <summary>
-    /// Bind left.  Binds the left path of the monad only
-    /// </summary>
-    [Pure]
-    public Either<F1, A> BindLeft<F1>(Func<F, Either<F1, A>> f) 
-        where F1 : Monoid<F1> =>
-        either.BiBind(f, x => x);
 
     /// <summary>
     /// Filter the Validation
@@ -1101,6 +1054,11 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     [Pure]
     public static implicit operator Validation<F, A>(Fail<F> mr) =>
         Fail(mr.Value);
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(IsSuccess, IsFail, SuccessValue, FailValue);
+    }
 }
 
 /// <summary>

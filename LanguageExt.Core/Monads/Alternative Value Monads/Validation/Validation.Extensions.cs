@@ -27,34 +27,33 @@ public static class ValidationExtensions
     [Pure]
     public static Validation<L, B> Apply<L, A, B>(this Validation<L, Func<A, B>> mf, Validation<L, A> ma)
         where L : Monoid<L> =>
-        new(mf.either.State switch
-            {
-                EitherStatus.IsRight =>
-                    ma.either.State switch
-                    {
-                        EitherStatus.IsRight =>
-                            Either<L, B>.Right(mf.either.RightValue(ma.either.RightValue)),
+        mf switch
+        {
+            Validation.Success<L, Func<A, B>> (var f) =>
+                ma switch
+                {
+                    Validation.Success<L, A> (var a) =>
+                        Validation<L, B>.Success(f(a)),
 
-                        EitherStatus.IsLeft =>
-                            Either<L, B>.Left(mf.either.LeftValue.Append(ma.either.LeftValue)),
+                    Validation.Fail<L, A> (var e) =>
+                        Validation<L, B>.Fail(e),
 
-                        _ =>
-                            Either<L, B>.Left(mf.either.LeftValue)
+                    _ =>
+                        Validation<L, B>.Fail(L.Empty)
+                },
 
-                    },
+            Validation.Fail<L, Func<A, B>> (var e1) =>
+                ma switch
+                {
+                    Validation.Fail<L, A> (var e2) =>
+                        Validation<L, B>.Fail(e1 + e2),
 
-                EitherStatus.IsLeft =>
-                    ma.either.State switch
-                    {
-                        EitherStatus.IsLeft =>
-                            Either<L, B>.Left(mf.either.LeftValue.Append(ma.either.LeftValue)),
+                    _ =>
+                        Validation<L, B>.Fail(e1)
 
-                        _ =>
-                            Either<L, B>.Left(mf.either.LeftValue)
-
-                    },
-                _ => Either<L, B>.Left(L.Empty)
-            });
+                },
+            _ => Validation<L, B>.Fail(L.Empty)
+        };
 
     /// <summary>
     /// Applicative apply
