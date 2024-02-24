@@ -9,7 +9,7 @@ namespace LanguageExt.Free;
 /// <typeparam name="F">Functor type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public abstract record Free<F, A> : K<Free<F>, A>
-    where F : Functor<F>;
+    where F : Functor<F>, Alternative<F>;
 
 /// <summary>
 /// Terminal case for the free monad
@@ -18,7 +18,7 @@ public abstract record Free<F, A> : K<Free<F>, A>
 /// <typeparam name="F">Functor type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public sealed record Pure<F, A>(A Value) : Free<F, A>
-    where F : Functor<F>;
+    where F : Functor<F>, Alternative<F>;
 
 /// <summary>
 /// Monadic bind case for the free monad
@@ -27,4 +27,4 @@ public sealed record Pure<F, A>(A Value) : Free<F, A>
 /// <typeparam name="F">Functor type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public sealed record Bind<F, A>(K<F, Free<F, A>> Value) : Free<F, A>
-    where F : Functor<F>;
+    where F : Functor<F>, Alternative<F>;

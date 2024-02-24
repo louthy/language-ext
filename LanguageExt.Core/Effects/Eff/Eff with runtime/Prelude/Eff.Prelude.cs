@@ -276,6 +276,13 @@ public static partial class Prelude
     /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> liftEff<RT, A>(Func<RT, ValueTask<Fin<A>>> f) =>
+        LanguageExt.Eff<RT, A>.LiftIO(f);
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> liftEff<RT, A>(IO<A> ma) =>
         LanguageExt.Eff<RT, A>.LiftIO(ma);
 
@@ -414,7 +421,7 @@ public static partial class Prelude
     /// <param name="f">Function to capture the effect</param>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Synchronous IO monad that captures the effect</returns>
-    [Obsolete("Use either: `Prelude.lift` or `Eff<RT, A>.Lift`")]
+    [Obsolete("Use either: `Prelude.liftEff`, `Eff<A>.Lift`, or `Eff<A>.LiftIO` (for async)")]
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> EffMaybe<RT, A>(Func<RT, Fin<A>> f) =>
         LanguageExt.Eff<RT, A>.Lift(f);
@@ -425,7 +432,7 @@ public static partial class Prelude
     /// <param name="f">Function to capture the effect</param>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Synchronous IO monad that captures the effect</returns>
-    [Obsolete("Use either: `Prelude.lift` or `Eff<RT, A>.Lift`")]
+    [Obsolete("Use either: `Prelude.lift`, `Prelude.liftEff`, `Eff<A>.Lift`, or `Eff<A>.LiftIO` (for async)")]
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> Eff<RT, A>(Func<RT, A> f) =>
         LanguageExt.Eff<RT, A>.Lift(f);

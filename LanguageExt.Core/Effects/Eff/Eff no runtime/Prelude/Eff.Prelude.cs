@@ -250,6 +250,27 @@ public static partial class Prelude
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> liftEff<A>(Func<MinRT, ValueTask<A>> f) =>
         LanguageExt.Eff<A>.LiftIO(f);
+
+    /// <summary>
+    /// Lift a asynchronous effect into the IO monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> liftEff<A>(Func<MinRT, ValueTask<Fin<A>>> f) =>
+        LanguageExt.Eff<A>.LiftIO(f);
+
+    /// <summary>
+    /// Lift a asynchronous effect into the IO monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> liftEff<A>(Func<ValueTask<A>> f) =>
+        LanguageExt.Eff<A>.LiftIO(f);
+
+    /// <summary>
+    /// Lift a asynchronous effect into the IO monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> liftEff<A>(Func<ValueTask<Fin<A>>> f) =>
+        LanguageExt.Eff<A>.LiftIO(f);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 
@@ -384,7 +405,7 @@ public static partial class Prelude
     /// <param name="f">Function to capture the effect</param>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Synchronous IO monad that captures the effect</returns>
-    [Obsolete("Use either: `Eff<A>.Lift`, `Prelude.liftEff`, or `lift`")]
+    [Obsolete("Use either: `Prelude.liftEff`, `Eff<A>.Lift`, or `Eff<A>.LiftIO` (for async)")]
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> EffMaybe<A>(Func<Fin<A>> f) => 
         LanguageExt.Eff<A>.Lift(f);
@@ -395,7 +416,7 @@ public static partial class Prelude
     /// <param name="f">Function to capture the effect</param>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Synchronous IO monad that captures the effect</returns>
-    [Obsolete("Use either: `Eff<A>.Lift`, `Prelude.liftEff`, or `lift`")]
+    [Obsolete("Use either: `Prelude.lift`, `Prelude.liftEff`, `Eff<A>.Lift`, or `Eff<A>.LiftIO` (for async)")]
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> Eff<A>(Func<A> f) => 
         LanguageExt.Eff<A>.Lift(f);

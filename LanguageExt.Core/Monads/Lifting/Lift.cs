@@ -18,6 +18,12 @@ public record Lift<A>(Func<A> Function)
     public IO<A> ToIO() =>
         new (_ => Function());
 
+    public Eff<A> ToEff() =>
+        Eff<A>.Lift(Function);
+
+    public Eff<RT, A> ToEff<RT>() =>
+        Eff<RT, A>.Lift(Function);
+
     public Lift<B> Map<B>(Func<A, B> f) =>
         new (() => f(Function()));
 

@@ -24,6 +24,7 @@ Language-ext is 10 years old this year, so please consider this my _once per dec
 		* [Foldable]()
 		* [Traversable]()
 		* [Alternative]()
+		* [Free monads]()
 		* [Monad transformers (MonadT)]()
 		* [Reader and ReaderT]()
 		* [Writer and WriterT]()

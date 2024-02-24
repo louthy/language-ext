@@ -188,6 +188,13 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> LiftIO(Func<RT, ValueTask<Fin<A>>> f) =>
+        new (rt => f(rt).Map(r => r.ThrowIfFail()));
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> LiftIO(Func<RT, IO<A>> f) =>
         new(getsM(f));
 
@@ -217,7 +224,14 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> LiftIO(Func<ValueTask<A>> f) =>
-        new (_ => f());    
+        new (_ => f());
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> LiftIO(Func<ValueTask<Fin<A>>> f) =>
+        new(_ => f().Map(r => r.ThrowIfFail()));    
 
     /// <summary>
     /// Lift an effect into the `Eff` monad
