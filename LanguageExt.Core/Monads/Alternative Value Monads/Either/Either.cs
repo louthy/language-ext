@@ -101,7 +101,6 @@ public abstract record Either<L, R> :
     /// <param name="Right">Action to invoke if in a Right state</param>
     /// <param name="Left">Action to invoke if in a Left state</param>
     /// <returns>Unit</returns>
-    /// <exception cref="BottomException">Thrown if matching on an Either in a bottom state</exception>
     public Unit Match(Action<L> Left, Action<R> Right) =>
         Match(Left: l => fun(Left)(l), Right: r => fun(Right)(r));
 
@@ -299,6 +298,14 @@ public abstract record Either<L, R> :
     public Eff<R> ToEff(Func<L, Error> Left) =>
         Match(Left: e => Eff<R>.Fail(Left(e)), Right: Eff<R>.Pure);
 
+    /// <summary>
+    /// Convert to an Either transformer with embedded IO
+    /// </summary>
+    /// <returns></returns>
+    [Pure]
+    public EitherT<L, IO, R> ToIO() =>
+        EitherT<L, IO, R>.Lift(this);
+    
     /// <summary>
     /// Comparison operator
     /// </summary>

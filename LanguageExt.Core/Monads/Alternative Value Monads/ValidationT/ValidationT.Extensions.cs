@@ -1,6 +1,7 @@
 ﻿using System;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 using LanguageExt.Traits;
 using LanguageExt.TypeClasses;
 
@@ -25,6 +26,22 @@ public static class ValidationTExt
         where L : Monoid<L> =>
         mma.Bind(identity);
 
+    /// <summary>
+    /// Get the outer task and wrap it up in a new IO within the EitherT IO
+    /// </summary>
+    public static ValidationT<L, IO, A> Flatten<L, A>(this Task<ValidationT<L, IO, A>> tma)
+        where L : Monoid<L> =>
+        ValidationT<L, IO, ValidationT<L, IO, A>>
+           .Lift(IO.liftAsync(async () => await tma.ConfigureAwait(false)))
+           .Flatten();
+
+    /// <summary>
+    /// Lift the task
+    /// </summary>
+    public static ValidationT<L, IO, A> ToIO<L, A>(this Task<Validation<L, A>> ma)
+        where L : Monoid<L> =>
+        liftIO(ma);
+    
     /// <summary>
     /// Monad bind operation
     /// </summary>

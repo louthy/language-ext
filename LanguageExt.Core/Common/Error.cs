@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
@@ -12,7 +13,7 @@ namespace LanguageExt.Common;
 /// <summary>
 /// Abstract error value
 /// </summary>
-public abstract record Error : Monoid<Error>
+public abstract record Error : Monoid<Error>, IEnumerable<Error>
 {
     /// <summary>
     /// Error code
@@ -153,6 +154,7 @@ public abstract record Error : Monoid<Error>
     {
         yield return this;
     }
+
 
     /// <summary>
     /// Convert the error to a string
@@ -308,6 +310,9 @@ public abstract record Error : Monoid<Error>
         ExceptionDispatchInfo.Capture(ToException()).Throw();
         return default;
     }
+
+    public abstract IEnumerator<Error> GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
 /// <summary>
@@ -355,9 +360,16 @@ public record Expected(string Message, int Code, Option<Error> Inner = default) 
     public override Option<Error> Inner { get; } = 
         Inner;
     
+    [Pure]
     public override string ToString() => 
         Message;
 
+    [Pure]
+    public override IEnumerator<Error> GetEnumerator()
+    {
+        yield return this;
+    }
+    
     /// <summary>
     /// Generates a new `ErrorException` that contains the `Code`, `Message`, and `Inner` of this `Error`.
     /// </summary>
@@ -485,6 +497,12 @@ public record Exceptional(string Message, int Code) : Error
     [Pure]
     public override bool IsExpected =>
         false;
+
+    [Pure]
+    public override IEnumerator<Error> GetEnumerator()
+    {
+        yield return this;
+    }
 }
 
 /// <summary>
@@ -559,7 +577,7 @@ public sealed record BottomError() : Exceptional(BottomException.Default)
 public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Error
 {
     public new static Error Empty { get; } =
-        new ManyErrors([]); 
+        new ManyErrors(Seq.empty<Error>()); 
 
     public override int Code => 
         Common.Errors.ManyErrorsCode;
@@ -649,4 +667,8 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override IEnumerable<Error> AsEnumerable() =>
         Errors.AsEnumerable();
+
+    [Pure]
+    public override IEnumerator<Error> GetEnumerator() =>
+        Errors.GetEnumerator();
 } 

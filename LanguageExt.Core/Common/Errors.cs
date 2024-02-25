@@ -1,5 +1,4 @@
-﻿
-namespace LanguageExt.Common;
+﻿namespace LanguageExt.Common;
 
 public static class Errors
 {

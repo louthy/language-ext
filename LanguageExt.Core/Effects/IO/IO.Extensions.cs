@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -22,7 +23,20 @@ public static partial class IOExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IO<A> As<A>(this K<IO, A> ma) =>
         (IO<A>)ma;
+    
+    /// <summary>
+    /// Get the outer task and wrap it up in a new IO within the IO
+    /// </summary>
+    public static IO<A> Flatten<A>(this Task<IO<A>> tma) =>
+        IO.liftAsync(async () => await tma.ConfigureAwait(false))
+          .Flatten();
 
+    /// <summary>
+    /// Unwrap the inner IO to flatten the structure
+    /// </summary>
+    public static IO<A> Flatten<A>(this IO<IO<A>> mma) =>
+        mma.Bind(x => x);
+    
     /// <summary>
     /// Await a forked operation
     /// </summary>

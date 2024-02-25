@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt;
 
@@ -98,4 +99,42 @@ public static partial class Prelude
     /// <returns>Value that can be used with monadic types in LINQ expressions</returns>
     public static IO<A> liftVIO<A>(Func<EnvIO, ValueTask<A>> function) =>
         IO<A>.LiftAsync(function);
+
+    /// <summary>
+    /// Lift an option into a `OptionT IO` 
+    /// </summary>
+    public static OptionT<IO, A> liftIO<A>(Option<A> ma) =>
+        OptionT<IO, A>.Lift(ma);
+
+    /// <summary>
+    /// Lift an Option into a `OptionT IO` 
+    /// </summary>
+    public static OptionT<IO, A> liftIO<A>(Task<Option<A>> ma) =>
+        new(IO.liftAsync(async () => await ma.ConfigureAwait(false)));
+
+    /// <summary>
+    /// Lift an Either into a `EitherT IO` 
+    /// </summary>
+    public static EitherT<L, IO, A> liftIO<L, A>(Either<L, A> ma) =>
+        EitherT<L, IO, A>.Lift(ma);
+
+    /// <summary>
+    /// Lift an Either into a `EitherT IO` 
+    /// </summary>
+    public static EitherT<L, IO, A> liftIO<L, A>(Task<Either<L, A>> ma) =>
+        new(IO.liftAsync(async () => await ma.ConfigureAwait(false)));
+
+    /// <summary>
+    /// Lift an Validation into a `ValidationT IO` 
+    /// </summary>
+    public static ValidationT<L, IO, A> liftIO<L, A>(Validation<L, A> ma) 
+        where L : Monoid<L> =>
+        ValidationT<L, IO, A>.Lift(ma);
+
+    /// <summary>
+    /// Lift an Validation into a `ValidationT IO` 
+    /// </summary>
+    public static ValidationT<L, IO, A> liftIO<L, A>(Task<Validation<L, A>> ma) 
+        where L : Monoid<L> =>
+        new(IO.liftAsync(async () => await ma.ConfigureAwait(false)));
 }

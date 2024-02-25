@@ -17,7 +17,7 @@ namespace LanguageExt;
 /// called at some point, directly or indirectly, from `Main`.
 ///
 /// Obviously, as this is C#, the above restrictions are for you to enforce. It would be reasonable
-/// to relax that approach and have IO invoked from, say, web-request handlers - or any other 'edges'
+/// to relax that approach and have I/O invoked from, say, web-request handlers - or any other 'edges'
 /// of your application.
 /// 
 /// `IO` is a monad, so `IO` actions can be combined using either the LINQ-notation or the `bind` 
@@ -540,9 +540,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// <param name="timeout">Timeout</param>
     /// <returns>Result of the operation or throws if the time limit exceeded.</returns>
     public IO<A> Timeout(TimeSpan timeout) =>
-        (from f in Fork(timeout)
-         from r in f.Await
-         select r).As();
+        Fork(timeout).Await();
     
     /// <summary>
     /// Queues the specified work to run on the thread pool  

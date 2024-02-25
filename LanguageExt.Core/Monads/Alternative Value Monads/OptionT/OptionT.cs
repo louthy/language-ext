@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt;
 
@@ -65,6 +68,14 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
     /// </summary>
     /// <param name="monad">Monad to lift</param>
     /// <returns>`OptionT`</returns>
+    public static OptionT<M, A> Lift(K<M, Option<A>> monad) =>
+        new(monad);
+
+    /// <summary>
+    /// Lifts a given monad into the transformer
+    /// </summary>
+    /// <param name="monad">Monad to lift</param>
+    /// <returns>`OptionT`</returns>
     public static OptionT<M, A> LiftIO(IO<A> monad) =>
         Lift(M.LiftIO(monad));
 
@@ -73,9 +84,85 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
     //  Match
     //
 
+    /// <summary>
+    /// Match the two states of the Option and return a B, which can be null.
+    /// </summary>
+    /// <typeparam name="B">Return type</typeparam>
+    /// <param name="Some">Some match operation. May return null.</param>
+    /// <param name="None">None match operation. May return null.</param>
+    /// <returns>B, or null</returns>
     public K<M, B> Match<B>(Func<A, B> Some, Func<B> None) =>
         M.Map(mx => mx.Match(Some, None), runOption);
- 
+
+    /// <summary>
+    /// Match the two states of the Option
+    /// </summary>
+    /// <param name="Some">Some match operation</param>
+    /// <param name="None">None match operation</param>
+    public K<M, Unit> Match(Action<A> Some, Action None) =>
+        M.Map(mx => mx.Match(Some, None), runOption);
+
+    /// <summary>
+    /// Invokes the action if Option is in the Some state, otherwise nothing happens.
+    /// </summary>
+    /// <param name="f">Action to invoke if Option is in the Some state</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public K<M, Unit> IfSome(Action<A> f) =>
+        M.Map(mx => mx.IfSome(f), runOption);
+
+    /// <summary>
+    /// Invokes the f function if Option is in the Some state, otherwise nothing
+    /// happens.
+    /// </summary>
+    /// <param name="f">Function to invoke if Option is in the Some state</param>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public K<M, Unit> IfSome(Func<A, Unit> f) =>
+        M.Map(mx => mx.IfSome(f), runOption);
+
+    /// <summary>
+    /// Returns the result of invoking the None() operation if the optional 
+    /// is in a None state, otherwise the bound Some(x) value is returned.
+    /// </summary>
+    /// <remarks>Will not accept a null return value from the None operation</remarks>
+    /// <param name="None">Operation to invoke if the structure is in a None state</param>
+    /// <returns>Result of invoking the None() operation if the optional 
+    /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public K<M, A> IfNone(Func<A> None) =>
+        M.Map(mx => mx.IfNone(None), runOption);
+
+    /// <summary>
+    /// Invokes the action if Option is in the None state, otherwise nothing happens.
+    /// </summary>
+    /// <param name="f">Action to invoke if Option is in the None state</param>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public K<M, Unit> IfNone(Action None) =>
+        M.Map(mx => mx.IfNone(None), runOption);
+        
+    /// <summary>
+    /// Returns the noneValue if the optional is in a None state, otherwise
+    /// the bound Some(x) value is returned.
+    /// </summary>
+    /// <remarks>Will not accept a null noneValue</remarks>
+    /// <param name="noneValue">Value to return if in a None state</param>
+    /// <returns>noneValue if the optional is in a None state, otherwise
+    /// the bound Some(x) value is returned</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public K<M, A> IfNone(A noneValue) =>
+        M.Map(mx => mx.IfNone(noneValue), runOption);
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Run
+    //
+
+    /// <summary>
+    /// Runs the OptionT exposing the outer monad with an inner wrapped `Option`
+    /// </summary>
     public K<M, Option<A>> Run() =>
         runOption;
  
@@ -232,7 +319,10 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
     //
     //  Conversion operators
     //
-
+    
+    public static implicit operator OptionT<M, A>(Option<A> ma) =>
+        Lift(ma);
+    
     public static implicit operator OptionT<M, A>(Pure<A> ma) =>
         Some(ma.Value);
     
@@ -241,4 +331,19 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
     
     public static implicit operator OptionT<M, A>(IO<A> ma) =>
         LiftIO(ma);
+    
+    public static implicit operator OptionT<M, A>(Lift<A> ma) =>
+        LiftIO(ma);
+    
+    public static implicit operator OptionT<M, A>(Lift<EnvIO, A> ma) =>
+        LiftIO(ma);
+
+    public EitherT<L, M, A> ToEither<L>(L left) =>
+        new(runOption.Map(ma => ma.ToEither(left)));
+
+    public EitherT<L, M, A> ToEither<L>(Func<L> left) =>
+        new(runOption.Map(ma => ma.ToEither(left)));
+
+    public EitherT<L, M, A> ToEither<L>() where L : Monoid<L> =>
+        new(runOption.Map(ma => ma.ToEither<L>()));
 }

@@ -752,6 +752,8 @@ This is my '.NET Framework to .NET Core' moment.  I realise that.  And I an trul
 	* Mitigtation: use nullable references instead
 ### `OptionUnsafe<A>`
 	* Mitigtation: use `Option<A?>` instead
+### `OptionAsync<A>`
+	* Mitigtation: use `OptionT<IO, A>` instead
 ### `OptionNone`:
 	* Mitigtation: use `Fail<Unit>` instead
 ### `EitherUnsafe<L, R>`:
@@ -760,14 +762,16 @@ This is my '.NET Framework to .NET Core' moment.  I realise that.  And I an trul
 	* Mitigtation: use `Fail<L>` instead
 ### `EitherRight<L>`:
 	* Mitigtation: use `Pure<R>` instead
+### `EitherAsync<L, R>`:
+	* Mitigtation: use `EitherT<L, IO, R>` instead
 ### `Try<A>`
 	* Mitigtation: use `Eff<A>`
 ### `TryOption<A>`
-	* Mitigtation: use `IO<Unit, A>` or `Eff<A>`
+	* Mitigtation: use `OptionT<IO, A>`
 ### `TryAsync<A>`
 	* Mitigtation: use `Eff<A>`
 ### `TryOptionAsync<A>`
-	* Mitigtation: use `IO<Unit, A>` or `Eff<A>`
+	* Mitigtation: use `OptionT<IO, A>`
 ### `Result<A>`
 	* Mitigtation: use `Fin<A>`
 ### `OptionalResult<A>`

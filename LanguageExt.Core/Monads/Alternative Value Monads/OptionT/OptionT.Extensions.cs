@@ -1,6 +1,7 @@
 ﻿using System;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -13,6 +14,20 @@ public static class OptionTExt
     public static OptionT<M, A> As<M, A>(this K<OptionT<M>, A> ma)
         where M : Monad<M> =>
         (OptionT<M, A>)ma;
+
+    /// <summary>
+    /// Get the outer task and wrap it up in a new IO within the OptionT IO
+    /// </summary>
+    public static OptionT<IO, A> Flatten<A>(this Task<OptionT<IO, A>> tma) =>
+        OptionT<IO, OptionT<IO, A>>
+           .Lift(IO.liftAsync(async () => await tma.ConfigureAwait(false)))
+           .Flatten();
+
+    /// <summary>
+    /// Lift the task
+    /// </summary>
+    public static OptionT<IO, A> ToIO<A>(this Task<Option<A>> ma) =>
+        liftIO(ma);
     
     /// <summary>
     /// Monadic join

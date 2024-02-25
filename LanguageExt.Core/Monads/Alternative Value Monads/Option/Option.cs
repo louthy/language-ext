@@ -566,7 +566,15 @@ public readonly struct Option<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Eff<A> ToEff() =>
         ToEff(Errors.None);
-        
+
+    /// <summary>
+    /// Convert to an Option transformer with embedded IO
+    /// </summary>
+    /// <returns></returns>
+    [Pure]
+    public OptionT<IO, A> ToIO() =>
+        OptionT<IO, A>.Lift(this);
+    
     /// <summary>
     /// Convert the structure to an Eff
     /// </summary>
@@ -612,6 +620,16 @@ public readonly struct Option<A> :
             ? Right<L, A>(Value!)
             : Left<L, A>(defaultLeftValue);
 
+    /// <summary>
+    /// Convert the structure to an Either
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Either<L, A> ToEither<L>() where L : Monoid<L> =>
+        isSome
+            ? Right<L, A>(Value!)
+            : Left<L, A>(L.Empty);
+    
     /// <summary>
     /// Convert the structure to an Either
     /// </summary>
@@ -796,36 +814,6 @@ public readonly struct Option<A> :
             : noneValue;
 
     /// <summary>
-    /// Returns the result of invoking the None() operation if the optional 
-    /// is in a None state, otherwise the bound Some(x) value is returned.
-    /// </summary>
-    /// <remarks>Will allow null the be returned from the None operation</remarks>
-    /// <param name="None">Operation to invoke if the structure is in a None state</param>
-    /// <returns>Result of invoking the None() operation if the optional 
-    /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public A? IfNoneUnsafe(Func<A?> None) =>
-        isSome
-            ? Value
-            : None();
-
-    /// <summary>
-    /// Returns the noneValue if the optional is in a None state, otherwise
-    /// the bound Some(x) value is returned.
-    /// </summary>
-    /// <remarks>Will allow noneValue to be null</remarks>
-    /// <param name="noneValue">Value to return if in a None state</param>
-    /// <returns>noneValue if the optional is in a None state, otherwise
-    /// the bound Some(x) value is returned</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public A? IfNoneUnsafe(A? noneValue) =>
-        isSome
-            ? Value
-            : noneValue;
-
-    /// <summary>
     /// <para>
     /// Option types are like lists of 0 or 1 items, and therefore follow the 
     /// same rules when folding.
@@ -834,6 +822,7 @@ public readonly struct Option<A> :
     /// operator, a starting value(typically the left-identity of the operator),
     /// and a list, reduces the list using the binary operator, from left to
     /// right:
+    /// </para>
     /// </para>
     /// <para>
     /// Note that, since the head of the resulting expression is produced by
