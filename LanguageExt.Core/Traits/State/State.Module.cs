@@ -2,7 +2,7 @@
 
 namespace LanguageExt.Traits;
 
-public static class State
+public static partial class State
 {
     public static K<M, Unit> put<M, S>(S value)
         where M : StateM<M, S> =>

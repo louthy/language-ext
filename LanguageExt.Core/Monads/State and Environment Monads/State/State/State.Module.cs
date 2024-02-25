@@ -1,5 +1,4 @@
 ﻿using System;
-using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -41,6 +40,9 @@ public class State
     
     public static State<S, A> gets<S, A>(Func<S, A> f) => 
         State<S, A>.Gets(f);
+    
+    public static State<S, A> getsM<S, A>(Func<S, State<S, A>> f) => 
+        State<S, A>.GetsM(f);
 
     public static State<S, Unit> put<S>(S state) =>  
         State<S, Unit>.Put(state);

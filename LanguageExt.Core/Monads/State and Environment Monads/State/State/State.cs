@@ -53,6 +53,14 @@ public record State<S, A>(Func<S, (A Value, S State)> runState) : K<State<S>, A>
         new (s => (f(s), s));
 
     /// <summary>
+    /// Extracts the state value and maps it to the bound value
+    /// </summary>
+    /// <param name="f">State mapping function</param>
+    /// <returns>`State`</returns>
+    public static State<S, A> GetsM(Func<S, State<S, A>> f) =>
+        State<S, State<S, A>>.Gets(f).Flatten();
+
+    /// <summary>
     /// Lifts a given monad into the transformer
     /// </summary>
     /// <param name="monad">Monad to lift</param>
