@@ -3,8 +3,8 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Traits;
 
-public interface State<in M, S>  
-    where M : State<M, S>
+public interface StateM<in M, S>  
+    where M : StateM<M, S>
 {
     public static abstract K<M, Unit> Put(S value);
 

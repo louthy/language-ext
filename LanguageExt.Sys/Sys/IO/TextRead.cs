@@ -14,7 +14,7 @@ namespace LanguageExt.Sys.IO;
 
 public static class TextRead<M, RT>
     where RT : Has<M, TextReadIO>
-    where M : State<M, RT>, Monad<M>
+    where M : StateM<M, RT>, Monad<M>
 {
     static readonly K<M, TextReadIO> trait = 
         State.getsM<M, RT, TextReadIO>(e => e.Trait); 

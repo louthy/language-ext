@@ -11,7 +11,7 @@ namespace LanguageExt.Sys;
 /// Time IO 
 /// </summary>
 public static class Console<M, RT>
-    where M : State<M, RT>, Monad<M>
+    where M : StateM<M, RT>, Monad<M>
     where RT : Has<M, ConsoleIO>
 {
     static readonly K<M, ConsoleIO> trait = 

@@ -13,7 +13,7 @@ namespace LanguageExt.Sys.IO;
 /// File IO 
 /// </summary>
 public class File<M, RT>
-    where M : State<M, RT>, Resource<M>, Monad<M>
+    where M : StateM<M, RT>, Resource<M>, Monad<M>
     where RT : Has<M, FileIO>, Has<M, EncodingIO>
 {
     static readonly K<M, FileIO> trait = 

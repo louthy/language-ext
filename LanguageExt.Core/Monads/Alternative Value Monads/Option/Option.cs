@@ -698,34 +698,6 @@ public readonly struct Option<A> :
             : None;
 
     /// <summary>
-    /// Match the two states of the Option and return a B, which can be null.
-    /// </summary>
-    /// <typeparam name="B">Return type</typeparam>
-    /// <param name="Some">Some match operation. May return null.</param>
-    /// <param name="None">None match operation. May return null.</param>
-    /// <returns>B, or null</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public B? MatchUnsafe<B>(Func<A, B?> Some, Func<B?> None) =>
-        isSome
-            ? Some(Value!)
-            : None();
-
-    /// <summary>
-    /// Match the two states of the Option and return a B, which can be null.
-    /// </summary>
-    /// <typeparam name="B">Return type</typeparam>
-    /// <param name="Some">Some match operation. May return null.</param>
-    /// <param name="None">None match operation. May return null.</param>
-    /// <returns>B, or null</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public B? MatchUnsafe<B>(Func<A, B?> Some, B? None) =>
-        isSome
-            ? Some(Value!)
-            : None;
-
-    /// <summary>
     /// Match the two states of the Option
     /// </summary>
     /// <param name="Some">Some match operation</param>

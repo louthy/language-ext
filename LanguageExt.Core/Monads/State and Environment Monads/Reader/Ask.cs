@@ -17,31 +17,37 @@ namespace LanguageExt;
 public readonly record struct Ask<Env, A>(Func<Env, A> F)
 {
     /// <summary>
-    /// Convert ot a `ReaderT`
+    /// Convert to a `Reader`
+    /// </summary>
+    public Reader<Env, A> ToReader() =>
+        Reader<Env, A>.Asks(F);
+    
+    /// <summary>
+    /// Convert to a `ReaderT`
     /// </summary>
     public ReaderT<Env, M, A> ToReaderT<M>()
         where M : Monad<M>, SemiAlternative<M> =>
         ReaderT<Env, M, A>.Asks(F);
     
-    // /// <summary>
-    // /// Monadic bind with `ReaderT`
-    // /// </summary>
-    // public ReaderT<Env, M, C> SelectMany<M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
-    //     where M : Monad<M>, SemiAlternative<M> =>
-    //     ToReaderT<M>().SelectMany(bind, project);
-    
     /// <summary>
     /// Monadic bind with any `Reader`
     /// </summary>
     public K<M, C> SelectMany<M, B, C>(Func<A, K<M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, SemiAlternative<M>, Reader<M, Env> =>
+        where M : Monad<M>, SemiAlternative<M>, ReaderM<M, Env> =>
         M.Bind(M.Asks(F), x => M.Map(y => project(x, y), bind(x)));
+    
+    /// <summary>
+    /// Monadic bind with `ReaderT`
+    /// </summary>
+    public ReaderT<Env, M, C> SelectMany<M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
+        where M : Monad<M>, SemiAlternative<M> =>
+        ToReaderT<M>().SelectMany(bind, project);
 
-    // /// <summary>
-    // /// Monadic bind with `Reader`
-    // /// </summary>
-    // public Reader<Env, C> SelectMany<B, C>(Func<A, Reader<Env, B>> bind, Func<A, B, C> project) =>
-    //     ToReader().SelectMany(bind, project).As();
+    /// <summary>
+    /// Monadic bind with `Reader`
+    /// </summary>
+    public Reader<Env, C> SelectMany<B, C>(Func<A, Reader<Env, B>> bind, Func<A, B, C> project) =>
+         ToReader().SelectMany(bind, project).As();
 }
 
 public static class AskExtensions
@@ -53,6 +59,6 @@ public static class AskExtensions
         this K<M, A> ma,
         Func<A, Ask<Env, B>> bind,
         Func<A, B, C> project)
-        where M : Monad<M>, SemiAlternative<M>, Reader<M, Env> =>
+        where M : Monad<M>, SemiAlternative<M>, ReaderM<M, Env> =>
         M.Bind(ma, a => M.Map(b => project(a, b), M.Asks(bind(a).F)));
 }

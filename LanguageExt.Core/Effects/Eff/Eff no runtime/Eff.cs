@@ -17,7 +17,7 @@ namespace LanguageExt;
 /// <typeparam name="A">Bound value type</typeparam>
 public record Eff<A>(Eff<MinRT, A> effect) :
     K<Eff, A>,
-    State<Eff<A>, A>,
+    StateM<Eff<A>, A>,
     Resource<Eff<A>>,
     Alternative<Eff<A>>,
     Monad<Eff<A>>
@@ -992,13 +992,13 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     static K<Eff<A>, Unit> Resource<Eff<A>>.Release<T>(T value) =>
         new Eff<A, Unit>(StateT<A>.lift(ResourceT<IO>.release(value)));
 
-    static K<Eff<A>, Unit> State<Eff<A>, A>.Put(A value) =>
+    static K<Eff<A>, Unit> StateM<Eff<A>, A>.Put(A value) =>
         new Eff<A, Unit>(StateT.put<ResourceT<IO>, A>(value));
 
-    static K<Eff<A>, Unit> State<Eff<A>, A>.Modify(Func<A, A> modify) =>
+    static K<Eff<A>, Unit> StateM<Eff<A>, A>.Modify(Func<A, A> modify) =>
         new Eff<A, Unit>(StateT.modify<ResourceT<IO>, A>(modify));
 
-    static K<Eff<A>, T> State<Eff<A>, A>.Gets<T>(Func<A, T> f) =>
+    static K<Eff<A>, T> StateM<Eff<A>, A>.Gets<T>(Func<A, T> f) =>
         new Eff<A, T>(StateT.gets<ResourceT<IO>, A, T>(f));
 
     static K<Eff<A>, T> Monad<Eff<A>>.LiftIO<T>(IO<T> ma) =>

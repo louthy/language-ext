@@ -11,7 +11,7 @@ namespace LanguageExt;
 public partial class StateT<S, M> : 
     MonadT<StateT<S, M>, M>, 
     SemiAlternative<StateT<S, M>>,
-    State<StateT<S, M>, S>
+    StateM<StateT<S, M>, S>
     where M : Monad<M>, SemiAlternative<M>
 {
     static K<StateT<S, M>, B> Monad<StateT<S, M>>.Bind<A, B>(K<StateT<S, M>, A> ma, Func<A, K<StateT<S, M>, B>> f) => 
@@ -32,13 +32,13 @@ public partial class StateT<S, M> :
     static K<StateT<S, M>, A> MonadT<StateT<S, M>, M>.Lift<A>(K<M, A> ma) => 
         StateT<S, M, A>.Lift(ma);
     
-    static K<StateT<S, M>, Unit> State<StateT<S, M>, S>.Modify(Func<S, S> modify) => 
+    static K<StateT<S, M>, Unit> StateM<StateT<S, M>, S>.Modify(Func<S, S> modify) => 
         StateT<S, M, S>.Modify(modify);
 
-    static K<StateT<S, M>, A> State<StateT<S, M>, S>.Gets<A>(Func<S, A> f) => 
+    static K<StateT<S, M>, A> StateM<StateT<S, M>, S>.Gets<A>(Func<S, A> f) => 
         StateT<S, M, A>.Gets(f);
 
-    static K<StateT<S, M>, Unit> State<StateT<S, M>, S>.Put(S value) => 
+    static K<StateT<S, M>, Unit> StateM<StateT<S, M>, S>.Put(S value) => 
         StateT<S, M, S>.Put(value);
 
     static K<StateT<S, M>, A> Monad<StateT<S, M>>.LiftIO<A>(IO<A> ma) =>

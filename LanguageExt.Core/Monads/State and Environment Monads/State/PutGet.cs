@@ -23,6 +23,12 @@ public readonly record struct Put<S>(S Value)
         StateT<S, M, Unit>.Put(Value);
     
     /// <summary>
+    /// Convert ot a `StateT`
+    /// </summary>
+    public State<S, Unit> ToState() =>
+        State<S, Unit>.Put(Value);
+    
+    /// <summary>
     /// Convert ot a `State`
     /// </summary>
     //public State<S, Unit> ToState() =>
@@ -38,8 +44,8 @@ public readonly record struct Put<S>(S Value)
     /// <summary>
     /// Monadic bind with `State`
     /// </summary>
-    //public State<S, C> SelectMany<B, C>(Func<Unit, State<S, B>> bind, Func<Unit, B, C> project) =>
-    //    ToState().SelectMany(bind, project).As();
+    public State<S, C> SelectMany<B, C>(Func<Unit, State<S, B>> bind, Func<Unit, B, C> project) =>
+        ToState().SelectMany(bind, project);
 }
 
 /// <summary>
@@ -64,8 +70,8 @@ public readonly record struct Modify<S>(Func<S, S> f)
     /// <summary>
     /// Convert ot a `State`
     /// </summary>
-    //public State<S, Unit> ToState() =>
-    //    State<S, Unit>.Modify(f).As();
+    public State<S, Unit> ToState() =>
+        State<S, Unit>.Modify(f);
 
     /// <summary>
     /// Monadic bind with `StateT`
@@ -77,8 +83,8 @@ public readonly record struct Modify<S>(Func<S, S> f)
     /// <summary>
     /// Monadic bind with `State`
     /// </summary>
-    //public State<S, C> SelectMany<B, C>(Func<Unit, State<S, B>> bind, Func<Unit, B, C> project) =>
-    //    ToState().SelectMany(bind, project).As();
+    public State<S, C> SelectMany<B, C>(Func<Unit, State<S, B>> bind, Func<Unit, B, C> project) =>
+        ToState().SelectMany(bind, project);
 }
 
 
@@ -104,8 +110,8 @@ public readonly record struct Gets<S, A>(Func<S, A> f)
     /// <summary>
     /// Convert ot a `State`
     /// </summary>
-    //public State<S, A> ToState() =>
-    //    State<S, A>.Gets(f);
+    public State<S, A> ToState() =>
+        State<S, A>.Gets(f);
 
     /// <summary>
     /// Monadic bind with `StateT`
@@ -117,6 +123,6 @@ public readonly record struct Gets<S, A>(Func<S, A> f)
     /// <summary>
     /// Monadic bind with `State`
     /// </summary>
-    //public State<S, C> SelectMany<B, C>(Func<A, State<S, B>> bind, Func<A, B, C> project) =>
-    //    ToState().SelectMany(bind, project).As();
+    public State<S, C> SelectMany<B, C>(Func<A, State<S, B>> bind, Func<A, B, C> project) =>
+        ToState().SelectMany(bind, project);
 }

@@ -51,7 +51,7 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
     /// Extracts the state value and returns it as the bound value
     /// </summary>
     /// <returns>`StateT`</returns>
-    public static StateT<S, M, S> Get =>
+    public static StateT<S, M, S> Get { get; } =
         new(state => M.Pure((state, state)));
 
     /// <summary>

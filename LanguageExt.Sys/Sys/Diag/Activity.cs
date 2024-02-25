@@ -17,7 +17,7 @@ namespace LanguageExt.Sys.Diag;
 /// <typeparam name="RT">Runtime</typeparam>
 public class Activity<M, RT>
     where M :
-        State<M, RT>,
+        StateM<M, RT>,
         Resource<M>,
         Monad<M>
 

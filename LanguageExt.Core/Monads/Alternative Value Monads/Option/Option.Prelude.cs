@@ -165,32 +165,6 @@ public static partial class Prelude
         option.IfNone(noneValue);
 
     /// <summary>
-    /// Returns the result of invoking the None() operation if the optional 
-    /// is in a None state, otherwise the bound Some(x) value is returned.
-    /// </summary>
-    /// <remarks>Will allow null the be returned from the None operation</remarks>
-    /// <param name="None">Operation to invoke if the structure is in a None state</param>
-    /// <returns>Tesult of invoking the None() operation if the optional 
-    /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static T? ifNoneUnsafe<T>(Option<T> option, Func<T?> None) =>
-        option.IfNoneUnsafe(None);
-
-    /// <summary>
-    /// Returns the noneValue if the optional is in a None state, otherwise
-    /// the bound Some(x) value is returned.
-    /// </summary>
-    /// <remarks>Will allow noneValue to be null</remarks>
-    /// <param name="noneValue">Value to return if in a None state</param>
-    /// <returns>noneValue if the optional is in a None state, otherwise
-    /// the bound Some(x) value is returned</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static T? ifNoneUnsafe<T>(Option<T> option, T? noneValue) =>
-        option.IfNoneUnsafe(noneValue);
-
-    /// <summary>
     /// Match the two states of the Option and return a non-null R.
     /// </summary>
     /// <typeparam name="B">Return type</typeparam>
@@ -201,18 +175,6 @@ public static partial class Prelude
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static R match<T, R>(Option<T> option, Func<T, R> Some, Func<R> None) =>
         option.Match(Some, None);
-
-    /// <summary>
-    /// Match the two states of the Option and return a B, which can be null.
-    /// </summary>
-    /// <typeparam name="B">Return type</typeparam>
-    /// <param name="Some">Some match operation. May return null.</param>
-    /// <param name="None">None match operation. May return null.</param>
-    /// <returns>B, or null</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static R? matchUnsafe<T, R>(Option<T> option, Func<T, R?> Some, Func<R?> None) =>
-        option.MatchUnsafe(Some, None);
 
     /// <summary>
     /// Match the two states of the Option

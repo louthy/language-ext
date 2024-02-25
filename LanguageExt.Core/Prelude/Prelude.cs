@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
+using System.Formats.Asn1;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
@@ -359,4 +360,15 @@ public static partial class Prelude
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool isEmpty(string? value) =>
         string.IsNullOrWhiteSpace(value);
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static (A1, B) first<A, B, A1>(Func<A, A1> f, (A, B) pair) =>
+        (f(pair.Item1), pair.Item2);
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static (A, B1) second<A, B, B1>(Func<B, B1> f, (A, B) pair) =>
+        (pair.Item1, f(pair.Item2));
+
 }

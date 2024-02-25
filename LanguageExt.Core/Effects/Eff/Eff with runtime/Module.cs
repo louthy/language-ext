@@ -7,7 +7,7 @@ namespace LanguageExt;
 
 public class Eff : 
     Monad<Eff>,
-    State<Eff, MinRT>,
+    StateM<Eff, MinRT>,
     Resource<Eff>,
     Alternative<Eff>
 {
@@ -38,13 +38,13 @@ public class Eff :
     static K<Eff, Unit> Resource<Eff>.Release<A>(A value) =>
         new Eff<Unit>(new Eff<MinRT, Unit>(StateT<MinRT>.lift(ResourceT<IO>.release(value))));
 
-    static K<Eff, Unit> State<Eff, MinRT>.Put(MinRT value) => 
+    static K<Eff, Unit> StateM<Eff, MinRT>.Put(MinRT value) => 
         new Eff<Unit>(State.put<Eff<MinRT>, MinRT>(value).As());
 
-    static K<Eff, Unit> State<Eff, MinRT>.Modify(Func<MinRT, MinRT> modify) => 
+    static K<Eff, Unit> StateM<Eff, MinRT>.Modify(Func<MinRT, MinRT> modify) => 
         new Eff<Unit>(State.modify<Eff<MinRT>, MinRT>(modify).As());
 
-    static K<Eff, A> State<Eff, MinRT>.Gets<A>(Func<MinRT, A> f) => 
+    static K<Eff, A> StateM<Eff, MinRT>.Gets<A>(Func<MinRT, A> f) => 
         new Eff<A>(State.gets<Eff<MinRT>, MinRT, A>(f).As());
 
     static K<Eff, A> Monad<Eff>.LiftIO<A>(IO<A> ma) =>

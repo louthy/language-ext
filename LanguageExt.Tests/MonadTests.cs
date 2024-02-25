@@ -102,14 +102,14 @@ namespace LanguageExt.Tests
         [Fact]
         public void ReaderBottomTest()
         {
-            var v1 = Reader<int, int>(10);
-            var v2 = Reader<int, int>(10);
+            var v1 = ReaderM<int, int>(10);
+            var v2 = ReaderM<int, int>(10);
 
             var rdr = from x in v1
                       from y in v2
                       from c in ask<int>()
                       from _ in x * c > 50 && y * c > 50
-                        ? Reader<int, Unit>(unit)
+                        ? ReaderM<int, Unit>(unit)
                         : ReaderFail<int, Unit>("Error")
                       select (x + y) * c;
 
@@ -134,8 +134,8 @@ namespace LanguageExt.Tests
         [Fact]
         public void StateBottomTest()
         {
-            var v1 = State<int, int>(10);
-            var v2 = State<int, int>(10);
+            var v1 = StateM<int, int>(10);
+            var v2 = StateM<int, int>(10);
 
             var rdr = from x in v1
                       from y in v2
@@ -150,8 +150,8 @@ namespace LanguageExt.Tests
         [Fact]
         public void StateBottomTest2()
         {
-            var v1 = State<int, int>(10);
-            var v2 = State<int, int>(10);
+            var v1 = StateM<int, int>(10);
+            var v2 = StateM<int, int>(10);
 
             var rdr = from x in v1
                       from c in get<int>()

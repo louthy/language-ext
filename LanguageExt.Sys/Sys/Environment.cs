@@ -8,7 +8,7 @@ namespace LanguageExt.Sys;
 /// Environment IO
 /// </summary>
 public static class Environment<M, RT>
-    where M : State<M, RT>, Monad<M>
+    where M : StateM<M, RT>, Monad<M>
     where RT : Has<M, EnvironmentIO>
 {
     static readonly K<M, EnvironmentIO> trait = 

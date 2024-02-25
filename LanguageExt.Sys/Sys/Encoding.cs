@@ -4,7 +4,7 @@ using LanguageExt.Traits;
 namespace LanguageExt.Sys;
 
 public static class Enc<M, RT>
-    where M : State<M, RT>, Monad<M>
+    where M : StateM<M, RT>, Monad<M>
     where RT : Has<M, EncodingIO>
 {
     static readonly K<M, EncodingIO> trait = 
