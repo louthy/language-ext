@@ -3,7 +3,7 @@ using LanguageExt.TypeClasses;
 
 namespace LanguageExt.Traits;
 
-public static partial class Writer
+public static class WriterExtensions
 {
     /// <summary>
     /// `pass` is an action that executes the `action`, which returns a value and a

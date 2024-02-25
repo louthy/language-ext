@@ -3,7 +3,6 @@ using System;
 using System.Linq;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
-using LanguageExt.ClassInstances;
 using System.Runtime.Serialization;
 
 namespace LanguageExt.Tests
@@ -243,33 +242,11 @@ namespace Issues
                 : Error.New(ex.Message);
     }
 
-    public class Issue242
-    {
-
-        [Fact]
-        public async Task Issue242_ExpectNoException()
-        {
-            var failableTask = fun((Either<string, int> value) =>
-                value.AsTask());
-
-            var result = await (from a in failableTask("This will NOT cause a Bottom Exception")
-                                from b in failableTask(3)
-                                select a + b);
-        }
-
-    }
-
     public class Issue263
     {
-        public readonly Func<long, Unit> fire = i =>
-        {
-            return unit;
-        };
+        public readonly Func<long, Unit> fire = i => unit;
 
-        public void Test()
-        {
-            act(fire);
-        }
+        public void Test() => ignore(act(fire));
     }
 
     public class Issue261
@@ -277,17 +254,17 @@ namespace Issues
         [Fact]
         public void Test1()
         {
-            var ma = Writer<MSeq<string>, Seq<string>, int>(100);
-            var mb = Writer<MSeq<string>, Seq<string>, int>(200);
+            var ma = Writer.Pure<Seq<string>, int>(100);
+            var mb = Writer.Pure<Seq<string>, int>(200);
 
             var mc = from x in ma
                      from y in mb
-                     from _1 in tell<MSeq<string>, Seq<string>>(Seq1("Hello"))
-                     from _2 in tell<MSeq<string>, Seq<string>>(Seq1("World"))
-                     from _3 in tell<MSeq<string>, Seq<string>>(Seq1($"the result is {x + y}"))
+                     from _1 in tell(Seq("Hello"))
+                     from _2 in tell(Seq("World"))
+                     from _3 in tell(Seq($"the result is {x + y}"))
                      select x + y;
 
-            var r = mc();
+            var r = mc.Run();
 
             Assert.True(r.Value == 300);
             Assert.True(r.Output == Seq("Hello", "World", "the result is 300"));
@@ -296,20 +273,20 @@ namespace Issues
         [Fact]
         public void Test2()
         {
-            var ma = Writer<string, int>(100);
-            var mb = Writer<string, int>(200);
+            var ma = Writer.Pure<Lst<string>, int>(100);
+            var mb = Writer.Pure<Lst<string>, int>(200);
 
             var mc = from x in ma
                      from y in mb
-                     from _1 in tell("Hello")
-                     from _2 in tell("World")
-                     from _3 in tell($"the result is {x + y}")
+                     from _1 in tell(List("Hello"))
+                     from _2 in tell(List("World"))
+                     from _3 in tell(List($"the result is {x + y}"))
                      select x + y;
 
-            var r = mc();
+            var r = mc.Run();
 
             Assert.True(r.Value == 300);
-            Assert.True(r.Output == Seq("Hello", "World", "the result is 300"));
+            Assert.True(r.Output == List("Hello", "World", "the result is 300"));
         }
 
         [Fact]
@@ -318,14 +295,14 @@ namespace Issues
             var ma = (100, Seq<string>());
             var mb = (200, Seq<string>());
 
-            var mc = from x in ma.ToWriter()
-                     from y in mb.ToWriter()
-                     from _1 in tell("Hello")
-                     from _2 in tell("World")
-                     from _3 in tell($"the result is {x + y}")
+            var mc = from x in Writer.write(ma)
+                     from y in Writer.write(mb)
+                     from _1 in tell(Seq("Hello"))
+                     from _2 in tell(Seq("World"))
+                     from _3 in tell(Seq($"the result is {x + y}"))
                      select x + y;
 
-            var r = mc();
+            var r = mc.Run();
 
             Assert.True(r.Value == 300);
             Assert.True(r.Output == Seq("Hello", "World", "the result is 300"));
