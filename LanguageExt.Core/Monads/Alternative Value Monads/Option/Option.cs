@@ -480,6 +480,16 @@ public readonly struct Option<A> :
     }
 
     /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Option<C> SelectMany<C>(
+        Func<A, Fail<Unit>> bind,
+        Func<A, Unit, C> project) =>
+        Option<C>.None;
+
+    /// <summary>
     /// Match operation with an untyped value for Some. This can be
     /// useful for serialisation and dealing with the IOptional interface
     /// </summary>
@@ -1169,6 +1179,15 @@ public readonly struct Option<A> :
         IsSome  
             ? f(Value!).ToOption()
             : Option<B>.None;
+
+
+    /// <summary>
+    /// Monadic bind
+    /// </summary>
+    /// <param name="f">Bind function</param>
+    [Pure]
+    public Option<B> Bind<B>(Func<A, Fail<Unit>> f) =>
+        Option<B>.None;
 
     /// <summary>
     /// Monadic bind and project

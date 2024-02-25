@@ -10,6 +10,7 @@ namespace LanguageExt.Sys.Test;
 /// </summary>
 public record Runtime(RuntimeEnv Env) : 
     Has<Eff<Runtime>, ConsoleIO>,
+    Has<Eff<Runtime>, EncodingIO>,
     Has<Eff<Runtime>, FileIO>,
     Has<Eff<Runtime>, TextReadIO>,
     Has<Eff<Runtime>, TimeIO>,
@@ -125,6 +126,9 @@ public record Runtime(RuntimeEnv Env) :
         from n in Time<Eff<Runtime>, Runtime>.now
         from r in gets(rt => new Implementations.DirectoryIO(rt.Env.FileSystem, n))
         select r;
+
+    public K<Eff<Runtime>, EncodingIO> Trait =>
+        gets(_ => Live.Implementations.EncodingIO.Default);
 }
     
 public record RuntimeEnv(
