@@ -45,7 +45,4 @@
   <ItemGroup>
     <None Include="README.md" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Monads\State and Environment Monads\Writer\Writer\" />
-  </ItemGroup>
 </Project>

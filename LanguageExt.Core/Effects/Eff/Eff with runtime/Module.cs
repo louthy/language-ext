@@ -39,13 +39,13 @@ public class Eff :
         new Eff<Unit>(new Eff<MinRT, Unit>(StateT<MinRT>.lift(ResourceT<IO>.release(value))));
 
     static K<Eff, Unit> StateM<Eff, MinRT>.Put(MinRT value) => 
-        new Eff<Unit>(State.put<Eff<MinRT>, MinRT>(value).As());
+        new Eff<Unit>(StateM.put<Eff<MinRT>, MinRT>(value).As());
 
     static K<Eff, Unit> StateM<Eff, MinRT>.Modify(Func<MinRT, MinRT> modify) => 
-        new Eff<Unit>(State.modify<Eff<MinRT>, MinRT>(modify).As());
+        new Eff<Unit>(StateM.modify<Eff<MinRT>, MinRT>(modify).As());
 
     static K<Eff, A> StateM<Eff, MinRT>.Gets<A>(Func<MinRT, A> f) => 
-        new Eff<A>(State.gets<Eff<MinRT>, MinRT, A>(f).As());
+        new Eff<A>(StateM.gets<Eff<MinRT>, MinRT, A>(f).As());
 
     static K<Eff, A> Monad<Eff>.LiftIO<A>(IO<A> ma) =>
         Eff<A>.LiftIO(ma);

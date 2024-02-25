@@ -3,7 +3,7 @@ using LanguageExt.TypeClasses;
 
 namespace LanguageExt.Traits;
 
-public static partial class Writer
+public static partial class WriterM
 {
     /// <summary>
     /// Tell is an action that produces the writer output

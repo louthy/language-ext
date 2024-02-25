@@ -1,6 +1,6 @@
 ﻿namespace LanguageExt.Traits;
 
-public static partial class State
+public static partial class StateM
 {
     /// <summary>
     /// Runs the `stateSetter` to update the state-monad's inner state.  Then runs the

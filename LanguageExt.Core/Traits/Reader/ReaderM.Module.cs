@@ -2,7 +2,7 @@
 
 namespace LanguageExt.Traits;
 
-public static partial class Reader
+public static partial class ReaderM
 {
     public static K<M, Env> ask<M, Env>()
         where M : ReaderM<M, Env> =>

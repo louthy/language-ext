@@ -75,7 +75,7 @@ public static partial class Prelude
     /// <param name="ma">IO monad to run in the new context</param>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<OuterRT, A> localEff<OuterRT, InnerRT, A>(Func<OuterRT, InnerRT> f, Eff<InnerRT, A> ma) =>
-        (from irt in State.gets<Eff<OuterRT>, OuterRT, InnerRT>(f)
+        (from irt in StateM.gets<Eff<OuterRT>, OuterRT, InnerRT>(f)
          from eio in Resource.use<Eff<OuterRT>, EnvIO>(envIO.Map(e => e.LocalCancel))
          let ires = ma.RunUnsafe(irt, eio)
          from ___ in Resource.release<Eff<OuterRT>, EnvIO>(eio)

@@ -30,7 +30,7 @@ public record WriterT<W, M, A>(Func<W, K<M, (A Value, W Output)>> runWriter) : K
     /// The inverse of `Run()`
     /// </remarks>
     /// <param name="result">Result / Output pair</param>
-    public WriterT<W, M, A> Writer((A Value, W Output) result) =>
+    public WriterT<W, M, A> Write((A Value, W Output) result) =>
         new(w => M.Pure((result.Value, w.Append(result.Output))));
 
     /// <summary>
@@ -40,7 +40,7 @@ public record WriterT<W, M, A>(Func<W, K<M, (A Value, W Output)>> runWriter) : K
     /// The inverse of `Run()`
     /// </remarks>
     /// <param name="result">Result / Output pair</param>
-    public WriterT<W, M, A> Writer(A value, W output) =>
+    public WriterT<W, M, A> Write(A value, W output) =>
         new(w => M.Pure((value, w.Append(output))));
 
     /// <summary>
@@ -61,7 +61,7 @@ public record WriterT<W, M, A>(Func<W, K<M, (A Value, W Output)>> runWriter) : K
     /// leaving the return value unchanged.
     /// </summary>
     public WriterT<W, M, A> Censor(Func<W, W> f) =>
-        new (w => M.Map(x => (x.Value, f(x.Output)), runWriter(w)));
+        new(w => Run().Map(aw => (aw.Value, w + f(aw.Output)))); 
     
     /// <summary>
     /// Lifts a given monad into the transformer

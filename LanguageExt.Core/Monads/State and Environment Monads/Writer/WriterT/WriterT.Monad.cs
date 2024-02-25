@@ -53,5 +53,5 @@ public partial class WriterT<W, M> :
         new WriterT<W, M, A>(
             w => action.As()
                        .Run()
-                       .Bind(afw => M.Pure((afw.Value.Value, w + afw.Value.Function(afw.Output)))));
+                       .Map(afw => (afw.Value.Value, w + afw.Value.Function(afw.Output))));
 }
