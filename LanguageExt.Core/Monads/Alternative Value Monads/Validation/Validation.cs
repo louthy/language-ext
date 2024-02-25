@@ -932,11 +932,11 @@ public abstract record Validation<F, A> :
     /// </summary>
     /// <typeparam name="L">Left</typeparam>
     /// <typeparam name="R">Right</typeparam>
-    /// <typeparam name="1">Mapped Either type</typeparam>
+    /// <typeparam name="F1">Mapped Either type</typeparam>
     /// <param name="f">Map function</param>
     /// <returns>Mapped Either</returns>
     [Pure]
-    public Validation<F1, A> MapLeft<F1>(Func<F, F1> f)
+    public Validation<F1, A> MapFail<F1>(Func<F, F1> f)
         where F1 : Monoid<F1> =>
         Match(Validation<F1, A>.Success, e => Validation<F1, A>.Fail(f(e)));
 
