@@ -2,13 +2,10 @@
 using System.IO;
 using System.Text;
 using LanguageExt.Sys;
-using System.Threading;
 using FluentAssertions;
 using LanguageExt.Common;
 using LanguageExt.Sys.Test;
-using System.Threading.Tasks;
 using LanguageExt.Sys.Traits;
-using static LanguageExt.Prelude;
 using System.Collections.Generic;
 using static LanguageExt.UnitsOfMeasure;
 
@@ -289,7 +286,7 @@ public static class AffTests
         var buffer = new List<string>();
         var effect = CreateEffect(buffer);
 
-        ignore(effect.Run(EnvIO.New()));
+        effect.RunUnit(EnvIO.New());
 
         buffer.Should().Equal("test\0", "test\0", "test\0", "cancelled");
     }
@@ -315,7 +312,7 @@ public static class AffTests
         var runtime = Runtime.New();
         var effect = CreateEffect<Runtime>();
 
-        ignore(effect.Run(runtime, EnvIO.New()));
+        effect.RunUnit(runtime, EnvIO.New());
 
         runtime.Env.Console.Should().Equal("test\0", "test\0", "test\0", "cancelled");
     }

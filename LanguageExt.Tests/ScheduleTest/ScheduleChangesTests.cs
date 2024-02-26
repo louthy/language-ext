@@ -143,7 +143,7 @@ public class ScheduleChangesTests
     {
         var result1 = Schedule.fibonacci(100).Take(5).Run().ToSeq();
         var result2 = OldSchedule.Fibonacci(100).Take(5).ToSeq();
-        result1.Should().Equal(result2);
+        Assert.True(result1 == result2);
     }
 
     [Fact]

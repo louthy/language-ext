@@ -20,7 +20,7 @@ public static class FSharp
     /// </summary>
     public static FSharpOption<T> fs<T>(Option<T> option) =>
         option.Map(FSharpOption<T>.Some)
-              .IfNoneUnsafe(FSharpOption<T>.None)!;
+              .IfNone(FSharpOption<T>.None)!;
 
     /// <summary>
     /// Convert an F# List into an IEnumerable T
@@ -67,8 +67,8 @@ public static class FSharp
     /// </summary>
     public static FSharpResult<R, L> fs<L, R>(Either<L, R> either) =>
         match(either,
-              r => FSharpResult<R, L>.NewOk(r),
-              l => FSharpResult<R, L>.NewError(l));
+              FSharpResult<R, L>.NewError,
+              FSharpResult<R, L>.NewOk);
 
     /// <summary>
     /// Convert a LanguageExt Option into an F# Option 
@@ -97,6 +97,6 @@ public static class FSharp
     /// </summary>
     public static FSharpResult<R, L> ToFSharp<L, R>(this Either<L, R> either) =>
         match(either,
-              FSharpResult<R, L>.NewOk,
-              FSharpResult<R, L>.NewError);
+              FSharpResult<R, L>.NewError,
+              FSharpResult<R, L>.NewOk);
 }

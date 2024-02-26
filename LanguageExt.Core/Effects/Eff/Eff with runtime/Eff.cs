@@ -1042,6 +1042,16 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     [Pure, MethodImpl(Opt.Default)]
     public Fin<A> Run(RT env, EnvIO envIO) =>
         RunRT(env, envIO).Map(x => x.Value);    
+
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// Returns the result value only 
+    /// </remarks>
+    [MethodImpl(Opt.Default)]
+    public Unit RunUnit(RT env, EnvIO envIO) =>
+        ignore(RunRT(env, envIO).Map(x => x.Value));    
     
     /// <summary>
     /// Invoke the effect

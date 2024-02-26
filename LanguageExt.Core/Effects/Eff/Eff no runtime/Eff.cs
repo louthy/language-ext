@@ -48,6 +48,27 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     public Fin<A> Run() =>
         Run(new MinRT());
 
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    [MethodImpl(Opt.Default)]
+    public Unit RunUnit(MinRT env) =>
+        ignore(effect.Run(env));
+
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    [MethodImpl(Opt.Default)]
+    public Unit RunUnit(EnvIO envIO) =>
+        ignore(Run(new MinRT(envIO)));
+
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    [MethodImpl(Opt.Default)]
+    public Unit RunUnit() =>
+        ignore(Run(new MinRT()));
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Timeout

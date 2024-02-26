@@ -215,6 +215,13 @@ public static partial class Prelude
     //
     //  Lifting
     //
+
+    /// <summary>
+    /// Lift a synchronous effect into the IO monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> liftEff<A>(Func<A> f) =>
+        LanguageExt.Eff<A>.Lift(f);
     
     /// <summary>
     /// Lift a synchronous effect into the IO monad
@@ -235,6 +242,13 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> liftEff<A>(Func<MinRT, Either<Error, A>> f) =>
+        LanguageExt.Eff<A>.Lift(f);
+
+    /// <summary>
+    /// Lift a synchronous effect into the IO monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> liftEff<A>(Func<MinRT, A> f) =>
         LanguageExt.Eff<A>.Lift(f);
 
     /// <summary>

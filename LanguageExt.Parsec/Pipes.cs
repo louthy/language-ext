@@ -19,21 +19,21 @@ public static class ParsecPipes
     /// Pipe tokens to a PString
     /// </summary>
     public static Pipe<A[], PString<A>, Unit> toTokenString<A>(Func<A, Pos>? tokenPos) =>
-        Proxy.awaiting<A[]>().Bind(xs => Proxy.yield(new PString<A>(xs, 0, xs.Length, None, tokenPos ?? (_ => Pos.Zero))));  
-        
+        Proxy.awaiting<A[]>().Bind(xs => Proxy.yield(new PString<A>(xs, 0, xs.Length, None, tokenPos ?? (_ => Pos.Zero))));
+
     /// <summary>
     /// Convert a parser to a pipe that awaits a PString and yields the result of the parse operation
     /// If the parser fails then the pipe fails
     /// </summary>
-    public static Pipe<PString, OUT, M, Unit> ToPipe<M, OUT>(this Parser<OUT> ma) 
-        where M : Monad<M> => 
+    public static Pipe<PString, OUT, M, Unit> ToPipe<M, OUT>(this Parser<OUT> ma)
+        where M : Monad<M> =>
         from t in Pipe.awaiting<M, PString, OUT>()
-        from r in  ma.Parse(t).ToEither().Case switch
-                                         {
-                                             OUT x    => IO.Pure(x),
-                                             string e => IO.Fail<OUT>(Errors.ParseError(e)),
-                                             _        => throw new NotSupportedException()
-                                         }
+        from r in ma.Parse(t).ToEither() switch
+                  {
+                      Either.Right<string, OUT> (var x) => IO.Pure(x),
+                      Either.Left<string, OUT> (var e)  => IO.Fail<OUT>(Errors.ParseError(e)),
+                      _                                 => throw new NotSupportedException()
+                  }
         from _ in Pipe.yield<PString, OUT, M>(r)
         select unit;
 
@@ -43,13 +43,13 @@ public static class ParsecPipes
     /// </summary>
     public static Pipe<PString, OUT, Unit> ToPipe<OUT>(this Parser<OUT> ma) =>
         from t in Proxy.awaiting<PString>()
-        from _ in ma.Parse(t).ToEither().Case switch
+        from _ in ma.Parse(t).ToEither() switch
                   {
-                      OUT x  => Proxy.yield(x),
-                      string => Pure<Unit>(default),
-                      _      => throw new NotSupportedException()
+                      Either.Right<string, OUT> (var x) => Proxy.yield(x),
+                      Either.Left<string, OUT>          => Pure<Unit>(default),
+                      _                                 => throw new NotSupportedException()
                   }
-        select unit;        
+        select unit;
 
     /// <summary>
     /// Convert a parser to a pipe that awaits a string and yields the result of the parse operation
@@ -57,27 +57,27 @@ public static class ParsecPipes
     /// </summary>
     public static Pipe<PString<IN>, OUT, Unit> ToPipe<IN, OUT>(this Parser<IN, OUT> ma) =>
         from t in Proxy.awaiting<PString<IN>>()
-        from _ in ma.Parse(t).ToEither().Case switch
+        from _ in ma.Parse(t).ToEither() switch
                   {
-                      OUT x  => Proxy.yield(x),
-                      string => Pure<Unit>(default),
-                      _      => throw new NotSupportedException()
+                      Either.Right<string, OUT> (var x) => Proxy.yield(x),
+                      Either.Left<string, OUT>          => Pure<Unit>(default),
+                      _                                 => throw new NotSupportedException()
                   }
-        select unit;        
+        select unit;
 
     /// <summary>
     /// Convert a parser to a pipe that awaits a PString and yields the result of the parse operation
     /// If the parser fails then the pipe fails
     /// </summary>
-    public static Pipe<PString<IN>, OUT, M, Unit> ToPipe<M, IN, OUT>(this Parser<IN, OUT> ma) 
+    public static Pipe<PString<IN>, OUT, M, Unit> ToPipe<M, IN, OUT>(this Parser<IN, OUT> ma)
         where M : Monad<M> =>
         from t in Pipe.awaiting<M, PString<IN>, OUT>()
-        from r in ma.Parse(t).ToEither().Case switch
-                                         {
-                                             OUT x    => IO.Pure(x),
-                                             string e => IO.Fail<OUT>(Errors.ParseError(e)),
-                                             _        => throw new NotSupportedException()
-                                         }
+        from r in ma.Parse(t).ToEither() switch
+                  {
+                      Either.Right<string, OUT> (var x) => IO.Pure(x),
+                      Either.Left<string, OUT> (var e)  => IO.Fail<OUT>(Errors.ParseError(e)),
+                      _                                 => throw new NotSupportedException()
+                  }
         from _ in Pipe.yield<PString<IN>, OUT, M>(r)
         select unit;
 }
