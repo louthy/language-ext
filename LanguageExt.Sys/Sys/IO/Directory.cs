@@ -10,7 +10,7 @@ public class Directory<M, RT>
     where M : StateM<M, RT>, Monad<M>
 {
     static readonly K<M, DirectoryIO> trait = 
-        State.getsM<M, RT, DirectoryIO>(e => e.Trait); 
+        StateM.getsM<M, RT, DirectoryIO>(e => e.Trait); 
     
     /// <summary>
     /// Create a directory

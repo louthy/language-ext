@@ -41,10 +41,10 @@ public record Runtime(RuntimeEnv Env) :
         Env.EnvIO;
 
     static K<Eff<Runtime>, A> gets<A>(Func<Runtime, A> f) =>
-        State.gets<Eff<Runtime>, Runtime, A>(f);
+        StateM.gets<Eff<Runtime>, Runtime, A>(f);
     
     static K<Eff<Runtime>, Unit> modify(Func<RuntimeEnv, RuntimeEnv> f) =>
-        State.modify<Eff<Runtime>, Runtime>(rt => rt with { Env = f(rt.Env) } );
+        StateM.modify<Eff<Runtime>, Runtime>(rt => rt with { Env = f(rt.Env) } );
     
     static K<Eff<Runtime>, A> pure<A>(A value) =>
         Eff<Runtime, A>.Pure(value);

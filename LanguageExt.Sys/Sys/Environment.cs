@@ -12,7 +12,7 @@ public static class Environment<M, RT>
     where RT : Has<M, EnvironmentIO>
 {
     static readonly K<M, EnvironmentIO> trait = 
-        State.getsM<M, RT, EnvironmentIO>(e => e.Trait);
+        StateM.getsM<M, RT, EnvironmentIO>(e => e.Trait);
     
     /// <summary>
     /// Gets the command line for this process.

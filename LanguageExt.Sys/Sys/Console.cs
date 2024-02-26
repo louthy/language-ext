@@ -15,7 +15,7 @@ public static class Console<M, RT>
     where RT : Has<M, ConsoleIO>
 {
     static readonly K<M, ConsoleIO> trait = 
-        State.getsM<M, RT, ConsoleIO>(e => e.Trait);
+        StateM.getsM<M, RT, ConsoleIO>(e => e.Trait);
 
     /// <summary>
     /// Read a key from the console

@@ -26,13 +26,13 @@ public class Activity<M, RT>
         Mutates<M, RT, ActivityEnv>
 {
     static readonly K<M, ActivitySourceIO> trait =
-        State.getsM<M, RT, ActivitySourceIO>(e => e.Trait);
+        StateM.getsM<M, RT, ActivitySourceIO>(e => e.Trait);
 
     static K<M, Unit> mutate(Func<ActivityEnv, ActivityEnv> f) =>
-        State.getsM<M, RT, Unit>(e => e.Modify(f));
+        StateM.getsM<M, RT, Unit>(e => e.Modify(f));
 
     static K<M, ActivityEnv> env =>
-        State.getsM<M, RT, ActivityEnv>(e => e.Get);
+        StateM.getsM<M, RT, ActivityEnv>(e => e.Get);
 
     static K<M, Activity?> currentActivity =>
         env.Map(e => e.Activity);
@@ -117,7 +117,7 @@ public class Activity<M, RT>
         DateTimeOffset startTime,
         K<M, TA> operation) =>
         from a in startActivity(name, activityKind, activityTags, activityLinks, startTime)
-        from r in State.bracket<M, RT, TA>(mutate(e => e with { Activity = a }), operation)
+        from r in StateM.bracket<M, RT, TA>(mutate(e => e with { Activity = a }), operation)
         select r;
 
     /// <summary>
@@ -148,7 +148,7 @@ public class Activity<M, RT>
             activityLinks,
             startTime,
             parentContext)
-        from r in State.bracket<M, RT, A>(mutate(e => e with { Activity = a }), operation)
+        from r in StateM.bracket<M, RT, A>(mutate(e => e with { Activity = a }), operation)
         select r;
 
     /// <summary>

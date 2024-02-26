@@ -14,7 +14,7 @@ public static class Time<M, RT>
     where RT : Has<M, TimeIO>
 {
     static readonly K<M, TimeIO> trait = 
-        State.getsM<M, RT, TimeIO>(e => e.Trait);
+        StateM.getsM<M, RT, TimeIO>(e => e.Trait);
 
     /// <summary>
     /// Current local date time

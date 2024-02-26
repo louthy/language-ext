@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using Xunit;
 using System.IO;
 using System.Text;
+using LanguageExt.Sys;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using LanguageExt.Common;
-using LanguageExt.Sys;
 using LanguageExt.Sys.Test;
+using System.Threading.Tasks;
 using LanguageExt.Sys.Traits;
-using Xunit;
 using static LanguageExt.Prelude;
+using System.Collections.Generic;
+using static LanguageExt.UnitsOfMeasure;
 
 namespace LanguageExt.Tests.ScheduleTest;
 
@@ -18,254 +19,254 @@ public static class AffTests
     static Schedule TestSchedule() => Schedule.fixedInterval(1 * ms) | Schedule.NoDelayOnFirst | Schedule.recurs(5);
 
     [Fact]
-    public static async Task BailBeforeScheduleTest1()
+    public static void BailBeforeScheduleTest1()
     {
         const int counter = 0;
-        var effect = FailAff<int>("Failed");
-        var result = await effect.Repeat(TestSchedule()).Run();
+        var       effect  = FailEff<int>("Failed");
+        var       result  = effect.Repeat(TestSchedule()).Run();
         counter.Should().Be(0);
-        result.Case.Should().Be(Error.New("Failed"));
+        result.AssertFail(Error.New("Failed"));
     }
 
     [Fact]
-    public static async Task BailBeforeScheduleTest2()
+    public static void BailBeforeScheduleTest2()
     {
         const int counter = 0;
-        var effect = FailAff<Runtime, int>("Failed");
-        var result = await effect.Repeat(TestSchedule()).Run(Runtime.New());
+        var       effect  = FailEff<Runtime, int>("Failed");
+        var       result  = effect.Repeat(TestSchedule()).Run(Runtime.New(), EnvIO.New());
         counter.Should().Be(0);
-        result.Case.Should().Be(Error.New("Failed"));
+        result.AssertFail(Error.New("Failed"));
     }
 
     [Fact]
-    public static async Task RepeatTest1()
+    public static void RepeatTest1()
     {
         var counter = 0;
-        var effect = AffMaybe<int>(async () => await (++counter).AsValueTask());
-        var result = await effect.Repeat(TestSchedule()).Run();
-        counter.Should().Be(6);
-        result.Case.Should().Be(6);
+        var effect = liftEff(async () => await (++counter).AsValueTask());
+        var result = effect.Repeat(TestSchedule()).Run();
+        Assert.True(counter == 6);
+        result.AssertSucc(6);
     }
 
     [Fact]
-    public static async Task RepeatTest2()
+    public static void RepeatTest2()
     {
         var counter = 0;
-        var effect = AffMaybe<Runtime, int>(async _ => await (++counter).AsValueTask());
-        var result = await effect.Repeat(TestSchedule()).Run(Runtime.New());
-        counter.Should().Be(6);
-        result.Case.Should().Be(6);
+        var effect = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask());
+        var result = effect.Repeat(TestSchedule()).Run(Runtime.New(), EnvIO.New());
+        Assert.True(counter == 6);
+        result.AssertSucc(6);
     }
 
     [Fact]
-    public static async Task RetryTest1()
+    public static void RetryTest1()
     {
         var counter = 0;
-        var effect = AffMaybe<int>(
+        var effect = liftEff<int>(
             async () =>
             {
                 await (++counter).AsValueTask();
                 return Error.New("Failed");
             });
-        var result = await effect.Retry(TestSchedule()).Run();
+        var result = effect.Retry(TestSchedule()).Run();
         counter.Should().Be(6);
-        result.Case.Should().Be(Error.New("Failed"));
+        result.AssertFail(Error.New("Failed"));
     }
 
     [Fact]
-    public static async Task RetryTest2()
+    public static void RetryTest2()
     {
         var counter = 0;
-        var effect = AffMaybe<Runtime, int>(
+        var effect = liftEff<Runtime, int>(
             async _ =>
             {
                 await (++counter).AsValueTask();
                 return Error.New("Failed");
             });
-        var result = await effect.Retry(TestSchedule()).Run(Runtime.New());
+        var result = effect.Retry(TestSchedule()).Run(Runtime.New(), EnvIO.New());
         counter.Should().Be(6);
-        result.Case.Should().Be(Error.New("Failed"));
+        result.AssertFail(Error.New("Failed"));
     }
 
     [Fact]
-    public static async Task RepeatWhileTest1()
+    public static void RepeatWhileTest1()
     {
         var counter = 0;
-        var effect = AffMaybe<int>(async () => await (++counter).AsValueTask());
-        var result = await effect.RepeatWhile(TestSchedule(), static i => i < 3).Run();
+        var effect = liftEff<int>(async () => await (++counter).AsValueTask());
+        var result = effect.RepeatWhile(TestSchedule(), static i => i < 3).Run();
         counter.Should().Be(3);
-        result.Case.Should().Be(3);
+        result.AssertSucc(3);
     }
 
     [Fact]
-    public static async Task RepeatWhileTest2()
+    public static void RepeatWhileTest2()
     {
         var counter = 0;
-        var effect = AffMaybe<Runtime, int>(async _ => await (++counter).AsValueTask());
-        var result = await effect.RepeatWhile(TestSchedule(), static i => i < 3).Run(Runtime.New());
+        var effect = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask());
+        var result = effect.RepeatWhile(TestSchedule(), static i => i < 3).Run(Runtime.New(), EnvIO.New());
         counter.Should().Be(3);
-        result.Case.Should().Be(3);
+        result.AssertSucc(3);
     }
 
     [Fact]
-    public static async Task RetryWhileTest1()
+    public static void RetryWhileTest1()
     {
         var counter = 0;
-        var effect = AffMaybe<int>(
+        var effect = liftEff<int>(
             async () =>
             {
                 await (++counter).AsValueTask();
                 return Error.New(counter.ToString());
             });
-        var result = await effect.RetryWhile(TestSchedule(), static e => (int)parseInt(e.Message) < 3).Run();
+        var result = effect.RetryWhile(TestSchedule(), static e => (int)parseInt(e.Message) < 3).Run();
         counter.Should().Be(3);
-        result.Case.Should().Be(Error.New("3"));
+        result.AssertFail(Error.New("3"));
     }
 
     [Fact]
-    public static async Task RetryWhileTest2()
+    public static void RetryWhileTest2()
     {
         var counter = 0;
-        var effect = AffMaybe<Runtime, int>(
+        var effect = liftEff<Runtime, int>(
             async _ =>
             {
                 await (++counter).AsValueTask();
                 return Error.New(counter.ToString());
             });
-        var result = await effect.RetryWhile(TestSchedule(), static e => (int)parseInt(e.Message) < 3)
-            .Run(Runtime.New());
+        var result = effect.RetryWhile(TestSchedule(), static e => (int)parseInt(e.Message) < 3)
+            .Run(Runtime.New(), EnvIO.New());
         counter.Should().Be(3);
-        result.Case.Should().Be(Error.New("3"));
+        result.AssertFail(Error.New("3"));
     }
 
     [Fact]
-    public static async Task RepeatUntilTest1()
+    public static void RepeatUntilTest1()
     {
         var counter = 0;
-        var effect = AffMaybe<int>(async () => await (++counter).AsValueTask());
-        var result = await effect.RepeatUntil(static i => i == 10).Run();
+        var effect = liftEff<int>(async () => await (++counter).AsValueTask());
+        var result = effect.RepeatUntil(static i => i == 10).Run();
         counter.Should().Be(10);
-        result.Case.Should().Be(10);
+        result.AssertSucc(10);
     }
 
     [Fact]
-    public static async Task RepeatUntilTest2()
+    public static void RepeatUntilTest2()
     {
         var counter = 0;
-        var effect = AffMaybe<Runtime, int>(async _ => await (++counter).AsValueTask());
-        var result = await effect.RepeatUntil(static i => i == 10).Run(Runtime.New());
+        var effect = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask());
+        var result = effect.RepeatUntil(static i => i == 10).Run(Runtime.New(), EnvIO.New());
         counter.Should().Be(10);
-        result.Case.Should().Be(10);
+        result.AssertSucc(10);
     }
 
     [Fact]
-    public static async Task RetryUntilTest1()
+    public static void RetryUntilTest1()
     {
         var counter = 0;
-        var effect = AffMaybe<int>(
+        var effect = liftEff<int>(
             async () =>
             {
                 await (++counter).AsValueTask();
                 return Error.New(counter.ToString());
             });
-        var result = await effect.RetryUntil(static e => (int)parseInt(e.Message) == 10).Run();
+        var result = effect.RetryUntil(static e => (int)parseInt(e.Message) == 10).Run();
         counter.Should().Be(10);
-        result.Case.Should().Be(Error.New("10"));
+        result.AssertFail(Error.New("10"));
     }
 
     [Fact]
-    public static async Task RetryUntilTest2()
+    public static void RetryUntilTest2()
     {
         var counter = 0;
-        var effect = AffMaybe<Runtime, int>(
+        var effect = liftEff<Runtime, int>(
             async _ =>
             {
                 await (++counter).AsValueTask();
                 return Error.New(counter.ToString());
             });
-        var result = await effect.RetryUntil(static e => (int)parseInt(e.Message) == 10).Run(Runtime.New());
+        var result = effect.RetryUntil(static e => (int)parseInt(e.Message) == 10).Run(Runtime.New(), EnvIO.New());
         counter.Should().Be(10);
-        result.Case.Should().Be(Error.New("10"));
+        result.AssertFail(Error.New("10"));
     }
 
     [Fact]
-    public static async Task FoldTest1()
+    public static void FoldTest1()
     {
         var counter = 0;
-        var effect = AffMaybe<int>(async () => await (++counter).AsValueTask());
-        var result = (await effect.Fold(TestSchedule(), 1, (i, j) => i + j).Run()).ThrowIfFail();
+        var effect = liftEff(async () => await (++counter).AsValueTask());
+        var result = effect.Fold(TestSchedule(), 1, (i, j) => i + j).Run();
         counter.Should().Be(6);
-        result.Should().Be(22);
+        result.AssertSucc(22);
     }
 
     [Fact]
-    public static async Task FoldTest2()
+    public static void FoldTest2()
     {
         var counter = 0;
-        var effect = AffMaybe<Runtime, int>(async _ => await (++counter).AsValueTask());
-        var result = (await effect.Fold(TestSchedule(), 1, (i, j) => i + j).Run(Runtime.New())).ThrowIfFail();
+        var effect = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask());
+        var result = effect.Fold(TestSchedule(), 1, (i, j) => i + j).Run(Runtime.New(), EnvIO.New());
         counter.Should().Be(6);
-        result.Should().Be(22);
+        result.AssertSucc(22);
     }
 
     [Fact]
-    public static async Task FoldWhileTest1()
+    public static void FoldWhileTest1()
     {
         var counter = 0;
-        var effect = AffMaybe<int>(async () => await (++counter).AsValueTask());
-        var result = (await effect.FoldWhile(TestSchedule(), 1, (i, j) => i + j, i => i < 3).Run()).ThrowIfFail();
+        var effect = liftEff(async () => await (++counter).AsValueTask());
+        var result = effect.FoldWhile(TestSchedule(), 1, (i, j) => i + j, valueIs: i => i < 3).Run();
         counter.Should().Be(3);
-        result.Should().Be(7);
+        result.AssertSucc(7);
     }
 
     [Fact]
-    public static async Task FoldWhileTest2()
+    public static void FoldWhileTest2()
     {
         var counter = 0;
-        var effect = AffMaybe<Runtime, int>(async _ => await (++counter).AsValueTask());
-        var result = (await effect.FoldWhile(TestSchedule(), 1, (i, j) => i + j, i => i < 3).Run(Runtime.New()))
-            .ThrowIfFail();
+        var effect  = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask());
+        var result  = effect.FoldWhile(TestSchedule(), 1, (i, j) => i + j, valueIs: i => i < 3).Run(Runtime.New(), EnvIO.New());
         counter.Should().Be(3);
-        result.Should().Be(7);
+        result.AssertSucc(7);
     }
 
     [Fact]
-    public static async Task FoldUntilTest1()
+    public static void FoldUntilTest1()
     {
         var counter = 0;
-        var effect = AffMaybe<int>(async () => await (++counter).AsValueTask());
-        var result = (await effect.FoldUntil(TestSchedule(), 1, (i, j) => i + j, i => i > 4).Run()).ThrowIfFail();
+        var effect = liftEff(async () => await (++counter).AsValueTask());
+        var result = effect.FoldUntil(TestSchedule(), 1, (i, j) => i + j, valueIs: i => i > 4).Run();
         counter.Should().Be(5);
-        result.Should().Be(16);
+        result.AssertSucc(16);
     }
 
     [Fact]
-    public static async Task FoldUntilTest2()
+    public static void FoldUntilTest2()
     {
         var counter = 0;
-        var effect = AffMaybe<Runtime, int>(async _ => await (++counter).AsValueTask());
-        var result = (await effect.FoldUntil(TestSchedule(), 1, (i, j) => i + j, i => i > 4).Run(Runtime.New()))
-            .ThrowIfFail();
+        var effect = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask());
+        
+        var result = effect.FoldUntil(TestSchedule(), 1, (i, j) => i + j, valueIs: i => i > 4)
+                           .Run(Runtime.New(), EnvIO.New());
+        
         counter.Should().Be(5);
-        result.Should().Be(16);
+        result.AssertSucc(16);
     }
 
     [Fact]
-    public static async Task CancelTest()
+    public static void CancelTest()
     {
         var counter = 0;
-        var cts = new CancellationTokenSource();
-        var runtime = Runtime.New(cts);
-        var effect = AffMaybe<Runtime, int>(async _ => await (++counter).AsValueTask()).Repeat(Schedule.Forever);
-        cts.Cancel();
-        var result = await effect.Run(runtime);
+        var envIO   = EnvIO.New();
+        var runtime = Runtime.New();
+        var effect  = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask()).Repeat(Schedule.Forever);
+        envIO.Source.Cancel();
+        var result = effect.Run(runtime, envIO);
         counter.Should().Be(1);
-        result.IsSucc.Should().BeTrue();
-        result.Case.Should().Be(1);
+        result.AssertSucc(1);
     }
     
     [Fact(DisplayName = "Schedule Run against Aff<T> should not capture state")]
-    public static async Task ShouldNotCaptureState1Test()
+    public static void ShouldNotCaptureState1Test()
     {
         var content = Encoding.ASCII.GetBytes("test\0test\0test\0");
         var memStream = new MemoryStream(100);
@@ -273,48 +274,48 @@ public static class AffTests
         memStream.Seek(0, SeekOrigin.Begin);
 
         Eff<Unit> AddToBuffer(ICollection<string> buffer, string value) =>
-            Eff(() => { buffer.Add(value); return unit; });
+            lift(() => { buffer.Add(value); return unit; });
 
-        Aff<Unit> CreateEffect(ICollection<string> buffer) =>
+        Eff<Unit> CreateEffect(ICollection<string> buffer) =>
             repeat(
                 from ln in (
-                    from data in Aff(() => memStream.ReadByte().AsValueTask())
+                    from data in liftEff(() => memStream.ReadByte().AsValueTask())
                     from _ in guard(data != -1, Errors.Cancelled)
                     select data).FoldUntil(string.Empty, (s, ch) => s + (char)ch, ch => ch == '\0')
                 from _0 in AddToBuffer(buffer,ln)
                 select unit)
-            | @catch(exception => AddToBuffer(buffer,exception.Message));
+            | @catchM(error => AddToBuffer(buffer,error.Message));
 
         var buffer = new List<string>();
         var effect = CreateEffect(buffer);
 
-        await effect.RunUnit();
+        ignore(effect.Run(EnvIO.New()));
 
         buffer.Should().Equal("test\0", "test\0", "test\0", "cancelled");
     }
 
     [Fact(DisplayName = "Schedule Run against Aff<RT,T> should not capture state")]
-    public static async Task ShouldNotCaptureState2Test()
+    public static void ShouldNotCaptureState2Test()
     {
         var content = Encoding.ASCII.GetBytes("test\0test\0test\0");
         var memStream = new MemoryStream(100);
         memStream.Write(content, 0, content.Length);
         memStream.Seek(0, SeekOrigin.Begin);
 
-        Aff<RT, Unit> CreateEffect<RT>() where RT : HasConsole<RT> =>
+        Eff<RT, Unit> CreateEffect<RT>() where RT : Has<Eff<RT>, ConsoleIO> =>
             repeat(
                 from ln in (
-                    from data in Aff(() => memStream.ReadByte().AsValueTask())
+                    from data in liftEff(() => memStream.ReadByte().AsValueTask())
                     from _ in guard(data != -1, Errors.Cancelled)
                     select data).FoldUntil(string.Empty, (s, ch) => s + (char)ch, ch => ch == '\0')
-                from _0 in Console<RT>.writeLine(ln)
+                from _0 in Console<Eff<RT>, RT>.writeLine(ln)
                 select unit)
-            | @catch(exception => Console<RT>.writeLine(exception.Message));
+            | @catchM(error => Console<Eff<RT>, RT>.writeLine(error.Message));
 
         var runtime = Runtime.New();
         var effect = CreateEffect<Runtime>();
 
-        await effect.RunUnit(runtime);
+        ignore(effect.Run(runtime, EnvIO.New()));
 
         runtime.Env.Console.Should().Equal("test\0", "test\0", "test\0", "cancelled");
     }

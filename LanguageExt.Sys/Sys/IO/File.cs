@@ -17,7 +17,7 @@ public class File<M, RT>
     where RT : Has<M, FileIO>, Has<M, EncodingIO>
 {
     static readonly K<M, FileIO> trait = 
-        State.getsM<M, RT, FileIO>(e => (e as Has<M, FileIO>).Trait); 
+        StateM.getsM<M, RT, FileIO>(e => (e as Has<M, FileIO>).Trait); 
     
     /// <summary>
     /// Copy file 

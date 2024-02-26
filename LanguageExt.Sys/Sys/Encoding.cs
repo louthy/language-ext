@@ -8,7 +8,7 @@ public static class Enc<M, RT>
     where RT : Has<M, EncodingIO>
 {
     static readonly K<M, EncodingIO> trait = 
-        State.getsM<M, RT, EncodingIO>(e => e.Trait);
+        StateM.getsM<M, RT, EncodingIO>(e => e.Trait);
 
     /// <summary>
     /// Encoding
