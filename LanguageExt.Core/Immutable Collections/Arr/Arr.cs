@@ -7,7 +7,6 @@ using static LanguageExt.Prelude;
 using LanguageExt.Traits;
 using LanguageExt.ClassInstances;
 using System.Runtime.CompilerServices;
-using LanguageExt.Traits;
 
 namespace LanguageExt;
 

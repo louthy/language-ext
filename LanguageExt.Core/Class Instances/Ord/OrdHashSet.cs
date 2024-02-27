@@ -35,19 +35,16 @@ public struct OrdHashSet<OrdA, A> : Ord<HashSet<A>>
     {
         if (x.Count > y.Count) return 1;
         if (x.Count < y.Count) return -1;
-        var sa = toSet<A>(x);
-        var sb = toSet<A>(y);
-        using (var iterA = sa.GetEnumerator())
+        var       sa    = toSet(x);
+        var       sb    = toSet(y);
+        using var iterA = sa.GetEnumerator();
+        using var iterB = sb.GetEnumerator();
+        while (iterA.MoveNext() && iterB.MoveNext())
         {
-            using (var iterB = sb.GetEnumerator())
-            {
-                while (iterA.MoveNext() && iterB.MoveNext())
-                {
-                    var cmp = OrdA.Compare(iterA.Current, iterB.Current);
-                    if (cmp != 0) return cmp;
-                }
-            }
+            var cmp = OrdA.Compare(iterA.Current, iterB.Current);
+            if (cmp != 0) return cmp;
         }
+
         return 0;
     }
 

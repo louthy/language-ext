@@ -78,7 +78,7 @@ public record VectorClock<A>(Seq<(A, long)> Entries)
     /// A vector clock with a single element
     /// </summary>
     public static VectorClock<A> Single(A x, long y) =>
-        fromList(Seq1((x, y)));
+        fromList(Seq((x, y)));
 
     /// <summary>
     /// Insert each entry in the list one at a time.
@@ -151,7 +151,7 @@ public record VectorClock<A>(Seq<(A, long)> Entries)
     /// Delete
     /// </summary>
     public VectorClock<A> Remove(A index) =>
-        new VectorClock<A>(Entries.Filter(e => !equals<OrdDefault<A>, A>(e.Item1, index)).ToSeq());
+        new (Entries.Filter(e => !equals<OrdDefault<A>, A>(e.Item1, index)).ToSeq());
 
     /// <summary>
     /// Insert or replace the entry for a key.
@@ -162,7 +162,7 @@ public record VectorClock<A>(Seq<(A, long)> Entries)
 
         Seq<(A, long)> go(Seq<(A, long)> entries) =>
             entries.IsEmpty
-                ? Seq1((index, value))
+                ? Seq((index, value))
                 : entries.Head switch
                   {
                       (var x1, _) xy when lessThan<OrdDefault<A>, A>(x1, index) => xy.Cons(go(entries.Tail)),

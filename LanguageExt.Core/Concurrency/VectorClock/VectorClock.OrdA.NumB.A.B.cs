@@ -83,7 +83,7 @@ public record VectorClock<OrdA, NumB, A, B>(Seq<(A, B)> Entries)
     /// A vector clock with a single element
     /// </summary>
     public static VectorClock<OrdA, NumB, A, B> Single(A x, B y) =>
-        fromList(Seq1((x, y)));
+        fromList(Seq((x, y)));
 
     /// <summary>
     /// Insert each entry in the list one at a time.
@@ -168,7 +168,7 @@ public record VectorClock<OrdA, NumB, A, B>(Seq<(A, B)> Entries)
 
         Seq<(A, B)> go(Seq<(A, B)> entries) =>
             entries.IsEmpty
-                ? Seq1((index, value))
+                ? Seq((index, value))
                 : entries.Head switch
                   {
                       (var x1, _) xy when lessThan<OrdA, A>(x1, index) => xy.Cons(go(entries.Tail)),

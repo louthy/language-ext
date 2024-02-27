@@ -1,8 +1,5 @@
-﻿using LanguageExt.Traits;
-using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
+﻿using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
-using static LanguageExt.Trait;
 
 namespace LanguageExt.ClassInstances;
 

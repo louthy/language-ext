@@ -2,9 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using LanguageExt;
 using static LanguageExt.Prelude;
-using LanguageExt.Traits;
 
 namespace LanguageExt;
 
