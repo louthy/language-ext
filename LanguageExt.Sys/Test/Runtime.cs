@@ -22,9 +22,15 @@ public record Runtime(RuntimeEnv Env) :
     /// <summary>
     /// Constructor function
     /// </summary>
+    public static Runtime New() =>
+        new(RuntimeEnv.Default);
+    /// <summary>
+    /// Constructor function
+    /// </summary>
     /// <param name="env">Data environment for the runtime.  Call `RuntimeEnv.Default with { ... }` to modify</param>
     public static Runtime New(RuntimeEnv env) =>
         new(env);
+
 
     /// <summary>
     /// Get encoding

@@ -1,42 +1,39 @@
-using LanguageExt.Common;
 using Xunit;
-using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.OptionT.Collections
+namespace LanguageExt.Tests.Transformer.Traverse.OptionT.Collections;
+
+public class ArrOption
 {
-    public class ArrOption
+    [Fact]
+    public void EmptyArrIsSomeEmptyArr()
     {
-        [Fact]
-        public void EmptyArrIsSomeEmptyArr()
-        {
-            Arr<Option<int>> ma = Empty;
+        Arr<Option<int>> ma = Empty;
 
-            var mb = ma.Traverse(mx => mx).As();
+        var mb = ma.Traverse(mx => mx).As();
 
 
-            Assert.True(mb == Some(Arr<int>.Empty));
-        }
+        Assert.True(mb == Some(Arr<int>.Empty));
+    }
         
-        [Fact]
-        public void ArrSomesIsSomeArrs()
-        {
-            var ma = Array(Some(1), Some(2), Some(3));
+    [Fact]
+    public void ArrSomesIsSomeArrs()
+    {
+        var ma = Array(Some(1), Some(2), Some(3));
 
-            var mb = ma.Traverse(mx => mx).As();
+        var mb = ma.Traverse(mx => mx).As();
 
 
-            Assert.True(mb == Some(Array(1, 2, 3)));
-        }
+        Assert.True(mb == Some(Array(1, 2, 3)));
+    }
         
-        [Fact]
-        public void ArrSomeAndNoneIsNone()
-        {
-            var ma = Array(Some(1), Some(2), None);
+    [Fact]
+    public void ArrSomeAndNoneIsNone()
+    {
+        var ma = Array(Some(1), Some(2), None);
 
-            var mb = ma.Traverse(mx => mx).As();
+        var mb = ma.Traverse(mx => mx).As();
 
 
-            Assert.True(mb == None);
-        }
+        Assert.True(mb == None);
     }
 }

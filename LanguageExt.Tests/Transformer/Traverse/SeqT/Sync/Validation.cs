@@ -1,43 +1,40 @@
-using System;
 using LanguageExt.Common;
 using Xunit;
-using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
+namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync;
+
+public class ValidationSeq
 {
-    public class ValidationSeq
+    [Fact]
+    public void FailIsSingletonFail()
     {
-        [Fact]
-        public void FailIsSingletonFail()
-        {
-            var ma = Fail<Error, Seq<int>>(Error.New("alt"));
-            var mb = ma.Traverse(mx => mx).As();
+        var ma = Fail<Error, Seq<int>>(Error.New("alt"));
+        var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Seq1(Fail<Error, int>(Error.New("alt")));
+        var mc = Seq(Fail<Error, int>(Error.New("alt")));
 
-            Assert.True(mb == mc);
-        }
+        Assert.True(mb == mc);
+    }
 
-        [Fact]
-        public void SuccessEmptyIsEmpty()
-        {
-            var ma = Success<Error, Seq<int>>(Empty);
-            var mb = ma.Traverse(mx => mx).As();
+    [Fact]
+    public void SuccessEmptyIsEmpty()
+    {
+        var ma = Success<Error, Seq<int>>(Empty);
+        var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Seq<Validation<Error, int>>();
+        var mc = Seq<Validation<Error, int>>();
 
-            Assert.True(mb == mc);
-        }
+        Assert.True(mb == mc);
+    }
 
-        [Fact]
-        public void SuccessNonEmptySeqIsSeqSuccesses()
-        {
-            var ma = Success<Error, Seq<int>>(Seq(1, 2, 3, 4));
-            var mb = ma.Traverse(mx => mx).As();
+    [Fact]
+    public void SuccessNonEmptySeqIsSeqSuccesses()
+    {
+        var ma = Success<Error, Seq<int>>(Seq(1, 2, 3, 4));
+        var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Seq(Success<Error, int>(1), Success<Error, int>(2), Success<Error, int>(3), Success<Error, int>(4));
+        var mc = Seq(Success<Error, int>(1), Success<Error, int>(2), Success<Error, int>(3), Success<Error, int>(4));
 
-            Assert.True(mb == mc);
-        }
+        Assert.True(mb == mc);
     }
 }

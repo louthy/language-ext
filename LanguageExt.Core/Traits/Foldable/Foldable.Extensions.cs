@@ -135,7 +135,7 @@ public static partial class Foldable
     /// accumulator.  Use this method for strict reduction when partial
     /// results are merged via `Append`.
     /// </summary>
-    public static B foldMapBack<T, A, B>(this K<T, A> ta, Func<A, B> f)
+    public static B FoldMapBack<T, A, B>(this K<T, A> ta, Func<A, B> f)
         where B : Monoid<B>
         where T : Foldable<T> =>
         T.FoldBack((x, a) => x.Append(f(a)), B.Empty, ta);
