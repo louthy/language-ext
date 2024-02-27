@@ -3,7 +3,7 @@ using System.Numerics;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.Core;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Traits;
@@ -246,7 +246,7 @@ public static partial class Foldable
     /// than via element-by-element counting, should provide a specialised
     /// implementation.
     /// </summary>
-    public static int Count<T, A>(this K<T, A> ta)
+    public static int Length<T, A>(this K<T, A> ta)
         where T : Foldable<T> =>
         T.FoldBack((c, _) => c + 1, 0, ta);
 

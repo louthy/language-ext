@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using LanguageExt;
 using static LanguageExt.Prelude;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 

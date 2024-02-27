@@ -1,5 +1,5 @@
 ﻿using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

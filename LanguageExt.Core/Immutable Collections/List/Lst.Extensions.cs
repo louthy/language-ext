@@ -7,7 +7,7 @@ using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Text;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
 

@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
 using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using Sasa.Collections;
 
 namespace LanguageExt.Benchmarks

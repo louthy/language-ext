@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using System.Runtime.CompilerServices;
 
 namespace LanguageExt;

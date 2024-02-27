@@ -1,5 +1,5 @@
 ﻿using LanguageExt;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 
 public static class CompositionsExt
 {

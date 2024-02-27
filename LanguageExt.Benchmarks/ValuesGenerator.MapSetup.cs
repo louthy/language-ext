@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using Sasa.Collections;
 using static LanguageExt.Prelude;
 

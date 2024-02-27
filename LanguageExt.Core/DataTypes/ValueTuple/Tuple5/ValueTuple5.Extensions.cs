@@ -1,7 +1,7 @@
 ﻿using System;
 using LanguageExt;
 using System.Diagnostics.Contracts;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 
 public static class ValueTuple5Extensions
 {

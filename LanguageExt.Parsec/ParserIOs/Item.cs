@@ -3,7 +3,7 @@ using static LanguageExt.Parsec.ParserResultIO;
 using static LanguageExt.Parsec.InternalIO;
 using static LanguageExt.Parsec.PrimIO;
 using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 
 namespace LanguageExt.Parsec
 {

@@ -1,5 +1,5 @@
 ﻿using System;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using LanguageExt.ClassInstances.Pred;
 using System.Diagnostics.Contracts;
 using System.Runtime.Serialization;

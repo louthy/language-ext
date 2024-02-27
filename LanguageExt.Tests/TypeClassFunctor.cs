@@ -1,6 +1,6 @@
 ﻿using Xunit;
 using System.Linq;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;

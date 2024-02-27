@@ -3,7 +3,7 @@ using static LanguageExt.Prelude;
 using Xunit;
 using System;
 using LanguageExt.ClassInstances.Const;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 
 namespace LanguageExt.Tests
 {

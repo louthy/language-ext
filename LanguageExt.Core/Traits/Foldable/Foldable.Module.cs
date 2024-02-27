@@ -2,7 +2,7 @@ using System;
 using System.Numerics;
 using LanguageExt.ClassInstances;
 using LanguageExt.Core;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Traits;

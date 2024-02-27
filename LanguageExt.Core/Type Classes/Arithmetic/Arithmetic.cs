@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.Contracts;
 using LanguageExt.Attributes;
 
-namespace LanguageExt.TypeClasses;
+namespace LanguageExt.Traits;
 
 [Trait("Num*")]
 public interface Arithmetic<A> : Trait

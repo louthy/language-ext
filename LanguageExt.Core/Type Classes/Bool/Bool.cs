@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.Contracts;
 using LanguageExt.Attributes;
 
-namespace LanguageExt.TypeClasses;
+namespace LanguageExt.Traits;
 
 /// <summary>
 /// Trait for things that have true and false values.

@@ -1,3 +1,3 @@
-﻿namespace LanguageExt.TypeClasses;
+﻿namespace LanguageExt.Traits;
 
 public interface Trait;

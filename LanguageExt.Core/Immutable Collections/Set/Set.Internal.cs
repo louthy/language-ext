@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 

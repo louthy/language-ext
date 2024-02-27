@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.Contracts;
 using LanguageExt.Attributes;
 
-namespace LanguageExt.TypeClasses;
+namespace LanguageExt.Traits;
 
 /// <summary>
 /// Numerical value trait

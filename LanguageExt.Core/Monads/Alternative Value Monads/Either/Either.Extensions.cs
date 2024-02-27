@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 

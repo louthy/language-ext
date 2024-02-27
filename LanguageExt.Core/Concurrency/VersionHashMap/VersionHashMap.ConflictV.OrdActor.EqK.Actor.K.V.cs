@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 using System.Collections;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances;
 using System.Collections.Generic;

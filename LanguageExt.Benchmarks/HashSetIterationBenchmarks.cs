@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
 using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 
 namespace LanguageExt.Benchmarks
 {

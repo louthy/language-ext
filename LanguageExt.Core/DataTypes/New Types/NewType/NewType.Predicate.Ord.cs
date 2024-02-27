@@ -1,7 +1,7 @@
 ﻿using System;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using System.Runtime.Serialization;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;

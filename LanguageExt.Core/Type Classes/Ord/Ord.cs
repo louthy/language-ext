@@ -1,7 +1,7 @@
 ﻿using LanguageExt.Attributes;
 using System.Diagnostics.Contracts;
 
-namespace LanguageExt.TypeClasses;
+namespace LanguageExt.Traits;
 
 [Trait("Ord*")]
 public interface Ord<A> : Eq<A> 

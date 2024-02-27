@@ -1,7 +1,7 @@
 using System;
 using System.Numerics;
 using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 
 namespace LanguageExt.Traits;
 

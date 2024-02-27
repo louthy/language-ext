@@ -6,7 +6,7 @@ using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances.Pred;
 using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
 

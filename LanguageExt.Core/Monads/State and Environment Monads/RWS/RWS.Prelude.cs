@@ -1,7 +1,7 @@
 ﻿/*
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using System;
 using System.Diagnostics.Contracts;
 

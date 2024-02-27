@@ -2,7 +2,7 @@
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using LanguageExt.Traits;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 

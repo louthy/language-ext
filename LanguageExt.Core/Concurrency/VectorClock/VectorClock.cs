@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using static LanguageExt.Trait;
 using static LanguageExt.Prelude;
 

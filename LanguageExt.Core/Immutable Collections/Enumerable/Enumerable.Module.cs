@@ -7,7 +7,7 @@ using static LanguageExt.Trait;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Numerics;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using LanguageExt.ClassInstances;
 using System.Runtime.CompilerServices;
 

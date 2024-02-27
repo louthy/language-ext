@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
 //using LanguageExt.Trans;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
 using static LanguageExt.List;

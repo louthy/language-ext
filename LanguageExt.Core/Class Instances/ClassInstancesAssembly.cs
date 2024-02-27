@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using System.Linq;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 using System;
 using System.Collections.Generic;
@@ -84,7 +84,7 @@ namespace LanguageExt.ClassInstances
                 
                 Debug.WriteLine($"Structs found: {Structs.Count}");
                 
-                AllClassInstances = Structs.Filter(t => t.GetTypeInfo().ImplementedInterfaces.Exists(i => i == typeof(TypeClasses.Trait))).ToList();
+                AllClassInstances = Structs.Filter(t => t.GetTypeInfo().ImplementedInterfaces.Exists(i => i == typeof(Traits.Trait))).ToList();
 
                 Debug.WriteLine($"AllClassInstances found: {AllClassInstances.Count}");
                 
@@ -92,7 +92,7 @@ namespace LanguageExt.ClassInstances
                 foreach (var ci in AllClassInstances ?? [])
                 {
                     var typeClasses = ci.GetTypeInfo().ImplementedInterfaces
-                        .Filter(i => typeof(TypeClasses.Trait).GetTypeInfo().IsAssignableFrom(i.GetTypeInfo()))
+                        .Filter(i => typeof(Traits.Trait).GetTypeInfo().IsAssignableFrom(i.GetTypeInfo()))
                         .ToList();
 
                     foreach (var typeClass in typeClasses)

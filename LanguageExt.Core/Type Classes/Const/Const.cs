@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using LanguageExt.Attributes;
 
-namespace LanguageExt.TypeClasses;
+namespace LanguageExt.Traits;
 
 /// <summary>
 /// Constant value trait

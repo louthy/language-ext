@@ -1,5 +1,5 @@
 ﻿using static LanguageExt.Prelude;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using System;
 using System.Linq;
 using System.Collections.Generic;

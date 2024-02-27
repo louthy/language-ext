@@ -1,5 +1,5 @@
 ﻿/*
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Trait;
 

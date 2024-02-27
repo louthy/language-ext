@@ -1,6 +1,6 @@
 ﻿using Xunit;
 using System;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using LanguageExt.ClassInstances;
 
 namespace LanguageExt.Tests;

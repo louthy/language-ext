@@ -3,7 +3,7 @@ using System;
 using System.Diagnostics.Contracts;
 using LanguageExt.Attributes;
 
-namespace LanguageExt.TypeClasses;
+namespace LanguageExt.Traits;
 
 [Trait("Opt*")]
 public interface Optional<OA, A> : Trait

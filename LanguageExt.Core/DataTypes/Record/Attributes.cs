@@ -21,9 +21,9 @@ public class EqAttribute : Attribute
     {
         if (!type.GetTypeInfo()
                  .ImplementedInterfaces
-                 .Exists(i => i.ToString().StartsWith("LanguageExt.TypeClasses.Eq`1")))
+                 .Exists(i => i.ToString().StartsWith("LanguageExt.Traits.Eq`1")))
         {
-            throw new Exception("Eq attribute should have a struct type that derives from LanguageExt.TypeClasses.Eq<> passed as its argument");
+            throw new Exception("Eq attribute should have a struct type that derives from LanguageExt.Traits.Eq<> passed as its argument");
         }
     }
 }
@@ -34,9 +34,9 @@ public class OrdAttribute : Attribute
     {
         if (!type.GetTypeInfo()
                  .ImplementedInterfaces
-                 .Exists(i => i.ToString().StartsWith("LanguageExt.TypeClasses.Ord`1")))
+                 .Exists(i => i.ToString().StartsWith("LanguageExt.Traits.Ord`1")))
         {
-            throw new Exception("Ord attribute should have a struct type that derives from LanguageExt.TypeClasses.Ord<> passed as its argument");
+            throw new Exception("Ord attribute should have a struct type that derives from LanguageExt.Traits.Ord<> passed as its argument");
         }
     }
 }
@@ -47,9 +47,9 @@ public class HashableAttribute : Attribute
     {
         if (!type.GetTypeInfo()
                  .ImplementedInterfaces
-                 .Exists(i => i.ToString().StartsWith("LanguageExt.TypeClasses.Hashable`1")))
+                 .Exists(i => i.ToString().StartsWith("LanguageExt.Traits.Hashable`1")))
         {
-            throw new Exception("Hashable attribute should have a struct type that derives from LanguageExt.TypeClasses.Hashable<> passed as its argument");
+            throw new Exception("Hashable attribute should have a struct type that derives from LanguageExt.Traits.Hashable<> passed as its argument");
         }
     }
 }

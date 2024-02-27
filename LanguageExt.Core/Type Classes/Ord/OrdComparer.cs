@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 

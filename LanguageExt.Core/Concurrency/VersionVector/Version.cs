@@ -1,5 +1,5 @@
 using System;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances;
 
