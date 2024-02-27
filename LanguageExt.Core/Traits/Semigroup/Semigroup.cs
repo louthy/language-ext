@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics.Contracts;
 
-namespace LanguageExt.TypeClasses;
+namespace LanguageExt.Traits;
 
-public interface Semigroup<A> : Trait
+public interface Semigroup<A>
     where A : Semigroup<A>
 {
     /// <summary>

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.Contracts;
 
-namespace LanguageExt.TypeClasses;
+namespace LanguageExt.Traits;
 
 /// <summary>
 /// Monoid trait
