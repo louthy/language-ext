@@ -1,39 +1,45 @@
-﻿using System;
-using System.Text;
+﻿using Xunit;
+using System;
 using System.Threading.Tasks;
-using LanguageExt.SysX.Diag;
-using LanguageExt.SysX.Test;
-using Xunit;
+using LanguageExt.Sys.Diag;
+using LanguageExt.Sys.Test;
 using System.Diagnostics;
 using FluentAssertions;
-using static LanguageExt.Prelude;
-using static LanguageExt.AffExtensions;
 
 namespace LanguageExt.Tests.SysX.Diag;
 
-using A = Activity<Runtime>;
+using A = Activity<Eff<Runtime>, Runtime>;
 
 public static class ActivityTests
 {
     static readonly ActivitySource Source = new(nameof(ActivityTests));
-
-    static ActivityTests() =>
+    
+    static ActivityTests()
+    {
+        /*Runtime.New().
+        
+        var rt = Runtime.New(
+            new RuntimeEnv(
+                EnvIO.New(), 
+                Encoding.Default, 
+                new MemoryConsole(), 
+                new MemoryFS(), TestTimeSpec. ))*/
+        
         ActivitySource.AddActivityListener(
             new ActivityListener
             {
                 ShouldListenTo = source => source.Name == nameof(ActivityTests),
                 Sample = (ref ActivityCreationOptions<ActivityContext> _) =>
-                    ActivitySamplingResult.AllData
-            }
-        );
+                             ActivitySamplingResult.AllData
+            });
+    }
 
-    static T ArrangeAndAct<T>(this Eff<Runtime, T> effect) =>
-        effect.Run(Runtime.New(new ActivityEnv(Source, default, default), Encoding.Default))
-            .ThrowIfFail();
-
-    static async ValueTask<T> ArrangeAndAct<T>(this Aff<Runtime, T> effect) =>
-        (await effect.Run(Runtime.New(new ActivityEnv(Source, default, default), Encoding.Default)))
-        .ThrowIfFail();
+    static T ArrangeAndAct<T>(this K<Eff<Runtime>, T> effect) =>
+        effect.As()
+              .Run(Runtime.New(
+                       RuntimeEnv.Default with { ActivityEnv = new ActivityEnv(Source, default, default) }), 
+                   EnvIO.New())
+              .ThrowIfFail();
 
     [Fact(DisplayName = "An activity span can be created and effect run within")]
     public static void Case1() =>
@@ -115,7 +121,7 @@ public static class ActivityTests
     {
         var events = A.span("test", from _ in A.addEvent(TestEvent) from result in A.events select result)
             .ArrangeAndAct();
-        events.Should().NotBeEmpty();
+        Assert.False(events.IsEmpty);
         events.First().Should().Be(TestEvent);
     }
 
@@ -140,21 +146,21 @@ public static class ActivityTests
     {
         var r = A.span(
                 "a",
-                from co in A.context
+                from co in A.context.As()
                 from context in co.ToEff("context should be set")
                 from result in A.span(
                     "b",
                     ActivityKind.Consumer,
                     context,
                     default,
-                    Seq1(new ActivityLink(context)),
+                    Seq(new ActivityLink(context)),
                     DateTimeOffset.Now,
                     A.links
                 )
                 select result
             )
             .ArrangeAndAct();
-        r.Should().NotBeEmpty();
+        Assert.False(r.IsEmpty);
     }
 
     [Fact(DisplayName = "The current can be read and is not None in a span")]
@@ -176,7 +182,7 @@ public static class ActivityTests
     {
         var id = A.span(
                 "a",
-                from co in A.context
+                from co in A.context.As()
                 from context in co.ToEff("context should be set")
                 from result in A.span(
                     "b",
@@ -205,7 +211,7 @@ public static class ActivityTests
     {
         var id = A.span(
                 "a",
-                from co in A.context
+                from co in A.context.As()
                 from context in co.ToEff("context should be set")
                 from result in A.span(
                     "b",
@@ -273,8 +279,7 @@ public static class ActivityTests
                 "test",
                 ActivityKind.Client,
                 HashMap(("1", "a" as object), ("2", "b")),
-                A.kind.Zip(A.tags)
-            )
+                A.kind.Zip(A.tags))
             .ArrangeAndAct();
         kind.IsSome.Should().BeTrue();
         kind.Case.Should().Be(ActivityKind.Client);
@@ -282,26 +287,24 @@ public static class ActivityTests
     }
 
     [Fact(DisplayName = "Test span overload 2")]
-    public static async Task Case25() =>
-        await A.span("test", SuccessAff<Runtime, Unit>(unit)).ArrangeAndAct();
+    public static void Case25() =>
+        A.span("test", SuccessEff<Runtime, Unit>(unit)).ArrangeAndAct();
 
     [Fact(DisplayName = "Test span overload 3")]
-    public static async Task Case26()
+    public static void Case26()
     {
-        var result = await A.span("test", ActivityKind.Consumer, A.kind.ToAff())
-            .ArrangeAndAct();
+        var result = A.span("test", ActivityKind.Consumer, A.kind.As()).ArrangeAndAct();
         result.Case.Should().Be(ActivityKind.Consumer);
     }
 
     [Fact(DisplayName = "Test span overload 4")]
-    public static async Task Case27()
+    public static void Case27()
     {
-        var (kind, tags) = await A.span(
+        var (kind, tags) = A.span(
                 "test",
                 ActivityKind.Client,
                 HashMap(("1", "a" as object), ("2", "b")),
-                A.kind.Zip(A.tags).ToAff()
-            )
+                A.kind.Zip(A.tags))
             .ArrangeAndAct();
         kind.IsSome.Should().BeTrue();
         kind.Case.Should().Be(ActivityKind.Client);
@@ -309,11 +312,11 @@ public static class ActivityTests
     }
 
     [Fact(DisplayName = "Test span overload 5")]
-    public static async Task Case28()
+    public static void Case28()
     {
-        var (kind, tags) = await A.span(
+        var (kind, tags) = A.span(
                 "A",
-                from co in A.context
+                from co in A.context.As()
                 from context in co.ToEff("context should be set")
                 from result in A.span(
                     "B",
@@ -322,8 +325,7 @@ public static class ActivityTests
                     HashMap(("1", "a" as object), ("2", "b")),
                     Seq<ActivityLink>.Empty,
                     DateTimeOffset.Now,
-                    A.kind.Zip(A.tags).ToAff()
-                )
+                    A.kind.Zip(A.tags))
                 select result
             )
             .ArrangeAndAct();

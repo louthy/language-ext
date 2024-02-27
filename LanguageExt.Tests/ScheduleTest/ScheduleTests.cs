@@ -354,14 +354,12 @@ public sealed class ScheduleTests
                              Schedule.linear(10 * seconds)
                            & Schedule.recurs(5)
                            & Schedule.jitter(1 * ms, 10 * ms)).Run().ToSeq();
-        withJitter.Should()
-                  .HaveCount(5)
-                  .And
-                  .Subject.Zip(noJitter)
-                  .Should()
-                  .Contain(x => x.Item1 > x.Item2)
-                  .And
-                  .Contain(x => x.Item1 - x.Item2 <= 100);
+
+        var res = withJitter.ToArray();
+        Assert.True(res.Length == 5);
+        Assert.True(res.Zip(noJitter)
+                       .Filter(p => p.Item1 > p.Item2 && p.Item1 - p.Item2 <= 100)
+                       .Any());
     }
 
     [Fact]
@@ -374,14 +372,12 @@ public sealed class ScheduleTests
                              Schedule.linear(10 * seconds)
                            & Schedule.recurs(5)
                            & Schedule.jitter(1.5)).Run().ToSeq();
-        withJitter.Should()
-                  .HaveCount(5)
-                  .And
-                  .Subject.Zip(noJitter)
-                  .Should()
-                  .Contain(x => x.Item1 > x.Item2)
-                  .And
-                  .Contain(x => x.Item1 - x.Item2 <= x.Item2 * 1.5);
+        
+        var res = withJitter.ToArray();
+        Assert.True(res.Length == 5);
+        Assert.True(res.Zip(noJitter)
+                       .Filter(p => p.Item1 > p.Item2 && p.Item1 - p.Item2 <= p.Item2 * 1.5)
+                       .Any());
     }
 
     [Fact]
@@ -389,9 +385,7 @@ public sealed class ScheduleTests
     {
         var schedule = Schedule.linear(10 * sec) | Schedule.decorrelate(seed: Seed);
         var result   = schedule.Take(5).Run().ToSeq();
-        result.Zip(result.Skip(1))
-              .Should()
-              .Contain(x => x.Left > x.Right);
+        Assert.True(result.Zip(result.Skip(1)).Filter(x => x.Left > x.Right).Any());
     }
 
     [Fact]

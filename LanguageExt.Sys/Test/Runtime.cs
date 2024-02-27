@@ -9,6 +9,8 @@ namespace LanguageExt.Sys.Test;
 /// Test IO runtime
 /// </summary>
 public record Runtime(RuntimeEnv Env) : 
+    Mutates<Eff<Runtime>, Runtime, ActivityEnv>,
+    Has<Eff<Runtime>, ActivitySourceIO>,
     Has<Eff<Runtime>, ConsoleIO>,
     Has<Eff<Runtime>, EncodingIO>,
     Has<Eff<Runtime>, FileIO>,
@@ -20,44 +22,9 @@ public record Runtime(RuntimeEnv Env) :
     /// <summary>
     /// Constructor function
     /// </summary>
-    /// <param name="timeSpec">Defines how time works in the runtime</param>
-    public static Runtime New(Implementations.TestTimeSpec? timeSpec = default) =>
-        new(new RuntimeEnv(EnvIO.New(),
-                           Encoding.Default,
-                           new MemoryConsole(),
-                           new MemoryFS(),
-                           timeSpec ?? Implementations.TestTimeSpec.RunningFromNow(),
-                           MemorySystemEnvironment.InitFromSystem()));
-
-    /// <summary>
-    /// Constructor function
-    /// </summary>
-    /// <param name="encoding">Text encoding</param>
-    /// <param name="timeSpec">Defines how time works in the runtime</param>
-    public static Runtime New(Encoding encoding, 
-                                 Implementations.TestTimeSpec? timeSpec = default) =>
-        new(new RuntimeEnv(EnvIO.New(),
-                           encoding,
-                           new MemoryConsole(),
-                           new MemoryFS(),
-                           timeSpec ?? Implementations.TestTimeSpec.RunningFromNow(),
-                           MemorySystemEnvironment.InitFromSystem()));
-
-    /// <summary>
-    /// Constructor function
-    /// </summary>
-    /// <param name="encoding">Text encoding</param>
-    /// <param name="envIO">Environment for the IO monad</param>
-    /// <param name="timeSpec">Defines how time works in the runtime</param>
-    public static Runtime New(EnvIO envIO, 
-                                 Encoding encoding, 
-                                 Implementations.TestTimeSpec? timeSpec = default) =>
-        new(new RuntimeEnv(envIO,
-                           encoding,
-                           new MemoryConsole(),
-                           new MemoryFS(),
-                           timeSpec ?? Implementations.TestTimeSpec.RunningFromNow(),
-                           MemorySystemEnvironment.InitFromSystem()));        
+    /// <param name="env">Data environment for the runtime.  Call `RuntimeEnv.Default with { ... }` to modify</param>
+    public static Runtime New(RuntimeEnv env) =>
+        new(env);
 
     /// <summary>
     /// Get encoding
@@ -76,7 +43,7 @@ public record Runtime(RuntimeEnv Env) :
         StateM.gets<Eff<Runtime>, Runtime, A>(f);
     
     static K<Eff<Runtime>, Unit> modify(Func<RuntimeEnv, RuntimeEnv> f) =>
-        StateM.modify<Eff<Runtime>, Runtime>(rt => rt with { Env = f(rt.Env) } );
+        StateM.modify<Eff<Runtime>, Runtime>(rt => new Runtime(Env: f(rt.Env)) );
     
     static K<Eff<Runtime>, A> pure<A>(A value) =>
         Eff<Runtime, A>.Pure(value);
@@ -127,8 +94,17 @@ public record Runtime(RuntimeEnv Env) :
         from r in gets(rt => new Implementations.DirectoryIO(rt.Env.FileSystem, n))
         select r;
 
-    public K<Eff<Runtime>, EncodingIO> Trait =>
+    K<Eff<Runtime>, EncodingIO> Has<Eff<Runtime>, EncodingIO>.Trait =>
         gets(_ => Live.Implementations.EncodingIO.Default);
+
+    K<Eff<Runtime>, ActivitySourceIO> Has<Eff<Runtime>, ActivitySourceIO>.Trait => 
+        gets(rt => new Live.Implementations.ActivitySourceIO(rt.Env.ActivityEnv));
+
+    K<Eff<Runtime>, ActivityEnv> Reads<Eff<Runtime>, Runtime, ActivityEnv>.Get =>
+        gets(rt => rt.Env.ActivityEnv);
+
+    K<Eff<Runtime>, Unit> Mutates<Eff<Runtime>, Runtime, ActivityEnv>.Modify(Func<ActivityEnv, ActivityEnv> f) => 
+        modify(rt => rt with { ActivityEnv = f(rt.ActivityEnv) });
 }
     
 public record RuntimeEnv(
@@ -137,8 +113,18 @@ public record RuntimeEnv(
     MemoryConsole Console,
     MemoryFS FileSystem,
     Implementations.TestTimeSpec TimeSpec,
-    MemorySystemEnvironment SysEnv)
+    MemorySystemEnvironment SysEnv,
+    ActivityEnv ActivityEnv)
 {
     public RuntimeEnv LocalCancel =>
-        this with { EnvIO = EnvIO.LocalCancel }; 
+        this with { EnvIO = EnvIO.LocalCancel };
+
+    public static readonly RuntimeEnv Default =
+        new(EnvIO.New(),
+            Encoding.Default,
+            new MemoryConsole(),
+            new MemoryFS(),
+            Implementations.TestTimeSpec.RunningFromNow(),
+            MemorySystemEnvironment.InitFromSystem(),
+            ActivityEnv.Default);
 }
