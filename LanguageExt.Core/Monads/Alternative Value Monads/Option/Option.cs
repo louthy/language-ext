@@ -652,6 +652,42 @@ public readonly struct Option<A> :
         isSome
             ? Right<L, A>(Value!)
             : Left<L, A>(Left());
+    
+    /// <summary>
+    /// Convert the structure to a Validation
+    /// </summary>
+    /// <param name="Fail">Function to invoke to get a default value if the 
+    /// structure is in a None state</param>
+    /// <returns>An Validation representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Validation<L, A> ToValidation<L>(Func<L> Fail) where L : Monoid<L> =>
+        isSome
+            ? Success<L, A>(Value!)
+            : Fail<L, A>(Fail());
+    
+    /// <summary>
+    /// Convert the structure to a Validation
+    /// </summary>
+    /// <param name="Fail">Default value if the structure is in a None state</param>
+    /// <returns>An Validation representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Validation<L, A> ToValidation<L>(L Fail) where L : Monoid<L> =>
+        isSome
+            ? Success<L, A>(Value!)
+            : Fail<L, A>(Fail);
+    
+    /// <summary>
+    /// Convert the structure to a Validation
+    /// </summary>
+    /// <returns>An Validation representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Validation<L, A> ToValidation<L>() where L : Monoid<L> =>
+        isSome
+            ? Success<L, A>(Value!)
+            : Fail<L, A>(L.Empty);
 
     /// <summary>
     /// Fluent pattern matching.  Provide a Some handler and then follow

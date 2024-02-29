@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace LanguageExt;
 
-public static partial class Trait
+public static partial class Prelude
 {
     /// <summary>
     /// Returns true if x is greater than y
@@ -198,74 +198,4 @@ public static partial class Trait
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int compare<ORD, L, R>(Either<L, R> x, Either<L, R> y) where ORD : Ord<R> =>
         x.CompareTo<ORD>(y);
-
-    /// <summary>
-    /// Find the minimum value between any two values
-    /// </summary>
-    /// <param name="x">First value</param>
-    /// <param name="y">Second value</param>
-    /// <returns>When ordering the two values in ascending order, this is the first of those</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static A min<OrdA, A>(A x, A y) where OrdA : Ord<A> =>
-        OrdA.Compare(x, y) < 0
-            ? x
-            : y;
-
-    /// <summary>
-    /// Find the maximum value between any two values
-    /// </summary>
-    /// <param name="x">First value</param>
-    /// <param name="y">Second value</param>
-    /// <returns>When ordering the two values in ascending order, this is the last of those</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static A max<OrdA, A>(A x, A y) where OrdA : Ord<A> =>
-        OrdA.Compare(x, y) > 0
-            ? x
-            : y;
-
-    /// <summary>
-    /// Find the minimum value between a set of values
-    /// </summary>
-    /// <param name="x">First value</param>
-    /// <param name="y">Second value</param>
-    /// <param name="tail">Remaining values</param>
-    /// <returns>When ordering the values in ascending order, this is the first of those</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static A min<OrdA, A>(A x, params A[] tail) where OrdA : Ord<A>
-    {
-        var min = x;
-        foreach (var v in tail)
-        {
-            if (OrdA.Compare(v, x) < 0)
-            {
-                min = v;
-            }
-        }
-        return min;
-    }
-
-    /// <summary>
-    /// Find the maximum value between a set of values
-    /// </summary>
-    /// <param name="x">First value</param>
-    /// <param name="y">Second value</param>
-    /// <param name="tail">Remaining values</param>
-    /// <returns>When ordering the values in ascending order, this is the last of those</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static A max<OrdA, A>(A x, A y, A z, params A[] tail) where OrdA : Ord<A>
-    {
-        var max = x;
-        foreach (var v in tail)
-        {
-            if (OrdA.Compare(v, x) > 0)
-            {
-                max = v;
-            }
-        }
-        return max;
-    }
 }

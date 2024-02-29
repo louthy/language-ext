@@ -241,7 +241,7 @@ public record VectorClock<OrdA, NumB, A, B>(Seq<(A, B)> Entries)
                 (null, null) => None,
                 (B x, null)  => Some(x),
                 (null, B y)  => Some(y),
-                (B x, B y)   => Some(max<NumB, B>(x, y)),
+                (B x, B y)   => Some(Ord.max<NumB, B>(x, y)),
                 _            => None
             };
     }

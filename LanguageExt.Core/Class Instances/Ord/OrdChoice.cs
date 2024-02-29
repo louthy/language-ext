@@ -1,6 +1,6 @@
 ﻿using LanguageExt.Traits;
-using static LanguageExt.Trait;
 using System.Diagnostics.Contracts;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.ClassInstances;
 
@@ -73,8 +73,6 @@ public struct OrdChoice<OrdB, ChoiceAB, CH, A, B> : Ord<CH>
     where ChoiceAB : Choice<CH, A, B>
     where OrdB     : Ord<B>
 {
-    public static readonly OrdChoice<OrdB, ChoiceAB, CH, A, B> Inst = default(OrdChoice<OrdB, ChoiceAB, CH, A, B>);
-
     /// <summary>
     /// Compare two values
     /// </summary>

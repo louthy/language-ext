@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt.Traits.Domain;
 
 namespace LanguageExt;
 
@@ -14,7 +15,8 @@ namespace LanguageExt;
 public readonly struct Length :
     IComparable<Length>,
     IEquatable<Length>,
-    IComparable
+    IComparable,
+    AmountLike<Length, double, double> 
 {
     readonly double Value;
 
@@ -67,6 +69,9 @@ public readonly struct Length :
 
     public static Length operator *(double lhs, Length rhs) =>
         rhs.Multiply(lhs);
+
+    public static Length operator -(Length self) =>
+        new (-self.Value);
 
     public static Length operator +(Length lhs, Length rhs) =>
         lhs.Add(rhs);
@@ -138,6 +143,12 @@ public readonly struct Length :
     public double Micrometres => Value * 1000000.0;
     public double Nanometres  => Value * 1000000000.0;
     public double Angstroms   => Value * 10000000000.0;
+    
+    public static Length From(double repr) => 
+        new (repr);
+
+    public double To() =>
+        Value;
 }
 
 public static class UnitsLengthExtensions

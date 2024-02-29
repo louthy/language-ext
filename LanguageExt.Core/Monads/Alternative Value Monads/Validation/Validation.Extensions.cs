@@ -124,7 +124,7 @@ public static class ValidationExtensions
     /// <returns>Enumerable of successes</returns>
     [Pure]
     public static IEnumerable<S> Successes<F, S>(this IEnumerable<Validation<F, S>> vs)
-        where F : Monoid<F>, Eq<F>
+        where F : Monoid<F>
     {
         foreach (var v in vs)
         {
@@ -141,7 +141,7 @@ public static class ValidationExtensions
     /// <returns>Enumerable of failures</returns>
     [Pure]
     public static IEnumerable<F> Fails<F, S>(this IEnumerable<Validation<F, S>> vs)
-        where F : Monoid<F>, Eq<F>
+        where F : Monoid<F>
     {
         foreach (var v in vs)
         {
@@ -158,7 +158,7 @@ public static class ValidationExtensions
     /// <returns>Enumerable of successes</returns>
     [Pure]
     public static Seq<S> Successes<F, S>(this Seq<Validation<F, S>> vs)
-        where F : Monoid<F>, Eq<F> =>
+        where F : Monoid<F> =>
         toSeq(Successes(vs.AsEnumerable()));
     
     /// <summary>
@@ -170,13 +170,13 @@ public static class ValidationExtensions
     /// <returns>Enumerable of failures</returns>
     [Pure]
     public static Seq<F> Fails<F, S>(this Seq<Validation<F, S>> vs)
-        where F : Monoid<F>, Eq<F> => 
+        where F : Monoid<F> => 
         toSeq(Fails(vs.AsEnumerable()));
     
     [Pure]
     public static Validation<F, R> Apply<F, A, R>(
         this ValueTuple<Validation<F, A>> items, Func<A, R> f)
-        where F : Monoid<F>, Eq<F> =>
+        where F : Monoid<F> =>
         items.Item1.Match(Succ: s => f(s), Fail: Validation<F, R>.Fail);
 
     [Pure]
@@ -185,7 +185,7 @@ public static class ValidationExtensions
             Validation<F, A>,
             Validation<F, B>> items,
         Func<A, B, R> f)
-        where F : Monoid<F>, Eq<F> =>
+        where F : Monoid<F> =>
         fun(f).Map(items.Item1).Apply(items.Item2).As();
 
     [Pure]
@@ -196,7 +196,7 @@ public static class ValidationExtensions
             Validation<F, C>
         > items,
         Func<A, B, C, R> f)
-        where F : Monoid<F>, Eq<F> =>
+        where F : Monoid<F> =>
         fun(f).Map(items.Item1)
               .Apply(items.Item2)
               .Apply(items.Item3)
@@ -211,7 +211,7 @@ public static class ValidationExtensions
             Validation<F, D>
             > items,
         Func<A, B, C, D, R> f)
-        where F : Monoid<F>, Eq<F> =>
+        where F : Monoid<F> =>
         fun(f).Map(items.Item1)
               .Apply(items.Item2)
               .Apply(items.Item3)
@@ -228,7 +228,7 @@ public static class ValidationExtensions
             Validation<F, E>
             > items,
         Func<A, B, C, D, E, R> f)
-        where F : Monoid<F>, Eq<F> =>
+        where F : Monoid<F> =>
         fun(f).Map(items.Item1)
               .Apply(items.Item2)
               .Apply(items.Item3)
@@ -247,7 +247,7 @@ public static class ValidationExtensions
             Validation<FAIL, F>
             > items,
         Func<A, B, C, D, E, F, R> f)
-        where FAIL : Monoid<FAIL>, Eq<FAIL> =>
+        where FAIL : Monoid<FAIL> =>
         fun(f).Map(items.Item1)
               .Apply(items.Item2)
               .Apply(items.Item3)
@@ -268,7 +268,7 @@ public static class ValidationExtensions
             Validation<FAIL, G>
             > items,
         Func<A, B, C, D, E, F, G, R> f)
-        where FAIL : Monoid<FAIL>, Eq<FAIL> =>
+        where FAIL : Monoid<FAIL> =>
         fun(f).Map(items.Item1)
               .Apply(items.Item2)
               .Apply(items.Item3)
@@ -280,7 +280,7 @@ public static class ValidationExtensions
 
     [Pure]
     public static Validation<FAIL, R> ApplyM<FAIL, A, R>(this ValueTuple<Validation<FAIL, A>> items, Func<A, Validation<FAIL, R>> f)
-        where FAIL : Monoid<FAIL>, Eq<FAIL> =>
+        where FAIL : Monoid<FAIL> =>
         items.Apply(f).Flatten();
     
     [Pure]
@@ -289,7 +289,7 @@ public static class ValidationExtensions
             Validation<FAIL, A>,
             Validation<FAIL, B>> items,
         Func<A, B, Validation<FAIL, R>> f)
-        where FAIL : Monoid<FAIL>, Eq<FAIL> =>
+        where FAIL : Monoid<FAIL> =>
         items.Apply(f).Flatten();
     
     [Pure]
@@ -300,7 +300,7 @@ public static class ValidationExtensions
             Validation<FAIL, C>
             > items,
         Func<A, B, C, Validation<FAIL, R>> f)
-        where FAIL : Monoid<FAIL>, Eq<FAIL> =>
+        where FAIL : Monoid<FAIL> =>
         items.Apply(f).Flatten();
     
     [Pure]
@@ -312,7 +312,7 @@ public static class ValidationExtensions
             Validation<FAIL, D>
             > items,
         Func<A, B, C, D, Validation<FAIL, R>> f)
-        where FAIL : Monoid<FAIL>, Eq<FAIL> =>
+        where FAIL : Monoid<FAIL> =>
         items.Apply(f).Flatten();
     
     [Pure]
@@ -325,7 +325,7 @@ public static class ValidationExtensions
             Validation<FAIL, E>
             > items,
         Func<A, B, C, D, E, Validation<FAIL, R>> f)
-        where FAIL : Monoid<FAIL>, Eq<FAIL> =>
+        where FAIL : Monoid<FAIL> =>
         items.Apply(f).Flatten();
     
     [Pure]
@@ -339,7 +339,7 @@ public static class ValidationExtensions
             Validation<FAIL, F>
             > items,
         Func<A, B, C, D, E, F, Validation<FAIL, R>> f)
-        where FAIL : Monoid<FAIL>, Eq<FAIL> =>
+        where FAIL : Monoid<FAIL> =>
         items.Apply(f).Flatten();
     
     [Pure]
@@ -354,6 +354,6 @@ public static class ValidationExtensions
             Validation<FAIL, G>
             > items,
         Func<A, B, C, D, E, F, G, Validation<FAIL, R>> f)
-        where FAIL : Monoid<FAIL>, Eq<FAIL> =>
+        where FAIL : Monoid<FAIL> =>
         items.Apply(f).Flatten();
 }

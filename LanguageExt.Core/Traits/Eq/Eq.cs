@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using LanguageExt.Attributes;
 
@@ -12,7 +11,7 @@ namespace LanguageExt.Traits;
 /// The type for which equality is defined
 /// </typeparam>
 [Trait("Eq*")]
-public interface Eq<A> : Hashable<A>, Trait
+public interface Eq<in A> : Hashable<A>, Trait
 {
     /// <summary>
     /// Equality test

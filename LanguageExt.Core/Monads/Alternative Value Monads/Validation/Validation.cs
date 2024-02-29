@@ -116,14 +116,14 @@ public abstract record Validation<F, A> :
     /// </summary>
     /// <typeparam name="F">Fail</typeparam>
     /// <typeparam name="A">Success</typeparam>
-    /// <typeparam name="L2">Fail return</typeparam>
-    /// <typeparam name="R2">Success return</typeparam>
+    /// <typeparam name="F1">Fail return</typeparam>
+    /// <typeparam name="A1">Success return</typeparam>
     /// <param name="Succ">Success map function</param>
     /// <param name="Fail">Fail map function</param>
     /// <returns>Mapped Validation</returns>
     [Pure]
-    public abstract Validation<L2, R2> BiMap<L2, R2>(Func<A, R2> Succ, Func<F, L2> Fail)
-        where L2 : Monoid<L2>;
+    public abstract Validation<F1, A1> BiMap<F1, A1>(Func<A, A1> Succ, Func<F, F1> Fail)
+        where F1 : Monoid<F1>;
 
     /// <summary>
     /// Monadic bind
@@ -140,10 +140,10 @@ public abstract record Validation<F, A> :
     /// Bi-bind.  Allows mapping of both monad states
     /// </summary>
     [Pure]
-    public abstract Validation<L2, R2> BiBind<L2, R2>(
-        Func<A, Validation<L2, R2>> Succ,
-        Func<F, Validation<L2, R2>> Fail)
-        where L2 : Monoid<L2>;
+    public abstract Validation<F1, A1> BiBind<F1, A1>(
+        Func<A, Validation<F1, A1>> Succ,
+        Func<F, Validation<F1, A1>> Fail)
+        where F1 : Monoid<F1>;
 
     /// <summary>
     /// Semigroup append operator

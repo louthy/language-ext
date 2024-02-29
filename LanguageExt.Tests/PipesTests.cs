@@ -13,11 +13,12 @@ public class PipesTests
     [Fact]
     public Task MergeSynchronousProducersSucceeds() =>
         compose(
-            Producer.merge<Runtime, int>(
+            Producer.merge<int, Eff<Runtime>>(
                 yield(1),
                 yield(1)),
             awaiting<int>().Map(ignore))
         .RunEffect()
-        .RunUnit(Runtime.New())
+        .As()
+        .RunUnit(Runtime.New(), EnvIO.New())
         .AsTask();
 }

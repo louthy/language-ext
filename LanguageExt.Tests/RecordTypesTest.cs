@@ -333,10 +333,10 @@ namespace LanguageExt.Tests
         }
 
         public bool GenericEquals<EqA, A>(A x, A y) where EqA : Eq<A> =>
-            default(EqA).Equals(x, y);
+            EqA.Equals(x, y);
 
         public int GenericCompare<OrdA, A>(A x, A y) where OrdA : Ord<A> =>
-            default(OrdA).Compare(x, y);
+            OrdA.Compare(x, y);
 
         [Fact]
         public void OptOutOfEqTest()

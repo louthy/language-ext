@@ -1,6 +1,6 @@
 ﻿using LanguageExt.Traits;
 using System.Diagnostics.Contracts;
-using static LanguageExt.Trait;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.ClassInstances;
 

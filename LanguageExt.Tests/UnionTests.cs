@@ -1,4 +1,7 @@
-﻿using System;
+﻿/*
+ 
+ TODO: Consider restoring when SourceGen arrives 
+ using System;
 using System.Collections.Generic;
 using System.Text;
 using static LanguageExt.Tests.AorBCon;
@@ -65,3 +68,4 @@ namespace LanguageExt.Tests {
             Assert.Equal(expected, left.Equals(right));
     }
 }
+*/

@@ -108,22 +108,6 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
-        public void OptionUnsafeTest()
-        {
-            var some = SomeUnsafe("test");
-            var none = OptionUnsafe<string>.None;
-
-            var someText = JsonConvert.SerializeObject(some);
-            var noneText = JsonConvert.SerializeObject(none);
-
-            var some2 = JsonConvert.DeserializeObject<OptionUnsafe<string>>(someText);
-            var none2 = JsonConvert.DeserializeObject<OptionUnsafe<string>>(noneText);
-
-            Assert.True(some == some2);
-            Assert.True(none == none2);
-        }
-
-        [Fact]
         public void EitherTest()
         {
             var right = Right<string, string>("test");
@@ -137,38 +121,6 @@ namespace LanguageExt.Tests
 
             Assert.True(right == right2);
             Assert.True(left == left2);
-        }
-
-        [Fact]
-        public void EitherUnsafeTest()
-        {
-            var right = RightUnsafe<string, string>("test");
-            var left = LeftUnsafe<string, string>("error");
-
-            var rightText = JsonConvert.SerializeObject(right);
-            var leftText = JsonConvert.SerializeObject(left);
-
-            var right2 = JsonConvert.DeserializeObject<EitherUnsafe<string, string>>(rightText);
-            var left2 = JsonConvert.DeserializeObject<EitherUnsafe<string, string>>(leftText);
-
-            Assert.True(right == right2);
-            Assert.True(left == left2);
-        }
-
-        [Fact]
-        public void ValidationTest()
-        {
-            var succ = Success<string, string>("test");
-            var fail = Fail<string, string>("error");
-
-            var succText = JsonConvert.SerializeObject(succ);
-            var failText = JsonConvert.SerializeObject(fail);
-
-            var succ2 = JsonConvert.DeserializeObject<Validation<string, string>>(succText);
-            var fail2 = JsonConvert.DeserializeObject<Validation<string, string>>(failText);
-
-            Assert.True(succ == succ2);
-            Assert.True(fail == fail2);
         }
 
         [Fact]

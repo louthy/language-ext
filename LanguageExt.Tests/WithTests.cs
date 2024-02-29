@@ -1,4 +1,8 @@
-﻿using System;
+﻿/*
+ 
+ TODO: Restore when we get SourceGen
+ 
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
@@ -34,3 +38,4 @@ namespace LanguageExt.Tests
     }
 
 }
+*/

@@ -125,7 +125,7 @@ public class OptionTTests
                   from z in y
                   select z * 2;
 
-        Assert.True(Trait.equals<EqInt, int>(res, Some(200)));
+        Assert.True(equals<EqInt, int>(res, Some(200)));
 
         opt = Some(Some<Option<int>>(None));
 
@@ -134,7 +134,7 @@ public class OptionTTests
                    from z in y
                    select z * 2;
 
-        Assert.False(Trait.equals<EqInt, int>(res, Some(0)));
+        Assert.False(equals<EqInt, int>(res, Some(0)));
     }
 
     [Fact]
@@ -190,18 +190,18 @@ public class OptionTTests
               // .FilterT(x => x > 2);   <-- TODO: Above was this -- should we restore a filter operation? Can we even?
 
         Assert.True(opt.Count() == 5, "Count should be 5, is: "                               + opt.Count());
-        Assert.True(Trait.equals<TInt, int>(opt[0], Option<int>.None), "opt[0] != None. Is: " + opt[0]);
-        Assert.True(Trait.equals<TInt, int>(opt[1], Option<int>.None), "opt[1] != None. Is: " + opt[1]);
-        Assert.True(Trait.equals<TInt, int>(opt[2], Some(3)), "opt[2] != Some(3), Is: "       + opt[2]);
-        Assert.True(Trait.equals<TInt, int>(opt[3], Some(4)), "opt[3] != Some(4), Is: "       + opt[3]);
-        Assert.True(Trait.equals<TInt, int>(opt[4], Some(5)), "opt[4] != Some(5), Is: "       + opt[4]);
+        Assert.True(equals<TInt, int>(opt[0], Option<int>.None), "opt[0] != None. Is: " + opt[0]);
+        Assert.True(equals<TInt, int>(opt[1], Option<int>.None), "opt[1] != None. Is: " + opt[1]);
+        Assert.True(equals<TInt, int>(opt[2], Some(3)), "opt[2] != Some(3), Is: "       + opt[2]);
+        Assert.True(equals<TInt, int>(opt[3], Some(4)), "opt[3] != Some(4), Is: "       + opt[3]);
+        Assert.True(equals<TInt, int>(opt[4], Some(5)), "opt[4] != Some(5), Is: "       + opt[4]);
 
         opt = opt.Filter(isSome);
 
         Assert.True(opt.Count() == 3, "Count should be 3, is: " + opt.Count());
-        Assert.True(Trait.equals<TInt, int>(opt[0], Some(3)), "opt[0] != Some(3)");
-        Assert.True(Trait.equals<TInt, int>(opt[1], Some(4)), "opt[1] != Some(4)");
-        Assert.True(Trait.equals<TInt, int>(opt[2], Some(5)), "opt[2] != Some(5)");
+        Assert.True(equals<TInt, int>(opt[0], Some(3)), "opt[0] != Some(3)");
+        Assert.True(equals<TInt, int>(opt[1], Some(4)), "opt[1] != Some(4)");
+        Assert.True(equals<TInt, int>(opt[2], Some(5)), "opt[2] != Some(5)");
 
     }
 }

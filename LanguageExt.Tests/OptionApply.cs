@@ -30,7 +30,7 @@ public class OptionApply
     {
         var opt = Some(add).Apply(Some(3), Some(4));
 
-        Assert.True(Trait.equals<EqInt, int>(Some(7), opt));
+        Assert.True(equals<EqInt, int>(Some(7), opt));
     }
 
     [Fact]
@@ -55,7 +55,7 @@ public class OptionApply
     {
         var opt = Some(add).Apply(Option<int>.None, Some(4));
 
-        Assert.True(Trait.equals<EqInt, int>(Option<int>.None, opt));
+        Assert.True(equals<EqInt, int>(Option<int>.None, opt));
     }
 
     [Fact]

@@ -68,14 +68,14 @@ public abstract record Error : Monoid<Error>, IEnumerable<Error>
     /// Get the first error (this will be `Errors.None` if there are zero errors)
     /// </summary>
     [Pure]
-    public virtual Error Head() =>
+    public virtual Error Head =>
         this;
 
     /// <summary>
     /// Get the errors with the head removed (this may be `Errors.None` if there are zero errors in the tail)
     /// </summary>
     [Pure]
-    public virtual Error Tail() =>
+    public virtual Error Tail =>
         Errors.None;
 
     /// <summary>
@@ -632,7 +632,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     /// Get the first error (this may be `Errors.None` if there are zero errors)
     /// </summary>
     [Pure]
-    public override Error Head() =>
+    public override Error Head =>
         Errors.IsEmpty
             ? Common.Errors.None
             : Errors.Head;
@@ -641,7 +641,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     /// Get the errors with the head removed (this may be `Errors.None` if there are zero errors in the tail)
     /// </summary>
     [Pure]
-    public override Error Tail() =>
+    public override Error Tail =>
         Errors.Tail.IsEmpty
             ? Common.Errors.None
             : this with {Errors = Errors.Tail};

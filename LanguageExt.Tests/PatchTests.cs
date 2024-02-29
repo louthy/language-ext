@@ -365,12 +365,10 @@ namespace LanguageExt.Tests
             var docA = List("It's", "Hello", "Again", "World", "Cheers");
             var docB = List("Yes", "Hello", "My", "World", "Of Joy");
 
-            var mp = default(MPatch<EqString, string>);
-
-            var patch = diff<EqString, string>(docA, docB);
+            var patch    = diff<EqString, string>(docA, docB);
             var inverseP = inverse(patch);
-            var patch1 = mp.Append(patch, inverseP);
-            var empty = mp.Empty();
+            var patch1   = patch.Append(inverseP);
+            var empty    = Patch<EqString, string>.Empty;
 
             Assert.True(patch1 == empty);
         }
@@ -381,13 +379,11 @@ namespace LanguageExt.Tests
             var docA = List("It's", "Hello", "Again", "World", "Cheers");
             var docB = List("Yes", "Hello", "My", "World", "Of Joy");
 
-            var mp = default(MPatch<EqString, string>);
-
             var patch = diff<EqString, string>(docA, docB);
             var inverseP = inverse(patch);
 
-            var patch1 = mp.Append(inverseP, patch);
-            var empty = mp.Empty();
+            var patch1 = inverseP.Append(patch);
+            var empty  = Patch<EqString, string>.Empty;
 
             Assert.True(patch1 == empty);
         }
@@ -415,14 +411,12 @@ namespace LanguageExt.Tests
             var patchP = diff<EqString, string>(docA, docB);
             var patchQ = diff<EqString, string>(docB, docC);
 
-            var mp = default(MPatch<EqString, string>);
-
-            var patchPQ = mp.Append(patchP, patchQ);
+            var patchPQ = patchP.Append(patchQ);
 
             var docD = apply(patchPQ, docA);
 
-            var docD1 = apply(patchP, docA);
-            var docD2 = apply(patchQ, docD1);
+            //var docD1 = apply(patchP, docA);
+            //var docD2 = apply(patchQ, docD1);
 
             Assert.True(docC == docD);
 
@@ -445,20 +439,18 @@ namespace LanguageExt.Tests
             var patchP = diff<EqString, string>(docA, docB);
             var patchQ = diff<EqString, string>(docB, docC);
 
-            var mp = default(MPatch<EqString, string>);
-
             var invPatchP = inverse(patchP);
             var invPatchQ = inverse(patchQ);
 
             Assert.True(inverse(invPatchP) == patchP);
             Assert.True(inverse(invPatchQ) == patchQ);
 
-            var patchPQ = mp.Append(patchP, patchQ);
+            var patchPQ    = patchP.Append(patchQ);
             var invPatchPQ = inverse(patchPQ);
 
             Assert.True(inverse(invPatchPQ) == patchPQ);
 
-            var invPatchQinvPatchP = mp.Append(invPatchQ, invPatchP);
+            var invPatchQinvPatchP = invPatchQ.Append(invPatchP);
 
             Assert.True(inverse(invPatchPQ) == inverse(invPatchQinvPatchP));
 

@@ -1,4 +1,7 @@
-using System.Runtime.Serialization;
+/*
+ 
+ TODO: Consider restoring when SourceGen arrives 
+ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Xunit;
 
@@ -39,3 +42,4 @@ namespace LanguageExt.Tests
         }
     }
 }
+*/

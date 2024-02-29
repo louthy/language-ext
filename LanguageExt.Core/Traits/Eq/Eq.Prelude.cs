@@ -5,7 +5,7 @@ using System.Diagnostics.Contracts;
 
 namespace LanguageExt;
 
-public static partial class Trait
+public static partial class Prelude
 {
     /// <summary>
     /// Structural equality test

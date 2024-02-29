@@ -1,3 +1,7 @@
+/*
+ 
+ TODO: Consider restoring when SourceGen arrives 
+ 
 using System;
 using System.Linq;
 using System.Reflection;
@@ -105,3 +109,4 @@ namespace LanguageExt.Tests
         }
     }
 }
+*/

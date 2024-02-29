@@ -4,7 +4,7 @@ using System.Diagnostics.Contracts;
 namespace LanguageExt.Traits;
 
 [Trait("Ord*")]
-public interface Ord<A> : Eq<A> 
+public interface Ord<in A> : Eq<A> 
 {
     /// <summary>
     /// Compare two values

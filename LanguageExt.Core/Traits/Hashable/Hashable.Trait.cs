@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Diagnostics.Contracts;
+﻿using System.Diagnostics.Contracts;
 using LanguageExt.Attributes;
 
 namespace LanguageExt;
@@ -11,7 +10,7 @@ namespace LanguageExt;
 /// The type for which GetHashCode is defined
 /// </typeparam>
 [Trait("Hashable*")]
-public interface Hashable<A>
+public interface Hashable<in A>
 {
     /// <summary>
     /// Get the hash-code of the provided value

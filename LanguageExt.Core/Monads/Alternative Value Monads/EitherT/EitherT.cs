@@ -79,6 +79,14 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     public static EitherT<L, M, A> LiftIO(IO<A> monad) =>
         Lift(M.LiftIO(monad));
 
+    /// <summary>
+    /// Lifts a given monad into the transformer
+    /// </summary>
+    /// <param name="monad">Monad to lift</param>
+    /// <returns>`EitherT`</returns>
+    public static EitherT<L, M, A> LiftIO(IO<Either<L, A>> monad) =>
+        Lift(M.LiftIO(monad));
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Match
@@ -380,6 +388,9 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
         LiftIO(ma);
     
     public static implicit operator EitherT<L, M, A>(Lift<EnvIO, A> ma) =>
+        LiftIO(ma);
+    
+    public static implicit operator EitherT<L, M, A>(IO<Either<L, A>> ma) =>
         LiftIO(ma);
 
     public OptionT<M, A> ToOption() =>

@@ -79,6 +79,14 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
     public static OptionT<M, A> LiftIO(IO<A> monad) =>
         Lift(M.LiftIO(monad));
 
+    /// <summary>
+    /// Lifts a given monad into the transformer
+    /// </summary>
+    /// <param name="monad">Monad to lift</param>
+    /// <returns>`OptionT`</returns>
+    public static OptionT<M, A> LiftIO(IO<Option<A>> monad) =>
+        Lift(M.LiftIO(monad));
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Match
@@ -336,6 +344,9 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
         LiftIO(ma);
     
     public static implicit operator OptionT<M, A>(Lift<EnvIO, A> ma) =>
+        LiftIO(ma);
+    
+    public static implicit operator OptionT<M, A>(IO<Option<A>> ma) =>
         LiftIO(ma);
 
     public EitherT<L, M, A> ToEither<L>(L left) =>

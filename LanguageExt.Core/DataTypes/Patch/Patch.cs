@@ -22,12 +22,15 @@ namespace LanguageExt;
 /// some predicates (`Patch.composable` and `Patch.applicable`) to determine if the operation can be validly 
 /// used.
 /// </summary>
-public readonly struct Patch<EqA, A> : IEquatable<Patch<EqA, A>> where EqA : Eq<A>
+public readonly struct Patch<EqA, A> :
+    Monoid<Patch<EqA, A>>,
+    IEquatable<Patch<EqA, A>> 
+    where EqA : Eq<A>
 {
     /// <summary>
     /// Empty patch
     /// </summary>
-    public static readonly Patch<EqA, A> Empty = new (Seq<Edit<EqA, A>>());
+    public static Patch<EqA, A> Empty { get; } = new(Seq<Edit<EqA, A>>());
 
     /// <summary>
     /// Edits that represent the operations to perform on a document 
@@ -156,5 +159,4 @@ public readonly struct Patch<EqA, A> : IEquatable<Patch<EqA, A>> where EqA : Eq<
     /// </summary>
     public IEnumerable<A> Apply(List<A> va) =>
         Patch.apply(this, va);
-
 }
