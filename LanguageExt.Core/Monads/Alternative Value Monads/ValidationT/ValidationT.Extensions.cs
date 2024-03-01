@@ -3,7 +3,6 @@ using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.Traits;
-using LanguageExt.Traits;
 
 namespace LanguageExt;
 

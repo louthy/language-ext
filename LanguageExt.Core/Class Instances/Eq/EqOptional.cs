@@ -50,7 +50,7 @@ public struct EqOptional<EQ, OPTION, OA, A> : Eq<OA>
     /// <returns>The hash code of x</returns>
     [Pure]
     public static int GetHashCode(OA x) =>
-        x.IsNull() ? 0 : x.GetHashCode();
+        x is null ? 0 : x.GetHashCode();
    
     [Pure]
     public static Task<bool> EqualsAsync(OA x, OA y) =>

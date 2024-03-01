@@ -127,8 +127,8 @@ public sealed class Atom<M, A>
                     return newValueFinA;
                 }
 
-                var newValueA = newValueFinA.Value;
-                var newValue = Box<A>.New(newValueA);
+                var newValueA = newValueFinA.SuccValue;
+                var newValue  = Box<A>.New(newValueA);
                 if (!validator(newValueA))
                 {
                     return FinFail<A>(Error.New("Validation failed for swap"));
@@ -167,7 +167,7 @@ public sealed class Atom<M, A>
                         return newValueFinA;
                     }
 
-                    var newValueA = newValueFinA.Value;
+                    var newValueA = newValueFinA.SuccValue;
                     var newValue  = Box<A>.New(newValueA);
                     if (!validator(newValueA))
                     {
@@ -272,8 +272,8 @@ public sealed class Atom<M, A>
                     return newValueFinA;
                 }
 
-                var newValueA = newValueFinA.Value;
-                var newValue = Box<A>.New(newValueA);
+                var newValueA = newValueFinA.SuccValue;
+                var newValue  = Box<A>.New(newValueA);
                 if (!validator(newValueA))
                 {
                     return FinFail<A>(Error.New("Validation failed for swap"));
@@ -313,7 +313,7 @@ public sealed class Atom<M, A>
                         return newValueFinA;
                     }
 
-                    var newValueA = newValueFinA.Value;
+                    var newValueA = newValueFinA.SuccValue;
                     var newValue  = Box<A>.New(newValueA);
                     if (!validator(newValueA))
                     {
@@ -421,8 +421,8 @@ public sealed class Atom<M, A>
                     return newValueFinA;
                 }
 
-                var newValueA = newValueFinA.Value;
-                var newValue = Box<A>.New(newValueA);
+                var newValueA = newValueFinA.SuccValue;
+                var newValue  = Box<A>.New(newValueA);
                 if (!validator(newValueA))
                 {
                     return FinFail<A>(Error.New("Validation failed for swap"));
@@ -463,7 +463,7 @@ public sealed class Atom<M, A>
                         return newValueFinA;
                     }
 
-                    var newValueA = newValueFinA.Value;
+                    var newValueA = newValueFinA.SuccValue;
                     var newValue  = Box<A>.New(newValueA);
                     if (!validator(newValueA))
                     {

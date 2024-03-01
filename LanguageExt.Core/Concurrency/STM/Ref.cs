@@ -114,7 +114,7 @@ public sealed class Ref<A> : IEquatable<A>
         {
             var fv = f(Value).Run();
             if (fv.IsFail) return fv;
-            Value = fv.Value;
+            Value = fv.SuccValue;
             return fv;
         });
 
@@ -131,7 +131,7 @@ public sealed class Ref<A> : IEquatable<A>
             {
                 var fv = f(Value).Run(env, eio);
                 if (fv.IsFail) return fv;
-                Value = fv.Value;
+                Value = fv.SuccValue;
                 return fv;
             })
         select res;
@@ -173,7 +173,7 @@ public sealed class Ref<A> : IEquatable<A>
         {
             var fv = f(x, y, Value).Run();
             if (fv.IsFail) return fv;
-            Value = fv.Value;
+            Value = fv.SuccValue;
             return fv;
         });
 
@@ -190,7 +190,7 @@ public sealed class Ref<A> : IEquatable<A>
             {
                 var fv = f(x, y, Value).Run(env, eio);
                 if (fv.IsFail) return fv;
-                Value = fv.Value;
+                Value = fv.SuccValue;
                 return fv;
             })
         select res;
@@ -232,7 +232,7 @@ public sealed class Ref<A> : IEquatable<A>
         {
             var fv = f(x, Value).Run();
             if (fv.IsFail) return fv;
-            Value = fv.Value;
+            Value = fv.SuccValue;
             return fv;
         });
 
@@ -249,7 +249,7 @@ public sealed class Ref<A> : IEquatable<A>
             {
                 var fv = f(x, Value).Run(env, eio);
                 if (fv.IsFail) return fv;
-                Value = fv.Value;
+                Value = fv.SuccValue;
                 return fv;
             })
         select res;

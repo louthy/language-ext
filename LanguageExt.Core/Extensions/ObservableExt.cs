@@ -67,14 +67,14 @@ public static class ObservableExt
                 {
                     if (item.IsFail)
                     {
-                        if (item.Error == Errors.None) yield break;
-                        if (item.Error == Errors.Cancelled) throw new OperationCanceledException();
-                        item.Error.Throw();
+                        if (item.FailValue == Errors.None) yield break;
+                        if (item.FailValue == Errors.Cancelled) throw new OperationCanceledException();
+                        item.FailValue.Throw();
                         yield break;
                     }
                     else
                     {
-                        yield return item.Value;
+                        yield return item.SuccValue;
                     }
                 }
             }                

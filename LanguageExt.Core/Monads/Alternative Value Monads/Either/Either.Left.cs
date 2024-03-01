@@ -143,12 +143,5 @@ public static partial class Either
             Func<L, Either<L2, R2>> Left,
             Func<R, Either<L2, R2>> Right) =>
             Left(Value);
-
-        /// <summary>
-        /// Semigroup append operator
-        /// </summary>
-        [Pure]
-        public override Either<L, R> Append(Either<L, R> rhs) =>
-            rhs;
     }
 }

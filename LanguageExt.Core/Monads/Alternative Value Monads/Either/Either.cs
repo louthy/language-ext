@@ -7,7 +7,6 @@ using LanguageExt.ClassInstances;
 using System.Runtime.CompilerServices;
 using LanguageExt.Common;
 using LanguageExt.Traits;
-using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -38,7 +37,6 @@ public abstract record Either<L, R> :
     IComparable<Pure<R>>,
     IEquatable<Pure<R>>,
     IEquatable<R>,
-    Semigroup<Either<L, R>>,
     K<Either<L>, R>
 {
     /// <summary>
@@ -197,12 +195,6 @@ public abstract record Either<L, R> :
     [Pure]
     public EitherContext<L, R, Ret> Right<Ret>(Func<R, Ret> right) =>
         new (this, right);
-
-    /// <summary>
-    /// Semigroup append operator
-    /// </summary>
-    [Pure]
-    public abstract Either<L, R> Append(Either<L, R> y);
 
     IEnumerator IEnumerable.GetEnumerator() => 
         GetEnumerator();

@@ -9,7 +9,6 @@ using System.Diagnostics.Contracts;
 using System.Text;
 using LanguageExt.Traits;
 using LanguageExt.ClassInstances;
-using LanguageExt.Traits;
 
 namespace LanguageExt;
 

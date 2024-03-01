@@ -5,7 +5,6 @@ using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using LanguageExt.Traits;
 using LanguageExt.Common;
-using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -99,9 +98,9 @@ public static class FinExtensions
     [Pure]
     public static Fin<B> Apply<A, B>(this Fin<Func<A, B>> fab, Fin<A> fa)
     {
-        if (fab.IsFail) return Fin<B>.Fail(fab.Error);
-        if (fa.IsFail) return Fin<B>.Fail(fa.Error);
-        return fab.Value(fa.Value);
+        if (fab.IsFail) return Fin<B>.Fail(fab.FailValue);
+        if (fa.IsFail) return Fin<B>.Fail(fa.FailValue);
+        return fab.SuccValue(fa.SuccValue);
     }
 
     /// <summary>
@@ -124,10 +123,10 @@ public static class FinExtensions
     [Pure]
     public static Fin<C> Apply<A, B, C>(this Fin<Func<A, B, C>> fabc, Fin<A> fa, Fin<B> fb)
     {
-        if (fabc.IsFail) return Fin<C>.Fail(fabc.Error);
-        if (fa.IsFail) return Fin<C>.Fail(fa.Error);
-        if (fb.IsFail) return Fin<C>.Fail(fb.Error);
-        return fabc.Value(fa.Value, fb.Value);
+        if (fabc.IsFail) return Fin<C>.Fail(fabc.FailValue);
+        if (fa.IsFail) return Fin<C>.Fail(fa.FailValue);
+        if (fb.IsFail) return Fin<C>.Fail(fb.FailValue);
+        return fabc.SuccValue(fa.SuccValue, fb.SuccValue);
     }
 
     /// <summary>
@@ -140,9 +139,9 @@ public static class FinExtensions
     [Pure]
     public static Fin<C> Apply<A, B, C>(this Func<A, B, C> fabc, Fin<A> fa, Fin<B> fb)
     {
-        if (fa.IsFail) return Fin<C>.Fail(fa.Error);
-        if (fb.IsFail) return Fin<C>.Fail(fb.Error);
-        return fabc(fa.Value, fb.Value);
+        if (fa.IsFail) return Fin<C>.Fail(fa.FailValue);
+        if (fb.IsFail) return Fin<C>.Fail(fb.FailValue);
+        return fabc(fa.SuccValue, fb.SuccValue);
     }
 
     /// <summary>
@@ -154,9 +153,9 @@ public static class FinExtensions
     [Pure]
     public static Fin<Func<B, C>> Apply<A, B, C>(this Fin<Func<A, B, C>> fabc, Fin<A> fa)
     {
-        if (fabc.IsFail) return Fin<Func<B, C>>.Fail(fabc.Error);
-        if (fa.IsFail) return Fin<Func<B, C>>.Fail(fa.Error);
-        return curry(fabc.Value)(fa.Value);
+        if (fabc.IsFail) return Fin<Func<B, C>>.Fail(fabc.FailValue);
+        if (fa.IsFail) return Fin<Func<B, C>>.Fail(fa.FailValue);
+        return curry(fabc.SuccValue)(fa.SuccValue);
     }
 
     /// <summary>
@@ -168,8 +167,8 @@ public static class FinExtensions
     [Pure]
     public static Fin<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, Fin<A> fa)
     {
-        if (fa.IsFail) return Fin<Func<B, C>>.Fail(fa.Error);
-        return curry(fabc)(fa.Value);
+        if (fa.IsFail) return Fin<Func<B, C>>.Fail(fa.FailValue);
+        return curry(fabc)(fa.SuccValue);
     }
 
     /// <summary>
@@ -181,9 +180,9 @@ public static class FinExtensions
     [Pure]
     public static Fin<Func<B, C>> Apply<A, B, C>(this Fin<Func<A, Func<B, C>>> fabc, Fin<A> fa)
     {
-        if (fabc.IsFail) return Fin<Func<B, C>>.Fail(fabc.Error);
-        if (fa.IsFail) return Fin<Func<B, C>>.Fail(fa.Error);
-        return fabc.Value(fa.Value);
+        if (fabc.IsFail) return Fin<Func<B, C>>.Fail(fabc.FailValue);
+        if (fa.IsFail) return Fin<Func<B, C>>.Fail(fa.FailValue);
+        return fabc.SuccValue(fa.SuccValue);
     }
 
     /// <summary>
@@ -195,8 +194,8 @@ public static class FinExtensions
     [Pure]
     public static Fin<Func<B, C>> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, Fin<A> fa)
     {
-        if (fa.IsFail) return Fin<Func<B, C>>.Fail(fa.Error);
-        return fabc(fa.Value);
+        if (fa.IsFail) return Fin<Func<B, C>>.Fail(fa.FailValue);
+        return fabc(fa.SuccValue);
     }
 
     /// <summary>
@@ -217,7 +216,7 @@ public static class FinExtensions
     /// <returns>An enumerable of A</returns>
     [Pure]
     public static IEnumerable<A> Succs<A>(this IEnumerable<Fin<A>> xs) =>
-        xs.Where(x => x.IsSucc).Select(x => x.Value);
+        xs.Where(x => x.IsSucc).Select(x => x.SuccValue);
 
     /// <summary>
     /// Extracts from a list of Fins all the Succ elements.
@@ -227,7 +226,7 @@ public static class FinExtensions
     /// <returns>An enumerable of A</returns>
     [Pure]
     public static Seq<A> Succs<A>(this Seq<Fin<A>> xs) =>
-        xs.Where(x => x.IsSucc).Select(x => x.Value);
+        xs.Where(x => x.IsSucc).Select(x => x.SuccValue);
 
     /// <summary>
     /// Extracts from a list of Fins all the Fail elements.
@@ -238,7 +237,7 @@ public static class FinExtensions
     /// <returns>An enumerable of Errors</returns>
     [Pure]
     public static IEnumerable<Error> Fails<A>(this IEnumerable<Fin<A>> xs) =>
-        xs.Where(x => x.IsFail).Select(x => x.Error);
+        xs.Where(x => x.IsFail).Select(x => x.FailValue);
 
     /// <summary>
     /// Extracts from a list of Fins all the Fail elements.
@@ -249,7 +248,7 @@ public static class FinExtensions
     /// <returns>An enumerable of Errors</returns>
     [Pure]
     public static Seq<Error> Fails<A>(this Seq<Fin<A>> xs) =>
-        xs.Filter(x => x.IsFail).Map(x => x.Error);
+        xs.Filter(x => x.IsFail).Map(x => x.FailValue);
 
     /// <summary>
     /// Partitions a list of 'Fin' into two lists.
@@ -271,11 +270,11 @@ public static class FinExtensions
         {
             if (x.IsSucc)
             {
-                rs.Add(x.Value);
+                rs.Add(x.SuccValue);
             }
             if (x.IsFail)
             {
-                fs.Add(x.Error);
+                fs.Add(x.FailValue);
             }
         }
 
@@ -302,11 +301,11 @@ public static class FinExtensions
         {
             if (x.IsSucc)
             {
-                rs = rs.Add(x.Value);
+                rs = rs.Add(x.SuccValue);
             }
             if (x.IsFail)
             {
-                fs = fs.Add(x.Error);
+                fs = fs.Add(x.FailValue);
             }
         }
 

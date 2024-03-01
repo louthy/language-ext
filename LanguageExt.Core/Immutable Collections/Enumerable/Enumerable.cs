@@ -6,7 +6,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
-using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;

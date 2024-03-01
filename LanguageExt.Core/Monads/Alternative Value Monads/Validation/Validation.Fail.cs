@@ -145,12 +145,5 @@ public static partial class Validation
             Func<A, Validation<L2, R2>> Succ,
             Func<F, Validation<L2, R2>> Fail) =>
             Fail(Value);
-
-        /// <summary>
-        /// Semigroup append operator
-        /// </summary>
-        [Pure]
-        public override Validation<F, A> Append(Validation<F, A> rhs) =>
-            rhs;
     }
 }

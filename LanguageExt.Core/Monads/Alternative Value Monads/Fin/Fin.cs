@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
-using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -19,7 +18,6 @@ public abstract record Fin<A> :
     IEnumerable<A>,
     IComparable<Fin<A>>, 
     IComparable, 
-    Monoid<Fin<A>>,
     K<Fin, A>
 {
     [Pure, MethodImpl(Opt.Default)]
@@ -90,7 +88,6 @@ public abstract record Fin<A> :
     /// <summary>
     /// Unsafe access to the fail value 
     /// </summary>
-    /// <exception cref="InvalidCastException"></exception>
     internal abstract Error FailValue { get; }
 
     /// <summary>
@@ -122,12 +119,6 @@ public abstract record Fin<A> :
     /// </summary>
     [Pure]
     public abstract Fin<B> BiBind<B>(Func<A, Fin<B>> Succ, Func<Error, Fin<B>> Fail);
-
-    /// <summary>
-    /// Semigroup append operator
-    /// </summary>
-    [Pure]
-    public abstract Fin<A> Append(Fin<A> rhs);
 
     /// <summary>
     /// Monoid empty
@@ -340,18 +331,6 @@ public abstract record Fin<A> :
     public static bool operator !=(Error lhs, Fin<A> rhs) =>
         !(lhs == rhs);
 
-    internal A Value 
-    { 
-        [MethodImpl(Opt.Default)]
-        get => (A)this;  
-    }
-
-    internal Error Error 
-    { 
-        [MethodImpl(Opt.Default)]
-        get => (Error)this;  
-    }
-        
     [Pure, MethodImpl(Opt.Default)]
     static Option<T> convert<T>(in object? value)
     {
@@ -526,8 +505,8 @@ public abstract record Fin<A> :
     {
         if (IsFail)
         {
-            Error.Throw();
+            FailValue.Throw();
         }
-        return Value;
+        return SuccValue;
     }
 }

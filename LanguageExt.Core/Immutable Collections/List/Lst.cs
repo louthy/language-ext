@@ -8,7 +8,6 @@ using LanguageExt.ClassInstances.Pred;
 using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
 using System.Runtime.CompilerServices;
-using LanguageExt.Traits;
 
 namespace LanguageExt;
 

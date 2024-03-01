@@ -125,12 +125,5 @@ public partial class Fin
             Func<A, Fin<B>> Succ,
             Func<Error, Fin<B>> Fail) =>
             Fail(Error);
-
-        /// <summary>
-        /// Semigroup append operator
-        /// </summary>
-        [Pure]
-        public override Fin<A> Append(Fin<A> rhs) =>
-            Error + rhs.Error;
     }
 }

@@ -2,7 +2,6 @@
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
-using LanguageExt.Traits;
 
 namespace LanguageExt;
 

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics.Contracts;
-using LanguageExt.Traits;
+﻿using System.Diagnostics.Contracts;
 using LanguageExt.Traits;
 
 namespace LanguageExt;

@@ -9,7 +9,6 @@ using System.Collections;
 using System.Runtime.CompilerServices;
 using LanguageExt.Common;
 using LanguageExt.Traits;
-using LanguageExt.Traits;
 
 namespace LanguageExt;
 

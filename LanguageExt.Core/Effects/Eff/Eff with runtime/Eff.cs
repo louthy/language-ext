@@ -1072,7 +1072,8 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
         }
         catch(Exception e)
         {
-            return Error.New(e);
+            var e1 = Error.New(e);
+            return Fin<(A Value, RT Runtime)>.Fail(e1);
         }
     }
 

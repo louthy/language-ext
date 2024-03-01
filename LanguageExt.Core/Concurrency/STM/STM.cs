@@ -146,7 +146,7 @@ public static class STM
                         var res = op.Run(env, eio);
                         return res.IsFail
                                    ? res
-                                   : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
+                                   : ValidateAndCommit(t, isolation, res.SuccValue, Int64.MinValue);
                     }
                     catch (ConflictException)
                     {
@@ -185,7 +185,7 @@ public static class STM
                     var res = op.Run();
                     return res.IsFail 
                                ? res 
-                               : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
+                               : ValidateAndCommit(t, isolation, res.SuccValue, Int64.MinValue);
                 }
                 catch (ConflictException)
                 {

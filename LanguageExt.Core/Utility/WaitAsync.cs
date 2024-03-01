@@ -58,7 +58,7 @@ namespace LanguageExt
         
         public static async Task<bool> WaitOneAsync(this WaitHandle handle, int millisecondsTimeout, CancellationToken cancellationToken)
         {
-            RegisteredWaitHandle registeredHandle  = null;
+            RegisteredWaitHandle? registeredHandle  = null;
             var tokenRegistration = default(CancellationTokenRegistration);
             try
             {

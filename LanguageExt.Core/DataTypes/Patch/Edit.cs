@@ -88,7 +88,7 @@ public abstract class Edit<EqA, A> : IEquatable<Edit<EqA, A>> where EqA : Eq<A>
         public override Edit<EqA, A> MapOld(Func<A, A> f) => this;
         public override Edit<EqA, A> MapNew(Func<A, A> f) => new Insert(Position, f(Element));
         public bool Equals(Insert? other) => base.Equals(other);
-        public override bool Equals(object obj) => obj is Insert ins && Equals(ins);
+        public override bool Equals(object? obj) => obj is Insert ins && Equals(ins);
         public static bool operator ==(Insert a, Insert b) => a.Equals(b);
         public static bool operator !=(Insert a, Insert b) => !(a == b);
         public override int GetHashCode() => (Position + 13) * (Element!.GetHashCode() + 7);

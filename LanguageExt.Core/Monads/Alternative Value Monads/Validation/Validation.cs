@@ -7,7 +7,6 @@ using System.Collections;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
-using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -26,7 +25,6 @@ public abstract record Validation<F, A> :
     IEquatable<Pure<A>>,
     IComparable<Pure<A>>,
     IEquatable<A>, 
-    Monoid<Validation<F, A>>,
     K<Validation<F>, A>
     where F : Monoid<F>
 {
@@ -144,12 +142,6 @@ public abstract record Validation<F, A> :
         Func<A, Validation<F1, A1>> Succ,
         Func<F, Validation<F1, A1>> Fail)
         where F1 : Monoid<F1>;
-
-    /// <summary>
-    /// Semigroup append operator
-    /// </summary>
-    [Pure]
-    public abstract Validation<F, A> Append(Validation<F, A> rhs);
 
     /// <summary>
     /// Monoid empty

@@ -5,7 +5,6 @@ using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.Traits;
 using LanguageExt.Common;
-using LanguageExt.Traits;
 
 namespace LanguageExt;
 

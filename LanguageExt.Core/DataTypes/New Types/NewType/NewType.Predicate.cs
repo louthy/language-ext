@@ -39,7 +39,8 @@ namespace LanguageExt
         /// <summary>
         /// Deserialisation ctor
         /// </summary>
-        protected NewType(SerializationInfo info, StreamingContext context) : base((A)info.GetValue("Value", typeof(A)))
+        protected NewType(SerializationInfo info, StreamingContext context) 
+            : base((A?)info.GetValue("Value", typeof(A)) ?? throw new ArgumentNullException())
         { }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context) =>
