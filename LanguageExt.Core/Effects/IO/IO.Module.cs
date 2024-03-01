@@ -43,6 +43,18 @@ public partial class IO
     
     public static IO<A> lift<A>(Func<EnvIO, A> f) => 
         IO<A>.Lift(f);
+    
+    public static IO<A> lift<A>(Func<Fin<A>> f) => 
+        IO<A>.Lift(() => f().ThrowIfFail());
+    
+    public static IO<A> lift<A>(Func<EnvIO, Fin<A>> f) => 
+        IO<A>.Lift(e => f(e).ThrowIfFail());
+    
+    public static IO<A> lift<A>(Func<Either<Error, A>> f) => 
+        IO<A>.Lift(() => f().ToFin().ThrowIfFail());
+    
+    public static IO<A> lift<A>(Func<EnvIO, Either<Error, A>> f) => 
+        IO<A>.Lift(e => f(e).ToFin().ThrowIfFail());
 
     public static IO<A> liftAsync<A>(Func<ValueTask<A>> f) => 
         IO<A>.LiftAsync(f);

@@ -21,32 +21,33 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     // Transformer helpers
     //
 
-    static StateT<RT, ResourceT<IO>, X> getsM<X>(Func<RT, K<ResourceT<IO>, X>> f) =>
-        StateT.getsM(f);
-
     static StateT<RT, ResourceT<IO>, X> getsM<X>(Func<RT, IO<X>> f) =>
-        getsM(rt => ResourceT<IO>.liftIO(f(rt)));
-
-    static StateT<RT, ResourceT<IO>, X> getsIO<X>(Func<EnvIO, RT, ValueTask<X>> f) =>
-        getsM(rt => IO.liftAsync(eio => f(eio, rt)));
+        from e in StateT.get<ResourceT<IO>, RT>()
+        from r in StateT.liftIO<RT, ResourceT<IO>, X>(IO.lift(() => f(e)).Flatten())
+        select r;
 
     static StateT<RT, ResourceT<IO>, X> getsIO<X>(Func<RT, ValueTask<X>> f) =>
-        getsIO<X>((_, rt) => f(rt));
+        from e in StateT.get<ResourceT<IO>, RT>()
+        from r in StateT.liftIO<RT, ResourceT<IO>, X>(IO.liftAsync(() => f(e)))
+        select r;
 
     static StateT<RT, ResourceT<IO>, X> gets<X>(Func<RT, X> f) =>
-        StateT.gets<ResourceT<IO>, RT, X>(f);
+        from e in StateT.get<ResourceT<IO>, RT>()
+        from r in StateT.liftIO<RT, ResourceT<IO>, X>(IO.lift(() => f(e)))
+        select r;
 
     static StateT<RT, ResourceT<IO>, X> gets<X>(Func<RT, Fin<X>> f) =>
-        getsM<X>(rt => IO.lift(f(rt)));
+        from e in StateT.get<ResourceT<IO>, RT>()
+        from r in StateT.liftIO<RT, ResourceT<IO>, X>(IO.lift(() => f(e)))
+        select r;
 
     static StateT<RT, ResourceT<IO>, X> gets<X>(Func<RT, Either<Error, X>> f) =>
-        getsM<X>(rt => IO.lift(f(rt)));
-
-    static StateT<RT, ResourceT<IO>, X> liftIO<X>(IO<X> ma) =>
-        StateT.liftIO<RT, ResourceT<IO>, X>(ma);
+        from e in StateT.get<ResourceT<IO>, RT>()
+        from r in StateT.liftIO<RT, ResourceT<IO>, X>(IO.lift(() => f(e)))
+        select r;
 
     static StateT<RT, ResourceT<IO>, X> fail<X>(Error value) =>
-        liftIO(IO<X>.Fail(value));
+        StateT.liftIO<RT, ResourceT<IO>, X>(IO<X>.Fail(value));
 
     static StateT<RT, ResourceT<IO>, X> pure<X>(X value) =>
         StateT<RT, ResourceT<IO>, X>.Pure(value);
@@ -119,7 +120,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// </summary>
     [MethodImpl(Opt.Default)]
     Eff(IO<A> effect) 
-        : this(liftIO(effect))
+        : this(StateT.liftIO<RT, ResourceT<IO>, A>(effect))
     { }
 
 

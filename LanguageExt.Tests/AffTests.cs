@@ -69,7 +69,7 @@ public class EffMapFailTests
         Assert.True(result.IndexOf("MapFail Eff", StringComparison.Ordinal) > 0); 
     }
 
-    private static async Task<Unit> FailingTask()
+    static async Task<Unit> FailingTask()
     {
         await Task.Delay(1);
         throw new Exception("Error!");
