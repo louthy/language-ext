@@ -5,6 +5,7 @@
     <LangVersion>default</LangVersion>
     <RoslynCodeGenVersion>0.6.1</RoslynCodeGenVersion>
     <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="dotnet-codegen" Version="$(RoslynCodeGenVersion)" />
@@ -14,24 +15,16 @@
     <None Remove="LanguageExt.Tests.project.lock.json" />
   </ItemGroup>
   <ItemGroup>
-      <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="$(RoslynCodeGenVersion)">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-      </PackageReference>
       <PackageReference Include="FluentAssertions" Version="6.11.0" />
       <PackageReference Include="System.Reactive" Version="6.0.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Nito.AsyncEx" Version="5.1.2" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.0" />
-    <PackageReference Include="System.ValueTuple" Version="[4.5.0,)" />
-    <PackageReference Include="xunit" Version="2.5.0" />
+    <PackageReference Include="xunit" Version="2.7.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Dynamic.Runtime" Version="[4.3.0,)" />
-    <PackageReference Include="Microsoft.CSharp" Version="[4.7.0,)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LanguageExt.CodeGen\LanguageExt.CodeGen.csproj" PrivateAssets="all" />

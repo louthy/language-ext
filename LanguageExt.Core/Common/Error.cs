@@ -169,7 +169,13 @@ public abstract record Error : Monoid<Error>, IEnumerable<Error>
     /// <param name="thisException">Exception</param>
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Error New(Exception? thisException) =>
-        new Exceptional(thisException ?? new BottomException());
+        thisException switch
+        {
+            null                 => Errors.None,
+            AggregateException a => ManyErrors.FromAggregate(a),
+            var e                => new Exceptional(e)
+        };
+        
 
     /// <summary>
     /// Create a `Exceptional` error with an overriden message.  This can be useful for sanitising the display message
@@ -671,4 +677,14 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     [Pure]
     public override IEnumerator<Error> GetEnumerator() =>
         Errors.GetEnumerator();
+
+    [Pure]
+    internal static Error FromAggregate(AggregateException? e)
+    {
+        if (e is null) return Common.Errors.None;
+        var errs = e.InnerExceptions.Bind(New).ToSeq();
+        if (errs.Count == 0) return Common.Errors.None;
+        if (errs.Count == 1) return errs.Head;
+        return Many(errs);
+    }
 } 

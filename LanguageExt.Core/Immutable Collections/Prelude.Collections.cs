@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using LanguageExt.Traits;
 using LSeq = LanguageExt.Seq;
+#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
 
 namespace LanguageExt;
 
@@ -1270,7 +1271,7 @@ public static partial class Prelude
     /// items in the enumerable as they're being consumed.
     /// </summary>
     [Pure]
-    public static Seq<A> Seq<A>(IEnumerable<A> value) =>
+    public static Seq<A> Seq<A>(IEnumerable<A>? value) =>
         value switch
         {
             null                => Empty,
@@ -1288,7 +1289,7 @@ public static partial class Prelude
     /// items in the enumerable as they're being consumed.
     /// </summary>
     [Pure]
-    public static Seq<A> toSeq<A>(IEnumerable<A> value) =>
+    public static Seq<A> toSeq<A>(IEnumerable<A>? value) =>
         value switch
         {
             null                => Empty,
@@ -1307,7 +1308,7 @@ public static partial class Prelude
     /// </summary>
     [Pure]
     public static Seq<A> toSeq<A>(A? value) where A : struct =>
-        value == null 
+        value is null 
             ? Empty 
             : LSeq.FromSingleValue(value.Value);
         
@@ -1315,9 +1316,9 @@ public static partial class Prelude
     /// Construct a sequence from an array
     /// </summary>
     [Pure]
-    public static Seq<A> toSeq<A>(A[] value)
+    public static Seq<A> toSeq<A>(A[]? value)
     {
-        if (value.Length == 0)
+        if (value is null || value.Length == 0)
         {
             return Empty;
         }
@@ -1341,15 +1342,15 @@ public static partial class Prelude
     /// Construct a sequence from a list
     /// </summary>
     [Pure]
-    public static Seq<A> toSeq<A>(IList<A> value) =>
-        toSeq(value.ToArray());
+    public static Seq<A> toSeq<A>(IList<A>? value) =>
+        toSeq(value?.ToArray());
 
     /// <summary>
     /// Construct a sequence from a list
     /// </summary>
     [Pure]
-    public static Seq<A> toSeq<A>(ICollection<A> value) =>
-        toSeq(value.ToArray());
+    public static Seq<A> toSeq<A>(ICollection<A>? value) =>
+        toSeq(value?.ToArray());
 
     /// <summary>
     /// Construct a sequence from an either
@@ -1361,55 +1362,6 @@ public static partial class Prelude
         value.IsRight
             ? LSeq.FromSingleValue(value.RightValue)
             : Empty;
-
-    /// <summary>
-    /// Construct a sequence from a tuple
-    /// </summary>
-    [Pure]
-    public static Seq<A> toSeq<A>(Tuple<A> tup) =>
-        LSeq.FromSingleValue(tup.Item1);
-
-    /// <summary>
-    /// Construct a sequence from a tuple
-    /// </summary>
-    [Pure]
-    public static Seq<A> toSeq<A>(Tuple<A, A> tup) =>
-        [tup.Item1, tup.Item2];
-
-    /// <summary>
-    /// Construct a sequence from a tuple
-    /// </summary>
-    [Pure]
-    public static Seq<A> toSeq<A>(Tuple<A, A, A> tup) =>
-        [tup.Item1, tup.Item2, tup.Item3];
-
-    /// <summary>
-    /// Construct a sequence from a tuple
-    /// </summary>
-    [Pure]
-    public static Seq<A> toSeq<A>(Tuple<A, A, A, A> tup) =>
-        [tup.Item1, tup.Item2, tup.Item3, tup.Item4];
-
-    /// <summary>
-    /// Construct a sequence from a tuple
-    /// </summary>
-    [Pure]
-    public static Seq<A> toSeq<A>(Tuple<A, A, A, A, A> tup) =>
-        [tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5];
-
-    /// <summary>
-    /// Construct a sequence from a tuple
-    /// </summary>
-    [Pure]
-    public static Seq<A> toSeq<A>(Tuple<A, A, A, A, A, A> tup) =>
-        [tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6];
-
-    /// <summary>
-    /// Construct a sequence from a tuple
-    /// </summary>
-    [Pure]
-    public static Seq<A> toSeq<A>(Tuple<A, A, A, A, A, A, A> tup) =>
-        [tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6, tup.Item7];
 
     /// <summary>
     /// Construct a sequence from a tuple

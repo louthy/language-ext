@@ -40,5 +40,8 @@ public record EnvIO(
 
     public void Dispose() => 
         Source.Dispose();
+
+    public override string ToString() => 
+        "EnvIO";
 }
     

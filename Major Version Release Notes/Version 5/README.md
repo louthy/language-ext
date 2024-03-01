@@ -776,8 +776,8 @@ This is my '.NET Framework to .NET Core' moment.  I realise that.  And I an trul
 	* Mitigtation: use `Fin<A>`
 ### `OptionalResult<A>`
 	* Mitigtation: use `Fin<A?>`
-### Async extensions for `Option<A>` 
-	* Mitigtation: use `ToAsync()` instead
+### Async extensions for `Option<A>` and `Either<L, R>`
+	* Mitigtation: use `ToIO()` to convert to the transformer variants with embedded `IO`
 ### `ExceptionMatch`, `ExceptionMatchAsync`, `ExceptionMatchOptionalAsync`
 	* Mitigtations: 
 		* use effect monads with `@catch`
@@ -809,3 +809,4 @@ No need for them now we have proper higher-kind support.
 * `yieldAll`, `many`, and `repeat` for Pipes needs tail recursion support
 	* `yieldAll`, `many` have been temporarily removed
 * `yieldAll` in Pipes has a temporary solution - need proper recursion strategy
+* Use alpha and beta versioning like like: `5.0.0-alpha.1`, `5.0.0-alpha.2`, etc. So we can release `5.0.0` when done

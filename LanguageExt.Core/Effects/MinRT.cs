@@ -24,4 +24,7 @@ public readonly struct MinRT : HasIO<MinRT>
         new(envIO);
     
     public EnvIO EnvIO { get; }
+
+    public override string ToString() => 
+        "MinRT";
 }
