@@ -26,11 +26,14 @@ public class MemoryFS
     readonly Atom<Entry> machine = Atom<Entry>(new FolderEntry("[machine]", DateTime.MinValue, DateTime.MinValue, DateTime.MinValue, default));
     static readonly char[] invalidPath = Path.GetInvalidPathChars();
     static readonly char[] invalidFile = Path.GetInvalidFileNameChars();
-    public string CurrentDir = "C:\\";
+    public string CurrentDir;
 
-    public MemoryFS() =>
-        AddLogicalDrive("C");
-
+    public MemoryFS()
+    {
+        var logical = Directory.GetLogicalDrives().First();
+        CurrentDir = logical.TrimEnd([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar]);
+        AddLogicalDrive(CurrentDir);
+    }
 
     /// <summary>
     /// Get the logical in-memory drives 
@@ -52,8 +55,8 @@ public class MemoryFS
 
     static Seq<string> ParsePath1(string path) =>
         ValidatePathNames(path.Trim()
-                              .TrimEnd(new[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar})
-                              .Split(new[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar})
+                              .TrimEnd([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar])
+                              .Split([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar])
                               .ToSeq());
 
     static Seq<string> ValidatePathNames(Seq<string> path)

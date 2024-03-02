@@ -629,7 +629,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// </summary>
     /// <returns>The result of the last invocation</returns>
     public IO<A> Repeat() =>
-        RepeatUntil(Schedule.Forever, _ => true);
+        RepeatUntil(Schedule.Forever, _ => false);
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or an error occurs  
@@ -637,7 +637,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// <param name="schedule">Scheduler strategy for repeating</param>
     /// <returns>The result of the last invocation</returns>
     public IO<A> Repeat(Schedule schedule) =>
-        RepeatUntil(schedule, _ => true);
+        RepeatUntil(schedule, _ => false);
 
     /// <summary>
     /// Keeps repeating the computation until the predicate returns false, or an error occurs 

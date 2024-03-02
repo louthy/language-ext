@@ -102,8 +102,90 @@ public readonly struct Patch<EqA, A> :
     /// Monoid append: produces a patch is a merged version of this 
     /// and the provided patch.  
     /// </summary>
-    public Patch<EqA, A> Append(Patch<EqA, A> mb) =>
-        Patch.append(this, mb);
+    public Patch<EqA, A> Append(Patch<EqA, A> mb)
+    {
+        var px = this;
+        var py = mb;
+
+        Seq<Edit<EqA, A>> replace(int i, A o, A n, Seq<Edit<EqA, A>> seq) =>
+            EqA.Equals(o, n)
+                ? seq
+                : Edit<EqA, A>.Replace.New(i, o, n).Cons(seq);
+
+        Seq<Edit<EqA, A>> merge(Seq<Edit<EqA, A>> ex, Seq<Edit<EqA, A>> ey, int off)
+        {
+            if (ex.IsEmpty)
+            {
+                return ey.Map(e => e.Index(i => i + off));
+            }
+            else if (ey.IsEmpty)
+            {
+                return ex;
+            }
+            else
+            {
+                var x  = ex.Head;
+                var xs = ex.Tail;
+                var y  = ey.Head;
+                var ys = ey.Tail;
+
+                var yi  = y.Index(i => i + off);
+                var ord = x.Position.CompareTo(yi.Position);
+                if (ord < 0)
+                {
+                    return x.Cons(merge(xs, ey, off + offset(x)));
+                }
+                else if (ord > 0)
+                {
+                    return yi.Cons(merge(ex, ys, off));
+                }
+                else
+                {
+                    if (x is Edit<EqA, A>.Delete del1 && yi is Edit<EqA, A>.Insert ins1)
+                    {
+                        return replace(del1.Position, del1.Element, ins1.Element, merge(xs, ys, off + offset(x)));
+                    }
+                    else if (x is Edit<EqA, A>.Delete)
+                    {
+                        return x.Cons(merge(xs, ey, off + offset(x)));
+                    }
+                    else if (yi is Edit<EqA, A>.Insert)
+                    {
+                        return yi.Cons(merge(ex, ys, off));
+                    }
+                    else if (x is Edit<EqA, A>.Replace replA1 && yi is Edit<EqA, A>.Replace replB1)
+                    {
+                        return replace(replA1.Position, replA1.Element, replB1.ReplaceElement, merge(xs, ys, off));
+                    }
+                    else if (x is Edit<EqA, A>.Replace replA2 && yi is Edit<EqA, A>.Delete)
+                    {
+                        return Edit<EqA, A>.Delete.New(replA2.Position, replA2.Element).Cons(merge(xs, ys, off));
+                    }
+                    else if (x is Edit<EqA, A>.Insert ins3 && yi is Edit<EqA, A>.Replace replB2)
+                    {
+                        return Edit<EqA, A>.Insert.New(ins3.Position, replB2.ReplaceElement)
+                                           .Cons(merge(xs, ys, off + offset(x)));
+                    }
+                    else if (x is Edit<EqA, A>.Insert && yi is Edit<EqA, A>.Delete)
+                    {
+                        return merge(xs, ys, off + offset(x));
+                    }
+                    else
+                    {
+                        throw new NotSupportedException();
+                    }
+                }
+            }
+        }
+
+        int offset(Edit<EqA, A> edit) =>
+            edit is Edit<EqA, A>.Insert    ? -1
+            : edit is Edit<EqA, A>.Delete  ? 1
+            : edit is Edit<EqA, A>.Replace ? 0
+                                             : throw new NotSupportedException();
+
+        return new Patch<EqA, A>(merge(px.Edits, py.Edits, 0));
+    }
 
     /// <summary>
     /// Compute the inverse of a patch
