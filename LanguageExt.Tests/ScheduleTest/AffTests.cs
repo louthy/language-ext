@@ -286,7 +286,7 @@ public static class AffTests
         var buffer = new List<string>();
         var effect = CreateEffect(buffer);
 
-        effect.RunUnit(EnvIO.New());
+        effect.Run(EnvIO.New()).Ignore();
 
         buffer.Should().Equal("test\0", "test\0", "test\0", "cancelled");
     }
@@ -312,7 +312,7 @@ public static class AffTests
         var runtime = Runtime.New();
         var effect = CreateEffect<Runtime>();
 
-        effect.RunUnit(runtime, EnvIO.New());
+        effect.Run(runtime, EnvIO.New()).Ignore();
 
         runtime.Env.Console.Should().Equal("test\0", "test\0", "test\0", "cancelled");
     }

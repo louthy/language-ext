@@ -52,7 +52,7 @@ public record Client<REQ, RES, M, A> : Proxy<REQ, RES, Unit, Void, M, A>
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public override Proxy<REQ, RES, Unit, Void, M, S> Bind<S>(Func<A, Proxy<REQ, RES, Unit, Void, M, S>> f) =>
+    public override Proxy<REQ, RES, Unit, Void, M, B> Bind<B>(Func<A, Proxy<REQ, RES, Unit, Void, M, B>> f) =>
         Value.Bind(f);
   
     /// <summary>
@@ -62,9 +62,19 @@ public record Client<REQ, RES, M, A> : Proxy<REQ, RES, Unit, Void, M, A>
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
     [Pure]
-    public override Proxy<REQ, RES, Unit, Void, M, S> Map<S>(Func<A, S> f) =>
+    public override Proxy<REQ, RES, Unit, Void, M, B> Map<B>(Func<A, B> f) =>
         Value.Map(f);
         
+    /// <summary>
+    /// Map the lifted monad
+    /// </summary>
+    /// <param name="f">The map function</param>
+    /// <typeparam name="B">The mapped bound value type</typeparam>
+    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
+    [Pure]
+    public override Proxy<REQ, RES, Unit, Void, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
+        Value.MapM(f);
+
     /// <summary>
     /// Monadic bind operation, for chaining `Client` computations together.
     /// </summary>

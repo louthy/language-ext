@@ -112,6 +112,16 @@ public record WriterT<W, M, A>(Func<W, K<M, (A Value, W Output)>> runWriter) : K
         new (w => f(runWriter(w)));
 
     /// <summary>
+    /// Maps the given monad
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <returns>`StateT`</returns>
+    public WriterT<W, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
+        new(state =>
+                runWriter(state)
+                   .Bind(vs => f(M.Pure(vs.Value)).Map(x => (x, vs.Output))));
+
+    /// <summary>
     /// Maps the bound value
     /// </summary>
     /// <param name="f">Mapping function</param>

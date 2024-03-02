@@ -27,6 +27,9 @@ public partial class ResourceT<M> :
     static K<ResourceT<M>, A> MonadT<ResourceT<M>, M>.Lift<A>(K<M, A> ma) =>
         ResourceT<M, A>.Lift(ma);
 
+    static K<ResourceT<M>, B> MonadT<ResourceT<M>, M>.MapM<A, B>(Func<K<M, A>, K<M, B>> f, K<ResourceT<M>, A> ma) =>
+        ma.As().MapM(f);
+
     static K<ResourceT<M>, A> Monad<ResourceT<M>>.LiftIO<A>(IO<A> ma) => 
         ResourceT<M, A>.Lift(M.LiftIO(ma));
 

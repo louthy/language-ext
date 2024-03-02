@@ -7,46 +7,49 @@ namespace LanguageExt;
 /// Trait implementation for `ValidationT` 
 /// </summary>
 /// <typeparam name="M">Given monad trait</typeparam>
-public partial class ValidationT<L, M> : 
-    MonadT<ValidationT<L, M>, M>, 
-    Alternative<ValidationT<L, M>>
+public partial class ValidationT<F, M> : 
+    MonadT<ValidationT<F, M>, M>, 
+    Alternative<ValidationT<F, M>>
     where M : Monad<M>
-    where L : Monoid<L>
+    where F : Monoid<F>
 {
-    static K<ValidationT<L, M>, B> Monad<ValidationT<L, M>>.Bind<A, B>(
-        K<ValidationT<L, M>, A> ma, 
-        Func<A, K<ValidationT<L, M>, B>> f) => 
+    static K<ValidationT<F, M>, B> Monad<ValidationT<F, M>>.Bind<A, B>(
+        K<ValidationT<F, M>, A> ma, 
+        Func<A, K<ValidationT<F, M>, B>> f) => 
         ma.As().Bind(f);
 
-    static K<ValidationT<L, M>, B> Functor<ValidationT<L, M>>.Map<A, B>(
+    static K<ValidationT<F, M>, B> Functor<ValidationT<F, M>>.Map<A, B>(
         Func<A, B> f, 
-        K<ValidationT<L, M>, A> ma) => 
+        K<ValidationT<F, M>, A> ma) => 
         ma.As().Map(f);
 
-    static K<ValidationT<L, M>, A> Applicative<ValidationT<L, M>>.Pure<A>(A value) => 
-        ValidationT<L, M, A>.Success(value);
+    static K<ValidationT<F, M>, A> Applicative<ValidationT<F, M>>.Pure<A>(A value) => 
+        ValidationT<F, M, A>.Success(value);
 
-    static K<ValidationT<L, M>, B> Applicative<ValidationT<L, M>>.Apply<A, B>(
-        K<ValidationT<L, M>, Func<A, B>> mf,
-        K<ValidationT<L, M>, A> ma) =>
+    static K<ValidationT<F, M>, B> Applicative<ValidationT<F, M>>.Apply<A, B>(
+        K<ValidationT<F, M>, Func<A, B>> mf,
+        K<ValidationT<F, M>, A> ma) =>
         mf.As().Apply(ma.As());
 
-    static K<ValidationT<L, M>, B> Applicative<ValidationT<L, M>>.Action<A, B>(
-        K<ValidationT<L, M>, A> ma, 
-        K<ValidationT<L, M>, B> mb) =>
+    static K<ValidationT<F, M>, B> Applicative<ValidationT<F, M>>.Action<A, B>(
+        K<ValidationT<F, M>, A> ma, 
+        K<ValidationT<F, M>, B> mb) =>
         Prelude.fun((A _, B b) => b).Map(ma).Apply(mb).As();
 
-    static K<ValidationT<L, M>, A> MonadT<ValidationT<L, M>, M>.Lift<A>(K<M, A> ma) => 
-        ValidationT<L, M, A>.Lift(ma);
-    
-    static K<ValidationT<L, M>, A> Monad<ValidationT<L, M>>.LiftIO<A>(IO<A> ma) => 
-        ValidationT<L, M, A>.Lift(M.LiftIO(ma));
+    static K<ValidationT<F, M>, A> MonadT<ValidationT<F, M>, M>.Lift<A>(K<M, A> ma) => 
+        ValidationT<F, M, A>.Lift(ma);
+            
+    static K<ValidationT<F, M>, B> MonadT<ValidationT<F, M>, M>.MapM<A, B>(Func<K<M, A>, K<M, B>> f, K<ValidationT<F, M>, A> ma) =>
+        ma.As().MapM(f);
 
-    static K<ValidationT<L, M>, A> Alternative<ValidationT<L, M>>.Empty<A>() =>
-        ValidationT<L, M, A>.Fail(L.Empty);
+    static K<ValidationT<F, M>, A> Monad<ValidationT<F, M>>.LiftIO<A>(IO<A> ma) => 
+        ValidationT<F, M, A>.Lift(M.LiftIO(ma));
 
-    static K<ValidationT<L, M>, A> SemiAlternative<ValidationT<L, M>>.Or<A>(
-        K<ValidationT<L, M>, A> ma,
-        K<ValidationT<L, M>, A> mb) =>
+    static K<ValidationT<F, M>, A> Alternative<ValidationT<F, M>>.Empty<A>() =>
+        ValidationT<F, M, A>.Fail(F.Empty);
+
+    static K<ValidationT<F, M>, A> SemiAlternative<ValidationT<F, M>>.Or<A>(
+        K<ValidationT<F, M>, A> ma,
+        K<ValidationT<F, M>, A> mb) =>
         ma.As() | mb.As();
 }

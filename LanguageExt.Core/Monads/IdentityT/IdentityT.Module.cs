@@ -46,10 +46,13 @@ public class IdentityT<M> : MonadT<IdentityT<M>, M>, SemiAlternative<IdentityT<M
     static K<IdentityT<M>, B> Applicative<IdentityT<M>>.Action<A, B>(K<IdentityT<M>, A> ma, K<IdentityT<M>, B> mb) =>
         ma.As().Bind(_ => mb);
 
-    public static K<IdentityT<M>, A> Lift<A>(K<M, A> ma) =>
+    static K<IdentityT<M>, A> MonadT<IdentityT<M>, M>.Lift<A>(K<M, A> ma) =>
         IdentityT<M, A>.Lift(ma);
 
-    public static K<IdentityT<M>, A> LiftIO<A>(IO<A> ma) => 
+    static K<IdentityT<M>, B> MonadT<IdentityT<M>, M>.MapM<A, B>(Func<K<M, A>, K<M, B>> f, K<IdentityT<M>, A> ma) =>
+        ma.As().MapM(f);
+
+    static K<IdentityT<M>, A> Monad<IdentityT<M>>.LiftIO<A>(IO<A> ma) => 
         IdentityT<M, A>.Lift(M.LiftIO(ma));
 
     static K<IdentityT<M>, B> Monad<IdentityT<M>>.WithRunInIO<A, B>(

@@ -215,6 +215,19 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     public EitherT<L, M1, B> MapT<M1, B>(Func<K<M, Either<L, A>>, K<M1, Either<L, B>>> f)
         where M1 : Monad<M1> =>
         new (f(runEither));
+
+    /// <summary>
+    /// Maps the given monad
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    public EitherT<L, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
+        new(runEither
+               .Bind(fv => fv switch
+                           {
+                               Either.Right<L, A> (var v) => f(M.Pure(v)).Map(Either<L, B>.Right),
+                               Either.Left<L, A> (var e)  => M.Pure<Either<L, B>>(e),
+                               _                          => throw new NotSupportedException()
+                           }));
     
     /// <summary>
     /// Maps the bound value

@@ -48,6 +48,20 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
         new(_ => M.Pure((unit, value)));
 
     /// <summary>
+    /// Writes a value and state into the monad
+    /// </summary>
+    /// <returns>`StateT`</returns>
+    public static StateT<S, M, A> State(A value, S state) =>
+        new(_ => M.Pure((value, state)));
+
+    /// <summary>
+    /// Writes a value and state into the monad
+    /// </summary>
+    /// <returns>`StateT`</returns>
+    public static StateT<S, M, A> State((A value, S state) ma) =>
+        new(_ => M.Pure(ma));
+
+    /// <summary>
     /// Extracts the state value and returns it as the bound value
     /// </summary>
     /// <returns>`StateT`</returns>
@@ -114,10 +128,20 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
     /// </summary>
     /// <param name="f">Mapping function</param>
     /// <typeparam name="M1">Trait of the monad to map to</typeparam>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`StateT`</returns>
     public StateT<S, M1, B> MapT<M1, B>(Func<K<M, (A Value, S State)>, K<M1, (B Value, S State)>> f)
         where M1 : Monad<M1>, SemiAlternative<M1> =>
         new (state => f(runState(state)));
+
+    /// <summary>
+    /// Maps the given monad
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <returns>`StateT`</returns>
+    public StateT<S, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
+        new(state =>
+                runState(state)
+                   .Bind(vs => f(M.Pure(vs.Value)).Map(x => (x, vs.State))));
 
     /// <summary>
     /// Maps the bound value

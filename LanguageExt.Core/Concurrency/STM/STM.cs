@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
+// ReSharper disable MemberHidesStaticFromOuterClass
 
 namespace LanguageExt;
 
@@ -130,7 +131,7 @@ public static class STM
     /// Runs the transaction
     /// </summary>
     static Eff<RT, R> RunTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) =>
-        from eio in envIO
+        from sta in getState<RT>()
         from res in Eff<RT, R>.Lift(
             env =>
             {
@@ -143,7 +144,7 @@ public static class STM
                     try
                     {
                         // Try to do the operations of the transaction
-                        var res = op.Run(env, eio);
+                        var res = op.Run(env, sta.Resources, sta.EnvIO);
                         return res.IsFail
                                    ? res
                                    : ValidateAndCommit(t, isolation, res.SuccValue, Int64.MinValue);

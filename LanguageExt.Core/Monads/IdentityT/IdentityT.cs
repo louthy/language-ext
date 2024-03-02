@@ -21,6 +21,13 @@ public record IdentityT<M, A>(K<M, A> Value) : K<IdentityT<M>, A>
     public IdentityT<M, B> Map<B>(Func<A, B> f) =>
         new(M.Map(f, Value));
 
+    /// <summary>
+    /// Maps the given monad
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    public IdentityT<M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
+        new(f(Value));
+        
     [Pure]
     public IdentityT<M, B> Select<B>(Func<A, B> f) =>
         new(M.Map(f, Value));

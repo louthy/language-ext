@@ -82,6 +82,16 @@ public record Producer<OUT, M, A> : Proxy<Void, Unit, Unit, OUT, M, A>
     [Pure]
     public override Proxy<Void, Unit, Unit, OUT, M, B> Map<B>(Func<A, B> f) =>
         Value.Map(f);
+
+    /// <summary>
+    /// Map the lifted monad
+    /// </summary>
+    /// <param name="f">The map function</param>
+    /// <typeparam name="B">The mapped bound value type</typeparam>
+    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
+    [Pure]
+    public override Proxy<Void, Unit, Unit, OUT, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
+        Value.MapM(f);
         
     /// <summary>
     /// Monadic bind operation, for chaining `Proxy` computations together.

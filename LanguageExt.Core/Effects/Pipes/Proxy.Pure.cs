@@ -47,6 +47,16 @@ public record Pure<UOut, UIn, DIn, DOut, M, A>(A Value) : Proxy<UOut, UIn, DIn, 
         new Pure<UOut, UIn, DIn, DOut, M, B>(f(Value));
 
     /// <summary>
+    /// Map the lifted monad
+    /// </summary>
+    /// <param name="f">The map function</param>
+    /// <typeparam name="B">The mapped bound value type</typeparam>
+    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
+    [Pure]
+    public override Proxy<UOut, UIn, DIn, DOut, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
+        Proxy.lift<UOut, UIn, DIn, DOut, M, B>(f(M.Pure(Value)));
+
+    /// <summary>
     /// `For(body)` loops over the `Proxy p` replacing each `yield` with `body`
     /// </summary>
     /// <param name="body">Any `yield` found in the `Proxy` will be replaced with this function.  It will be composed so

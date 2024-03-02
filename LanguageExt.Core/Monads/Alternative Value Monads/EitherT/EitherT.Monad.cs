@@ -27,7 +27,10 @@ public partial class EitherT<L, M> : MonadT<EitherT<L, M>, M>, SemiAlternative<E
 
     static K<EitherT<L, M>, A> MonadT<EitherT<L, M>, M>.Lift<A>(K<M, A> ma) => 
         EitherT<L, M, A>.Lift(ma);
-    
+        
+    static K<EitherT<L, M>, B> MonadT<EitherT<L, M>, M>.MapM<A, B>(Func<K<M, A>, K<M, B>> f, K<EitherT<L, M>, A> ma) =>
+        ma.As().MapM(f);
+
     static K<EitherT<L, M>, A> Monad<EitherT<L, M>>.LiftIO<A>(IO<A> ma) => 
         EitherT<L, M, A>.Lift(M.LiftIO(ma));
 

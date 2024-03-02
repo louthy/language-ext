@@ -98,7 +98,7 @@ public record Writer<W, A>(Func<W, (A Value, W Output)> runWriter) : K<Writer<W>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`Writer`</returns>
     public Writer<W, B> Map<B>(Func<A, B> f) =>
-        new(w => first(f, runWriter(w)));
+        new(w => mapFirst(f, runWriter(w)));
     
     /// <summary>
     /// Maps the bound value
@@ -107,7 +107,7 @@ public record Writer<W, A>(Func<W, (A Value, W Output)> runWriter) : K<Writer<W>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`Writer`</returns>
     public Writer<W, B> Select<B>(Func<A, B> f) =>
-        new(w => first(f, runWriter(w)));
+        new(w => mapFirst(f, runWriter(w)));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

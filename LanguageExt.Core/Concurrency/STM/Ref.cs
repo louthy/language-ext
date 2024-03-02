@@ -125,11 +125,11 @@ public sealed class Ref<A> : IEquatable<A>
     /// <param name="f">Swap function</param>
     /// <returns>The value returned from `f`</returns>
     public Eff<RT, A> SwapEff<RT>(Func<A, Eff<RT, A>> f) =>
-        from eio in envIO
+        from sta in getState<RT>()
         from res in Eff<RT, A>.Lift(
             env =>
             {
-                var fv = f(Value).Run(env, eio);
+                var fv = f(Value).Run(env, sta.Resources, sta.EnvIO);
                 if (fv.IsFail) return fv;
                 Value = fv.SuccValue;
                 return fv;
@@ -184,11 +184,11 @@ public sealed class Ref<A> : IEquatable<A>
     /// <param name="f">Swap function</param>
     /// <returns>The value returned from `f`</returns>
     public Eff<RT, A> SwapEff<X, Y, RT>(X x, Y y, Func<X, Y, A, Eff<RT, A>> f) =>
-        from eio in envIO
+        from sta in getState<RT>()
         from res in Eff<RT, A>.Lift(
             env =>
             {
-                var fv = f(x, y, Value).Run(env, eio);
+                var fv = f(x, y, Value).Run(env, sta.Resources, sta.EnvIO);
                 if (fv.IsFail) return fv;
                 Value = fv.SuccValue;
                 return fv;
@@ -243,11 +243,11 @@ public sealed class Ref<A> : IEquatable<A>
     /// <param name="f">Swap function</param>
     /// <returns>The value returned from `f`</returns>
     public Eff<RT, A> SwapEff<X, RT>(X x, Func<X, A, Eff<RT, A>> f) =>
-        from eio in envIO
+        from sta in getState<RT>()
         from res in Eff<RT, A>.Lift(
             env =>
             {
-                var fv = f(x, Value).Run(env, eio);
+                var fv = f(x, Value).Run(env, sta.Resources, sta.EnvIO);
                 if (fv.IsFail) return fv;
                 Value = fv.SuccValue;
                 return fv;

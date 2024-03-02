@@ -149,7 +149,7 @@ public sealed class Atom<A>
     /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
     /// validation passed. Failure state otherwise</returns>
     public Eff<RT, A> SwapEff<RT>(Func<A, Eff<RT, A>> f) =>
-        from eio in envIO
+        from sta in getState<RT>()
         from res in Eff<RT, A>.Lift(
             env =>
             {
@@ -159,7 +159,7 @@ public sealed class Atom<A>
                 while (true)
                 {
                     var current      = value;
-                    var newValueFinA = f(Box<A>.GetValue(value)).Run(env, eio);
+                    var newValueFinA = f(Box<A>.GetValue(value)).Run(env, sta.Resources, sta.EnvIO);
                     if (newValueFinA.IsFail)
                     {
                         return newValueFinA;
@@ -295,7 +295,7 @@ public sealed class Atom<A>
     /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
     /// validation passed. Failure state otherwise</returns>
     public Eff<RT, A> SwapEff<RT, X>(X x, Func<X, A, Eff<RT, A>> f) =>
-        from eio in envIO
+        from sta in getState<RT>()
         from res in Eff<RT, A>.Lift(
             env =>
             {
@@ -305,7 +305,7 @@ public sealed class Atom<A>
                 while (true)
                 {
                     var current      = value;
-                    var newValueFinA = f(x, Box<A>.GetValue(value)).Run(env, eio);
+                    var newValueFinA = f(x, Box<A>.GetValue(value)).Run(env, sta.Resources, sta.EnvIO);
                     if (newValueFinA.IsFail)
                     {
                         return newValueFinA;
@@ -445,7 +445,7 @@ public sealed class Atom<A>
     /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
     /// validation passed. Failure state otherwise</returns>
     public Eff<RT, A> SwapEff<RT, X, Y>(X x, Y y, Func<X, Y, A, Eff<RT, A>> f) =>
-        from eio in envIO
+        from sta in getState<RT>()
         from res in Eff<RT, A>.Lift(
             env =>
             {
@@ -455,7 +455,7 @@ public sealed class Atom<A>
                 while (true)
                 {
                     var current      = value;
-                    var newValueFinA = f(x, y, Box<A>.GetValue(value)).Run(env, eio);
+                    var newValueFinA = f(x, y, Box<A>.GetValue(value)).Run(env, sta.Resources, sta.EnvIO);
                     if (newValueFinA.IsFail)
                     {
                         return newValueFinA;

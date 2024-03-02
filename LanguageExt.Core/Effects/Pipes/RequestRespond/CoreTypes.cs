@@ -87,12 +87,22 @@ public record Request<UOut, UIn, DIn, DOut, M, A>(UOut Value, Func<UIn, Proxy<UO
                        x => Next(x).Observe())));
  
     [Pure]
-    public override Proxy<UOut, UIn, DIn, DOut, M, S> Bind<S>(Func<A, Proxy<UOut, UIn, DIn, DOut, M, S>> f) =>
-        new Request<UOut, UIn, DIn, DOut, M, S>(Value, a => Next(a).Bind(f));
+    public override Proxy<UOut, UIn, DIn, DOut, M, B> Bind<B>(Func<A, Proxy<UOut, UIn, DIn, DOut, M, B>> f) =>
+        new Request<UOut, UIn, DIn, DOut, M, B>(Value, a => Next(a).Bind(f));
 
     [Pure]
-    public override Proxy<UOut, UIn, DIn, DOut, M, S> Map<S>(Func<A, S> f) =>
-        new Request<UOut, UIn, DIn, DOut, M, S>(Value, a => Next(a).Map(f));
+    public override Proxy<UOut, UIn, DIn, DOut, M, B> Map<B>(Func<A, B> f) =>
+        new Request<UOut, UIn, DIn, DOut, M, B>(Value, a => Next(a).Map(f));
+
+    /// <summary>
+    /// Map the lifted monad
+    /// </summary>
+    /// <param name="f">The map function</param>
+    /// <typeparam name="B">The mapped bound value type</typeparam>
+    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
+    [Pure]
+    public override Proxy<UOut, UIn, DIn, DOut, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
+        new Request<UOut, UIn, DIn, DOut, M, B>(Value, a => Next(a).MapM(f));
     
     [Pure]
     public override string ToString() => 
@@ -119,12 +129,22 @@ public record Respond<UOut, UIn, DIn, DOut, M, A>(DOut Value, Func<DIn, Proxy<UO
     public override Proxy<UOut, UIn, DIn, DOut, M, A> ToProxy() => this;
 
     [Pure]
-    public override Proxy<UOut, UIn, DIn, DOut, M, S> Bind<S>(Func<A, Proxy<UOut, UIn, DIn, DOut, M, S>> f) =>
-        new Respond<UOut, UIn, DIn, DOut, M, S>(Value, b1 => Next(b1).Bind(f));
+    public override Proxy<UOut, UIn, DIn, DOut, M, B> Bind<B>(Func<A, Proxy<UOut, UIn, DIn, DOut, M, B>> f) =>
+        new Respond<UOut, UIn, DIn, DOut, M, B>(Value, b1 => Next(b1).Bind(f));
 
     [Pure]
-    public override Proxy<UOut, UIn, DIn, DOut, M, S> Map<S>(Func<A, S> f) =>
-        new Respond<UOut, UIn, DIn, DOut, M, S>(Value, a => Next(a).Map(f));
+    public override Proxy<UOut, UIn, DIn, DOut, M, B> Map<B>(Func<A, B> f) =>
+        new Respond<UOut, UIn, DIn, DOut, M, B>(Value, a => Next(a).Map(f));
+
+    /// <summary>
+    /// Map the lifted monad
+    /// </summary>
+    /// <param name="f">The map function</param>
+    /// <typeparam name="B">The mapped bound value type</typeparam>
+    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
+    [Pure]
+    public override Proxy<UOut, UIn, DIn, DOut, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
+        new Respond<UOut, UIn, DIn, DOut, M, B>(Value, a => Next(a).MapM(f));
 
     [Pure]
     public override Proxy<UOut, UIn, C1, C, M, A> For<C1, C>(Func<DOut, Proxy<UOut, UIn, C1, C, M, DIn>> body) =>

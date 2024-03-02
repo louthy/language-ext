@@ -38,8 +38,8 @@ internal record ProxyM<UOut, UIn, DIn, DOut, M, A>(K<M, Proxy<UOut, UIn, DIn, DO
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public override Proxy<UOut, UIn, DIn, DOut, M, S> Bind<S>(Func<A, Proxy<UOut, UIn, DIn, DOut, M, S>> f) =>
-        new ProxyM<UOut, UIn, DIn, DOut, M, S>(M.Map(p => p.Bind(f), Value));
+    public override Proxy<UOut, UIn, DIn, DOut, M, B> Bind<B>(Func<A, Proxy<UOut, UIn, DIn, DOut, M, B>> f) =>
+        new ProxyM<UOut, UIn, DIn, DOut, M, B>(M.Map(p => p.Bind(f), Value));
 
     /// <summary>
     /// Lifts a pure function into the `Proxy` domain, causing it to map the bound value within
@@ -48,9 +48,19 @@ internal record ProxyM<UOut, UIn, DIn, DOut, M, A>(K<M, Proxy<UOut, UIn, DIn, DO
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
     [Pure]
-    public override Proxy<UOut, UIn, DIn, DOut, M, S> Map<S>(Func<A, S> f) =>
-        new ProxyM<UOut, UIn, DIn, DOut, M, S>(M.Map(p => p.Map(f), Value));
+    public override Proxy<UOut, UIn, DIn, DOut, M, B> Map<B>(Func<A, B> f) =>
+        new ProxyM<UOut, UIn, DIn, DOut, M, B>(M.Map(p => p.Map(f), Value));
 
+    /// <summary>
+    /// Map the lifted monad
+    /// </summary>
+    /// <param name="f">The map function</param>
+    /// <typeparam name="B">The mapped bound value type</typeparam>
+    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
+    [Pure]
+    public override Proxy<UOut, UIn, DIn, DOut, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
+        new ProxyM<UOut, UIn, DIn, DOut, M, B>(M.Map(p => p.MapM(f), Value));
+    
     /// <summary>
     /// `For(body)` loops over the `Proxy p` replacing each `yield` with `body`
     /// </summary>

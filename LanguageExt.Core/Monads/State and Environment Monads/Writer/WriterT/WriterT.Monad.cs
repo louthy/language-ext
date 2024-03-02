@@ -34,6 +34,8 @@ public partial class WriterT<W, M> :
     static K<WriterT<W, M>, A> MonadT<WriterT<W, M>, M>.Lift<A>(K<M, A> ma) => 
         WriterT<W, M, A>.Lift(ma);
     
+    static K<WriterT<W, M>, B> MonadT<WriterT<W, M>, M>.MapM<A, B>(Func<K<M, A>, K<M, B>> f, K<WriterT<W, M>, A> ma) =>
+        ma.As().MapM(f);
 
     static K<WriterT<W, M>, A> Monad<WriterT<W, M>>.LiftIO<A>(IO<A> ma) =>
         WriterT<W, M, A>.Lift(M.LiftIO(ma));

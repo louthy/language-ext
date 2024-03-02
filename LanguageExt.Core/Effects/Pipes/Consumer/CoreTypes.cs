@@ -51,6 +51,16 @@ public record Consumer<IN, M, A> : Proxy<Unit, IN, Unit, Void, M, A>
     [Pure]
     public override Proxy<Unit, IN, Unit, Void, M, S> Bind<S>(Func<A, Proxy<Unit, IN, Unit, Void, M, S>> f) =>
         Value.Bind(f);
+
+    /// <summary>
+    /// Map the lifted monad
+    /// </summary>
+    /// <param name="f">The map function</param>
+    /// <typeparam name="B">The mapped bound value type</typeparam>
+    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
+    [Pure]
+    public override Proxy<Unit, IN, Unit, Void, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
+        Value.MapM(f);
         
     /// <summary>
     /// Monadic bind operation, for chaining `Proxy` computations together.

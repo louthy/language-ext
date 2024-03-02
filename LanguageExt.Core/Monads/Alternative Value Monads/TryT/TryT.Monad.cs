@@ -28,6 +28,9 @@ public partial class TryT<M> : MonadT<TryT<M>, M>, SemiAlternative<TryT<M>>
     static K<TryT<M>, A> MonadT<TryT<M>, M>.Lift<A>(K<M, A> ma) => 
         TryT<M, A>.Lift(ma);
     
+    static K<TryT<M>, B> MonadT<TryT<M>, M>.MapM<A, B>(Func<K<M, A>, K<M, B>> f, K<TryT<M>, A> ma) =>
+        ma.As().MapM(f);
+    
     static K<TryT<M>, A> Monad<TryT<M>>.LiftIO<A>(IO<A> ma) => 
         TryT<M, A>.Lift(M.LiftIO(ma));
 

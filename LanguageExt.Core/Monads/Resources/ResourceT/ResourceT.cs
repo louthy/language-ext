@@ -58,7 +58,7 @@ public record ResourceT<M, A>(Func<Resources, K<M, A>> runResource) : K<Resource
     /// <param name="f">Mapping function</param>
     /// <typeparam name="M1">Trait of the monad to map to</typeparam>
     /// <returns>`ResourceT`</returns>
-    public ResourceT<M1, B> MapT<M1, B>(Func<K<M, A>, K<M1, B>> f)
+    public ResourceT<M1, B> MapM<M1, B>(Func<K<M, A>, K<M1, B>> f)
         where M1 : Monad<M1>, SemiAlternative<M1> =>
         new (env => f(runResource(env)));
 
@@ -215,17 +215,16 @@ public record ResourceT<M, A>(Func<Resources, K<M, A>> runResource) : K<Resource
     /// Run the resource monad and automatically clean up the resources after 
     /// </summary>
     /// <returns>Bound monad</returns>
-    public K<M, A> Run(EnvIO envIO)
-    {
-        using var env = new Resources();
-        var       mio = MonadIO.toIO(this).As();
-        return M.Map(m => m.Run(envIO),  mio.runResource(env));
-    }
+    public K<M, A> Run(Resources resources) =>
+        runResource(resources);
 
     /// <summary>
     /// Run the resource monad and automatically clean up the resources after 
     /// </summary>
     /// <returns>Bound monad</returns>
-    public K<M, A> Run() =>
-        Run(EnvIO.New());
+    public K<M, A> Run()
+    {
+        using var resources = new Resources();
+        return Run(resources);
+    }
 }

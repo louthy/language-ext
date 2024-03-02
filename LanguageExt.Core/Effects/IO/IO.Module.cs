@@ -62,6 +62,9 @@ public partial class IO
     public static IO<A> liftAsync<A>(Func<EnvIO, ValueTask<A>> f) => 
         IO<A>.LiftAsync(f);
 
+    public static readonly IO<EnvIO> env = 
+        lift(e => e);
+    
     public static readonly IO<CancellationToken> token = 
         lift(e => e.Token);
     

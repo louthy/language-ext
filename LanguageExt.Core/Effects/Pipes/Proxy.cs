@@ -69,6 +69,14 @@ public abstract record Proxy<UOut, UIn, DIn, DOut, M, A> : K<Proxy<UOut, UIn, DI
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
     public abstract Proxy<UOut, UIn, DIn, DOut, M, B> Map<B>(Func<A, B> f);
+
+    /// <summary>
+    /// Map the lifted monad
+    /// </summary>
+    /// <param name="f">The map function</param>
+    /// <typeparam name="B">The mapped bound value type</typeparam>
+    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
+    public abstract Proxy<UOut, UIn, DIn, DOut, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f); 
         
     /// <summary>
     /// `For(body)` loops over the `Proxy p` replacing each `yield` with `body`

@@ -65,6 +65,10 @@ public partial class ResourceT<M>
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class ResourceT
 {
+    public static ResourceT<M, Resources> resources<M>() 
+        where M : Monad<M>, SemiAlternative<M> => 
+        new (M.Pure);
+    
     public static ResourceT<M, A> or<M, A>(
         ResourceT<M, A> ma, 
         ResourceT<M, A> mb) 

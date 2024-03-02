@@ -16,50 +16,14 @@ namespace LanguageExt;
 /// <typeparam name="A">Bound value type</typeparam>
 public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
 {
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Transformer helpers
-    //
-
-    static StateT<RT, ResourceT<IO>, X> getsM<X>(Func<RT, IO<X>> f) =>
-        from e in StateT.get<ResourceT<IO>, RT>()
-        from r in StateT.liftIO<RT, ResourceT<IO>, X>(IO.lift(() => f(e)).Flatten())
-        select r;
-
-    static StateT<RT, ResourceT<IO>, X> getsIO<X>(Func<RT, ValueTask<X>> f) =>
-        from e in StateT.get<ResourceT<IO>, RT>()
-        from r in StateT.liftIO<RT, ResourceT<IO>, X>(IO.liftAsync(() => f(e)))
-        select r;
-
-    static StateT<RT, ResourceT<IO>, X> gets<X>(Func<RT, X> f) =>
-        from e in StateT.get<ResourceT<IO>, RT>()
-        from r in StateT.liftIO<RT, ResourceT<IO>, X>(IO.lift(() => f(e)))
-        select r;
-
-    static StateT<RT, ResourceT<IO>, X> gets<X>(Func<RT, Fin<X>> f) =>
-        from e in StateT.get<ResourceT<IO>, RT>()
-        from r in StateT.liftIO<RT, ResourceT<IO>, X>(IO.lift(() => f(e)))
-        select r;
-
-    static StateT<RT, ResourceT<IO>, X> gets<X>(Func<RT, Either<Error, X>> f) =>
-        from e in StateT.get<ResourceT<IO>, RT>()
-        from r in StateT.liftIO<RT, ResourceT<IO>, X>(IO.lift(() => f(e)))
-        select r;
-
-    static StateT<RT, ResourceT<IO>, X> fail<X>(Error value) =>
-        StateT.liftIO<RT, ResourceT<IO>, X>(IO<X>.Fail(value));
-
-    static StateT<RT, ResourceT<IO>, X> pure<X>(X value) =>
-        StateT<RT, ResourceT<IO>, X>.Pure(value);
-
-    Eff<RT2, B> MapState<RT2, B>(Func<StateT<RT, ResourceT<IO>, A>, StateT<RT2, ResourceT<IO>, B>> f) =>
+    /*Eff<RT2, B> MapState<RT2, B>(Func<StateT<RT, ResourceT<IO>, A>, StateT<RT2, ResourceT<IO>, B>> f) =>
         new(f(effect));
 
     Eff<RT, B> MapResource1<B>(Func<ResourceT<IO, (A Value, RT Env)>, ResourceT<IO, (B Value, RT Env)>> f) =>
         MapState(State => State.MapT(resource => f(resource.As())));
 
     Eff<RT, B> MapResource<B>(Func<ResourceT<IO, A>, ResourceT<IO, B>> f) =>
-        MapResource1(res => res.Bind(r => f(ResourceT<IO, A>.Pure(r.Value)).Map(b => (b, r.Env))));
+        MapResource1(res => res.Bind(r => f(ResourceT<IO, A>.Pure(r.Value)).Map(b => (b, r.Env))));*/
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -71,7 +35,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// </summary>
     [MethodImpl(Opt.Default)]
     internal Eff(Func<RT, ValueTask<A>> effect)
-        : this(getsIO(effect))
+        : this(Eff<RT>.getsIO(effect))
     { }
 
     /// <summary>
@@ -79,7 +43,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// </summary>
     [MethodImpl(Opt.Default)]
     Eff(A value) 
-        : this(pure(value))
+        : this(Eff<RT>.pure(value))
     { }
 
     /// <summary>
@@ -87,7 +51,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// </summary>
     [MethodImpl(Opt.Default)]
     Eff(Error value) 
-        : this(fail<A>(value))
+        : this(Eff<RT>.fail<A>(value))
     { }
 
     /// <summary>
@@ -95,7 +59,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// </summary>
     [MethodImpl(Opt.Default)]
     Eff(Func<RT, A> effect) 
-        : this(gets(effect))
+        : this(Eff<RT>.gets(effect))
     { }
 
     /// <summary>
@@ -103,7 +67,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// </summary>
     [MethodImpl(Opt.Default)]
     Eff(Func<RT, Fin<A>> effect)
-        : this(gets(effect))
+        : this(Eff<RT>.gets(effect))
     {
     }
 
@@ -112,7 +76,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// </summary>
     [MethodImpl(Opt.Default)]
     Eff(Func<RT, Either<Error, A>> effect) 
-        : this(gets(effect))
+        : this(Eff<RT>.gets(effect))
     { }
 
     /// <summary>
@@ -197,7 +161,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> LiftIO(Func<RT, IO<A>> f) =>
-        new(getsM(f));
+        new(Eff<RT>.getsM(f));
 
     /// <summary>
     /// Lift an effect into the `Eff` monad
@@ -269,7 +233,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <returns>Mapped `Eff` monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, B> Map<B>(Func<A, B> f) =>
-        new(effect.Map(f));
+        BiMap(f, x => x);
 
     /// <summary>
     /// Maps the `Eff` monad if it's in a success state
@@ -278,7 +242,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <returns>Mapped `Eff` monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, B> Select<B>(Func<A, B> f) =>
-        new(effect.Select(f));
+        BiMap(f, x => x);
 
     /// <summary>
     /// Maps the `Eff` monad if it's in a success state
@@ -287,7 +251,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <returns>Mapped `Eff` monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, A> MapFail(Func<Error, Error> f) =>
-        MapIO(io => io.MapFail(f));
+        BiMap(x => x, f);
 
     /// <summary>
     /// Maps the inner IO monad
@@ -296,7 +260,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <returns>Mapped `Eff` monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, B> MapIO<B>(Func<IO<A>, IO<B>> f) =>
-        MapResource(resource => resource.MapT(io => f(io.As())));
+        new(effect.MapM(mr => mr.As().MapM(mio => f(mio.As()))));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -311,14 +275,34 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <param name="Fail">Mapping to use if the `Eff` monad if in a failure state</param>
     /// <returns>Mapped `Eff` monad</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail) =>
-        MapIO(io => io.BiMap(Succ, Fail));
+    public Eff<RT, B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail)
+    {
+        return new(from env in Eff<RT>.getState
+                   from res in go(env.Runtime, env.Resources, env.EnvIO)
+                   select res);
+
+        StateT<RT, ResourceT<IO>, B> go(RT env, Resources resources, EnvIO envIO)
+        {
+            try
+            {
+                return StateT<RT, ResourceT<IO>, B>.State(mapFirst(Succ, RunUnsafe(env, resources, envIO)));
+            }
+            catch (ErrorException e)
+            {
+                return Fail(e.ToError()).Throw<StateT<RT, ResourceT<IO>, B>>();
+            }
+            catch (Exception e)
+            {
+                return Fail(e).Throw<StateT<RT, ResourceT<IO>, B>>();
+            }
+        }
+    }    
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Matching
     //
-    
+
     /// <summary>
     /// Pattern match the success or failure values and collapse them down to a success value
     /// </summary>
@@ -326,8 +310,28 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <param name="Fail">Failure value mapping</param>
     /// <returns>IO in a success state</returns>
     [Pure]
-    public Eff<RT, B> Match<B>(Func<A, B> Succ, Func<Error, B> Fail) =>
-        MapIO(io => io.Match(Succ, Fail));
+    public Eff<RT, B> Match<B>(Func<A, B> Succ, Func<Error, B> Fail)
+    {
+        return new(from env in Eff<RT>.getState
+                   from res in go(env.Runtime, env.Resources, env.EnvIO)
+                   select res);
+
+        StateT<RT, ResourceT<IO>, B> go(RT env, Resources resources, EnvIO envIO)
+        {
+            try
+            {
+                return StateT<RT, ResourceT<IO>, B>.State(mapFirst(Succ, RunUnsafe(env, resources, envIO)));
+            }
+            catch (ErrorException e)
+            {
+                return StateT<RT, ResourceT<IO>, B>.State(Fail(e.ToError()), env);
+            }
+            catch (Exception e)
+            {
+                return StateT<RT, ResourceT<IO>, B>.State(Fail(e), env);
+            }
+        }
+    }
 
     /// <summary>
     /// Map the failure to a success value
@@ -336,7 +340,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <returns>IO in a success state</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, A> IfFail(Func<Error, A> Fail) =>
-        MapIO(io => io.IfFail(Fail));
+        Match(Succ: x => x, Fail: Fail);
 
     /// <summary>
     /// Map the failure to a new IO effect
@@ -895,7 +899,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, Eff<RT, A> mb) =>
-        new (ma.effect | mb.effect);
+        ma.IfFailEff(_ => mb);
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -906,7 +910,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, Pure<A> mb) =>
-        new (ma.effect | mb);
+        new (ma | (Eff<RT, A>)mb);
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -917,7 +921,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, Fail<Error> error) =>
-        new (ma.effect | IO<A>.Fail(error.Value));
+        new (ma | (Eff<RT, A>)error);
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -928,7 +932,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, Error error) =>
-        new (ma.effect | IO<A>.Fail(error));
+        new (ma | Fail(error));
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -939,7 +943,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, A value) =>
-        new (ma.effect | Prelude.Pure(value));
+        new (ma | (Eff<RT, A>)Prelude.Pure(value));
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -950,7 +954,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchError<Error> mb) =>
-        ma.MapIO(io => io | mb);
+        ma.MapFail(e => mb.Match(e) ? mb.Value(e) : e);
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -961,7 +965,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchError mb) =>
-        ma.MapIO(io => io | mb);
+        ma.MapFail(e => mb.Match(e) ? mb.Value(e) : e);
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -972,7 +976,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchError<Exception> mb) =>
-        ma.MapIO(io => io | mb);
+        ma.MapFail(e => mb.Match(e) ? mb.Value(e) : e);
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -983,7 +987,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchValue<Error, A> mb) =>
-        ma.MapIO(io => io | mb);
+        ma.IfFailEff(e => mb.Match(e) ? Pure(mb.Value(e)) : Fail(e));
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -994,7 +998,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchValue<Exception, A> mb) =>
-        ma.MapIO(io => io | mb);
+        ma.IfFailEff(e => mb.Match(e) ? Pure(mb.Value(e)) : Fail(e));
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -1005,7 +1009,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchValue<A> mb) =>
-        ma.MapIO(io => io | mb);
+        ma.IfFailEff(e => mb.Match(e) ? Pure(mb.Value(e)) : Fail(e));
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -1016,7 +1020,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchM<Eff<RT>, A> mb) =>
-        ma.IfFailEff(e => mb.Run(e, Fail(e)).As());
+        ma.IfFailEff(e => mb.Match(e) ? mb.Value(e).As() : Fail(e));
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -1027,7 +1031,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchM<Eff, A> mb) =>
-        ma.IfFailEff(e => mb.Run(e, Eff<A>.Fail(e)).As().WithRuntime<RT>());
+        ma.IfFailEff(e => mb.Match(e) ? mb.Value(e).As().WithRuntime<RT>() : Fail(e));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -1041,8 +1045,8 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// Returns the result value only 
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
-    public Fin<A> Run(RT env, EnvIO envIO) =>
-        RunRT(env, envIO).Map(x => x.Value);    
+    public Fin<A> Run(RT env, Resources resources, EnvIO envIO) =>
+        RunState(env, resources, envIO).Map(x => x.Value);
 
     /// <summary>
     /// Invoke the effect
@@ -1050,9 +1054,12 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <remarks>
     /// Returns the result value only 
     /// </remarks>
-    [MethodImpl(Opt.Default)]
-    public Unit RunUnit(RT env, EnvIO envIO) =>
-        ignore(RunRT(env, envIO).Map(x => x.Value));    
+    [Pure, MethodImpl(Opt.Default)]
+    public Fin<A> Run(RT env, EnvIO envIO)
+    {
+        using var resources = new Resources();
+        return Run(env, resources, envIO);
+    }
     
     /// <summary>
     /// Invoke the effect
@@ -1061,11 +1068,11 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// Returns the result value and the runtime (which carries state) 
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
-    public Fin<(A Value, RT Runtime)> RunRT(RT env, EnvIO envIO)
+    public Fin<(A Value, RT Runtime)> RunState(RT env, Resources resources, EnvIO envIO)
     {
         try
         {
-            return RunUnsafe(env, envIO);
+            return RunUnsafe(env, resources, envIO);
         }
         catch (ErrorException e)
         {
@@ -1073,9 +1080,21 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
         }
         catch(Exception e)
         {
-            var e1 = Error.New(e);
-            return Fin<(A Value, RT Runtime)>.Fail(e1);
+            return Fin<(A Value, RT Runtime)>.Fail(e);
         }
+    }
+    
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// Returns the result value and the runtime (which carries state) 
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public Fin<(A Value, RT Runtime)> RunState(RT env, EnvIO envIO)
+    {
+        using var resources = new Resources();
+        return RunState(env, resources, envIO);
     }
 
     /// <summary>
@@ -1086,12 +1105,26 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// `Run` will capture any errors and return a `Fin` type.
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
-    public (A Value, RT Runtime) RunUnsafe(RT env, EnvIO envIO) => 
+    public (A Value, RT Runtime) RunUnsafe(RT env, Resources resources, EnvIO envIO) => 
         effect
           .Run(env).As()
-          .Run().As()
+          .Run(resources).As()
           .Run(envIO);
-    
+
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// This is labelled 'unsafe' because it can throw an exception, whereas
+    /// `Run` will capture any errors and return a `Fin` type.
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public (A Value, RT Runtime) RunUnsafe(RT env, EnvIO envIO)
+    {
+        using var resources = new Resources();
+        return RunUnsafe(env, resources, envIO);
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Obsolete

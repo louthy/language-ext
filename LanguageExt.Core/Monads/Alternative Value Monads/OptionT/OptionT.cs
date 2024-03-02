@@ -190,6 +190,15 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
         new (f(runOption));
 
     /// <summary>
+    /// Maps the given monad
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    public OptionT<M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
+        new(runOption.Bind(
+                fv => fv.Match(Some: v => f(M.Pure(v)).Map(Option<B>.Some),
+                               None: () => M.Pure(Option<B>.None))));
+
+    /// <summary>
     /// Maps the bound value
     /// </summary>
     /// <param name="f">Mapping function</param>

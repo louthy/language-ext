@@ -32,6 +32,9 @@ public partial class ReaderT<Env, M> :
     static K<ReaderT<Env, M>, A> MonadT<ReaderT<Env, M>, M>.Lift<A>(K<M, A> ma) => 
         ReaderT<Env, M, A>.Lift(ma);
 
+    static K<ReaderT<Env, M>, B> MonadT<ReaderT<Env, M>, M>.MapM<A, B>(Func<K<M, A>, K<M, B>> f, K<ReaderT<Env, M>, A> ma) =>
+        ma.As().MapM(f);
+
     static K<ReaderT<Env, M>, Env> ReaderM<ReaderT<Env, M>, Env>.Ask =>
         ReaderT<Env, M, Env>.Asks(Prelude.identity);
 

@@ -88,7 +88,7 @@ public record State<S, A>(Func<S, (A Value, S State)> runState) : K<State<S>, A>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`State`</returns>
     public State<S, B> Map<B>(Func<A, B> f) =>
-        new(s => first(f, runState(s)));
+        new(s => mapFirst(f, runState(s)));
     
     /// <summary>
     /// Maps the bound value
@@ -97,7 +97,7 @@ public record State<S, A>(Func<S, (A Value, S State)> runState) : K<State<S>, A>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`State`</returns>
     public State<S, B> Select<B>(Func<A, B> f) =>
-        new(s => first(f, runState(s)));
+        new(s => mapFirst(f, runState(s)));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

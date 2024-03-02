@@ -1,24 +1,20 @@
-﻿using System.Threading.Tasks;
-using LanguageExt.Pipes;
+﻿using LanguageExt.Pipes;
 using LanguageExt.Sys.Test;
 using Xunit;
-
 using static LanguageExt.Pipes.Proxy;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests;
 
 public class PipesTests
 {
     [Fact]
-    public Task MergeSynchronousProducersSucceeds() =>
+    public void MergeSynchronousProducersSucceeds() =>
         compose(
             Producer.merge<int, Eff<Runtime>>(
                 yield(1),
                 yield(1)),
             awaiting<int>().Map(ignore))
-        .RunEffect()
-        .As()
-        .RunUnit(Runtime.New(), EnvIO.New())
-        .AsTask();
+        .RunEffect().As()
+        .Run(Runtime.New(), EnvIO.New())
+        .Ignore();
 }

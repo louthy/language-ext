@@ -3,25 +3,25 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public partial class ValidationT<L, M>
+public partial class ValidationT<F, M>
 {
-    public static ValidationT<L, M, A> Right<A>(A value) => 
-        ValidationT<L, M, A>.Success(value);
+    public static ValidationT<F, M, A> Right<A>(A value) => 
+        ValidationT<F, M, A>.Success(value);
 
-    public static ValidationT<L, M, A> Left<A>(L value) => 
-        ValidationT<L, M, A>.Fail(value);
+    public static ValidationT<F, M, A> Left<A>(F value) => 
+        ValidationT<F, M, A>.Fail(value);
 
-    public static ValidationT<L, M, A> lift<A>(Validation<L, A> ma) => 
-        ValidationT<L, M, A>.Lift(ma);
+    public static ValidationT<F, M, A> lift<A>(Validation<F, A> ma) => 
+        ValidationT<F, M, A>.Lift(ma);
 
-    public static ValidationT<L, M, A> lift<A>(Pure<A> ma) => 
-        ValidationT<L, M, A>.Lift(ma);
+    public static ValidationT<F, M, A> lift<A>(Pure<A> ma) => 
+        ValidationT<F, M, A>.Lift(ma);
 
-    public static ValidationT<L, M, A> lift<A>(Fail<L> ma) => 
-        ValidationT<L, M, A>.Lift(ma);
+    public static ValidationT<F, M, A> lift<A>(Fail<F> ma) => 
+        ValidationT<F, M, A>.Lift(ma);
 
-    public static ValidationT<L, M, A> liftIO<A>(IO<A> ma) =>  
-        ValidationT<L, M, A>.Lift(M.LiftIO(ma));
+    public static ValidationT<F, M, A> liftIO<A>(IO<A> ma) =>  
+        ValidationT<F, M, A>.Lift(M.LiftIO(ma));
 }
 
 public partial class ValidationT

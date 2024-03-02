@@ -96,6 +96,19 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     public ValidationT<L, M1, B> MapT<M1, B>(Func<K<M, Validation<L, A>>, K<M1, Validation<L, B>>> f)
         where M1 : Monad<M1> =>
         new (f(runValidation));
+
+    /// <summary>
+    /// Maps the given monad
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    public ValidationT<L, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
+        new(runValidation
+               .Bind(fv => fv switch
+                           {
+                               Validation.Success<L, A> (var v) => f(M.Pure(v)).Map(Validation<L, B>.Success),
+                               Validation.Fail<L, A> (var e)    => M.Pure<Validation<L, B>>(e),
+                               _                                => throw new NotSupportedException()
+                           }));
     
     /// <summary>
     /// Maps the bound value

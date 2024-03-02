@@ -50,6 +50,13 @@ public static partial class Prelude
         liftEff<RT, RT>(rt => rt);
 
     /// <summary>
+    /// Get all of the internal state of the Eff
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, (RT Runtime, Resources Resources, EnvIO EnvIO)> getState<RT>() =>
+        new(LanguageExt.Eff<RT>.getState);
+    
+    /// <summary>
     /// Create a new cancellation context and run the provided Aff in that context
     /// </summary>
     /// <param name="ma">Operation to run in the next context</param>
@@ -57,14 +64,14 @@ public static partial class Prelude
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>An asynchronous effect that captures the operation running in context</returns>
     public static Eff<RT, A> localCancel<RT, A>(Eff<RT, A> ma) =>
-        from env in envIO
-        from res in liftEff<RT, A>(
+        from s in getState<RT>()
+        from r in liftEff<RT, A>(
             rt =>
             {
-                using var lenv = env.LocalCancel;
-                return ma.Run(rt, lenv);
+                using var lenvIO = s.EnvIO.LocalCancel;
+                return ma.Run(rt, s.Resources, lenvIO);
             })
-        select res;
+        select r;
 
     /// <summary>
     /// Create a new local context for the environment by mapping the outer environment and then
@@ -75,12 +82,24 @@ public static partial class Prelude
     /// <param name="ma">IO monad to run in the new context</param>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<OuterRT, A> localEff<OuterRT, InnerRT, A>(Func<OuterRT, InnerRT> f, Eff<InnerRT, A> ma) =>
-        (from irt in StateM.gets<Eff<OuterRT>, OuterRT, InnerRT>(f)
-         from eio in Resource.use<Eff<OuterRT>, EnvIO>(envIO.Map(e => e.LocalCancel))
-         let ires = ma.RunUnsafe(irt, eio)
-         from ___ in Resource.release<Eff<OuterRT>, EnvIO>(eio)
-         select ires.Value)
-        .As();
+         // Get the current state of the Eff  
+         from st in getState<OuterRT>()
+         
+         // Create a new local-resources, but add it to our parent Resources
+         from res in Resource.use<Eff<OuterRT>, Resources>(() => new Resources())
+         
+         // Create a new local cancellation environment and then add it to the local resources
+         let io = st.EnvIO.LocalCancel
+         let _1 = res.Acquire(io)
+         
+         // Run the local operation
+         let rs = ma.RunUnsafe(f(st.Runtime), res, io)
+         
+         // Release the local resources (and in the process disposing of the local cancellation environment)
+         from _2 in Resource.release<Eff<OuterRT>, Resources>(res)
+         
+         // Ignore any changes to the state and just return the result of the local operation
+         select rs.Value;
  
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

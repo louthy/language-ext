@@ -126,6 +126,19 @@ public record TryT<M, A>(Func<K<M, Fin<A>>> runTry) : K<TryT<M>, A>
         new(() => f(runTry()));
 
     /// <summary>
+    /// Maps the given monad
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    public TryT<M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
+        new(() => runTry()
+               .Bind(fv => fv switch
+                           {
+                               Fin.Succ<A> (var v) => f(M.Pure(v)).Map(Fin<B>.Succ),
+                               Fin.Fail<A> (var e) => M.Pure<Fin<B>>(e),
+                               _                   => throw new NotSupportedException()
+                           }));
+
+    /// <summary>
     /// Maps the bound value
     /// </summary>
     /// <param name="f">Mapping function</param>

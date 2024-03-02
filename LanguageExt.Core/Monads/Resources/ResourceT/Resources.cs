@@ -18,6 +18,12 @@ public class Resources : IDisposable
         }
     }
 
+    public Unit DisposeU()
+    {
+        Dispose();
+        return default;
+    }
+
     public Unit Acquire<A>(A value) where A : IDisposable
     {
         var obj = (object?)value;

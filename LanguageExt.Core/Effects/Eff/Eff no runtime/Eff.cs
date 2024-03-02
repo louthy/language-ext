@@ -51,23 +51,23 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <summary>
     /// Invoke the effect
     /// </summary>
-    [MethodImpl(Opt.Default)]
-    public Unit RunUnit(MinRT env) =>
-        ignore(effect.Run(env));
+    [Pure, MethodImpl(Opt.Default)]
+    public Fin<A> Run(MinRT env, Resources resources) =>
+        effect.Run(env, resources);
 
     /// <summary>
     /// Invoke the effect
     /// </summary>
-    [MethodImpl(Opt.Default)]
-    public Unit RunUnit(EnvIO envIO) =>
-        ignore(Run(new MinRT(envIO)));
+    [Pure, MethodImpl(Opt.Default)]
+    public Fin<A> Run(EnvIO envIO, Resources resources) =>
+        Run(new MinRT(envIO), resources);
 
     /// <summary>
     /// Invoke the effect
     /// </summary>
-    [MethodImpl(Opt.Default)]
-    public Unit RunUnit() =>
-        ignore(Run(new MinRT()));
+    [Pure, MethodImpl(Opt.Default)]
+    public Fin<A> Run(Resources resources) =>
+        Run(new MinRT(), resources);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -946,35 +946,8 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     public static implicit operator Eff<A>(in Effect<Eff, A> ma) =>
         ma.RunEffect().As();
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Obsolete
-    //
-
-    /// <summary>
-    /// Lift a value into the `Eff` monad
-    /// </summary>
-    [Obsolete("Use either: `Prelude.Pure` or `Eff<A>.Pure`")]
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> Success(A value) =>
-        Pure(value);
-
-    /// <summary>
-    /// Lift a synchronous effect into the `Eff` monad
-    /// </summary>
-    [Obsolete("Use either: `Prelude.lift` or `Eff<A>.Lift`")]
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> Effect(Func<A> f) =>
-        Lift(_ => f());
-
-    /// <summary>
-    /// Lift a synchronous effect into the `Eff` monad
-    /// </summary>
-    [Obsolete("Use either: `Prelude.lift` or `Eff<A>.Lift`")]
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> EffectMaybe(Func<Fin<A>> f) =>
-        Lift(_ => f());
-
+    public override string ToString() => 
+        "Eff";
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -1025,14 +998,87 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     static K<Eff<A>, T> Monad<Eff<A>>.LiftIO<T>(IO<T> ma) =>
         new Eff<A, T>(StateT.liftIO<A, ResourceT<IO>, T>(ma));
     
-    static K<Eff<A>, U> Monad<Eff<A>>.WithRunInIO<T, U>(Func<Func<K<Eff<A>, T>, IO<T>>, IO<U>> inner) =>
+    /*
+     TODO -- can get the resources from ResourceT.resources -- consider restoring
+     static K<Eff<A>, U> Monad<Eff<A>>.WithRunInIO<T, U>(Func<Func<K<Eff<A>, T>, IO<T>>, IO<U>> inner) =>
         Eff<A, U>.LiftIO(
             env => inner(ma => ma.As()
                                  .effect
                                  .Run(env).As()
                                  .Run().As()
-                                 .Map(p => p.Value)));
+                                 .Map(p => p.Value)));*/
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Transformer helpers
+    //
 
-    public override string ToString() => 
-        "Eff";
+    internal static StateT<A, ResourceT<IO>, X> getsM<X>(Func<A, IO<X>> f) =>
+        from e in StateT.get<ResourceT<IO>, A>()
+        from r in StateT.liftIO<A, ResourceT<IO>, X>(IO.lift(() => f(e)).Flatten())
+        select r;
+
+    internal static StateT<A, ResourceT<IO>, X> getsIO<X>(Func<A, ValueTask<X>> f) =>
+        from e in StateT.get<ResourceT<IO>, A>()
+        from r in StateT.liftIO<A, ResourceT<IO>, X>(IO.liftAsync(() => f(e)))
+        select r;
+
+    internal static StateT<A, ResourceT<IO>, X> gets<X>(Func<A, X> f) =>
+        from e in StateT.get<ResourceT<IO>, A>()
+        from r in StateT.liftIO<A, ResourceT<IO>, X>(IO.lift(() => f(e)))
+        select r;
+
+    internal static StateT<A, ResourceT<IO>, X> gets<X>(Func<A, Fin<X>> f) =>
+        from e in StateT.get<ResourceT<IO>, A>()
+        from r in StateT.liftIO<A, ResourceT<IO>, X>(IO.lift(() => f(e)))
+        select r;
+
+    internal static StateT<A, ResourceT<IO>, X> gets<X>(Func<A, Either<Error, X>> f) =>
+        from e in StateT.get<ResourceT<IO>, A>()
+        from r in StateT.liftIO<A, ResourceT<IO>, X>(IO.lift(() => f(e)))
+        select r;
+
+    internal static StateT<A, ResourceT<IO>, X> fail<X>(Error value) =>
+        StateT.liftIO<A, ResourceT<IO>, X>(IO<X>.Fail(value));
+
+    internal static StateT<A, ResourceT<IO>, X> pure<X>(X value) =>
+        StateT<A, ResourceT<IO>, X>.Pure(value);
+
+    internal static StateT<A, ResourceT<IO>, X> state<X>(X value, A runtime) =>
+        StateT<A, ResourceT<IO>, X>.State(value, runtime);
+
+    internal static readonly StateT<A, ResourceT<IO>, (A Runtime, Resources Resources, EnvIO EnvIO)> getState = 
+        from rt in StateT.get<ResourceT<IO>, A>()
+        from rs in StateT.lift<A, ResourceT<IO>, Resources>(ResourceT.resources<IO>())
+        from io in StateT.lift<A, ResourceT<IO>, EnvIO>(ResourceT.lift(IO.env))
+        select (rt, rs, io);
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Obsolete
+    //
+
+    /// <summary>
+    /// Lift a value into the `Eff` monad
+    /// </summary>
+    [Obsolete("Use either: `Prelude.Pure` or `Eff<A>.Pure`")]
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> Success(A value) =>
+        Pure(value);
+
+    /// <summary>
+    /// Lift a synchronous effect into the `Eff` monad
+    /// </summary>
+    [Obsolete("Use either: `Prelude.lift` or `Eff<A>.Lift`")]
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> Effect(Func<A> f) =>
+        Lift(_ => f());
+
+    /// <summary>
+    /// Lift a synchronous effect into the `Eff` monad
+    /// </summary>
+    [Obsolete("Use either: `Prelude.lift` or `Eff<A>.Lift`")]
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> EffectMaybe(Func<Fin<A>> f) =>
+        Lift(_ => f());
 }
