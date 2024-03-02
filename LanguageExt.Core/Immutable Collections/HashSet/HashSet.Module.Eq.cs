@@ -46,7 +46,9 @@ public partial class HashSet
     /// <returns>HSet</returns>
     [Pure]
     public static HashSet<EqA, A> createRange<EqA, A>(ReadOnlySpan<A> range) where EqA : Eq<A> =>
-        range.IsEmpty ? HashSet<EqA, A>.Empty : new (range);
+        range.IsEmpty 
+            ? HashSet<EqA, A>.Empty 
+            : new (range);
 
     /// <summary>
     /// Create a new set pre-populated with the items in range

@@ -36,9 +36,10 @@ public partial class Arr : Monad<Arr>, Alternative<Arr>, Traversable<Arr>
     {
         return F.Map<Arr<B>, K<Arr, B>>(
             ks => ks, 
-            F.Map(s => s.ToArr(), Foldable.fold(a => s => cons(a, s), F.Pure(Seq.empty<B>()), ta)));
+            F.Map(s => s.ToArr(), 
+                  Foldable.fold(cons, F.Pure(Seq.empty<B>()), ta)));
 
         K<F, Seq<B>> cons(A x, K<F, Seq<B>> ys) =>
-            Applicative.lift((b, bs) => b.Cons(bs), f(x), ys);
+            Applicative.lift(Prelude.Cons, f(x), ys);
     }
 }

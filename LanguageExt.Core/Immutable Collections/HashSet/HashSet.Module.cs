@@ -55,7 +55,9 @@ public partial class HashSet
     /// <returns>HSet</returns>
     [Pure]
     public static HashSet<T> createRange<T>(ReadOnlySpan<T> range) =>
-        range.IsEmpty ? HashSet<T>.Empty : new (range);
+        range.IsEmpty 
+            ? HashSet<T>.Empty 
+            : new (range);
 
     /// <summary>
     /// Create a new empty set

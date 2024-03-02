@@ -76,7 +76,9 @@ public static class List
     /// <returns>Lst T</returns>
     [Pure]
     public static Lst<A> createRange<A>(ReadOnlySpan<A> items) =>
-        new (items);
+        items.IsEmpty
+            ? Lst<A>.Empty
+            : new (items);
 
     /// <summary>
     /// Generates a sequence of T using the provided delegate to initialise

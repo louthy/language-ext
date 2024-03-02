@@ -39,7 +39,7 @@ public partial class Arr
     /// <returns>Lst T</returns>
     [Pure]
     public static Arr<T> create<T>(ReadOnlySpan<T> items) =>
-        items.IsEmpty ? empty<T>() : create(items);    
+        items.IsEmpty ? empty<T>() : new Arr<T>(items);    
 
     /// <summary>
     /// Create an array from a initial set of items

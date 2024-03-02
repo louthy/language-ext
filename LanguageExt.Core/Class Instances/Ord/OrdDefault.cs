@@ -1,5 +1,6 @@
 ﻿using LanguageExt.Traits;
 using System.Diagnostics.Contracts;
+using LanguageExt.Traits.Resolve;
 
 namespace LanguageExt.ClassInstances;
 
@@ -17,7 +18,7 @@ public struct OrdDefault<A> : Ord<A>
     /// <returns>True if x and y are equal</returns>
     [Pure]
     public static int Compare(A x, A y) =>
-        OrdClass<A>.Compare(x, y);
+        OrdResolve<A>.Compare(x, y);
 
     [Pure]
     public static bool Equals(A x, A y) =>

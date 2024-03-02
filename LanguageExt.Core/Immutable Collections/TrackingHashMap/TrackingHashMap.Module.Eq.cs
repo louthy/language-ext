@@ -72,13 +72,15 @@ public static partial class TrackingHashMap
     [Pure]
     public static TrackingHashMap<EqK, K, V> createRange<EqK, K, V>(IEnumerable<(K, V)> keyValues) where EqK : Eq<K> =>
         new (keyValues);
-    
+
     /// <summary>
     /// Creates a new Map seeded with the keyValues provided
     /// </summary>
     [Pure]
     public static TrackingHashMap<EqK, K, V> createRange<EqK, K, V>(ReadOnlySpan<(K, V)> keyValues) where EqK : Eq<K> =>
-        new (keyValues);
+        keyValues.IsEmpty
+            ? TrackingHashMap<EqK, K, V>.Empty
+            : new(keyValues);
 
 
     /// <summary>

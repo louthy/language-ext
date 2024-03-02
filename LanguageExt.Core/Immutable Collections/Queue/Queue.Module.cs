@@ -18,7 +18,9 @@ public static class Queue
     
     [Pure]
     public static Que<T> createRange<T>(ReadOnlySpan<T> items) =>
-        new (items);
+        items.IsEmpty
+            ? Que<T>.Empty
+            : new (items);
 
     [Pure]
     public static Que<T> enq<T>(Que<T> queue, T value) =>

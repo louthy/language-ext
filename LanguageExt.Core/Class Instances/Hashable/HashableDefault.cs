@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.Contracts;
+using LanguageExt.Traits.Resolve;
 
 namespace LanguageExt.ClassInstances;
 
@@ -15,5 +16,5 @@ public struct HashableDefault<A> : Hashable<A>
     /// <returns>The hash code of x</returns>
     [Pure]
     public static int GetHashCode(A x) =>
-        HashableClass<A>.GetHashCode(x);
+        HashableResolve<A>.GetHashCode(x);
 }

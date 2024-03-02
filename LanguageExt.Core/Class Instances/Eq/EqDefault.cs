@@ -2,6 +2,7 @@
 using static LanguageExt.Prelude;
 using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.Traits.Resolve;
 
 namespace LanguageExt.ClassInstances;
 
@@ -24,7 +25,7 @@ public readonly struct EqDefault<A> : Eq<A>
         if (isnull(a)) return isnull(b);
         if (isnull(b)) return false;
         if (ReferenceEquals(a, b)) return true;
-        return EqClass<A>.Equals(a, b);
+        return EqResolve<A>.Equals(a, b);
     }
 
     /// <summary>

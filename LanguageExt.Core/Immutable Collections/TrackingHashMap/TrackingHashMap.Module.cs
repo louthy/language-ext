@@ -77,7 +77,9 @@ public static partial class TrackingHashMap
     /// </summary>
     [Pure]
     public static TrackingHashMap<K, V> createRange<K, V>(ReadOnlySpan<(K, V)> keyValues) =>
-        new (keyValues);
+        keyValues.IsEmpty
+            ? TrackingHashMap<K, V>.Empty 
+            : new (keyValues);
 
     /// <summary>
     /// Creates a new Map seeded with the keyValues provided

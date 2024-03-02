@@ -83,7 +83,9 @@ public static partial class Map
     /// </summary>
     [Pure]
     public static Map<OrdK, K, V> createRange<OrdK, K, V>(ReadOnlySpan<(K, V)> keyValues) where OrdK : Ord<K> =>
-        new(keyValues);
+        keyValues.IsEmpty
+            ? Map<OrdK, K, V>.Empty
+            : new(keyValues);
 
     /// <summary>
     /// Creates a new Map seeded with the keyValues provided

@@ -36,7 +36,9 @@ public static class Stack
     /// <typeparam name="A">Type of the items</typeparam>
     /// <returns>Constructed stack collection</returns>
     public static Stck<A> createRange<A>(ReadOnlySpan<A> items) =>
-        new (items);
+        items.IsEmpty
+            ? Stck<A>.Empty
+            : new (items);
     
     /// <summary>
     /// Reverses the order of the items in the stack

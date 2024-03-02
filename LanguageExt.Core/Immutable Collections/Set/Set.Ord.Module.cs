@@ -59,7 +59,9 @@ public partial class Set
     /// <returns>Set</returns>
     [Pure]
     public static Set<OrdA, A> createRange<OrdA, A>(ReadOnlySpan<A> range) where OrdA : Ord<A> =>
-        new (range);
+        range.IsEmpty
+            ? Set<OrdA, A>.Empty
+            : new (range);
 
     /// <summary>
     /// Create a new empty set

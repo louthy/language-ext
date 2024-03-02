@@ -100,7 +100,9 @@ public static partial class HashMap
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> createRange<EqK, K, V>(ReadOnlySpan<(K, V)> keyValues)
         where EqK : Eq<K> =>
-        new (new TrieMap<EqK, K, V>(keyValues));
+        keyValues.IsEmpty
+            ? HashMap<EqK, K, V>.Empty
+            : new (new TrieMap<EqK, K, V>(keyValues));
 
     /// <summary>
     /// Creates a new Map seeded with the keyValues provided
