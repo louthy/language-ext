@@ -20,7 +20,7 @@ public class IEnumerableArr
                    .AsT<Arr, EnumerableM, EnumerableM<int>, int>()
                    .As();
 
-        var mc = Arr<EnumerableM<int>>.Empty;
+        var mc = Arr.singleton(EnumerableM<int>.Empty);
 
         Assert.True(mb == mc);
     }

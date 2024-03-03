@@ -16,7 +16,7 @@ public class ArrArr
                    .AsT<Arr, Arr, Arr<int>, int>()
                    .As();
 
-        var mc = Arr<Arr<int>>.Empty;
+        var mc = Arr.singleton(Arr<int>.Empty);
 
         Assert.True(mb == mc);
     }

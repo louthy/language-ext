@@ -16,7 +16,7 @@ public class SeqArr
                    .AsT<Arr, Seq, Seq<int>, int>()
                    .As();
 
-        var mc = Arr<Seq<int>>.Empty;
+        var mc = Arr.singleton(Seq<int>.Empty);
 
         Assert.True(mb == mc);
     }

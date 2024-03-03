@@ -16,7 +16,7 @@ public class SetArr
                    .AsT<Arr, Set, Set<int>, int>()
                    .As();
 
-        var mc = Arr<Set<int>>.Empty;
+        var mc = Arr.singleton(Set<int>.Empty);
 
         Assert.True(mb == mc);
     }
@@ -33,10 +33,10 @@ public class SetArr
 
         var mc = Array(
             Set(1, 10),
-            Set(1, 20),
-            Set(1, 30),
             Set(2, 10),
+            Set(1, 20),
             Set(2, 20),
+            Set(1, 30),
             Set(2, 30));
 
         Assert.True(mb == mc);
@@ -45,7 +45,7 @@ public class SetArr
     [Fact]
     public void SetOfEmptiesAndNonEmptiesIsEmpty()
     {
-        var ma = Set(Array<int>(), Array<int>(1, 2, 3));
+        var ma = Set(Array<int>(), Array(1, 2, 3));
 
         var mb = ma.KindT<Set, Arr, Arr<int>, int>()
                    .Sequence()

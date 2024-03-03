@@ -16,7 +16,7 @@ public class LstArr
                    .AsT<Arr, LanguageExt.Lst, Lst<int>, int>()
                    .As();
 
-        var mc = Arr<Lst<int>>.Empty;
+        var mc = Arr.singleton(Lst<int>.Empty);
 
         Assert.True(mb == mc);
     }

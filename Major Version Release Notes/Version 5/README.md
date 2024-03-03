@@ -401,6 +401,18 @@ Low
 
 Use `[x]` or `Seq.singleton(x)`
 
+### `Error` no longer implicitly convertable from `String`
+
+It seemed like a good idea at the time, but can easily cause problems with `Error` carrying types like `Fin` (`Fin<string>` in particular).  To avoid the confusion I have made it an `explicit` conversion operation.
+
+**Impact**
+
+Low
+
+**Mitigation** 
+
+Manually cast to `Error` where needed - or call `Error.New(string)`
+
 ### 'Trait' types now use static interface methods
 
 Before static interface methods existed, the technique was to rely on the non-nullable nature of structs to get access to 'static' methods (via interface based constraints), by calling `default(TRAIT_TYPE).StaticMethod()`.

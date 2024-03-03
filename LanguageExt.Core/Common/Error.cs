@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Runtime.Serialization;
@@ -14,7 +15,7 @@ namespace LanguageExt.Common;
 /// Abstract error value
 /// </summary>
 [DataContract]
-public abstract record Error : Monoid<Error>, IEnumerable<Error>
+public abstract record Error : Monoid<Error>
 {
     /// <summary>
     /// Error code
@@ -160,11 +161,14 @@ public abstract record Error : Monoid<Error>, IEnumerable<Error>
         lhs.Append(rhs);
 
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual IEnumerable<Error> AsEnumerable()
+    public virtual EnumerableM<Error> AsEnumerable()
     {
-        yield return this;
+        return new EnumerableM<Error>(go());
+        IEnumerable<Error> go() 
+        {
+            yield return this;
+        }
     }
-
 
     /// <summary>
     /// Convert the error to a string
@@ -326,9 +330,6 @@ public abstract record Error : Monoid<Error>, IEnumerable<Error>
         ExceptionDispatchInfo.Capture(ToException()).Throw();
         return default;
     }
-
-    public abstract IEnumerator<Error> GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
 /// <summary>
@@ -380,12 +381,6 @@ public record Expected(string Message, int Code, Option<Error> Inner = default) 
     [Pure]
     public override string ToString() => 
         Message;
-
-    [Pure]
-    public override IEnumerator<Error> GetEnumerator()
-    {
-        yield return this;
-    }
     
     /// <summary>
     /// Generates a new `ErrorException` that contains the `Code`, `Message`, and `Inner` of this `Error`.
@@ -519,12 +514,6 @@ public record Exceptional(string Message, int Code) : Error
     [IgnoreDataMember]
     public override bool IsExpected =>
         false;
-
-    [Pure]
-    public override IEnumerator<Error> GetEnumerator()
-    {
-        yield return this;
-    }
 }
 
 /// <summary>
@@ -697,18 +686,14 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
         Errors.Count;
 
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override IEnumerable<Error> AsEnumerable() =>
-        Errors.AsEnumerable();
-
-    [Pure]
-    public override IEnumerator<Error> GetEnumerator() =>
-        Errors.GetEnumerator();
+    public override EnumerableM<Error> AsEnumerable() =>
+        new (Errors.AsEnumerable());
 
     [Pure]
     internal static Error FromAggregate(AggregateException? e)
     {
         if (e is null) return Common.Errors.None;
-        var errs = e.InnerExceptions.Bind(New).ToSeq();
+        var errs = e.InnerExceptions.Bind(x => New(x).AsEnumerable()).ToSeq();
         if (errs.Count == 0) return Common.Errors.None;
         if (errs.Count == 1) return errs.Head;
         return Many(errs);

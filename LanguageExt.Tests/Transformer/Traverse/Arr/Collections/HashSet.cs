@@ -17,7 +17,7 @@ public class HashSetArr
                    .AsT<Arr, HashSet, HashSet<int>, int>()
                    .As();
 
-        var mc = Arr<HashSet<int>>.Empty;
+        var mc = Arr.singleton(HashSet<int>.Empty);
 
         Assert.True(mb == mc);
     }
