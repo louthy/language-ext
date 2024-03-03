@@ -18,7 +18,7 @@ namespace EffectsExamples;
 public class RetryExample<RT> where RT : 
     Has<Eff<RT>, ConsoleIO>
 {
-    static readonly Error Failed = ("I asked you to say hello, and you can't even do that?!");
+    static readonly Error Failed = (Error)"I asked you to say hello, and you can't even do that?!";
         
     public static Eff<RT, Unit> main =>
         retry(Schedule.recurs(5),

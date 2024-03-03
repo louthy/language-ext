@@ -19,7 +19,7 @@ public static class AffTests
     public static void BailBeforeScheduleTest1()
     {
         const int counter = 0;
-        var       effect  = FailEff<int>("Failed");
+        var       effect  = FailEff<int>((Error)"Failed");
         var       result  = effect.Repeat(TestSchedule()).Run();
         counter.Should().Be(0);
         result.AssertFail(Error.New("Failed"));
@@ -29,7 +29,7 @@ public static class AffTests
     public static void BailBeforeScheduleTest2()
     {
         const int counter = 0;
-        var       effect  = FailEff<Runtime, int>("Failed");
+        var       effect  = FailEff<Runtime, int>((Error)"Failed");
         var       result  = effect.Repeat(TestSchedule()).Run(Runtime.New(), EnvIO.New());
         counter.Should().Be(0);
         result.AssertFail(Error.New("Failed"));

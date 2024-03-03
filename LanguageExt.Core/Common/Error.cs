@@ -261,7 +261,7 @@ public abstract record Error : Monoid<Error>, IEnumerable<Error>
                 : new ManyErrors(errors);
 
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Error(string e) =>
+    public static explicit operator Error(string e) =>
         New(e);
 
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]

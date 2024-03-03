@@ -60,8 +60,9 @@ public class MemoryFSTests
                    from tx in File.readAllText("C:\\non-exist\\also-non-exist\\test.txt")
                    select tx;
             
-        var r = comp.As().Run(rt, EnvIO.New());
-        Assert.True(r == "Hello, World", FailMsg(r));
+        var r  = comp.As().Run(rt, EnvIO.New());
+        var eq = r == "Hello, World";
+        Assert.True(eq, FailMsg(r));
     }
         
     [Fact]
@@ -120,7 +121,7 @@ public class MemoryFSTests
     {
         var rt = Runtime.New();
 
-        var comp = from p  in SuccessEff(path)
+        var comp = from p  in Pure(path)
                    from _1 in Dir.create(p)
                    from e1 in Dir.exists(p)
                    from _2 in Dir.delete(p)

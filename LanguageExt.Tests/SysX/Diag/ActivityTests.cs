@@ -5,6 +5,7 @@ using LanguageExt.Sys.Diag;
 using LanguageExt.Sys.Test;
 using System.Diagnostics;
 using FluentAssertions;
+using LanguageExt.Common;
 
 namespace LanguageExt.Tests.SysX.Diag;
 
@@ -147,7 +148,7 @@ public static class ActivityTests
         var r = A.span(
                 "a",
                 from co in A.context.As()
-                from context in co.ToEff("context should be set")
+                from context in co.ToEff((Error)"context should be set")
                 from result in A.span(
                     "b",
                     ActivityKind.Consumer,
@@ -183,7 +184,7 @@ public static class ActivityTests
         var id = A.span(
                 "a",
                 from co in A.context.As()
-                from context in co.ToEff("context should be set")
+                from context in co.ToEff((Error)"context should be set")
                 from result in A.span(
                     "b",
                     ActivityKind.Client,
@@ -212,7 +213,7 @@ public static class ActivityTests
         var id = A.span(
                 "a",
                 from co in A.context.As()
-                from context in co.ToEff("context should be set")
+                from context in co.ToEff((Error)"context should be set")
                 from result in A.span(
                     "b",
                     ActivityKind.Client,
@@ -317,7 +318,7 @@ public static class ActivityTests
         var (kind, tags) = A.span(
                 "A",
                 from co in A.context.As()
-                from context in co.ToEff("context should be set")
+                from context in co.ToEff((Error)"context should be set")
                 from result in A.span(
                     "B",
                     ActivityKind.Client,

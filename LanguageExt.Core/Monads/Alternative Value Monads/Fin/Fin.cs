@@ -314,6 +314,20 @@ public abstract record Fin<A> :
     /// Equality operator override
     /// </summary>
     [Pure]
+    public static bool operator ==(Fin<A> lhs, A rhs) =>
+        lhs.Equals((Fin<A>)rhs);
+
+    /// <summary>
+    /// Equality operator override
+    /// </summary>
+    [Pure]
+    public static bool operator ==(A lhs, Fin<A> rhs) =>
+        ((Fin<A>)lhs).Equals(rhs);
+
+    /// <summary>
+    /// Equality operator override
+    /// </summary>
+    [Pure]
     public static bool operator ==(Error lhs, Fin<A> rhs) =>
         FinFail<A>(lhs).Equals(rhs);
 
@@ -330,6 +344,20 @@ public abstract record Fin<A> :
     [Pure]
     public static bool operator !=(Error lhs, Fin<A> rhs) =>
         !(lhs == rhs);
+
+    /// <summary>
+    /// Equality operator override
+    /// </summary>
+    [Pure]
+    public static bool operator !=(Fin<A> lhs, A rhs) =>
+        !(lhs == rhs!);
+
+    /// <summary>
+    /// Equality operator override
+    /// </summary>
+    [Pure]
+    public static bool operator !=(A lhs, Fin<A> rhs) =>
+        !(lhs! == rhs);
 
     [Pure, MethodImpl(Opt.Default)]
     static Option<T> convert<T>(in object? value)
