@@ -13,9 +13,7 @@ public class SeqEither
     {
         Seq<Either<Error, int>> ma = Empty;
 
-        var mb = ma.Sequence()
-                   .AsT<Either<Error>, Seq, Seq<int>, int>()
-                   .As();
+        var mb = ma.Traverse(x => x).As();
 
         Assert.True(mb == Right(Seq<int>.Empty));
     }
@@ -25,9 +23,7 @@ public class SeqEither
     {
         var ma = Seq(Right<Error, int>(1), Right<Error, int>(2), Right<Error, int>(3));
 
-        var mb = ma.Sequence()
-                   .AsT<Either<Error>, Seq, Seq<int>, int>()
-                   .As();
+        var mb = ma.Traverse(x => x).As();
 
         Assert.True(mb == Right(Seq(1, 2, 3)));
     }

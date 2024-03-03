@@ -21,7 +21,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
 
             var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Lst<EnumerableM<int>>.Empty;
+            var mc = LanguageExt.List.singleton(EnumerableM<int>.Empty);
             
             Assert.True(mb == mc);
         }

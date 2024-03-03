@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -16,7 +17,8 @@ namespace LanguageExt;
 /// </remarks>
 /// <typeparam name="A">Bound value type</typeparam>
 public record Identity<A>(A Value) : 
-    K<Identity, A>
+    K<Identity, A>,
+    IComparable<Identity<A>>
 {
     public static Identity<A> Pure(A value) =>
         new (value);
@@ -58,4 +60,10 @@ public record Identity<A>(A Value) :
     [Pure]
     public Identity<C> SelectMany<B, C>(Func<A, K<Identity, B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).As().Map(y => project(x, y)));
+
+    [Pure]
+    public int CompareTo(Identity<A>? other) =>
+        other is { } rhs
+            ? OrdDefault<A>.Compare(Value, rhs.Value)
+            : 1;
 }

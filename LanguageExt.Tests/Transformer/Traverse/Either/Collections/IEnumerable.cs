@@ -12,9 +12,7 @@ public class IEnumerableEither
     {
         var ma = EnumerableM.empty<Either<Error, int>>();
 
-        var mb = ma.Sequence()
-                   .AsT<Either<Error>, EnumerableM, EnumerableM<int>, int>()
-                   .As();
+        var mb = ma.Traverse(x => x).As();
 
         var mr = mb.Map(b => ma.Count() == b.Count())
                    .IfLeft(false);
@@ -27,9 +25,7 @@ public class IEnumerableEither
     {
         var ma = new[] {Right<Error, int>(1), Right<Error, int>(2), Right<Error, int>(3)}.AsEnumerableM();
 
-        var mb = ma.Sequence()
-                   .AsT<Either<Error>, EnumerableM, EnumerableM<int>, int>()
-                   .As();
+        var mb = ma.Traverse(x => x).As();
 
         Assert.True(mb.Map(b => EqEnumerable<int>.Equals(b, new[] {1, 2, 3}.AsEnumerable())).IfLeft(false));
     }
@@ -39,9 +35,7 @@ public class IEnumerableEither
     {
         var ma = new[] {Right<Error, int>(1), Right<Error, int>(2), Left<Error, int>(Error.New("alternative"))}.AsEnumerableM();
 
-        var mb = ma.Sequence()
-                   .AsT<Either<Error>, EnumerableM, EnumerableM<int>, int>()
-                   .As();
+        var mb = ma.Traverse(x => x).As();
 
         Assert.True(mb == Left(Error.New("alternative")));
     }

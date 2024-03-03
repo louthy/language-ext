@@ -35,7 +35,7 @@ public partial class HashSet : Monad<HashSet>, Alternative<HashSet>, Traversable
     static K<F, K<HashSet, B>> Traversable<HashSet>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<HashSet, A> ta) 
     {
         return F.Map<HashSet<B>, K<HashSet, B>>(
-            ks => ks, 
+            ks => ks,
             Foldable.fold(add, F.Pure(empty<B>()), ta));
 
         K<F, HashSet<B>> add(A x, K<F, HashSet<B>> ys) =>

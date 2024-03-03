@@ -5,7 +5,7 @@ namespace LanguageExt.Traits;
 /// </summary>
 /// <typeparam name="M"></typeparam>
 /// <typeparam name="TRAIT"></typeparam>
-public interface Has<in M, out TRAIT>
+public interface Has<in M, TRAIT>
 {
     K<M, TRAIT> Trait { get; }
 }

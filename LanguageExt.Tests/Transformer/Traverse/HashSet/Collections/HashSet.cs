@@ -13,7 +13,7 @@ public class HashSetHashSet
         var mb = ma.Traverse(mx => mx).As();
 
 
-        var mc = HashSet<HashSet<int>>.Empty;
+        var mc = HashSet.singleton(HashSet<int>.Empty);
             
         Assert.True(mb == mc);
     }

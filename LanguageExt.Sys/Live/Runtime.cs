@@ -53,7 +53,7 @@ public record Runtime(RuntimeEnv Env) :
     /// Activity
     /// </summary>
     K<Eff<Runtime>, ActivitySourceIO> Has<Eff<Runtime>, ActivitySourceIO>.Trait =>
-        gets(rt => new Implementations.ActivitySourceIO(rt.Env.Activity));
+        gets<ActivitySourceIO>(rt => new Implementations.ActivitySourceIO(rt.Env.Activity));
 
     /// <summary>
     /// Modify the activity state

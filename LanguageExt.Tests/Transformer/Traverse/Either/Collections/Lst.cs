@@ -12,9 +12,7 @@ public class LstEither
     {
         Lst<Either<Error, int>> ma = Empty;
 
-        var mb = ma.Sequence()
-                   .AsT<Either<Error>, LanguageExt.Lst, Lst<int>, int>()
-                   .As();
+        var mb = ma.Traverse(x => x).As();
 
         Assert.True(mb == Right(Lst<int>.Empty));
     }
@@ -24,9 +22,7 @@ public class LstEither
     {
         var ma = List(Right<Error, int>(1), Right<Error, int>(2), Right<Error, int>(3));
 
-        var mb = ma.Sequence()
-                   .AsT<Either<Error>, LanguageExt.Lst, Lst<int>, int>()
-                   .As();
+        var mb = ma.Traverse(x => x).As();
 
         Assert.True(mb == Right(List(1, 2, 3)));
     }
@@ -36,9 +32,7 @@ public class LstEither
     {
         var ma = List(Right<Error, int>(1), Right<Error, int>(2), Left<Error, int>(Error.New("alternative")));
 
-        var mb = ma.Sequence()
-                   .AsT<Either<Error>, LanguageExt.Lst, Lst<int>, int>()
-                   .As();
+        var mb = ma.Traverse(x => x).As();
 
         Assert.True(mb == Left(Error.New("alternative")));
     }

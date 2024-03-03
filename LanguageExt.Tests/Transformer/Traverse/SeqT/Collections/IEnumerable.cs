@@ -15,7 +15,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
             var mb = ma.Traverse(mx => mx).As();
 
 
-            var mc = Seq<EnumerableM<int>>.Empty;
+            var mc = Seq.singleton(EnumerableM<int>.Empty);
 
             Assert.True(mb == mc);
         }
@@ -30,10 +30,10 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
 
             var mc = Seq<EnumerableM<int>>(
                 [1, 10],
-                [1, 20],
-                [1, 30],
                 [2, 10],
+                [1, 20],
                 [2, 20],
+                [1, 30],
                 [2, 30]);
 
             Assert.True(mb.Map(Seq.singleton) == mc.Map(Seq.singleton));

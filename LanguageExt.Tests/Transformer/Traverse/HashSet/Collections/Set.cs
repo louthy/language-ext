@@ -16,8 +16,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.HashSetT.Collections
 
             var mb = ma.Traverse(mx => mx).As();
 
-
-            var mc = HashSet<Set<int>>.Empty;
+            var mc = HashSet.singleton(Set<int>.Empty);
             
             Assert.True(mb == mc);
         }

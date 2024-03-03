@@ -14,7 +14,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
 
             var mb = ma.Traverse(mx => mx).As();
 
-            var mc = EnumerableM.empty<HashSet<int>>();
+            var mc = EnumerableM.singleton(HashSet.empty<int>());
 
             Assert.True(mb.ToSeq() == mc.ToSeq());
         }
@@ -30,10 +30,10 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
             var mc = new[]
                 {
                     HashSet(1, 10),
-                    HashSet(1, 20),
-                    HashSet(1, 30),
                     HashSet(2, 10),
+                    HashSet(1, 20),
                     HashSet(2, 20),
+                    HashSet(1, 30),
                     HashSet(2, 30)
                 }
                 .AsEnumerable();

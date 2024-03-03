@@ -17,7 +17,7 @@ namespace LanguageExt.Traits;
 /// </remarks>
 /// <typeparam name="F">Trait type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public interface K<in F, out A>;
+public interface K<in F, A>;
 
 public static class KExtensions
 {

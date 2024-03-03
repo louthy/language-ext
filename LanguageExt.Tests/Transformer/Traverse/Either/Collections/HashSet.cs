@@ -10,9 +10,7 @@ public class HashSetEither
     {
         HashSet<Either<Error, int>> ma = Empty;
 
-        var mb = ma.Sequence()
-                   .AsT<Either<Error>, HashSet, HashSet<int>, int>()
-                   .As();
+        var mb = ma.Traverse(x => x).As();
 
         Assert.True(mb == Right(HashSet<int>.Empty));
     }
@@ -22,9 +20,7 @@ public class HashSetEither
     {
         var ma = HashSet(Right<Error, int>(1), Right<Error, int>(2), Right<Error, int>(3));
 
-        var mb = ma.Sequence()
-                   .AsT<Either<Error>, HashSet, HashSet<int>, int>()
-                   .As();
+        var mb = ma.Traverse(x => x).As();
 
         Assert.True(mb == Right(HashSet(1, 2, 3)));
     }
@@ -33,11 +29,9 @@ public class HashSetEither
     public void HashSetRightAndLeftIsLeftEmpty()
     {
         var ma = HashSet(Right<Error, int>(1), Right<Error, int>(2), Left<Error, int>(Error.New("alternative")));
-
-        var mb = ma.Sequence()
-                   .AsT<Either<Error>, HashSet, HashSet<int>, int>()
-                   .As();
-
+        
+        var mb = ma.Traverse(x => x).As();
+        
         Assert.True(mb == Left(Error.New("alternative")));
     }
 }

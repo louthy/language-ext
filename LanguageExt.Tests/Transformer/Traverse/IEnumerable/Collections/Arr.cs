@@ -14,8 +14,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
 
             var mb = ma.Traverse(mx => mx).As();
 
-
-            var mc = EnumerableM.empty<Arr<int>>();
+            var mc = EnumerableM.singleton(Arr.empty<int>());
 
             Assert.True(mb.ToSeq() == mc.ToSeq());
         }

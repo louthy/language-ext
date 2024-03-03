@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
@@ -24,6 +25,8 @@ public sealed record EnumerableM<A>(IEnumerable<A> runEnumerable) :
     Monoid<EnumerableM<A>>,
     K<EnumerableM, A>
 {
+    int? hashCode;
+
     /// <summary>
     /// Empty sequence
     /// </summary>
@@ -330,11 +333,11 @@ public sealed record EnumerableM<A>(IEnumerable<A> runEnumerable) :
     /// <returns></returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override int GetHashCode()
-    {
-        return runEnumerable.GetHashCode();
-    }
-
+    public override int GetHashCode() =>
+        hashCode is null
+            ? (hashCode = hash(runEnumerable)).Value
+            : hashCode.Value;
+    
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int CompareTo(object? obj) =>

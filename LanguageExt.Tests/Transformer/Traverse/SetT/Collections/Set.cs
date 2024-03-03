@@ -11,7 +11,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Collections
             Set<Set<int>> ma = Empty;
             var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Set<Set<int>>.Empty;
+            var mc = Set.singleton(Set<int>.Empty);
             
             Assert.True(mb == mc);
         }
@@ -22,7 +22,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Collections
             var ma = Set(Set(1, 2), Set(10, 20, 30));
             var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Set(Set(1, 10), Set(1, 20), Set(1, 30), Set(2, 10), Set(2, 20), Set(2, 30));
+            var mc = Set(Set(1, 10), Set(2, 10), Set(1, 20), Set(2, 20), Set(1, 30), Set(2, 30));
             
             Assert.True(mb == mc);
         }
@@ -34,7 +34,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Collections
             var ma = Set(Set<int>(), Set(1, 2, 3));
             var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Set<Set<int>>.Empty;
+            var mc = Set.singleton(Set<int>.Empty);
             
             Assert.True(mb == mc);
         }

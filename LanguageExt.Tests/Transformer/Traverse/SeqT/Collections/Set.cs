@@ -13,7 +13,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
             var mb = ma.Traverse(mx => mx).As();
 
 
-            var mc = Seq<Set<int>>.Empty;
+            var mc = Seq.singleton(Set<int>.Empty);
 
             Assert.True(mb == mc);
         }
@@ -28,10 +28,10 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
 
             var mc = Seq(
                 Set(1, 10),
-                Set(1, 20),
-                Set(1, 30),
                 Set(2, 10),
+                Set(1, 20),
                 Set(2, 20),
+                Set(1, 30),
                 Set(2, 30));
 
             Assert.True(mb == mc);

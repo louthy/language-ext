@@ -12,8 +12,7 @@ public class LstHashSet
 
         var mb = ma.Traverse(mx => mx).As();
 
-
-        var mc = HashSet<Lst<int>>.Empty;
+        var mc = HashSet.singleton(Lst<int>.Empty);
             
         Assert.True(mb == mc);
     }

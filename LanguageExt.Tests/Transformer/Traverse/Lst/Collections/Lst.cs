@@ -13,7 +13,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
             var mb = ma.Traverse(mx => mx).As();
 
 
-            var mc = Lst<Lst<int>>.Empty;
+            var mc = List.singleton(Lst<int>.Empty);
             
             Assert.True(mb == mc);
         }

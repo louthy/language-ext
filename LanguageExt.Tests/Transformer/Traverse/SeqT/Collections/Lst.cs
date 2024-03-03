@@ -13,7 +13,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
             var mb = ma.Traverse(mx => mx).As();
 
 
-            var mc = Seq<Lst<int>>.Empty;
+            var mc = Seq.singleton(Lst<int>.Empty);
 
             Assert.True(mb == mc);
         }

@@ -20,7 +20,7 @@ public class IEnumerableSet
         var ma = EnumerableM.empty<Set<int>>();
         var mb = ma.Traverse(mx => mx).As();
 
-        var mc = F.Set<EnumerableM<int>>.Empty;
+        var mc = F.Set.singleton(EnumerableM<int>.Empty);
             
         Assert.True(mb == mc);
     }
@@ -31,7 +31,7 @@ public class IEnumerableSet
         var ma = mkEnum(Set(1, 2), Set(10, 20, 30)).AsEnumerableM();
         var mb = ma.Traverse(mx => mx).As();
 
-        var mc = Set(mkEnum(1, 10), mkEnum(1, 20), mkEnum(1, 30), mkEnum(2, 10), mkEnum(2, 20), mkEnum(2, 30));
+        var mc = Set(mkEnum(1, 10), mkEnum(2, 10), mkEnum(1, 20), mkEnum(2, 20), mkEnum(1, 30), mkEnum(2, 30));
             
         Assert.True(toArray(mb.Map(toArray)) == toArray(mc.Map(toArray)));
             

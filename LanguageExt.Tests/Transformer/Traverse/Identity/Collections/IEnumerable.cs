@@ -11,7 +11,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Identity.Collections
         {
             var ma = EnumerableM.empty<Identity<int>>();
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(x => x).As();
 
             Assert.Equal(Id(EnumerableM.empty<int>()), mb);
         }
@@ -21,7 +21,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Identity.Collections
         {
             var ma = List(Id(1), Id(3), Id(5)).AsEnumerableM();
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(x => x).As();
 
             Assert.Equal(Id(List(1, 3, 5).AsEnumerableM()), mb);
         }

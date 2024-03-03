@@ -82,9 +82,10 @@ public record Request<UOut, UIn, DIn, DOut, M, A>(UOut Value, Func<UIn, Proxy<UO
     [Pure]
     public override Proxy<UOut, UIn, DIn, DOut, M, A> Observe() =>
         new ProxyM<UOut, UIn, DIn, DOut, M, A>(
-            M.Pure(new Request<UOut, UIn, DIn, DOut, M, A>(
-                       Value,
-                       x => Next(x).Observe())));
+            M.Pure<Proxy<UOut, UIn, DIn, DOut, M, A>>(
+                new Request<UOut, UIn, DIn, DOut, M, A>(
+                    Value,
+                    x => Next(x).Observe())));
  
     [Pure]
     public override Proxy<UOut, UIn, DIn, DOut, M, B> Bind<B>(Func<A, Proxy<UOut, UIn, DIn, DOut, M, B>> f) =>
@@ -203,9 +204,10 @@ public record Respond<UOut, UIn, DIn, DOut, M, A>(DOut Value, Func<DIn, Proxy<UO
     [Pure]
     public override Proxy<UOut, UIn, DIn, DOut, M, A> Observe() =>
         new ProxyM<UOut, UIn, DIn, DOut, M, A>(
-            M.Pure(new Respond<UOut, UIn, DIn, DOut, M, A>(
-                       Value,
-                       x => Next(x).Observe())));
+            M.Pure<Proxy<UOut, UIn, DIn, DOut, M, A>>(
+                new Respond<UOut, UIn, DIn, DOut, M, A>(
+                    Value,
+                    x => Next(x).Observe())));
 
     [Pure]
     public void Deconstruct(out DOut value, out Func<DIn, Proxy<UOut, UIn, DIn, DOut, M, A>> fun) =>
