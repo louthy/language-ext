@@ -36,9 +36,9 @@ public partial class Seq : Monad<Seq>, Alternative<Seq>, Traversable<Seq>
     {
         return F.Map<Seq<B>, K<Seq, B>>(
             ks => ks, 
-            Foldable.fold(a => s => cons(a, s), F.Pure(empty<B>()), ta));
+            Foldable.foldBack(cons, F.Pure(empty<B>()), ta));
 
-        K<F, Seq<B>> cons(A x, K<F, Seq<B>> ys) =>
-            Applicative.lift((b, bs) => b.Cons(bs), f(x), ys);
+        K<F, Seq<B>> cons(K<F, Seq<B>> ys, A x) =>
+            Applicative.lift(Prelude.Cons, f(x), ys);
     }
 }

@@ -811,3 +811,4 @@ No need for them now we have proper higher-kind support.
 * `yieldAll` in Pipes has a temporary solution - need proper recursion strategy
 * Use alpha and beta versioning like like: `5.0.0-alpha.1`, `5.0.0-alpha.2`, etc. So we can release `5.0.0` when done
 * Make ForkIO.Await respect two cancellation tokens, the original and the one from the runner of Await 
+* Make Eff a ReaderM, ResourceM, etc. -- so we don't have to do so much manual lifting

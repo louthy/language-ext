@@ -19,10 +19,13 @@ public class MemoryConsoleTests
         var lines = unsplitLines.Split('\n').ToSeq();
         var rt    = Runtime.New();
 
+        var xs = lines.Traverse(Either<Unit, string>.Right);
+        
         var comp = lines.Traverse(Console.writeLine).As();
-        ignore(comp.Run(rt, EnvIO.New()));
-            
-        Assert.True(lines == rt.Env.Console.ToSeq(), "sequences don't match");
+        comp.Run(rt, EnvIO.New()).ThrowIfFail();
+
+        var clines = rt.Env.Console.ToSeq();
+        Assert.True(lines == clines, "sequences don't match");
     }
         
     [Theory]
@@ -33,12 +36,9 @@ public class MemoryConsoleTests
     [InlineData("abc\ndef\n")]
     public void Read_line_followed_by_write_line(string unsplitLines)
     {
-        // Needs to work on Windows and Linux
-        unsplitLines = unsplitLines.Replace("\n", Environment.NewLine);
-        
         // Prep the runtime and the keyboard buffer with the typed lines
         var rt    = Runtime.New();
-        var lines = unsplitLines.Split(Environment.NewLine).ToSeq();
+        var lines = unsplitLines.Split('\n').ToSeq();
         lines.Iter(line => rt.Env.Console.WriteKeyLine(line));
 
         // test
@@ -47,7 +47,7 @@ public class MemoryConsoleTests
                           select unit) | unitEff;
             
         // run and assert
-        ignore(comp.Run(rt, EnvIO.New()));
+        comp.Run(rt, EnvIO.New()).ThrowIfFail();
         Assert.True(lines == rt.Env.Console.ToSeq(), "sequences don't match");
     }
 }

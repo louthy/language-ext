@@ -22,8 +22,8 @@ public readonly struct EqDefault<A> : Eq<A>
     [Pure]
     public static bool Equals(A a, A b)
     {
-        if (isnull(a)) return isnull(b);
-        if (isnull(b)) return false;
+        if (a is null) return b is null;
+        if (b is null) return false;
         if (ReferenceEquals(a, b)) return true;
         return EqResolve<A>.Equals(a, b);
     }

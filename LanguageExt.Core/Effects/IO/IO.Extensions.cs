@@ -52,10 +52,17 @@ public static partial class IOExtensions
     /// the forked IO operation or to await the result of it.
     /// </returns>
     [Pure]
-    [MethodImpl(Opt.Default)]
     public static K<M, ForkIO<A>> Fork<M, A>(this K<M, A> ma, Option<TimeSpan> timeout = default)
         where M : Monad<M> =>
         from mk in M.UnliftIO<A>()
         from rs in mk(ma).Fork(timeout)
         select rs;
+
+    [Pure]
+    public static IO<B> Apply<A, B>(this IO<Func<A, B>> ff, IO<A> fa) =>
+        ff.Bind(fa.Map);
+
+    [Pure]
+    public static IO<B> Action<A, B>(this IO<A> fa, IO<B> fb) =>
+        fa.Bind(_ => fb);
 }

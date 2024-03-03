@@ -37,9 +37,9 @@ public class Lst : Monad<Lst>, Alternative<Lst>, Traversable<Lst>
     {
         return F.Map<Lst<B>, K<Lst, B>>(
             ks => ks, 
-            Foldable.fold(a => s => cons(a, s), F.Pure(List.empty<B>()), ta));
+            Foldable.foldBack(cons, F.Pure(List.empty<B>()), ta));
 
-        K<F, Lst<B>> cons(A x, K<F, Lst<B>> ys) =>
-            Applicative.lift((b, bs) => b.Cons(bs), f(x), ys);
+        K<F, Lst<B>> cons(K<F, Lst<B>> ys, A x) =>
+            Applicative.lift(Prelude.Cons, f(x), ys);
     }
 }

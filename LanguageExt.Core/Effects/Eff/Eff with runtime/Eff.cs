@@ -16,15 +16,6 @@ namespace LanguageExt;
 /// <typeparam name="A">Bound value type</typeparam>
 public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
 {
-    /*Eff<RT2, B> MapState<RT2, B>(Func<StateT<RT, ResourceT<IO>, A>, StateT<RT2, ResourceT<IO>, B>> f) =>
-        new(f(effect));
-
-    Eff<RT, B> MapResource1<B>(Func<ResourceT<IO, (A Value, RT Env)>, ResourceT<IO, (B Value, RT Env)>> f) =>
-        MapState(State => State.MapT(resource => f(resource.As())));
-
-    Eff<RT, B> MapResource<B>(Func<ResourceT<IO, A>, ResourceT<IO, B>> f) =>
-        MapResource1(res => res.Bind(r => f(ResourceT<IO, A>.Pure(r.Value)).Map(b => (b, r.Env))));*/
-    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Constructors
@@ -260,7 +251,17 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// <returns>Mapped `Eff` monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, B> MapIO<B>(Func<IO<A>, IO<B>> f) =>
-        new(effect.MapM(mr => mr.As().MapM(mio => f(mio.As()))));
+        from s in getState<RT>()
+        let a = Atom<RT>(s.Runtime)
+        from r in f(RunUnsafeIO(s.Runtime, s.Resources)
+                       .Map(p =>
+                            {
+                                // TODO: This is ugly -- work out whether it's needed
+                                a.Swap(_ => p.Runtime);
+                                return p.Value;
+                            }))
+        from _ in StateM.put<Eff<RT>, RT>(a.Value)
+        select r;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -1124,6 +1125,19 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
         using var resources = new Resources();
         return RunUnsafe(env, resources, envIO);
     }
+
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// This is labelled 'unsafe' because it can throw an exception, whereas
+    /// `Run` will capture any errors and return a `Fin` type.
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public IO<(A Value, RT Runtime)> RunUnsafeIO(RT env, Resources resources) => 
+        effect
+           .Run(env).As()
+           .Run(resources).As();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

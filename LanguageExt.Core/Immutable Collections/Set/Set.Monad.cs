@@ -36,9 +36,9 @@ public partial class Set : Monad<Set>, Alternative<Set>, Traversable<Set>
     {
         return F.Map<Set<B>, K<Set, B>>(
             ks => ks, 
-            Foldable.fold(a => s => cons(a, s), F.Pure(empty<B>()), ta));
+            Foldable.fold(add, F.Pure(empty<B>()), ta));
 
-        K<F, Set<B>> cons(A x, K<F, Set<B>> ys) =>
+        K<F, Set<B>> add(A x, K<F, Set<B>> ys) =>
             Applicative.lift((b, bs) => bs.Add(b), f(x), ys);
     }
 }

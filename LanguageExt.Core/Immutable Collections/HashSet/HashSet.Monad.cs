@@ -36,9 +36,9 @@ public partial class HashSet : Monad<HashSet>, Alternative<HashSet>, Traversable
     {
         return F.Map<HashSet<B>, K<HashSet, B>>(
             ks => ks, 
-            Foldable.fold(a => s => cons(a, s), F.Pure(empty<B>()), ta));
+            Foldable.fold(add, F.Pure(empty<B>()), ta));
 
-        K<F, HashSet<B>> cons(A x, K<F, HashSet<B>> ys) =>
+        K<F, HashSet<B>> add(A x, K<F, HashSet<B>> ys) =>
             Applicative.lift((b, bs) => bs.Add(b), f(x), ys);
     }
 }

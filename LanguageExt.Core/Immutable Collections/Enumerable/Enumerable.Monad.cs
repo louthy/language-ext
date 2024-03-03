@@ -57,9 +57,9 @@ public partial class EnumerableM : Monad<EnumerableM>, Alternative<EnumerableM>,
         return F.Map<EnumerableM<B>, K<EnumerableM, B>>(
             ks => ks, 
             F.Map(s => new EnumerableM<B>(s.AsEnumerable()), 
-                  Foldable.fold(a => s => cons(a, s), F.Pure(Seq.empty<B>()), ta)));
+                  Foldable.foldBack(add, F.Pure(Seq.empty<B>()), ta)));
 
-        K<F, Seq<B>> cons(A x, K<F, Seq<B>> ys) =>
-            Applicative.lift((b, bs) => b.Cons(bs), f(x), ys);
+        K<F, Seq<B>> add(K<F, Seq<B>> ys, A x) =>
+            Applicative.lift(Prelude.Cons, f(x), ys);
     }
 }
