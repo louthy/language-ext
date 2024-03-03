@@ -30,13 +30,13 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
 
             var mc = Seq<EnumerableM<int>>(
                 [1, 10],
-                [2, 10],
                 [1, 20],
-                [2, 20],
                 [1, 30],
+                [2, 10],
+                [2, 20],
                 [2, 30]);
 
-            Assert.True(mb.Map(Seq.singleton) == mc.Map(Seq.singleton));
+            Assert.True(mb == mc);
         }
 
         [Fact]

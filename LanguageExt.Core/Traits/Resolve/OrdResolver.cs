@@ -88,6 +88,21 @@ public static class OrdResolve<A>
         
     }
     
+    static void MakeComparer()
+    {
+        CompareFunc      = Comparer<A>.Default.Compare;
+        CompareMethod    = CompareFunc.Method;
+        CompareMethodPtr = CompareFunc.Method.MethodHandle.GetFunctionPointer();
+        
+        EqualsFunc      = EqualityComparer<A>.Default.Equals;
+        EqualsMethod    = EqualsFunc.Method;
+        EqualsMethodPtr = EqualsFunc.Method.MethodHandle.GetFunctionPointer();
+        
+        GetHashCodeFunc      = DefaultGetHashCode;
+        GetHashCodeMethod    = GetHashCodeFunc.Method;
+        GetHashCodeMethodPtr = GetHashCodeFunc.Method.MethodHandle.GetFunctionPointer();
+    }    
+    
     static void MakeDefault()
     {
         CompareFunc      = Comparer<A>.Default.Compare;

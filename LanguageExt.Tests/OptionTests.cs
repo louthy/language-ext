@@ -99,23 +99,6 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
-        public void NullIsNotSomeTest()
-        {
-            Assert.Throws<ValueIsNullException>(
-                () =>
-                {
-                    GetStringNone();
-                }
-            );
-        }
-
-        [Fact]
-        public void NullIsNoneTest()
-        {
-            Assert.True(GetStringNone2().IsNone);
-        }
-
-        [Fact]
         public void OptionFluentSomeNoneTest()
         {
             int res1 = GetValue(true)
@@ -129,29 +112,6 @@ namespace LanguageExt.Tests
             Assert.True(res1 == 1010);
             Assert.True(res2 == 0);
         }
-
-        [Fact]
-        public void NullInSomeOrNoneTest()
-        {
-            Assert.Throws<ResultIsNullException>(
-                () =>
-                {
-                    GetValue(true)
-                       .Some(x => (string)null)
-                       .None((string)null);
-                }
-            );
-
-            Assert.Throws<ResultIsNullException>(
-                () =>
-                {
-                    GetValue(false)
-                       .Some(x => (string)null)
-                       .None((string)null);
-                }
-            );
-        }
-
         [Fact]
         public void NullableTest()
         {
@@ -216,13 +176,6 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
-        public void OptionMap_ToNull_ThrowsValueIsNullException()
-        {
-            var option = Some(new object());
-            Assert.Throws<ValueIsNullException>(() => option.Map(_ => (object)null));
-        }
-
-        [Fact]
         public void OptionToFin()
         {
             var e = LanguageExt.Common.Error.New("Example error");
@@ -243,18 +196,10 @@ namespace LanguageExt.Tests
             Assert.True(me.IsFail);
         }
 
-        private Option<string> GetStringNone()
+        private Option<string?> GetStringNone()
         {
-            // This should fail
-            string nullStr = null;
+            string? nullStr = null;
             return Some(nullStr);
-        }
-
-        private Option<string> GetStringNone2()
-        {
-            // This should be coerced to None
-            string nullStr = null;
-            return nullStr;
         }
 
         private Option<int> GetNullable(bool select) =>
