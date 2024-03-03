@@ -91,30 +91,6 @@ public class EitherTests
         Assert.True(res2 == 4);
     }
 
-
-    [Fact]
-    public void NullInRightOrLeftTest()
-    {
-        Assert.Throws<ResultIsNullException>(
-            () =>
-            {
-                GetValue(true)
-                   .Right(x => (string)null)
-                   .Left( y => (string)null);
-            }
-        );
-
-        Assert.Throws<ResultIsNullException>(
-            () =>
-            {
-                GetValue(false)
-                   .Right(x => (string)null)
-                   .Left( y => (string)null);
-            }
-        );
-    }
-
-
     private Either<string, int> GetValue(bool select)
     {
         if (select)

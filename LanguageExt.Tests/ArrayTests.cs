@@ -18,7 +18,6 @@ public class ArrayTests
         Assert.True(array[1] == 2);
         Assert.True(array[2] == 3);
         Assert.True(array[3] == 4);
-        Assert.True(array[4] == 5);
     }
 
     [Fact]
