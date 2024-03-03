@@ -13,12 +13,14 @@ namespace LanguageExt.Common;
 /// <summary>
 /// Abstract error value
 /// </summary>
+[DataContract]
 public abstract record Error : Monoid<Error>, IEnumerable<Error>
 {
     /// <summary>
     /// Error code
     /// </summary>
     [Pure]
+    [DataMember]
     public virtual int Code =>
         0;
 
@@ -26,12 +28,14 @@ public abstract record Error : Monoid<Error>, IEnumerable<Error>
     /// Error message
     /// </summary>
     [Pure]
+    [DataMember]
     public abstract string Message { get; }
 
     /// <summary>
     /// Inner error
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public virtual Option<Error> Inner =>
         None;
 
@@ -56,18 +60,21 @@ public abstract record Error : Monoid<Error>, IEnumerable<Error>
     /// True if the error is exceptional
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public abstract bool IsExceptional { get; }
 
     /// <summary>
     /// True if the error is expected
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public abstract bool IsExpected { get; }
 
     /// <summary>
     /// Get the first error (this will be `Errors.None` if there are zero errors)
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public virtual Error Head =>
         this;
 
@@ -75,6 +82,7 @@ public abstract record Error : Monoid<Error>, IEnumerable<Error>
     /// Get the errors with the head removed (this may be `Errors.None` if there are zero errors in the tail)
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public virtual Error Tail =>
         Errors.None;
 
@@ -85,6 +93,7 @@ public abstract record Error : Monoid<Error>, IEnumerable<Error>
     /// information about the error.
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public virtual bool IsEmpty =>
         false;
 
@@ -95,6 +104,7 @@ public abstract record Error : Monoid<Error>, IEnumerable<Error>
     /// about the error.
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public virtual int Count =>
         1;
 
@@ -363,6 +373,7 @@ public record Expected(string Message, int Code, Option<Error> Inner = default) 
     /// Inner error
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override Option<Error> Inner { get; } = 
         Inner;
     
@@ -394,6 +405,7 @@ public record Expected(string Message, int Code, Option<Error> Inner = default) 
     /// True if the error is exceptional
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override bool IsExceptional =>
         false;
 
@@ -401,6 +413,7 @@ public record Expected(string Message, int Code, Option<Error> Inner = default) 
     /// True if the error is expected
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override bool IsExpected =>
         true;
 }
@@ -422,6 +435,7 @@ public record Exceptional(string Message, int Code) : Error
     /// Internal exception.  If this record is constructed via deserialisation, or the default constructor then this
     /// value will be `null`.  This is intentional to stop exceptions leaking over application boundaries. 
     /// </summary>
+    [IgnoreDataMember]
     readonly Exception? Value;
     
     /// <summary>
@@ -494,6 +508,7 @@ public record Exceptional(string Message, int Code) : Error
     /// True if the error is exceptional
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override bool IsExceptional =>
         true;
 
@@ -501,6 +516,7 @@ public record Exceptional(string Message, int Code) : Error
     /// True if the error is expected
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override bool IsExpected =>
         false;
 
@@ -519,9 +535,11 @@ public sealed record BottomError() : Exceptional(BottomException.Default)
 {
     public static readonly Error Default = new BottomError();
     
+    [DataMember]
     public override int Code => 
         Errors.BottomCode; 
-    
+
+    [DataMember]
     public override string Message => 
         Errors.BottomText;
 
@@ -562,6 +580,7 @@ public sealed record BottomError() : Exceptional(BottomException.Default)
     /// True if the error is exceptional
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override bool IsExceptional =>
         true;
 
@@ -569,6 +588,7 @@ public sealed record BottomError() : Exceptional(BottomException.Default)
     /// True if the error is expected
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override bool IsExpected =>
         false;
 }
@@ -624,6 +644,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     /// True if any of the the errors are exceptional
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override bool IsExceptional =>
         Errors.Exists(static e => e.IsExceptional);
 
@@ -631,6 +652,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     /// True if all of the the errors are expected
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override bool IsExpected =>
         Errors.ForAll(static e => e.IsExpected);
 
@@ -638,6 +660,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     /// Get the first error (this may be `Errors.None` if there are zero errors)
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override Error Head =>
         Errors.IsEmpty
             ? Common.Errors.None
@@ -647,6 +670,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     /// Get the errors with the head removed (this may be `Errors.None` if there are zero errors in the tail)
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override Error Tail =>
         Errors.Tail.IsEmpty
             ? Common.Errors.None
@@ -657,6 +681,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     /// an error, but without any specific information about the error.
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override bool IsEmpty =>
         Errors.IsEmpty;
 
@@ -667,6 +692,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     /// about the error.
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override int Count =>
         Errors.Count;
 

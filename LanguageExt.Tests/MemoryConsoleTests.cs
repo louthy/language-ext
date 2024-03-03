@@ -1,3 +1,4 @@
+using System;
 using Xunit;
 using LanguageExt.Sys.Test;
 
@@ -32,9 +33,12 @@ public class MemoryConsoleTests
     [InlineData("abc\ndef\n")]
     public void Read_line_followed_by_write_line(string unsplitLines)
     {
+        // Needs to work on Windows and Linux
+        unsplitLines = unsplitLines.Replace("\n", Environment.NewLine);
+        
         // Prep the runtime and the keyboard buffer with the typed lines
         var rt    = Runtime.New();
-        var lines = unsplitLines.Split('\n').ToSeq();
+        var lines = unsplitLines.Split(Environment.NewLine).ToSeq();
         lines.Iter(line => rt.Env.Console.WriteKeyLine(line));
 
         // test
