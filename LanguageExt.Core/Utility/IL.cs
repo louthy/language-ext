@@ -497,9 +497,7 @@ public static class IL
         {
             foreach (var field in fields)
             {
-                var hashMethod = Resolver.GetHashCodeMethod(field.FieldType);
-                if(hashMethod is null) continue;
-
+                var hashMethod = Resolver.GetHashCodeMethodAlways(field.FieldType);
                 yield return Expression.Call(
                     null,
                     hashMethod,
@@ -572,35 +570,15 @@ public static class IL
 
         var expr = Expression.AndAlso(
             typesEqual,
-            fields.Fold(True as Expression, (state, field) =>
+            fields.Fold(True as Expression,
+                        (state, field) =>
                             Expression.AndAlso(
                                 state,
-                                Resolver.GetEqualsMethod(field.FieldType) switch
-                                {
-                                    null => Expression.Call(
-                                        Expression.Property(null,
-                                                            typeof(EqualityComparer<>)
-                                                               .MakeGenericType(field.FieldType)
-                                                               .GetTypeInfo()
-                                                               .DeclaredProperties
-                                                               .Single(m => m.Name == "Default")),
-                                
-                                        typeof(IEqualityComparer<>)
-                                           .GetTypeInfo()
-                                           .MakeGenericType(field.FieldType)
-                                           .GetTypeInfo()
-                                           .GetAllMethods(true)
-                                           .Where(m => m.Name == "Equals")
-                                           .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(field.FieldType, field.FieldType))
-                                           .Head(),
-                                        Expression.PropertyOrField(self, field.Name),
-                                        Expression.PropertyOrField(otherCast, field.Name)),
-                                    
-                                    var eq => Expression.Call(
-                                        null, eq,
-                                        Expression.PropertyOrField(self, field.Name),
-                                        Expression.PropertyOrField(otherCast, field.Name))
-                                    })));
+                                Expression.Call(
+                                    null,
+                                    Resolver.GetEqualsMethodAlways(field.FieldType),
+                                    Expression.PropertyOrField(self, field.Name),
+                                    Expression.PropertyOrField(otherCast, field.Name)))));
 
         var orExpr = Expression.OrElse(refEq, Expression.AndAlso(notNullX, Expression.AndAlso(notNullY, expr)));
 
@@ -658,31 +636,11 @@ public static class IL
             fields.Fold(True as Expression, (state, field) =>
                             Expression.AndAlso(
                                 state,
-                                Resolver.GetEqualsMethod(field.FieldType) switch
-                                {
-                                    null => Expression.Call(
-                                        Expression.Property(null, 
-                                                            typeof(EqualityComparer<>)
-                                                               .MakeGenericType(field.FieldType)
-                                                               .GetTypeInfo()
-                                                               .DeclaredProperties
-                                                               .Single(m => m.Name == "Default")),
-                             
-                                        typeof(IEqualityComparer<>)
-                                           .GetTypeInfo()
-                                           .MakeGenericType(field.FieldType)
-                                           .GetTypeInfo()
-                                           .GetAllMethods(true)
-                                           .Where(m => m.Name == "Equals")
-                                           .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(field.FieldType, field.FieldType))
-                                           .Head(),
+                                Expression.Call(
+                                        null, 
+                                        Resolver.GetEqualsMethodAlways(field.FieldType),
                                         Expression.PropertyOrField(self, field.Name),
-                                        Expression.PropertyOrField(other, field.Name)),
-                                    var eq => Expression.Call(
-                                        null, eq,
-                                        Expression.PropertyOrField(self, field.Name),
-                                        Expression.PropertyOrField(other, field.Name))
-                                })));
+                                        Expression.PropertyOrField(other, field.Name)))));
 
         var orExpr = Expression.OrElse(refEq,  Expression.AndAlso(notNullX, Expression.AndAlso(notNullY, expr)));
 
@@ -736,32 +694,15 @@ public static class IL
         {
             foreach (var f in fields)
             {
-                var comparer =
-                    Expression.Assign(ord,
-                                      Resolver.GetCompareMethod(f.FieldType) switch
-                                      {
-                                          null => Expression.Call(
-                                              Expression.Property(null,
-                                                                  typeof(Comparer<>)
-                                                                     .MakeGenericType(f.FieldType)
-                                                                     .GetTypeInfo()
-                                                                     .DeclaredProperties
-                                                                     .Single(m => m.Name == "Default")),
-                                              typeof(IComparer<>)
-                                                 .GetTypeInfo()
-                                                 .MakeGenericType(f.FieldType)
-                                                 .GetTypeInfo()
-                                                 .GetAllMethods(true)
-                                                 .Where(m => m.Name == "Compare")
-                                                 .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(f.FieldType, f.FieldType))
-                                                 .Head(),
-                                              Expression.PropertyOrField(self, f.Name),
-                                              Expression.PropertyOrField(other, f.Name)),
-                                          var ord1 => Expression.Call(
-                                              null, ord1,
-                                              Expression.PropertyOrField(self, f.Name),
-                                              Expression.PropertyOrField(other, f.Name))
-                                      });
+                var m = Resolver.GetCompareMethodAlways(f.FieldType);
+
+                var comparer = Expression.Assign(
+                    ord,
+                    Expression.Call(
+                        null,
+                        m,
+                        Expression.PropertyOrField(self, f.Name),
+                        Expression.PropertyOrField(other, f.Name)));
 
                 if (f.FieldType.IsValueType)
                 {

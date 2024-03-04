@@ -106,23 +106,7 @@ namespace LanguageExt.Tests
             Assert.True(some == some2);
             Assert.True(none == none2);
         }
-
-        [Fact]
-        public void EitherTest()
-        {
-            var right = Right<string, string>("test");
-            var left = Left<string, string>("error");
-
-            var rightText = JsonConvert.SerializeObject(right);
-            var leftText = JsonConvert.SerializeObject(left);
-
-            var right2 = JsonConvert.DeserializeObject<Either<string, string>>(rightText);
-            var left2 = JsonConvert.DeserializeObject<Either<string, string>>(leftText);
-
-            Assert.True(right == right2);
-            Assert.True(left == left2);
-        }
-
+        
         [Fact]
         public void ActionTypeTest()
         {

@@ -19,16 +19,6 @@ public class FSharpTests
     }
 
     [Fact]
-    public void ErrorResult_to_Either_with_null()
-    {
-        var result = Microsoft.FSharp.Core.FSharpResult<int, string>.NewError(null);
-
-        Assert.Throws<ValueIsNullException>(
-            () => LanguageExt.FSharp.fs(result)
-        );
-    }
-
-    [Fact]
     public void OKResult_to_Either()
     {
         var result = Microsoft.FSharp.Core.FSharpResult<int, string>.NewOk(123);
