@@ -1,14 +1,18 @@
 using System;
 using System.Diagnostics.Contracts;
-using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 
 namespace LanguageExt;
 
 public partial class Fin
 {
-    public sealed record Succ<A>(A Value) : Fin<A>
+    public sealed class Succ<A>(A Value) : Fin<A>
     {
+        /// <summary>
+        /// Value accessor
+        /// </summary>
+        public A Value { get; } = Value;
+
         /// <summary>
         /// Is the structure in a Success state?
         /// </summary>
@@ -44,9 +48,8 @@ public partial class Fin
         /// <summary>
         /// Get a hash code for the structure
         /// </summary>
-        [Pure]
-        public override int GetHashCode() =>
-            Value is null ? 0 : HashableDefault<A>.GetHashCode(Value);
+        public override int GetHashCode<HashA>() =>
+            Value is null ? 0 :  HashA.GetHashCode(Value);
 
         /// <summary>
         /// Empty span
@@ -66,7 +69,7 @@ public partial class Fin
         /// Compare this structure to another to find its relative ordering
         /// </summary>
         [Pure]
-        public override int CompareTo<OrdA>(Fin<A> other) =>
+        public override int CompareTo<OrdA>(Fin<A>? other) =>
             other switch
             {
                 Succ<A> r => OrdA.Compare(Value, r.Value),
@@ -132,5 +135,8 @@ public partial class Fin
             Func<A, Fin<B>> Succ,
             Func<Error, Fin<B>> Fail) =>
             Succ(Value);
+
+        public void Deconstruct(out A value) =>
+            value = Value;
     }
 }

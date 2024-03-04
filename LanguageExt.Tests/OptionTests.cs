@@ -186,8 +186,8 @@ namespace LanguageExt.Tests
             var my = some.ToFin();
             var me = none.ToFin(e);
 
-            var e1 = mx == my;
             var e2 = mx.Equals(my);
+            var e1 = mx == my;
             var e3 = mx.Equals((object)my);
             
             Assert.True(e1);

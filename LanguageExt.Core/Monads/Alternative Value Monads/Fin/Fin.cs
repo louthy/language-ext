@@ -14,9 +14,10 @@ namespace LanguageExt;
 /// Equivalent of `Either<Error, A>`
 /// Called `Fin` because it is expected to be used as the concrete result of a computation
 /// </summary>
-public abstract record Fin<A> : 
+public abstract class Fin<A> : 
     IEnumerable<A>,
     IComparable<Fin<A>>, 
+    IEquatable<Fin<A>>,
     IComparable, 
     K<Fin, A>
 {
@@ -78,7 +79,29 @@ public abstract record Fin<A> :
     /// </summary>
     [Pure]
     public abstract bool Equals<EqA>(Fin<A> other)
-        where EqA : Eq<A>;    
+        where EqA : Eq<A>;
+
+    /// <summary>
+    /// Equality override
+    /// </summary>
+    [Pure]
+    public bool Equals(Fin<A>? other) =>
+        other is not null && Equals<EqDefault<A>>(other);
+
+    /// <summary>
+    /// Equality override
+    /// </summary>
+    [Pure]
+    public override bool Equals(object? other) =>
+        other is Fin<A> f && Equals(f);
+
+    [Pure]
+    public abstract int GetHashCode<HashA>()
+        where HashA : Hashable<A>;
+
+    [Pure]
+    public override int GetHashCode() =>
+        GetHashCode<HashableDefault<A>>();
 
     /// <summary>
     /// Unsafe access to the success value 
@@ -127,17 +150,6 @@ public abstract record Fin<A> :
     public static Fin<A> Empty { get; } = 
         new Fin.Fail<A>(Errors.None);
 
-    /// <summary>
-    /// Get hash code
-    /// </summary>
-    public override int GetHashCode() =>
-        this switch
-        {
-            Fin.Succ<A> s => s.GetHashCode(),
-            Fin.Fail<A> f => f.GetHashCode(),
-            _             => 0
-        };
-
     [Pure, MethodImpl(Opt.Default)]
     public static implicit operator Fin<A>(A value) =>
         new Fin.Succ<A>(value);
@@ -182,6 +194,14 @@ public abstract record Fin<A> :
     [Pure, MethodImpl(Opt.Default)]
     public static bool operator false(Fin<A> ma) =>
         ma.IsFail;
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static bool operator ==(Fin<A> ma, Fin<A> mb) =>
+        ma.Equals(mb);
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static bool operator !=(Fin<A> ma, Fin<A> mb) =>
+        !ma.Equals(mb);
 
     /// <summary>
     /// Comparison operator
@@ -308,7 +328,7 @@ public abstract record Fin<A> :
     /// </summary>
     [Pure]
     public static bool operator ==(Fin<A> lhs, Error rhs) =>
-        lhs.Equals(rhs);
+        lhs.Equals((Fin<A>)rhs);
 
     /// <summary>
     /// Equality operator override
@@ -389,9 +409,11 @@ public abstract record Fin<A> :
             ? 1
             : CompareTo<OrdDefault<A>>(other);
 
+    /*
     [Pure, MethodImpl(Opt.Default)]
     public virtual bool Equals(Fin<A>? other) =>
         other is not null && Equals<EqDefault<A>>(other);
+        */
 
     [Pure, MethodImpl(Opt.Default)]
     public IEnumerator<A> GetEnumerator()

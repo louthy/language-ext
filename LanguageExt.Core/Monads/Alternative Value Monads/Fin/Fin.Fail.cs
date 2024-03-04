@@ -6,8 +6,13 @@ namespace LanguageExt;
 
 public partial class Fin
 {
-    public sealed record Fail<A>(Error Error) : Fin<A>
+    public sealed class Fail<A>(Error Error) : Fin<A>
     {
+        /// <summary>
+        /// Value accessor
+        /// </summary>
+        public Error Error { get; } = Error;
+
         /// <summary>
         /// Is the structure in a Success state?
         /// </summary>
@@ -40,12 +45,9 @@ public partial class Fin
         public override string ToString() =>
             $"Succ({Error})";
 
-        /// <summary>
-        /// Get a hash code for the structure
-        /// </summary>
         [Pure]
-        public override int GetHashCode() =>
-            Error.GetHashCode();
+        public override int GetHashCode<HashA>() =>
+            -1;
 
         /// <summary>
         /// Empty span
@@ -125,5 +127,8 @@ public partial class Fin
             Func<A, Fin<B>> Succ,
             Func<Error, Fin<B>> Fail) =>
             Fail(Error);
+
+        public void Deconstruct(out Error value) =>
+            value = Error;
     }
 }
