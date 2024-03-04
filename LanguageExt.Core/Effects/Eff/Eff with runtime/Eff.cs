@@ -1075,10 +1075,6 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
         {
             return RunUnsafe(env, resources, envIO);
         }
-        catch (ErrorException e)
-        {
-            return e.ToError();
-        }
         catch(Exception e)
         {
             return Fin<(A Value, RT Runtime)>.Fail(e);

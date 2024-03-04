@@ -77,10 +77,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 {
                     return Run(e);
                 }
-                catch (ErrorException ex)
-                {
-                    return f(ex.ToError()).Throw<A>();
-                }
                 catch (Exception ex)
                 {
                     return f(ex).Throw<A>();
@@ -95,10 +91,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 {
                     return Succ(Run(e));
                 }
-                catch (ErrorException ex)
-                {
-                    return Fail(ex.ToError()).Throw<B>();
-                }
                 catch (Exception ex)
                 {
                     return Fail(ex).Throw<B>();
@@ -112,10 +104,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 try
                 {
                     return Succ(Run(e));
-                }
-                catch (ErrorException ex)
-                {
-                    return Fail(ex.ToError());
                 }
                 catch (Exception ex)
                 {
@@ -406,12 +394,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 {
                     return ma.Run(env);
                 }
-                catch (ErrorException ex)
-                {
-                    var err = ex.ToError();
-                    if(mb.Match(err)) return mb.Value(err).Run(env);
-                    throw;
-                }
                 catch (Exception ex)
                 {
                     var err = Error.New(ex);
@@ -427,12 +409,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 try
                 {
                     return ma.Run(env);
-                }
-                catch (ErrorException ex)
-                {
-                    var err = ex.ToError();
-                    if(mb.Match(err)) return mb.Value(err).Throw<A>();
-                    throw;
                 }
                 catch (Exception ex)
                 {
@@ -464,12 +440,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 try
                 {
                     return ma.Run(env);
-                }
-                catch (ErrorException ex)
-                {
-                    var err = ex.ToError();
-                    if(mb.Match(err)) return mb.Value(err);
-                    throw;
                 }
                 catch (Exception ex)
                 {
@@ -704,7 +674,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// This variant will retry forever
     /// </remarks>
     public IO<A> Retry() =>
-        RetryUntil(Schedule.Forever, _ => true);
+        RetryUntil(Schedule.Forever, _ => false);
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -713,7 +683,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// This variant will retry until the schedule expires
     /// </remarks>
     public IO<A> Retry(Schedule schedule) =>
-        RetryUntil(schedule, _ => true);
+        RetryUntil(schedule, _ => false);
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -767,11 +737,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 {
                     return Run(env);
                 }
-                catch (ErrorException e)
-                {
-                    if (predicate(e.ToError())) throw;
-                    lastError = e;
-                }
                 catch (Exception e)
                 {
                     if (predicate(Error.New(e))) throw;
@@ -784,11 +749,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                     try
                     {
                         return Run(env);
-                    }
-                    catch (ErrorException e)
-                    {
-                        if (predicate(e.ToError())) throw;
-                        lastError = e;
                     }
                     catch (Exception e)
                     {

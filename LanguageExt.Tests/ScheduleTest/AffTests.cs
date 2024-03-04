@@ -258,8 +258,8 @@ public static class AffTests
         var effect  = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask()).Repeat(Schedule.Forever);
         envIO.Source.Cancel();
         var result = effect.Run(runtime, envIO);
-        counter.Should().Be(1);
-        result.AssertSucc(1);
+        Assert.True(counter == 0);
+        result.AssertFail(Errors.Cancelled);
     }
     
     [Fact(DisplayName = "Schedule Run against Aff<T> should not capture state")]

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -185,9 +186,13 @@ public abstract record Error : Monoid<Error>
     public static Error New(Exception? thisException) =>
         thisException switch
         {
-            null                 => Errors.None,
-            AggregateException a => ManyErrors.FromAggregate(a),
-            var e                => new Exceptional(e)
+            null                       => Errors.None,
+            ErrorException e           => e.ToError(),
+            TaskCanceledException      => Errors.Cancelled,
+            OperationCanceledException => Errors.Cancelled,
+            TimeoutException           => Errors.TimedOut,
+            AggregateException a       => ManyErrors.FromAggregate(a),
+            var e                      => new Exceptional(e)
         };
         
 
