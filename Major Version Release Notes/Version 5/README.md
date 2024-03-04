@@ -2,11 +2,13 @@
 
 **_WORK IN PROGRESS NOTES_**
 
-Version 5 of language-ext is huge.  It is both massive in terms of new capabilities delivered but also in _breaking changes_ that will require you to spend some time fixing up compilation failures and making judgements about your code.  An upgrade to `v5` should be considered a day long job for a large code-base - please make sure you have the time before upgrading.
+Version 5 of language-ext is huge.  It is both massive in terms of new capabilities delivered but also in _breaking changes_ that will require you to spend some time fixing up compilation failures and making judgements about your code.  An upgrade to `v5` should be considered a significant undertaking for a large code-base - please make sure you have the time before upgrading.  
+I have made copious notes below to help you understand the changes and to ease the migration.  If, during the migration you encounter issues that are not in these notes, please let me know so I can update them for everybody else.  
 
-I have made copious notes below to help you understand the changes and to ease the migration.  If, during the migration you encounter issues that are not in these notes, please let me know so I can update them for everybody else.
+Further contextual information about the updates can be [found on my blog](https://paullouth.com/higher-kinds-in-c-with-language-ext/) -- it digs a little deeper into the new capabilities and hopefully explains why these changes are necessary.
 
 Language-ext is 10 years old this year, so please consider this my _once per decade refresh_.  It is very much my .NET Framework to .NET Core moment.
+
 
 # Contents
 
@@ -93,13 +95,13 @@ If you spend any time with Haskell or other languages with higher-kinds, you'll 
 
 _Composition of pure functional components_ always leads to new, more capable components, that are also **automatically** pure.  This is the true power of pure functional composition; unlike OO composition that just collects potential complexity, pure functional composition abstracts away from it.  You can trust the composition to be sound.
 
-Much of this library up until this point has been trying to give you the capability to build these compositions.  It's been achieved so far by lots of typing by me and lots of code-gen.  For example, the `LanguageExt.Transformers` library is a code-genned mass of code that combines every monadic type with every other monadic type so that you can work on them nested.  It was 200,000 lines of generated code - and was getting exponentially worse.
+Much of this library up until this point has been trying to give you the capability to build these compositions.  It's been achieved so far by lots of typing by me and lots of code-gen.  For example, the `LanguageExt.Transformers` library was a code-genned mass of source-code that combined every monadic type with every other monadic type so that you can work on them nested.  It was 200,000 lines of generated code - and was getting exponentially worse.
 
 I've also written 100s (maybe 1000s) of `Select` and `SelectMany` implementations that give you the impression that C# has generalised monads.  But it doesn't, it's just a lot of typing.  If you create your own monadic type it won't magically work with any existing language-ext types and you can't write general functions that accept any monad and have it just work.
 
 > And that is very much because C# doesn't support higher-kinded polymorphism.
 
-That means that you pretty much only get to use what I provide.  That's not acceptable to me.  I want to empower everybody to be able to leverage pure functional composition in the same way that can be done in Haskell (and other languages that have higher-kinds).
+That means that you pretty much only get to use what I provide.  That's not acceptable to me.  I want to empower everybody to be able to leverage pure functional composition in the same way that can be done in Haskell (and other languages that have higher-kinds).  A series of articles on higher-kinds [features on on my blog](https://paullouth.com/higher-kinds-in-c-with-language-ext/).
 
 ## Wage war on `async` (green threads)
 
