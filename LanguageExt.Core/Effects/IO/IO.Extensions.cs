@@ -60,8 +60,8 @@ public static partial class IOExtensions
 
     [Pure]
     public static IO<B> Apply<A, B>(this IO<Func<A, B>> ff, IO<A> fa) =>
-        from tf in ff.As().Fork()
-        from ta in fa.As().Fork()
+        from tf in ff.Fork()
+        from ta in fa.Fork()
         from f in tf.Await
         from a in ta.Await
         select f(a);
