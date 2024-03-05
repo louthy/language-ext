@@ -60,7 +60,11 @@ public static partial class IOExtensions
 
     [Pure]
     public static IO<B> Apply<A, B>(this IO<Func<A, B>> ff, IO<A> fa) =>
-        ff.Bind(fa.Map);
+        from tf in ff.As().Fork()
+        from ta in fa.As().Fork()
+        from f in tf.Await
+        from a in ta.Await
+        select f(a);
 
     [Pure]
     public static IO<B> Action<A, B>(this IO<A> fa, IO<B> fb) =>
