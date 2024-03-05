@@ -36,10 +36,10 @@ public partial class Validation<L> :
         K<Validation<L>, B> mb) =>
         Prelude.fun((A _, B b) => b).Map(ma).Apply(mb).As();
 
-    static K<Validation<L>, A> Alternative<Validation<L>>.Empty<A>() =>
+    static K<Validation<L>, A> MonoidK<Validation<L>>.Empty<A>() =>
         Validation<L, A>.Fail(L.Empty);
 
-    static K<Validation<L>, A> SemiAlternative<Validation<L>>.Or<A>(
+    static K<Validation<L>, A> SemigroupK<Validation<L>>.Combine<A>(
         K<Validation<L>, A> ma,
         K<Validation<L>, A> mb) =>
         ma.As() | mb.As();

@@ -26,10 +26,10 @@ public class Eff :
     static K<Eff, B> Applicative<Eff>.Action<A, B>(K<Eff, A> ma, K<Eff, B> mb) => 
         ma.As().Action(mb.As());
 
-    static K<Eff, A> Alternative<Eff>.Empty<A>() => 
+    static K<Eff, A> MonoidK<Eff>.Empty<A>() => 
         Eff<A>.Fail(Errors.None);
 
-    static K<Eff, A> SemiAlternative<Eff>.Or<A>(K<Eff, A> ma, K<Eff, A> mb) => 
+    static K<Eff, A> SemigroupK<Eff>.Combine<A>(K<Eff, A> ma, K<Eff, A> mb) => 
         ma.As() | mb.As();
 
     static K<Eff, A> Resource<Eff>.Use<A>(IO<A> ma, Func<A, IO<Unit>> release) => 

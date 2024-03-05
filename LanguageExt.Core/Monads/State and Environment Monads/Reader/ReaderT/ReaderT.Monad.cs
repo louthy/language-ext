@@ -55,8 +55,8 @@ public partial class ReaderT<Env, M> :
                     run =>
                         inner(ma => run(ma.As().runReader(env)))));
 
-    static K<ReaderT<Env, M>, A> SemiAlternative<ReaderT<Env, M>>.Or<A>(
+    static K<ReaderT<Env, M>, A> SemigroupK<ReaderT<Env, M>>.Combine<A>(
         K<ReaderT<Env, M>, A> ma, K<ReaderT<Env, M>, A> mb) =>
-        new ReaderT<Env, M, A>(env => M.Or(ma.As().runReader(env), mb.As().runReader(env)));
+        new ReaderT<Env, M, A>(env => M.Combine(ma.As().runReader(env), mb.As().runReader(env)));
 
 }

@@ -62,6 +62,6 @@ public class IdentityT<M> : MonadT<IdentityT<M>, M>, SemiAlternative<IdentityT<M
                 run =>
                     inner(ma => run(ma.As().Value))));
 
-    static K<IdentityT<M>, A> SemiAlternative<IdentityT<M>>.Or<A>(K<IdentityT<M>, A> ma, K<IdentityT<M>, A> mb) =>
-        new IdentityT<M, A>(M.Or(ma.As().Value, mb.As().Value));
+    static K<IdentityT<M>, A> SemigroupK<IdentityT<M>>.Combine<A>(K<IdentityT<M>, A> ma, K<IdentityT<M>, A> mb) =>
+        new IdentityT<M, A>(M.Combine(ma.As().Value, mb.As().Value));
 }

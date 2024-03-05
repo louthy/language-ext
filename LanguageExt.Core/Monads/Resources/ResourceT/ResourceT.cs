@@ -198,13 +198,13 @@ public record ResourceT<M, A>(Func<Resources, K<M, A>> runResource) : K<Resource
         LiftIO(ma);
     
     public static ResourceT<M, A> operator |(ResourceT<M, A> ma, ResourceT<M, A> mb) =>
-        ResourceT.or(ma, mb);
+        ResourceT.combine(ma, mb);
     
     public static ResourceT<M, A> operator |(ResourceT<M, A> ma, Pure<A> mb) =>
-        ResourceT.or(ma, mb);
+        ResourceT.combine(ma, mb);
     
     public static ResourceT<M, A> operator |(IO<A> ma, ResourceT<M, A> mb) =>
-        ResourceT.or(ma, mb);
+        ResourceT.combine(ma, mb);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

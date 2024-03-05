@@ -23,10 +23,10 @@ public partial class IO : Monad<IO>, Alternative<IO>
     static K<IO, B> Applicative<IO>.Action<A, B>(K<IO, A> ma, K<IO, B> mb) =>
         ma.As().Bind(_ => mb);
 
-    static K<IO, A> Alternative<IO>.Empty<A>() =>
+    static K<IO, A> MonoidK<IO>.Empty<A>() =>
         IO<A>.Empty;
 
-    static K<IO, A> SemiAlternative<IO>.Or<A>(K<IO, A> ma, K<IO, A> mb) => 
+    static K<IO, A> SemigroupK<IO>.Combine<A>(K<IO, A> ma, K<IO, A> mb) => 
         ma.As() | mb.As();
 
     static K<IO, A> Monad<IO>.LiftIO<A>(IO<A> ma) => 

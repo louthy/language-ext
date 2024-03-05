@@ -20,10 +20,10 @@ public partial class Set : Monad<Set>, Alternative<Set>, Traversable<Set>
     static K<Set, B> Applicative<Set>.Action<A, B>(K<Set, A> ma, K<Set, B> mb) => 
         ma.As().Action(mb.As());
 
-    static K<Set, A> Alternative<Set>.Empty<A>() =>
+    static K<Set, A> MonoidK<Set>.Empty<A>() =>
         Set<A>.Empty;
 
-    static K<Set, A> SemiAlternative<Set>.Or<A>(K<Set, A> ma, K<Set, A> mb) => 
+    static K<Set, A> SemigroupK<Set>.Combine<A>(K<Set, A> ma, K<Set, A> mb) => 
         ma.As().IsEmpty ? mb : ma;
 
     static S Foldable<Set>.Fold<A, S>(Func<A, Func<S, S>> f, S initialState, K<Set, A> ta) => 

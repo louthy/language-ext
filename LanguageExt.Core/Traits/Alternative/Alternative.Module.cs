@@ -18,9 +18,9 @@ public static partial class Alternative
     /// <summary>
     /// Associative binary operator
     /// </summary>
-    public static K<F, A> or<F, A>(K<F, A> ma, K<F, A> mb)
+    public static K<F, A> combine<F, A>(K<F, A> ma, K<F, A> mb)
         where F : SemiAlternative<F> =>
-        F.Or(ma, mb);
+        F.Combine(ma, mb);
     
     /// <summary>
     /// Given a set of applicative functors, return the first one to succeed.
@@ -42,7 +42,7 @@ public static partial class Alternative
         where F : Alternative<F> =>
         ms.IsEmpty
             ? F.Empty<A>()
-            : F.Or(ms.Head, oneOf(ms.Tail));
+            : F.Combine(ms.Head, oneOf(ms.Tail));
 
     /// <summary>
     /// One or more...

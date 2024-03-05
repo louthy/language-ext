@@ -69,11 +69,11 @@ public partial class ResourceT
         where M : Monad<M>, SemiAlternative<M> => 
         new (M.Pure);
     
-    public static ResourceT<M, A> or<M, A>(
+    public static ResourceT<M, A> combine<M, A>(
         ResourceT<M, A> ma, 
         ResourceT<M, A> mb) 
         where M : Monad<M>, SemiAlternative<M> => 
-        new (env => M.Or(ma.runResource(env), mb.runResource(env)));
+        new (env => M.Combine(ma.runResource(env), mb.runResource(env)));
     
     public static ResourceT<M, B> bind<M, A, B>(ResourceT<M, A> ma, Func<A, ResourceT<M, B>> f) 
         where M : Monad<M>, SemiAlternative<M> =>

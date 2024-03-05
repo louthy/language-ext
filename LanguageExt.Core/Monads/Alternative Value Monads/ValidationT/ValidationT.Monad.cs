@@ -45,10 +45,10 @@ public partial class ValidationT<F, M> :
     static K<ValidationT<F, M>, A> Monad<ValidationT<F, M>>.LiftIO<A>(IO<A> ma) => 
         ValidationT<F, M, A>.Lift(M.LiftIO(ma));
 
-    static K<ValidationT<F, M>, A> Alternative<ValidationT<F, M>>.Empty<A>() =>
+    static K<ValidationT<F, M>, A> MonoidK<ValidationT<F, M>>.Empty<A>() =>
         ValidationT<F, M, A>.Fail(F.Empty);
 
-    static K<ValidationT<F, M>, A> SemiAlternative<ValidationT<F, M>>.Or<A>(
+    static K<ValidationT<F, M>, A> SemigroupK<ValidationT<F, M>>.Combine<A>(
         K<ValidationT<F, M>, A> ma,
         K<ValidationT<F, M>, A> mb) =>
         ma.As() | mb.As();

@@ -245,22 +245,22 @@ public record ReaderT<Env, M, A>(Func<Env, K<M, A>> runReader) : K<ReaderT<Env, 
         LiftIO(ma);
 
     public static ReaderT<Env, M, A> operator |(ReaderT<Env, M, A> ma, ReaderT<Env, M, A> mb) =>
-        ReaderT.or(ma, mb);
+        ReaderT.combine(ma, mb);
 
     public static ReaderT<Env, M, A> operator |(ReaderT<Env, M, A> ma, Pure<A> mb) =>
-        ReaderT.or(ma, mb);
+        ReaderT.combine(ma, mb);
 
     public static ReaderT<Env, M, A> operator |(ReaderT<Env, M, A> ma, Ask<Env, A> mb) =>
-        ReaderT.or(ma, mb);
+        ReaderT.combine(ma, mb);
 
     public static ReaderT<Env, M, A> operator |(Ask<Env, A> ma, ReaderT<Env, M, A> mb) =>
-        ReaderT.or(ma, mb);
+        ReaderT.combine(ma, mb);
 
     public static ReaderT<Env, M, A> operator |(ReaderT<Env, M, A> ma, IO<A> mb) =>
-        ReaderT.or(ma, mb);
+        ReaderT.combine(ma, mb);
 
     public static ReaderT<Env, M, A> operator |(IO<A> ma, ReaderT<Env, M, A> mb) =>
-        ReaderT.or(ma, mb);
+        ReaderT.combine(ma, mb);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

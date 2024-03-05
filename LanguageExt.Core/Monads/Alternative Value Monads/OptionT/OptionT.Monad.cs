@@ -34,10 +34,10 @@ public partial class OptionT<M> : MonadT<OptionT<M>, M>, Alternative<OptionT<M>>
     static K<OptionT<M>, A> Monad<OptionT<M>>.LiftIO<A>(IO<A> ma) => 
         OptionT<M, A>.Lift(M.LiftIO(ma));
 
-    static K<OptionT<M>, A> Alternative<OptionT<M>>.Empty<A>() =>
+    static K<OptionT<M>, A> MonoidK<OptionT<M>>.Empty<A>() =>
         OptionT<M, A>.None;
  
-    static K<OptionT<M>, A> SemiAlternative<OptionT<M>>.Or<A>(K<OptionT<M>, A> ma, K<OptionT<M>, A> mb) =>
+    static K<OptionT<M>, A> SemigroupK<OptionT<M>>.Combine<A>(K<OptionT<M>, A> ma, K<OptionT<M>, A> mb) =>
         new OptionT<M, A>(
             M.Bind(ma.As().runOption,
                    ea => ea.IsSome

@@ -4,9 +4,9 @@ namespace LanguageExt.Traits;
 /// A semigroup on functors
 /// </summary>
 /// <typeparam name="F">Applicative functor</typeparam>
-public static partial class SemiAlternative
+public static class SemiAlternative
 {
-    public static K<F, A> or<F, A>(K<F, A> ma, K<F, A> mb)
+    public static K<F, A> combine<F, A>(K<F, A> ma, K<F, A> mb)
         where F : SemiAlternative<F> =>
-        F.Or(ma, mb);
+        F.Combine(ma, mb);
 }

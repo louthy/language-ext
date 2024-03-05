@@ -7,16 +7,9 @@ namespace LanguageExt.Traits;
 /// A monoid on applicative functors
 /// </summary>
 /// <typeparam name="F">Applicative functor</typeparam>
-public interface Alternative<F> : SemiAlternative<F>, Applicative<F>
+public interface Alternative<F> : SemiAlternative<F>, Applicative<F>, MonoidK<F>
     where F : Alternative<F>
 {
-    /// <summary>
-    /// Identity
-    /// </summary>
-    /// <typeparam name="A"></typeparam>
-    /// <returns></returns>
-    public static abstract K<F, A> Empty<A>();
-
     /// <summary>
     /// One or more...
     /// </summary>
@@ -32,7 +25,7 @@ public interface Alternative<F> : SemiAlternative<F>, Applicative<F>
         return some_v();
         
         K<F, Seq<A>> many_v() =>
-            F.Or(some_v(), F.Pure(Seq<A>()));
+            F.Combine(some_v(), F.Pure(Seq<A>()));
 
         K<F, Seq<A>> some_v() =>
             F.Apply(Append<F, A>.cons, v, many_v());
@@ -53,7 +46,7 @@ public interface Alternative<F> : SemiAlternative<F>, Applicative<F>
         return many_v();
         
         K<F, Seq<A>> many_v() =>
-            F.Or(some_v(), F.Pure(Seq<A>()));
+            F.Combine(some_v(), F.Pure(Seq<A>()));
 
         K<F, Seq<A>> some_v() =>
             F.Apply(Append<F, A>.cons, v, many_v());

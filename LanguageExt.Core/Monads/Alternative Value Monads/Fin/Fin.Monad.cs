@@ -31,10 +31,10 @@ public partial class Fin : Monad<Fin>, Traversable<Fin>, Alternative<Fin>
         ta.As().Match(Succ: x => F.Map(ConsSucc, f(x)),
                       Fail: e => F.Pure(ConsFail<B>(e)));
 
-    static K<Fin, A> Alternative<Fin>.Empty<A>() =>
+    static K<Fin, A> MonoidK<Fin>.Empty<A>() =>
         Fin<A>.Fail(Errors.None);
 
-    static K<Fin, A> SemiAlternative<Fin>.Or<A>(K<Fin, A> ma, K<Fin, A> mb) =>
+    static K<Fin, A> SemigroupK<Fin>.Combine<A>(K<Fin, A> ma, K<Fin, A> mb) =>
         ma.As().IsSucc ? ma : mb;
 
     static K<Fin, A> ConsSucc<A>(A value) =>

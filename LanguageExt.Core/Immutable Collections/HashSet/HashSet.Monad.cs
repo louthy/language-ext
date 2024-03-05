@@ -20,10 +20,10 @@ public partial class HashSet : Monad<HashSet>, Alternative<HashSet>, Traversable
     static K<HashSet, B> Applicative<HashSet>.Action<A, B>(K<HashSet, A> ma, K<HashSet, B> mb) => 
         ma.As().Action(mb.As());
 
-    static K<HashSet, A> Alternative<HashSet>.Empty<A>() =>
+    static K<HashSet, A> MonoidK<HashSet>.Empty<A>() =>
         HashSet<A>.Empty;
 
-    static K<HashSet, A> SemiAlternative<HashSet>.Or<A>(K<HashSet, A> ma, K<HashSet, A> mb) => 
+    static K<HashSet, A> SemigroupK<HashSet>.Combine<A>(K<HashSet, A> ma, K<HashSet, A> mb) => 
         ma.As().IsEmpty ? mb : ma;
 
     static S Foldable<HashSet>.Fold<A, S>(Func<A, Func<S, S>> f, S initialState, K<HashSet, A> ta) => 

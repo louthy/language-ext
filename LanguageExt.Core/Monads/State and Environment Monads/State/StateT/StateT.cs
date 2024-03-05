@@ -327,16 +327,16 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
         LiftIO(ma);
     
     public static StateT<S, M, A> operator |(StateT<S, M, A> ma, StateT<S, M, A> mb) =>
-        new (state => M.Or(ma.runState(state), mb.runState(state)));
+        new (state => M.Combine(ma.runState(state), mb.runState(state)));
     
     public static StateT<S, M, A> operator |(StateT<S, M, A> ma, Pure<A> mb) =>
-        new (state => M.Or(ma.runState(state), Pure(mb.Value).runState(state)));
+        new (state => M.Combine(ma.runState(state), Pure(mb.Value).runState(state)));
     
     public static StateT<S, M, A> operator |(Pure<A> ma,  StateT<S, M, A>mb) =>
-        new (state => M.Or(Pure(ma.Value).runState(state), mb.runState(state)));
+        new (state => M.Combine(Pure(ma.Value).runState(state), mb.runState(state)));
     
     public static StateT<S, M, A> operator |(IO<A> ma, StateT<S, M, A> mb) =>
-        new (state => M.Or(LiftIO(ma).runState(state), mb.runState(state)));
+        new (state => M.Combine(LiftIO(ma).runState(state), mb.runState(state)));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

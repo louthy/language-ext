@@ -40,8 +40,8 @@ public partial class WriterT<W, M> :
     static K<WriterT<W, M>, A> Monad<WriterT<W, M>>.LiftIO<A>(IO<A> ma) =>
         WriterT<W, M, A>.Lift(M.LiftIO(ma));
 
-    static K<WriterT<W, M>, A> SemiAlternative<WriterT<W, M>>.Or<A>(K<WriterT<W, M>, A> ma, K<WriterT<W, M>, A> mb) => 
-        new WriterT<W, M, A>(w => M.Or(ma.As().runWriter(w), mb.As().runWriter(w)));
+    static K<WriterT<W, M>, A> SemigroupK<WriterT<W, M>>.Combine<A>(K<WriterT<W, M>, A> ma, K<WriterT<W, M>, A> mb) => 
+        new WriterT<W, M, A>(w => M.Combine(ma.As().runWriter(w), mb.As().runWriter(w)));
 
     static K<WriterT<W, M>, Unit> WriterM<WriterT<W, M>, W>.Tell(W item) =>
         new WriterT<W, M, Unit>(w => M.Pure((unit, w + item)));

@@ -974,10 +974,10 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     static K<Eff<A>, U> Applicative<Eff<A>>.Action<T, U>(K<Eff<A>, T> ma, K<Eff<A>, U> mb) =>
         ma.As().Action(mb.As());
 
-    static K<Eff<A>, T> Alternative<Eff<A>>.Empty<T>() =>
+    static K<Eff<A>, T> MonoidK<Eff<A>>.Empty<T>() =>
         Eff<A, T>.Fail(Errors.None);
 
-    static K<Eff<A>, T> SemiAlternative<Eff<A>>.Or<T>(K<Eff<A>, T> ma, K<Eff<A>, T> mb) =>
+    static K<Eff<A>, T> SemigroupK<Eff<A>>.Combine<T>(K<Eff<A>, T> ma, K<Eff<A>, T> mb) =>
         ma.As() | mb.As();
 
     static K<Eff<A>, T> Resource<Eff<A>>.Use<T>(IO<T> ma, Func<T, IO<Unit>> release) =>

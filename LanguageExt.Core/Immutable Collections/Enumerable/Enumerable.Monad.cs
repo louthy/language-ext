@@ -21,10 +21,10 @@ public partial class EnumerableM : Monad<EnumerableM>, Alternative<EnumerableM>,
     static K<EnumerableM, B> Applicative<EnumerableM>.Action<A, B>(K<EnumerableM, A> ma, K<EnumerableM, B> mb) => 
         new EnumerableM<B>(ma.As().Action(mb.As()));
 
-    static K<EnumerableM, A> Alternative<EnumerableM>.Empty<A>() =>
+    static K<EnumerableM, A> MonoidK<EnumerableM>.Empty<A>() =>
         EnumerableM<A>.Empty;
 
-    static K<EnumerableM, A> SemiAlternative<EnumerableM>.Or<A>(K<EnumerableM, A> ma, K<EnumerableM, A> mb)
+    static K<EnumerableM, A> SemigroupK<EnumerableM>.Combine<A>(K<EnumerableM, A> ma, K<EnumerableM, A> mb)
     {
         return new EnumerableM<A>(go());
         IEnumerable<A> go()

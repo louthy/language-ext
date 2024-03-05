@@ -42,11 +42,11 @@ public partial class ReaderT<Env, M>
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class ReaderT
 {
-    public static ReaderT<Env, M, A> or<Env, M, A>(
+    public static ReaderT<Env, M, A> combine<Env, M, A>(
         ReaderT<Env, M, A> ma, 
         ReaderT<Env, M, A> mb) 
         where M : Monad<M>, SemiAlternative<M> => 
-        new (env => M.Or(ma.runReader(env), mb.runReader(env)));
+        new (env => M.Combine(ma.runReader(env), mb.runReader(env)));
     
     public static ReaderT<Env, M, B> bind<Env, M, A, B>(ReaderT<Env, M, A> ma, Func<A, ReaderT<Env, M, B>> f) 
         where M : Monad<M>, SemiAlternative<M> => 

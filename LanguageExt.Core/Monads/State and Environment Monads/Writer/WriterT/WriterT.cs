@@ -265,16 +265,16 @@ public record WriterT<W, M, A>(Func<W, K<M, (A Value, W Output)>> runWriter) : K
         LiftIO(ma);
     
     public static WriterT<W, M, A> operator |(WriterT<W, M, A> ma, WriterT<W, M, A> mb) =>
-        new (w => M.Or(ma.runWriter(w), mb.runWriter(w)));
+        new (w => M.Combine(ma.runWriter(w), mb.runWriter(w)));
     
     public static WriterT<W, M, A> operator |(WriterT<W, M, A> ma, Pure<A> mb) =>
-        new (w => M.Or(ma.runWriter(w), Pure(mb.Value).runWriter(w)));
+        new (w => M.Combine(ma.runWriter(w), Pure(mb.Value).runWriter(w)));
     
     public static WriterT<W, M, A> operator |(Pure<A> ma,  WriterT<W, M, A>mb) =>
-        new (w => M.Or(Pure(ma.Value).runWriter(w), mb.runWriter(w)));
+        new (w => M.Combine(Pure(ma.Value).runWriter(w), mb.runWriter(w)));
     
     public static WriterT<W, M, A> operator |(IO<A> ma, WriterT<W, M, A> mb) =>
-        new (w => M.Or(LiftIO(ma).runWriter(w), mb.runWriter(w)));
+        new (w => M.Combine(LiftIO(ma).runWriter(w), mb.runWriter(w)));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

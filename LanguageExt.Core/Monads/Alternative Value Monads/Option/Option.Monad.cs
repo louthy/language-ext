@@ -30,10 +30,10 @@ public class Option : Monad<Option>, Traversable<Option>, Alternative<Option>
         ta.As().Match(Some: a => F.Map(Some, f(a)),
                       None: () => F.Pure(None<B>()));
 
-    static K<Option, A> Alternative<Option>.Empty<A>() =>
+    static K<Option, A> MonoidK<Option>.Empty<A>() =>
         None<A>();
 
-    static K<Option, A> SemiAlternative<Option>.Or<A>(K<Option, A> ma, K<Option, A> mb) =>
+    static K<Option, A> SemigroupK<Option>.Combine<A>(K<Option, A> ma, K<Option, A> mb) =>
         ma.As() || mb.As();
 
     static K<Option, X> Some<X>(X value) =>

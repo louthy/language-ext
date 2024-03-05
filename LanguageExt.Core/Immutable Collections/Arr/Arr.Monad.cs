@@ -20,10 +20,10 @@ public partial class Arr : Monad<Arr>, Alternative<Arr>, Traversable<Arr>
     static K<Arr, B> Applicative<Arr>.Action<A, B>(K<Arr, A> ma, K<Arr, B> mb) => 
         ma.As().Action(mb.As());
 
-    static K<Arr, A> Alternative<Arr>.Empty<A>() =>
+    static K<Arr, A> MonoidK<Arr>.Empty<A>() =>
         Arr<A>.Empty;
 
-    static K<Arr, A> SemiAlternative<Arr>.Or<A>(K<Arr, A> ma, K<Arr, A> mb) => 
+    static K<Arr, A> SemigroupK<Arr>.Combine<A>(K<Arr, A> ma, K<Arr, A> mb) => 
         ma.As().IsEmpty ? mb : ma;
 
     static S Foldable<Arr>.Fold<A, S>(Func<A, Func<S, S>> f, S initialState, K<Arr, A> ta) => 

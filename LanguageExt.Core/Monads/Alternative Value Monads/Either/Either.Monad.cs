@@ -49,6 +49,6 @@ public class Either<L> : Monad<Either<L>>, Traversable<Either<L>>, SemiAlternati
     static K<Either<L>, A> Left<A>(L value) =>
         Either<L, A>.Left(value);
 
-    public static K<Either<L>, A> Or<A>(K<Either<L>, A> ma, K<Either<L>, A> mb) => 
+    public static K<Either<L>, A> Combine<A>(K<Either<L>, A> ma, K<Either<L>, A> mb) => 
         ma.As() | mb.As();
 }

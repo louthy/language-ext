@@ -41,10 +41,10 @@ public partial class ResourceT<M> :
                     run =>
                         inner(ma => run(ma.As().runResource(env)))));
 
-    static K<ResourceT<M>, A> SemiAlternative<ResourceT<M>>.Or<A>(K<ResourceT<M>, A> ma, K<ResourceT<M>, A> mb) =>
+    static K<ResourceT<M>, A> SemigroupK<ResourceT<M>>.Combine<A>(K<ResourceT<M>, A> ma, K<ResourceT<M>, A> mb) =>
         new ResourceT<M, A>(
             res =>
-                M.Or(ma.As().runResource(res), mb.As().runResource(res)));
+                M.Combine(ma.As().runResource(res), mb.As().runResource(res)));
 
     static K<ResourceT<M>, A> Resource<ResourceT<M>>.Use<A>(IO<A> ma, Func<A, IO<Unit>> release) =>
         use(ma, release);

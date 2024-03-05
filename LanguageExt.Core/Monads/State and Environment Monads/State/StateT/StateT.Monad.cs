@@ -47,7 +47,7 @@ public partial class StateT<S, M> :
     static K<StateT<S, M>, A> Monad<StateT<S, M>>.LiftIO<A>(IO<A> ma) =>
         StateT<S, M, A>.Lift(M.LiftIO(ma));
 
-    static K<StateT<S, M>, A> SemiAlternative<StateT<S, M>>.Or<A>(K<StateT<S, M>, A> ma, K<StateT<S, M>, A> mb) => 
+    static K<StateT<S, M>, A> SemigroupK<StateT<S, M>>.Combine<A>(K<StateT<S, M>, A> ma, K<StateT<S, M>, A> mb) => 
         new StateT<S, M, A>(state =>
-            M.Or(ma.As().runState(state), mb.As().runState(state)));
+            M.Combine(ma.As().runState(state), mb.As().runState(state)));
 }
