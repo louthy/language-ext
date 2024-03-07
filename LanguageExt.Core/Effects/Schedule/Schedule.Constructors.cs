@@ -303,6 +303,9 @@ public abstract partial record Schedule
     /// Repeats the schedule n number of times
     /// </summary>
     /// <param name="times">number of times to repeat the schedule</param>
+    /// <remarks>
+    /// NOTE: This repeats the entire schedule!  Use `Schedule.recurs(n)` for 'number of attempts'.
+    /// </remarks>
     [Pure]
     public static ScheduleTransformer repeat(int times) =>
         Transform(s => new SchRepeat(s, times));

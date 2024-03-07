@@ -105,5 +105,33 @@ public partial class IO
     [Pure]
     [MethodImpl(Opt.Default)]
     public static IO<ForkIO<A>> fork<A>(K<IO, A> ma, Option<TimeSpan> timeout = default) =>
-        ma.As().Fork(timeout);    
+        ma.As().Fork(timeout);
+
+    /// <summary>
+    /// Yield the thread for the specified milliseconds or until cancelled.
+    /// </summary>
+    /// <param name="milliseconds">Amount of time to yield for</param>
+    /// <returns>Unit</returns>
+    [Pure]
+    [MethodImpl(Opt.Default)]
+    public static IO<Unit> yield(double milliseconds) =>
+        IO<Unit>.Lift(env => yieldFor(new Duration(milliseconds), env.Token));
+    
+    /// <summary>
+    /// Yields the thread for the `Duration` specified allowing for concurrency
+    /// on the current thread without having to use async/await
+    /// </summary>
+    internal static Unit yieldFor(Duration d, CancellationToken token)
+    {
+        if (d == Duration.Zero) return default;
+        var      start = TimeProvider.System.GetTimestamp();
+        var      span  = (TimeSpan)d;
+        SpinWait sw    = default;
+        do
+        {
+            if (token.IsCancellationRequested) throw new TaskCanceledException();
+            if (TimeProvider.System.GetElapsedTime(start) >= span) return default;
+            sw.SpinOnce();
+        } while (true);
+    }
 }

@@ -1,3 +1,5 @@
+using System;
+
 namespace LanguageExt.Traits;
 
 /// <summary>
@@ -26,6 +28,20 @@ public static class KExtensions
     /// </summary>
     public static K<F, A> Kind<F, A>(this K<F, A> fa) =>
         fa;
+    
+    public static FA SafeCast<FA, F, A>(this K<F, A> fa)
+        where FA : K<F, A>
+        where F : Functor<F>
+    {
+        try
+        {
+            return (FA)fa;
+        }
+        catch(InvalidCastException)
+        {
+            return (FA)F.Map(x => (A)x, fa);
+        }
+    }
     
     /// <summary>
     /// `KindT` converts a nested Kind type (inherits `K<M, A>`), where the inner

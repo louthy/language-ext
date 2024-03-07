@@ -87,6 +87,35 @@ public readonly struct Guard<E, A>
 public static class GuardExtensions
 {
     /// <summary>
+    /// Monadic binding support for `Eff`
+    /// </summary>
+    public static IO<B> Bind<B>(
+        this Guard<Error, Unit> guard,
+        Func<Unit, IO<B>> f) =>
+        guard.Flag 
+            ? f(unit) 
+            : Fail(guard.OnFalse());
+       
+    /// <summary>
+    /// Monadic binding support for `Eff`
+    /// </summary>
+    public static IO<C> SelectMany<B, C>(
+        this Guard<Error, Unit> guard,
+        Func<Unit, IO<B>> bind, 
+        Func<Unit, B, C> project) =>
+        guard.Flag
+            ? bind(default).Map(b => project(default, b))
+            : Fail(guard.OnFalse());    
+    
+    /// <summary>
+    /// Natural transformation to `IO`
+    /// </summary>
+    public static IO<Unit> ToIO(this Guard<Error, Unit> guard) =>
+        IO.lift(() => guard.Flag
+                          ? unit
+                          : guard.OnFalse().Throw());
+    
+    /// <summary>
     /// Natural transformation to `Eff`
     /// </summary>
     public static Eff<Unit> ToEff(this Guard<Error, Unit> guard) =>

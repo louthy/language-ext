@@ -4,11 +4,19 @@ using System.Formats.Asn1;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
 public static partial class Prelude
 {
+    /*
+    public static K<M, A> tail<M, A>(K<M, A> ma)
+    {
+        return ma;
+    }
+    */
+    
     /// <summary>
     /// Projects a value into a lambda
     /// Useful when one needs to declare a local variable which breaks your

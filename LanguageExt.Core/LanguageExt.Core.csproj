@@ -45,4 +45,7 @@
   <ItemGroup>
     <None Include="README.md" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Monads\Recursion\" />
+  </ItemGroup>
 </Project>

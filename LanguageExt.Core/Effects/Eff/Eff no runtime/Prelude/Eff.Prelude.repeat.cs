@@ -22,7 +22,7 @@ public static partial class Prelude
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
-    public static Eff<A> repeat<A>(Eff<A> ma, Schedule schedule) =>
+    public static Eff<A> repeat<A>(Schedule schedule, Eff<A> ma) =>
         ma.Repeat(schedule);
 
     /// <summary>
@@ -44,8 +44,8 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<A> repeatWhile<A>(
-        Eff<A> ma,
         Schedule schedule,
+        Eff<A> ma,
         Func<A, bool> predicate) =>
         ma.RepeatWhile(schedule, predicate);
 
@@ -70,8 +70,8 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<A> repeatUntil<A>(
-        Eff<A> ma,
         Schedule schedule,
+        Eff<A> ma,
         Func<A, bool> predicate) =>
         ma.RepeatUntil(schedule, predicate);
 }

@@ -227,7 +227,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 var token = envIO.Token;
                 foreach (var delay in schedule.Run())
                 {
-                    YieldFor(delay, token);
+                    IO.yieldFor(delay, token);
                     r = Run(envIO);
                     state = folder(state, r);
                     if (predicate((state, r))) return state;
@@ -328,6 +328,11 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         where M : Monad<M>, Alternative<M> =>
         EitherT<L, M, A>.LiftIO(this).SelectMany(bind, project);
 
+    public ValidationT<F, M, C> SelectMany<F, M, B, C>(Func<A, ValidationT<F, M, B>> bind, Func<A, B, C> project)
+        where F : Monoid<F>
+        where M : Monad<M>, Alternative<M> =>
+        ValidationT<F, M, A>.LiftIO(this).SelectMany(bind, project);
+
     public ReaderT<Env, M, C> SelectMany<Env, M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
         where M : Monad<M>, Alternative<M> =>
         ReaderT<Env, M, A>.LiftIO(this).SelectMany(bind, project);
@@ -345,6 +350,9 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
 
     public Eff<RT, C> SelectMany<RT, B, C>(Func<A, Eff<RT, B>> bind, Func<A, B, C> project) =>
         Eff<RT, A>.LiftIO(this).SelectMany(bind, project);
+
+    public IO<C> SelectMany<C>(Func<A, Guard<Error, Unit>> bind, Func<A, Unit, C> project) =>
+        SelectMany(a => bind(a).ToIO(), project);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -398,6 +406,22 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 {
                     var err = Error.New(ex);
                     if(mb.Match(err)) return mb.Value(err).Run(env);
+                    throw;
+                }
+            });
+
+    public static IO<A> operator |(IO<A> ma, CatchM<IO, A> mb) =>
+        new(env =>
+            {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                try
+                {
+                    return ma.Run(env);
+                }
+                catch (Exception ex)
+                {
+                    var err = Error.New(ex);
+                    if(mb.Match(err)) return mb.Value(err).As().Run(env);
                     throw;
                 }
             });
@@ -655,7 +679,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 
                 foreach(var delay in  schedule.Run())
                 {
-                    YieldFor(delay, token);
+                    IO.yieldFor(delay, token);
                     result = Run(env);
                     if (predicate(result)) return result;
                 }
@@ -745,7 +769,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 
                 foreach(var delay in  schedule.Run())
                 {
-                    YieldFor(delay, token);
+                    IO.yieldFor(delay, token);
                     try
                     {
                         return Run(env);
@@ -800,24 +824,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         }
 
         return t.Result;
-    }
-
-    /// <summary>
-    /// Yields the thread for the `Duration` specified allowing for concurrency
-    /// on the current thread without having to use async/await
-    /// </summary>
-    static void YieldFor(Duration d, CancellationToken token)
-    {
-        if (d == Duration.Zero) return;
-        var      start = TimeProvider.System.GetTimestamp();
-        var      span  = (TimeSpan)d;
-        SpinWait sw    = default;
-        do
-        {
-            if (token.IsCancellationRequested) throw new TaskCanceledException();
-            if (TimeProvider.System.GetElapsedTime(start) >= span) return;
-            sw.SpinOnce();
-        } while (true);
     }
     
     record CleanUp(CancellationTokenSource Src, CancellationTokenRegistration Reg) : IDisposable
