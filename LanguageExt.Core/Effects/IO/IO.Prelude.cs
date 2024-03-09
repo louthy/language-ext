@@ -40,6 +40,23 @@ public static partial class Prelude
         IO<EnvIO>.Lift(e => e);
 
     /// <summary>
+    /// Creates a local cancellation environment
+    /// </summary>
+    /// <remarks>
+    /// A local cancellation environment stops other IO computations, that rely on the same
+    /// environmental cancellation token, from being taken down by a regional cancellation.
+    ///
+    /// If a `IO.cancel` is invoked locally then it will still create an exception that
+    /// propagates upwards and so catching cancellations is still important. 
+    /// </remarks>
+    /// <param name="ma">Computation to run within the local context</param>
+    /// <typeparam name="A">Bound value</typeparam>
+    /// <returns>Result of the computation</returns>
+    public static IO<A> local<A>(K<IO, A> ma) =>
+        IO.local(ma);
+    
+    
+    /// <summary>
     /// Queue this IO operation to run on the thread-pool. 
     /// </summary>
     /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>

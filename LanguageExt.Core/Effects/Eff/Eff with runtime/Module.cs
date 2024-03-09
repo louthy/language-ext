@@ -50,8 +50,6 @@ public class Eff :
     static K<Eff, A> Monad<Eff>.LiftIO<A>(IO<A> ma) =>
         Eff<A>.LiftIO(ma);
     
-    /*
-     TODO -- can get the resources from ResourceT.resources -- consider restoring
     static K<Eff, B> Monad<Eff>.WithRunInIO<A, B>(Func<Func<K<Eff, A>, IO<A>>, IO<B>> inner) =>
         Eff<B>.LiftIO(
             env => inner(ma => ma.As()
@@ -60,5 +58,4 @@ public class Eff :
                                  .Run(env).As()
                                  .Run().As()
                                  .Map(p => p.Value)));
-*/
 }

@@ -808,6 +808,13 @@ public record Eff<A>(Eff<MinRT, A> effect) :
         ma.Match(Succ: Pure, Fail: Fail);
 
     /// <summary>
+    /// Convert to an `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static implicit operator Eff<A>(in IO<A> ma) =>
+        LiftIO(ma);
+
+    /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
     /// result of the first without running the second.
     /// </summary>
@@ -998,15 +1005,13 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     static K<Eff<A>, T> Monad<Eff<A>>.LiftIO<T>(IO<T> ma) =>
         new Eff<A, T>(StateT.liftIO<A, ResourceT<IO>, T>(ma));
     
-    /*
-     TODO -- can get the resources from ResourceT.resources -- consider restoring
      static K<Eff<A>, U> Monad<Eff<A>>.WithRunInIO<T, U>(Func<Func<K<Eff<A>, T>, IO<T>>, IO<U>> inner) =>
         Eff<A, U>.LiftIO(
             env => inner(ma => ma.As()
                                  .effect
                                  .Run(env).As()
                                  .Run().As()
-                                 .Map(p => p.Value)));*/
+                                 .Map(p => p.Value)));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using LanguageExt;
 using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
@@ -27,3 +28,4 @@ public class AtomIO<RT, E, A>
     public override string ToString() =>
         Value?.ToString() ?? "[null]";
 }
+*/

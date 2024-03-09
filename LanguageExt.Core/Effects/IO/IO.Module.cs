@@ -26,6 +26,35 @@ public partial class IO
                  f();
                  return unit;
              });
+
+    /// <summary>
+    /// Creates a local cancellation environment
+    /// </summary>
+    /// <remarks>
+    /// A local cancellation environment stops other IO computations, that rely on the same
+    /// environmental cancellation token, from being taken down by a regional cancellation.
+    ///
+    /// If a `IO.cancel` is invoked locally then it will still create an exception that
+    /// propagates upwards and so catching cancellations is still important. 
+    /// </remarks>
+    /// <param name="ma">Computation to run within the local context</param>
+    /// <typeparam name="A">Bound value</typeparam>
+    /// <returns>Result of the computation</returns>
+    public static IO<A> local<A>(K<IO, A> ma) =>
+        new (env =>
+             {
+                 if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+            
+                 // Create a new local token-source with its own cancellation token
+                 using var tsrc = new CancellationTokenSource();
+                 var tok = tsrc.Token;
+
+                 // If the parent cancels, we should too
+                 using var reg = env.Token.Register(() => tsrc.Cancel());
+
+                 var env1 = new EnvIO(tok, tsrc, env.SyncContext);
+                 return ma.As().Run(env1);
+             });
     
     public static IO<A> lift<A>(Either<Error, A> ma) =>
         ma switch

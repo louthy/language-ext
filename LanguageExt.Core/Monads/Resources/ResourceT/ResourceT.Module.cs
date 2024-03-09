@@ -18,8 +18,8 @@ public partial class ResourceT<M>
     public static ResourceT<M, A> lift<A>(K<M, A> ma) => 
         ResourceT<M, A>.Lift(ma);
 
-    public static ResourceT<M, A> use<A>(IO<A> ma, Action<A> release) =>
-        use(ma,
+    public static ResourceT<M, A> use<A>(IO<A> acquire, Action<A> release) =>
+        use(acquire,
             value => IO<Unit>.Lift(
                 _ =>
                 {
@@ -27,8 +27,14 @@ public partial class ResourceT<M>
                     return Prelude.unit;
                 }));
 
-    public static ResourceT<M, A> use<A>(IO<A> ma, Func<A, IO<Unit>> release)=>
-        liftIO(ma).Bind(
+    public static ResourceT<M, A> use<A>(Func<A> acquire, Action<A> release) =>
+        use(IO.lift(acquire), release);
+
+    public static ResourceT<M, A> use<A>(Func<A> acquire, Func<A, IO<Unit>> release) =>
+        use(IO.lift(acquire), release);
+
+    public static ResourceT<M, A> use<A>(IO<A> acquire, Func<A, IO<Unit>> release)=>
+        liftIO(acquire).Bind(
             a => ResourceT<M, A>.Asks(
                 rs =>
                 {
@@ -36,17 +42,17 @@ public partial class ResourceT<M>
                     return a;
                 }));
 
-    public static ResourceT<M, A> use<A>(Func<EnvIO, A> f) 
+    public static ResourceT<M, A> use<A>(Func<EnvIO, A> acquire) 
         where A : IDisposable =>
-        use(IO<A>.Lift(f));
+        use(IO.lift(acquire));
 
-    public static ResourceT<M, A> use<A>(Func<A> f) 
+    public static ResourceT<M, A> use<A>(Func<A> acquire) 
         where A : IDisposable =>
-        use(IO<A>.Lift(f));
+        use(IO.lift(acquire));
 
-    public static ResourceT<M, A> use<A>(IO<A> ma) 
+    public static ResourceT<M, A> use<A>(IO<A> acquire) 
         where A : IDisposable =>
-        liftIO(ma).Bind(
+        liftIO(acquire).Bind(
             a => ResourceT<M, A>.Asks(
                 rs =>
                 {

@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using LanguageExt;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
+using LanguageExt.Pipes;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
-using static LanguageExt.Transducer;
-
 
 namespace TestBed.WPF;
 
@@ -19,30 +13,33 @@ namespace TestBed.WPF;
 /// A window base-type that supports some common IO behaviours for use in
 /// derived window-types. 
 /// </summary>
-public class WindowIO<RT, E> : Window
-    where RT : HasIO<RT, E>
+public class WindowIO<RT> : Window
 {
     readonly RT Runtime;
+    readonly EnvIO EnvIO;
 
     /// <summary>
     /// Constructor
     /// </summary>
-    protected WindowIO(RT runtime) =>
-        Runtime = runtime.LocalCancel;
+    protected WindowIO(RT runtime)
+    {
+        Runtime = runtime;
+        EnvIO   = EnvIO.New();
+    }
     
     /// <summary>
     /// Startup launch
     /// </summary>
-    protected Unit onStart(IO<RT, E, Unit> operation) =>
-        operation.Run(Runtime)
-                 .IfLeft(e => Error.New(e?.ToString() ?? "there was an error").Throw());
+    protected Unit onStart(Eff<RT, Unit> operation) =>
+        operation.Run(Runtime, EnvIO)
+                 .IfFail(e => e.Throw());
 
     /// <summary>
     /// Closes any forks created by the window
     /// </summary>
     protected override void OnClosed(EventArgs e)
     {
-        Runtime.CancellationTokenSource.Cancel();
+        EnvIO.Source.Cancel();
         base.OnClosed(e);
     }
 
@@ -52,66 +49,40 @@ public class WindowIO<RT, E> : Window
     /// <remarks>
     /// Useful for wrapping IO event-handlers into a Task base event-handler
     /// </remarks>
-    protected async Task<Either<E, A>> handle<A>(IO<RT, E, A> operation) =>
-        await operation.RunAsync(Runtime);
+    protected void handle<A>(Eff<RT, A> operation) =>
+        operation.Fork().Run(Runtime, EnvIO).ThrowIfFail();
         
     /// <summary>
     /// Helper IO for setting control text 
     /// </summary>
-    protected static IO<RT, E, Unit> setContent(ContentControl control, string text) =>
-        lift(action0: () => control.Content = text);
+    protected static Eff<RT, Unit> setContent(ContentControl control, string text) =>
+        lift(action: () => control.Content = text);
         
     /// <summary>
     /// Helper IO for setting control text 
     /// </summary>
-    protected static IO<RT, E, Unit> setContent(TextBlock control, string text) =>
-        lift(action0: () => control.Text = text);
+    protected static Eff<RT, Unit> setContent(TextBlock control, string text) =>
+        lift(action: () => control.Text = text);
 
     /// <summary>
     /// Get mouse position
     /// </summary>
-    protected IO<RT, E, Point> getPosition(MouseEventArgs @event) =>
+    protected Eff<RT, Point> getPosition(MouseEventArgs @event) =>
         lift(() => @event.GetPosition(this));
-    
-    /// <summary>
-    /// Idea for how event handlers could be consumed
-    ///
-    /// It's pretty ugly, but it does wrap up the complexity so the consumer never has to worry.
-    /// </summary>
-    protected IO<RT, E, MouseEventArgs> onMouseMove => 
-        from rtime in runtime<RT, E>()
-        from queue in Pure(new ConcurrentQueue<MouseEventArgs>())
-        from waite in use(() => new AutoResetEvent(false))
-        from hndlr in use(
-            acquire: () => new MouseEventHandler((_, e) =>
-            {
-                queue.Enqueue(e);
-                waite.Set();
-            }),
-            release: h => RemoveHandler(Mouse.MouseMoveEvent, h))
-        from _ in lift(() => AddHandler(Mouse.MouseMoveEvent, hndlr, false))
-        from xs in many(stream(rtime, queue, waite))
-        select xs;
+
+    protected Producer<MouseEventArgs, Eff<RT>, Unit> onMouseMove =>
+        from rtime  in runtime<RT>()
+        let queue = Proxy.Queue<Eff<RT>, MouseEventArgs>()
+        from hndlr  in Resource.use<Eff<RT>, MouseEventHandler>(
+                         acquire: () => (_, e) => queue.Enqueue(e),
+                         release: h => RemoveHandler(Mouse.MouseMoveEvent, h))
+        from _      in liftEff(() => AddHandler(Mouse.MouseMoveEvent, hndlr, false))
+        from result in queue
+        select result;
     
     /// <summary>
     /// Async delay
     /// </summary>
-    protected static IO<RT, E, Unit> waitFor(double ms) =>
-        liftIO(async token => await Task.Delay(TimeSpan.FromMilliseconds(ms), token));
-
-    
-    static IEnumerable<EVENT> stream<EVENT>(RT rt, ConcurrentQueue<EVENT> queue, AutoResetEvent wait)
-    {
-        while (!rt.CancellationToken.IsCancellationRequested)
-        {
-            wait.WaitOne(100);
-            while (!queue.IsEmpty)
-            {
-                if (queue.TryDequeue(out var e))
-                {
-                    yield return e;
-                }
-            }
-        }
-    }
+    protected static Eff<RT, Unit> waitFor(double ms) =>
+        yield(ms);
 }

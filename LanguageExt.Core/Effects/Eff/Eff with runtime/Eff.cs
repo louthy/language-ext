@@ -892,6 +892,13 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
         ma.RunEffect().As();
 
     /// <summary>
+    /// Convert to an `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static implicit operator Eff<RT, A>(in IO<A> ma) =>
+        LiftIO(ma);
+
+    /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
     /// result of the first without running the second.
     /// </summary>

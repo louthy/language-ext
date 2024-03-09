@@ -50,4 +50,13 @@ public partial class StateT<S, M> :
     static K<StateT<S, M>, A> SemigroupK<StateT<S, M>>.Combine<A>(K<StateT<S, M>, A> ma, K<StateT<S, M>, A> mb) => 
         new StateT<S, M, A>(state =>
             M.Combine(ma.As().runState(state), mb.As().runState(state)));
+
+    // TODO: Decide whether to keep this.  It isn't sound due to its discarding of the state 
+    static K<StateT<S, M>, B> Monad<StateT<S, M>>.WithRunInIO<A, B>(
+        Func<Func<K<StateT<S, M>, A>, IO<A>>, IO<B>> inner) =>
+        new StateT<S, M, B>(
+            s =>
+                M.WithRunInIO<A, B>(
+                    run =>
+                        inner(ma => run(ma.As().runState(s).Map(p => p.Value)))).Map(x => (x, env: s)));
 }

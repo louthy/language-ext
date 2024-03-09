@@ -252,26 +252,42 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
                 if (env.SyncContext is null) return Run(env);
 
-                A?         value = default;
-                Exception? error = default;
-                using var  wait  = new AutoResetEvent(false);
-                env.SyncContext.Post(_ =>
-                                     {
-                                         try
-                                         {
-                                             value = Run(env);
-                                         }
-                                         catch (Exception e)
-                                         {
-                                             error = e;
-                                         }
-                                         finally
-                                         {
-                                             wait.Set();
-                                         }
-                                     }, null);
+                A?         value   = default;
+                Exception? error   = default;
+                var        waiting = true;
 
-                wait.WaitOne();
+                try
+                {
+                    env.SyncContext.Post(_ =>
+                                         {
+                                             try
+                                             {
+                                                 value = Run(env);
+                                             }
+                                             catch (Exception e)
+                                             {
+                                                 error = e;
+                                             }
+                                             finally
+                                             {
+                                                 //wait.Set();
+                                                 waiting = false;
+                                             }
+                                         },
+                                         null);
+                }
+                catch(Exception)
+                {
+                    waiting = false;
+                    throw;
+                }
+
+                SpinWait sw = default;
+                while (waiting && !env.Token.IsCancellationRequested)
+                {
+                    sw.SpinOnce();
+                }
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
                 if (error is not null) error.Rethrow<A>();
                 return value!;
             });

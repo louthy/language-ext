@@ -220,6 +220,13 @@ public static partial class Prelude
     /// Lift a synchronous effect into the IO monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
+    public static Eff<Unit> liftEff(Action action) =>
+        LanguageExt.Eff<Unit>.Lift(() => { action(); return unit; });
+
+    /// <summary>
+    /// Lift a synchronous effect into the IO monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> liftEff<A>(Func<A> f) =>
         LanguageExt.Eff<A>.Lift(f);
     
