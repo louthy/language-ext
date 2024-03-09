@@ -1,3 +1,5 @@
+// TODO: Delete this or turn it into some real tests
+
 using System;
 using System.IO;
 using System.Threading.Tasks;
