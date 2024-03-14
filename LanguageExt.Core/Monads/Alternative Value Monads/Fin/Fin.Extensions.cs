@@ -42,7 +42,7 @@ public static class FinExtensions
     public static Fin<R> Plus<NUM, R>(this Fin<R> x, Fin<R> y) where NUM : Arithmetic<R> =>
         from a in x
         from b in y
-        select NUM.Plus(a, b);
+        select NUM.Add(a, b);
 
     /// <summary>
     /// Find the subtract between the two bound values of x and y, uses a Subtract trait 
@@ -72,7 +72,7 @@ public static class FinExtensions
     public static Fin<R> Product<NUM, R>(this Fin<R> x, Fin<R> y) where NUM : Arithmetic<R> =>
         from a in x
         from b in y
-        select NUM.Product(a, b);
+        select NUM.Multiply(a, b);
 
     /// <summary>
     /// Divide the two bound values of x and y, uses a Divide trait to provide the divide

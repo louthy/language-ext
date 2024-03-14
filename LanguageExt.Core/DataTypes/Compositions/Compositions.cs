@@ -38,7 +38,7 @@ public struct Compositions<A> :
         Tree = tree;
     }
 
-    public Compositions<A> Append(Compositions<A> compy)
+    public Compositions<A> Combine(Compositions<A> compy)
     {
         var compx = this;
         Seq<Node> go(Seq<Node> mx, Seq<Node> my)
@@ -66,7 +66,7 @@ public struct Compositions<A> :
             }
             else
             {
-                return go(new Node(sx + sy, Some((x, y)), vx.Append(vy)).Cons(xs), ys);
+                return go(new Node(sx + sy, Some((x, y)), vx.Combine(vy)).Cons(xs), ys);
             }
         }
         return new Compositions<A>(go(compx.Tree, compy.Tree));

@@ -41,7 +41,7 @@ public struct TBigInt : Num<bigint>, Bool<bigint>
     /// <param name="y">right hand side of the addition operation</param>
     /// <returns>The sum of x and y</returns>
     [Pure]
-    public static bigint Plus(bigint x, bigint y) =>
+    public static bigint Add(bigint x, bigint y) =>
         x + y;
 
     /// <summary>
@@ -61,7 +61,7 @@ public struct TBigInt : Num<bigint>, Bool<bigint>
     /// <param name="y">right hand side of the product operation</param>
     /// <returns>The product of x and y</returns>
     [Pure]
-    public static bigint Product(bigint x, bigint y) =>
+    public static bigint Multiply(bigint x, bigint y) =>
         x * y;
 
     /// <summary>

@@ -1,12 +1,13 @@
 using System;
+using LanguageExt.Traits;
 
-namespace LanguageExt.Traits;
+namespace LanguageExt;
 
 /// <summary>
 /// A monoid on applicative functors
 /// </summary>
 /// <typeparam name="F">Applicative functor</typeparam>
-public static partial class Alternative
+public static partial class AlternativeExtensions
 {
     /// <summary>
     /// Results in Empty if the predicate results in `false` 
@@ -21,6 +22,14 @@ public static partial class Alternative
     public static K<M, A> Where<M, A>(this K<M, A> ma, Func<A, bool> predicate)
         where M : Alternative<M>, Monad<M> =>
         M.Bind(ma, a => predicate(a) ? M.Pure(a) : M.Empty<A>());
+
+    /// <summary>
+    /// Chooses whether an element of the structure should be propagated through and if so
+    /// maps the resulting value at the same time. 
+    /// </summary>
+    public static K<M, B> Choose<M, A, B>(this K<M, A> ma, Func<A, Option<B>> selector)
+        where M : Alternative<M>, Monad<M> =>
+        M.Bind(ma, a => selector(a).Match(Some: M.Pure, None: M.Empty<B>));
     
     /// <summary>
     /// Given a set of applicative functors, return the first one to succeed.
@@ -30,7 +39,7 @@ public static partial class Alternative
     /// </remarks>
     public static K<F, A> OneOf<F, A>(this Seq<K<F, A>> ms)
         where F : Alternative<F> =>
-        oneOf(ms);
+        Alternative.oneOf(ms);
 
     /// <summary>
     /// One or more...

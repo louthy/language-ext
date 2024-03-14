@@ -38,7 +38,7 @@ public struct TDecimal : Floating<decimal>
     /// <param name="y">right hand side of the addition operation</param>
     /// <returns>The sum of x and y</returns>
     [Pure]
-    public static decimal Plus(decimal x, decimal y) => x + y;
+    public static decimal Add(decimal x, decimal y) => x + y;
 
     /// <summary>
     /// Find the difference between two values
@@ -56,7 +56,7 @@ public struct TDecimal : Floating<decimal>
     /// <param name="y">right hand side of the product operation</param>
     /// <returns>The product of x and y</returns>
     [Pure]
-    public static decimal Product(decimal x, decimal y) => x * y;
+    public static decimal Multiply(decimal x, decimal y) => x * y;
 
     /// <summary>
     /// Divide two numbers

@@ -181,7 +181,7 @@ public readonly struct Lst<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lens<Lst<A>, Lst<B>> map<B>(Lens<A, B> lens) => Lens<Lst<A>, Lst<B>>.New(
         Get: la => la.Map(lens.Get),
-        Set: lb => la => la.Zip(lb).Map(ab => lens.Set(ab.Item2, ab.Item1)).Freeze()
+        Set: lb => la => la.Zip(lb).Select(ab => lens.Set(ab.Item2, ab.Item1)).Freeze()
     );
 
     /// <summary>
@@ -516,11 +516,11 @@ public readonly struct Lst<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lst<A> operator +(Lst<A> lhs, Lst<A> rhs) =>
-        lhs.Append(rhs);
+        lhs.Combine(rhs);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Lst<A> Append(Lst<A> rhs) =>
+    public Lst<A> Combine(Lst<A> rhs) =>
         new (Value.Append(rhs));
     
     [Pure]

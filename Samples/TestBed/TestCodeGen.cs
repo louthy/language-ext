@@ -1,4 +1,7 @@
-﻿////////////////////////////////////////////////////////////////////////////////////////////////////////
+﻿/*
+ TODO: RESTORE WITH NEW CODE-GEN SYSTEM
+ 
+////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                    //
 //                                                                                                    //
 //     NOTE: This is just my scratch pad for quickly testing stuff, not for human consumption         //
@@ -347,3 +350,4 @@ namespace TestBed
         public readonly int? Age;
     }
 }
+*/

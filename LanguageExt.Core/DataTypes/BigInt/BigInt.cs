@@ -2123,7 +2123,7 @@ public readonly struct bigint :
     /// <summary>
     /// Semigroup append
     /// </summary>
-    bigint Semigroup<bigint>.Append(bigint y) => 
+    bigint Semigroup<bigint>.Combine(bigint y) => 
         Value + y.Value;
 
     /// <summary>

@@ -442,10 +442,10 @@ public readonly struct HashSet<EqA, A> :
 
     [Pure]
     public static HashSet<EqA, A> operator +(HashSet<EqA, A> lhs, HashSet<EqA, A> rhs) =>
-        lhs.Append(rhs);
+        lhs.Combine(rhs);
 
     [Pure]
-    public HashSet<EqA, A> Append(HashSet<EqA, A> rhs) =>
+    public HashSet<EqA, A> Combine(HashSet<EqA, A> rhs) =>
         Wrap(Value.Append(rhs.Value));
 
     [Pure]

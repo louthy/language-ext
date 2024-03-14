@@ -1,9 +1,9 @@
 ﻿using System;
 using LanguageExt.Traits;
 
-namespace LanguageExt.Traits;
+namespace LanguageExt;
 
-public static class WriterExtensions
+public static partial class WriterExtensions
 {
     /// <summary>
     /// `pass` is an action that executes the `action`, which returns a value and a

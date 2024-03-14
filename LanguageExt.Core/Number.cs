@@ -1,7 +1,7 @@
 using System.Numerics;
 using LanguageExt.Traits;
 
-namespace LanguageExt.Core;
+namespace LanguageExt;
 
 /// <summary>
 /// `Num<A>` trait for `INumber<A>` 
@@ -19,13 +19,13 @@ public class Number<A> : Num<A>
     public static int Compare(A x, A y) =>
         x.CompareTo(y);
 
-    public static A Plus(A x, A y) =>
+    public static A Add(A x, A y) =>
         x + y;
 
     public static A Subtract(A x, A y) =>
         x - y;
 
-    public static A Product(A x, A y) =>
+    public static A Multiply(A x, A y) =>
         x * y;
 
     public static A Negate(A x) =>

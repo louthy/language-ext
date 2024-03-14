@@ -367,7 +367,7 @@ namespace LanguageExt.Tests
 
             var patch    = diff<EqString, string>(docA, docB);
             var inverseP = inverse(patch);
-            var patch1   = patch.Append(inverseP);
+            var patch1   = patch.Combine(inverseP);
             var empty    = Patch<EqString, string>.Empty;
 
             Assert.True(patch1 == empty);
@@ -382,7 +382,7 @@ namespace LanguageExt.Tests
             var patch = diff<EqString, string>(docA, docB);
             var inverseP = inverse(patch);
 
-            var patch1 = inverseP.Append(patch);
+            var patch1 = inverseP.Combine(patch);
             var empty  = Patch<EqString, string>.Empty;
 
             Assert.True(patch1 == empty);
@@ -411,7 +411,7 @@ namespace LanguageExt.Tests
             var patchP = diff<EqString, string>(docA, docB);
             var patchQ = diff<EqString, string>(docB, docC);
 
-            var patchPQ = patchP.Append(patchQ);
+            var patchPQ = patchP.Combine(patchQ);
 
             var docD = apply(patchPQ, docA);
 
@@ -445,12 +445,12 @@ namespace LanguageExt.Tests
             Assert.True(inverse(invPatchP) == patchP);
             Assert.True(inverse(invPatchQ) == patchQ);
 
-            var patchPQ    = patchP.Append(patchQ);
+            var patchPQ    = patchP.Combine(patchQ);
             var invPatchPQ = inverse(patchPQ);
 
             Assert.True(inverse(invPatchPQ) == patchPQ);
 
-            var invPatchQinvPatchP = invPatchQ.Append(invPatchP);
+            var invPatchQinvPatchP = invPatchQ.Combine(invPatchP);
 
             Assert.True(inverse(invPatchPQ) == inverse(invPatchQinvPatchP));
 

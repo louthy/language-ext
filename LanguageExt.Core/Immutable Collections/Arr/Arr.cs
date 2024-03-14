@@ -664,7 +664,7 @@ public struct Arr<A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Arr<A> Append(Arr<A> rhs) =>
+    public Arr<A> Combine(Arr<A> rhs) =>
         rhs.InsertRange(0, this);
 
     [Pure]

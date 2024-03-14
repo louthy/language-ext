@@ -43,7 +43,7 @@ public struct TNumericChar : Num<char>
         x.GetHashCode();
 
     [Pure]
-    public static char Plus(char x, char y) =>
+    public static char Add(char x, char y) =>
         (char)(CharToInt(x) + CharToInt(y));
 
     [Pure]
@@ -51,7 +51,7 @@ public struct TNumericChar : Num<char>
         (char)(CharToInt(x) - CharToInt(y));
 
     [Pure]
-    public static char Product(char x, char y) =>
+    public static char Multiply(char x, char y) =>
         (char)(CharToInt(x) * CharToInt(y));
 
     [Pure]

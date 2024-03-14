@@ -389,7 +389,7 @@ public abstract class FloatType<SELF, FLOATING, A, PRED> :
 
     [Pure]
     public static SELF operator +(FloatType<SELF, FLOATING, A, PRED> lhs, FloatType<SELF, FLOATING, A, PRED> rhs) =>
-        New(FLOATING.Plus(ValueOrDefault(lhs), ValueOrDefault(rhs)));
+        New(FLOATING.Add(ValueOrDefault(lhs), ValueOrDefault(rhs)));
 
     [Pure]
     public static SELF operator -(FloatType<SELF, FLOATING, A, PRED> lhs, FloatType<SELF, FLOATING, A, PRED> rhs) =>
@@ -397,7 +397,7 @@ public abstract class FloatType<SELF, FLOATING, A, PRED> :
 
     [Pure]
     public static SELF operator *(FloatType<SELF, FLOATING, A, PRED> lhs, FloatType<SELF, FLOATING, A, PRED> rhs) =>
-        New(FLOATING.Product(ValueOrDefault(lhs), ValueOrDefault(rhs)));
+        New(FLOATING.Multiply(ValueOrDefault(lhs), ValueOrDefault(rhs)));
 
     [Pure]
     public static SELF operator /(FloatType<SELF, FLOATING, A, PRED> lhs, FloatType<SELF, FLOATING, A, PRED> rhs) =>

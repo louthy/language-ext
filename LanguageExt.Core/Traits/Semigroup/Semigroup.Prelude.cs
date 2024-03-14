@@ -13,7 +13,7 @@ public static partial class Prelude
     /// <param name="y">The right hand side of the operation</param>
     /// <returns>The result of the operation</returns>
     [Pure]
-    public static A append<A>(A x, A y) where A : Semigroup<A> =>
+    public static A combine<A>(A x, A y) where A : Semigroup<A> =>
         x + y;
 
     /// <summary>
@@ -23,7 +23,7 @@ public static partial class Prelude
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static Either<L, R> append<L, R>(Either<L, R> lhs, Either<L, R> rhs) 
+    public static Either<L, R> combine<L, R>(Either<L, R> lhs, Either<L, R> rhs) 
         where R : Semigroup<R> =>
         from x in lhs
         from y in rhs
@@ -35,7 +35,7 @@ public static partial class Prelude
     /// <param name="y">The right hand side of the operation</param>
     /// <returns>The result of the operation</returns>
     [Pure]
-    public static NEWTYPE append<NEWTYPE, A>(NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y)
+    public static NEWTYPE combine<NEWTYPE, A>(NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y)
         where NEWTYPE : NewType<NEWTYPE, A>
         where A : Semigroup<A> =>
         from a in x
@@ -49,7 +49,7 @@ public static partial class Prelude
     /// <param name="y">The right hand side of the operation</param>
     /// <returns>The result of the operation</returns>
     [Pure]
-    public static NUMTYPE append<NUMTYPE, NUM, A>(NumType<NUMTYPE, NUM, A> x, NumType<NUMTYPE, NUM, A> y)
+    public static NUMTYPE combine<NUMTYPE, NUM, A>(NumType<NUMTYPE, NUM, A> x, NumType<NUMTYPE, NUM, A> y)
         where NUMTYPE : NumType<NUMTYPE, NUM, A>
         where NUM : Num<A>
         where A : Semigroup<A> =>
@@ -64,7 +64,7 @@ public static partial class Prelude
     /// <param name="y">The right hand side of the operation</param>
     /// <returns>The result of the operation</returns>
     [Pure]
-    public static NEWTYPE append<NEWTYPE, A, PRED>(NewType<NEWTYPE, A, PRED> x, NewType<NEWTYPE, A, PRED> y)
+    public static NEWTYPE combine<NEWTYPE, A, PRED>(NewType<NEWTYPE, A, PRED> x, NewType<NEWTYPE, A, PRED> y)
         where NEWTYPE : NewType<NEWTYPE, A, PRED>
         where PRED : Pred<A>
         where A : Semigroup<A> =>
@@ -79,7 +79,7 @@ public static partial class Prelude
     /// <param name="y">The right hand side of the operation</param>
     /// <returns>The result of the operation</returns>
     [Pure]
-    public static NUMTYPE append<NUMTYPE, NUM, A, PRED>(NumType<NUMTYPE, NUM, A, PRED> x, NumType<NUMTYPE, NUM, A, PRED> y)
+    public static NUMTYPE combine<NUMTYPE, NUM, A, PRED>(NumType<NUMTYPE, NUM, A, PRED> x, NumType<NUMTYPE, NUM, A, PRED> y)
         where NUMTYPE : NumType<NUMTYPE, NUM, A, PRED>
         where PRED    : Pred<A>
         where NUM     : Num<A> 
@@ -95,7 +95,7 @@ public static partial class Prelude
     /// <param name="y">The right hand side of the operation</param>
     /// <returns>The result of the operation</returns>
     [Pure]
-    public static Option<A> append<A>(Option<A> x, Option<A> y) 
+    public static Option<A> combine<A>(Option<A> x, Option<A> y) 
         where A : Semigroup<A> =>
         from a in x
         from b in y
@@ -108,7 +108,7 @@ public static partial class Prelude
     /// <param name="y">The right hand side of the operation</param>
     /// <returns>The result of the operation</returns>
     [Pure]
-    public static IEnumerable<A> append<A>(IEnumerable<A> x, IEnumerable<A> y) 
+    public static IEnumerable<A> combine<A>(IEnumerable<A> x, IEnumerable<A> y) 
         where A : Semigroup<A>
     {
         foreach (var a in x)

@@ -293,20 +293,6 @@ public static class List
         list.Select(map);
 
     /// <summary>
-    /// Partial application map
-    /// </summary>
-    [Pure]
-    public static IEnumerable<Func<T2, R>> parmap<T1, T2, R>(IEnumerable<T1> list, Func<T1, T2, R> func) =>
-        list.Map(curry(func));
-
-    /// <summary>
-    /// Partial application map
-    /// </summary>
-    [Pure]
-    public static IEnumerable<Func<T2, Func<T3, R>>> parmap<T1, T2, T3, R>(IEnumerable<T1> list, Func<T1, T2, T3, R> func) =>
-        list.Map(curry(func));
-
-    /// <summary>
     /// Projects the values in the enumerable into a new enumerable using a map function, which is also given an index value
     /// (Select in LINQ - note that the order of the arguments of the map function are the other way around, here the index
     /// is the first argument).
@@ -1190,8 +1176,8 @@ public static class List
     /// <param name="fa">IEnumerable of argument values</param>
     /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
     [Pure]
-    public static IEnumerable<B> apply<A, B>(IEnumerable<Func<A, B>> fabc, IEnumerable<A> fa) =>
-        fabc.Apply(fa);
+    public static EnumerableM<B> apply<A, B>(IEnumerable<Func<A, B>> fabc, IEnumerable<A> fa) =>
+        fabc.AsEnumerableM().Apply(fa.AsEnumerableM()).As();
 
     /// <summary>
     /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1201,8 +1187,8 @@ public static class List
     /// <returns>Returns the result of applying the IEnumerable of argument values to the 
     /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
     [Pure]
-    public static IEnumerable<Func<B, C>> apply<A, B, C>(IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa) =>
-        fabc.Apply(fa);
+    public static EnumerableM<Func<B, C>> apply<A, B, C>(IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa) =>
+        fabc.AsEnumerableM().Apply(fa.AsEnumerableM()).As();
 
     /// <summary>
     /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1212,8 +1198,8 @@ public static class List
     /// <param name="fb">IEnumerable argument values</param>
     /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
     [Pure]
-    public static IEnumerable<C> apply<A, B, C>(IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-        fabc.Apply(fa, fb);
+    public static EnumerableM<C> apply<A, B, C>(IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
+        fabc.AsEnumerableM().Apply(fa.AsEnumerableM(), fb.AsEnumerableM()).As();
 
     /// <summary>
     /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1223,8 +1209,8 @@ public static class List
     /// <returns>Returns the result of applying the IEnumerable of argument values to the 
     /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
     [Pure]
-    public static IEnumerable<Func<B, C>> apply<A, B, C>(IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa) =>
-        fabc.Apply(fa);
+    public static EnumerableM<Func<B, C>> apply<A, B, C>(IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa) =>
+        fabc.AsEnumerableM().Apply(fa.AsEnumerableM()).As();
 
     /// <summary>
     /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1234,8 +1220,8 @@ public static class List
     /// <param name="fb">IEnumerable argument values</param>
     /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
     [Pure]
-    public static IEnumerable<C> apply<A, B, C>(IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-        fabc.Apply(fa, fb);
+    public static EnumerableM<C> apply<A, B, C>(IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
+        fabc.AsEnumerableM().Apply(fa.AsEnumerableM()).Apply(fb.AsEnumerableM()).As();
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -1244,8 +1230,8 @@ public static class List
     /// <param name="fb">Applicative to evaluate second and then return</param>
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
-    public static IEnumerable<B> action<A, B>(IEnumerable<A> fa, IEnumerable<B> fb) =>
-        fa.Action(fb);
+    public static EnumerableM<B> action<A, B>(IEnumerable<A> fa, IEnumerable<B> fb) =>
+        fa.AsEnumerableM().Action(fb.AsEnumerableM()).As();
 
     /// <summary>
     /// The tails function returns all final segments of the argument, longest first. For example,

@@ -563,7 +563,7 @@ public readonly struct Set<A> :
     /// <param name="rhs">Right hand side set</param>
     /// <returns>Unioned set</returns>
     [Pure]
-    public Set<A> Append(Set<A> rhs) =>
+    public Set<A> Combine(Set<A> rhs) =>
         Wrap(Value.Append(rhs.Value));
 
     /// <summary>

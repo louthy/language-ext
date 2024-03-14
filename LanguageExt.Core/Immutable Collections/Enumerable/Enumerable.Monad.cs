@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -16,10 +17,10 @@ public partial class EnumerableM : Monad<EnumerableM>, Alternative<EnumerableM>,
         singleton(value);
 
     static K<EnumerableM, B> Applicative<EnumerableM>.Apply<A, B>(K<EnumerableM, Func<A, B>> mf, K<EnumerableM, A> ma) => 
-        new EnumerableM<B>(mf.As().Apply(ma.As()));
+        new EnumerableM<B>(mf.As().AsEnumerable().Apply(ma.As()));
 
     static K<EnumerableM, B> Applicative<EnumerableM>.Action<A, B>(K<EnumerableM, A> ma, K<EnumerableM, B> mb) => 
-        new EnumerableM<B>(ma.As().Action(mb.As()));
+        new EnumerableM<B>(ma.As().AsEnumerable().Action(mb.As()));
 
     static K<EnumerableM, A> MonoidK<EnumerableM>.Empty<A>() =>
         EnumerableM<A>.Empty;

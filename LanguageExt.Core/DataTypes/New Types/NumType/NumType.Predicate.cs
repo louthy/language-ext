@@ -206,7 +206,7 @@ public abstract class NumType<SELF, NUM, A, PRED> :
 
     [Pure]
     public static SELF operator +(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
-        New(NUM.Plus(ValueOrDefault(lhs), ValueOrDefault(rhs)));
+        New(NUM.Add(ValueOrDefault(lhs), ValueOrDefault(rhs)));
 
     [Pure]
     public static SELF operator -(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
@@ -214,7 +214,7 @@ public abstract class NumType<SELF, NUM, A, PRED> :
 
     [Pure]
     public static SELF operator *(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
-        New(NUM.Product(ValueOrDefault(lhs), ValueOrDefault(rhs)));
+        New(NUM.Multiply(ValueOrDefault(lhs), ValueOrDefault(rhs)));
 
     [Pure]
     public static SELF operator /(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>

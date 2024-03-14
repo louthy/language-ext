@@ -23,7 +23,7 @@ public static class Compositions
                 var v = node.Value;
                 var (l, r) = ((Compositions<A>.Node, Compositions<A>.Node))node.Children;
                 return wellFormedNode(n / 2, l)                          &&
-                       EqA.Equals(v, l.Value.Append(r.Value)) &&
+                       EqA.Equals(v, l.Value.Combine(r.Value)) &&
                        wellFormedNode(n / 2, r);
             }
             else
@@ -95,7 +95,7 @@ public static class Compositions
             else
             {
                 return new Compositions<A>([x])
-                        .Append(new Compositions<A>(go(n - s, ri)))
+                        .Combine(new Compositions<A>(go(n - s, ri)))
                         .Tree;
             }
         }
@@ -125,7 +125,7 @@ public static class Compositions
             }
             else
             {
-                return v.Append(go(n - s, ri));
+                return v.Combine(go(n - s, ri));
             }
         }
         return go(amount, compositions.Tree);
@@ -143,7 +143,7 @@ public static class Compositions
     /// </summary>
     public static A composed<A>(Compositions<A> compositions)
         where A : Monoid<A> =>
-        FoldCompositions<A>.Fold(compositions, A.Empty, (x, y) => x.Append(y))(unit);
+        FoldCompositions<A>.Fold(compositions, A.Empty, (x, y) => x.Combine(y))(unit);
 
     /// <summary>
     /// Construct a compositions list containing just one element.
@@ -164,7 +164,7 @@ public static class Compositions
     /// </summary>
     public static Compositions<A> cons<A>(A x, Compositions<A> xs)
         where A : Monoid<A> =>
-        singleton(x).Append(xs);
+        singleton(x).Combine(xs);
 
     /// <summary>
     /// Convert a compositions list into a list of elements. The other direction

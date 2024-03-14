@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
@@ -84,4 +85,178 @@ public static class EitherTExt
     public static EitherT<L, M, B> Action<L, M, A, B>(this EitherT<L, M, A> ma, EitherT<L, M, B> mb)
         where M : Monad<M> => 
         ma.As().Bind(_ => mb);
+    
+
+    /// <summary>
+    /// Extracts from a list of 'Either' all the 'Left' elements.
+    /// All the 'Left' elements are extracted in order.
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <param name="self">Either list</param>
+    /// <returns>An enumerable of L</returns>
+    [Pure]
+    public static K<M, Seq<L>> Lefts<L, M, R>(this IEnumerable<EitherT<L, M, R>> self)
+        where M : Monad<M>
+    {
+        var result = M.Pure(Seq<L>.Empty);
+
+        foreach (var either in self)
+        {
+            result = result.Bind(
+                acc => either.Run().Map(
+                    e => e switch
+                         {
+                             Either.Right<L, R>        => acc,
+                             Either.Left<L, R> (var l) => acc.Add(l),
+                             _                         => throw new NotSupportedException()
+                         }));
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Extracts from a list of 'Either' all the 'Left' elements.
+    /// All the 'Left' elements are extracted in order.
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <param name="self">Either list</param>
+    /// <returns>An enumerable of L</returns>
+    [Pure]
+    public static K<M, Seq<L>> Lefts<L, M, R>(this Seq<EitherT<L, M, R>> self)
+        where M : Monad<M>
+    {
+        var result = M.Pure(Seq<L>.Empty);
+
+        foreach (var either in self)
+        {
+            result = result.Bind(
+                acc => either.Run().Map(
+                    e => e switch
+                         {
+                             Either.Right<L, R>        => acc,
+                             Either.Left<L, R> (var l) => acc.Add(l),
+                             _                         => throw new NotSupportedException()
+                         }));
+        }
+        return result;
+    }
+    
+    /// <summary>
+    /// Extracts from a list of 'Either' all the 'Right' elements.
+    /// All the 'Right' elements are extracted in order.
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <param name="self">Either list</param>
+    /// <returns>An enumerable of L</returns>
+    [Pure]
+    public static K<M, Seq<R>> Rights<L, M, R>(this IEnumerable<EitherT<L, M, R>> self)
+        where M : Monad<M>
+    {
+        var result = M.Pure(Seq<R>.Empty);
+
+        foreach (var either in self)
+        {
+            result = result.Bind(
+                acc => either.Run().Map(
+                    e => e switch
+                         {
+                             Either.Right<L, R> (var r) => acc.Add(r),
+                             Either.Left<L, R>          => acc,
+                             _                          => throw new NotSupportedException()
+                         }));
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Extracts from a list of 'Either' all the 'Right' elements.
+    /// All the 'Right' elements are extracted in order.
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <param name="self">Either list</param>
+    /// <returns>An enumerable of L</returns>
+    [Pure]
+    public static K<M, Seq<R>> Rights<L, M, R>(this Seq<EitherT<L, M, R>> self)
+        where M : Monad<M>
+    {
+        var result = M.Pure(Seq<R>.Empty);
+
+        foreach (var either in self)
+        {
+            result = result.Bind(
+                acc => either.Run().Map(
+                    e => e switch
+                         {
+                             Either.Right<L, R> (var r) => acc.Add(r),
+                             Either.Left<L, R>          => acc,
+                             _                          => throw new NotSupportedException()
+                         }));
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Partitions a list of 'Either' into two lists.
+    /// All the 'Left' elements are extracted, in order, to the first
+    /// component of the output.  Similarly the 'Right' elements are extracted
+    /// to the second component of the output.
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <param name="self">Either list</param>
+    /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
+    [Pure]
+    public static K<M, (Seq<L> Lefts, Seq<R> Rights)> Partition<L, M, R>(this Seq<EitherT<L, M, R>> self)
+        where M : Monad<M>
+    {
+        var result = M.Pure((Left: Seq<L>.Empty, Right: Seq<R>.Empty));
+        
+        foreach (var either in self)
+        {
+            result = result.Bind(
+                acc => either.Run().Map(
+                    e => e switch
+                         {
+                             Either.Right<L, R> (var r) => (acc.Left, acc.Right.Add(r)),
+                             Either.Left<L, R> (var l)  => (acc.Left.Add(l), acc.Right),
+                             _                          => throw new NotSupportedException()
+                         }));
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Partitions a list of 'Either' into two lists.
+    /// All the 'Left' elements are extracted, in order, to the first
+    /// component of the output.  Similarly the 'Right' elements are extracted
+    /// to the second component of the output.
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <param name="self">Either list</param>
+    /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
+    [Pure]
+    public static K<M, (Seq<L> Lefts, Seq<R> Rights)> Partition<L, M, R>(this IEnumerable<EitherT<L, M, R>> self)
+        where M : Monad<M>
+    {
+        var result = M.Pure((Left: Seq<L>.Empty, Right: Seq<R>.Empty));
+
+        foreach (var either in self)
+        {
+            result = result.Bind(
+                acc => either.Run().Map(
+                    e => e switch
+                         {
+                             Either.Right<L, R> (var r) => (acc.Left, acc.Right.Add(r)),
+                             Either.Left<L, R> (var l)  => (acc.Left.Add(l), acc.Right),
+                             _                          => throw new NotSupportedException()
+                         }));
+        }
+
+        return result;
+    }
 }

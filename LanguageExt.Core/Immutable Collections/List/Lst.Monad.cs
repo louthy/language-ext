@@ -1,37 +1,64 @@
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
 
 public class Lst : Monad<Lst>, Alternative<Lst>, Traversable<Lst>
 {
-    static K<Lst, B> Monad<Lst>.Bind<A, B>(K<Lst, A> ma, Func<A, K<Lst, B>> f) =>
-        ma.As().Bind(f);
+    static K<Lst, B> Monad<Lst>.Bind<A, B>(K<Lst, A> ma, Func<A, K<Lst, B>> f)
+    {
+        return new Lst<B>(go());
+        IEnumerable<B> go()
+        {
+            foreach (var x in ma.As())
+            {
+                foreach (var y in f(x).As())
+                {
+                    yield return y;
+                }
+            }
+        }
+    }
 
-    static K<Lst, B> Functor<Lst>.Map<A, B>(Func<A, B> f, K<Lst, A> ma) => 
-        ma.As().Map(f);
+    static K<Lst, B> Functor<Lst>.Map<A, B>(Func<A, B> f, K<Lst, A> ma)
+    {
+        return new Lst<B>(go());
+        IEnumerable<B> go()
+        {
+            foreach (var x in ma.As())
+            {
+                yield return f(x);
+            }
+        }
+    }
 
     static K<Lst, A> Applicative<Lst>.Pure<A>(A value) =>
         List.singleton(value);
 
-    static K<Lst, B> Applicative<Lst>.Apply<A, B>(K<Lst, Func<A, B>> mf, K<Lst, A> ma) => 
-        mf.As().Apply(ma.As()).Freeze();
+    static K<Lst, B> Applicative<Lst>.Apply<A, B>(K<Lst, Func<A, B>> mf, K<Lst, A> ma)
+    {
+        return new Lst<B>(go());
+        IEnumerable<B> go()
+        {
+            foreach (var f in mf.As())
+            {
+                foreach (var a in ma.As())
+                {
+                    yield return f(a);
+                }
+            }
+        }
+    }
 
-    static K<Lst, B> Applicative<Lst>.Action<A, B>(K<Lst, A> ma, K<Lst, B> mb) => 
-        ma.As().Action(mb.As()).Freeze();
+    static K<Lst, B> Applicative<Lst>.Action<A, B>(K<Lst, A> ma, K<Lst, B> mb) =>
+        mb;
 
     static K<Lst, A> MonoidK<Lst>.Empty<A>() =>
         Lst<A>.Empty;
 
     static K<Lst, A> SemigroupK<Lst>.Combine<A>(K<Lst, A> ma, K<Lst, A> mb) => 
-        ma.As().IsEmpty ? mb : ma;
-
-    static S Foldable<Lst>.Fold<A, S>(Func<A, Func<S, S>> f, S initialState, K<Lst, A> ta) => 
-        ta.As().Fold(initialState, (a, s) => f(s)(a));
-
-    static S Foldable<Lst>.FoldBack<A, S>(Func<S, Func<A, S>> f, S initialState, K<Lst, A> ta) => 
-        ta.As().FoldBack(initialState, (s, a) => f(s)(a));
+        ma.As() + mb.As();
 
     static K<F, K<Lst, B>> Traversable<Lst>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Lst, A> ta) 
     {
@@ -42,4 +69,38 @@ public class Lst : Monad<Lst>, Alternative<Lst>, Traversable<Lst>
         K<F, Lst<B>> cons(K<F, Lst<B>> ys, A x) =>
             Applicative.lift(Prelude.Cons, f(x), ys);
     }
+    
+    static S Foldable<Lst>.FoldWhile<A, S>(
+        Func<A, Func<S, S>> f,
+        Func<(S State, A Value), bool> predicate,
+        S state,
+        K<Lst, A> ta)
+    {
+        foreach (var x in ta.As())
+        {
+            if (predicate((state, x))) return state;
+            state = f(x)(state);
+        }
+        return state;
+    }
+    
+    static S Foldable<Lst>.FoldBackWhile<A, S>(
+        Func<S, Func<A, S>> f, 
+        Func<(S State, A Value), bool> predicate, 
+        S state, 
+        K<Lst, A> ta)
+    {
+        foreach (var x in ta.As())
+        {
+            if (predicate((state, x))) return state;
+            state = f(state)(x);
+        }
+        return state;
+    }
+
+    static int Foldable<Lst>.Count<A>(K<Lst, A> ta) =>
+        ta.As().Count;
+
+    static bool Foldable<Lst>.IsEmpty<A>(K<Lst, A> ta) =>
+        ta.As().IsEmpty;
 }

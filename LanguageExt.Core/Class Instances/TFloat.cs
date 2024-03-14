@@ -39,7 +39,7 @@ public struct TFloat : Floating<float>
     /// <param name="y">right hand side of the addition operation</param>
     /// <returns>The sum of x and y</returns>
     [Pure]
-    public static float Plus(float x, float y) => x + y;
+    public static float Add(float x, float y) => x + y;
 
     /// <summary>
     /// Find the difference between two values
@@ -58,7 +58,7 @@ public struct TFloat : Floating<float>
     /// <param name="y">right hand side of the product operation</param>
     /// <returns>The product of x and y</returns>
     [Pure]
-    public static float Product(float x, float y) => x * y;
+    public static float Multiply(float x, float y) => x * y;
 
     /// <summary>
     /// Divide two numbers

@@ -32,6 +32,18 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
         Lift(Either<L, A>.Left(value));
 
     /// <summary>
+    /// Is the `EitherT` in a Right state?
+    /// </summary>
+    public K<M, bool> IsRight =>
+        Match(Left: _ => false, Right: _ => true);
+
+    /// <summary>
+    /// Is the `EitherT` in a Left state?
+    /// </summary>
+    public K<M, bool> IsLeft =>
+        Match(Left: _ => true, Right: _ => false);
+    
+    /// <summary>
     /// Lifts a given monad into the transformer
     /// </summary>
     /// <param name="pure">Monad to lift</param>

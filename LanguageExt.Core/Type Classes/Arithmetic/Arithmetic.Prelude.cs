@@ -14,7 +14,7 @@ public static partial class Trait
     /// <returns>The sum of x and y</returns>
     [Pure]
     public static A plus<ARITH, A>(A x, A y) where ARITH : Arithmetic<A> =>
-        ARITH.Plus(x, y);
+        ARITH.Add(x, y);
 
     /// <summary>
     /// Find the subtract between two numbers
@@ -34,7 +34,7 @@ public static partial class Trait
     /// <returns>The product of x and y</returns>
     [Pure]
     public static A product<ARITH, A>(A x, A y) where ARITH : Arithmetic<A> =>
-        ARITH.Product(x, y);
+        ARITH.Multiply(x, y);
 
     /// <summary>
     /// Negate the value

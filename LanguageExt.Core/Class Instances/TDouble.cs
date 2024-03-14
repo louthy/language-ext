@@ -39,7 +39,7 @@ public struct TDouble : Floating<double>
     /// <param name="y">right hand side of the addition operation</param>
     /// <returns>The sum of x and y</returns>
     [Pure]
-    public static double Plus(double x, double y) => 
+    public static double Add(double x, double y) => 
         x + y;
 
     /// <summary>
@@ -59,7 +59,7 @@ public struct TDouble : Floating<double>
     /// <param name="y">right hand side of the product operation</param>
     /// <returns>The product of x and y</returns>
     [Pure]
-    public static double Product(double x, double y) => 
+    public static double Multiply(double x, double y) => 
         x * y;
 
     /// <summary>

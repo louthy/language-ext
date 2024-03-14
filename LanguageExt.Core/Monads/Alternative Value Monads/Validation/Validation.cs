@@ -614,7 +614,7 @@ public abstract record Validation<F, A> :
                 lhs,
             
             ({ IsFail: true } , {IsFail: true}) => 
-                lhs.FailValue.Append(rhs.FailValue),
+                lhs.FailValue.Combine(rhs.FailValue),
             
             ({ IsFail: true } , _) => 
                 lhs,
@@ -635,7 +635,7 @@ public abstract record Validation<F, A> :
                 Validation<F, Seq<A>>.Success([lhs.SuccessValue, rhs.SuccessValue]),
             
             ({ IsFail: true } , {IsFail: true}) => 
-                lhs.FailValue.Append(rhs.FailValue),
+                lhs.FailValue.Combine(rhs.FailValue),
             
             ({ IsFail: true } , _) => 
                 lhs.FailValue,
@@ -656,7 +656,7 @@ public abstract record Validation<F, A> :
                 Validation<F, Seq<A>>.Success(lhs.SuccessValue.Add(rhs.SuccessValue)),
             
             ({ IsFail: true } , {IsFail: true}) => 
-                lhs.FailValue.Append(rhs.FailValue),
+                lhs.FailValue.Combine(rhs.FailValue),
             
             ({ IsFail: true } , _) => 
                 lhs.FailValue,
@@ -677,7 +677,7 @@ public abstract record Validation<F, A> :
                 Validation<F, Seq<A>>.Success(lhs.SuccessValue.Cons(rhs.SuccessValue)),
             
             ({ IsFail: true } , {IsFail: true}) => 
-                lhs.FailValue.Append(rhs.FailValue),
+                lhs.FailValue.Combine(rhs.FailValue),
             
             ({ IsFail: true } , _) => 
                 lhs.FailValue,

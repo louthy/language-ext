@@ -93,7 +93,7 @@ public static class ValidationTExt
                                                       M.Pure(Validation<L, B>.Success(ef.SuccessValue(ea.SuccessValue))),
                                                  
                                                   false => 
-                                                      M.Pure(Validation<L, B>.Fail(ef.FailValue.Append(ea.FailValue))),
+                                                      M.Pure(Validation<L, B>.Fail(ef.FailValue.Combine(ea.FailValue))),
                                               }),
                              
                              false =>
@@ -101,7 +101,7 @@ public static class ValidationTExt
                                         ea => ea.IsSuccess switch
                                               {
                                                   true => 
-                                                      M.Pure(Validation<L, B>.Fail(ef.FailValue.Append(ea.FailValue))),
+                                                      M.Pure(Validation<L, B>.Fail(ef.FailValue.Combine(ea.FailValue))),
                                                  
                                                   false => 
                                                       M.Pure(Validation<L, B>.Fail(ef.FailValue))

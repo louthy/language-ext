@@ -736,11 +736,11 @@ public readonly struct HashMap<EqK, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> operator +(HashMap<EqK, K, V> lhs, HashMap<EqK, K, V> rhs) =>
-        lhs.Append(rhs);
+        lhs.Combine(rhs);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public HashMap<EqK, K, V> Append(HashMap<EqK, K, V> rhs) =>
+    public HashMap<EqK, K, V> Combine(HashMap<EqK, K, V> rhs) =>
         Wrap(Value.Append(rhs.Value));
 
     [Pure]

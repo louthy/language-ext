@@ -39,7 +39,7 @@ public static class ValueTuple3Extensions
     [Pure]
     public static A Sum<NUM, A>(this ValueTuple<A, A, A> self)
         where NUM : Num<A> =>
-        NUM.Plus(self.Item1, NUM.Plus(self.Item2, self.Item3));
+        NUM.Add(self.Item1, NUM.Add(self.Item2, self.Item3));
 
     /// <summary>
     /// Product of the items
@@ -47,7 +47,7 @@ public static class ValueTuple3Extensions
     [Pure]
     public static A Product<NUM, A>(this ValueTuple<A, A, A> self)
         where NUM : Num<A> =>
-        NUM.Product(self.Item1, NUM.Product(self.Item2, self.Item3));
+        NUM.Multiply(self.Item1, NUM.Multiply(self.Item2, self.Item3));
 
     /// <summary>
     /// One of the items matches the value passed

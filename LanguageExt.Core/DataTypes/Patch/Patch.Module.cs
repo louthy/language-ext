@@ -89,7 +89,7 @@ public static class Patch
     /// </summary>
     public static Patch<EqA, A> append<EqA, A>(Patch<EqA, A> px, Patch<EqA, A> py) 
         where EqA : Eq<A> =>
-        px.Append(py);
+        px.Combine(py);
 
     /// <summary>
     /// Compute the inverse of a patch
@@ -358,7 +358,7 @@ public static class Patch
     public static (Patch<EqA, A> a, Patch<EqA, A> b) transform<EqA, A>(Patch<EqA, A> p, Patch<EqA, A> q)
         where EqA : Eq<A>
         where A : Monoid<A> =>
-        transformWith((x, y) => x.Append(y), p, q);
+        transformWith((x, y) => x.Combine(y), p, q);
 
     /// <summary>
     /// Given two diverging patches `p` and `q`, `transform(m, p, q)` returns
@@ -504,7 +504,7 @@ public static class Patch
     // TODO: Consider building a monoid wrappers for all numeric values (and strings)
     internal readonly record struct MInt32(int Value) : Monoid<MInt32>, Ord<MInt32>
     {
-        public MInt32 Append(MInt32 y) => 
+        public MInt32 Combine(MInt32 y) => 
             new (Value + y.Value);
 
         public static MInt32 Empty { get; } = 

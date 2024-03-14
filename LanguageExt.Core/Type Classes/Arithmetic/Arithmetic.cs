@@ -13,7 +13,7 @@ public interface Arithmetic<A> : Trait
     /// <param name="y">right hand side of the addition operation</param>
     /// <returns>The sum of x and y</returns>
     [Pure]
-    public static abstract A Plus(A x, A y);
+    public static abstract A Add(A x, A y);
     
     /// <summary>
     /// Find the difference between two values
@@ -31,7 +31,7 @@ public interface Arithmetic<A> : Trait
     /// <param name="y">right hand side of the product operation</param>
     /// <returns>The product of x and y</returns>
     [Pure]
-    public static abstract A Product(A x, A y);
+    public static abstract A Multiply(A x, A y);
 
     /// <summary>
     /// Negate the value

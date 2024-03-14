@@ -2834,7 +2834,7 @@ internal static class TrieMapExtentsions
             var ix = self.Find(iy.Key);
             if (ix.IsSome)
             {
-                self = self.SetItem(iy.Key, ix.Value!.Append(iy.Value));
+                self = self.SetItem(iy.Key, ix.Value!.Combine(iy.Value));
             }
             else
             {

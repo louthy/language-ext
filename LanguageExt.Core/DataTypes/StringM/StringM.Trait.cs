@@ -28,7 +28,7 @@ public interface StringM<SELF> :
     /// <summary>
     /// Monoid append
     /// </summary>
-    SELF Semigroup<SELF>.Append(SELF rhs) =>
+    SELF Semigroup<SELF>.Combine(SELF rhs) =>
         SELF.From(To() + rhs.To()); 
 
     /// <summary>

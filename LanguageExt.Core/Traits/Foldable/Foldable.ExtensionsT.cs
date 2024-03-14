@@ -3,9 +3,9 @@ using System.Numerics;
 using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
 
-namespace LanguageExt.Traits;
+namespace LanguageExt;
 
-public static partial class Foldable
+public static partial class FoldableExtensions
 {
     /// <summary>
     /// Sum the items in the nested foldables 
@@ -26,10 +26,10 @@ public static partial class Foldable
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Summed value</returns>
     public static A SumT<M, N, A>(this K<M, K<N, A>> mna)
-        where A : INumber<A>
+        where A : IAdditionOperators<A, A, A>, IAdditiveIdentity<A, A>
         where M : Foldable<M>
         where N : Foldable<N> =>
-        fold((na, s1) => s1 + sum(na), A.Zero, mna);
+        Foldable.fold(na => s1 => s1 + Foldable.sum(na), A.AdditiveIdentity, mna);
 
     /// <summary>
     /// Count the items in the nested foldables 
@@ -52,7 +52,7 @@ public static partial class Foldable
     public static int CountT<M, N, A>(this K<M, K<N, A>> mna)
         where M : Foldable<M>
         where N : Foldable<N> =>
-        fold((na, s1) => s1 + count(na), 0, mna);
+        Foldable.fold(na => s1 => s1 + Foldable.count(na), 0, mna);
 
     /// <summary>
     /// Right-associative fold of a structure, lazy in the accumulator.
@@ -80,7 +80,7 @@ public static partial class Foldable
     public static S FoldT<M, N, S, A>(this K<M, K<N, A>> mna, S state, Func<A, S, S> f)
         where M : Foldable<M>
         where N : Foldable<N> =>
-        fold((na, s1) => fold(f, s1, na), state, mna);    
+        Foldable.fold((na, s1) => Foldable.fold(f, s1, na), state, mna);    
 
     /// <summary>
     /// Right-associative fold of a structure, lazy in the accumulator.
@@ -108,7 +108,7 @@ public static partial class Foldable
     public static S FoldT<M, N, S, A>(this K<M, K<N, A>> mna, S state, Func<A, Func<S, S>> f)
         where M : Foldable<M>
         where N : Foldable<N> =>
-        fold((na, s1) => fold(f, s1, na), state, mna);    
+        Foldable.fold((na, s1) => Foldable.fold(f, s1, na), state, mna);    
 
     /// <summary>
     /// Left-associative fold of a structure, lazy in the accumulator.  This
@@ -139,7 +139,7 @@ public static partial class Foldable
     public static S FoldBackT<M, N, S, A>(this K<M, K<N, A>> mna, S state, Func<S, A, S> f)
         where M : Foldable<M>
         where N : Foldable<N> =>
-        foldBack((s1, na) => foldBack(f, s1, na), state, mna);    
+        Foldable.foldBack((s1, na) => Foldable.foldBack(f, s1, na), state, mna);    
 
     /// <summary>
     /// Left-associative fold of a structure, lazy in the accumulator.  This
@@ -170,7 +170,7 @@ public static partial class Foldable
     public static S FoldBackT<M, N, S, A>(this K<M, K<N, A>> mna, S state, Func<S, Func<A, S>> f)
         where M : Foldable<M>
         where N : Foldable<N> =>
-        foldBack((s1, na) => foldBack(f, s1, na), state, mna);
+        Foldable.foldBack((s1, na) => Foldable.foldBack(f, s1, na), state, mna);
 
     /// <summary>
     /// Given a structure with elements whose type is a `Monoid`, combine them
@@ -196,7 +196,7 @@ public static partial class Foldable
         where A : Monoid<A>
         where M : Foldable<M>
         where N : Foldable<N> =>
-        fold((na, s1) => fold((x, s2) => s2.Append(x), s1, na), A.Empty, mna);    
+        Foldable.fold((na, s1) => Foldable.fold((x, s2) => s2.Combine(x), s1, na), A.Empty, mna);    
 
     /// <summary>
     /// Map each element of the structure into a monoid, and combine the
@@ -224,7 +224,7 @@ public static partial class Foldable
         where B : Monoid<B>
         where M : Foldable<M>
         where N : Foldable<N> =>
-        fold((na, s1) => fold((x, s2) => s2.Append(f(x)), s1, na), B.Empty, mna);
+        Foldable.fold((na, s1) => Foldable.fold((x, s2) => s2.Combine(f(x)), s1, na), B.Empty, mna);
     
     /// <summary>
     /// A left-associative variant of 'FoldMap' that is strict in the
@@ -251,7 +251,7 @@ public static partial class Foldable
         where B : Monoid<B>
         where M : Foldable<M>
         where N : Foldable<N> =>
-        foldBack((s1, na) => foldBack((s2, x) => s2.Append(f(x)), s1, na), B.Empty, mna);
+        Foldable.foldBack((s1, na) => Foldable.foldBack((s2, x) => s2.Combine(f(x)), s1, na), B.Empty, mna);
 
 
     /// <summary>
@@ -298,7 +298,7 @@ public static partial class Foldable
     public static bool IsEmptyT<M, N, A>(this K<M, K<N, A>> mna)
         where M : Foldable<M>
         where N : Foldable<N> =>
-        fold((na, s) => s && isEmpty(na), true, mna);
+        Foldable.fold((na, s) => s && Foldable.isEmpty(na), true, mna);
 
     /// <summary>
     /// Does an element that fits the predicate occur in the structure?
@@ -321,7 +321,7 @@ public static partial class Foldable
     public static bool ExistsT<M, N, A>(this K<M, K<N, A>> mna, Func<A, bool> predicate)
         where M : Foldable<M>
         where N : Foldable<N> =>
-        fold((na, s) => s || exists(predicate, na), false, mna);
+        Foldable.fold((na, s) => s || Foldable.exists(predicate, na), false, mna);
 
 
     /// <summary>
@@ -345,7 +345,7 @@ public static partial class Foldable
     public static bool ForAllT<M, N, A>(this K<M, K<N, A>> mna, Func<A, bool> predicate)
         where M : Foldable<M>
         where N : Foldable<N> =>
-        fold((na, s) => s && forAll(predicate, na), true, mna);
+        Foldable.fold((na, s) => s && Foldable.forAll(predicate, na), true, mna);
 
     /// <summary>
     /// Does the element exist in the structure?

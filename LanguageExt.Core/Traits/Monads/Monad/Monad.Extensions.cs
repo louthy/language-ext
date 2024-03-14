@@ -1,11 +1,12 @@
 ﻿using System;
+using LanguageExt.Traits;
 
-namespace LanguageExt.Traits;
+namespace LanguageExt;
 
 /// <summary>
 /// Monad module
 /// </summary>
-public static partial class Monad
+public static partial class MonadExtensions
 {
     /// <summary>
     /// Monad bind operation

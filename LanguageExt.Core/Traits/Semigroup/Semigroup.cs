@@ -12,7 +12,7 @@ public interface Semigroup<A>
     /// <param name="rhs">The second operand to the operation</param>
     /// <returns>The result of the operation</returns>
     [Pure]
-    public A Append(A rhs);
+    public A Combine(A rhs);
     
     /// <summary>
     /// An associative binary operation.
@@ -21,5 +21,5 @@ public interface Semigroup<A>
     /// <param name="rhs">The second operand to the operation</param>
     /// <returns>The result of the operation</returns>
     public static virtual A operator +(A lhs, A rhs) =>
-        lhs.Append(rhs);
+        lhs.Combine(rhs);
 }

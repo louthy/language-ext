@@ -76,12 +76,6 @@ public static class ListExtensions
     /// <summary>
     /// Converts an enumerable to a `Seq`
     /// </summary>
-    public static Seq<A> ToSeq<A>(this IEnumerable<A> enumerable) =>
-        toSeq(enumerable);
-
-    /// <summary>
-    /// Converts an enumerable to a `Seq`
-    /// </summary>
     public static Seq<A> ToSeq<A>(this IList<A> enumerable) =>
         toSeq(enumerable);
 
@@ -134,105 +128,6 @@ public static class ListExtensions
         toSeq(list).Match(Empty, One, More);
 
     /// <summary>
-    /// Get the item at the head (first) of the list
-    /// </summary>
-    /// <param name="list">List</param>
-    /// <returns>Head item</returns>
-    [Pure]
-    public static T Head<T>(this IEnumerable<T> list) =>
-        List.head(list);
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    [Obsolete("HeadSafe has been deprecated, please use HeadOrNone")]
-    [Pure]
-    public static Option<T> HeadSafe<T>(this IEnumerable<T> list) =>
-        List.headOrNone(list);
-
-    /// <summary>
-    /// Get the item at the head (first) of the list or None if the list is empty
-    /// </summary>
-    /// <param name="list">List</param>
-    /// <returns>Optional head item</returns>
-    [Pure]
-    public static Option<T> HeadOrNone<T>(this IEnumerable<T> list) =>
-        List.headOrNone(list);
-
-    /// <summary>
-    /// Get the item at the head (first) of the list or Left if the list is empty
-    /// </summary>
-    /// <param name="list">List</param>
-    /// <returns>Either head item or left</returns>
-    [Pure]
-    public static Either<L, R> HeadOrLeft<L, R>(this IEnumerable<R> list, L left) =>
-        List.headOrLeft(list, left);
-
-    /// <summary>
-    /// Get the item at the head (first) of the list or fail if the list is empty
-    /// </summary>
-    /// <param name="list">List</param>
-    /// <returns>Either head item or fail</returns>
-    [Pure]
-    public static Validation<Fail, Success> HeadOrInvalid<Fail, Success>(this IEnumerable<Success> list, Fail fail) 
-        where Fail : Monoid<Fail> =>
-        List.headOrInvalid(list, fail);
-
-    /// <summary>
-    /// Get the item at the head (first) of the list or fail if the list is empty
-    /// </summary>
-    /// <param name="list">List</param>
-    /// <returns>Either head item or fail</returns>
-    [Pure]
-    public static Validation<Fail, Success> HeadOrInvalid<Fail, Success>(this IEnumerable<Success> list)
-        where Fail : Monoid<Fail> =>
-        List.headOrInvalid(list, Fail.Empty);
-
-    /// <summary>
-    /// Get the last item of the list
-    /// </summary>
-    /// <param name="list">List</param>
-    /// <returns>Last item</returns>
-    [Pure]
-    public static Option<A> LastOrNone<A>(this IEnumerable<A> list) =>
-        list.Select(Option<A>.Some)
-            .DefaultIfEmpty(Option<A>.None)
-            .LastOrDefault();
-
-    /// <summary>
-    /// Get the last item of the list
-    /// </summary>
-    /// <param name="list">List</param>
-    /// <returns>Last item</returns>
-    [Pure]
-    public static Either<L, R> LastOrLeft<L, R>(this IEnumerable<R> list, L left) =>
-        list.Select(Either<L, R>.Right)
-            .DefaultIfEmpty(Either<L, R>.Left(left))
-            .LastOrDefault();
-
-    /// <summary>
-    /// Get the last item of the list
-    /// </summary>
-    /// <param name="list">List</param>
-    /// <returns>Last item</returns>
-    [Pure]
-    public static Validation<Fail, Success> LastOrInvalid<Fail, Success>(this IEnumerable<Success> list, Fail fail) 
-        where Fail : Monoid<Fail> =>
-        list.Select(Validation<Fail, Success>.Success)
-            .DefaultIfEmpty(Validation<Fail, Success>.Fail(fail))
-            .LastOrDefault();
-
-    /// <summary>
-    /// Get the last item of the list
-    /// </summary>
-    /// <param name="list">List</param>
-    /// <returns>Last item</returns>
-    [Pure]
-    public static Validation<Fail, Success> LastOrInvalid<Fail, Success>(this IEnumerable<Success> list)
-        where Fail : Monoid<Fail> =>
-        list.Select(Validation<Fail, Success>.Success)
-            .DefaultIfEmpty(Validation<Fail, Success>.Fail(Fail.Empty))
-            .LastOrDefault();
-
-    /// <summary>
     /// Get all items in the list except the last one
     /// </summary>
     /// <remarks>
@@ -241,7 +136,7 @@ public static class ListExtensions
     /// <param name="list">List</param>
     /// <returns>The initial items (all but the last)</returns>
     [Pure]
-    public static Seq<A> Init<A>(this IEnumerable<A> list) =>
+    public static IEnumerable<A> Init<A>(this IEnumerable<A> list) =>
         List.init(list);
 
     /// <summary>
@@ -252,16 +147,6 @@ public static class ListExtensions
     [Pure]
     public static IEnumerable<T> Tail<T>(this IEnumerable<T> list) =>
         List.tail(list);
-
-    /// <summary>
-    /// Apply an IEnumerable of values to an IEnumerable of functions
-    /// </summary>
-    /// <param name="fabc">IEnumerable of functions</param>
-    /// <param name="fa">IEnumerable of argument values</param>
-    /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
-    [Pure]
-    public static IEnumerable<B> Apply<A, B>(this IEnumerable<Func<A, B>> fabc, IEnumerable<A> fa) =>
-        fabc.Bind(fa.Map);
 
     /// <summary>
     /// Inject a value in between each item in the enumerable 
@@ -287,7 +172,7 @@ public static class ListExtensions
     }
 
     /// <summary>
-    /// Concact all strings into one
+    /// Concatenate all strings into one
     /// </summary>
     [Pure]
     public static string Concat(this IEnumerable<string> xs)
@@ -302,144 +187,6 @@ public static class ListExtensions
     }
 
     /// <summary>
-    /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">IEnumerable of functions</param>
-    /// <param name="fa">IEnumerable argument values</param>
-    /// <returns>Returns the result of applying the IEnumerable of argument values to the 
-    /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
-    [Pure]
-    public static IEnumerable<Func<B, C>> Apply<A, B, C>(this IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa) =>
-        fabc.Bind(f => fa.Map(curry(f)));
-
-    /// <summary>
-    /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">IEnumerable of functions</param>
-    /// <param name="fa">IEnumerable argument values</param>
-    /// <param name="fb">IEnumerable argument values</param>
-    /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
-    [Pure]
-    public static IEnumerable<C> Apply<A, B, C>(this IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-        fabc.Bind(f => fa.Bind(a => fb.Map(curry(f)(a))));
-
-    /// <summary>
-    /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">IEnumerable of functions</param>
-    /// <param name="fa">IEnumerable argument values</param>
-    /// <returns>Returns the result of applying the IEnumerable of argument values to the 
-    /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
-    [Pure]
-    public static IEnumerable<Func<B, C>> Apply<A, B, C>(this IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa) =>
-        fabc.Bind(fa.Map);
-
-    /// <summary>
-    /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">IEnumerable of functions</param>
-    /// <param name="fa">IEnumerable argument values</param>
-    /// <param name="fb">IEnumerable argument values</param>
-    /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
-    [Pure]
-    public static IEnumerable<C> Apply<A, B, C>(this IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-        fabc.Bind(f => fa.Bind(a => fb.Map(f(a))));
-
-    /// <summary>
-    /// Evaluate fa, then fb, ignoring the result of fa
-    /// </summary>
-    /// <param name="fa">Applicative to evaluate first</param>
-    /// <param name="fb">Applicative to evaluate second and then return</param>
-    /// <returns>Applicative of type FB derived from Applicative of B</returns>
-    [Pure]
-    public static IEnumerable<B> Action<A, B>(this IEnumerable<A> fa, IEnumerable<B> fb) =>
-        fa.Bind(_ => fb);
-
-    /// <summary>
-    /// Projects the values in the enumerable using a map function into a new enumerable (Select in LINQ).
-    /// </summary>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <typeparam name="R">Return enumerable item type</typeparam>
-    /// <param name="list">Enumerable to map</param>
-    /// <param name="map">Map function</param>
-    /// <returns>Mapped enumerable</returns>
-    [Pure]
-    public static IEnumerable<R> Map<T, R>(this IEnumerable<T> list, Func<T, R> map) =>
-        List.map(list, map);
-
-    /// <summary>
-    /// Projects the values in the enumerable into a new enumerable using a map function, which is also given an index value
-    /// (Select in LINQ - note that the order of the arguments of the map function are the other way around, here the index
-    /// is the first argument).
-    /// </summary>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <typeparam name="R">Return enumerable item type</typeparam>
-    /// <param name="list">Enumerable to map</param>
-    /// <param name="map">Map function</param>
-    /// <returns>Mapped enumerable</returns>
-    [Pure]
-    public static IEnumerable<R> Map<T, R>(this IEnumerable<T> list, Func<int, T, R> map) =>
-        List.map(list, map);
-
-    /// <summary>
-    /// Removes items from the list that do not match the given predicate (Where in LINQ)
-    /// </summary>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <param name="list">Enumerable to filter</param>
-    /// <param name="predicate">Predicate function</param>
-    /// <returns>Filtered enumerable</returns>
-    [Pure]
-    public static IEnumerable<T> Filter<T>(this IEnumerable<T> list, Func<T, bool> predicate) =>
-        List.filter(list, predicate);
-
-    /// <summary>
-    /// Applies the given function 'selector' to each element of the list. Returns the list comprised of 
-    /// the results for each element where the function returns Some(f(x)).
-    /// </summary>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <param name="list">Enumerable</param>
-    /// <param name="selector">Selector function</param>
-    /// <returns>Mapped and filtered enumerable</returns>
-    [Pure]
-    public static IEnumerable<R> Choose<T, R>(this IEnumerable<T> list, Func<T, Option<R>> selector) =>
-        List.choose(list, selector);
-
-    /// <summary>
-    /// Applies the given function 'selector' to each element of the list. Returns the list comprised of 
-    /// the results for each element where the function returns Some(f(x)).
-    /// </summary>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <param name="list">Enumerable</param>
-    /// <param name="selector">Selector function</param>
-    /// <returns>Mapped and filtered enumerable</returns>
-    [Pure]
-    public static IEnumerable<R> Choose<T, R>(this IEnumerable<T> list, Func<int, T, Option<R>> selector) =>
-        List.choose(list, selector);
-
-    /// <summary>
-    /// For each element of the list, applies the given function. Concatenates all the results and 
-    /// returns the combined list.
-    /// </summary>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <typeparam name="R">Return enumerable item type</typeparam>
-    /// <param name="list">Enumerable to map</param>
-    /// <param name="map">Map function</param>
-    /// <returns>Mapped enumerable</returns>
-    [Pure]
-    public static IEnumerable<R> Collect<T, R>(this IEnumerable<T> list, Func<T, IEnumerable<R>> map) =>
-        List.collect(list, map);
-
-    /// <summary>
-    /// Reverses the enumerable (Reverse in LINQ)
-    /// </summary>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <param name="list">Enumerable to reverse</param>
-    /// <returns>Reversed enumerable</returns>
-    [Pure]
-    public static IEnumerable<T> Rev<T>(this IEnumerable<T> list) =>
-        List.rev(list);
-
-    /// <summary>
     /// Reverses the list (Reverse in LINQ)
     /// </summary>
     /// <typeparam name="A">List item type</typeparam>
@@ -448,40 +195,6 @@ public static class ListExtensions
     [Pure]
     public static Lst<A> Rev<A>(this Lst<A> list) =>
         List.rev(list);
-
-    /// <summary>
-    /// Applies a function 'folder' to each element of the collection, threading an accumulator 
-    /// argument through the computation. The fold function takes the state argument, and 
-    /// applies the function 'folder' to it and the first element of the list. Then, it feeds this 
-    /// result into the function 'folder' along with the second element, and so on. It returns the 
-    /// final result. (Aggregate in LINQ)
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <param name="list">Enumerable to fold</param>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Fold function</param>
-    /// <returns>Aggregate value</returns>
-    [Pure]
-    public static S Fold<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
-        List.fold(list, state, folder);
-
-    /// <summary>
-    /// Applies a function 'folder' to each element of the collection (from last element to first), 
-    /// threading an aggregate state through the computation. The fold function takes the state 
-    /// argument, and applies the function 'folder' to it and the first element of the list. Then, 
-    /// it feeds this result into the function 'folder' along with the second element, and so on. It 
-    /// returns the final result.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <param name="list">Enumerable to fold</param>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Fold function</param>
-    /// <returns>Aggregate value</returns>
-    [Pure]
-    public static S FoldBack<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
-        List.foldBack(list, state, folder);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection whilst the predicate function 
@@ -731,16 +444,6 @@ public static class ListExtensions
     [Pure]
     public static IEnumerable<T> FindSeq<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
         List.findSeq(list, pred);
-
-    /// <summary>
-    /// Convert any enumerable into an immutable Lst T
-    /// </summary>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <param name="list">Enumerable to convert</param>
-    /// <returns>Lst of T</returns>
-    [Pure]
-    public static Lst<T> Freeze<T>(this IEnumerable<T> list) =>
-        List.freeze(list);
     
     /// <summary>
     /// Convert the enumerable to an immutable array

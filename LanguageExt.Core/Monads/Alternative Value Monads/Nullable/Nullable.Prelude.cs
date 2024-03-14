@@ -140,7 +140,7 @@ public static partial class Prelude
         if (!lhs.HasValue && !rhs.HasValue) return lhs; // None  + None  = None
         if (!rhs.HasValue) return lhs;                  // Value + None  = Value
         if (!lhs.HasValue) return rhs;                  // None  + Value = Value
-        return lhs.Value.Append(rhs.Value);
+        return lhs.Value.Combine(rhs.Value);
     }
 
     /// <summary>
@@ -161,7 +161,7 @@ public static partial class Prelude
     {
         if (!lhs.HasValue) return rhs;
         if (!rhs.HasValue) return lhs;
-        return NUM.Plus(lhs.Value, rhs.Value);
+        return NUM.Add(lhs.Value, rhs.Value);
     }
 
     /// <summary>
@@ -203,7 +203,7 @@ public static partial class Prelude
     {
         if (!lhs.HasValue) return lhs; // zero * rhs = zero
         if (!rhs.HasValue) return rhs; // lhs * zero = zero
-        return NUM.Product(lhs.Value, rhs.Value);
+        return NUM.Multiply(lhs.Value, rhs.Value);
     }
 
     /// <summary>

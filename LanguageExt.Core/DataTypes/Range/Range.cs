@@ -70,7 +70,7 @@ public class Range<SELF, NumOrdA, A> : IEnumerable<A>
     /// <param name="step">The size of each step in the range</param>
     [Pure]
     public static SELF FromCount(A min, A count, A step) =>
-        Ctor(min, NumOrdA.Plus(min, NumOrdA.Subtract(NumOrdA.Product(count, step), step)), step);
+        Ctor(min, NumOrdA.Add(min, NumOrdA.Subtract(NumOrdA.Multiply(count, step), step)), step);
 
     /// <summary>
     /// Construct a range
@@ -131,14 +131,14 @@ public class Range<SELF, NumOrdA, A> : IEnumerable<A>
     {
         if (StepIsAscending)
         {
-            for (A x = From; NumOrdA.Compare(x, To) <= 0; x = NumOrdA.Plus(x, Step))
+            for (A x = From; NumOrdA.Compare(x, To) <= 0; x = NumOrdA.Add(x, Step))
             {
                 yield return x;
             }
         }
         else
         {
-            for (A x = From; NumOrdA.Compare(x, To) >= 0; x = NumOrdA.Plus(x, Step))
+            for (A x = From; NumOrdA.Compare(x, To) >= 0; x = NumOrdA.Add(x, Step))
             {
                 yield return x;
             }

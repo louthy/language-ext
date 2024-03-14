@@ -373,7 +373,7 @@ public sealed record EnumerableM<A>(IEnumerable<A> runEnumerable) :
         CollectionFormat.ToFullArrayString(this, separator);
 
     [Pure]
-    public EnumerableM<A> Append(EnumerableM<A> y) =>
+    public EnumerableM<A> Combine(EnumerableM<A> y) =>
         this + y;
 
     /// <summary>

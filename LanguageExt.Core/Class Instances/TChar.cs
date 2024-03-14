@@ -43,7 +43,7 @@ public struct TChar : Ord<char>, Arithmetic<char>
         x.GetHashCode();
 
     [Pure]
-    public static char Plus(char x, char y) =>
+    public static char Add(char x, char y) =>
         (char)(x + y);
 
     [Pure]
@@ -51,7 +51,7 @@ public struct TChar : Ord<char>, Arithmetic<char>
         (char)(x - y);
 
     [Pure]
-    public static char Product(char x, char y) =>
+    public static char Multiply(char x, char y) =>
         (char) (x * y);
 
     [Pure]

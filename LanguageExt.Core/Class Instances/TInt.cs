@@ -42,7 +42,7 @@ public struct TInt : Num<int>, Bool<int>
     /// <param name="y">right hand side of the addition operation</param>
     /// <returns>The sum of x and y</returns>
     [Pure]
-    public static int Plus(int x, int y) =>
+    public static int Add(int x, int y) =>
         x + y;
 
     /// <summary>
@@ -62,7 +62,7 @@ public struct TInt : Num<int>, Bool<int>
     /// <param name="y">right hand side of the product operation</param>
     /// <returns>The product of x and y</returns>
     [Pure]
-    public static int Product(int x, int y) =>
+    public static int Multiply(int x, int y) =>
         x * y;
 
     /// <summary>

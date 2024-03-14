@@ -30,7 +30,7 @@ public record Writer<W, A>(Func<W, (A Value, W Output)> runWriter) : K<Writer<W>
     /// </remarks>
     /// <param name="result">Result / Output pair</param>
     public Writer<W, A> Write((A Value, W Output) result) =>
-        new(w => (result.Value, w.Append(result.Output)));
+        new(w => (result.Value, w.Combine(result.Output)));
 
     /// <summary>
     /// Construct a writer computation from a (result, output) pair.
@@ -40,7 +40,7 @@ public record Writer<W, A>(Func<W, (A Value, W Output)> runWriter) : K<Writer<W>
     /// </remarks>
     /// <param name="result">Result / Output pair</param>
     public Writer<W, A> Write(A value, W output) =>
-        new(w => (value, w.Append(output)));
+        new(w => (value, w.Combine(output)));
 
     /// <summary>
     /// Writes an item and returns a value at the same time

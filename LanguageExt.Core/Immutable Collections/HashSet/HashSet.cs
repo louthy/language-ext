@@ -450,10 +450,10 @@ public readonly struct HashSet<A> :
         
     [Pure]
     public static HashSet<A> operator +(HashSet<A> lhs, HashSet<A> rhs) =>
-        lhs.Append(rhs);
+        lhs.Combine(rhs);
 
     [Pure]
-    public HashSet<A> Append(HashSet<A> rhs) =>
+    public HashSet<A> Combine(HashSet<A> rhs) =>
         Wrap(Value.Append(rhs.Value));
 
     [Pure]

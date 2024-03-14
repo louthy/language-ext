@@ -87,14 +87,14 @@ internal static class PatchInternal
                 var y = rem - 1;
                 var o = p.delete(0, src[y]);
                 var (pc, po) = get(v, 0, y);
-                return (p.cost(o).Append(pc), Some(o).Cons(po));
+                return (p.cost(o).Combine(pc), Some(o).Cons(po));
             }
             else if (rem == 0)
             {
                 var x = quot - 1;
                 var o = p.insert(x, dst[x]);
                 var (pc, po) = get(v, x, 0);
-                return (p.cost(o).Append(pc), Some(o).Cons(po));
+                return (p.cost(o).Combine(pc), Some(o).Cons(po));
             }
             else
             {
@@ -112,13 +112,13 @@ internal static class PatchInternal
                 else
                 {
                     var c1    = p.delete(position(top.Item2), s);
-                    var item1 = (p.cost(c1).Append(top.Item1), Some(c1).Cons(top.Item2));
+                    var item1 = (p.cost(c1).Combine(top.Item1), Some(c1).Cons(top.Item2));
 
                     var c2    = p.insert(position(left.Item2), d);
-                    var item2 = (p.cost(c2).Append(left.Item1), Some(c2).Cons(left.Item2));
+                    var item2 = (p.cost(c2).Combine(left.Item1), Some(c2).Cons(left.Item2));
 
                     var c3    = p.substitute(position(tl.Item2), s, d);
-                    var item3 = (p.cost(c3).Append(tl.Item1), Some(c3).Cons(tl.Item2));
+                    var item3 = (p.cost(c3).Combine(tl.Item1), Some(c3).Cons(tl.Item2));
 
                     var compare = OrdTupleFirst<OrdC, C, Seq<Option<O>>>.Compare;
 

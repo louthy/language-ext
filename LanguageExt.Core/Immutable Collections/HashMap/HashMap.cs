@@ -789,11 +789,11 @@ public readonly struct HashMap<K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<K, V> operator +(HashMap<K, V> lhs, HashMap<K, V> rhs) =>
-        lhs.Append(rhs);
+        lhs.Combine(rhs);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public HashMap<K, V> Append(HashMap<K, V> rhs) =>
+    public HashMap<K, V> Combine(HashMap<K, V> rhs) =>
         Wrap(Value.Append(rhs.Value));
 
     [Pure]

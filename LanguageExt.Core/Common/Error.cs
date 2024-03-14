@@ -140,7 +140,7 @@ public abstract record Error : Monoid<Error>
     /// <param name="error">Error</param>
     /// <returns></returns>
     [Pure]
-    public Error Append(Error error) =>
+    public Error Combine(Error error) =>
         (this, error) switch
         {
             (ManyErrors e1, ManyErrors e2) => new ManyErrors(e1.Errors + e2.Errors), 
@@ -159,7 +159,7 @@ public abstract record Error : Monoid<Error>
     /// <remarks>Single errors will be converted to `ManyErrors`;  `ManyErrors` will have their collection updated</remarks>
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Error operator+(Error lhs, Error rhs) =>
-        lhs.Append(rhs);
+        lhs.Combine(rhs);
 
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual EnumerableM<Error> AsEnumerable()

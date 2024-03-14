@@ -1,6 +1,7 @@
 ﻿using System;
+using LanguageExt.Traits;
 
-namespace LanguageExt.Traits;
+namespace LanguageExt;
 
 public static class ReaderExtensions
 {

@@ -941,7 +941,7 @@ public readonly struct Map<K, V> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Map<K, V> Append(Map<K, V> y) =>
+    public Map<K, V> Combine(Map<K, V> y) =>
         this + y;
 
     [Pure]

@@ -42,7 +42,7 @@ public struct TLong : Num<long>, Bool<long>
     /// <param name="y">right hand side of the addition operation</param>
     /// <returns>The sum of x and y</returns>
     [Pure]
-    public static long Plus(long x, long y) =>
+    public static long Add(long x, long y) =>
         x + y;
 
     /// <summary>
@@ -62,7 +62,7 @@ public struct TLong : Num<long>, Bool<long>
     /// <param name="y">right hand side of the product operation</param>
     /// <returns>The product of x and y</returns>
     [Pure]
-    public static long Product(long x, long y) =>
+    public static long Multiply(long x, long y) =>
         x * y;
 
     /// <summary>

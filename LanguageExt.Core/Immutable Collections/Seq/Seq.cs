@@ -906,7 +906,7 @@ public readonly struct Seq<A> :
         CollectionFormat.ToFullArrayString(this, separator);
 
     [Pure]
-    public Seq<A> Append(Seq<A> y) =>
+    public Seq<A> Combine(Seq<A> y) =>
         this + y;
 
     /// <summary>

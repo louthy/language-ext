@@ -42,7 +42,7 @@ public struct TShort : Num<short>, Bool<short>
     /// <param name="y">right hand side of the addition operation</param>
     /// <returns>The sum of x and y</returns>
     [Pure]
-    public static short Plus(short x, short y) =>
+    public static short Add(short x, short y) =>
         (short)(x + y);
 
     /// <summary>
@@ -62,7 +62,7 @@ public struct TShort : Num<short>, Bool<short>
     /// <param name="y">right hand side of the product operation</param>
     /// <returns>The product of x and y</returns>
     [Pure]
-    public static short Product(short x, short y) =>
+    public static short Multiply(short x, short y) =>
         (short)(x * y);
 
     /// <summary>

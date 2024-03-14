@@ -74,7 +74,7 @@ public static partial class Prelude
     public static Either<L, R> plus<NUM, L, R>(Either<L, R> x, Either<L, R> y) where NUM : Arithmetic<R> =>
         from a in x
         from b in y
-        select NUM.Plus(a, b);
+        select NUM.Add(a, b);
 
     /// <summary>
     /// Find the subtract between the two bound values of x and y, uses a Subtract trait 
@@ -104,7 +104,7 @@ public static partial class Prelude
     public static Either<L, R> product<NUM, L, R>(Either<L, R> x, Either<L, R> y) where NUM : Arithmetic<R> =>
         from a in x
         from b in y
-        select NUM.Product(a, b);
+        select NUM.Multiply(a, b);
 
     /// <summary>
     /// Divide the two bound values of x and y, uses a Divide trait to provide the divide

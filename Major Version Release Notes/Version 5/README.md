@@ -462,6 +462,10 @@ High, if you have built your own `Monad`, `Functor`, `Applicative` implementatio
 
 This is rewrite territory.  I would encourage you to look at the new traits and monad transformers - as they're much more effective.
 
+### Renaming of methods in Arithmetic trait
+
+Arithmetic trait: `Plus` renamed `Add`, `Product` renamed `Multiply`.
+
 ### The `Semigroup<A>` and `Monoid<A>` types have been refactored
 
 The `Append` in `Semigroup<A>` (which `Monoid<A>` inherits) is now an instance method.  Meaning you must derive your semigroup and monoidal types from `Monoid<YOUR_TYPE>` to leverage its capabilities.

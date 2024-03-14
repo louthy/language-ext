@@ -90,7 +90,7 @@ public abstract class Change<A> :
     /// </summary>
     public override int GetHashCode() => FNV32.OffsetBasis;
 
-    public Change<A> Append(Change<A> y) =>
+    public Change<A> Combine(Change<A> y) =>
         (this, y) switch
         {
             (NoChange<A>, _)                                       => y,

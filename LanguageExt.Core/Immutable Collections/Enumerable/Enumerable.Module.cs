@@ -716,7 +716,7 @@ public partial class EnumerableM
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static EnumerableM<B> apply<A, B>(EnumerableM<Func<A, B>> fabc, EnumerableM<A> fa) =>
-        new (fabc.Apply(fa));
+        new (fabc.AsEnumerable().Apply(fa));
 
     /// <summary>
     /// Apply a sequence of values to a sequence of functions of arity 2
@@ -728,7 +728,7 @@ public partial class EnumerableM
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static EnumerableM<Func<B, C>> apply<A, B, C>(EnumerableM<Func<A, B, C>> fabc, EnumerableM<A> fa) =>
-        new (fabc.Apply(fa));
+        new (fabc.AsEnumerable().Apply(fa));
 
     /// <summary>
     /// Apply sequence of values to a sequence of functions of arity 2
@@ -740,7 +740,7 @@ public partial class EnumerableM
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static EnumerableM<C> apply<A, B, C>(EnumerableM<Func<A, B, C>> fabc, EnumerableM<A> fa, EnumerableM<B> fb) =>
-        new (fabc.Apply(fa, fb));
+        new (fabc.AsEnumerable().Apply(fa, fb));
 
     /// <summary>
     /// Apply a sequence of values to a sequence of functions of arity 2
@@ -752,7 +752,7 @@ public partial class EnumerableM
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static EnumerableM<Func<B, C>> apply<A, B, C>(EnumerableM<Func<A, Func<B, C>>> fabc, EnumerableM<A> fa) =>
-        new (fabc.Apply(fa));
+        new (fabc.AsEnumerable().Apply(fa));
 
     /// <summary>
     /// Apply sequence of values to an sequence of functions of arity 2
@@ -775,7 +775,7 @@ public partial class EnumerableM
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static EnumerableM<B> action<A, B>(EnumerableM<A> fa, EnumerableM<B> fb) =>
-        new (fa.Action(fb));
+        new (fa.AsEnumerable().Action(fb));
 
     /// <summary>
     /// Span, applied to a predicate 'pred' and a list, returns a tuple where first element is 

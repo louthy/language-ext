@@ -1,7 +1,8 @@
 using System;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Traits;
+namespace LanguageExt;
 
 public static partial class FunctorExtensions
 {

@@ -115,7 +115,7 @@ public readonly struct TrackingHashMap<EqK, K, V> :
         new (pair.Map, ChangesInternal.Merge(pair.Changes));
 
     TrackingHashMap<EqK, K, V> Wrap(K key, (TrieMap<EqK, K, V> Map, Change<V> Change) pair) =>
-        new(pair.Map, ChangesInternal.AddOrUpdate(key, Some: ex => ex.Append(pair.Change), pair.Change));
+        new(pair.Map, ChangesInternal.AddOrUpdate(key, Some: ex => ex.Combine(pair.Change), pair.Change));
 
     /// <summary>
     /// 'this' accessor
@@ -745,10 +745,10 @@ public readonly struct TrackingHashMap<EqK, K, V> :
 
     [Pure]
     public static TrackingHashMap<EqK, K, V> operator +(TrackingHashMap<EqK, K, V> lhs, TrackingHashMap<EqK, K, V> rhs) =>
-        lhs.Append(rhs);
+        lhs.Combine(rhs);
 
     [Pure]
-    public TrackingHashMap<EqK, K, V> Append(TrackingHashMap<EqK, K, V> rhs) =>
+    public TrackingHashMap<EqK, K, V> Combine(TrackingHashMap<EqK, K, V> rhs) =>
         Wrap(Value.AppendWithLog(rhs.Value));
 
     [Pure]

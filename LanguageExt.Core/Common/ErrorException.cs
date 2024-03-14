@@ -71,7 +71,7 @@ public abstract class ErrorException : Exception, IEnumerable<ErrorException>, M
     /// </summary>
     /// <remarks>Single errors will be converted to `ManyErrors`;  `ManyErrors` will have their collection updated</remarks>
     [Pure]
-    public abstract ErrorException Append(ErrorException error);
+    public abstract ErrorException Combine(ErrorException error);
 
     [Pure]
     public static ErrorException Empty => 
@@ -83,7 +83,7 @@ public abstract class ErrorException : Exception, IEnumerable<ErrorException>, M
     /// <remarks>Single errors will be converted to `ManyErrors`;  `ManyErrors` will have their collection updated</remarks>
     [Pure]
     public static ErrorException operator+(ErrorException lhs, ErrorException rhs) =>
-        lhs.Append(rhs);
+        lhs.Combine(rhs);
 
     [Pure]
     public virtual IEnumerator<ErrorException> GetEnumerator()
@@ -226,7 +226,7 @@ public sealed class ExpectedException : ErrorException
     /// </summary>
     /// <remarks>Single errors will be converted to `ManyErrors`;  `ManyErrors` will have their collection updated</remarks>
     [Pure]
-    public override ErrorException Append(ErrorException error) =>
+    public override ErrorException Combine(ErrorException error) =>
         error is ManyExceptions m
             ? new ManyExceptions(error.Cons(m.Errors))
             : new ManyExceptions(Seq(this, error));
@@ -300,7 +300,7 @@ public class ExceptionalException : ErrorException
     /// <param name="error">Error</param>
     /// <returns></returns>
     [Pure]
-    public override ErrorException Append(ErrorException error) =>
+    public override ErrorException Combine(ErrorException error) =>
         error is ManyExceptions m
             ? new ManyExceptions(error.Cons(m.Errors))
             : new ManyExceptions(Seq(this, error));
@@ -367,7 +367,7 @@ public sealed class ManyExceptions : ErrorException
     /// <param name="error">Error</param>
     /// <returns></returns>
     [Pure]
-    public override ErrorException Append(ErrorException error) =>
+    public override ErrorException Combine(ErrorException error) =>
         error is ManyExceptions m
             ? new ManyExceptions(Errors + m.Errors)
             : new ManyExceptions(Seq(this, error));
@@ -408,7 +408,7 @@ public class BottomException : ExceptionalException
     public override Error ToError() => 
         BottomError.Default;
     
-    public override ErrorException Append(ErrorException error) => throw new NotImplementedException();
+    public override ErrorException Combine(ErrorException error) => throw new NotImplementedException();
 }
 
 public static class ExceptionExtensions

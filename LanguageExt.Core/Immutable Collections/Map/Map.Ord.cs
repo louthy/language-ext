@@ -728,7 +728,7 @@ public readonly struct Map<OrdK, K, V> :
         lhs.CompareTo(rhs) >= 0;
 
     [Pure]
-    public Map<OrdK, K, V> Append(Map<OrdK, K, V> y) => 
+    public Map<OrdK, K, V> Combine(Map<OrdK, K, V> y) => 
         this + y;
 
     [Pure]

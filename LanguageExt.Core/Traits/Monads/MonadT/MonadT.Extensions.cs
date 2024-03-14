@@ -1,8 +1,9 @@
 ﻿using System;
+using LanguageExt.Traits;
 
-namespace LanguageExt.Traits;
+namespace LanguageExt;
 
-public static partial class MonadT
+public static partial class MonadTExtensions
 {
     public static K<M, B> MapM<M, N, A, B>(this Func<K<N, A>, K<N, B>> f, K<M, A> ma)
         where M : MonadT<M, N>

@@ -24,66 +24,6 @@ public static class EitherExtensions
         ma.Bind(x => x);
 
     /// <summary>
-    /// Add the bound values of x and y, uses an Add trait to provide the add
-    /// operation for type A.  For example x.Add<TInteger,int>(y)
-    /// </summary>
-    /// <typeparam name="NUM">Num of A</typeparam>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <param name="x">Left hand side of the operation</param>
-    /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An option with y added to x</returns>
-    [Pure]
-    public static Either<L, R> Plus<NUM, L, R>(this Either<L, R> x, Either<L, R> y) where NUM : Num<R> =>
-        from a in x
-        from b in y
-        select NUM.Plus(a, b);
-
-    /// <summary>
-    /// Find the subtract between the two bound values of x and y, uses a Subtract trait 
-    /// to provide the subtract operation for type A.  For example x.Subtract<TInteger,int>(y)
-    /// </summary>
-    /// <typeparam name="NUM">Num of A</typeparam>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <param name="x">Left hand side of the operation</param>
-    /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An option with the subtract between x and y</returns>
-    [Pure]
-    public static Either<L, R> Subtract<NUM, L, R>(this Either<L, R> x, Either<L, R> y) where NUM : Num<R> =>
-        from a in x
-        from b in y
-        select NUM.Subtract(a, b);
-
-    /// <summary>
-    /// Find the product between the two bound values of x and y, uses a Product trait 
-    /// to provide the product operation for type A.  For example x.Product<TInteger,int>(y)
-    /// </summary>
-    /// <typeparam name="NUM">Num of A</typeparam>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <param name="x">Left hand side of the operation</param>
-    /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An option with the product of x and y</returns>
-    [Pure]
-    public static Either<L, R> Product<NUM, L, R>(this Either<L, R> x, Either<L, R> y) where NUM : Num<R> =>
-        from a in x
-        from b in y
-        select NUM.Product(a, b);
-
-    /// <summary>
-    /// Divide the two bound values of x and y, uses a Divide trait to provide the divide
-    /// operation for type A.  For example x.Divide<TDouble,double>(y)
-    /// </summary>
-    /// <typeparam name="NUM">Num of A</typeparam>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <param name="x">Left hand side of the operation</param>
-    /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An option x / y</returns>
-    [Pure]
-    public static Either<L, R> Divide<NUM, L, R>(this Either<L, R> x, Either<L, R> y) where NUM : Num<R> =>
-        from a in x
-        from b in y
-        select NUM.Divide(a, b);
-
-    /// <summary>
     /// Apply
     /// </summary>
     /// <param name="fab">Function to apply the applicative to</param>

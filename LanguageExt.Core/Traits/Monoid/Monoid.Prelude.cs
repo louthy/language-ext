@@ -17,7 +17,7 @@ public static class Monoid
     /// The identity of append
     /// </summary>
     [Pure]
-    public static A append<A>(A x, A y) where A : Monoid<A> =>
+    public static A combine<A>(A x, A y) where A : Monoid<A> =>
         x + y;
 
     /// <summary>
@@ -32,7 +32,7 @@ public static class Monoid
     /// </summary>
     [Pure]
     public static A concat<A>(Seq<A> xs) where A : Monoid<A> =>
-        xs.Fold(A.Empty, (x, y) => x.Append(y));
+        xs.Fold(A.Empty, (x, y) => x.Combine(y));
 
     /// <summary>
     /// Fold a list using the monoid.

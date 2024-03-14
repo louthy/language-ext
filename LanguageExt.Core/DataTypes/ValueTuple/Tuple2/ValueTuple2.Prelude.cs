@@ -40,7 +40,7 @@ public static partial class Prelude
     [Pure]
     public static A sum<NUM, A>(this ValueTuple<A, A> self)
         where NUM : Num<A> =>
-        NUM.Plus(self.Item1, self.Item2);
+        NUM.Add(self.Item1, self.Item2);
 
     /// <summary>
     /// Product of the items
@@ -48,7 +48,7 @@ public static partial class Prelude
     [Pure]
     public static A product<NUM, A>(this ValueTuple<A, A> self)
         where NUM : Num<A> =>
-        NUM.Product(self.Item1, self.Item2);
+        NUM.Multiply(self.Item1, self.Item2);
 
     /// <summary>
     /// One of the items matches the value passed

@@ -457,7 +457,7 @@ public class AtomHashMapTests
 
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
-        Assert.Equal(initialValue.Append(toAppend), hashMap.ToHashMap());
+        Assert.Equal(initialValue.Combine(toAppend), hashMap.ToHashMap());
         Assert.Equal(
             HashMap(
                 ("biz", Change<int>.Added(7)),
@@ -479,7 +479,7 @@ public class AtomHashMapTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            initialValue.Append(toAppend.ToHashMap()),
+            initialValue.Combine(toAppend.ToHashMap()),
             hashMap.ToHashMap());
         Assert.Equal(
             HashMap(

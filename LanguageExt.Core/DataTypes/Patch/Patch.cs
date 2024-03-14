@@ -71,7 +71,7 @@ public readonly struct Patch<EqA, A> :
     /// <summary>
     /// Patch summing operator: monoid append
     /// </summary>
-    public static Patch<EqA, A> operator +(Patch<EqA, A> pa, Patch<EqA, A> pb) => pa.Append(pb);
+    public static Patch<EqA, A> operator +(Patch<EqA, A> pa, Patch<EqA, A> pb) => pa.Combine(pb);
 
     /// <summary>
     /// Patch inverse operator
@@ -102,7 +102,7 @@ public readonly struct Patch<EqA, A> :
     /// Monoid append: produces a patch is a merged version of this 
     /// and the provided patch.  
     /// </summary>
-    public Patch<EqA, A> Append(Patch<EqA, A> mb)
+    public Patch<EqA, A> Combine(Patch<EqA, A> mb)
     {
         var px = this;
         var py = mb;

@@ -69,7 +69,7 @@ public static partial class Prelude
         where SELF : FloatType<SELF, FLOAT, A, PRED> =>
         from a in x
         from b in y
-        select FLOAT.Plus(a, b);
+        select FLOAT.Add(a, b);
 
     /// <summary>
     /// Find the subtract between the two bound values of x and y, uses a Subtract trait 
@@ -103,7 +103,7 @@ public static partial class Prelude
         where SELF : FloatType<SELF, FLOAT, A, PRED> =>
         from a in x
         from b in y
-        select FLOAT.Product(a, b);
+        select FLOAT.Multiply(a, b);
 
     /// <summary>
     /// Find the product between the two bound values of x and y, uses a Product trait 
@@ -184,7 +184,7 @@ public static partial class Prelude
         where SELF : FloatType<SELF, FLOAT, A> =>
         from a in x
         from b in y
-        select FLOAT.Plus(a, b);
+        select FLOAT.Add(a, b);
 
     /// <summary>
     /// Find the subtract between the two bound values of x and y, uses a Subtract trait 
@@ -216,7 +216,7 @@ public static partial class Prelude
         where SELF : FloatType<SELF, FLOAT, A> =>
         from a in x
         from b in y
-        select FLOAT.Product(a, b);
+        select FLOAT.Multiply(a, b);
 
     /// <summary>
     /// Find the product between the two bound values of x and y, uses a Product trait 

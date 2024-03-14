@@ -205,7 +205,7 @@ public class ValidationTests
         // the errors are collected.  If they have passed then the results are
         // passed to the lambda function allowing the creation of a the 
         // CreditCard object.
-        return (cardHolderV, numberV, monthYear).Apply((c, num, my) => new CreditCard(c, num, my.month, my.year));
+        return (cardHolderV, numberV, monthYear).Apply((c, num, my) => new CreditCard(c, num, my.month, my.year)).As();
     }
 
     public class CreditCard
