@@ -367,7 +367,7 @@ public static class Foldable
     /// lazy in the accumulator.  When you need a strict left-associative fold,
     /// use 'foldMap'' instead, with 'id' as the map.
     /// </summary>
-    public static A foldWhile<T, A>(Func<A, bool> predicate, K<T, A> tm) 
+    public static A foldWhile<T, A>(Func<(A State, A Value), bool> predicate, K<T, A> tm) 
         where T : Foldable<T>
         where A : Monoid<A> =>
         T.FoldMapWhile(identity, predicate, tm) ;
@@ -378,7 +378,7 @@ public static class Foldable
     /// lazy in the accumulator.  When you need a strict left-associative fold,
     /// use 'foldMap'' instead, with 'id' as the map.
     /// </summary>
-    public static A foldUntil<T, A>(Func<A, bool> predicate, K<T, A> tm) 
+    public static A foldUntil<T, A>(Func<(A State, A Value), bool> predicate, K<T, A> tm) 
         where T : Foldable<T>
         where A : Monoid<A> =>
         T.FoldMapUntil(identity, predicate, tm) ;
@@ -400,10 +400,10 @@ public static class Foldable
     /// accumulator.  For strict left-associative folds consider `FoldMapBack`
     /// instead.
     /// </summary>
-    public static B foldMapWhile<T, A, B>(Func<A, B> f, Func<A, bool> predicate, K<T, A> ta)
+    public static B foldMapWhile<T, A, B>(Func<A, B> f, Func<(B State, A Value), bool> predicate, K<T, A> ta)
         where T : Foldable<T>
         where B : Monoid<B> =>
-        T.FoldWhile(x => a => f(x).Combine(a), s => predicate(s.Value), B.Empty, ta);
+        T.FoldWhile(x => a => f(x).Combine(a), predicate, B.Empty, ta);
 
     /// <summary>
     /// Map each element of the structure into a monoid, and combine the
@@ -411,10 +411,10 @@ public static class Foldable
     /// accumulator.  For strict left-associative folds consider `FoldMapBack`
     /// instead.
     /// </summary>
-    public static B foldMapUntil<T, A, B>(Func<A, B> f, Func<A, bool> predicate, K<T, A> ta)
+    public static B foldMapUntil<T, A, B>(Func<A, B> f, Func<(B State, A Value), bool> predicate, K<T, A> ta)
         where T : Foldable<T>
         where B : Monoid<B> =>
-        T.FoldUntil(x => a => f(x).Combine(a), s => predicate(s.Value), B.Empty, ta);
+        T.FoldUntil(x => a => f(x).Combine(a), predicate, B.Empty, ta);
 
     /// <summary>
     /// A left-associative variant of 'FoldMap' that is strict in the
@@ -431,20 +431,20 @@ public static class Foldable
     /// accumulator.  Use this method for strict reduction when partial
     /// results are merged via `Append`.
     /// </summary>
-    public static B foldMapBackWhile<T, A, B>(Func<A, B> f, Func<A, bool> predicate, K<T, A> ta)
+    public static B foldMapBackWhile<T, A, B>(Func<A, B> f, Func<(B State, A Value), bool> predicate, K<T, A> ta)
         where T : Foldable<T>
         where B : Monoid<B> =>
-        T.FoldBackWhile(x => a => x.Combine(f(a)), s => predicate(s.Value), B.Empty, ta);
+        T.FoldBackWhile(x => a => x.Combine(f(a)), predicate, B.Empty, ta);
 
     /// <summary>
     /// A left-associative variant of 'FoldMap' that is strict in the
     /// accumulator.  Use this method for strict reduction when partial
     /// results are merged via `Append`.
     /// </summary>
-    public static B foldMapBackUntil<T, A, B>(Func<A, B> f, Func<A, bool> predicate, K<T, A> ta)
+    public static B foldMapBackUntil<T, A, B>(Func<A, B> f, Func<(B State, A Value), bool> predicate, K<T, A> ta)
         where T : Foldable<T> 
         where B : Monoid<B> =>
-        T.FoldBackUntil(x => a => x.Combine(f(a)), s => predicate(s.Value), B.Empty, ta);
+        T.FoldBackUntil(x => a => x.Combine(f(a)), predicate, B.Empty, ta);
 
     /// <summary>
     /// List of elements of a structure, from left to right
@@ -456,7 +456,7 @@ public static class Foldable
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
-    public static Lst<A> freeze<T, A>(K<T, A> ta) 
+    public static Lst<A> toLst<T, A>(K<T, A> ta) 
         where T : Foldable<T> =>
         T.Fold(a => s => s.Add(a), List.empty<A>(), ta);
 

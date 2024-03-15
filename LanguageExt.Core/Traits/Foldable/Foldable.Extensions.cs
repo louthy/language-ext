@@ -360,7 +360,7 @@ public static partial class FoldableExtensions
     public static A Fold<T, A>(this K<T, A> tm) 
         where T : Foldable<T>
         where A : Monoid<A> =>
-        T.FoldMap(identity, tm) ;
+        T.Fold(tm);
 
     /// <summary>
     /// Given a structure with elements whose type is a `Monoid`, combine them
@@ -368,10 +368,10 @@ public static partial class FoldableExtensions
     /// lazy in the accumulator.  When you need a strict left-associative fold,
     /// use 'foldMap'' instead, with 'id' as the map.
     /// </summary>
-    public static A FoldWhile<T, A>(this K<T, A> tm, Func<A, bool> predicate) 
+    public static A FoldWhile<T, A>(this K<T, A> tm, Func<(A State, A Value), bool> predicate) 
         where T : Foldable<T>
         where A : Monoid<A> =>
-        T.FoldMapWhile(identity, predicate, tm) ;
+        T.FoldWhile(predicate, tm);
 
     /// <summary>
     /// Given a structure with elements whose type is a `Monoid`, combine them
@@ -379,10 +379,10 @@ public static partial class FoldableExtensions
     /// lazy in the accumulator.  When you need a strict left-associative fold,
     /// use 'foldMap'' instead, with 'id' as the map.
     /// </summary>
-    public static A FoldUntil<T, A>(this K<T, A> tm, Func<A, bool> predicate) 
+    public static A FoldUntil<T, A>(this K<T, A> tm, Func<(A State, A Value), bool> predicate) 
         where T : Foldable<T>
         where A : Monoid<A> =>
-        T.FoldMapUntil(identity, predicate, tm) ;
+        T.FoldUntil(predicate, tm);
 
     /// <summary>
     /// Map each element of the structure into a monoid, and combine the
@@ -393,7 +393,7 @@ public static partial class FoldableExtensions
     public static B FoldMap<T, A, B>(this K<T, A> ta, Func<A, B> f)
         where T : Foldable<T>
         where B : Monoid<B> =>
-        T.Fold(x => a => f(x).Combine(a), B.Empty, ta);
+        T.FoldMap(f, ta);
 
     /// <summary>
     /// Map each element of the structure into a monoid, and combine the
@@ -401,10 +401,10 @@ public static partial class FoldableExtensions
     /// accumulator.  For strict left-associative folds consider `FoldMapBack`
     /// instead.
     /// </summary>
-    public static B FoldMapWhile<T, A, B>(this K<T, A> ta, Func<A, B> f, Func<A, bool> predicate)
+    public static B FoldMapWhile<T, A, B>(this K<T, A> ta, Func<A, B> f, Func<(B State, A Value), bool> predicate)
         where T : Foldable<T>
         where B : Monoid<B> =>
-        T.FoldWhile(x => a => f(x).Combine(a), s => predicate(s.Value), B.Empty, ta);
+        T.FoldMapWhile(f, predicate, ta);
 
     /// <summary>
     /// Map each element of the structure into a monoid, and combine the
@@ -412,10 +412,10 @@ public static partial class FoldableExtensions
     /// accumulator.  For strict left-associative folds consider `FoldMapBack`
     /// instead.
     /// </summary>
-    public static B FoldMapUntil<T, A, B>(this K<T, A> ta, Func<A, B> f, Func<A, bool> predicate)
+    public static B FoldMapUntil<T, A, B>(this K<T, A> ta, Func<A, B> f, Func<(B State, A Value), bool> predicate)
         where T : Foldable<T>
         where B : Monoid<B> =>
-        T.FoldUntil(x => a => f(x).Combine(a), s => predicate(s.Value), B.Empty, ta);
+        T.FoldMapUntil(f, predicate, ta);
 
     /// <summary>
     /// A left-associative variant of 'FoldMap' that is strict in the
@@ -425,59 +425,55 @@ public static partial class FoldableExtensions
     public static B FoldMapBack<T, A, B>(this K<T, A> ta, Func<A, B> f)
         where T : Foldable<T>
         where B : Monoid<B> =>
-        T.FoldBack(x => a => x.Combine(f(a)), B.Empty, ta);
+        T.FoldMapBack(f, ta);
 
     /// <summary>
     /// A left-associative variant of 'FoldMap' that is strict in the
     /// accumulator.  Use this method for strict reduction when partial
     /// results are merged via `Append`.
     /// </summary>
-    public static B FoldMapBackWhile<T, A, B>(this K<T, A> ta, Func<A, B> f, Func<A, bool> predicate)
+    public static B FoldMapBackWhile<T, A, B>(this K<T, A> ta, Func<A, B> f, Func<(B State, A Value), bool> predicate)
         where T : Foldable<T>
         where B : Monoid<B> =>
-        T.FoldBackWhile(x => a => x.Combine(f(a)), s => predicate(s.Value), B.Empty, ta);
+        T.FoldMapBackWhile(f, predicate, ta);
 
     /// <summary>
     /// A left-associative variant of 'FoldMap' that is strict in the
     /// accumulator.  Use this method for strict reduction when partial
     /// results are merged via `Append`.
     /// </summary>
-    public static B FoldMapBackUntil<T, A, B>(this K<T, A> ta, Func<A, B> f, Func<A, bool> predicate)
+    public static B FoldMapBackUntil<T, A, B>(this K<T, A> ta, Func<A, B> f, Func<(B State, A Value), bool> predicate)
         where T : Foldable<T> 
         where B : Monoid<B> =>
-        T.FoldBackUntil(x => a => x.Combine(f(a)), s => predicate(s.Value), B.Empty, ta);
+        T.FoldMapBackUntil(f, predicate, ta);
 
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
     public static Seq<A> ToSeq<T, A>(this K<T, A> ta) 
         where T : Foldable<T> =>
-        T.Fold(a => s => s.Add(a), Seq<A>(), ta);
+        T.ToSeq(ta);
 
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
-    public static Lst<A> Freeze<T, A>(this K<T, A> ta) 
+    public static Lst<A> ToLst<T, A>(this K<T, A> ta) 
         where T : Foldable<T> =>
-        T.Fold(a => s => s.Add(a), List.empty<A>(), ta);
+        T.ToLst(ta);
 
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
-    public static EnumerableM<A> ToEnumerable<T, A>(this K<T, A> ta) 
+    public static EnumerableM<A> ToEnumerable<T, A>(this K<T, A> ta)
         where T : Foldable<T> =>
-        T.Fold(a => s =>
-                    {
-                        s.Add(a);
-                        return s;
-                    }, new System.Collections.Generic.List<A>(), ta).AsEnumerableM();
+        T.ToEnumerable(ta);
 
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
     public static bool IsEmpty<T, A>(this K<T, A> ta) 
         where T : Foldable<T> =>
-        T.FoldWhile(_ => _ => false, s => s.State, true, ta);
+        T.IsEmpty(ta);
 
     /// <summary>
     /// Returns the size/length of a finite structure as an `int`.  The
@@ -489,21 +485,21 @@ public static partial class FoldableExtensions
     /// </summary>
     public static int Count<T, A>(this K<T, A> ta) 
         where T : Foldable<T> =>
-        T.FoldBack(c => _ => c + 1, 0, ta);
+        T.Count(ta);
 
     /// <summary>
     /// Does an element that fits the predicate occur in the structure?
     /// </summary>
     public static bool Exists<T, A>(this K<T, A> ta, Func<A, bool> predicate) 
         where T : Foldable<T> =>
-        T.FoldBackUntil(s => c => s || predicate(c), s => s.State, false, ta);
+        T.Exists(predicate, ta);
 
     /// <summary>
     /// Does the predicate hold for all elements in the structure?
     /// </summary>
-    public static bool ForAll<T, A>(this K<T, A> ta, Func<A, bool> predicate) 
+    public static bool ForAll<T, A>(this K<T, A> ta, Func<A, bool> predicate)
         where T : Foldable<T> =>
-        T.FoldBackWhile(s => c => s && predicate(c), s => s.State, true, ta);
+        T.ForAll(predicate, ta);
 
     /// <summary>
     /// Does the element exist in the structure?
@@ -511,7 +507,7 @@ public static partial class FoldableExtensions
     public static bool Contains<EqA, T, A>(this K<T, A> ta, A value) 
         where EqA : Eq<A> 
         where T : Foldable<T> =>
-        T.Exists(x => EqA.Equals(value, x), ta);
+        T.Contains<EqA, A>(value, ta);
 
     /// <summary>
     /// Computes the sum of the numbers of a structure.
@@ -519,7 +515,7 @@ public static partial class FoldableExtensions
     public static A Sum<T, A>(this K<T, A> ta) 
         where T : Foldable<T> 
         where A : IAdditionOperators<A, A, A>, IAdditiveIdentity<A, A> =>
-        T.Fold(x => y => x + y, A.AdditiveIdentity, ta);
+        T.Sum(ta);
 
     /// <summary>
     /// Computes the product of the numbers of a structure.
@@ -527,7 +523,7 @@ public static partial class FoldableExtensions
     public static A Product<T, A>(this K<T, A> ta) 
         where T : Foldable<T> 
         where A : IMultiplyOperators<A, A, A>, IMultiplicativeIdentity<A, A> =>
-        T.Fold(x => y => x * y, A.MultiplicativeIdentity, ta);
+        T.Product(ta);
 
     /// <summary>
     /// Get the head item in the foldable
@@ -535,14 +531,14 @@ public static partial class FoldableExtensions
     /// <exception cref="InvalidOperationException">Throws if sequence is empty.  Consider using `HeadOrNone`</exception>
     public static A Head<T, A>(this K<T, A> ta) 
         where T : Foldable<T> =>
-        T.HeadOrNone(ta).IfNone(() => throw new InvalidOperationException("Sequence empty"));
+        T.Head(ta);
 
     /// <summary>
     /// Get the head item in the foldable or `None`
     /// </summary>
     public static Option<A> HeadOrNone<T, A>(this K<T, A> ta) 
         where T : Foldable<T> =>
-        T.FoldWhile(x => _ => Some(x), s => s.State.IsNone, Option<A>.None, ta);
+        T.HeadOrNone(ta);
 
     /// <summary>
     /// Get the head item in the foldable
@@ -550,14 +546,14 @@ public static partial class FoldableExtensions
     /// <exception cref="InvalidOperationException">Throws if sequence is empty.  Consider using `HeadOrNone`</exception>
     public static A Last<T, A>(this K<T, A> ta) 
         where T : Foldable<T> =>
-        T.LastOrNone(ta).IfNone(() => throw new InvalidOperationException("Sequence empty"));
+        T.Last(ta);
 
     /// <summary>
     /// Get the head item in the foldable or `None`
     /// </summary>
     public static Option<A> LastOrNone<T, A>(this K<T, A> ta) 
         where T : Foldable<T> =>
-        T.FoldBackWhile(_ => Some, s => s.State.IsNone, Option<A>.None, ta);
+        T.LastOrNone(ta);
 
     /// <summary>
     /// Map each element of a structure to an 'Applicative' action, evaluate these

@@ -220,7 +220,7 @@ public interface Foldable<out T> where T : Foldable<T>
     /// lazy in the accumulator.  When you need a strict left-associative fold,
     /// use 'foldMap'' instead, with 'id' as the map.
     /// </summary>
-    public static virtual A FoldWhile<A>(Func<A, bool> predicate, K<T, A> tm) 
+    public static virtual A FoldWhile<A>(Func<(A State, A Value), bool> predicate, K<T, A> tm) 
         where A : Monoid<A> =>
         T.FoldMapWhile(identity, predicate, tm) ;
 
@@ -230,7 +230,7 @@ public interface Foldable<out T> where T : Foldable<T>
     /// lazy in the accumulator.  When you need a strict left-associative fold,
     /// use 'foldMap'' instead, with 'id' as the map.
     /// </summary>
-    public static virtual A FoldUntil<A>(Func<A, bool> predicate, K<T, A> tm) 
+    public static virtual A FoldUntil<A>(Func<(A State, A Value), bool> predicate, K<T, A> tm) 
         where A : Monoid<A> =>
         T.FoldMapUntil(identity, predicate, tm) ;
 
@@ -250,9 +250,9 @@ public interface Foldable<out T> where T : Foldable<T>
     /// accumulator.  For strict left-associative folds consider `FoldMapBack`
     /// instead.
     /// </summary>
-    public static virtual B FoldMapWhile<A, B>(Func<A, B> f, Func<A, bool> predicate, K<T, A> ta)
+    public static virtual B FoldMapWhile<A, B>(Func<A, B> f, Func<(B State, A Value), bool> predicate, K<T, A> ta)
         where B : Monoid<B> =>
-        T.FoldWhile(x => a => f(x).Combine(a), s => predicate(s.Value), B.Empty, ta);
+        T.FoldWhile(x => a => f(x).Combine(a), predicate, B.Empty, ta);
 
     /// <summary>
     /// Map each element of the structure into a monoid, and combine the
@@ -260,9 +260,9 @@ public interface Foldable<out T> where T : Foldable<T>
     /// accumulator.  For strict left-associative folds consider `FoldMapBack`
     /// instead.
     /// </summary>
-    public static virtual B FoldMapUntil<A, B>(Func<A, B> f, Func<A, bool> predicate, K<T, A> ta)
+    public static virtual B FoldMapUntil<A, B>(Func<A, B> f, Func<(B State, A Value), bool> predicate, K<T, A> ta)
         where B : Monoid<B> =>
-        T.FoldUntil(x => a => f(x).Combine(a), s => predicate(s.Value), B.Empty, ta);
+        T.FoldUntil(x => a => f(x).Combine(a), predicate, B.Empty, ta);
 
     /// <summary>
     /// A left-associative variant of 'FoldMap' that is strict in the
@@ -278,18 +278,18 @@ public interface Foldable<out T> where T : Foldable<T>
     /// accumulator.  Use this method for strict reduction when partial
     /// results are merged via `Append`.
     /// </summary>
-    public static virtual B FoldMapBackWhile<A, B>(Func<A, B> f, Func<A, bool> predicate, K<T, A> ta)
+    public static virtual B FoldMapBackWhile<A, B>(Func<A, B> f, Func<(B State, A Value), bool> predicate, K<T, A> ta)
         where B : Monoid<B> =>
-        T.FoldBackWhile(x => a => x.Combine(f(a)), s => predicate(s.Value), B.Empty, ta);
+        T.FoldBackWhile(x => a => x.Combine(f(a)), predicate, B.Empty, ta);
 
     /// <summary>
     /// A left-associative variant of 'FoldMap' that is strict in the
     /// accumulator.  Use this method for strict reduction when partial
     /// results are merged via `Append`.
     /// </summary>
-    public static virtual B FoldMapBackUntil<A, B>(Func<A, B> f, Func<A, bool> predicate, K<T, A> ta)
+    public static virtual B FoldMapBackUntil<A, B>(Func<A, B> f, Func<(B State, A Value), bool> predicate, K<T, A> ta)
         where B : Monoid<B> =>
-        T.FoldBackUntil(x => a => x.Combine(f(a)), s => predicate(s.Value), B.Empty, ta);
+        T.FoldBackUntil(x => a => x.Combine(f(a)), predicate, B.Empty, ta);
 
     /// <summary>
     /// List of elements of a structure, from left to right
@@ -300,7 +300,7 @@ public interface Foldable<out T> where T : Foldable<T>
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
-    public static virtual Lst<A> Freeze<A>(K<T, A> ta) =>
+    public static virtual Lst<A> ToLst<A>(K<T, A> ta) =>
         T.Fold(a => s => s.Add(a), List.empty<A>(), ta);
 
     /// <summary>
