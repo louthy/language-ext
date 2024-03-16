@@ -5,7 +5,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public class Lst : Monad<Lst>, Alternative<Lst>, Traversable<Lst>
+public class Lst : Monad<Lst>, MonoidK<Lst>, Traversable<Lst>
 {
     static K<Lst, B> Monad<Lst>.Bind<A, B>(K<Lst, A> ma, Func<A, K<Lst, B>> f)
     {

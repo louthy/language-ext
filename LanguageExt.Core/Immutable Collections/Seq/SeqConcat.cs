@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using LanguageExt.UnsafeValueAccess;
 
 namespace LanguageExt;
 
@@ -27,7 +28,7 @@ internal class SeqConcat<A>(Seq<ISeqInternal<A>> ms) : ISeqInternal<A>
         var ms1 = ms;
         while (!ms1.IsEmpty)
         {
-            var head = ms1.Head;
+            var head = ms1.Head.ValueUnsafe() ?? throw new InvalidOperationException();
             var r    = head.At(index);
             if (r.IsSome) return r;
             index -= head.Count;
@@ -100,13 +101,13 @@ internal class SeqConcat<A>(Seq<ISeqInternal<A>> ms) : ISeqInternal<A>
 
     public ISeqInternal<A> Add(A value)
     {
-        var last = ms.Last.Add(value);
+        var last = ms.Last.ValueUnsafe()?.Add(value) ?? throw new NotSupportedException();
         return new SeqConcat<A>(ms.Take(ms.Count - 1).Add(last));
     }
 
     public ISeqInternal<A> Cons(A value)
     {
-        var head = ms.Head.Cons(value);
+        var head = ms.Head.ValueUnsafe()?.Cons(value) ?? throw new NotSupportedException();
         return new SeqConcat<A>(head.Cons(ms.Skip(1)));
     }
 

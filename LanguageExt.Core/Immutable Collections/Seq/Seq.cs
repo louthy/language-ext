@@ -78,7 +78,7 @@ public readonly struct Seq<A> :
 
     public void Deconstruct(out A head, out Seq<A> tail)
     {
-        head = Head;
+        head = Head.IfNone(() => throw new InvalidOperationException("sequence is empty"));
         tail = Tail;
     }
 
@@ -94,7 +94,7 @@ public readonly struct Seq<A> :
     /// Head or none lens
     /// </summary>
     public static Lens<Seq<A>, Option<A>> headOrNone => Lens<Seq<A>, Option<A>>.New(
-        Get: la => la.HeadOrNone(),
+        Get: la => la.Head,
         Set: a => la => la.IsEmpty || a.IsNone ? la : a.Value.Cons(la.Tail!)!
     );
 
@@ -103,14 +103,14 @@ public readonly struct Seq<A> :
     /// </summary>
     public static Lens<Seq<A>, Seq<A>> tail => Lens<Seq<A>, Seq<A>>.New(
         Get: la => la.IsEmpty ? Empty : la.Tail,
-        Set: a => la => la.IsEmpty ? a : la.Head.Cons(a)
+        Set: a => la => la.IsEmpty ? a : ((A)la.Head).Cons(a)
     );
 
     /// <summary>
     /// Last lens
     /// </summary>
     public static Lens<Seq<A>, A> last => Lens<Seq<A>, A>.New(
-        Get: la => la.IsEmpty ? throw new IndexOutOfRangeException() : la.Last,
+        Get: la => la.IsEmpty ? throw new IndexOutOfRangeException() : (A)la.Last,
         Set: a => la => la.IsEmpty ? throw new IndexOutOfRangeException() : la.Take(la.Count - 1).Add(a)
     );
 
@@ -118,7 +118,7 @@ public readonly struct Seq<A> :
     /// Last or none lens
     /// </summary>
     public static Lens<Seq<A>, Option<A>> lastOrNone => Lens<Seq<A>, Option<A>>.New(
-        Get: la => la.IsEmpty ? None : Some(la.Last),
+        Get: la => la.Last,
         Set: a => la => la.IsEmpty || a.IsNone ? la : la.Take(la.Count - 1).Add(a.Value!));
 
     /// <summary>
@@ -409,10 +409,12 @@ public readonly struct Seq<A> :
     /// Head item in the sequence.  NOTE:  If `IsEmpty` is true then Head 
     /// is undefined.  Call HeadOrNone() if for maximum safety.
     /// </summary>
-    public A Head
+    public Option<A> Head
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Value.Head;
+        get => Value.IsEmpty 
+                   ? None
+                   : Value.Head;
     }
 
     /// <summary>
@@ -434,75 +436,15 @@ public readonly struct Seq<A> :
     }
 
     /// <summary>
-    /// Head of the sequence if this node isn't the empty node
+    /// Last item in sequence
     /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Option<A> HeadOrNone() =>
-        IsEmpty
-            ? None
-            : Some(Head);
-
-    /// <summary>
-    /// Last item in sequence.  Throws if no items in sequence
-    /// </summary>
-    public A Last
+    public Option<A> Last
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Value.Last;
+        get => Value.IsEmpty
+                   ? None
+                   : Some(Value.Last);
     }
-
-    /// <summary>
-    /// Last item in sequence.
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Option<A> LastOrNone() =>
-        IsEmpty
-            ? None
-            : Some(Last);
-
-    /// <summary>
-    /// Last item in sequence.
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Either<L, A> LastOrLeft<L>(L Left) =>
-        IsEmpty
-            ? Either<L, A>.Left(Left)
-            : Either<L, A>.Right(Last);
-
-    /// <summary>
-    /// Last item in sequence.
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Either<L, A> LastOrLeft<L>(Func<L> Left) =>
-        IsEmpty
-            ? Either<L, A>.Left(Left())
-            : Either<L, A>.Right(Last);
-
-    /// <summary>
-    /// Head of the sequence if this node isn't the empty node or left
-    /// </summary>
-    /// <typeparam name="L"></typeparam>
-    /// <param name="left">Left case</param>
-    /// <returns>Head of the sequence or left</returns>
-    [Pure]
-    public Either<L, A> HeadOrLeft<L>(L left) =>
-        IsEmpty
-            ? Left<L, A>(left)
-            : Right<L, A>(Head);
-
-    /// <summary>
-    /// Head of the sequence if this node isn't the empty node
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Either<L, A> HeadOrLeft<L>(Func<L> Left) =>
-        IsEmpty
-            ? Left<L, A>(Left())
-            : Right<L, A>(Head);
 
     /// <summary>
     /// Returns true if the sequence is empty
@@ -559,7 +501,7 @@ public readonly struct Seq<A> :
         Func<A, Seq<A>, B> Tail) =>
         IsEmpty
             ? Empty()
-            : Tail(this.Head, this.Tail);
+            : Tail((A)Head, this.Tail);
 
     /// <summary>
     /// Match empty sequence, or one item sequence, or multi-item sequence
@@ -577,8 +519,8 @@ public readonly struct Seq<A> :
         IsEmpty
             ? Empty()
             : this.Tail.IsEmpty
-                ? Head(this.Head)
-                : Tail(this.Head, this.Tail);
+                ? Head((A)this.Head)
+                : Tail((A)this.Head, this.Tail);
 
     /// <summary>
     /// Match empty sequence, or multi-item sequence
@@ -612,7 +554,7 @@ public readonly struct Seq<A> :
         IsEmpty
             ? Empty()
             : this.Tail.IsEmpty
-                ? Head(this.Head)
+                ? Head((A)this.Head)
                 : Tail(this.Tail);
 
     /// <summary>
