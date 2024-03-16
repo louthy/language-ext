@@ -118,8 +118,14 @@ public sealed record EnumerableM<A>(IEnumerable<A> runEnumerable) :
     /// Returns the original unmodified structure
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Unit Iter(Action<A> f) =>
-        runEnumerable.Iter(f);
+    public Unit Iter(Action<A> f)
+    {
+        foreach (var x in runEnumerable)
+        {
+            f(x);
+        }
+        return default;
+    }
     
     /// <summary>
     /// Map each element of a structure to an action, evaluate these actions from
@@ -144,6 +150,16 @@ public sealed record EnumerableM<A>(IEnumerable<A> runEnumerable) :
     [Pure]
     public EnumerableM<B> Map<B>(Func<A, B> f) =>
         new(runEnumerable.Select(f));
+
+    /// <summary>
+    /// Map the sequence using the function provided
+    /// </summary>
+    /// <typeparam name="B"></typeparam>
+    /// <param name="f">Mapping function</param>
+    /// <returns>Mapped sequence</returns>
+    [Pure]
+    public EnumerableM<B> Map<B>(Func<A, int, B> f) =>
+        new(runEnumerable.Zip(Naturals).Select(p => f(p.First, p.Second)));
         
     /// <summary>
     /// Map the sequence using the function provided
@@ -155,6 +171,17 @@ public sealed record EnumerableM<A>(IEnumerable<A> runEnumerable) :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public EnumerableM<B> Select<B>(Func<A, B> f) =>
         new(runEnumerable.Select(f));
+        
+    /// <summary>
+    /// Map the sequence using the function provided
+    /// </summary>
+    /// <typeparam name="B"></typeparam>
+    /// <param name="f">Mapping function</param>
+    /// <returns>Mapped sequence</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public EnumerableM<B> Select<B>(Func<A, int, B> f) =>
+        new(runEnumerable.Zip(Naturals).Select(p => f(p.First, p.Second)));
 
     /// <summary>
     /// Monadic bind (flatmap) of the sequence
@@ -208,9 +235,75 @@ public sealed record EnumerableM<A>(IEnumerable<A> runEnumerable) :
     /// <param name="bind">Bind function</param>
     /// <returns>Flat-mapped sequence</returns>
     [Pure]
+    public EnumerableM<B> SelectMany<B>(Func<A, EnumerableM<B>> bind)
+    {
+        static IEnumerable<B> Yield(EnumerableM<A> ma, Func<A, EnumerableM<B>> bnd)
+        {
+            foreach (var a in ma)
+            {
+                foreach (var b in bnd(a))
+                {
+                    yield return b;
+                }
+            }
+        }
+        return new EnumerableM<B>(Yield(this, bind));
+    }
+
+    /// <summary>
+    /// Monadic bind (flatmap) of the sequence
+    /// </summary>
+    /// <typeparam name="B">Bound return value type</typeparam>
+    /// <param name="bind">Bind function</param>
+    /// <returns>Flat-mapped sequence</returns>
+    [Pure]
     public EnumerableM<C> SelectMany<B, C>(Func<A, EnumerableM<B>> bind, Func<A, B, C> project)
     {
         static IEnumerable<C> Yield(EnumerableM<A> ma, Func<A, EnumerableM<B>> bnd, Func<A, B, C> prj)
+        {
+            foreach (var a in ma)
+            {
+                foreach (var b in bnd(a))
+                {
+                    yield return prj(a, b);
+                }
+            }
+        }
+        return new EnumerableM<C>(Yield(this, bind, project));
+    }
+
+    /// <summary>
+    /// Monadic bind (flatmap) of the sequence
+    /// </summary>
+    /// <typeparam name="B">Bound return value type</typeparam>
+    /// <param name="bind">Bind function</param>
+    /// <returns>Flat-mapped sequence</returns>
+    [Pure]
+    public EnumerableM<B> SelectMany<B>(Func<A, IEnumerable<B>> bind)
+    {
+        static IEnumerable<B> Yield(EnumerableM<A> ma, Func<A, IEnumerable<B>> bnd)
+        {
+            foreach (var a in ma)
+            {
+                foreach (var b in bnd(a))
+                {
+                    yield return b;
+                }
+            }
+        }
+        return new EnumerableM<B>(Yield(this, bind));
+    }
+
+    /// <summary>
+    /// Monadic bind (flatmap) of the sequence
+    /// </summary>
+    /// <typeparam name="B">Bound return value type</typeparam>
+    /// <param name="bind">Bind function</param>
+    /// <returns>Flat-mapped sequence</returns>
+    [Pure]
+    public EnumerableM<C> SelectMany<B, C>(Func<A, IEnumerable<B>> bind, Func<A, B, C> project)
+    {
+        static IEnumerable<C> Yield(EnumerableM<A> ma, Func<A, IEnumerable<B>> bnd, Func<A, B, C> prj)
         {
             foreach (var a in ma)
             {
@@ -253,58 +346,6 @@ public sealed record EnumerableM<A>(IEnumerable<A> runEnumerable) :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public EnumerableM<A> Where(Func<A, bool> f) =>
         Filter(f);
-
-    /// <summary>
-    /// Fold the sequence from the first item to the last
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="f">Fold function</param>
-    /// <returns>Aggregated state</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public S Fold<S>(S state, Func<S, A, S> f) =>
-        runEnumerable.Fold(state, f);
-
-    /// <summary>
-    /// Fold the sequence from the last item to the first.  For 
-    /// sequences that are not lazy and are less than 5000 items
-    /// long, FoldBackRec is called instead, because it is faster.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="f">Fold function</param>
-    /// <returns>Aggregated state</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public S FoldBack<S>(S state, Func<S, A, S> f) =>
-        runEnumerable.FoldBack(state, f);
-
-    /// <summary>
-    /// Returns true if the supplied predicate returns true for any
-    /// item in the sequence.  False otherwise.
-    /// </summary>
-    /// <param name="f">Predicate to apply</param>
-    /// <returns>True if the supplied predicate returns true for any
-    /// item in the sequence.  False otherwise.</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Exists(Func<A, bool> f) =>
-        runEnumerable.Exists(f);
-
-    /// <summary>
-    /// Returns true if the supplied predicate returns true for all
-    /// items in the sequence.  False otherwise.  If there is an 
-    /// empty sequence then true is returned.
-    /// </summary>
-    /// <param name="f">Predicate to apply</param>
-    /// <returns>True if the supplied predicate returns true for all
-    /// items in the sequence.  False otherwise.  If there is an 
-    /// empty sequence then true is returned.</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool ForAll(Func<A, bool> f) =>
-        runEnumerable.ForAll(f);
 
     /// <summary>
     /// Returns true if the sequence has items in it
@@ -591,4 +632,12 @@ public sealed record EnumerableM<A>(IEnumerable<A> runEnumerable) :
                    ? new EnumerableM<B>(mb)
                    : new EnumerableM<B>(Yield(this));
     }
+
+    [Pure]
+    public EnumerableM<(A First, B Second)> Zip<B>(IEnumerable<B> rhs) =>
+        new(runEnumerable.Zip(rhs));
+
+    [Pure]
+    public EnumerableM<C> Zip<B, C>(IEnumerable<B> rhs, Func<A, B, C> zipper) =>
+        new(runEnumerable.Zip(rhs, zipper));
 }

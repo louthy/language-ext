@@ -203,42 +203,42 @@ public readonly struct Patch<EqA, A> :
     /// <summary>
     /// Apply a patch to a document, returning the transformed document.
     /// </summary>
-    public IEnumerable<A> Apply(IEnumerable<A> va) =>
+    public EnumerableM<A> Apply(IEnumerable<A> va) =>
         Patch.apply(this, va);
 
     /// <summary>
     /// Apply a patch to a document, returning the transformed document.
     /// </summary>
-    public IEnumerable<A> Apply(Seq<A> va) =>
+    public Seq<A> Apply(Seq<A> va) =>
         Patch.apply(this, va);
 
     /// <summary>
     /// Apply a patch to a document, returning the transformed document.
     /// </summary>
-    public IEnumerable<A> Apply(Lst<A> va) =>
+    public Lst<A> Apply(Lst<A> va) =>
         Patch.apply(this, va);
 
     /// <summary>
     /// Apply a patch to a document, returning the transformed document.
     /// </summary>
-    public IEnumerable<A> Apply(SpanArray<A> va) =>
+    public SpanArray<A> Apply(SpanArray<A> va) =>
         Patch.apply(this, va);
 
     /// <summary>
     /// Apply a patch to a document, returning the transformed document.
     /// </summary>
-    public IEnumerable<A> Apply(Arr<A> va) =>
+    public Arr<A> Apply(Arr<A> va) =>
         Patch.apply(this, va);
 
     /// <summary>
     /// Apply a patch to a document, returning the transformed document.
     /// </summary>
-    public IEnumerable<A> Apply(A[] va) =>
+    public A[] Apply(A[] va) =>
         Patch.apply(this, va);
 
     /// <summary>
     /// Apply a patch to a document, returning the transformed document.
     /// </summary>
-    public IEnumerable<A> Apply(List<A> va) =>
+    public List<A> Apply(List<A> va) =>
         Patch.apply(this, va);
 }

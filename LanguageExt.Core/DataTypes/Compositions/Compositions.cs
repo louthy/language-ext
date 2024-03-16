@@ -172,8 +172,8 @@ public struct Compositions<A> :
     /// <summary>
     /// Convert to an enumerable
     /// </summary>
-    public IEnumerable<A> AsEnumerable() =>
-        FoldCompositions<A>.Fold(this, Seq<A>(), (s, x) => x.Cons(s))(unit);
+    public EnumerableM<A> AsEnumerable() =>
+        new(FoldCompositions<A>.Fold(this, Seq<A>(), (s, x) => x.Cons(s))(unit));
 
     /// <summary>
     /// Get enumerator

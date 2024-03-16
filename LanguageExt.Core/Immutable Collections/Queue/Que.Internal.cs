@@ -116,7 +116,7 @@ internal class QueInternal<A> : IEnumerable<A>
         toSeq(forward.AsEnumerable().ConcatFast(BackwardRev));
 
     [Pure]
-    public IEnumerable<A> AsEnumerable() =>
+    public EnumerableM<A> AsEnumerable() =>
         forward.AsEnumerable().ConcatFast(BackwardRev);
 
     [Pure]
@@ -129,10 +129,10 @@ internal class QueInternal<A> : IEnumerable<A>
 
     [Pure]
     public static QueInternal<A> operator +(QueInternal<A> lhs, QueInternal<A> rhs) =>
-        lhs.Append(rhs);
+        lhs.Combine(rhs);
 
     [Pure]
-    public QueInternal<A> Append(QueInternal<A> rhs)
+    public QueInternal<A> Combine(QueInternal<A> rhs)
     {
         var self = this;
         foreach (var item in rhs)

@@ -311,7 +311,7 @@ public readonly struct HashSet<A> :
     /// <param name="key">Key to find</param>
     /// <returns>Found value</returns>
     [Pure]
-    public IEnumerable<A> FindSeq(A key) =>
+    public Seq<A> FindSeq(A key) =>
         Find(key).ToSeq();
 
     /// <summary>
@@ -437,8 +437,8 @@ public readonly struct HashSet<A> :
         CollectionFormat.ToFullArrayString(this, separator);
 
     [Pure]
-    public IEnumerable<A> AsEnumerable() =>
-        this;
+    public EnumerableM<A> AsEnumerable() =>
+        new(this);
 
     /// <summary>
     /// Implicit conversion from an untyped empty list

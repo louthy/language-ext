@@ -133,7 +133,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>IEnumerable of T</returns>
         [Pure]
-        public IEnumerable<A> AsEnumerable()
+        public EnumerableM<A> AsEnumerable()
         {
             IEnumerable<A> Yield()
             {
@@ -144,7 +144,7 @@ namespace LanguageExt
                     self = self.tail;
                 }
             }
-            return Prelude.toSeq(Yield());
+            return new(Yield());
         }
 
         /// <summary>

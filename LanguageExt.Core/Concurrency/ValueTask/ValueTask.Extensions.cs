@@ -289,7 +289,7 @@ public static class ValueTaskExtensions
     /// </summary>
     public static async ValueTask<Unit> WindowIter<A>(this IEnumerable<ValueTask<A>> ma, int windowSize, Action<A> f)
     {
-        var sync = new object();
+        var       sync = new object();
         using var iter = ma.GetEnumerator();
 
         (bool Success, ValueTask<A> Task) GetNext()
@@ -308,20 +308,21 @@ public static class ValueTaskExtensions
             var (s, outerTask) = GetNext();
             if (!s) break;
 
-            tasks.Add(outerTask.Bind(async oa => {
-                f(oa);
+            tasks.Add(outerTask.Bind(async oa =>
+                                     {
+                                         f(oa);
 
-                while (true)
-                {
-                    var next = GetNext();
-                    if (!next.Success) return unit;
-                    var a = await next.Task.ConfigureAwait(false);
-                    f(a);
-                }
-            }));
+                                         while (true)
+                                         {
+                                             var next = GetNext();
+                                             if (!next.Success) return unit;
+                                             var a = await next.Task.ConfigureAwait(false);
+                                             f(a);
+                                         }
+                                     }));
         }
 
-        await Task.WhenAll(tasks.Map(t => t.AsTask())).ConfigureAwait(false);
+        await Task.WhenAll(tasks.Select(t => t.AsTask())).ConfigureAwait(false);
         return unit;
     }
 
@@ -349,5 +350,5 @@ public static class ValueTaskExtensions
         this IEnumerable<ValueTask<A>> ma, 
         int windowSize,
         Func<A, B> f, CancellationToken token) =>
-        await ma.Map(va => va.AsTask()).WindowMap(windowSize, f, token);
+        await ma.Select(va => va.AsTask()).WindowMap(windowSize, f, token);
 }

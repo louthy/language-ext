@@ -181,7 +181,7 @@ public readonly struct Lst<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lens<Lst<A>, Lst<B>> map<B>(Lens<A, B> lens) => Lens<Lst<A>, Lst<B>>.New(
         Get: la => la.Map(lens.Get),
-        Set: lb => la => la.Zip(lb).Select(ab => lens.Set(ab.Item2, ab.Item1)).Freeze()
+        Set: lb => la => la.Zip(lb).Select(ab => lens.Set(ab.Item2, ab.Item1)).AsEnumerableM().ToLst()
     );
 
     /// <summary>
@@ -194,7 +194,7 @@ public readonly struct Lst<A> :
         get
         {
             if (index.Value < 0 || index.Value >= Root.Count) throw new IndexOutOfRangeException();
-            return ListModule.GetItem(Root, index.Value);
+            return ListModule.GetItem(Root, index.GetOffset(Count));
         }
     }
 
@@ -389,7 +389,7 @@ public readonly struct Lst<A> :
     /// <returns>IEnumerable of items</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<A> FindRange(int index, int count) =>
+    public EnumerableM<A> FindRange(int index, int count) =>
         Value.FindRange(index, count);
 
     [Pure]
@@ -436,12 +436,12 @@ public readonly struct Lst<A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<A> AsEnumerable() =>
-        this;
+    public EnumerableM<A> AsEnumerable() =>
+        new(this);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<A> Skip(int amount) =>
+    public EnumerableM<A> Skip(int amount) =>
         Value.Skip(amount);
 
     /// <summary>
@@ -521,7 +521,7 @@ public readonly struct Lst<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<A> Combine(Lst<A> rhs) =>
-        new (Value.Append(rhs));
+        new (Value.Combine(rhs.Value));
     
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -539,7 +539,7 @@ public readonly struct Lst<A> :
         obj switch
         {
             Lst<A> s         => Equals(s),
-            IEnumerable<A> e => Equals(e.Freeze()),
+            IEnumerable<A> e => Equals(e.AsEnumerableM().ToLst()),
             _                => false
         };
 
@@ -558,7 +558,7 @@ public readonly struct Lst<A> :
         obj switch
         {
             Lst<A> s         => CompareTo(s),
-            IEnumerable<A> e => CompareTo(e.Freeze()),
+            IEnumerable<A> e => CompareTo(e.AsEnumerableM().ToLst()),
             _                => 1
         };
 

@@ -179,7 +179,7 @@ public readonly struct Que<A> :
     /// </summary>
     /// <returns>`IEnumerable`</returns>
     [Pure]
-    public IEnumerable<A> AsEnumerable() =>
+    public EnumerableM<A> AsEnumerable() =>
         Value.AsEnumerable();
 
     /// <summary>
@@ -206,7 +206,7 @@ public readonly struct Que<A> :
     /// <returns>Concatenated queue</returns>
     [Pure]
     public static Que<A> operator +(Que<A> lhs, Que<A> rhs) =>
-        lhs.Append(rhs);
+        lhs.Combine(rhs);
 
     /// <summary>
     /// Append two queues together
@@ -214,8 +214,8 @@ public readonly struct Que<A> :
     /// <param name="rhs">Second part of the queue</param>
     /// <returns>Concatenated queue</returns>
     [Pure]
-    public Que<A> Append(Que<A> rhs) =>
-        new (Value.Append(rhs));
+    public Que<A> Combine(Que<A> rhs) =>
+        new(Value.AsEnumerableM().Combine(rhs.AsEnumerableM()));
 
     /// <summary>
     /// Subtract one queue from another

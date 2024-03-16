@@ -365,7 +365,7 @@ public readonly struct TrackingHashMap<EqK, K, V> :
     /// <param name="key">Key to find</param>
     /// <returns>Found value</returns>
     [Pure]
-    public IEnumerable<V> FindSeq(K key) =>
+    public Seq<V> FindSeq(K key) =>
         Value.FindSeq(key);
 
     /// <summary>
@@ -642,14 +642,14 @@ public readonly struct TrackingHashMap<EqK, K, V> :
     /// Enumerable of map keys
     /// </summary>
     [Pure]
-    public IEnumerable<K> Keys =>
+    public EnumerableM<K> Keys =>
         Value.Keys;
 
     /// <summary>
     /// Enumerable of map values
     /// </summary>
     [Pure]
-    public IEnumerable<V> Values =>
+    public EnumerableM<V> Values =>
         Value.Values;
 
     /// <summary>
@@ -718,8 +718,8 @@ public readonly struct TrackingHashMap<EqK, K, V> :
         CollectionFormat.ToFullArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
     [Pure]
-    public IEnumerable<(K Key, V Value)> AsEnumerable() =>
-        Value;
+    public EnumerableM<(K Key, V Value)> AsEnumerable() =>
+        Value.AsEnumerable();
 
     /// <summary>
     /// Implicit conversion from an untyped empty list

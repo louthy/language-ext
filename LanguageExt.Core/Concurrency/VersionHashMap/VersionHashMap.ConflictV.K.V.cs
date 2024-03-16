@@ -177,20 +177,20 @@ public class VersionHashMap<ConflictV, K, V> :
     /// Enumerable of keys
     /// </summary>
     [Pure]
-    public IEnumerable<K> Keys
+    public EnumerableM<K> Keys
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Items.Keys;
+        get => new(Items.Keys);
     }
 
     /// <summary>
     /// Enumerable of value
     /// </summary>
     [Pure]
-    public IEnumerable<V> Values
+    public EnumerableM<V> Values
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Items.Values;
+        get => new(Items.Values);
     }
 
     /// <summary>
@@ -249,8 +249,8 @@ public class VersionHashMap<ConflictV, K, V> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<(K Key, V Value)> AsEnumerable() =>
-        Items.AsEnumerable();
+    public EnumerableM<(K Key, V Value)> AsEnumerable() =>
+        new(Items);
 
     /// <summary>
     /// Returns True if 'other' is a proper subset of this set

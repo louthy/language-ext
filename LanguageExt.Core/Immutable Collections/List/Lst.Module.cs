@@ -24,8 +24,8 @@ public static class List
     /// Monadic join
     /// </summary>
     [Pure]
-    public static IEnumerable<A> flatten<A>(IEnumerable<IEnumerable<A>> ma) =>
-        ma.Bind(identity);
+    public static EnumerableM<A> flatten<A>(IEnumerable<IEnumerable<A>> ma) =>
+        ma.Bind(identity).AsEnumerableM();
 
     /// <summary>
     /// Create an empty IEnumerable T
@@ -85,7 +85,7 @@ public static class List
     /// each item.
     /// </summary>
     [Pure]
-    public static IEnumerable<T> generate<T>(int count, Func<int, T> generator) =>
+    public static EnumerableM<T> generate<T>(int count, Func<int, T> generator) =>
         from i in Range(0, count)
         select generator(i);
 
@@ -94,7 +94,7 @@ public static class List
     /// each item.
     /// </summary>
     [Pure]
-    public static IEnumerable<T> generate<T>(Func<int, T> generator) =>
+    public static EnumerableM<T> generate<T>(Func<int, T> generator) =>
         from i in Range(0, Int32.MaxValue)
         select generator(i);
 
@@ -102,7 +102,7 @@ public static class List
     /// Generates a sequence that contains one repeated value.
     /// </summary>
     [Pure]
-    public static IEnumerable<T> repeat<T>(T item, int count) =>
+    public static EnumerableM<T> repeat<T>(T item, int count) =>
         from _ in Range(0, count)
         select item;
 
@@ -174,7 +174,7 @@ public static class List
     public static Either<L, R> headOrLeft<L, R>(IEnumerable<R> list, L left) =>
         list.Select(Either<L, R>.Right)
             .DefaultIfEmpty(Either<L, R>.Left(left))
-            .FirstOrDefault();
+            .FirstOrDefault() ?? left;
 
     /// <summary>
     /// Get the item at the head (first) of the list or fail if the list is empty
@@ -186,7 +186,7 @@ public static class List
         where Fail : Monoid<Fail> =>
         list.Select(Validation<Fail, Success>.Success)
             .DefaultIfEmpty(Validation<Fail, Success>.Fail(fail))
-            .FirstOrDefault();
+            .FirstOrDefault() ?? Fail.Empty;
 
     /// <summary>
     /// Get the item at the head (first) of the list or fail if the list is empty
@@ -198,7 +198,7 @@ public static class List
         where Fail : Monoid<Fail> =>
         list.Select(Validation<Fail, Success>.Success)
             .DefaultIfEmpty(Validation<Fail, Success>.Fail(Fail.Empty))
-            .FirstOrDefault();
+            .FirstOrDefault() ?? Fail.Empty;
 
     /// <summary>
     /// Get the last item of the list
@@ -229,7 +229,7 @@ public static class List
     public static Either<L, R> lastOrLeft<L, R>(IEnumerable<R> list, L left) =>
         list.Select(Either<L, R>.Right)
             .DefaultIfEmpty(Either<L, R>.Left(left))
-            .LastOrDefault();
+            .LastOrDefault() ?? left;
 
     /// <summary>
     /// Get the last item of the list
@@ -241,7 +241,7 @@ public static class List
         where Fail : Monoid<Fail> =>
         list.Select(Validation<Fail, Success>.Success)
             .DefaultIfEmpty(Validation<Fail, Success>.Fail(fail))
-            .LastOrDefault();
+            .LastOrDefault() ?? fail;
 
     /// <summary>
     /// Get the last item of the list
@@ -253,7 +253,7 @@ public static class List
         where Fail : Monoid<Fail> =>
         list.Select(Validation<Fail, Success>.Success)
             .DefaultIfEmpty(Validation<Fail, Success>.Fail(Fail.Empty))
-            .LastOrDefault();
+            .LastOrDefault() ?? Fail.Empty;
 
     /// <summary>
     /// Get all items in the list except the last one
@@ -277,8 +277,8 @@ public static class List
     /// <param name="list">List</param>
     /// <returns>Enumerable of T</returns>
     [Pure]
-    public static IEnumerable<T> tail<T>(IEnumerable<T> list) =>
-        list.Skip(1);
+    public static EnumerableM<T> tail<T>(IEnumerable<T> list) =>
+        list.Skip(1).AsEnumerableM();
 
     /// <summary>
     /// Projects the values in the enumerable using a map function into a new enumerable (Select in LINQ).
@@ -289,8 +289,8 @@ public static class List
     /// <param name="map">Map function</param>
     /// <returns>Mapped enumerable</returns>
     [Pure]
-    public static IEnumerable<R> map<T, R>(IEnumerable<T> list, Func<T, R> map) =>
-        list.Select(map);
+    public static EnumerableM<R> map<T, R>(IEnumerable<T> list, Func<T, R> map) =>
+        list.Select(map).AsEnumerableM();
 
     /// <summary>
     /// Projects the values in the enumerable into a new enumerable using a map function, which is also given an index value
@@ -303,8 +303,8 @@ public static class List
     /// <param name="map">Map function</param>
     /// <returns>Mapped enumerable</returns>
     [Pure]
-    public static IEnumerable<R> map<T, R>(IEnumerable<T> list, Func<int, T, R> map) =>
-        zip(list, Range(0, int.MaxValue), (t, i) => map(i, t));
+    public static EnumerableM<R> map<T, R>(IEnumerable<T> list, Func<int, T, R> map) =>
+        zip(list, Range(0, int.MaxValue), (t, i) => map(i, t)).AsEnumerableM();
 
     /// <summary>
     /// Removes items from the list that do not match the given predicate (Where in LINQ)
@@ -314,8 +314,8 @@ public static class List
     /// <param name="predicate">Predicate function</param>
     /// <returns>Filtered enumerable</returns>
     [Pure]
-    public static IEnumerable<T> filter<T>(IEnumerable<T> list, Func<T, bool> predicate) =>
-        list.Where(predicate);
+    public static EnumerableM<T> filter<T>(IEnumerable<T> list, Func<T, bool> predicate) =>
+        list.Where(predicate).AsEnumerableM();
 
     /// <summary>
     /// Applies the given function 'selector' to each element of the list. Returns the list comprised of 
@@ -326,7 +326,7 @@ public static class List
     /// <param name="selector">Selector function</param>
     /// <returns>Mapped and filtered enumerable</returns>
     [Pure]
-    public static IEnumerable<R> choose<T, R>(IEnumerable<T> list, Func<T, Option<R>> selector) =>
+    public static EnumerableM<R> choose<T, R>(IEnumerable<T> list, Func<T, Option<R>> selector) =>
         map(filter(map(list, selector), t => t.IsSome), t => t.Value!);
 
     /// <summary>
@@ -339,7 +339,7 @@ public static class List
     /// <param name="selector">Selector function</param>
     /// <returns>Mapped and filtered enumerable</returns>
     [Pure]
-    public static IEnumerable<R> choose<T, R>(IEnumerable<T> list, Func<int, T, Option<R>> selector) =>
+    public static EnumerableM<R> choose<T, R>(IEnumerable<T> list, Func<int, T, Option<R>> selector) =>
         map(filter(map(list, selector), t => t.IsSome), t => t.Value!);
 
     /// <summary>
@@ -352,10 +352,10 @@ public static class List
     /// <param name="map">Map function</param>
     /// <returns>Mapped enumerable</returns>
     [Pure]
-    public static IEnumerable<R> collect<T, R>(IEnumerable<T> list, Func<T, IEnumerable<R>> map) =>
-        from t in list
-        from r in map(t)
-        select r;
+    public static EnumerableM<R> collect<T, R>(IEnumerable<T> list, Func<T, IEnumerable<R>> map) =>
+        (from t in list
+         from r in map(t)
+         select r).AsEnumerableM();
 
     /// <summary>
     /// Returns the sum total of all the items in the list (Sum in LINQ)
@@ -400,8 +400,8 @@ public static class List
     /// <param name="list">Enumerable to reverse</param>
     /// <returns>Reversed enumerable</returns>
     [Pure]
-    public static IEnumerable<T> rev<T>(IEnumerable<T> list) =>
-        list.Reverse();
+    public static EnumerableM<T> rev<T>(IEnumerable<T> list) =>
+        list.Reverse().AsEnumerableM();
 
     /// <summary>
     /// Reverses the list (Reverse in LINQ)
@@ -421,8 +421,8 @@ public static class List
     /// <param name="rhs">Second enumerable</param>
     /// <returns>Concatenated enumerable</returns>
     [Pure]
-    public static IEnumerable<T> append<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) =>
-        lhs.ConcatFast(rhs);
+    public static EnumerableM<T> append<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) =>
+        lhs.ConcatFast(rhs).AsEnumerableM();
 
     /// <summary>
     /// Concatenate an enumerable and an enumerable of enumerables
@@ -432,10 +432,10 @@ public static class List
     /// <param name="rhs">Second list</param>
     /// <returns>Concatenated list</returns>
     [Pure]
-    public static IEnumerable<T> append<T>(IEnumerable<T> x, IEnumerable<IEnumerable<T>> xs) =>
+    public static EnumerableM<T> append<T>(IEnumerable<T> x, IEnumerable<IEnumerable<T>> xs) =>
         xs.HeadAndTailSafe()
           .Match(
-               None: () => x,
+               None: x.AsEnumerableM,
                Some: tuple => append(x, append(tuple.Head, tuple.Tail)));
 
     /// <summary>
@@ -445,11 +445,11 @@ public static class List
     /// <param name="lists">Enumerables to concatenate</param>
     /// <returns>A single enumerable with all of the items concatenated</returns>
     [Pure]
-    public static IEnumerable<T> append<T>(params IEnumerable<T>[] lists) =>
+    public static EnumerableM<T> append<T>(params IEnumerable<T>[] lists) =>
         lists.Length == 0
-            ? Enumerable.Empty<T>()
+            ? EnumerableM.empty<T>()
             : lists.Length == 1
-                ? lists[0]
+                ? lists[0].AsEnumerableM()
                 : append(lists[0], lists.Skip(1));
 
     /// <summary>

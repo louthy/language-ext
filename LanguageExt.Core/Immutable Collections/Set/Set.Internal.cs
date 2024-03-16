@@ -51,7 +51,7 @@ internal class SetInternal<OrdA, A> :
             ? hashCode = FNV32.Hash<OrdA, A>(AsEnumerable())
             : hashCode;
 
-    public IEnumerable<A> AsEnumerable()
+    public EnumerableM<A> AsEnumerable()
     {
         IEnumerable<A> Yield()
         {
@@ -61,10 +61,10 @@ internal class SetInternal<OrdA, A> :
                 yield return iter.Current;
             }
         }
-        return Yield();
+        return new(Yield());
     }
 
-    public IEnumerable<A> Skip(int amount)
+    public EnumerableM<A> Skip(int amount)
     {
         using var iter = new SetModule.SetEnumerator<A>(set, false, amount);
         while (iter.MoveNext())
@@ -256,7 +256,7 @@ internal class SetInternal<OrdA, A> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
     /// <returns>Range of values</returns>
     [Pure]
-    public IEnumerable<A> FindRange(A keyFrom, A keyTo)
+    public EnumerableM<A> FindRange(A keyFrom, A keyTo)
     {
         if (isnull(keyFrom)) throw new ArgumentNullException(nameof(keyFrom));
         if (isnull(keyTo)) throw new ArgumentNullException(nameof(keyTo));

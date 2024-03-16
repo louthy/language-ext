@@ -1,12 +1,26 @@
 using System;
+using System.Collections.Generic;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
 public partial class Arr : Monad<Arr>, Alternative<Arr>, Traversable<Arr>
 {
-    static K<Arr, B> Monad<Arr>.Bind<A, B>(K<Arr, A> ma, Func<A, K<Arr, B>> f) =>
-        ma.As().Bind(f);
+    static K<Arr, B> Monad<Arr>.Bind<A, B>(K<Arr, A> ma, Func<A, K<Arr, B>> f)
+    {
+        return new Arr<B>(Go());
+        IEnumerable<B> Go()
+        {
+            foreach (var x in ma.As())
+            {
+                foreach (var y in f(x).As())
+                {
+                    yield return y;
+                }
+            }
+        }
+    }
 
     static K<Arr, B> Functor<Arr>.Map<A, B>(Func<A, B> f, K<Arr, A> ma) => 
         ma.As().Map(f);
@@ -14,23 +28,67 @@ public partial class Arr : Monad<Arr>, Alternative<Arr>, Traversable<Arr>
     static K<Arr, A> Applicative<Arr>.Pure<A>(A value) =>
         singleton(value);
 
-    static K<Arr, B> Applicative<Arr>.Apply<A, B>(K<Arr, Func<A, B>> mf, K<Arr, A> ma) => 
-        mf.As().Apply(ma.As());
+    static K<Arr, B> Applicative<Arr>.Apply<A, B>(K<Arr, Func<A, B>> mf, K<Arr, A> ma) 
+    {
+        return new Arr<B>(Go());
+        IEnumerable<B> Go()
+        {
+            foreach (var f in mf.As())
+            {
+                foreach (var a in ma.As())
+                {
+                    yield return f(a);
+                }
+            }
+        }
+    }    
 
     static K<Arr, B> Applicative<Arr>.Action<A, B>(K<Arr, A> ma, K<Arr, B> mb) => 
-        ma.As().Action(mb.As());
+        mb;
 
     static K<Arr, A> MonoidK<Arr>.Empty<A>() =>
         Arr<A>.Empty;
 
-    static K<Arr, A> SemigroupK<Arr>.Combine<A>(K<Arr, A> ma, K<Arr, A> mb) => 
-        ma.As().IsEmpty ? mb : ma;
+    static K<Arr, A> SemigroupK<Arr>.Combine<A>(K<Arr, A> ma, K<Arr, A> mb) =>
+        ma.As() + mb.As();
 
-    static S Foldable<Arr>.Fold<A, S>(Func<A, Func<S, S>> f, S initialState, K<Arr, A> ta) => 
-        ta.As().Fold(initialState, (a, s) => f(s)(a));
+    static int Foldable<Arr>.Count<A>(K<Arr, A> ta) =>
+        ta.As().Count;
 
-    static S Foldable<Arr>.FoldBack<A, S>(Func<S, Func<A, S>> f, S initialState, K<Arr, A> ta) => 
-        ta.As().FoldBack(initialState, (s, a) => f(s)(a));
+    static bool Foldable<Arr>.IsEmpty<A>(K<Arr, A> ta) =>
+        ta.As().IsEmpty;
+
+    static S Foldable<Arr>.FoldWhile<A, S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate, S state, K<Arr, A> ta)
+    {
+        var arr = ta.As().Value;
+        for (var i = 0; i < arr.Length; i++)
+        {
+            var x = arr[i];
+            if (!predicate((state, x))) return state;
+            state = f(x)(state);
+        }
+        return state;
+    }
+
+    static S Foldable<Arr>.FoldBackWhile<A, S>(Func<S, Func<A, S>> f, Func<(S State, A Value), bool> predicate, S state, K<Arr, A> ta) 
+    {
+        var arr = ta.As().Value;
+        for (var i = arr.Length - 1; i >= 0; i--)
+        {
+            var x = arr[i];
+            if (!predicate((state, x))) return state;
+            state = f(state)(x);
+        }
+        return state;
+    }
+
+    static Option<A> Foldable<Arr>.At<A>(K<Arr, A> ta, Index index)
+    {
+        var arr = ta.As().Value;
+        return index.Value >= 0 && index.Value < arr.Length
+                   ? Some(arr[index])
+                   : Option<A>.None;
+    }
 
     static K<F, K<Arr, B>> Traversable<Arr>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Arr, A> ta) 
     {

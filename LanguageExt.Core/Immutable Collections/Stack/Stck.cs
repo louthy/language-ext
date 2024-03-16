@@ -164,8 +164,8 @@ public readonly struct Stck<A> :
     /// </summary>
     /// <returns>IEnumerable of T</returns>
     [Pure]
-    public IEnumerable<A> AsEnumerable() =>
-        Value;
+    public EnumerableM<A> AsEnumerable() =>
+        new(Value);
 
     /// <summary>
     /// Impure iteration of the bound value in the structure

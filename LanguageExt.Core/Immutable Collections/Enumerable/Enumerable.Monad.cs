@@ -16,42 +16,32 @@ public partial class EnumerableM : Monad<EnumerableM>, Alternative<EnumerableM>,
     static K<EnumerableM, A> Applicative<EnumerableM>.Pure<A>(A value) =>
         singleton(value);
 
-    static K<EnumerableM, B> Applicative<EnumerableM>.Apply<A, B>(K<EnumerableM, Func<A, B>> mf, K<EnumerableM, A> ma) => 
-        new EnumerableM<B>(mf.As().AsEnumerable().Apply(ma.As()));
-
-    static K<EnumerableM, B> Applicative<EnumerableM>.Action<A, B>(K<EnumerableM, A> ma, K<EnumerableM, B> mb) => 
-        new EnumerableM<B>(ma.As().AsEnumerable().Action(mb.As()));
-
-    static K<EnumerableM, A> MonoidK<EnumerableM>.Empty<A>() =>
-        EnumerableM<A>.Empty;
-
-    static K<EnumerableM, A> SemigroupK<EnumerableM>.Combine<A>(K<EnumerableM, A> ma, K<EnumerableM, A> mb)
+    static K<EnumerableM, B> Applicative<EnumerableM>.Apply<A, B>(K<EnumerableM, Func<A, B>> mf, K<EnumerableM, A> ma)
     {
-        return new EnumerableM<A>(go());
-        IEnumerable<A> go()
+        return new EnumerableM<B>(Go());
+        IEnumerable<B> Go()
         {
-            bool found = false;
-            foreach (var x in ma.As())
+            foreach (var f in mf.As())
             {
-                found = true;
-                yield return x;
-            }
-
-            if (!found)
-            {
-                foreach (var x in mb.As())
+                foreach (var a in ma.As())
                 {
-                    yield return x;
+                    yield return f(a);
                 }
             }
         }
     }
 
-    static S Foldable<EnumerableM>.Fold<A, S>(Func<A, Func<S, S>> f, S initialState, K<EnumerableM, A> ta) => 
-        ta.As().Fold(initialState, (a, s) => f(s)(a));
+    static K<EnumerableM, B> Applicative<EnumerableM>.Action<A, B>(K<EnumerableM, A> ma, K<EnumerableM, B> mb)
+    {
+        ma.As().Consume();
+        return mb;
+    }
 
-    static S Foldable<EnumerableM>.FoldBack<A, S>(Func<S, Func<A, S>> f, S initialState, K<EnumerableM, A> ta) => 
-        ta.As().FoldBack(initialState, (s, a) => f(s)(a));
+    static K<EnumerableM, A> MonoidK<EnumerableM>.Empty<A>() =>
+        EnumerableM<A>.Empty;
+
+    static K<EnumerableM, A> SemigroupK<EnumerableM>.Combine<A>(K<EnumerableM, A> ma, K<EnumerableM, A> mb) =>
+        ma.As().ConcatFast(mb.As().runEnumerable);
 
     static K<F, K<EnumerableM, B>> Traversable<EnumerableM>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<EnumerableM, A> ta) 
     {
@@ -62,5 +52,33 @@ public partial class EnumerableM : Monad<EnumerableM>, Alternative<EnumerableM>,
 
         K<F, Seq<B>> add(K<F, Seq<B>> ys, A x) =>
             Applicative.lift(Prelude.Cons, f(x), ys);
+    }
+    
+    static S Foldable<EnumerableM>.FoldWhile<A, S>(
+        Func<A, Func<S, S>> f,
+        Func<(S State, A Value), bool> predicate,
+        S state,
+        K<EnumerableM, A> ta)
+    {
+        foreach (var x in ta.As().runEnumerable)
+        {
+            if (!predicate((state, x))) return state;
+            state = f(x)(state);
+        }
+        return state;
+    }
+    
+    static S Foldable<EnumerableM>.FoldBackWhile<A, S>(
+        Func<S, Func<A, S>> f, 
+        Func<(S State, A Value), bool> predicate, 
+        S state, 
+        K<EnumerableM, A> ta)
+    {
+        foreach (var x in ta.As().runEnumerable.Reverse())
+        {
+            if (!predicate((state, x))) return state;
+            state = f(state)(x);
+        }
+        return state;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 
@@ -87,7 +88,7 @@ public static partial class HashMap
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<K, V> createRange<K, V>(IEnumerable<Tuple<K, V>> keyValues) =>
-        createRange(keyValues.Map(static kv => (kv.Item1, kv.Item2)));
+        createRange(keyValues.Select(static kv => (kv.Item1, kv.Item2)));
 
     /// <summary>
     /// Creates a new Map seeded with the keyValues provided
@@ -113,7 +114,7 @@ public static partial class HashMap
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<K, V> createRange<K, V>(IEnumerable<KeyValuePair<K, V>> keyValues) =>
-        createRange(keyValues.Map(static kv => (kv.Key, kv.Value)));
+        createRange(keyValues.Select(static kv => (kv.Key, kv.Value)));
 
     /// <summary>
     /// Atomically adds a new item to the map

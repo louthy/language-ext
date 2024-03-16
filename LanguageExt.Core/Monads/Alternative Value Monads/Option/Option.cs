@@ -564,7 +564,7 @@ public readonly struct Option<A> :
     /// <returns>An enumerable of zero or one items</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<A> AsEnumerable() =>
+    public Seq<A> AsEnumerable() =>
         ToSeq();
         
     /// <summary>

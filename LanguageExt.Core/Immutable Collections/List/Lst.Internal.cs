@@ -297,12 +297,16 @@ internal class LstInternal<PRED, A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<A> Skip(int amount)
+    public EnumerableM<A> Skip(int amount)
     {
-        var iter = new ListEnumerator<A>(Root, false, amount);
-        while (iter.MoveNext())
+        return new(Go());
+        IEnumerable<A> Go()
         {
-            yield return iter.Current;
+            var iter = new ListEnumerator<A>(Root, false, amount);
+            while (iter.MoveNext())
+            {
+                yield return iter.Current;
+            }
         }
     }
 
@@ -338,14 +342,19 @@ internal class LstInternal<PRED, A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<A> FindRange(int index, int count)
+    public EnumerableM<A> FindRange(int index, int count)
     {
         if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
         if (count < 0) throw new ArgumentOutOfRangeException(nameof(index));
-        var iter = new ListEnumerator<A>(Root, false, index, count);
-        while (iter.MoveNext())
+        return new(Go());
+
+        IEnumerable<A> Go()
         {
-            yield return iter.Current;
+            var iter = new ListEnumerator<A>(Root, false, index, count);
+            while (iter.MoveNext())
+            {
+                yield return iter.Current;
+            }
         }
     }
 
@@ -382,11 +391,11 @@ internal class LstInternal<PRED, A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static LstInternal<PRED, A> operator +(LstInternal<PRED, A> lhs, LstInternal<PRED, A> rhs) =>
-        lhs.Append(rhs);
+        lhs.Combine(rhs);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LstInternal<PRED, A> Append(LstInternal<PRED, A> rhs) =>
+    public LstInternal<PRED, A> Combine(LstInternal<PRED, A> rhs) =>
         AddRange(rhs);
 
     [Pure]

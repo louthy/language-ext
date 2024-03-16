@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Numerics;
 using static LanguageExt.Prelude;
 
@@ -306,6 +307,12 @@ public interface Foldable<out T> where T : Foldable<T>
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
+    public static virtual Arr<A> ToArr<A>(K<T, A> ta) =>
+        new (T.ToEnumerable(ta).ToArray());
+
+    /// <summary>
+    /// List of elements of a structure, from left to right
+    /// </summary>
     public static virtual EnumerableM<A> ToEnumerable<A>(K<T, A> ta) =>
         T.Fold(a => s =>
                {
@@ -334,19 +341,43 @@ public interface Foldable<out T> where T : Foldable<T>
     /// Does an element that fits the predicate occur in the structure?
     /// </summary>
     public static virtual bool Exists<A>(Func<A, bool> predicate, K<T, A> ta) =>
-        T.FoldBackUntil(s => c => s || predicate(c), s => s.State, false, ta);
+        T.FoldUntil(c => s => s || predicate(c), s => s.State, false, ta);
 
     /// <summary>
     /// Does the predicate hold for all elements in the structure?
     /// </summary>
     public static virtual bool ForAll<A>(Func<A, bool> predicate, K<T, A> ta) =>
-        T.FoldBackWhile(s => c => s && predicate(c), s => s.State, true, ta);
+        T.FoldWhile(c => s => s && predicate(c), s => s.State, true, ta);
 
     /// <summary>
     /// Does the element exist in the structure?
     /// </summary>
     public static virtual bool Contains<EqA, A>(A value, K<T, A> ta) where EqA : Eq<A> =>
         T.Exists(x => EqA.Equals(value, x), ta);
+
+    /// <summary>
+    /// Find the first element that match the predicate
+    /// </summary>
+    public static virtual Option<A> Find<A>(Func<A, bool> predicate, K<T, A> ta) =>
+        T.FoldWhile(a => s => predicate(a) ? Some(a) : s, s => s.State.IsNone, Option<A>.None, ta);
+
+    /// <summary>
+    /// Find the last element that match the predicate
+    /// </summary>
+    public static virtual Option<A> FindBack<A>(Func<A, bool> predicate, K<T, A> ta) =>
+        T.FoldBackWhile(s => a => predicate(a) ? Some(a) : s, s => s.State.IsNone, Option<A>.None, ta);
+
+    /// <summary>
+    /// Find the the elements that match the predicate
+    /// </summary>
+    public static virtual Seq<A> FindAll<A>(Func<A, bool> predicate, K<T, A> ta) =>
+        T.Fold(a => s => predicate(a) ? s.Add(a) : s, Seq<A>.Empty, ta);
+
+    /// <summary>
+    /// Find the the elements that match the predicate
+    /// </summary>
+    public static virtual Seq<A> FindAllBack<A>(Func<A, bool> predicate, K<T, A> ta) =>
+        T.FoldBack(s => a => predicate(a) ? s.Add(a) : s, Seq<A>.Empty, ta);
 
     /// <summary>
     /// Computes the sum of the numbers of a structure.
@@ -363,29 +394,15 @@ public interface Foldable<out T> where T : Foldable<T>
         T.Fold(x => y => x * y, A.MultiplicativeIdentity, ta);
 
     /// <summary>
-    /// Get the head item in the foldable
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Throws if sequence is empty.  Consider using `HeadOrNone`</exception>
-    public static virtual A Head<A>(K<T, A> ta) =>
-        T.HeadOrNone(ta).IfNone(() => throw new InvalidOperationException("Sequence empty"));
-
-    /// <summary>
     /// Get the head item in the foldable or `None`
     /// </summary>
-    public static virtual Option<A> HeadOrNone<A>(K<T, A> ta) =>
+    public static virtual Option<A> Head<A>(K<T, A> ta) =>
         T.FoldWhile(x => _ => Some(x), s => s.State.IsNone, Option<A>.None, ta);
 
     /// <summary>
-    /// Get the head item in the foldable
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Throws if sequence is empty.  Consider using `HeadOrNone`</exception>
-    public static virtual A Last<A>(K<T, A> ta) =>
-        T.LastOrNone(ta).IfNone(() => throw new InvalidOperationException("Sequence empty"));
-
-    /// <summary>
     /// Get the head item in the foldable or `None`
     /// </summary>
-    public static virtual Option<A> LastOrNone<A>(K<T, A> ta) =>
+    public static virtual Option<A> Last<A>(K<T, A> ta) =>
         T.FoldBackWhile(_ => Some, s => s.State.IsNone, Option<A>.None, ta);
     
     /// <summary>
@@ -400,4 +417,136 @@ public interface Foldable<out T> where T : Foldable<T>
         Func<K<F, Unit>, K<F, Unit>> acc(A x) =>
             k => F.Map(_ => unit, F.Action(f(x), k));
     }
+    
+    /// <summary>
+    /// Map each element of a structure to an action, evaluate these
+    /// actions from left to right, and ignore the results.  For a version that
+    /// doesn't ignore the results see `Traversable.traverse`.
+    /// </summary>
+    public static virtual Unit Iter<A>(Action<A> f, K<T, A> ta) =>
+        T.Fold(a => _ => { f(a); return unit; }, unit, ta);
+
+    /// <summary>
+    /// Find the minimum value in the structure
+    /// </summary>
+    public static virtual Option<A> Min<OrdA, A>(K<T, A> ta)
+        where OrdA : Ord<A> =>
+        T.Fold(x => s => s switch
+                         {
+                             { IsNone: true }                                             => Some(x),
+                             { IsSome: true, Value: null }                                => s,
+                             { IsSome: true, Value: var s1 } when OrdA.Compare(x, s1) < 0 => Some(x),
+                             _                                                            => s
+                         },
+               Option<A>.None,
+               ta);
+
+    /// <summary>
+    /// Find the minimum value in the structure
+    /// </summary>
+    public static virtual Option<A> Min<A>(K<T, A> ta)
+        where A : IComparable<A> =>
+        T.Fold(x => s => s switch
+                         {
+                             { IsNone: true }                                         => Some(x),
+                             { IsSome: true, Value: var s1 } when x.CompareTo(s1) < 0 => Some(x),
+                             _                                                        => s
+                         },
+               Option<A>.None,
+               ta);
+
+    /// <summary>
+    /// Find the maximum value in the structure
+    /// </summary>
+    public static virtual Option<A> Max<OrdA, A>(K<T, A> ta)
+        where OrdA : Ord<A> =>
+        T.Fold(x => s => s switch
+                         {
+                             { IsNone: true }                                             => Some(x),
+                             { IsSome: true, Value: null }                                => Some(x),
+                             { IsSome: true, Value: var s1 } when OrdA.Compare(x, s1) > 0 => Some(x),
+                             _                                                            => s
+                         },
+               Option<A>.None,
+               ta);
+
+    /// <summary>
+    /// Find the maximum value in the structure
+    /// </summary>
+    public static virtual Option<A> Max<A>(K<T, A> ta)
+        where A : IComparable<A> =>
+        T.Fold(x => s => s switch
+                         {
+                             { IsNone: true }                                         => Some(x),
+                             { IsSome: true, Value: var s1 } when x.CompareTo(s1) > 0 => Some(x),
+                             _                                                        => s
+                         },
+               Option<A>.None,
+               ta);
+
+    /// <summary>
+    /// Find the minimum value in the structure
+    /// </summary>
+    public static virtual A Min<OrdA, A>(K<T, A> ta, A initialMin)
+        where OrdA : Ord<A> =>
+        T.Fold(x => s => OrdA.Compare(x, s) < 0 ? x : s, initialMin, ta);
+
+    /// <summary>
+    /// Find the minimum value in the structure
+    /// </summary>
+    public static virtual A Min<A>(K<T, A> ta, A initialMin)
+        where A : IComparable<A> =>
+        T.Fold(x => s => x.CompareTo(s) < 0 ? x : s, initialMin, ta);
+
+    /// <summary>
+    /// Find the maximum value in the structure
+    /// </summary>
+    public static virtual A Max<OrdA, A>(K<T, A> ta, A initialMax)
+        where OrdA : Ord<A> =>
+        T.Fold(x => s => OrdA.Compare(x, s) > 0 ? x : s, initialMax, ta);
+
+    /// <summary>
+    /// Find the maximum value in the structure
+    /// </summary>
+    public static virtual A Max<A>(K<T, A> ta, A initialMax)
+        where A : IComparable<A> =>
+        T.Fold(x => s => x.CompareTo(s) > 0 ? x : s, initialMax, ta);
+
+    /// <summary>
+    /// Find the average of all the values in the structure
+    /// </summary>
+    public static virtual A Average<A>(K<T, A> ta)
+        where A : INumber<A>
+    {
+        var (n, t) = T.Fold(x => s => (s.Count + A.One, s.Total + x), (Count: A.AdditiveIdentity, Total: A.AdditiveIdentity), ta);
+        return t / n;
+    }
+
+    /// <summary>
+    /// Find the average of all the values in the structure
+    /// </summary>
+    public static virtual B Average<A, B>(Func<A, B> f, K<T, A> ta)
+        where B : INumber<B>
+    {
+        var (n, t) = T.Fold(x => s => (s.Count + B.One, s.Total + f(x)), (Count: B.AdditiveIdentity, Total: B.AdditiveIdentity), ta);
+        return t / n;
+    }
+
+    /// <summary>
+    /// Find the element at the specified index or `None` if out of range
+    /// </summary>
+    public static virtual Option<A> At<A>(K<T, A> ta, Index index) =>
+        index.IsFromEnd
+            ? T.FoldBackWhile(s => a => s.Index == index.Value
+                                            ? (s.Index + 1, Some(a))
+                                            : (s.Index + 1, Option<A>.None),
+                              s => s.State.Result.IsNone,
+                              (Index: 0, Result: Option<A>.None),
+                              ta).Result
+            : T.FoldWhile(a => s => s.Index == index.Value
+                                        ? (s.Index + 1, Some(a))
+                                        : (s.Index + 1, Option<A>.None),
+                          s => s.State.Result.IsNone,
+                          (Index: 0, Result: Option<A>.None),
+                          ta).Result;
 }

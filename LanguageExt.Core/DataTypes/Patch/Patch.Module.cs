@@ -270,16 +270,16 @@ public static class Patch
     /// <summary>
     /// Apply a patch to a document, returning the transformed document.
     /// </summary>
-    public static IEnumerable<A> apply<EqA, A>(Patch<EqA, A> patch, IEnumerable<A> va) where EqA : Eq<A>
+    public static EnumerableM<A> apply<EqA, A>(Patch<EqA, A> patch, IEnumerable<A> va) where EqA : Eq<A>
     {
-        if (patch.Edits.Count == 0) return va;
+        if (patch.Edits.Count == 0) return new(va);
         var i = SpanArray<A>.New(va);
 
         var dlength = i.Count + sizeChange(patch);
         var d       = SpanArray<A>.New(dlength);
 
         go(patch.Edits, i, d, 0);
-        return d;
+        return new(d);
  
         static Unit go(Seq<Edit<EqA, A>> edits, SpanArray<A> src, SpanArray<A> dest, int si)
         {

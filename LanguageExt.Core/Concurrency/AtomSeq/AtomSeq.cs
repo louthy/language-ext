@@ -601,8 +601,8 @@ public class AtomSeq<A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<A> AsEnumerable() => 
-        items;
+    public EnumerableM<A> AsEnumerable() => 
+        new(items);
 
     /// <summary>
     /// Match empty sequence, or multi-item sequence
@@ -729,7 +729,7 @@ public class AtomSeq<A> :
         while (true)
         {
             var oitems = items;
-            var nitems = new SeqLazy<A>(oitems.Map(f));
+            var nitems = new SeqLazy<A>(oitems.Select(f));
             if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
             {
                 return default;
@@ -858,7 +858,7 @@ public class AtomSeq<A> :
         while (true)
         {
             var oitems = items;
-            var nitems = new SeqLazy<A>(oitems.Filter(f));
+            var nitems = new SeqLazy<A>(oitems.Where(f));
             if(ReferenceEquals(oitems, nitems))
             {
                 // no change

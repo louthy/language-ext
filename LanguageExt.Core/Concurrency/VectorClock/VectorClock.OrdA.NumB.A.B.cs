@@ -115,10 +115,11 @@ public record VectorClock<OrdA, NumB, A, B>(Seq<(A, B)> Entries)
     public (Option<B> Value, VectorClock<OrdA, NumB, A, B> Clock) Extract(A index)
     {
         Option<B> value = default;
-        return (value, new VectorClock<OrdA, NumB, A, B>(go(Entries).ToSeq()));
+        return (value, new VectorClock<OrdA, NumB, A, B>(go(Entries)));
 
-        IEnumerable<(A x, B y)> go(Seq<(A x, B y)> zs)
+        Seq<(A x, B y)> go(Seq<(A x, B y)> zs)
         {
+            var res = Seq<(A x, B y)>.Empty;
             foreach (var z in zs)
             {
                 if (equals<OrdA, A>(z.x, index))
@@ -127,9 +128,10 @@ public record VectorClock<OrdA, NumB, A, B>(Seq<(A, B)> Entries)
                 }
                 else
                 {
-                    yield return z;
+                    res = res.Add(z);
                 }
             }
+            return res;
         }
     }
 

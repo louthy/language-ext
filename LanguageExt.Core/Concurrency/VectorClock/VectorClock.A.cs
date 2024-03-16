@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
-using static LanguageExt.Trait;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -110,10 +109,11 @@ public record VectorClock<A>(Seq<(A, long)> Entries)
     public (Option<long> Value, VectorClock<A> Clock) Extract(A index)
     {
         Option<long> value = default;
-        return (value, new VectorClock<A>(go(Entries).ToSeq()));
+        return (value, new VectorClock<A>(go(Entries)));
 
-        IEnumerable<(A x, long y)> go(Seq<(A x, long y)> zs)
+        Seq<(A x, long y)> go(Seq<(A x, long y)> zs)
         {
+            var res = Seq<(A x, long y)>.Empty;
             foreach (var z in zs)
             {
                 if (equals<OrdDefault<A>, A>(z.x, index))
@@ -122,9 +122,10 @@ public record VectorClock<A>(Seq<(A, long)> Entries)
                 }
                 else
                 {
-                    yield return z;
+                    res = res.Add(z);
                 }
             }
+            return res;
         }
     }
 

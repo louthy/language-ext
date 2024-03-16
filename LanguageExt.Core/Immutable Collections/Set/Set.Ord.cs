@@ -220,7 +220,7 @@ public readonly struct Set<OrdA, A> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
     /// <returns>Range of values</returns>
     [Pure]
-    public IEnumerable<A> FindRange(A keyFrom, A keyTo) => Value.FindRange(keyFrom, keyTo);
+    public EnumerableM<A> FindRange(A keyFrom, A keyTo) => Value.FindRange(keyFrom, keyTo);
 
     /// <summary>
     /// Returns the elements that are in both this and other
@@ -609,7 +609,7 @@ public readonly struct Set<OrdA, A> :
         toSeq(this);
 
     [Pure]
-    public IEnumerable<A> AsEnumerable() => this;
+    public EnumerableM<A> AsEnumerable() => new(this);
 
     [Pure]
     public Set<OrdA, A> Where(Func<A, bool> pred) =>
@@ -652,7 +652,7 @@ public readonly struct Set<OrdA, A> :
     }
 
     [Pure]
-    public IEnumerable<A> Skip(int amount) =>
+    public EnumerableM<A> Skip(int amount) =>
         Value.Skip(amount);
 
     [Pure]

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -103,4 +104,12 @@ public class Lst : Monad<Lst>, Alternative<Lst>, Traversable<Lst>
 
     static bool Foldable<Lst>.IsEmpty<A>(K<Lst, A> ta) =>
         ta.As().IsEmpty;
+
+    static Option<A> Foldable<Lst>.At<A>(K<Lst, A> ta, Index index)
+    {
+        var list = ta.As().Value;
+        return index.Value >= 0 && index.Value < list.Count
+                   ? Some(list[index])
+                   : Option<A>.None;
+    }
 }

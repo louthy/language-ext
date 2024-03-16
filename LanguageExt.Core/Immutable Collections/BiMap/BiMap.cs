@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Linq;
 
 namespace LanguageExt;
 
@@ -30,7 +31,7 @@ public readonly struct BiMap<A, B> :
     { }
 
     public BiMap(IEnumerable<(A Left, B Right)> items, bool tryAdd) : 
-        this(new Map<A, B>(items), new Map<B, A>(items.Map(pair => (pair.Right, pair.Left)))) { }
+        this(new Map<A, B>(items), new Map<B, A>(items.Select(pair => (pair.Right, pair.Left)))) { }
 
 
     /// <summary>
@@ -69,7 +70,7 @@ public readonly struct BiMap<A, B> :
     /// <returns>New Map with the items added</returns>
     [Pure]
     public BiMap<A, B> AddRange(IEnumerable<(A, B)> range) =>
-        new (Left.AddRange(range), Right.AddRange(range.Map(pair => (pair.Item2, pair.Item1))));
+        new (Left.AddRange(range), Right.AddRange(range.Select(pair => (pair.Item2, pair.Item1))));
 
     /// <summary>
     /// Atomically adds a range of items to the map.
@@ -81,7 +82,7 @@ public readonly struct BiMap<A, B> :
     /// <returns>New Map with the items added</returns>
     [Pure]
     public BiMap<A, B> AddRange(IEnumerable<Tuple<A, B>> range) =>
-        new (Left.AddRange(range), Right.AddRange(range.Map(pair => (pair.Item2, pair.Item1))));
+        new (Left.AddRange(range), Right.AddRange(range.Select(pair => (pair.Item2, pair.Item1))));
 
     /// <summary>
     /// Atomically adds a range of items to the map.
@@ -93,7 +94,7 @@ public readonly struct BiMap<A, B> :
     /// <returns>New Map with the items added</returns>
     [Pure]
     public BiMap<A, B> AddRange(IEnumerable<KeyValuePair<A, B>> range) =>
-        new (Left.AddRange(range), Right.AddRange(range.Map(pair => (pair.Value, pair.Key))));
+        new (Left.AddRange(range), Right.AddRange(range.Select(pair => (pair.Value, pair.Key))));
 
     /// <summary>
     /// Atomically adds a range of items to the map.
@@ -104,7 +105,7 @@ public readonly struct BiMap<A, B> :
     /// <returns>New Map with the items added</returns>
     [Pure]
     public BiMap<A, B> TryAddRange(IEnumerable<(A, B)> range) =>
-        new (Left.TryAddRange(range), Right.TryAddRange(range.Map(pair => (pair.Item2, pair.Item1))));
+        new (Left.TryAddRange(range), Right.TryAddRange(range.Select(pair => (pair.Item2, pair.Item1))));
 
     /// <summary>
     /// Atomically adds a range of items to the map.
@@ -115,7 +116,7 @@ public readonly struct BiMap<A, B> :
     /// <returns>New Map with the items added</returns>
     [Pure]
     public BiMap<A, B> TryAddRange(IEnumerable<Tuple<A, B>> range) =>
-        new (Left.TryAddRange(range), Right.TryAddRange(range.Map(pair => (pair.Item2, pair.Item1))));
+        new (Left.TryAddRange(range), Right.TryAddRange(range.Select(pair => (pair.Item2, pair.Item1))));
 
     /// <summary>
     /// Atomically adds a range of items to the map.
@@ -126,7 +127,7 @@ public readonly struct BiMap<A, B> :
     /// <returns>New Map with the items added</returns>
     [Pure]
     public BiMap<A, B> TryAddRange(IEnumerable<KeyValuePair<A, B>> range) =>
-        new (Left.TryAddRange(range), Right.TryAddRange(range.Map(pair => (pair.Value, pair.Key))));
+        new (Left.TryAddRange(range), Right.TryAddRange(range.Select(pair => (pair.Value, pair.Key))));
 
 
     /// <summary>
@@ -139,7 +140,7 @@ public readonly struct BiMap<A, B> :
     /// <returns>New Map with the items added</returns>
     [Pure]
     public BiMap<A, B> AddOrUpdateRange(IEnumerable<Tuple<A, B>> range) =>
-        new (Left.AddOrUpdateRange(range), Right.AddOrUpdateRange(range.Map(pair => (pair.Item2, pair.Item1))));
+        new (Left.AddOrUpdateRange(range), Right.AddOrUpdateRange(range.Select(pair => (pair.Item2, pair.Item1))));
 
     /// <summary>
     /// Atomically adds a range of items to the map.  If any of the keys exist already
@@ -151,7 +152,7 @@ public readonly struct BiMap<A, B> :
     /// <returns>New Map with the items added</returns>
     [Pure]
     public BiMap<A, B> AddOrUpdateRange(IEnumerable<(A, B)> range) =>
-        new (Left.AddOrUpdateRange(range), Right.AddOrUpdateRange(range.Map(pair => (pair.Item2, pair.Item1))));
+        new (Left.AddOrUpdateRange(range), Right.AddOrUpdateRange(range.Select(pair => (pair.Item2, pair.Item1))));
 
     /// <summary>
     /// Atomically adds a range of items to the map.  If any of the keys exist already
@@ -163,7 +164,7 @@ public readonly struct BiMap<A, B> :
     /// <returns>New Map with the items added</returns>
     [Pure]
     public BiMap<A, B> AddOrUpdateRange(IEnumerable<KeyValuePair<A, B>> range) =>
-        new (Left.AddOrUpdateRange(range), Right.AddOrUpdateRange(range.Map(pair => (pair.Value, pair.Key))));
+        new (Left.AddOrUpdateRange(range), Right.AddOrUpdateRange(range.Select(pair => (pair.Value, pair.Key))));
 
     /// <summary>
     /// Atomically removes an item from the map
@@ -290,39 +291,39 @@ public readonly struct BiMap<A, B> :
     /// Enumerable of map lefts in-order
     /// </summary>
     [Pure]
-    public IEnumerable<A> LeftKeys => Left.Keys;
+    public EnumerableM<A> LeftKeys => Left.Keys;
 
     /// <summary>
     /// Enumerable of map rights in-order
     /// </summary>
     [Pure]
-    public IEnumerable<B> RightKeys => Right.Keys;
+    public EnumerableM<B> RightKeys => Right.Keys;
 
     /// <summary>
     /// Enumerable of map lefts in-rights-order
     /// </summary>
     [Pure]
-    public IEnumerable<B> LeftValues => Left.Values;
+    public EnumerableM<B> LeftValues => Left.Values;
 
     /// <summary>
     /// Enumerable of map rights in-lefts-order
     /// </summary>
     [Pure]
-    public IEnumerable<A> RightValues => Right.Values;
+    public EnumerableM<A> RightValues => Right.Values;
 
     /// <summary>
     /// Convert the map to an `IReadOnlyDictionary`
     /// </summary>
     /// <returns></returns>
     [Pure]
-    public IReadOnlyDictionary<A, B> ToDictionaryLeft() => Left.ToDictionary();
+    public IReadOnlyDictionary<A, B> ToDictionaryLeft() => Left;
 
     /// <summary>
     /// Convert the map to an `IReadOnlyDictionary`
     /// </summary>
     /// <returns></returns>
     [Pure]
-    public IReadOnlyDictionary<B, A> ToDictionaryRight() => Right.ToDictionary();
+    public IReadOnlyDictionary<B, A> ToDictionaryRight() => Right;
 
     /// <summary>
     /// Enumerable of in-order tuples that make up the map
@@ -330,7 +331,7 @@ public readonly struct BiMap<A, B> :
     /// <returns>Tuples</returns>
     [Pure]
     [Obsolete("Use Pairs instead")]
-    public IEnumerable<(A Key, B Value)> Tuples =>
+    public EnumerableM<(A Key, B Value)> Tuples =>
         Left.Pairs;
 
     /// <summary>
@@ -338,7 +339,7 @@ public readonly struct BiMap<A, B> :
     /// </summary>
     /// <returns>Tuples</returns>
     [Pure]
-    public IEnumerable<(A Key, B Value)> Pairs =>
+    public EnumerableM<(A Key, B Value)> Pairs =>
         Left.Pairs;
 
     [Pure]

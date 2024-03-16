@@ -19,8 +19,7 @@ namespace LanguageExt;
 /// </remarks>
 internal class TrieMap<EqK, K, V> :
     IEnumerable<(K Key, V Value)>,
-    IEquatable<TrieMap<EqK, K, V>>,
-    IReadOnlyDictionary<K, V>
+    IEquatable<TrieMap<EqK, K, V>>
     where EqK : Eq<K>
 {
     internal enum UpdateType
@@ -2611,8 +2610,8 @@ internal class TrieMap<EqK, K, V> :
         }
     }
 
-    public IEnumerable<(K Key, V Value)> AsEnumerable() =>
-        Root;
+    public EnumerableM<(K Key, V Value)> AsEnumerable() =>
+        new(Root);
 
     public IEnumerator<(K Key, V Value)> GetEnumerator() =>
         Root.GetEnumerator();
@@ -2747,11 +2746,11 @@ internal class TrieMap<EqK, K, V> :
     string TupleToString((K Key, V Value) tuple) =>
         $"({tuple.Key}, {tuple.Value})";
 
-    public IEnumerable<K> Keys =>
-        AsEnumerable().Select(kv => kv.Key);
+    public EnumerableM<K> Keys =>
+        AsEnumerable().Map(kv => kv.Key);
 
-    public IEnumerable<V> Values =>
-        AsEnumerable().Select(kv => kv.Value);
+    public EnumerableM<V> Values =>
+        AsEnumerable().Map(kv => kv.Value);
 
     public bool TryGetValue(K key, out V value)
     {

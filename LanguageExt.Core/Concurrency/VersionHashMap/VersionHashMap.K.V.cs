@@ -176,7 +176,7 @@ namespace LanguageExt
         /// Enumerable of keys
         /// </summary>
         [Pure]
-        public IEnumerable<K> Keys
+        public EnumerableM<K> Keys
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Items.Keys;
@@ -186,7 +186,7 @@ namespace LanguageExt
         /// Enumerable of value
         /// </summary>
         [Pure]
-        public IEnumerable<V> Values
+        public EnumerableM<V> Values
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Items.Values;
@@ -248,7 +248,7 @@ namespace LanguageExt
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerable<(K Key, V Value)> AsEnumerable() =>
+        public EnumerableM<(K Key, V Value)> AsEnumerable() =>
             Items.AsEnumerable();
 
         /// <summary>

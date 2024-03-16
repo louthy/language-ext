@@ -23,7 +23,8 @@ namespace LanguageExt;
 public class AtomHashMap<EqK, K, V> :
     IEnumerable<(K Key, V Value)>,
     IEquatable<HashMap<EqK, K, V>>,
-    IEquatable<AtomHashMap<EqK, K, V>>
+    IEquatable<AtomHashMap<EqK, K, V>>,
+    IReadOnlyDictionary<K, V>
     where EqK : Eq<K>
 {
     internal volatile TrieMap<EqK, K, V> Items;
@@ -86,13 +87,6 @@ public class AtomHashMap<EqK, K, V> :
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Items.Count;
     }
-
-    /// <summary>
-    /// Get a IReadOnlyDictionary for this map.  No mapping is required, so this is very fast.
-    /// </summary>
-    [Pure]
-    public IReadOnlyDictionary<K, V> ToReadOnlyDictionary() =>
-        Items;
 
     /// <summary>
     /// Atomically swap the underlying hash-map.  Allows for multiple operations on the hash-map in an entirely
@@ -734,7 +728,7 @@ public class AtomHashMap<EqK, K, V> :
     /// <param name="key">Key to find</param>
     /// <returns>Found value</returns>
     [Pure]
-    public IEnumerable<V> FindSeq(K key) =>
+    public Seq<V> FindSeq(K key) =>
         Items.FindSeq(key);
 
     /// <summary>
@@ -1311,23 +1305,15 @@ public class AtomHashMap<EqK, K, V> :
     /// Enumerable of map keys
     /// </summary>
     [Pure]
-    public IEnumerable<K> Keys =>
-        Items.Keys;
+    public EnumerableM<K> Keys =>
+        new(Items.Keys);
 
     /// <summary>
     /// Enumerable of map values
     /// </summary>
     [Pure]
-    public IEnumerable<V> Values =>
-        Items.Values;
-
-    /// <summary>
-    /// Convert the map to an IDictionary
-    /// </summary>
-    /// <remarks>This is effectively a zero cost operation, not even a single allocation</remarks>
-    [Pure]
-    public IReadOnlyDictionary<K, V> ToDictionary() =>
-        Items;
+    public EnumerableM<V> Values =>
+        new(Items.Values);
 
     /// <summary>
     /// Convert to a HashMap
@@ -1335,17 +1321,7 @@ public class AtomHashMap<EqK, K, V> :
     /// <remarks>This is effectively a zero cost operation, not even a single allocation</remarks>
     [Pure]
     public HashMap<EqK, K, V> ToHashMap() =>
-        new HashMap<EqK, K, V>(Items);
-
-    /// <summary>
-    /// Map the map the a dictionary
-    /// </summary>
-    [Pure]
-    public IDictionary<KR, VR> ToDictionary<KR, VR>(
-        Func<(K Key, V Value), KR> keySelector, 
-        Func<(K Key, V Value), VR> valueSelector) 
-        where KR : notnull =>
-        AsEnumerable().ToDictionary(keySelector, valueSelector);
+        new (Items);
 
     /// <summary>
     /// GetEnumerator - IEnumerable interface
@@ -1388,8 +1364,8 @@ public class AtomHashMap<EqK, K, V> :
         CollectionFormat.ToFullArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
     [Pure]
-    public IEnumerable<(K Key, V Value)> AsEnumerable() =>
-        Items;
+    public EnumerableM<(K Key, V Value)> AsEnumerable() =>
+        new(Items);
 
     /// <summary>
     /// Implicit conversion from an untyped empty list
@@ -2161,9 +2137,52 @@ public class AtomHashMap<EqK, K, V> :
     void AnnounceChanges(TrieMap<EqK, K, V> prev, TrieMap<EqK, K, V> current,
                          TrieMap<EqK, K, Change<V>>? changes)
     {
-        if (!isnull(changes))
+        if (changes is not null)
         {
             Change?.Invoke(new HashMapPatch<EqK, K, V>(prev, current, changes));
         }
     }
+    
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    //  
+    // IReadOnlyDictionary
+
+    [Pure]
+    public IDictionary<KR, VR> ToDictionary<KR, VR>(
+        Func<(K Key, V Value), KR> keySelector, 
+        Func<(K Key, V Value), VR> valueSelector) 
+        where KR : notnull =>
+        AsEnumerable().ToDictionary(keySelector, valueSelector);
+ 
+    [Pure]
+    public bool TryGetValue(K key, out V value)
+    {
+        var v = Find(key);
+        if (v.IsSome)
+        {
+            value = (V)v;
+            return true;
+        }
+        else
+        {
+            value = default!;
+            return false;
+        }
+    }
+        
+    [Pure]
+    IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
+        AsEnumerable()
+           .Select(p => new KeyValuePair<K, V>(p.Key, p.Value))
+           .GetEnumerator() ;
+    
+    [Pure]
+    IEnumerable<K> IReadOnlyDictionary<K, V>.Keys => Keys;
+
+    [Pure]
+    IEnumerable<V> IReadOnlyDictionary<K, V>.Values => Values;
+
+    [Pure]
+    public IReadOnlyDictionary<K, V> ToReadOnlyDictionary() =>
+        this;
 }

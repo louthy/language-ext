@@ -234,7 +234,7 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     /// Enumerable of keys
     /// </summary>
     [Pure]
-    public IEnumerable<K> Keys
+    public EnumerableM<K> Keys
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => AsEnumerable().Map(static x => x.Key);
@@ -244,7 +244,7 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     /// Enumerable of value
     /// </summary>
     [Pure]
-    public IEnumerable<V> Values
+    public EnumerableM<V> Values
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => AsEnumerable().Map(static x => x.Value);
@@ -306,7 +306,7 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<(K Key, V Value)> AsEnumerable() =>
+    public EnumerableM<(K Key, V Value)> AsEnumerable() =>
         Items.AsEnumerable().Choose(static x => x.Value.Value.Map(v => (x.Key, v)));
 
     /// <summary>

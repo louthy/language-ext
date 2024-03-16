@@ -214,7 +214,7 @@ public readonly struct Set<A> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
     /// <returns>Range of values</returns>
     [Pure]
-    public IEnumerable<A> FindRange(A keyFrom, A keyTo) => Value.FindRange(keyFrom, keyTo);
+    public EnumerableM<A> FindRange(A keyFrom, A keyTo) => Value.FindRange(keyFrom, keyTo);
 
     /// <summary>
     /// Retrieve the value from previous item to specified key
@@ -680,8 +680,8 @@ public readonly struct Set<A> :
         toSeq(this);
 
     [Pure]
-    public IEnumerable<A> AsEnumerable() =>
-        this;
+    public EnumerableM<A> AsEnumerable() =>
+        new(this);
 
     [Pure]
     public Set<B> Select<B>(Func<A, B> f) =>
@@ -728,7 +728,7 @@ public readonly struct Set<A> :
     }
 
     [Pure]
-    public IEnumerable<A> Skip(int amount) =>
+    public EnumerableM<A> Skip(int amount) =>
         Value.Skip(amount);
 
     [Pure]

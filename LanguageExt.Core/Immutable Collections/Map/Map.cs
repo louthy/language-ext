@@ -1,4 +1,5 @@
-﻿using LanguageExt.Traits;
+﻿#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 using System;
 using System.Collections;
@@ -23,11 +24,13 @@ public delegate C WhenMatched<in K, in A, in B, out C>(K key, A left, B right);
 [Serializable]
 [CollectionBuilder(typeof(Map), nameof(Map.createRange))]
 public readonly struct Map<K, V> :
+    IReadOnlyDictionary<K, V>,
     IEnumerable<(K Key, V Value)>,
     IComparable<Map<K, V>>,
     IComparable,
     IEquatable<Map<K, V>>,
-    Monoid<Map<K, V>>
+    Monoid<Map<K, V>>,
+    K<Map<K>, V>
 {
     public static Map<K, V> Empty { get; } =
         new(MapInternal<OrdDefault<K>, K, V>.Empty);
@@ -97,7 +100,7 @@ public readonly struct Map<K, V> :
     public object? Case =>
         IsEmpty 
             ? null
-            : toSeq(this).Case;
+            : AsEnumerable().ToSeq().Case;
         
     /// <summary>
     /// Item at index lens
@@ -134,7 +137,7 @@ public readonly struct Map<K, V> :
                        }
                        return la;
                    });
-
+    
     /// <summary>
     /// 'this' accessor
     /// </summary>
@@ -342,7 +345,7 @@ public readonly struct Map<K, V> :
     /// <returns>Found value</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<V> FindSeq(K key) => Value.FindSeq(key);
+    public Seq<V> FindSeq(K key) => Value.FindSeq(key);
 
     /// <summary>
     /// Retrieve a value from the map by key and pattern match the
@@ -549,7 +552,7 @@ public readonly struct Map<K, V> :
     /// <returns>Range of values</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<V> FindRange(K keyFrom, K keyTo) => Value.FindRange(keyFrom, keyTo);
+    public EnumerableM<V> FindRange(K keyFrom, K keyTo) => Value.FindRange(keyFrom, keyTo);
 
     /// <summary>
     /// Retrieve a range of values 
@@ -560,7 +563,7 @@ public readonly struct Map<K, V> :
     /// <returns>Range of key, values</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<(K Key, V Value)> FindRangePairs(K keyFrom, K keyTo) => Value.FindRangePairs(keyFrom, keyTo);
+    public EnumerableM<(K Key, V Value)> FindRangePairs(K keyFrom, K keyTo) => Value.FindRangePairs(keyFrom, keyTo);
 
     /// <summary>
     /// Skips 'amount' values and returns a new tree without the 
@@ -570,7 +573,7 @@ public readonly struct Map<K, V> :
     /// <returns>New tree</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<(K Key, V Value)> Skip(int amount) => Value.Skip(amount);
+    public EnumerableM<(K Key, V Value)> Skip(int amount) => Value.Skip(amount);
 
     /// <summary>
     /// Checks for existence of a key in the map
@@ -703,7 +706,7 @@ public readonly struct Map<K, V> :
     /// Enumerable of map keys
     /// </summary>
     [Pure]
-    public IEnumerable<K> Keys
+    public EnumerableM<K> Keys
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Value.Keys;
@@ -713,19 +716,11 @@ public readonly struct Map<K, V> :
     /// Enumerable of map values
     /// </summary>
     [Pure]
-    public IEnumerable<V> Values
+    public EnumerableM<V> Values
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Value.Values;
     }
-
-    /// <summary>
-    /// Convert the map to an `IReadOnlyDictionary<K, V>`
-    /// </summary>
-    /// <returns></returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IReadOnlyDictionary<K, V> ToDictionary() => Value.ToDictionary();
 
     /// <summary>
     /// Map the map the a dictionary
@@ -737,19 +732,11 @@ public readonly struct Map<K, V> :
         Value.ToDictionary(keySelector, valueSelector);
 
     /// <summary>
-    /// Get a IReadOnlyDictionary for this map.  No mapping is required, so this is very fast.
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IReadOnlyDictionary<K, V> ToReadOnlyDictionary() =>
-        value;
-
-    /// <summary>
     /// Enumerable of in-order tuples that make up the map
     /// </summary>
     /// <returns>Tuples</returns>
     [Pure]
-    public IEnumerable<(K Key, V Value)> Pairs
+    public EnumerableM<(K Key, V Value)> Pairs
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Value.Pairs;
@@ -761,7 +748,7 @@ public readonly struct Map<K, V> :
     /// <returns>Tuples</returns>
     [Pure]
     [Obsolete("Use Pairs instead")]
-    public IEnumerable<(K Key, V Value)> ValueTuples =>
+    public EnumerableM<(K Key, V Value)> ValueTuples =>
         Value.Pairs;
 
     /// <summary>
@@ -791,7 +778,7 @@ public readonly struct Map<K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<(K Key, V Value)> ToSeq() =>
-        toSeq(this);
+        AsEnumerable().ToSeq();
 
     /// <summary>
     /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
@@ -822,7 +809,7 @@ public readonly struct Map<K, V> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<(K Key, V Value)> AsEnumerable() => 
+    public EnumerableM<(K Key, V Value)> AsEnumerable() => 
         Value.AsEnumerable();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -953,7 +940,7 @@ public readonly struct Map<K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Map<K, V> operator -(Map<K, V> lhs, Map<K, V> rhs) =>
         new(lhs.Value - rhs.Value);
-
+    
     /// <summary>
     /// Equality of keys and values with `EqDefault<V>` used for values
     /// </summary>
@@ -1404,19 +1391,42 @@ public readonly struct Map<K, V> :
     /// Find the lowest ordered item in the map
     /// </summary>
     [Pure]
-    public Option<(K Key, V Value)> Min
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Value.Min;
-    }
+    public Option<(K Key, V Value)> Min() =>
+        Value.Min;
 
     /// <summary>
     /// Find the highest ordered item in the map
     /// </summary>
     [Pure]
-    public Option<(K Key, V Value)> Max
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Option<(K Key, V Value)> Max() =>
+        Value.Max;
+    
+    [Pure]
+    IEnumerable<K> IReadOnlyDictionary<K, V>.Keys => Keys;
+
+    [Pure]
+    IEnumerable<V> IReadOnlyDictionary<K, V>.Values => Values;
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool TryGetValue(K key, out V value)
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Value.Max;
+        var v = Find(key);
+        if (v.IsSome)
+        {
+            value = (V)v;
+            return true;
+        }
+        else
+        {
+            value = default!;
+            return false;
+        }
     }
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
+        AsEnumerable().Map(p => new KeyValuePair<K, V>(p.Key, p.Value)).GetEnumerator();
 }

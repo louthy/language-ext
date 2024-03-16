@@ -86,17 +86,6 @@ public static class ListExtensions
         toSeq(array);
 
     /// <summary>
-    /// Concatenate two enumerables (Concat in LINQ)
-    /// </summary>
-    /// <typeparam name="A">Enumerable item type</typeparam>
-    /// <param name="lhs">First enumerable</param>
-    /// <param name="rhs">Second enumerable</param>
-    /// <returns>Concatenated enumerable</returns>
-    [Pure]
-    public static IEnumerable<A> Append<A>(this IEnumerable<A> lhs, IEnumerable<A> rhs) =>
-        lhs.ConcatFast(rhs);
-
-    /// <summary>
     /// Match empty list, or multi-item list
     /// </summary>
     /// <typeparam name="B">Return value type</typeparam>
@@ -145,7 +134,7 @@ public static class ListExtensions
     /// <param name="list">List</param>
     /// <returns>Enumerable of T</returns>
     [Pure]
-    public static IEnumerable<T> Tail<T>(this IEnumerable<T> list) =>
+    public static EnumerableM<T> Tail<T>(this IEnumerable<T> list) =>
         List.tail(list);
 
     /// <summary>
@@ -444,43 +433,6 @@ public static class ListExtensions
     [Pure]
     public static IEnumerable<T> FindSeq<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
         List.findSeq(list, pred);
-    
-    /// <summary>
-    /// Convert the enumerable to an immutable array
-    /// </summary>
-    [Pure]
-    public static Arr<A> ToArr<A>(this IEnumerable<A> list) =>
-        new (list);
-
-    /// <summary>
-    /// Returns the number of items in the Lst T
-    /// </summary>
-    /// <typeparam name="T">Item type</typeparam>
-    /// <param name="list">List to count</param>
-    /// <returns>The number of items in the list</returns>
-    [Pure]
-    public static int Length<T>(this IEnumerable<T> list) =>
-        List.length(list);
-
-    /// <summary>
-    /// Invokes an action for each item in the enumerable in order
-    /// </summary>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <param name="list">Enumerable to iterate</param>
-    /// <param name="action">Action to invoke with each item</param>
-    /// <returns>Unit</returns>
-    public static Unit Iter<T>(this IEnumerable<T> list, Action<T> action) =>
-        List.iter(list, action);
-
-    /// <summary>
-    /// Invokes an action for each item in the enumerable in order
-    /// </summary>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <param name="list">Enumerable to iterate</param>
-    /// <param name="action">Action to invoke with each item</param>
-    /// <returns>Unit</returns>
-    public static Unit Iter<T>(this IEnumerable<T> list, Action<int, T> action) =>
-        List.iter(list, action);
 
     /// <summary>
     /// Iterate each item in the enumerable in order (consume items)
@@ -490,17 +442,6 @@ public static class ListExtensions
     /// <returns>Unit</returns>
     public static Unit Consume<T>(this IEnumerable<T> list) =>
         List.consume(list);
-
-    /// <summary>
-    /// Returns true if all items in the enumerable match a predicate (Any in LINQ)
-    /// </summary>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <param name="list">Enumerable to test</param>
-    /// <param name="pred">Predicate</param>
-    /// <returns>True if all items in the enumerable match the predicate</returns>
-    [Pure]
-    public static bool ForAll<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
-        List.forall(list, pred);
 
     /*
     /// <summary>
@@ -513,17 +454,6 @@ public static class ListExtensions
     public static IEnumerable<T> Distinct<EQ, T>(this IEnumerable<T> list) where EQ : Eq<T> =>
         List.distinct<EQ, T>(list);
         */
-
-    /// <summary>
-    /// Returns true if any item in the enumerable matches the predicate provided
-    /// </summary>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <param name="list">Enumerable to test</param>
-    /// <param name="pred">Predicate</param>
-    /// <returns>True if any item in the enumerable matches the predicate provided</returns>
-    [Pure]
-    public static bool Exists<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
-        List.exists(list, pred);
 
     /// <summary>
     /// The tails function returns all final segments of the argument, longest first. For example,

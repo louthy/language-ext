@@ -14,20 +14,39 @@ public static class EnumerableOptimal
             ? ca.Concat(mb)
             : new ConcatEnum<A>(Seq(ma, mb));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static EnumerableM<A> ConcatFast<A>(this EnumerableM<A> ma, IEnumerable<A> mb) =>
+        new(ma.runEnumerable.ConcatFast(mb));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static IEnumerable<B> BindFast<A, B>(this IEnumerable<A> ma, Func<A, IEnumerable<B>> f) =>
         ma is null
             ? System.Linq.Enumerable.Empty<B>()
             : new BindEnum<A, B>(ma, f);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static EnumerableM<B> BindFast<A, B>(this EnumerableM<A> ma, Func<A, IEnumerable<B>> f) =>
+        new(ma.runEnumerable.BindFast(f));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static IEnumerable<B> BindFast<A, B>(this IEnumerable<A> ma, Func<A, Lst<B>> f) =>
         ma == null
             ? System.Linq.Enumerable.Empty<B>()
             : new BindEnum<A, B>(ma, a => f(a).AsEnumerable());
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static EnumerableM<B> BindFast<A, B>(this EnumerableM<A> ma, Func<A, Lst<B>> f) =>
+        new(ma.runEnumerable.BindFast(f));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static IEnumerable<B> BindFast<A, B>(this IEnumerable<A> ma, Func<A, Seq<B>> f) =>
         ma == null
             ? System.Linq.Enumerable.Empty<B>()
             : new BindEnum<A, B>(ma, a => f(a).AsEnumerable());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static EnumerableM<B> BindFast<A, B>(this EnumerableM<A> ma, Func<A, Seq<B>> f) =>
+        new(ma.runEnumerable.BindFast(f));
 
     internal class ConcatEnum<A> : IEnumerable<A>
     {

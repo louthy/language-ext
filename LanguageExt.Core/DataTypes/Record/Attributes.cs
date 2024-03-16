@@ -21,6 +21,7 @@ public class EqAttribute : Attribute
     {
         if (!type.GetTypeInfo()
                  .ImplementedInterfaces
+                 .AsEnumerableM()     
                  .Exists(i => i.ToString().StartsWith("LanguageExt.Traits.Eq`1")))
         {
             throw new Exception("Eq attribute should have a struct type that derives from LanguageExt.Traits.Eq<> passed as its argument");
@@ -34,6 +35,7 @@ public class OrdAttribute : Attribute
     {
         if (!type.GetTypeInfo()
                  .ImplementedInterfaces
+                 .AsEnumerableM()
                  .Exists(i => i.ToString().StartsWith("LanguageExt.Traits.Ord`1")))
         {
             throw new Exception("Ord attribute should have a struct type that derives from LanguageExt.Traits.Ord<> passed as its argument");
@@ -47,6 +49,7 @@ public class HashableAttribute : Attribute
     {
         if (!type.GetTypeInfo()
                  .ImplementedInterfaces
+                 .AsEnumerableM()
                  .Exists(i => i.ToString().StartsWith("LanguageExt.Traits.Hashable`1")))
         {
             throw new Exception("Hashable attribute should have a struct type that derives from LanguageExt.Traits.Hashable<> passed as its argument");

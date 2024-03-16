@@ -126,7 +126,7 @@ public partial class HashSet
     /// <returns>True if predicate returns true for any item</returns>
     [Pure]
     public static bool exists<EqT, T>(HashSet<EqT, T> set, Func<T, bool> pred) where EqT : Eq<T> =>
-        set.Exists(pred);
+        set.AsEnumerable().Exists(pred);
 
     /// <summary>
     /// Returns true if both sets contain the same elements
@@ -193,7 +193,7 @@ public partial class HashSet
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S fold<EqT, T, S>(HashSet<EqT, T> set, S state, Func<S, T, S> folder) where EqT : Eq<T> =>
-        set.Fold(state, folder);
+        set.AsEnumerable().Fold(state, folder);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection (from last element to first), 
@@ -210,7 +210,7 @@ public partial class HashSet
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S foldBack<EqT, T, S>(HashSet<EqT, T> set, S state, Func<S, T, S> folder) where EqT : Eq<T> =>
-        set.FoldBack(state, folder);
+        set.AsEnumerable().FoldBack(state, folder);
 
     /// <summary>
     /// Returns the elements that are in both setA and setB

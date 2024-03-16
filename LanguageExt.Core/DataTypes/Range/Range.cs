@@ -127,20 +127,24 @@ public class Range<SELF, NumOrdA, A> : IEnumerable<A>
         Prelude.toSeq(AsEnumerable());
 
     [Pure]
-    public IEnumerable<A> AsEnumerable()
+    public EnumerableM<A> AsEnumerable()
     {
-        if (StepIsAscending)
+        return new(Go());
+        IEnumerable<A> Go()
         {
-            for (A x = From; NumOrdA.Compare(x, To) <= 0; x = NumOrdA.Add(x, Step))
+            if (StepIsAscending)
             {
-                yield return x;
+                for (A x = From; NumOrdA.Compare(x, To) <= 0; x = NumOrdA.Add(x, Step))
+                {
+                    yield return x;
+                }
             }
-        }
-        else
-        {
-            for (A x = From; NumOrdA.Compare(x, To) >= 0; x = NumOrdA.Add(x, Step))
+            else
             {
-                yield return x;
+                for (A x = From; NumOrdA.Compare(x, To) >= 0; x = NumOrdA.Add(x, Step))
+                {
+                    yield return x;
+                }
             }
         }
     }

@@ -1,6 +1,8 @@
-﻿using System;
+﻿#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
 
@@ -9,7 +11,7 @@ namespace LanguageExt;
 /// <summary>
 /// Immutable hash-map module
 /// </summary>
-public static partial class HashMap
+public partial class HashMap
 {
     /// <summary>
     /// Clears all items from the map
@@ -82,7 +84,7 @@ public static partial class HashMap
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> createRange<EqK, K, V>(IEnumerable<Tuple<K, V>> keyValues)
         where EqK : Eq<K> =>
-        createRange<EqK, K, V>(keyValues.Map(static kv => (kv.Item1, kv.Item2)));
+        createRange<EqK, K, V>(keyValues.Select(static kv => (kv.Item1, kv.Item2)));
 
     /// <summary>
     /// Creates a new Map seeded with the keyValues provided
@@ -110,7 +112,7 @@ public static partial class HashMap
     [Pure]
     public static HashMap<EqK, K, V> createRange<EqK, K, V>(IEnumerable<KeyValuePair<K, V>> keyValues)
         where EqK : Eq<K> =>
-        createRange<EqK, K, V>(keyValues.Map(static kv => (kv.Key, kv.Value)));
+        createRange<EqK, K, V>(keyValues.Select(static kv => (kv.Key, kv.Value)));
 
     /// <summary>
     /// Atomically adds a new item to the map

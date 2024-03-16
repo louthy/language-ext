@@ -134,18 +134,11 @@ public readonly struct Seq<A> :
     /// Indexer
     /// </summary>
     /// <exception cref="IndexOutOfRangeException"></exception>
-    public A this[int index]
+    public A this[Index index]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Value[index];
+        get => Value[index.IsFromEnd ? index.GetOffset(Count) : index.Value];
     }
-
-    /// <summary>
-    /// Safe indexer
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Option<A> At(int index) =>
-        Value.At(index);
 
     /// <summary>
     /// Add an item to the end of the sequence
@@ -549,8 +542,8 @@ public readonly struct Seq<A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<A> AsEnumerable() => 
-        Value;
+    public EnumerableM<A> AsEnumerable() => 
+        new(Value);
 
     /// <summary>
     /// Match empty sequence, or multi-item sequence

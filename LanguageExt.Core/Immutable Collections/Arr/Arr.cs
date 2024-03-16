@@ -131,7 +131,7 @@ public struct Arr<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lens<Arr<A>, Arr<B>> map<B>(Lens<A, B> lens) => Lens<Arr<A>, Arr<B>>.New(
         Get: la => la.Map(lens.Get),
-        Set: lb => la => la.Zip(lb).Map(ab => lens.Set(ab.Item2, ab.Item1)).ToArr());
+        Set: lb => la => la.Zip(lb).Select(ab => lens.Set(ab.Item2, ab.Item1)).AsEnumerableM().ToArr());
 
     /// <summary>
     /// Index accessor
@@ -533,8 +533,8 @@ public struct Arr<A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<A> AsEnumerable() =>
-        this;
+    public EnumerableM<A> AsEnumerable() =>
+        new(this);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -570,8 +570,8 @@ public struct Arr<A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<A> Skip(int amount) =>
-        Value.Skip(amount);
+    public EnumerableM<A> Skip(int amount) =>
+        new(Value.Skip(amount));
 
     /// <summary>
     /// Reverse the order of the items in the array
@@ -744,7 +744,7 @@ public struct Arr<A> :
                 res.Add(u);
             }
         }
-        return res.ToArr();
+        return new Arr<B>(res);
     }
 
     /// <summary>

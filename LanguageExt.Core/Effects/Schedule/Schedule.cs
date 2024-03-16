@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -38,7 +39,7 @@ namespace LanguageExt;
 /// 
 ///     var s = Schedule.recurs(5) | Schedule.exponential(10*ms) & Schedule.spaced(300*ms)
 /// </example>
-public abstract partial record Schedule
+public abstract partial record Schedule : Semigroup<Schedule>
 {
     [Pure]
     public static Schedule operator |(Schedule a, Schedule b) =>
@@ -66,14 +67,14 @@ public abstract partial record Schedule
 
     [Pure]
     public static Schedule operator +(Schedule a, Schedule b) =>
-        a.Append(b);
+        a.Combine(b);
 
     /// <summary>
     /// Realise the underlying time-series of durations
     /// </summary>
     /// <returns>The underlying time-series of durations</returns>
     [Pure]
-    public abstract IEnumerable<Duration> Run();
+    public abstract EnumerableM<Duration> Run();
 
     /// <summary>
     /// Intersection of two schedules. As long as they are both running it returns the max duration
@@ -108,8 +109,8 @@ public abstract partial record Schedule
     /// <param name="b">Schedule `b`</param>
     /// <returns>Returns the two schedules appended</returns>
     [Pure]
-    public Schedule Append(Schedule b) =>
-        new SchAppend(this, b);
+    public Schedule Combine(Schedule b) =>
+        new SchCombine(this, b);
 
     /// <summary>
     /// Take `amount` durations from the `Schedule`

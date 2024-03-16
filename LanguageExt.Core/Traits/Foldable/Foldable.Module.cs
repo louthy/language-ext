@@ -463,6 +463,13 @@ public static class Foldable
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
+    public static Arr<A> toArr<T, A>(K<T, A> ta)
+        where T : Foldable<T> =>
+        T.ToArr(ta);
+
+    /// <summary>
+    /// List of elements of a structure, from left to right
+    /// </summary>
     public static EnumerableM<A> toEnumerable<T, A>(K<T, A> ta) 
         where T : Foldable<T> =>
         T.Fold(a => s =>
@@ -513,6 +520,34 @@ public static class Foldable
         T.Exists(x => EqA.Equals(value, x), ta);
 
     /// <summary>
+    /// Find the first element that match the predicate
+    /// </summary>
+    public static Option<A> find<T, A>(Func<A, bool> predicate, K<T, A> ta)
+        where T : Foldable<T> =>
+        T.Find(predicate, ta);
+
+    /// <summary>
+    /// Find the last element that match the predicate
+    /// </summary>
+    public static Option<A> findBack<T, A>(Func<A, bool> predicate, K<T, A> ta) 
+        where T : Foldable<T> =>
+        T.FindBack(predicate, ta);
+
+    /// <summary>
+    /// Find the the elements that match the predicate
+    /// </summary>
+    public static Seq<A> findAll<T, A>(Func<A, bool> predicate, K<T, A> ta) 
+        where T : Foldable<T> =>
+        T.FindAll(predicate, ta);
+
+    /// <summary>
+    /// Find the the elements that match the predicate
+    /// </summary>
+    public static Seq<A> findAllBack<T, A>(Func<A, bool> predicate, K<T, A> ta) 
+        where T : Foldable<T> =>
+        T.FindAllBack(predicate, ta);
+
+    /// <summary>
     /// Computes the sum of the numbers of a structure.
     /// </summary>
     public static A sum<T, A>(K<T, A> ta) 
@@ -529,32 +564,16 @@ public static class Foldable
         T.Product(ta);
 
     /// <summary>
-    /// Get the head item in the foldable
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Throws if sequence is empty.  Consider using `HeadOrNone`</exception>
-    public static A head<T, A>(K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.HeadOrNone(ta).IfNone(() => throw new InvalidOperationException("Sequence empty"));
-
-    /// <summary>
     /// Get the head item in the foldable or `None`
     /// </summary>
-    public static Option<A> headOrNone<T, A>(K<T, A> ta) 
+    public static Option<A> head<T, A>(K<T, A> ta) 
         where T : Foldable<T> =>
         T.FoldWhile(x => _ => Some(x), s => s.State.IsNone, Option<A>.None, ta);
 
     /// <summary>
-    /// Get the head item in the foldable
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Throws if sequence is empty.  Consider using `HeadOrNone`</exception>
-    public static A last<T, A>(K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.LastOrNone(ta).IfNone(() => throw new InvalidOperationException("Sequence empty"));
-
-    /// <summary>
     /// Get the head item in the foldable or `None`
     /// </summary>
-    public static Option<A> lastOrNone<T, A>(K<T, A> ta) 
+    public static Option<A> last<T, A>(K<T, A> ta) 
         where T : Foldable<T> =>
         T.FoldBackWhile(_ => Some, s => s.State.IsNone, Option<A>.None, ta);
 
@@ -567,4 +586,100 @@ public static class Foldable
         where T : Foldable<T>
         where F : Applicative<F> =>
         T.Iter(f, ta);
+
+    /// <summary>
+    /// Map each element of a structure to an action, evaluate these
+    /// actions from left to right, and ignore the results.  For a version that
+    /// doesn't ignore the results see `Traversable.traverse`.
+    /// </summary>
+    public static Unit iter<T, A>(Action<A> f, K<T, A> ta)
+        where T : Foldable<T> =>
+        T.Iter(f, ta);
+    
+    /// <summary>
+    /// Find the minimum value in the structure
+    /// </summary>
+    public static Option<A> min<OrdA, T, A>(K<T, A> ta)
+        where T : Foldable<T>
+        where OrdA : Ord<A> =>
+        T.Min<OrdA, A>(ta);
+
+    /// <summary>
+    /// Find the minimum value in the structure
+    /// </summary>
+    public static Option<A> min<T, A>(K<T, A> ta)
+        where T : Foldable<T>
+        where A : IComparable<A> =>
+        T.Min(ta);
+
+    /// <summary>
+    /// Find the maximum value in the structure
+    /// </summary>
+    public static Option<A> max<OrdA, T, A>(K<T, A> ta)
+        where T : Foldable<T>
+        where OrdA : Ord<A> =>
+        T.Max<OrdA, A>(ta);
+
+    /// <summary>
+    /// Find the maximum value in the structure
+    /// </summary>
+    public static Option<A> max<T, A>(K<T, A> ta)
+        where T : Foldable<T>
+        where A : IComparable<A> =>
+        T.Max(ta);
+    
+    /// <summary>
+    /// Find the minimum value in the structure
+    /// </summary>
+    public static A min<OrdA, T, A>(K<T, A> ta, A initialMin)
+        where T : Foldable<T>
+        where OrdA : Ord<A> =>
+        T.Min<OrdA, A>(ta, initialMin);
+
+    /// <summary>
+    /// Find the minimum value in the structure
+    /// </summary>
+    public static A min<T, A>(K<T, A> ta, A initialMin)
+        where T : Foldable<T>
+        where A : IComparable<A> =>
+        T.Min(ta, initialMin);
+
+    /// <summary>
+    /// Find the maximum value in the structure
+    /// </summary>
+    public static A max<OrdA, T, A>(K<T, A> ta, A initialMax)
+        where T : Foldable<T>
+        where OrdA : Ord<A> =>
+        T.Max<OrdA, A>(ta, initialMax);
+
+    /// <summary>
+    /// Find the maximum value in the structure
+    /// </summary>
+    public static A max<T, A>(K<T, A> ta, A initialMax)
+        where T : Foldable<T>
+        where A : IComparable<A> =>
+        T.Max(ta, initialMax);
+
+    /// <summary>
+    /// Find the average of all the values in the structure
+    /// </summary>
+    public static A average<T, A>(K<T, A> ta)
+        where T : Foldable<T>
+        where A : INumber<A> =>
+        T.Average(ta);
+
+    /// <summary>
+    /// Find the average of all the values in the structure
+    /// </summary>
+    public static B average<T, A, B>(Func<A, B> f, K<T, A> ta)
+        where T : Foldable<T>
+        where B : INumber<B> =>
+        T.Average(f, ta);
+
+    /// <summary>
+    /// Find the element at the specified index or `None` if out of range
+    /// </summary>
+    public static Option<A> at<T, A>(K<T, A> ta, Index index)
+        where T : Foldable<T> =>
+        T.At(ta, index);
 }

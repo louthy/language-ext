@@ -6,6 +6,7 @@ using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -33,7 +34,8 @@ public delegate void AtomEnqueuedEvent<in A>(A value);
 public class AtomQue<A> : 
     IEquatable<AtomQue<A>>, 
     IEquatable<Que<A>>,
-    IEnumerable<A>
+    IEnumerable<A>,
+    K<AtomQue, A>
 {
     QueInternal<A> items;
     public event AtomDequeuedEvent<A>? Dequeued;
@@ -82,7 +84,7 @@ public class AtomQue<A> :
     public object? Case =>
         IsEmpty
             ? null
-            : Prelude.toSeq(items).Case;
+            : toSeq(items).Case;
 
     /// <summary>
     /// Is the queue empty
@@ -235,8 +237,8 @@ public class AtomQue<A> :
         items.ToSeq();
 
     [Pure]
-    public IEnumerable<A> AsEnumerable() =>
-        items.AsEnumerable();
+    public EnumerableM<A> AsEnumerable() =>
+        new(items);
 
     [Pure]
     public IEnumerator<A> GetEnumerator() =>
@@ -253,7 +255,7 @@ public class AtomQue<A> :
         while (true)
         {
             var oitems = items;
-            var nitems = oitems.Append(rhs.Value);
+            var nitems = oitems.Combine(rhs.Value);
             if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
             {
                 if (Enqueued != null)
@@ -280,7 +282,7 @@ public class AtomQue<A> :
         while (true)
         {
             var oitems = items;
-            var nitems = oitems.Append(ritems);
+            var nitems = oitems.Combine(ritems);
             if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
             {
                 if (Enqueued != null)

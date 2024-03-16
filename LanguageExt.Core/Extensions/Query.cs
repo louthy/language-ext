@@ -11,10 +11,10 @@ public static class Query
     public static T head<T>(IQueryable<T> list) => list.First();
 
     public static Option<T> headOrNone<T>(IQueryable<T> list) =>
-        list.Take(1).AsEnumerable().HeadOrNone();
+        list.FirstOrDefault() ?? Option<T>.None;
 
     public static Either<L, R> headOrLeft<L, R>(IQueryable<R> list, L left) =>
-        list.Take(1).AsEnumerable().HeadOrLeft(left);
+        list.FirstOrDefault() ?? Either<L, R>.Left(left);
 
     public static IQueryable<T> tail<T>(IQueryable<T> list) =>
         list.Skip(1);

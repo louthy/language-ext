@@ -22,8 +22,7 @@ namespace LanguageExt;
 /// <typeparam name="V">Value type</typeparam>
 [Serializable]
 internal class MapInternal<OrdK, K, V> :
-    IEnumerable<(K Key, V Value)>,
-    IReadOnlyDictionary<K, V>
+    IEnumerable<(K Key, V Value)>
     where OrdK : Ord<K>
 {
     public static readonly MapInternal<OrdK, K, V> Empty = new (MapItem<K, V>.Empty, false);
@@ -717,13 +716,13 @@ internal class MapInternal<OrdK, K, V> :
     /// <returns>Range of values</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<V> FindRange(K keyFrom, K keyTo)
+    public EnumerableM<V> FindRange(K keyFrom, K keyTo)
     {
         if (isnull(keyFrom)) throw new ArgumentNullException(nameof(keyFrom));
         if (isnull(keyTo)) throw new ArgumentNullException(nameof(keyTo));
         return OrdK.Compare(keyFrom, keyTo) > 0
-                   ? MapModule.FindRange<OrdK, K, V>(Root, keyTo, keyFrom)
-                   : MapModule.FindRange<OrdK, K, V>(Root, keyFrom, keyTo);
+                   ? MapModule.FindRange<OrdK, K, V>(Root, keyTo, keyFrom).AsEnumerableM()
+                   : MapModule.FindRange<OrdK, K, V>(Root, keyFrom, keyTo).AsEnumerableM();
     }
 
     /// <summary>
@@ -735,13 +734,13 @@ internal class MapInternal<OrdK, K, V> :
     /// <returns>Range of values</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<(K, V)> FindRangePairs(K keyFrom, K keyTo)
+    public EnumerableM<(K, V)> FindRangePairs(K keyFrom, K keyTo)
     {
         if (isnull(keyFrom)) throw new ArgumentNullException(nameof(keyFrom));
         if (isnull(keyTo)) throw new ArgumentNullException(nameof(keyTo));
         return OrdK.Compare(keyFrom, keyTo) > 0
-                   ? MapModule.FindRangePairs<OrdK, K, V>(Root, keyTo, keyFrom)
-                   : MapModule.FindRangePairs<OrdK, K, V>(Root, keyFrom, keyTo);
+                   ? MapModule.FindRangePairs<OrdK, K, V>(Root, keyTo, keyFrom).AsEnumerableM()
+                   : MapModule.FindRangePairs<OrdK, K, V>(Root, keyFrom, keyTo).AsEnumerableM();
     }
 
     /// <summary>
@@ -752,12 +751,17 @@ internal class MapInternal<OrdK, K, V> :
     /// <returns>New tree</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<(K Key, V Value)> Skip(int amount)
+    public EnumerableM<(K Key, V Value)> Skip(int amount)
     {
-        using var enumer = new MapEnumerator<K, V>(Root, Rev, amount);
-        while (enumer.MoveNext())
+        return new(Go());
+
+        IEnumerable<(K, V)> Go()
         {
-            yield return enumer.Current;
+            using var enumer = new MapEnumerator<K, V>(Root, Rev, amount);
+            while (enumer.MoveNext())
+            {
+                yield return enumer.Current;
+            }
         }
     }
 
@@ -769,11 +773,7 @@ internal class MapInternal<OrdK, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ContainsKey(K key) =>
-        isnull(key)
-            ? false
-            : Find(key)
-                ? true
-                : false;
+        !isnull(key) && (Find(key) ? true : false);
 
     /// <summary>
     /// Checks for existence of a key in the map
@@ -807,7 +807,7 @@ internal class MapInternal<OrdK, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MapInternal<OrdK, K, V> AddRange(IEnumerable<KeyValuePair<K, V>> pairs) =>
-        AddRange(pairs.Map(kv => (kv.Key, kv.Value)));
+        AddRange(pairs.AsEnumerableM().Map(kv => (kv.Key, kv.Value)));
 
     /// <summary>
     /// Atomically sets a series of items using the KeyValuePairs provided
@@ -1061,15 +1061,19 @@ internal class MapInternal<OrdK, K, V> :
     /// Enumerable of map keys
     /// </summary>
     [Pure]
-    public IEnumerable<K> Keys
+    public EnumerableM<K> Keys
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
         {
-            using var iter = new MapKeyEnumerator<K, V>(Root, Rev, 0);
-            while (iter.MoveNext())
+            return new(Go());
+            IEnumerable<K> Go()
             {
-                yield return iter.Current;
+                using var iter = new MapKeyEnumerator<K, V>(Root, Rev, 0);
+                while (iter.MoveNext())
+                {
+                    yield return iter.Current;
+                }
             }
         }
     }
@@ -1078,27 +1082,22 @@ internal class MapInternal<OrdK, K, V> :
     /// Enumerable of map values
     /// </summary>
     [Pure]
-    public IEnumerable<V> Values
+    public EnumerableM<V> Values
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
         {
-            using var iter = new MapValueEnumerator<K, V>(Root, Rev, 0);
-            while (iter.MoveNext())
+            return new(Go());
+            IEnumerable<V> Go()
             {
-                yield return iter.Current;
+                using var iter = new MapValueEnumerator<K, V>(Root, Rev, 0);
+                while (iter.MoveNext())
+                {
+                    yield return iter.Current;
+                }
             }
         }
     }
-
-    /// <summary>
-    /// Convert the map to an `IReadOnlyDictionary<K, V>`
-    /// </summary>
-    /// <returns></returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IReadOnlyDictionary<K, V> ToDictionary() =>
-        this;
 
     /// <summary>
     /// Map the map the a dictionary
@@ -1113,7 +1112,7 @@ internal class MapInternal<OrdK, K, V> :
     /// </summary>
     /// <returns>Tuples</returns>
     [Pure]
-    public IEnumerable<(K Key, V Value)> Pairs
+    public EnumerableM<(K Key, V Value)> Pairs
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => AsEnumerable().Map(kv => (kv.Key, kv.Value));
@@ -1150,18 +1149,18 @@ internal class MapInternal<OrdK, K, V> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<(K Key, V Value)> AsEnumerable()
+    public EnumerableM<(K Key, V Value)> AsEnumerable()
     {
-        using var iter = new MapEnumerator<K, V>(Root, Rev, 0);
-        while (iter.MoveNext())
+        return new(Go());
+        IEnumerable<(K, V)> Go()
         {
-            yield return iter.Current;
+            using var iter = new MapEnumerator<K, V>(Root, Rev, 0);
+            while (iter.MoveNext())
+            {
+                yield return iter.Current;
+            }
         }
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
-        AsEnumerable().Map(ToKeyValuePair).GetEnumerator();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static KeyValuePair<K, V> ToKeyValuePair((K Key, V Value) kv) => 

@@ -36,7 +36,7 @@ internal class TrieSet<EqK, K> :
         Empty
     }
 
-    public static readonly TrieSet<EqK, K> Empty = new TrieSet<EqK, K>(EmptyNode.Default, 0);
+    public static readonly TrieSet<EqK, K> Empty = new (EmptyNode.Default, 0);
 
     readonly Node Root;
     readonly int count;
@@ -1100,8 +1100,8 @@ internal class TrieSet<EqK, K> :
         }
     }
 
-    public IEnumerable<K> AsEnumerable() =>
-        Root;
+    public EnumerableM<K> AsEnumerable() =>
+        Root.AsEnumerableM();
 
     public IEnumerator<K> GetEnumerator() =>
         Root.GetEnumerator();

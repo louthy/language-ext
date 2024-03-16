@@ -13,9 +13,9 @@ public static partial class FoldableExtensions
     /// </remarks>
     public static S FoldWhile<T, A, S>(
         this K<T, A> ta,
+        S initialState,
         Func<A, Func<S, S>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S initialState)
+        Func<(S State, A Value), bool> predicate)
         where T : Foldable<T> =>
         T.FoldWhile(f, predicate, initialState, ta);
     
@@ -25,9 +25,9 @@ public static partial class FoldableExtensions
     /// </remarks>
     public static S FoldWhile<T, A, S>(
         this K<T, A> ta,
+        S initialState,
         Func<S, A, S> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S initialState)
+        Func<(S State, A Value), bool> predicate)
         where T : Foldable<T> =>
         T.FoldWhile(a => s => f(s, a), predicate, initialState, ta);
 
@@ -37,9 +37,9 @@ public static partial class FoldableExtensions
     /// </remarks>
     public static S FoldBackWhile<T, A, S>(
         this K<T, A> ta,
+        S initialState,
         Func<S, Func<A, S>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S initialState) 
+        Func<(S State, A Value), bool> predicate) 
         where T : Foldable<T> =>
         T.FoldBackWhile(f, predicate, initialState, ta);
 
@@ -49,9 +49,9 @@ public static partial class FoldableExtensions
     /// </remarks>
     public static S FoldBackWhile<T, A, S>(
         this K<T, A> ta,
+        S initialState,
         Func<S, A, S> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S initialState) 
+        Func<(S State, A Value), bool> predicate) 
         where T : Foldable<T> =>
         T.FoldBackWhile(curry(f), predicate, initialState, ta);
 
@@ -62,9 +62,9 @@ public static partial class FoldableExtensions
     /// </remarks>
     public static K<M, S> FoldWhileM<T, A, M, S>(
         this K<T, A> ta,
+        S initialState,
         Func<A, Func<S, K<M, S>>> f, 
-        Func<A, bool> predicate, 
-        S initialState) 
+        Func<A, bool> predicate) 
         where T : Foldable<T>
         where M : Monad<M> =>
         T.FoldWhileM(f, predicate, initialState, ta);
@@ -76,9 +76,9 @@ public static partial class FoldableExtensions
     /// </remarks>
     public static K<M, S> FoldWhileM<T, A, M, S>(
         this K<T, A> ta,
+        S initialState,
         Func<S, A, K<M, S>> f, 
-        Func<A, bool> predicate, 
-        S initialState) 
+        Func<A, bool> predicate) 
         where T : Foldable<T>
         where M : Monad<M> =>
         T.FoldWhileM<A, M, S>(a => s => f(s, a), predicate, initialState, ta);
@@ -90,9 +90,9 @@ public static partial class FoldableExtensions
     /// </remarks>
     public static K<M, S> FoldBackWhileM<T, A, M, S>(
         this K<T, A> ta,
+        S initialState,
         Func<S, Func<A, K<M, S>>> f, 
-        Func<A, bool> predicate, 
-        S initialState)
+        Func<A, bool> predicate)
         where T : Foldable<T> 
         where M : Monad<M> =>
         T.FoldBackWhileM(f, predicate, initialState, ta);
@@ -104,9 +104,9 @@ public static partial class FoldableExtensions
     /// </remarks>
     public static K<M, S> FoldBackWhileM<T, A, M, S>(
         this K<T, A> ta,
+        S initialState,
         Func<S, A, K<M, S>> f, 
-        Func<A, bool> predicate, 
-        S initialState)
+        Func<A, bool> predicate)
         where T : Foldable<T> 
         where M : Monad<M> =>
         T.FoldBackWhileM(curry(f), predicate, initialState, ta);
@@ -117,9 +117,9 @@ public static partial class FoldableExtensions
     /// </remarks>
     public static S FoldUntil<T, A, S>(
         this K<T, A> ta,
+        S initialState,
         Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S initialState) 
+        Func<(S State, A Value), bool> predicate) 
         where T : Foldable<T> =>
         T.FoldUntil(f, predicate, initialState, ta);
 
@@ -129,9 +129,9 @@ public static partial class FoldableExtensions
     /// </remarks>
     public static S FoldUntil<T, A, S>(
         this K<T, A> ta,
+        S initialState,
         Func<S, A, S> f,
-        Func<(S State, A Value), bool> predicate,
-        S initialState) 
+        Func<(S State, A Value), bool> predicate) 
         where T : Foldable<T> =>
         T.FoldUntil(a => s => f(s, a), predicate, initialState, ta);
 
@@ -142,9 +142,9 @@ public static partial class FoldableExtensions
     /// </remarks>
     public static K<M, S> FoldUntilM<T, A, M, S>(
         this K<T, A> ta,
+        S initialState,
         Func<A, Func<S, K<M, S>>> f, 
-        Func<A, bool> predicate, 
-        S initialState) 
+        Func<A, bool> predicate) 
         where M : Monad<M>
         where T : Foldable<T> => 
         T.FoldUntilM(f, predicate, initialState, ta);
@@ -156,9 +156,9 @@ public static partial class FoldableExtensions
     /// </remarks>
     public static K<M, S> FoldUntilM<T, A, M, S>(
         this K<T, A> ta,
+        S initialState,
         Func<S, A, K<M, S>> f, 
-        Func<A, bool> predicate, 
-        S initialState) 
+        Func<A, bool> predicate) 
         where M : Monad<M>
         where T : Foldable<T> => 
         T.FoldUntilM<A, M, S>(a => s => f(s, a), predicate, initialState, ta);
@@ -169,9 +169,9 @@ public static partial class FoldableExtensions
     /// </remarks>
     public static S FoldBackUntil<T, A, S>(
         this K<T, A> ta,
+        S initialState,
         Func<S, Func<A, S>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S initialState) 
+        Func<(S State, A Value), bool> predicate) 
         where T : Foldable<T> =>
         T.FoldBackUntil(f, predicate, initialState, ta);
 
@@ -181,9 +181,9 @@ public static partial class FoldableExtensions
     /// </remarks>
     public static S FoldBackUntil<T, A, S>(
         this K<T, A> ta,
+        S initialState,
         Func<S, A, S> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S initialState) 
+        Func<(S State, A Value), bool> predicate) 
         where T : Foldable<T> =>
         T.FoldBackUntil(curry(f), predicate, initialState, ta);
 
@@ -194,9 +194,9 @@ public static partial class FoldableExtensions
     /// </remarks>
     public static K<M, S> FoldBackUntilM<T, A, M, S>(
         this K<T, A> ta,
+        S initialState,
         Func<S, Func<A, K<M, S>>> f, 
-        Func<A, bool> predicate, 
-        S initialState)
+        Func<A, bool> predicate)
         where T : Foldable<T> 
         where M : Monad<M> =>
         T.FoldBackUntilM(f, predicate, initialState, ta);
@@ -208,9 +208,9 @@ public static partial class FoldableExtensions
     /// </remarks>
     public static K<M, S> FoldBackUntilM<T, A, M, S>(
         this K<T, A> ta,
+        S initialState,
         Func<S, A, K<M, S>> f, 
-        Func<A, bool> predicate, 
-        S initialState)
+        Func<A, bool> predicate)
         where T : Foldable<T> 
         where M : Monad<M> =>
         T.FoldBackUntilM(curry(f), predicate, initialState, ta);
@@ -222,7 +222,10 @@ public static partial class FoldableExtensions
     /// starting value (typically the right-identity of the operator), and a
     /// list, reduces the list using the binary operator, from right to left.
     /// </summary>
-    public static S Fold<T, A, S>(this K<T, A> ta, Func<A, Func<S, S>> f, S initialState) 
+    public static S Fold<T, A, S>(
+        this K<T, A> ta,
+        S initialState,
+        Func<A, Func<S, S>> f) 
         where T : Foldable<T> =>
         T.Fold(f, initialState, ta);
 
@@ -233,7 +236,7 @@ public static partial class FoldableExtensions
     /// starting value (typically the right-identity of the operator), and a
     /// list, reduces the list using the binary operator, from right to left.
     /// </summary>
-    public static S Fold<T, A, S>(this K<T, A> ta, Func<S, A, S> f, S initialState) 
+    public static S Fold<T, A, S>(this K<T, A> ta, S initialState, Func<S, A, S> f) 
         where T : Foldable<T> =>
         T.Fold(a => s => f(s, a), initialState, ta);
 
@@ -245,9 +248,9 @@ public static partial class FoldableExtensions
     /// list, reduces the list using the binary operator, from right to left.
     /// </summary>
     public static K<M, S> FoldM<T, A, M, S>(
-        this K<T, A> ta,
-        Func<A, Func<S, K<M, S>>> f, 
-        S initialState) 
+        this K<T, A> ta, 
+        S initialState,
+        Func<A, Func<S, K<M, S>>> f) 
         where T : Foldable<T>
         where M : Monad<M> =>
         T.FoldM(f, initialState, ta);
@@ -260,9 +263,9 @@ public static partial class FoldableExtensions
     /// list, reduces the list using the binary operator, from right to left.
     /// </summary>
     public static K<M, S> FoldM<T, A, M, S>(
-        this K<T, A> ta,
-        Func<S, A, K<M, S>> f, 
-        S initialState) 
+        this K<T, A> ta, 
+        S initialState,
+        Func<S, A, K<M, S>> f) 
         where T : Foldable<T>
         where M : Monad<M> =>
         T.FoldM<A, M, S>(a => s => f(s, a), initialState, ta);
@@ -282,7 +285,7 @@ public static partial class FoldableExtensions
     /// entire input list must be traversed.  Like all left-associative folds,
     /// `FoldBack' will diverge if given an infinite list.
     /// </remarks>
-    public static S FoldBack<T, A, S>(this K<T, A> ta, Func<S, Func<A, S>> f, S initialState) 
+    public static S FoldBack<T, A, S>(this K<T, A> ta, S initialState, Func<S, Func<A, S>> f) 
         where T : Foldable<T> =>
         T.FoldBack(f, initialState, ta);
     
@@ -301,7 +304,7 @@ public static partial class FoldableExtensions
     /// entire input list must be traversed.  Like all left-associative folds,
     /// `FoldBack' will diverge if given an infinite list.
     /// </remarks>
-    public static S FoldBack<T, A, S>(this K<T, A> ta, Func<S, A, S> f, S initialState) 
+    public static S FoldBack<T, A, S>(this K<T, A> ta, S initialState, Func<S, A, S> f) 
         where T : Foldable<T> =>
         T.FoldBack(curry(f), initialState, ta);
 
@@ -321,9 +324,9 @@ public static partial class FoldableExtensions
     /// `FoldBack' will diverge if given an infinite list.
     /// </remarks>
     public static K<M, S> FoldBackM<T, A, M, S>(
-        this K<T, A> ta,
-        Func<S, Func<A, K<M, S>>> f, 
-        S initialState)
+        this K<T, A> ta, 
+        S initialState,
+        Func<S, Func<A, K<M, S>>> f)
         where T : Foldable<T>
         where M : Monad<M> =>
         T.FoldBackM(f, initialState, ta);
@@ -344,9 +347,9 @@ public static partial class FoldableExtensions
     /// `FoldBack' will diverge if given an infinite list.
     /// </remarks>
     public static K<M, S> FoldBackM<T, A, M, S>(
-        this K<T, A> ta,
-        Func<S, A, K<M, S>> f, 
-        S initialState)
+        this K<T, A> ta, 
+        S initialState,
+        Func<S, A, K<M, S>> f)
         where T : Foldable<T>
         where M : Monad<M> =>
         T.FoldBackM(curry(f), initialState, ta);
@@ -464,6 +467,13 @@ public static partial class FoldableExtensions
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
+    public static Arr<A> ToArr<T, A>(this K<T, A> ta)
+        where T : Foldable<T> =>
+        T.ToArr(ta);
+
+    /// <summary>
+    /// List of elements of a structure, from left to right
+    /// </summary>
     public static EnumerableM<A> ToEnumerable<T, A>(this K<T, A> ta)
         where T : Foldable<T> =>
         T.ToEnumerable(ta);
@@ -510,6 +520,34 @@ public static partial class FoldableExtensions
         T.Contains<EqA, A>(value, ta);
 
     /// <summary>
+    /// Find the first element that match the predicate
+    /// </summary>
+    public static Option<A> Find<T, A>(this K<T, A> ta, Func<A, bool> predicate)
+        where T : Foldable<T> =>
+        T.Find(predicate, ta);
+
+    /// <summary>
+    /// Find the last element that match the predicate
+    /// </summary>
+    public static Option<A> FindBack<T, A>(this K<T, A> ta, Func<A, bool> predicate) 
+        where T : Foldable<T> =>
+        T.FindBack(predicate, ta);
+
+    /// <summary>
+    /// Find the the elements that match the predicate
+    /// </summary>
+    public static Seq<A> FindAll<T, A>(this K<T, A> ta, Func<A, bool> predicate) 
+        where T : Foldable<T> =>
+        T.FindAll(predicate, ta);
+
+    /// <summary>
+    /// Find the the elements that match the predicate
+    /// </summary>
+    public static Seq<A> FindAllBack<T, A>(this K<T, A> ta, Func<A, bool> predicate) 
+        where T : Foldable<T> =>
+        T.FindAllBack(predicate, ta);    
+    
+    /// <summary>
     /// Computes the sum of the numbers of a structure.
     /// </summary>
     public static A Sum<T, A>(this K<T, A> ta) 
@@ -526,34 +564,18 @@ public static partial class FoldableExtensions
         T.Product(ta);
 
     /// <summary>
-    /// Get the head item in the foldable
+    /// Get the head item in the foldable or `None`
     /// </summary>
-    /// <exception cref="InvalidOperationException">Throws if sequence is empty.  Consider using `HeadOrNone`</exception>
-    public static A Head<T, A>(this K<T, A> ta) 
+    public static Option<A> Head<T, A>(this K<T, A> ta) 
         where T : Foldable<T> =>
         T.Head(ta);
 
     /// <summary>
     /// Get the head item in the foldable or `None`
     /// </summary>
-    public static Option<A> HeadOrNone<T, A>(this K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.HeadOrNone(ta);
-
-    /// <summary>
-    /// Get the head item in the foldable
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Throws if sequence is empty.  Consider using `HeadOrNone`</exception>
-    public static A Last<T, A>(this K<T, A> ta) 
+    public static Option<A> Last<T, A>(this K<T, A> ta) 
         where T : Foldable<T> =>
         T.Last(ta);
-
-    /// <summary>
-    /// Get the head item in the foldable or `None`
-    /// </summary>
-    public static Option<A> LastOrNone<T, A>(this K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.LastOrNone(ta);
 
     /// <summary>
     /// Map each element of a structure to an 'Applicative' action, evaluate these
@@ -564,4 +586,100 @@ public static partial class FoldableExtensions
         where T : Foldable<T>
         where F : Applicative<F> =>
         T.Iter(f, ta);
+
+    /// <summary>
+    /// Map each element of a structure to an action, evaluate these
+    /// actions from left to right, and ignore the results.  For a version that
+    /// doesn't ignore the results see `Traversable.traverse`.
+    /// </summary>
+    public static Unit Iter<T, A>(this K<T, A> ta, Action<A> f)
+        where T : Foldable<T> =>
+        T.Iter(f, ta);
+        
+    /// <summary>
+    /// Find the minimum value in the structure
+    /// </summary>
+    public static Option<A> Min<OrdA, T, A>(this K<T, A> ta)
+        where T : Foldable<T>
+        where OrdA : Ord<A> =>
+        T.Min<OrdA, A>(ta);
+
+    /// <summary>
+    /// Find the minimum value in the structure
+    /// </summary>
+    public static Option<A> Min<T, A>(this K<T, A> ta)
+        where T : Foldable<T>
+        where A : IComparable<A> =>
+        T.Min(ta);
+
+    /// <summary>
+    /// Find the maximum value in the structure
+    /// </summary>
+    public static Option<A> Max<OrdA, T, A>(this K<T, A> ta)
+        where T : Foldable<T>
+        where OrdA : Ord<A> =>
+        T.Max<OrdA, A>(ta);
+
+    /// <summary>
+    /// Find the maximum value in the structure
+    /// </summary>
+    public static Option<A> Max<T, A>(this K<T, A> ta)
+        where T : Foldable<T>
+        where A : IComparable<A> =>
+        T.Max(ta);
+    
+    /// <summary>
+    /// Find the minimum value in the structure
+    /// </summary>
+    public static A Min<OrdA, T, A>(this K<T, A> ta, A initialMin)
+        where T : Foldable<T>
+        where OrdA : Ord<A> =>
+        T.Min<OrdA, A>(ta, initialMin);
+
+    /// <summary>
+    /// Find the minimum value in the structure
+    /// </summary>
+    public static A Min<T, A>(this K<T, A> ta, A initialMin)
+        where T : Foldable<T>
+        where A : IComparable<A> =>
+        T.Min(ta, initialMin);
+
+    /// <summary>
+    /// Find the maximum value in the structure
+    /// </summary>
+    public static A Max<OrdA, T, A>(this K<T, A> ta, A initialMax)
+        where T : Foldable<T>
+        where OrdA : Ord<A> =>
+        T.Max<OrdA, A>(ta, initialMax);
+
+    /// <summary>
+    /// Find the maximum value in the structure
+    /// </summary>
+    public static A Max<T, A>(this K<T, A> ta, A initialMax)
+        where T : Foldable<T>
+        where A : IComparable<A> =>
+        T.Max(ta, initialMax);    
+
+    /// <summary>
+    /// Find the average of all the values in the structure
+    /// </summary>
+    public static A Average<T, A>(this K<T, A> ta)
+        where T : Foldable<T>
+        where A : INumber<A> =>
+        T.Average(ta);
+
+    /// <summary>
+    /// Find the average of all the values in the structure
+    /// </summary>
+    public static B Average<T, A, B>(this K<T, A> ta, Func<A, B> f)
+        where T : Foldable<T>
+        where B : INumber<B> =>
+        T.Average(f, ta);
+
+    /// <summary>
+    /// Find the element at the specified index or `None` if out of range
+    /// </summary>
+    public static Option<A> At<T, A>(this K<T, A> ta, Index index)
+        where T : Foldable<T> =>
+        T.At(ta, index);
 }

@@ -148,13 +148,17 @@ public static partial class Prelude
     /// Lazy sequence of natural numbers up to Int32.MaxValue
     /// </summary>
     [Pure]
-    public static IEnumerable<int> Naturals
+    public static EnumerableM<int> Naturals
     {
         get
         {
-            for (var i = 0; i < int.MaxValue; i++)
+            return Go().AsEnumerableM();
+            IEnumerable<long> Go()
             {
-                yield return i;
+                for (var i = 0; i < int.MaxValue; i++)
+                {
+                    yield return i;
+                }
             }
         }
     }
@@ -163,13 +167,17 @@ public static partial class Prelude
     /// Lazy sequence of natural numbers up to Int64.MaxValue
     /// </summary>
     [Pure]
-    public static IEnumerable<long> LongNaturals
+    public static EnumerableM<long> LongNaturals
     {
         get
         {
-            for (var i = 0L; i < long.MaxValue; i++)
+            return Go().AsEnumerableM();
+            IEnumerable<long> Go()
             {
-                yield return i;
+                for (var i = 0L; i < long.MaxValue; i++)
+                {
+                    yield return i;
+                }
             }
         }
     }
@@ -178,8 +186,8 @@ public static partial class Prelude
     /// Lazily generate a range of integers.  
     /// </summary>
     [Pure]
-    public static IEnumerable<int> Range(int from, int count, int step = 1) =>
-        IntegerRange.FromCount(from, count, step);
+    public static EnumerableM<int> Range(int from, int count, int step = 1) =>
+        IntegerRange.FromCount(from, count, step).AsEnumerableM();
 
     /// <summary>
     /// Lazily generate a range of chars.  
@@ -195,13 +203,17 @@ public static partial class Prelude
     /// Lazily generate integers from any number of provided ranges
     /// </summary>
     [Pure]
-    public static IEnumerable<int> Range(params IEnumerable<int>[] ranges)
+    public static EnumerableM<long> Range(params IEnumerable<int>[] ranges)
     {
-        foreach(var range in ranges)
+        return Go().AsEnumerableM();
+        IEnumerable<long> Go()
         {
-            foreach(var i in range)
+            foreach (var range in ranges)
             {
-                yield return i;
+                foreach (var i in range)
+                {
+                    yield return i;
+                }
             }
         }
     }
@@ -210,13 +222,18 @@ public static partial class Prelude
     /// Lazily generate chars from any number of provided ranges
     /// </summary>
     [Pure]
-    public static IEnumerable<char> Range(params IEnumerable<char>[] ranges)
+    public static EnumerableM<char> Range(params IEnumerable<char>[] ranges)
     {
-        foreach(var range in ranges)
+        return Go().AsEnumerableM();
+
+        IEnumerable<char> Go()
         {
-            foreach(var c in range)
+            foreach (var range in ranges)
             {
-                yield return c;
+                foreach (var c in range)
+                {
+                    yield return c;
+                }
             }
         }
     }

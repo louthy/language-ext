@@ -1,4 +1,5 @@
-﻿using LanguageExt.Traits;
+﻿#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 using System;
 using System.Collections;
@@ -21,6 +22,7 @@ namespace LanguageExt;
 [Serializable]
 [CollectionBuilder(typeof(Map), nameof(Map.createRange))]
 public readonly struct Map<OrdK, K, V> :
+    IReadOnlyDictionary<K, V>,
     IEnumerable<(K Key, V Value)>,
     IEquatable<Map<OrdK, K, V>>,
     IComparable<Map<OrdK, K, V>>,
@@ -87,7 +89,7 @@ public readonly struct Map<OrdK, K, V> :
     public object? Case =>
         IsEmpty 
             ? null
-            : toSeq(this).Case;
+            : AsEnumerable().ToSeq().Case;
 
     /// <summary>
     /// 'this' accessor
@@ -278,7 +280,7 @@ public readonly struct Map<OrdK, K, V> :
     /// <param name="key">Key to find</param>
     /// <returns>Found value</returns>
     [Pure]
-    public IEnumerable<V> FindSeq(K key) => Value.FindSeq(key);
+    public Seq<V> FindSeq(K key) => Value.FindSeq(key);
 
     /// <summary>
     /// Retrieve a value from the map by key and pattern match the
@@ -467,7 +469,7 @@ public readonly struct Map<OrdK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
     /// <returns>Range of values</returns>
     [Pure]
-    public IEnumerable<V> FindRange(K keyFrom, K keyTo) => Value.FindRange(keyFrom, keyTo);
+    public EnumerableM<V> FindRange(K keyFrom, K keyTo) => Value.FindRange(keyFrom, keyTo);
 
     /// <summary>
     /// Retrieve a range of values 
@@ -477,7 +479,7 @@ public readonly struct Map<OrdK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
     /// <returns>Range of values</returns>
     [Pure]
-    public IEnumerable<(K Key, V Value)> FindRangePairs(K keyFrom, K keyTo) => Value.FindRangePairs(keyFrom, keyTo);
+    public EnumerableM<(K Key, V Value)> FindRangePairs(K keyFrom, K keyTo) => Value.FindRangePairs(keyFrom, keyTo);
 
     /// <summary>
     /// Skips 'amount' values and returns a new tree without the 
@@ -486,7 +488,7 @@ public readonly struct Map<OrdK, K, V> :
     /// <param name="amount">Amount to skip</param>
     /// <returns>New tree</returns>
     [Pure]
-    public IEnumerable<(K Key, V Value)> Skip(int amount) => Value.Skip(amount);
+    public EnumerableM<(K Key, V Value)> Skip(int amount) => Value.Skip(amount);
 
     /// <summary>
     /// Checks for existence of a key in the map
@@ -606,20 +608,13 @@ public readonly struct Map<OrdK, K, V> :
     /// Enumerable of map keys
     /// </summary>
     [Pure]
-    public IEnumerable<K> Keys => Value.Keys;
+    public EnumerableM<K> Keys => Value.Keys;
 
     /// <summary>
     /// Enumerable of map values
     /// </summary>
     [Pure]
-    public IEnumerable<V> Values => Value.Values;
-
-    /// <summary>
-    /// Convert the map to an `IReadOnlyDictionary<K, V>`
-    /// </summary>
-    /// <returns></returns>
-    [Pure]
-    public IReadOnlyDictionary<K, V> ToDictionary() => Value.ToDictionary();
+    public EnumerableM<V> Values => Value.Values;
 
     /// <summary>
     /// Map the map the a dictionary
@@ -630,18 +625,11 @@ public readonly struct Map<OrdK, K, V> :
         Value.ToDictionary(keySelector, valueSelector);
 
     /// <summary>
-    /// Get a IReadOnlyDictionary for this map.  No mapping is required, so this is very fast.
-    /// </summary>
-    [Pure]
-    public IReadOnlyDictionary<K, V> ToReadOnlyDictionary() =>
-        value;
-
-    /// <summary>
     /// Enumerable of in-order tuples that make up the map
     /// </summary>
     /// <returns>Tuples</returns>
     [Pure]
-    public IEnumerable<(K Key, V Value)> Pairs =>
+    public EnumerableM<(K Key, V Value)> Pairs =>
         Value.Pairs;
 
     /// <summary>
@@ -650,7 +638,7 @@ public readonly struct Map<OrdK, K, V> :
     /// <returns>Tuples</returns>
     [Pure]
     [Obsolete("Use `Pairs` instead")]
-    public IEnumerable<(K Key, V Value)> ValueTuples =>
+    public EnumerableM<(K Key, V Value)> ValueTuples =>
         Value.Pairs;
 
     /// <summary>
@@ -669,7 +657,7 @@ public readonly struct Map<OrdK, K, V> :
 
     [Pure]
     public Seq<(K Key, V Value)> ToSeq() =>
-        toSeq(this);
+        AsEnumerable().ToSeq();
 
     /// <summary>
     /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
@@ -697,7 +685,7 @@ public readonly struct Map<OrdK, K, V> :
 
 
     [Pure]
-    public IEnumerable<(K Key, V Value)> AsEnumerable() => 
+    public EnumerableM<(K Key, V Value)> AsEnumerable() => 
         Value.AsEnumerable();
 
     internal Map<OrdK, K, V> SetRoot(MapItem<K, V> root) => 
@@ -1236,4 +1224,32 @@ public readonly struct Map<OrdK, K, V> :
     /// </summary>
     [Pure]
     public Option<(K Key, V Value)> Max => Value.Max;
+    
+    [Pure]
+    IEnumerable<K> IReadOnlyDictionary<K, V>.Keys => Keys;
+
+    [Pure]
+    IEnumerable<V> IReadOnlyDictionary<K, V>.Values => Values;
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool TryGetValue(K key, out V value)
+    {
+        var v = Find(key);
+        if (v.IsSome)
+        {
+            value = (V)v;
+            return true;
+        }
+        else
+        {
+            value = default!;
+            return false;
+        }
+    }
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
+        AsEnumerable().Map(p => new KeyValuePair<K, V>(p.Key, p.Value)).GetEnumerator();    
 }

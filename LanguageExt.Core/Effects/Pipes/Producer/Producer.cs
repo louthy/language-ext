@@ -260,7 +260,7 @@ public static class Producer
     /// <returns>Queues merged into a single producer</returns>
     public static Producer<OUT, M, Unit> merge<OUT, M>(params Queue<OUT, M, Unit>[] ms) 
         where M : Monad<M> =>
-        merge(toSeq(ms.Map(m => (Producer<OUT, M, Unit>)m)));
+        merge(ms.ToSeq().Map(m => (Producer<OUT, M, Unit>)m));
  
     /// <summary>
     /// Merge an array of producers into a single producer

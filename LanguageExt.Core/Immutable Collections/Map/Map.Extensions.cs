@@ -1,13 +1,16 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
 public static class MapExtensions
 {
+    public static Map<Key, V> As<Key, V>(this K<Map<Key>, V> ma) =>
+        (Map<Key, V>)ma;
+    
     /// <summary>
     /// Create an immutable map
     /// </summary>
@@ -34,42 +37,42 @@ public static class MapExtensions
     /// </summary>
     [Pure]
     public static Map<K1, Map<K2, V>> ToMap<K1, K2, V>(this IEnumerable<(K1, K2, V)> items) =>
-        items.Fold(Map<K1, Map<K2, V>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3));
+        items.AsEnumerableM().Fold(Map<K1, Map<K2, V>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3));
 
     /// <summary>
     /// Create an immutable map
     /// </summary>
     [Pure]
     public static Map<K1, Map<K2, V>> ToMap<K1, K2, V>(this IEnumerable<Tuple<K1, K2, V>> items) =>
-        items.Fold(Map<K1, Map<K2, V>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3));
+        items.AsEnumerableM().Fold(Map<K1, Map<K2, V>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3));
 
     /// <summary>
     /// Create an immutable map
     /// </summary>
     [Pure]
     public static Map<K1, Map<K2, Map<K3, V>>> ToMap<K1, K2, K3, V>(this IEnumerable<(K1, K2, K3, V)> items) =>
-        items.Fold(Map<K1, Map<K2, Map<K3, V>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4));
+        items.AsEnumerableM().Fold(Map<K1, Map<K2, Map<K3, V>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4));
 
     /// <summary>
     /// Create an immutable map
     /// </summary>
     [Pure]
     public static Map<K1, Map<K2, Map<K3, V>>> ToMap<K1, K2, K3, V>(this IEnumerable<Tuple<K1, K2, K3, V>> items) =>
-        items.Fold(Map<K1, Map<K2, Map<K3, V>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4));
+        items.AsEnumerableM().Fold(Map<K1, Map<K2, Map<K3, V>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4));
 
     /// <summary>
     /// Create an immutable map
     /// </summary>
     [Pure]
     public static Map<K1, Map<K2, Map<K3, Map<K4, V>>>> ToMap<K1, K2, K3, K4, V>(this IEnumerable<(K1, K2, K3, K4, V)> items) =>
-        items.Fold(Map<K1, Map<K2, Map<K3, Map<K4, V>>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5));
+        items.AsEnumerableM().Fold(Map<K1, Map<K2, Map<K3, Map<K4, V>>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5));
 
     /// <summary>
     /// Create an immutable map
     /// </summary>
     [Pure]
     public static Map<K1, Map<K2, Map<K3, Map<K4, V>>>> ToMap<K1, K2, K3, K4, V>(this IEnumerable<Tuple<K1, K2, K3, K4, V>> items) =>
-        items.Fold(Map<K1, Map<K2, Map<K3, Map<K4, V>>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5));
+        items.AsEnumerableM().Fold(Map<K1, Map<K2, Map<K3, Map<K4, V>>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5));
 
 
     /// <summary>
@@ -78,7 +81,7 @@ public static class MapExtensions
     /// <returns>Mapped items in a new map</returns>
     [Pure]
     public static Map<K, U> Map<K, V, U>(this Map<K, V> self, Func<V, U> mapper) =>
-        new Map<K, U>(MapModule.Map(self.Value.Root, mapper), self.Value.Rev);
+        new (MapModule.Map(self.Value.Root, mapper), self.Value.Rev);
 
     /// <summary>
     /// Atomically maps the map to a new map
@@ -86,18 +89,7 @@ public static class MapExtensions
     /// <returns>Mapped items in a new map</returns>
     [Pure]
     public static Map<K, U> Map<K, V, U>(this Map<K, V> self, Func<K, V, U> mapper) =>
-        new Map<K, U>(MapModule.Map(self.Value.Root, mapper), self.Value.Rev);
-
-    /// <summary>
-    /// Number of items in the map
-    /// </summary>
-    [Pure]
-    public static int Count<K, V>(this Map<K, V> self) =>
-        self.Count;
-
-    [Pure]
-    public static int Sum<K>(this Map<K, int> self) =>
-        self.Values.Sum();
+        new (MapModule.Map(self.Value.Root, mapper), self.Value.Rev);
 
     // 
     // Map<A<Map<B,C>>
