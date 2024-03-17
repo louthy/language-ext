@@ -58,7 +58,7 @@ public class ParserError : IEquatable<ParserError>, IComparable<ParserError>
         (Tag == ParserErrorTag.Unexpect ? $"unexpected {Msg}"
          : Tag == ParserErrorTag.SysUnexpect ? $"unexpected {Msg}"
          : Tag == ParserErrorTag.Message ? Msg
-         : Tag == ParserErrorTag.Expect ? $"unexpected {Msg}, {FormatExpects(Expected.Filter(x => !String.IsNullOrEmpty(x)).Distinct().Freeze())}"
+         : Tag == ParserErrorTag.Expect ? $"unexpected {Msg}, {FormatExpects(Expected.Filter(x => !String.IsNullOrEmpty(x)).Distinct().AsEnumerableM().ToLst())}"
                                           : "unknown error");
 
     public bool Equals(ParserError? other) =>

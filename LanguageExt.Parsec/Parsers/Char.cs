@@ -249,12 +249,12 @@ public static class Char
     /// Parse a string
     /// </summary>
     public static Parser<string> str(string s) =>
-        asString(chain(toSeq(s.Map(ch)))).label($"'{s}'");
+        asString(chain(toSeq(s.AsEnumerableM().Map(ch)))).label($"'{s}'");
 
     /// <summary>
     /// Parse a string case insensitive (char by char)
     /// <typeparam name="EQ">Eq<char> trait</typeparam>
     /// </summary>
     public static Parser<string> str<EQ>(string s) where EQ: Eq<char>  =>
-        asString(chain(toSeq(s.Map(ch<EQ>)))).label($"'{s}'");
+        asString(chain(toSeq(s.AsEnumerableM().Map(ch<EQ>)))).label($"'{s}'");
 }

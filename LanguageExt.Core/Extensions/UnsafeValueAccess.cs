@@ -23,7 +23,7 @@ public static class UnsafeValueAccessExtensions
     public static R? ValueUnsafe<L, R>(this Either<L, R> either) =>
         either.IsRight
             ? either.RightValue
-            : default(R);
+            : default;
 
     /// <summary>
     /// This creates a Seq from an Array without any copying of data, so it's super fast
