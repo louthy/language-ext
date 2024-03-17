@@ -24,7 +24,7 @@ public class MemoryConsoleTests
         var comp = lines.Traverse(Console.writeLine).As();
         comp.Run(rt, EnvIO.New()).ThrowIfFail();
 
-        var clines = rt.Env.Console.ToSeq();
+        var clines = rt.Env.Console.AsEnumerableM().ToSeq();
         Assert.True(lines == clines, "sequences don't match");
     }
         
@@ -48,6 +48,6 @@ public class MemoryConsoleTests
             
         // run and assert
         comp.Run(rt, EnvIO.New()).ThrowIfFail();
-        Assert.True(lines == rt.Env.Console.ToSeq(), "sequences don't match");
+        Assert.True(lines == rt.Env.Console.AsEnumerableM().ToSeq(), "sequences don't match");
     }
 }

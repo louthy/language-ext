@@ -230,7 +230,7 @@ public class HashMapTests
     public void FetchBack()
     {
         var init = Seq(69, 1477);
-        var rmv  = Seq1(69);
+        var rmv  = Seq(69);
 
         var map = toHashMap(init.Zip(Enumerable.Repeat(1, int.MaxValue)));
 
@@ -240,7 +240,7 @@ public class HashMapTests
 
         var minus = map.RemoveRange(rmv);
 
-        Assert.True(minus.Keys.Find(i => i == 1477).IsSome); // true
+        Assert.True(minus.Keys.AsEnumerableM().Find(i => i == 1477).IsSome); // true
             
         Assert.True(minus.ContainsKey(1477)); // false
         Assert.True(minus.Find(1477).IsSome); // false

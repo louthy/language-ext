@@ -6,6 +6,7 @@ using LanguageExt.Sys.Test;
 using System.Diagnostics;
 using FluentAssertions;
 using LanguageExt.Common;
+using LanguageExt.UnsafeValueAccess;
 
 namespace LanguageExt.Tests.SysX.Diag;
 
@@ -123,7 +124,7 @@ public static class ActivityTests
         var events = A.span("test", from _ in A.addEvent(TestEvent) from result in A.events select result)
             .ArrangeAndAct();
         Assert.False(events.IsEmpty);
-        events.First().Should().Be(TestEvent);
+        events.AsEnumerableM().Head().ValueUnsafe().Should().Be(TestEvent);
     }
 
     [Fact(DisplayName = "The id can be read")]

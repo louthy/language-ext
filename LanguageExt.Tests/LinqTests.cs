@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using LanguageExt.UnsafeValueAccess;
 using Xunit;
 
 namespace LanguageExt.Tests;
@@ -12,20 +13,20 @@ public class LinqTests
         var opt  = Some("pre ");
         var list = Some(new[] { "hello", "world" }.AsEnumerable());
 
-        var res = from a in opt
-                  from x in list
-                  from y in x
-                  select a + y;
+        var res = (from a in opt
+                   from x in list
+                   from y in x
+                   select a + y).AsEnumerableM();
 
-        Assert.True(res.Head()        == "pre hello");
-        Assert.True(res.Tail().Head() == "pre world");
+        Assert.True(res.Head().ValueUnsafe()        == "pre hello");
+        Assert.True(res.Tail().Head().ValueUnsafe() == "pre world");
 
         opt = None;
 
-        res = from a in opt
-              from x in list
-              from y in x
-              select a + y;
+        res = (from a in opt
+               from x in list
+               from y in x
+               select a + y).AsEnumerableM();;
 
         Assert.True(!res.Any());
     }

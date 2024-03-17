@@ -40,7 +40,7 @@ public class EnumerableTTests
             None,
             Some(5));
 
-        var actual = input.Choose(x => x).ToList();
+        var actual = input.AsEnumerableM().Choose(x => x).ToList();
 
         var expected = List(1, 2, 3, 4, 5);
 

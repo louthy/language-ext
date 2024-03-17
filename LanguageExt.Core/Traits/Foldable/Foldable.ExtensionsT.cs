@@ -393,7 +393,15 @@ public static partial class FoldableExtensions
         where T : Foldable<T>
         where U : Foldable<U> =>
         Foldable.exists(ua => Foldable.contains<EqA, U, A>(value, ua), tua);
-
+    
+    /// <summary>
+    /// Does the element exist in the structure?
+    /// </summary>
+    public static bool ContainsT<T, U, A>(this K<T, K<U, A>> tua, A value) 
+        where T : Foldable<T>
+        where U : Foldable<U> =>
+        Foldable.exists(ua => Foldable.contains(value, ua), tua);
+    
     /// <summary>
     /// Find the first element that match the predicate
     /// </summary>

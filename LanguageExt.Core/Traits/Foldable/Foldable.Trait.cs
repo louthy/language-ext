@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Numerics;
+using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Traits;
@@ -354,6 +355,12 @@ public interface Foldable<out T> where T : Foldable<T>
     /// </summary>
     public static virtual bool Contains<EqA, A>(A value, K<T, A> ta) where EqA : Eq<A> =>
         T.Exists(x => EqA.Equals(value, x), ta);
+
+    /// <summary>
+    /// Does the element exist in the structure?
+    /// </summary>
+    public static virtual bool Contains<A>(A value, K<T, A> ta) =>
+        T.Exists(x => EqDefault<A>.Equals(value, x), ta);
 
     /// <summary>
     /// Find the first element that match the predicate

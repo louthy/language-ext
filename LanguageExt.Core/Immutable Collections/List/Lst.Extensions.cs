@@ -395,45 +395,6 @@ public static class ListExtensions
     public static IEnumerable<S> ScanBack<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
         List.scanBack(list, state, folder);
 
-    /*
-    /// <summary>
-    /// Joins two enumerables together either into a single enumerable of tuples
-    /// </summary>
-    /// <param name="list">First list to join</param>
-    /// <param name="other">Second list to join</param>
-    /// <param name="zipper">Join function</param>
-    /// <returns>Joined enumerable</returns>
-    [Pure]
-    public static IEnumerable<(T Left , U Right)> Zip<T, U>(this IEnumerable<T> list, IEnumerable<U> other) =>
-        list.Zip(other, (t, u) => (t, u));
-        */
-
-    /// <summary>
-    /// Returns Some(x) for the first item in the list that matches the predicate 
-    /// provided, None otherwise.
-    /// </summary>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <param name="list">Enumerable to search</param>
-    /// <param name="pred">Predicate</param>
-    /// <returns>Some(x) for the first item in the list that matches the predicate 
-    /// provided, None otherwise.</returns>
-    [Pure]
-    public static Option<T> Find<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
-        List.find(list, pred);
-
-    /// <summary>
-    /// Returns [x] for the first item in the list that matches the predicate 
-    /// provided, [] otherwise.
-    /// </summary>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <param name="list">Enumerable to search</param>
-    /// <param name="pred">Predicate</param>
-    /// <returns>[x] for the first item in the list that matches the predicate 
-    /// provided, [] otherwise.</returns>
-    [Pure]
-    public static IEnumerable<T> FindSeq<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
-        List.findSeq(list, pred);
-
     /// <summary>
     /// Iterate each item in the enumerable in order (consume items)
     /// </summary>
@@ -443,7 +404,6 @@ public static class ListExtensions
     public static Unit Consume<T>(this IEnumerable<T> list) =>
         List.consume(list);
 
-    /*
     /// <summary>
     /// Return a new enumerable with all duplicate values removed
     /// </summary>
@@ -453,7 +413,6 @@ public static class ListExtensions
     [Pure]
     public static IEnumerable<T> Distinct<EQ, T>(this IEnumerable<T> list) where EQ : Eq<T> =>
         List.distinct<EQ, T>(list);
-        */
 
     /// <summary>
     /// The tails function returns all final segments of the argument, longest first. For example,

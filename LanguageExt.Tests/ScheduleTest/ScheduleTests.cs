@@ -4,6 +4,7 @@ using System.Linq;
 using FluentAssertions;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using LanguageExt.UnsafeValueAccess;
 using static LanguageExt.UnitsOfMeasure;
 
 namespace LanguageExt.Tests.ScheduleTest;
@@ -166,7 +167,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .Take(5)
-           .Max()
+           .Max().ValueUnsafe()
            .Should().Be(25 * sec);
     }
 
@@ -177,7 +178,7 @@ public sealed class ScheduleTests
         var results     = transformer.Apply(Schedule.linear(10 * sec)).Run().ToSeq();
         
         Assert.True(results.Count == 3);
-        Assert.True(results.Max() == 30 * sec);
+        Assert.True(results.Max().ValueUnsafe() == 30 * sec);
     }
 
     [Fact]
@@ -225,17 +226,17 @@ public sealed class ScheduleTests
 
     [Pure]
     static Seq<DateTime> FromDurations(Seq<Duration> durations) =>
-        durations.Fold(Seq1(DateTime.Now), (times, duration) =>
+        durations.Fold(Seq(DateTime.Now), (times, duration) =>
                                            {
                                                var last = times.Head();
-                                               return times.Add(last + (TimeSpan)duration);
+                                               return times.Add(last.ValueUnsafe() + (TimeSpan)duration);
                                            });
 
     [Pure]
     static Func<DateTime> FromDates(Seq<DateTime> dates) =>
         () =>
         {
-            var date = dates.HeadOrNone().IfNone(() => DateTime.Now);
+            var date = dates.Head.IfNone(() => DateTime.Now);
             dates = dates.Tail;
             return date;
         };
@@ -358,6 +359,7 @@ public sealed class ScheduleTests
         var res = withJitter.ToArray();
         Assert.True(res.Length == 5);
         Assert.True(res.Zip(noJitter)
+                       .AsEnumerableM()
                        .Filter(p => p.Item1 > p.Item2 && p.Item1 - p.Item2 <= 100)
                        .Any());
     }
@@ -376,6 +378,7 @@ public sealed class ScheduleTests
         var res = withJitter.ToArray();
         Assert.True(res.Length == 5);
         Assert.True(res.Zip(noJitter)
+                       .AsEnumerableM()
                        .Filter(p => p.Item1 > p.Item2 && p.Item1 - p.Item2 <= p.Item2 * 1.5)
                        .Any());
     }

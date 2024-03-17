@@ -520,6 +520,13 @@ public static partial class FoldableExtensions
         T.Contains<EqA, A>(value, ta);
 
     /// <summary>
+    /// Does the element exist in the structure?
+    /// </summary>
+    public static bool Contains<T, A>(this K<T, A> ta, A value)
+        where T : Foldable<T> =>
+         T.Contains(value, ta);
+
+    /// <summary>
     /// Find the first element that match the predicate
     /// </summary>
     public static Option<A> Find<T, A>(this K<T, A> ta, Func<A, bool> predicate)

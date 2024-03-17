@@ -515,15 +515,6 @@ public readonly struct Map<OrdK, K, V> :
     public Map<OrdK, K, V> Clear() => Wrap(Value.Clear());
 
     /// <summary>
-    /// Atomically adds a range of items to the map
-    /// </summary>
-    /// <param name="pairs">Range of KeyValuePairs to add</param>
-    /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
-    /// <returns>New Map with the items added</returns>
-    [Pure]
-    public Map<OrdK, K, V> AddRange(IEnumerable<KeyValuePair<K, V>> pairs) => Wrap(Value.AddRange(pairs));
-
-    /// <summary>
     /// Atomically sets a series of items using the KeyValuePairs provided
     /// </summary>
     /// <param name="items">Items to set</param>

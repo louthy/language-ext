@@ -2,7 +2,7 @@ using Xunit;
 using System.IO;
 using LanguageExt.Sys.Test;
 using System.Threading.Tasks;
-
+using LanguageExt.UnsafeValueAccess;
 using File = LanguageExt.Sys.IO.File<LanguageExt.Eff<LanguageExt.Sys.Test.Runtime>, LanguageExt.Sys.Test.Runtime>;
 using Dir  = LanguageExt.Sys.IO.Directory<LanguageExt.Eff<LanguageExt.Sys.Test.Runtime>, LanguageExt.Sys.Test.Runtime>;
 
@@ -74,7 +74,7 @@ public class MemoryFSTests
                    from _2 in File.writeAllText("C:\\non-exist\\also-non-exist\\test.txt", "Hello, World")
                    from _3 in File.writeAllText("C:\\non-exist\\also-non-exist\\test.bat", "Goodbye, World")
                    from en in Dir.enumerateFiles("C:\\", "*.txt", SearchOption.AllDirectories)
-                   from tx in File.readAllText(en.Head)
+                   from tx in File.readAllText(en.Head.ValueUnsafe()!)
                    select (tx, en.Count);
             
         var r = comp.As().Run(rt, EnvIO.New());
@@ -90,7 +90,7 @@ public class MemoryFSTests
                    from _2 in File.writeAllText("C:\\non-exist\\also-non-exist\\test.txt", "Hello, World")
                    from _3 in File.writeAllText("C:\\non-exist\\also-non-exist\\test.bat", "Goodbye, World")
                    from en in Dir.enumerateFiles("C:\\", "????.txt", SearchOption.AllDirectories)
-                   from tx in File.readAllText(en.Head)
+                   from tx in File.readAllText(en.Head.ValueUnsafe()!)
                    select (tx, en.Count);
             
         var r = comp.As().Run(rt, EnvIO.New());
@@ -106,7 +106,7 @@ public class MemoryFSTests
                    from _2 in File.writeAllText("C:\\non-exist\\also-non-exist\\test.txt", "Hello, World")
                    from _3 in File.writeAllText("C:\\non-exist\\also-non-exist\\test.bat", "Goodbye, World")
                    from en in Dir.enumerateFiles("C:\\", "?.txt", SearchOption.AllDirectories)
-                   from tx in File.readAllText(en.Head)
+                   from tx in File.readAllText(en.Head.ValueUnsafe()!)
                    select (tx, en.Count);
             
         var r = comp.As().Run(rt, EnvIO.New());
@@ -196,7 +196,6 @@ public class MemoryFSTests
                    select ds.Strict();
 
         var r   = comp.As().Run(rt, EnvIO.New());
-        var dbg = ((Seq<string>)r).ToArray();
         Assert.True(r == toSeq(folders));
     }
 

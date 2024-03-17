@@ -10,7 +10,7 @@ public class ListTests
     [Fact]
     public void ConsTest1()
     {
-        var test = Prelude.Cons(1, Prelude.Cons(2, Prelude.Cons(3, Prelude.Cons(4, Prelude.Cons(5, LanguageExt.List.empty<int>())))));
+        var test = Prelude.Cons(1, Prelude.Cons(2, Prelude.Cons(3, Prelude.Cons(4, Prelude.Cons(5, empty<int>())))));
 
         var array = test.ToArray();
 
@@ -271,7 +271,7 @@ public class ListTests
 
         var sideEffectByAction = 0;
 
-        expression.Iter(i => sideEffectByAction += i * i);
+        expression.AsEnumerableM().Iter(i => sideEffectByAction += i * i);
         Assert.Equal(2     + 3     + 5, embeddedSideEffectResult);
         Assert.Equal(2 * 2 + 3 * 3 + 5 * 5, sideEffectByAction);
     }
@@ -289,7 +289,7 @@ public class ListTests
 
         var sideEffectByAction = 0;
 
-        expression.Iter((pos, i) => sideEffectByAction += i * pos);
+        expression.AsEnumerableM().Iter((pos, i) => sideEffectByAction += i * pos);
         Assert.Equal(2     + 3     + 5, embeddedSideEffectResult);
         Assert.Equal(2 * 0 + 3 * 1 + 5 * 2, sideEffectByAction);
     }
@@ -313,7 +313,7 @@ public class ListTests
     {
         var list = List(1, 2, 3, 4, 5);
 
-        var skipped = list.SkipLast().Freeze();
+        var skipped = list.SkipLast().AsEnumerableM().ToLst();
 
         Assert.True(skipped == List(1, 2, 3, 4));
     }
@@ -323,7 +323,7 @@ public class ListTests
     {
         var list = List<int>();
 
-        var skipped = list.SkipLast().Freeze();
+        var skipped = list.SkipLast().AsEnumerableM().ToLst();
 
         Assert.True(skipped == list);
     }
@@ -333,7 +333,7 @@ public class ListTests
     {
         var list = List(1, 2, 3, 4, 5);
 
-        var skipped = list.SkipLast(2).Freeze();
+        var skipped = list.SkipLast(2).AsEnumerableM().ToLst();
 
         Assert.True(skipped == List(1, 2, 3));
     }
@@ -343,7 +343,7 @@ public class ListTests
     {
         var list = List<int>();
 
-        var skipped = list.SkipLast(2).Freeze();
+        var skipped = list.SkipLast(2).AsEnumerableM().ToLst();
 
         Assert.True(skipped == list);
     }
@@ -411,7 +411,7 @@ public class ListTests
     [Fact]
     public void SetItemManyTest()
     {
-        var range = Range(0, 100).Freeze();
+        var range = Range(0, 100).AsEnumerableM().ToLst();
         for (int i = 0; i < 100; i++)
         {
             range = range.SetItem(i, i * 2);
@@ -430,7 +430,7 @@ public class ListTests
     [Fact]
     public void RemoveAtInsertManyTest()
     {
-        var range = Range(0, 100).Freeze();
+        var range = Range(0, 100).AsEnumerableM().ToLst();
         for (int i = 0; i < 100; i++)
         {
             range = range.RemoveAt(i);

@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -142,7 +140,7 @@ public class ScheduleChangesTests
     public static void FibonacciTest()
     {
         var result1 = Schedule.fibonacci(100).Take(5).Run().ToSeq();
-        var result2 = OldSchedule.Fibonacci(100).Take(5).ToSeq();
+        var result2 = OldSchedule.Fibonacci(100).Take(5).AsEnumerableM().ToSeq();
         Assert.True(result1 == result2);
     }
 

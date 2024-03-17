@@ -12,15 +12,14 @@ public class AtomHashMapEqTests
         var hashMap = AtomHashMap<TString, string, int>(
             ("foo", 3), ("bar", 42));
         var                                initialValue = hashMap.ToHashMap();
-        HashMapPatch<TString, string, int> state        = default;
+        HashMapPatch<TString, string, int> state = default;
         hashMap.Change += v => state = v;
 
         hashMap.Swap(m => m.Add("biz", 99));
 
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
-        Assert.Equal(
-            HashMap(("biz", Change<int>.Added(99))), state.Changes);
+        Assert.True(HashMap(("biz", Change<int>.Added(99))) == state.Changes);
     }
 
     [Fact]

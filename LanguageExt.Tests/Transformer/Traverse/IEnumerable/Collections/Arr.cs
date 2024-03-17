@@ -38,7 +38,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
                 }
                 .AsEnumerable();
 
-            Assert.True(mb.ToSeq() == mc.ToSeq());
+            Assert.True(mb.ToSeq() == mc.AsEnumerableM().ToSeq());
         }
 
         [Fact]

@@ -107,7 +107,7 @@ public class OptionTTests
         var opt = Some(Map((1, "A"), (2, "B"), (3, "C"), (4, "D"), (5, "E")));
 
         var res = from x in opt
-                  from y in x
+                  from y in x                           // TODO: THIS DOESN'T MAKE SENSE!
                   select y.Value.ToLower();
 
         var fd = res.Fold("", (s, x) => s + x);

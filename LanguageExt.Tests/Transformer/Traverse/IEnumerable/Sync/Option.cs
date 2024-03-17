@@ -15,7 +15,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Sync
 
             IEnumerable<Option<int>> mc = new[] { Option<int>.None };
 
-            Assert.True(mb.ToSeq() == mc.ToSeq());
+            Assert.True(mb.ToSeq() == mc.AsEnumerableM().ToSeq());
         }
 
         [Fact]
@@ -26,7 +26,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Sync
 
             var mc = Enumerable.Empty<Option<int>>();
 
-            Assert.True(mb.ToSeq() == mc.ToSeq());
+            Assert.True(mb.ToSeq() == mc.AsEnumerableM().ToSeq());
         }
 
         [Fact]
@@ -37,7 +37,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Sync
 
             var mc = new[] { Some(1), Some(2), Some(3) }.AsEnumerable();
 
-            Assert.True(mb.ToSeq() == mc.ToSeq());
+            Assert.True(mb.ToSeq() == mc.AsEnumerableM().ToSeq());
         }
     }
 }

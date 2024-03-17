@@ -176,8 +176,8 @@ public class HashSetTests
         var set  = HashSet<EqStringOrdinalIgnoreCase, string>("one", "two", "three");
         var set2 = set.SetItem("One");
         Assert.Equal(3, set2.Count);
-        Assert.False(set2.ToSeq().Freeze().Contains("one"));
-        Assert.True(set2.ToSeq().Freeze().Contains("One"));
+        Assert.False(set2.ToSeq().Contains("one"));
+        Assert.True(set2.ToSeq().Contains("One"));
 
         Assert.Throws<ArgumentException>(() => set.SetItem("four"));
     }

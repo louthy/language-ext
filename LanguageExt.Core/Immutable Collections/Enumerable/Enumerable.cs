@@ -126,6 +126,24 @@ public sealed record EnumerableM<A>(IEnumerable<A> runEnumerable) :
         }
         return default;
     }
+
+    /// <summary>
+    /// Impure iteration of the bound values in the structure
+    /// </summary>
+    /// <returns>
+    /// Returns the original unmodified structure
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Unit Iter(Action<A, int> f)
+    {
+        var ix = 0;
+        foreach (var x in runEnumerable)
+        {
+            f(x, ix);
+            ix++;
+        }
+        return default;
+    }
     
     /// <summary>
     /// Map each element of a structure to an action, evaluate these actions from

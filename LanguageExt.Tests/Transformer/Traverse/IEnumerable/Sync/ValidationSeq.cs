@@ -15,7 +15,7 @@ public class ValidationIEnumerable
 
         IEnumerable<Validation<Error, int>> mc = new[] { Fail<Error, int>(Error.New("alt")) };
 
-        Assert.True(mb.ToSeq() == mc.ToSeq());
+        Assert.True(mb.ToSeq() == mc.AsEnumerableM().ToSeq());
     }
 
     [Fact]
@@ -26,7 +26,7 @@ public class ValidationIEnumerable
 
         var mc = Enumerable.Empty<Validation<Error, int>>();
 
-        Assert.True(mb.ToSeq() == mc.ToSeq());
+        Assert.True(mb.ToSeq() == mc.AsEnumerableM().ToSeq());
     }
 
     [Fact]
@@ -43,6 +43,6 @@ public class ValidationIEnumerable
                      Success<Error, int>(4)
                  }.AsEnumerable();
 
-        Assert.True(mb.ToSeq() == mc.ToSeq());
+        Assert.True(mb.ToSeq() == mc.AsEnumerableM().ToSeq());
     }
 }
