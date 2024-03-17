@@ -1235,7 +1235,7 @@ public static partial class Transducer
     /// <param name="transducers">Sequence of transducers</param>
     /// <returns>Transducer that encapsulates the choice</returns>
     public static Transducer<E, Sum<X, B>> choice<E, X, B>(Seq<Transducer<E, Sum<X, B>>> transducers) =>
-        new ChoiceTransducer<E, X, B>(transducers.FlattenChoices().ToSeq());
+        new ChoiceTransducer<E, X, B>(transducers.FlattenChoices().AsEnumerableM().ToSeq());
 
     /// <summary>
     /// Choice transducer
@@ -1247,7 +1247,7 @@ public static partial class Transducer
     /// <param name="transducers">Sequence of transducers</param>
     /// <returns>Transducer that encapsulates the choice</returns>
     public static Transducer<E, Sum<X, B>> choice<E, X, B>(params Transducer<E, Sum<X, B>>[] transducers) =>
-        new ChoiceTransducer<E, X, B>(transducers.FlattenChoices().ToSeq());
+        new ChoiceTransducer<E, X, B>(transducers.FlattenChoices().AsEnumerableM().ToSeq());
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

@@ -1,11 +1,13 @@
 ﻿#nullable enable
 
+using System;
+
 namespace LanguageExt;
 
 record ChoiceTransducer<E, X, B>(Seq<Transducer<E, Sum<X, B>>> Transducers) : Transducer<E, Sum<X, B>>
 {
     public override Reducer<E, S> Transform<S>(Reducer<Sum<X, B>, S> reduce) =>
-        Transducers.Head.Transform(new Reduce<S>(reduce, Transducers));
+        Transducers.Head.Value?.Transform(new Reduce<S>(reduce, Transducers)) ?? throw new InvalidOperationException("Need at least one choice!");
 
     record Reduce<S>(Reducer<Sum<X, B>, S> Reducer, Seq<Transducer<E, Sum<X, B>>> Transducers) : Reducer<Sum<X, B>, S>
     {

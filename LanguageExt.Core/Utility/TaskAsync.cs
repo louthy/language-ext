@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,9 +26,9 @@ internal static class TaskAsync<A>
     internal static Error FromAggregate(AggregateException? e)
     {
         if (e is null) return Errors.None;
-        var errs = e.InnerExceptions.Map(Error.New).ToSeq();
+        var errs = e.InnerExceptions.AsEnumerableM().Map(Error.New).ToSeq();
         if (errs.Count == 0) return Errors.None;
-        if (errs.Count == 1) return errs.Head;
+        if (errs.Count == 1) return errs.Head.Value!;
         return Error.Many(errs);
     }
 

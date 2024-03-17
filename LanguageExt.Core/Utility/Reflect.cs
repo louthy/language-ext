@@ -24,7 +24,7 @@ namespace LanguageExt
 
         public static IEnumerable<FieldInfo> GetPublicInstanceFields<A>(bool includeBase, params Type[] excludeAttrs)
         {
-            var excludeAttrsSet = excludeAttrs.Map(a => a.Name).ToArray();
+            var excludeAttrsSet = excludeAttrs.AsEnumerableM().Map(a => a.Name).ToArray();
             var publicFields = typeof(A)
                 .GetTypeInfo()
                 .GetAllFields(includeBase)
@@ -34,7 +34,7 @@ namespace LanguageExt
                 .Where(f =>
                 {
                     if (!f.IsPublic || f.IsStatic) return false;
-                    if (Intersects(f.CustomAttributes.Map(a => a.AttributeType.Name).ToArray(), excludeAttrsSet)) return false;
+                    if (Intersects(f.CustomAttributes.AsEnumerableM().Map(a => a.AttributeType.Name).ToArray(), excludeAttrsSet)) return false;
                     return true;
                 });
 
@@ -44,8 +44,8 @@ namespace LanguageExt
 #if !COREFX13
                                     .OrderBy(p => p.MetadataToken)
 #endif
-                                    .Where(p => p.CanRead && p.GetMethod.IsPublic && !IsStatic(p))
-                                    .Where(p => !Intersects(p.CustomAttributes.Map(a => a.AttributeType.Name).ToArray(), excludeAttrsSet))
+                                    .Where(p => p.CanRead && (p.GetMethod?.IsPublic ?? false) && !IsStatic(p))
+                                    .Where(p => !Intersects(p.CustomAttributes.AsEnumerableM().Map(a => a.AttributeType.Name).ToArray(), excludeAttrsSet))
                                     .ToArray();
 
             var backingFields = typeof(A)
@@ -55,7 +55,7 @@ namespace LanguageExt
                                     .OrderBy(p => p.MetadataToken)
 #endif
                                     .Where(f => f.IsPrivate &&
-                                                publicPropNames.Exists(p => f.Name.StartsWith($"<{p.Name}>")))
+                                                publicPropNames.AsEnumerableM().Exists(p => f.Name.StartsWith($"<{p.Name}>")))
                                     .ToArray();
 
             return EnumerableOptimal.ConcatFast(publicFields, backingFields);
@@ -71,7 +71,7 @@ namespace LanguageExt
         /// <param name="p"></param>
         /// <returns></returns>
         public static bool IsStatic
-            (PropertyInfo p) => p.GetAccessors( true ).HeadOrNone().Map( x => x.IsStatic ).IfNone( false );
+            (PropertyInfo p) => p.GetAccessors( true ).AsEnumerableM().Head().Map( x => x.IsStatic ).IfNone( false );
 
         public static Option<MethodInfo> GetPublicStaticMethod(Type type, string name, Type argA) =>
             type.GetTypeInfo()
@@ -296,10 +296,10 @@ namespace LanguageExt
                 })
                 .FirstOrDefault();
 
-        public static bool IsFunc(Type type) =>
+        public static bool IsFunc(Type? type) =>
             type != null && typeof(MulticastDelegate).IsAssignableFrom(type);
 
-        public static bool IsAnonymous(Type type) =>
+        public static bool IsAnonymous(Type? type) =>
             type != null && 
             Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false) && 
             type.IsGenericType && type.Name.Contains("AnonymousType") &&

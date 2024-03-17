@@ -36,5 +36,5 @@ public static partial class Prelude
     /// <returns>Validation applicative</returns>
     public static Validation<F, A> Fail<F, A>(Seq<F> values)
         where F : Monoid<F> =>
-        Validation<F, A>.Fail(Monoid.concat(values));
+        Validation<F, A>.Fail(Monoid.combine(values));
 }

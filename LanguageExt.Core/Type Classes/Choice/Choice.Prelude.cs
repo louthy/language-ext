@@ -161,8 +161,11 @@ public static class Choice
     [Pure]
     public static Lst<B> rightToList<CHOICE, CH, A, B>(CH ma)
         where CHOICE : Choice<CH, A, B> =>
-        rightAsEnumerable<CHOICE, CH, A, B>(ma).Freeze();
-
+        CHOICE.Match(ma, 
+                     Left: _ => Lst<B>.Empty,
+                     Right: b => b.Cons(Lst<B>.Empty),
+                     Bottom: () => Lst<B>.Empty);
+    
     /// <summary>
     /// Project the Either into an ImmutableArray R
     /// </summary>
@@ -179,7 +182,10 @@ public static class Choice
     [Pure]
     public static Lst<A> leftToList<CHOICE, CH, A, B>(CH ma)
         where CHOICE : Choice<CH, A, B> =>
-        leftAsEnumerable<CHOICE, CH, A, B>(ma).Freeze();
+        CHOICE.Match(ma,
+                     Left: a => a.Cons(Lst<A>.Empty),
+                     Right: _ => Lst<A>.Empty,
+                     Bottom: () => Lst<A>.Empty);
 
     /// <summary>
     /// Project the Either into an ImmutableArray R

@@ -507,12 +507,15 @@ public static class IL
         }
 
         // Implement FNV 1a hashing algorithm - [Fowler–Noll–Vo hash function](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash)
-        var expr = Fields().Fold(fnvOffsetBasis as Expression, (state, field) =>
-                                     Expression.Multiply(
-                                         fnvPrime,
-                                         Expression.ExclusiveOr(
-                                             state,
-                                             field)));
+        var expr = Fields()
+                  .AsEnumerableM()
+                  .Fold(fnvOffsetBasis as Expression,
+                        (state, field) =>
+                            Expression.Multiply(
+                                fnvPrime,
+                                Expression.ExclusiveOr(
+                                    state,
+                                    field)));
 
         var lambda = Expression.Lambda<Func<A, int>>(
             typeof(A).GetTypeInfo().IsValueType
@@ -570,7 +573,9 @@ public static class IL
 
         var expr = Expression.AndAlso(
             typesEqual,
-            fields.Fold(True as Expression,
+            fields
+               .AsEnumerableM()
+               .Fold(True as Expression,
                         (state, field) =>
                             Expression.AndAlso(
                                 state,
@@ -633,7 +638,9 @@ public static class IL
 
         var expr = Expression.AndAlso(
             typesEqual,
-            fields.Fold(True as Expression, (state, field) =>
+            fields
+               .AsEnumerableM()
+               .Fold(True as Expression, (state, field) =>
                             Expression.AndAlso(
                                 state,
                                 Expression.Call(
@@ -753,8 +760,8 @@ public static class IL
                       Expression.IfThen(yIsNull, Expression.Return(returnTarget, Plus1)),
                       Expression.IfThen(typesNotEqual, Expression.Return(returnTarget, Minus1))
                   }
-               .Append( Fields().Bind(identity))
-               .Append( new [] { Expression.Label(returnTarget, Zero) as Expression }));
+               .Concat( Fields().Bind(identity))
+               .Concat( new [] { Expression.Label(returnTarget, Zero) as Expression }));
 
         var lambda = Expression.Lambda<Func<A, A, int>>(block, self, other);
 
@@ -782,7 +789,7 @@ public static class IL
         var result        = Expression.Variable(typeof(string), "result");
         var returnTarget  = Expression.Label(typeof(string));
             
-        if (name.IndexOf('`') != -1) name = name.Split('`').Head();
+        if (name.IndexOf('`') != -1) name = name.Split('`').AsEnumerableM().Head().Value!;
 
         Expression fieldExpr(FieldInfo field)
         {
@@ -850,7 +857,7 @@ public static class IL
         var appendString = GetPublicInstanceMethod<StringBuilder, string>("Append", true).IfNone(() => throw new ArgumentException($"Append method found for StringBuilder"));
         var toString = GetPublicInstanceMethod<Object>("ToString", true).IfNone(() => throw new ArgumentException($"ToString method found for Object"));
         var name = typeof(A).Name;
-        if (name.IndexOf('`') != -1) name = name.Split('`').Head();
+        if (name.IndexOf('`') != -1) name = name.Split('`').AsEnumerableM().Head().Value!;
 
         var il = dynamic.GetILGenerator();
         il.DeclareLocal(typeof(StringBuilder));
@@ -928,7 +935,8 @@ public static class IL
                                    GetPublicStaticMethod(typeof(Convert), "ToString", typeof(object)))
                .IfNone(() => throw new Exception());
 
-            if (field.FieldType.GetTypeInfo().IsValueType && convertToString.GetParameters().Head().ParameterType == typeof(object))
+            if (field.FieldType.GetTypeInfo().IsValueType && 
+                convertToString.GetParameters().AsEnumerableM().Head().Value!.ParameterType == typeof(object))
             {
                 il.Emit(OpCodes.Box, field.FieldType);
             }
@@ -1236,7 +1244,7 @@ public static class IL
         field.Name.Split('<', '>').Match(
             ()      => "",
             x       => x,
-            (_, xs) => xs.Head);
+            (_, xs) => xs.Head.Value!);
 }
     
 public static class ILCapability
