@@ -7,66 +7,151 @@ namespace LanguageExt;
 /// Trait implementation for `Validation` 
 /// </summary>
 /// <typeparam name="M">Given monad trait</typeparam>
-public partial class Validation<L> : 
-    Monad<Validation<L>>, 
-    Alternative<Validation<L>>,
-    Traversable<Validation<L>> 
-    where L : Monoid<L>
+public partial class Validation<FAIL> : 
+    Monad<Validation<FAIL>>, 
+    Alternative<Validation<FAIL>>,
+    Traversable<Validation<FAIL>> 
+    where FAIL : Monoid<FAIL>
 {
-    static K<Validation<L>, B> Monad<Validation<L>>.Bind<A, B>(
-        K<Validation<L>, A> ma, 
-        Func<A, K<Validation<L>, B>> f) => 
-        ma.As().Bind(f);
-
-    static K<Validation<L>, B> Functor<Validation<L>>.Map<A, B>(
+    static K<Validation<FAIL>, B> Monad<Validation<FAIL>>.Bind<A, B>(
+        K<Validation<FAIL>, A> ma, 
+        Func<A, K<Validation<FAIL>, B>> f) => 
+        ma switch
+        {
+            Validation.Success<FAIL, A> (var x) => f(x),
+            Validation.Fail<FAIL, A> (var e)    => Validation<FAIL, B>.Fail(e),
+            _                                => throw new NotSupportedException()
+        }; 
+    
+    static K<Validation<FAIL>, B> Functor<Validation<FAIL>>.Map<A, B>(
         Func<A, B> f, 
-        K<Validation<L>, A> ma) => 
-        ma.As().Map(f);
+        K<Validation<FAIL>, A> ma) => 
+        ma switch
+        {
+            Validation.Success<FAIL, A> (var x) => Validation<FAIL, B>.Success(f(x)),
+            Validation.Fail<FAIL, A> (var e)    => Validation<FAIL, B>.Fail(e),
+            _                                => throw new NotSupportedException()
+        }; 
 
-    static K<Validation<L>, A> Applicative<Validation<L>>.Pure<A>(A value) => 
-        Validation<L, A>.Success(value);
+    static K<Validation<FAIL>, A> Applicative<Validation<FAIL>>.Pure<A>(A value) => 
+        Validation<FAIL, A>.Success(value);
 
-    static K<Validation<L>, B> Applicative<Validation<L>>.Apply<A, B>(
-        K<Validation<L>, Func<A, B>> mf,
-        K<Validation<L>, A> ma) =>
-        mf.As().Apply(ma.As());
+    static K<Validation<FAIL>, B> Applicative<Validation<FAIL>>.Apply<A, B>(
+        K<Validation<FAIL>, Func<A, B>> mf,
+        K<Validation<FAIL>, A> ma) =>
+        mf switch
+        {
+            Validation.Success<FAIL, Func<A, B>> (var f) =>
+                ma switch
+                {
+                    Validation.Success<FAIL, A> (var a) =>
+                        Validation<FAIL, B>.Success(f(a)),
 
-    static K<Validation<L>, B> Applicative<Validation<L>>.Action<A, B>(
-        K<Validation<L>, A> ma, 
-        K<Validation<L>, B> mb) =>
-        Prelude.fun((A _, B b) => b).Map(ma).Apply(mb).As();
+                    Validation.Fail<FAIL, A> (var e) =>
+                        Validation<FAIL, B>.Fail(e),
 
-    static K<Validation<L>, A> MonoidK<Validation<L>>.Empty<A>() =>
-        Validation<L, A>.Fail(L.Empty);
+                    _ =>
+                        Validation<FAIL, B>.Fail(FAIL.Empty)
+                },
 
-    static K<Validation<L>, A> SemigroupK<Validation<L>>.Combine<A>(
-        K<Validation<L>, A> ma,
-        K<Validation<L>, A> mb) =>
-        ma.As() | mb.As();
+            Validation.Fail<FAIL, Func<A, B>> (var e1) =>
+                ma switch
+                {
+                    Validation.Fail<FAIL, A> (var e2) =>
+                        Validation<FAIL, B>.Fail(e1 + e2),
 
-    static S Foldable<Validation<L>>.Fold<A, S>(
+                    _ =>
+                        Validation<FAIL, B>.Fail(e1)
+
+                },
+            _ => Validation<FAIL, B>.Fail(FAIL.Empty)
+        };
+    
+    static K<Validation<FAIL>, B> Applicative<Validation<FAIL>>.Action<A, B>(
+        K<Validation<FAIL>, A> ma, 
+        K<Validation<FAIL>, B> mb) =>
+        ma switch
+        {
+            Validation.Success<FAIL, A> =>
+                mb,
+
+            Validation.Fail<FAIL, B> (var e1) =>
+                mb switch
+                {
+                    Validation.Fail<FAIL, B> (var e2) =>
+                        Validation<FAIL, B>.Fail(e1 + e2),
+
+                    _ =>
+                        Validation<FAIL, B>.Fail(e1)
+
+                },
+            _ => Validation<FAIL, B>.Fail(FAIL.Empty)
+        };
+    
+    static K<Validation<FAIL>, A> MonoidK<Validation<FAIL>>.Empty<A>() =>
+        Validation<FAIL, A>.Fail(FAIL.Empty);
+
+    static K<Validation<FAIL>, A> SemigroupK<Validation<FAIL>>.Combine<A>(
+        K<Validation<FAIL>, A> ma,
+        K<Validation<FAIL>, A> mb) =>
+        (ma, mb) switch
+        {
+            (Validation.Success<FAIL, A> , Validation.Success<FAIL, A>) => 
+                ma,
+            
+            (Validation.Fail<FAIL, A> (var e1), Validation.Fail<FAIL, A> (var e2)) => 
+                Validation<FAIL, A>.Fail(e1.Combine(e2)),
+            
+            (Validation.Fail<FAIL, A> , _) => 
+                ma,
+            
+            _ => mb
+        };
+
+    static S Foldable<Validation<FAIL>>.FoldWhile<A, S>(
         Func<A, Func<S, S>> f, 
-        S initialState, 
-        K<Validation<L>, A> ta) => 
-        ta.As().Match(Succ: r => f(r)(initialState), Fail: _ => initialState);
+        Func<(S State, A Value), bool> predicate, 
+        S initialState,
+        K<Validation<FAIL>, A> ta) =>
+        ta switch
+        {
+            Validation.Success<FAIL, A> (var x) =>
+                predicate((initialState, x)) 
+                    ? f(x)(initialState) 
+                    : initialState,
 
-    static S Foldable<Validation<L>>.FoldBack<A, S>(
+            _ => initialState
+        };        
+
+    static S Foldable<Validation<FAIL>>.FoldBackWhile<A, S>(
         Func<S, Func<A, S>> f, 
+        Func<(S State, A Value), bool> predicate, 
         S initialState, 
-        K<Validation<L>, A> ta) => 
-        ta.As().Match(Succ: f(initialState), Fail: _ => initialState);
+        K<Validation<FAIL>, A> ta) => 
+        ta switch
+        {
+            Validation.Success<FAIL, A> (var x) =>
+                predicate((initialState, x)) 
+                    ? f(initialState)(x) 
+                    : initialState,
 
-    static K<F, K<Validation<L>, B>> Traversable<Validation<L>>.Traverse<F, A, B>(
+            _ => initialState
+        };        
+
+    static K<F, K<Validation<FAIL>, B>> Traversable<Validation<FAIL>>.Traverse<F, A, B>(
         Func<A, K<F, B>> f, 
-        K<Validation<L>, A> ta) => 
-        ta.As()
-          .Match(Succ: r => F.Map(Succ, f(r)),
-                 Fail:  l => F.Pure(Fail<B>(l)));
+        K<Validation<FAIL>, A> ta) => 
+        ta switch
+        {
+            Validation.Success<FAIL, A> (var x) => F.Map(Succ, f(x)),
+            Validation.Fail<FAIL, A> (var e)    => F.Pure(Fail<B>(e)),
+            _                                => throw new NotSupportedException()
+        };         
 
-    static K<Validation<L>, A> Succ<A>(A value) =>
-        Validation<L, A>.Success(value);
+    static K<Validation<FAIL>, A> Succ<A>(A value) =>
+        Validation<FAIL, A>.Success(value);
 
-    static K<Validation<L>, A> Fail<A>(L value) =>
-        Validation<L, A>.Fail(value);
+    static K<Validation<FAIL>, A> Fail<A>(FAIL value) =>
+        Validation<FAIL, A>.Fail(value);
 
 }

@@ -20,11 +20,21 @@ public class Option : Monad<Option>, Traversable<Option>, Alternative<Option>
     static K<Option, B> Applicative<Option>.Action<A, B>(K<Option, A> ma, K<Option, B> mb) =>
         mb;
 
-    static S Foldable<Option>.Fold<A, S>(Func<A, Func<S, S>> f, S initialState, K<Option, A> ta) =>
-        ta.As().Fold(initialState, (s, a) => f(a)(s));
+    static S Foldable<Option>.FoldWhile<A, S>(
+        Func<A, Func<S, S>> f, 
+        Func<(S State, A Value), bool> predicate, 
+        S initialState,
+        K<Option, A> ta) =>
+        ta.As().Match(Some: a => predicate((initialState, a)) ? f(a)(initialState) : initialState,
+                      None: initialState);
 
-    static S Foldable<Option>.FoldBack<A, S>(Func<S, Func<A, S>> f, S initialState, K<Option, A> ta) => 
-        ta.As().FoldBack(initialState, (s, a) => f(s)(a));
+    static S Foldable<Option>.FoldBackWhile<A, S>(
+        Func<S, Func<A, S>> f, 
+        Func<(S State, A Value), bool> predicate, 
+        S initialState, 
+        K<Option, A> ta) => 
+        ta.As().Match(Some: a => predicate((initialState, a)) ? f(initialState)(a) : initialState,
+                      None: initialState);
 
     static K<F, K<Option, B>> Traversable<Option>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Option, A> ta) =>
         ta.As().Match(Some: a => F.Map(Some, f(a)),

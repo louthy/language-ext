@@ -60,15 +60,36 @@ public class Identity :
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //  Traversable
+    //  Foldable
     //
 
-    static S Foldable<Identity>.Fold<A, S>(Func<A, Func<S, S>> f, S initialState, K<Identity, A> ta) => 
-        f(ta.As().Value)(initialState);
+    static S Foldable<Identity>.FoldWhile<A, S>(
+        Func<A, Func<S, S>> f,
+        Func<(S State, A Value), bool> predicate,
+        S initialState,
+        K<Identity, A> ta)
+    {
+        var id = ta.As();
+        if (!predicate((initialState, id.Value))) return initialState;
+        return f(id.Value)(initialState);
+    }
+    
+    static S Foldable<Identity>.FoldBackWhile<A, S>(
+        Func<S, Func<A, S>> f, 
+        Func<(S State, A Value), bool> predicate, 
+        S initialState, 
+        K<Identity, A> ta)
+    {
+        var id = ta.As();
+        if (!predicate((initialState, id.Value))) return initialState;
+        return f(initialState)(id.Value);
+    }
 
-    static S Foldable<Identity>.FoldBack<A, S>(Func<S, Func<A, S>> f, S initialState, K<Identity, A> ta) => 
-        f(initialState)(ta.As().Value);
-
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Traversable
+    //
+    
     static K<F, K<Identity, B>> Traversable<Identity>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Identity, A> ta) =>
         F.Map(Pure, f(ta.As().Value));
 
