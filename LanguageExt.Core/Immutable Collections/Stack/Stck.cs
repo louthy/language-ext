@@ -5,6 +5,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -17,9 +18,10 @@ namespace LanguageExt;
 [CollectionBuilder(typeof(Stack), nameof(Stack.createRange))]
 public readonly struct Stck<A> : 
     IEnumerable<A>, 
-    IEquatable<Stck<A>>
+    IEquatable<Stck<A>>,
+    Monoid<Stck<A>>
 {
-    public static readonly Stck<A> Empty = new (StckInternal<A>.Empty);
+    public static Stck<A> Empty { get; } = new(StckInternal<A>.Empty);
 
     readonly StckInternal<A> value;
     StckInternal<A> Value => value ?? StckInternal<A>.Empty;
@@ -280,7 +282,7 @@ public readonly struct Stck<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Stck<A>(SeqEmpty _) =>
-        Empty;        
+        Empty;
 
     /// <summary>
     /// Append another stack to the top of this stack
@@ -291,7 +293,7 @@ public readonly struct Stck<A> :
     /// </summary>
     [Pure]
     public static Stck<A> operator +(Stck<A> lhs, Stck<A> rhs) =>
-        lhs.Append(rhs);
+        lhs.Combine(rhs);
 
     /// <summary>
     /// Append another stack to the top of this stack
@@ -303,8 +305,8 @@ public readonly struct Stck<A> :
     /// <param name="rhs">Stack to append</param>
     /// <returns>Appended stacks</returns>
     [Pure]
-    public Stck<A> Append(Stck<A> rhs) =>
-        new (Value.Append(rhs.Value));
+    public Stck<A> Combine(Stck<A> rhs) =>
+        new (Value.Combine(rhs.Value));
 
     /// <summary>
     /// Subtract one stack from another: lhs except rhs

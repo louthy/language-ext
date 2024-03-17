@@ -121,21 +121,21 @@ public static partial class Prelude
     /// </summary>
     [Pure]
     public static Seq<A> Sort<OrdA, A>(this Seq<A> xs) where OrdA : Ord<A> =>
-        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).ToSeq();
+        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).AsEnumerableM().ToSeq();
 
     /// <summary>
     /// Provide a sorted Lst
     /// </summary>
     [Pure]
     public static Lst<A> Sort<OrdA, A>(this Lst<A> xs) where OrdA : Ord<A> =>
-        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).Freeze();
+        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).AsEnumerableM().ToLst();
 
     /// <summary>
     /// Provide a sorted Arr
     /// </summary>
     [Pure]
     public static Arr<A> Sort<OrdA, A>(this Arr<A> xs) where OrdA : Ord<A> =>
-        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).ToArr();
+        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).AsEnumerableM().ToArr();
 
     /// <summary>
     /// Provide a sorted array
@@ -153,7 +153,7 @@ public static partial class Prelude
         get
         {
             return Go().AsEnumerableM();
-            IEnumerable<long> Go()
+            IEnumerable<int> Go()
             {
                 for (var i = 0; i < int.MaxValue; i++)
                 {

@@ -1391,15 +1391,14 @@ public readonly struct Map<K, V> :
     /// Find the lowest ordered item in the map
     /// </summary>
     [Pure]
-    public Option<(K Key, V Value)> Min() =>
+    public Option<(K Key, V Value)> Min =>
         Value.Min;
 
     /// <summary>
     /// Find the highest ordered item in the map
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Option<(K Key, V Value)> Max() =>
+    public Option<(K Key, V Value)> Max =>
         Value.Max;
     
     [Pure]

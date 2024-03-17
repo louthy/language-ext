@@ -264,7 +264,7 @@ public abstract record Error : Monoid<Error>
         errors.IsEmpty
             ? Errors.None
             : errors.Tail.IsEmpty
-                ? errors.Head
+                ? (Error)errors.Head
                 : new ManyErrors(errors);
 
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -656,7 +656,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     public override Error Head =>
         Errors.IsEmpty
             ? Common.Errors.None
-            : Errors.Head;
+            : (Error)Errors.Head;
 
     /// <summary>
     /// Get the errors with the head removed (this may be `Errors.None` if there are zero errors in the tail)
@@ -698,7 +698,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
         if (e is null) return Common.Errors.None;
         var errs = e.InnerExceptions.Bind(x => New(x).AsEnumerable()).AsEnumerableM().ToSeq();
         if (errs.Count == 0) return Common.Errors.None;
-        if (errs.Count == 1) return errs.Head;
+        if (errs.Count == 1) return (Error)errs.Head;
         return Many(errs);
     }
 } 

@@ -113,8 +113,8 @@ public static class Lens
     /// </summary>
     public static Lens<IEnumerable<A>, IEnumerable<B>> enumMap<A, B>(Lens<A, B> la) =>
         Lens<IEnumerable<A>, IEnumerable<B>>.New(
-            Get: lst => lst.Map(la.Get),
-            Set: val => lst => lst.Zip(val).Map(ab => la.Set(ab.Item2, ab.Item1)));
+            Get: lst => lst.Select(la.Get),
+            Set: val => lst => lst.Zip(val).Select(ab => la.Set(ab.Item2, ab.Item1)));
 
     /// <summary>
     /// Convert a Lens<A,B> to a Prism<A,B>

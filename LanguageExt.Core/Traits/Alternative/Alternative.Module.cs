@@ -42,7 +42,7 @@ public static partial class Alternative
         where F : Alternative<F> =>
         ms.IsEmpty
             ? F.Empty<A>()
-            : F.Combine(ms.Head, oneOf(ms.Tail));
+            : F.Combine(ms.Head.Value!, oneOf(ms.Tail));
 
     /// <summary>
     /// One or more...

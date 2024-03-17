@@ -298,7 +298,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static StckInternal<A> operator +(StckInternal<A> lhs, StckInternal<A> rhs) =>
-            lhs.Append(rhs);
+            lhs.Combine(rhs);
 
         /// <summary>
         /// Append another stack to the top of this stack
@@ -310,10 +310,10 @@ namespace LanguageExt
         /// <param name="rhs">Stack to append</param>
         /// <returns>Appended stacks</returns>
         [Pure]
-        public StckInternal<A> Append(StckInternal<A> rhs)
+        public StckInternal<A> Combine(StckInternal<A> rhs)
         {
             var self = this;
-            foreach (var item in rhs.Rev())
+            foreach (var item in rhs.Reverse())
             {
                 self = self.Push(item);
             }

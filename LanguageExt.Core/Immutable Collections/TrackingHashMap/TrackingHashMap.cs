@@ -1,4 +1,6 @@
-﻿using LanguageExt.ClassInstances;
+﻿#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
+
+using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 using System;
 using System.Collections;
@@ -36,6 +38,7 @@ namespace LanguageExt;
 /// <typeparam name="V">Value</typeparam>
 [CollectionBuilder(typeof(TrackingHashMap), nameof(TrackingHashMap.createRange))]
 public readonly struct TrackingHashMap<K, V> :
+    IReadOnlyDictionary<K, V>,
     IEnumerable<(K Key, V Value)>,
     IEquatable<TrackingHashMap<K, V>>,
     Monoid<TrackingHashMap<K, V>>
@@ -154,13 +157,6 @@ public readonly struct TrackingHashMap<K, V> :
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => value?.Count ?? 0;
     }
-
-    /// <summary>
-    /// Get a IReadOnlyDictionary for this map.  No mapping is required, so this is very fast.
-    /// </summary>
-    [Pure]
-    public IReadOnlyDictionary<K, V> ToReadOnlyDictionary() =>
-        Value;
 
     /// <summary>
     /// Atomically filter out items that return false when a predicate is applied
@@ -657,7 +653,7 @@ public readonly struct TrackingHashMap<K, V> :
     /// <returns></returns>
     [Pure]
     public IReadOnlyDictionary<K, V> ToDictionary() =>
-        Value;
+        this;
 
     /// <summary>
     /// Map the map the a dictionary
@@ -1195,6 +1191,41 @@ public readonly struct TrackingHashMap<K, V> :
     [Pure]
     public S Fold<S>(S state, Func<S, V, S> folder) =>
         Values.Fold(state, folder);
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
+        AsEnumerable().Map(p => new KeyValuePair<K, V>(p.Key, p.Value)).GetEnumerator();
+    
+    [Pure]
+    IEnumerable<K> IReadOnlyDictionary<K, V>.Keys => Keys;
+    
+    [Pure]
+    IEnumerable<V> IReadOnlyDictionary<K, V>.Values => Values;
+
+    [Pure]
+    public bool TryGetValue(K key, out V value)
+    {
+        var v = Find(key);
+        if (v.IsSome)
+        {
+            value = (V)v;
+            return true;
+        }
+        else
+        {
+            value = default!;
+            return false;
+        }
+    }
+    
+    /// <summary>
+    /// Get a IReadOnlyDictionary for this map.  No mapping is required, so this is very fast.
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public IReadOnlyDictionary<K, V> ToReadOnlyDictionary() =>
+        this;
 
     [Pure]
     [Obsolete(Change.UseCollectionIntialiser)]

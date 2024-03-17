@@ -44,17 +44,17 @@ public struct Compositions<A> :
         Seq<Node> go(Seq<Node> mx, Seq<Node> my)
         {
             if (mx.IsEmpty) return my;
-            if (my.IsEmpty) return go(mx.Tail, [mx.Head]);
+            if (my.IsEmpty) return go(mx.Tail, [mx.Head.Value!]);
 
-            var x  = mx.Head;
-            var sx = mx.Head.Size;
-            var cx = mx.Head.Children;
-            var vx = mx.Head.Value;
+            var x  = mx.Head.Value!;
+            var sx = mx.Head.Value!.Size;
+            var cx = mx.Head.Value!.Children;
+            var vx = mx.Head.Value!.Value;
             var xs = mx.Tail;
 
-            var y  = my.Head;
-            var sy = my.Head.Size;
-            var vy = my.Head.Value;
+            var y  = my.Head.Value!;
+            var sy = my.Head.Value!.Size;
+            var vy = my.Head.Value!.Value;
             var ys = my.Tail;
 
             var ord = sx.CompareTo(sy);

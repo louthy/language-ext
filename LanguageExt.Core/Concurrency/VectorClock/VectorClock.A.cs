@@ -164,7 +164,7 @@ public record VectorClock<A>(Seq<(A, long)> Entries)
         Seq<(A, long)> go(Seq<(A, long)> entries) =>
             entries.IsEmpty
                 ? Seq((index, value))
-                : entries.Head switch
+                : entries.Head.Value switch
                   {
                       (var x1, _) xy when lessThan<OrdDefault<A>, A>(x1, index) => xy.Cons(go(entries.Tail)),
                       (var x1, _) when equals<OrdDefault<A>, A>(x1, index)      => (index, value).Cons(entries.Tail),
@@ -211,11 +211,11 @@ public record VectorClock<A>(Seq<(A, long)> Entries)
             {
                 (true,  _) => es2.Map(xy => mk(xy.Item1, f(xy.Item1, None, Some(xy.Item2)))),
                 (_,  true) => es1.Map(xy => mk(xy.Item1, f(xy.Item1, Some(xy.Item2), None))),
-                _ => compare<OrdDefault<A>, A>(es1.Head.Item1, es2.Head.Item1) switch
+                _ => compare<OrdDefault<A>, A>(es1.Head.Value.Item1, es2.Head.Value.Item1) switch
                      {
-                         var c when c < 0  => mk(es1.Head.Item1, f(es1.Head.Item1, Some(es1.Head.Item2), None)).Cons(go(es1.Tail, es2)),
-                         var c when c == 0 => mk(es1.Head.Item1, f(es1.Head.Item1, Some(es1.Head.Item2), Some(es2.Head.Item2))).Cons(go(es1.Tail, es2.Tail)),
-                         _                 => mk(es2.Head.Item1, f(es2.Head.Item1, None, Some(es2.Head.Item2))).Cons(go(es1, es2.Tail)),
+                         var c when c < 0  => mk(es1.Head.Value.Item1, f(es1.Head.Value.Item1, Some(es1.Head.Value.Item2), None)).Cons(go(es1.Tail, es2)),
+                         var c when c == 0 => mk(es1.Head.Value.Item1, f(es1.Head.Value.Item1, Some(es1.Head.Value.Item2), Some(es2.Head.Value.Item2))).Cons(go(es1.Tail, es2.Tail)),
+                         _                 => mk(es2.Head.Value.Item1, f(es2.Head.Value.Item1, None, Some(es2.Head.Value.Item2))).Cons(go(es1, es2.Tail)),
                      }
             };
 
@@ -263,17 +263,17 @@ public record VectorClock<A>(Seq<(A, long)> Entries)
         static Relation go(Seq<(A, long)> es1, Seq<(A, long)> es2) =>
             (es1.IsEmpty, es2.IsEmpty) switch
             {
-                (false, false) => equals<OrdDefault<A>, A>(es1.Head.Item1, es2.Head.Item1)
-                                      ? es1.Head.Item2 == es2.Head.Item2
+                (false, false) => equals<OrdDefault<A>, A>(es1.Head.Value.Item1, es2.Head.Value.Item1)
+                                      ? es1.Head.Value.Item2 == es2.Head.Value.Item2
                                             ? go(es1.Tail, es2.Tail)
-                                            : es1.Head.Item2 < es2.Head.Item2
+                                            : es1.Head.Value.Item2 < es2.Head.Value.Item2
                                                 ? checkCauses(es1.Tail, es2.Tail) ? LanguageExt.Relation.Causes : LanguageExt.Relation.Concurrent
                                                 : checkCauses(es2.Tail, es1.Tail)
                                                     ? LanguageExt.Relation.CausedBy
                                                     : LanguageExt.Relation.Concurrent
-                                      : lessThan<OrdDefault<A>, A>(es1.Head.Item1, es2.Head.Item1)
+                                      : lessThan<OrdDefault<A>, A>(es1.Head.Value.Item1, es2.Head.Value.Item1)
                                           ? checkCauses(es2, es1.Tail) ? LanguageExt.Relation.CausedBy : LanguageExt.Relation.Concurrent
-                                          : greaterThan<OrdDefault<A>, A>(es1.Head.Item1, es2.Head.Item1)
+                                          : greaterThan<OrdDefault<A>, A>(es1.Head.Value.Item1, es2.Head.Value.Item1)
                                               ? checkCauses(es1, es2.Tail) ? LanguageExt.Relation.Causes : LanguageExt.Relation.Concurrent
                                               : LanguageExt.Relation.Concurrent,
                 (true, _) => LanguageExt.Relation.Causes,
@@ -283,9 +283,10 @@ public record VectorClock<A>(Seq<(A, long)> Entries)
         static bool checkCauses(Seq<(A, long)> es1, Seq<(A, long)> es2) =>
             (es1.IsEmpty, es2.IsEmpty) switch
             {
-                (false, false) => equals<OrdDefault<A>, A>(es1.Head.Item1, es2.Head.Item1)
-                                      ? es1.Head.Item2 <= es2.Head.Item2 && checkCauses(es1.Tail, es2.Tail)
-                                      : !lessThan<OrdDefault<A>, A>(es1.Head.Item1, es2.Head.Item1) && checkCauses(es1, es2.Tail),
+                (false, false) => equals<OrdDefault<A>, A>(es1.Head.Value.Item1, es2.Head.Value.Item1)
+                                      ? es1.Head.Value.Item2 <= es2.Head.Value.Item2 && checkCauses(es1.Tail, es2.Tail)
+                                      : !lessThan<OrdDefault<A>, A>(es1.Head.Value.Item1, es2.Head.Value.Item1) &&
+                                        checkCauses(es1, es2.Tail),
                 (true, _) => true,
                 _         => false
             };

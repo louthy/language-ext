@@ -53,17 +53,17 @@ public static class Patch
         static (Seq<Edit<EqA, A>.Insert> inserts, Seq<Edit<EqA, A>.Delete> deletes, Seq<Edit<EqA, A>.Replace> replaces) partition3(Seq<Edit<EqA, A>> grp)
         {
             if (grp.IsEmpty) return (Seq<Edit<EqA, A>.Insert>(), Seq<Edit<EqA, A>.Delete>(), Seq<Edit<EqA, A>.Replace>());
-            if (grp.Head is Edit<EqA, A>.Insert ins)
+            if (grp.Head.Value! is Edit<EqA, A>.Insert ins)
             {
                 var (i, d, r) = partition3(grp.Tail);
                 return (ins.Cons(i), d, r);
             }
-            else if (grp.Head is Edit<EqA, A>.Delete del)
+            else if (grp.Head.Value! is Edit<EqA, A>.Delete del)
             {
                 var (i, d, r) = partition3(grp.Tail);
                 return (i, del.Cons(d), r);
             }
-            else if (grp.Head is Edit<EqA, A>.Replace repl)
+            else if (grp.Head.Value! is Edit<EqA, A>.Replace repl)
             {
                 var (i, d, r) = partition3(grp.Tail);
                 return (i, d, repl.Cons(r));
@@ -76,9 +76,9 @@ public static class Patch
 
         static Seq<Edit<EqA, A>> normalise1(Seq<Edit<EqA, A>.Insert> inserts, Seq<Edit<EqA, A>.Delete> deletes, Seq<Edit<EqA, A>.Replace> replaces)
         {
-            if (!inserts.IsEmpty && !deletes.IsEmpty) return normalise1(inserts.Tail, deletes.Tail, Edit<EqA, A>.Replace.New(deletes.Head.Position, deletes.Head.Element, inserts.Head.Element).Cons(replaces));
+            if (!inserts.IsEmpty && !deletes.IsEmpty) return normalise1(inserts.Tail, deletes.Tail, Edit<EqA, A>.Replace.New(deletes.Head.Value!.Position, deletes.Head.Value!.Element, inserts.Head.Value!.Element).Cons(replaces));
             if (deletes.IsEmpty) return toSeq(inserts.Map(i => i as Edit<EqA, A>).ConcatFast(replaces.Take(1)).ToArray());
-            if (inserts.IsEmpty) return [deletes.Head];
+            if (inserts.IsEmpty) return [deletes.Head.Value!];
             throw new InvalidOperationException();
         }
     }
@@ -141,9 +141,9 @@ public static class Patch
         static bool go(Seq<Edit<EqA, A>> ea, Seq<Edit<EqA, A>> eb, int off)
         {
             if (ea.IsEmpty || eb.IsEmpty) return true;
-            var x  = ea.Head;
+            var x  = ea.Head.Value!;
             var xs = ea.Tail;
-            var y  = eb.Head;
+            var y  = eb.Head.Value!;
             var ys = eb.Tail;
             var yi = y.Index(i => i + off);
             var xi = x.Position;
@@ -293,7 +293,7 @@ public static class Patch
                 }
                 else
                 {
-                    var x = edits.Head.Position - si;
+                    var x = edits.Head.Value!.Position - si;
                     if (x > 0)
                     {
                         src.Take(x).UnsafeCopy(dest.Take(x));
@@ -381,8 +381,8 @@ public static class Patch
             if (xs.IsEmpty && ys.IsEmpty) return (xs, ys);
             if (ys.IsEmpty) return (xs.Map(e => e.Index(i => i     + a)), ys);
             if (xs.IsEmpty) return (xs, ys.Map(e => e.Index(i => i + b)));
-            var x   = xs.Head;
-            var y   = ys.Head;
+            var x   = xs.Head.Value!;
+            var y   = ys.Head.Value!;
             var ord = x.Position.CompareTo(y.Position);
             switch (ord)
             {
@@ -495,9 +495,9 @@ public static class Patch
         static Seq<Edit<EqA, A>> adjust(int o, Seq<Edit<EqA, A>> list) =>
             list.IsEmpty
                 ? Seq<Edit<EqA, A>>()
-                : list.Head is Edit<EqA, A>.Insert ia ? Edit<EqA, A>.Insert.New(ia.Position + o, ia.Element).Cons(adjust(o - 1, list.Tail))
-                    : list.Head is Edit<EqA, A>.Delete da ? Edit<EqA, A>.Delete.New(da.Position + o, da.Element).Cons(adjust(o + 1, list.Tail))
-                        : list.Head is Edit<EqA, A>.Replace ra ? Edit<EqA, A>.Replace.New(ra.Position + o, ra.Element, ra.ReplaceElement).Cons(adjust(o, list.Tail))
+                : list.Head.Value! is Edit<EqA, A>.Insert ia ? Edit<EqA, A>.Insert.New(ia.Position + o, ia.Element).Cons(adjust(o - 1, list.Tail))
+                    : list.Head.Value! is Edit<EqA, A>.Delete da ? Edit<EqA, A>.Delete.New(da.Position + o, da.Element).Cons(adjust(o + 1, list.Tail))
+                        : list.Head.Value! is Edit<EqA, A>.Replace ra ? Edit<EqA, A>.Replace.New(ra.Position + o, ra.Element, ra.ReplaceElement).Cons(adjust(o, list.Tail))
                             : throw new NotSupportedException();
     }
 

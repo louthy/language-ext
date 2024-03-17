@@ -4,12 +4,6 @@ using System.Diagnostics.Contracts;
 
 namespace LanguageExt;
 
-/// <summary>
-/// Immutable set module
-/// AVL tree implementation
-/// AVL tree is a self-balancing binary search tree. 
-/// http://en.wikipedia.org/wiki/AVL_tree
-/// </summary>
 public partial class Set
 {
     /// <summary>

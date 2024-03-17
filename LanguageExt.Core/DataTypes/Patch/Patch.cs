@@ -124,9 +124,9 @@ public readonly struct Patch<EqA, A> :
             }
             else
             {
-                var x  = ex.Head;
+                var x  = ex.Head.Value!;
                 var xs = ex.Tail;
-                var y  = ey.Head;
+                var y  = ey.Head.Value!;
                 var ys = ey.Tail;
 
                 var yi  = y.Index(i => i + off);

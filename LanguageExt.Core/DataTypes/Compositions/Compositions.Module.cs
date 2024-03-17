@@ -35,7 +35,7 @@ public static class Compositions
         bool go(int m, Seq<Compositions<A>.Node> ma)
         {
             if (ma.IsEmpty) return true;
-            var x  = ma.Head;
+            var x  = ma.Head.Value!;
             var xs = ma.Tail;
             var s  = x.Size;
             return s >= m && wellFormedNode(s, x) && go(s * 2, xs);
@@ -53,8 +53,8 @@ public static class Compositions
         {
             if (nodes.IsEmpty) return nodes;
             if (n <= 0) return nodes;
-            var s   = nodes.Head.Size;
-            var c   = nodes.Head.Children;
+            var s   = nodes.Head.Value!.Size;
+            var c   = nodes.Head.Value!.Children;
             var ri  = nodes.Tail;
             var ord = n.CompareTo(s);
             if (ord < 0)
@@ -82,7 +82,7 @@ public static class Compositions
         {
             if (nodes.IsEmpty) return nodes;
             if (n <= 0) return Seq<Compositions<A>.Node>();
-            var x   = nodes.Head;
+            var x   = nodes.Head.Value!;
             var s   = x.Size;
             var c   = x.Children;
             var ri  = nodes.Tail;
@@ -112,7 +112,7 @@ public static class Compositions
         {
             if (nodes.IsEmpty) return A.Empty;
             if (n <= 0) return A.Empty;
-            var x   = nodes.Head;
+            var x   = nodes.Head.Value!;
             var s   = x.Size;
             var c   = x.Children;
             var v   = x.Value;

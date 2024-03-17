@@ -5,7 +5,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public partial class HashSet : Monad<HashSet>, Alternative<HashSet>, Traversable<HashSet>
+public partial class HashSet : Monad<HashSet>, MonoidK<HashSet>, Traversable<HashSet>
 {
     static K<HashSet, B> Monad<HashSet>.Bind<A, B>(K<HashSet, A> ma, Func<A, K<HashSet, B>> f)
     {

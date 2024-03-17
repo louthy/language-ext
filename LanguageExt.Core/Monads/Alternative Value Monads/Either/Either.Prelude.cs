@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Diagnostics.Contracts;
 using LanguageExt.Traits;
 
@@ -449,7 +448,7 @@ public static partial class Prelude
     /// <param name="Left">Left match function</param>
     /// <returns>Sequence of mapped values</returns>
     [Pure]
-    public static IEnumerable<Ret> Match<L, R, Ret>(
+    public static EnumerableM<Ret> Match<L, R, Ret>(
         this IEnumerable<Either<L, R>> list,
         Func<R, Ret> Right,
         Func<L, Ret> Left) =>
@@ -466,15 +465,19 @@ public static partial class Prelude
     /// <param name="Left">Left match function</param>
     /// <returns>Sequence of mapped values</returns>
     [Pure]
-    public static IEnumerable<Ret> match<L, R, Ret>(
+    public static EnumerableM<Ret> match<L, R, Ret>(
         IEnumerable<Either<L, R>> list,
         Func<R, Ret> Right,
         Func<L, Ret> Left)
     {
-        foreach (var item in list)
+        return new(Go());
+        IEnumerable<Ret> Go()
         {
-            if (item.IsLeft) yield return Left(item.LeftValue);
-            if (item.IsRight) yield return Right(item.RightValue);
+            foreach (var item in list)
+            {
+                if (item.IsLeft) yield return Left(item.LeftValue);
+                if (item.IsRight) yield return Right(item.RightValue);
+            }
         }
     }
 
@@ -533,11 +536,16 @@ public static partial class Prelude
     /// <param name="self">Either list</param>
     /// <returns>An enumerable of L</returns>
     [Pure]
-    public static IEnumerable<L> lefts<L, R>(IEnumerable<Either<L, R>> self)
+    public static EnumerableM<L> lefts<L, R>(IEnumerable<Either<L, R>> self)
     {
-        foreach (var item in self)
+        return new(Go());
+
+        IEnumerable<L> Go()
         {
-            if (item.IsLeft) yield return item.LeftValue;
+            foreach (var item in self)
+            {
+                if (item.IsLeft) yield return item.LeftValue;
+            }
         }
     }
 
@@ -562,11 +570,15 @@ public static partial class Prelude
     /// <param name="self">Either list</param>
     /// <returns>An enumerable of L</returns>
     [Pure]
-    public static IEnumerable<R> rights<L, R>(IEnumerable<Either<L, R>> self)
+    public static EnumerableM<R> rights<L, R>(IEnumerable<Either<L, R>> self)
     {
-        foreach (var item in self)
+        return new(Go());
+        IEnumerable<R> Go()
         {
-            if (item.IsRight) yield return item.RightValue;
+            foreach (var item in self)
+            {
+                if (item.IsRight) yield return item.RightValue;
+            }
         }
     }
 
@@ -593,7 +605,7 @@ public static partial class Prelude
     /// <param name="self">Either list</param>
     /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
     [Pure]
-    public static (IEnumerable<L> Lefts, IEnumerable<R> Rights) partition<L, R>(IEnumerable<Either<L, R>> self)
+    public static (EnumerableM<L> Lefts, EnumerableM<R> Rights) partition<L, R>(IEnumerable<Either<L, R>> self)
     {
         var ls   = new List<L>();
         var rs   = new List<R>();
@@ -602,7 +614,7 @@ public static partial class Prelude
             if (item.IsLeft) ls.Add(item.LeftValue);
             if (item.IsRight) rs.Add(item.RightValue);
         }
-        return (ls, rs);
+        return (new(ls), new(rs));
     }
 
     /// <summary>
@@ -619,6 +631,6 @@ public static partial class Prelude
     public static (Seq<L> Lefts, Seq<R> Rights) partition<L, R>(Seq<Either<L, R>> self)
     {
         var (ls, rs) = partition(self.AsEnumerable());
-        return (ls.ToSeq(), rs.ToSeq());
+        return (ls.AsEnumerableM().ToSeq(), rs.AsEnumerableM().ToSeq());
     }
 }

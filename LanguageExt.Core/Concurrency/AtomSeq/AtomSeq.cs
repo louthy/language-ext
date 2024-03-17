@@ -1444,7 +1444,7 @@ public static class AtomSeqExtensions
         var xs = ma.ToSeq();
         return xs.IsEmpty
                    ? Validation<F, A>.Fail(Fail)
-                   : Validation<F, A>.Success(xs.Last);
+                   : Validation<F, A>.Success((A)xs.Last);
     }
 
     /// <summary>
@@ -1459,7 +1459,7 @@ public static class AtomSeqExtensions
         var xs = ma.ToSeq();
         return xs.IsEmpty
                    ? Validation<F, A>.Fail(Fail)
-                   : Pure(xs.Head);
+                   : Pure((A)xs.Head);
     }
     
     /// <summary>
@@ -1473,7 +1473,7 @@ public static class AtomSeqExtensions
         var xs = ma.ToSeq();
         return xs.IsEmpty
                    ? Validation<F, A>.Fail(Fail())
-                   : Pure(xs.Last);
+                   : Pure((A)xs.Last);
     }
 
     /// <summary>
@@ -1488,7 +1488,7 @@ public static class AtomSeqExtensions
         var xs = ma.ToSeq();
         return xs.IsEmpty
                    ? Validation<F, A>.Fail(Fail())
-                   : Pure(xs.Head);
+                   : Pure((A)xs.Head);
     }
     
     /// <summary>
@@ -1502,7 +1502,7 @@ public static class AtomSeqExtensions
         var xs = ma.ToSeq();
         return xs.IsEmpty
                    ? Fail(F.Empty)
-                   : Pure(xs.Last);
+                   : Pure((A)xs.Last);
     }
 
     /// <summary>
@@ -1517,6 +1517,6 @@ public static class AtomSeqExtensions
         var xs = ma.ToSeq();
         return xs.IsEmpty
                    ? Fail(F.Empty)
-                   : Pure(xs.Head);
+                   : Pure((A)xs.Head);
     }
 }

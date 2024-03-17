@@ -833,5 +833,8 @@ No need for them now we have proper higher-kind support.
 * Overrides of Foldable for the sequence types (`Count()`, `Head()`, `Last()` etc.)
 * Make sure Index is used properly in collections this[] implementations (namely, from end!)
 * Make sure correct trait is used between MonoidK and Alternative -- the collections in particular should be MonoidK as the Combine usually concats the collections (rather than provides an Alternative).
+* Review `Prelude_Collections`
+* Write unit tests (generally!)
+* Write unit tests for index operator on lists and foldables [^1]
 
 

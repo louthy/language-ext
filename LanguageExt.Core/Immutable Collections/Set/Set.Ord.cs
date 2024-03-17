@@ -346,7 +346,7 @@ public readonly struct Set<OrdA, A> :
     /// </returns>
     public Set<OrdA, A> Do(Action<A> f)
     {
-        this.Iter(f);
+        this.AsEnumerableM().Iter(f);
         return this;
     }
 

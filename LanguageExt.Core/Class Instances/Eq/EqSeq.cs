@@ -27,7 +27,7 @@ public struct EqSeq<EqA, A> : Eq<Seq<A>>
             if (a != b) return false;
             if (a && b) return true;
 
-            if (!EqA.Equals(x.Head, y.Head)) return false;
+            if (!EqA.Equals((A)x.Head,(A)y.Head)) return false;
             x = x.Tail;
             y = y.Tail;
         }

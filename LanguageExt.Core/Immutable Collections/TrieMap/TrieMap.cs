@@ -1465,7 +1465,7 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     /// <returns>True if 'other' is a proper subset of this set</returns>
     public bool IsProperSubsetOf(IEnumerable<(K Key, V Value)> other) =>
-        IsProperSubsetOf(other.Map(x => x.Key));
+        IsProperSubsetOf(other.Select(x => x.Key));
 
     /// <summary>
     /// Returns True if 'other' is a proper subset of this set
@@ -1505,7 +1505,7 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     /// <returns>True if 'other' is a proper superset of this set</returns>
     public bool IsProperSupersetOf(IEnumerable<(K Key, V Value)> other) =>
-        IsProperSupersetOf(other.Map(x => x.Key));
+        IsProperSupersetOf(other.Select(x => x.Key));
 
     /// <summary>
     /// Returns True if 'other' is a proper superset of this set
@@ -1607,7 +1607,7 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     /// <returns>True if 'other' is a superset of this set</returns>
     public bool IsSupersetOf(IEnumerable<(K Key, V Value)> other) =>
-        IsSupersetOf(other.Map(x => x.Key));
+        IsSupersetOf(other.Select(x => x.Key));
 
     /// <summary>
     /// Returns True if 'other' is a superset of this set
@@ -1629,7 +1629,7 @@ internal class TrieMap<EqK, K, V> :
     /// Returns True if other overlaps this set
     /// </summary>
     public bool Overlaps(IEnumerable<(K Key, V Value)> other) =>
-        Overlaps(other.Map(x => x.Key));
+        Overlaps(other.Select(x => x.Key));
 
     /// <summary>
     /// Returns True if other overlaps this set
@@ -1707,7 +1707,7 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     public (TrieMap<EqK, K, V> Map, TrieMap<EqK, K, Change<V>> Changes) IntersectWithLog(
         IEnumerable<(K Key, V Value)> other) =>
-        IntersectWithLog(other.Map(pair => pair.Key));
+        IntersectWithLog(other.Select(pair => pair.Key));
 
     /// <summary>
     /// Returns the elements that are in both this and other
@@ -1814,7 +1814,7 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     public (TrieMap<EqK, K, V> Map, TrieMap<EqK, K, Change<V>> Changes) ExceptWithLog(
         IEnumerable<(K Key, V Value)> other) =>
-        ExceptWithLog(other.Map(p => p.Key));
+        ExceptWithLog(other.Select(p => p.Key));
  
     /// <summary>
     /// Only items that are in one set or the other will be returned.
@@ -2766,10 +2766,6 @@ internal class TrieMap<EqK, K, V> :
             return false;
         }
     }
-
-    IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
-        AsEnumerable().Select(kv => new KeyValuePair<K, V>(kv.Key, kv.Value))
-                      .GetEnumerator();
 }
 
 internal readonly struct Sec
@@ -2817,7 +2813,7 @@ internal static class Bit
     {
         value <<= section.Offset;
         var offsetMask = (0xFFFF & Sec.Mask) << section.Offset;
-        return (data & ~(uint)offsetMask) | ((uint)value & (uint)offsetMask);
+        return data & ~(uint)offsetMask | (uint)value & (uint)offsetMask;
     }
 }
 

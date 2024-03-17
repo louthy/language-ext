@@ -1,4 +1,5 @@
-﻿using System;
+﻿#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections;
@@ -66,10 +67,14 @@ internal class SetInternal<OrdA, A> :
 
     public EnumerableM<A> Skip(int amount)
     {
-        using var iter = new SetModule.SetEnumerator<A>(set, false, amount);
-        while (iter.MoveNext())
+        return new(Go());
+        IEnumerable<A> Go()
         {
-            yield return iter.Current;
+            using var iter = new SetModule.SetEnumerator<A>(set, false, amount);
+            while (iter.MoveNext())
+            {
+                yield return iter.Current;
+            }
         }
     }
 
@@ -261,8 +266,8 @@ internal class SetInternal<OrdA, A> :
         if (isnull(keyFrom)) throw new ArgumentNullException(nameof(keyFrom));
         if (isnull(keyTo)) throw new ArgumentNullException(nameof(keyTo));
         return OrdA.Compare(keyFrom, keyTo) > 0
-                   ? SetModule.FindRange<OrdA, A>(set, keyTo, keyFrom)
-                   : SetModule.FindRange<OrdA, A>(set, keyFrom, keyTo);
+                   ? SetModule.FindRange<OrdA, A>(set, keyTo, keyFrom).AsEnumerableM()
+                   : SetModule.FindRange<OrdA, A>(set, keyFrom, keyTo).AsEnumerableM();
     }
 
 

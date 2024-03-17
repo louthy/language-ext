@@ -5,7 +5,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public partial class EnumerableM : Monad<EnumerableM>, Alternative<EnumerableM>, Traversable<EnumerableM>
+public partial class EnumerableM : Monad<EnumerableM>, MonoidK<EnumerableM>, Traversable<EnumerableM>
 {
     static K<EnumerableM, B> Monad<EnumerableM>.Bind<A, B>(K<EnumerableM, A> ma, Func<A, K<EnumerableM, B>> f) =>
         ma.As().Bind(f);

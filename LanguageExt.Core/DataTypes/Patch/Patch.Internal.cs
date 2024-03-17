@@ -2,6 +2,7 @@
 using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
 using System;
+using System.Linq;
 
 namespace LanguageExt;
 
@@ -11,14 +12,14 @@ internal static class PatchInternal
     {
         if (t.IsEmpty) return (state, Seq<C>());
         var (a1, c1) = mapAccumR(f, state, t.Tail);
-        var (a, c) = f(a1, t.Head);
+        var (a, c) = f(a1, t.Head.Value!);
         return (a, c.Cons(c1));
     }
 
     public static (A, Seq<C>) mapAccumL<A, B, C>(Func<A, B, (A, C)> f, A state, Seq<B> t)
     {
         if (t.IsEmpty) return (state, Seq<C>());
-        var (a, c) = f(state, t.Head);
+        var (a, c)   = f(state, t.Head.Value!);
         var (a1, c1) = mapAccumL(f, a, t.Tail);
         return (a1, c.Cons(c1));
     }

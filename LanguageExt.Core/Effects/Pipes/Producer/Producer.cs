@@ -245,9 +245,9 @@ public static class Producer
         ms switch
         {
             { IsEmpty     : true }               => lift<OUT, M, Unit>(M.Pure(unit)),
-            { Tail.IsEmpty: true }               => ms.Head,
+            { Tail.IsEmpty: true }               => ms.Head.Value!,
             { Head        : var h, Tail: var t } => 
-                from x in h
+                from x in h.Value!
                 from xs in merge<OUT, M>(t)
                 select x
         };

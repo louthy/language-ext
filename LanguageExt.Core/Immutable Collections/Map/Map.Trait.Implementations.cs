@@ -47,16 +47,16 @@ public partial class Map<Key> : Foldable<Map<Key>>, Functor<Map<Key>>, MonoidK<M
         ta.As().IsEmpty;
 
     static Option<A> Foldable<Map<Key>>.Head<A>(K<Map<Key>, A> ta) =>
-        ta.As().Min().Map(kv => kv.Value);
+        ta.As().Min.Map(kv => kv.Value);
 
     static Option<A> Foldable<Map<Key>>.Last<A>(K<Map<Key>, A> ta) =>
-        ta.As().Max().Map(kv => kv.Value);
+        ta.As().Max.Map(kv => kv.Value);
 
     static Option<A> Foldable<Map<Key>>.Min<A>(K<Map<Key>, A> ta) =>
-        ta.As().Min().Map(kv => kv.Value);
+        ta.As().Min.Map(kv => kv.Value);
 
     static Option<A> Foldable<Map<Key>>.Max<A>(K<Map<Key>, A> ta) =>
-        ta.As().Max().Map(kv => kv.Value);
+        ta.As().Max.Map(kv => kv.Value);
 
     static K<Map<Key>, A> SemigroupK<Map<Key>>.Combine<A>(K<Map<Key>, A> lhs, K<Map<Key>, A> rhs) =>
         lhs.As() + rhs.As();
