@@ -5,6 +5,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using LanguageExt.ClassInstances;
+using LanguageExt.UnsafeValueAccess;
 using static LanguageExt.Prelude;
 using Array = System.Array;
 
@@ -40,7 +41,7 @@ public class MemoryFS
     /// </summary>
     /// <returns>Sequence of drive names</returns>
     public Seq<string> GetLogicalDrives() =>
-        EnumerateFolders("[root]", "*", SearchOption.TopDirectoryOnly).ToSeq();
+        EnumerateFolders("[root]", "*", SearchOption.TopDirectoryOnly).AsEnumerableM().ToSeq();
         
     /// <summary>
     /// Add a logical in-memory drive
@@ -64,12 +65,12 @@ public class MemoryFS
         if (path.IsEmpty) 
             throw new IOException($"Invalid path: {string.Join(Path.DirectorySeparatorChar.ToString(), path)}");
             
-        if (path.Head.Exists(invalidPath.Contains)) 
+        if (path.Head.ValueUnsafe()!.AsEnumerableM().Exists(invalidPath.Contains)) 
             throw new IOException($"Invalid path: {string.Join(Path.DirectorySeparatorChar.ToString(), path)}");
             
         foreach (var name in path.Tail)
         {
-            if (name.Exists(invalidFile.Contains)) 
+            if (name.AsEnumerableM().Exists(invalidFile.Contains)) 
                 throw new IOException($"Invalid path: {string.Join(Path.DirectorySeparatorChar.ToString(), path)}");
         }
         return path;
@@ -81,7 +82,7 @@ public class MemoryFS
     Entry? FindEntry(Entry entry, Seq<string> path) =>
         path.IsEmpty
             ? entry
-            : entry.GetChild(path.Head) switch
+            : entry.GetChild(path.Head.ValueUnsafe()!) switch
               {
                   null  => null,
                   var e => FindEntry(e, path.Tail)
@@ -94,6 +95,7 @@ public class MemoryFS
         return entry == null || entry is FileEntry
                    ? throw new DirectoryNotFoundException($"Directory not found: {path}")
                    : entry.EnumerateFolders(Empty, regex, option, false)
+                          .AsEnumerableM()
                           .Map(e => string.Join(Path.DirectorySeparatorChar.ToString(), e.Path));
     }
 
@@ -104,6 +106,7 @@ public class MemoryFS
         return entry == null || entry is FileEntry
                    ? throw new DirectoryNotFoundException($"Directory not found: {path}")
                    : entry.EnumerateFiles(Empty, regex, option)
+                          .AsEnumerableM()
                           .Map(e => string.Join(Path.DirectorySeparatorChar.ToString(), e.Path));
     }
 
@@ -114,6 +117,7 @@ public class MemoryFS
         return entry == null || entry is FileEntry
                    ? throw new DirectoryNotFoundException($"Directory not found: {path}")
                    : entry.EnumerateEntries(Empty, regex, option, false)
+                          .AsEnumerableM()
                           .Map(e => string.Join(Path.DirectorySeparatorChar.ToString(), e.Path));
     }
 
@@ -146,7 +150,7 @@ public class MemoryFS
             
         Entry go(Entry m, Seq<string> path2)
         {
-            var folder = new FolderEntry(path2.Last, now, now, now, default);
+            var folder = new FolderEntry(path2.Last.ValueUnsafe()!, now, now, now, default);
             return FindEntry(m, path2) switch
                    {
                        null => m.Add(path2, folder, now).IfLeft(e => throw e),
@@ -287,7 +291,7 @@ public class MemoryFS
     internal Unit PutFile(string path, byte[] data, bool overwrite, DateTime now)
     {
         var path1 = ParsePath(path);
-        var file  = new FileEntry(path1.Last, now, now, now, data);
+        var file  = new FileEntry(path1.Last.ValueUnsafe()!, now, now, now, data);
 
         machine.Swap(
             m => FindEntry(m, path1) switch
@@ -344,7 +348,7 @@ public class MemoryFS
 
                 // Create the destination folder
                 var parent1      = ParsePath(parent);
-                var parentFolder = new FolderEntry(parent1.Last, now, now, now, default);
+                var parentFolder = new FolderEntry(parent1.Last.ValueUnsafe()!, now, now, now, default);
                 var eparent      = FindEntry(m, parent1);
                 if(eparent == null) m = m.Add(parent1, parentFolder, now).IfLeft(e => throw e);
 
@@ -352,7 +356,7 @@ public class MemoryFS
                 m = m.Delete(srcp, true, now).IfLeft(e => throw e);
                     
                 // Write the entry in the new location and update the path and name
-                m = m.Add(destp, esrc.UpdateName(destp.Last), now).IfLeft(e => throw e);
+                m = m.Add(destp, esrc.UpdateName(destp.Last.ValueUnsafe()!), now).IfLeft(e => throw e);
 
                 return m;
             });
@@ -612,10 +616,11 @@ public class MemoryFS
             return files.Concat(children);
         }
 
-        public override IEnumerable<(Seq<string> Path, Entry Entry)> EnumerateEntries(Seq<string> parent, Regex searchPattern, SearchOption option, bool includeSelf)
+        public override IEnumerable<(Seq<string> Path, Entry Entry)> EnumerateEntries(
+            Seq<string> parent, Regex searchPattern, SearchOption option, bool includeSelf)
         {
             var self = includeSelf && searchPattern.IsMatch(Name)
-                           ? new [] {(parent.Add(Name), (Entry)this)}
+                           ? new[] { (parent.Add(Name), (Entry)this) }
                            : Array.Empty<(Seq<string>, Entry)>();
 
             var files = Files.Bind(f => f.EnumerateEntries(parent.Add(Name), searchPattern, option, true));
@@ -623,14 +628,16 @@ public class MemoryFS
             var children =
                 option switch
                 {
-                    SearchOption.AllDirectories => Entries.Values.Choose(e =>
-                                                                             e is FolderEntry f
-                                                                                 ? Some(f.EnumerateEntries(parent.Add(Name), searchPattern, option, true))
-                                                                                 : None).Bind(identity),
-                    SearchOption.TopDirectoryOnly => Entries.Values.Choose(e =>
-                                                                               searchPattern.IsMatch(e.Name)
-                                                                                   ? Some((parent.Add(e.Name), e))
-                                                                                   : None),
+                    SearchOption.AllDirectories => Entries.Values.Choose(
+                        e =>
+                            e is FolderEntry f
+                                ? Some(f.EnumerateEntries(parent.Add(Name), searchPattern, option, true))
+                                : None).Bind(identity),
+                    SearchOption.TopDirectoryOnly => Entries.Values.Choose(
+                        e =>
+                            searchPattern.IsMatch(e.Name)
+                                ? Some((parent.Add(e.Name), e))
+                                : None),
                     _ => Array.Empty<(Seq<string>, Entry)>()
                 };
 
@@ -643,7 +650,7 @@ public class MemoryFS
             {
                 0 => entry,
                 1 => new FolderEntry(Name, CreationTime, now, now, Entries.AddOrUpdate(entry.Name, entry)),
-                _ => Entries.Find(path.Head).Case switch
+                _ => Entries.Find(path.Head.ValueUnsafe()!).Case switch
                      {
                          Entry e => e.Add(path.Tail, entry, now) switch
                                     {
@@ -663,7 +670,7 @@ public class MemoryFS
                                                         Func<Entry, Either<Exception, Entry>> notFound, DateTime now) =>
             path.IsEmpty
                 ? update(this)
-                : Entries.Find(path.Head).Case switch
+                : Entries.Find(path.Head.ValueUnsafe()!).Case switch
                   {
                       Entry e => e.Update(path.Tail, update, notFound, now) switch
                                  {
@@ -682,14 +689,14 @@ public class MemoryFS
             path.Length switch
             {
                 0 => new DirectoryNotFoundException(),
-                1 => Entries.Find(path.Head).Case switch
+                1 => Entries.Find(path.Head.ValueUnsafe()!).Case switch
                      {
                          Entry e when recursive || e.IsEmpty => new FolderEntry(
                              Name, CreationTime, now, now, Entries.Remove(e.Name)),
                          Entry => new IOException("Directory not empty"),
                          _     => new IOException("Invalid path")
                      },
-                _ => Entries.Find(path.Head).Case switch
+                _ => Entries.Find(path.Head.ValueUnsafe()!).Case switch
                      {
                          Entry e => e.Delete(path.Tail, recursive, now) switch
                                     {

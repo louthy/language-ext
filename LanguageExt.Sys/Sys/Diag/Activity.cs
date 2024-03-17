@@ -276,7 +276,7 @@ public class Activity<M, RT>
     public static K<M, Seq<ActivityEvent>> events =>
         currentActivity.Map(
             a => a is not null
-                     ? a.Events.ToSeq()
+                     ? a.Events.AsEnumerableM().ToSeq()
                      : Seq<ActivityEvent>());
 
     /// <summary>
@@ -299,7 +299,7 @@ public class Activity<M, RT>
     public static K<M, Seq<ActivityLink>> links =>
         currentActivity.Map(
             a => a is not null
-                     ? a.Links.ToSeq()
+                     ? a.Links.AsEnumerableM().ToSeq()
                      : Seq<ActivityLink>());
 
     /// <summary>
