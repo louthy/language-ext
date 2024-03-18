@@ -4,6 +4,7 @@ using System.Linq;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using LanguageExt.Traits;
+#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
 
 namespace LanguageExt;
 
@@ -54,13 +55,6 @@ public static partial class Map
     /// Creates a new Map seeded with the keyValues provided
     /// </summary>
     [Pure]
-    public static Map<OrdK, K, V> create<OrdK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) where OrdK : Ord<K> =>
-        empty<OrdK, K, V>().AddRange(head.Cons(tail));
-
-    /// <summary>
-    /// Creates a new Map seeded with the keyValues provided
-    /// </summary>
-    [Pure]
     public static Map<OrdK, K, V> create<OrdK, K, V>((K, V) head, params (K, V)[] tail) where OrdK : Ord<K> =>
         empty<OrdK, K, V>().AddRange(head.Cons(tail));
 
@@ -86,13 +80,6 @@ public static partial class Map
         keyValues.IsEmpty
             ? Map<OrdK, K, V>.Empty
             : new(keyValues);
-
-    /// <summary>
-    /// Creates a new Map seeded with the keyValues provided
-    /// </summary>
-    [Pure]
-    public static Map<OrdK, K, V> createRange<OrdK, K, V>(IEnumerable<KeyValuePair<K, V>> keyValues) where OrdK : Ord<K> =>
-        empty<OrdK, K, V>().AddRange(keyValues);
 
     /// <summary>
     /// Atomically adds a new item to the map
@@ -195,18 +182,6 @@ public static partial class Map
     /// <returns>New Map with the items added</returns>
     [Pure]
     public static Map<OrdK, K, V> addRange<OrdK, K, V>(Map<OrdK, K, V> map, IEnumerable<(K, V)> keyValues) where OrdK : Ord<K> =>
-        map.AddRange(keyValues);
-
-    /// <summary>
-    /// Atomically adds a range of items to the map.
-    /// </summary>
-    /// <remarks>Null is not allowed for a Key or a Value</remarks>
-    /// <param name="range">Range of tuples to add</param>
-    /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
-    /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
-    /// <returns>New Map with the items added</returns>
-    [Pure]
-    public static Map<OrdK, K, V> addRange<OrdK, K, V>(Map<OrdK, K, V> map, IEnumerable<KeyValuePair<K, V>> keyValues) where OrdK : Ord<K> =>
         map.AddRange(keyValues);
 
     /// <summary>
@@ -703,15 +678,22 @@ public static partial class Map
     /// Convert any IDictionary into an immutable Map K V
     /// </summary>
     [Pure]
-    public static Map<OrdK, K, V> freeze<OrdK, K, V>(IDictionary<K, V> dict) where OrdK : Ord<K> =>
-        toMap<OrdK, K, V>(dict.AsEnumerable());
+    public static Map<OrdK, K, V> toMap<OrdK, K, V>(IDictionary<K, V> dict) where OrdK : Ord<K> =>
+        Prelude.toMap<OrdK, K, V>(dict.AsEnumerableM().Map(kv => (kv.Key, kv.Value)));
 
     /// <summary>
     /// Convert any IDictionary into an immutable Map K V
     /// </summary>
     [Pure]
-    public static Map<OrdK, K, V> Freeze<OrdK, K, V>(this IDictionary<K, V> dict) where OrdK : Ord<K> =>
-        toMap<OrdK, K, V>(dict.AsEnumerable());
+    public static HashMap<OrdK, K, V> toHashMap<OrdK, K, V>(IDictionary<K, V> dict) where OrdK : Ord<K> =>
+        Prelude.toHashMap<OrdK, K, V>(dict.AsEnumerableM().Map(kv => (kv.Key, kv.Value)));
+
+    /// <summary>
+    /// Convert any IDictionary into an immutable Map K V
+    /// </summary>
+    [Pure]
+    public static HashMap<OrdK, K, V> ToHashMap<OrdK, K, V>(this IDictionary<K, V> dict) where OrdK : Ord<K> =>
+        Prelude.toHashMap<OrdK, K, V>(dict.AsEnumerableM().Map(kv => (kv.Key, kv.Value)));
 
     /// <summary>
     /// Union two maps.  The merge function is called keys are

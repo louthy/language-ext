@@ -112,24 +112,6 @@ public class ListTests
     }
 
     [Fact]
-    public void RangeTest3()
-    {
-        var r = Range(Range(0, 5), Range(10, 20));
-
-        for (int i = 0; i < 5; i ++)
-        {
-            Assert.True(r.First() == i);
-            r = r.Skip(1);
-        }
-
-        for (int i = 0; i < 10; i++)
-        {
-            Assert.True(r.First() == i + 10);
-            r = r.Skip(1);
-        }
-    }
-
-    [Fact]
     public void RangeTest4()
     {
         var r = Range('a', 'f');

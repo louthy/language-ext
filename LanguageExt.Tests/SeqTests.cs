@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Xunit;
 using static LanguageExt.Prelude;
 using static LanguageExt.Seq;
@@ -46,7 +47,7 @@ public class SeqTests
     [Fact]
     public void EnumerableNull()
     {
-        string[] x = null;
+        string[]? x = null;
 
         Assert.True(toSeq(x).Count == 0);
     }
@@ -62,7 +63,7 @@ public class SeqTests
             }
         }
 
-        var seq = Numbers().ToSeq();
+        var seq = Numbers().AsEnumerableM().ToSeq();
 
         var a = seq.Take(5).Sum();
         Assert.True(a == 10);
@@ -76,7 +77,7 @@ public class SeqTests
     public void FoldTest()
     {
         var input   = Seq(1, 2, 3, 4, 5);
-        var output1 = fold(input, "", (s, x) => s + x.ToString());
+        var output1 = Foldable.fold((s, x) => s + x, "", input);
         Assert.Equal("12345", output1);
     }
 
@@ -84,7 +85,7 @@ public class SeqTests
     public void FoldBackTest()
     {
         var input   = Seq(1, 2, 3, 4, 5);
-        var output1 = foldBack(input, "", (s, x) => s + x.ToString());
+        var output1 = Foldable.foldBack((s, x) => s + x, "", input);
         Assert.Equal("54321", output1);
     }
 
@@ -93,16 +94,16 @@ public class SeqTests
     {
         var input = Seq(10, 20, 30, 40, 50);
 
-        var output1 = foldWhile(input, "", (s, x) => s + x.ToString(), x => x < 40);
+        var output1 = Foldable.foldWhile((s, x) => s + x, x => x.Value < 40, "", input);
         Assert.Equal("102030", output1);
 
-        var output2 = foldWhile(input, "", (s, x) => s + x.ToString(), (string s) => s.Length < 6);
+        var output2 = Foldable.foldWhile((s, x) => s + x, s => s.State.Length < 6, "", input);
         Assert.Equal("102030", output2);
 
-        var output3 = foldWhile(input, 0, (s, x) => s + x, preditem: x => x < 40);
+        var output3 = Foldable.foldWhile((s, x) => s + x, x => x.Value < 40, 0, input);
         Assert.Equal(60, output3);
 
-        var output4 = foldWhile(input, 0, (s, x) => s + x, predstate: s => s < 60);
+        var output4 = Foldable.foldWhile((s, x) => s + x, s => s.State < 60, 0, input);
         Assert.Equal(60, output4);
     }
 
@@ -111,16 +112,16 @@ public class SeqTests
     {
         var input = Seq(10, 20, 30, 40, 50);
 
-        var output1 = foldBackWhile(input, "", (s, x) => s + x.ToString(), x => x >= 40);
+        var output1 = Foldable.foldBackWhile((s, x) => s + x, x => x.Value >= 40, "", input);
         Assert.Equal("5040", output1);
 
-        var output2 = foldBackWhile(input, "", (s, x) => s + x.ToString(), (string s) => s.Length < 4);
+        var output2 = Foldable.foldBackWhile((s, x) => s + x, s => s.State.Length < 4, "", input);
         Assert.Equal("5040", output2);
 
-        var output3 = foldBackWhile(input, 0, (s, x) => s + x, preditem: x => x >= 40);
+        var output3 = Foldable.foldBackWhile((s, x) => s + x, x => x.Value >= 40, 0, input);
         Assert.Equal(90, output3);
 
-        var output4 = foldBackWhile(input, 0, (s, x) => s + x, predstate: s => s < 90);
+        var output4 = Foldable.foldBackWhile((s, x) => s + x, s => s.State < 90, 0, input);
         Assert.Equal(90, output4);
     }
 
@@ -129,16 +130,16 @@ public class SeqTests
     {
         var input = Seq(10, 20, 30, 40, 50);
 
-        var output1 = foldUntil(input, "", (s, x) => s + x.ToString(), x => x >= 40);
+        var output1 = Foldable.foldUntil((s, x) => s + x, x => x.Value >= 40, "", input);
         Assert.Equal("102030", output1);
 
-        var output2 = foldUntil(input, "", (s, x) => s + x.ToString(), (string s) => s.Length >= 6);
+        var output2 = Foldable.foldUntil((s, x) => s + x, s => s.State.Length >= 6, "", input);
         Assert.Equal("102030", output2);
 
-        var output3 = foldUntil(input, 0, (s, x) => s + x, preditem: x => x >= 40);
+        var output3 = Foldable.foldUntil((s, x) => s + x, x => x.Value >= 40, 0, input);
         Assert.Equal(60, output3);
 
-        var output4 = foldUntil(input, 0, (s, x) => s + x, predstate: s => s >= 60);
+        var output4 = Foldable.foldUntil((s, x) => s + x, s => s.State >= 60, 0, input);
         Assert.Equal(60, output4);
     }
 
@@ -147,16 +148,16 @@ public class SeqTests
     {
         var input = Seq(10, 20, 30, 40, 50);
 
-        var output1 = foldBackUntil(input, "", (s, x) => s + x.ToString(), x => x < 40);
+        var output1 = Foldable.foldBackUntil((s, x) => s + x, x => x.Value < 40, "", input);
         Assert.Equal("5040", output1);
 
-        var output2 = foldBackUntil(input, "", (s, x) => s + x.ToString(), (string s) => s.Length >= 4);
+        var output2 = Foldable.foldBackUntil((s, x) => s + x, s => s.State.Length >= 4, "", input);
         Assert.Equal("5040", output2);
 
-        var output3 = foldBackUntil(input, 0, (s, x) => s + x, preditem: x => x < 40);
+        var output3 = Foldable.foldBackUntil((s, x) => s + x, x => x.Value < 40, 0, input);
         Assert.Equal(90, output3);
 
-        var output4 = foldBackUntil(input, 0, (s, x) => s + x, predstate: s => s >= 90);
+        var output4 = Foldable.foldBackUntil((s, x) => s + x, s => s.State >= 90, 0, input);
         Assert.Equal(90, output4);
     }
 
@@ -210,10 +211,10 @@ public class SeqTests
     [Fact]
     public void GetEnumeratorTest()
     {           
-        var res1 = Seq.empty<int>();
-        var res2 = Seq.empty<int>();
+        var res1 = empty<int>();
+        var res2 = empty<int>();
 
-        IEnumerable<int> a = new List<int> { 1, 2, 3, 4 };
+        var a = new List<int> { 1, 2, 3, 4 }.AsEnumerableM();
 
         var s1 = a.ToSeq();
         var s2 = a.ToSeq().Strict();
@@ -244,7 +245,7 @@ public class SeqTests
     [Fact]
     public void AddTest()
     {
-        var a = Seq1("a");
+        var a = Seq("a");
 
         var b = a.Add("b");
 
@@ -285,7 +286,7 @@ public class SeqTests
         Assert.True(sb == Seq(1, 2, 3, 4));
         Assert.True(sc == Seq(1, 2, 3));
         Assert.True(sd == Seq(1, 2));
-        Assert.True(se == Seq1(1));
+        Assert.True(se == Seq(1));
         Assert.True(sf == Empty);
     }
 
@@ -303,7 +304,7 @@ public class SeqTests
         Assert.True(sb == Seq(1, 2, 3, 4));
         Assert.True(sc == Seq(1, 2, 3));
         Assert.True(sd == Seq(1, 2));
-        Assert.True(se == Seq1(1));
+        Assert.True(se == Seq(1));
         Assert.True(sf == Empty);
     }
 
@@ -321,15 +322,15 @@ public class SeqTests
         Assert.True(sb == Seq(1, 2, 3, 4));
         Assert.True(sc == Seq(1, 2, 3));
         Assert.True(sd == Seq(1, 2));
-        Assert.True(se == Seq1(1));
+        Assert.True(se == Seq(1));
         Assert.True(sf == Empty);
     }
 
     [Fact]
     public void HashTest()
     {
-        var s1 = Seq1("test");
-        var s2 = Seq1("test");
+        var s1 = Seq("test");
+        var s2 = Seq("test");
 
         Assert.True(s1.GetHashCode() == s2.GetHashCode());
     }
@@ -337,7 +338,7 @@ public class SeqTests
     [Fact]
     public void TakeWhileTest()
     {
-        var str = "                          <p>The</p>";
+        var str = "                          <p>The</p>".AsEnumerableM();
         Assert.Equal("                          ",
                      String.Join("", str.ToSeq().TakeWhile(ch => ch == ' ')));
     }
@@ -345,7 +346,7 @@ public class SeqTests
     [Fact]
     public void TakeWhileIndex()
     {
-        var str = "                          <p>The</p>";
+        var str = "                          <p>The</p>".AsEnumerableM();
         Assert.Equal("                          ",
                      String.Join("", str.ToSeq().TakeWhile((ch, index) => index != 26)));
     }
@@ -353,14 +354,14 @@ public class SeqTests
     [Fact]
     public void TakeWhile_HalfDefaultCapacityTest()
     {
-        var str = "1234";
+        var str = "1234".AsEnumerableM();
         Assert.Equal("1234", String.Join("", str.ToSeq().TakeWhile(ch => true)));
     }
 
     [Fact]
     public void TakeWhileIndex_HalfDefaultCapacityTest()
     {
-        var str = "1234";
+        var str = "1234".AsEnumerableM();
         Assert.Equal("1234", String.Join("", str.ToSeq().TakeWhile((ch, index) => true)));
     }
         
@@ -403,14 +404,14 @@ public class SeqTests
     [Fact]
     public void SeqConcatTest()
     {
-        var seq1 = (from x in new[] { 1 }
+        var seq1 = (from x in new[] { 1 }.AsEnumerableM()
                     select x).ToSeq();
 
-        var seq2 = (from x in new[] { 2 }
+        var seq2 = (from x in new[] { 2 }.AsEnumerableM()
                     select x).ToSeq();
 
 
-        var seq3 = (from x in new[] { 3 }
+        var seq3 = (from x in new[] { 3 }.AsEnumerableM()
                     select x).ToSeq();
 
         Assert.Equal(
@@ -437,7 +438,7 @@ public class SeqTests
     [Fact]
     public void Concat_lazy_and_strict_then_index_test_1()
     {
-        var s1 = Seq(Range(1, 3));
+        var s1 = Range(1, 3).ToSeq();
         var s2 = Seq(4, 5, 6);
         var s3 = s1.Concat(s2);
         Assert.Equal(1, s3[0]);
@@ -451,7 +452,7 @@ public class SeqTests
     [Fact]
     public void Concat_lazy_and_strict_then_index_test_2()
     {
-        var s1 = Seq(Range(1, 3));
+        var s1 = Range(1, 3).ToSeq();
         var s2 = Seq(4, 5, 6);
         var s3 = s1.Concat(s2);
         Assert.Equal(6, s3[5]);
@@ -465,8 +466,8 @@ public class SeqTests
     [Fact]
     public void Concat_lazy_and_lazy_then_index_test_1()
     {
-        var s1 = Seq(Range(1, 3));
-        var s2 = Seq(Range(4, 3));
+        var s1 = Range(1, 3).ToSeq();
+        var s2 = Range(4, 3).ToSeq();
         var s3 = s1.Concat(s2);
         Assert.Equal(1, s3[0]);
         Assert.Equal(2, s3[1]);
@@ -479,8 +480,8 @@ public class SeqTests
     [Fact]
     public void Concat_lazy_and_lazy_then_index_test_2()
     {
-        var s1 = Seq(Range(1, 3));
-        var s2 = Seq(Range(4, 3));
+        var s1 = Range(1, 3).ToSeq();
+        var s2 = Range(4, 3).ToSeq();
         var s3 = s1.Concat(s2);
         Assert.Equal(6, s3[5]);
         Assert.Equal(5, s3[4]);
@@ -496,29 +497,29 @@ public class SeqTests
         var xs = Seq<int>();
         Assert.True(xs.Count == 0);
             
-        xs = Seq1<int>(0);
+        xs = Seq(0);
         Assert.True(xs.Count == 1);
         Assert.True(xs[0]    == 0);
             
-        xs = Seq<int>(0, 1);
+        xs = Seq(0, 1);
         Assert.True(xs.Count == 2);
         Assert.True(xs[0]    == 0);
         Assert.True(xs[1]    == 1);
             
-        xs = Seq<int>(0, 1, 2);
+        xs = Seq(0, 1, 2);
         Assert.True(xs.Count == 3);
         Assert.True(xs[0]    == 0);
         Assert.True(xs[1]    == 1);
         Assert.True(xs[2]    == 2);
             
-        xs = Seq<int>(0, 1, 2, 3);
+        xs = Seq(0, 1, 2, 3);
         Assert.True(xs.Count == 4);
         Assert.True(xs[0]    == 0);
         Assert.True(xs[1]    == 1);
         Assert.True(xs[2]    == 2);
         Assert.True(xs[3]    == 3);
             
-        xs = Seq<int>(0, 1, 2, 3, 4);
+        xs = Seq(0, 1, 2, 3, 4);
         Assert.True(xs.Count == 5);
         Assert.True(xs[0]    == 0);
         Assert.True(xs[1]    == 1);
@@ -526,7 +527,7 @@ public class SeqTests
         Assert.True(xs[3]    == 3);
         Assert.True(xs[4]    == 4);
             
-        xs = Seq<int>(0, 1, 2, 3, 4, 5);
+        xs = Seq(0, 1, 2, 3, 4, 5);
         Assert.True(xs.Count == 6);
         Assert.True(xs[0]    == 0);
         Assert.True(xs[1]    == 1);
@@ -535,7 +536,7 @@ public class SeqTests
         Assert.True(xs[4]    == 4);
         Assert.True(xs[5]    == 5);
             
-        xs = Seq<int>(0, 1, 2, 3, 4, 5, 6);
+        xs = Seq(0, 1, 2, 3, 4, 5, 6);
         Assert.True(xs.Count == 7);
         Assert.True(xs[0]    == 0);
         Assert.True(xs[1]    == 1);
@@ -545,7 +546,7 @@ public class SeqTests
         Assert.True(xs[5]    == 5);
         Assert.True(xs[6]    == 6);
             
-        xs = Seq<int>(0, 1, 2, 3, 4, 5, 6, 7);
+        xs = Seq(0, 1, 2, 3, 4, 5, 6, 7);
         Assert.True(xs.Count == 8);
         Assert.True(xs[0]    == 0);
         Assert.True(xs[1]    == 1);
@@ -556,7 +557,7 @@ public class SeqTests
         Assert.True(xs[6]    == 6);
         Assert.True(xs[7]    == 7);
             
-        xs = Seq<int>(0, 1, 2, 3, 4, 5, 6, 7, 8);
+        xs = Seq(0, 1, 2, 3, 4, 5, 6, 7, 8);
         Assert.True(xs.Count == 9);
         Assert.True(xs[0]    == 0);
         Assert.True(xs[1]    == 1);
@@ -568,7 +569,7 @@ public class SeqTests
         Assert.True(xs[7]    == 7);
         Assert.True(xs[8]    == 8);
             
-        xs = Seq<int>(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+        xs = Seq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
         Assert.True(xs.Count == 10);
         Assert.True(xs[0]    == 0);
         Assert.True(xs[1]    == 1);
@@ -581,7 +582,7 @@ public class SeqTests
         Assert.True(xs[8]    == 8);
         Assert.True(xs[9]    == 9);
             
-        xs = Seq<int>(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        xs = Seq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         Assert.True(xs.Count == 11);
         Assert.True(xs[0]    == 0);
         Assert.True(xs[1]    == 1);
@@ -595,7 +596,7 @@ public class SeqTests
         Assert.True(xs[9]    == 9);
         Assert.True(xs[10]   == 10);
             
-        xs = Seq<int>(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
+        xs = Seq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
         Assert.True(xs.Count == 12);
         Assert.True(xs[0]    == 0);
         Assert.True(xs[1]    == 1);
@@ -610,7 +611,7 @@ public class SeqTests
         Assert.True(xs[10]   == 10);
         Assert.True(xs[11]   == 11);
             
-        xs = Seq<int>(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+        xs = Seq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
         Assert.True(xs.Count == 13);
         Assert.True(xs[0]    == 0);
         Assert.True(xs[1]    == 1);

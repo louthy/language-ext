@@ -432,6 +432,14 @@ public interface Foldable<out T> where T : Foldable<T>
     /// </summary>
     public static virtual Unit Iter<A>(Action<A> f, K<T, A> ta) =>
         T.Fold(a => _ => { f(a); return unit; }, unit, ta);
+    
+    /// <summary>
+    /// Map each element of a structure to an action, evaluate these
+    /// actions from left to right, and ignore the results.  For a version that
+    /// doesn't ignore the results see `Traversable.traverse`.
+    /// </summary>
+    public static virtual Unit Iter<A>(Action<int, A> f, K<T, A> ta) =>
+        ignore(T.Fold(a => ix => { f(ix, a); return ix + 1; }, 0, ta));
 
     /// <summary>
     /// Find the minimum value in the structure

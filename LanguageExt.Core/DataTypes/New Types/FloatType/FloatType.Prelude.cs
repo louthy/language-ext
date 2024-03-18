@@ -47,13 +47,6 @@ public static partial class Prelude
         where SELF : FloatType<SELF, FLOAT, T, PRED> =>
         value.Map(map);
 
-    [Pure]
-    public static S fold<SELF, FLOAT, T, S, PRED>(FloatType<SELF, FLOAT, T, PRED> value, S state, Func<S, T, S> folder)
-        where FLOAT : Floating<T>
-        where PRED : Pred<T>
-        where SELF : FloatType<SELF, FLOAT, T, PRED> =>
-        value.Fold(state, folder);
-
     /// <summary>
     /// Add the bound values of x and y, uses an Add trait to provide the add
     /// operation for type A.  For example x.Add<Metres, TInt, int>(y)
@@ -163,12 +156,6 @@ public static partial class Prelude
         where FLOAT : Floating<T>
         where SELF : FloatType<SELF, FLOAT, T> =>
         value.Map(map);
-
-    [Pure]
-    public static S fold<SELF, FLOAT, T, S>(FloatType<SELF, FLOAT, T> value, S state, Func<S, T, S> folder)
-        where FLOAT : Floating<T>
-        where SELF : FloatType<SELF, FLOAT, T> =>
-        value.Fold(state, folder);
 
     /// <summary>
     /// Add the bound values of x and y, uses an Add trait to provide the add

@@ -836,5 +836,5 @@ No need for them now we have proper higher-kind support.
 * Review `Prelude_Collections`
 * Write unit tests (generally!)
 * Write unit tests for index operator on lists and foldables [^1]
-
-
+* Add IComparisonOperators / IAdditionOperators / etc. to types
+* Make NewTypes support appropriate traits

@@ -106,11 +106,11 @@ public class OptionTTests
     {
         var opt = Some(Map((1, "A"), (2, "B"), (3, "C"), (4, "D"), (5, "E")));
 
-        var res = from x in opt
-                  from y in x                           // TODO: THIS DOESN'T MAKE SENSE!
+        var res = from x in opt.AsEnumerableM()
+                  from y in x.AsEnumerable()
                   select y.Value.ToLower();
 
-        var fd = res.Fold("", (s, x) => s + x);
+        var fd = res.AsEnumerableM().Fold("", (s, x) => s + x);
 
         Assert.True(fd == "abcde");
     }
@@ -186,7 +186,7 @@ public class OptionTTests
         var opt = List(Some(1), Some(2), Some(3), Some(4), Some(5));
 
         opt = opt.KindT<Lst, Option, Option<int>, int>()
-                 .FoldT(Lst<Option<int>>.Empty, (x, xs) => x > 2 ? xs.Add(x) : xs);
+                 .FoldT(Lst<Option<int>>.Empty, (xs, x) => x > 2 ? xs.Add(x) : xs);
               // .FilterT(x => x > 2);   <-- TODO: Above was this -- should we restore a filter operation? Can we even?
 
         Assert.True(opt.Count() == 3, "Count should be 3, is: "                   + opt.Count());

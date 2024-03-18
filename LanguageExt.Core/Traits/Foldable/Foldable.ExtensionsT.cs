@@ -486,7 +486,17 @@ public static partial class FoldableExtensions
         where U : Foldable<U>
         where F : Applicative<F> =>
         Foldable.iter(ua => Foldable.iter(f, ua), tua);
-
+    
+    /// <summary>
+    /// Map each element of a structure to an action, evaluate these
+    /// actions from left to right, and ignore the results.  For a version that
+    /// doesn't ignore the results see `Traversable.traverse`.
+    /// </summary>
+    public static Unit IterT<T, U, A>(this K<T, K<U, A>> tua, Action<int, A> f) 
+        where T : Foldable<T> 
+        where U : Foldable<U> =>
+        ignore(Foldable.fold(ua => ix1 => Foldable.fold(a => ix2 => { f(ix2, a); return ix2 + 1; }, ix1, ua), 0, tua));
+    
     /// <summary>
     /// Map each element of a structure to an action, evaluate these
     /// actions from left to right, and ignore the results.  For a version that

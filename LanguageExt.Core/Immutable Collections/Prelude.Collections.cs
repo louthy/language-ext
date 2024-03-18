@@ -186,8 +186,15 @@ public static partial class Prelude
     /// Lazily generate a range of integers.  
     /// </summary>
     [Pure]
-    public static EnumerableM<int> Range(int from, int count, int step = 1) =>
-        IntegerRange.FromCount(from, count, step).AsEnumerableM();
+    public static Range<long> Range(long from, long count, long step = 1) =>
+        LanguageExt.Range.fromCount(from, count, step);
+
+    /// <summary>
+    /// Lazily generate a range of integers.  
+    /// </summary>
+    [Pure]
+    public static Range<int> Range(int from, int count, int step = 1) =>
+        LanguageExt.Range.fromCount(from, count, step);
 
     /// <summary>
     /// Lazily generate a range of chars.  
@@ -196,47 +203,13 @@ public static partial class Prelude
     ///     Can go in a positive direction ('a'..'z') as well as negative ('z'..'a')
     /// </summary>
     [Pure]
-    public static Seq<char> Range(char from, char to) =>
-        toSeq(CharRange.FromMinMax(from, to));
-
-    /// <summary>
-    /// Lazily generate integers from any number of provided ranges
-    /// </summary>
-    [Pure]
-    public static EnumerableM<long> Range(params IEnumerable<int>[] ranges)
-    {
-        return Go().AsEnumerableM();
-        IEnumerable<long> Go()
-        {
-            foreach (var range in ranges)
-            {
-                foreach (var i in range)
-                {
-                    yield return i;
-                }
-            }
-        }
-    }
-
-    /// <summary>
-    /// Lazily generate chars from any number of provided ranges
-    /// </summary>
-    [Pure]
-    public static EnumerableM<char> Range(params IEnumerable<char>[] ranges)
-    {
-        return Go().AsEnumerableM();
-
-        IEnumerable<char> Go()
-        {
-            foreach (var range in ranges)
-            {
-                foreach (var c in range)
-                {
-                    yield return c;
-                }
-            }
-        }
-    }
+    public static Range<char> Range(char from, char to) =>
+        to > from
+            ? LanguageExt.Range.fromMinMax(from, to, (char)1)
+            : LanguageExt.Range.fromMinMax(from, to, (char)1) switch
+              {
+                  var r => r with { runRange = r.runRange.Reverse() }
+              };
 
     /// <summary>
     /// Create an immutable map
@@ -249,29 +222,8 @@ public static partial class Prelude
     /// Create an immutable map
     /// </summary>
     [Pure]
-    public static Map<K, V> Map<K, V>(Tuple<K, V> head, params Tuple<K, V>[] tail) =>
-        LanguageExt.Map.create(head, tail);
-
-    /// <summary>
-    /// Create an immutable map
-    /// </summary>
-    [Pure]
     public static Map<K, V> Map<K, V>((K, V) head, params (K, V)[] tail) =>
         LanguageExt.Map.create(head, tail);
-
-    /// <summary>
-    /// Create an immutable map
-    /// </summary>
-    [Pure]
-    public static Map<K, V> Map<K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) =>
-        LanguageExt.Map.create(head, tail);
-
-    /// <summary>
-    /// Create an immutable map
-    /// </summary>
-    [Pure]
-    public static Map<K, V> toMap<K, V>(IEnumerable<Tuple<K, V>> items) =>
-        LanguageExt.Map.createRange(items);
 
     /// <summary>
     /// Create an immutable map
@@ -287,13 +239,6 @@ public static partial class Prelude
     public static Map<K, V> toMap<K, V>(ReadOnlySpan<(K, V)> items) =>
         LanguageExt.Map.createRange(items);
 
-    /// <summary>
-    /// Create an immutable map
-    /// </summary>
-    [Pure]
-    public static Map<K, V> toMap<K, V>(IEnumerable<KeyValuePair<K, V>> items) =>
-        LanguageExt.Map.createRange(items);
-
 
 
     /// <summary>
@@ -307,21 +252,7 @@ public static partial class Prelude
     /// Create an immutable map
     /// </summary>
     [Pure]
-    public static Map<OrdK, K, V> Map<OrdK, K, V>(Tuple<K, V> head, params Tuple<K, V>[] tail) where OrdK : Ord<K> =>
-        LanguageExt.Map.create<OrdK, K, V>(head, tail);
-
-    /// <summary>
-    /// Create an immutable map
-    /// </summary>
-    [Pure]
     public static Map<OrdK, K, V> Map<OrdK, K, V>((K, V) head, params (K, V)[] tail) where OrdK : Ord<K> =>
-        LanguageExt.Map.create<OrdK, K, V>(head, tail);
-
-    /// <summary>
-    /// Create an immutable map
-    /// </summary>
-    [Pure]
-    public static Map<OrdK, K, V> toMap<OrdK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) where OrdK : Ord<K> =>
         LanguageExt.Map.create<OrdK, K, V>(head, tail);
 
     /// <summary>
@@ -338,20 +269,6 @@ public static partial class Prelude
     public static Map<OrdK, K, V> toMap<OrdK, K, V>(ReadOnlySpan<(K, V)> items) where OrdK : Ord<K> =>
         LanguageExt.Map.createRange<OrdK, K, V>(items);
 
-    /// <summary>
-    /// Create an immutable map
-    /// </summary>
-    [Pure]
-    public static Map<OrdK, K, V> toMap<OrdK, K, V>(IEnumerable<Tuple<K, V>> items) where OrdK : Ord<K> =>
-        LanguageExt.Map.createRange<OrdK, K, V>(items);
-
-    /// <summary>
-    /// Create an immutable map
-    /// </summary>
-    [Pure]
-    public static Map<OrdK, K, V> toMap<OrdK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where OrdK : Ord<K> =>
-        LanguageExt.Map.createRange<OrdK, K, V>(items);
-
 
 
     /// <summary>
@@ -365,21 +282,7 @@ public static partial class Prelude
     /// Create an immutable hash-map
     /// </summary>
     [Pure]
-    public static HashMap<K, V> HashMap<K, V>(Tuple<K,V> head, params Tuple<K, V>[] tail) =>
-        LanguageExt.HashMap.create(head, tail);
-
-    /// <summary>
-    /// Create an immutable hash-map
-    /// </summary>
-    [Pure]
     public static HashMap<K, V> HashMap<K, V>((K, V) head, params (K, V)[] tail) =>
-        LanguageExt.HashMap.create(head, tail);
-
-    /// <summary>
-    /// Create an immutable hash-map
-    /// </summary>
-    [Pure]
-    public static HashMap<K, V> HashMap<K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) =>
         LanguageExt.HashMap.create(head, tail);
 
     /// <summary>
@@ -396,20 +299,6 @@ public static partial class Prelude
     public static HashMap<K, V> toHashMap<K, V>(ReadOnlySpan<(K, V)> items) =>
         LanguageExt.HashMap.createRange(items);
 
-    /// <summary>
-    /// Create an immutable hash-map
-    /// </summary>
-    [Pure]
-    public static HashMap<K, V> toHashMap<K, V>(IEnumerable<Tuple<K, V>> items) =>
-        LanguageExt.HashMap.createRange(items);
-
-    /// <summary>
-    /// Create an immutable hash-map
-    /// </summary>
-    [Pure]
-    public static HashMap<K, V> toHashMap<K, V>(IEnumerable<KeyValuePair<K, V>> items) =>
-        LanguageExt.HashMap.createRange(items);
-
 
 
     /// <summary>
@@ -423,29 +312,8 @@ public static partial class Prelude
     /// Create an immutable hash-map
     /// </summary>
     [Pure]
-    public static HashMap<EqK, K, V> HashMap<EqK, K, V>(Tuple<K, V> head, params Tuple<K, V>[] tail) where EqK : Eq<K> =>
-        LanguageExt.HashMap.create<EqK, K, V>(head, tail);
-
-    /// <summary>
-    /// Create an immutable hash-map
-    /// </summary>
-    [Pure]
     public static HashMap<EqK, K, V> HashMap<EqK, K, V>((K, V) head, params (K, V)[] tail) where EqK : Eq<K> =>
         LanguageExt.HashMap.create<EqK, K, V>(head, tail);
-
-    /// <summary>
-    /// Create an immutable hash-map
-    /// </summary>
-    [Pure]
-    public static HashMap<EqK, K, V> HashMap<EqK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) where EqK : Eq<K> =>
-        LanguageExt.HashMap.create<EqK, K, V>(head, tail);
-
-    /// <summary>
-    /// Create an immutable hash-map
-    /// </summary>
-    [Pure]
-    public static HashMap<EqK, K, V> toHashMap<EqK, K, V>(IEnumerable<Tuple<K, V>> items) where EqK : Eq<K> =>
-        LanguageExt.HashMap.createRange<EqK, K, V>(items);
 
     /// <summary>
     /// Create an immutable hash-map
@@ -459,13 +327,6 @@ public static partial class Prelude
     /// </summary>
     [Pure]
     public static HashMap<EqK, K, V> toHashMap<EqK, K, V>(ReadOnlySpan<(K, V)> items) where EqK : Eq<K> =>
-        LanguageExt.HashMap.createRange<EqK, K, V>(items);
-
-    /// <summary>
-    /// Create an immutable hash-map
-    /// </summary>
-    [Pure]
-    public static HashMap<EqK, K, V> toHashMap<EqK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where EqK : Eq<K> =>
         LanguageExt.HashMap.createRange<EqK, K, V>(items);
 
 
@@ -484,21 +345,7 @@ public static partial class Prelude
     /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
-    public static TrackingHashMap<K, V> TrackingHashMap<K, V>(Tuple<K,V> head, params Tuple<K, V>[] tail) =>
-        LanguageExt.TrackingHashMap.create(head, tail);
-
-    /// <summary>
-    /// Create an immutable tracking hash-map
-    /// </summary>
-    [Pure]
     public static TrackingHashMap<K, V> TrackingHashMap<K, V>((K, V) head, params (K, V)[] tail) =>
-        LanguageExt.TrackingHashMap.create(head, tail);
-
-    /// <summary>
-    /// Create an immutable tracking hash-map
-    /// </summary>
-    [Pure]
-    public static TrackingHashMap<K, V> TrackingHashMap<K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) =>
         LanguageExt.TrackingHashMap.create(head, tail);
 
     /// <summary>
@@ -515,20 +362,6 @@ public static partial class Prelude
     public static TrackingHashMap<K, V> toTrackingHashMap<K, V>(ReadOnlySpan<(K, V)> items) =>
         LanguageExt.TrackingHashMap.createRange(items);
 
-    /// <summary>
-    /// Create an immutable tracking hash-map
-    /// </summary>
-    [Pure]
-    public static TrackingHashMap<K, V> toTrackingHashMap<K, V>(IEnumerable<Tuple<K, V>> items) =>
-        LanguageExt.TrackingHashMap.createRange(items);
-
-    /// <summary>
-    /// Create an immutable tracking hash-map
-    /// </summary>
-    [Pure]
-    public static TrackingHashMap<K, V> toTrackingHashMap<K, V>(IEnumerable<KeyValuePair<K, V>> items) =>
-        LanguageExt.TrackingHashMap.createRange(items);
-
 
 
     /// <summary>
@@ -542,29 +375,8 @@ public static partial class Prelude
     /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
-    public static TrackingHashMap<EqK, K, V> TrackingHashMap<EqK, K, V>(Tuple<K, V> head, params Tuple<K, V>[] tail) where EqK : Eq<K> =>
-        LanguageExt.TrackingHashMap.create<EqK, K, V>(head, tail);
-
-    /// <summary>
-    /// Create an immutable tracking hash-map
-    /// </summary>
-    [Pure]
     public static TrackingHashMap<EqK, K, V> TrackingHashMap<EqK, K, V>((K, V) head, params (K, V)[] tail) where EqK : Eq<K> =>
         LanguageExt.TrackingHashMap.create<EqK, K, V>(head, tail);
-
-    /// <summary>
-    /// Create an immutable tracking hash-map
-    /// </summary>
-    [Pure]
-    public static TrackingHashMap<EqK, K, V> TrackingHashMap<EqK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) where EqK : Eq<K> =>
-        LanguageExt.TrackingHashMap.create<EqK, K, V>(head, tail);
-
-    /// <summary>
-    /// Create an immutable tracking hash-map
-    /// </summary>
-    [Pure]
-    public static TrackingHashMap<EqK, K, V> toTrackingHashMap<EqK, K, V>(IEnumerable<Tuple<K, V>> items) where EqK : Eq<K> =>
-        LanguageExt.TrackingHashMap.createRange<EqK, K, V>(items);
 
     /// <summary>
     /// Create an immutable tracking hash-map
@@ -578,13 +390,6 @@ public static partial class Prelude
     /// </summary>
     [Pure]
     public static TrackingHashMap<EqK, K, V> toTrackingHashMap<EqK, K, V>(ReadOnlySpan<(K, V)> items) where EqK : Eq<K> =>
-        LanguageExt.TrackingHashMap.createRange<EqK, K, V>(items);
-
-    /// <summary>
-    /// Create an immutable tracking hash-map
-    /// </summary>
-    [Pure]
-    public static TrackingHashMap<EqK, K, V> toTrackingHashMap<EqK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where EqK : Eq<K> =>
         LanguageExt.TrackingHashMap.createRange<EqK, K, V>(items);
 
         
@@ -616,13 +421,6 @@ public static partial class Prelude
     /// Create an immutable hash-map
     /// </summary>
     [Pure]
-    public static AtomHashMap<K, V> AtomHashMap<K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) =>
-        LanguageExt.HashMap.create(head, tail).ToAtom();
-
-    /// <summary>
-    /// Create an immutable hash-map
-    /// </summary>
-    [Pure]
     public static AtomHashMap<K, V> toAtomHashMap<K, V>(IEnumerable<(K, V)> items) =>
         LanguageExt.HashMap.createRange(items).ToAtom();
 
@@ -631,13 +429,6 @@ public static partial class Prelude
     /// </summary>
     [Pure]
     public static AtomHashMap<K, V> toAtomHashMap<K, V>(ReadOnlySpan<(K, V)> items) =>
-        LanguageExt.HashMap.createRange(items).ToAtom();
-
-    /// <summary>
-    /// Create an immutable hash-map
-    /// </summary>
-    [Pure]
-    public static AtomHashMap<K, V> toAtomHashMap<K, V>(IEnumerable<KeyValuePair<K, V>> items) =>
         LanguageExt.HashMap.createRange(items).ToAtom();
 
 
@@ -653,13 +444,6 @@ public static partial class Prelude
     /// </summary>
     [Pure]
     public static AtomHashMap<EqK, K, V> AtomHashMap<EqK, K, V>((K, V) head, params (K, V)[] tail) where EqK : Eq<K> =>
-        LanguageExt.HashMap.create<EqK, K, V>(head, tail).ToAtom();
-
-    /// <summary>
-    /// Create an immutable hash-map
-    /// </summary>
-    [Pure]
-    public static AtomHashMap<EqK, K, V> AtomHashMap<EqK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) where EqK : Eq<K> =>
         LanguageExt.HashMap.create<EqK, K, V>(head, tail).ToAtom();
 
     /// <summary>
@@ -683,13 +467,6 @@ public static partial class Prelude
     public static AtomHashMap<EqK, K, V> toAtomHashMap<EqK, K, V>(ReadOnlySpan<(K, V)> items) where EqK : Eq<K> =>
         LanguageExt.HashMap.createRange<EqK, K, V>(items).ToAtom();
 
-    /// <summary>
-    /// Create an immutable hash-map
-    /// </summary>
-    [Pure]
-    public static AtomHashMap<EqK, K, V> toAtomHashMap<EqK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where EqK : Eq<K> =>
-        LanguageExt.HashMap.createRange<EqK, K, V>(items).ToAtom();
-        
     /// <summary>
     /// Create an immutable list
     /// </summary>
@@ -838,13 +615,6 @@ public static partial class Prelude
     /// Create an immutable map, updating duplicates so that the final value of any key is retained
     /// </summary>
     [Pure]
-    public static Map<K, V> toMapUpdate<K, V>(IEnumerable<Tuple<K, V>> keyValues) =>
-        LanguageExt.Map<K, V>.Empty.AddOrUpdateRange(keyValues);
-
-    /// <summary>
-    /// Create an immutable map, updating duplicates so that the final value of any key is retained
-    /// </summary>
-    [Pure]
     public static Map<K, V> toMapUpdate<K, V>(IEnumerable<(K, V)> keyValues) =>
         new(keyValues, false);
 
@@ -854,20 +624,6 @@ public static partial class Prelude
     [Pure]
     public static Map<K, V> toMapUpdate<K, V>(ReadOnlySpan<(K, V)> keyValues) =>
         new(keyValues, false);
-
-    /// <summary>
-    /// Create an immutable map, updating duplicates so that the final value of any key is retained
-    /// </summary>
-    [Pure]
-    public static Map<K, V> toMapUpdate<K, V>(IEnumerable<KeyValuePair<K, V>> keyValues) =>
-        LanguageExt.Map<K, V>.Empty.AddOrUpdateRange(keyValues);
-
-    /// <summary>
-    /// Create an immutable map, ignoring duplicates so the first value of any key is retained
-    /// </summary>
-    [Pure]
-    public static Map<K, V> toMapTry<K, V>(IEnumerable<Tuple<K, V>> keyValues) =>
-        LanguageExt.Map<K, V>.Empty.TryAddRange(keyValues);
 
     /// <summary>
     /// Create an immutable map, ignoring duplicates so the first value of any key is retained
@@ -882,14 +638,6 @@ public static partial class Prelude
     [Pure]
     public static Map<K, V> toMapTry<K, V>(ReadOnlySpan<(K, V)> keyValues) =>
         new(keyValues, false);
-
-    /// <summary>
-    /// Create an immutable map, ignoring duplicates so the first value of any key is retained
-    /// </summary>
-    [Pure]
-    public static Map<K, V> toMapTry<K, V>(IEnumerable<KeyValuePair<K, V>> keyValues) =>
-        LanguageExt.Map<K, V>.Empty.TryAddRange(keyValues);
-
 
 
 

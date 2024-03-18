@@ -93,22 +93,6 @@ public static partial class Prelude
         self.Filter(pred);
 
     /// <summary>
-    /// Folds the Task.  Returns folder(state,Result) if not faulted or
-    /// cancelled.  Returns state otherwise.
-    /// </summary>
-    [Pure]
-    public static Task<S> fold<S, A>(Task<A> self, S state, Func<S, A, S> folder) =>
-        self.Fold(state, folder);
-
-    /// <summary>
-    /// Folds the Task.  Returns folder(state,Result) if not faulted or
-    /// cancelled.  Returns state otherwise.
-    /// </summary>
-    [Pure]
-    public static Task<S> foldAsync<S, A>(Task<A> self, S state, Func<S, A, Task<S>> folder) =>
-        self.FoldAsync(state, folder);
-
-    /// <summary>
     /// Iterates the Task.  Invokes f(Result) if not faulted or cancelled
     /// </summary>
     public static Task<Unit> iter<A>(Task<A> self, Action<A> f) =>

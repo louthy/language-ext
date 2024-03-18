@@ -19,7 +19,7 @@ public class AtomHashMapEqTests
 
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
-        Assert.True(HashMap(("biz", Change<int>.Added(99))) == state.Changes);
+        Assert.True(HashMap<TString, string, Change<int>>(("biz", Change<int>.Added(99))) == state.Changes);
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(("foo", Change<int>.Mapped(3, 4))),
+            HashMap<TString, string, Change<int>>(("foo", Change<int>.Mapped(3, 4))),
             state.Changes);
     }
 
@@ -54,7 +54,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(("foo", Change<int>.Removed(3))),
+            HashMap<TString, string, Change<int>>(("foo", Change<int>.Removed(3))),
             state.Changes);
     }
 
@@ -72,7 +72,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("foo", Change<int>.Removed(3)),
                 ("biz", Change<int>.Removed(7))),
             state.Changes);
@@ -92,7 +92,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("foo", Change<int>.Removed(3)),
                 ("biz", Change<int>.Removed(7))),
             state.Changes);
@@ -112,7 +112,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("foo", Change<int>.Mapped(3, 9)),
                 ("bar", Change<int>.Mapped(42, 126)),
                 ("biz", Change<int>.Mapped(7, 21))),
@@ -133,7 +133,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("biz", Change<int>.Added(7))),
             state.Changes);
     }
@@ -151,10 +151,7 @@ public class AtomHashMapEqTests
 
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
-        Assert.Equal(
-            HashMap(
-                ("biz", Change<int>.Added(7))),
-            state.Changes);
+        Assert.Equal(HashMap<TString, string, Change<int>>(("biz", Change<int>.Added(7))), state.Changes);
     }
 
     [Fact]
@@ -171,7 +168,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("biz", Change<int>.Added(7))),
             state.Changes);
     }
@@ -190,7 +187,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("biz", Change<int>.Added(7)),
                 ("baz", Change<int>.Added(9))),
             state.Changes);
@@ -210,7 +207,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("biz", Change<int>.Added(7)),
                 ("baz", Change<int>.Added(9))),
             state.Changes);
@@ -230,7 +227,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("biz", Change<int>.Added(7)),
                 ("baz", Change<int>.Added(9))),
             state.Changes);
@@ -250,7 +247,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("bar", Change<int>.Removed(42))),
             state.Changes);
     }
@@ -269,7 +266,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("bar", Change<int>.Removed(42)),
                 ("biz", Change<int>.Removed(7))),
             state.Changes);
@@ -289,7 +286,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("biz", Change<int>.Added(7))),
             state.Changes);
     }
@@ -308,7 +305,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("biz", Change<int>.Added(7))),
             state.Changes);
     }
@@ -327,7 +324,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("biz", Change<int>.Added(7))),
             state.Changes);
     }
@@ -346,7 +343,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("biz", Change<int>.Added(7))),
             state.Changes);
     }
@@ -365,7 +362,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("foo", Change<int>.Mapped(3, 80)),
                 ("bar", Change<int>.Mapped(42, 17))),
             state.Changes);
@@ -385,7 +382,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("foo", Change<int>.Mapped(3, 80)),
                 ("bar", Change<int>.Mapped(42, 17))),
             state.Changes);
@@ -405,7 +402,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("foo", Change<int>.Mapped(3, 6))),
             state.Changes);
     }
@@ -424,7 +421,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("foo", Change<int>.Mapped(3, 80))),
             state.Changes);
     }
@@ -443,7 +440,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("foo", Change<int>.Mapped(3, 6))),
             state.Changes);
     }
@@ -462,7 +459,7 @@ public class AtomHashMapEqTests
         Assert.Equal(initialValue, state.From);
         Assert.Equal(hashMap.ToHashMap(), state.To);
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("foo", Change<int>.Removed(3)),
                 ("bar", Change<int>.Removed(42))),
             state.Changes);
@@ -531,7 +528,7 @@ public class AtomHashMapEqTests
             initialValue.Subtract(toSubtract),
             hashMap.ToHashMap());
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("foo", Change<int>.Removed(3)),
                 ("biz", Change<int>.Removed(7)),
                 ("baz", Change<int>.Removed(9))),
@@ -557,7 +554,7 @@ public class AtomHashMapEqTests
             initialValue.Subtract(toSubtract.ToHashMap()),
             hashMap.ToHashMap());
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("foo", Change<int>.Removed(3)),
                 ("biz", Change<int>.Removed(7)),
                 ("baz", Change<int>.Removed(9))),
@@ -583,7 +580,7 @@ public class AtomHashMapEqTests
             initialValue.Intersect(toIntersect),
             hashMap.ToHashMap());
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("bar", Change<int>.Removed(42))),
             state.Changes);
     }
@@ -607,7 +604,7 @@ public class AtomHashMapEqTests
             initialValue.Intersect(toIntersect.ToHashMap()),
             hashMap.ToHashMap());
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("bar", Change<int>.Removed(42))),
             state.Changes);
     }
@@ -631,7 +628,7 @@ public class AtomHashMapEqTests
             initialValue.Except(toExcept),
             hashMap.ToHashMap());
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("foo", Change<int>.Removed(3)),
                 ("biz", Change<int>.Removed(7)),
                 ("baz", Change<int>.Removed(9))),
@@ -656,7 +653,7 @@ public class AtomHashMapEqTests
             initialValue.Except(toExcept),
             hashMap.ToHashMap());
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("biz", Change<int>.Removed(7)),
                 ("baz", Change<int>.Removed(9))),
             state.Changes);
@@ -681,7 +678,7 @@ public class AtomHashMapEqTests
             initialValue.SymmetricExcept(toExcept),
             hashMap.ToHashMap());
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("foo", Change<int>.Removed(3)),
                 ("biz", Change<int>.Added(7)),
                 ("baz", Change<int>.Added(9))),
@@ -706,7 +703,7 @@ public class AtomHashMapEqTests
             initialValue.Union(toUnion),
             hashMap.ToHashMap());
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("biz", Change<int>.Added(7)),
                 ("baz", Change<int>.Added(9))),
             state.Changes);
@@ -730,7 +727,7 @@ public class AtomHashMapEqTests
             initialValue.Union(toUnion, Merge: (_, _, r) => r),
             hashMap.ToHashMap());
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("foo", Change<int>.Mapped(3, 7)),
                 ("biz", Change<int>.Added(7)),
                 ("baz", Change<int>.Added(9))),
@@ -755,7 +752,7 @@ public class AtomHashMapEqTests
             initialValue.Union(toUnion, Merge: (_, l, _) => l),
             hashMap.ToHashMap());
         Assert.Equal(
-            HashMap(
+            HashMap<TString, string, Change<int>>(
                 ("biz", Change<int>.Added(7)),
                 ("baz", Change<int>.Added(9))),
             state.Changes);

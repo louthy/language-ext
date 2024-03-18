@@ -593,7 +593,16 @@ public static class Foldable
         where T : Foldable<T>
         where F : Applicative<F> =>
         T.Iter(f, ta);
-
+    
+    /// <summary>
+    /// Map each element of a structure to an action, evaluate these
+    /// actions from left to right, and ignore the results.  For a version that
+    /// doesn't ignore the results see `Traversable.traverse`.
+    /// </summary>
+    public static Unit iter<T, A>(Action<int, A> f, K<T, A> ta) 
+        where T : Foldable<T> =>
+        ignore(T.Fold(a => ix => { f(ix, a); return ix + 1; }, 0, ta));
+    
     /// <summary>
     /// Map each element of a structure to an action, evaluate these
     /// actions from left to right, and ignore the results.  For a version that

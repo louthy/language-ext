@@ -253,7 +253,7 @@ public readonly struct Lst<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains(A value) =>
-        Value.Find(a => EqDefault<A>.Equals(a, value)).IsSome;
+        Value.AsEnumerableM().Find(a => EqDefault<A>.Equals(a, value)).IsSome;
 
     /// <summary>
     /// Contains with provided Eq class instance
@@ -264,7 +264,7 @@ public readonly struct Lst<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains<EqA>(A value) where EqA : Eq<A> =>
-        Value.Find(a => EqA.Equals(a, value)).IsSome;
+        Value.AsEnumerableM().Find(a => EqA.Equals(a, value)).IsSome;
 
     /// <summary>
     /// Add an item to the end of the list

@@ -47,13 +47,6 @@ public static partial class Prelude
         where NUMTYPE : NumType<NUMTYPE, NUM, T, PRED> =>
         value.Map(map);
 
-    [Pure]
-    public static S fold<NUMTYPE, NUM, T, S, PRED>(NumType<NUMTYPE, NUM, T, PRED> value, S state, Func<S, T, S> folder)
-        where NUM     : Num<T>
-        where PRED    : Pred<T>
-        where NUMTYPE : NumType<NUMTYPE, NUM, T, PRED> =>
-        value.Fold(state, folder);
-
     /// <summary>
     /// Add the bound values of x and y, uses an Add trait to provide the add
     /// operation for type A.  For example x.Add<Metres, TInt, int>(y)
@@ -163,12 +156,6 @@ public static partial class Prelude
         where NUM : Num<T>
         where NUMTYPE : NumType<NUMTYPE, NUM, T> =>
         value.Map(map);
-
-    [Pure]
-    public static S fold<NUMTYPE, NUM, T, S>(NumType<NUMTYPE, NUM, T> value, S state, Func<S, T, S> folder)
-        where NUM : Num<T>
-        where NUMTYPE : NumType<NUMTYPE, NUM, T> =>
-        value.Fold(state, folder);
 
     /// <summary>
     /// Add the bound values of x and y, uses an Add trait to provide the add

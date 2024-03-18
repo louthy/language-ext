@@ -172,7 +172,7 @@ namespace LanguageExt.Tests
         {
             int max = 100000;
 
-            var items = Range(1, max).Map(_ => Guid.NewGuid()).ToList();
+            var items = Range(1, max).Map(_ => Guid.NewGuid()).ToLst();
 
             var m = toSet(items);
             Assert.True(m.Count == max);

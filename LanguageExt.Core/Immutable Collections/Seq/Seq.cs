@@ -570,16 +570,6 @@ public readonly struct Seq<A> :
         this.Iter(f);
         return this;
     }
-
-    /// <summary>
-    /// Impure iteration of the bound values in the structure
-    /// </summary>
-    /// <returns>
-    /// Returns the original unmodified structure
-    /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Unit Iter(Action<A> f) =>
-        Value.Iter(f);
     
     /// <summary>
     /// Map each element of a structure to an action, evaluate these actions from

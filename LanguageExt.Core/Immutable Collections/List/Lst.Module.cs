@@ -86,8 +86,7 @@ public static class List
     /// </summary>
     [Pure]
     public static EnumerableM<T> generate<T>(int count, Func<int, T> generator) =>
-        from i in Range(0, count)
-        select generator(i);
+        Range(0, count).AsEnumerableM().Map(generator);
 
     /// <summary>
     /// Generates an int.MaxValue sequence of T using the provided delegate to initialise
@@ -95,16 +94,14 @@ public static class List
     /// </summary>
     [Pure]
     public static EnumerableM<T> generate<T>(Func<int, T> generator) =>
-        from i in Range(0, Int32.MaxValue)
-        select generator(i);
+        Range(0, int.MaxValue).AsEnumerableM().Map(generator);
 
     /// <summary>
     /// Generates a sequence that contains one repeated value.
     /// </summary>
     [Pure]
     public static EnumerableM<T> repeat<T>(T item, int count) =>
-        from _ in Range(0, count)
-        select item;
+        Range(0, count).AsEnumerableM().Map(_ => item);
 
     /// <summary>
     /// Add an item to the list

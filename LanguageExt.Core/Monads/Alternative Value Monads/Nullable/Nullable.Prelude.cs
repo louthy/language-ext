@@ -313,35 +313,6 @@ public static partial class Prelude
             ? Some(self.Value)
             : None();
 
-    /// <summary>
-    /// Folds Nullable into an S.
-    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
-    /// </summary>
-    /// <param name="tryDel">Try to fold</param>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Fold function</param>
-    /// <returns>Folded state</returns>
-    [Pure]
-    public static S fold<S, T>(T? self, S state, Func<S, T, S> folder) where T : struct =>
-        self.HasValue
-            ? folder(state, self.Value)
-            : state;
-
-    /// <summary>
-    /// Folds Nullable into an S.
-    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
-    /// </summary>
-    /// <param name="tryDel">Try to fold</param>
-    /// <param name="state">Initial state</param>
-    /// <param name="Some">Fold function for Some</param>
-    /// <param name="None">Fold function for None</param>
-    /// <returns>Folded state</returns>
-    [Pure]
-    public static S fold<S, T>(T? self, S state, Func<S, T, S> Some, Func<S, S> None) where T : struct =>
-        self.HasValue
-            ? Some(state, self.Value)
-            : None(state);
-
     [Pure]
     public static R? map<T, R>(T? self, Func<T, R> mapper)
         where T : struct

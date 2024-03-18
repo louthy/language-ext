@@ -36,11 +36,4 @@ public static partial class Prelude
         func(self.Item1);
         return Unit.Default;
     }
-
-    /// <summary>
-    /// Fold
-    /// </summary>
-    [Pure]
-    public static S fold<A, S>(ValueTuple<A> self, S state, Func<S, A, S> fold) =>
-        fold(state, self.Item1);
 }

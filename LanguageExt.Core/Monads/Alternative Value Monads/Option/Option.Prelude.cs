@@ -250,31 +250,6 @@ public static partial class Prelude
     /// operator, a starting value(typically the left-identity of the operator),
     /// and a list, reduces the list using the binary operator, from left to
     /// right:
-    /// </para>
-    /// <para>
-    /// Note that, since the head of the resulting expression is produced by
-    /// an application of the operator to the first element of the list,
-    /// 'Fold' can produce a terminating expression from an infinite list.
-    /// </para>
-    /// </summary>
-    /// <typeparam name="S">Aggregate state type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Folder function, applied if Option is in a Some state</param>
-    /// <returns>The aggregate state</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static S fold<S, A>(Option<A> option, S state, Func<S, A, S> folder) =>
-        option.Fold(state, folder);
-
-    /// <summary>
-    /// <para>
-    /// Option types are like lists of 0 or 1 items, and therefore follow the 
-    /// same rules when folding.
-    /// </para><para>
-    /// In the case of lists, 'Fold', when applied to a binary
-    /// operator, a starting value(typically the left-identity of the operator),
-    /// and a list, reduces the list using the binary operator, from left to
-    /// right:
     /// </para><para>
     /// Note that, since the head of the resulting expression is produced by
     /// an application of the operator to the first element of the list,

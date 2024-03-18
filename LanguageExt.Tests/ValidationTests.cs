@@ -117,7 +117,7 @@ public class ValidationTests
     /// Validates the string has only ASCII characters
     /// </summary>
     public static Validation<Error, string> AsciiOnly(string str) =>
-        str.ForAll(c => c <= 0x7f)
+        str.AsEnumerableM().ForAll(c => c <= 0x7f)
             ? Success<Error, string>(str)
             : Fail<Error, string>(Error.New("only ascii characters are allowed"));
 
@@ -135,7 +135,7 @@ public class ValidationTests
     /// Validates that the string passed contains only digits
     /// </summary>
     public static Validation<Error, string> DigitsOnly(string str) =>
-        str.ForAll(Char.IsDigit)
+        str.AsEnumerableM().ForAll(Char.IsDigit)
             ? Success<Error, string>(str)
             : Fail<Error, string>(Error.New($"only numbers are allowed"));
 

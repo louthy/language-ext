@@ -319,25 +319,6 @@ public static partial class Prelude
     /// </summary>
     /// <typeparam name="S">Aggregate state type</typeparam>
     /// <param name="state">Initial state</param>
-    /// <param name="folder">Folder function, applied if structure is in a Right state</param>
-    /// <returns>The aggregate state</returns>
-    [Pure]
-    public static S fold<S, L, R>(Either<L, R> either, S state, Func<S, R, S> folder) =>
-        either.Fold(state, folder);
-
-    /// <summary>
-    /// <para>
-    /// Either types are like lists of 0 or 1 items, and therefore follow the 
-    /// same rules when folding.
-    /// </para><para>
-    /// In the case of lists, 'Fold', when applied to a binary
-    /// operator, a starting value(typically the left-identity of the operator),
-    /// and a list, reduces the list using the binary operator, from left to
-    /// right:
-    /// </para>
-    /// </summary>
-    /// <typeparam name="S">Aggregate state type</typeparam>
-    /// <param name="state">Initial state</param>
     /// <param name="Right">Folder function, applied if Either is in a Right state</param>
     /// <param name="Left">Folder function, applied if Either is in a Left state</param>
     /// <returns>The aggregate state</returns>

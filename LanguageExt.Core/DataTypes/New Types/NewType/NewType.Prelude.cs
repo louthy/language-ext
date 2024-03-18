@@ -34,10 +34,4 @@ public static partial class Prelude
         where PRED : Pred<T>
         where NEWTYPE : NewType<NEWTYPE, T, PRED> =>
         value.Map(map);
-
-    [Pure]
-    public static S fold<NEWTYPE, T, S, PRED>(NewType<NEWTYPE, T, PRED> value, S state, Func<S, T, S> folder)
-        where PRED : Pred<T>
-        where NEWTYPE : NewType<NEWTYPE, T, PRED> =>
-        value.Fold(state, folder);
 }

@@ -75,7 +75,8 @@ public static class ActivityTests
                 select result
             )
             .ArrangeAndAct();
-        baggage.Should().Contain(("a", "b"));
+        
+        Assert.True(baggage.Find("a").ForAll(v => v == "b"));
     }
 
     [Fact(DisplayName = "The tags can be set and read")]
@@ -87,7 +88,8 @@ public static class ActivityTests
                 from result in A.tags
                 select result)
             .ArrangeAndAct();
-        baggage.Should().Contain(("a", "b"));
+        
+        Assert.True(baggage.Find("a").ForAll(v => v == "b"));
     }
 
     [Fact(DisplayName = "The tag objects can be read")]
@@ -99,7 +101,8 @@ public static class ActivityTests
                 from result in A.tagObjects
                 select result)
             .ArrangeAndAct();
-        baggage.Should().Contain(("a", 1));
+        
+        Assert.True(baggage.Find("a").ForAll(v => v is 1));
     }
 
     [Fact(DisplayName = "The context can be read")]
@@ -285,7 +288,9 @@ public static class ActivityTests
             .ArrangeAndAct();
         kind.IsSome.Should().BeTrue();
         kind.Case.Should().Be(ActivityKind.Client);
-        tags.Should().Contain(("1", "a")).And.Contain(("2", "b"));
+        
+        Assert.True(tags.Find("1").ForAll(v => v is "a"));
+        Assert.True(tags.Find("2").ForAll(v => v is "b"));
     }
 
     [Fact(DisplayName = "Test span overload 2")]
@@ -310,7 +315,9 @@ public static class ActivityTests
             .ArrangeAndAct();
         kind.IsSome.Should().BeTrue();
         kind.Case.Should().Be(ActivityKind.Client);
-        tags.Should().Contain(("1", "a")).And.Contain(("2", "b"));
+        
+        Assert.True(tags.Find("1").ForAll(v => v is "a"));
+        Assert.True(tags.Find("2").ForAll(v => v is "b"));
     }
 
     [Fact(DisplayName = "Test span overload 5")]
@@ -333,6 +340,8 @@ public static class ActivityTests
             .ArrangeAndAct();
         kind.IsSome.Should().BeTrue();
         kind.Case.Should().Be(ActivityKind.Client);
-        tags.Should().Contain(("1", "a")).And.Contain(("2", "b"));
+        
+        Assert.True(tags.Find("1").ForAll(v => v is "a"));
+        Assert.True(tags.Find("2").ForAll(v => v is "b"));
     }
 }
