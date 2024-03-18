@@ -93,7 +93,7 @@ public partial class EnumerableM
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static EnumerableM<A> generate<A>(int count, Func<int, A> generator) =>
-        Range(0, count).Map(generator).As().runRange.AsEnumerableM();
+        Range(0, count).AsEnumerableM().Map(generator);
 
     /// <summary>
     /// Generates a sequence that contains one repeated value.
@@ -101,7 +101,7 @@ public partial class EnumerableM
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static EnumerableM<A> repeat<A>(A item, int count) =>
-        Range(0, count).Map(_ => item).As().runRange.AsEnumerableM();
+        Range(0, count).AsEnumerableM().Map(_ => item);
 
     /// <summary>
     /// Get the item at the head (first) of the sequence or None if the sequence is empty

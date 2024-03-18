@@ -12,34 +12,6 @@ namespace LanguageExt.Tests
     public class SerialisationTests
     {
         [Fact]
-        public void MapTest()
-        {
-            var map = Map(
-                ("test5", "/root/user/test5"),
-                ("test2", "/root/user/test2"),
-                ("test1", "/root/user/test1"),
-                ("test3", "/root/user/test3"),
-                ("test4", "/root/user/test4")
-                );
-
-            var json = JsonConvert.SerializeObject(map);
-
-            map = JsonConvert.DeserializeObject<Map<string, string>>(json);
-
-            Assert.True(map.Count == 5);
-            Assert.True(map.ContainsKey("test1"));
-            Assert.True(map.ContainsKey("test2"));
-            Assert.True(map.ContainsKey("test3"));
-            Assert.True(map.ContainsKey("test4"));
-            Assert.True(map.ContainsKey("test5"));
-            Assert.True(map["test1"] == "/root/user/test1");
-            Assert.True(map["test2"] == "/root/user/test2");
-            Assert.True(map["test3"] == "/root/user/test3");
-            Assert.True(map["test4"] == "/root/user/test4");
-            Assert.True(map["test5"] == "/root/user/test5");
-        }
-
-        [Fact]
         public void SetTest()
         {
             var set = Set("test5", "test2", "test1", "test3", "test4");

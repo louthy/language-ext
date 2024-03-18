@@ -39,6 +39,9 @@ public class LstArr
             List(2, 20),
             List(2, 30));
 
+        var sb = mb.ToString();
+        var sc = mc.ToString();
+        
         Assert.True(mb == mc);
     }
 

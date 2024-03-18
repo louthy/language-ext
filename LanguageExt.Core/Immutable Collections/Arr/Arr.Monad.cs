@@ -90,6 +90,18 @@ public partial class Arr : Monad<Arr>, MonoidK<Arr>, Traversable<Arr>
                    : Option<A>.None;
     }
 
+    static Arr<A> Foldable<Arr>.ToArr<A>(K<Arr, A> ta) =>
+        ta.As();
+
+    static Lst<A> Foldable<Arr>.ToLst<A>(K<Arr, A> ta) =>
+        new(ta.As());
+
+    static EnumerableM<A> Foldable<Arr>.ToEnumerable<A>(K<Arr, A> ta) =>
+        new(ta.As());
+    
+    static Seq<A> Foldable<Arr>.ToSeq<A>(K<Arr, A> ta) =>
+        Seq.FromArray(ta.As().Value);
+    
     static K<F, K<Arr, B>> Traversable<Arr>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Arr, A> ta) 
     {
         return F.Map<Arr<B>, K<Arr, B>>(

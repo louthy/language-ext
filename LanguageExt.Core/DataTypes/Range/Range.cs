@@ -38,14 +38,4 @@ public record Range<A>(A From, A To, A Step, IEnumerable<A> runRange) :
     [Pure]
     IEnumerator IEnumerable.GetEnumerator() =>
         runRange.GetEnumerator();
-
-    [Pure]
-    public S Fold<S>(S state, Func<S, A, S> f)
-    {
-        foreach(var x in runRange)
-        {
-            state = f(state, x);
-        }
-        return state;
-    }
 }

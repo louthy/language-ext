@@ -79,7 +79,7 @@ public class Lst : Monad<Lst>, MonoidK<Lst>, Traversable<Lst>
     {
         foreach (var x in ta.As())
         {
-            if (predicate((state, x))) return state;
+            if (!predicate((state, x))) return state;
             state = f(x)(state);
         }
         return state;
@@ -91,9 +91,9 @@ public class Lst : Monad<Lst>, MonoidK<Lst>, Traversable<Lst>
         S state, 
         K<Lst, A> ta)
     {
-        foreach (var x in ta.As())
+        foreach (var x in ta.As().Reverse())
         {
-            if (predicate((state, x))) return state;
+            if (!predicate((state, x))) return state;
             state = f(state)(x);
         }
         return state;
@@ -112,4 +112,17 @@ public class Lst : Monad<Lst>, MonoidK<Lst>, Traversable<Lst>
                    ? Some(list[index])
                    : Option<A>.None;
     }
+        
+    static Arr<A> Foldable<Lst>.ToArr<A>(K<Lst, A> ta) =>
+        new(ta.As());
+
+    static Lst<A> Foldable<Lst>.ToLst<A>(K<Lst, A> ta) =>
+        ta.As();
+
+    static EnumerableM<A> Foldable<Lst>.ToEnumerable<A>(K<Lst, A> ta) =>
+        new (ta.As());
+    
+    static Seq<A> Foldable<Lst>.ToSeq<A>(K<Lst, A> ta) =>
+        new (ta.As());
+
 }

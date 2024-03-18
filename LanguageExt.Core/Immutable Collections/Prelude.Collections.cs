@@ -204,9 +204,9 @@ public static partial class Prelude
     /// </summary>
     [Pure]
     public static Range<char> Range(char from, char to) =>
-        to > from
+        to >= from
             ? LanguageExt.Range.fromMinMax(from, to, (char)1)
-            : LanguageExt.Range.fromMinMax(from, to, (char)1) switch
+            : LanguageExt.Range.fromMinMax(to, from, (char)1) switch
               {
                   var r => r with { runRange = r.runRange.Reverse() }
               };

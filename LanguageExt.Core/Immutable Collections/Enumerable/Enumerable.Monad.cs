@@ -81,4 +81,16 @@ public partial class EnumerableM : Monad<EnumerableM>, MonoidK<EnumerableM>, Tra
         }
         return state;
     }
+    
+    static Arr<A> Foldable<EnumerableM>.ToArr<A>(K<EnumerableM, A> ta) =>
+        new(ta.As());
+
+    static Lst<A> Foldable<EnumerableM>.ToLst<A>(K<EnumerableM, A> ta) =>
+        new(ta.As());
+
+    static EnumerableM<A> Foldable<EnumerableM>.ToEnumerable<A>(K<EnumerableM, A> ta) =>
+        ta.As();
+    
+    static Seq<A> Foldable<EnumerableM>.ToSeq<A>(K<EnumerableM, A> ta) =>
+        new (ta.As().runEnumerable);
 }

@@ -35,7 +35,13 @@ public static class OrdResolve<A>
     static OrdResolve()
     {
         var source = typeof(A);
-        
+
+        if (typeof(Delegate).IsAssignableFrom(source))
+        {
+            MakeDelegateDefault();
+            return;
+        }
+
         var impl = Resolver.Find(source, "Ord");
         if (impl is null)
         {
@@ -118,6 +124,28 @@ public static class OrdResolve<A>
         GetHashCodeMethodPtr = GetHashCodeFunc.Method.MethodHandle.GetFunctionPointer();
     }
 
+    static void MakeDelegateDefault()
+    {
+        //Delegate f = new Func<int, bool>(x => false);
+        //f.Method.MetadataToken
+
+        CompareFunc = (x, y) => ((object?)x, (object?)y) switch
+                                {
+                                    (Delegate dx, Delegate dy) => dx.Method.MetadataToken.CompareTo(dy.Method.MetadataToken),
+                                    _                          => -1
+                                };
+        CompareMethod    = CompareFunc.Method;
+        CompareMethodPtr = CompareFunc.Method.MethodHandle.GetFunctionPointer();
+        
+        EqualsFunc      = EqualityComparer<A>.Default.Equals;
+        EqualsMethod    = EqualsFunc.Method;
+        EqualsMethodPtr = EqualsFunc.Method.MethodHandle.GetFunctionPointer();
+        
+        GetHashCodeFunc      = DefaultGetHashCode;
+        GetHashCodeMethod    = GetHashCodeFunc.Method;
+        GetHashCodeMethodPtr = GetHashCodeFunc.Method.MethodHandle.GetFunctionPointer();
+    }
+    
     static int DefaultGetHashCode(A value) =>
         value is null ? 0 : value.GetHashCode();
 }

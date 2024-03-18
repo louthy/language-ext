@@ -93,7 +93,7 @@ public partial class Seq
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> generate<A>(int count, Func<int, A> generator) =>
-        Range(0, count).Map(generator).ToSeq();
+        Range(0, count).AsEnumerableM().Map(generator).ToSeq();
 
     /// <summary>
     /// Generates a sequence that contains one repeated value.
@@ -101,7 +101,7 @@ public partial class Seq
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> repeat<A>(A item, int count) =>
-        Range(0, count).Map(_ => item).ToSeq();
+        Range(0, count).AsEnumerableM().Map(_ => item).ToSeq();
 
     /// <summary>
     /// Get the item at the head (first) of the sequence

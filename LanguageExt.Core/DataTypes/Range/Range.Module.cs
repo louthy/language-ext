@@ -1,8 +1,6 @@
-﻿using LanguageExt.Traits;
-using System;
-using System.Collections.Generic;
-using System.Collections;
+﻿using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Numerics;
 
 namespace LanguageExt;
@@ -39,18 +37,20 @@ public partial class Range
     /// <param name="step">The size of each step in the range</param>
     [Pure]
     public static Range<A> fromMinMax<A>(A min, A max, A step)
-        where A : IAdditionOperators<A, A, A>, IEqualityOperators<A, A, bool>
+        where A : 
+        IAdditionOperators<A, A, A>, 
+        IComparisonOperators<A, A, bool>
     {
-        return new(min, max, step, Go());
+        return min > max
+                   ? new(min, max, step, Enumerable.Empty<A>())
+                   : new(min, max, step, Go());
 
         IEnumerable<A> Go()
         {
-            bool lastWasEq = false;
             for (var x = min;; x += step)
             {
                 yield return x;
-                if (lastWasEq) yield break;
-                lastWasEq = x == max;
+                if (x == max) yield break;
             }
         }
     }
@@ -62,7 +62,8 @@ public partial class Range
     /// <param name="count">The number of items in the range</param>
     [Pure]
     public static Range<A> fromCount<A>(A min, A count)
-        where A : IEqualityOperators<A, A, bool>,
+        where A : 
+        IComparisonOperators<A, A, bool>,
         INumberBase<A>,
         IAdditionOperators<A, A, A>,
         ISubtractionOperators<A, A, A>,
@@ -77,22 +78,22 @@ public partial class Range
     /// <param name="step">The size of each step in the range</param>
     [Pure]
     public static Range<A> fromCount<A>(A min, A count, A step)
-        where A : IEqualityOperators<A, A, bool>,
+        where A : IComparisonOperators<A, A, bool>,
                   IAdditionOperators<A, A, A>,
                   ISubtractionOperators<A, A, A>,
                   IMultiplyOperators<A, A, A>
     {
         var max = min + (count * step - step);
-        return new(min, max, step, Go());
+        return min > max
+               ? new(min, max, step, Enumerable.Empty<A>())
+               : new(min, max, step, Go());
 
         IEnumerable<A> Go()
         {
-            bool lastWasEq = false;
             for (var x = min;; x += step)
             {
                 yield return x;
-                if (lastWasEq) yield break;
-                lastWasEq = x == max;
+                if (x == max) yield break;
             }
         }
     }

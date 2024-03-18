@@ -303,7 +303,7 @@ public static class Patch
                     }
                     else
                     {
-                        switch (edits.Head)
+                        switch (edits.Head.Value!)
                         {
                             case Edit<EqA, A>.Insert insert:
                                 dest[0] = insert.Element;

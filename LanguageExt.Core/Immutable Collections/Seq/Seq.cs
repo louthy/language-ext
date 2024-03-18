@@ -73,8 +73,8 @@ public readonly struct Seq<A> :
         IsEmpty 
             ? null
             : Tail.IsEmpty 
-                ? Head
-                : (Head, Tail);
+                ? Head.Value
+                : (Head.Value, Tail);
 
     public void Deconstruct(out A head, out Seq<A> tail)
     {

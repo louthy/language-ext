@@ -220,7 +220,8 @@ public sealed class ScheduleTests
     {
         var now = DateTime.Now;
         return Range(0, (int)((TimeSpan)duration).TotalSeconds)
-              .Select(i => now + TimeSpan.FromSeconds(i))
+              .AsEnumerableM()
+              .Map(i => now + TimeSpan.FromSeconds(i))
               .ToSeq();
     }
 

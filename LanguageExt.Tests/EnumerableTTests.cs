@@ -16,7 +16,7 @@ public class EnumerableTTests
         var mlst = lst.KindT<Lst, Lst, Lst<int>, int>().MapT(x => x * 2);
         var mres = mlst.FoldT(0, (s, v) => s + v);
 
-        Assert.True(res == 45, "Expected 45 got "+ res);
+        Assert.True(res == 45, "Expected 45 got " + res);
         Assert.True(mres == 90, "Expected 90 got " + res);
         Assert.True(lst.KindT<Lst, Lst, Lst<int>, int>().CountT() == 15, "(lst) Expected 15 got " + lst.KindT<Lst, Lst, Lst<int>, int>().CountT());
         Assert.True(mlst.CountT() == 15, "(mlst) Expected 15 got " + mlst.CountT());
