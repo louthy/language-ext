@@ -203,4 +203,13 @@ public static class SeqExtensions
     [Pure]
     public static (Seq<T>, Seq<T>) Span<T>(this Seq<T> self, Func<T, bool> pred) =>
         Seq.span(self, pred);
+ 
+    /// <summary>
+    /// Convert to a queryable 
+    /// </summary>
+    /// <returns></returns>
+    [Pure]
+    public static IQueryable<A> AsQueryable<A>(this Seq<A> source) =>
+        // NOTE TO FUTURE ME: Don't delete this thinking it's not needed!
+        Queryable.AsQueryable(source.Value.AsQueryable());
 }

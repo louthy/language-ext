@@ -223,7 +223,7 @@ public class SeqTests
         {
             if (s == 2)
             {
-                s1.FoldWhile("", (x, y) => "", x => x != 3);
+                s1.FoldWhile("", (x, y) => "", x => x.Value != 3);
             }
             res1 = res1.Add(s);
         }
@@ -232,7 +232,7 @@ public class SeqTests
         {
             if (s == 2)
             {
-                s2.FoldWhile("", (x, y) => "", x => x != 3);
+                s2.FoldWhile("", (x, y) => "", x => x.Value != 3);
             }
             res2 = res2.Add(s);
         }

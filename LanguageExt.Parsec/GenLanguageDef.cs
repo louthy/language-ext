@@ -1,4 +1,5 @@
-﻿using static LanguageExt.Parsec.Prim;
+﻿using System.Linq;
+using static LanguageExt.Parsec.Prim;
 
 namespace LanguageExt.Parsec;
 
@@ -77,9 +78,9 @@ public class GenLanguageDef
     /// Empty definition, use With to build
     /// </summary>
     public static readonly GenLanguageDef Empty =
-        new GenLanguageDef("", "", "", true, zero<char>(), zero<char>(), zero<char>(), zero<char>(), List.empty<string>(), List.empty<string>(), true);
+        new ("", "", "", true, zero<char>(), zero<char>(), zero<char>(), zero<char>(), List.empty<string>(), List.empty<string>(), true);
 
-    private GenLanguageDef(
+    GenLanguageDef(
         string commentStart,
         string commentEnd,
         string commentLine,
@@ -107,14 +108,14 @@ public class GenLanguageDef
     }
 
     public GenLanguageDef With(
-        string CommentStart = null,
-        string CommentEnd = null,
-        string CommentLine = null,
+        string? CommentStart = null,
+        string? CommentEnd = null,
+        string? CommentLine = null,
         bool? NestedComments = null,
-        Parser<char> IdentStart = null,
-        Parser<char> IdentLetter = null,
-        Parser<char> OpStart = null,
-        Parser<char> OpLetter = null,
+        Parser<char>? IdentStart = null,
+        Parser<char>? IdentLetter = null,
+        Parser<char>? OpStart = null,
+        Parser<char>? OpLetter = null,
         Lst<string>? ReservedNames = null,
         Lst<string>? ReservedOpNames = null,
         bool? CaseSensitive = null

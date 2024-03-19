@@ -1,4 +1,5 @@
-﻿using LanguageExt.Traits;
+﻿#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 using System;
 using System.Runtime.CompilerServices;
@@ -286,13 +287,6 @@ internal class TrieSet<EqK, K> :
         Sec section = default;
         return Root.Read(key, hash, section);
     }
-
-    /// <summary>
-    /// Returns the value associated with `key`.  Or None, if no key exists
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Seq<K> FindSeq(K key) =>
-        Find(key).ToSeq();
 
     /// <summary>
     /// Map from K to U

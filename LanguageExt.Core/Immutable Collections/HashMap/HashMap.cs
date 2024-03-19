@@ -123,16 +123,6 @@ public readonly struct HashMap<K, V> :
     }
 
     /// <summary>
-    /// Alias of Count
-    /// </summary>
-    [Pure]
-    public int Length
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.Count ?? 0;
-    }
-
-    /// <summary>
     /// Atomically filter out items that return false when a predicate is applied
     /// </summary>
     /// <param name="pred">Predicate</param>
@@ -364,16 +354,6 @@ public readonly struct HashMap<K, V> :
         Value.Find(key);
 
     /// <summary>
-    /// Retrieve a value from the map by key as an enumerable
-    /// </summary>
-    /// <param name="key">Key to find</param>
-    /// <returns>Found value</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Seq<V> FindSeq(K key) =>
-        Value.FindSeq(key);
-
-    /// <summary>
     /// Retrieve a value from the map by key and pattern match the
     /// result.
     /// </summary>
@@ -514,16 +494,6 @@ public readonly struct HashMap<K, V> :
     /// <returns>True if an item with the value supplied is in the map</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Contains(V value) =>
-        Value.Contains(value);
-
-    /// <summary>
-    /// Checks for existence of a value in the map
-    /// </summary>
-    /// <param name="value">Value to check</param>
-    /// <returns>True if an item with the value supplied is in the map</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains<EqV>(V value) where EqV : Eq<V> =>
         Value.Contains<EqV>(value);
 
@@ -537,16 +507,6 @@ public readonly struct HashMap<K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains<EqV>(K key, V value) where EqV : Eq<V> =>
         Value.Contains<EqV>(key, value);
-
-    /// <summary>
-    /// Clears all items from the map 
-    /// </summary>
-    /// <remarks>Functionally equivalent to calling Map.empty as the original structure is untouched</remarks>
-    /// <returns>Empty map</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public HashMap<K, V> Clear() =>
-        Wrap(Value.Clear());
 
     /// <summary>
     /// Atomically adds a range of items to the map
@@ -655,7 +615,7 @@ public readonly struct HashMap<K, V> :
     /// <returns>True if exists, false otherwise</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Contains(KeyValuePair<K, V> pair) =>
+    public bool Contains((K Key, V Value) pair) =>
         Value.Contains(pair.Key, pair.Value);
 
     /// <summary>
@@ -702,11 +662,6 @@ public readonly struct HashMap<K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator IEnumerable.GetEnumerator() =>
         Value.GetEnumerator();
-
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Seq<(K Key, V Value)> ToSeq() =>
-        toSeq(AsEnumerable());
 
     /// <summary>
     /// Allocation free conversion to a TrackingHashMap
@@ -1145,16 +1100,6 @@ public readonly struct HashMap<K, V> :
         AsEnumerable().Map(kv => (kv.Key, kv.Value)).ForAll(pred);
 
     /// <summary>
-    /// Return true if all items in the map return true when the predicate is applied
-    /// </summary>
-    /// <param name="pred">Predicate</param>
-    /// <returns>True if all items in the map return true when the predicate is applied</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool ForAll(Func<V, bool> pred) =>
-        Values.ForAll(pred);
-
-    /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied
     /// </summary>
     /// <param name="pred">Predicate</param>
@@ -1181,16 +1126,6 @@ public readonly struct HashMap<K, V> :
         AsEnumerable().Map(kv => (kv.Key, kv.Value)).Exists(pred);
 
     /// <summary>
-    /// Return true if *any* items in the map return true when the predicate is applied
-    /// </summary>
-    /// <param name="pred">Predicate</param>
-    /// <returns>True if all items in the map return true when the predicate is applied</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Exists(Func<V, bool> pred) =>
-        Values.Exists(pred);
-
-    /// <summary>
     /// Atomically iterate through all key/value pairs in the map (in order) and execute an
     /// action on each
     /// </summary>
@@ -1202,38 +1137,6 @@ public readonly struct HashMap<K, V> :
         foreach (var item in this)
         {
             action(item.Key, item.Value);
-        }
-        return unit;
-    }
-
-    /// <summary>
-    /// Atomically iterate through all values in the map (in order) and execute an
-    /// action on each
-    /// </summary>
-    /// <param name="action">Action to execute</param>
-    /// <returns>Unit</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Unit Iter(Action<V> action)
-    {
-        foreach (var item in this)
-        {
-            action(item.Value);
-        }
-        return unit;
-    }
-
-    /// <summary>
-    /// Atomically iterate through all key/value pairs (as tuples) in the map (in order) 
-    /// and execute an action on each
-    /// </summary>
-    /// <param name="action">Action to execute</param>
-    /// <returns>Unit</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Unit Iter(Action<Tuple<K, V>> action)
-    {
-        foreach (var item in this)
-        {
-            action(new Tuple<K, V>(item.Key, item.Value));
         }
         return unit;
     }
@@ -1253,46 +1156,6 @@ public readonly struct HashMap<K, V> :
         }
         return unit;
     }
-
-    /// <summary>
-    /// Atomically iterate through all key/value pairs in the map (in order) and execute an
-    /// action on each
-    /// </summary>
-    /// <param name="action">Action to execute</param>
-    /// <returns>Unit</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Unit Iter(Action<KeyValuePair<K, V>> action)
-    {
-        foreach (var item in this)
-        {
-            action(new KeyValuePair<K, V>(item.Key, item.Value));
-        }
-        return unit;
-    }
-
-    /// <summary>
-    /// Atomically folds all items in the map (in order) using the folder function provided.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Fold function</param>
-    /// <returns>Folded state</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public S Fold<S>(S state, Func<S, K, V, S> folder) =>
-        AsEnumerable().Fold(state, (s, x) => folder(s, x.Key, x.Value));
-
-    /// <summary>
-    /// Atomically folds all items in the map (in order) using the folder function provided.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Fold function</param>
-    /// <returns>Folded state</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public S Fold<S>(S state, Func<S, V, S> folder) =>
-        Values.Fold(state, folder);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

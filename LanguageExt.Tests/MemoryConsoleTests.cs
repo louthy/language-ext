@@ -16,7 +16,7 @@ public class MemoryConsoleTests
     [InlineData("abc\ndef\n")]
     public void Write_line(string unsplitLines)
     {
-        var lines = unsplitLines.Split('\n').ToSeq();
+        var lines = unsplitLines.Split('\n').AsEnumerableM().ToSeq();
         var rt    = Runtime.New();
 
         var xs = lines.Traverse(Either<Unit, string>.Right);
@@ -38,7 +38,7 @@ public class MemoryConsoleTests
     {
         // Prep the runtime and the keyboard buffer with the typed lines
         var rt    = Runtime.New();
-        var lines = unsplitLines.Split('\n').ToSeq();
+        var lines = unsplitLines.Split('\n').AsEnumerableM().ToSeq();
         lines.Iter(line => rt.Env.Console.WriteKeyLine(line));
 
         // test

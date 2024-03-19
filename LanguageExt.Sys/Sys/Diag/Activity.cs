@@ -196,7 +196,7 @@ public class Activity<M, RT>
     public static K<M, HashMap<string, string?>> baggage =>
         currentActivity.Map(
             a => a is not null
-                     ? a.Baggage.ToHashMap()
+                     ? a.Baggage.AsEnumerableM().Map(kv => (kv.Key, kv.Value)).ToHashMap()
                      : HashMap<string, string?>());
 
     /// <summary>
@@ -232,7 +232,7 @@ public class Activity<M, RT>
     public static K<M, HashMap<string, string?>> tags =>
         currentActivity.Map(
             a => a is not null
-                     ? a.Tags.ToHashMap()
+                     ? a.Tags.AsEnumerableM().Map(kv => (kv.Key, kv.Value)).ToHashMap()
                      : HashMap<string, string?>());
 
     /// <summary>
@@ -241,7 +241,7 @@ public class Activity<M, RT>
     public static K<M, HashMap<string, object?>> tagObjects =>
         currentActivity.Map(
             a => a is not null
-                     ? a.TagObjects.ToHashMap()
+                     ? a.TagObjects.AsEnumerableM().Map(kv => (kv.Key, kv.Value)).ToHashMap()
                      : HashMap<string, object?>());
 
     /// <summary>

@@ -252,7 +252,7 @@ public abstract record Error : Monoid<Error>
             ? Errors.None
             : errors.Length == 1
                 ? errors[0]
-                : new ManyErrors(errors.ToSeq());
+                : new ManyErrors(errors.AsEnumerableM().ToSeq());
 
     /// <summary>
     /// Create a new error 

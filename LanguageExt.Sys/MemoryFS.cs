@@ -58,6 +58,7 @@ public class MemoryFS
         ValidatePathNames(path.Trim()
                               .TrimEnd([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar])
                               .Split([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar])
+                              .AsEnumerableM() 
                               .ToSeq());
 
     static Seq<string> ValidatePathNames(Seq<string> path)

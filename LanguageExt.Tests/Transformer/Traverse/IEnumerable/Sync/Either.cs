@@ -36,6 +36,6 @@ public class EitherIEnumerable
 
         var mc = new[] { Right<Error, int>(1), Right<Error, int>(2), Right<Error, int>(3), Right<Error, int>(4) };
 
-        Assert.True(mb.ToSeq() == mc.ToSeq());
+        Assert.True(mb.ToSeq() == mc.AsEnumerableM().ToSeq());
     }
 }

@@ -162,7 +162,7 @@ public abstract class ErrorException : Exception, IEnumerable<ErrorException>, M
     /// <param name="inner">The inner error to this error</param>
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ErrorException Many(params ErrorException[] errors) =>
-        new ManyExceptions(errors.ToSeq());
+        new ManyExceptions(errors.AsEnumerableM().ToSeq());
 
     /// <summary>
     /// Create a new error 

@@ -1147,7 +1147,7 @@ internal class TrieMap<EqK, K, V> :
     /// Returns the value associated with `key`.  Or None, if no key exists
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Seq<V> FindSeq(K key) =>
+    public Seq<V> FindAll(K key) =>
         Find(key).ToSeq();
 
     internal static TrieMap<EqK, K, Change<V>> FindChanges(TrieMap<EqK, K, V> mx, TrieMap<EqK, K, V> my)

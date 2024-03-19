@@ -97,5 +97,5 @@ public record DirectoryIO : Traits.DirectoryIO
         lift(() => Directory.Move(sourceDirName, destDirName));
 
     public IO<Seq<string>> GetLogicalDrives() =>
-        lift(() => Directory.GetLogicalDrives().ToSeq());
+        lift(() => Directory.GetLogicalDrives().AsEnumerableM().ToSeq());
 }

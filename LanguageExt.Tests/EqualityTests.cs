@@ -1,5 +1,6 @@
 ﻿using Xunit;
 using System;
+using System.Linq;
 using LanguageExt.Traits;
 using LanguageExt.ClassInstances;
 

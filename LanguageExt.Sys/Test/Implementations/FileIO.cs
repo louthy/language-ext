@@ -30,7 +30,7 @@ public record FileIO(MemoryFS fs, DateTime now) : Sys.Traits.FileIO
     /// Read all lines from a file
     /// </summary>
     public IO<Seq<string>> ReadAllLines(string path, Encoding encoding) => 
-        lift(() => fs.GetLines(path).ToSeq());
+        lift(() => fs.GetLines(path).AsEnumerableM().ToSeq());
         
     /// <summary>
     /// Read all lines from a file

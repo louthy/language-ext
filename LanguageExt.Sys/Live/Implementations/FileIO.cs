@@ -33,7 +33,7 @@ public record FileIO : Sys.Traits.FileIO
     /// Read all lines from a file
     /// </summary>
     public IO<Seq<string>> ReadAllLines(string path, Encoding encoding) =>
-        liftIO(async env => (await File.ReadAllLinesAsync(path, encoding, env.Token).ConfigureAwait(false)).ToSeq());
+        liftIO(async env => (await File.ReadAllLinesAsync(path, encoding, env.Token).ConfigureAwait(false)).AsEnumerableM().ToSeq());
 
     /// <summary>
     /// Write all lines to a file

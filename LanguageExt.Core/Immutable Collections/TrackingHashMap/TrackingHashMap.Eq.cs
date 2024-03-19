@@ -360,7 +360,7 @@ public readonly struct TrackingHashMap<EqK, K, V> :
     /// <returns>Found value</returns>
     [Pure]
     public Seq<V> FindSeq(K key) =>
-        Value.FindSeq(key);
+        Value.FindAll(key);
 
     /// <summary>
     /// Retrieve a value from the map by key and pattern match the

@@ -729,7 +729,7 @@ public class AtomHashMap<EqK, K, V> :
     /// <returns>Found value</returns>
     [Pure]
     public Seq<V> FindSeq(K key) =>
-        Items.FindSeq(key);
+        Items.FindAll(key);
 
     /// <summary>
     /// Retrieve a value from the map by key and pattern match the

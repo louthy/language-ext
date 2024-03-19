@@ -1,4 +1,5 @@
-﻿using LanguageExt.Traits;
+﻿#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 using System;
 using System.Collections;
@@ -21,7 +22,8 @@ public readonly struct HashMap<EqK, K, V> :
     IReadOnlyDictionary<K, V>,
     IEnumerable<(K Key, V Value)>,
     IEquatable<HashMap<EqK, K, V>>,
-    Monoid<HashMap<EqK, K, V>>
+    Monoid<HashMap<EqK, K, V>>,
+    K<HashMapEq<EqK, K>, V>
     where EqK : Eq<K>
 {
     [Pure]
@@ -333,7 +335,7 @@ public readonly struct HashMap<EqK, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<V> FindSeq(K key) =>
-        Value.FindSeq(key);
+        Value.FindAll(key);
 
     /// <summary>
     /// Retrieve a value from the map by key and pattern match the

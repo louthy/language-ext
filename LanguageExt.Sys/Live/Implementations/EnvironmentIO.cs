@@ -74,7 +74,7 @@ public record EnvironmentIO : Sys.Traits.EnvironmentIO
     /// Returns a string array containing the command-line arguments for the current process.
     /// </summary>
     public IO<Seq<string>> GetCommandLineArgs() =>
-        lift(() => Environment.GetCommandLineArgs().ToSeq());
+        lift(() => Environment.GetCommandLineArgs().AsEnumerableM().ToSeq());
 
     /// <summary>
     /// Retrieves the value of an environment variable from the current process.
@@ -147,7 +147,7 @@ public record EnvironmentIO : Sys.Traits.EnvironmentIO
     /// </summary>
     /// string[] Environment.GetLogicalDrives()
     public IO<Seq<string>> GetLogicalDrives() =>
-        lift(() => Environment.GetLogicalDrives().ToSeq());
+        lift(() => Environment.GetLogicalDrives().AsEnumerableM().ToSeq());
 
     /// <summary>
     /// Gets a value that indicates whether the current application domain is being unloaded or the common language runtime (CLR) is shutting down.

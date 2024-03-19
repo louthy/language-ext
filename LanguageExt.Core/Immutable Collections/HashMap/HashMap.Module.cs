@@ -478,16 +478,6 @@ public static partial class HashMap
         map.Find(key);
 
     /// <summary>
-    /// Retrieve a value from the map by key as an enumerable
-    /// </summary>
-    /// <param name="key">Key to find</param>
-    /// <returns>Found value</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IEnumerable<V> findSeq<K, V>(HashMap<K, V> map, K key) =>
-        map.FindSeq(key);
-
-    /// <summary>
     /// Retrieve a value from the map by key and pattern match the
     /// result.
     /// </summary>
@@ -596,66 +586,4 @@ public static partial class HashMap
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<K, V> filter<K, V>(HashMap<K, V> map, Func<K, V, bool> predicate) =>
         map.Filter(predicate);
-
-    /// <summary>
-    /// Number of items in the map
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int length<K, T>(HashMap<K, T> map) =>
-        map.Count;
-
-    /// <summary>
-    /// Atomically folds all items in the map (in order) using the folder function provided.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Fold function</param>
-    /// <returns>Folded state</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static S fold<S, K, V>(HashMap<K, V> map, S state, Func<S, K, V, S> folder) =>
-        map.Fold(state, folder);
-
-    /// <summary>
-    /// Atomically folds all items in the map (in order) using the folder function provided.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Fold function</param>
-    /// <returns>Folded state</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static S fold<S, K, V>(HashMap<K, V> map, S state, Func<S, V, S> folder) =>
-        map.Fold(state, folder);
-
-    /// <summary>
-    /// Return true if *any* items in the map return true when the predicate is applied
-    /// </summary>
-    /// <param name="pred">Predicate</param>
-    /// <returns>True if all items in the map return true when the predicate is applied</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool exists<K, V>(HashMap<K, V> map, Func<K, V, bool> pred) =>
-        map.Exists(pred);
-
-    /// <summary>
-    /// Return true if *any* items in the map return true when the predicate is applied
-    /// </summary>
-    /// <param name="pred">Predicate</param>
-    /// <returns>True if all items in the map return true when the predicate is applied</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool exists<K, V>(HashMap<K, V> map, Func<(K Key, V Value), bool> pred) =>
-        map.Exists(pred);
-
-    /// <summary>
-    /// Return true if *any* items in the map return true when the predicate is applied
-    /// </summary>
-    /// <param name="pred">Predicate</param>
-    /// <returns>True if all items in the map return true when the predicate is applied</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool exists<K, V>(HashMap<K, V> map, Func<V, bool> pred) =>
-        map.Exists(pred);
 }
