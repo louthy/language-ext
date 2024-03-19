@@ -22,7 +22,7 @@ public class SequenceParallelTest
         var either = eitherIO.Run().As().Run();
         
         Debug.Assert(either.IsRight);
-        either.IfRight(right => Debug.Assert(right.SequenceEqual(input)));
+        either.IfRight(right => Debug.Assert(right == input));
         
         sw.Stop();
 

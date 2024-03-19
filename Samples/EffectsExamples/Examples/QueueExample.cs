@@ -49,10 +49,10 @@ public class QueueExample<RT>
         Queue<string, Eff<RT>, Unit> queue1, 
         Queue<string, Eff<RT>, Unit> queue2) =>
         from x in awaiting<string>()
-        from _ in x.HeadOrNone().Case switch
+        from _ in x switch
                   {
-                      '1' => queue1.EnqueueM(x.Substring(1)).As(),
-                      '2' => queue2.EnqueueM(x.Substring(1)).As(),
+                      "1" => queue1.EnqueueM(x.Substring(1)).As(),
+                      "2" => queue2.EnqueueM(x.Substring(1)).As(),
                       _   => Fail(Errors.Cancelled)
                   }
         select unit;

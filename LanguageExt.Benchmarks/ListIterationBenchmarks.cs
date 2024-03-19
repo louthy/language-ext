@@ -25,7 +25,7 @@ namespace LanguageExt.Benchmarks
         {
             values = ValuesGenerator.Default.GenerateUniqueValues<T>(N);
             immutableList = ImmutableList.CreateRange(ValuesGenerator.Default.GenerateUniqueValues<T>(N));
-            lst = ValuesGenerator.Default.GenerateUniqueValues<T>(N).Freeze();
+            lst = ValuesGenerator.Default.GenerateUniqueValues<T>(N).AsEnumerableM().ToLst();
             seq = toSeq(ValuesGenerator.Default.GenerateUniqueValues<T>(N)).Strict();
         }
 

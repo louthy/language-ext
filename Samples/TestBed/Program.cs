@@ -42,7 +42,7 @@ public static class Ext
     }
 
     public static Producer<A, Eff<RT>, Unit> ToProducer<RT, A>(this IAsyncQueue<A>[] qs) =>
-        Producer.merge(qs.Map(q => q.ToProducer<RT, A>()).ToSeq());
+        Producer.merge(qs.AsEnumerableM().Map(q => q.ToProducer<RT, A>()).ToSeq());
 }
 
 public static class YourPrelude
@@ -117,10 +117,10 @@ public class Program
         // on the first char of the string it awaits
         Consumer<string, Eff<Runtime>, Unit> writeToQueue() =>
             from x in awaiting<string>()
-            from _ in x.HeadOrNone().Case switch
+            from _ in x switch
                       {
-                          '1' => queue1.EnqueueM(x.Substring(1)),
-                          '2' => queue2.EnqueueM(x.Substring(1)),
+                          "1" => queue1.EnqueueM(x.Substring(1)),
+                          "2" => queue2.EnqueueM(x.Substring(1)),
                           _   => FailEff<Runtime, Unit>(Errors.Cancelled)
                       }
             select unit;
