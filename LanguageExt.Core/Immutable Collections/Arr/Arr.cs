@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Numerics;
 using static LanguageExt.Prelude;
 using LanguageExt.Traits;
 using LanguageExt.ClassInstances;
@@ -24,6 +25,9 @@ public struct Arr<A> :
     IEquatable<Arr<A>>,
     IComparable<Arr<A>>,
     Monoid<Arr<A>>,
+    IComparisonOperators<Arr<A>, Arr<A>, bool>,
+    IAdditionOperators<Arr<A>, Arr<A>, Arr<A>>,
+    IAdditiveIdentity<Arr<A>, Arr<A>>,
     IComparable,
     K<Arr, A>
 {
@@ -738,5 +742,20 @@ public struct Arr<A> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Arr<A>(SeqEmpty _) =>
+        Empty;
+    
+    public static bool operator >(Arr<A> left, Arr<A> right) =>
+        left.CompareTo(right) > 0;
+    
+    public static bool operator >=(Arr<A> left, Arr<A> right) =>
+        left.CompareTo(right) >= 0;
+    
+    public static bool operator <(Arr<A> left, Arr<A> right) =>
+        left.CompareTo(right) < 0;
+    
+    public static bool operator <=(Arr<A> left, Arr<A> right) =>
+        left.CompareTo(right) <= 0;
+
+    public static Arr<A> AdditiveIdentity => 
         Empty;
 }

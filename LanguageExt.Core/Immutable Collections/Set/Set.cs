@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
@@ -22,6 +23,10 @@ public readonly struct Set<A> :
     IEquatable<Set<A>>,
     IComparable<Set<A>>,
     IComparable,
+    IComparisonOperators<Set<A>, Set<A>, bool>,
+    IAdditionOperators<Set<A>, Set<A>, Set<A>>,
+    ISubtractionOperators<Set<A>, Set<A>, Set<A>>,
+    IAdditiveIdentity<Set<A>, Set<A>>,
     IReadOnlyCollection<A>,
     Monoid<Set<A>>,
     K<Set, A>
@@ -737,4 +742,7 @@ public readonly struct Set<A> :
     /// </summary>
     [Pure]
     public Option<A> Max => Value.Max;
+
+    public static Set<A> AdditiveIdentity => 
+        Empty;
 }

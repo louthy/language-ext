@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 
@@ -23,6 +24,10 @@ public readonly struct HashMap<EqK, K, V> :
     IEnumerable<(K Key, V Value)>,
     IEquatable<HashMap<EqK, K, V>>,
     Monoid<HashMap<EqK, K, V>>,
+    IEqualityOperators<HashMap<EqK, K, V>, HashMap<EqK, K, V>, bool>,
+    IAdditionOperators<HashMap<EqK, K, V>, HashMap<EqK, K, V>, HashMap<EqK, K, V>>,
+    ISubtractionOperators<HashMap<EqK, K, V>, HashMap<EqK, K, V>, HashMap<EqK, K, V>>,
+    IAdditiveIdentity<HashMap<EqK, K, V>, HashMap<EqK, K, V>>,
     K<HashMapEq<EqK, K>, V>
     where EqK : Eq<K>
 {
@@ -1348,4 +1353,7 @@ public readonly struct HashMap<EqK, K, V> :
     [Obsolete(Change.UseCollectionIntialiser)]
     public static implicit operator HashMap<EqK, K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
         new (new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11, items.Item12, items.Item13, items.Item14, items.Item15, items.Item16 });
+
+    public static HashMap<EqK, K, V> AdditiveIdentity => 
+        Empty;    
 }

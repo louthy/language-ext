@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Numerics;
 using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances.Pred;
 using LanguageExt.ClassInstances;
@@ -22,6 +23,10 @@ public readonly struct Lst<A> :
     IComparable,
     IReadOnlyList<A>,
     IEquatable<Lst<A>>,
+    IComparisonOperators<Lst<A>, Lst<A>, bool>,
+    IAdditionOperators<Lst<A>, Lst<A>, Lst<A>>,
+    ISubtractionOperators<Lst<A>, Lst<A>, Lst<A>>,
+    IAdditiveIdentity<Lst<A>, Lst<A>>,
     Monoid<Lst<A>>,
     K<Lst, A>
 {
@@ -609,5 +614,8 @@ public readonly struct Lst<A> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Lst<A>(SeqEmpty _) =>
+        Empty;
+
+    public static Lst<A> AdditiveIdentity => 
         Empty;
 }

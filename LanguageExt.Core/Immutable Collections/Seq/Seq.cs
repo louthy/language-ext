@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
@@ -24,6 +25,9 @@ public readonly struct Seq<A> :
     IComparable<Seq<A>>, 
     IEquatable<Seq<A>>, 
     IComparable,
+    IComparisonOperators<Seq<A>, Seq<A>, bool>,
+    IAdditionOperators<Seq<A>, Seq<A>, Seq<A>>,
+    IAdditiveIdentity<Seq<A>, Seq<A>>,
     Monoid<Seq<A>>,
     K<Seq, A>
 {
@@ -1167,4 +1171,7 @@ public readonly struct Seq<A> :
                    ? new Seq<B>(mb)
                    : new Seq<B>(Yield(this));
     }
+
+    public static Seq<A> AdditiveIdentity => 
+        Empty;
 }

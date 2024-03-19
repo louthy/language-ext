@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Numerics;
 using LanguageExt.ClassInstances;
 using System.Runtime.CompilerServices;
 
@@ -29,6 +30,10 @@ public readonly struct Map<K, V> :
     IComparable<Map<K, V>>,
     IComparable,
     IEquatable<Map<K, V>>,
+    IComparisonOperators<Map<K, V>, Map<K, V>, bool>,
+    IAdditionOperators<Map<K, V>, Map<K, V>, Map<K, V>>,
+    ISubtractionOperators<Map<K, V>, Map<K, V>, Map<K, V>>,
+    IAdditiveIdentity<Map<K, V>, Map<K, V>>,
     Monoid<Map<K, V>>,
     K<Map<K>, V>
 {
@@ -1428,4 +1433,8 @@ public readonly struct Map<K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
         AsEnumerable().Map(p => new KeyValuePair<K, V>(p.Key, p.Value)).GetEnumerator();
+
+    public static Map<K, V> AdditiveIdentity => 
+        Empty;
+   
 }

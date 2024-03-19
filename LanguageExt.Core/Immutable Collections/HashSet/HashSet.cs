@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
@@ -17,6 +18,10 @@ namespace LanguageExt;
 public readonly struct HashSet<A> :
     IEnumerable<A>,
     IEquatable<HashSet<A>>,
+    IEqualityOperators<HashSet<A>, HashSet<A>, bool>,
+    IAdditionOperators<HashSet<A>, HashSet<A>, HashSet<A>>,
+    ISubtractionOperators<HashSet<A>, HashSet<A>, HashSet<A>>,
+    IAdditiveIdentity<HashSet<A>, HashSet<A>>,
     Monoid<HashSet<A>>,
     K<HashSet, A>
 {
@@ -641,4 +646,7 @@ public readonly struct HashSet<A> :
         }
         return new HashSet<C>(Yield(), true);
     }
+    
+    public static HashSet<A> AdditiveIdentity => 
+        Empty;    
 }

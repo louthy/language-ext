@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using LanguageExt.ClassInstances;
@@ -23,6 +24,9 @@ namespace LanguageExt;
 public sealed record EnumerableM<A>(IEnumerable<A> runEnumerable) :
     IEnumerable<A>,
     Monoid<EnumerableM<A>>,
+    IComparisonOperators<EnumerableM<A>, EnumerableM<A>, bool>,
+    IAdditionOperators<EnumerableM<A>, EnumerableM<A>, EnumerableM<A>>,
+    IAdditiveIdentity<EnumerableM<A>, EnumerableM<A>>,
     K<EnumerableM, A>
 {
     int? hashCode;
@@ -658,4 +662,7 @@ public sealed record EnumerableM<A>(IEnumerable<A> runEnumerable) :
     [Pure]
     public EnumerableM<C> Zip<B, C>(IEnumerable<B> rhs, Func<A, B, C> zipper) =>
         new(runEnumerable.Zip(rhs, zipper));
+    
+    public static EnumerableM<A> AdditiveIdentity => 
+        Empty;    
 }

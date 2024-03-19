@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using LanguageExt.Traits;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 #pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
 
@@ -22,6 +23,10 @@ public readonly struct HashMap<K, V> :
     IReadOnlyDictionary<K, V>,
     IEnumerable<(K Key, V Value)>,
     IEquatable<HashMap<K, V>>,
+    IEqualityOperators<HashMap<K, V>, HashMap<K, V>, bool>,
+    IAdditionOperators<HashMap<K, V>, HashMap<K, V>, HashMap<K, V>>,
+    ISubtractionOperators<HashMap<K, V>, HashMap<K, V>, HashMap<K, V>>,
+    IAdditiveIdentity<HashMap<K, V>, HashMap<K, V>>,
     Monoid<HashMap<K, V>>,
     K<HashMap<K>, V>
 {
@@ -1271,4 +1276,7 @@ public readonly struct HashMap<K, V> :
     [Obsolete(Change.UseCollectionIntialiser)]
     public static implicit operator HashMap<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
         new (new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11, items.Item12, items.Item13, items.Item14, items.Item15, items.Item16 });
+
+    public static HashMap<K, V> AdditiveIdentity => 
+        Empty;    
 }

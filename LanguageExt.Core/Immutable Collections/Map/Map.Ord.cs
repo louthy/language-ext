@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 
@@ -26,6 +27,10 @@ public readonly struct Map<OrdK, K, V> :
     IEnumerable<(K Key, V Value)>,
     IEquatable<Map<OrdK, K, V>>,
     IComparable<Map<OrdK, K, V>>,
+    IComparisonOperators<Map<OrdK, K, V>, Map<OrdK, K, V>, bool>,
+    IAdditionOperators<Map<OrdK, K, V>, Map<OrdK, K, V>, Map<OrdK, K, V>>,
+    ISubtractionOperators<Map<OrdK, K, V>, Map<OrdK, K, V>, Map<OrdK, K, V>>,
+    IAdditiveIdentity<Map<OrdK, K, V>, Map<OrdK, K, V>>,
     Monoid<Map<OrdK, K, V>>,
     IComparable
     where OrdK : Ord<K>
@@ -1243,4 +1248,7 @@ public readonly struct Map<OrdK, K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
         AsEnumerable().Map(p => new KeyValuePair<K, V>(p.Key, p.Value)).GetEnumerator();    
+
+    public static Map<OrdK, K, V> AdditiveIdentity => 
+        Empty;
 }
