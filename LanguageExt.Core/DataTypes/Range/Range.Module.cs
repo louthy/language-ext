@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Numerics;
 
 namespace LanguageExt;
@@ -42,15 +41,22 @@ public partial class Range
         IComparisonOperators<A, A, bool>
     {
         return min > max
-                   ? new(min, max, step, Enumerable.Empty<A>())
-                   : new(min, max, step, Go());
+                   ? new(min, max, step, Backward())
+                   : new(min, max, step, Forward());
 
-        IEnumerable<A> Go()
+        IEnumerable<A> Forward()
         {
-            for (var x = min;; x += step)
+            for (var x = min; x <= max; x += step)
             {
                 yield return x;
-                if (x == max) yield break;
+            }
+        }
+
+        IEnumerable<A> Backward()
+        {
+            for (var x = min; x >= max; x += step)
+            {
+                yield return x;
             }
         }
     }
@@ -64,10 +70,7 @@ public partial class Range
     public static Range<A> fromCount<A>(A min, A count)
         where A : 
         IComparisonOperators<A, A, bool>,
-        INumberBase<A>,
-        IAdditionOperators<A, A, A>,
-        ISubtractionOperators<A, A, A>,
-        IMultiplyOperators<A, A, A> =>
+        INumberBase<A> =>
         fromCount(min, count, A.One);
 
     /// <summary>
@@ -78,19 +81,16 @@ public partial class Range
     /// <param name="step">The size of each step in the range</param>
     [Pure]
     public static Range<A> fromCount<A>(A min, A count, A step)
-        where A : IComparisonOperators<A, A, bool>,
-                  IAdditionOperators<A, A, A>,
-                  ISubtractionOperators<A, A, A>,
-                  IMultiplyOperators<A, A, A>
+        where A : INumberBase<A>,
+                  IComparisonOperators<A, A, bool>
     {
         var max = min + (count * step - step);
-        return min > max
-               ? new(min, max, step, Enumerable.Empty<A>())
-               : new(min, max, step, Go());
+        return new(min, max, step, Go());
 
         IEnumerable<A> Go()
         {
-            for (var x = min;; x += step)
+            var c = count;
+            for (var x = min; c != A.Zero; x += step, c -= A.One)
             {
                 yield return x;
                 if (x == max) yield break;

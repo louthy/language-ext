@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt.UnsafeValueAccess;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Parsec;
@@ -48,8 +49,8 @@ public class ParserError : IEquatable<ParserError>, IComparable<ParserError>
         expects.Count == 0
             ? ""
             : expects.Count == 1
-                ? $"expecting {expects.Head()}"
-                : $"expecting {String.Join(", ", expects.Take(expects.Count - 1))} or {expects.Last()}";
+                ? $"expecting {expects.Head().ValueUnsafe()}"
+                : $"expecting {string.Join(", ", expects.Take(expects.Count - 1))} or {expects.Last()}";
 
     public override string ToString() =>
         $"error at {Pos}: {ToStringNoPosition()}";
