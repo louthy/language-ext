@@ -236,23 +236,23 @@ public class MapTests
     [Fact]
     public void MapOptionTest()
     {
-        var m = Map<Option<int>, Map<Option<int>, string>>();
+        var m = Map<(Option<int>, Option<int>), string>();
 
-        m = m.AddOrUpdate(Some(1), Some(1), "Some Some");
-        m = m.AddOrUpdate(None, Some(1), "None Some");
-        m = m.AddOrUpdate(Some(1), None, "Some None");
-        m = m.AddOrUpdate(None, None, "None None");
+        m = m.AddOrUpdate((Some(1), Some(1)), "Some Some");
+        m = m.AddOrUpdate((None, Some(1)), "None Some");
+        m = m.AddOrUpdate((Some(1), None), "Some None");
+        m = m.AddOrUpdate((None, None), "None None");
 
-        Assert.True(m[Some(1)][Some(1)] == "Some Some");
-        Assert.True(m[None][Some(1)]    == "None Some");
-        Assert.True(m[Some(1)][None]    == "Some None");
-        Assert.True(m[None][None]       == "None None");
+        Assert.True(m[(Some(1), Some(1))] == "Some Some");
+        Assert.True(m[(None, Some(1))]    == "None Some");
+        Assert.True(m[(Some(1), None)]    == "Some None");
+        Assert.True(m[(None, None)]       == "None None");
 
-        Assert.True(m.CountT() == 4);
+        Assert.True(m.Count() == 4);
 
-        m = m.FilterT(v => v.EndsWith("None", StringComparison.Ordinal));
+        m = m.Filter(v => v.EndsWith("None", StringComparison.Ordinal));
 
-        Assert.True(m.CountT() == 2);
+        Assert.True(m.Count() == 2);
     }
 
     [Fact]

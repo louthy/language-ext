@@ -99,5 +99,5 @@ public static class ArrExtensions
     [Pure]
     public static IQueryable<A> AsQueryable<A>(this Arr<A> source) =>
         // NOTE TO FUTURE ME: Don't delete this thinking it's not needed!
-        Queryable.AsQueryable(source.Value.AsQueryable());
+        source.Value.AsQueryable();
 }

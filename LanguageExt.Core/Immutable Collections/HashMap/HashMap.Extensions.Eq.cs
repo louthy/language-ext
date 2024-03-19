@@ -56,6 +56,6 @@ public static partial class HashMapExtensions
     public static IQueryable<(K Key, V Value)> AsQueryable<EqK, K, V>(this HashMap<EqK, K, V> source)
         where EqK : Eq<K> =>
         // NOTE TO FUTURE ME: Don't delete this thinking it's not needed!
-        Queryable.AsQueryable(source.Value.AsQueryable());
+        source.Value.AsQueryable();
 
 }
