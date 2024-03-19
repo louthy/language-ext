@@ -1233,18 +1233,6 @@ public readonly struct HashMap<EqK, K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public S Fold<S>(S state, Func<S, K, V, S> folder) =>
         AsEnumerable().Fold(state, (s, x) => folder(s, x.Key, x.Value));
-
-    /// <summary>
-    /// Atomically folds all items in the map (in order) using the folder function provided.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Fold function</param>
-    /// <returns>Folded state</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public S Fold<S>(S state, Func<S, V, S> folder) =>
-        Values.Fold(state, folder);
     
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -97,7 +97,7 @@ public class Program
         SequenceParallelTest.Run();
     }
 
-    public static async Task PipesTest()
+    public static void PipesTest()
     {
         // Create two queues.  Queues are Producers that have an Enqueue function
         var queue1 = Queue<Eff<Runtime>, string>();

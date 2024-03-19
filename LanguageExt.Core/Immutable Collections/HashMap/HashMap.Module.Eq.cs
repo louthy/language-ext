@@ -616,18 +616,6 @@ public partial class HashMap
         map.Fold(state, folder);
 
     /// <summary>
-    /// Atomically folds all items in the map (in order) using the folder function provided.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Fold function</param>
-    /// <returns>Folded state</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static S fold<EqK, S, K, V>(HashMap<EqK, K, V> map, S state, Func<S, V, S> folder) where EqK : Eq<K> =>
-        map.Fold(state, folder);
-
-    /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied
     /// </summary>
     /// <param name="pred">Predicate</param>

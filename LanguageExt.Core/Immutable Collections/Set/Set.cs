@@ -351,36 +351,6 @@ public readonly struct Set<A> :
     }
 
     /// <summary>
-    /// Applies a function 'folder' to each element of the collection, threading an accumulator 
-    /// argument through the computation. The fold function takes the state argument, and 
-    /// applies the function 'folder' to it and the first element of the set. Then, it feeds this 
-    /// result into the function 'folder' along with the second element, and so on. It returns the 
-    /// final result. (Aggregate in LINQ)
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Fold function</param>
-    /// <returns>Aggregate value</returns>
-    [Pure]
-    public S Fold<S>(S state, Func<S, A, S> folder) =>
-        Value.Fold(state,folder);
-
-    /// <summary>
-    /// Applies a function 'folder' to each element of the collection (from last element to first), 
-    /// threading an aggregate state through the computation. The fold function takes the state 
-    /// argument, and applies the function 'folder' to it and the first element of the set. Then, 
-    /// it feeds this result into the function 'folder' along with the second element, and so on. It 
-    /// returns the final result.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Fold function</param>
-    /// <returns>Aggregate value</returns>
-    [Pure]
-    public S FoldBack<S>(S state, Func<S, A, S> folder) =>
-        Value.FoldBack(state, folder);
-
-    /// <summary>
     /// Impure iteration of the bound value in the structure
     /// </summary>
     /// <returns>

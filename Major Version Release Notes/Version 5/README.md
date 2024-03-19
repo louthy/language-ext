@@ -820,16 +820,16 @@ No need for them now we have proper higher-kind support.
 
 * Traverse / Sequence - generic system using Transducers
 * Make TraverseParallel for Eff
-* Find a way of resolving default implementations for classes now that we're using static interface methods (IL.cs).
+* ~~Find a way of resolving default implementations for classes now that we're using static interface methods (IL.cs).~~
 * Test that resources are freed correctly in ResourceT when the result of Run is lazy
 	* `bracket`
 * `EitherT`, `TryT` (derives `EitherT<M, Error, A>)`, `Try` (derives `TryT<Identity, A>`)
 * `yieldAll`, `many`, and `repeat` for Pipes needs tail recursion support
 	* `yieldAll`, `many` have been temporarily removed
 * `yieldAll` in Pipes has a temporary solution - need proper recursion strategy
-* Use alpha and beta versioning like like: `5.0.0-alpha.1`, `5.0.0-alpha.2`, etc. So we can release `5.0.0` when done
+* ~~Use alpha and beta versioning like like: `5.0.0-alpha.1`, `5.0.0-alpha.2`, etc. So we can release `5.0.0` when done~~
 * Make ForkIO.Await respect two cancellation tokens, the original and the one from the runner of Await 
-* Make Eff a ReaderM, ResourceM, etc. -- so we don't have to do so much manual lifting
+* ~~Make Eff a ReaderM, ResourceM, etc. -- so we don't have to do so much manual lifting~~
 * Overrides of Foldable for the sequence types (`Count()`, `Head()`, `Last()` etc.)
 * Make sure Index is used properly in collections this[] implementations (namely, from end!)
 * Make sure correct trait is used between MonoidK and Alternative -- the collections in particular should be MonoidK as the Combine usually concats the collections (rather than provides an Alternative).

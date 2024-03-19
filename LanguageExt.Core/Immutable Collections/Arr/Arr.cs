@@ -582,20 +582,6 @@ public struct Arr<A> :
         new (Value.Reverse().ToArray());
 
     /// <summary>
-    /// Fold
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public S Fold<S>(S state, Func<S, A, S> folder)
-    {
-        foreach (var item in Value)
-        {
-            state = folder(state, item);
-        }
-        return state;
-    }
-
-    /// <summary>
     /// Impure iteration of the bound values in the structure
     /// </summary>
     /// <returns>

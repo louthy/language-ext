@@ -453,14 +453,6 @@ public readonly struct Lst<A> :
         Wrap(Value.Reverse());
 
     /// <summary>
-    /// Fold
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public S Fold<S>(S state, Func<S, A, S> folder) =>
-        Value.Fold(state, folder);
-
-    /// <summary>
     /// Impure iteration of the bound values in the structure
     /// </summary>
     /// <returns>
