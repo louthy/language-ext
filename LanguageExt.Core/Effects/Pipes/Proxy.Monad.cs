@@ -13,7 +13,7 @@ public class Proxy<UOut, UIn, DIn, DOut, M> :
     static K<Proxy<UOut, UIn, DIn, DOut, M>, B> Monad<Proxy<UOut, UIn, DIn, DOut, M>>.Bind<A, B>(
         K<Proxy<UOut, UIn, DIn, DOut, M>, A> ma, 
         Func<A, K<Proxy<UOut, UIn, DIn, DOut, M>, B>> f) => 
-        ma.As().Bind(f);
+        ma.As().Bind(x => f(x).As());
 
     static K<Proxy<UOut, UIn, DIn, DOut, M>, B> Functor<Proxy<UOut, UIn, DIn, DOut, M>>.Map<A, B>(
         Func<A, B> f, K<Proxy<UOut, UIn, DIn, DOut, M>, A> ma) => 

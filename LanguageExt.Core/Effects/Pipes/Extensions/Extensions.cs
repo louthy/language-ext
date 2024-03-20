@@ -1,7 +1,9 @@
+using System;
 using LanguageExt.Pipes;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
+using Void = LanguageExt.Pipes.Void;
 
 namespace LanguageExt;
 
@@ -11,36 +13,66 @@ public static class Extensions
         this K<Proxy<UOut, UIn, DIn, DOut, M>, A> ma)
         where M : Monad<M> =>
         (Proxy<UOut, UIn, DIn, DOut, M, A>)ma;
-    
+
     public static Effect<M, A> As<M, A>(
         this K<Proxy<Void, Unit, Unit, Void, M>, A> ma)
         where M : Monad<M> =>
-        (Effect<M, A>)ma;
+        ma switch
+        {
+            Effect<M, A> e                        => e,
+            Proxy<Void, Unit, Unit, Void, M, A> p => new Effect<M, A>(p),
+            _                                     => throw new InvalidCastException($"Expected an Effect or Proxy<Void, Unit, Unit, Void, M, A>, but got: {ma.GetType()}")
+        };
     
     public static Producer<OUT, M, A> As<OUT, M, A>(
         this K<Proxy<Void, Unit, Unit, OUT, M>, A> ma)
         where M : Monad<M> =>
-        (Producer<OUT, M, A>)ma;
+        ma switch
+        {
+            Producer<OUT, M, A> p                => p,
+            Proxy<Void, Unit, Unit, OUT, M, A> p => new Producer<OUT, M, A>(p),
+            _                                    => throw new InvalidCastException($"Expected a Producer or Proxy<Void, Unit, Unit, OUT, M, A>, but got: {ma.GetType()}")
+        };
     
     public static Consumer<IN, M, A> As<IN, M, A>(
         this K<Proxy<Unit, IN, Unit, Void, M>, A> ma)
         where M : Monad<M> =>
-        (Consumer<IN, M, A>)ma;
+        ma switch
+        {
+            Consumer<IN, M, A> c                => c,
+            Proxy<Unit, IN, Unit, Void, M, A> p => new Consumer<IN, M, A>(p),
+            _                                   => throw new InvalidCastException($"Expected a Consumer or Proxy<Unit, IN, Unit, Void, M, A>, but got: {ma.GetType()}")
+        };
     
     public static Pipe<IN, OUT, M, A> As<IN, OUT, M, A>(
         this K<Proxy<Unit, IN, Unit, OUT, M>, A> ma)
         where M : Monad<M> =>
-        (Pipe<IN, OUT, M, A>)ma;
+        ma switch
+        {
+            Pipe<IN, OUT, M, A> p              => p,
+            Proxy<Unit, IN, Unit, OUT, M, A> p => new Pipe<IN, OUT, M, A>(p),
+            _                                  => throw new InvalidCastException($"Expected a Pipe or Proxy<Unit, IN, Unit, OUT, M, A>, but got: {ma.GetType()}")
+        };
     
     public static Client<REQ, RES, M, A> As<REQ, RES, M, A>(
         this K<Proxy<REQ, RES,  Unit, Void, M>, A> ma)
         where M : Monad<M> =>
-        (Client<REQ, RES, M, A>)ma;
+        ma switch
+        {
+            Client<REQ, RES, M, A> c            => c,
+            Proxy<REQ, RES, Unit, Void, M, A> p => new Client<REQ, RES, M, A>(p),
+            _                                   => throw new InvalidCastException($"Expected a Client or Proxy<REQ, RES, Unit, Void, M, A>, but got: {ma.GetType()}")
+        };
     
     public static Server<REQ, RES, M, A> As<REQ, RES, M, A>(
         this K<Proxy<Void, Unit, REQ, RES, M>, A> ma)
         where M : Monad<M> =>
-        (Server<REQ, RES, M, A>)ma;
+        ma switch
+        {
+            Server<REQ, RES, M, A> s            => s,
+            Proxy<Void, Unit, REQ, RES, M, A> p => new Server<REQ, RES, M, A>(p),
+            _                                   => throw new InvalidCastException($"Expected a Server Proxy<Void, Unit, REQ, RES, M, A>, but got: {ma.GetType()}")
+        };
     
     /// <summary>
     /// Converts a `Proxy` with the correct _shape_ into an `Effect`
