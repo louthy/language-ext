@@ -38,7 +38,7 @@ public class QueueExample<RT>
         // Repeatedly read from the console and write to one of the two queues depending on
         // whether the first char is 1 or 2
         return from f in fork(Producer.merge(queues) | writeLine).As()
-               from x in repeat(Console<Eff<RT>, RT>.readLines) | writeToQueue(queue1, queue2)
+               from x in repeat(Console<Eff<RT>, RT>.readLines) | repeat(writeToQueue(queue1, queue2))
                from _ in f.Cancel // cancels the forked task
                select unit;
     }
@@ -49,10 +49,11 @@ public class QueueExample<RT>
         Queue<string, Eff<RT>, Unit> queue1, 
         Queue<string, Eff<RT>, Unit> queue2) =>
         from x in awaiting<string>()
-        from _ in x switch
+        from u in guard(x.Length > 0, Error.New("exiting"))
+        from _ in x[0] switch
                   {
-                      "1" => queue1.EnqueueM(x.Substring(1)).As(),
-                      "2" => queue2.EnqueueM(x.Substring(1)).As(),
+                      '1' => queue1.EnqueueM(x.Substring(1)).As(),
+                      '2' => queue2.EnqueueM(x.Substring(1)).As(),
                       _   => Fail(Errors.Cancelled)
                   }
         select unit;

@@ -26,22 +26,22 @@ namespace LanguageExt.Pipes;
 public static class Effect
 {
     [Pure]
-    public static K<M, R> RunEffect<M, R>(this Proxy<Void, Unit, Unit, Void, M, R> ma) 
-        where M : Monad<M> 
+    public static K<M, R> RunEffect<M, R>(this Proxy<Void, Unit, Unit, Void, M, R> ma)
+        where M : Monad<M>
     {
         return Go(ma);
-            
+
         K<M, R> Go(Proxy<Void, Unit, Unit, Void, M, R> p) =>
             p.ToProxy() switch
             {
-                ProxyM<Void, Unit, Unit, Void, M, R> (var mx)     => M.Bind(mx, Go),
-                Pure<Void, Unit, Unit, Void, M, R> (var r)        => M.Pure(r),                                                                                
-                Request<Void, Unit, Unit, Void, M, R > (var v, _) => closed<K<M, R>>(v),
-                Respond<Void, Unit, Unit, Void, M, R> (var v, _)  => closed<K<M, R>>(v),
-                _                                                 => throw new NotSupportedException()
+                ProxyM<Void, Unit, Unit, Void, M, R> (var mx)    => M.Bind(mx, Go),
+                Pure<Void, Unit, Unit, Void, M, R> (var r)       => M.Pure(r),
+                Request<Void, Unit, Unit, Void, M, R> (var v, _) => closed<K<M, R>>(v),
+                Respond<Void, Unit, Unit, Void, M, R> (var v, _) => closed<K<M, R>>(v),
+                _                                                => throw new NotSupportedException()
             };
     }
-    
+
     [Pure]
     public static Proxy<UOut, UIn, DIn, DOut, N, R> Hoist<UOut, UIn, DIn, DOut, M, N, R>(
         this Proxy<UOut, UIn, DIn, DOut, M, R> ma,
