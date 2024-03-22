@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using LanguageExt.Common;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
@@ -980,6 +981,22 @@ public record Eff<A>(Eff<MinRT, A> effect) :
 
     static K<Eff<A>, U> Applicative<Eff<A>>.Action<T, U>(K<Eff<A>, T> ma, K<Eff<A>, U> mb) =>
         ma.As().Action(mb.As());
+
+    static K<Eff<A>, T> Applicative<Eff<A>>.Actions<T>(IEnumerable<K<Eff<A>, T>> fas) =>
+        from s in getState<A>()
+        from r in Eff<A, T>.Lift(
+            rt =>
+            {
+                Fin<T> rs = Errors.SequenceEmpty;
+                foreach (var kfa in fas)
+                {
+                    var fa = kfa.As();
+                    rs = fa.Run(rt, s.Resources, s.EnvIO);
+                    if (rs.IsFail) return rs;
+                }
+                return rs;
+            })
+        select r;
 
     static K<Eff<A>, T> MonoidK<Eff<A>>.Empty<T>() =>
         Eff<A, T>.Fail(Errors.None);

@@ -53,6 +53,28 @@ public static class PureProxy
     public static Consumer<IN, A> ConsumerLiftIO<IN, A>(IO<A> ma) =>
         new Consumer<IN, A>.LiftIO<A>(ma, ConsumerPure<IN, A>);
 
+
+    public static Pipe<IN, OUT, Unit> PipeFold<IN, F, OUT>(K<F, OUT> items)
+        where F : Foldable<F> =>
+        new Pipe<IN, OUT, Unit>.Fold<F, OUT>(
+            items, 
+            PipeYield<IN, OUT>, 
+            () => PipePure<IN, OUT, Unit>(Prelude.unit));
+
+    public static Producer<OUT, Unit> ProducerFold<F, OUT>(K<F, OUT> items)
+        where F : Foldable<F> =>
+        new Producer<OUT, Unit>.Fold<F, OUT>(
+            items, 
+            ProducerYield, 
+            () => ProducerPure<OUT, Unit>(Prelude.unit));
+
+    public static Consumer<IN, Unit> ConsumerFold<IN, F, A>(K<F, A> items)
+        where F : Foldable<F> =>
+        new Consumer<IN, Unit>.Fold<F, A>(
+            items, 
+            _ => ConsumerPure<IN, Unit>(Prelude.unit), 
+            () => ConsumerPure<IN, Unit>(Prelude.unit));
+
     
     public static Consumer<IN, IN> ConsumerAwait<IN>() =>
         new Consumer<IN, IN>.Await(ConsumerPure<IN, IN>);

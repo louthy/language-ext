@@ -838,3 +838,4 @@ No need for them now we have proper higher-kind support.
 * Write unit tests for index operator on lists and foldables [^1]
 * Add IComparisonOperators / IAdditionOperators / etc. to types
 * Make NewTypes support appropriate traits
+* Add Applicatice.Actions to every applicative that has an error state

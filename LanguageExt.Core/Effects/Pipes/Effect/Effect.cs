@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
+using System.Linq;
 using static LanguageExt.Pipes.Proxy;
 using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
@@ -36,14 +37,23 @@ public static class Effect
             {
                 ProxyM<Void, Unit, Unit, Void, M, R> (var mx)    => M.Bind(mx, Go),
                 Pure<Void, Unit, Unit, Void, M, R> (var r)       => M.Pure(r),
+                Iterator<Void, Unit, Unit, Void, M, R> iter      => runIterator(iter, Go),
                 Request<Void, Unit, Unit, Void, M, R> (var v, _) => closed<K<M, R>>(v),
                 Respond<Void, Unit, Unit, Void, M, R> (var v, _) => closed<K<M, R>>(v),
                 _                                                => throw new NotSupportedException()
             };
     }
 
+    internal static K<M, R> runIterator<M, R>(
+        Iterator<Void, Unit, Unit, Void, M, R> iter,
+        Func<Proxy<Void, Unit, Unit, Void, M, R>, K<M, R>> go)
+        where M : Monad<M> =>
+        from _ in iter.Run().Select(e => e.RunEffect()).Actions()
+        from r in go(iter.Next())
+        select r;
+    
     [Pure]
-    public static Proxy<UOut, UIn, DIn, DOut, N, R> Hoist<UOut, UIn, DIn, DOut, M, N, R>(
+    static Proxy<UOut, UIn, DIn, DOut, N, R> HoistX<UOut, UIn, DIn, DOut, M, N, R>(
         this Proxy<UOut, UIn, DIn, DOut, M, R> ma,
         Func<K<M, Proxy<UOut, UIn, DIn, DOut, N, R>>, K<N, Proxy<UOut, UIn, DIn, DOut, N, R>>> nat) 
         where M : Monad<M> 
@@ -58,11 +68,9 @@ public static class Effect
                 Pure<UOut, UIn, DIn, DOut, M, R> (var r)             => new Pure<UOut, UIn, DIn, DOut, N, R> (r),
                 Request<UOut, UIn, DIn, DOut, M, R> (var a1, var fa) => new Request<UOut, UIn, DIn, DOut, N, R>(a1, a =>Go(fa(a))),
                 Respond<UOut, UIn, DIn, DOut, M, R> (var b, var fb1) => new Respond<UOut, UIn, DIn, DOut, N, R> (b, b1 => Go(fb1(b1))),
-                _                                                      => throw new NotSupportedException()
+                _                                                    => throw new NotSupportedException()
             };
     }
-
-    
         
     [Pure, MethodImpl(mops)]
     public static Effect<M, R> lift<M, R>(K<M, R> ma) 

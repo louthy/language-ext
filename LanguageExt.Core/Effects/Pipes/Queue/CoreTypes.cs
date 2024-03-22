@@ -12,6 +12,9 @@ public record Queue<OUT, M, A> : Producer<OUT, M, A>
     /// </summary>
     readonly Channel<OUT> channel;
 
+    internal Queue(Proxy<Void, Unit, Unit, OUT, M, A> value, Channel<OUT> channel) : base(value) =>
+        this.channel = channel;
+
     /// <summary>
     /// Enqueue an item 
     /// </summary>
@@ -35,10 +38,7 @@ public record Queue<OUT, M, A> : Producer<OUT, M, A>
     /// </summary>
     public K<M, Unit> DoneM =>
         M.Pure(Done());
- 
-    internal Queue(Proxy<Void, Unit, Unit, OUT, M, A> value, Channel<OUT> channel) : base(value) =>
-        this.channel = channel;
-        
+       
     [Pure]
     public override Proxy<Void, Unit, Unit, OUT, M, A> ToProxy() =>
         Value.ToProxy();

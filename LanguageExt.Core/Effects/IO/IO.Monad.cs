@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using LanguageExt.Common;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -22,6 +25,20 @@ public partial class IO : Monad<IO>, Alternative<IO>
 
     static K<IO, B> Applicative<IO>.Action<A, B>(K<IO, A> ma, K<IO, B> mb) =>
         ma.As().Bind(_ => mb);
+    
+    static K<IO, A> Applicative<IO>.Actions<A>(IEnumerable<K<IO, A>> fas) =>
+        IO<A>.Lift(
+            envIO =>
+            {
+                A? rs = default;
+                foreach (var kfa in fas)
+                {
+                    var fa = kfa.As();
+                    rs = fa.Run(envIO);
+                }
+                if (rs is null) throw new ExceptionalException(Errors.SequenceEmptyText, Errors.SequenceEmptyCode);
+                return rs;
+            });    
 
     static K<IO, A> MonoidK<IO>.Empty<A>() =>
         IO<A>.Empty;

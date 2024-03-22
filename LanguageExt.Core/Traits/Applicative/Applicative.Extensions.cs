@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Numerics;
 using LanguageExt.Traits;
@@ -45,6 +46,11 @@ public static class ApplicativeExtensions
     public static K<F, B> Action<F, A, B>(this K<F, A> ma, K<F, B> mb)
         where F : Applicative<F> =>
         F.Action(ma, mb);
+    
+    [Pure]
+    public static K<F, A> Actions<F, A>(this IEnumerable<K<F, A>> ma)
+        where F : Applicative<F> =>
+        F.Actions(ma);
 
     [Pure]
     public static K<F, B> Lift<F, A, B>(this Func<A, B> f, K<F, A> fa)

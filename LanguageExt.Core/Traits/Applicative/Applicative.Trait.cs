@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Traits;
@@ -36,4 +38,17 @@ public interface Applicative<F> : Functor<F>
 
     public static virtual K<F, C> Apply<A, B, C>(K<F, Func<A, Func<B, C>>> mf, K<F, A> ma, K<F, B> mb) =>
         F.Apply(F.Apply(mf, ma), mb);
+
+    public static virtual K<F, A> Actions<A>(IEnumerable<K<F, A>> fas)
+    {
+        K<F, A>? ra = null;
+        foreach (var fa in fas)
+        {
+            ra = ra is null 
+                     ? fa
+                     : F.Action(ra, fa);
+        }
+        if(ra is null) throw new ExceptionalException(Errors.SequenceEmptyText, Errors.SequenceEmptyCode);
+        return ra;
+    }
 }

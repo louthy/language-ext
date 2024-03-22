@@ -51,26 +51,10 @@ public static class Proxy
     /// <param name="xs">Items to `yield`</param>
     /// <typeparam name="X">Type of the value to `yield`</typeparam>
     /// <returns>`Producer`</returns>
-    // TODO: TEMPORARY SOLUTION -- THIS IS STACK BLOWING -- DECIDE HOW WE WANT TO DEAL WITH RECURSION
     [Pure, MethodImpl(mops)]
-    public static Producer<X, Unit> yieldAll<X>(IEnumerable<X> xs) =>
-        from i in PureProxy.ProducerLiftIO<X, IEnumerator<X>>(IO<IEnumerator<X>>.Lift(_ => xs.GetEnumerator()))
-        from r in yieldAll(i)
-        let _ = Dispose(i)
-        select r;
-
-    static Unit Dispose(IDisposable d)
-    {
-        d.Dispose();
-        return default;
-    }
-
-    // TODO: TEMPORARY SOLUTION -- THIS IS STACK BLOWING -- DECIDE HOW WE WANT TO DEAL WITH RECURSION
-    static Producer<X, Unit> yieldAll<X>(IEnumerator<X> xs) =>
-        xs.MoveNext()
-            ? PureProxy.ProducerYield(xs.Current).Bind(_ => yieldAll(xs))
-            : PureProxy.ProducerPure<X, Unit>(unit);
-
+    public static Producer<X, Unit> yieldAll<F, X>(K<F, X> xs) where F : Foldable<F> =>
+        PureProxy.ProducerFold(xs);
+ 
     /// <summary>
     /// Create a `Producer` from an `IAsyncEnumerable`.  This will automatically `yield` each value of the
     /// `IEnumerable` down stream
@@ -80,9 +64,7 @@ public static class Proxy
     /// <returns>`Producer`</returns>
     [Pure, MethodImpl(mops)]
     public static Producer<X, Unit> yieldAll<X>(IAsyncEnumerable<X> xs) =>
-        // TODO: TEMPORARY SOLUTION -- THIS IS STACK BLOWING AND BLOCKS
-        // TODO: DECIDE HOW WE WANT TO DEAL WITH RECURSION
-        yieldAll(xs.ToBlockingEnumerable());
+        yieldAll(xs.ToBlockingEnumerable().AsEnumerableM());
 
     /// <summary>
     /// Create a `Producer` from an `IObservable`.  This will automatically `yield` each value of the
@@ -93,8 +75,6 @@ public static class Proxy
     /// <returns>`Producer`</returns>
     [Pure, MethodImpl(mops)]
     public static Producer<X, Unit> yieldAll<X>(IObservable<X> xs) =>
-        // TODO: TEMPORARY SOLUTION -- THIS IS STACK BLOWING AND IGNORES CANCELLATION
-        // TODO: DECIDE HOW WE WANT TO DEAL WITH RECURSION
         yieldAll(xs.ToAsyncEnumerable(new CancellationToken()));
 
     // TODO: IMPLEMENT TAIL CALLS
@@ -119,11 +99,13 @@ public static class Proxy
     /// Repeat the `Producer` indefinitely
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Producer<OUT, M, Unit> repeat<OUT, M, R>(Producer<OUT, M, R> ma) 
+    public static Producer<OUT, M, Unit> repeat<OUT, M, R>(Producer<OUT, M, R> ma)
         where M : Monad<M> =>
-        from r in ma
-        from _ in tail(repeat<OUT, M, R>(ma))
-        select unit;
+        new IteratorFoldable<Void, Unit, Unit, OUT, EnumerableM, Unit, M, Unit>(
+            Naturals.AsEnumerableM().Map(_ => unit),
+            _ => ma.ToProxy().Map(_ => unit),
+            () => Producer.Pure<OUT, M, Unit>(unit))
+           .ToProducer();
 
     /// <summary>
     /// Repeat the `Consumer` indefinitely
@@ -131,9 +113,11 @@ public static class Proxy
     [Pure, MethodImpl(mops)]
     public static Consumer<IN, M, Unit> repeat<IN, M, R>(Consumer<IN, M, R> ma) 
         where M : Monad<M> =>
-        from r in ma
-        from _ in tail(repeat<IN, M, R>(ma))
-        select unit;
+        new IteratorFoldable<Unit, IN, Unit, Void, EnumerableM, Unit, M, Unit>(
+                Naturals.AsEnumerableM().Map(_ => unit),
+                _ => ma.ToProxy().Map(_ => unit),
+                () => Consumer.Pure<IN, M, Unit>(unit))
+           .ToConsumer();
 
     /// <summary>
     /// Repeat the `Pipe` indefinitely
@@ -141,9 +125,11 @@ public static class Proxy
     [Pure, MethodImpl(mops)]
     public static Pipe<IN, OUT, M, Unit> repeat<IN, OUT, M, R>(Pipe<IN, OUT, M, R> ma) 
         where M : Monad<M> =>
-        from r in ma
-        from _ in tail(repeat<IN, OUT,M, R>(ma))
-        select unit;
+        new IteratorFoldable<Unit, IN, Unit, OUT, EnumerableM, Unit, M, Unit>(
+                Naturals.AsEnumerableM().Map(_ => unit),
+                _ => ma.ToProxy().Map(_ => unit),
+                () => Pipe.Pure<IN, OUT, M, Unit>(unit))
+           .ToPipe();
 
     /// <summary>
     /// Lift a monad into the `Proxy` monad transformer

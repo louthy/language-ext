@@ -160,4 +160,29 @@ public abstract class Producer<OUT, A>
         public override Pipe<IN, OUT, A> ToPipe<IN>() =>
             new Pipe<IN, OUT, A>.Yield(Value, x => Next(x).ToPipe<IN>());
     }
+    
+    public class Fold<F, X>(K<F, X> Items, Func<X, Producer<OUT, Unit>> YieldValue, Func<Producer<OUT, A>> Next) : Producer<OUT, A>
+        where F : Foldable<F>
+    {
+        public override Producer<OUT, B> Select<B>(Func<A, B> f) => 
+            new Producer<OUT, B>.Fold<F, X>(Items, YieldValue, () => Next().Select(f));
+
+        public override Producer<OUT, B> Bind<B>(Func<A, Producer<OUT, B>> f) => 
+            new Producer<OUT, B>.Fold<F, X>(Items, YieldValue, () => Next().Bind(f));
+
+        public override Producer<OUT, M, B> Bind<M, B>(Func<A, Producer<OUT, M, B>> f) =>
+            new(new IteratorFoldable<Void, Unit, Unit, OUT, F, X, M, B>(
+                    Items,
+                    x => YieldValue(x).Interpret<M>(),
+                    () => Next().Bind(f)));
+
+        public override Producer<OUT, M, A> Interpret<M>() =>
+            new(new IteratorFoldable<Void, Unit, Unit, OUT, F, X, M, A>(
+                    Items,
+                    x => YieldValue(x).Interpret<M>(),
+                    () => Next().Interpret<M>()));
+
+        public override Pipe<IN, OUT, A> ToPipe<IN>() => 
+            new Pipe<IN, OUT, A>.Fold<F, X>(Items, x => YieldValue(x).ToPipe<IN>(), () => Next().ToPipe<IN>());
+    }
 }

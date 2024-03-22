@@ -109,14 +109,12 @@ public static partial class EffExtensions
         this K<Eff<RT>, Func<A, B, C, D, E>> mf,
         K<Eff<RT>, A> ma) =>
         mf.Map(curry).Apply(ma);
-        
+
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static Eff<RT, B> Action<RT, A, B>(
         this K<Eff<RT>, A> ma,
         K<Eff<RT>, B> mb) =>
-        from a in ma.As().Fork()
-        from b in mb
-        select b;
+        ma.Bind(_ => mb).As();
 }    

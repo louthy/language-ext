@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
@@ -46,14 +47,20 @@ public class Proxy<UOut, UIn, DIn, DOut, M> :
                 run =>
                     inner(ma => run(Go(ma.As())))));
 
-        K<M, A> Go(Proxy<UOut, UIn, DIn, DOut, M, A> p) =>
+        K<M, R> Go<R>(Proxy<UOut, UIn, DIn, DOut, M, R> p) =>
             p.ToProxy() switch
             {
-                ProxyM<UOut, UIn, DIn, DOut, M, A> (var mx) => mx.Bind(Go),
-                Pure<UOut, UIn, DIn, DOut, M, A> (var r)    => M.Pure(r),
-                Request<UOut, UIn, DIn, DOut, M, A>         => throw new InvalidOperationException("WithRunInIO only supported for closed Effects"),
-                Respond<UOut, UIn, DIn, DOut, M, A>         => throw new InvalidOperationException("WithRunInIO only supported for closed Effects"),
+                ProxyM<UOut, UIn, DIn, DOut, M, R> (var mx) => mx.Bind(Go),
+                Pure<UOut, UIn, DIn, DOut, M, R> (var r)    => M.Pure(r),
+                Iterator<UOut, UIn, DIn, DOut, M, R> iter   => runIterator(iter),
+                Request<UOut, UIn, DIn, DOut, M, R>         => throw new InvalidOperationException("WithRunInIO only supported for closed Effects"),
+                Respond<UOut, UIn, DIn, DOut, M, R>         => throw new InvalidOperationException("WithRunInIO only supported for closed Effects"),
                 _                                           => throw new NotSupportedException()
             };
+        
+        K<M, R> runIterator<R>(Iterator<UOut, UIn, DIn, DOut, M, R> iter) =>
+            from _ in iter.Run().Select(Go).Actions()
+            from r in Go(iter.Next())
+            select r;
     }
 }

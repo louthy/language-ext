@@ -47,40 +47,23 @@ public static class Producer
         where M : Monad<M> =>
         respond<Void, Unit, Unit, OUT, M>(value).ToProducer();
 
-    // TODO: TEMPORARY SOLUTION -- THIS IS STACK BLOWING -- DECIDE HOW WE WANT TO DEAL WITH RECURSION
     [Pure, MethodImpl(mops)]
     public static Producer<X, M, Unit> yieldAll<M, X>(IEnumerable<X> xs)
         where M : Monad<M> =>
-        from i in PureProxy.ProducerLiftIO<X, IEnumerator<X>>(IO<IEnumerator<X>>.Lift(_ => xs.GetEnumerator()))
-        from r in yieldAll<M, X>(i)
-        let _ = Dispose(i)
-        select r;
-    
-    static Unit Dispose(IDisposable d)
-    {
-        d.Dispose();
-        return default;
-    }
-
-    // TODO: TEMPORARY SOLUTION -- THIS IS STACK BLOWING -- DECIDE HOW WE WANT TO DEAL WITH RECURSION
-    static Producer<X, M, Unit> yieldAll<M, X>(IEnumerator<X> xs)
-        where M : Monad<M> =>
-        xs.MoveNext()
-            ? yield<X, M>(xs.Current).Bind(_ => yieldAll<M, X>(xs))
-            : PureProxy.ProducerPure<X, Unit>(unit);
+        new IteratorFoldable<Void, Unit, Unit, X, EnumerableM, X, M, Unit>(
+            xs.AsEnumerableM(),
+            yield<X, M>,
+            () => Pure<X, M, Unit>(unit))
+           .ToProducer();
     
     [Pure, MethodImpl(mops)]
     public static Producer<X, M, Unit> yieldAll<M, X>(IAsyncEnumerable<X> xs)
         where M : Monad<M> =>
-        // TODO: TEMPORARY SOLUTION -- THIS IS STACK BLOWING AND BLOCKS
-        // TODO: DECIDE HOW WE WANT TO DEAL WITH RECURSION
         yieldAll<M, X>(xs.ToBlockingEnumerable());
 
     [Pure, MethodImpl(mops)]
     public static Producer<X, M, Unit> yieldAll<M, X>(IObservable<X> xs)
         where M : Monad<M> =>
-        // TODO: TEMPORARY SOLUTION -- THIS IS STACK BLOWING AND IGNORES CANCELLATION
-        // TODO: DECIDE HOW WE WANT TO DEAL WITH RECURSION
         yieldAll<M, X>(xs.ToAsyncEnumerable(new CancellationToken()));
 
     /// <summary>
