@@ -610,14 +610,11 @@ public abstract record Validation<F, A> :
     public static Validation<F, A> operator |(Validation<F, A> lhs, Validation<F, A> rhs) =>
         (lhs, rhs) switch
         {
-            ({ IsSuccess: true } , { IsSuccess: true }) => 
+            ({ IsSuccess: true } , _) => 
                 lhs,
             
             ({ IsFail: true } , {IsFail: true}) => 
                 lhs.FailValue.Combine(rhs.FailValue),
-            
-            ({ IsFail: true } , _) => 
-                lhs,
             
             _ => 
                 rhs

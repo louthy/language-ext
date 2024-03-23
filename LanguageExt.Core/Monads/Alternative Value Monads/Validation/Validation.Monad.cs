@@ -96,14 +96,11 @@ public partial class Validation<FAIL> :
         K<Validation<FAIL>, A> mb) =>
         (ma, mb) switch
         {
-            (Validation.Success<FAIL, A> , Validation.Success<FAIL, A>) => 
+            (Validation.Success<FAIL, A> , _) => 
                 ma,
             
             (Validation.Fail<FAIL, A> (var e1), Validation.Fail<FAIL, A> (var e2)) => 
                 Validation<FAIL, A>.Fail(e1.Combine(e2)),
-            
-            (Validation.Fail<FAIL, A> , _) => 
-                ma,
             
             _ => mb
         };
