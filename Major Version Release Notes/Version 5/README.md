@@ -839,3 +839,4 @@ No need for them now we have proper higher-kind support.
 * Add IComparisonOperators / IAdditionOperators / etc. to types
 * Make NewTypes support appropriate traits
 * Add Applicatice.Actions to every applicative that has an error state
+* Exception catching in Producer.merge

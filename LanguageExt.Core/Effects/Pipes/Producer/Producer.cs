@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
@@ -223,7 +224,7 @@ public static class Producer
     /// <remarks>The merged producer completes when all component producers have completed</remarks>
     /// <param name="ms">Sequence of producers to merge</param>
     /// <returns>Merged producers</returns>
-    public static Producer<OUT, M, Unit> merge<OUT, M>(Seq<Producer<OUT, M, Unit>> ms)
+    public static Producer<OUT, M, Unit> merge_OLD<OUT, M>(Seq<Producer<OUT, M, Unit>> ms)
         where M : Monad<M> =>
         ms switch
         {
@@ -234,7 +235,70 @@ public static class Producer
                 from xs in merge<OUT, M>(t)
                 select x
         };
+
+    public static Producer<OUT, M, Unit> merge<OUT, M>(Seq<Producer<OUT, M, Unit>> ms)
+        where M : Monad<M>
+    {
+        if (ms.Count == 0) return Pure<OUT, M, Unit>(unit);
+        var complete = new CountdownEvent(ms.Count);
+        var wait     = new AutoResetEvent(false);
+        var queue    = new ConcurrentQueue<OUT>();
+        var effects  = ms.Map(runEffect).Actions();
+
+        return from t in liftIO<OUT, M, CancellationToken>(cancelToken)
+               from _ in effects
+               from r in yieldAll<M, OUT>(dequeue(t))
+               select unit;
+
+        async IAsyncEnumerable<OUT> dequeue([EnumeratorCancellation] CancellationToken token)
+        {
+            try
+            {
+                while (true)
+                {
+                    await wait.WaitOneAsync(50, token).ConfigureAwait(false);
+                    if (complete.IsSet) yield break;
+                    if (token.IsCancellationRequested) yield break;
+                    while (queue.TryDequeue(out var item))
+                    {
+                        yield return item;
+                    }
+                }
+            }
+            finally
+            {
+                wait.Dispose();
+                complete.Dispose();
+            }
+        }
         
+        Unit enqueue(OUT value)
+        {
+            queue.Enqueue(value);
+            wait.Set();
+            return unit;
+        }
+        
+        Consumer<OUT, M, Unit> receive() =>
+            from x in Consumer.awaiting<M, OUT>()
+            let _ = enqueue(x)
+            select unit;
+
+        Unit countDown()
+        {
+            complete.Signal();
+            return unit;
+        }
+
+        K<M, ForkIO<Unit>> runEffect(Producer<OUT, M, Unit> p) =>
+            (from _1 in p | receive()
+             let _2 = countDown()
+             select unit)
+            .ToEffect()
+            .RunEffect()
+            .Fork();    
+    }
+    
     /// <summary>
     /// Merge an array of queues into a single producer
     /// </summary>
