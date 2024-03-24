@@ -74,9 +74,10 @@ public static partial class Alternative
     
     /// <summary>
     /// Conditional failure of `Alternative` computations. Defined by
-    //
-    //      guard(true)  = Applicative.pure
-    //      guard(false) = Alternative.empty
+    ///
+    ///     guard(true)  = Applicative.pure
+    ///     guard(false) = Alternative.empty
+    ///
     /// </summary>
     /// <param name="flag"></param>
     /// <typeparam name="F"></typeparam>

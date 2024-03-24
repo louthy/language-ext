@@ -848,7 +848,6 @@ public abstract record Either<L, R> :
     /// Map each element of a structure to an action, evaluate these actions from
     /// left to right, and collect the results.
     /// </summary>
-    /// </remarks>
     /// <param name="f"></param>
     /// <param name="ta">Traversable structure</param>
     /// <typeparam name="F">Applicative functor trait</typeparam>

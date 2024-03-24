@@ -16,7 +16,7 @@ public interface Foldable<out T> where T : Foldable<T>
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
-    /// </remarks>
+    /// </summary>
     public static abstract S FoldWhile<A, S>(
         Func<A, Func<S, S>> f, 
         Func<(S State, A Value), bool> predicate, 
@@ -26,7 +26,7 @@ public interface Foldable<out T> where T : Foldable<T>
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
-    /// </remarks>
+    /// </summary>
     public static abstract S FoldBackWhile<A, S>(
         Func<S, Func<A, S>> f, 
         Func<(S State, A Value), bool> predicate, 
@@ -42,7 +42,7 @@ public interface Foldable<out T> where T : Foldable<T>
     /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static virtual K<M, S> FoldWhileM<A, M, S>(
         Func<A, Func<S, K<M, S>>> f, 
         Func<A, bool> predicate, 
@@ -60,7 +60,7 @@ public interface Foldable<out T> where T : Foldable<T>
     /// Same behaviour as `FoldBack` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static virtual K<M, S> FoldBackWhileM<A, M, S>(
         Func<S, Func<A, K<M, S>>> f, 
         Func<A, bool> predicate, 
@@ -77,7 +77,7 @@ public interface Foldable<out T> where T : Foldable<T>
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair
-    /// </remarks>
+    /// </summary>
     public static virtual S FoldUntil<A, S>(
         Func<A, Func<S, S>> f,
         Func<(S State, A Value), bool> predicate,
@@ -106,7 +106,7 @@ public interface Foldable<out T> where T : Foldable<T>
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair
-    /// </remarks>
+    /// </summary>
     public static virtual S FoldBackUntil<A, S>(
         Func<S, Func<A, S>> f, 
         Func<(S State, A Value), bool> predicate, 
@@ -118,7 +118,7 @@ public interface Foldable<out T> where T : Foldable<T>
     /// Same behaviour as `FoldBack` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static virtual K<M, S> FoldBackUntilM<A, M, S>(
         Func<S, Func<A, K<M, S>>> f, 
         Func<A, bool> predicate, 

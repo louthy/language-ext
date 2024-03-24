@@ -10,7 +10,7 @@ public static partial class FoldableExtensions
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
-    /// </remarks>
+    /// </summary>
     public static S FoldWhile<T, A, S>(
         this K<T, A> ta,
         S initialState,
@@ -22,7 +22,7 @@ public static partial class FoldableExtensions
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
-    /// </remarks>
+    /// </summary>
     public static S FoldWhile<T, A, S>(
         this K<T, A> ta,
         S initialState,
@@ -34,7 +34,7 @@ public static partial class FoldableExtensions
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
-    /// </remarks>
+    /// </summary>
     public static S FoldBackWhile<T, A, S>(
         this K<T, A> ta,
         S initialState,
@@ -46,7 +46,7 @@ public static partial class FoldableExtensions
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
-    /// </remarks>
+    /// </summary>
     public static S FoldBackWhile<T, A, S>(
         this K<T, A> ta,
         S initialState,
@@ -59,7 +59,7 @@ public static partial class FoldableExtensions
     /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static K<M, S> FoldWhileM<T, A, M, S>(
         this K<T, A> ta,
         S initialState,
@@ -73,7 +73,7 @@ public static partial class FoldableExtensions
     /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static K<M, S> FoldWhileM<T, A, M, S>(
         this K<T, A> ta,
         S initialState,
@@ -87,7 +87,7 @@ public static partial class FoldableExtensions
     /// Same behaviour as `FoldBack` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static K<M, S> FoldBackWhileM<T, A, M, S>(
         this K<T, A> ta,
         S initialState,
@@ -101,7 +101,7 @@ public static partial class FoldableExtensions
     /// Same behaviour as `FoldBack` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static K<M, S> FoldBackWhileM<T, A, M, S>(
         this K<T, A> ta,
         S initialState,
@@ -114,7 +114,7 @@ public static partial class FoldableExtensions
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair
-    /// </remarks>
+    /// </summary>
     public static S FoldUntil<T, A, S>(
         this K<T, A> ta,
         S initialState,
@@ -126,7 +126,7 @@ public static partial class FoldableExtensions
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair
-    /// </remarks>
+    /// </summary>
     public static S FoldUntil<T, A, S>(
         this K<T, A> ta,
         S initialState,
@@ -139,7 +139,7 @@ public static partial class FoldableExtensions
     /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static K<M, S> FoldUntilM<T, A, M, S>(
         this K<T, A> ta,
         S initialState,
@@ -153,7 +153,7 @@ public static partial class FoldableExtensions
     /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static K<M, S> FoldUntilM<T, A, M, S>(
         this K<T, A> ta,
         S initialState,
@@ -166,7 +166,7 @@ public static partial class FoldableExtensions
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair
-    /// </remarks>
+    /// </summary>
     public static S FoldBackUntil<T, A, S>(
         this K<T, A> ta,
         S initialState,
@@ -178,7 +178,7 @@ public static partial class FoldableExtensions
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair
-    /// </remarks>
+    /// </summary>
     public static S FoldBackUntil<T, A, S>(
         this K<T, A> ta,
         S initialState,
@@ -191,7 +191,7 @@ public static partial class FoldableExtensions
     /// Same behaviour as `FoldBack` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static K<M, S> FoldBackUntilM<T, A, M, S>(
         this K<T, A> ta,
         S initialState,
@@ -205,7 +205,7 @@ public static partial class FoldableExtensions
     /// Same behaviour as `FoldBack` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static K<M, S> FoldBackUntilM<T, A, M, S>(
         this K<T, A> ta,
         S initialState,

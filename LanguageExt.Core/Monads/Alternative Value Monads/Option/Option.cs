@@ -423,7 +423,6 @@ public readonly struct Option<A> :
     /// Map each element of a structure to an action, evaluate these actions from
     /// left to right, and collect the results.
     /// </summary>
-    /// </remarks>
     /// <param name="f"></param>
     /// <param name="ta">Traversable structure</param>
     /// <typeparam name="F">Applicative functor trait</typeparam>
@@ -839,7 +838,6 @@ public readonly struct Option<A> :
     /// operator, a starting value(typically the left-identity of the operator),
     /// and a list, reduces the list using the binary operator, from left to
     /// right:
-    /// </para>
     /// </para>
     /// <para>
     /// Note that, since the head of the resulting expression is produced by

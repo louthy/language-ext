@@ -9,7 +9,7 @@ public static class Foldable
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
-    /// </remarks>
+    /// </summary>
     public static S foldWhile<T, A, S>(
         Func<A, Func<S, S>> f, 
         Func<(S State, A Value), bool> predicate, 
@@ -21,7 +21,7 @@ public static class Foldable
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
-    /// </remarks>
+    /// </summary>
     public static S foldWhile<T, A, S>(
         Func<S, A, S> f, 
         Func<(S State, A Value), bool> predicate, 
@@ -33,7 +33,7 @@ public static class Foldable
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
-    /// </remarks>
+    /// </summary>
     public static S foldBackWhile<T, A, S>(
         Func<S, Func<A, S>> f, 
         Func<(S State, A Value), bool> predicate, 
@@ -45,7 +45,7 @@ public static class Foldable
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
-    /// </remarks>
+    /// </summary>
     public static S foldBackWhile<T, A, S>(
         Func<S, A, S> f, 
         Func<(S State, A Value), bool> predicate, 
@@ -58,7 +58,7 @@ public static class Foldable
     /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static K<M, S> foldWhileM<T, A, M, S>(
         Func<A, Func<S, K<M, S>>> f, 
         Func<A, bool> predicate, 
@@ -72,7 +72,7 @@ public static class Foldable
     /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static K<M, S> foldWhileM<T, A, M, S>(
         Func<S, A, K<M, S>> f, 
         Func<A, bool> predicate, 
@@ -86,7 +86,7 @@ public static class Foldable
     /// Same behaviour as `FoldBack` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static K<M, S> foldBackWhileM<T, A, M, S>(
         Func<S, Func<A, K<M, S>>> f, 
         Func<A, bool> predicate, 
@@ -100,7 +100,7 @@ public static class Foldable
     /// Same behaviour as `FoldBack` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static K<M, S> foldBackWhileM<T, A, M, S>(
         Func<S, A, K<M, S>> f, 
         Func<A, bool> predicate, 
@@ -113,7 +113,7 @@ public static class Foldable
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair
-    /// </remarks>
+    /// </summary>
     public static S foldUntil<T, A, S>(
         Func<A, Func<S, S>> f,
         Func<(S State, A Value), bool> predicate,
@@ -125,7 +125,7 @@ public static class Foldable
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair
-    /// </remarks>
+    /// </summary>
     public static S foldUntil<T, A, S>(
         Func<S, A, S> f,
         Func<(S State, A Value), bool> predicate,
@@ -138,7 +138,7 @@ public static class Foldable
     /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static K<M, S> foldUntilM<T, A, M, S>(
         Func<A, Func<S, K<M, S>>> f, 
         Func<A, bool> predicate, 
@@ -152,7 +152,7 @@ public static class Foldable
     /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static K<M, S> foldUntilM<T, A, M, S>(
         Func<S, A, K<M, S>> f, 
         Func<A, bool> predicate, 
@@ -165,7 +165,7 @@ public static class Foldable
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair
-    /// </remarks>
+    /// </summary>
     public static S foldBackUntil<T, A, S>(
         Func<S, Func<A, S>> f, 
         Func<(S State, A Value), bool> predicate, 
@@ -177,7 +177,7 @@ public static class Foldable
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair
-    /// </remarks>
+    /// </summary>
     public static S foldBackUntil<T, A, S>(
         Func<S, A, S> f, 
         Func<(S State, A Value), bool> predicate, 
@@ -190,7 +190,7 @@ public static class Foldable
     /// Same behaviour as `FoldBack` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static K<M, S> foldBackUntilM<T, A, M, S>(
         Func<S, Func<A, K<M, S>>> f, 
         Func<A, bool> predicate, 
@@ -204,7 +204,7 @@ public static class Foldable
     /// Same behaviour as `FoldBack` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static K<M, S> foldBackUntilM<T, A, M, S>(
         Func<S, A, K<M, S>> f, 
         Func<A, bool> predicate, 

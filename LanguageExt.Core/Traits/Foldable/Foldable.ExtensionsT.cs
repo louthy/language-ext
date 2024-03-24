@@ -12,7 +12,7 @@ public static partial class FoldableExtensions
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
-    /// </remarks>
+    /// </summary>
     public static S FoldWhileT<T, U, A, S>(
         this K<T, K<U, A>> tua,
         S initialState,
@@ -25,7 +25,7 @@ public static partial class FoldableExtensions
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
-    /// </remarks>
+    /// </summary>
     public static S FoldWhileT<T, U, A, S>(
         this K<T, K<U, A>> tua,
         S initialState,
@@ -38,7 +38,7 @@ public static partial class FoldableExtensions
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
-    /// </remarks>
+    /// </summary>
     public static S FoldBackWhileT<T, U, A, S>(
         this K<T, K<U, A>> tua,
         S initialState,
@@ -51,7 +51,7 @@ public static partial class FoldableExtensions
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
-    /// </remarks>
+    /// </summary>
     public static S FoldBackWhileT<T, U, A, S>(
         this K<T, K<U, A>> tua,
         S initialState,
@@ -64,7 +64,7 @@ public static partial class FoldableExtensions
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair
-    /// </remarks>
+    /// </summary>
     public static S FoldUntilT<T, U, A, S>(
         this K<T, K<U, A>> tua,
         S initialState,
@@ -77,7 +77,7 @@ public static partial class FoldableExtensions
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair
-    /// </remarks>
+    /// </summary>
     public static S FoldUntilT<T, U, A, S>(
         this K<T, K<U, A>> tua,
         S initialState,
@@ -90,7 +90,7 @@ public static partial class FoldableExtensions
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair
-    /// </remarks>
+    /// </summary>
     public static S FoldBackUntilT<T, U, A, S>(
         this K<T, K<U, A>> tua,
         S initialState,
@@ -103,7 +103,7 @@ public static partial class FoldableExtensions
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair
-    /// </remarks>
+    /// </summary>
     public static S FoldBackUntilT<T, U, A, S>(
         this K<T, K<U, A>> tua,
         S initialState,
