@@ -18,7 +18,17 @@ public static class ApplicativeExtensions
         F.Apply(mf, ma);
 
     [Pure]
+    public static K<F, B> ApplyM<F, A, B>(this K<F, Func<A, K<F, B>>> mf, K<F, A> ma)
+        where F : Monad<F> =>
+        F.Apply(mf, ma).Flatten();
+
+    [Pure]
     public static K<F, Func<B, C>> Apply<F, A, B, C>(this K<F, Func<A, B, C>> mf, K<F, A> ma)
+        where F : Applicative<F> =>
+        F.Apply(F.Map(curry, mf), ma);
+
+    [Pure]
+    public static K<F, Func<B, K<F, C>>> ApplyM<F, A, B, C>(this K<F, Func<A, B, K<F, C>>> mf, K<F, A> ma)
         where F : Applicative<F> =>
         F.Apply(F.Map(curry, mf), ma);
 
@@ -28,9 +38,19 @@ public static class ApplicativeExtensions
         F.Apply(F.Apply(F.Map(curry, mf), ma), mb);
 
     [Pure]
+    public static K<F, C> ApplyM<F, A, B, C>(this K<F, Func<A, B, K<F, C>>> mf, K<F, A> ma, K<F, B> mb)
+        where F : Monad<F> =>
+        F.Apply(F.Apply(F.Map(curry, mf), ma), mb).Flatten();
+
+    [Pure]
     public static K<F, D> Apply<F, A, B, C, D>(this K<F, Func<A, B, C, D>> mf, K<F, A> ma, K<F, B> mb, K<F, C> mc)
         where F : Applicative<F> =>
         F.Apply(F.Apply(F.Map(curry, mf), ma, mb), mc);
+
+    [Pure]
+    public static K<F, D> ApplyM<F, A, B, C, D>(this K<F, Func<A, B, C, K<F, D>>> mf, K<F, A> ma, K<F, B> mb, K<F, C> mc)
+        where F : Monad<F> =>
+        F.Apply(F.Apply(F.Map(curry, mf), ma, mb), mc).Flatten();
 
     [Pure]
     public static K<F, Func<C, D>> Apply<F, A, B, C, D>(this K<F, Func<A, B, C, D>> mf, K<F, A> ma, K<F, B> mb)
@@ -38,7 +58,17 @@ public static class ApplicativeExtensions
         F.Apply(F.Map(curry, mf), ma, mb);
 
     [Pure]
+    public static K<F, Func<C, K<F, D>>> ApplyM<F, A, B, C, D>(this K<F, Func<A, B, C, K<F, D>>> mf, K<F, A> ma, K<F, B> mb)
+        where F : Applicative<F> =>
+        F.Apply(F.Map(curry, mf), ma, mb);
+
+    [Pure]
     public static K<F, Func<B,Func<C, D>>> Apply<F, A, B, C, D>(this K<F, Func<A, B, C, D>> mf, K<F, A> ma)
+        where F : Applicative<F> =>
+        F.Apply(F.Map(curry, mf), ma);
+
+    [Pure]
+    public static K<F, Func<B,Func<C, K<F, D>>>> ApplyM<F, A, B, C, D>(this K<F, Func<A, B, C, K<F, D>>> mf, K<F, A> ma)
         where F : Applicative<F> =>
         F.Apply(F.Map(curry, mf), ma);
     

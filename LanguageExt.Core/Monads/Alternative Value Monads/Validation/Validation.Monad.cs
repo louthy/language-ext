@@ -36,36 +36,36 @@ public partial class Validation<FAIL> :
     static K<Validation<FAIL>, A> Applicative<Validation<FAIL>>.Pure<A>(A value) => 
         Validation<FAIL, A>.Success(value);
 
-    static K<Validation<FAIL>, B> Applicative<Validation<FAIL>>.Apply<A, B>(
-        K<Validation<FAIL>, Func<A, B>> mf,
-        K<Validation<FAIL>, A> ma) =>
-        mf switch
-        {
-            Validation.Success<FAIL, Func<A, B>> (var f) =>
-                ma switch
-                {
-                    Validation.Success<FAIL, A> (var a) =>
-                        Validation<FAIL, B>.Success(f(a)),
+static K<Validation<FAIL>, B> Applicative<Validation<FAIL>>.Apply<A, B>(
+    K<Validation<FAIL>, Func<A, B>> mf,
+    K<Validation<FAIL>, A> ma) =>
+    mf switch
+    {
+        Validation.Success<FAIL, Func<A, B>> (var f) =>
+            ma switch
+            {
+                Validation.Success<FAIL, A> (var a) =>
+                    Validation<FAIL, B>.Success(f(a)),
 
-                    Validation.Fail<FAIL, A> (var e) =>
-                        Validation<FAIL, B>.Fail(e),
+                Validation.Fail<FAIL, A> (var e) =>
+                    Validation<FAIL, B>.Fail(e),
 
-                    _ =>
-                        Validation<FAIL, B>.Fail(FAIL.Empty)
-                },
+                _ =>
+                    Validation<FAIL, B>.Fail(FAIL.Empty)
+            },
 
-            Validation.Fail<FAIL, Func<A, B>> (var e1) =>
-                ma switch
-                {
-                    Validation.Fail<FAIL, A> (var e2) =>
-                        Validation<FAIL, B>.Fail(e1 + e2),
+        Validation.Fail<FAIL, Func<A, B>> (var e1) =>
+            ma switch
+            {
+                Validation.Fail<FAIL, A> (var e2) =>
+                    Validation<FAIL, B>.Fail(e1 + e2),
 
-                    _ =>
-                        Validation<FAIL, B>.Fail(e1)
+                _ =>
+                    Validation<FAIL, B>.Fail(e1)
 
-                },
-            _ => Validation<FAIL, B>.Fail(FAIL.Empty)
-        };
+            },
+        _ => Validation<FAIL, B>.Fail(FAIL.Empty)
+    };
     
     static K<Validation<FAIL>, B> Applicative<Validation<FAIL>>.Action<A, B>(
         K<Validation<FAIL>, A> ma, 
