@@ -589,9 +589,9 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
 
                 return new ForkIO<A>(
                         IO<Unit>.Lift(() => { tsrc.Cancel(); return default; }),
-                        LiftAsync(async _ => await task.ConfigureAwait(false)));
+                        Lift(e => AwaitTask(task, e, token)));
             });
-
+    
     /// <summary>
     /// Run the `IO` monad to get its result
     /// </summary>
@@ -839,6 +839,32 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                        : throw new BottomException();
         }
 
+        return t.Result;
+    }
+    
+    A AwaitTask(Task<A> t, EnvIO envIO, CancellationToken token)
+    {
+        if (envIO.Token.IsCancellationRequested) throw new TaskCanceledException();
+        if (token.IsCancellationRequested) throw new TaskCanceledException();
+
+        // Spin waiting for the task to complete or be cancelled
+        SpinWait sw = default;
+        while (!t.IsCompleted && !token.IsCancellationRequested && !envIO.Token.IsCancellationRequested)
+        {
+            sw.SpinOnce();
+        }
+
+        if (t.IsCanceled || token.IsCancellationRequested || envIO.Token.IsCancellationRequested)
+        {
+            throw new TaskCanceledException();
+        }
+
+        if (t.IsFaulted)
+        {
+            return t.AsTask().Exception is Exception e
+                       ? e.Rethrow<A>()
+                       : throw new BottomException();
+        }
         return t.Result;
     }
     
