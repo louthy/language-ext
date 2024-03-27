@@ -29,10 +29,16 @@ public class MemoryFS
     static readonly char[] invalidFile = Path.GetInvalidFileNameChars();
     public string CurrentDir;
 
+    public static bool IsUnix =>
+        Environment.OSVersion.Platform switch
+        {
+            var p when (int)p == 4 || (int)p == 6 || (int)p == 128 => true,
+            _                                                      => false
+        };
+    
     public MemoryFS()
     {
-        var logical = Directory.GetLogicalDrives().First();
-        CurrentDir = logical.TrimEnd([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar]);
+        CurrentDir = IsUnix ? "/" : "C:";
         AddLogicalDrive(CurrentDir);
     }
 
@@ -47,12 +53,14 @@ public class MemoryFS
     /// Add a logical in-memory drive
     /// </summary>
     public DirectoryInfo AddLogicalDrive(string name) =>
-        CreateFolder($"{name.TrimEnd(':')}:", DateTime.MinValue);
+        IsUnix
+            ? CreateFolder(name, DateTime.MinValue)
+            : CreateFolder($"{name.TrimEnd(':')}:", DateTime.MinValue);
 
     Seq<string> ParsePath(string path) =>
         Path.IsPathRooted(path)
             ? ParsePath1(path)
-            :throw new IOException($"Path not rooted: {path}");
+            : throw new IOException($"Path not rooted: {path}");
 
     static Seq<string> ParsePath1(string path) =>
         ValidatePathNames(path.Trim()
