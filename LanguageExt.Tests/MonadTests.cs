@@ -33,8 +33,7 @@ public class MonadTests
 
     static Writer<Seq<string>, Seq<int>> multWithLog(Seq<int> input) =>
         from _ in writer(0, Seq("Start"))
-        let c = input.Map(i => writer(i * 10, Seq($"Number: {i}")))
-        from r in c.Traverse(identity)
+        from r in input.Traverse(i => writer(i * 10, Seq($"Number: {i}")))
         select r;
 
     [Fact]

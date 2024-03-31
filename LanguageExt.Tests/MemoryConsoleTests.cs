@@ -25,7 +25,7 @@ public class MemoryConsoleTests
         comp.Run(rt, EnvIO.New()).ThrowIfFail();
 
         var clines = rt.Env.Console.AsEnumerableM().ToSeq();
-        Assert.True(lines == clines, "sequences don't match");
+        Assert.True(lines == clines, $"sequences don't match {lines} != {clines}");
     }
         
     [Theory]
