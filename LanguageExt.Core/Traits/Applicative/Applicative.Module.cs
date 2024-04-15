@@ -67,7 +67,7 @@ public static class Applicative
     [Pure]
     public static K<F, B> lift<F, A, B>(Func<A, B> f, K<F, A> fa)
         where F : Applicative<F> =>
-        apply(F.Pure(f), fa);
+        f.Map(fa);
 
     [Pure]
     public static K<F, C> lift<F, A, B, C>(Func<A, B, C> f, K<F, A> fa, K<F, B> fb)
