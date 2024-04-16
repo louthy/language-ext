@@ -220,7 +220,7 @@ public static class Testing
         var r1 = Traversable.traverse(x => Some(x), xs);
         
         var ys = Seq(Some(1).Kind(), Some(2).Kind(), Option<int>.None.Kind(), Some(4).Kind(), Option<int>.None.Kind());
-        var r2 = Traversable.sequence(ys);
+        var r2 = Traversable.sequenceM(ys);
     }
 }
 

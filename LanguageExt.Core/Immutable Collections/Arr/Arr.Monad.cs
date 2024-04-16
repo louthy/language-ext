@@ -112,4 +112,15 @@ public partial class Arr : Monad<Arr>, MonoidK<Arr>, Traversable<Arr>
         K<F, Seq<B>> cons(K<F, Seq<B>> ys, A x) =>
             Applicative.lift(Prelude.Cons, f(x), ys);
     }
+    
+    static K<F, K<Arr, B>> Traversable<Arr>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Arr, A> ta) 
+    {
+        return F.Map<Arr<B>, K<Arr, B>>(
+            ks => ks, 
+            F.Map(s => s.ToArr(), 
+                  Foldable.foldBack(cons, F.Pure(Seq.empty<B>()), ta)));
+
+        K<F, Seq<B>> cons(K<F, Seq<B>> fys, A x) =>
+            fys.Bind(ys => f(x).Map(y => y.Cons(ys)));
+    }
 }

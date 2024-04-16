@@ -48,10 +48,21 @@ public partial class EnumerableM : Monad<EnumerableM>, MonoidK<EnumerableM>, Tra
         return F.Map<EnumerableM<B>, K<EnumerableM, B>>(
             ks => ks, 
             F.Map(s => new EnumerableM<B>(s.AsEnumerable()), 
-                  Foldable.foldBack(add, F.Pure(Seq.empty<B>()), ta)));
+                  Foldable.foldBack(cons, F.Pure(Seq.empty<B>()), ta)));
 
-        K<F, Seq<B>> add(K<F, Seq<B>> ys, A x) =>
+        K<F, Seq<B>> cons(K<F, Seq<B>> ys, A x) =>
             Applicative.lift(Prelude.Cons, f(x), ys);
+    }
+
+    static K<F, K<EnumerableM, B>> Traversable<EnumerableM>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<EnumerableM, A> ta) 
+    {
+        return F.Map<EnumerableM<B>, K<EnumerableM, B>>(
+            ks => ks, 
+            F.Map(s => new EnumerableM<B>(s.AsEnumerable()), 
+                  Foldable.foldBack(cons, F.Pure(Seq.empty<B>()), ta)));
+
+        K<F, Seq<B>> cons(K<F, Seq<B>> fys, A x) =>
+            fys.Bind(ys => f(x).Map(y => y.Cons(ys)));
     }
     
     static S Foldable<EnumerableM>.FoldWhile<A, S>(

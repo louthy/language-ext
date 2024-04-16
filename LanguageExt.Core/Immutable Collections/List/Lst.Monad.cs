@@ -70,6 +70,16 @@ public class Lst : Monad<Lst>, MonoidK<Lst>, Traversable<Lst>
         K<F, Lst<B>> cons(K<F, Lst<B>> ys, A x) =>
             Applicative.lift(Prelude.Cons, f(x), ys);
     }
+
+    static K<F, K<Lst, B>> Traversable<Lst>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Lst, A> ta) 
+    {
+        return F.Map<Lst<B>, K<Lst, B>>(
+            ks => ks, 
+            Foldable.foldBack(cons, F.Pure(List.empty<B>()), ta));
+
+        K<F, Lst<B>> cons(K<F, Lst<B>> fys, A x) =>
+            fys.Bind(ys => f(x).Map(y => y.Cons(ys)));
+    }
     
     static S Foldable<Lst>.FoldWhile<A, S>(
         Func<A, Func<S, S>> f,

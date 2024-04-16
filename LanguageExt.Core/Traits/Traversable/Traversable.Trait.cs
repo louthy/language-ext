@@ -19,25 +19,25 @@ public interface Traversable<T> : Functor<T>, Foldable<T>
         K<T, A> ta)
         where F : Applicative<F>;
 
-    public static virtual K<F, K<T, A>> SequenceA<F, A>(
+    public static virtual K<F, K<T, A>> Sequence<F, A>(
         K<T, K<F, A>> ta)
         where F : Applicative<F> =>
         Traversable.traverse(x => x, ta);
 
-    public static virtual K<M, K<T, B>> MapM<M, A, B>(
+    public static virtual K<M, K<T, B>> TraverseM<M, A, B>(
         Func<A, K<M, B>> f,
         K<T, A> ta)
         where M : Monad<M> =>
         Traversable.traverse(f, ta);
 
-    public static virtual K<F, K<T, A>> Sequence<F, A>(
+    public static virtual K<F, K<T, A>> SequenceM<F, A>(
         K<T, K<F, A>> ta)
         where F : Monad<F> =>
-        Traversable.traverse(x => x, ta);
+        Traversable.traverseM(x => x, ta);
     
     public static virtual K<F, K<T, B>> TraverseDefault<F, A, B>(
         Func<A, K<F, B>> f,
         K<T, A> ta)
         where F : Applicative<F> =>
-        Traversable.sequenceA(T.Map(f, ta));
+        Traversable.sequence(T.Map(f, ta));
 }

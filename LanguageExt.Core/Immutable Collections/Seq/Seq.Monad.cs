@@ -113,4 +113,14 @@ public partial class Seq : Monad<Seq>, MonoidK<Seq>, Traversable<Seq>
         K<F, Seq<B>> cons(K<F, Seq<B>> ys, A x) =>
             Applicative.lift(Prelude.Cons, f(x), ys);
     }
+
+    static K<F, K<Seq, B>> Traversable<Seq>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Seq, A> ta) 
+    {
+        return F.Map<Seq<B>, K<Seq, B>>(
+            ks => ks, 
+            Foldable.foldBack(cons, F.Pure(empty<B>()), ta));
+
+        K<F, Seq<B>> cons(K<F, Seq<B>> fys, A x) =>
+            fys.Bind(ys => f(x).Map(y => y.Cons(ys)));
+    }
 }

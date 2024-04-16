@@ -36,11 +36,11 @@ public static partial class Traversable
     /// <typeparam name="F">Applicative functor trait</typeparam>
     /// <typeparam name="A">Bound value (input)</typeparam>
     /// <returns></returns>
-    public static K<F, K<T, A>> sequenceA<T, F, A>(
+    public static K<F, K<T, A>> sequence<T, F, A>(
         K<T, K<F, A>> ta)
         where T : Traversable<T>
         where F : Applicative<F> =>
-        T.SequenceA(ta);
+        T.Sequence(ta);
 
     /// <summary>
     /// Map each element of a structure to a monadic action, evaluate these actions from
@@ -53,12 +53,12 @@ public static partial class Traversable
     /// <typeparam name="A">Bound value (input)</typeparam>
     /// <typeparam name="B">Bound value (output)</typeparam>
     /// <returns></returns>
-    public static K<M, K<T, B>> mapM<T, M, A, B>(
+    public static K<M, K<T, B>> traverseM<T, M, A, B>(
         Func<A, K<M, B>> f,
         K<T, A> ta)
         where T : Traversable<T>
         where M : Monad<M> =>
-        T.MapM(f, ta);
+        T.TraverseM(f, ta);
 
     /// <summary>
     /// Evaluate each monadic action in the structure from left to right, and collect the results. 
@@ -68,9 +68,9 @@ public static partial class Traversable
     /// <typeparam name="M">Monad trait</typeparam>
     /// <typeparam name="A">Bound value (input)</typeparam>
     /// <returns></returns>
-    public static K<M, K<T, A>> sequence<T, M, A>(
+    public static K<M, K<T, A>> sequenceM<T, M, A>(
         K<T, K<M, A>> ta)
         where T : Traversable<T>
         where M : Monad<M> =>
-        T.Sequence(ta);
+        T.SequenceM(ta);
 }

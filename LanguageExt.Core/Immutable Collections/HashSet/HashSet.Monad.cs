@@ -107,4 +107,14 @@ public partial class HashSet : Monad<HashSet>, MonoidK<HashSet>, Traversable<Has
         K<F, HashSet<B>> acc(K<F, HashSet<B>> ys, A x) =>
             Applicative.lift((b, bs) => bs.Add(b), f(x), ys);
     }
+
+    static K<F, K<HashSet, B>> Traversable<HashSet>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<HashSet, A> ta) 
+    {
+        return F.Map<HashSet<B>, K<HashSet, B>>(
+            ks => ks,
+            Foldable.fold(acc, F.Pure(empty<B>()), ta));
+
+        K<F, HashSet<B>> acc(K<F, HashSet<B>> fys, A x) =>
+            fys.Bind(ys => f(x).Map(ys.Add));
+    }
 }
