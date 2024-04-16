@@ -25,18 +25,18 @@ public static partial class TraversableExtensions
         this K<T, K<F, A>> ta)
         where T : Traversable<T>
         where F : Applicative<F> =>
-        Traversable.traverse(x => x, ta);
+        Traversable.sequence(ta);
 
     public static K<M, K<T, B>> TraverseM<M, T, A, B>(
         this Func<A, K<M, B>> f,
         K<T, A> ta)
         where T : Traversable<T>
         where M : Monad<M> =>
-        Traversable.traverse(f, ta);
+        Traversable.traverseM(f, ta);
 
     public static K<F, K<T, A>> SequenceM<T, F, A>(
         this K<T, K<F, A>> ta)
         where T : Traversable<T>
         where F : Monad<F> =>
-        Traversable.traverse(x => x, ta);
+        Traversable.sequenceM(ta);
 }
