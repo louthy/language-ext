@@ -12,7 +12,7 @@ public class ArrArr
         Arr<Arr<int>> ma = Empty;
 
         var mb = ma.KindT<Arr, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Arr, Arr<int>, int>()
                    .As();
 
@@ -27,7 +27,7 @@ public class ArrArr
         var ma = Array(Array(1, 2), Array(10, 20, 30));
 
         var mb = ma.KindT<Arr, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Arr, Arr<int>, int>()
                    .As();
 
@@ -48,7 +48,7 @@ public class ArrArr
         var ma = Array(Array<int>(), Array(1, 2, 3));
 
         var mb = ma.KindT<Arr, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Arr, Arr<int>, int>()
                    .As();
 
@@ -63,7 +63,7 @@ public class ArrArr
         var ma = Array(Array<int>(), Array<int>());
 
         var mb = ma.KindT<Arr, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Arr, Arr<int>, int>()
                    .As();
 

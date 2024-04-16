@@ -13,7 +13,7 @@ public class EitherArr
         var ma = Left<Error, Arr<int>>(Error.New("alt"));
 
         var mb = ma.KindT<Either<Error>, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Either<Error>, Either<Error, int>, int>()
                    .As();
             
@@ -27,7 +27,7 @@ public class EitherArr
     {
         var ma = Right<Error, Arr<int>>(Empty);
         var mb = ma.KindT<Either<Error>, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Either<Error>, Either<Error, int>, int>()
                    .As();
         var mc = Array<Either<Error, int>>();
@@ -40,7 +40,7 @@ public class EitherArr
     {
         var ma = Right<Error, Arr<int>>(Array(1, 2, 3, 4));
         var mb = ma.KindT<Either<Error>, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Either<Error>, Either<Error, int>, int>()
                    .As();
         var mc = Array(Right<Error, int>(1), Right<Error, int>(2), Right<Error, int>(3), Right<Error, int>(4));

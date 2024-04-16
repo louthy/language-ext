@@ -12,7 +12,7 @@ public class SeqArr
         Seq<Arr<int>> ma = Empty;
 
         var mb = ma.KindT<Seq, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Seq, Seq<int>, int>()
                    .As();
 
@@ -27,7 +27,7 @@ public class SeqArr
         var ma = Seq(Array(1, 2), Array(10, 20, 30));
 
         var mb = ma.KindT<Seq, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Seq, Seq<int>, int>()
                    .As();
 
@@ -48,7 +48,7 @@ public class SeqArr
         var ma = Seq(Array<int>(), Array<int>(1, 2, 3));
 
         var mb = ma.KindT<Seq, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Seq, Seq<int>, int>()
                    .As();
 
@@ -63,7 +63,7 @@ public class SeqArr
         var ma = Seq(Array<int>(), Array<int>());
 
         var mb = ma.KindT<Seq, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Seq, Seq<int>, int>()
                    .As();
 

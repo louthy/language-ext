@@ -13,7 +13,7 @@ public class ValidationArr
     {
         var ma = Fail<Error, Arr<int>>(Error.New("alt"));
         var mb = ma.KindT<Validation<Error>, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Validation<Error>, Validation<Error, int>, int>()
                    .As();
         var mc = Array(Fail<Error, int>(Error.New("alt")));
@@ -26,7 +26,7 @@ public class ValidationArr
     {
         var ma = Success<Error, Arr<int>>(Empty);
         var mb = ma.KindT<Validation<Error>, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Validation<Error>, Validation<Error, int>, int>()
                    .As();
         var mc = Array<Validation<Error, int>>();
@@ -39,7 +39,7 @@ public class ValidationArr
     {
         var ma = Success<Error, Arr<int>>(Array(1, 2, 3, 4));
         var mb = ma.KindT<Validation<Error>, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Validation<Error>, Validation<Error, int>, int>()
                    .As();
         var mc = Array(Success<Error, int>(1), Success<Error, int>(2), Success<Error, int>(3), Success<Error, int>(4));

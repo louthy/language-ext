@@ -13,7 +13,7 @@ public class HashSetArr
         HashSet<Arr<int>> ma = Empty;
 
         var mb = ma.KindT<HashSet, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, HashSet, HashSet<int>, int>()
                    .As();
 
@@ -28,7 +28,7 @@ public class HashSetArr
         var ma = HashSet(Array(1, 2), Array(10, 20, 30));
 
         var mb = ma.KindT<HashSet, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, HashSet, HashSet<int>, int>()
                    .As();
             
@@ -54,7 +54,7 @@ public class HashSetArr
         var ma = HashSet(Array<int>(), Array(1, 2, 3));
             
         var mb = ma.KindT<HashSet, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, HashSet, HashSet<int>, int>()
                    .As();
             
@@ -69,7 +69,7 @@ public class HashSetArr
         var ma = HashSet(Array<int>(), Array<int>());
             
         var mb = ma.KindT<HashSet, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, HashSet, HashSet<int>, int>()
                    .As();
             

@@ -11,7 +11,7 @@ public class IdentityArr
     {
         var ma = Id<Arr<int>>(Empty);
         var mb = ma.KindT<LanguageExt.Identity, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, LanguageExt.Identity, Identity<int>, int>()
                    .As();
         var mc = Array<Identity<int>>();
@@ -24,7 +24,7 @@ public class IdentityArr
     {
         var ma = Id(Array(1, 2, 3));
         var mb = ma.KindT<LanguageExt.Identity, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, LanguageExt.Identity, Identity<int>, int>()
                    .As();
         var mc = Array(Id(1), Id(2), Id(3));

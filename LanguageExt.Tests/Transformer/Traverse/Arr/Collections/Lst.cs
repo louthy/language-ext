@@ -12,7 +12,7 @@ public class LstArr
         Lst<Arr<int>> ma = Empty;
 
         var mb = ma.KindT<LanguageExt.Lst, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, LanguageExt.Lst, Lst<int>, int>()
                    .As();
 
@@ -27,7 +27,7 @@ public class LstArr
         var ma = List(Array(1, 2), Array(10, 20, 30));
 
         var mb = ma.KindT<LanguageExt.Lst, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, LanguageExt.Lst, Lst<int>, int>()
                    .As();
 
@@ -51,7 +51,7 @@ public class LstArr
         var ma = List(Array<int>(), Array<int>(1, 2, 3));
 
         var mb = ma.KindT<LanguageExt.Lst, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, LanguageExt.Lst, Lst<int>, int>()
                    .As();
 
@@ -66,7 +66,7 @@ public class LstArr
         var ma = List(Array<int>(), Array<int>());
 
         var mb = ma.KindT<LanguageExt.Lst, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, LanguageExt.Lst, Lst<int>, int>()
                    .As();
 

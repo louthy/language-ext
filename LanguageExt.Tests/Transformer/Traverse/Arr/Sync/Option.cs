@@ -11,7 +11,7 @@ public class OptionArr
     {
         var ma = Option<Arr<int>>.None;
         var mb = ma.KindT<Option, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Option, Option<int>, int>()
                    .As();
         var mc = Array(Option<int>.None);
@@ -24,7 +24,7 @@ public class OptionArr
     {
         var ma = Some<Arr<int>>(Empty);
         var mb = ma.KindT<Option, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Option, Option<int>, int>()
                    .As();
         var mc = Array<Option<int>>();
@@ -37,7 +37,7 @@ public class OptionArr
     {
         var ma = Some(Array(1, 2, 3));
         var mb = ma.KindT<Option, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Option, Option<int>, int>()
                    .As();
         var mc = Array(Some(1), Some(2), Some(3));

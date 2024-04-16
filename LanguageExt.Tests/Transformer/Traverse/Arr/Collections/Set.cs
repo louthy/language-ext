@@ -12,7 +12,7 @@ public class SetArr
         Set<Arr<int>> ma = Empty;
 
         var mb = ma.KindT<Set, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Set, Set<int>, int>()
                    .As();
 
@@ -27,7 +27,7 @@ public class SetArr
         var ma = Set(Array(1, 2), Array(10, 20, 30));
 
         var mb = ma.KindT<Set, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Set, Set<int>, int>()
                    .As();
 
@@ -48,7 +48,7 @@ public class SetArr
         var ma = Set(Array<int>(), Array(1, 2, 3));
 
         var mb = ma.KindT<Set, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Set, Set<int>, int>()
                    .As();
 
@@ -63,7 +63,7 @@ public class SetArr
         var ma = Set(Array<int>(), Array<int>());
 
         var mb = ma.KindT<Set, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, Set, Set<int>, int>()
                    .As();
 

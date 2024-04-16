@@ -68,5 +68,5 @@ public static partial class MonadExtensions
     public static K<M, K<N, B>> BindT<M, N, A, B>(this K<M, K<N, A>> mna, Func<A, K<M, K<N, B>>> f)
         where M : Monad<M>
         where N : Monad<N>, Traversable<N> =>
-        mna.Bind(na => na.Map(f).Sequence()).Map(nna => nna.Flatten());
+        mna.Bind(na => na.Map(f).SequenceM()).Map(nna => nna.Flatten());
 }

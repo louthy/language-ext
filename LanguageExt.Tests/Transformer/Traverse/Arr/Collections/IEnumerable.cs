@@ -16,7 +16,7 @@ public class IEnumerableArr
         var ma = EnumerableM.empty<Arr<int>>();
 
         var mb = ma.KindT<EnumerableM, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, EnumerableM, EnumerableM<int>, int>()
                    .As();
 
@@ -31,7 +31,7 @@ public class IEnumerableArr
         var ma = new[] { Array(1, 2), Array(10, 20, 30) }.AsEnumerableM();
 
         var mb = ma.KindT<EnumerableM, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, EnumerableM, EnumerableM<int>, int>()
                    .As();
 
@@ -52,7 +52,7 @@ public class IEnumerableArr
         var ma = enumerable(Array<int>(), Array(1, 2, 3));
 
         var mb = ma.KindT<EnumerableM, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, EnumerableM, EnumerableM<int>, int>()
                    .As();
 
@@ -67,7 +67,7 @@ public class IEnumerableArr
         var ma = enumerable(Array<int>(), Array<int>());
 
         var mb = ma.KindT<EnumerableM, Arr, Arr<int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Arr, EnumerableM, EnumerableM<int>, int>()
                    .As();
 

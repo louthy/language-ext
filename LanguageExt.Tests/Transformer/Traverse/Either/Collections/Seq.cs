@@ -34,7 +34,7 @@ public class SeqEither
         var ma = Seq(Right<Error, int>(1), Right<Error, int>(2), Left<Error, int>(Error.New("alternative")));
 
         var mb = ma.KindT<Seq, Either<Error>, Either<Error, int>, int>()
-                   .Sequence()
+                   .SequenceM()
                    .AsT<Either<Error>, Seq, Seq<int>, int>()
                    .As();
 
