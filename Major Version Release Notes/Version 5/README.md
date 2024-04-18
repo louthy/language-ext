@@ -840,3 +840,4 @@ No need for them now we have proper higher-kind support.
 * Make NewTypes support appropriate traits
 * Add Applicatice.Actions to every applicative that has an error state
 * Exception catching in Producer.merge
+* Implement `TraverseM` for each data-type (like the `Traverse` implementations)

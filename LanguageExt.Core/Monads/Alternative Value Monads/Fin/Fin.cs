@@ -481,7 +481,20 @@ public abstract class Fin<A> :
     public K<F, Fin<B>> Traverse<F, B>(Func<A, K<F, B>> f) 
         where F : Applicative<F> =>
         F.Map(x => x.As(), Traversable.traverse(f, this));
-
+    
+    /// <summary>
+    /// Map each element of a structure to an action, evaluate these actions from
+    /// left to right, and collect the results.
+    /// </summary>
+    /// <param name="f"></param>
+    /// <param name="ta">Traversable structure</param>
+    /// <typeparam name="M">Monad trait</typeparam>
+    /// <typeparam name="B">Bound value (output)</typeparam>
+    [Pure]
+    public K<M, Fin<B>> TraverseM<M, B>(Func<A, K<M, B>> f) 
+        where M : Monad<M> =>
+        M.Map(x => x.As(), Traversable.traverseM(f, this));
+    
     [Pure, MethodImpl(Opt.Default)]
     public Fin<B> Select<B>(Func<A, B> f) =>
         Map(f);
