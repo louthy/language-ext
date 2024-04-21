@@ -1007,7 +1007,7 @@ _Note, there are only fluent versions of the transformer functions._
 * `MapRemoveT` - maps each level,  checks if the map is empty, in which case it removes it
 * `MapT`
 * `FilterT`
-* `FilterRemoveT`` - filters each level, checks if the map is empty, in which case it removes it
+* `FilterRemoveT` - filters each level, checks if the map is empty, in which case it removes it
 * `Exists`
 * `ForAll`
 * `SetItemT`
