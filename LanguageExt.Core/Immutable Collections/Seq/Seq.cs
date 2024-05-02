@@ -17,6 +17,9 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="A">Type of the values in the sequence</typeparam>
 
+    [CollectionBuilder(
+        typeof(Seq),
+        nameof(Seq.create))]
     public readonly struct Seq<A> :
 #pragma warning disable CS0618 // Remove ISeq complaint
         ISeq<A>,

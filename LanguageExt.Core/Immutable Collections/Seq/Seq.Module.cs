@@ -57,6 +57,17 @@ namespace LanguageExt
             System.Array.Copy(items, nitems, items.Length);
             return FromArray(items);
         }
+        
+        /// <summary>
+        /// Create an array from a initial set of items
+        /// </summary>
+        /// <param name="items">Items</param>
+        /// <returns>Lst T</returns>
+        [Pure]
+        public static Seq<T> create<T>(
+            ReadOnlySpan<T> items) =>
+            create(
+                items.ToArray());
 
         /// <summary>
         /// Create a sequence from an initial set of items

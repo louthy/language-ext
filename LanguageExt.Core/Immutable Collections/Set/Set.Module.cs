@@ -33,6 +33,16 @@ namespace LanguageExt
             Set<T>.Empty;
 
         /// <summary>
+        /// Create an array from a initial set of items
+        /// </summary>
+        /// <param name="items">Items</param>
+        /// <returns>Lst T</returns>
+        [Pure]
+        public static Set<T> create<T>(
+            ReadOnlySpan<T> items) =>
+            new Set<T>(items.ToArray());
+        
+        /// <summary>
         /// Create a new set pre-populated with the items in range
         /// </summary>
         /// <typeparam name="T">Element type</typeparam>

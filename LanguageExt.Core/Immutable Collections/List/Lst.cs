@@ -15,6 +15,9 @@ namespace LanguageExt
     /// Immutable list
     /// </summary>
     /// <typeparam name="A">Value type</typeparam>
+    [CollectionBuilder(
+        typeof(List),
+        nameof(List.create))]
     [Serializable]
     public readonly struct Lst<A> :
         IComparable<Lst<A>>,

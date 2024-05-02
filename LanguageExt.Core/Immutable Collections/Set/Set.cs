@@ -19,6 +19,9 @@ namespace LanguageExt
     /// [wikipedia.org/wiki/AVL_tree](http://en.wikipedia.org/wiki/AVL_tree)
     /// </summary>
     /// <typeparam name="A">Set item type</typeparam>
+    [CollectionBuilder(
+        typeof(Set),
+        nameof(Set.create))]
     [Serializable]
     public readonly struct Set<A> :
         IEnumerable<A>,

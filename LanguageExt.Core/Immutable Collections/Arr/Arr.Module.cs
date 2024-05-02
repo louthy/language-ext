@@ -34,6 +34,17 @@ namespace LanguageExt
         [Pure]
         public static Arr<T> create<T>(params T[] items) =>
             new Arr<T>(items);
+        
+        /// <summary>
+        /// Create an array from a initial set of items
+        /// </summary>
+        /// <param name="items">Items</param>
+        /// <returns>Lst T</returns>
+        [Pure]
+        public static Arr<T> create<T>(
+            ReadOnlySpan<T> items) =>
+            create(
+                items.ToArray());
 
         /// <summary>
         /// Create an array from an initial set of items

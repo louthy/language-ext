@@ -51,6 +51,17 @@ namespace LanguageExt
             new Lst<T>(items);
 
         /// <summary>
+        /// Create an array from a initial set of items
+        /// </summary>
+        /// <param name="items">Items</param>
+        /// <returns>Lst T</returns>
+        [Pure]
+        public static Lst<T> create<T>(
+            ReadOnlySpan<T> items) =>
+            create(
+                items.ToArray());
+
+        /// <summary>
         /// Create a list from an initial set of items
         /// </summary>
         /// <param name="items">Items</param>

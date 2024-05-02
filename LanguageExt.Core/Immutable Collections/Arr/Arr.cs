@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 using LanguageExt.TypeClasses;
@@ -17,6 +18,9 @@ namespace LanguageExt
     /// for large arrays.
     /// </summary>
     /// <typeparam name="A">Value type</typeparam>
+    [CollectionBuilderAttribute(
+        typeof(Arr),
+        nameof(Arr.create))] 
     [Serializable]
     public struct Arr<A> :
         IEnumerable<A>,
@@ -721,6 +725,5 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator Arr<A>(SeqEmpty _) =>
             Empty;
-
     }
 }
