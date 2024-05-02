@@ -665,5 +665,18 @@ namespace LanguageExt.Tests
                 return seconds;
             }
         }
+        
+        /// See https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-12.0/collection-expressions#create-methods
+        [Fact]
+        public void CollectionExpressions()
+        {
+            Seq<int> seq = [1, 2, 3, 4, 5];
+            
+            Assert.Equal(5, seq.Length);
+
+            Seq<int> seq2 = [99, ..seq];
+            
+            Assert.Equal(6, seq2.Length);
+        }
     }
 }

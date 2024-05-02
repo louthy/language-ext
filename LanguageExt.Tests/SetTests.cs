@@ -485,5 +485,18 @@ namespace LanguageExt.Tests
             { Assert.True(Set<OrdInt, int>(1).Case is not var (_, _) and 1); }
             { Assert.True(Set<OrdInt, int>(1, 2).Case is (1, Seq<int> xs) && xs == Seq1(2)); }
         }
+        
+        /// See https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-12.0/collection-expressions#create-methods
+        [Fact]
+        public void CollectionExpressions()
+        {
+            Set<int> set = [1, 2, 3, 3, 4, 5];
+            
+            Assert.Equal(5, set.Count);
+
+            Set<int> set2 = [3, ..set, 99];
+            
+            Assert.Equal(6, set2.Count);
+        }
     }
 }

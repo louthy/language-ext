@@ -618,5 +618,18 @@ namespace LanguageExt.Tests
 
             Assert.Equal(expected, actual);
         }
+        
+        /// See https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-12.0/collection-expressions#create-methods
+        [Fact]
+        public void CollectionExpressions()
+        {
+            Lst<int> lst = [1, 2, 3, 4, 5];
+            
+            Assert.Equal(5, lst.Count);
+
+            Lst<int> seq2 = [99, ..lst];
+            
+            Assert.Equal(6, seq2.Count);
+        }
     }
 }
