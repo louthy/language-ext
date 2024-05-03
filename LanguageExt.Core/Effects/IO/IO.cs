@@ -117,6 +117,12 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     public IO<A> IfFail(A Fail) =>
         Match(Prelude.identity, _ => Fail);
     
+    public IO<A> IfFail(Func<Error, IO<A>> Fail) =>
+        Match(IO.Pure, Fail).Flatten();
+
+    public IO<A> IfFail(IO<A> Fail) =>
+        Match(IO.Pure, _ => Fail).Flatten();
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 
     //  Folding
