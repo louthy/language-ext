@@ -38,6 +38,9 @@ public class Eff :
     static K<Eff, Unit> Resource<Eff>.Release<A>(A value) =>
         new Eff<Unit>(new Eff<MinRT, Unit>(StateT<MinRT>.lift(ResourceT<IO>.release(value))));
 
+    static K<Eff, Resources> Resource<Eff>.Resources =>
+        new Eff<Resources>(new Eff<MinRT, Resources>(StateT<MinRT>.lift(ResourceT<IO, Resources>.Asks(Prelude.identity))));
+
     static K<Eff, Unit> StateM<Eff, MinRT>.Put(MinRT value) => 
         new Eff<Unit>(StateM.put<Eff<MinRT>, MinRT>(value).As());
 
@@ -49,13 +52,14 @@ public class Eff :
 
     static K<Eff, A> Monad<Eff>.LiftIO<A>(IO<A> ma) =>
         Eff<A>.LiftIO(ma);
-    
+
     static K<Eff, B> Monad<Eff>.WithRunInIO<A, B>(Func<Func<K<Eff, A>, IO<A>>, IO<B>> inner) =>
-        Eff<B>.LiftIO(
-            env => inner(ma => ma.As()
-                                 .effect
-                                 .effect     
-                                 .Run(env).As()
-                                 .Run().As()
-                                 .Map(p => p.Value)));
+        Resource.resources<Eff>()
+                .Bind(r => Eff<B>.LiftIO(
+                              env => inner(ma => ma.As()
+                                                   .effect
+                                                   .effect
+                                                   .Run(env).As()
+                                                   .Run(r).As()
+                                                   .Map(p => p.Value))));
 }

@@ -12,4 +12,6 @@ public interface Resource<in M>
     public static abstract K<M, A> Use<A>(IO<A> ma, Func<A, IO<Unit>> release);
 
     public static abstract K<M, Unit> Release<A>(A value);
+
+    public static abstract K<M, Resources> Resources { get; }
 }

@@ -44,4 +44,8 @@ public static partial class Resource
     public static K<M, Unit> release<M, A>(A value) 
         where M : Resource<M> =>
         M.Release(value);
+
+    public static K<M, Resources> resources<M>()
+        where M : Resource<M> =>
+        M.Resources;
 }

@@ -51,5 +51,8 @@ public partial class ResourceT<M> :
 
     static K<ResourceT<M>, Unit> Resource<ResourceT<M>>.Release<A>(A value) => 
         release(value);
+
+    static K<ResourceT<M>, Resources> Resource<ResourceT<M>>.Resources =>
+        ResourceT<M, Resources>.Asks(Prelude.identity);
 }
     

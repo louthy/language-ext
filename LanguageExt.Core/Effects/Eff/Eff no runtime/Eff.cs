@@ -748,7 +748,8 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     {
         var e = effect;
         return (from eio in Eff<RT, EnvIO>.LiftIO(envIO)
-                let ires = e.RunUnsafe(new MinRT(eio))
+                from res in Resource.resources<Eff<RT>>()
+                let ires = e.RunUnsafe(new MinRT(eio), res, eio)
                 select ires.Value).As();
     }
 
@@ -1010,6 +1011,9 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     static K<Eff<A>, Unit> Resource<Eff<A>>.Release<T>(T value) =>
         new Eff<A, Unit>(StateT<A>.lift(ResourceT<IO>.release(value)));
 
+    static K<Eff<A>, Resources> Resource<Eff<A>>.Resources =>
+        new Eff<A, Resources>(StateT<A>.lift(ResourceT<IO, Resources>.Asks(identity)));
+
     static K<Eff<A>, Unit> StateM<Eff<A>, A>.Put(A value) =>
         new Eff<A, Unit>(StateT.put<ResourceT<IO>, A>(value));
 
@@ -1021,14 +1025,14 @@ public record Eff<A>(Eff<MinRT, A> effect) :
 
     static K<Eff<A>, T> Monad<Eff<A>>.LiftIO<T>(IO<T> ma) =>
         new Eff<A, T>(StateT.liftIO<A, ResourceT<IO>, T>(ma));
-    
-     static K<Eff<A>, U> Monad<Eff<A>>.WithRunInIO<T, U>(Func<Func<K<Eff<A>, T>, IO<T>>, IO<U>> inner) =>
-        Eff<A, U>.LiftIO(
-            env => inner(ma => ma.As()
-                                 .effect
-                                 .Run(env).As()
-                                 .Run().As()
-                                 .Map(p => p.Value)));
+
+    static K<Eff<A>, U> Monad<Eff<A>>.WithRunInIO<T, U>(Func<Func<K<Eff<A>, T>, IO<T>>, IO<U>> inner) =>
+        Resource.resources<Eff<A>>()
+                .Bind(r => Eff<A, U>.LiftIO(
+                              env => inner(ma => ma.As().effect
+                                                   .Run(env).As()
+                                                   .Run(r).As()
+                                                   .Map(p => p.Value))));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
