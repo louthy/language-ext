@@ -269,28 +269,28 @@ public static partial class Prelude
     /// Lift a asynchronous effect into the IO monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> liftEff<A>(Func<MinRT, ValueTask<A>> f) =>
+    public static Eff<A> liftEff<A>(Func<MinRT, Task<A>> f) =>
         LanguageExt.Eff<A>.LiftIO(f);
 
     /// <summary>
     /// Lift a asynchronous effect into the IO monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> liftEff<A>(Func<MinRT, ValueTask<Fin<A>>> f) =>
+    public static Eff<A> liftEff<A>(Func<MinRT, Task<Fin<A>>> f) =>
         LanguageExt.Eff<A>.LiftIO(f);
 
     /// <summary>
     /// Lift a asynchronous effect into the IO monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> liftEff<A>(Func<ValueTask<A>> f) =>
+    public static Eff<A> liftEff<A>(Func<Task<A>> f) =>
         LanguageExt.Eff<A>.LiftIO(f);
 
     /// <summary>
     /// Lift a asynchronous effect into the IO monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> liftEff<A>(Func<ValueTask<Fin<A>>> f) =>
+    public static Eff<A> liftEff<A>(Func<Task<Fin<A>>> f) =>
         LanguageExt.Eff<A>.LiftIO(f);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

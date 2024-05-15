@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using LanguageExt.Traits;
 
@@ -23,10 +22,21 @@ public static partial class IOExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IO<A> As<A>(this K<IO, A> ma) =>
         (IO<A>)ma;
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static A Run<A>(this K<IO, A> ma, EnvIO envIO) =>
+        ma.As().Run(envIO);
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static A Run<A>(this K<IO, A> ma) =>
+        ma.As().Run();
     
     /// <summary>
     /// Get the outer task and wrap it up in a new IO within the IO
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IO<A> Flatten<A>(this Task<IO<A>> tma) =>
         IO.liftAsync(async () => await tma.ConfigureAwait(false))
           .Flatten();
@@ -34,6 +44,7 @@ public static partial class IOExtensions
     /// <summary>
     /// Unwrap the inner IO to flatten the structure
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IO<A> Flatten<A>(this IO<IO<A>> mma) =>
         mma.Bind(x => x);
     
@@ -41,6 +52,7 @@ public static partial class IOExtensions
     /// Await a forked operation
     /// </summary>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IO<A> Await<A>(this K<IO, ForkIO<A>> ma) =>
         ma.As().Bind(f => f.Await);
 
@@ -52,6 +64,7 @@ public static partial class IOExtensions
     /// the forked IO operation or to await the result of it.
     /// </returns>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static K<M, ForkIO<A>> Fork<M, A>(this K<M, A> ma, Option<TimeSpan> timeout = default)
         where M : Monad<M> =>
         from mk in M.UnliftIO<A>()
@@ -59,6 +72,7 @@ public static partial class IOExtensions
         select rs;
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IO<B> Apply<A, B>(this IO<Func<A, B>> ff, IO<A> fa) =>
         from tf in ff.Fork()
         from ta in fa.Fork()
@@ -67,6 +81,7 @@ public static partial class IOExtensions
         select f(a);
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IO<B> Action<A, B>(this IO<A> fa, IO<B> fb) =>
         fa.Bind(_ => fb);
 }

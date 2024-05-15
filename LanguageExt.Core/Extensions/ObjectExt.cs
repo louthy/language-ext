@@ -29,24 +29,24 @@ public static class ObjectExt
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNull<A>(this A value) =>
         Check<A>.IsNull(value);
+}
 
-    internal static class Check<A>
+internal static class Check<A>
+{
+    static readonly bool IsReferenceType;
+    static readonly bool IsNullable;
+
+    static Check()
     {
-        static readonly bool IsReferenceType;
-        static readonly bool IsNullable;
-
-        static Check()
-        {
-            IsNullable = Nullable.GetUnderlyingType(typeof(A)) != null;
-            IsReferenceType = !typeof(A).GetTypeInfo().IsValueType;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool IsDefault(A value) =>
-            EqDefault<A>.Equals(value, default);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool IsNull(A value) =>
-            (IsReferenceType && ReferenceEquals(value, null)) || (IsNullable && value.Equals(default));
+        IsNullable      = Nullable.GetUnderlyingType(typeof(A)) != null;
+        IsReferenceType = !typeof(A).GetTypeInfo().IsValueType;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static bool IsDefault(A value) =>
+        EqDefault<A>.Equals(value, default);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static bool IsNull(A value) =>
+        (IsReferenceType && ReferenceEquals(value, null)) || (IsNullable && value.Equals(default));
 }

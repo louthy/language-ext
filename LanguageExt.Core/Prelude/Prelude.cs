@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
-using System.Formats.Asn1;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
-using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -275,7 +273,7 @@ public static partial class Prelude
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     #nullable disable
     public static bool isDefault<A>(A value) =>
-        ObjectExt.Check<A>.IsDefault(value);
+        Check<A>.IsDefault(value);
     #nullable restore
 
     /// <summary>
@@ -292,7 +290,7 @@ public static partial class Prelude
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     #nullable disable
     public static bool notDefault<A>(A value) =>
-        !ObjectExt.Check<A>.IsDefault(value);
+        !Check<A>.IsDefault(value);
     #nullable restore
 
     /// <summary>
@@ -314,7 +312,7 @@ public static partial class Prelude
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     #nullable disable
     public static bool isnull<A>(A value) =>
-        ObjectExt.Check<A>.IsNull(value);
+        Check<A>.IsNull(value);
     #nullable restore
 
     /// <summary>
@@ -338,7 +336,7 @@ public static partial class Prelude
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     #nullable disable
     public static bool notnull<A>(A value) =>
-        !ObjectExt.Check<A>.IsNull(value);
+        !Check<A>.IsNull(value);
     #nullable restore
 
     /// <summary>

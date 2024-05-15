@@ -18,7 +18,6 @@ namespace LanguageExt.Sys.Diag;
 public class Activity<M, RT>
     where M :
         StateM<M, RT>,
-        Resource<M>,
         Monad<M>
 
     where RT :
@@ -46,16 +45,15 @@ public class Activity<M, RT>
         ActivityContext? parentContext = default) =>
         from src in trait
         from cur in currentActivity
-        from act in Resource.use<M, Activity>(
-            src.StartActivity(
-                name,
-                activityKind,
-                cur is null
-                    ? default
-                    : parentContext ?? cur.Context,
-                activityTags,
-                activityLinks,
-                startTime))
+        from act in use(src.StartActivity(
+                            name,
+                            activityKind,
+                            cur is null
+                                ? default
+                                : parentContext ?? cur.Context,
+                            activityTags,
+                            activityLinks,
+                            startTime))
         select act;
 
     /// <summary>

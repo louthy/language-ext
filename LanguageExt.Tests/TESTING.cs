@@ -118,6 +118,7 @@ public static class Testing
         var value = m0.Run("Hello").As().Value.As().Run(EnvIO.New());
     }
    
+    /*
     public static void Test7()
     {
         var m1 = ResourceT.lift(ReaderT<string>.lift(IO.Pure(123)));
@@ -171,6 +172,7 @@ public static class Testing
         OptionT<ReaderT<string, ResourceT<IO>>, A> liftIO<A>(IO<A> ma) =>
             OptionT.lift(ReaderT<string>.lift(ResourceT<IO>.liftIO(ma)));
     }
+    */
        
     public static void Test9()
     {

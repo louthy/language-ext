@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
@@ -51,10 +53,10 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     public static IO<A> Lift(Func<EnvIO, A> f) =>
         new(f);
 
-    public static IO<A> LiftAsync(Func<ValueTask<A>> f) =>
+    public static IO<A> LiftAsync(Func<Task<A>> f) =>
         new(env => Run(_ => f(), env));
 
-    public static IO<A> LiftAsync(Func<EnvIO, ValueTask<A>> f) =>
+    public static IO<A> LiftAsync(Func<EnvIO, Task<A>> f) =>
         new(env => Run(f, env));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -513,6 +515,20 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     //
 
     /// <summary>
+    /// The IO monad tracks resources automatically, this creates a local resource environment
+    /// to run this computation in.  Once the computation has completed any resources acquired
+    /// are automatically released.  Imagine this as the ultimate `using` statement.
+    /// </summary>
+    [Pure]
+    [MethodImpl(Opt.Default)]
+    public IO<A> Bracket() =>
+        new(env =>
+            {
+                using var lenv = env.LocalResources;
+                return Run(lenv);
+            });
+
+    /// <summary>
     /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
     /// the acquisition and releasing, taking a function of the acquired value that specifies an action to be performed
     /// in between.
@@ -643,7 +659,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                         var forkedResources = new Resources(parentResources);
                         try
                         {
-                            return runIO(new EnvIO(forkedResources, token, tsrc, env.SyncContext));
+                            return runIO(EnvIO.New(forkedResources, token, tsrc, env.SyncContext));
                         }
                         finally
                         {
@@ -672,8 +688,8 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// <returns>Result of the IO operation</returns>
     /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
     /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
-    //public A Run() =>
-     //   Run(EnvIO.New());
+    public A Run() =>
+       Run(EnvIO.New());
 
     /// <summary>
     /// Run the `IO` monad to get its result
@@ -964,7 +980,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// </summary>
     /// <exception cref="TaskCanceledException"></exception>
     /// <exception cref="BottomException"></exception>
-    static A Run(Func<EnvIO, ValueTask<A>> runIO, EnvIO env)
+    static A Run(Func<EnvIO, Task<A>> runIO, EnvIO env)
     {
         var token = env.Token;
         if (token.IsCancellationRequested) throw new TaskCanceledException();

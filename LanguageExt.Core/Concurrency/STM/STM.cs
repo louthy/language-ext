@@ -131,42 +131,42 @@ public static class STM
     /// Runs the transaction
     /// </summary>
     static Eff<RT, R> RunTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) =>
-        from sta in getState<RT>()
-        from res in Eff<RT, R>.Lift(
-            env =>
-            {
-                SpinWait sw = default;
-                while (true)
-                {
-                    // Create a new transaction with a snapshot of the current state
-                    var t = new Transaction(state.Items);
-                    transaction.Value = t;
-                    try
+        getState<RT>().Bind(
+            sta =>
+                Eff<RT, R>.Lift(
+                    env =>
                     {
-                        // Try to do the operations of the transaction
-                        var res = op.Run(env, sta.Resources, sta.EnvIO);
-                        return res.IsFail
-                                   ? res
-                                   : ValidateAndCommit(t, isolation, res.SuccValue, Int64.MinValue);
-                    }
-                    catch (ConflictException)
-                    {
-                        // Conflict found, so retry
-                    }
-                    finally
-                    {
-                        // Clear the current transaction on the way out
-                        transaction.Value = null;
+                        SpinWait sw = default;
+                        while (true)
+                        {
+                            // Create a new transaction with a snapshot of the current state
+                            var t = new Transaction(state.Items);
+                            transaction.Value = t;
+                            try
+                            {
+                                // Try to do the operations of the transaction
+                                var res = op.Run(env, sta.EnvIO);
+                                return res.IsFail
+                                           ? res
+                                           : ValidateAndCommit(t, isolation, res.SuccValue, Int64.MinValue);
+                            }
+                            catch (ConflictException)
+                            {
+                                // Conflict found, so retry
+                            }
+                            finally
+                            {
+                                // Clear the current transaction on the way out
+                                transaction.Value = null;
 
-                        // Announce changes
-                        OnChange(t.changes);
-                    }
+                                // Announce changes
+                                OnChange(t.changes);
+                            }
 
-                    // Wait one tick before trying again
-                    sw.SpinOnce();
-                }
-            })
-        select res;
+                            // Wait one tick before trying again
+                            sw.SpinOnce();
+                        }
+                    }));
 
     /// <summary>
     /// Runs the transaction

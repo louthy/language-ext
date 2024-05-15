@@ -25,7 +25,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// Constructor
     /// </summary>
     [MethodImpl(Opt.Default)]
-    internal Eff(Func<RT, ValueTask<A>> effect)
+    internal Eff(Func<RT, Task<A>> effect)
         : this(Eff<RT>.getsIO(effect))
     { }
 
@@ -137,14 +137,14 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> LiftIO(Func<RT, ValueTask<A>> f) =>
+    public static Eff<RT, A> LiftIO(Func<RT, Task<A>> f) =>
         new (f);
 
     /// <summary>
     /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> LiftIO(Func<RT, ValueTask<Fin<A>>> f) =>
+    public static Eff<RT, A> LiftIO(Func<RT, Task<Fin<A>>> f) =>
         new (rt => f(rt).Map(r => r.ThrowIfFail()));
 
     /// <summary>
@@ -179,14 +179,14 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> LiftIO(Func<ValueTask<A>> f) =>
+    public static Eff<RT, A> LiftIO(Func<Task<A>> f) =>
         new (_ => f());
 
     /// <summary>
     /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> LiftIO(Func<ValueTask<Fin<A>>> f) =>
+    public static Eff<RT, A> LiftIO(Func<Task<Fin<A>>> f) =>
         new(_ => f().Map(r => r.ThrowIfFail()));    
 
     /// <summary>

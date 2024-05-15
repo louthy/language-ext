@@ -13,7 +13,7 @@ namespace LanguageExt.Sys.IO;
 /// File IO 
 /// </summary>
 public class File<M, RT>
-    where M : StateM<M, RT>, Resource<M>, Monad<M>
+    where M : StateM<M, RT>, Monad<M>
     where RT : Has<M, FileIO>, Has<M, EncodingIO>
 {
     static readonly K<M, FileIO> trait = 
@@ -169,7 +169,7 @@ public class File<M, RT>
     /// </summary>
     static K<M, Stream> openReadInternal(string path) =>
         from io in trait.Map(e => e.OpenRead(path))
-        from rs in Resource.use<M, Stream>(io)
+        from rs in use(io)
         select rs;
 
     /// <summary>
@@ -178,7 +178,7 @@ public class File<M, RT>
     [Pure, MethodImpl(EffOpt.mops)]
     static K<M, Stream> openInternal(string path, FileMode mode) =>
         from io in trait.Map(e => e.Open(path, mode))
-        from rs in Resource.use<M, Stream>(io)
+        from rs in use(io)
         select rs;
         
     /// <summary>
@@ -187,7 +187,7 @@ public class File<M, RT>
     [Pure, MethodImpl(EffOpt.mops)]
     static K<M, Stream> openInternal(string path, FileMode mode, FileAccess access) =>
         from io in trait.Map(e => e.Open(path, mode, access))
-        from rs in Resource.use<M, Stream>(io)
+        from rs in use(io)
         select rs;
         
     /// <summary>
@@ -196,7 +196,7 @@ public class File<M, RT>
     [Pure, MethodImpl(EffOpt.mops)]
     static K<M, Stream> openWriteInternal(string path) =>
         from io in trait.Map(e => e.OpenWrite(path))
-        from rs in Resource.use<M, Stream>(io)
+        from rs in use(io)
         select rs;
 
     /// <summary>
@@ -205,6 +205,6 @@ public class File<M, RT>
     [Pure, MethodImpl(EffOpt.mops)]
     static K<M, TextReader> openTextInternal(string path) =>
         from io in trait.Map(e => e.OpenText(path))
-        from rs in Resource.use<M, TextReader>(io)
+        from rs in use(io)
         select rs;
 }

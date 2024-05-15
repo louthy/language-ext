@@ -22,10 +22,16 @@ public class Resources : IDisposable
     {
         var s = new CancellationTokenSource();
         var e = EnvIO.New(this, default, s, SynchronizationContext.Current);
+        DisposeU(e);
+    }
+    
+    public Unit DisposeU(EnvIO envIO)
+    {
         foreach (var item in resources)
         {
-            item.Value.Release().Run(e);
+            item.Value.Release().Run(envIO);
         }
+        return default;
     }
 
     public Unit DisposeU()
@@ -35,7 +41,7 @@ public class Resources : IDisposable
     }
 
     public IO<Unit> DisposeIO() =>
-        new (_ => DisposeU());
+        new (DisposeU);
 
     public Unit Acquire<A>(A value) where A : IDisposable
     {

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -129,7 +127,7 @@ public sealed class Ref<A> : IEquatable<A>
         from res in Eff<RT, A>.Lift(
             env =>
             {
-                var fv = f(Value).Run(env, sta.Resources, sta.EnvIO);
+                var fv = f(Value).Run(env, sta.EnvIO);
                 if (fv.IsFail) return fv;
                 Value = fv.SuccValue;
                 return fv;
@@ -188,7 +186,7 @@ public sealed class Ref<A> : IEquatable<A>
         from res in Eff<RT, A>.Lift(
             env =>
             {
-                var fv = f(x, y, Value).Run(env, sta.Resources, sta.EnvIO);
+                var fv = f(x, y, Value).Run(env, sta.EnvIO);
                 if (fv.IsFail) return fv;
                 Value = fv.SuccValue;
                 return fv;
@@ -247,7 +245,7 @@ public sealed class Ref<A> : IEquatable<A>
         from res in Eff<RT, A>.Lift(
             env =>
             {
-                var fv = f(x, Value).Run(env, sta.Resources, sta.EnvIO);
+                var fv = f(x, Value).Run(env, sta.EnvIO);
                 if (fv.IsFail) return fv;
                 Value = fv.SuccValue;
                 return fv;

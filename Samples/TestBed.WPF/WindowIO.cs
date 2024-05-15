@@ -73,7 +73,7 @@ public class WindowIO<RT> : Window
     protected Producer<MouseEventArgs, Eff<RT>, Unit> onMouseMove =>
         from rtime  in runtime<RT>()
         let queue = Proxy.Queue<Eff<RT>, MouseEventArgs>()
-        from hndlr  in Resource.use<Eff<RT>, MouseEventHandler>(
+        from hndlr  in use<MouseEventHandler>(
                          acquire: () => (_, e) => queue.Enqueue(e),
                          release: h => RemoveHandler(Mouse.MouseMoveEvent, h))
         from _      in liftEff(() => AddHandler(Mouse.MouseMoveEvent, hndlr, false))

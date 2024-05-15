@@ -277,14 +277,14 @@ public static partial class Prelude
     /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> liftEff<RT, A>(Func<RT, ValueTask<A>> f) =>
+    public static Eff<RT, A> liftEff<RT, A>(Func<RT, Task<A>> f) =>
         LanguageExt.Eff<RT, A>.LiftIO(f);
 
     /// <summary>
     /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> liftEff<RT, A>(Func<RT, ValueTask<Fin<A>>> f) =>
+    public static Eff<RT, A> liftEff<RT, A>(Func<RT, Task<Fin<A>>> f) =>
         LanguageExt.Eff<RT, A>.LiftIO(f);
 
     /// <summary>

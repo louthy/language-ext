@@ -276,7 +276,7 @@ public static class AffTests
         Eff<Unit> CreateEffect(ICollection<string> buffer) =>
             repeat(
                 from ln in (
-                    from data in liftEff(() => memStream.ReadByte().AsValueTask())
+                    from data in liftEff(() => memStream.ReadByte().AsTask())
                     from _ in guard(data != -1, Errors.Cancelled)
                     select data).FoldUntil(string.Empty, (s, ch) => s + (char)ch, ch => ch == '\0')
                 from _0 in AddToBuffer(buffer,ln)
@@ -302,7 +302,7 @@ public static class AffTests
         Eff<RT, Unit> CreateEffect<RT>() where RT : Has<Eff<RT>, ConsoleIO> =>
             repeat(
                 from ln in (
-                    from data in liftEff(() => memStream.ReadByte().AsValueTask())
+                    from data in liftEff(() => memStream.ReadByte().AsTask())
                     from _ in guard(data != -1, Errors.Cancelled)
                     select data).FoldUntil(string.Empty, (s, ch) => s + (char)ch, ch => ch == '\0')
                 from _0 in Console<Eff<RT>, RT>.writeLine(ln)

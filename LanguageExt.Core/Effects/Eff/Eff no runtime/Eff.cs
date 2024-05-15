@@ -106,14 +106,14 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> LiftIO(Func<MinRT, ValueTask<A>> f) =>
+    public static Eff<A> LiftIO(Func<MinRT, Task<A>> f) =>
         new(Eff<MinRT, A>.LiftIO(f));
 
     /// <summary>
     /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> LiftIO(Func<MinRT, ValueTask<Fin<A>>> f) =>
+    public static Eff<A> LiftIO(Func<MinRT, Task<Fin<A>>> f) =>
         new(Eff<MinRT, A>.LiftIO(rt => f(rt).Map(r => r.ThrowIfFail())));
 
     /// <summary>
@@ -155,14 +155,14 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> LiftIO(Func<ValueTask<A>> f) =>
+    public static Eff<A> LiftIO(Func<Task<A>> f) =>
         new(Eff<MinRT, A>.LiftIO(_ => f()));
 
     /// <summary>
     /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> LiftIO(Func<ValueTask<Fin<A>>> f) =>
+    public static Eff<A> LiftIO(Func<Task<Fin<A>>> f) =>
         new(Eff<MinRT, A>.LiftIO(_ => f().Map(r => r.ThrowIfFail())));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1010,7 +1010,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
         from r in StateT.liftIO<A, IO, X>(IO.lift(() => f(e)).Flatten())
         select r;
 
-    internal static StateT<A, IO, X> getsIO<X>(Func<A, ValueTask<X>> f) =>
+    internal static StateT<A, IO, X> getsIO<X>(Func<A, Task<X>> f) =>
         from e in StateT.get<IO, A>()
         from r in StateT.liftIO<A, IO, X>(IO.liftAsync(() => f(e)))
         select r;

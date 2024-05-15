@@ -32,7 +32,7 @@ public record TextReadIO : Sys.Traits.TextReadIO
     /// Returns the number of chars read
     /// </summary>
     public IO<int> Read(TextReader reader, Memory<char> buffer) =>
-        liftVIO(env => reader.ReadAsync(buffer, env.Token));
+        liftIO(async env => await reader.ReadAsync(buffer, env.Token));
 
     /// <summary>
     /// Close the reader
