@@ -1004,7 +1004,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
 
         if (t.IsFaulted)
         {
-            return t.AsTask().Exception is Exception e
+            return t.Exception is Exception e
                        ? e.Rethrow<A>()
                        : throw new BottomException();
         }
@@ -1031,7 +1031,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
 
         if (t.IsFaulted)
         {
-            return t.AsTask().Exception is Exception e
+            return t.Exception is Exception e
                        ? e.Rethrow<A>()
                        : throw new BottomException();
         }
