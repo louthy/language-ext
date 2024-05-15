@@ -8,7 +8,6 @@ namespace LanguageExt;
 public class Eff : 
     Monad<Eff>,
     StateM<Eff, MinRT>,
-    Resource<Eff>,
     Alternative<Eff>
 {
     static K<Eff, B> Monad<Eff>.Bind<A, B>(K<Eff, A> ma, Func<A, K<Eff, B>> f) =>
@@ -32,15 +31,6 @@ public class Eff :
     static K<Eff, A> SemigroupK<Eff>.Combine<A>(K<Eff, A> ma, K<Eff, A> mb) => 
         ma.As() | mb.As();
 
-    static K<Eff, A> Resource<Eff>.Use<A>(IO<A> ma, Func<A, IO<Unit>> release) => 
-        new Eff<A>(new Eff<MinRT, A>(StateT<MinRT>.lift(ResourceT<IO>.use(ma, release))));
-
-    static K<Eff, Unit> Resource<Eff>.Release<A>(A value) =>
-        new Eff<Unit>(new Eff<MinRT, Unit>(StateT<MinRT>.lift(ResourceT<IO>.release(value))));
-
-    static K<Eff, Resources> Resource<Eff>.Resources =>
-        new Eff<Resources>(new Eff<MinRT, Resources>(StateT<MinRT>.lift(ResourceT<IO, Resources>.Asks(Prelude.identity))));
-
     static K<Eff, Unit> StateM<Eff, MinRT>.Put(MinRT value) => 
         new Eff<Unit>(StateM.put<Eff<MinRT>, MinRT>(value).As());
 
@@ -54,12 +44,10 @@ public class Eff :
         Eff<A>.LiftIO(ma);
 
     static K<Eff, B> Monad<Eff>.WithRunInIO<A, B>(Func<Func<K<Eff, A>, IO<A>>, IO<B>> inner) =>
-        Resource.resources<Eff>()
-                .Bind(r => Eff<B>.LiftIO(
-                              env => inner(ma => ma.As()
-                                                   .effect
-                                                   .effect
-                                                   .Run(env).As()
-                                                   .Run(r).As()
-                                                   .Map(p => p.Value))));
+        Eff<B>.LiftIO(
+            env => inner(ma => ma.As()
+                                 .effect
+                                 .effect
+                                 .Run(env).As()
+                                 .Map(p => p.Value)));
 }

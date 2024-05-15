@@ -19,7 +19,6 @@ namespace LanguageExt;
 public record Eff<A>(Eff<MinRT, A> effect) :
     K<Eff, A>,
     StateM<Eff<A>, A>,
-    Resource<Eff<A>>,
     Alternative<Eff<A>>,
     Monad<Eff<A>>
 {
@@ -48,27 +47,6 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     [Pure, MethodImpl(Opt.Default)]
     public Fin<A> Run() =>
         Run(new MinRT());
-
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Fin<A> Run(MinRT env, Resources resources) =>
-        effect.Run(env, resources);
-
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Fin<A> Run(EnvIO envIO, Resources resources) =>
-        Run(new MinRT(envIO), resources);
-
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Fin<A> Run(Resources resources) =>
-        Run(new MinRT(), resources);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -747,10 +725,9 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     public Eff<RT, A> WithRuntime<RT>()
     {
         var e = effect;
-        return (from eio in Eff<RT, EnvIO>.LiftIO(envIO)
-                from res in Resource.resources<Eff<RT>>()
-                let ires = e.RunUnsafe(new MinRT(eio), res, eio)
-                select ires.Value).As();
+        return Eff<RT, EnvIO>.LiftIO(envIO)
+                             .Map(eio => e.RunUnsafe(new MinRT(eio), eio).Value)
+                             .As();
     }
 
     /// <summary>
@@ -992,7 +969,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
                 foreach (var kfa in fas)
                 {
                     var fa = kfa.As();
-                    rs = fa.Run(rt, s.Resources, s.EnvIO);
+                    rs = fa.Run(rt, s.EnvIO);
                     if (rs.IsFail) return rs;
                 }
                 return rs;
@@ -1005,79 +982,67 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     static K<Eff<A>, T> SemigroupK<Eff<A>>.Combine<T>(K<Eff<A>, T> ma, K<Eff<A>, T> mb) =>
         ma.As() | mb.As();
 
-    static K<Eff<A>, T> Resource<Eff<A>>.Use<T>(IO<T> ma, Func<T, IO<Unit>> release) =>
-        new Eff<A, T>(StateT<A>.lift(ResourceT<IO>.use(ma, release)));
-
-    static K<Eff<A>, Unit> Resource<Eff<A>>.Release<T>(T value) =>
-        new Eff<A, Unit>(StateT<A>.lift(ResourceT<IO>.release(value)));
-
-    static K<Eff<A>, Resources> Resource<Eff<A>>.Resources =>
-        new Eff<A, Resources>(StateT<A>.lift(ResourceT<IO, Resources>.Asks(identity)));
-
     static K<Eff<A>, Unit> StateM<Eff<A>, A>.Put(A value) =>
-        new Eff<A, Unit>(StateT.put<ResourceT<IO>, A>(value));
+        new Eff<A, Unit>(StateT.put<IO, A>(value));
 
     static K<Eff<A>, Unit> StateM<Eff<A>, A>.Modify(Func<A, A> modify) =>
-        new Eff<A, Unit>(StateT.modify<ResourceT<IO>, A>(modify));
+        new Eff<A, Unit>(StateT.modify<IO, A>(modify));
 
     static K<Eff<A>, T> StateM<Eff<A>, A>.Gets<T>(Func<A, T> f) =>
-        new Eff<A, T>(StateT.gets<ResourceT<IO>, A, T>(f));
+        new Eff<A, T>(StateT.gets<IO, A, T>(f));
 
     static K<Eff<A>, T> Monad<Eff<A>>.LiftIO<T>(IO<T> ma) =>
-        new Eff<A, T>(StateT.liftIO<A, ResourceT<IO>, T>(ma));
+        new Eff<A, T>(StateT.liftIO<A, IO, T>(ma));
 
     static K<Eff<A>, U> Monad<Eff<A>>.WithRunInIO<T, U>(Func<Func<K<Eff<A>, T>, IO<T>>, IO<U>> inner) =>
-        Resource.resources<Eff<A>>()
-                .Bind(r => Eff<A, U>.LiftIO(
-                              env => inner(ma => ma.As().effect
-                                                   .Run(env).As()
-                                                   .Run(r).As()
-                                                   .Map(p => p.Value))));
+        Eff<A, U>.LiftIO(
+            env => inner(ma => ma.As().effect
+                                 .Run(env).As()
+                                 .Map(p => p.Value)));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Transformer helpers
     //
 
-    internal static StateT<A, ResourceT<IO>, X> getsM<X>(Func<A, IO<X>> f) =>
-        from e in StateT.get<ResourceT<IO>, A>()
-        from r in StateT.liftIO<A, ResourceT<IO>, X>(IO.lift(() => f(e)).Flatten())
+    internal static StateT<A, IO, X> getsM<X>(Func<A, IO<X>> f) =>
+        from e in StateT.get<IO, A>()
+        from r in StateT.liftIO<A, IO, X>(IO.lift(() => f(e)).Flatten())
         select r;
 
-    internal static StateT<A, ResourceT<IO>, X> getsIO<X>(Func<A, ValueTask<X>> f) =>
-        from e in StateT.get<ResourceT<IO>, A>()
-        from r in StateT.liftIO<A, ResourceT<IO>, X>(IO.liftAsync(() => f(e)))
+    internal static StateT<A, IO, X> getsIO<X>(Func<A, ValueTask<X>> f) =>
+        from e in StateT.get<IO, A>()
+        from r in StateT.liftIO<A, IO, X>(IO.liftAsync(() => f(e)))
         select r;
 
-    internal static StateT<A, ResourceT<IO>, X> gets<X>(Func<A, X> f) =>
-        from e in StateT.get<ResourceT<IO>, A>()
-        from r in StateT.liftIO<A, ResourceT<IO>, X>(IO.lift(() => f(e)))
+    internal static StateT<A, IO, X> gets<X>(Func<A, X> f) =>
+        from e in StateT.get<IO, A>()
+        from r in StateT.liftIO<A, IO, X>(IO.lift(() => f(e)))
         select r;
 
-    internal static StateT<A, ResourceT<IO>, X> gets<X>(Func<A, Fin<X>> f) =>
-        from e in StateT.get<ResourceT<IO>, A>()
-        from r in StateT.liftIO<A, ResourceT<IO>, X>(IO.lift(() => f(e)))
+    internal static StateT<A, IO, X> gets<X>(Func<A, Fin<X>> f) =>
+        from e in StateT.get<IO, A>()
+        from r in StateT.liftIO<A, IO, X>(IO.lift(() => f(e)))
         select r;
 
-    internal static StateT<A, ResourceT<IO>, X> gets<X>(Func<A, Either<Error, X>> f) =>
-        from e in StateT.get<ResourceT<IO>, A>()
-        from r in StateT.liftIO<A, ResourceT<IO>, X>(IO.lift(() => f(e)))
+    internal static StateT<A, IO, X> gets<X>(Func<A, Either<Error, X>> f) =>
+        from e in StateT.get<IO, A>()
+        from r in StateT.liftIO<A, IO, X>(IO.lift(() => f(e)))
         select r;
 
-    internal static StateT<A, ResourceT<IO>, X> fail<X>(Error value) =>
-        StateT.liftIO<A, ResourceT<IO>, X>(IO<X>.Fail(value));
+    internal static StateT<A, IO, X> fail<X>(Error value) =>
+        StateT.liftIO<A, IO, X>(IO<X>.Fail(value));
 
-    internal static StateT<A, ResourceT<IO>, X> pure<X>(X value) =>
-        StateT<A, ResourceT<IO>, X>.Pure(value);
+    internal static StateT<A, IO, X> pure<X>(X value) =>
+        StateT<A, IO, X>.Pure(value);
 
-    internal static StateT<A, ResourceT<IO>, X> state<X>(X value, A runtime) =>
-        StateT<A, ResourceT<IO>, X>.State(value, runtime);
+    internal static StateT<A, IO, X> state<X>(X value, A runtime) =>
+        StateT<A, IO, X>.State(value, runtime);
 
-    internal static readonly StateT<A, ResourceT<IO>, (A Runtime, Resources Resources, EnvIO EnvIO)> getState = 
-        from rt in StateT.get<ResourceT<IO>, A>()
-        from rs in StateT.lift<A, ResourceT<IO>, Resources>(ResourceT.resources<IO>())
-        from io in StateT.lift<A, ResourceT<IO>, EnvIO>(ResourceT.lift(IO.env))
-        select (rt, rs, io);
+    internal static readonly StateT<A, IO, (A Runtime, EnvIO EnvIO)> getState = 
+        from rt in StateT.get<IO, A>()
+        from io in IO.env
+        select (rt, io);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

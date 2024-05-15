@@ -163,10 +163,6 @@ public readonly record struct Pure<A>(A Value)
         where M : Monad<M>, SemiAlternative<M> =>
         bind(Value);
     
-    public ResourceT<M, B> Bind<M, B>(Func<A, ResourceT<M, B>> bind)
-        where M : Monad<M>, SemiAlternative<M> =>
-        bind(Value);
-    
     public OptionT<M, B> Bind<M, B>(Func<A, OptionT<M, B>> bind)
         where M : Monad<M> =>
         bind(Value);
@@ -198,7 +194,7 @@ public readonly record struct Pure<A>(A Value)
     public Reader<Env, C> SelectMany<Env, B, C>(Func<A, Reader<Env, B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
     
-    public Reader<Env, C> SelectMany<Env, M, B, C>(Func<A, K<Reader<Env>, B>> bind, Func<A, B, C> project) =>
+    public Reader<Env, C> SelectMany<Env, B, C>(Func<A, K<Reader<Env>, B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).As().Map(y => project(x, y)));
     
     public ReaderT<Env, M, C> SelectMany<Env, M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
@@ -220,14 +216,6 @@ public readonly record struct Pure<A>(A Value)
         Bind(x => bind(x).Map(y => project(x, y)));
     
     public StateT<S, M, C> SelectMany<S, M, B, C>(Func<A, K<StateT<S, M>, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, SemiAlternative<M> =>
-        Bind(x => bind(x).As().Map(y => project(x, y)));
-    
-    public ResourceT<M, C> SelectMany<M, B, C>(Func<A, ResourceT<M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, SemiAlternative<M> =>
-        Bind(x => bind(x).Map(y => project(x, y)));
-    
-    public ResourceT<M, C> SelectMany<M, B, C>(Func<A, K<ResourceT<M>, B>> bind, Func<A, B, C> project)
         where M : Monad<M>, SemiAlternative<M> =>
         Bind(x => bind(x).As().Map(y => project(x, y)));
     

@@ -7,31 +7,38 @@ namespace LanguageExt;
 /// Environment for the IO monad 
 /// </summary>
 public record EnvIO(
+    Resources Resources,
     CancellationToken Token,
     CancellationTokenSource Source,
     SynchronizationContext? SyncContext) : IDisposable
 {
     public static EnvIO New(
+        Resources resources,
         CancellationToken token,
         CancellationTokenSource source,
         SynchronizationContext? syncContext) =>
-        new (token, source, syncContext);
+        new (resources, token, source, syncContext);
     
+    /*
     public static EnvIO New()
     {
         var src = new CancellationTokenSource();
-        return new EnvIO(src.Token, src, SynchronizationContext.Current);
+        return new EnvIO(new Resources(null), src.Token, src, SynchronizationContext.Current);
     }
     
     public static EnvIO New(CancellationTokenSource src) =>
-        new (src.Token, src, SynchronizationContext.Current);
+        new (new Resources(null), src.Token, src, SynchronizationContext.Current);
+        */
+
+    public EnvIO LocalResources =>
+        this with { Resources = new Resources(Resources) };
 
     public EnvIO LocalCancel
     {
         get
         {
             var src = new CancellationTokenSource();
-            return new EnvIO(src.Token, src, SyncContext);
+            return this with { Token = src.Token, Source = src };
         }
     }
 

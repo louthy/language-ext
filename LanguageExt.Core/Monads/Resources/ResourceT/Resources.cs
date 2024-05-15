@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -9,12 +10,21 @@ namespace LanguageExt;
 public class Resources : IDisposable
 {
     readonly AtomHashMap<object, TrackedResource> resources = AtomHashMap<object, TrackedResource>();
+    readonly Resources? parent;
 
+    public Resources(Resources? parent) =>
+        this.parent = parent;
+
+    public static IO<Resources> NewIO(Resources? parent) => 
+        new (_ => new Resources(parent));
+    
     public void Dispose()
     {
+        var s = new CancellationTokenSource();
+        var e = EnvIO.New(this, default, s, SynchronizationContext.Current);
         foreach (var item in resources)
         {
-            item.Value.Release().Run();
+            item.Value.Release().Run(e);
         }
     }
 
@@ -23,6 +33,9 @@ public class Resources : IDisposable
         Dispose();
         return default;
     }
+
+    public IO<Unit> DisposeIO() =>
+        new (_ => DisposeU());
 
     public Unit Acquire<A>(A value) where A : IDisposable
     {
@@ -48,8 +61,28 @@ public class Resources : IDisposable
                                          resources.Remove(obj);
                                          return f.Release();
                                      },
-                               None: () => unitIO);
+                               None: () => parent is null 
+                                               ? unitIO
+                                               : parent.Release(value));
     }
+
+    public IO<Unit> ReleaseAll() =>
+        IO.lift(envIO =>
+                {
+                    resources.Swap(
+                        r =>
+                        {
+                            foreach (var kv in r)
+                            {
+                                kv.Value.Release().Run(envIO);
+                            }
+                            return [];
+                        });
+                    return unit;
+                });
+    
+    internal Unit Merge(Resources rhs) =>
+        resources.Swap(r => r.AddRange(rhs.resources.AsEnumerable()));
 }
 
 abstract record TrackedResource

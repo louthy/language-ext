@@ -215,32 +215,30 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
         FoldUntil(Schedule.Forever, initialState, folder, predicate);
-    
+
     public IO<S> FoldUntil<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
-        Func<(S State, A Value), bool> predicate)
-    {
-        return new(
-            envIO =>
+        Func<(S State, A Value), bool> predicate) =>
+        new(envIO =>
             {
                 if (envIO.Token.IsCancellationRequested) throw new TaskCanceledException();
-                var r = Run(envIO);
+                var r     = Run(envIO);
                 var state = folder(initialState, r);
                 if (predicate((state, r))) return state;
-                
+
                 var token = envIO.Token;
                 foreach (var delay in schedule.Run())
                 {
                     IO.yieldFor(delay, token);
-                    r = Run(envIO);
+                    r     = Run(envIO);
                     state = folder(state, r);
                     if (predicate((state, r))) return state;
                 }
+
                 return state;
             });
-    }
     
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -276,7 +274,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                                              }
                                              finally
                                              {
-                                                 //wait.Set();
                                                  waiting = false;
                                              }
                                          },
@@ -363,10 +360,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         where M : Monad<M>, Alternative<M> =>
         StateT<S, M, A>.LiftIO(this).SelectMany(bind, project);
 
-    public ResourceT<M, C> SelectMany<M, B, C>(Func<A, ResourceT<M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, Alternative<M> =>
-        ResourceT<M, A>.LiftIO(this).SelectMany(bind, project);
-
     public Eff<C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>
         Eff<A>.LiftIO(this).SelectMany(bind, project);
 
@@ -385,12 +378,16 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         new(e =>
             {
                 if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
+                var lenv = e.LocalResources; 
                 try
                 {
-                    return Run(e);
+                    var r = Run(lenv);
+                    e.Resources.Merge(lenv.Resources);
+                    return r;
                 }
                 catch
                 {
+                    lenv.Resources.ReleaseAll().Run(e);
                     return mb.Run(e);
                 }
             });
@@ -512,6 +509,58 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
+    //  Brackets
+    //
+
+    /// <summary>
+    /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
+    /// the acquisition and releasing, taking a function of the acquired value that specifies an action to be performed
+    /// in between.
+    /// </summary>
+    /// <param name="Use">Function to use the acquired resource</param>
+    /// <param name="Finally">Function to invoke to release the resource</param>
+    public IO<C> Bracket<B, C>(Func<A, IO<C>> Use, Func<A, IO<B>> Finally) =>
+        new(env =>
+            {
+                var x = Run(env);
+                try
+                {
+                    return Use(x).Run(env);
+                }
+                finally
+                {
+                    Finally(x).Run(env)?.Ignore();
+                }
+            });
+
+    /// <summary>
+    /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
+    /// the acquisition and releasing, taking a function of the acquired value that specifies an action to be performed
+    /// in between.
+    /// </summary>
+    /// <param name="Use">Function to use the acquired resource</param>
+    /// <param name="Catch">Function to run to handle any exceptions</param>
+    /// <param name="Finally">Function to invoke to release the resource</param>
+    public IO<C> Bracket<B, C>(Func<A, IO<C>> Use, Func<Error, IO<C>> Catch, Func<A, IO<B>> Finally) =>
+        new(env =>
+            {
+                var x = Run(env);
+                try
+                {
+                    return Use(x).Run(env);
+                }
+                catch (Exception e)
+                {
+                    return Catch(e).Run(env);
+                }
+                finally
+                {
+                    Finally(x).Run(env)?.Ignore();
+                }
+            });
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
     //  Trait implementation
     //
     
@@ -560,6 +609,12 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// <summary>
     /// Queues the specified work to run on the thread pool  
     /// </summary>
+    /// <remarks>
+    /// Any resources acquired within a forked IO computation will automatically be released upon the forked
+    /// computation's completion (successful or otherwise).  Resources acquired in the parent thread will be
+    /// available to the forked thread, and can be released from there, but they are shared resources at that
+    /// point and should be treated with care.
+    /// </remarks>
     /// <param name="timeout">Optional timeout</param>
     /// <returns>`Fork` record that contains members for cancellation and optional awaiting</returns>
     public IO<ForkIO<A>> Fork(Option<TimeSpan> timeout = default) =>
@@ -580,15 +635,19 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 // Run the transducer asynchronously
                 var cleanup = new CleanUp(tsrc, reg);
 
+                var parentResources = env.Resources;
+
                 var task = Task.Run(
                     () =>
                     {
+                        var forkedResources = new Resources(parentResources);
                         try
                         {
-                            return runIO(new EnvIO(token, tsrc, env.SyncContext));
+                            return runIO(new EnvIO(forkedResources, token, tsrc, env.SyncContext));
                         }
                         finally
                         {
+                            forkedResources.Dispose();
                             cleanup.Dispose();
                         }
                     }, token);
@@ -613,8 +672,8 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// <returns>Result of the IO operation</returns>
     /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
     /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
-    public A Run() =>
-        Run(EnvIO.New());
+    //public A Run() =>
+     //   Run(EnvIO.New());
 
     /// <summary>
     /// Run the `IO` monad to get its result
@@ -643,6 +702,10 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// <summary>
     /// Keeps repeating the computation forever, or until an error occurs
     /// </summary>
+    /// <remarks>
+    /// Any resources acquired within a repeated IO computation will automatically be released.  This also means you can't
+    /// acquire resources and return them from within a repeated computation.
+    /// </remarks>
     /// <returns>The result of the last invocation</returns>
     public IO<A> Repeat() =>
         RepeatUntil(Schedule.Forever, _ => false);
@@ -650,6 +713,10 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or an error occurs  
     /// </summary>
+    /// <remarks>
+    /// Any resources acquired within a repeated IO computation will automatically be released.  This also means you can't
+    /// acquire resources and return them from within a repeated computation.
+    /// </remarks>
     /// <param name="schedule">Scheduler strategy for repeating</param>
     /// <returns>The result of the last invocation</returns>
     public IO<A> Repeat(Schedule schedule) =>
@@ -658,6 +725,10 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// <summary>
     /// Keeps repeating the computation until the predicate returns false, or an error occurs 
     /// </summary>
+    /// <remarks>
+    /// Any resources acquired within a repeated IO computation will automatically be released.  This also means you can't
+    /// acquire resources and return them from within a repeated computation.
+    /// </remarks>
     /// <param name="predicate">Keep repeating while this predicate returns `true` for each computed value</param>
     /// <returns>The result of the last invocation</returns>
     public IO<A> RepeatWhile(Func<A, bool> predicate) => 
@@ -666,6 +737,10 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns false, or an error occurs
     /// </summary>
+    /// <remarks>
+    /// Any resources acquired within a repeated IO computation will automatically be released.  This also means you can't
+    /// acquire resources and return them from within a repeated computation.
+    /// </remarks>
     /// <param name="schedule">Scheduler strategy for repeating</param>
     /// <param name="predicate">Keep repeating while this predicate returns `true` for each computed value</param>
     /// <returns>The result of the last invocation</returns>
@@ -677,6 +752,10 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// <summary>
     /// Keeps repeating the computation until the predicate returns true, or an error occurs
     /// </summary>
+    /// <remarks>
+    /// Any resources acquired within a repeated IO computation will automatically be released.  This also means you can't
+    /// acquire resources and return them from within a repeated computation.
+    /// </remarks>
     /// <param name="predicate">Keep repeating until this predicate returns `true` for each computed value</param>
     /// <returns>The result of the last invocation</returns>
     public IO<A> RepeatUntil(
@@ -686,6 +765,10 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns true, or an error occurs
     /// </summary>
+    /// <remarks>
+    /// Any resources acquired within a repeated IO computation will automatically be released.  This also means you can't
+    /// acquire resources and return them from within a repeated computation.
+    /// </remarks>
     /// <param name="schedule">Scheduler strategy for repeating</param>
     /// <param name="predicate">Keep repeating until this predicate returns `true` for each computed value</param>
     /// <returns>The result of the last invocation</returns>
@@ -695,17 +778,35 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         new(env =>
             {
                 if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-                var token  = env.Token;
-                var result = Run(env);
-                if (predicate(result)) return result;
-                
-                foreach(var delay in  schedule.Run())
+                var token = env.Token;
+                var lenv  = env.LocalResources;
+                try
                 {
-                    IO.yieldFor(delay, token);
-                    result = Run(env);
+                    var result = Run(lenv);
+                    
+                    // free any resources acquired during a repeat
+                    lenv.Resources.ReleaseAll().Run(env);
+                    
                     if (predicate(result)) return result;
+
+                    foreach (var delay in schedule.Run())
+                    {
+                        IO.yieldFor(delay, token);
+                        result = Run(lenv);
+                        
+                        // free any resources acquired during a repeat
+                        lenv.Resources.ReleaseAll().Run(env);
+                        
+                        if (predicate(result)) return result;
+                    }
+
+                    return result;
                 }
-                return result;
+                finally
+                {
+                    // free any resources acquired during a repeat
+                    lenv.Resources.ReleaseAll().Run(env);
+                }
             });
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -719,6 +820,11 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// <remarks>
     /// This variant will retry forever
     /// </remarks>
+    /// <remarks>
+    /// Any resources acquired within a retrying IO computation will automatically be released *if* the operation fails.
+    /// So, successive retries will not grow the acquired resources on each retry iteration.  Any successful operation that
+    /// acquires resources will have them tracked in the usual way. 
+    /// </remarks>
     public IO<A> Retry() =>
         RetryUntil(Schedule.Forever, _ => false);
 
@@ -727,6 +833,11 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// </summary>
     /// <remarks>
     /// This variant will retry until the schedule expires
+    /// </remarks>
+    /// <remarks>
+    /// Any resources acquired within a retrying IO computation will automatically be released *if* the operation fails.
+    /// So, successive retries will not grow the acquired resources on each retry iteration.  Any successful operation that
+    /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
     public IO<A> Retry(Schedule schedule) =>
         RetryUntil(schedule, _ => false);
@@ -738,6 +849,11 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// This variant will keep retrying whilst the predicate returns `true` for the error generated at each iteration;
     /// at which point the last raised error will be thrown.
     /// </remarks>
+    /// <remarks>
+    /// Any resources acquired within a retrying IO computation will automatically be released *if* the operation fails.
+    /// So, successive retries will not grow the acquired resources on each retry iteration.  Any successful operation that
+    /// acquires resources will have them tracked in the usual way. 
+    /// </remarks>
     public IO<A> RetryWhile(Func<Error, bool> predicate) => 
         RetryUntil(Schedule.Forever, Prelude.not(predicate));
 
@@ -747,6 +863,11 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// <remarks>
     /// This variant will keep retrying whilst the predicate returns `true` for the error generated at each iteration;
     /// or, until the schedule expires; at which point the last raised error will be thrown.
+    /// </remarks>
+    /// <remarks>
+    /// Any resources acquired within a retrying IO computation will automatically be released *if* the operation fails.
+    /// So, successive retries will not grow the acquired resources on each retry iteration.  Any successful operation that
+    /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
     public IO<A> RetryWhile(
         Schedule schedule,
@@ -760,6 +881,11 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// This variant will keep retrying until the predicate returns `true` for the error generated at each iteration;
     /// at which point the last raised error will be thrown.
     /// </remarks>
+    /// <remarks>
+    /// Any resources acquired within a retrying IO computation will automatically be released *if* the operation fails.
+    /// So, successive retries will not grow the acquired resources on each retry iteration.  Any successful operation that
+    /// acquires resources will have them tracked in the usual way. 
+    /// </remarks>
     public IO<A> RetryUntil(
         Func<Error, bool> predicate) =>
         RetryUntil(Schedule.Forever, predicate);
@@ -771,20 +897,34 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// This variant will keep retrying until the predicate returns `true` for the error generated at each iteration;
     /// or, until the schedule expires; at which point the last raised error will be thrown.
     /// </remarks>
+    /// <remarks>
+    /// Any resources acquired within a retrying IO computation will automatically be released *if* the operation fails.
+    /// So, successive retries will not grow the acquired resources on each retry iteration.  Any successful operation that
+    /// acquires resources will have them tracked in the usual way. 
+    /// </remarks>
     public IO<A> RetryUntil(
         Schedule schedule,
         Func<Error, bool> predicate) =>
         new(env =>
             {
                 if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-                var token  = env.Token;
+                var token     = env.Token;
                 var lastError = BottomException.Default as Exception;
+                var lenv      = env.LocalResources;
                 try
                 {
-                    return Run(env);
+                    var r = Run(lenv);
+                    
+                    // Any resources that were acquired should be propagated through to the `env`
+                    env.Resources.Merge(lenv.Resources);
+
+                    return r;
                 }
                 catch (Exception e)
                 {
+                    // Any resources created whilst trying should be removed for the retry
+                    lenv.Resources.ReleaseAll().Run(env);
+                    
                     if (predicate(Error.New(e))) throw;
                     lastError = e;
                 }
@@ -794,10 +934,18 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                     IO.yieldFor(delay, token);
                     try
                     {
-                        return Run(env);
+                        var r = Run(lenv);
+                        
+                        // Any resources that were acquired should be propagated through to the `env`
+                        env.Resources.Merge(lenv.Resources);
+
+                        return r;
                     }
                     catch (Exception e)
                     {
+                        // Any resources created whilst trying should be removed for the retry
+                        lenv.Resources.ReleaseAll().Run(env);
+                        
                         if (predicate(Error.New(e))) throw;
                         lastError = e;
                     }

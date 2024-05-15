@@ -1,3 +1,4 @@
+/*
 using System;
 using LanguageExt.Traits;
 
@@ -19,6 +20,13 @@ public record ResourceT<M, A>(Func<Resources, K<M, A>> runResource) : K<Resource
     /// <returns>`ResourceT`</returns>
     internal static ResourceT<M, A> Asks(Func<Resources, A> f) =>
         new(env => M.Pure(f(env)));
+
+    /// <summary>
+    /// Run the inner monad in a local resources block that automatically frees up
+    /// acquired resources on completion.
+    /// </summary>
+    public ResourceT<M, A> Local =>
+        Resource<ResourceT<M>>.local(this).As();
 
     /// <summary>
     /// Lifts a given monad into the transformer
@@ -224,7 +232,8 @@ public record ResourceT<M, A>(Func<Resources, K<M, A>> runResource) : K<Resource
     /// <returns>Bound monad</returns>
     public K<M, A> Run()
     {
-        using var resources = new Resources();
+        using var resources = new Resources(null);
         return Run(resources);
     }
 }
+*/

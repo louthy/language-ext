@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 
 namespace LanguageExt.Traits;
 
@@ -48,4 +49,9 @@ public static partial class Resource
     public static K<M, Resources> resources<M>()
         where M : Resource<M> =>
         M.Resources;
+
+    public static K<M, A> local<M, A>(K<M, A> ma)
+        where M : Resource<M> =>
+        M.Local(ma);
 }
+*/

@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using LanguageExt.Traits;
 
@@ -28,11 +27,8 @@ public static partial class EffExtensions
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
     public static Fin<A> Run<RT, A>(this K<Eff<RT>, A> ma, RT env)
-        where RT : HasIO<RT>
-    {
-        using var resources = new Resources();
-        return ma.As().Run(env, resources, env.EnvIO);
-    }
+        where RT : HasIO<RT> =>
+        ma.As().Run(env, env.EnvIO);
 
     /// <summary>
     /// Invoke the effect
@@ -42,11 +38,8 @@ public static partial class EffExtensions
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
     public static Fin<(A Value, RT Runtime)> RunState<RT, A>(this K<Eff<RT>, A> ma, RT env)
-        where RT : HasIO<RT>
-    {
-        using var resources = new Resources();
-        return ma.As().RunState(env, resources, env.EnvIO);
-    }
+        where RT : HasIO<RT> =>
+        ma.As().RunState(env,  env.EnvIO);
 
     /// <summary>
     /// Invoke the effect
@@ -57,45 +50,8 @@ public static partial class EffExtensions
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
     public static (A Value, RT Runtime) RunUnsafe<RT, A>(this K<Eff<RT>, A> ma, RT env)
-        where RT : HasIO<RT>
-    {
-        using var resources = new Resources();
-        return ma.As().RunUnsafe(env, resources, env.EnvIO);
-    }
-
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
-    /// Returns the result value only 
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> Run<RT, A>(this K<Eff<RT>, A> ma, RT env, Resources resources)
         where RT : HasIO<RT> =>
-        ma.As().Run(env, resources, env.EnvIO);
-    
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
-    /// Returns the result value and the runtime (which carries state) 
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<(A Value, RT Runtime)> RunState<RT, A>(this K<Eff<RT>, A> ma, RT env, Resources resources)
-        where RT : HasIO<RT> =>
-        ma.As().RunState(env, resources, env.EnvIO);
-
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
-    /// This is labelled 'unsafe' because it can throw an exception, whereas
-    /// `Run` will capture any errors and return a `Fin` type.
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public static (A Value, RT Runtime) RunUnsafe<RT, A>(this K<Eff<RT>, A> ma, RT env, Resources resources) 
-        where RT : HasIO<RT> =>
-        ma.As().RunUnsafe(env, resources, env.EnvIO);    
+        ma.As().RunUnsafe(env, env.EnvIO);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

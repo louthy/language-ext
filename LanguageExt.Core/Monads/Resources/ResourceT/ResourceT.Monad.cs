@@ -1,3 +1,4 @@
+/*
 using System;
 using LanguageExt.Traits;
 
@@ -54,5 +55,15 @@ public partial class ResourceT<M> :
 
     static K<ResourceT<M>, Resources> Resource<ResourceT<M>>.Resources =>
         ResourceT<M, Resources>.Asks(Prelude.identity);
+
+    static K<ResourceT<M>, A> Resource<ResourceT<M>>.Local<A>(K<ResourceT<M>, A> ma) =>
+        from mk in M.UnliftIO<A>()
+        from or in ResourceT<M, Resources>.Asks(Prelude.identity)
+        from rs in IO.bracket(
+            Acq: Resources.NewIO(or),
+            Use: nr => mk(ma.As().runResource(nr)),
+            Fin: nr => nr.DisposeIO())
+        select rs;
 }
+*/
     

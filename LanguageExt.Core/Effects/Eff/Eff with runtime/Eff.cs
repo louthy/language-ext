@@ -14,7 +14,7 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
+public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -75,7 +75,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// </summary>
     [MethodImpl(Opt.Default)]
     Eff(IO<A> effect) 
-        : this(StateT.liftIO<RT, ResourceT<IO>, A>(effect))
+        : this(StateT.liftIO<RT, IO, A>(effect))
     { }
 
 
@@ -253,7 +253,7 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     public Eff<RT, B> MapIO<B>(Func<IO<A>, IO<B>> f) =>
         from s in getState<RT>()
         let a = Atom<RT>(s.Runtime)
-        from r in f(RunUnsafeIO(s.Runtime, s.Resources)
+        from r in f(RunUnsafeIO(s.Runtime)
                        .Map(p =>
                             {
                                 // TODO: This is ugly -- work out whether it's needed
@@ -279,22 +279,22 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     public Eff<RT, B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail)
     {
         return new(from env in Eff<RT>.getState
-                   from res in go(env.Runtime, env.Resources, env.EnvIO)
+                   from res in go(env.Runtime, env.EnvIO)
                    select res);
 
-        StateT<RT, ResourceT<IO>, B> go(RT env, Resources resources, EnvIO envIO)
+        StateT <RT, IO, B> go(RT env, EnvIO envIO)
         {
             try
             {
-                return StateT<RT, ResourceT<IO>, B>.State(mapFirst(Succ, RunUnsafe(env, resources, envIO)));
+                return StateT<RT, IO, B>.State(mapFirst(Succ, RunUnsafe(env, envIO)));
             }
             catch (ErrorException e)
             {
-                return Fail(e.ToError()).Throw<StateT<RT, ResourceT<IO>, B>>();
+                return Fail(e.ToError()).Throw<StateT<RT, IO, B>>();
             }
             catch (Exception e)
             {
-                return Fail(e).Throw<StateT<RT, ResourceT<IO>, B>>();
+                return Fail(e).Throw<StateT<RT, IO, B>>();
             }
         }
     }    
@@ -314,22 +314,22 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     public Eff<RT, B> Match<B>(Func<A, B> Succ, Func<Error, B> Fail)
     {
         return new(from env in Eff<RT>.getState
-                   from res in go(env.Runtime, env.Resources, env.EnvIO)
+                   from res in go(env.Runtime, env.EnvIO)
                    select res);
 
-        StateT<RT, ResourceT<IO>, B> go(RT env, Resources resources, EnvIO envIO)
+        StateT<RT, IO, B> go(RT env, EnvIO envIO)
         {
             try
             {
-                return StateT<RT, ResourceT<IO>, B>.State(mapFirst(Succ, RunUnsafe(env, resources, envIO)));
+                return StateT<RT, IO, B>.State(mapFirst(Succ, RunUnsafe(env, envIO)));
             }
             catch (ErrorException e)
             {
-                return StateT<RT, ResourceT<IO>, B>.State(Fail(e.ToError()), env);
+                return StateT<RT, IO, B>.State(Fail(e.ToError()), env);
             }
             catch (Exception e)
             {
-                return StateT<RT, ResourceT<IO>, B>.State(Fail(e), env);
+                return StateT<RT, IO, B>.State(Fail(e), env);
             }
         }
     }
@@ -1053,40 +1053,8 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// Returns the result value only 
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
-    public Fin<A> Run(RT env, Resources resources, EnvIO envIO) =>
-        RunState(env, resources, envIO).Map(x => x.Value);
-
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
-    /// Returns the result value only 
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public Fin<A> Run(RT env, EnvIO envIO)
-    {
-        using var resources = new Resources();
-        return Run(env, resources, envIO);
-    }
-    
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
-    /// Returns the result value and the runtime (which carries state) 
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public Fin<(A Value, RT Runtime)> RunState(RT env, Resources resources, EnvIO envIO)
-    {
-        try
-        {
-            return RunUnsafe(env, resources, envIO);
-        }
-        catch(Exception e)
-        {
-            return Fin<(A Value, RT Runtime)>.Fail(e);
-        }
-    }
+    public Fin<A> Run(RT env, EnvIO envIO) =>
+        RunState(env, envIO).Map(x => x.Value);
     
     /// <summary>
     /// Invoke the effect
@@ -1097,8 +1065,14 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     [Pure, MethodImpl(Opt.Default)]
     public Fin<(A Value, RT Runtime)> RunState(RT env, EnvIO envIO)
     {
-        using var resources = new Resources();
-        return RunState(env, resources, envIO);
+        try
+        {
+            return RunUnsafe(env, envIO);
+        }
+        catch(Exception e)
+        {
+            return Fin<(A Value, RT Runtime)>.Fail(e);
+        }
     }
 
     /// <summary>
@@ -1109,10 +1083,9 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// `Run` will capture any errors and return a `Fin` type.
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
-    public (A Value, RT Runtime) RunUnsafe(RT env, Resources resources, EnvIO envIO) => 
+    public (A Value, RT Runtime) RunUnsafe(RT env, EnvIO envIO) => 
         effect
           .Run(env).As()
-          .Run(resources).As()
           .Run(envIO);
 
     /// <summary>
@@ -1123,24 +1096,8 @@ public record Eff<RT, A>(StateT<RT, ResourceT<IO>, A> effect) : K<Eff<RT>, A>
     /// `Run` will capture any errors and return a `Fin` type.
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
-    public (A Value, RT Runtime) RunUnsafe(RT env, EnvIO envIO)
-    {
-        using var resources = new Resources();
-        return RunUnsafe(env, resources, envIO);
-    }
-
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
-    /// This is labelled 'unsafe' because it can throw an exception, whereas
-    /// `Run` will capture any errors and return a `Fin` type.
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<(A Value, RT Runtime)> RunUnsafeIO(RT env, Resources resources) => 
-        effect
-           .Run(env).As()
-           .Run(resources).As();
+    public IO<(A Value, RT Runtime)> RunUnsafeIO(RT env) => 
+        effect.Run(env).As();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

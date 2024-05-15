@@ -3,7 +3,6 @@ using LanguageExt.Common;
 using System.Threading.Tasks;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -53,7 +52,7 @@ public static partial class Prelude
     /// Get all of the internal state of the Eff
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, (RT Runtime, Resources Resources, EnvIO EnvIO)> getState<RT>() =>
+    public static Eff<RT, (RT Runtime, EnvIO EnvIO)> getState<RT>() =>
         new(LanguageExt.Eff<RT>.getState);
     
     /// <summary>
@@ -69,7 +68,7 @@ public static partial class Prelude
             rt =>
             {
                 using var lenvIO = s.EnvIO.LocalCancel;
-                return ma.Run(rt, s.Resources, lenvIO);
+                return ma.Run(rt, lenvIO);
             })
         select r;
 
@@ -84,19 +83,9 @@ public static partial class Prelude
     public static Eff<OuterRT, A> localEff<OuterRT, InnerRT, A>(Func<OuterRT, InnerRT> f, Eff<InnerRT, A> ma) =>
          // Get the current state of the Eff  
          from st in getState<OuterRT>()
-         
-         // Create a new local-resources, but add it to our parent Resources
-         from res in Resource.use<Eff<OuterRT>, Resources>(() => new Resources())
-         
-         // Create a new local cancellation environment and then add it to the local resources
-         let io = st.EnvIO.LocalCancel
-         let _1 = res.Acquire(io)
-         
+
          // Run the local operation
-         let rs = ma.RunUnsafe(f(st.Runtime), res, io)
-         
-         // Release the local resources (and in the process disposing of the local cancellation environment)
-         from _2 in Resource.release<Eff<OuterRT>, Resources>(res)
+         from rs in IO.local(ma.effect.Run(f(st.Runtime)))   //ma.RunUnsafe(f(st.Runtime), res, io)
          
          // Ignore any changes to the state and just return the result of the local operation
          select rs.Value;

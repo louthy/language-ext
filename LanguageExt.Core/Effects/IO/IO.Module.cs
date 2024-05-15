@@ -52,7 +52,7 @@ public partial class IO
                  // If the parent cancels, we should too
                  using var reg = env.Token.Register(() => tsrc.Cancel());
 
-                 var env1 = new EnvIO(tok, tsrc, env.SyncContext);
+                 var env1 = env with { Token = tok, Source = tsrc };
                  return ma.As().Run(env1);
              });
     
@@ -145,6 +145,34 @@ public partial class IO
     [MethodImpl(Opt.Default)]
     public static IO<Unit> yield(double milliseconds) =>
         IO<Unit>.Lift(env => yieldFor(new Duration(milliseconds), env.Token));
+    
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Brackets
+    //
+
+    /// <summary>
+    /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
+    /// the acquisition and releasing, taking a function of the acquired value that specifies an action to be performed
+    /// in between.
+    /// </summary>
+    /// <param name="Acq">Acquire resource</param>
+    /// <param name="Use">Function to use the acquired resource</param>
+    /// <param name="Fin">Function to invoke to release the resource</param>
+    public static IO<C> bracket<A, B, C>(IO<A> Acq, Func<A, IO<C>> Use, Func<A, IO<B>> Fin) =>
+        Acq.Bracket(Use, Fin);
+
+    /// <summary>
+    /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
+    /// the acquisition and releasing, taking a function of the acquired value that specifies an action to be performed
+    /// in between.
+    /// </summary>
+    /// <param name="Acq">Acquire resource</param>
+    /// <param name="Use">Function to use the acquired resource</param>
+    /// <param name="Err">Function to run to handle any exceptions</param>
+    /// <param name="Fin">Function to invoke to release the resource</param>
+    public static IO<C> bracket<A, B, C>(IO<A> Acq, Func<A, IO<C>> Use, Func<Error, IO<C>> Err, Func<A, IO<B>> Fin) =>
+        Acq.Bracket(Use, Err, Fin);
     
     /// <summary>
     /// Yields the thread for the `Duration` specified allowing for concurrency

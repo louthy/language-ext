@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -18,3 +19,4 @@ public static partial class ResourceExtensions
         where M : Resource<M> =>
         Resource.use<M, A>(ma, a => IO.lift(() => { a.Dispose(); return default(Unit); }));
 }
+*/

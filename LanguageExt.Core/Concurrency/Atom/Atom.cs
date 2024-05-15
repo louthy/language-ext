@@ -159,7 +159,7 @@ public sealed class Atom<A>
                 while (true)
                 {
                     var current      = value;
-                    var newValueFinA = f(Box<A>.GetValue(value)).Run(env, sta.Resources, sta.EnvIO);
+                    var newValueFinA = f(Box<A>.GetValue(value)).Run(env, sta.EnvIO);
                     if (newValueFinA.IsFail)
                     {
                         return newValueFinA;
@@ -305,7 +305,7 @@ public sealed class Atom<A>
                 while (true)
                 {
                     var current      = value;
-                    var newValueFinA = f(x, Box<A>.GetValue(value)).Run(env, sta.Resources, sta.EnvIO);
+                    var newValueFinA = f(x, Box<A>.GetValue(value)).Run(env, sta.EnvIO);
                     if (newValueFinA.IsFail)
                     {
                         return newValueFinA;
@@ -455,7 +455,7 @@ public sealed class Atom<A>
                 while (true)
                 {
                     var current      = value;
-                    var newValueFinA = f(x, y, Box<A>.GetValue(value)).Run(env, sta.Resources, sta.EnvIO);
+                    var newValueFinA = f(x, y, Box<A>.GetValue(value)).Run(env, sta.EnvIO);
                     if (newValueFinA.IsFail)
                     {
                         return newValueFinA;
