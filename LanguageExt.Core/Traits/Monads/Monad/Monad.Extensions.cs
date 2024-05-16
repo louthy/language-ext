@@ -43,9 +43,9 @@ public static partial class MonadExtensions
     /// <returns>M<B></returns>
     public static K<M, B> Bind<M, A, B>(
         this K<M, A> ma,
-        Func<A, IO<B>> f)
+        Func<A, K<IO, B>> f)
         where M : Monad<M> =>
-        M.Bind(ma, x => M.LiftIO(f(x)));
+        M.Bind(ma, x => M.LiftIO(f(x).As()));
     
     /// <summary>
     /// Monad bind operation
@@ -90,10 +90,10 @@ public static partial class MonadExtensions
     /// <returns>M<C></returns>
     public static K<M, C> SelectMany<M, A, B, C>(
         this K<M, A> ma,
-        Func<A, IO<B>> bind,
+        Func<A, K<IO, B>> bind,
         Func<A, B, C> project)
         where M : Monad<M> =>
-        M.Bind(ma, a => M.LiftIO(bind(a).Map(b => project(a, b))));
+        M.Bind(ma, a => M.LiftIO(bind(a).As().Map(b => project(a, b))));
 
     /// <summary>
     /// Monadic join operation
