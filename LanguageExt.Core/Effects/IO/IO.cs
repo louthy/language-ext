@@ -709,6 +709,23 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
     public A Run(EnvIO env) =>
         runIO(env);
+
+    /// <summary>
+    /// Run the `IO` monad to get its result.  Differs from `Run` in that it catches any exceptions and turns
+    /// them into a `Fin<A>` result. 
+    /// </summary>
+    public IO<Fin<A>> Try() =>
+        new(env =>
+            {
+                try
+                {
+                    return Run(env);
+                }
+                catch (Exception e)
+                {
+                    return (Error)e;
+                }
+            });
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

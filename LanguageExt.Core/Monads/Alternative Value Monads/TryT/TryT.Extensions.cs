@@ -13,14 +13,34 @@ public static class TryTExt
     public static TryT<M, A> As<M, A>(this K<TryT<M>, A> ma)
         where M : Monad<M> =>
         (TryT<M, A>)ma;
-    
+
     /// <summary>
     /// Monadic join
     /// </summary>
     [Pure]
-    public static TryT<M, A> Flatten<M, A>(this TryT<M, TryT<M, A>> mma)
+    public static TryT<M, A> Flatten<M, A>(this K<TryT<M>, TryT<M, A>> mma)
         where M : Monad<M> =>
-        mma.Bind(identity);
+        new(mma.As().runTry.Bind(
+                ta => ta.Run() switch
+                      {
+                          Fin.Succ<TryT<M, A>>(var ma) => ma.runTry,
+                          Fin.Fail<TryT<M, A>>(var e)  => M.Pure(Try.Fail<A>(e)),
+                          _                            => throw new NotSupportedException()
+                      }));
+
+    /// <summary>
+    /// Monadic join
+    /// </summary>
+    [Pure]
+    public static TryT<M, A> Flatten<M, A>(this K<TryT<M>, K<TryT<M>, A>> mma)
+        where M : Monad<M> =>
+        new(mma.As().runTry.Bind(
+                ta => ta.Run() switch
+                      {
+                          Fin.Succ<K<TryT<M>, A>>(var ma) => ma.As().runTry,
+                          Fin.Fail<K<TryT<M>, A>>(var e)  => M.Pure(Try.Fail<A>(e)),
+                          _                               => throw new NotSupportedException()
+                      }));
 
     /// <summary>
     /// Monad bind operation

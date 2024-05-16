@@ -35,16 +35,5 @@ public partial class TryT<M> : MonadT<TryT<M>, M>, SemiAlternative<TryT<M>>
         TryT<M, A>.Lift(M.LiftIO(ma));
 
     static K<TryT<M>, A> SemigroupK<TryT<M>>.Combine<A>(K<TryT<M>, A> ma, K<TryT<M>, A> mb) =>
-        new TryT<M, A>(
-            () =>
-            {
-                try
-                {
-                    return ma.As().runTry();
-                }
-                catch
-                {
-                    return mb.As().runTry();
-                }
-            });
+        ma.As().Combine(mb.As());
 }

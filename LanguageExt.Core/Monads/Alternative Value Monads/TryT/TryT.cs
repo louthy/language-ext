@@ -1,6 +1,7 @@
 ﻿using System;
 using LanguageExt.Common;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -10,7 +11,7 @@ namespace LanguageExt;
 /// <param name="runEither">Transducer that represents the transformer operation</param>
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public record TryT<M, A>(Func<K<M, Fin<A>>> runTry) : K<TryT<M>, A>
+public record TryT<M, A>(K<M, Try<A>> runTry) : K<TryT<M>, A>, Semigroup<TryT<M, A>>
     where M : Monad<M>
 {
     /// <summary>
@@ -32,7 +33,6 @@ public record TryT<M, A>(Func<K<M, Fin<A>>> runTry) : K<TryT<M>, A>
     /// <summary>
     /// Lifts a given monad into the transformer
     /// </summary>
-    /// <param name="pure">Monad to lift</param>
     /// <returns>`TryT`</returns>
     public static TryT<M, A> Lift(Pure<A> pure) =>
         Succ(pure.Value);
@@ -40,18 +40,16 @@ public record TryT<M, A>(Func<K<M, Fin<A>>> runTry) : K<TryT<M>, A>
     /// <summary>
     /// Lifts a given monad into the transformer
     /// </summary>
-    /// <param name="either">Monad to lift</param>
     /// <returns>`TryT`</returns>
     public static TryT<M, A> Lift(Fin<A> result) =>
-        new(() => M.Pure(result));
+        new(M.Pure(Try.lift(result)));
 
     /// <summary>
     /// Lifts a given monad into the transformer
     /// </summary>
-    /// <param name="either">Monad to lift</param>
     /// <returns>`TryT`</returns>
     public static TryT<M, A> Lift(Func<Fin<A>> result) =>
-        new(() => M.Pure(result()));
+        new(M.Pure(Try.lift(result)));
 
     /// <summary>
     /// Lifts a given monad into the transformer
@@ -67,7 +65,7 @@ public record TryT<M, A>(Func<K<M, Fin<A>>> runTry) : K<TryT<M>, A>
     /// <param name="monad">Monad to lift</param>
     /// <returns>`TryT`</returns>
     public static TryT<M, A> Lift(K<M, A> monad) =>
-        new(() => M.Map(Fin<A>.Succ, monad));
+        new(M.Map(Try<A>.Succ, monad));
 
     /// <summary>
     /// Lifts a given monad into the transformer
@@ -75,7 +73,7 @@ public record TryT<M, A>(Func<K<M, Fin<A>>> runTry) : K<TryT<M>, A>
     /// <param name="monad">Monad to lift</param>
     /// <returns>`TryT`</returns>
     public static TryT<M, A> LiftIO(IO<A> monad) =>
-        Lift(M.LiftIO(monad));
+        new(M.LiftIO(monad.Try()).Map(Try<A>.Lift));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -92,22 +90,31 @@ public record TryT<M, A>(Func<K<M, Fin<A>>> runTry) : K<TryT<M>, A>
         M.Map(mx => mx.Match(Succ, Fail), Run());
 
     /// <summary>
+    /// Match the bound value and return a result (which gets packages back up inside the inner monad)
+    /// </summary>
+    /// <param name="Succ">Success branch</param>
+    /// <param name="Fail">Fail branch</param>
+    /// <returns>Inner monad with the result of the `Succ` or `Fail` branches</returns>
+    public K<M, A> IfFail(Func<Error, A> Fail) =>
+        Match(identity, Fail);
+
+    /// <summary>
+    /// Match the bound value and return a result (which gets packages back up inside the inner monad)
+    /// </summary>
+    /// <param name="Succ">Success branch</param>
+    /// <param name="Fail">Fail branch</param>
+    /// <returns>Inner monad with the result of the `Succ` or `Fail` branches</returns>
+    public K<M, A> IfFailM(Func<Error, K<M, A>> Fail) =>
+        Match(M.Pure, Fail).Flatten();
+
+    /// <summary>
     /// Run the transformer
     /// </summary>
     /// <remarks>
     /// This is where the exceptions are caught
     /// </remarks>
-    public K<M, Fin<A>> Run()
-    {
-        try
-        {
-            return runTry();
-        }
-        catch (Exception e)
-        {
-            return M.Pure(Fin<A>.Fail(e));
-        }
-    }
+    public K<M, Fin<A>> Run() =>
+        runTry.Map(t => t.Run());
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -123,20 +130,7 @@ public record TryT<M, A>(Func<K<M, Fin<A>>> runTry) : K<TryT<M>, A>
     /// <returns>Mapped monad</returns>
     public TryT<M1, B> MapT<M1, B>(Func<K<M, Fin<A>>, K<M1, Fin<B>>> f)
         where M1 : Monad<M1> =>
-        new(() => f(runTry()));
-
-    /// <summary>
-    /// Maps the given monad
-    /// </summary>
-    /// <param name="f">Mapping function</param>
-    public TryT<M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
-        new(() => runTry()
-               .Bind(fv => fv switch
-                           {
-                               Fin.Succ<A> (var v) => f(M.Pure(v)).Map(Fin<B>.Succ),
-                               Fin.Fail<A> (var e) => M.Pure<Fin<B>>(e),
-                               _                   => throw new NotSupportedException()
-                           }));
+        new(f(Run()).Map(Try.lift));
 
     /// <summary>
     /// Maps the bound value
@@ -145,7 +139,7 @@ public record TryT<M, A>(Func<K<M, Fin<A>>> runTry) : K<TryT<M>, A>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`TryT`</returns>
     public TryT<M, B> Map<B>(Func<A, B> f) =>
-        new(() => M.Map(mx => mx.Map(f), runTry()));
+        new(M.Map(mx => mx.Map(f), runTry));
     
     /// <summary>
     /// Maps the bound value
@@ -154,7 +148,7 @@ public record TryT<M, A>(Func<K<M, Fin<A>>> runTry) : K<TryT<M>, A>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`TryT`</returns>
     public TryT<M, B> Select<B>(Func<A, B> f) =>
-        new(() => M.Map(mx => mx.Map(f), runTry()));
+        new(M.Map(mx => mx.Map(f), runTry));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -168,7 +162,7 @@ public record TryT<M, A>(Func<K<M, Fin<A>>> runTry) : K<TryT<M>, A>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`TryT`</returns>
     public TryT<M, B> Bind<B>(Func<A, K<TryT<M>, B>> f) =>
-        Bind(x => f(x).As());
+        Map(f).Flatten();
 
     /// <summary>
     /// Monad bind operation
@@ -177,10 +171,7 @@ public record TryT<M, A>(Func<K<M, Fin<A>>> runTry) : K<TryT<M>, A>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`TryT`</returns>
     public TryT<M, B> Bind<B>(Func<A, TryT<M, B>> f) =>
-        new(() => M.Bind(runTry(),
-                         ex => ex.Match(
-                             Succ: x => f(x).runTry(),
-                             Fail: e => M.Pure(Fin<B>.Fail(e)))));
+        Map(f).Flatten();
 
     /// <summary>
     /// Monad bind operation
@@ -285,6 +276,108 @@ public record TryT<M, A>(Func<K<M, Fin<A>>> runTry) : K<TryT<M>, A>
     public static implicit operator TryT<M, A>(Fail<Error> ma) =>
         Lift(Fin<A>.Fail(ma.Value));
     
+    public static implicit operator TryT<M, A>(Fail<Exception> ma) =>
+        Lift(Fin<A>.Fail(ma.Value));
+    
     public static implicit operator TryT<M, A>(IO<A> ma) =>
         LiftIO(ma);
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Trait implementation
+    //
+
+    public static TryT<M, A> operator |(TryT<M, A> ma, Pure<A> mb) =>
+        ma.Combine(mb);
+
+    public static TryT<M, A> operator |(TryT<M, A> ma, Fail<Error> mb) =>
+        ma.Combine(mb);
+
+    public static TryT<M, A> operator |(TryT<M, A> ma, Fail<Exception> mb) =>
+        ma.Combine(mb);
+
+    public static TryT<M, A> operator |(TryT<M, A> ma, Error mb) =>
+        ma.Combine(mb);
+
+    public static TryT<M, A> operator |(TryT<M, A> ma, CatchError mb) =>
+        ma | mb.As();
+
+    public static TryT<M, A> operator |(TryT<M, A> ma, CatchValue<A> mb) =>
+        ma | mb.As();
+
+    public static TryT<M, A> operator |(TryT<M, A> ma, CatchIO<A> mb) =>
+        new(ma.Run()
+              .Map(fa => fa switch
+                         {
+                             Fin.Fail<A> (var err) when mb.Match(err) => LiftIO(mb.Value(err)),
+                             Fin.Fail<A> (var err)                    => Fail(err),
+                             Fin.Succ<A> (var val)                    => Succ(val),
+                             _                                        => throw new NotSupportedException()
+                         })
+              .Map(ta => ta.runTry)
+              .Flatten());
+
+    public static TryT<M, A> operator |(TryT<M, A> ma, CatchM<TryT<M>, A> mb) =>
+        new(ma.Run()
+              .Map(fa => fa switch
+                         {
+                             Fin.Fail<A> (var err) when mb.Match(err) => mb.Value(err).As(),
+                             Fin.Fail<A> (var err)                    => Fail(err),
+                             Fin.Succ<A> (var val)                    => Succ(val),
+                             _                                        => throw new NotSupportedException()
+                         })
+              .Map(ta => ta.runTry)
+              .Flatten());
+
+    public static TryT<M, A> operator |(TryT<M, A> ma, CatchError<Error> mb) =>
+        new(ma.Run()
+              .Map(fa => fa switch
+                         {
+                             Fin.Fail<A> (var err) when mb.Match(err) => Try.Fail<A>(mb.Value(err)),
+                             Fin.Fail<A> (var err)                    => Try.Fail<A>(err),
+                             Fin.Succ<A> (var val)                    => Try.Succ(val),
+                             _                                        => throw new NotSupportedException()
+                         }));
+
+    public static TryT<M, A> operator |(TryT<M, A> ma, CatchError<Exception> mb) =>
+        new(ma.Run()
+              .Map(fa => fa switch
+                         {
+                             Fin.Fail<A> (var err) when mb.Match(err) => Try.Fail<A>(mb.Value(err.ToException())),
+                             Fin.Fail<A> (var err)                    => Try.Fail<A>(err),
+                             Fin.Succ<A> (var val)                    => Try.Succ(val),
+                             _                                        => throw new NotSupportedException()
+                         }));
+
+    public static TryT<M, A> operator |(TryT<M, A> ma, CatchValue<Error, A> mb) =>
+        new(ma.Run()
+              .Map(fa => fa switch
+                         {
+                             Fin.Fail<A> (var err) when mb.Match(err) => Try.Succ(mb.Value(err)),
+                             Fin.Fail<A> (var err)                    => Try.Fail<A>(err),
+                             Fin.Succ<A> (var val)                    => Try.Succ(val),
+                             _                                        => throw new NotSupportedException()
+                         }));
+
+    public static TryT<M, A> operator |(TryT<M, A> ma, CatchValue<Exception, A> mb) =>
+        new(ma.Run()
+              .Map(fa => fa switch
+                         {
+                             Fin.Fail<A> (var err) when mb.Match(err) => Try.Succ(mb.Value(err.ToException())),
+                             Fin.Fail<A> (var err)                    => Try.Fail<A>(err),
+                             Fin.Succ<A> (var val)                    => Try.Succ(val),
+                             _                                        => throw new NotSupportedException()
+                         }));
+    
+    public static TryT<M, A> operator |(TryT<M, A> lhs, TryT<M, A> rhs) =>
+        lhs.Combine(rhs);
+
+    public TryT<M, A> Combine(TryT<M, A> rhs) =>
+        new(Run().Bind(
+                lhs => lhs switch
+                       {
+                           Fin.Succ<A> (var x) => M.Pure(Try.Succ(x)),
+                           Fin.Fail<A>         => rhs.runTry,
+                           _                   => throw new NotSupportedException()
+                       }));
 }

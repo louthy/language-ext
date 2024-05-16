@@ -31,7 +31,7 @@ public partial class TryT<M>
         TryT<M, A>.Lift(M.LiftIO(ma));
 }
 
-public partial class TryT
+public class TryT
 {
     public static TryT<M, B> bind<M, A, B>(TryT<M, A> ma, Func<A, TryT<M, B>> f) 
         where M : Monad<M> =>
