@@ -50,7 +50,7 @@ public class Proxy<UOut, UIn, DIn, DOut, M> :
         K<M, R> Go<R>(Proxy<UOut, UIn, DIn, DOut, M, R> p) =>
             p.ToProxy() switch
             {
-                ProxyM<UOut, UIn, DIn, DOut, M, R> (var mx) => mx.Bind(Go),
+                ProxyM<UOut, UIn, DIn, DOut, M, R> (var mx) => mx.Bind(x => Go(x)),
                 Pure<UOut, UIn, DIn, DOut, M, R> (var r)    => M.Pure(r),
                 Iterator<UOut, UIn, DIn, DOut, M, R> iter   => runIterator(iter),
                 Request<UOut, UIn, DIn, DOut, M, R>         => throw new InvalidOperationException("WithRunInIO only supported for closed Effects"),
