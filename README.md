@@ -144,20 +144,16 @@ be `PascalCase`:
 ```
 Even if you disagree with this non-idiomatic approach, all of the `camelCase` static functions have fluent variants, so you never actually have to see the non-standard stuff. 
 
-_If you're not using C# 6 yet, then you can still use this library. Anywhere in the docs below where you see a camelCase function 
-it can be accessed by prefixing with `Prelude.`_
-
 ## Features
 
 ### Functional effects and IO
 
 Location | Feature | Description
 ---------|---------|------------
-`Core` | `Aff<A>` | [An asynchronous effect: an IO monad](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects)
-`Core` | `Eff<A>` | [A synchronous effect: an IO monad](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects)
-`Core` | `Aff<RT, A>` | [An asynchronous effect with injectable runtime: a unit testable IO monad](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects)
-`Core` | `Eff<RT, A>` | [A synchronous effect with injectable runtime: a unit testable IO monad](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects)
-`Core` | Pipes | [A clean and powerful stream processing system that lets you build and connect reusable streaming components](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects)
+`Core` | `IO<A>` | [An synchronous and asynchronous side-effect: an IO monad]([https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/IO/index.html))
+`Core` | `Eff<A>` | [A synchronous and asynchronous side-effect with error handling](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Eff/Eff%20no%20runtime/index.html)
+`Core` | `Eff<RT, A>` | [Same as `Eff<A>` but with an injectable runtime for dependency-injection: a unit testable IO monad](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Eff/Eff%20with%20runtime/index.html)
+`Core` | Pipes | [A clean and powerful stream processing system that lets you build and connect reusable streaming components](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Pipes/index.html)
 
 ### Atomic concurrency and collections 
 
