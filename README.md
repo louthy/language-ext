@@ -146,11 +146,11 @@ Even if you disagree with this non-idiomatic approach, all of the `camelCase` st
 
 ## Features
 
-### Functional effects and IO
+### [Functional effects and IO](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/index.html)
 
 Location | Feature | Description
 ---------|---------|------------
-`Core` | `IO<A>` | [An synchronous and asynchronous side-effect: an IO monad]([https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/IO/index.html))
+`Core` | `IO<A>` | [An synchronous and asynchronous side-effect: an IO monad](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/IO/index.html)
 `Core` | `Eff<A>` | [A synchronous and asynchronous side-effect with error handling](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Eff/Eff%20no%20runtime/index.html)
 `Core` | `Eff<RT, A>` | [Same as `Eff<A>` but with an injectable runtime for dependency-injection: a unit testable IO monad](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Eff/Eff%20with%20runtime/index.html)
 `Core` | Pipes | [A clean and powerful stream processing system that lets you build and connect reusable streaming components](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Pipes/index.html)
