@@ -19,8 +19,6 @@ __Author on...__
 
 * [Reference](#reference)
 * [Nu-get package](#nu-get)
-* [Code-gen setup](#code-gen-setup)
-* [Unity](#unity)
 * [Getting started](#getting-started)
 * [Prologue](#prologue)
 * [**Features**](#features)
@@ -31,7 +29,6 @@ __Author on...__
   * [State managing monads](#state-managing-monads)
   * [Parser combinators](#parser-combinators)
   * [Type aliasing](#new-types---type-aliasing)
-  * [Records, Unions, Free Monads, Lenses - Code Generation](#code-generation)
   * [Pretty: Produce nicely formatted text with smart layouts](#pretty)
   * [Make C# better: memoisation, currying, partial application, `Nullable`, `Task`, and `IQueryable` extensions](#make-c-better)
     * [Poor tuple support](#poor-tuple-support)
@@ -43,20 +40,8 @@ __Author on...__
       * [Lists](#lists)
       * [List pattern matching](#list-pattern-matching)
       * [Maps](#maps)
-    * [Difficulty in creating immutable record types](#difficulty-in-creating-immutable-record-types)
-      * [Transformation of immutable types](#transformation-of-immutable-types)
-        * [`[With]`](#with)
-      * [Transformation of nested immutable types with Lenses](#transformation-of-nested-immutable-types-with-lenses)
-        * [`[WithLens]`](#withlens)
     * [The awful 'out' parameter](#the-awful-out-parameter)
-    * [The lack of ad-hoc polymorphism](#ad-hoc-polymorphism)
-      * [`Num<A>`](#num<A>)
-      * [`Eq<A>`](#eq<A>)
-      * [`Ord<A>`](#ord<A>)
-      * [`Semigroup<A>`](#semigroup<A>)
-      * [`Monoid<A>`](#monoid<A>)
-      * [`Monad`](#monad)
-      * [Transformer types](#transformer-types)
+    * [The lack of higher-kinded polymorphism](#higher-kinded-polymorphism)
 * [Contributing & Code of Conduct](#contributing--code-of-conduct)
 
 ## Reference
@@ -69,58 +54,38 @@ __Author on...__
 Nu-get package | Description
 ---------------|-------------
 [LanguageExt.Core](https://www.nuget.org/packages/LanguageExt.Core) | All of the core types and functional 'prelude'. __This is all that's needed to get started__.
-[LanguageExt.Transformers](https://www.nuget.org/packages/LanguageExt.Transformers) | For every combination of monadic type `M<N<A>>` (i.e. `Seq<Option<A>>`), this package provides the following extension methods: `ApplyT`, `AppendT`, `BindT`, `CompareT`, `CountT`, `EqualsT`, `ExistsT`, `ForAllT`, `FoldT`, `FoldBackT`, `FilterT`, `IterT`, `MapT`, `PlusT`, `ProductT`, `SubtractT`, `DivideT`, and `SumT`.  Which makes it much easier to work with those nested types (no need to manually unpack the bound values)
 [LanguageExt.FSharp](https://www.nuget.org/packages/LanguageExt.FSharp) | F# to C# interop package. Provides interop between the LanguageExt.Core types (like `Option`, `List` and `Map`) to the F# equivalents, as well as interop between core BCL types and F#
 [LanguageExt.Parsec](https://www.nuget.org/packages/LanguageExt.Parsec) | Port of the [Haskell parsec library](https://hackage.haskell.org/package/parsec)
 [LanguageExt.Rx](https://www.nuget.org/packages/LanguageExt.Rx) | Reactive Extensions support for various types within the Core
 [LanguageExt.Sys](https://www.nuget.org/packages/LanguageExt.Sys) | Provides an [`Aff` and `Eff`](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects) wrapper around the .NET System namespace making common IO operations pure and unit-testable
-[LanguageExt.SysX](https://www.nuget.org/packages/LanguageExt.SysX) | As above, but provides .NET5+ specific features
-[LanguageExt.CodeGen](https://www.nuget.org/packages/LanguageExt.CodeGen) | [Used to generate records, unions, lenses, and `With` functions automagically](https://github.com/louthy/language-ext/wiki/Code-generation). 
-
-## Code-gen setup
-
-To use the code-generation features of `language-ext` (which are totally optional by the way), then you must include the [LanguageExt.CodeGen](https://www.nuget.org/packages/LanguageExt.CodeGen) package into your project. 
-
-To make the reference **build and design time only** (i.e. your project doesn't gain an additional dependencies because of the code-generator), open up your `csproj` and set the `PrivateAssets` attribute to `all`:
-```xml
-<ItemGroup>
-    <PackageReference Include="LanguageExt.Core" Version="3.4.10" />
-
-    <PackageReference Include="LanguageExt.CodeGen" Version="3.4.10"
-                      PrivateAssets="all" />
-
-    <PackageReference Include="CodeGeneration.Roslyn.BuildTime"
-                      Version="0.6.1"
-                      PrivateAssets="all" />
-
-    <DotNetCliToolReference Include="dotnet-codegen" Version="0.6.1" />
-</ItemGroup>
-```
-
-> Obviously, update the `Version` attributes to the appropriate values. Also note that you will probably need the latest VS2019+ for this to work. Even early versions of VS2019 seem to have problems.
-
-There's more information on the code-gen features on [the wiki](https://github.com/louthy/language-ext/wiki/Code-generation)
-
-## Unity
-
-This library seems compatible on the latest (at the time of writing) Unity 2018.2 with __incremental compiler__ (which enables C# 7), so it should work well once Unity has official support for C# 7 on upcoming 2018.3.
-In the meanwhile, you can install incremental compiler instead. 
-If you are concerned about writing functionally and the possible performance overheads then please take a look at [this wiki page](https://github.com/louthy/language-ext/wiki/Performance).
 
 ## Getting started
 
-To use this library, simply include `LanguageExt.Core.dll` in your project or grab it from NuGet, and add this to the top of each `.cs` file that needs it:
+To use this library, simply include `LanguageExt.Core.dll` in your project or grab it from NuGet.  It is also worth setting up some `global using` for your project.  This is the full list that will cover the key functionality and bring it into scope:
 ```C#
-using LanguageExt;
-using static LanguageExt.Prelude;
+global using LanguageExt;
+global using LanguageExt.Common;
+global using static LanguageExt.Prelude;
+global using LanguageExt.Traits;
+global using LanguageExt.Effects;
+global using LanguageExt.Pipes;
+global using LanguageExt.Pretty;
+global using LanguageExt.Traits.Domain;
+```
+A minimum, might be:
+```c#
+global using LanguageExt;
+global using LanguageExt.Common;
+global using static LanguageExt.Prelude;
+global using LanguageExt.Traits;
 ```
 
-The namespace `LanguageExt` contains the core types, and `LanguageExt.Prelude` contains the functions that you bring into scope `using static LanguageExt.Prelude`.
+The namespace `LanguageExt` contains most of the core typesl; `LanguageExt.Prelude` contains the functions that you bring into scope the prelude functions that behave like standalone functions in ML style functional programming languages; `LanguageExt.Traits` brings in the higher-kinded trait-types and many extensions; `LanguageExt.Common` brings in the `Error` type and predefined `Errors`.
 
 ## Prologue
-One of the great features of C#6+ is that it allows us to treat static classes like namespaces. This means that we can use static 
+From C# 6 onwards we got the ability to treat static classes like namespaces. This means that we can use static 
 methods without qualifying them first. That instantly gives us access to single term method names that look exactly like functions 
-in functional languages. i.e.
+in ML-style functional languages. i.e.
 ```C#
     using static System.Console;
     
@@ -134,6 +99,20 @@ necessarily right?  A lot of C#'s idioms are inherited from Java and C# 1.0. Sin
 async... C# as a language is becoming more and more like a  functional language on every release. In fact, the bulk of the new 
 features are either inspired by or directly taken from features in functional languages. So perhaps it's time to move the C# 
 idioms closer to the functional world's idioms?
+
+My goal with this library is very much to create a whole new community within the larger C# community.  This community is not 
+constrained by the dogma of the past or by the norms of C#.  It understands that the OOP approach to programming has some problems
+and tries to address them head-on.  
+
+And for those that say "just use F#" or "just use Haskell", sure, go do that.  But it's important to remember that C# has a lot
+going for it:
+
+* Incredible investment into a state-of-the art compiler
+* Incredible tooling (Visual Studio and Rider)
+* A large community of developers already using it
+  * This is important for companies that hire engineers
+* It is a functional programming language!  It has first-class functions, lambdas, etc.
+  * And with this library it has a functional-first _Base Class Library_
 
 ### A note about naming
 
