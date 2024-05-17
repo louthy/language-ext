@@ -155,7 +155,7 @@ Location | Feature | Description
 `Core` | `Eff<RT, A>` | [Same as `Eff<A>` but with an injectable runtime for dependency-injection: a unit testable IO monad](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Eff/Eff%20with%20runtime/index.html)
 `Core` | Pipes | [A clean and powerful stream processing system that lets you build and connect reusable streaming components](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Pipes/index.html)
 
-### Atomic concurrency and collections 
+### [Atomic concurrency and collections ](https://louthy.github.io/language-ext/LanguageExt.Core/Concurrency/index.html)
 
 Location | Feature | Description
 ---------|---------|------------
@@ -167,7 +167,7 @@ Location | Feature | Description
 `Core` | `VersionVector<A>` | [A vector clock with some versioned data](https://louthy.github.io/language-ext/LanguageExt.Core/Concurrency/VersionVector)
 `Core` | `VersionHashMap <ConflictV, K, V>` | [Distrubuted atomic versioning of keys in a hash-map](https://louthy.github.io/language-ext/LanguageExt.Core/Concurrency/VersionHashMap)
 
-### Immutable collections
+### [Immutable collections](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/index.html)
 
 Location | Feature | Description
 ---------|---------|------------
@@ -195,18 +195,20 @@ Location | Feature | Description
 `Core` | `Either<L,R>` | [Right/Left choice monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Either/index.html)
 `Core` | `EitherT<L, M, R>` | [Right/Left choice monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/EitherT/index.html)
 `Core` | `Try<A>` | [Exception handling monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Try/Try/index.html)
-`Core` | `TryT<A>` | [Exception handling monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/TryT/index.html)
+`Core` | `TryT<M, A>` | [Exception handling monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/TryT/index.html)
 `Core` | `Validation<FAIL ,SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Validation/index.html) for collecting multiple errors before aborting an operation
 `Core` | `ValidationT<FAIL, M, SUCCESS>` | [Validation applicative and monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/ValidationT/index.html)
 
-### State managing monads
+### [State managing monads](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/State%20and%20Environment%20Monads/index.html)
 
 Location | Feature | Description
 ---------|---------|------------
-`Core` | `Reader<E, A>` | [Reader monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/State%20and%20Environment%20Monads/Reader/index.html)
-`Core` | `Writer<MonoidW, W, T>` | [Writer monad that logs to a `W` constrained to be a Monoid](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/State%20and%20Environment%20Monads/Writer/index.html)
-`Core` | `State<S, A>` | [State monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/State%20and%20Environment%20Monads/State/index.html)
-`Core` | `RWS<R, W, S, A>` | [Reader Writer State monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/State%20and%20Environment%20Monads/RWS/index.html)
+`Core` | `Reader<E, A>` | [Reader monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/State%20and%20Environment%20Monads/Reader/Reader/index.html)
+`Core` | `ReaderT<E, M, A>` | [Reader monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/State%20and%20Environment%20Monads/Reader/ReaderT/index.html)
+`Core` | `Writer<W, A>` | [Writer monad that logs to a `W` constrained to be a Monoid](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/State%20and%20Environment%20Monads/Writer/Writer/index.html)
+`Core` | `Writer<W, M, A>` | [Writer monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/State%20and%20Environment%20Monads/Writer/WriterT/index.html)
+`Core` | `State<S, A>` | [State monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/State%20and%20Environment%20Monads/State/State/index.html)
+`Core` | `StateT<S, M, A>` | [State monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/State%20and%20Environment%20Monads/State/StateT/index.html)
 
 ### Parser combinators
 
