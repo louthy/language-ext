@@ -72,7 +72,7 @@ global using static LanguageExt.Prelude;
 global using LanguageExt.Traits;
 ```
 
-The namespace `LanguageExt` contains most of the core types; `LanguageExt.Prelude` contains the functions that you bring into scope the prelude functions that behave like standalone functions in ML style functional programming languages; `LanguageExt.Traits` brings in the higher-kinded trait-types and many extensions; `LanguageExt.Common` brings in the `Error` type and predefined `Errors`.
+The namespace `LanguageExt` contains most of the core types; `LanguageExt.Prelude` contains the functions that bring into scope the prelude functions that behave like standalone functions in ML style functional programming languages; `LanguageExt.Traits` brings in the higher-kinded trait-types and many extensions; `LanguageExt.Common` brings in the `Error` type and predefined `Errors`.
 
 ## Prologue
 From C# 6 onwards we got the ability to treat static classes like namespaces. This means that we can use static 
