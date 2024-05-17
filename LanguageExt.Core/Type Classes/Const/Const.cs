@@ -1,14 +1,14 @@
-﻿using LanguageExt.Attributes;
+﻿#nullable enable
+using LanguageExt.Attributes;
 
-namespace LanguageExt.TypeClasses
+namespace LanguageExt.Traits;
+
+/// <summary>
+/// Constant value trait
+/// </summary>
+/// <typeparam name="TYPE"></typeparam>
+[Trait("Const*")]
+public interface Const<out TYPE> : Trait
 {
-    /// <summary>
-    /// Constant value type-class
-    /// </summary>
-    /// <typeparam name="TYPE"></typeparam>
-    [Typeclass("Const*")]
-    public interface Const<TYPE> : Typeclass
-    {
-        TYPE Value { get; }
-    }
+    public static abstract TYPE Value { get; }
 }

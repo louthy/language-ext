@@ -1,5 +1,5 @@
 ﻿using System.Collections.Immutable;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Benchmarks
@@ -40,7 +40,7 @@ namespace LanguageExt.Benchmarks
         }
 
         public static HashSet<TEq, T> LangExtHashSetSetup<T, TEq>(T[] values)
-            where TEq : struct, Eq<T>
+            where TEq : Eq<T>
         {
             var hashSet = HashSet<TEq, T>();
             foreach (var value in values)
@@ -52,7 +52,7 @@ namespace LanguageExt.Benchmarks
         }
 
         public static Set<TOrd, T> LangExtSetSetup<T, TOrd>(T[] values)
-            where TOrd : struct, Ord<T>
+            where TOrd : Ord<T>
         {
             var set = Set<TOrd, T>();
             foreach (var value in values)

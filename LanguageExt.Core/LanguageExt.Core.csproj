@@ -5,10 +5,11 @@
   <PropertyGroup Label="Configuration">
     <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
     <DefineConstants>CONTRACTS_FULL</DefineConstants>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup>
-    <PackageVersion>4.4.8</PackageVersion>
+    <PackageVersion>5.0.0-alpha.10</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>
@@ -24,7 +25,7 @@
     <OutputType>library</OutputType>
     <AssemblyVersion>4.0.0.0</AssemblyVersion>
     <FileVersion>4.0.0.0</FileVersion>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\Images\lang-ext-small.png">
@@ -40,18 +41,6 @@
     <Compile Remove="obj\**" />
     <EmbeddedResource Remove="obj\**" />
     <None Remove="obj\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
-    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="[4.5.4,)" />
-    <PackageReference Include="System.ValueTuple" Version="[4.5.0,)" />
-    <PackageReference Include="Microsoft.CSharp" Version="[4.7.0,)" />
-    <PackageReference Include="System.Memory" Version="4.5.5" />
-    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
-    <PackageReference Include="System.Diagnostics.Contracts" Version="[4.3.0,)" />
-    <PackageReference Include="System.Linq" Version="[4.3.0,)" />
-    <PackageReference Include="System.Linq.Queryable" Version="[4.3.0,)" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />

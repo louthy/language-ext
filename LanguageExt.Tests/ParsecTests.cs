@@ -11,7 +11,7 @@ using static LanguageExt.Parsec.Prim;
 using static LanguageExt.Parsec.Char;
 using static LanguageExt.Parsec.Expr;
 using static LanguageExt.Parsec.Token;
-using LanguageExt.UnitsOfMeasure;
+using static LanguageExt.UnitsOfMeasure;
 using LanguageExt.ClassInstances;
 using Char = System.Char;
 
@@ -117,7 +117,7 @@ namespace LanguageExt.Tests
         {
             var p = from x in anyChar
                     from y in anyChar
-                    select Tuple(x, y);
+                    select (x, y);
 
             var r = parse(p, "Hello");
 
@@ -156,7 +156,7 @@ namespace LanguageExt.Tests
         {
             var p = from x in either(ch('a'), ch('1'))
                     from y in either(ch('a'), ch('1'))
-                    select Tuple(x, y);
+                    select (x, y);
 
             var r = parse(p, "a1");
 

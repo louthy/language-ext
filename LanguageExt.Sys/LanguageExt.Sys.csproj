@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <LangVersion>default</LangVersion>
 
-        <PackageVersion>4.4.8</PackageVersion>
+        <PackageVersion>5.0.0-alpha.10</PackageVersion>
         <PackageId>LanguageExt.Sys</PackageId>
         <Title>LanguageExt.Sys</Title>
         <Authors>Paul Louth</Authors>
@@ -15,7 +15,7 @@
         <PackageIcon>lang-ext-small.png</PackageIcon>
         <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
         <OutputType>library</OutputType>
         <AssemblyVersion>4.0.0.0</AssemblyVersion>

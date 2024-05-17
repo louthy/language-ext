@@ -35,7 +35,7 @@ namespace LanguageExt
         /// Calculate the hash code for an array
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Hash<HashA, A>(A[] items, int offsetBasis = OffsetBasis) where HashA : struct, Hashable<A>
+        public static int Hash<HashA, A>(A[]? items, int offsetBasis = OffsetBasis) where HashA : Hashable<A>
         {
             int hash = offsetBasis;
             if (items == null) return hash;
@@ -45,7 +45,7 @@ namespace LanguageExt
                 Span<A> span = items;
                 foreach (var item in span)
                 {
-                    hash = Next(default(HashA).GetHashCode(item), hash);
+                    hash = Next(HashA.GetHashCode(item), hash);
                 }
                 return hash;
             }
@@ -55,7 +55,7 @@ namespace LanguageExt
         /// Calculate the hash code for an array slice
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Hash<HashA, A>(A[] items, int start, int length, int offsetBasis = OffsetBasis) where HashA : struct, Hashable<A>
+        public static int Hash<HashA, A>(A[]? items, int start, int length, int offsetBasis = OffsetBasis) where HashA : Hashable<A>
         {
             int hash = offsetBasis;
             if (items == null) return hash;
@@ -65,7 +65,7 @@ namespace LanguageExt
                 var span = new Span<A>(items, start, length);
                 foreach (var item in span)
                 {
-                    hash = Next(default(HashA).GetHashCode(item), hash);
+                    hash = Next(HashA.GetHashCode(item), hash);
                 }
                 return hash;
             }
@@ -75,7 +75,7 @@ namespace LanguageExt
         /// Calculate the hash code for an enumerable
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Hash<HashA, A>(IEnumerable<A> items, int offsetBasis = OffsetBasis) where HashA : struct, Hashable<A>
+        public static int Hash<HashA, A>(IEnumerable<A>? items, int offsetBasis = OffsetBasis) where HashA : Hashable<A>
         {
             int hash = offsetBasis;
             if (items == null) return hash;
@@ -84,7 +84,7 @@ namespace LanguageExt
             {
                 foreach (var item in items)
                 {
-                    hash = Next(default(HashA).GetHashCode(item), hash);
+                    hash = Next(HashA.GetHashCode(item), hash);
                 }
                 return hash;
             }

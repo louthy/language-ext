@@ -4,22 +4,26 @@ If first we think about a tuple:
 
     (int, string)
 
-This type can represent an `int` _AND_ a `string`.  Now consider the `Either<L, R>` monad, this means the value can _either_ be
-`Left` or `Right`  (`L` or `R`).  So this:
+This type can represent an `int` _AND_ a `string`.  Now consider the `Either<L, R>` monad, this means the value 
+can be`Left` _OR_ `Right`  (`L` or `R`).  
+
+So, this:
 
     Either<int, string>
 
-Means either `int` _OR_ `string`. It is the natural _dual_ to a tuple.
+Means either `int` _OR_ `string`. It is the natural _dual_ of tuple.
 
-In the case of `Either` the _Right_ value is considered the _bound_ value of the monad, and the _Left_ value is considered 
-the _alternative_ value.  All of the other _alternative value monads_ can be seen as derivatives or specialisations of `Either`.
+In the case of `Either` the _Right_ value is considered the _bound_ value of the monad, and the _Left_ value 
+is considered the _alternative_ value.  All of the other _alternative value monads_ can be seen as derivatives 
+or specialisations of `Either`.
 
-| Type | Bound Value Type | Alternative Value Type
-| ---- | ---- | ---- |
-| `Option<A>`                 | `A` | `None`
-| `Fin<A>`                    | `A` | `Error`
-| `Try<A>`                    | `A` | `Exception`
-| `Validation<F, S>`          | `S` | `Seq<F>`
-| `Nullable<A>`               | `A` | `null`
+| Type                     | Alternative Value Type | Bound Value Type |
+|--------------------------|------------------------|------------------|
+| `Either<L, R>`           | `L`                    | `R`              |
+| `Option<A>`              | `None`                 | `A`              |
+| `Fin<A>`                 | `Error`                | `A`              |
+| `Validation<Fail, Succ>` | `Seq<Fail>`            | `Succ`           |
+| `Nullable<A>`            | `null`                 | `A`              |
 
-_The alternative value is usually used to carry errors, but that doesn't have to be the case_
+> _The alternative value is usually used to carry errors, but that doesn't have to be the case. It is 
+> important to remember that the alternative-value can carry anything you want._

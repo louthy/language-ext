@@ -1,11 +1,10 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using LanguageExt;
 using static LanguageExt.Prelude;
-using System.ComponentModel;
 using System.Diagnostics.Contracts;
+
+namespace LanguageExt;
 
 public static partial class TrackingHashMapExtensions
 {
@@ -14,63 +13,63 @@ public static partial class TrackingHashMapExtensions
     /// </summary>
     [Pure]
     public static TrackingHashMap<K, V> ToTrackingHashMap<K, V>(this IEnumerable<(K, V)> items) =>
-        LanguageExt.TrackingHashMap.createRange(items);
+        TrackingHashMap.createRange(items);
 
     /// <summary>
     /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
     public static TrackingHashMap<K, V> ToTrackingHashMap<K, V>(this IEnumerable<Tuple<K, V>> items) =>
-        LanguageExt.TrackingHashMap.createRange(items);
+        TrackingHashMap.createRange(items);
 
     /// <summary>
     /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
     public static TrackingHashMap<K, V> ToTrackingHashMap<K, V>(this IEnumerable<KeyValuePair<K, V>> items) =>
-        LanguageExt.TrackingHashMap.createRange(items);
+        TrackingHashMap.createRange(items);
 
     /// <summary>
     /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
     public static TrackingHashMap<K1, TrackingHashMap<K2, V>> ToTrackingHashMap<K1, K2, V>(this IEnumerable<(K1, K2, V)> items) =>
-        items.Fold(TrackingHashMap<K1, TrackingHashMap<K2, V>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3));
+        items.AsEnumerableM().Fold(TrackingHashMap<K1, TrackingHashMap<K2, V>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3));
 
     /// <summary>
     /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
     public static TrackingHashMap<K1, TrackingHashMap<K2, V>> ToTrackingHashMap<K1, K2, V>(this IEnumerable<Tuple<K1, K2, V>> items) =>
-        items.Fold(TrackingHashMap<K1, TrackingHashMap<K2, V>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3));
+        items.AsEnumerableM().Fold(TrackingHashMap<K1, TrackingHashMap<K2, V>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3));
 
     /// <summary>
     /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
     public static TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, V>>> ToTrackingHashMap<K1, K2, K3, V>(this IEnumerable<(K1, K2, K3, V)> items) =>
-        items.Fold(TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, V>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4));
+        items.AsEnumerableM().Fold(TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, V>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4));
 
     /// <summary>
     /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
     public static TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, V>>> ToTrackingHashMap<K1, K2, K3, V>(this IEnumerable<Tuple<K1, K2, K3, V>> items) =>
-        items.Fold(TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, V>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4));
+        items.AsEnumerableM().Fold(TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, V>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4));
 
     /// <summary>
     /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
     public static TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, TrackingHashMap<K4, V>>>> ToTrackingHashMap<K1, K2, K3, K4, V>(this IEnumerable<(K1, K2, K3, K4, V)> items) =>
-        items.Fold(TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, TrackingHashMap<K4, V>>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5));
+        items.AsEnumerableM().Fold(TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, TrackingHashMap<K4, V>>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5));
 
     /// <summary>
     /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
     public static TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, TrackingHashMap<K4, V>>>> ToTrackingHashMap<K1, K2, K3, K4, V>(this IEnumerable<Tuple<K1, K2, K3, K4, V>> items) =>
-        items.Fold(TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, TrackingHashMap<K4, V>>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5));
+        items.AsEnumerableM().Fold(TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, TrackingHashMap<K4, V>>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5));
 
     /// <summary>
     /// Number of items in the map
@@ -118,7 +117,7 @@ public static partial class TrackingHashMapExtensions
         self.AddOrUpdate(
             outerKey,
             b => b.AddOrUpdate(innerKey, Some, None),
-            () => Prelude.TrackingHashMap(Tuple(innerKey, None()))
+            () => TrackingHashMap((innerKey, None()))
         );
 
     [Pure]
@@ -126,7 +125,7 @@ public static partial class TrackingHashMapExtensions
         self.AddOrUpdate(
             outerKey,
             b => b.AddOrUpdate(innerKey, _ => value, value),
-            () => Prelude.TrackingHashMap(Tuple(innerKey, value))
+            () => TrackingHashMap((innerKey, value))
         );
 
     [Pure]
@@ -135,7 +134,7 @@ public static partial class TrackingHashMapExtensions
             aKey,
             bKey,
             c => c.AddOrUpdate(cKey, _ => value, value),
-            () => Prelude.TrackingHashMap(Tuple(cKey, value))
+            () => TrackingHashMap((cKey, value))
         );
 
     [Pure]
@@ -144,7 +143,7 @@ public static partial class TrackingHashMapExtensions
             aKey,
             bKey,
             c => c.AddOrUpdate(cKey, Some, None),
-            () => Prelude.TrackingHashMap(Tuple(cKey, None()))
+            () => TrackingHashMap((cKey, None()))
         );
 
     [Pure]
@@ -154,7 +153,7 @@ public static partial class TrackingHashMapExtensions
             bKey,
             cKey,
             d => d.AddOrUpdate(dKey, _ => value, value),
-            () => Prelude.TrackingHashMap(Tuple(dKey, value))
+            () => TrackingHashMap((dKey, value))
         );
 
     [Pure]
@@ -164,7 +163,7 @@ public static partial class TrackingHashMapExtensions
             bKey,
             cKey,
             d => d.AddOrUpdate(dKey, Some, None),
-            () => Prelude.TrackingHashMap(Tuple(dKey, None()))
+            () => TrackingHashMap((dKey, None()))
         );
 
     [Pure]

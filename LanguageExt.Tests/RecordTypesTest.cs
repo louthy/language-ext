@@ -1,5 +1,5 @@
 ﻿using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -332,11 +332,11 @@ namespace LanguageExt.Tests
             Assert.True(z.CompareTo(x) >= 0);
         }
 
-        public bool GenericEquals<EqA, A>(A x, A y) where EqA : struct, Eq<A> =>
-            default(EqA).Equals(x, y);
+        public bool GenericEquals<EqA, A>(A x, A y) where EqA : Eq<A> =>
+            EqA.Equals(x, y);
 
-        public int GenericCompare<OrdA, A>(A x, A y) where OrdA : struct, Ord<A> =>
-            default(OrdA).Compare(x, y);
+        public int GenericCompare<OrdA, A>(A x, A y) where OrdA : Ord<A> =>
+            OrdA.Compare(x, y);
 
         [Fact]
         public void OptOutOfEqTest()

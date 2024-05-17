@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using System.Diagnostics.Contracts;
 
 namespace LanguageExt;
@@ -45,7 +43,7 @@ public static partial class Prelude
     /// <returns>Returns the two schedules appended</returns>
     [Pure]
     public static Schedule append(Schedule a, Schedule b) =>
-        a.Append(b);
+        a.Combine(b);
 
     /// <summary>
     /// Take `amount` durations from the `Schedule`

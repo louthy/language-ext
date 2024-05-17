@@ -1,13 +1,8 @@
-﻿#nullable enable
-
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
-
-using Durations = IEnumerable<Duration>;
 
 public abstract partial record Schedule
 {
@@ -23,7 +18,7 @@ public abstract partial record Schedule
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(params Duration[] durations) =>
-        new SchItems(durations);
+        new SchItems(durations.AsEnumerableM());
 
     /// <summary>
     /// `Schedule` constructor that recurs for the specified durations
@@ -31,7 +26,7 @@ public abstract partial record Schedule
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(Arr<Duration> durations) =>
-        new SchItems(durations.Value);
+        new SchItems(durations.Value.AsEnumerableM());
 
     /// <summary>
     /// `Schedule` constructor that recurs for the specified durations
@@ -39,7 +34,7 @@ public abstract partial record Schedule
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(Seq<Duration> durations) =>
-        new SchItems(durations.Value);
+        new SchItems(durations.Value.AsEnumerableM());
 
     /// <summary>
     /// `Schedule` constructor that recurs for the specified durations
@@ -47,7 +42,7 @@ public abstract partial record Schedule
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(Lst<Duration> durations) =>
-        new SchItems(durations.Value);
+        new SchItems(durations.Value.AsEnumerableM());
 
     /// <summary>
     /// `Schedule` constructor that recurs for the specified durations
@@ -55,7 +50,7 @@ public abstract partial record Schedule
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(Set<Duration> durations) =>
-        new SchItems(durations.Value);
+        new SchItems(durations.Value.AsEnumerableM());
 
     /// <summary>
     /// `Schedule` constructor that recurs for the specified durations
@@ -63,7 +58,7 @@ public abstract partial record Schedule
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(HashSet<Duration> durations) =>
-        new SchItems(durations.Value);
+        new SchItems(durations.Value.AsEnumerableM());
     
     /// <summary>
     /// `ScheduleTransformer` constructor which provides mapping capabilities for `Schedule` instances
@@ -308,6 +303,9 @@ public abstract partial record Schedule
     /// Repeats the schedule n number of times
     /// </summary>
     /// <param name="times">number of times to repeat the schedule</param>
+    /// <remarks>
+    /// NOTE: This repeats the entire schedule!  Use `Schedule.recurs(n)` for 'number of attempts'.
+    /// </remarks>
     [Pure]
     public static ScheduleTransformer repeat(int times) =>
         Transform(s => new SchRepeat(s, times));

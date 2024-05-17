@@ -1,50 +1,49 @@
-﻿using LanguageExt.TypeClasses;
+﻿/*
+using LanguageExt.Traits;
 using System.Diagnostics.Contracts;
 
-namespace LanguageExt.ClassInstances
+namespace LanguageExt.ClassInstances;
+
+/// <summary>
+/// Booleans form a monoid under conjunction.
+/// </summary>
+public struct Any : Monoid<bool>, Bool<bool>
 {
-    /// <summary>
-    /// Booleans form a monoid under conjunction.
-    /// </summary>
-    public struct Any : Monoid<bool>, Bool<bool>
-    {
-        public static readonly Any Inst = default(Any);
+    [Pure]
+    public static bool Append(bool x, bool y) => x || y;
 
-        [Pure]
-        public bool Append(bool x, bool y) => x || y;
+    [Pure]
+    public static bool Empty => false;
 
-        [Pure]
-        public bool Empty() => false;
+    [Pure]
+    public static bool And(bool a, bool b) =>
+        TBool.And(a, b);
 
-        [Pure]
-        public bool And(bool a, bool b) =>
-            TBool.Inst.And(a, b);
+    [Pure]
+    public static bool BiCondition(bool a, bool b) =>
+        TBool.BiCondition(a, b);
 
-        [Pure]
-        public bool BiCondition(bool a, bool b) =>
-            TBool.Inst.BiCondition(a, b);
+    [Pure]
+    public static bool False() => false;
 
-        [Pure]
-        public bool False() => false;
+    [Pure]
+    public static bool Implies(bool a, bool b) =>
+        TBool.Implies(a, b);
 
-        [Pure]
-        public bool Implies(bool a, bool b) =>
-            TBool.Inst.Implies(a, b);
+    [Pure]
+    public static bool Not(bool a) =>
+        TBool.Not(a);
 
-        [Pure]
-        public bool Not(bool a) =>
-            TBool.Inst.Not(a);
+    [Pure]
+    public static bool Or(bool a, bool b) =>
+        TBool.Or(a, b);
 
-        [Pure]
-        public bool Or(bool a, bool b) =>
-            TBool.Inst.Or(a, b);
+    [Pure]
+    public static bool True() =>
+        true;
 
-        [Pure]
-        public bool True() =>
-            true;
-
-        [Pure]
-        public bool XOr(bool a, bool b) =>
-            TBool.Inst.XOr(a, b);
-    }
+    [Pure]
+    public static bool XOr(bool a, bool b) =>
+        TBool.XOr(a, b);
 }
+*/

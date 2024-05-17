@@ -11,12 +11,12 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="A">Stack element type</typeparam>
     [Serializable]
-    internal class StckInternal<A> : IEnumerable<A>, IEnumerable
+    internal class StckInternal<A> : IEnumerable<A>
     {
-        public readonly static StckInternal<A> Empty = new StckInternal<A>();
+        public static readonly StckInternal<A> Empty = new ();
 
-        readonly A value;
-        readonly StckInternal<A> tail;
+        readonly A? value;
+        readonly StckInternal<A>? tail;
         int hashCode;
 
         /// <summary>
@@ -41,7 +41,22 @@ namespace LanguageExt
         /// <summary>
         /// Ctor that takes an initial state as an IEnumerable T
         /// </summary>
-        public StckInternal(IEnumerable<A> initial)
+        public StckInternal(A[] initial)
+        {
+            tail = new StckInternal<A>();
+            foreach (var item in initial)
+            {
+                value = item;
+                tail = tail.Push(item);
+                Count++;
+            }
+            tail = tail.Pop();
+        }
+
+        /// <summary>
+        /// Ctor that takes an initial state as an IEnumerable T
+        /// </summary>
+        public StckInternal(ReadOnlySpan<A> initial)
         {
             tail = new StckInternal<A>();
             foreach (var item in initial)
@@ -118,18 +133,18 @@ namespace LanguageExt
         /// </summary>
         /// <returns>IEnumerable of T</returns>
         [Pure]
-        public IEnumerable<A> AsEnumerable()
+        public EnumerableM<A> AsEnumerable()
         {
             IEnumerable<A> Yield()
             {
                 var self = this;
-                while (self.Count != 0)
+                while (self!.Count != 0)
                 {
-                    yield return self.value;
+                    yield return self.value!;
                     self = self.tail;
                 }
             }
-            return Prelude.toSeq(Yield());
+            return new(Yield());
         }
 
         /// <summary>
@@ -143,7 +158,7 @@ namespace LanguageExt
         {
             if (Count > 0)
             {
-                return value;
+                return value!;
             }
             else
             {
@@ -162,7 +177,7 @@ namespace LanguageExt
         {
             if (Count > 0)
             {
-                Some(value);
+                Some(value!);
             }
             else
             {
@@ -181,7 +196,7 @@ namespace LanguageExt
         [Pure]
         public R Peek<R>(Func<A, R> Some, Func<R> None) =>
             Count > 0
-                ? Some(value)
+                ? Some(value!)
                 : None();
 
         /// <summary>
@@ -191,7 +206,7 @@ namespace LanguageExt
         [Pure]
         public Option<A> TryPeek() =>
             Count > 0
-                ? Prelude.Some(value)
+                ? Prelude.Some(value!)
                 : Prelude.None;
 
         /// <summary>
@@ -205,7 +220,7 @@ namespace LanguageExt
         {
             if (Count > 0)
             {
-                return tail;
+                return tail!;
             }
             else
             {
@@ -220,7 +235,7 @@ namespace LanguageExt
         [Pure]
         public (StckInternal<A>, Option<A>) TryPop() =>
             Count > 0
-                ? (tail, Option<A>.Some(value))
+                ? (tail!, Option<A>.Some(value!))
                 : (this, Option<A>.None);
 
         /// <summary>
@@ -234,8 +249,8 @@ namespace LanguageExt
         {
             if (Count > 0)
             {
-                Some(value);
-                return tail;
+                Some(value!);
+                return tail!;
             }
             else
             {
@@ -254,7 +269,7 @@ namespace LanguageExt
         [Pure]
         public R Pop<R>(Func<StckInternal<A>, A, R> Some, Func<R> None) =>
             Count > 0
-                ? Some(tail, value)
+                ? Some(tail!, value!)
                 : None();
 
         /// <summary>
@@ -264,7 +279,7 @@ namespace LanguageExt
         /// <returns>New stack with the pushed item on top</returns>
         [Pure]
         public StckInternal<A> Push(A value) =>
-            new StckInternal<A>(value, this);
+            new (value, this);
 
         /// <summary>
         /// Get enumerator
@@ -283,7 +298,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static StckInternal<A> operator +(StckInternal<A> lhs, StckInternal<A> rhs) =>
-            lhs.Append(rhs);
+            lhs.Combine(rhs);
 
         /// <summary>
         /// Append another stack to the top of this stack
@@ -295,10 +310,10 @@ namespace LanguageExt
         /// <param name="rhs">Stack to append</param>
         /// <returns>Appended stacks</returns>
         [Pure]
-        public StckInternal<A> Append(StckInternal<A> rhs)
+        public StckInternal<A> Combine(StckInternal<A> rhs)
         {
             var self = this;
-            foreach (var item in rhs.Rev())
+            foreach (var item in rhs.Reverse())
             {
                 self = self.Push(item);
             }

@@ -24,8 +24,8 @@ namespace LanguageExt.Parsec
               err1.Pos, err2.Pos,
               EQ: () =>
                 err1 > err2
-                    ? new ParserError(err1.Tag, err1.Pos, err1.Msg, List.append(err1.Expected, err2.Expected).Freeze())
-                    : new ParserError(err2.Tag, err2.Pos, err2.Msg, List.append(err1.Expected, err2.Expected).Freeze()),
+                    ? new ParserError(err1.Tag, err1.Pos, err1.Msg, List.append(err1.Expected, err2.Expected).ToLst())
+                    : new ParserError(err2.Tag, err2.Pos, err2.Msg, List.append(err1.Expected, err2.Expected).ToLst()),
               GT: () => err1,
               LT: () => err2
               );

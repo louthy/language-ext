@@ -1,40 +1,24 @@
 using System;
-using LanguageExt.Attributes;
-using LanguageExt.Effects.Traits;
 
-namespace LanguageExt.Sys.Traits
+namespace LanguageExt.Sys.Traits;
+
+public interface ConsoleIO
 {
-    public interface ConsoleIO
-    {
-        Unit Clear();
-        Option<ConsoleKeyInfo> ReadKey();
-        Option<int> Read();
-        Option<string> ReadLine();
-        Unit WriteLine();
-        Unit WriteLine(string value);
-        Unit Write(string value);
-        Unit SetBgColor(ConsoleColor color);
-        Unit SetColor(ConsoleColor color);
-        /// <summary>
-        /// Sets the foreground and background console colors to their defaults.
-        /// </summary>
-        Unit ResetColor();
-        ConsoleColor BgColor { get; }
-        ConsoleColor Color { get; }
-    }
+    IO<Unit> Clear();
+    IO<Option<ConsoleKeyInfo>> ReadKey();
+    IO<Option<int>> Read();
+    IO<Option<string>> ReadLine();
+    IO<Unit> WriteLine();
+    IO<Unit> WriteLine(string value);
+    IO<Unit> Write(string value);
+    IO<Unit> SetBgColor(ConsoleColor color);
+    IO<Unit> SetColor(ConsoleColor color);
 
     /// <summary>
-    /// Type-class giving a struct the trait of supporting Console IO
+    /// Sets the foreground and background console colors to their defaults.
     /// </summary>
-    /// <typeparam name="RT">Runtime</typeparam>
-    [Typeclass("*")]
-    public interface HasConsole<RT> : HasCancel<RT>
-        where RT : struct, HasCancel<RT>
-    {
-        /// <summary>
-        /// Access the console synchronous effect environment
-        /// </summary>
-        /// <returns>Console synchronous effect environment</returns>
-        Eff<RT, ConsoleIO> ConsoleEff { get; }
-    }
+    IO<Unit> ResetColor();
+
+    IO<ConsoleColor> BgColor { get; }
+    IO<ConsoleColor> Color { get; }
 }

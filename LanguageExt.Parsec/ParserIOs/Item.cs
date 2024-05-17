@@ -3,7 +3,7 @@ using static LanguageExt.Parsec.ParserResultIO;
 using static LanguageExt.Parsec.InternalIO;
 using static LanguageExt.Parsec.PrimIO;
 using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 
 namespace LanguageExt.Parsec
 {
@@ -17,7 +17,7 @@ namespace LanguageExt.Parsec
         /// </summary>
         /// <returns>The parsed character</returns>
         public static Parser<A, A> item<A>(A c) =>
-            satisfy<A>(x => Class<Eq<A>>.Default.Equals(x,c)).label($"'{c}'");
+            satisfy<A>(x => EqDefault<A>.Equals(x,c)).label($"'{c}'");
 
         /// <summary>
         /// The parser satisfy(pred) succeeds for any character for which the
@@ -59,7 +59,7 @@ namespace LanguageExt.Parsec
         /// characters str. Returns the parsed character. See also satisfy
         /// </summary>
         public static Parser<A, A> oneOf<A>(Seq<A> str) =>
-            satisfy<A>(a => str.Exists(b => Class<Eq<A>>.Default.Equals(a, b)));
+            satisfy<A>(a => str.Exists(b => EqDefault<A>.Equals(a, b)));
 
         /// <summary>
         /// As the dual of 'oneOf', noneOf(str) succeeds if the current
@@ -70,7 +70,7 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// The parsed character.</returns>
         public static Parser<A, A> noneOf<A>(Seq<A> str) =>
-            satisfy<A>(a => str.ForAll(b => !Class<Eq<A>>.Default.Equals(a, b)));
+            satisfy<A>(a => str.ForAll(b => !EqDefault<A>.Equals(a, b)));
 
         /// <summary>
         /// The parser anyChar accepts any kind of character.

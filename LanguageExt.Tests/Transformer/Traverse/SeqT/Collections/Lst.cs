@@ -10,9 +10,10 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         {
             Lst<Seq<int>> ma = Empty;
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Seq<Lst<int>>.Empty;
+
+            var mc = Seq.singleton(Lst<int>.Empty);
 
             Assert.True(mb == mc);
         }
@@ -22,7 +23,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         {
             var ma = List(Seq(1, 2), Seq(10, 20, 30));
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
 
             var mc = Seq(
                 List(1, 10),
@@ -40,7 +42,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         {
             var ma = List(Seq<int>(), Seq<int>(1, 2, 3));
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
 
             var mc = Seq<Lst<int>>.Empty;
 
@@ -52,7 +55,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         {
             var ma = List(Seq<int>(), Seq<int>());
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
 
             var mc = Seq<Lst<int>>.Empty;
 

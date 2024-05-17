@@ -1,17 +1,11 @@
 using System;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 
-namespace LanguageExt.ClassInstances
+namespace LanguageExt.ClassInstances;
+
+public struct HashableException : Hashable<Exception>
 {
-    public struct HashableException : Hashable<Exception>
-    {
-        [Pure]
-        public int GetHashCode(Exception x) =>
-            x?.Message?.GetHashCode() ?? 0;
-
-        [Pure]
-        public Task<int> GetHashCodeAsync(Exception x) =>
-            GetHashCode(x).AsTask();
-    }
+    [Pure]
+    public static int GetHashCode(Exception x) =>
+        x.GetType().GetHashCode();
 }

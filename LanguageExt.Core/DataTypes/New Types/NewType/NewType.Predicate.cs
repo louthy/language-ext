@@ -2,7 +2,7 @@
 using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using System.Runtime.Serialization;
 
 namespace LanguageExt
@@ -26,7 +26,7 @@ namespace LanguageExt
     /// <typeparam name="PRED">Predicate instance to run when the type is constructed</typeparam>
     [Serializable]
     public abstract class NewType<NEWTYPE, A, PRED> : NewType<NEWTYPE, A, PRED, OrdDefault<A>>
-        where PRED    : struct, Pred<A>
+        where PRED    : Pred<A>
         where NEWTYPE : NewType<NEWTYPE, A, PRED>
     {
         /// <summary>
@@ -39,7 +39,8 @@ namespace LanguageExt
         /// <summary>
         /// Deserialisation ctor
         /// </summary>
-        protected NewType(SerializationInfo info, StreamingContext context) : base((A)info.GetValue("Value", typeof(A)))
+        protected NewType(SerializationInfo info, StreamingContext context) 
+            : base((A?)info.GetValue("Value", typeof(A)) ?? throw new ArgumentNullException())
         { }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context) =>

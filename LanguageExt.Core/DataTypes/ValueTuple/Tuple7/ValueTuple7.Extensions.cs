@@ -1,10 +1,7 @@
 ﻿using System;
 using LanguageExt;
-using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
-using LanguageExt.TypeClasses;
-using LanguageExt.ClassInstances;
+using LanguageExt.Traits;
 
 public static class ValueTuple7Extensions
 {
@@ -14,68 +11,6 @@ public static class ValueTuple7Extensions
     [Pure]
     public static (A, B, C, D, E, F, G, H) Add<A, B, C, D, E, F, G, H>(this (A, B, C, D, E, F, G) self, H eighth) =>
         (self.Item1, self.Item2, self.Item3, self.Item4, self.Item5, self.Item6, self.Item7, eighth);
-
-    /// <summary>
-    /// Semigroup append
-    /// </summary>
-    [Pure]
-    public static (A, B, C, D, E, F, G) Append<SemiA, SemiB, SemiC, SemiD, SemiE, SemiF, SemiG, A, B, C, D, E, F, G>(this (A, B, C, D, E, F, G) a, (A, B, C, D, E, F, G) b)
-        where SemiA : struct, Semigroup<A>
-        where SemiB : struct, Semigroup<B>
-        where SemiC : struct, Semigroup<C>
-        where SemiD : struct, Semigroup<D> 
-        where SemiE : struct, Semigroup<E>
-        where SemiF : struct, Semigroup<F> 
-        where SemiG : struct, Semigroup<G>
-        =>
-        (default(SemiA).Append(a.Item1, b.Item1),
-         default(SemiB).Append(a.Item2, b.Item2),
-         default(SemiC).Append(a.Item3, b.Item3),
-         default(SemiD).Append(a.Item4, b.Item4),
-         default(SemiE).Append(a.Item5, b.Item5),
-         default(SemiF).Append(a.Item6, b.Item6),
-         default(SemiG).Append(a.Item7, b.Item7));
-
-    /// <summary>
-    /// Semigroup append
-    /// </summary>
-    [Pure]
-    public static A Append<SemiA, A>(this ValueTuple<A, A, A, A, A, A, A> a)
-        where SemiA : struct, Semigroup<A> =>
-        default(SemiA).Append(a.Item1, 
-            default(SemiA).Append(a.Item2, 
-                default(SemiA).Append(a.Item3, 
-                    default(SemiA).Append(a.Item4, 
-                        default(SemiA).Append(a.Item5, 
-                            default(SemiA).Append(a.Item6, a.Item7))))));
-
-    /// <summary>
-    /// Monoid concat
-    /// </summary>
-    [Pure]
-    public static (A, B, C, D, E, F, G) Concat<MonoidA, MonoidB, MonoidC, MonoidD, MonoidE, MonoidF, MonoidG, A, B, C, D, E, F, G>(this (A, B, C, D, E, F, G) a, (A, B, C, D, E, F, G) b)
-        where MonoidA : struct, Monoid<A>
-        where MonoidB : struct, Monoid<B>
-        where MonoidC : struct, Monoid<C>
-        where MonoidD : struct, Monoid<D>
-        where MonoidE : struct, Monoid<E>
-        where MonoidF : struct, Monoid<F>
-        where MonoidG : struct, Monoid<G> =>
-        (mconcat<MonoidA, A>(a.Item1, b.Item1),
-         mconcat<MonoidB, B>(a.Item2, b.Item2),
-         mconcat<MonoidC, C>(a.Item3, b.Item3),
-         mconcat<MonoidD, D>(a.Item4, b.Item4),
-         mconcat<MonoidE, E>(a.Item5, b.Item5),
-         mconcat<MonoidF, F>(a.Item6, b.Item6),
-         mconcat<MonoidG, G>(a.Item7, b.Item7));
-
-    /// <summary>
-    /// Monoid concat
-    /// </summary>
-    [Pure]
-    public static A Concat<MonoidA, A>(this ValueTuple<A, A, A, A, A, A, A> a)
-        where MonoidA : struct, Monoid<A> =>
-        mconcat<MonoidA, A>(a.Item1, a.Item2, a.Item3, a.Item4, a.Item5, a.Item6, a.Item7);
 
     /// <summary>
     /// Take the first item
@@ -99,34 +34,18 @@ public static class ValueTuple7Extensions
         (self.Item2, self.Item3, self.Item4, self.Item5, self.Item6, self.Item7);
 
     /// <summary>
-    /// Sum of the items
-    /// </summary>
-    [Pure]
-    public static A Sum<NUM, A>(this (A, A, A, A, A, A, A) self)
-        where NUM : struct, Num<A> =>
-        TypeClass.sum<NUM, FoldTuple<A>, (A, A, A, A, A, A, A), A>(self);
-
-    /// <summary>
-    /// Product of the items
-    /// </summary>
-    [Pure]
-    public static A Product<NUM, A>(this(A, A, A, A, A, A, A) self)
-        where NUM : struct, Num<A> =>
-        TypeClass.product<NUM, FoldTuple<A>, (A, A, A, A, A, A, A), A>(self);
-
-    /// <summary>
     /// One of the items matches the value passed
     /// </summary>
     [Pure]
     public static bool Contains<EQ, A>(this (A, A, A, A, A, A, A) self, A value)
-        where EQ : struct, Eq<A> =>
-        default(EQ).Equals(self.Item1, value) ||
-        default(EQ).Equals(self.Item2, value) ||
-        default(EQ).Equals(self.Item3, value) ||
-        default(EQ).Equals(self.Item4, value) ||
-        default(EQ).Equals(self.Item5, value) ||
-        default(EQ).Equals(self.Item6, value) ||
-        default(EQ).Equals(self.Item7, value);
+        where EQ : Eq<A> =>
+        EQ.Equals(self.Item1, value) ||
+        EQ.Equals(self.Item2, value) ||
+        EQ.Equals(self.Item3, value) ||
+        EQ.Equals(self.Item4, value) ||
+        EQ.Equals(self.Item5, value) ||
+        EQ.Equals(self.Item6, value) ||
+        EQ.Equals(self.Item7, value);
 
     /// <summary>
     /// Map

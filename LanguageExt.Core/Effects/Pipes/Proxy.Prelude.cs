@@ -2,899 +2,720 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using LanguageExt.Effects.Traits;
+using System.Threading;
+using System.Threading.Tasks;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Pipes
+namespace LanguageExt.Pipes;
+
+/// <summary>
+/// The `static Proxy` class is the `Prelude` of the Pipes system.
+/// </summary>
+public static class Proxy
 {
+    internal const MethodImplOptions mops = MethodImplOptions.AggressiveInlining;
+    
     /// <summary>
-    /// The `static Proxy` class is the `Prelude` of the Pipes system.
+    /// Wait for a value to flow from upstream (whilst in a `Pipe` or a `Consumer`)
     /// </summary>
-    public static partial class Proxy
+    [Pure, MethodImpl(mops)]
+    public static Consumer<A, A> awaiting<A>() =>
+        PureProxy.ConsumerAwait<A>();
+
+    /// <summary>
+    /// Send a value flowing downstream (whilst in a `Producer` or a `Pipe`)
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Producer<A, Unit> yield<A>(A value) =>
+        PureProxy.ProducerYield(value);
+
+    // TODO: Decide whether I want to put these back or not
+    /// <summary>
+    /// Create a queue
+    /// </summary>
+    /// <remarks>A `Queue` is a `Producer` with an `Enqueue`, and a `Done` to cancel the operation</remarks>
+    // [Pure, MethodImpl(mops)]
+    public static Queue<A, M, Unit> Queue<M, A>() 
+        where M : Monad<M>
     {
-        internal const MethodImplOptions mops = MethodImplOptions.AggressiveInlining;
-
-        /// <summary>
-        /// Monad return / pure
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Pure<A> Pure<A>(A value) =>
-            new (value);
-
-        /// <summary>
-        /// Wait for a value to flow from upstream (whilst in a `Pipe` or a `Consumer`)
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Consumer<A, A> awaiting<A>() =>
-            PureProxy.ConsumerAwait<A>();
-
-        /// <summary>
-        /// Send a value flowing downstream (whilst in a `Producer` or a `Pipe`)
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Producer<A, Unit> yield<A>(A value) =>
-            PureProxy.ProducerYield(value);
-
-        /// <summary>
-        /// Create a queue
-        /// </summary>
-        /// <remarks>A `Queue` is a `Producer` with an `Enqueue`, and a `Done` to cancel the operation</remarks>
-        [Pure, MethodImpl(mops)]
-        public static Queue<RT, A, Unit> Queue<RT, A>() where RT : struct, HasCancel<RT>
-        {
-            var c = new Channel<A>();
-            var p = Producer.yieldAll<RT, A>(c);
-            return new Queue<RT, A, Unit>(p, c);
-        }
-
-        /// <summary>
-        /// Create a `Producer` from an `IEnumerable`.  This will automatically `yield` each value of the
-        /// `IEnumerable` down stream
-        /// </summary>
-        /// <param name="xs">Items to `yield`</param>
-        /// <typeparam name="X">Type of the value to `yield`</typeparam>
-        /// <returns>`Producer`</returns>
-        [Pure, MethodImpl(mops)]
-        public static Producer<X, Unit> yieldAll<X>(IEnumerable<X> xs) =>
-            PureProxy.ProducerEnumerate(xs);
-
-        /// <summary>
-        /// Create a `Producer` from an `IAsyncEnumerable`.  This will automatically `yield` each value of the
-        /// `IEnumerable` down stream
-        /// </summary>
-        /// <param name="xs">Items to `yield`</param>
-        /// <typeparam name="X">Type of the value to `yield`</typeparam>
-        /// <returns>`Producer`</returns>
-        [Pure, MethodImpl(mops)]
-        public static Producer<X, Unit> yieldAll<X>(IAsyncEnumerable<X> xs) =>
-            PureProxy.ProducerEnumerate(xs);
-
-        /// <summary>
-        /// Create a `Producer` from an `IObservable`.  This will automatically `yield` each value of the
-        /// `IObservable` down stream
-        /// </summary>
-        /// <param name="xs">Items to `yield`</param>
-        /// <typeparam name="X">Type of the value to `yield`</typeparam>
-        /// <returns>`Producer`</returns>
-        [Pure, MethodImpl(mops)]
-        public static Producer<X, Unit> yieldAll<X>(IObservable<X> xs) =>
-            PureProxy.ProducerObserve(xs);
-
-        /// <summary>
-        /// Lift the `Eff` monad into the monad transformer 
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Lift<RT, R> lift<RT, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT> =>
-            Lift.Eff(ma);
-
-        /// <summary>
-        /// Lift the `Aff` monad into the monad transformer 
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Lift<RT, R> lift<RT, R>(Aff<RT, R> ma) where RT : struct, HasCancel<RT> =>
-            Lift.Aff(ma);
-
-        /// <summary>
-        /// Lift the `Eff` monad into the monad transformer 
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Lift<RT, R> lift<RT, R>(Eff<R> ma) where RT : struct, HasCancel<RT> =>
-            Lift.Eff<RT, R>(ma);
-
-        /// <summary>
-        /// Lift the `Aff` monad into the monad transformer 
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Lift<RT, R> lift<RT, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
-            Lift.Aff<RT, R>(ma);
-
-        /// <summary>
-        /// Lift the `Eff` monad into the monad transformer 
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Lift<RT, R> use<RT, R>(Eff<RT, R> ma)
-            where RT : struct, HasCancel<RT>
-            where R : IDisposable =>
-            Lift.Eff(ma);
-
-        /// <summary>
-        /// Lift the `Aff` monad into the monad transformer 
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Lift<RT, R> use<RT, R>(Aff<RT, R> ma)
-            where RT : struct, HasCancel<RT>
-            where R : IDisposable =>
-            Lift.Aff(ma);
-
-        /// <summary>
-        /// Lift the `Eff` monad into the monad transformer 
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Lift<RT, R> use<RT, R>(Eff<R> ma)
-            where RT : struct, HasCancel<RT>
-            where R : IDisposable =>
-            Lift.Eff<RT, R>(ma);
-
-        /// <summary>
-        /// Lift the `Aff` monad into the monad transformer 
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Lift<RT, R> use<RT, R>(Aff<R> ma)
-            where RT : struct, HasCancel<RT>
-            where R : IDisposable =>
-            Lift.Aff<RT, R>(ma);
-
-        /// <summary>
-        /// Release a previously used resource
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Release<Unit> release<A>(A value) =>
-            new Release<Unit>.Do<A>(value, PureProxy.ReleasePure<Unit>);
-
-        /// <summary>
-        /// Repeat the `Producer` indefinitely
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Producer<RT, OUT, Unit> repeat<RT, OUT, R>(Producer<RT, OUT, R> ma) where RT : struct, HasCancel<RT> =>
-            new Enumerate<RT, Void, Unit, Unit, OUT, Unit, Unit>(
-                    new EnumerateEnumerable<Unit>(units),
-                    _ => ma.ToProxy().Map(_ => unit),
-                    _ => Producer.Pure<RT, OUT, Unit>(unit))
-                .ToProducer();
-
-        /// <summary>
-        /// Repeat the `Consumer` indefinitely
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Consumer<RT, IN, Unit> repeat<RT, IN, R>(Consumer<RT, IN, R> ma) where RT : struct, HasCancel<RT> =>
-            new Enumerate<RT, Unit, IN, Unit, Void, Unit, Unit>(
-                    new EnumerateEnumerable<Unit>(units),
-                    _ => ma.ToProxy().Map(_ => unit),
-                    _ => Consumer.Pure<RT, IN, Unit>(unit))
-                .ToConsumer();
-
-        /// <summary>
-        /// Repeat the `Pipe` indefinitely
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Pipe<RT, IN, OUT, Unit> repeat<RT, IN, OUT, R>(Pipe<RT, IN, OUT, R> ma) where RT : struct, HasCancel<RT> =>
-            new Enumerate<RT, Unit, IN, Unit, OUT, Unit, Unit>(
-                    new EnumerateEnumerable<Unit>(units),
-                    _ => ma.ToProxy().Map(_ => unit),
-                    _ => Pipe.Pure<RT, IN, OUT, Unit>(unit))
-                .ToPipe();
-
-        static IEnumerable<Unit> units
-        {
-            get
-            {
-                while (true)
-                {
-                    yield return default;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Lift am IO monad into the `Proxy` monad transformer
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, B1, B, R> lift<RT, A1, A, B1, B, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
-            Disposable<R>.IsDisposable
-                ? use<RT, A1, A, B1, B, R>(ma, anyDispose)
-                : new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>).WithRuntime<RT>());
-
-        /// <summary>
-        /// Lift am IO monad into the `Proxy` monad transformer
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, B1, B, R> lift<RT, A1, A, B1, B, R>(Eff<R> ma) where RT : struct, HasCancel<RT> =>
-            Disposable<R>.IsDisposable
-                ? use<RT, A1, A, B1, B, R>(ma, anyDispose)
-                : new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>).ToAffWithRuntime<RT>());
-
-        /// <summary>
-        /// Lift am IO monad into the `Proxy` monad transformer
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, B1, B, R> lift<RT, A1, A, B1, B, R>(Aff<RT, R> ma) where RT : struct, HasCancel<RT> =>
-            Disposable<R>.IsDisposable
-                ? use<RT, A1, A, B1, B, R>(ma, anyDispose)
-                : new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>));
-
-        /// <summary>
-        /// Lift am IO monad into the `Proxy` monad transformer
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, B1, B, R> lift<RT, A1, A, B1, B, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT> =>
-            Disposable<R>.IsDisposable
-                ? use<RT, A1, A, B1, B, R>(ma, anyDispose)
-                : new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>).ToAff());
-
-        /// <summary>
-        /// Lift am IO monad into the `Proxy` monad transformer
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Aff<R> ma)
-            where RT : struct, HasCancel<RT>
-            where R : IDisposable =>
-            new Use<RT, A1, A, B1, B, R, R>(ma.WithRuntime<RT>, dispose, Pure<RT, A1, A, B1, B, R>);
-
-        /// <summary>
-        /// Lift am IO monad into the `Proxy` monad transformer
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Eff<R> ma)
-            where RT : struct, HasCancel<RT>
-            where R : IDisposable =>
-            new Use<RT, A1, A, B1, B, R, R>(ma.ToAffWithRuntime<RT>, dispose, Pure<RT, A1, A, B1, B, R>);
-
-        /// <summary>
-        /// Lift am IO monad into the `Proxy` monad transformer
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Aff<RT, R> ma)
-            where RT : struct, HasCancel<RT>
-            where R : IDisposable =>
-            new Use<RT, A1, A, B1, B, R, R>(() => ma, dispose, Pure<RT, A1, A, B1, B, R>);
-
-        /// <summary>
-        /// Lift am IO monad into the `Proxy` monad transformer
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Eff<RT, R> ma)
-            where RT : struct, HasCancel<RT>
-            where R : IDisposable =>
-            new Use<RT, A1, A, B1, B, R, R>(() => ma, dispose, Pure<RT, A1, A, B1, B, R>);
-
-        /// <summary>
-        /// Lift am IO monad into the `Proxy` monad transformer
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Aff<R> ma, Func<R, Unit> dispose)
-            where RT : struct, HasCancel<RT> =>
-            new Use<RT, A1, A, B1, B, R, R>(ma.WithRuntime<RT>, dispose, Pure<RT, A1, A, B1, B, R>);
-
-        /// <summary>
-        /// Lift am IO monad into the `Proxy` monad transformer
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Eff<R> ma, Func<R, Unit> dispose)
-            where RT : struct, HasCancel<RT> =>
-            new Use<RT, A1, A, B1, B, R, R>(ma.ToAffWithRuntime<RT>, dispose, Pure<RT, A1, A, B1, B, R>);
-
-        /// <summary>
-        /// Lift am IO monad into the `Proxy` monad transformer
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Aff<RT, R> ma, Func<R, Unit> dispose)
-            where RT : struct, HasCancel<RT> =>
-            new Use<RT, A1, A, B1, B, R, R>(() => ma, dispose, Pure<RT, A1, A, B1, B, R>);
-
-        /// <summary>
-        /// Lift am IO monad into the `Proxy` monad transformer
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Eff<RT, R> ma, Func<R, Unit> dispose)
-            where RT : struct, HasCancel<RT> =>
-            new Use<RT, A1, A, B1, B, R, R>(() => ma, dispose, Pure<RT, A1, A, B1, B, R>);
-
-        /// <summary>
-        /// Release a previously used resource
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, B1, B, Unit> release<RT, A1, A, B1, B, R>(R dispose)
-            where RT : struct, HasCancel<RT> =>
-            new Release<RT, A1, A, B1, B, R, Unit>(dispose, Pure<RT, A1, A, B1, B, Unit>);
-
-        internal static Unit dispose<A>(A d) where A : IDisposable
-        {
-            d?.Dispose();
-            return default;
-        }
-
-        internal static Unit anyDispose<A>(A x)
-        {
-            if (x is IDisposable d)
-            {
-                d?.Dispose();
-            }
-
-            return default;
-        }
-
-        /// <summary>
-        /// The identity `Pipe`, simply replicates its upstream value and propagates it downstream 
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Pipe<RT, A, A, R> cat<RT, A, R>() where RT : struct, HasCancel<RT> =>
-            pull<RT, Unit, A, R>(default).ToPipe();
-
-        /// <summary>
-        /// Forward requests followed by responses
-        ///
-        ///    pull = request | respond | pull
-        /// 
-        /// </summary>
-        /// <remarks>
-        /// `pull` is the identity of the pull category.
-        /// </remarks>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, UOut, UIn, UOut, UIn, A> pull<RT, UOut, UIn, A>(UOut a1)
-            where RT : struct, HasCancel<RT> =>
-            new Request<RT, UOut, UIn, UOut, UIn, A>(a1,
-                a => new Respond<RT, UOut, UIn, UOut, UIn, A>(a,
-                    pull<RT, UOut, UIn, A>));
-
-        /// <summary>
-        /// `push = respond | request | push`
-        /// </summary>
-        /// <remarks>
-        /// `push` is the identity of the push category.
-        /// </remarks>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, UOut, UIn, UOut, UIn, A> push<RT, UOut, UIn, A>(UIn a) 
-            where RT : struct, HasCancel<RT> =>
-            new Respond<RT, UOut, UIn, UOut, UIn, A>(a, 
-                a1 => new Request<RT, UOut, UIn, UOut, UIn, A>(a1, 
-                    push<RT, UOut, UIn, A>));
-
-        /// <summary>
-        /// Send a value of type `DOut` downstream and block waiting for a reply of type `DIn`
-        /// </summary>
-        /// <remarks>
-        /// `respond` is the identity of the respond category.
-        /// </remarks>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, X1, X, DIn, DOut, DIn> respond<RT, X1, X, DIn, DOut>(DOut value) 
-            where RT : struct, HasCancel<RT> =>
-            new Respond<RT, X1, X, DIn, DOut, DIn>(value, r => new Pure<RT, X1, X, DIn, DOut, DIn>(r));
-
-        /// <summary>
-        /// Send a value of type `UOut` upstream and block waiting for a reply of type `UIn`
-        /// </summary>
-        /// <remarks>
-        /// `request` is the identity of the request category.
-        /// </remarks>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, UOut, UIn, Y1, Y, UIn> request<RT, UOut, UIn, Y1, Y>(UOut value) 
-            where RT : struct, HasCancel<RT> =>
-            new Request<RT, UOut, UIn, Y1, Y, UIn>(value, r => new Pure<RT, UOut, UIn, Y1, Y, UIn>(r));
-
-
-        /// <summary>
-        /// `reflect` transforms each streaming category into its dual:
-        ///
-        /// The request category is the dual of the respond category
-        ///
-        ///      reflect . respond = request
-        ///      reflect . (f | g) = reflect . f | reflect . g
-        ///      reflect . request = respond
-        ///      reflect . (f | g) = reflect . f | reflect . g
-        ///
-        /// The pull category is the dual of the push category
-        ///
-        ///      reflect . push = pull
-        ///      reflect . (f | g) = reflect . f | reflect . g
-        ///      reflect . pull = push
-        ///      reflect . (f | g) = reflect . f | reflect . g
-        ///
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, DOut, DIn, UIn, UOut, R> reflect<RT, UOut, UIn, DIn, DOut, R>(
-            Proxy<RT, UOut, UIn, DIn, DOut, R> p)
-            where RT : struct, HasCancel<RT> =>
-            p.Reflect();
-
-        /// <summary>
-        /// `p.ForEach(body)` loops over the `Producer p` replacing each `yield` with `body`
-        /// 
-        ///     Producer b r -> (b -> Producer c ()) -> Producer c r
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Producer<RT, OUT_B, A> ForEach<RT, OUT_A, OUT_B, A>(
-            this Producer<RT, OUT_A, A> p, 
-            Func<OUT_A, Producer<RT, OUT_B, Unit>> body)
-            where RT : struct, HasCancel<RT> =>
-            p.For(body).ToProducer();
-
-        /// <summary>
-        /// `p.ForEach(body)` loops over `Producer p` replacing each `yield` with `body`
-        /// 
-        ///     Producer b r -> (b -> Effect ()) -> Effect r
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Effect<RT, A> ForEach<RT, OUT, A>(
-            this Producer<RT, OUT, A> p, 
-            Func<OUT, Effect<RT, Unit>> fb)
-            where RT : struct, HasCancel<RT> =>
-            p.For(fb).ToEffect();
-
-        /// <summary>
-        /// `p.ForEach(body)` loops over `Pipe p` replacing each `yield` with `body`
-        /// 
-        ///     Pipe x b r -> (b -> Consumer x ()) -> Consumer x r
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Consumer<RT, IN, A> ForEach<RT, IN, OUT, A>(
-            this Pipe<RT, IN, OUT, A> p0, 
-            Func<OUT, Consumer<RT, IN, Unit>> fb)
-            where RT : struct, HasCancel<RT> =>
-            p0.For(fb).ToConsumer();
-
-        /// <summary>
-        /// `p.ForEach(body)` loops over `Pipe p` replacing each `yield` with `body`
-        /// 
-        ///     Pipe x b r -> (b -> Pipe x c ()) -> Pipe x c r
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Pipe<RT, IN, OUT, R> ForEach<RT, IN, B, OUT, R>(
-            this Pipe<RT, IN, B, R> p0, 
-            Func<B, Pipe<RT, IN, OUT, Unit>> fb)
-            where RT : struct, HasCancel<RT> =>
-            p0.For(fb).ToPipe();
-
-        /// <summary>
-        /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, UOut, UIn, DIn, DOut, B> compose<RT, UOut, UIn, DIn, DOut, A, B>(
-            Proxy<RT, UOut, UIn, DIn, DOut, A> p1, 
-            Proxy<RT, Unit, A, DIn, DOut, B> p2)
-            where RT : struct, HasCancel<RT> =>
-            compose(_ => p1, p2);
-
-        /// <summary>
-        /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
-        /// 
-        ///     Effect b -> Consumer b c -> Effect c
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Effect<RT, A> compose<RT, OUT, A>(
-            Effect<RT, OUT> p1, 
-            Consumer<RT, OUT, A> p2)
-            where RT : struct, HasCancel<RT> =>
-            compose(_ => p1, p2).ToEffect();
-
-        /// <summary>
-        /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
-        /// 
-        ///     Consumer a b -> Consumer b c -> Consumer a c
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Consumer<RT, A, C> compose<RT, A, B, C>(
-            Consumer<RT, A, B> p1, 
-            Consumer<RT, B, C> p2) 
-            where RT : struct, HasCancel<RT> =>
-            compose(_ => p1, p2).ToConsumer();
-
-        /// <summary>
-        /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
-        /// 
-        ///     Producer y b -> Pipe b y m c -> Producer y c
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Producer<RT, OUT, C> compose<RT, OUT, IN, C>(
-            Producer<RT, OUT, IN> p1, 
-            Pipe<RT, IN, OUT, C> p2) 
-            where RT : struct, HasCancel<RT> =>
-            compose(_ => p1, p2).ToProducer();
-
-        /// <summary>
-        /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
-        /// 
-        ///     Pipe a y b -> Pipe b y c -> Pipe a y c
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Pipe<RT, A, Y, C> compose<RT, Y, A, B, C>(
-            Pipe<RT, A, Y, B> p1,
-            Pipe<RT, B, Y, C> p2) 
-            where RT : struct, HasCancel<RT> =>
-            compose(_ => p1, p2).ToPipe();
-
-        // fixAwaitDual
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, Y1, Y, C> compose<RT, A1, A, Y1, Y, B, C>(
-            Proxy<RT, Unit, B, Y1, Y, C> p2,
-            Proxy<RT, A1, A, Y1, Y, B> p1) 
-            where RT : struct, HasCancel<RT> =>
-            compose(p1, p2);
-
-        /// <summary>
-        /// Replaces each `request` or `respond` in `p0` with `fb1`.
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, Y1, Y, C> compose<RT, A1, A, B1, B, Y1, Y, C>(
-            Func<B1, Proxy<RT, A1, A, Y1, Y, B>> fb1,
-            Proxy<RT, B1, B, Y1, Y, C> p0) 
-            where RT : struct, HasCancel<RT> =>
-            p0.ReplaceRequest(fb1);
-
-        /// <summary>
-        /// `compose(p, f)` pairs each `respond` in `p` with a `request` in `f`.
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, C1, C, R> compose<RT, A1, A, B1, B, C1, C, R>(
-            Proxy<RT, A1, A, B1, B, R> p,
-            Func<B, Proxy<RT, B1, B, C1, C, R>> fb)
-            where RT : struct, HasCancel<RT> =>
-            p.PairEachRespondWithRequest(fb);
-
-        /// <summary>
-        /// `compose(f, p)` pairs each `request` in `p` with a `respond` in `f`
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, C1, C, R> compose<RT, A1, A, B1, B, C1, C, R>(
-            Func<B1, Proxy<RT, A1, A, B1, B, R>> fb1,
-            Proxy<RT, B1, B, C1, C, R> p)
-            where RT : struct, HasCancel<RT> =>
-            p.PairEachRequestWithRespond(fb1);
-
-        /// <summary>
-        /// Pipe composition
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, C1, C, R> compose<RT, A1, A, B, C1, C, R>(
-            Proxy<RT, A1, A, Unit, B, R> p1,
-            Proxy<RT, Unit, B, C1, C, R> p2)
-            where RT : struct, HasCancel<RT> =>
-            compose(_ => p1, p2);
-
-        /// <summary>
-        /// Pipe composition
-        ///
-        ///     Producer b r -> Consumer b r -> Effect m r
-        /// 
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Effect<RT, R> compose<RT, B, R>(
-            Producer<RT, B, R> p1,
-            Consumer<RT, B, R> p2)
-            where RT : struct, HasCancel<RT> =>
-            compose(p1.ToProxy(), p2).ToEffect();
-
-        /// <summary>
-        /// Pipe composition
-        ///
-        ///     Producer b r -> Pipe b c r -> Producer c r
-        /// 
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Producer<RT, C, R> compose<RT, B, C, R>(
-            Producer<RT, B, R> p1,
-            Pipe<RT, B, C, R> p2)
-            where RT : struct, HasCancel<RT> =>
-            compose(p1.ToProxy(), p2).ToProducer();
-
-        /// <summary>
-        /// Pipe composition
-        ///
-        ///     Pipe a b r -> Consumer b r -> Consumer a r
-        /// 
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Consumer<RT, A, R> compose<RT, A, B, R>(
-            Pipe<RT, A, B, R> p1,
-            Consumer<RT, B, R> p2)
-            where RT : struct, HasCancel<RT> =>
-            compose(p1.ToProxy(), p2).ToConsumer();
-
-        /// <summary>
-        /// Pipe composition
-        ///
-        ///     Pipe a b r -> Pipe b c r -> Pipe a c r
-        /// 
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Pipe<RT, A, C, R> compose<RT, A, B, C, R>(
-            Pipe<RT, A, B, R> p1,
-            Pipe<RT, B, C, R> p2)
-            where RT : struct, HasCancel<RT> =>
-            compose(p1.ToProxy(), p2).ToPipe();
-
-        /// <summary>
-        /// Compose two unfolds, creating a new unfold
-        /// </summary>
-        /// <remarks>
-        /// This is the composition operator of the respond category.
-        /// </remarks>
-        [Pure, MethodImpl(mops)]
-        public static Func<A, Proxy<RT, X1, X, C1, C, A1>> compose<RT, X1, X, A1, A, B1, B, C1, C>(
-            Func<A, Proxy<RT, X1, X, B1, B, A1>> fa,
-            Func<B, Proxy<RT, X1, X, C1, C, B1>> fb) 
-            where RT : struct, HasCancel<RT> =>
-            a => compose(fa(a), fb);
-
-        /// <summary>
-        /// Compose two unfolds, creating a new unfold
-        /// </summary>
-        /// <remarks>
-        /// This is the composition operator of the respond category.
-        /// </remarks>
-        [Pure, MethodImpl(mops)]
-        public static Func<A, Proxy<RT, X1, X, C1, C, A1>> Then<RT, X1, X, A1, A, B1, B, C1, C>(
-            this Func<A, Proxy<RT, X1, X, B1, B, A1>> fa,
-            Func<B, Proxy<RT, X1, X, C1, C, B1>> fb) 
-            where RT : struct, HasCancel<RT> =>
-            a => compose(fa(a), fb);
-
-        /// <summary>
-        /// `compose(p, f)` replaces each `respond` in `p` with `f`.
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, X1, X, C1, C, A1> compose<RT, X1, X, A1, B1, C1, C, B>(
-            Proxy<RT, X1, X, B1, B, A1> p0,
-            Func<B, Proxy<RT, X1, X, C1, C, B1>> fb) 
-            where RT : struct, HasCancel<RT> =>
-            p0.ReplaceRespond(fb);
-
-        /// <summary>
-        /// `compose(p, f)` replaces each `respond` in `p` with `f`.
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, X1, X, C1, C, A1> Then<RT, X1, X, A1, B1, C1, C, B>(
-            this Proxy<RT, X1, X, B1, B, A1> p0,
-            Func<B, Proxy<RT, X1, X, C1, C, B1>> fb) 
-            where RT : struct, HasCancel<RT> =>
-            compose(p0, fb);
-
-
-        /// <summary>
-        ///  Compose two folds, creating a new fold
-        /// 
-        ///     (f | g) x = f | g x
-        /// 
-        ///     | is the composition operator of the request category.
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Func<C1, Proxy<RT, A1, A, Y1, Y, C>> compose<RT, A1, A, B1, B, Y1, Y, C1, C>(
-            Func<B1, Proxy<RT, A1, A, Y1, Y, B>> fb1,
-            Func<C1, Proxy<RT, B1, B, Y1, Y, C>> fc1) 
-            where RT : struct, HasCancel<RT> =>
-            c1 => compose(fb1, fc1(c1));
-
-        /// <summary>
-        /// 
-        ///     observe(lift (Pure(r))) = observe(Pure(r))
-        ///     observe(lift (m.Bind(f))) = observe(lift(m.Bind(x => lift(f(x)))))
-        /// 
-        /// This correctness comes at a small cost to performance, so use this function sparingly.
-        /// This function is a convenience for low-level pipes implementers.  You do not need to
-        /// use observe if you stick to the safe API.        
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, B1, B, R> observe<RT, A1, A, B1, B, R>(
-            Proxy<RT, A1, A, B1, B, R> p0)
-            where RT : struct, HasCancel<RT> =>
-            p0.Observe();
-
-        /// <summary>
-        /// `Absurd` function
-        /// </summary>
-        /// <param name="value">`Void` is supposed to represent `void`, nothing can be constructed from `void` and
-        /// so this method just throws `ApplicationException("closed")`</param>
-        [Pure, MethodImpl(mops)]
-        public static A closed<A>(Void value) =>
-            throw new ApplicationException("closed");
-
-        /// <summary>
-        /// Applicative apply
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, B1, B, S> apply<RT, A1, A, B1, B, R, S>(Proxy<RT, A1, A, B1, B, Func<R, S>> pf,
-            Proxy<RT, A1, A, B1, B, R> px) where RT : struct, HasCancel<RT>
-        {
-            return Go(pf);
-
-            Proxy<RT, A1, A, B1, B, S> Go(Proxy<RT, A1, A, B1, B, Func<R, S>> p) =>
-                p.ToProxy() switch
-                {
-                    Request<RT, A1, A, B1, B, Func<R, S>> (var a1, var fa) => new Request<RT, A1, A, B1, B, S>(a1, a => Go(fa(a))),
-                    Respond<RT, A1, A, B1, B, Func<R, S>> (var b, var fb1) => new Respond<RT, A1, A, B1, B, S>(b, b1 => Go(fb1(b1))),
-                    M<RT, A1, A, B1, B, Func<R, S>> (var m)                => new M<RT, A1, A, B1, B, S>(m.Map(Go)),
-                    Pure<RT, A1, A, B1, B, Func<R, S>> (var f)             => px.Map(f),
-                    Enumerate<RT, A1, A, B1, B, Func<R, S>> enumer         => enumer.Bind(px.Map),
-                    Use<RT, A1, A, B1, B, Func<R, S>> use                  => use.Bind(px.Map),
-                    Release<RT, A1, A, B1, B, Func<R, S>> rel              => rel.Bind(px.Map),
-                    _                                                      => throw new NotSupportedException()
-                };
-        }
-
-        /// <summary>
-        /// Applicative apply
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, B1, B, S> Apply<RT, A1, A, B1, B, R, S>(this Proxy<RT, A1, A, B1, B, Func<R, S>> pf, Proxy<RT, A1, A, B1, B, R> px) where RT : struct, HasCancel<RT> =>
-            apply(pf, px);
-
-        /// <summary>
-        /// Applicative action
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, B1, B, S> Action<RT, A1, A, B1, B, R, S>(this Proxy<RT, A1, A, B1, B, R> l, Proxy<RT, A1, A, B1, B, S> r) where RT : struct, HasCancel<RT> =>
-            l.Action(r);
-
-        /// <summary>
-        /// Monad return / pure
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Proxy<RT, A1, A, B1, B, R> Pure<RT, A1, A, B1, B, R>(R value) where RT : struct, HasCancel<RT> =>
-            new Pure<RT, A1, A, B1, B, R>(value);
-
-        /// <summary>
-        /// Creates a non-yielding producer that returns the result of the effects
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Lift<RT, (A, B)> collect<RT, A, B>(Effect<RT, A> ma, Effect<RT, B> mb) where RT : struct, HasCancel<RT> =>
-            lift((ma.RunEffect(), mb.RunEffect()).Sequence());
-
-        /// <summary>
-        /// Creates a non-yielding producer that returns the result of the effects
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Lift<RT, (A, B, C)> collect<RT, A, B, C>(Effect<RT, A> ma, Effect<RT, B> mb, Effect<RT, C> mc) where RT : struct, HasCancel<RT> =>
-            lift((ma.RunEffect(), mb.RunEffect(), mc.RunEffect()).Sequence());
-
-        /// <summary>
-        /// Creates a non-yielding producer that returns the result of the effects
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Lift<RT, (A, B, C, D)> collect<RT, A, B, C, D>(Effect<RT, A> ma, Effect<RT, B> mb, Effect<RT, C> mc, Effect<RT, D> md) where RT : struct, HasCancel<RT> =>
-            lift((ma.RunEffect(), mb.RunEffect(), mc.RunEffect(), md.RunEffect()).Sequence());
-
-        /// <summary>
-        /// Creates a non-yielding producer that returns the result of the effects
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Lift<RT, (A, B, C, D, E)> collect<RT, A, B, C, D, E>(Effect<RT, A> ma, Effect<RT, B> mb, Effect<RT, C> mc, Effect<RT, D> md, Effect<RT, E> me) where RT : struct, HasCancel<RT> =>
-            lift((ma.RunEffect(), mb.RunEffect(), mc.RunEffect(), md.RunEffect(), me.RunEffect()).Sequence());
-
-        /// <summary>
-        /// Creates a non-yielding producer that returns the result of the effects
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static ProducerLift<RT, (A, B), Unit> yield<RT, A, B>(Effect<RT, A> ma, Effect<RT, B> mb) where RT : struct, HasCancel<RT> =>
-            from r in collect(ma, mb)
-            from _ in yield(r)
-            select unit;
-
-        /// <summary>
-        /// Creates a non-yielding producer that returns the result of the effects
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static ProducerLift<RT, (A, B, C), Unit> yield<RT, A, B, C>(Effect<RT, A> ma, Effect<RT, B> mb, Effect<RT, C> mc) where RT : struct, HasCancel<RT> =>
-            from r in collect(ma, mb, mc)
-            from _ in yield(r)
-            select unit;
-
-        /// <summary>
-        /// Creates a non-yielding producer that returns the result of the effects
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static ProducerLift<RT, (A, B, C, D), Unit> yield<RT, A, B, C, D>(Effect<RT, A> ma, Effect<RT, B> mb, Effect<RT, C> mc, Effect<RT, D> md) where RT : struct, HasCancel<RT> =>
-            from r in collect(ma, mb, mc, md)
-            from _ in yield(r)
-            select unit;
-
-        /// <summary>
-        /// Creates a non-yielding producer that returns the result of the effects
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static ProducerLift<RT, (A, B, C, D, E), Unit> yield<RT, A, B, C, D, E>(Effect<RT, A> ma, Effect<RT, B> mb, Effect<RT, C> mc, Effect<RT, D> md, Effect<RT, E> me) where RT : struct, HasCancel<RT> =>
-            from r in collect(ma, mb, mc, md, me)
-            from _ in yield(r)
-            select unit;
-
-        /// <summary>
-        /// Only forwards values that satisfy the predicate.
-        /// </summary>
-        public static Pipe<A, A, Unit> filter<A>(Func<A, bool> f) =>
-            from x in awaiting<A>()
-            from r in f(x) ? yield(x) : Pure(unit)
-            select r;
-
-        /// <summary>
-        /// Map the output of the pipe (not the bound value as is usual with Map)
-        /// </summary>
-        public static Pipe<A, B, Unit> map<A, B>(Func<A, B> f) =>
-            from x in awaiting<A>()
-            from r in yield(f(x))
-            select r;
-
-        /// <summary>
-        /// Folds values coming down-stream, when the predicate returns false the folded value is yielded 
-        /// </summary>
-        /// <param name="Initial">Initial state</param>
-        /// <param name="Fold">Fold operation</param>
-        /// <param name="WhileState">Predicate</param>
-        /// <returns>A pipe that folds</returns>
-        [Pure, MethodImpl(mops)]
-        public static Pipe<IN, OUT, Unit> foldWhile<IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<OUT, bool> State) => 
-            foldUntil(Initial, Fold, x => !State(x));
+        var c = new Channel<A>();
+        var p = Producer.yieldAll<M, A>(c);
+        return new Queue<A, M, Unit>(p, c);
+    }
+
+    /// <summary>
+    /// Create a `Producer` from an `IEnumerable`.  This will automatically `yield` each value of the
+    /// `IEnumerable` down stream
+    /// </summary>
+    /// <param name="xs">Items to `yield`</param>
+    /// <typeparam name="X">Type of the value to `yield`</typeparam>
+    /// <returns>`Producer`</returns>
+    [Pure, MethodImpl(mops)]
+    public static Producer<X, Unit> yieldAll<F, X>(K<F, X> xs) where F : Foldable<F> =>
+        PureProxy.ProducerFold(xs);
  
-        /// <summary>
-        /// Folds values coming down-stream, when the predicate returns true the folded value is yielded 
-        /// </summary>
-        /// <param name="Initial">Initial state</param>
-        /// <param name="Fold">Fold operation</param>
-        /// <param name="UntilState">Predicate</param>
-        /// <returns>A pipe that folds</returns>
-        public static Pipe<IN, OUT, Unit> foldUntil<IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<OUT, bool> State)
+    /// <summary>
+    /// Create a `Producer` from an `IAsyncEnumerable`.  This will automatically `yield` each value of the
+    /// `IEnumerable` down stream
+    /// </summary>
+    /// <param name="xs">Items to `yield`</param>
+    /// <typeparam name="X">Type of the value to `yield`</typeparam>
+    /// <returns>`Producer`</returns>
+    [Pure, MethodImpl(mops)]
+    public static Producer<X, Unit> yieldAll<X>(IAsyncEnumerable<X> xs) =>
+        yieldAll(xs.ToBlockingEnumerable().AsEnumerableM());
+
+    /// <summary>
+    /// Create a `Producer` from an `IObservable`.  This will automatically `yield` each value of the
+    /// `IObservable` down stream
+    /// </summary>
+    /// <param name="xs">Items to `yield`</param>
+    /// <typeparam name="X">Type of the value to `yield`</typeparam>
+    /// <returns>`Producer`</returns>
+    [Pure, MethodImpl(mops)]
+    public static Producer<X, Unit> yieldAll<X>(IObservable<X> xs) =>
+        yieldAll(xs.ToAsyncEnumerable(new CancellationToken()));
+
+    // TODO: IMPLEMENT TAIL CALLS
+    [Pure, MethodImpl(mops)]
+    public static Producer<OUT, M, R> tail<OUT, M, R>(Producer<OUT, M, R> ma) 
+        where M : Monad<M> =>
+        ma;
+
+    // TODO: IMPLEMENT TAIL CALLS
+    [Pure, MethodImpl(mops)]
+    public static Consumer<IN, M, R> tail<IN, M, R>(Consumer<IN, M, R> ma) 
+        where M : Monad<M> =>
+        ma;
+
+    // TODO: IMPLEMENT TAIL CALLS
+    [Pure, MethodImpl(mops)]
+    public static Pipe<IN, OUT, M, R> tail<IN, OUT, M, R>(Pipe<IN, OUT, M, R> ma) 
+        where M : Monad<M> =>
+        ma;
+
+    /// <summary>
+    /// Repeat the `Producer` indefinitely
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Producer<OUT, M, Unit> repeat<OUT, M, R>(Producer<OUT, M, R> ma)
+        where M : Monad<M> =>
+        new IteratorFoldable<Void, Unit, Unit, OUT, EnumerableM, Unit, M, Unit>(
+            Naturals.AsEnumerableM().Map(_ => unit),
+            _ => ma.ToProxy().Map(_ => unit),
+            () => Producer.Pure<OUT, M, Unit>(unit))
+           .ToProducer();
+
+    /// <summary>
+    /// Repeat the `Consumer` indefinitely
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Consumer<IN, M, Unit> repeat<IN, M, R>(Consumer<IN, M, R> ma) 
+        where M : Monad<M> =>
+        new IteratorFoldable<Unit, IN, Unit, Void, EnumerableM, Unit, M, Unit>(
+                Naturals.AsEnumerableM().Map(_ => unit),
+                _ => ma.ToProxy().Map(_ => unit),
+                () => Consumer.Pure<IN, M, Unit>(unit))
+           .ToConsumer();
+
+    /// <summary>
+    /// Repeat the `Pipe` indefinitely
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Pipe<IN, OUT, M, Unit> repeat<IN, OUT, M, R>(Pipe<IN, OUT, M, R> ma) 
+        where M : Monad<M> =>
+        new IteratorFoldable<Unit, IN, Unit, OUT, EnumerableM, Unit, M, Unit>(
+                Naturals.AsEnumerableM().Map(_ => unit),
+                _ => ma.ToProxy().Map(_ => unit),
+                () => Pipe.Pure<IN, OUT, M, Unit>(unit))
+           .ToPipe();
+
+    /// <summary>
+    /// Lift a monad into the `Proxy` monad transformer
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Proxy<A1, A, B1, B, M, R> lift<A1, A, B1, B, M, R>(K<M, R> ma) 
+        where M : Monad<M> =>
+        new ProxyM<A1, A, B1, B, M, R>(M.Map(Pure<A1, A, B1, B, M, R>, ma));
+
+    /// <summary>
+    /// Lift an IO monad into the `Proxy` monad transformer
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Proxy<A1, A, B1, B, M, R> liftIO<A1, A, B1, B, M, R>(IO<R> ma) 
+        where M : Monad<M> =>
+        lift<A1, A, B1, B, M, R>(M.LiftIO(ma));
+
+    internal static Unit dispose<A>(A d) where A : IDisposable
+    {
+        d.Dispose();
+        return default;
+    }
+
+    internal static Unit anyDispose<A>(A x)
+    {
+        if (x is IDisposable d)
         {
-            var state = Initial;
-            return awaiting<IN>()
-                       .Bind(x =>
-                             {
-                                 state = Fold(state, x);
-                                 if (State(state))
-                                 {
-                                     var nstate = state;
-                                     state = Initial;
-                                     return yield(nstate);
-                                 }
-                                 else
-                                 {
-                                     return Pure(unit);
-                                 }
-                             });
-        }        
+            d.Dispose();
+        }
+
+        return default;
+    }
+
+    /// <summary>
+    /// The identity `Pipe`, simply replicates its upstream value and propagates it downstream 
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Pipe<A, A, M, R> cat<A, M, R>()
+        where M : Monad<M> =>
+        pull<Unit, A, M, R>(default).ToPipe();
+
+    /// <summary>
+    /// Forward requests followed by responses
+    ///
+    ///    pull = request | respond | pull
+    /// 
+    /// </summary>
+    /// <remarks>
+    /// `pull` is the identity of the pull category.
+    /// </remarks>
+    [Pure, MethodImpl(mops)]
+    public static Proxy<UOut, UIn, UOut, UIn, M, A> pull<UOut, UIn, M, A>(UOut a1)
+        where M : Monad<M> =>
+        new Request<UOut, UIn, UOut, UIn, M, A>(
+            a1,
+            a => new Respond<UOut, UIn, UOut, UIn, M, A>(
+                a,
+                pull<UOut, UIn, M, A>));
+
+    /// <summary>
+    /// `push = respond | request | push`
+    /// </summary>
+    /// <remarks>
+    /// `push` is the identity of the push category.
+    /// </remarks>
+    [Pure, MethodImpl(mops)]
+    public static Proxy<UOut, UIn, UOut, UIn, M, A> push<UOut, UIn, M, A>(UIn a)
+        where M : Monad<M> =>
+        new Respond<UOut, UIn, UOut, UIn, M, A>(
+            a,
+            a1 => new Request<UOut, UIn, UOut, UIn, M, A>(
+                a1,
+                push<UOut, UIn, M, A>));
+
+    /// <summary>
+    /// Send a value of type `DOut` downstream and block waiting for a reply of type `DIn`
+    /// </summary>
+    /// <remarks>
+    /// `respond` is the identity of the respond category.
+    /// </remarks>
+    [Pure, MethodImpl(mops)]
+    public static Proxy<X1, X, DIn, DOut, M, DIn> respond<X1, X, DIn, DOut, M>(DOut value) 
+        where M : Monad<M> =>
+        new Respond<X1, X, DIn, DOut, M, DIn>(value, r => new Pure<X1, X, DIn, DOut, M, DIn>(r));
+
+    /// <summary>
+    /// Send a value of type `UOut` upstream and block waiting for a reply of type `UIn`
+    /// </summary>
+    /// <remarks>
+    /// `request` is the identity of the request category.
+    /// </remarks>
+    [Pure, MethodImpl(mops)]
+    public static Proxy<UOut, UIn, Y1, Y, M, UIn> request<UOut, UIn, Y1, Y, M>(UOut value) 
+        where M : Monad<M> =>
+        new Request<UOut, UIn, Y1, Y, M, UIn>(value, r => new Pure<UOut, UIn, Y1, Y, M, UIn>(r));
+
+
+    /// <summary>
+    /// `reflect` transforms each streaming category into its dual:
+    ///
+    /// The request category is the dual of the respond category
+    ///
+    ///      reflect . respond = request
+    ///      reflect . (f | g) = reflect . f | reflect . g
+    ///      reflect . request = respond
+    ///      reflect . (f | g) = reflect . f | reflect . g
+    ///
+    /// The pull category is the dual of the push category
+    ///
+    ///      reflect . push = pull
+    ///      reflect . (f | g) = reflect . f | reflect . g
+    ///      reflect . pull = push
+    ///      reflect . (f | g) = reflect . f | reflect . g
+    ///
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Proxy<DOut, DIn, UIn, UOut, M, R> reflect<UOut, UIn, DIn, DOut, M, R>(
+        Proxy<UOut, UIn, DIn, DOut, M, R> p)
+        where M : Monad<M> =>
+        p.Reflect();
+
+    /// <summary>
+    /// `p.ForEach(body)` loops over the `Producer p` replacing each `yield` with `body`
+    /// 
+    ///     Producer b r -> (b -> Producer c ()) -> Producer c r
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Producer<OUT_B, M, A> ForEach<OUT_A, OUT_B, M, A>(
+        this Producer<OUT_A, M, A> p, 
+        Func<OUT_A, Producer<OUT_B, M, Unit>> body)
+        where M : Monad<M> =>
+        p.For(body).ToProducer();
+
+    /// <summary>
+    /// `p.ForEach(body)` loops over `Producer p` replacing each `yield` with `body`
+    /// 
+    ///     Producer b r -> (b -> Effect ()) -> Effect r
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Effect<M, A> ForEach<OUT, M, A>(
+        this Producer<OUT, M, A> p, 
+        Func<OUT, Effect<M, Unit>> fb)
+        where M : Monad<M> =>
+        p.For(fb).ToEffect();
+
+    /// <summary>
+    /// `p.ForEach(body)` loops over `Pipe p` replacing each `yield` with `body`
+    /// 
+    ///     Pipe x b r -> (b -> Consumer x ()) -> Consumer x r
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Consumer<IN, M, A> ForEach<IN, OUT, M, A>(
+        this Pipe<IN, OUT, M, A> p0, 
+        Func<OUT, Consumer<IN, M, Unit>> fb)
+        where M : Monad<M> =>
+        p0.For(fb).ToConsumer();
+
+    /// <summary>
+    /// `p.ForEach(body)` loops over `Pipe p` replacing each `yield` with `body`
+    /// 
+    ///     Pipe x b r -> (b -> Pipe x c ()) -> Pipe x c r
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Pipe<IN, OUT, M, R> ForEach<IN, B, OUT, M, R>(
+        this Pipe<IN, B, M, R> p0, 
+        Func<B, Pipe<IN, OUT, M, Unit>> fb)
+        where M : Monad<M> =>
+        p0.For(fb).ToPipe();
+
+    /// <summary>
+    /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Proxy<UOut, UIn, DIn, DOut, M, B> compose<UOut, UIn, DIn, DOut, A, M, B>(
+        Proxy<UOut, UIn, DIn, DOut, M, A> p1, 
+        Proxy<Unit, A, DIn, DOut, M, B> p2)
+        where M : Monad<M> =>
+        compose(_ => p1, p2);
+
+    /// <summary>
+    /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
+    /// 
+    ///     Effect b -> Consumer b c -> Effect c
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Effect<M, A> compose<OUT, M, A>(
+        Effect<M, OUT> p1, 
+        Consumer<OUT, M, A> p2)
+        where M : Monad<M> =>
+        compose(_ => p1, p2).ToEffect();
+
+    /// <summary>
+    /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
+    /// 
+    ///     Consumer a b -> Consumer b c -> Consumer a c
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Consumer<A, M, C> compose<A, B, M, C>(
+        Consumer<A, M, B> p1, 
+        Consumer<B, M, C> p2) 
+        where M : Monad<M> =>
+        compose(_ => p1, p2).ToConsumer();
+
+    /// <summary>
+    /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
+    /// 
+    ///     Producer y b -> Pipe b y m c -> Producer y c
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Producer<OUT, M, C> compose<OUT, IN, M, C>(
+        Producer<OUT, M, IN> p1, 
+        Pipe<IN, OUT, M, C> p2) 
+        where M : Monad<M> =>
+        compose(_ => p1, p2).ToProducer();
+
+    /// <summary>
+    /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
+    /// 
+    ///     Pipe a y b -> Pipe b y c -> Pipe a y c
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Pipe<A, Y, M, C> compose<Y, A, B, M, C>(
+        Pipe<A, Y, M, B> p1,
+        Pipe<B, Y, M, C> p2) 
+        where M : Monad<M> =>
+        compose(_ => p1, p2).ToPipe();
+
+    // fixAwaitDual
+    [Pure, MethodImpl(mops)]
+    public static Proxy<A1, A, Y1, Y, M, C> compose<A1, A, Y1, Y, B, M, C>(
+        Proxy<Unit, B, Y1, Y, M, C> p2,
+        Proxy<A1, A, Y1, Y, M, B> p1) 
+        where M : Monad<M> =>
+        compose(p1, p2);
+
+    /// <summary>
+    /// Replaces each `request` or `respond` in `p0` with `fb1`.
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Proxy<A1, A, Y1, Y, M, C> compose<A1, A, B1, B, Y1, Y, M, C>(
+        Func<B1, Proxy<A1, A, Y1, Y, M, B>> fb1,
+        Proxy<B1, B, Y1, Y, M, C> p0) 
+        where M : Monad<M> =>
+        p0.ReplaceRequest(fb1);
+
+    /// <summary>
+    /// `compose(p, f)` pairs each `respond` in `p` with a `request` in `f`.
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Proxy<A1, A, C1, C, M, R> compose<A1, A, B1, B, C1, C, M, R>(
+        Proxy<A1, A, B1, B, M, R> p,
+        Func<B, Proxy<B1, B, C1, C, M, R>> fb)
+        where M : Monad<M> =>
+        p.PairEachRespondWithRequest(fb);
+
+    /// <summary>
+    /// `compose(f, p)` pairs each `request` in `p` with a `respond` in `f`
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Proxy<A1, A, C1, C, M, R> compose<A1, A, B1, B, C1, C, M, R>(
+        Func<B1, Proxy<A1, A, B1, B, M, R>> fb1,
+        Proxy<B1, B, C1, C, M, R> p)
+        where M : Monad<M> =>
+        p.PairEachRequestWithRespond(fb1);
+
+    /// <summary>
+    /// Pipe composition
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Proxy<A1, A, C1, C, M, R> compose<A1, A, B, C1, C, M, R>(
+        Proxy<A1, A, Unit, B, M, R> p1,
+        Proxy<Unit, B, C1, C, M, R> p2)
+        where M : Monad<M> =>
+        compose(_ => p1, p2);
+
+    /// <summary>
+    /// Pipe composition
+    ///
+    ///     Producer b r -> Consumer b r -> Effect m r
+    /// 
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Effect<M, R> compose<B, M, R>(
+        Producer<B, M, R> p1,
+        Consumer<B, M, R> p2)
+        where M : Monad<M> =>
+        compose(p1.ToProxy(), p2).ToEffect();
+
+    /// <summary>
+    /// Pipe composition
+    ///
+    ///     Producer b r -> Pipe b c r -> Producer c r
+    /// 
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Producer<C, M, R> compose<B, C, M, R>(
+        Producer<B, M, R> p1,
+        Pipe<B, C, M, R> p2)
+        where M : Monad<M> =>
+        compose(p1.ToProxy(), p2).ToProducer();
+
+    /// <summary>
+    /// Pipe composition
+    ///
+    ///     Pipe a b r -> Consumer b r -> Consumer a r
+    /// 
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Consumer<A, M, R> compose<A, B, M, R>(
+        Pipe<A, B, M, R> p1,
+        Consumer<B, M, R> p2)
+        where M : Monad<M> =>
+        compose(p1.ToProxy(), p2).ToConsumer();
+
+    /// <summary>
+    /// Pipe composition
+    ///
+    ///     Pipe a b r -> Pipe b c r -> Pipe a c r
+    /// 
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Pipe<A, C, M, R> compose<A, B, C, M, R>(
+        Pipe<A, B, M, R> p1,
+        Pipe<B, C, M, R> p2)
+        where M : Monad<M> =>
+        compose(p1.ToProxy(), p2).ToPipe();
+
+    /// <summary>
+    /// Compose two unfolds, creating a new unfold
+    /// </summary>
+    /// <remarks>
+    /// This is the composition operator of the respond category.
+    /// </remarks>
+    [Pure, MethodImpl(mops)]
+    public static Func<A, Proxy<X1, X, C1, C, M, A1>> compose<X1, X, A1, A, B1, B, C1, M, C>(
+        Func<A, Proxy<X1, X, B1, B, M, A1>> fa,
+        Func<B, Proxy<X1, X, C1, C, M, B1>> fb) 
+        where M : Monad<M> =>
+        a => compose(fa(a), fb);
+
+    /// <summary>
+    /// Compose two unfolds, creating a new unfold
+    /// </summary>
+    /// <remarks>
+    /// This is the composition operator of the respond category.
+    /// </remarks>
+    [Pure, MethodImpl(mops)]
+    public static Func<A, Proxy<X1, X, C1, C, M, A1>> Then<X1, X, A1, A, B1, B, C1, M, C>(
+        this Func<A, Proxy<X1, X, B1, B, M, A1>> fa,
+        Func<B, Proxy<X1, X, C1, C, M, B1>> fb) 
+        where M : Monad<M> =>
+        a => compose(fa(a), fb);
+
+    /// <summary>
+    /// `compose(p, f)` replaces each `respond` in `p` with `f`.
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Proxy<X1, X, C1, C, M, A1> compose<X1, X, A1, B1, C1, C, M, B>(
+        Proxy<X1, X, B1, B, M, A1> p0,
+        Func<B, Proxy<X1, X, C1, C, M, B1>> fb) 
+        where M : Monad<M> =>
+        p0.ReplaceRespond(fb);
+
+    /// <summary>
+    /// `compose(p, f)` replaces each `respond` in `p` with `f`.
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Proxy<X1, X, C1, C, M, A1> Then<X1, X, A1, B1, C1, C, M, B>(
+        this Proxy<X1, X, B1, B, M, A1> p0,
+        Func<B, Proxy<X1, X, C1, C, M, B1>> fb) 
+        where M : Monad<M> =>
+        compose(p0, fb);
+
+
+    /// <summary>
+    ///  Compose two folds, creating a new fold
+    /// 
+    ///     (f | g) x = f | g x
+    /// 
+    ///     | is the composition operator of the request category.
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Func<C1, Proxy<A1, A, Y1, Y, M, C>> compose<A1, A, B1, B, Y1, Y, C1, M, C>(
+        Func<B1, Proxy<A1, A, Y1, Y, M, B>> fb1,
+        Func<C1, Proxy<B1, B, Y1, Y, M, C>> fc1) 
+        where M : Monad<M> =>
+        c1 => compose(fb1, fc1(c1));
+
+    /// <summary>
+    /// 
+    ///     observe(lift (Pure(r))) = observe(Pure(r))
+    ///     observe(lift (m.Bind(f))) = observe(lift(m.Bind(x => lift(f(x)))))
+    /// 
+    /// This correctness comes at a small cost to performance, so use this function sparingly.
+    /// This function is a convenience for low-level pipes implementers.  You do not need to
+    /// use observe if you stick to the safe API.        
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Proxy<A1, A, B1, B, M, R> observe<A1, A, B1, B, M, R>(
+        Proxy<A1, A, B1, B, M, R> p0)
+        where M : Monad<M> =>
+        p0.Observe();
+
+    /// <summary>
+    /// `Absurd` function
+    /// </summary>
+    /// <param name="value">`Void` is supposed to represent `void`, nothing can be constructed from `void` and
+    /// so this method just throws `ApplicationException("closed")`</param>
+    [Pure, MethodImpl(mops)]
+    public static A closed<A>(Void value) =>
+        throw new ApplicationException("closed");
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Proxy<A1, A, B1, B, M, S> apply<A1, A, B1, B, R, M, S>(
+        Proxy<A1, A, B1, B, M, Func<R, S>> pf,
+        Proxy<A1, A, B1, B, M, R> px) where M : Monad<M>
+    {
+        return Go(pf);
+
+        Proxy<A1, A, B1, B, M, S> Go(Proxy<A1, A, B1, B, M, Func<R, S>> p) =>
+            p.ToProxy() switch
+            {
+                Request<A1, A, B1, B, M, Func<R, S>> (var a1, var fa) => new Request<A1, A, B1, B, M, S>(a1, a => Go(fa(a))),
+                Respond<A1, A, B1, B, M, Func<R, S>> (var b, var fb1) => new Respond<A1, A, B1, B, M, S>(b, b1 => Go(fb1(b1))),
+                ProxyM<A1, A, B1, B, M, Func<R, S>> (var m)           => new ProxyM<A1, A, B1, B, M, S>(M.Map(Go, m)),
+                Pure<A1, A, B1, B, M, Func<R, S>> (var f)             => px.Map(f),
+                _                                                     => throw new NotSupportedException()
+            };
+    }
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Proxy<A1, A, B1, B, M, S> Apply<A1, A, B1, B, R, M, S>(
+        this Proxy<A1, A, B1, B, M, Func<R, S>> pf, 
+        Proxy<A1, A, B1, B, M, R> px) 
+        where M : Monad<M> =>
+        apply(pf, px);
+
+    /// <summary>
+    /// Applicative action
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Proxy<A1, A, B1, B, M, S> Action<A1, A, B1, B, R, M, S>(
+        this Proxy<A1, A, B1, B, M, R> l, 
+        Proxy<A1, A, B1, B, M, S> r) 
+        where M : Monad<M> =>
+        l.Action(r);
+
+    /// <summary>
+    /// Monad return / pure
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Proxy<A1, A, B1, B, M, R> Pure<A1, A, B1, B, M, R>(R value) 
+        where M : Monad<M> =>
+        new Pure<A1, A, B1, B, M, R>(value);
+
+    /// <summary>
+    /// Creates a non-yielding producer that returns the result of the effects
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static K<M, (A, B)> collect<M, A, B>(Effect<M, A> ma, Effect<M, B> mb)
+        where M : Monad<M> =>
+        fun((A x, B y) => (x, y)).Map(ma.RunEffect()).Apply(mb.RunEffect());
+ 
+    /// <summary>
+    /// Creates a non-yielding producer that returns the result of the effects
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static K<M, (A, B, C)> collect<M, A, B, C>(Effect<M, A> ma, Effect<M, B> mb, Effect<M, C> mc) 
+        where M : Monad<M> =>
+        fun((A x, B y, C z) => (x, y, z)).Map(ma.RunEffect()).Apply(mb.RunEffect()).Apply(mc.RunEffect());
+
+    /// <summary>
+    /// Creates a non-yielding producer that returns the result of the effects
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Producer<(A, B), M, Unit> yield<M, A, B>(Effect<M, A> ma, Effect<M, B> mb) 
+        where M : Monad<M> =>
+        from r in collect(ma, mb)
+        from _ in yield(r)
+        select unit;
+
+    /// <summary>
+    /// Creates a non-yielding producer that returns the result of the effects
+    /// </summary>
+    [Pure, MethodImpl(mops)]
+    public static Producer<(A, B, C), M, Unit> yield<M, A, B, C>(Effect<M, A> ma, Effect<M, B> mb, Effect<M, C> mc) 
+        where M : Monad<M> =>
+        from r in collect(ma, mb, mc)
+        from _ in yield(r)
+        select unit;
+
+    /// <summary>
+    /// Only forwards values that satisfy the predicate.
+    /// </summary>
+    public static Pipe<A, A, Unit> filter<A>(Func<A, bool> f) =>
+        from x in awaiting<A>()
+        from r in f(x) ? yield(x) : Prelude.Pure(unit)
+        select r;
+
+    /// <summary>
+    /// Map the output of the pipe (not the bound value as is usual with Map)
+    /// </summary>
+    public static Pipe<A, B, Unit> map<A, B>(Func<A, B> f) =>
+        from x in awaiting<A>()
+        from r in yield(f(x))
+        select r;
+
+    /// <summary>
+    /// Folds values coming down-stream, when the predicate returns false the folded value is yielded 
+    /// </summary>
+    /// <param name="Initial">Initial state</param>
+    /// <param name="Fold">Fold operation</param>
+    /// <param name="WhileState">Predicate</param>
+    /// <returns>A pipe that folds</returns>
+    [Pure, MethodImpl(mops)]
+    public static Pipe<IN, OUT, Unit> foldWhile<IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<OUT, bool> State) => 
+        foldUntil(Initial, Fold, x => !State(x));
+ 
+    /// <summary>
+    /// Folds values coming down-stream, when the predicate returns true the folded value is yielded 
+    /// </summary>
+    /// <param name="Initial">Initial state</param>
+    /// <param name="Fold">Fold operation</param>
+    /// <param name="UntilState">Predicate</param>
+    /// <returns>A pipe that folds</returns>
+    public static Pipe<IN, OUT, Unit> foldUntil<IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<OUT, bool> State)
+    {
+        var state = Initial;
+        return awaiting<IN>()
+           .Bind(x =>
+                 {
+                     state = Fold(state, x);
+                     if (State(state))
+                     {
+                         var nstate = state;
+                         state = Initial;
+                         return yield(nstate);
+                     }
+                     else
+                     {
+                         return Prelude.Pure(unit);
+                     }
+                 });
+    }        
         
-        /// <summary>
-        /// Folds values coming down-stream, when the predicate returns false the folded value is yielded 
-        /// </summary>
-        /// <param name="Initial">Initial state</param>
-        /// <param name="Fold">Fold operation</param>
-        /// <param name="WhileValue">Predicate</param>
-        /// <returns>A pipe that folds</returns>
-        [Pure, MethodImpl(mops)]
-        public static Pipe<IN, OUT, Unit> foldWhile<IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<IN, bool> Value) => 
-            foldUntil(Initial, Fold, x => !Value(x));
+    /// <summary>
+    /// Folds values coming down-stream, when the predicate returns false the folded value is yielded 
+    /// </summary>
+    /// <param name="Initial">Initial state</param>
+    /// <param name="Fold">Fold operation</param>
+    /// <param name="WhileValue">Predicate</param>
+    /// <returns>A pipe that folds</returns>
+    [Pure, MethodImpl(mops)]
+    public static Pipe<IN, OUT, Unit> foldWhile<IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<IN, bool> Value) => 
+        foldUntil(Initial, Fold, x => !Value(x));
  
-        /// <summary>
-        /// Folds values coming down-stream, when the predicate returns true the folded value is yielded 
-        /// </summary>
-        /// <param name="Initial">Initial state</param>
-        /// <param name="Fold">Fold operation</param>
-        /// <param name="UntilValue">Predicate</param>
-        /// <returns>A pipe that folds</returns>
-        public static Pipe<IN, OUT, Unit> foldUntil<IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<IN, bool> Value)
-        {
-            var state = Initial;
-            return awaiting<IN>()
-                       .Bind(x =>
-                             {
-                                 if (Value(x))
-                                 {
-                                     var nstate = state;
-                                     state = Initial;
-                                     return yield(nstate);
-                                 }
-                                 else
-                                 {
-                                     state = Fold(state, x);
-                                     return Pure(unit);
-                                 }
-                             });
-        }
+    /// <summary>
+    /// Folds values coming down-stream, when the predicate returns true the folded value is yielded 
+    /// </summary>
+    /// <param name="Initial">Initial state</param>
+    /// <param name="Fold">Fold operation</param>
+    /// <param name="UntilValue">Predicate</param>
+    /// <returns>A pipe that folds</returns>
+    public static Pipe<IN, OUT, Unit> foldUntil<IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<IN, bool> Value)
+    {
+        var state = Initial;
+        return awaiting<IN>()
+           .Bind(x =>
+                 {
+                     if (Value(x))
+                     {
+                         var nstate = state;
+                         state = Initial;
+                         return yield(nstate);
+                     }
+                     else
+                     {
+                         state = Fold(state, x);
+                         return Prelude.Pure(unit);
+                     }
+                 });
     }
 }

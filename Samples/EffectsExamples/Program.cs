@@ -1,11 +1,15 @@
-﻿using LanguageExt.Sys.Live;
-using System.Threading.Tasks;
+﻿using System;
+using LanguageExt.Sys.Live;
+using LanguageExt;
+using LanguageExt.Common;
 
-namespace EffectsExamples
+namespace EffectsExamples;
+
+class Program
 {
-    class Program
-    {
-        static async Task Main(string[] args) =>
-            await Menu<Runtime>.menu.Run(Runtime.New());
-    }
+    static void Main(string[] args) =>
+        Menu<Runtime>
+           .menu
+           .Run(Runtime.New(), EnvIO.New())
+           .ThrowIfFail();
 }

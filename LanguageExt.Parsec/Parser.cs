@@ -192,7 +192,7 @@ public static class ParserExtensions
 
     public static Parser<R> Flatten<L, R>(this Parser<Either<L, R>> p, Func<L, string> failureText) =>
         from value in p
-        from returnValue in value.Match(result, compose(failureText, failure<R>))
+        from returnValue in value.Match(compose(failureText, failure<R>), result)
         select returnValue;
     
     public static Parser<R> Flatten<R>(this Parser<Either<string,R>> p) => Flatten(p, identity);

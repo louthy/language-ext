@@ -1,10 +1,11 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Common;
@@ -12,12 +13,14 @@ namespace LanguageExt.Common;
 /// <summary>
 /// Abstract error value
 /// </summary>
-public abstract record Error
+[DataContract]
+public abstract record Error : Monoid<Error>
 {
     /// <summary>
     /// Error code
     /// </summary>
     [Pure]
+    [DataMember]
     public virtual int Code =>
         0;
 
@@ -25,12 +28,14 @@ public abstract record Error
     /// Error message
     /// </summary>
     [Pure]
+    [DataMember]
     public abstract string Message { get; }
 
     /// <summary>
     /// Inner error
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public virtual Option<Error> Inner =>
         None;
 
@@ -55,26 +60,30 @@ public abstract record Error
     /// True if the error is exceptional
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public abstract bool IsExceptional { get; }
 
     /// <summary>
     /// True if the error is expected
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public abstract bool IsExpected { get; }
 
     /// <summary>
     /// Get the first error (this will be `Errors.None` if there are zero errors)
     /// </summary>
     [Pure]
-    public virtual Error Head() =>
+    [IgnoreDataMember]
+    public virtual Error Head =>
         this;
 
     /// <summary>
     /// Get the errors with the head removed (this may be `Errors.None` if there are zero errors in the tail)
     /// </summary>
     [Pure]
-    public virtual Error Tail() =>
+    [IgnoreDataMember]
+    public virtual Error Tail =>
         Errors.None;
 
     /// <summary>
@@ -84,6 +93,7 @@ public abstract record Error
     /// information about the error.
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public virtual bool IsEmpty =>
         false;
 
@@ -94,6 +104,7 @@ public abstract record Error
     /// about the error.
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public virtual int Count =>
         1;
 
@@ -127,7 +138,7 @@ public abstract record Error
     /// <param name="error">Error</param>
     /// <returns></returns>
     [Pure]
-    public Error Append(Error error) =>
+    public Error Combine(Error error) =>
         (this, error) switch
         {
             (ManyErrors e1, ManyErrors e2) => new ManyErrors(e1.Errors + e2.Errors), 
@@ -135,6 +146,10 @@ public abstract record Error
             (var e1,        ManyErrors e2) => new ManyErrors(e1.Cons(e2.Errors)), 
             (var e1,        var e2)        => new ManyErrors(Seq(e1, e2)) 
         };
+
+    [Pure]
+    public static Error Empty =>
+        ManyErrors.Empty;
     
     /// <summary>
     /// Append an error to this error
@@ -142,12 +157,16 @@ public abstract record Error
     /// <remarks>Single errors will be converted to `ManyErrors`;  `ManyErrors` will have their collection updated</remarks>
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Error operator+(Error lhs, Error rhs) =>
-        lhs.Append(rhs);
+        lhs.Combine(rhs);
 
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual IEnumerable<Error> AsEnumerable()
+    public virtual EnumerableM<Error> AsEnumerable()
     {
-        yield return this;
+        return new EnumerableM<Error>(go());
+        IEnumerable<Error> go() 
+        {
+            yield return this;
+        }
     }
 
     /// <summary>
@@ -162,8 +181,18 @@ public abstract record Error
     /// </summary>
     /// <param name="thisException">Exception</param>
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Error New(Exception thisException) =>
-        new Exceptional(thisException);
+    public static Error New(Exception? thisException) =>
+        thisException switch
+        {
+            null                       => Errors.None,
+            ErrorException e           => e.ToError(),
+            TaskCanceledException      => Errors.Cancelled,
+            OperationCanceledException => Errors.Cancelled,
+            TimeoutException           => Errors.TimedOut,
+            AggregateException a       => ManyErrors.FromAggregate(a),
+            var e                      => new Exceptional(e)
+        };
+        
 
     /// <summary>
     /// Create a `Exceptional` error with an overriden message.  This can be useful for sanitising the display message
@@ -172,8 +201,8 @@ public abstract record Error
     /// <param name="message">Error message</param>
     /// <param name="thisException">Exception</param>
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Error New(string message, Exception thisException) =>
-        new Exceptional(message, thisException);
+    public static Error New(string message, Exception? thisException) =>
+        new Exceptional(message, thisException ?? new BottomException());
 
     /// <summary>
     /// Create an `Expected` error 
@@ -223,7 +252,7 @@ public abstract record Error
             ? Errors.None
             : errors.Length == 1
                 ? errors[0]
-                : new ManyErrors(errors.ToSeq());
+                : new ManyErrors(errors.AsEnumerableM().ToSeq());
 
     /// <summary>
     /// Create a new error 
@@ -235,11 +264,11 @@ public abstract record Error
         errors.IsEmpty
             ? Errors.None
             : errors.Tail.IsEmpty
-                ? errors.Head
+                ? (Error)errors.Head
                 : new ManyErrors(errors);
 
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Error(string e) =>
+    public static explicit operator Error(string e) =>
         New(e);
 
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -260,7 +289,7 @@ public abstract record Error
     /// If it fails, Errors.Bottom is returned
     /// </summary>
     [Pure]
-    public static Error FromObject(object value) =>
+    public static Error FromObject(object? value) =>
         value switch
         {
             Error err          => err,
@@ -272,7 +301,8 @@ public abstract record Error
         };
     
     [Pure]
-    internal static Option<FAIL> Convert<FAIL>(object err) => err switch
+    internal static Option<FAIL> Convert<FAIL>(object? err) => 
+        err switch
     {
         // Messy, but we're doing our best to recover an error rather than return Bottom
             
@@ -289,8 +319,20 @@ public abstract record Error
     /// <summary>
     /// Throw the error as an exception
     /// </summary>
-    public Unit Throw() =>
-        ToException().Rethrow();        
+    public Unit Throw()
+    {
+        ExceptionDispatchInfo.Capture(ToException()).Throw();
+        return default;
+    }
+
+    /// <summary>
+    /// Throw the error as an exception
+    /// </summary>
+    public R Throw<R>()
+    {
+        ExceptionDispatchInfo.Capture(ToException()).Throw();
+        return default;
+    }
 }
 
 /// <summary>
@@ -335,12 +377,14 @@ public record Expected(string Message, int Code, Option<Error> Inner = default) 
     /// Inner error
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override Option<Error> Inner { get; } = 
         Inner;
     
+    [Pure]
     public override string ToString() => 
         Message;
-
+    
     /// <summary>
     /// Generates a new `ErrorException` that contains the `Code`, `Message`, and `Inner` of this `Error`.
     /// </summary>
@@ -359,6 +403,7 @@ public record Expected(string Message, int Code, Option<Error> Inner = default) 
     /// True if the error is exceptional
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override bool IsExceptional =>
         false;
 
@@ -366,6 +411,7 @@ public record Expected(string Message, int Code, Option<Error> Inner = default) 
     /// True if the error is expected
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override bool IsExpected =>
         true;
 }
@@ -387,6 +433,7 @@ public record Exceptional(string Message, int Code) : Error
     /// Internal exception.  If this record is constructed via deserialisation, or the default constructor then this
     /// value will be `null`.  This is intentional to stop exceptions leaking over application boundaries. 
     /// </summary>
+    [IgnoreDataMember]
     readonly Exception? Value;
     
     /// <summary>
@@ -459,6 +506,7 @@ public record Exceptional(string Message, int Code) : Error
     /// True if the error is exceptional
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override bool IsExceptional =>
         true;
 
@@ -466,6 +514,7 @@ public record Exceptional(string Message, int Code) : Error
     /// True if the error is expected
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override bool IsExpected =>
         false;
 }
@@ -478,9 +527,11 @@ public sealed record BottomError() : Exceptional(BottomException.Default)
 {
     public static readonly Error Default = new BottomError();
     
+    [DataMember]
     public override int Code => 
         Errors.BottomCode; 
-    
+
+    [DataMember]
     public override string Message => 
         Errors.BottomText;
 
@@ -521,6 +572,7 @@ public sealed record BottomError() : Exceptional(BottomException.Default)
     /// True if the error is exceptional
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override bool IsExceptional =>
         true;
 
@@ -528,6 +580,7 @@ public sealed record BottomError() : Exceptional(BottomException.Default)
     /// True if the error is expected
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override bool IsExpected =>
         false;
 }
@@ -541,6 +594,9 @@ public sealed record BottomError() : Exceptional(BottomException.Default)
 [DataContract]
 public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Error
 {
+    public new static Error Empty { get; } =
+        new ManyErrors(Seq.empty<Error>()); 
+
     public override int Code => 
         Common.Errors.ManyErrorsCode;
 
@@ -580,6 +636,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     /// True if any of the the errors are exceptional
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override bool IsExceptional =>
         Errors.Exists(static e => e.IsExceptional);
 
@@ -587,6 +644,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     /// True if all of the the errors are expected
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override bool IsExpected =>
         Errors.ForAll(static e => e.IsExpected);
 
@@ -594,16 +652,18 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     /// Get the first error (this may be `Errors.None` if there are zero errors)
     /// </summary>
     [Pure]
-    public override Error Head() =>
+    [IgnoreDataMember]
+    public override Error Head =>
         Errors.IsEmpty
             ? Common.Errors.None
-            : Errors.Head;
+            : (Error)Errors.Head;
 
     /// <summary>
     /// Get the errors with the head removed (this may be `Errors.None` if there are zero errors in the tail)
     /// </summary>
     [Pure]
-    public override Error Tail() =>
+    [IgnoreDataMember]
+    public override Error Tail =>
         Errors.Tail.IsEmpty
             ? Common.Errors.None
             : this with {Errors = Errors.Tail};
@@ -613,6 +673,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     /// an error, but without any specific information about the error.
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override bool IsEmpty =>
         Errors.IsEmpty;
 
@@ -623,10 +684,21 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     /// about the error.
     /// </summary>
     [Pure]
+    [IgnoreDataMember]
     public override int Count =>
         Errors.Count;
 
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override IEnumerable<Error> AsEnumerable() =>
-        Errors.AsEnumerable();
+    public override EnumerableM<Error> AsEnumerable() =>
+        new (Errors.AsEnumerable());
+
+    [Pure]
+    internal static Error FromAggregate(AggregateException? e)
+    {
+        if (e is null) return Common.Errors.None;
+        var errs = e.InnerExceptions.Bind(x => New(x).AsEnumerable()).AsEnumerableM().ToSeq();
+        if (errs.Count == 0) return Common.Errors.None;
+        if (errs.Count == 1) return (Error)errs.Head;
+        return Many(errs);
+    }
 } 

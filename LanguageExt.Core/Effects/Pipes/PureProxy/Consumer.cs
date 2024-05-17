@@ -6,157 +6,214 @@
 //
 
 using System;
-using LanguageExt.Effects.Traits;
-using static LanguageExt.Prelude;
-using System.Collections.Generic;
-using static LanguageExt.Pipes.Proxy;
-using System.Runtime.CompilerServices;
+using LanguageExt.Common;
+using LanguageExt.Traits;
 
-namespace LanguageExt.Pipes
+namespace LanguageExt.Pipes;
+
+public abstract class Consumer<IN, A>
 {
-    public abstract class Consumer<IN, A>
-    {
-        public abstract Consumer<IN, B> Select<B>(Func<A, B> f);
-        public abstract Consumer<IN, B> SelectMany<B>(Func<A, Consumer<IN, B>> f);
-        public abstract ConsumerLift<RT, IN, B> SelectMany<RT, B>(Func<A, ConsumerLift<RT, IN, B>> f) where RT : struct, HasCancel<RT>;
-        public abstract Consumer<RT, IN, B> SelectMany<RT, B>(Func<A, Consumer<RT, IN, B>> f) where RT : struct, HasCancel<RT>;
-        public abstract Pipe<IN, OUT, B> SelectMany<OUT, B>(Func<A, Producer<OUT, B>> f);
-        public abstract Pipe<RT, IN, OUT, B> SelectMany<RT, OUT, B>(Func<A, ProducerLift<RT, OUT, B>> f) where RT : struct, HasCancel<RT>;
-        public abstract Consumer<RT, IN, A> Interpret<RT>() where RT : struct, HasCancel<RT>;
-        public abstract ConsumerLift<RT, IN, A> ToConsumerLift<RT>() where RT : struct, HasCancel<RT>;
-        public abstract Pipe<IN, OUT, A> ToPipe<OUT>();
-        
-        public Consumer<IN, B> Map<B>(Func<A, B> f) => Select(f);
-        public Consumer<IN, B> Bind<B>(Func<A, Consumer<IN, B>> f) => SelectMany(f);
-        public ConsumerLift<RT, IN, B> Bind<RT, B>(Func<A, ConsumerLift<RT, IN, B>> f) where RT : struct, HasCancel<RT> => SelectMany(f);
-        public Consumer<RT, IN, B> Bind<RT, B>(Func<A, Consumer<RT, IN, B>> f) where RT : struct, HasCancel<RT> => SelectMany(f);
-        public Pipe<IN, OUT, B> Bind<OUT, B>(Func<A, Producer<OUT, B>> f) => SelectMany(f);
+    public abstract Consumer<IN, B> Select<B>(Func<A, B> f);
+    
+    public abstract Consumer<IN, B> Bind<B>(Func<A, Consumer<IN, B>> f);
+    public abstract Consumer<IN, M, B> Bind<M, B>(Func<A, Consumer<IN, M, B>> f) where M : Monad<M>;
+    public abstract Pipe<IN, OUT, B> Bind<OUT, B>(Func<A, Producer<OUT, B>> f);
+    
+    public Consumer<IN, B> Bind<B>(Func<A, Pure<B>> f) =>
+        Map(x => f(x).Value);
  
-        public Consumer<IN, C> SelectMany<B, C>(Func<A, Consumer<IN, B>> f, Func<A, B, C> project) =>
-            SelectMany(a => f(a).Select(b => project(a, b)));
+    public Consumer<IN, B> Bind<B>(Func<A, Fail<Error>> f) =>
+        Bind(x => new Consumer<IN, B>.Fail(f(x).Value));
+ 
+    public Consumer<IN, M, B> Bind<M, B>(Func<A, K<M, B>> f) 
+        where M : Monad<M> =>
+        Interpret<M>().Bind(f);
+
+    public Consumer<IN, B> Bind<B>(Func<A, IO<B>> f) =>
+        Bind(x => PureProxy.ConsumerLiftIO<IN, B>(f(x)));
+ 
+    public abstract Consumer<IN, M, A> Interpret<M>() 
+        where M : Monad<M>;
+    
+    public abstract Pipe<IN, OUT, A> ToPipe<OUT>();
         
-        public ConsumerLift<RT, IN, C> SelectMany<RT, B, C>(Func<A, ConsumerLift<RT, IN, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            SelectMany(a => f(a).Select(b => project(a, b)));
+    public Consumer<IN, B> Map<B>(Func<A, B> f) => Select(f);
         
-        public Consumer<RT, IN, C> SelectMany<RT, B, C>(Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            SelectMany(a => f(a).Select(b => project(a, b)));
+    public Consumer<IN, C> SelectMany<B, C>(Func<A, Pure<B>> f, Func<A, B, C> project) =>
+        Map(x => project(x, f(x).Value));
+ 
+    public Consumer<IN, C> SelectMany<B, C>(Func<A, Fail<Error>> f, Func<A, B, C> project) =>
+        Bind<C>(f);
+
+    public Consumer<IN, C> SelectMany<B, C>(Func<A, IO<B>> f, Func<A, B, C> project) =>
+        Bind(x => f(x).Map(y => project(x, y)));
+ 
+    public Consumer<IN, M, C> SelectMany<M, B, C>(Func<A, K<M, B>> f, Func<A, B, C> project)
+        where M : Monad<M> =>
+        Bind(a =>  M.Map(b => project(a, b), f(a)));
+ 
+    public Consumer<IN, C> SelectMany<B, C>(Func<A, Consumer<IN, B>> f, Func<A, B, C> project) =>
+        Bind(a => f(a).Select(b => project(a, b)));
         
-        public Pipe<IN, OUT, C> SelectMany<OUT, B, C>(Func<A, Producer<OUT, B>> f, Func<A, B, C> project) =>
-            SelectMany(a => f(a).Select(b => project(a, b)));
+    public Consumer<IN, M, C> SelectMany<M, B, C>(Func<A, Consumer<IN, M, B>> f, Func<A, B, C> project) 
+        where M : Monad<M> =>
+        Bind(a => f(a).Select(b => project(a, b)));
+        
+    public Pipe<IN, OUT, C> SelectMany<OUT, B, C>(Func<A, Producer<OUT, B>> f, Func<A, B, C> project) =>
+        Bind(a => f(a).Select(b => project(a, b)));
        
-        public static implicit operator Consumer<IN, A>(Pipes.Pure<A> ma) =>
-            new Consumer<IN, A>.Pure(ma.Value);
-        
-        public static Consumer<IN, A> operator &(
-            Consumer<IN, A> lhs,
-            Consumer<IN, A> rhs) =>
-            lhs.Bind(_ => rhs);
+    public Consumer<IN, C> SelectMany<C>(Func<A, Guard<Error, Unit>> bind, Func<A, Unit, C> project ) =>
+        Map(a => bind(a) switch
+                 {
+                     { Flag: true } => project(a, default),
+                     var g => g.OnFalse().Throw<C>()
+                 });
+    
+    public static implicit operator Consumer<IN, A>(Pure<A> ma) =>
+        new Pure(ma.Value);
+       
+    public static Consumer<IN, A> operator &(
+        Consumer<IN, A> lhs,
+        Consumer<IN, A> rhs) =>
+        lhs.Bind(_ => rhs);
 
-        public class Pure : Consumer<IN, A> 
-        {
-            public readonly A Value;
-            public Pure(A value) =>
-                Value = value;
+    public class Pure(A Value) : Consumer<IN, A>
+    {
+        public override Consumer<IN, B> Select<B>(Func<A, B> f) =>
+            new Consumer<IN, B>.Pure(f(Value));
 
-            public override Consumer<IN, B> Select<B>(Func<A, B> f) =>
-                new Consumer<IN, B>.Pure(f(Value));
+        public override Consumer<IN, B> Bind<B>(Func<A, Consumer<IN, B>> f) =>
+            f(Value);
 
-            public override Consumer<IN, B> SelectMany<B>(Func<A, Consumer<IN, B>> f) =>
-                f(Value);
+        public override Consumer<IN, M, B> Bind<M, B>(Func<A, Consumer<IN, M, B>> f) =>
+            f(Value);
 
-            public override ConsumerLift<RT, IN, B> SelectMany<RT, B>(Func<A, ConsumerLift<RT, IN, B>> f) =>
-                f(Value);
+        public override Pipe<IN, OUT, B> Bind<OUT, B>(Func<A, Producer<OUT, B>> f) =>
+            f(Value).ToPipe<IN>();
 
-            public override Consumer<RT, IN, B> SelectMany<RT, B>(Func<A, Consumer<RT, IN, B>> f) =>
-                f(Value);
+        public override Consumer<IN, M, A> Interpret<M>() =>
+            Consumer.Pure<IN, M, A>(Value);
 
-            public override Pipe<IN, OUT, B> SelectMany<OUT, B>(Func<A, Producer<OUT, B>> f) =>
-                f(Value).ToPipe<IN>();
+        public override Pipe<IN, OUT, A> ToPipe<OUT>() =>
+            new Pipe<IN, OUT, A>.Pure(Value);
+    }
 
-            public override Pipe<RT, IN, OUT, B> SelectMany<RT, OUT, B>(Func<A, ProducerLift<RT, OUT, B>> f) =>
-                f(Value).ToPipe<IN>();
+    public class Fail(Error Error) : Consumer<IN, A>
+    {
+        public override Consumer<IN, B> Select<B>(Func<A, B> _) =>
+            new Consumer<IN, B>.Fail(Error);
 
-            public override Consumer<RT, IN, A> Interpret<RT>() =>
-                Consumer.Pure<RT, IN, A>(Value);
+        public override Consumer<IN, B> Bind<B>(Func<A, Consumer<IN, B>> _) =>
+            new Consumer<IN, B>.Fail(Error);
 
-            public override ConsumerLift<RT, IN, A> ToConsumerLift<RT>() =>
-                new ConsumerLift<RT, IN, A>.Pure(Value);
+        public override Consumer<IN, M, B> Bind<M, B>(Func<A, Consumer<IN, M, B>> f) =>
+            PureProxy.ConsumerLift<IN, A>(Error.Throw<A>).Bind(f);
+            
+        public override Pipe<IN, OUT, B> Bind<OUT, B>(Func<A, Producer<OUT, B>> _) =>
+            new Pipe<IN, OUT, B>.Fail(Error);
 
-            public override Pipe<IN, OUT, A> ToPipe<OUT>() =>
-                new Pipe<IN, OUT, A>.Pure(Value);
-        }
+        public override Consumer<IN, M, A> Interpret<M>() =>
+            PureProxy.ConsumerLift<IN, A>(Error.Throw<A>);
 
-        public class Await : Consumer<IN, A>
-        {
-            public readonly Func<IN, Consumer<IN, A>> Next;
-            public Await(Func<IN, Consumer<IN, A>> next) =>
-                Next = next;
+        public override Pipe<IN, OUT, A> ToPipe<OUT>() =>
+            new Pipe<IN, OUT, A>.Fail(Error);
+    }
 
-            public override Consumer<IN, B> Select<B>(Func<A, B> f) =>
-                new Consumer<IN, B>.Await(x => Next(x).Select(f));
+    public class Lift<X>(Func<X> Function, Func<X, Consumer<IN, A>> Next) : Consumer<IN, A>
+    {
+        public override Consumer<IN, B> Select<B>(Func<A, B> f) => 
+            new Consumer<IN, B>.Lift<X>(Function, x => Next(x).Select(f));
 
-            public override Consumer<IN, B> SelectMany<B>(Func<A, Consumer<IN, B>> f) =>
-                new Consumer<IN, B>.Await(x => Next(x).SelectMany(f));
+        public override Consumer<IN, B> Bind<B>(Func<A, Consumer<IN, B>> f) => 
+            new Consumer<IN, B>.Lift<X>(Function, x => Next(x).Bind(f));
 
-            public override ConsumerLift<RT, IN, B> SelectMany<RT, B>(Func<A, ConsumerLift<RT, IN, B>> f) =>
-                new ConsumerLift<RT, IN, B>.Await(x => Next(x).SelectMany(f));
+        public override Consumer<IN, M, B> Bind<M, B>(Func<A, Consumer<IN, M, B>> f) =>
+            Consumer.lift<IN, M, X>(M.Pure(Function())).Bind(x => Next(x).Bind(f)).ToConsumer();
 
-            public override Consumer<RT, IN, B> SelectMany<RT, B>(Func<A, Consumer<RT, IN, B>> f) =>
-                Interpret<RT>().Bind(f).ToConsumer();
+        public override Pipe<IN, OUT, B> Bind<OUT, B>(Func<A, Producer<OUT, B>> f) => 
+            new Pipe<IN, OUT, B>.Lift<X>(Function, x => Next(x).Bind(f));
 
-            public override Pipe<IN, OUT, B> SelectMany<OUT, B>(Func<A, Producer<OUT, B>> f) =>
-                new Pipe<IN, OUT, B>.Await(x => Next(x).SelectMany(f));
+        public override Consumer<IN, M, A> Interpret<M>() =>
+            Consumer.lift<IN, M, X>(M.Pure(Function())).Bind(x => Next(x).Interpret<M>());
 
-            public override Pipe<RT, IN, OUT, B> SelectMany<RT, OUT, B>(Func<A, ProducerLift<RT, OUT, B>> f) =>
-                Pipe.awaiting<RT, IN, OUT>().Bind(a => Next(a).SelectMany(f));
+        public override Pipe<IN, OUT, A> ToPipe<OUT>() => 
+            new Pipe<IN, OUT, A>.Lift<X>(Function, x => Next(x).ToPipe<OUT>());
+    }
 
-            public override Consumer<RT, IN, A> Interpret<RT>() =>
-                Consumer.awaiting<RT, IN>().Bind(x => Next(x).Interpret<RT>()).ToConsumer();
+    public class LiftIO<X>(IO<X> Effect, Func<X, Consumer<IN, A>> Next) : Consumer<IN, A>
+    {
+        public override Consumer<IN, B> Select<B>(Func<A, B> f) => 
+            new Consumer<IN, B>.LiftIO<X>(Effect, x => Next(x).Select(f));
 
-            public override ConsumerLift<RT, IN, A> ToConsumerLift<RT>() =>
-                new ConsumerLift<RT, IN, A>.Await(x => Next(x).ToConsumerLift<RT>());
+        public override Consumer<IN, B> Bind<B>(Func<A, Consumer<IN, B>> f) => 
+            new Consumer<IN, B>.LiftIO<X>(Effect, x => Next(x).Bind(f));
 
-            public override Pipe<IN, OUT, A> ToPipe<OUT>() =>
-                new Pipe<IN, OUT, A>.Await(x => Next(x).ToPipe<OUT>());
-        }
+        public override Consumer<IN, M, B> Bind<M, B>(Func<A, Consumer<IN, M, B>> f) =>
+            Consumer.lift<IN, M, X>(M.LiftIO(Effect)).Bind(x => Next(x).Bind(f)).ToConsumer();
 
-        public class Release<X> : Consumer<IN, A>
-        {
-            readonly X Value;
-            readonly Func<Unit, Consumer<IN, A>> Next;
+        public override Pipe<IN, OUT, B> Bind<OUT, B>(Func<A, Producer<OUT, B>> f) => 
+            new Pipe<IN, OUT, B>.LiftIO<X>(Effect, x => Next(x).Bind(f));
 
-            public Release(X value, Func<Unit, Consumer<IN, A>> next)
-            {
-                Value = value;
-                Next  = next;
-            }
+        public override Consumer<IN, M, A> Interpret<M>() =>
+            Consumer.lift<IN, M, X>(M.LiftIO(Effect)).Bind(x => Next(x).Interpret<M>());
 
-            public override Consumer<IN, B> Select<B>(Func<A, B> f) =>
-                new Consumer<IN, B>.Release<X>(Value, x => Next(x).Select(f));
+        public override Pipe<IN, OUT, A> ToPipe<OUT>() => 
+            new Pipe<IN, OUT, A>.LiftIO<X>(Effect, x => Next(x).ToPipe<OUT>());
+    }
 
-            public override Consumer<IN, B> SelectMany<B>(Func<A, Consumer<IN, B>> f) =>
-                new Consumer<IN, B>.Release<X>(Value, x => Next(x).SelectMany(f));
+    public class Await : Consumer<IN, A>
+    {
+        public readonly Func<IN, Consumer<IN, A>> Next;
+        public Await(Func<IN, Consumer<IN, A>> next) =>
+            Next = next;
 
-            public override ConsumerLift<RT, IN, B> SelectMany<RT, B>(Func<A, ConsumerLift<RT, IN, B>> f) =>
-                new ConsumerLift<RT, IN, B>.Release<X>(Value, x => Next(x).SelectMany(f));
+        public override Consumer<IN, B> Select<B>(Func<A, B> f) =>
+            new Consumer<IN, B>.Await(x => Next(x).Select(f));
 
-            public override Consumer<RT, IN, B> SelectMany<RT, B>(Func<A, Consumer<RT, IN, B>> f) =>
-                Consumer.release<RT, IN, X>(Value).Bind(x => Next(x).Bind(f)).ToConsumer();
+        public override Consumer<IN, B> Bind<B>(Func<A, Consumer<IN, B>> f) =>
+            new Consumer<IN, B>.Await(x => Next(x).Bind(f));
 
-            public override Pipe<IN, OUT, B> SelectMany<OUT, B>(Func<A, Producer<OUT, B>> f) =>
-                new Pipe<IN, OUT, B>.Release<X>(Value, x => Next(x).SelectMany(f));
+        public override Consumer<IN, M, B> Bind<M, B>(Func<A, Consumer<IN, M, B>> f) =>
+            Interpret<M>().Bind(f).ToConsumer();
 
-            public override Pipe<RT, IN, OUT, B> SelectMany<RT, OUT, B>(Func<A, ProducerLift<RT, OUT, B>> f) =>
-                Pipe.release<RT, IN, OUT, X>(Value).Bind(a => Next(a).SelectMany(f));
+        public override Pipe<IN, OUT, B> Bind<OUT, B>(Func<A, Producer<OUT, B>> f) =>
+            new Pipe<IN, OUT, B>.Await(x => Next(x).Bind(f));
 
-            public override Consumer<RT, IN, A> Interpret<RT>() =>
-                Consumer.release<RT, IN, X>(Value).Bind(x => Next(x).Interpret<RT>()).ToConsumer();
+        public override Consumer<IN, M, A> Interpret<M>() =>
+            Consumer.awaiting<M, IN>().Bind(x => Next(x).Interpret<M>()).ToConsumer();
 
-            public override ConsumerLift<RT, IN, A> ToConsumerLift<RT>() =>
-                new ConsumerLift<RT, IN, A>.Release<X>(Value, x => Next(x).ToConsumerLift<RT>());
+        public override Pipe<IN, OUT, A> ToPipe<OUT>() =>
+            new Pipe<IN, OUT, A>.Await(x => Next(x).ToPipe<OUT>());
+    }
+    
+    public class Fold<F, X>(K<F, X> Items, Func<X, Consumer<IN, Unit>> Yield, Func<Consumer<IN, A>> Next) : Consumer<IN, A>
+        where F : Foldable<F>
+    {
+        public override Consumer<IN, B> Select<B>(Func<A, B> f) => 
+            new Consumer<IN, B>.Fold<F, X>(Items, Yield, () => Next().Select(f));
 
-            public override Pipe<IN, OUT, A> ToPipe<OUT>() =>
-                new Pipe<IN, OUT, A>.Release<X>(Value, x => Next(x).ToPipe<OUT>());
-        }    
+        public override Consumer<IN, B> Bind<B>(Func<A, Consumer<IN, B>> f) => 
+            new Consumer<IN, B>.Fold<F, X>(Items, Yield, () => Next().Bind(f));
+
+        public override Consumer<IN, M, B> Bind<M, B>(Func<A, Consumer<IN, M, B>> f) =>
+            new(new IteratorFoldable<Unit, IN, Unit, Void, F, X, M, B>(
+                    Items,
+                    x => Yield(x).Interpret<M>(),
+                    () => Next().Bind(f)));
+
+        public override Pipe<IN, OUT, B> Bind<OUT, B>(Func<A, Producer<OUT, B>> f) => 
+            new Pipe<IN, OUT, B>.Fold<F, X>(
+                Items, 
+                x => Yield(x).ToPipe<OUT>(), 
+                () => Next().Bind(f));
+
+        public override Consumer<IN, M, A> Interpret<M>() =>
+            new(new IteratorFoldable<Unit, IN, Unit, Void, F, X, M, A>(
+                    Items,
+                    x => Yield(x).Interpret<M>(),
+                    () => Next().Interpret<M>()));
+
+        public override Pipe<IN, OUT, A> ToPipe<OUT>() => 
+            new Pipe<IN, OUT, A>.Fold<F, X>(Items, x => Yield(x).ToPipe<OUT>(), () => Next().ToPipe<OUT>());
     }
 }

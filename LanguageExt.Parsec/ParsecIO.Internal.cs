@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LanguageExt.UnsafeValueAccess;
 using static LanguageExt.Prelude;
 using static LanguageExt.Parsec.Common;
 using static LanguageExt.Parsec.PrimIO;
@@ -82,7 +83,7 @@ namespace LanguageExt.Parsec
             {
                 if( ps.Count == 1)
                 {
-                    return ps.Head.Map(x => x.Cons())(inp);
+                    return ps.Head.ValueUnsafe()!.Map(x => x.Cons())(inp);
                 }
 
                 var current = inp;

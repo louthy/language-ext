@@ -1,28 +1,15 @@
-using LanguageExt.Effects.Traits;
+using LanguageExt.Traits;
 
-namespace LanguageExt.Sys.Traits
-{
-    /// <summary>
-    /// Convenience trait - captures the BCL IO behaviour
-    /// </summary>
-    /// <typeparam name="RT">Runtime</typeparam>
-    public interface HasSys<RT> : 
-        HasCancel<RT>, 
-        HasConsole<RT>, 
-        HasEncoding<RT>,
-        HasFile<RT>, 
-        HasDirectory<RT>,
-        HasTextRead<RT>, 
-        HasTime<RT>
-        where RT : 
-            struct, 
-            HasCancel<RT>, 
-            HasConsole<RT>, 
-            HasFile<RT>,
-            HasDirectory<RT>,
-            HasTextRead<RT>,
-            HasTime<RT>,
-            HasEncoding<RT>
-    {
-    }
-}
+namespace LanguageExt.Sys.Traits;
+
+/// <summary>
+/// Convenience trait - captures the BCL IO behaviour
+/// </summary>
+/// <typeparam name="M">Monad and reader trait</typeparam>
+public interface HasSys<in M> : 
+    Has<M, ActivitySourceIO>, 
+    Has<M, ConsoleIO>, 
+    Has<M, FileIO>, 
+    Has<M, DirectoryIO>, 
+    Has<M, TextReadIO>, 
+    Has<M, TimeIO>;

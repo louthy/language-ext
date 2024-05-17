@@ -1,58 +1,53 @@
+using System;
 using Xunit;
-using System.IO;
-using LanguageExt.Sys;
-using LanguageExt.Sys.IO;
 using LanguageExt.Sys.Test;
-using System.Threading.Tasks;
-using static LanguageExt.Prelude;
 
-using Console = LanguageExt.Sys.Console<LanguageExt.Sys.Test.Runtime>;
+using Console = LanguageExt.Sys.Console<LanguageExt.Eff<LanguageExt.Sys.Test.Runtime>, LanguageExt.Sys.Test.Runtime>;
 
-namespace LanguageExt.Tests
+namespace LanguageExt.Tests;
+
+public class MemoryConsoleTests
 {
-    public class MemoryConsoleTests
+    [Theory]
+    [InlineData("abc")]
+    [InlineData("abc\ndef")]
+    [InlineData("abc\ndef\nghi")]
+    [InlineData("abc\n\n")]
+    [InlineData("abc\ndef\n")]
+    public void Write_line(string unsplitLines)
     {
-        [Theory]
-        [InlineData("abc")]
-        [InlineData("abc\ndef")]
-        [InlineData("abc\ndef\nghi")]
-        [InlineData("abc\n\n")]
-        [InlineData("abc\ndef\n")]
-        public void Write_line(string unsplitLines)
-        {
-            var lines = unsplitLines.Split('\n').ToSeq();
-            var rt = Runtime.New();
+        var lines = unsplitLines.Split('\n').AsEnumerableM().ToSeq();
+        var rt    = Runtime.New();
 
-            var comp = lines.Sequence(Console.writeLine);
-            comp.RunUnit(rt);
-            
-            Assert.True(lines == rt.Env.Console.ToSeq(), "sequences don't match");
-        }
+        var xs = lines.Traverse(Either<Unit, string>.Right);
         
-        [Theory]
-        [InlineData("abc")]
-        [InlineData("abc\ndef")]
-        [InlineData("abc\ndef\nghi")]
-        [InlineData("abc\n\n")]
-        [InlineData("abc\ndef\n")]
-        public void Read_line_followed_by_write_line(string unsplitLines)
-        {
-            // Prep the runtime and the keyboard buffer with the typed lines
-            var rt    = Runtime.New();
-            var lines = unsplitLines.Split('\n').ToSeq();
-            lines.Iter(line => rt.Env.Console.WriteKeyLine(line));
+        var comp = lines.Traverse(Console.writeLine).As();
+        comp.Run(rt, EnvIO.New()).ThrowIfFail();
 
-            // test
-            var comp = repeat(from l in Console.readLine
-                              from _ in Console.writeLine(l)
-                              select unit) | unitEff;
+        var clines = rt.Env.Console.AsEnumerableM().ToSeq();
+        Assert.True(lines == clines, $"sequences don't match {lines} != {clines}");
+    }
+        
+    [Theory]
+    [InlineData("abc")]
+    [InlineData("abc\ndef")]
+    [InlineData("abc\ndef\nghi")]
+    [InlineData("abc\n\n")]
+    [InlineData("abc\ndef\n")]
+    public void Read_line_followed_by_write_line(string unsplitLines)
+    {
+        // Prep the runtime and the keyboard buffer with the typed lines
+        var rt    = Runtime.New();
+        var lines = unsplitLines.Split('\n').AsEnumerableM().ToSeq();
+        lines.Iter(line => rt.Env.Console.WriteKeyLine(line));
+
+        // test
+        var comp = repeat(from l in Console.readLine
+                          from _ in Console.writeLine(l)
+                          select unit) | unitEff;
             
-            // run and assert
-            comp.RunUnit(rt);
-            Assert.True(lines == rt.Env.Console.ToSeq(), "sequences don't match");
-        }
-
-        static string FailMsg<A>(Fin<A> ma) =>
-            ma.Match(Succ: _ => "", Fail: e => e.Message);
+        // run and assert
+        comp.Run(rt, EnvIO.New()).ThrowIfFail();
+        Assert.True(lines == rt.Env.Console.AsEnumerableM().ToSeq(), "sequences don't match");
     }
 }

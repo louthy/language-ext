@@ -25,9 +25,9 @@ namespace LanguageExt
     /// <summary>
     /// Thread-safe pooling 
     /// Manages a concurrent stack of values that will grow as needed
-    /// When spent new objects are allocated used the `New<A>` type-class
+    /// When spent new objects are allocated used the `New<A>` trait
     /// </summary>
-    internal static class Pool<NewA, A> where NewA : struct, New<A>
+    internal static class Pool<NewA, A> where NewA : New<A>
     {
         static ConcurrentStack<A> stack = new ConcurrentStack<A>();
 
@@ -43,9 +43,9 @@ namespace LanguageExt
     /// <summary>
     /// Thread-safe pooling 
     /// Manages a concurrent stack of values that will grow as needed
-    /// When spent new objects are allocated used the `New<A>` type-class
+    /// When spent new objects are allocated used the `New<A>` trait
     /// </summary>
-    internal static class Pool<NewA, A, B> where NewA : struct, New<A, B>
+    internal static class Pool<NewA, A, B> where NewA : New<A, B>
     {
         static ConcurrentStack<A> stack = new ConcurrentStack<A>();
 

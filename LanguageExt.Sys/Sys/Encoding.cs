@@ -1,22 +1,18 @@
-using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
 using LanguageExt.Sys.Traits;
-using static LanguageExt.Prelude;
+using LanguageExt.Traits;
 
-namespace LanguageExt.Sys
+namespace LanguageExt.Sys;
+
+public static class Enc<M, RT>
+    where M : StateM<M, RT>, Monad<M>
+    where RT : Has<M, EncodingIO>
 {
-    public static class Enc<RT>
-        where RT : struct, HasEncoding<RT> 
-    {
-        /// <summary>
-        /// Encoding
-        /// </summary>
-        /// <typeparam name="RT">Runtime environment</typeparam>
-        /// <returns>Encoding</returns>
-        public static Eff<RT, System.Text.Encoding> encoding 
-        {
-            [MethodImpl(AffOpt.mops)]
-            get => Eff<RT, System.Text.Encoding>(static rt => rt.Encoding);
-        }
-    }
+    static readonly K<M, EncodingIO> trait = 
+        StateM.getsM<M, RT, EncodingIO>(e => e.Trait);
+
+    /// <summary>
+    /// Encoding
+    /// </summary>
+    public static K<M, System.Text.Encoding> encoding =>
+        trait.Bind(e => e.Encoding);
 }

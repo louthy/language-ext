@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,6 +14,7 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="A">Item value type</typeparam>
 [Serializable]
+[CollectionBuilder(typeof(Queue), nameof(Queue.createRange))]
 public readonly struct Que<A> : 
     IEnumerable<A>, 
     IEquatable<Que<A>>
@@ -33,6 +32,13 @@ public readonly struct Que<A> :
     /// </summary>
     /// <param name="items">Items to construct the queue from</param>
     public Que(IEnumerable<A> items) =>
+        value = new QueInternal<A>(items);
+
+    /// <summary>
+    /// Construct from a enumerable of items
+    /// </summary>
+    /// <param name="items">Items to construct the queue from</param>
+    public Que(ReadOnlySpan<A> items) =>
         value = new QueInternal<A>(items);
 
     /// <summary>
@@ -173,7 +179,7 @@ public readonly struct Que<A> :
     /// </summary>
     /// <returns>`IEnumerable`</returns>
     [Pure]
-    public IEnumerable<A> AsEnumerable() =>
+    public EnumerableM<A> AsEnumerable() =>
         Value.AsEnumerable();
 
     /// <summary>
@@ -200,7 +206,7 @@ public readonly struct Que<A> :
     /// <returns>Concatenated queue</returns>
     [Pure]
     public static Que<A> operator +(Que<A> lhs, Que<A> rhs) =>
-        lhs.Append(rhs);
+        lhs.Combine(rhs);
 
     /// <summary>
     /// Append two queues together
@@ -208,8 +214,8 @@ public readonly struct Que<A> :
     /// <param name="rhs">Second part of the queue</param>
     /// <returns>Concatenated queue</returns>
     [Pure]
-    public Que<A> Append(Que<A> rhs) =>
-        new (Value.Append(rhs));
+    public Que<A> Combine(Que<A> rhs) =>
+        new(Value.AsEnumerableM().Combine(rhs.AsEnumerableM()));
 
     /// <summary>
     /// Subtract one queue from another
@@ -264,7 +270,7 @@ public readonly struct Que<A> :
     /// <param name="obj">Value that may be a queue</param>
     /// <returns>`true` if the queues are equal</returns>
     [Pure]
-    public override bool Equals(object obj) =>
+    public override bool Equals(object? obj) =>
         obj is Que<A> q && Equals(q);
 
     /// <summary>
@@ -275,7 +281,7 @@ public readonly struct Que<A> :
     [Pure]
     public bool Equals(Que<A> other) =>
         GetHashCode() == other.GetHashCode() &&
-        default(EqEnumerable<A>).Equals(this.Value, other.Value);
+        EqEnumerable<A>.Equals(Value, other.Value);
 
     /// <summary>
     /// Implicit conversion from an untyped empty list

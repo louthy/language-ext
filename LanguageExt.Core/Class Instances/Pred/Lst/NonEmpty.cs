@@ -1,16 +1,12 @@
-﻿using LanguageExt.TypeClasses;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using LanguageExt.Traits;
 
-namespace LanguageExt.ClassInstances.Pred
+namespace LanguageExt.ClassInstances.Pred;
+
+/// <summary>
+/// Lst must be non-empty
+/// </summary>
+public struct NonEmpty : Pred<ListInfo>
 {
-    /// <summary>
-    /// Lst must be non-empty
-    /// </summary>
-    public struct NonEmpty : Pred<ListInfo>
-    {
-        public bool True(ListInfo value) =>
-            (value?.Count ?? 0) != 0;
-    }
+    public static bool True(ListInfo value) =>
+        value.Count != 0;
 }

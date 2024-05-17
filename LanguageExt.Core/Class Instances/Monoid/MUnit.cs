@@ -1,15 +1,15 @@
-﻿using LanguageExt.TypeClasses;
+﻿/*
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
-using System;
 
-namespace LanguageExt.ClassInstances
+namespace LanguageExt.ClassInstances;
+
+public struct MUnit : Monoid<Unit>
 {
-    public struct MUnit : Monoid<Unit>
-    {
-        public Unit Append(Unit x, Unit y) =>
-            unit;
+    public static Unit Append(Unit x, Unit y) =>
+        unit;
 
-        public Unit Empty() =>
-            unit;
-    }
+    public static Unit Empty =>
+        unit;
 }
+*/

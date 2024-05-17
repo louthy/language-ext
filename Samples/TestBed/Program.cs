@@ -17,8 +17,6 @@ using System.Reactive.Linq;
 using LanguageExt.Sys.Live;
 using System.Threading.Tasks;
 using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
-using Newtonsoft.Json;
 using TestBed;
 using static LanguageExt.Prelude;
 using static LanguageExt.Pipes.Proxy;
@@ -30,8 +28,7 @@ public interface IAsyncQueue<A>
 
 public static class Ext
 {
-    static Producer<RT, A, Unit> ToProducer<RT, A>(this IAsyncQueue<A> q) 
-        where RT : struct, HasCancel<RT>
+    static Producer<A, Eff<RT>, Unit> ToProducer<RT, A>(this IAsyncQueue<A> q) 
     {
         return yieldAll(go());
 
@@ -44,29 +41,28 @@ public static class Ext
         }
     }
 
-    public static Producer<RT, A, Unit> ToProducer<RT, A>(this IAsyncQueue<A>[] qs)
-        where RT : struct, HasCancel<RT> =>
-        Producer.merge(qs.Map(q => q.ToProducer<RT, A>()).ToSeq());
+    public static Producer<A, Eff<RT>, Unit> ToProducer<RT, A>(this IAsyncQueue<A>[] qs) =>
+        Producer.merge(qs.AsEnumerableM().Map(q => q.ToProducer<RT, A>()).ToSeq());
 }
 
 public static class YourPrelude
 {
-    public static Aff<A> OptionalAff<A>(this Func<Task<A?>> task) =>
-        OptionalAff(task, Errors.None);
+    public static Eff<A> OptionalAff<A>(this Func<Task<A?>> task) =>
+        OptionalEff(task, Errors.None);
     
-    public static Aff<A> OptionalAff<A>(this Func<Task<A?>> task, Error fail) =>
-        AffMaybe(async () => 
+    public static Eff<A> OptionalEff<A>(this Func<Task<A?>> task, Error fail) =>
+        liftEff(async () => 
             await task() switch
             {
                 null => fail,
                 var x => FinSucc(x)
             });
     
-    public static Aff<A> OptionalAff<A>(this Func<ValueTask<A?>> task) =>
+    public static Eff<A> OptionalAff<A>(this Func<ValueTask<A?>> task) =>
         OptionalAff(task, Errors.None);
     
-    public static Aff<A> OptionalAff<A>(this Func<ValueTask<A?>> task, Error fail) =>
-        AffMaybe(async () => 
+    public static Eff<A> OptionalAff<A>(this Func<ValueTask<A?>> task, Error fail) =>
+        liftEff(async () => 
             await task() switch
             {
                 null => fail,
@@ -101,11 +97,11 @@ public class Program
         SequenceParallelTest.Run();
     }
 
-    public static async Task PipesTest()
+    public static void PipesTest()
     {
         // Create two queues.  Queues are Producers that have an Enqueue function
-        var queue1 = Proxy.Queue<Runtime, string>();
-        var queue2 = Proxy.Queue<Runtime, string>();
+        var queue1 = Queue<Eff<Runtime>, string>();
+        var queue2 = Queue<Eff<Runtime>, string>();
 
         // Compose the queues with a pipe that prepends some text to what they produce
         var queues = Seq(queue1 | prepend("Queue 1: "), queue2 | prepend("Queue 2: "));
@@ -114,45 +110,45 @@ public class Program
         // Repeatedly read from the console and write to one of the two queues depending on
         // whether the first char is 1 or 2
         var queueing = from _ in fork(Producer.merge(queues) | writeLine)
-                       from x in repeat(Console<Runtime>.readLines) | writeToQueue()
+                       from x in repeat(Console<Eff<Runtime>, Runtime>.readLines) | writeToQueue()
                        select unit;
 
         // Consumer of the console.  It enqueues the item to queue1 or queue2 depending
         // on the first char of the string it awaits
-        Consumer<Runtime, string, Unit> writeToQueue() =>
+        Consumer<string, Eff<Runtime>, Unit> writeToQueue() =>
             from x in awaiting<string>()
-            from _ in x.HeadOrNone().Case switch
+            from _ in x switch
                       {
-                          '1' => queue1.EnqueueEff(x.Substring(1)),
-                          '2' => queue2.EnqueueEff(x.Substring(1)),
-                          _   => FailEff<Unit>(Errors.CancelledText)
+                          "1" => queue1.EnqueueM(x.Substring(1)),
+                          "2" => queue2.EnqueueM(x.Substring(1)),
+                          _   => FailEff<Runtime, Unit>(Errors.Cancelled)
                       }
             select unit;
 
         //var clientServer = incrementer | oneTwoThree;
 
-        var file1 = File<Runtime>.openRead("i:\\defaults.xml")
-                  | Stream<Runtime>.read(240)
+        var file1 = File<Eff<Runtime>, Runtime>.openRead("i:\\defaults.xml")
+                  | Stream<Eff<Runtime>>.read(240)
                   | decodeUtf8
                   | writeLine;
 
-        var file2 = File<Runtime>.openText("i:\\defaults.xml")
-                  | TextRead<Runtime>.readLine
+        var file2 = File<Eff<Runtime>, Runtime>.openText("i:\\defaults.xml")
+                  | TextRead<Eff<Runtime>, Runtime>.readLine
                   | writeLine;
 
-        var file3 = File<Runtime>.openText("i:\\defaults.xml")
-                  | TextRead<Runtime>.readChar
+        var file3 = File<Eff<Runtime>, Runtime>.openText("i:\\defaults.xml")
+                  | TextRead<Eff<Runtime>, Runtime>.readChar
                   | words
                   | filterEmpty
                   | writeLine;
 
-        var foldTest1 = repeat(Console<Runtime>.readKeys)
+        var foldTest1 = repeat(Console<Eff<Runtime>, Runtime>.readKeys)
                       | keyChar
                       | words
                       | filterEmpty
                       | writeLine;
 
-        var foldTest2 = Producer.lift<Runtime, string, char>(Console<Runtime>.readKey.Map(k => k.KeyChar))
+        var foldTest2 = Producer.lift<string, Eff<Runtime>, char>(Console<Eff<Runtime>, Runtime>.readKey.Map(k => k.KeyChar))
                                 .FoldUntil("", (word, ch) => word + ch, char.IsWhiteSpace)
                       | repeat(writeLine);
 
@@ -166,104 +162,104 @@ public class Program
 
         var timeOneStep  = Observable.Interval(TimeSpan.FromSeconds(1)).Select(_ => "whole");
         var timeHalfStep = Observable.Interval(TimeSpan.FromSeconds(.5)).Select(_ => "half");
-        var channel1     = Producer.yieldAll<Runtime, string>(timeOneStep);
-        var channel2     = Producer.yieldAll<Runtime, string>(timeHalfStep);
+        var channel1     = Producer.yieldAll<Eff<Runtime>, string>(timeOneStep);
+        var channel2     = Producer.yieldAll<Eff<Runtime>, string>(timeHalfStep);
         var channel      = Producer.merge(channel1, channel2) | writeLine;
 
-        var result = (await queueing //.RunEffect()
-                         .Run(Runtime.New()))
-           .Match(Succ: x => Console.WriteLine($"Success: {x}"),
-                  Fail: Console.WriteLine);
+        var result = queueing.As().RunEffect()
+                             .As().Run(Runtime.New(), EnvIO.New())
+                             .Match(Succ: x => Console.WriteLine($"Success: {x}"),
+                                    Fail: Console.WriteLine);
     }
 
-    static Effect<Runtime, Unit> fizzBuzz =>
+    static Effect<Eff<Runtime>, Unit> fizzBuzz =>
         yieldAll(Range(1, 20)) | process | writeLine;
 
-    static Pipe<Runtime, int, string, Unit> process =>
-        from n in awaiting<int>()
+    static Pipe<int, string, Eff<Runtime>, Unit> process =>
+        from n in Pipe.awaiting<Eff<Runtime>, int, string>()
         from t in collect(n | fizz, n | buzz, n | number)
-        from _ in yield($"{t.Item1}{t.Item2}{t.Item3}")
+        from _ in Pipe.yield<int, string, Eff<Runtime>>($"{t.Item1}{t.Item2}{t.Item3}")
         select unit;
 
-    static Consumer<Runtime, int, string> fizz =>
+    static Consumer<int, Eff<Runtime>, string> fizz =>
         from n in awaiting<int>()
         select n % 3 == 0
                    ? "Fizz"
                    : "";
 
-    static Consumer<Runtime, int, string> buzz =>
+    static Consumer<int, Eff<Runtime>, string> buzz =>
         from n in awaiting<int>()
         select n % 5 == 0
                    ? "Buzz"
                    : "";
 
-    static Consumer<Runtime, int, string> number =>
+    static Consumer<int, Eff<Runtime>, string> number =>
         from n in awaiting<int>()
         select n % 3 != 0 && n % 5 != 0
                    ? $"{n}"
                    : "";
 
-    static Pipe<Runtime, ConsoleKeyInfo, char, Unit> keyChar =>
+    static Pipe<ConsoleKeyInfo, char, Eff<Runtime>, Unit> keyChar =>
         map<ConsoleKeyInfo, char>(k => k.KeyChar);
 
-    static Pipe<Runtime, char, string, Unit> words =>
+    static Pipe<char, string, Eff<Runtime>, Unit> words =>
         foldUntil("", (word, ch) => word + ch, (char x) => char.IsWhiteSpace(x));
 
-    static Pipe<Runtime, string, string, Unit> filterEmpty =>
+    static Pipe<string, string, Eff<Runtime>, Unit> filterEmpty =>
         filter<string>(notEmpty);
 
-    static Pipe<Runtime, DateTime, string, Unit> toLongTimeString =>
+    static Pipe<DateTime, string, Eff<Runtime>, Unit> toLongTimeString =>
         from n in awaiting<DateTime>()
         from _ in yield(n.ToLongTimeString())
         select unit;
 
-    static Pipe<Runtime, long, DateTime, Unit> now =>
-        from t in awaiting<long>()
-        from n in Time<Runtime>.now
-        from _ in yield(n)
+    static Pipe<long, DateTime, Eff<Runtime>, Unit> now =>
+        from t in Pipe.awaiting<Eff<Runtime>, long, DateTime>()
+        from n in Time<Eff<Runtime>, Runtime>.now
+        from _ in Pipe.yield<long, DateTime, Eff<Runtime>>(n)
         select unit;
 
-    static Producer<Runtime, string, Unit> readLine =>
-        from nm in Console<Runtime>.readLine
+    static Producer<string, Eff<Runtime>, Unit> readLine =>
+        from nm in Console<Eff<Runtime>, Runtime>.readLine
         from _2 in yield(nm)
         select unit;
 
-    static Consumer<Runtime, string, Unit> writeLine =>
+    static Consumer<string, Eff<Runtime>, Unit> writeLine =>
         from l in awaiting<string>()
-        from _ in Console<Runtime>.writeLine(l)
+        from _ in Console<Eff<Runtime>, Runtime>.writeLine(l)
         select unit;
 
-    static Consumer<Runtime, string, Unit> write =>
+    static Consumer<string, Eff<Runtime>, Unit> write =>
         from l in awaiting<string>()
-        from a in Console<Runtime>.write(l)
+        from a in Console<Eff<Runtime>, Runtime>.write(l)
         select unit;
 
-    static Pipe<Runtime, string, string, Unit> sayHello =>
+    static Pipe<string, string, Eff<Runtime>, Unit> sayHello =>
         from l in awaiting<string>()
         from _ in yield($"Hello {l}")
         select unit;
 
-    static Pipe<Runtime, SeqLoan<byte>, string, Unit> decodeUtf8 =>
+    static Pipe<SeqLoan<byte>, string, Eff<Runtime>, Unit> decodeUtf8 =>
         from c in awaiting<SeqLoan<byte>>()
         from _ in yield(Encoding.UTF8.GetString(c.ToReadOnlySpan()))
         select unit;
 
-    static Pipe<Runtime, A, string, Unit> toString<A>() =>
+    static Pipe<A, string, Eff<Runtime>, Unit> toString<A>() =>
         from l in awaiting<A>()
         from _ in yield($"{l} ")
         select unit;
 
-    static Pipe<Runtime, int, string, Unit> times10 =>
+    static Pipe<int, string, Eff<Runtime>, Unit> times10 =>
         from n in awaiting<int>()
         from _ in yield($"{n * 10}")
         select unit;
 
-    static Pipe<Runtime, string, string, Unit> prepend(string x) =>
+    static Pipe<string, string, Eff<Runtime>, Unit> prepend(string x) =>
         from l in awaiting<string>()
         from _ in yield($"{x}{l}")
         select unit;
 
-    static Pipe<Runtime, string, string, Unit> append(string x) =>
+    static Pipe<string, string, Eff<Runtime>, Unit> append(string x) =>
         from l in awaiting<string>()
         from _ in yield($"{l}{x}")
         select unit;
@@ -271,22 +267,22 @@ public class Program
 
     // Old way, using lots of generics
 
-    static Producer<Runtime, string, Unit> readLine2 =>
-        from w in Producer.lift<Runtime, string, Unit>(Console<Runtime>.writeLine("Enter your name"))
-        from l in Producer.lift<Runtime, string, string>(Console<Runtime>.readLine)
-        from _ in Producer.yield<Runtime, string>(l)
+    static Producer<string, Eff<Runtime>, Unit> readLine2 =>
+        from w in Console<Eff<Runtime>, Runtime>.writeLine("Enter your name")
+        from l in Console<Eff<Runtime>, Runtime>.readLine
+        from _ in Producer.yield<string, Eff<Runtime>>(l)
         from n in readLine2
         select unit;
 
-    static Pipe<Runtime, string, string, Unit> sayHello2 =>
-        from l in Pipe.awaiting<Runtime, string, string>()
-        from _ in Pipe.yield<Runtime, string, string>($"Hello {l}")
+    static Pipe<string, string, Eff<Runtime>, Unit> sayHello2 =>
+        from l in Pipe.awaiting<Eff<Runtime>, string, string>()
+        from _ in Pipe.yield<string, string, Eff<Runtime>>($"Hello {l}")
         from n in sayHello2
         select unit;
 
-    static Consumer<Runtime, string, Unit> writeLine2 =>
-        from l in Consumer.awaiting<Runtime, string>()
-        from a in Consumer.lift<Runtime, string>(Console<Runtime>.writeLine(l))
+    static Consumer<string, Eff<Runtime>, Unit> writeLine2 =>
+        from l in Consumer.awaiting<Eff<Runtime>, string>()
+        from a in Console<Eff<Runtime>, Runtime>.writeLine(l)
         from n in writeLine2
         select unit;
 
@@ -305,6 +301,6 @@ public class Program
         select unit;*/
 
 
-    static Pipe<Runtime, string, string, Unit> pipeMap =>
+    static Pipe<string, string, Eff<Runtime>, Unit> pipeMap =>
         Pipe.map((string x) => $"Hello {x}");
 }

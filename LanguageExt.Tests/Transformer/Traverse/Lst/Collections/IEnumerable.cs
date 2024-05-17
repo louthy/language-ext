@@ -17,11 +17,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
         [Fact]
         public void EmptyEmptyIsEmptyEmpty()
         {
-            var ma = Enumerable.Empty<Lst<int>>();
+            var ma = EnumerableM.empty<Lst<int>>();
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Lst<G.IEnumerable<int>>.Empty;
+            var mc = LanguageExt.List.singleton(EnumerableM<int>.Empty);
             
             Assert.True(mb == mc);
         }
@@ -29,9 +29,10 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
         [Fact]
         public void EnumLstCrossProduct()
         {
-            var ma = mkEnum(List(1, 2), List(10, 20, 30));
+            var ma = mkEnum(List(1, 2), List(10, 20, 30)).AsEnumerableM();
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
 
             var mc = List(mkEnum(1, 10), mkEnum(1, 20), mkEnum(1, 30), mkEnum(2, 10), mkEnum(2, 20), mkEnum(2, 30));
             
@@ -42,11 +43,12 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
         [Fact]
         public void SeqOfEmptiesAndNonEmptiesIsEmpty()
         {
-            var ma = mkEnum(List<int>(), List(1, 2, 3));
+            var ma = mkEnum(List<int>(), List(1, 2, 3)).AsEnumerableM();
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Lst<G.IEnumerable<int>>.Empty;
+
+            var mc = Lst<EnumerableM<int>>.Empty;
             
             Assert.True(mb == mc);
         }
@@ -54,11 +56,12 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
         [Fact]
         public void SeqOfEmptiesIsEmpty()
         {
-            var ma = mkEnum(List<int>(), List<int>());
+            var ma = mkEnum(List<int>(), List<int>()).AsEnumerableM();
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Lst<G.IEnumerable<int>>.Empty;
+
+            var mc = Lst<EnumerableM<int>>.Empty;
             
             Assert.True(mb == mc);
         }

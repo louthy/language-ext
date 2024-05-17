@@ -1,4 +1,7 @@
-﻿using System;
+﻿/*
+ TODO: Restore when we have SourceGen
+ 
+using System;
 using Xunit;
 using static LanguageExt.Prelude;
 
@@ -120,4 +123,5 @@ namespace LanguageExt.Tests
         }
     }
 }
+*/
 

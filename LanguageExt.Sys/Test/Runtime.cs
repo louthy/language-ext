@@ -1,206 +1,136 @@
 using System;
 using System.Text;
-using System.Threading;
-using LanguageExt.Effects.Traits;
 using LanguageExt.Sys.Traits;
-using static LanguageExt.Prelude;
+using LanguageExt.Traits;
 
-namespace LanguageExt.Sys.Test
+namespace LanguageExt.Sys.Test;
+
+/// <summary>
+/// Test IO runtime
+/// </summary>
+public record Runtime(RuntimeEnv Env) : 
+    Mutates<Eff<Runtime>, Runtime, ActivityEnv>,
+    Has<Eff<Runtime>, ActivitySourceIO>,
+    Has<Eff<Runtime>, ConsoleIO>,
+    Has<Eff<Runtime>, EncodingIO>,
+    Has<Eff<Runtime>, FileIO>,
+    Has<Eff<Runtime>, TextReadIO>,
+    Has<Eff<Runtime>, TimeIO>,
+    Has<Eff<Runtime>, EnvironmentIO>,
+    Has<Eff<Runtime>, DirectoryIO>
 {
     /// <summary>
-    /// Test IO runtime
+    /// Constructor function
     /// </summary>
-    public readonly struct Runtime : 
-        HasCancel<Runtime>,
-        HasConsole<Runtime>,
-        HasFile<Runtime>,
-        HasEncoding<Runtime>,
-        HasTextRead<Runtime>,
-        HasTime<Runtime>,
-        HasEnvironment<Runtime>,
-        HasDirectory<Runtime>
-    {
-        public readonly RuntimeEnv env;
+    public static Runtime New() =>
+        new(RuntimeEnv.Default);
+    /// <summary>
+    /// Constructor function
+    /// </summary>
+    /// <param name="env">Data environment for the runtime.  Call `RuntimeEnv.Default with { ... }` to modify</param>
+    public static Runtime New(RuntimeEnv env) =>
+        new(env);
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        Runtime(RuntimeEnv env) =>
-            this.env = env;
 
-        /// <summary>
-        /// Configuration environment accessor
-        /// </summary>
-        public RuntimeEnv Env =>
-            env ?? throw new InvalidOperationException("Runtime Env not set.  Perhaps because of using default(Runtime) or new Runtime() rather than Runtime.New()");
+    /// <summary>
+    /// Get encoding
+    /// </summary>
+    /// <returns></returns>
+    public Encoding Encoding =>
+        Env.Encoding;
 
-        /// <summary>
-        /// Constructor function
-        /// </summary>
-        /// <param name="timeSpec">Defines how time works in the runtime</param>
-        public static Runtime New(TestTimeSpec? timeSpec = default) =>
-            new Runtime(new RuntimeEnv(new CancellationTokenSource(),
-                                       System.Text.Encoding.Default,
-                                       new MemoryConsole(),
-                                       new MemoryFS(),
-                                       timeSpec,
-                                       MemorySystemEnvironment.InitFromSystem()));
+    public Runtime WithIO(EnvIO envIO) =>
+        new(Env with { EnvIO = envIO });
 
-        /// <summary>
-        /// Constructor function
-        /// </summary>
-        /// <param name="source">Cancellation token source</param>
-        /// <param name="timeSpec">Defines how time works in the runtime</param>
-        public static Runtime New(CancellationTokenSource source, TestTimeSpec? timeSpec = default) =>
-            new Runtime(new RuntimeEnv(source, 
-                                       System.Text.Encoding.Default, 
-                                       new MemoryConsole(), 
-                                       new MemoryFS(),
-                                       timeSpec,
-                                       MemorySystemEnvironment.InitFromSystem()));
+    public EnvIO EnvIO =>
+        Env.EnvIO;
 
-        /// <summary>
-        /// Constructor function
-        /// </summary>
-        /// <param name="encoding">Text encoding</param>
-        /// <param name="timeSpec">Defines how time works in the runtime</param>
-        public static Runtime New(Encoding encoding, TestTimeSpec? timeSpec = default) =>
-            new Runtime(new RuntimeEnv(new CancellationTokenSource(), 
-                                       encoding, 
-                                       new MemoryConsole(), 
-                                       new MemoryFS(),
-                                       timeSpec,
-                                       MemorySystemEnvironment.InitFromSystem()));
-
-        /// <summary>
-        /// Constructor function
-        /// </summary>
-        /// <param name="encoding">Text encoding</param>
-        /// <param name="source">Cancellation token source</param>
-        /// <param name="timeSpec">Defines how time works in the runtime</param>
-        public static Runtime New(Encoding encoding, CancellationTokenSource source, TestTimeSpec? timeSpec = default) =>
-            new Runtime(new RuntimeEnv(source, 
-                                       encoding, 
-                                       new MemoryConsole(), 
-                                       new MemoryFS(),
-                                       timeSpec,
-                                       MemorySystemEnvironment.InitFromSystem()));
-
-        /// <summary>
-        /// Create a new Runtime with a fresh cancellation token
-        /// </summary>
-        /// <remarks>Used by localCancel to create new cancellation context for its sub-environment</remarks>
-        /// <returns>New runtime</returns>
-        public Runtime LocalCancel =>
-            new Runtime(Env.LocalCancel);
-
-        /// <summary>
-        /// Direct access to cancellation token
-        /// </summary>
-        public CancellationToken CancellationToken =>
-            Env.Token;
-
-        /// <summary>
-        /// Directly access the cancellation token source
-        /// </summary>
-        /// <returns>CancellationTokenSource</returns>
-        public CancellationTokenSource CancellationTokenSource =>
-            Env.Source;
-
-        /// <summary>
-        /// Get encoding
-        /// </summary>
-        /// <returns></returns>
-        public Encoding Encoding =>
-            Env.Encoding;
-
-        /// <summary>
-        /// Access the console environment
-        /// </summary>
-        /// <returns>Console environment</returns>
-        public Eff<Runtime, Traits.ConsoleIO> ConsoleEff =>
-            Eff<Runtime, Traits.ConsoleIO>(rt => new Test.ConsoleIO(rt.Env.Console));
-
-        /// <summary>
-        /// Access the file environment
-        /// </summary>
-        /// <returns>File environment</returns>
-        public Eff<Runtime, Traits.FileIO> FileEff =>
-            from n in Time<Runtime>.now
-            from r in Eff<Runtime, Traits.FileIO>(rt => new Test.FileIO(rt.Env.FileSystem, n))
-            select r;
-
-        /// <summary>
-        /// Access the directory environment
-        /// </summary>
-        /// <returns>Directory environment</returns>
-        public Eff<Runtime, Traits.DirectoryIO> DirectoryEff =>
-            from n in Time<Runtime>.now
-            from r in Eff<Runtime, Traits.DirectoryIO>(rt => new Test.DirectoryIO(rt.Env.FileSystem, n))
-            select r;
-        
-        /// <summary>
-        /// Access the TextReader environment
-        /// </summary>
-        /// <returns>TextReader environment</returns>
-        public Eff<Runtime, Traits.TextReadIO> TextReadEff =>
-            SuccessEff(Test.TextReadIO.Default);
-
-        /// <summary>
-        /// Access the time environment
-        /// </summary>
-        /// <returns>Time environment</returns>
-        public Eff<Runtime, Traits.TimeIO> TimeEff  =>
-            Eff<Runtime, Traits.TimeIO>(rt => new Test.TimeIO(rt.Env.TimeSpec));
-
-        /// <summary>
-        /// Access the operating-system environment
-        /// </summary>
-        /// <returns>Operating-system environment environment</returns>
-        public Eff<Runtime, Traits.EnvironmentIO> EnvironmentEff =>
-            Eff<Runtime, Traits.EnvironmentIO>(rt => new Test.EnvironmentIO(rt.Env.SysEnv));
-    }
+    static K<Eff<Runtime>, A> gets<A>(Func<Runtime, A> f) =>
+        StateM.gets<Eff<Runtime>, Runtime, A>(f);
     
-    public class RuntimeEnv
-    {
-        public readonly CancellationTokenSource Source;
-        public readonly CancellationToken Token;
-        public readonly Encoding Encoding;
-        public readonly MemoryConsole Console;
-        public readonly MemoryFS FileSystem;
-        public readonly TestTimeSpec TimeSpec;
-        public readonly MemorySystemEnvironment SysEnv;
+    static K<Eff<Runtime>, Unit> modify(Func<RuntimeEnv, RuntimeEnv> f) =>
+        StateM.modify<Eff<Runtime>, Runtime>(rt => new Runtime(Env: f(rt.Env)) );
+    
+    static K<Eff<Runtime>, A> pure<A>(A value) =>
+        Eff<Runtime, A>.Pure(value);
+    
+    /// <summary>
+    /// Access the console environment
+    /// </summary>
+    /// <returns>Console environment</returns>
+    K<Eff<Runtime>, ConsoleIO> Has<Eff<Runtime>, ConsoleIO>.Trait => 
+        gets<ConsoleIO>(rt => new Implementations.ConsoleIO(rt.Env.Console));
 
-        public RuntimeEnv(
-            CancellationTokenSource source, 
-            CancellationToken token, 
-            Encoding encoding, 
-            MemoryConsole console, 
-            MemoryFS fileSystem, 
-            TestTimeSpec? timeSpec,
-            MemorySystemEnvironment sysEnv)
-        {
-            Source     = source;
-            Token      = token;
-            Encoding   = encoding;
-            Console    = console;
-            FileSystem = fileSystem;
-            TimeSpec   = timeSpec ?? TestTimeSpec.RunningFromNow();
-            SysEnv     = sysEnv;
-        }
+    /// <summary>
+    /// Access the file environment
+    /// </summary>
+    /// <returns>File environment</returns>
+    K<Eff<Runtime>, FileIO> Has<Eff<Runtime>, FileIO>.Trait => 
+        from n in Time<Eff<Runtime>, Runtime>.now
+        from r in gets<FileIO>(rt => new Implementations.FileIO(rt.Env.FileSystem, n))
+        select r;
 
-        public RuntimeEnv(
-            CancellationTokenSource source, 
-            Encoding encoding, 
-            MemoryConsole console,
-            MemoryFS fileSystem, 
-            TestTimeSpec? timeSpec,
-            MemorySystemEnvironment sysEnv) : 
-            this(source, source.Token, encoding, console, fileSystem, timeSpec, sysEnv)
-        {
-        }
+    /// <summary>
+    /// Access the TextReader environment
+    /// </summary>
+    /// <returns>TextReader environment</returns>
+    K<Eff<Runtime>, TextReadIO> Has<Eff<Runtime>, TextReadIO>.Trait => 
+        gets<TextReadIO>(_ => Implementations.TextReadIO.Default);
 
-        public RuntimeEnv LocalCancel =>
-            new RuntimeEnv(new CancellationTokenSource(), Encoding, Console, FileSystem, TimeSpec, SysEnv); 
-    }
+    /// <summary>
+    /// Access the time environment
+    /// </summary>
+    /// <returns>Time environment</returns>
+    K<Eff<Runtime>, TimeIO> Has<Eff<Runtime>, TimeIO>.Trait => 
+        gets<TimeIO>(rt => new Implementations.TimeIO(rt.Env.TimeSpec));
+
+    /// <summary>
+    /// Access the operating-system environment
+    /// </summary>
+    /// <returns>Operating-system environment environment</returns>
+    K<Eff<Runtime>, EnvironmentIO> Has<Eff<Runtime>, EnvironmentIO>.Trait => 
+        gets<EnvironmentIO>(rt => new Implementations.EnvironmentIO(rt.Env.SysEnv));
+
+    /// <summary>
+    /// Access the directory environment
+    /// </summary>
+    /// <returns>Directory environment</returns>
+    K<Eff<Runtime>, DirectoryIO> Has<Eff<Runtime>, DirectoryIO>.Trait =>
+        from n in Time<Eff<Runtime>, Runtime>.now
+        from r in gets<DirectoryIO>(rt => new Implementations.DirectoryIO(rt.Env.FileSystem, n))
+        select r;
+
+    K<Eff<Runtime>, EncodingIO> Has<Eff<Runtime>, EncodingIO>.Trait =>
+        gets<EncodingIO>(_ => Live.Implementations.EncodingIO.Default);
+
+    K<Eff<Runtime>, ActivitySourceIO> Has<Eff<Runtime>, ActivitySourceIO>.Trait => 
+        gets<ActivitySourceIO>(rt => new Live.Implementations.ActivitySourceIO(rt.Env.ActivityEnv));
+
+    K<Eff<Runtime>, ActivityEnv> Reads<Eff<Runtime>, Runtime, ActivityEnv>.Get =>
+        gets(rt => rt.Env.ActivityEnv);
+
+    K<Eff<Runtime>, Unit> Mutates<Eff<Runtime>, Runtime, ActivityEnv>.Modify(Func<ActivityEnv, ActivityEnv> f) => 
+        modify(rt => rt with { ActivityEnv = f(rt.ActivityEnv) });
+}
+    
+public record RuntimeEnv(
+    EnvIO EnvIO,
+    Encoding Encoding,
+    MemoryConsole Console,
+    MemoryFS FileSystem,
+    Implementations.TestTimeSpec TimeSpec,
+    MemorySystemEnvironment SysEnv,
+    ActivityEnv ActivityEnv)
+{
+    public RuntimeEnv LocalCancel =>
+        this with { EnvIO = EnvIO.LocalCancel };
+
+    public static RuntimeEnv Default =>
+        new(EnvIO.New(),
+            Encoding.Default,
+            new MemoryConsole(),
+            new MemoryFS(),
+            Implementations.TestTimeSpec.RunningFromNow(),
+            MemorySystemEnvironment.InitFromSystem(),
+            ActivityEnv.Default);
 }

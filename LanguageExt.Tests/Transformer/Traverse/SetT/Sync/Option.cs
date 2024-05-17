@@ -9,7 +9,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Sync
         public void NoneIsSingletonNone()
         {
             var ma = Option<Set<int>>.None;
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Set(Option<int>.None);
 
             Assert.True(mb == mc);
@@ -19,7 +20,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Sync
         public void SomeEmptyIsEmpty()
         {
             var ma = Some<Set<int>>(Empty);
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Set<Option<int>>();
 
             Assert.True(mb == mc);
@@ -29,7 +31,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Sync
         public void SomeNonEmptySetIsSetSomes()
         {
             var ma = Some(Set(1, 2, 3));
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
             var mc = Set(Some(1), Some(2), Some(3)); 
             
             Assert.True(mb == mc);

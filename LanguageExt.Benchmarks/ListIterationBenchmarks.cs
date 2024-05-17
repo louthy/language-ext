@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
 using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Benchmarks
@@ -10,7 +10,7 @@ namespace LanguageExt.Benchmarks
     [GenericTypeArguments(typeof(int), typeof(OrdInt))]
     [GenericTypeArguments(typeof(string), typeof(OrdString))]
     public class ListIterationBenchmarks<T, TOrd>
-        where TOrd : struct, Ord<T>
+        where TOrd : Ord<T>
     {
         [Params(100, 1000, 10000, 100000)]
         public int N;
@@ -25,7 +25,7 @@ namespace LanguageExt.Benchmarks
         {
             values = ValuesGenerator.Default.GenerateUniqueValues<T>(N);
             immutableList = ImmutableList.CreateRange(ValuesGenerator.Default.GenerateUniqueValues<T>(N));
-            lst = ValuesGenerator.Default.GenerateUniqueValues<T>(N).Freeze();
+            lst = ValuesGenerator.Default.GenerateUniqueValues<T>(N).AsEnumerableM().ToLst();
             seq = toSeq(ValuesGenerator.Default.GenerateUniqueValues<T>(N)).Strict();
         }
 

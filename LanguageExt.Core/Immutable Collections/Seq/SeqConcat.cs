@@ -3,231 +3,227 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
+using LanguageExt.UnsafeValueAccess;
 
-namespace LanguageExt
+namespace LanguageExt;
+
+internal class SeqConcat<A>(Seq<ISeqInternal<A>> ms) : ISeqInternal<A>
 {
-    internal class SeqConcat<A> : ISeqInternal<A>
+    internal readonly Seq<ISeqInternal<A>> ms = ms;
+    int selfHash;
+
+    public A this[int index]
     {
-        internal readonly Seq<ISeqInternal<A>> ms;
-        int selfHash;
-
-        public SeqConcat(Seq<ISeqInternal<A>> ms) =>
-            this.ms = ms;
-
-        public A this[int index]
+        get
         {
-            get
-            {
-                var r = At(index);
-                if (r.IsSome) return r.Value;
-                throw new IndexOutOfRangeException();
-            }
+            var r = At(index);
+            if (r.IsSome) return r.Value!;
+            throw new IndexOutOfRangeException();
         }
+    }
 
-        public Option<A> At(int index)
+    public Option<A> At(int index)
+    {
+        if (index < 0) return default;
+        var ms1 = ms;
+        while (!ms1.IsEmpty)
         {
-            if (index < 0) return default;
-            var ms1 = ms;
-            while (!ms1.IsEmpty)
-            {
-                var head = ms1.Head;
-                var r = head.At(index);
-                if (r.IsSome) return r;
-                index -= head.Count;
-                ms1 = ms1.Tail;
-            }
-            return default;
+            var head = ms1.Head.ValueUnsafe() ?? throw new InvalidOperationException();
+            var r    = head.At(index);
+            if (r.IsSome) return r;
+            index -= head.Count;
+            ms1 = ms1.Tail;
         }
+        return default;
+    }
 
-        public SeqType Type =>
-            SeqType.Concat;
+    public SeqType Type =>
+        SeqType.Concat;
 
-        public A Head 
-        {
-            get 
-            {
-                foreach (var s in ms)
-                {
-                    foreach (var a in s)
-                    {
-                        return a;
-                    }
-                } 
-                throw new InvalidOperationException("Sequence is empty");
-            }
-        }
-
-        public ISeqInternal<A> Tail =>
-            new SeqLazy<A>(Skip(1));
-
-        public bool IsEmpty => 
-            ms.ForAll(s => s.IsEmpty);
-
-        public ISeqInternal<A> Init
-        {
-            get
-            {
-                var take = Count - 1;
-                return take <= 0
-                    ? SeqEmptyInternal<A>.Default
-                    : Take(take);
-            }
-        }
-
-        public A Last
-        {
-            get 
-            {
-                foreach (var s in ms.Reverse())
-                {
-                    foreach (var a in s.Reverse())
-                    {
-                        return a;
-                    }
-                } 
-                throw new InvalidOperationException("Sequence is empty");
-            }
-        }
-
-        public int Count => 
-            ms.Sum(s => s.Count);
-
-        public SeqConcat<A> AddSeq(ISeqInternal<A> ma) =>
-            new (ms.Add(ma));
-
-        public SeqConcat<A> AddSeqRange(Seq<ISeqInternal<A>> ma) =>
-            new (ms.Concat(ma));
-
-        public SeqConcat<A> ConsSeq(ISeqInternal<A> ma) =>
-            new (ma.Cons(ms));
-
-        public ISeqInternal<A> Add(A value)
-        {
-            var last = ms.Last.Add(value);
-            return new SeqConcat<A>(ms.Take(ms.Count - 1).Add(last));
-        }
-
-        public ISeqInternal<A> Cons(A value)
-        {
-            var head = ms.Head.Cons(value);
-            return new SeqConcat<A>(head.Cons(ms.Skip(1)));
-        }
-
-        public bool Exists(Func<A, bool> f) =>
-            ms.Exists(s => s.Exists(f));
-        
-        public S Fold<S>(S state, Func<S, A, S> f) =>
-            ms.Fold(state, (s, x) => x.Fold(s, f));
-
-        public S FoldBack<S>(S state, Func<S, A, S> f) =>
-            ms.FoldBack(state, (s, x) => x.FoldBack(s, f));
-
-        public bool ForAll(Func<A, bool> f) =>
-            ms.ForAll(s => s.ForAll(f));
-
-        public IEnumerator<A> GetEnumerator()
-        {
-            foreach(var s in ms)
-            {
-                foreach(var a in s)
-                {
-                    yield return a;
-                }
-            }
-        }
-
-        public Unit Iter(Action<A> f)
+    public A Head 
+    {
+        get 
         {
             foreach (var s in ms)
             {
                 foreach (var a in s)
                 {
-                    f(a);
+                    return a;
                 }
-            }
-            return default;
+            } 
+            throw new InvalidOperationException("Sequence is empty");
         }
+    }
 
-        public ISeqInternal<A> Skip(int amount) =>
-            new SeqLazy<A>(((IEnumerable<A>)this).Skip(amount));
+    public ISeqInternal<A> Tail =>
+        new SeqLazy<A>(Skip(1));
 
-        public ISeqInternal<A> Strict()
+    public bool IsEmpty => 
+        ms.ForAll(s => s.IsEmpty);
+
+    public ISeqInternal<A> Init
+    {
+        get
         {
-            foreach(var s in ms)
-            {
-                s.Strict();
-            }
-            return this;
+            var take = Count - 1;
+            return take <= 0
+                       ? SeqEmptyInternal<A>.Default
+                       : Take(take);
         }
+    }
 
-        public ISeqInternal<A> Take(int amount)
+    public A Last
+    {
+        get 
         {
-            IEnumerable<A> Yield()
+            foreach (var s in ms.Reverse())
             {
-                var iter = GetEnumerator();
-                for(; amount > 0 && iter.MoveNext(); amount--)
+                foreach (var a in s.Reverse())
                 {
-                    yield return iter.Current;
+                    return a;
                 }
-            }
-            return new SeqLazy<A>(Yield());
+            } 
+            throw new InvalidOperationException("Sequence is empty");
         }
+    }
 
-        IEnumerator IEnumerable.GetEnumerator()
+    public int Count => 
+        ms.Sum(s => s.Count);
+
+    public SeqConcat<A> AddSeq(ISeqInternal<A> ma) =>
+        new (ms.Add(ma));
+
+    public SeqConcat<A> AddSeqRange(Seq<ISeqInternal<A>> ma) =>
+        new (ms.Concat(ma));
+
+    public SeqConcat<A> ConsSeq(ISeqInternal<A> ma) =>
+        new (ma.Cons(ms));
+
+    public ISeqInternal<A> Add(A value)
+    {
+        var last = ms.Last.ValueUnsafe()?.Add(value) ?? throw new NotSupportedException();
+        return new SeqConcat<A>(ms.Take(ms.Count - 1).Add(last));
+    }
+
+    public ISeqInternal<A> Cons(A value)
+    {
+        var head = ms.Head.ValueUnsafe()?.Cons(value) ?? throw new NotSupportedException();
+        return new SeqConcat<A>(head.Cons(ms.Skip(1)));
+    }
+
+    public bool Exists(Func<A, bool> f) =>
+        ms.Exists(s => s.Exists(f));
+        
+    public S Fold<S>(S state, Func<S, A, S> f) =>
+        ms.Fold(state, (s, x) => x.Fold(s, f));
+
+    public S FoldBack<S>(S state, Func<S, A, S> f) =>
+        ms.FoldBack(state, (s, x) => x.FoldBack(s, f));
+
+    public bool ForAll(Func<A, bool> f) =>
+        ms.ForAll(s => s.ForAll(f));
+
+    public IEnumerator<A> GetEnumerator()
+    {
+        foreach(var s in ms)
         {
-            foreach (var s in ms)
+            foreach(var a in s)
             {
-                foreach (var a in s)
-                {
-                    yield return a;
-                }
+                yield return a;
             }
         }
+    }
 
-        ISeqInternal<A> Flatten()
+    public Unit Iter(Action<A> f)
+    {
+        foreach (var s in ms)
         {
-            var total = 0;
-            foreach (var s in ms)
+            foreach (var a in s)
             {
-                s.Strict();
-                total = s.Count;
+                f(a);
             }
-
-            var cap = 8;
-            while(cap < total)
-            {
-                cap = cap << 1;
-            }
-
-            var data = new A[cap];
-            var start = (cap - total) >> 1;
-            var current = start;
-
-            foreach(var s in ms)
-            {
-                var strict = (SeqStrict<A>)s;
-                Array.Copy(strict.data, strict.start, data, current, strict.count);
-                current += strict.count;
-            }
-            return new SeqStrict<A>(data, start, total, 0, 0);
         }
+        return default;
+    }
+
+    public ISeqInternal<A> Skip(int amount) =>
+        new SeqLazy<A>(((IEnumerable<A>)this).Skip(amount));
+
+    public ISeqInternal<A> Strict()
+    {
+        foreach(var s in ms)
+        {
+            s.Strict();
+        }
+        return this;
+    }
+
+    public ISeqInternal<A> Take(int amount)
+    {
+        IEnumerable<A> Yield()
+        {
+            using var iter = GetEnumerator();
+            for(; amount > 0 && iter.MoveNext(); amount--)
+            {
+                yield return iter.Current;
+            }
+        }
+        return new SeqLazy<A>(Yield());
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        foreach (var s in ms)
+        {
+            foreach (var a in s)
+            {
+                yield return a;
+            }
+        }
+    }
+
+    ISeqInternal<A> Flatten()
+    {
+        var total = 0;
+        foreach (var s in ms)
+        {
+            s.Strict();
+            total = s.Count;
+        }
+
+        var cap = 8;
+        while(cap < total)
+        {
+            cap <<= 1;
+        }
+
+        var data    = new A[cap];
+        var start   = (cap - total) >> 1;
+        var current = start;
+
+        foreach(var s in ms)
+        {
+            var strict = (SeqStrict<A>)s;
+            Array.Copy(strict.data, strict.start, data, current, strict.count);
+            current += strict.count;
+        }
+        return new SeqStrict<A>(data, start, total, 0, 0);
+    }
         
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetHashCode() =>
-            selfHash == 0
-                ? selfHash = GetHashCode(FNV32.OffsetBasis)
-                : selfHash;        
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override int GetHashCode() =>
+        selfHash == 0
+            ? selfHash = GetHashCode(FNV32.OffsetBasis)
+            : selfHash;        
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetHashCode(int hash)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int GetHashCode(int hash)
+    {
+        foreach (var seq in ms)
         {
-            foreach (var seq in ms)
-            {
-                hash = seq.GetHashCode(hash);
-            }
-            return hash;
+            hash = seq.GetHashCode(hash);
         }
+        return hash;
     }
 }

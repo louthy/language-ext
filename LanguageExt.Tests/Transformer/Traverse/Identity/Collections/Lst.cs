@@ -3,7 +3,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.Identity.Collections
 {
-    public class Lst
+    public class LstIdentity
     {
         [Fact]
         public void EmptyLstIsEmpty()

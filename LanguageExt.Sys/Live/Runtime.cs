@@ -1,155 +1,127 @@
 using System;
-using System.Text;
-using System.Threading;
 using System.Diagnostics;
-using LanguageExt.Effects.Traits;
+using LanguageExt.Traits;
 using LanguageExt.Sys.Traits;
-using static LanguageExt.Prelude;
 
-namespace LanguageExt.Sys.Live
+namespace LanguageExt.Sys.Live;
+
+/// <summary>
+/// Live IO runtime
+/// </summary>
+public record Runtime(RuntimeEnv Env) : 
+    Has<Eff<Runtime>, ActivitySourceIO>,
+    Mutates<Eff<Runtime>, Runtime, ActivityEnv>,
+    Has<Eff<Runtime>, ConsoleIO>,
+    Has<Eff<Runtime>, FileIO>,
+    Has<Eff<Runtime>, TextReadIO>,
+    Has<Eff<Runtime>, TimeIO>,
+    Has<Eff<Runtime>, EnvironmentIO>,
+    Has<Eff<Runtime>, DirectoryIO>,
+    Has<Eff<Runtime>, EncodingIO>
 {
     /// <summary>
-    /// Live IO runtime
+    /// Constructor function
     /// </summary>
-    public readonly struct Runtime : 
-        HasCancel<Runtime>,
-        HasConsole<Runtime>,
-        HasFile<Runtime>,
-        HasEncoding<Runtime>,
-        HasTextRead<Runtime>,
-        HasTime<Runtime>,
-        HasEnvironment<Runtime>,
-        HasDirectory<Runtime>
-    {
-        readonly RuntimeEnv env;
+    public static Runtime New() =>
+        new (new RuntimeEnv(ActivityEnv.Default, EnvIO.New()));
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        Runtime(RuntimeEnv env) =>
-            this.env = env;
+    public Runtime WithActivity(Activity? activity) =>
+        new(Env with
+                {
+                    Activity = Env.Activity with { Activity = activity, ParentId = Env.Activity.Activity?.Id ?? "" }
+                });
 
+    public Activity? CurrentActivity =>
+        Env.Activity.Activity;
 
-        /// <summary>
-        /// Configuration environment accessor
-        /// </summary>
-        public RuntimeEnv Env =>
-            env ?? throw new InvalidOperationException("Runtime Env not set.  Perhaps because of using default(Runtime) or new Runtime() rather than Runtime.New()");
-        
-        /// <summary>
-        /// Constructor function
-        /// </summary>
-        public static Runtime New() =>
-            new Runtime(new RuntimeEnv(new CancellationTokenSource(), System.Text.Encoding.Default));
+    public Runtime WithIO(EnvIO envIO) =>
+        new (Env with { EnvIO = envIO });
 
-        /// <summary>
-        /// Constructor function
-        /// </summary>
-        /// <param name="source">Cancellation token source</param>
-        public static Runtime New(CancellationTokenSource source) =>
-            new Runtime(new RuntimeEnv(source, System.Text.Encoding.Default));
+    public EnvIO EnvIO =>
+        Env.EnvIO;
 
-        /// <summary>
-        /// Constructor function
-        /// </summary>
-        /// <param name="encoding">Text encoding</param>
-        public static Runtime New(Encoding encoding) =>
-            new Runtime(new RuntimeEnv(new CancellationTokenSource(), encoding));
-
-        /// <summary>
-        /// Constructor function
-        /// </summary>
-        /// <param name="encoding">Text encoding</param>
-        /// <param name="source">Cancellation token source</param>
-        public static Runtime New(Encoding encoding, CancellationTokenSource source) =>
-            new Runtime(new RuntimeEnv(source, encoding));
-
-        /// <summary>
-        /// Create a new Runtime with a fresh cancellation token
-        /// </summary>
-        /// <remarks>Used by localCancel to create new cancellation context for its sub-environment</remarks>
-        /// <returns>New runtime</returns>
-        public Runtime LocalCancel =>
-            new Runtime(new RuntimeEnv(new CancellationTokenSource(), Env.Encoding));
-
-        /// <summary>
-        /// Direct access to cancellation token
-        /// </summary>
-        public CancellationToken CancellationToken =>
-            Env.Token;
-
-        /// <summary>
-        /// Directly access the cancellation token source
-        /// </summary>
-        /// <returns>CancellationTokenSource</returns>
-        public CancellationTokenSource CancellationTokenSource =>
-            Env.Source;
-
-        /// <summary>
-        /// Get encoding
-        /// </summary>
-        /// <returns></returns>
-        public Encoding Encoding =>
-            Env.Encoding;
-
-        /// <summary>
-        /// Access the console environment
-        /// </summary>
-        /// <returns>Console environment</returns>
-        public Eff<Runtime, Traits.ConsoleIO> ConsoleEff =>
-            SuccessEff(Sys.Live.ConsoleIO.Default);
-
-        /// <summary>
-        /// Access the file environment
-        /// </summary>
-        /// <returns>File environment</returns>
-        public Eff<Runtime, Traits.FileIO> FileEff =>
-            SuccessEff(Sys.Live.FileIO.Default);
-
-        /// <summary>
-        /// Access the directory environment
-        /// </summary>
-        /// <returns>Directory environment</returns>
-        public Eff<Runtime, Traits.DirectoryIO> DirectoryEff =>
-            SuccessEff(Sys.Live.DirectoryIO.Default);
-
-        /// <summary>
-        /// Access the TextReader environment
-        /// </summary>
-        /// <returns>TextReader environment</returns>
-        public Eff<Runtime, Traits.TextReadIO> TextReadEff =>
-            SuccessEff(Sys.Live.TextReadIO.Default);
-
-        /// <summary>
-        /// Access the time environment
-        /// </summary>
-        /// <returns>Time environment</returns>
-        public Eff<Runtime, Traits.TimeIO> TimeEff  =>
-            SuccessEff(Sys.Live.TimeIO.Default);
-
-        /// <summary>
-        /// Access the operating-system environment
-        /// </summary>
-        /// <returns>Operating-system environment environment</returns>
-        public Eff<Runtime, Traits.EnvironmentIO> EnvironmentEff =>
-            SuccessEff(Sys.Live.EnvironmentIO.Default);
-    }
+    static K<Eff<Runtime>, A> gets<A>(Func<Runtime, A> f) =>
+        StateM.gets<Eff<Runtime>, Runtime, A>(f);
     
-    public class RuntimeEnv
+    static K<Eff<Runtime>, Unit> modify(Func<RuntimeEnv, RuntimeEnv> f) =>
+        StateM.modify<Eff<Runtime>, Runtime>(rt => rt with { Env = f(rt.Env) } );
+    
+    static K<Eff<Runtime>, A> pure<A>(A value) =>
+        Eff<Runtime, A>.Pure(value);
+    
+    /// <summary>
+    /// Activity
+    /// </summary>
+    K<Eff<Runtime>, ActivitySourceIO> Has<Eff<Runtime>, ActivitySourceIO>.Trait =>
+        gets<ActivitySourceIO>(rt => new Implementations.ActivitySourceIO(rt.Env.Activity));
+
+    /// <summary>
+    /// Modify the activity state
+    /// </summary>
+    public K<Eff<Runtime>, Unit> Modify(Func<ActivityEnv, ActivityEnv> f) =>
+        modify(rt => rt with { Activity = f(rt.Activity) });
+
+    /// <summary>
+    /// Read the activity state
+    /// </summary>
+    public K<Eff<Runtime>, ActivityEnv> Get { get; } =
+        gets(rt => rt.Env.Activity);
+
+    /// <summary>
+    /// Access the console environment
+    /// </summary>
+    /// <returns>Console environment</returns>
+    K<Eff<Runtime>, ConsoleIO> Has<Eff<Runtime>, ConsoleIO>.Trait { get; } =
+        pure(Implementations.ConsoleIO.Default);
+
+    /// <summary>
+    /// Access the file environment
+    /// </summary>
+    /// <returns>File environment</returns>
+    K<Eff<Runtime>, FileIO> Has<Eff<Runtime>, FileIO>.Trait { get; } =
+        pure(Implementations.FileIO.Default);
+
+    /// <summary>
+    /// Access the TextReader environment
+    /// </summary>
+    /// <returns>TextReader environment</returns>
+    K<Eff<Runtime>, TextReadIO> Has<Eff<Runtime>, TextReadIO>.Trait { get; } =
+        pure(Implementations.TextReadIO.Default);
+ 
+    /// <summary>
+    /// Access the time environment
+    /// </summary>
+    /// <returns>Time environment</returns>
+    K<Eff<Runtime>, TimeIO> Has<Eff<Runtime>, TimeIO>.Trait { get; } =
+        pure(Implementations.TimeIO.Default);
+
+    /// <summary>
+    /// Access the operating-system environment
+    /// </summary>
+    /// <returns>Operating-system environment environment</returns>
+    K<Eff<Runtime>, EnvironmentIO> Has<Eff<Runtime>, EnvironmentIO>.Trait { get; } =
+        pure(Implementations.EnvironmentIO.Default);
+
+    /// <summary>
+    /// Access the directory environment
+    /// </summary>
+    /// <returns>Directory environment</returns>
+    K<Eff<Runtime>, DirectoryIO> Has<Eff<Runtime>, DirectoryIO>.Trait { get; } =
+        pure(Implementations.DirectoryIO.Default);
+
+    /// <summary>
+    /// Access the directory environment
+    /// </summary>
+    /// <returns>Directory environment</returns>
+    K<Eff<Runtime>, EncodingIO> Has<Eff<Runtime>, EncodingIO>.Trait { get; } =
+        pure(Implementations.EncodingIO.Default);
+}
+
+public record RuntimeEnv(ActivityEnv Activity, EnvIO EnvIO) : IDisposable
+{
+    public void Dispose()
     {
-        public readonly CancellationTokenSource Source;
-        public readonly CancellationToken Token;
-        public readonly Encoding Encoding;
-
-        public RuntimeEnv(CancellationTokenSource source, CancellationToken token, Encoding encoding)
-        {
-            Source   = source;
-            Token    = token;
-            Encoding = encoding;
-        }
-
-        public RuntimeEnv(CancellationTokenSource source, Encoding encoding) : this(source, source.Token, encoding)
-        {
-        }
+        Activity.Dispose();
+        EnvIO.Dispose();
     }
 }

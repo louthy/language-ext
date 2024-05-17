@@ -1,22 +1,18 @@
-using System;
+using Xunit;
 using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
-using Xunit;
-using System.Threading.Tasks;
-using LanguageExt.Common;
 
-namespace LanguageExt.Tests
+namespace LanguageExt.Tests;
+
+public class DistinctTests
 {
-    public class DistinctTests
+    [Fact]
+    void SeqDistinctIgnoreCase()
     {
-        [Fact]
-        void SeqDistinctIgnoreCase()
-        {
-            var items = Seq("Test", "other", "test");
+        var items = Seq("Test", "other", "test");
             
-            Assert.Equal(items, items.Distinct());
-            Assert.Equal(items.Take(3), items.Distinct(_ => _, fun<string, string, bool>(EqStringOrdinal.Inst.Equals)));
-            Assert.Equal(items.Take(2), items.Distinct(_ => _, fun<string, string, bool>(EqStringOrdinalIgnoreCase.Inst.Equals)));
-        }
+        Assert.Equal(items, items.Distinct());
+        Assert.Equal(items.Take(3), items.Distinct(_ => _, fun<string, string, bool>(EqStringOrdinal.Equals)));
+        Assert.Equal(items.Take(2), items.Distinct(_ => _, fun<string, string, bool>(EqStringOrdinalIgnoreCase.Equals)));
     }
 }

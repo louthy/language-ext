@@ -1,9 +1,6 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using LanguageExt.UnitsOfMeasure;
 
 namespace LanguageExt;
 
@@ -15,7 +12,7 @@ public readonly struct Duration :
     IEquatable<Duration>,
     IComparable<Duration>
 {
-    readonly double Milliseconds;
+    public readonly double Milliseconds;
 
     /// <summary>
     /// Duration constructor
@@ -110,7 +107,7 @@ public readonly struct Duration :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool Equals(object obj) =>
+    public override bool Equals(object? obj) =>
         obj is Duration other && Equals(other);
 
     [Pure]

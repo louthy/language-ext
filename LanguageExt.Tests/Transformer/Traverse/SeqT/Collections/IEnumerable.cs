@@ -10,11 +10,12 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         [Fact]
         public void EmptyEmptyIsEmptyEmpty()
         {
-            var ma = Enumerable.Empty<Seq<int>>();
+            var ma = EnumerableM.empty<Seq<int>>();
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Seq<IEnumerable<int>>.Empty;
+
+            var mc = Seq.singleton(EnumerableM<int>.Empty);
 
             Assert.True(mb == mc);
         }
@@ -22,29 +23,31 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         [Fact]
         public void IEnumerableSeqCrossProduct()
         {
-            var ma = new[] { Seq(1, 2), Seq(10, 20, 30) }.AsEnumerable();
+            var ma = new[] { Seq(1, 2), Seq(10, 20, 30) }.AsEnumerableM();
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Seq<IEnumerable<int>>(
-                Seq(1, 10),
-                Seq(1, 20),
-                Seq(1, 30),
-                Seq(2, 10),
-                Seq(2, 20),
-                Seq(2, 30));
 
-            Assert.True(mb.Map(Prelude.Seq1) == mc.Map(Prelude.Seq1));
+            var mc = Seq<EnumerableM<int>>(
+                [1, 10],
+                [1, 20],
+                [1, 30],
+                [2, 10],
+                [2, 20],
+                [2, 30]);
+
+            Assert.True(mb == mc);
         }
 
         [Fact]
         public void IEnumerableOfEmptiesAndNonEmptiesIsEmpty()
         {
-            var ma = new[] { Seq<int>(), Seq<int>(1, 2, 3) }.AsEnumerable();
+            var ma = new[] { Seq<int>(), Seq<int>(1, 2, 3) }.AsEnumerableM();
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Seq<IEnumerable<int>>.Empty;
+
+            var mc = Seq<EnumerableM<int>>.Empty;
 
             Assert.True(mb == mc);
         }
@@ -52,11 +55,12 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         [Fact]
         public void IEnumerableOfEmptiesIsEmpty()
         {
-            var ma = new[] { Seq<int>(), Seq<int>() }.AsEnumerable();
+            var ma = new[] { Seq<int>(), Seq<int>() }.AsEnumerableM();
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Seq<IEnumerable<int>>.Empty;
+
+            var mc = Seq<EnumerableM<int>>.Empty;
 
             Assert.True(mb == mc);
         }

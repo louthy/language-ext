@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
-using static LanguageExt.TypeClass;
+using LanguageExt.Traits;
+using static LanguageExt.Trait;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -73,8 +73,8 @@ namespace LanguageExt
         /// A vector clock with a single element
         /// </summary>
         public static VectorClock<OrdA, NumB, A, B> Single<OrdA, NumB, A, B>(A x, B y)
-            where OrdA : struct, Ord<A>
-            where NumB : struct, Num<B> =>
+            where OrdA : Ord<A>
+            where NumB : Num<B> =>
             VectorClock<OrdA, NumB, A, B>.Single(x, y);
 
         /// <summary>
@@ -87,8 +87,8 @@ namespace LanguageExt
         /// Insert each entry in the list one at a time.
         /// </summary>
         public static VectorClock<OrdA, NumB, A, B> fromList<OrdA, NumB, A, B>(Seq<(A x, B y)> list) 
-            where OrdA : struct, Ord<A>
-            where NumB : struct, Num<B> =>
+            where OrdA : Ord<A>
+            where NumB : Num<B> =>
             VectorClock<OrdA, NumB, A, B>.fromList(list);
 
         /// <summary>
@@ -123,8 +123,8 @@ namespace LanguageExt
             Func<A, Option<B>, Option<B>, Option<B>> f,
             VectorClock<OrdA, NumB, A, B> vc1,
             VectorClock<OrdA, NumB, A, B> vc2)
-            where OrdA : struct, Ord<A>
-            where NumB : struct, Num<B> =>
+            where OrdA : Ord<A>
+            where NumB : Num<B> =>
             VectorClock<OrdA, NumB, A, B>.combine(f, vc1, vc2);
 
         /// <summary>
@@ -138,8 +138,8 @@ namespace LanguageExt
         /// The maximum of the two vector clocks.
         /// </summary>
         public static VectorClock<OrdA, NumB, A, B> max<OrdA, NumB, A, B>(VectorClock<OrdA, NumB, A, B> vc1, VectorClock<OrdA, NumB, A, B> vc2)
-            where OrdA : struct, Ord<A>
-            where NumB : struct, Num<B> =>
+            where OrdA : Ord<A>
+            where NumB : Num<B> =>
             VectorClock<OrdA, NumB, A, B>.max(vc1, vc2);
 
         /// <summary>
@@ -153,8 +153,8 @@ namespace LanguageExt
         /// The relation between the two vector clocks.
         /// </summary>
         public static Relation relation<OrdA, NumB, A, B>(VectorClock<OrdA, NumB, A, B> vc1, VectorClock<OrdA, NumB, A, B> vc2)
-            where OrdA : struct, Ord<A>
-            where NumB : struct, Num<B> =>
+            where OrdA : Ord<A>
+            where NumB : Num<B> =>
             VectorClock<OrdA, NumB, A, B>.relation(vc1, vc2);
 
         /// <summary>
@@ -168,8 +168,8 @@ namespace LanguageExt
         /// Short-hand for relation(vc1, vc2) == Relation.Causes
         /// </summary>
         public static bool causes<OrdA, NumB, A, B>(VectorClock<OrdA, NumB, A, B>vc1, VectorClock<OrdA, NumB, A, B> vc2)
-            where OrdA : struct, Ord<A>
-            where NumB : struct, Num<B> =>
+            where OrdA : Ord<A>
+            where NumB : Num<B> =>
             VectorClock<OrdA, NumB, A, B>.causes(vc1, vc2);
 
         /// <summary>
@@ -185,8 +185,8 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>Note that the /first/ parameter is the newer vector clock.</remarks>
         public static Option<VectorClock<OrdA, NumB, A, B>> diff<OrdA, NumB, A, B>(VectorClock<OrdA, NumB, A, B> vc1, VectorClock<OrdA, NumB, A, B> vc2)
-            where OrdA : struct, Ord<A>
-            where NumB : struct, Num<B> =>
+            where OrdA : Ord<A>
+            where NumB : Num<B> =>
             VectorClock<OrdA, NumB, A, B>.diff(vc1, vc2);
     }
 }

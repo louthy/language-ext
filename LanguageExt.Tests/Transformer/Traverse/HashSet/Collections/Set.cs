@@ -14,9 +14,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.HashSetT.Collections
         {
             Set<HashSet<int>> ma = Empty;
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
 
-            var mc = HashSet<Set<int>>.Empty;
+            var mc = HashSet.singleton(Set<int>.Empty);
             
             Assert.True(mb == mc);
         }
@@ -26,7 +26,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.HashSetT.Collections
         {
             var ma = Set(HashSet(1, 2), HashSet(10, 20, 30));
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
 
             var mc = HashSet(Set(1, 10), Set(1, 20), Set(1, 30), Set(2, 10), Set(2, 20), Set(2, 30));
             
@@ -39,7 +40,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.HashSetT.Collections
         {
             var ma = Set(HashSet<int>(), HashSet<int>(1, 2, 3));
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
 
             var mc = HashSet<Set<int>>.Empty;
             
@@ -51,7 +53,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.HashSetT.Collections
         {
             var ma = Set(HashSet<int>(), HashSet<int>());
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
 
             var mc = HashSet<Set<int>>.Empty;
             

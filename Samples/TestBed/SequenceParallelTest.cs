@@ -18,19 +18,20 @@ public class SequenceParallelTest
         var sw = Stopwatch.StartNew();
         var input = Seq(1, 2, 3, 2, 5, 1, 1, 2, 3, 2, 1, 2, 4, 2, 1, 5, 6, 1, 3, 6, 2);
 	
-        var ma = input.Select(DoDelay).SequenceParallel();
-
-        Debug.Assert(await ma.IsRight);
-        await ma.IfRight(right => Debug.Assert(right.SequenceEqual(input)));
+        var eitherIO = input.Map(DoDelay).Traverse(x => x).As();
+        var either = eitherIO.Run().As().Run();
+        
+        Debug.Assert(either.IsRight);
+        either.IfRight(right => Debug.Assert(right == input));
         
         sw.Stop();
 
         System.Console.WriteLine(sw.Elapsed);
     }
 
-    static EitherAsync<string, int> DoDelay(int seconds)
+    static EitherT<string, IO, int> DoDelay(int seconds)
     {
-        return F(seconds).ToAsync();
+        return liftIO(() => F(seconds));
         static async Task<Either<string, int>> F(int seconds)
         {
             await Task.Delay(seconds * 1000);

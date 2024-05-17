@@ -1,17 +1,17 @@
-﻿using LanguageExt.TypeClasses;
+﻿#nullable enable
+using LanguageExt.Traits;
 using System.Diagnostics.Contracts;
 
-namespace LanguageExt
+namespace LanguageExt;
+
+public static partial class Trait
 {
-    public static partial class TypeClass
-    {
-        /// <summary>
-        /// Generates a fractional value from an integer ratio.
-        /// </summary>
-        /// <param name="x">The ratio to convert</param>
-        /// <returns>The equivalent of x in the implementing type.</returns>
-        [Pure]
-        public static A fromRational<FRACTION, A>(Ratio<int> x) where FRACTION : struct, Fraction<A> =>
-            default(FRACTION).FromRational(x);
-    }
+    /// <summary>
+    /// Generates a fractional value from an integer ratio.
+    /// </summary>
+    /// <param name="x">The ratio to convert</param>
+    /// <returns>The equivalent of x in the implementing type.</returns>
+    [Pure]
+    public static A fromRational<FRACTION, A>(Ratio<int> x) where FRACTION : Fraction<A> =>
+        FRACTION.FromRational(x);
 }

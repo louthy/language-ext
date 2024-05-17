@@ -1,10 +1,10 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Common;
@@ -23,7 +23,7 @@ namespace LanguageExt.Common;
 /// i.e. it is either created from an exception or it isn't.  This allows for expected errors to be represented
 /// without throwing exceptions.  
 /// </remarks>
-public abstract class ErrorException : Exception, IEnumerable<ErrorException>
+public abstract class ErrorException : Exception, IEnumerable<ErrorException>, Monoid<ErrorException>
 {
     protected ErrorException(int code) =>
         HResult = code;
@@ -71,7 +71,11 @@ public abstract class ErrorException : Exception, IEnumerable<ErrorException>
     /// </summary>
     /// <remarks>Single errors will be converted to `ManyErrors`;  `ManyErrors` will have their collection updated</remarks>
     [Pure]
-    public abstract ErrorException Append(ErrorException error);
+    public abstract ErrorException Combine(ErrorException error);
+
+    [Pure]
+    public static ErrorException Empty => 
+        ManyExceptions.Empty;
     
     /// <summary>
     /// Append an error to this error
@@ -79,7 +83,7 @@ public abstract class ErrorException : Exception, IEnumerable<ErrorException>
     /// <remarks>Single errors will be converted to `ManyErrors`;  `ManyErrors` will have their collection updated</remarks>
     [Pure]
     public static ErrorException operator+(ErrorException lhs, ErrorException rhs) =>
-        lhs.Append(rhs);
+        lhs.Combine(rhs);
 
     [Pure]
     public virtual IEnumerator<ErrorException> GetEnumerator()
@@ -158,7 +162,7 @@ public abstract class ErrorException : Exception, IEnumerable<ErrorException>
     /// <param name="inner">The inner error to this error</param>
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ErrorException Many(params ErrorException[] errors) =>
-        new ManyExceptions(errors.ToSeq());
+        new ManyExceptions(errors.AsEnumerableM().ToSeq());
 
     /// <summary>
     /// Create a new error 
@@ -222,7 +226,7 @@ public sealed class ExpectedException : ErrorException
     /// </summary>
     /// <remarks>Single errors will be converted to `ManyErrors`;  `ManyErrors` will have their collection updated</remarks>
     [Pure]
-    public override ErrorException Append(ErrorException error) =>
+    public override ErrorException Combine(ErrorException error) =>
         error is ManyExceptions m
             ? new ManyExceptions(error.Cons(m.Errors))
             : new ManyExceptions(Seq(this, error));
@@ -296,7 +300,7 @@ public class ExceptionalException : ErrorException
     /// <param name="error">Error</param>
     /// <returns></returns>
     [Pure]
-    public override ErrorException Append(ErrorException error) =>
+    public override ErrorException Combine(ErrorException error) =>
         error is ManyExceptions m
             ? new ManyExceptions(error.Cons(m.Errors))
             : new ManyExceptions(Seq(this, error));
@@ -308,6 +312,8 @@ public class ExceptionalException : ErrorException
 /// <param name="Errors">Errors</param>
 public sealed class ManyExceptions : ErrorException
 {
+    public new static ErrorException Empty { get; } = new ManyExceptions([]);
+
     public ManyExceptions(Seq<ErrorException> errors) : base(0) =>
         Errors = errors;
 
@@ -361,7 +367,7 @@ public sealed class ManyExceptions : ErrorException
     /// <param name="error">Error</param>
     /// <returns></returns>
     [Pure]
-    public override ErrorException Append(ErrorException error) =>
+    public override ErrorException Combine(ErrorException error) =>
         error is ManyExceptions m
             ? new ManyExceptions(Errors + m.Errors)
             : new ManyExceptions(Seq(this, error));
@@ -402,5 +408,26 @@ public class BottomException : ExceptionalException
     public override Error ToError() => 
         BottomError.Default;
     
-    public override ErrorException Append(ErrorException error) => throw new NotImplementedException();
+    public override ErrorException Combine(ErrorException error) => throw new NotImplementedException();
+}
+
+public static class ExceptionExtensions
+{
+    /// <summary>
+    /// Throw the error as an exception
+    /// </summary>
+    public static Unit Rethrow(this Exception e)
+    {
+        ExceptionDispatchInfo.Capture(e).Throw();
+        return default;
+    }
+
+    /// <summary>
+    /// Throw the error as an exception
+    /// </summary>
+    public static R Rethrow<R>(this Exception e)
+    {
+        ExceptionDispatchInfo.Capture(e).Throw();
+        return default;
+    }
 }

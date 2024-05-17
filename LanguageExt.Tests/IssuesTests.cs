@@ -1,19 +1,9 @@
-﻿using System;
+﻿using Xunit;
+using System;
 using System.Linq;
-using System.Threading.Tasks;
-using LanguageExt;
-using LanguageExt.ClassInstances;
-using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
-using Xunit;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 using System.Runtime.Serialization;
-using static System.Console;
-using LanguageExt.Parsec;
-using static LanguageExt.Parsec.Prim;
-using static LanguageExt.Parsec.Char;
-
-
 
 namespace LanguageExt.Tests
 {
@@ -22,44 +12,45 @@ namespace LanguageExt.Tests
         /// <summary>
         /// https://github.com/louthy/language-ext/issues/207
         /// </summary>
-        public Task<Either<Exception, int>> Issue207() =>
+        public void Issue207() =>
             Initialization
-                .BindT(createUserMapping)
-                .BindT(addUser);
+                .Bind(createUserMapping)
+                .Bind(addUser)
+                .Run();
 
-        public Task<Either<Exception, int>> Issue207_2() =>
+        public EitherT<Exception, IO, int> Issue207_2() =>
             from us in Initialization
-            from mu in createUserMapping(us).AsTask()
+            from mu in createUserMapping(us)
             from id in addUser(mu)
             select id;
 
-        static Task<Either<Exception, ADUser>> Initialization =>
-            Right<Exception, ADUser>(ADUser.New("test user")).AsTask();
+        static EitherT<Exception, IO, ADUser> Initialization =>
+            EitherT.Right<Exception, IO, ADUser>(ADUser.New("test user"));
 
         static Either<Exception, UserMapping> createUserMapping(ADUser user) =>
-            Right<Exception, UserMapping>(UserMapping.New(user.ToString() + " mapped"));
+            Right<Exception, UserMapping>(UserMapping.New(user + " mapped"));
 
-        static Task<Either<Exception, int>> addUser(UserMapping user) =>
-            Right<Exception, int>(user.ToString().Length).AsTask();
+        static EitherT<Exception, IO, int> addUser(UserMapping user) =>
+            EitherT.Right<Exception, IO, int>(user.ToString().Length);
 
-        static Try<int> addUser2(UserMapping user) => () =>
-            user.ToString().Length;
+        static IO<int> addUser2(UserMapping user) => 
+            IO.lift(() => user.ToString().Length);
 
-        static Try<UserMapping> createUserMapping2(ADUser user) => () =>
-            UserMapping.New(user.ToString() + " mapped");
+        static IO<UserMapping> createUserMapping2(ADUser user) => 
+            IO.lift(() => UserMapping.New(user + " mapped"));
 
-        public TryAsync<int> Issue207_5() =>
-            from us in TryAsync<ADUser>(() => throw new Exception("fail"))
-            from mu in createUserMapping2(us).ToAsync()
-            from id in addUser2(mu).ToAsync()
+        public IO<int> Issue207_5() =>
+            from us in IO.lift<ADUser>(() => throw new Exception("fail"))
+            from mu in createUserMapping2(us)
+            from id in addUser2(mu)
             select id;
 
         //https://github.com/louthy/language-ext/issues/242
         [Fact]
         public void Issue208()
         {
-            var r = from a in Left<Exception, int>(new Exception("error 1")).AsTask()
-                    from b in Right<Exception, int>(1).AsTask()
+            var r = from a in Left<Exception, int>(new Exception("error 1"))
+                    from b in Right<Exception, int>(1)
                     select a + b;
         }
 
@@ -69,22 +60,11 @@ namespace LanguageExt.Tests
             var list = 1.Cons().ToList();
         }
 
-        static void EqPar()
-        {
-            var eq = par<string, string, bool>(equals<EqStringOrdinalIgnoreCase, string>, "abc");
-        }
-
-        static Writer<MSeq<string>, Seq<string>, Seq<int>> multWithLog(Seq<int> input) =>
-            from _ in Writer(0, Seq1("Start"))
-            let c = input.Map(i => Writer(i * 10, Seq1($"Number: {i}")))
-            from r in c.Sequence()
-            select r;
-
         [Fact]
         public void Issue675()
         {
-            var l1 = LanguageExt.Prelude.List<int>(1, 2, 3);
-            var l2 = LanguageExt.Prelude.List<int>(4, 5, 6);
+            var l1 = List(1, 2, 3);
+            var l2 = List(4, 5, 6);
 
             var a = l1.AddRange(l2); // Count 6, [1,2,3,4,5,6]
             var b = l1.AddRange(l2); // Count 5, [1,2,4,5,6]
@@ -99,8 +79,8 @@ namespace LanguageExt.Tests
         }
     }
 
-    public class ADUser : NewType<ADUser, string> { public ADUser(string u) : base(u) { } }
-    public class UserMapping : NewType<UserMapping, string> { public UserMapping(string u) : base(u) { } }
+    public class ADUser(string u) : NewType<ADUser, string>(u);
+    public class UserMapping(string u) : NewType<UserMapping, string>(u);
 }
 
 // https://github.com/louthy/language-ext/issues/245
@@ -121,7 +101,7 @@ public class TopHatTests
         public Option<int> Id2 { get; set; }
     }
 
-    OptionAsync<int> SumOptionAsync() => SomeAsync(async _ =>
+    OptionT<IO, int> SumOptionAsync() => liftIO(async _ =>
     {
         var first = await Task.FromResult(1);
         var second = await Task.FromResult(2);
@@ -152,9 +132,9 @@ namespace Core.Tests
     public class ExternalOptionsAndEithersTests
     {
         [Fact]
-        public async Task what_i_desire_EitherAsync()
+        public void what_i_desire_EitherAsync()
         {
-            EitherAsync<Error, Pixel> GetPixelE(PixelId id) =>
+            EitherT<Error, IO, Pixel> GetPixelE(PixelId id) =>
                 GetPixel(id).ToEither(Error.New("pixel not found"));
 
             var program =
@@ -163,8 +143,8 @@ namespace Core.Tests
                 from resource in ScrapeUrl("http://google.com")
                 select resource;
 
-            await program.Match(
-                Right: r => Assert.Fail("this should not pass"),
+            program.Match(
+                Right: _ => Assert.Fail("this should not pass"),
                 Left: e => Assert.Equal("pixel not found", e.Value)
             );
         }
@@ -177,32 +157,21 @@ namespace Core.Tests
             public Error(string value) : base(value) { }
         }
 
-        public static OptionAsync<Pixel> GetPixel(PixelId id) =>
-            Option<Pixel>.None.ToAsync();
+        public static OptionT<IO, Pixel> GetPixel(PixelId id) =>
+            OptionT<IO, Pixel>.None;
 
-        public static EitherAsync<Error, string> GenerateLinkId(PixelId pixelId) =>
-            Right<Error, string>($"{pixelId}-1234").ToAsync();
+        public static EitherT<Error, IO, string> GenerateLinkId(PixelId pixelId) =>
+            Right<Error, string>($"{pixelId}-1234");
 
-        public static EitherAsync<Error, WebResource> ScrapeUrl(string url) =>
-            Right<Error, WebResource>(new WebResource(200)).ToAsync();
+        public static EitherT<Error, IO, WebResource> ScrapeUrl(string url) =>
+            Right<Error, WebResource>(new WebResource(200));
 
-        public class WebResource : NewType<WebResource, int>
-        {
-            public WebResource(int value) : base(value) { }
-        }
-
-        public class PixelId : NewType<PixelId, string>
-        {
-            public PixelId(string value) : base(value) { }
-        }
-
-        public class Pixel : NewType<Pixel, PixelId>
-        {
-            public Pixel(PixelId value) : base(value) { }
-        }
+        public class WebResource(int value) : NewType<WebResource, int>(value);
+        public class PixelId(string value) : NewType<PixelId, string>(value);
+        public class Pixel(PixelId value) : NewType<Pixel, PixelId>(value);
     }
-
 }
+
 namespace Issues
 {
     public class CollectorId : NewType<CollectorId, int> { public CollectorId(int value) : base(value) { } };
@@ -217,7 +186,7 @@ namespace Issues
         public TenantId CurrentTenant { get; }
         public UserId AssignedBy { get; }
         public Instant InstantAssigned { get; }
-        public Collector(Some<CollectorId> id, Some<string> name, Some<TenantId> tenant, Some<UserId> assignedBy, Instant dateAssigned)
+        public Collector(CollectorId id, string name, TenantId tenant, UserId assignedBy, Instant dateAssigned)
         {
             Id = id;
             Name = name;
@@ -248,91 +217,36 @@ namespace Issues
 
     public static class Issue251
     {
-        public class Error : NewType<Error, string>
+        public class Error(string value) : NewType<Error, string>(value);
+        public class ErrorException(Error error) : Exception(error.Value)
         {
-            public Error(string value) : base(value)
-            {
-            }
+            public readonly Error Error = error;
         }
 
-        public class ErrorException : Exception
-        {
-            public readonly Error Error;
-            public ErrorException(Error error) : base(error.Value)
-            {
-                Error = error;
-            }
-        }
-
-        public static TryOptionAsync<A> AsTryOptionAsync<A>(this Either<Error, Option<A>> ma) =>
+        public static OptionT<IO, A> AsOptionT<A>(this Either<Error, Option<A>> ma) =>
             ma.Match(
-                Right: r => TryOptionAsync(r),
-                Left: e => TryOptionAsync<A>(new ErrorException(e)));
+                Right: liftIO,
+                Left: e => lift<A>(() => throw new ErrorException(e)));
 
-        public static TryOption<A> AsTryOption<A>(this Either<Error, Option<A>> ma) =>
+        public static OptionT<IO, A> AsTryOption<A>(this Either<Error, Option<A>> ma) =>
             ma.Match(
-                Right: r => TryOption(r),
-                Left: e => TryOption<A>(new ErrorException(e)));
+                Right: liftIO,
+                Left: e => lift<A>(() => throw new ErrorException(e)));
 
-        public static TryOptionAsync<A> AsTryOptionAsync<A>(this Task<Either<Error, Option<A>>> ma) =>
-            ma.Map(either => either.AsTryOption()).ToAsync();
+        public static OptionT<IO, A> AsOptionT<A>(this Task<Either<Error, Option<A>>> ma) =>
+            ma.Map(either => either.AsTryOption()).Flatten();
 
         public static Error AsError(this Exception ex) =>
             ex is ErrorException err
                 ? err.Error
                 : Error.New(ex.Message);
-
-        [Fact]
-        public static async void MatchTest()
-        {
-            var m1 = Right<Error, Option<string>>("Testing").AsTask();
-            var m2 = Left<Error, Option<string>>(Error.New("Testing")).AsTask();
-            var m3 = Right<Error, Option<string>>(None).AsTask();
-
-            await m1.AsTryOptionAsync()
-                    .Match(
-                         Some: va => Console.WriteLine(va),
-                         None: () => Console.WriteLine("none"),
-                         Fail: ex => Console.WriteLine(ex.AsError()));
-
-            var t1 = Right<Error, Option<string>>("Testing").AsTask().AsTryOptionAsync();
-            var t2 = Left<Error, Option<string>>(Error.New("Testing")).AsTask().AsTryOptionAsync();
-            var t3 = Right<Error, Option<string>>(None).AsTask().AsTryOptionAsync();
-
-            var list = List(t1, t2, t3);
-
-            var resu = list.Sequence();
-
-        }
-    }
-
-    public class Issue242
-    {
-
-        [Fact]
-        public async Task Issue242_ExpectNoException()
-        {
-            var failableTask = fun((Either<string, int> value) =>
-                value.AsTask());
-
-            var result = await (from a in failableTask("This will NOT cause a Bottom Exception")
-                                from b in failableTask(3)
-                                select a + b);
-        }
-
     }
 
     public class Issue263
     {
-        public readonly Func<long, Unit> fire = i =>
-        {
-            return unit;
-        };
+        public readonly Func<long, Unit> fire = i => unit;
 
-        public void Test()
-        {
-            act(fire);
-        }
+        public void Test() => ignore(act(fire));
     }
 
     public class Issue261
@@ -340,17 +254,17 @@ namespace Issues
         [Fact]
         public void Test1()
         {
-            var ma = Writer<MSeq<string>, Seq<string>, int>(100);
-            var mb = Writer<MSeq<string>, Seq<string>, int>(200);
+            var ma = Writer.Pure<Seq<string>, int>(100);
+            var mb = Writer.Pure<Seq<string>, int>(200);
 
             var mc = from x in ma
                      from y in mb
-                     from _1 in tell<MSeq<string>, Seq<string>>(Seq1("Hello"))
-                     from _2 in tell<MSeq<string>, Seq<string>>(Seq1("World"))
-                     from _3 in tell<MSeq<string>, Seq<string>>(Seq1($"the result is {x + y}"))
+                     from _1 in tell(Seq("Hello"))
+                     from _2 in tell(Seq("World"))
+                     from _3 in tell(Seq($"the result is {x + y}"))
                      select x + y;
 
-            var r = mc();
+            var r = mc.Run();
 
             Assert.True(r.Value == 300);
             Assert.True(r.Output == Seq("Hello", "World", "the result is 300"));
@@ -359,20 +273,20 @@ namespace Issues
         [Fact]
         public void Test2()
         {
-            var ma = Writer<string, int>(100);
-            var mb = Writer<string, int>(200);
+            var ma = Writer.Pure<Lst<string>, int>(100);
+            var mb = Writer.Pure<Lst<string>, int>(200);
 
             var mc = from x in ma
                      from y in mb
-                     from _1 in tell("Hello")
-                     from _2 in tell("World")
-                     from _3 in tell($"the result is {x + y}")
+                     from _1 in tell(List("Hello"))
+                     from _2 in tell(List("World"))
+                     from _3 in tell(List($"the result is {x + y}"))
                      select x + y;
 
-            var r = mc();
+            var r = mc.Run();
 
             Assert.True(r.Value == 300);
-            Assert.True(r.Output == Seq("Hello", "World", "the result is 300"));
+            Assert.True(r.Output == List("Hello", "World", "the result is 300"));
         }
 
         [Fact]
@@ -381,14 +295,14 @@ namespace Issues
             var ma = (100, Seq<string>());
             var mb = (200, Seq<string>());
 
-            var mc = from x in ma.ToWriter()
-                     from y in mb.ToWriter()
-                     from _1 in tell("Hello")
-                     from _2 in tell("World")
-                     from _3 in tell($"the result is {x + y}")
+            var mc = from x in Writer.write(ma)
+                     from y in Writer.write(mb)
+                     from _1 in tell(Seq("Hello"))
+                     from _2 in tell(Seq("World"))
+                     from _3 in tell(Seq($"the result is {x + y}"))
                      select x + y;
 
-            var r = mc();
+            var r = mc.Run();
 
             Assert.True(r.Value == 300);
             Assert.True(r.Output == Seq("Hello", "World", "the result is 300"));
@@ -397,106 +311,57 @@ namespace Issues
 
     public class Issue376
     {
-        static Task<int> Number(int n) => n.AsTask();
-        static Task<string> Error(string err) => err.AsTask();
+        public static EitherT<string, IO, int> Op1() =>
+            Pure(1);
 
-        public static EitherAsync<string, int> Op1() =>
-            Number(1);
+        public static EitherT<string, IO, int> Op2() =>
+            IO.Pure(2);
 
-        public static EitherAsync<string, int> Op2() =>
-            RightAsync<string, int>(2.AsTask());
+        public static EitherT<string, IO, int> Op3() =>
+            Fail("error");
 
-        public static EitherAsync<string, int> Op3() =>
-            Error("error");
+        public static EitherT<string, IO, int> Calculate(int x, int y, int z) =>
+            Pure(x + y + z);
 
-        public static EitherAsync<string, int> Calculate(int x, int y, int z) =>
-            (x + y + z);
-
-        public static async Task Test()
-        {
-            var res = await (from x in Op1()
-                             from y in Op2()
-                             from z in Op3()
-                             from w in Calculate(x, y, z)
-                             select w)
-                            .IfLeft(0);
-        }
+        public static int Test() =>
+            (from x in Op1()
+             from y in Op2()
+             from z in Op3()
+             from w in Calculate(x, y, z)
+             select w)
+            .IfLeft(0)
+            .As().Run();
     }
 
     public class Issue376_2
     {
-        public static async Task<Either<string, int>> Op1()
-        {
-            return await 1.AsTask();
-        }
+        static async Task<Either<string, int>> Op1() => await 1.AsTask();
+        static async Task<Either<string, int>> Op2() => await 2.AsTask();
+        static async Task<Either<string, int>> Op3() => await "error".AsTask();
+        static async Task<Either<string, int>> Calculate(int x, int y, int z) => await Task.FromResult(x + y + z);
 
-        public static async Task<Either<string, int>> Op2()
-        {
-            return await 2.AsTask();
-        }
-
-        public static async Task<Either<string, int>> Op3()
-        {
-            return await "error".AsTask();
-        }
-
-        public static async Task<Either<string, int>> Calculate(int x, int y, int z)
-        {
-            return await Task.FromResult(x + y + z);
-        }
-
-        public static async Task Test()
-        {
-            var res = await (from x in Op1()
-                             from y in Op2()
-                             from z in Op3()
-                             from w in Calculate(x, y, z)
-                             select w);
-        }
-    }
-
-    public static class TestExt
-    {
-        public static Task<Either<L, C>> SelectMany<L, A, B, C>(
-            this Task<Either<L, A>> ma,
-            Func<A, Task<Either<L, B>>> bind,
-            Func<A, B, C> project) =>
-            ma.BindT(a =>
-                bind(a).BindT(b =>
-                    default(MEither<L, C>).Return(project(a, b))));
+        public static IO<Either<string, int>> Test() =>
+            (from x in Op1().ToIO()
+             from y in Op2().ToIO()
+             from z in Op3().ToIO()
+             from w in Calculate(x, y, z).ToIO()
+             select w)
+            .Run().As();
     }
 
     public class Issue376_3
     {
-        public static async Task<Option<int>> Op1()
-        {
-            return await 1.AsTask();
-        }
+        static async Task<Option<int>> Op1() => await 1.AsTask();
+        static async Task<Option<int>> Op2() => await 2.AsTask();
+        static async Task<Option<int>> Op3() => await Option<int>.None.AsTask();
+        static async Task<Option<int>> Calculate(int x, int y, int z) => await Task.FromResult(x + y + z);
 
-        public static async Task<Option<int>> Op2()
-        {
-            return await 2.AsTask();
-        }
-
-        public static async Task<Option<int>> Op3()
-        {
-            return await Option<int>.None.AsTask();
-        }
-
-        public static async Task<Option<int>> Calculate(int x, int y, int z)
-        {
-            return await Task.FromResult(x + y + z);
-        }
-
-        //public static async Task Test()
-        //{
-        //    var res = await (from x in Op1()
-        //                     from y in Op2()
-        //                     from z in Op3()
-        //                     from w in Calculate(x, y, z)
-        //                     select w)
-        //                    .IfLeft(0);
-        //}
+        public static IO<Option<int>> Test() =>
+            (from x in Op1().ToIO()
+             from y in Op2().ToIO()
+             from z in Op3().ToIO()
+             from w in Calculate(x, y, z).ToIO()
+             select w).Run().As();
     }
 
     public class Issue533
@@ -511,9 +376,11 @@ namespace Issues
                 .ToArray();
 
             var result = someData
-                .Select(Some)
-                .Sequence()
-                .Map(x => x.ToArray());
+                            .Select(Some)
+                            .AsEnumerableM()
+                            .Traverse(x => x)
+                            .Map(x => x.ToArray())
+                            .As();
         }
 
     }
@@ -529,33 +396,33 @@ namespace Issues
 
             public readonly string Name;
 
-            static Either<Error, Func<string, EitherAsync<Error, R>>> GetCommand<R>(
-                Map<string, Func<string, EitherAsync<Error, R>>> commandMap, 
+            static Either<Error, Func<string, EitherT<Error, IO, R>>> GetCommand<R>(
+                Map<string, Func<string, EitherT<Error, IO, R>>> commandMap, 
                 Command hostCommand) =>
                      commandMap.Find(hostCommand.Name)
                                .ToEither(new Error());
 
-            internal static EitherAsync<Error, R> ExecuteCommand<R>(
-                Func<string, EitherAsync<Error, R>> command,
+            internal static EitherT<Error, IO, R> ExecuteCommand<R>(
+                Func<string, EitherT<Error, IO, R>> command,
                 Command cmd) =>
                     command(cmd.Name);
 
             static Either<Error, Unit> Validate<R>(
-                Map<string, Func<string, EitherAsync<Error, R>>> commandMap, 
+                Map<string, Func<string, EitherT<Error, IO, R>>> commandMap, 
                 Command hostCommand) =>
                     commandMap.Find(hostCommand.Name)
                               .Map(_ => unit)
                               .ToEither(new Error());
 
-            public static EitherAsync<Error, Seq<R>> ExecuteAllAsync<R>(
-                Map<string, Func<string, EitherAsync<Error, R>>> commandMap,
+            public static EitherT<Error, IO, Seq<R>> ExecuteAllAsync<R>(
+                Map<string, Func<string, EitherT<Error, IO, R>>> commandMap,
                 Seq<Command> hostCommands) =>
                     hostCommands.Map(cmd =>
-                        from _ in Command.Validate(commandMap, cmd).ToAsync()
-                        from f in Command.GetCommand<R>(commandMap, cmd).ToAsync()
-                        from r in Command.ExecuteCommand(f, cmd)
+                        from _ in Validate(commandMap, cmd).ToIO()
+                        from f in GetCommand(commandMap, cmd).ToIO()
+                        from r in ExecuteCommand(f, cmd)
                         select r)
-                       .SequenceParallel();
+                       .Traverse(x => x).As();
         }
     }
 }

@@ -7,459 +7,116 @@
 
 using System;
 using LanguageExt.Effects.Traits;
-using System.Collections.Generic;
+using LanguageExt.Common;
+using LanguageExt.Traits;
 
-namespace LanguageExt.Pipes
+namespace LanguageExt.Pipes;
+
+public static class PureProxy
 {
-    public static class PureProxy
-    {
-        public static Pure<A> Pure<A>(A value) =>
-            new Pure<A>(value);
+    public static Pipe<IN, OUT, A> PipePure<IN, OUT, A>(A value) =>
+        new Pipe<IN, OUT, A>.Pure(value);
 
-        public static Release<A> ReleasePure<A>(A value) =>
-            new Release<A>.Pure(value);
+    public static Producer<OUT, A> ProducerPure<OUT, A>(A value) =>
+        new Producer<OUT, A>.Pure(value);
 
-        public static Pipe<IN, OUT, A> PipePure<IN, OUT, A>(A value) =>
-            new Pipe<IN, OUT, A>.Pure(value);
+    public static Consumer<IN, A> ConsumerPure<IN, A>(A value) =>
+        new Consumer<IN, A>.Pure(value);
 
-        public static Producer<OUT, A> ProducerPure<OUT, A>(A value) =>
-            new Producer<OUT, A>.Pure(value);
 
-        public static Consumer<IN, A> ConsumerPure<IN, A>(A value) =>
-            new Consumer<IN, A>.Pure(value);
+    public static Pipe<IN, OUT, A> PipeFail<IN, OUT, A>(Error value) =>
+        new Pipe<IN, OUT, A>.Fail(value);
 
-        public static ConsumerLift<RT, IN, A> ConsumerLiftPure<RT, IN, A>(A value) where RT : struct, HasCancel<RT> =>
-            new ConsumerLift<RT, IN, A>.Pure(value);
+    public static Producer<OUT, A> ProducerFail<OUT, A>(Error value) =>
+        new Producer<OUT, A>.Fail(value);
 
-        public static Enumerate<OUT, A> EnumeratePure<OUT, A>(A value) =>
-            new Enumerate<OUT, A>.Pure(value);
+    public static Consumer<IN, A> ConsumerFail<IN, A>(Error value) =>
+        new Consumer<IN, A>.Fail(value);
 
-        public static Consumer<IN, IN> ConsumerAwait<IN>() =>
-            new Consumer<IN, IN>.Await(ConsumerPure<IN, IN>);
 
-        public static Pipe<IN, OUT, IN> PipeAwait<IN, OUT>() =>
-            new Pipe<IN, OUT, IN>.Await(PipePure<IN, OUT, IN>);
+    public static Pipe<IN, OUT, A> PipeLift<IN, OUT, A>(Func<A> t) =>
+        new Pipe<IN, OUT, A>.Lift<A>(t, PipePure<IN, OUT, A>);
 
-        public static Producer<OUT, Unit> ProducerYield<OUT>(OUT value) =>
-            new Producer<OUT, Unit>.Yield(value, ProducerPure<OUT, Unit>);
+    public static Producer<OUT, A> ProducerLift<OUT, A>(Func<A> t) =>
+        new Producer<OUT, A>.Lift<A>(t, ProducerPure<OUT, A>);
 
-        public static Producer<OUT, Unit> ProducerEnumerate<OUT>(IEnumerable<OUT> xs) =>
-            new Producer<OUT, Unit>.Enumerate(xs, ProducerPure<OUT, Unit>);
+    public static Consumer<IN, A> ConsumerLift<IN, A>(Func<A> t) =>
+        new Consumer<IN, A>.Lift<A>(t, ConsumerPure<IN, A>);
 
-        public static Producer<OUT, Unit> ProducerEnumerate<OUT>(IAsyncEnumerable<OUT> xs) =>
-            new Producer<OUT, Unit>.Enumerate(xs, ProducerPure<OUT, Unit>);
 
-        public static Producer<OUT, Unit> ProducerObserve<OUT>(IObservable<OUT> xs) =>
-            new Producer<OUT, Unit>.Enumerate(xs, ProducerPure<OUT, Unit>);
+    public static Pipe<IN, OUT, A> PipeLiftIO<IN, OUT, A>(IO<A> ma) =>
+        new Pipe<IN, OUT, A>.LiftIO<A>(ma, PipePure<IN, OUT, A>);
 
-        public static Pipe<IN, OUT, Unit> PipeYield<IN, OUT>(OUT value) =>
-            new Pipe<IN, OUT, Unit>.Yield(value, PipePure<IN, OUT, Unit>);
-        
-        
-        public static ConsumerLift<RT, IN, B> SelectMany<RT, IN, A, B>(this ConsumerLift<RT, IN, A> ma, Func<A, Aff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, B>.Lift<B>(f(a), ConsumerLiftPure<RT, IN, B>));
+    public static Producer<OUT, A> ProducerLiftIO<OUT, A>(IO<A> ma) =>
+        new Producer<OUT, A>.LiftIO<A>(ma, ProducerPure<OUT, A>);
 
-        public static ConsumerLift<RT, IN, B> SelectMany<RT, IN, A, B>(this Consumer<IN, A> ma, Func<A, Aff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, B>.Lift<B>(f(a), ConsumerLiftPure<RT, IN, B>));
+    public static Consumer<IN, A> ConsumerLiftIO<IN, A>(IO<A> ma) =>
+        new Consumer<IN, A>.LiftIO<A>(ma, ConsumerPure<IN, A>);
 
-        public static Producer<RT, OUT, B> SelectMany<RT, OUT, A, B>(this Producer<OUT, A> ma, Func<A, Aff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in ma.Interpret<RT>()
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select b;
 
-        public static Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, A, B>(this Pipe<IN, OUT, A> ma, Func<A, Aff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in ma.Interpret<RT>()
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select b;
+    public static Pipe<IN, OUT, Unit> PipeFold<IN, F, OUT>(K<F, OUT> items)
+        where F : Foldable<F> =>
+        new Pipe<IN, OUT, Unit>.Fold<F, OUT>(
+            items, 
+            PipeYield<IN, OUT>, 
+            () => PipePure<IN, OUT, Unit>(Prelude.unit));
 
-        public static Consumer<RT, IN, B> SelectMany<RT, IN, A, B>(this Consumer<RT, IN, A> ma, Func<A, Aff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Consumer.lift<RT, IN, B>(f(a))
-            select b;
+    public static Producer<OUT, Unit> ProducerFold<F, OUT>(K<F, OUT> items)
+        where F : Foldable<F> =>
+        new Producer<OUT, Unit>.Fold<F, OUT>(
+            items, 
+            ProducerYield, 
+            () => ProducerPure<OUT, Unit>(Prelude.unit));
 
-        public static Producer<RT, OUT, B> SelectMany<RT, OUT, A, B>(this Producer<RT, OUT, A> ma, Func<A, Aff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select b;
-
-        public static Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, A, B>(this Pipe<RT, IN, OUT, A> ma, Func<A, Aff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select b;
-        
-        public static ConsumerLift<RT, IN, B> SelectMany<RT, IN, A, B>(this ConsumerLift<RT, IN, A> ma, Func<A, Eff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, B>.Lift<B>(f(a), ConsumerLiftPure<RT, IN, B>));
-
-        public static ConsumerLift<RT, IN, B> SelectMany<RT, IN, A, B>(this Consumer<IN, A> ma, Func<A, Eff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, B>.Lift<B>(f(a), ConsumerLiftPure<RT, IN, B>));
-
-        public static Producer<RT, OUT, B> SelectMany<RT, OUT, A, B>(this Producer<OUT, A> ma, Func<A, Eff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in ma.Interpret<RT>()
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select b;
-
-        public static Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, A, B>(this Pipe<IN, OUT, A> ma, Func<A, Eff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in ma.Interpret<RT>()
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select b;
-
-        public static Consumer<RT, IN, B> SelectMany<RT, IN, A, B>(this Consumer<RT, IN, A> ma, Func<A, Eff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Consumer.lift<RT, IN, B>(f(a))
-            select b;
-
-        public static Producer<RT, OUT, B> SelectMany<RT, OUT, A, B>(this Producer<RT, OUT, A> ma, Func<A, Eff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select b;
-
-        public static Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, A, B>(this Pipe<RT, IN, OUT, A> ma, Func<A, Eff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select b;
-        
-        public static ConsumerLift<RT, IN, B> SelectMany<RT, IN, A, B>(this ConsumerLift<RT, IN, A> ma, Func<A, Aff<B>> f) where RT : struct, HasCancel<RT> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, B>.Lift<B>(f(a), ConsumerLiftPure<RT, IN, B>));
-
-        public static Consumer<RT, IN, B> SelectMany<RT, IN, A, B>(this Consumer<RT, IN, A> ma, Func<A, Aff<B>> f) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Consumer.lift<RT, IN, B>(f(a))
-            select b;
-
-        public static Producer<RT, OUT, B> SelectMany<RT, OUT, A, B>(this Producer<RT, OUT, A> ma, Func<A, Aff<B>> f) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select b;
-
-        public static Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, A, B>(this Pipe<RT, IN, OUT, A> ma, Func<A, Aff<B>> f) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select b;
-        
-        public static ConsumerLift<RT, IN, B> SelectMany<RT, IN, A, B>(this ConsumerLift<RT, IN, A> ma, Func<A, Eff<B>> f) where RT : struct, HasCancel<RT> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, B>.Lift<B>(f(a), ConsumerLiftPure<RT, IN, B>));
-
-        public static Consumer<RT, IN, B> SelectMany<RT, IN, A, B>(this Consumer<RT, IN, A> ma, Func<A, Eff<B>> f) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Consumer.lift<RT, IN, B>(f(a))
-            select b;
-
-        public static Producer<RT, OUT, B> SelectMany<RT, OUT, A, B>(this Producer<RT, OUT, A> ma, Func<A, Eff<B>> f) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select b;
-
-        public static Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, A, B>(this Pipe<RT, IN, OUT, A> ma, Func<A, Eff<B>> f) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select b;
-
-        public static ConsumerLift<RT, IN, B> SelectMany<RT, IN, A, B>(this Aff<RT, A> ma, Func<A, ConsumerLift<RT, IN, B>> f) where RT : struct, HasCancel<RT> =>
-            new ConsumerLift<RT, IN, B>.Lift<A>(ma, f);
-
-        public static ConsumerLift<RT, IN, B> SelectMany<RT, IN, A, B>(this Aff<RT, A> ma, Func<A, Consumer<IN, B>> f) where RT : struct, HasCancel<RT> =>
-            new ConsumerLift<RT, IN, B>.Lift<A>(ma, x => f(x).ToConsumerLift<RT>());
-
-        public static Producer<RT, OUT, B> SelectMany<RT, OUT, A, B>(this Aff<RT, A> ma, Func<A, Producer<OUT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select b;
-
-        public static Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, A, B>(this Aff<RT, A> ma, Func<A, Pipe<IN, OUT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select b;
-
-        public static Consumer<RT, IN, B> SelectMany<RT, IN, A, B>(this Aff<RT, A> ma, Func<A, Consumer<RT, IN, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in Consumer.lift<RT, IN, A>(ma)
-            from b in f(a)
-            select b;
-
-        public static Producer<RT, OUT, B> SelectMany<RT, OUT, A, B>(this Aff<RT, A> ma, Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a)
-            select b;
-
-        public static Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, A, B>(this Aff<RT, A> ma, Func<A, Pipe<RT, IN, OUT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a)
-            select b;
-
-        public static ConsumerLift<RT, IN, B> SelectMany<RT, IN, A, B>(this Eff<RT, A> ma, Func<A, ConsumerLift<RT, IN, B>> f) where RT : struct, HasCancel<RT> =>
-            new ConsumerLift<RT, IN, B>.Lift<A>(ma, f);
-
-        public static ConsumerLift<RT, IN, B> SelectMany<RT, IN, A, B>(this Eff<RT, A> ma, Func<A, Consumer<IN, B>> f) where RT : struct, HasCancel<RT> =>
-            new ConsumerLift<RT, IN, B>.Lift<A>(ma, x => f(x).ToConsumerLift<RT>());
-
-        public static Producer<RT, OUT, B> SelectMany<RT, OUT, A, B>(this Eff<RT, A> ma, Func<A, Producer<OUT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select b;
-
-        public static Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, A, B>(this Eff<RT, A> ma, Func<A, Pipe<IN, OUT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select b;
-
-        public static Consumer<RT, IN, B> SelectMany<RT, IN, A, B>(this Eff<RT, A> ma, Func<A, Consumer<RT, IN, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in Consumer.lift<RT, IN, A>(ma)
-            from b in f(a)
-            select b;
-
-        public static Producer<RT, OUT, B> SelectMany<RT, OUT, A, B>(this Eff<RT, A> ma, Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a)
-            select b;
-
-        public static Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, A, B>(this Eff<RT, A> ma, Func<A, Pipe<RT, IN, OUT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a)
-            select b;
-
-        public static ConsumerLift<RT, IN, B> SelectMany<RT, IN, A, B>(this Aff<A> ma, Func<A, ConsumerLift<RT, IN, B>> f) where RT : struct, HasCancel<RT> =>
-            new ConsumerLift<RT, IN, B>.Lift<A>(ma, f);
-
-        public static Consumer<RT, IN, B> SelectMany<RT, IN, A, B>(this Aff<A> ma, Func<A, Consumer<RT, IN, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in Consumer.lift<RT, IN, A>(ma)
-            from b in f(a)
-            select b;
-
-        public static Producer<RT, OUT, B> SelectMany<RT, OUT, A, B>(this Aff<A> ma, Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a)
-            select b;
-
-        public static Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, A, B>(this Aff<A> ma, Func<A, Pipe<RT, IN, OUT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a)
-            select b;
-
-        public static ConsumerLift<RT, IN, B> SelectMany<RT, IN, A, B>(this Eff<A> ma, Func<A, ConsumerLift<RT, IN, B>> f) where RT : struct, HasCancel<RT> =>
-            new ConsumerLift<RT, IN, B>.Lift<A>(ma, f);
-
-        public static Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, A, B>(this Eff<A> ma, Func<A, Pipe<IN, OUT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select b;
-
-        public static Consumer<RT, IN, B> SelectMany<RT, IN, A, B>(this Eff<A> ma, Func<A, Consumer<RT, IN, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in Consumer.lift<RT, IN, A>(ma)
-            from b in f(a)
-            select b;
-
-        public static Producer<RT, OUT, B> SelectMany<RT, OUT, A, B>(this Eff<A> ma, Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a)
-            select b;
-
-        public static Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, A, B>(this Eff<A> ma, Func<A, Pipe<RT, IN, OUT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a)
-            select b;
-        
+    public static Consumer<IN, Unit> ConsumerFold<IN, F, A>(K<F, A> items)
+        where F : Foldable<F> =>
+        new Consumer<IN, Unit>.Fold<F, A>(
+            items, 
+            _ => ConsumerPure<IN, Unit>(Prelude.unit), 
+            () => ConsumerPure<IN, Unit>(Prelude.unit));
 
     
-        
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this ConsumerLift<RT, IN, A> ma, Func<A, Aff<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, C>.Lift<B>(f(a), b => ConsumerLiftPure<RT, IN, C>(project(a, b))));
+    public static Consumer<IN, IN> ConsumerAwait<IN>() =>
+        new Consumer<IN, IN>.Await(ConsumerPure<IN, IN>);
 
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<IN, A> ma, Func<A, Aff<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, C>.Lift<B>(f(a), b => ConsumerLiftPure<RT, IN, C>(project(a, b))));
+    public static Pipe<IN, OUT, IN> PipeAwait<IN, OUT>() =>
+        new Pipe<IN, OUT, IN>.Await(PipePure<IN, OUT, IN>);
 
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<OUT, A> ma, Func<A, Aff<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in ma.Interpret<RT>()
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Pipe<IN, OUT, A> ma, Func<A, Aff<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in ma.Interpret<RT>()
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<RT, IN, A> ma, Func<A, Aff<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Consumer.lift<RT, IN, B>(f(a))
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<RT, OUT, A> ma, Func<A, Aff<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Pipe<RT, IN, OUT, A> ma, Func<A, Aff<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select project(a, b);
-        
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this ConsumerLift<RT, IN, A> ma, Func<A, Eff<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, C>.Lift<B>(f(a), b => ConsumerLiftPure<RT, IN, C>(project(a, b))));
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<IN, A> ma, Func<A, Eff<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, C>.Lift<B>(f(a), b => ConsumerLiftPure<RT, IN, C>(project(a, b))));
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<OUT, A> ma, Func<A, Eff<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in ma.Interpret<RT>()
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Pipe<IN, OUT, A> ma, Func<A, Eff<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in ma.Interpret<RT>()
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<RT, IN, A> ma, Func<A, Eff<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Consumer.lift<RT, IN, B>(f(a))
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<RT, OUT, A> ma, Func<A, Eff<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Pipe<RT, IN, OUT, A> ma, Func<A, Eff<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select project(a, b);
-        
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this ConsumerLift<RT, IN, A> ma, Func<A, Aff<B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, C>.Lift<B>(f(a), b => ConsumerLiftPure<RT, IN, C>(project(a, b))));
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<RT, IN, A> ma, Func<A, Aff<B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Consumer.lift<RT, IN, B>(f(a))
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<RT, OUT, A> ma, Func<A, Aff<B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Pipe<RT, IN, OUT, A> ma, Func<A, Aff<B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select project(a, b);
-        
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this ConsumerLift<RT, IN, A> ma, Func<A, Eff<B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, C>.Lift<B>(f(a), b => ConsumerLiftPure<RT, IN, C>(project(a, b))));
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<RT, IN, A> ma, Func<A, Eff<B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Consumer.lift<RT, IN, B>(f(a))
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<RT, OUT, A> ma, Func<A, Eff<B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Pipe<RT, IN, OUT, A> ma, Func<A, Eff<B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select project(a, b);
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Aff<RT, A> ma, Func<A, ConsumerLift<RT, IN, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            new ConsumerLift<RT, IN, C>.Lift<A>(ma, a => f(a).Map(b => project(a, b)));
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Aff<RT, A> ma, Func<A, Consumer<IN, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            new ConsumerLift<RT, IN, C>.Lift<A>(ma, a => f(a).ToConsumerLift<RT>().Map(b => project(a, b)));
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Aff<RT, A> ma, Func<A, Producer<OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Aff<RT, A> ma, Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select project(a, b);
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Aff<RT, A> ma, Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in Consumer.lift<RT, IN, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Aff<RT, A> ma, Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Aff<RT, A> ma, Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Eff<RT, A> ma, Func<A, ConsumerLift<RT, IN, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            new ConsumerLift<RT, IN, C>.Lift<A>(ma, a => f(a).Map(b => project(a, b)));
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Eff<RT, A> ma, Func<A, Consumer<IN, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            new ConsumerLift<RT, IN, C>.Lift<A>(ma, a => f(a).ToConsumerLift<RT>().Map(b => project(a, b)));
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Eff<RT, A> ma, Func<A, Producer<OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Eff<RT, A> ma, Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select project(a, b);
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Eff<RT, A> ma, Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in Consumer.lift<RT, IN, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Eff<RT, A> ma, Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Eff<RT, A> ma, Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Aff<A> ma, Func<A, ConsumerLift<RT, IN, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            new ConsumerLift<RT, IN, C>.Lift<A>(ma, a => f(a).Map(b => project(a, b)));
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Aff<A> ma, Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in Consumer.lift<RT, IN, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Aff<A> ma, Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Aff<A> ma, Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Eff<A> ma, Func<A, ConsumerLift<RT, IN, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            new ConsumerLift<RT, IN, C>.Lift<A>(ma, a => f(a).Map(b => project(a, b)));
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Eff<A> ma, Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select project(a, b);
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Eff<A> ma, Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in Consumer.lift<RT, IN, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Eff<A> ma, Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Eff<A> ma, Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
     
-    }
+    public static Producer<OUT, Unit> ProducerYield<OUT>(OUT value) =>
+        new Producer<OUT, Unit>.Yield(value, ProducerPure<OUT, Unit>);
+
+    public static Pipe<IN, OUT, Unit> PipeYield<IN, OUT>(OUT value) =>
+        new Pipe<IN, OUT, Unit>.Yield(value, PipePure<IN, OUT, Unit>);
+
+    // HERE
+    public static Consumer<IN, M, C> SelectMany<IN, M, A, B, C>(this K<M, A> ma, Func<A, Consumer<IN, B>> f, Func<A, B, C> project) where M : Monad<M> =>
+        from a in Consumer.lift<IN, M, A>(ma)
+        from b in f(a).Interpret<M>()
+        select project(a, b);
+
+    public static Producer<OUT, M, C> SelectMany<OUT, M, A, B, C>(this K<M, A> ma, Func<A, Producer<OUT, B>> f, Func<A, B, C> project) where M : Monad<M> =>
+        from a in Producer.lift<OUT, M, A>(ma)
+        from b in f(a).Interpret<M>()
+        select project(a, b);
+
+    public static Pipe<IN, OUT, M, C> SelectMany<IN, OUT, M, A, B, C>(this K<M, A> ma, Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) where M : Monad<M> =>
+        from a in Pipe.lift<IN, OUT, M, A>(ma)
+        from b in f(a).Interpret<M>()
+        select project(a, b);
+
+    public static Consumer<IN, M, C> SelectMany<IN, M, A, B, C>(this K<M, A> ma, Func<A, Consumer<IN, M, B>> f, Func<A, B, C> project) where M : Monad<M> =>
+        from a in Consumer.lift<IN, M, A>(ma)
+        from b in f(a)
+        select project(a, b);
+
+    public static Producer<OUT, M, C> SelectMany<OUT, M, A, B, C>(this K<M, A> ma, Func<A, Producer<OUT, M, B>> f, Func<A, B, C> project) where M : Monad<M> =>
+        from a in Producer.lift<OUT, M, A>(ma)
+        from b in f(a)
+        select project(a, b);
+
+    public static Pipe<IN, OUT, M, C> SelectMany<IN, OUT, M, A, B, C>(this K<M, A> ma, Func<A, Pipe<IN, OUT, M, B>> f, Func<A, B, C> project) where M : Monad<M> =>
+        from a in Pipe.lift<IN, OUT, M, A>(ma)
+        from b in f(a)
+        select project(a, b);
 }

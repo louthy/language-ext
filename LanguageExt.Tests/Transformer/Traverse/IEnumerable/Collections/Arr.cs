@@ -10,11 +10,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
         [Fact]
         public void EmptyEmptyIsEmptyEmpty()
         {
-            Arr<IEnumerable<int>> ma = Empty;
+            Arr<EnumerableM<int>> ma = Empty;
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Enumerable.Empty<Arr<int>>();
+            var mc = EnumerableM.singleton(Arr.empty<int>());
 
             Assert.True(mb.ToSeq() == mc.ToSeq());
         }
@@ -22,9 +22,10 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
         [Fact]
         public void ArrIEnumerableCrossProduct()
         {
-            var ma = Array<IEnumerable<int>>(Seq(1, 2), Seq(10, 20, 30));
+            var ma = Array<EnumerableM<int>>([1, 2], [10, 20, 30]);
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
+
 
             var mc = new[]
                 {
@@ -37,17 +38,17 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
                 }
                 .AsEnumerable();
 
-            Assert.True(mb.ToSeq() == mc.ToSeq());
+            Assert.True(mb.ToSeq() == mc.AsEnumerableM().ToSeq());
         }
 
         [Fact]
         public void ArrOfEmptiesAndNonEmptiesIsEmpty()
         {
-            var ma = Array<IEnumerable<int>>(Seq<int>(), Seq<int>(1, 2, 3));
+            var ma = Array<EnumerableM<int>>([], [1, 2, 3]);
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Enumerable.Empty<Arr<int>>();
+            var mc = EnumerableM.empty<Arr<int>>();
 
             Assert.True(mb.ToSeq() == mc.ToSeq());
         }
@@ -55,11 +56,12 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
         [Fact]
         public void ArrOfEmptiesIsEmpty()
         {
-            var ma = Array<IEnumerable<int>>(Seq<int>(), Seq<int>());
+            var ma = Array<EnumerableM<int>>([], []);
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Enumerable.Empty<Arr<int>>();
+
+            var mc = EnumerableM.empty<Arr<int>>();
 
             Assert.True(mb.ToSeq() == mc.ToSeq());
         }

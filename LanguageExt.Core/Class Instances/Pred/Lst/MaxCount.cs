@@ -1,16 +1,12 @@
-﻿using LanguageExt.TypeClasses;
-using System.Collections.Generic;
+﻿using LanguageExt.Traits;
 using System.Diagnostics.Contracts;
 
-namespace LanguageExt.ClassInstances.Pred
-{
-    public struct MaxCount<MAX> : Pred<ListInfo>
-        where MAX : struct, Const<int>
-    {
-        public static readonly MaxCount<MAX> Is = default(MaxCount<MAX>);
+namespace LanguageExt.ClassInstances.Pred;
 
-        [Pure]
-        public bool True(ListInfo value) =>
-            value.Count <= default(MAX).Value;
-    }
+public struct MaxCount<MAX> : Pred<ListInfo>
+    where MAX : Const<int>
+{
+    [Pure]
+    public static bool True(ListInfo value) =>
+        value.Count <= MAX.Value;
 }

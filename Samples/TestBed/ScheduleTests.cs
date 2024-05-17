@@ -1,5 +1,6 @@
 ﻿using LanguageExt;
 using static LanguageExt.Prelude;
+using static LanguageExt.UnitsOfMeasure;
 using System;
 
 namespace TestBed;

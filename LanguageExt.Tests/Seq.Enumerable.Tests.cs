@@ -31,9 +31,7 @@ namespace LanguageExt.Tests
             Assert.True(seq.IsEmpty);
             Assert.True(seq.Tail.IsEmpty);
             Assert.True(seq.Tail.Tail.IsEmpty);
-
-            Assert.Throws<InvalidOperationException>(() => seq.Head);
-
+            Assert.True(seq.Head.IsNone);
             Assert.True(seq.Count == 0);
             Assert.True(seq.Count() == 0);
 
@@ -53,7 +51,7 @@ namespace LanguageExt.Tests
             Assert.True(skipped.IsEmpty);
             Assert.True(skipped.Count == 0);
             Assert.True(skipped.Count() == 0);
-            Assert.Throws<InvalidOperationException>(() => skipped.Head);
+            Assert.True(skipped.Head.IsNone);
         }
 
         [Fact]
@@ -86,7 +84,7 @@ namespace LanguageExt.Tests
             Assert.True(skipped.IsEmpty);
             Assert.True(skipped.Count == 0);
             Assert.True(skipped.Count() == 0);
-            Assert.Throws<InvalidOperationException>(() => skipped.Head);
+            Assert.True(skipped.Head.IsNone);
         }
         
         static int Sum(Seq<int> seq) =>

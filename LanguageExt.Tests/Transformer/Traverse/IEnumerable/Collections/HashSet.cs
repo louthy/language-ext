@@ -1,67 +1,65 @@
-using System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
+namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections;
+
+public class HashSetIEnumerable
 {
-    public class HashSetIEnumerable
+    [Fact]
+    public void EmptyEmptyIsEmptyEmpty()
     {
-        [Fact]
-        public void EmptyEmptyIsEmptyEmpty()
-        {
-            HashSet<IEnumerable<int>> ma = Empty;
+        HashSet<EnumerableM<int>> ma = Empty;
 
-            var mb = ma.Sequence();
+        var mb = ma.Traverse(mx => mx).As();
 
-            var mc = Enumerable.Empty<HashSet<int>>();
+        var mc = EnumerableM.singleton(HashSet.empty<int>());
 
-            Assert.True(mb.ToSeq() == mc.ToSeq());
-        }
+        Assert.True(mb.ToSeq() == mc.ToSeq());
+    }
 
-        [Fact]
-        public void HashSetIEnumerableCrossProduct()
-        {
-            var ma = HashSet<IEnumerable<int>>(Seq(1, 2), Seq(10, 20, 30));
+    [Fact]
+    public void HashSetIEnumerableCrossProduct()
+    {
+        var ma = HashSet<EnumerableM<int>>([1, 2], [10, 20, 30]);
 
-            var mb = ma.Sequence();
+        var mb = ma.Traverse(mx => mx).As();
 
-            var mc = new[]
-                {
-                    HashSet(1, 10),
-                    HashSet(1, 20),
-                    HashSet(1, 30),
-                    HashSet(2, 10),
-                    HashSet(2, 20),
-                    HashSet(2, 30)
-                }
-                .AsEnumerable();
 
-            Assert.True(mb.ToSeq() == mc.ToSeq());
-        }
+        var mc = new[]
+            {
+                HashSet(1, 10),
+                HashSet(2, 10),
+                HashSet(1, 20),
+                HashSet(2, 20),
+                HashSet(1, 30),
+                HashSet(2, 30)
+            }
+           .AsEnumerable();
 
-        [Fact]
-        public void HashSetOfEmptiesAndNonEmptiesIsEmpty()
-        {
-            var ma = HashSet<IEnumerable<int>>(Seq<int>(), Seq<int>(1, 2, 3));
+        Assert.True(mb.ToSeq() == mc.AsEnumerableM().ToSeq());
+    }
 
-            var mb = ma.Sequence();
+    [Fact]
+    public void HashSetOfEmptiesAndNonEmptiesIsEmpty()
+    {
+        var ma = HashSet<EnumerableM<int>>([], [1, 2, 3]);
 
-            var mc = Enumerable.Empty<HashSet<int>>();
+        var mb = ma.Traverse(mx => mx).As();
 
-            Assert.True(mb.ToSeq() == mc.ToSeq());
-        }
+        var mc = Enumerable.Empty<HashSet<int>>();
 
-        [Fact]
-        public void HashSetOfEmptiesIsEmpty()
-        {
-            var ma = HashSet<IEnumerable<int>>(Seq<int>(), Seq<int>());
+        Assert.True(mb.ToSeq() == mc.AsEnumerableM().ToSeq());
+    }
 
-            var mb = ma.Sequence();
+    [Fact]
+    public void HashSetOfEmptiesIsEmpty()
+    {
+        var ma = HashSet<EnumerableM<int>>([], []);
 
-            var mc = Enumerable.Empty<HashSet<int>>();
+        var mb = ma.Traverse(mx => mx).As();
 
-            Assert.True(mb.ToSeq() == mc.ToSeq());
-        }
+        var mc = EnumerableM.empty<HashSet<int>>();
+
+        Assert.True(mb.ToSeq() == mc.ToSeq());
     }
 }

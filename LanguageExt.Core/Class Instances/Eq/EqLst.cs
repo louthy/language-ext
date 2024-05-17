@@ -1,96 +1,62 @@
-﻿using LanguageExt.TypeClasses;
+﻿using LanguageExt.Traits;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 
-namespace LanguageExt.ClassInstances
+namespace LanguageExt.ClassInstances;
+
+/// <summary>
+/// Equality test
+/// </summary>
+/// <param name="x">The left hand side of the equality operation</param>
+/// <param name="y">The right hand side of the equality operation</param>
+/// <returns>True if x and y are equal</returns>
+public struct EqLst<EQ, A> : Eq<Lst<A>> where EQ : Eq<A>
 {
-    /// <summary>
-    /// Equality test
-    /// </summary>
-    /// <param name="x">The left hand side of the equality operation</param>
-    /// <param name="y">The right hand side of the equality operation</param>
-    /// <returns>True if x and y are equal</returns>
-    public struct EqLst<EQ, A> : Eq<Lst<A>> where EQ : struct, Eq<A>
+    [Pure]
+    public static bool Equals(Lst<A> x, Lst<A> y)
     {
-        public static readonly EqLst<EQ, A> Inst = default(EqLst<EQ, A>);
+        if (x.Count != y.Count) return false;
 
-        [Pure]
-        public bool Equals(Lst<A> x, Lst<A> y)
+        using var enumx = x.GetEnumerator();
+        using var enumy = y.GetEnumerator();
+        var count = x.Count;
+
+        for (var i = 0; i < count; i++)
         {
-            if (x.Count != y.Count) return false;
-
-            using var enumx = x.GetEnumerator();
-            using var enumy = y.GetEnumerator();
-            var count = x.Count;
-
-            for (int i = 0; i < count; i++)
-            {
-                enumx.MoveNext();
-                enumy.MoveNext();
-                if (!default(EQ).Equals(enumx.Current, enumy.Current)) return false;
-            }
-            return true;
+            enumx.MoveNext();
+            enumy.MoveNext();
+            if (!EQ.Equals(enumx.Current, enumy.Current)) return false;
         }
-
-
-        /// <summary>
-        /// Get hash code of the value
-        /// </summary>
-        /// <param name="x">Value to get the hash code of</param>
-        /// <returns>The hash code of x</returns>
-        [Pure]
-        public int GetHashCode(Lst<A> x) =>
-            default(HashableLst<EQ, A>).GetHashCode(x);
-  
-        [Pure]
-        public Task<bool> EqualsAsync(Lst<A> x, Lst<A> y) =>
-            Equals(x, y).AsTask();
-
-        [Pure]
-        public Task<int> GetHashCodeAsync(Lst<A> x) => 
-            GetHashCode(x).AsTask();      
+        return true;
     }
 
     /// <summary>
-    /// Equality test
+    /// Get hash code of the value
     /// </summary>
-    /// <param name="x">The left hand side of the equality operation</param>
-    /// <param name="y">The right hand side of the equality operation</param>
-    /// <returns>True if x and y are equal</returns>
-    public struct EqLst<A> : Eq<Lst<A>> 
-    {
-        public static readonly EqLst<A> Inst = default(EqLst<A>);
+    /// <param name="x">Value to get the hash code of</param>
+    /// <returns>The hash code of x</returns>
+    [Pure]
+    public static int GetHashCode(Lst<A> x) =>
+        HashableLst<EQ, A>.GetHashCode(x);
+}
 
-        [Pure]
-        public bool Equals(Lst<A> x, Lst<A> y) =>
-            default(EqLst<EqDefault<A>, A>).Equals(x, y);
+/// <summary>
+/// Equality test
+/// </summary>
+/// <param name="x">The left hand side of the equality operation</param>
+/// <param name="y">The right hand side of the equality operation</param>
+/// <returns>True if x and y are equal</returns>
+public struct EqLst<A> : Eq<Lst<A>> 
+{
+    [Pure]
+    public static bool Equals(Lst<A> x, Lst<A> y) =>
+        EqLst<EqDefault<A>, A>.Equals(x, y);
 
-        /// <summary>
-        /// Get hash code of the value
-        /// </summary>
-        /// <param name="x">Value to get the hash code of</param>
-        /// <returns>The hash code of x</returns>
-        [Pure]
-        public int GetHashCode(Lst<A> x) =>
-            default(HashableLst<A>).GetHashCode(x);
-
-        /// <summary>
-        /// Equality test
-        /// </summary>
-        /// <param name="x">The left hand side of the equality operation</param>
-        /// <param name="y">The right hand side of the equality operation</param>
-        /// <returns>True if x and y are equal</returns>
-        [Pure]
-        public Task<bool> EqualsAsync(Lst<A> x, Lst<A> y) =>
-            Equals(x, y).AsTask();
-        
-        /// <summary>
-        /// Get hash code of the value
-        /// </summary>
-        /// <param name="x">Value to get the hash code of</param>
-        /// <returns>The hash code of x</returns>
-        [Pure]
-        public Task<int> GetHashCodeAsync(Lst<A> x) =>
-            GetHashCode(x).AsTask();
-    }
+    /// <summary>
+    /// Get hash code of the value
+    /// </summary>
+    /// <param name="x">Value to get the hash code of</param>
+    /// <returns>The hash code of x</returns>
+    [Pure]
+    public static int GetHashCode(Lst<A> x) =>
+        HashableLst<A>.GetHashCode(x);
 }

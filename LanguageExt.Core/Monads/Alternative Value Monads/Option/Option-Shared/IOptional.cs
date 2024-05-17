@@ -1,45 +1,18 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LanguageExt
+namespace LanguageExt;
+
+public interface IOptional
 {
-    public interface IOptional
-    {
-        bool IsSome
-        {
-            get;
-        }
+    bool IsSome { get; }
 
-        bool IsNone
-        {
-            get;
-        }
+    bool IsNone { get; }
 
-        R MatchUntyped<R>(Func<object, R> Some, Func<R> None);
-        R MatchUntypedUnsafe<R>(Func<object, R?> Some, Func<R?> None);
+    R MatchUntyped<R>(Func<object?, R> Some, Func<R> None);
 
-        Type GetUnderlyingType();
-    }
-
-    public interface IOptionalAsync
-    {
-        Task<bool> IsSome
-        {
-            get;
-        }
-
-        Task<bool> IsNone
-        {
-            get;
-        }
-
-        Task<R> MatchUntyped<R>(Func<object, R> Some, Func<R> None);
-
-        Type GetUnderlyingType();
-    }
-
+    Type GetUnderlyingType();
 }

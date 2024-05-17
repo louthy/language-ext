@@ -1,15 +1,11 @@
-﻿using LanguageExt.TypeClasses;
-using System.Collections.Generic;
+﻿using LanguageExt.Traits;
 using System.Diagnostics.Contracts;
 
-namespace LanguageExt.ClassInstances.Pred
-{
-    public struct AnySize : Pred<ListInfo>
-    {
-        public static readonly AnySize Is = default(AnySize);
+namespace LanguageExt.ClassInstances.Pred;
 
-        [Pure]
-        public bool True(ListInfo value) =>
-            true;
-    }
+public struct AnySize : Pred<ListInfo>
+{
+    [Pure]
+    public static bool True(ListInfo value) =>
+        true;
 }
