@@ -57,7 +57,7 @@ Nu-get package | Description
 [LanguageExt.FSharp](https://www.nuget.org/packages/LanguageExt.FSharp) | F# to C# interop package. Provides interop between the LanguageExt.Core types (like `Option`, `List` and `Map`) to the F# equivalents, as well as interop between core BCL types and F#
 [LanguageExt.Parsec](https://www.nuget.org/packages/LanguageExt.Parsec) | Port of the [Haskell parsec library](https://hackage.haskell.org/package/parsec)
 [LanguageExt.Rx](https://www.nuget.org/packages/LanguageExt.Rx) | Reactive Extensions support for various types within the Core
-[LanguageExt.Sys](https://www.nuget.org/packages/LanguageExt.Sys) | Provides an [`Aff` and `Eff`](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects) wrapper around the .NET System namespace making common IO operations pure and unit-testable
+[LanguageExt.Sys](https://www.nuget.org/packages/LanguageExt.Sys) | Provides an effects wrapper around the .NET System namespace making common IO operations pure and unit-testable
 
 ## Getting started
 
@@ -80,7 +80,7 @@ global using static LanguageExt.Prelude;
 global using LanguageExt.Traits;
 ```
 
-The namespace `LanguageExt` contains most of the core typesl; `LanguageExt.Prelude` contains the functions that you bring into scope the prelude functions that behave like standalone functions in ML style functional programming languages; `LanguageExt.Traits` brings in the higher-kinded trait-types and many extensions; `LanguageExt.Common` brings in the `Error` type and predefined `Errors`.
+The namespace `LanguageExt` contains most of the core types; `LanguageExt.Prelude` contains the functions that you bring into scope the prelude functions that behave like standalone functions in ML style functional programming languages; `LanguageExt.Traits` brings in the higher-kinded trait-types and many extensions; `LanguageExt.Common` brings in the `Error` type and predefined `Errors`.
 
 ## Prologue
 From C# 6 onwards we got the ability to treat static classes like namespaces. This means that we can use static 
@@ -92,7 +92,7 @@ in ML-style functional languages. i.e.
     WriteLine("Hello, World");
 ```
 This library tries to bring some of the functional world into C#. It won't always sit well with the seasoned C# OO programmer, 
-especially the choice of camelCase names for a lot of functions and the seeming 'globalness' of a lot of the library. 
+especially the choice of `camelCase` names for a lot of functions and the seeming 'globalness' of a lot of the library. 
 
 I can understand that much of this library is non-idiomatic, but when you think of the journey C# has been on, is "idiomatic" 
 necessarily right?  A lot of C#'s idioms are inherited from Java and C# 1.0. Since then we've had generics, closures, Func, LINQ, 
@@ -109,9 +109,10 @@ going for it:
 
 * Incredible investment into a state-of-the art compiler
 * Incredible tooling (Visual Studio and Rider)
+* A large ecosystem of open-source libraries
 * A large community of developers already using it
-  * This is important for companies that hire engineers
-* It is a functional programming language!  It has first-class functions, lambdas, etc.
+  * This is also very important for companies that hire engineers
+* It _is_ a functional programming language!  It has first-class functions, lambdas, etc.
   * And with this library it has a functional-first _Base Class Library_
 
 ### A note about naming
