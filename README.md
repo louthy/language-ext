@@ -243,7 +243,7 @@ Location | Feature | Description
 `Core` | `Has<M, TRAIT>` | [Used in runtimes to enable DI-like capabilities](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Has/index.html)
 `Core` | `Hashable<A>` | [Ad-hoc has-a-hash-code trait](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Hashable/index.html)
 `Core` | `Monad<M>` | [Monad trait](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Monads/Monad/index.html)
-`Core` | `MonatT<M, N>` | [Monad transformer trait](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Monads/MonadT/index.html)
+`Core` | `MonadT<M, N>` | [Monad transformer trait](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Monads/MonadT/index.html)
 `Core` | `Monoid<A>` | [A monoid is a type with an identity `Empty` and an associative binary operation `+`](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Monoid/index.html)
 `Core` | `MonoidK<M>` | [Equivalent of monoids for working on higher-kinded types](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/MonoidK/index.html)
 `Core` | `Mutates<M, OUTER_STATE, INNER_STATE>` | [Used in runtimes to enable stateful operations](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Mutates/index.html)
