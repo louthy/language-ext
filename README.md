@@ -150,7 +150,7 @@ Even if you disagree with this non-idiomatic approach, all of the `camelCase` st
 
 Location | Feature | Description
 ---------|---------|------------
-`Core` | `IO<A>` | [An synchronous and asynchronous side-effect: an IO monad](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/IO/index.html)
+`Core` | `IO<A>` | [A synchronous and asynchronous side-effect: an IO monad](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/IO/index.html)
 `Core` | `Eff<A>` | [A synchronous and asynchronous side-effect with error handling](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Eff/Eff%20no%20runtime/index.html)
 `Core` | `Eff<RT, A>` | [Same as `Eff<A>` but with an injectable runtime for dependency-injection: a unit testable IO monad](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Eff/Eff%20with%20runtime/index.html)
 `Core` | Pipes | [A clean and powerful stream processing system that lets you build and connect reusable streaming components](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Pipes/index.html)
@@ -172,7 +172,8 @@ Location | Feature | Description
 Location | Feature | Description
 ---------|---------|------------
 `Core` | `Arr<A>` | [Immutable array](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Arr/index.html)
-`Core` | `Seq<A>` | [Immutable list with lazy behavior - a better `IEnumerable`.  Very, very fast!](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Seq/index.html)
+`Core` | `Seq<A>` | [Lazy immutable list, evaluate at-most-once](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Seq/index.html) - very, very fast!
+`Core` | `EnumerableM<A>` | [Wrapper around `IEnumerable`](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Enumerable/index.html) - enables the higher-kinded traits to work with enumerables.
 `Core` | `Lst<A>` | [Immutable list - use `Seq` over `Lst` unless you need `InsertAt`](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/List/index.html)
 `Core` | `Map<K, V>` | [Immutable map](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Map/index.html)
 `Core` | `Map<OrdK, K, V>` | [Immutable map with Ord constraint on `K`](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Map/index.html)
