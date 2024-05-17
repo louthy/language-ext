@@ -10,11 +10,10 @@ in the direction of declarative and functional code rather than imperative.
 [![GitHub Discussions](https://raw.githubusercontent.com/louthy/language-ext/main/Images/discussions.svg)](https://github.com/louthy/language-ext/discussions)
 
 __Author on...__
+* __blog__: [Notes from a Small Functional Island](https://paullouth.com/)
 * __twitter:__ [@paullouth](https://twitter.com/paullouth)
 * __mastodon:__ [@louthy@4four.org](https://4four.org/@louthy)
-
-
-__Paul Louth [discussing FP for the GitHub ReadME project](https://github.com/readme/featured/functional-programming)__
+* __github ReadME project__: [discussing FP for the GitHub ReadME project](https://github.com/readme/featured/functional-programming)
 
 ## Contents
 
