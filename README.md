@@ -274,6 +274,13 @@ Location | Feature | Description
 
 _These features are still a little in-flux as of 17th May 2024 - they may evolve, be renamed, or removed - but I like the idea!_
 
+## Further 
+
+For some non-reference like documentation:
+
+* Paul's blog: [Notes from a Small Functional Island](https://paullouth.com/) does deep dives into the philosophy of FP and the inner-workings of language-ext.
+* [The wiki](https://github.com/louthy/language-ext/wiki) has some additional documentation, some might be a little out of date since the big `v5` refactor, but should give some good insights.
+
 ## Contributing & Code of Conduct
 
 If you would like to get involved with this project, please first read the [Contribution Guidelines](https://github.com/louthy/language-ext/blob/main/CONTRIBUTING.md) and the [Code of Conduct](https://github.com/louthy/language-ext/blob/main/CODE_OF_CONDUCT.md).
