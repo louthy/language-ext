@@ -178,7 +178,7 @@ Location | Feature | Description
 `Core` | `Que<A>` | [Immutable queue](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Queue/index.html)
 `Core` | `Stck<A>` | [Immutable stack](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Stack/index.html)
 
-### Optional and alternative value monads
+### [Optional and alternative value monads](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/index.html)
 
 Location | Feature | Description
 ---------|---------|------------
@@ -202,14 +202,14 @@ Location | Feature | Description
 `Core` | `State<S, A>` | [State monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/State%20and%20Environment%20Monads/State/State/index.html)
 `Core` | `StateT<S, M, A>` | [State monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/State%20and%20Environment%20Monads/State/StateT/index.html)
 
-### Parser combinators
+### [Parser combinators](https://louthy.github.io/language-ext/LanguageExt.Parsec/index.html)
 
 Location | Feature | Description
 ---------|---------|------------
 `Parsec` | `Parser<A>` | [String parser monad and full parser combinators library](https://louthy.github.io/language-ext/LanguageExt.Parsec/index.html)
 `Parsec` | `Parser<I, O>` | [Parser monad that can work with any input stream type](https://louthy.github.io/language-ext/LanguageExt.Parsec/index.html)
 
-### New types - Type aliasing
+### [New types - Type aliasing](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/New%20Types/index.html)
 
 Location | Feature | Description
 ---------|---------|------------
@@ -217,13 +217,13 @@ Location | Feature | Description
 `Core` | `NumType<SELF, NUM, A, PRED>` | [Haskell `newtype` equivalent but for numeric types](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/New%20Types/NumType/index.html) i.e: `class Hours : NumType<Hours, TDouble, double> { public Hours(double value) : base(value) { } }`. The resulting type is: equatable, comparable, foldable, a functor, a monoid, a semigroup, monadic, iterable, and can have basic artithmetic operations performed upon it.
 `Core` | `FloatType<SELF, FLOATING, A, PRED>` | [Haskell `newtype` equivalent but for real numeric types](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/New%20Types/FloatType/index.html) i.e: `class Hours : FloatType<Hours, TDouble, double> { public Hours(double value) : base(value) { } }`. The resulting type is: equatable, comparable, foldable, a functor, a monoid, a semigroup, monadic, iterable, and can have complex artithmetic operations performed upon it.
 
-### Pretty
+### [Pretty](https://louthy.github.io/language-ext/LanguageExt.Core/Pretty/index.html)
 
 Location | Feature | Description
 ---------|---------|------------
 `Core` | `Doc<A>` | Produce nicely formatted text with smart layouts 
 
-### Differencing
+### [Differencing](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Patch/index.html)
 
 Location | Feature | Description
 ---------|---------|------------
@@ -237,18 +237,27 @@ Location | Feature | Description
 ---------|---------|------------
 `Core` | `Alternative<F>` | [A monoid on applicative functors](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Alternative/index.html)
 `Core` | `Applicative<F>` | [Applicative functor](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Applicative/index.html)
-`Core` | `` | 
-`Core` | `` | 
-`Core` | `` | 
-`Core` | `` | 
-`Core` | `` | 
-`Core` | `` | 
-`Core` | `` | 
-`Core` | `` | 
-`Core` | `` | 
-`Core` | `` | 
-`Core` | `` | 
-`Core` | `` | 
+`Core` | `Eq<A>` | [Ad-hoc equality trait](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Eq/index.html)
+`Core` | `Foldable<T>` | [Aggregation over a structure](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Foldable/index.html)
+`Core` | `Functor<F>` | [Functor `Map`](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Functor/index.html)
+`Core` | `Has<M, TRAIT>` | [Used in runtimes to enable DI-like capabilities](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Has/index.html)
+`Core` | `Hashable<A>` | [Ad-hoc has-a-hash-code trait](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Hashable/index.html)
+`Core` | `Monad<M>` | [Monad trait](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Monads/Monad/index.html)
+`Core` | `MonatT<M, N>` | [Monad transformer trait](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Monads/MonadT/index.html)
+`Core` | `Monoid<A>` | [A monoid is a type with an identity `Empty` and an associative binary operation `+`](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Monoid/index.html)
+`Core` | `MonoidK<M>` | [Equivalent of monoids for working on higher-kinded types](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/MonoidK/index.html)
+`Core` | `Mutates<M, OUTER_STATE, INNER_STATE>` | [Used in runtimes to enable stateful operations](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Mutates/index.html)
+`Core` | `Ord<A>` | [Ad-hoc ordering / comparisons](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Ord/index.html)
+`Core` | `Range<SELF, NumOrdA, A>` | [Abstraction of a range of values](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Range/index.html)
+`Core` | `ReaderM<M, Env>` | [Generalised Reader monad abstraction](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Reader/index.html)
+`Core` | `Reads<M, OUTER_STATE, INNER_STATE>` | [Used in runtimes to enable environment value access](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Reads/index.html)
+`Core` | `SemiAlternative<F>` | [A semigroup on functors](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/SemiAlternative/index.html)
+`Core` | `Semigroup<A>` | [Provides an associative binary operation `+`](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Semigroup/index.html)
+`Core` | `SemigroupK<M>` | [Equivalent of semigroups for working with higher-kinded types](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/SemigroupK/index.html)
+`Core` | `StateM<M, S>` | [Generalised State monad abstraction](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/State/index.html)
+`Core` | `Traversable<T>` | [Traversable structures support element-wise sequencing of Applicative effects](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Traversable/index.html)
+`Core` | `Writer<M, W>` | [Generalised Writer monad abstraction](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Writer/index.html)
+
 
 ### [Value traits](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Domain/index.html)
 
