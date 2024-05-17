@@ -174,7 +174,7 @@ Location | Feature | Description
 `Core` | `Arr<A>` | [Immutable array](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Arr/index.html)
 `Core` | `Seq<A>` | [Lazy immutable list, evaluate at-most-once](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Seq/index.html) - very, very fast!
 `Core` | `EnumerableM<A>` | [Wrapper around `IEnumerable`](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Enumerable/index.html) - enables the higher-kinded traits to work with enumerables.
-`Core` | `Lst<A>` | [Immutable list - use `Seq` over `Lst` unless you need `InsertAt`](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/List/index.html)
+`Core` | `Lst<A>` | [Immutable list](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/List/index.html) - use `Seq` over `Lst` unless you need `InsertAt`
 `Core` | `Map<K, V>` | [Immutable map](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Map/index.html)
 `Core` | `Map<OrdK, K, V>` | [Immutable map with Ord constraint on `K`](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Map/index.html)
 `Core` | `HashMap<K, V>` | [Immutable hash-map](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/HashMap/index.html)
@@ -190,18 +190,14 @@ Location | Feature | Description
 
 Location | Feature | Description
 ---------|---------|------------
-`Core` | `Option<A>` | [Option monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Option/Option/index.html) that can't be used with `null` values
-`Core` | `OptionAsync<A>` | [OptionAsync monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Option/OptionAsync/index.html) that can't be used with `null` values with all value realisation does asynchronously
-`Core` | `OptionUnsafe<T>` | [Option monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Option/OptionUnsafe/index.html) that can be used with `null` values
-`Core` | `Either<L,R>` | [Right/Left choice monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Either/Either/index.html) that won't accept `null` values
-`Core` | `EitherUnsafe<L, R>` | [Right/Left choice monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Either/EitherUnsafe/index.html) that can be used with `null` values
-`Core` | `EitherAsync<L, R>` | [EitherAsync monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Either/EitherAsync/index.html) that can't be used with `null` values with all value realisation done asynchronously
-`Core` | `Try<A>` | [Exception handling lazy monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Try/Try/index.html)
-`Core` | `TryAsync<A>` | [Asynchronous exception handling lazy monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Try/TryAsync/index.html)
-`Core` | `TryOption<A>` | [Option monad with third state](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Try/TryOption/index.html) 'Fail' that catches exceptions
-`Core` | `TryOptionAsync<A>` | [Asynchronous Option monad with third state](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Try/TryOptionAsync/index.html) 'Fail' that catches exceptions
-`Core` | `Validation<FAIL,SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Validation/index.html) for collecting multiple errors before aborting an operation
-`Core` | `Validation<MonoidFail, FAIL, SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Validation/index.html) for collecting multiple errors before aborting an operation, uses the supplied monoid in the first generic argument to collect the failure values.
+`Core` | `Option<A>` | [Option monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Option/index.html)
+`Core` | `OptionT<M, A>` | [Option monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/OptionT/index.html)
+`Core` | `Either<L,R>` | [Right/Left choice monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Either/index.html)
+`Core` | `EitherT<L, M, R>` | [Right/Left choice monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/EitherT/index.html)
+`Core` | `Try<A>` | [Exception handling monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Try/Try/index.html)
+`Core` | `TryT<A>` | [Exception handling monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/TryT/index.html)
+`Core` | `Validation<FAIL ,SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Validation/index.html) for collecting multiple errors before aborting an operation
+`Core` | `ValidationT<FAIL, M, SUCCESS>` | [Validation applicative and monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/ValidationT/index.html)
 
 ### State managing monads
 
