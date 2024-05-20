@@ -1,7 +1,7 @@
 using System;
 using LanguageExt.Traits;
 
-namespace LanguageExt.Free;
+namespace LanguageExt;
 
 /// <summary>
 /// Free monad makes any functor into a monad 

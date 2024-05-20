@@ -1,8 +1,8 @@
 using LanguageExt.Traits;
 
-namespace LanguageExt.Free;
+namespace LanguageExt;
 
-public static class Free
+public static class FreeExtensions
 {
     public static Free<F, A> As<F, A>(this K<Free<F>, A> ma)
         where F : Functor<F> =>
