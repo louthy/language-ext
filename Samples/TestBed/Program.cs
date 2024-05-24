@@ -94,7 +94,8 @@ public class Program
         //Console.WriteLine(PipesTestBed.effect.RunEffect().Run(Runtime.New()).Result);
         //Issue1230.Run();
         //Issue1234.Test();
-        SequenceParallelTest.Run();
+        //SequenceParallelTest.Run();
+        FreeTests.Test();
     }
 
     public static void PipesTest()
