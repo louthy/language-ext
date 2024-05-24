@@ -3,9 +3,10 @@
 C# Functional Programming Language Extensions
 =============================================
 
-This library uses and abuses the features of C# to provide a functional-programming 'base class library' that, if you squint, can look like 
-extensions to the language itself. The desire here is to make programming in C# much more reliable and to make the engineer's inertia flow 
-in the direction of declarative and functional code rather than imperative.
+This library uses and abuses the features of C# to provide a pure functional-programming 'Base Class Library' that, if you squint, can look like 
+extensions to the language itself. The desire here is to make programming in C# much more robust by helping the engineer's inertia flow 
+in the direction of declarative and pure functional code rather than imperative.  Using these techniques for large code-bases can bring 
+tangible benefits to long-term maintenance by removing hidden complexity and by easing the engineer's cognitive load.
 
 [![GitHub Discussions](https://raw.githubusercontent.com/louthy/language-ext/main/Images/discussions.svg)](https://github.com/louthy/language-ext/discussions)
 
@@ -72,7 +73,7 @@ global using static LanguageExt.Prelude;
 global using LanguageExt.Traits;
 ```
 
-The namespace `LanguageExt` contains most of the core types; `LanguageExt.Prelude` contains the functions that you bring into scope the prelude functions that behave like standalone functions in ML style functional programming languages; `LanguageExt.Traits` brings in the higher-kinded trait-types and many extensions; `LanguageExt.Common` brings in the `Error` type and predefined `Errors`.
+The namespace `LanguageExt` contains most of the core types; `LanguageExt.Prelude` contains the functions that bring into scope the prelude functions that behave like standalone functions in ML style functional programming languages; `LanguageExt.Traits` brings in the higher-kinded trait-types and many extensions; `LanguageExt.Common` brings in the `Error` type and predefined `Errors`.
 
 ## Prologue
 From C# 6 onwards we got the ability to treat static classes like namespaces. This means that we can use static 
