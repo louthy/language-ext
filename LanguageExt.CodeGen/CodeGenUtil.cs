@@ -199,7 +199,7 @@ namespace LanguageExt.CodeGen
         public static TypeDeclarationSyntax AddLensProp(TypeDeclarationSyntax partialClass, TypeSyntax returnType, (SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs) member) =>
             partialClass.AddMembers(
                 PropertyDeclaration(
-                    GenericName(Identifier("Lens"))
+                    GenericName(Identifier("LanguageExt.Lens"))
                         .WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>(new[] { returnType, member.Type }))),
                     Identifier(MakeCamelCaseId(member.Identifier).Text))
                 .WithModifiers(
@@ -220,7 +220,7 @@ namespace LanguageExt.CodeGen
         {
             var lfield = FieldDeclaration(
                 VariableDeclaration(
-                    GenericName(Identifier("Lens"))
+                    GenericName(Identifier("LanguageExt.Lens"))
                                  .WithTypeArgumentList(
                                     TypeArgumentList(SeparatedList<TypeSyntax>(new[] { returnType, member.Type }))))
                              .WithVariables(
@@ -231,7 +231,7 @@ namespace LanguageExt.CodeGen
                                                         InvocationExpression(
                                                                             MemberAccessExpression(
                                                                                 SyntaxKind.SimpleMemberAccessExpression,
-                                                                                GenericName("Lens")
+                                                                                GenericName("LanguageExt.Lens")
                                                                                     .WithTypeArgumentList(
                                                                                         TypeArgumentList(
                                                                                             SeparatedList<TypeSyntax>(new[] { returnType, member.Type }))),
