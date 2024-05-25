@@ -751,11 +751,30 @@ namespace LanguageExt.Parsec
         ///                                
         /// </example>
         public static Parser<Unit> notFollowedBy<T>(Parser<T> p) =>
-            attempt(
-                either(from c in attempt(p)
-                       from u in unexpected<Unit>(c.ToString())
-                       select u,
-                       result(unit)));
+            inp =>
+            {
+                var res = p(inp);
+                if (res.Tag == ResultTag.Consumed)
+                {
+                    var message = inp.Index == res.Reply.State.Index - 1
+                        ? $"'{inp.Value[inp.Index]}'" // single char
+                        : $"\"{inp.Value.Substring(inp.Index, res.Reply.State.Index - inp.Index)}\""; // empty string or more than 1 char
+                    return EmptyError<Unit>(ParserError.Unexpect(inp.Pos, message));
+                }
+                if (res.Reply.Tag == ReplyTag.Error)
+                {
+                    return EmptyOK(unit, inp);
+                }
+                if (res.Reply.Error == null)
+                {
+                    var message = inp.Index == inp.EndIndex ? "end of input" : res.Reply.Result.ToString();
+                    return EmptyError<Unit>(ParserError.Unexpect(inp.Pos, message));
+                }
+                else
+                {
+                    return EmptyError<Unit>(res.Reply.Error); // ?
+                }
+            };
 
         /// <summary>
         /// Parse a char list and convert into a string
