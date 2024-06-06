@@ -1,8 +1,10 @@
 ﻿using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Xunit;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
@@ -199,6 +201,23 @@ namespace LanguageExt.Tests
             var y = x.Sequence();
 
             Assert.True(y.IsSuccess && y == Seq(1, 2, 3, 4, 5));
+        }
+
+        [Fact]
+        public async Task TraverseSerialExecutesTasksSerially()
+        {
+            var queue = new ConcurrentQueue<int>();
+            var lazySeq = toSeq(Range(0, 3).Map(i => Delay(3 - i).ToAsync()));
+            await lazySeq.TraverseSerial(identity).Match(result => result.Should().ContainInOrder(3, 2, 1), _ => Assert.Fail());
+            queue.Should().ContainInOrder(3, 30, 2, 20, 1, 10);
+
+            async Task<Either<string, int>> Delay(int i)
+            {
+                queue.Enqueue(i);
+                await Task.Delay(i);
+                queue.Enqueue(10*i);
+                return i;
+            }
         }
     }
 }

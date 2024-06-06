@@ -122,8 +122,8 @@ namespace LanguageExt
         
         public static EitherAsync<L, Seq<B>> TraverseSerial<L, A, B>(this Seq<EitherAsync<L, A>> ma, Func<A, B> f)
         {
-            return new EitherAsync<L, Seq<B>>(Go(ma, f));
-            async Task<EitherData<L, Seq<B>>> Go(Seq<EitherAsync<L, A>> ma, Func<A, B> f)
+            return new EitherAsync<L, Seq<B>>(ma.Value.Type is SeqType.Strict or SeqType.Empty ? GoStrict(ma, f) : GoLazy(ma, f));
+            async Task<EitherData<L, Seq<B>>> GoStrict(Seq<EitherAsync<L, A>> ma, Func<A, B> f)
             {
                 var rb = new B[ma.Count];
                 var ix = 0;
@@ -137,7 +137,20 @@ namespace LanguageExt
                 }
 
                 return EitherData.Right<L, Seq<B>>(Seq.FromArray<B>(rb));
-            };
+            }
+            async Task<EitherData<L, Seq<B>>> GoLazy(Seq<EitherAsync<L, A>> ma, Func<A, B> f)
+            {
+                var rb = Seq<B>();
+                foreach (var a in ma)
+                {
+                    var mb = await a;
+                    if (mb.IsBottom) return EitherData<L, Seq<B>>.Bottom;
+                    if (mb.IsLeft) return EitherData.Left<L, Seq<B>>(mb.LeftValue);
+                    rb = rb.Add(f(mb.RightValue));
+                }
+
+                return EitherData.Right<L, Seq<B>>(rb);
+            }
         }
 
         public static EitherAsync<L, Seq<B>> TraverseParallel<L, A, B>(this Seq<EitherAsync<L, A>> ma, Func<A, B> f) =>
