@@ -23,7 +23,7 @@ public partial class Reader
     public static Reader<Env, Env> ask<Env>() => 
         Reader<Env, Env>.Asks(Prelude.identity);
 
-    public static Reader<Env, A> asks<A, Env>(Func<Env, A> f) =>  
+    public static Reader<Env, A> asks<Env, A>(Func<Env, A> f) =>  
         Reader<Env, A>.Asks(f);
 
     public static Reader<Env, A> asksM<Env, A>(Func<Env, Reader<Env, A>> f) =>
