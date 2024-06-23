@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestBed.WPF", "Samples\Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IOExmples", "Samples\IOExmples\IOExmples.csproj", "{BA5DF6B6-378C-4880-9CC3-802F3B560EFF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Megaparsec", "LanguageExt.Megaparsec\LanguageExt.Megaparsec.csproj", "{CDF76420-66F3-46E4-98FD-E52F63AA6629}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -209,6 +211,18 @@ Global
 		{BA5DF6B6-378C-4880-9CC3-802F3B560EFF}.Release|x64.Build.0 = Release|Any CPU
 		{BA5DF6B6-378C-4880-9CC3-802F3B560EFF}.Release|x86.ActiveCfg = Release|Any CPU
 		{BA5DF6B6-378C-4880-9CC3-802F3B560EFF}.Release|x86.Build.0 = Release|Any CPU
+		{CDF76420-66F3-46E4-98FD-E52F63AA6629}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDF76420-66F3-46E4-98FD-E52F63AA6629}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDF76420-66F3-46E4-98FD-E52F63AA6629}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CDF76420-66F3-46E4-98FD-E52F63AA6629}.Debug|x64.Build.0 = Debug|Any CPU
+		{CDF76420-66F3-46E4-98FD-E52F63AA6629}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CDF76420-66F3-46E4-98FD-E52F63AA6629}.Debug|x86.Build.0 = Debug|Any CPU
+		{CDF76420-66F3-46E4-98FD-E52F63AA6629}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDF76420-66F3-46E4-98FD-E52F63AA6629}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDF76420-66F3-46E4-98FD-E52F63AA6629}.Release|x64.ActiveCfg = Release|Any CPU
+		{CDF76420-66F3-46E4-98FD-E52F63AA6629}.Release|x64.Build.0 = Release|Any CPU
+		{CDF76420-66F3-46E4-98FD-E52F63AA6629}.Release|x86.ActiveCfg = Release|Any CPU
+		{CDF76420-66F3-46E4-98FD-E52F63AA6629}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
