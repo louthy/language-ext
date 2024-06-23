@@ -12,5 +12,5 @@ public interface MonadT<M, N> : Monad<M>
     where N : Monad<N>
 {
     public static abstract K<M, A> Lift<A>(K<N, A> ma);
-    public static abstract K<M, B> MapM<A, B>(Func<K<N, A>, K<N, B>> f, K<M, A> ma);
+    //public static abstract K<M, B> MapM<A, B>(Func<K<N, A>, K<N, B>> f, K<M, A> ma);
 }

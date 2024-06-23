@@ -15,7 +15,7 @@ public static class Free
         new Pure<F, A>(value);
 
     /// <summary>
-    /// Lift the functor into the the free monad
+    /// Lift the functor into the free monad
     /// </summary>
     /// <param name="value">Functor that yields a `Free` monad</param>
     /// <typeparam name="F">Functor type</typeparam>

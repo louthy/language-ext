@@ -32,9 +32,6 @@ public partial class StateT<S, M> :
     static K<StateT<S, M>, A> MonadT<StateT<S, M>, M>.Lift<A>(K<M, A> ma) => 
         StateT<S, M, A>.Lift(ma);
 
-    static K<StateT<S, M>, B> MonadT<StateT<S, M>, M>.MapM<A, B>(Func<K<M, A>, K<M, B>> f, K<StateT<S, M>, A> ma) =>
-        ma.As().MapM(f);
-    
     static K<StateT<S, M>, Unit> StateM<StateT<S, M>, S>.Modify(Func<S, S> modify) => 
         StateT<S, M, S>.Modify(modify);
 

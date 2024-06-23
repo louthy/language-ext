@@ -28,9 +28,6 @@ public partial class OptionT<M> : MonadT<OptionT<M>, M>, Alternative<OptionT<M>>
     static K<OptionT<M>, A> MonadT<OptionT<M>, M>.Lift<A>(K<M, A> ma) => 
         OptionT<M, A>.Lift(ma);
         
-    static K<OptionT<M>, B> MonadT<OptionT<M>, M>.MapM<A, B>(Func<K<M, A>, K<M, B>> f, K<OptionT<M>, A> ma) =>
-        ma.As().MapM(f);
-
     static K<OptionT<M>, A> Monad<OptionT<M>>.LiftIO<A>(IO<A> ma) => 
         OptionT<M, A>.Lift(M.LiftIO(ma));
 

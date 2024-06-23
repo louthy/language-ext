@@ -39,9 +39,6 @@ public partial class ValidationT<F, M> :
     static K<ValidationT<F, M>, A> MonadT<ValidationT<F, M>, M>.Lift<A>(K<M, A> ma) => 
         ValidationT<F, M, A>.Lift(ma);
             
-    static K<ValidationT<F, M>, B> MonadT<ValidationT<F, M>, M>.MapM<A, B>(Func<K<M, A>, K<M, B>> f, K<ValidationT<F, M>, A> ma) =>
-        ma.As().MapM(f);
-
     static K<ValidationT<F, M>, A> Monad<ValidationT<F, M>>.LiftIO<A>(IO<A> ma) => 
         ValidationT<F, M, A>.Lift(M.LiftIO(ma));
 

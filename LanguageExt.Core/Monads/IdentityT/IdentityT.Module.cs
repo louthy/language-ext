@@ -49,9 +49,6 @@ public class IdentityT<M> : MonadT<IdentityT<M>, M>, SemiAlternative<IdentityT<M
     static K<IdentityT<M>, A> MonadT<IdentityT<M>, M>.Lift<A>(K<M, A> ma) =>
         IdentityT<M, A>.Lift(ma);
 
-    static K<IdentityT<M>, B> MonadT<IdentityT<M>, M>.MapM<A, B>(Func<K<M, A>, K<M, B>> f, K<IdentityT<M>, A> ma) =>
-        ma.As().MapM(f);
-
     static K<IdentityT<M>, A> Monad<IdentityT<M>>.LiftIO<A>(IO<A> ma) => 
         IdentityT<M, A>.Lift(M.LiftIO(ma));
 

@@ -31,11 +31,6 @@ public class Proxy<UOut, UIn, DIn, DOut, M> :
     static K<Proxy<UOut, UIn, DIn, DOut, M>, A> MonadT<Proxy<UOut, UIn, DIn, DOut, M>, M>.Lift<A>(K<M, A> ma) =>
         Proxy.lift<UOut, UIn, DIn, DOut, M, A>(ma);
 
-    static K<Proxy<UOut, UIn, DIn, DOut, M>, B> MonadT<Proxy<UOut, UIn, DIn, DOut, M>, M>.MapM<A, B>(
-        Func<K<M, A>, K<M, B>> f, 
-        K<Proxy<UOut, UIn, DIn, DOut, M>, A> ma) => 
-        ma.As().MapM(f);
-
     public static K<Proxy<UOut, UIn, DIn, DOut, M>, A> LiftIO<A>(IO<A> ma) => 
         Proxy.lift<UOut, UIn, DIn, DOut, M, A>(M.LiftIO(ma));
 

@@ -129,7 +129,7 @@ public interface Range<SELF, NumOrdA, A> : IEnumerable<A>, K<SELF, A>
     }
 
     [Pure]
-    public IEnumerator<A> GetEnumerator() => 
+    IEnumerator<A> IEnumerable<A>.GetEnumerator() => 
         AsEnumerable().GetEnumerator();
 
     [Pure]
