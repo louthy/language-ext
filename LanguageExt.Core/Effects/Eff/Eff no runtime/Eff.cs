@@ -18,7 +18,7 @@ namespace LanguageExt;
 /// <typeparam name="A">Bound value type</typeparam>
 public record Eff<A>(Eff<MinRT, A> effect) :
     K<Eff, A>,
-    StateM<Eff<A>, A>,
+    Stateful<Eff<A>, A>,
     Alternative<Eff<A>>,
     Monad<Eff<A>>
 {
@@ -982,13 +982,13 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     static K<Eff<A>, T> SemigroupK<Eff<A>>.Combine<T>(K<Eff<A>, T> ma, K<Eff<A>, T> mb) =>
         ma.As() | mb.As();
 
-    static K<Eff<A>, Unit> StateM<Eff<A>, A>.Put(A value) =>
+    static K<Eff<A>, Unit> Stateful<Eff<A>, A>.Put(A value) =>
         new Eff<A, Unit>(StateT.put<IO, A>(value));
 
-    static K<Eff<A>, Unit> StateM<Eff<A>, A>.Modify(Func<A, A> modify) =>
+    static K<Eff<A>, Unit> Stateful<Eff<A>, A>.Modify(Func<A, A> modify) =>
         new Eff<A, Unit>(StateT.modify<IO, A>(modify));
 
-    static K<Eff<A>, T> StateM<Eff<A>, A>.Gets<T>(Func<A, T> f) =>
+    static K<Eff<A>, T> Stateful<Eff<A>, A>.Gets<T>(Func<A, T> f) =>
         new Eff<A, T>(StateT.gets<IO, A, T>(f));
 
     static K<Eff<A>, T> Monad<Eff<A>>.LiftIO<T>(IO<T> ma) =>

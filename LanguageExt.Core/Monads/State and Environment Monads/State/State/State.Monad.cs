@@ -9,7 +9,7 @@ namespace LanguageExt;
 /// <typeparam name="S">State environment type</typeparam>
 public partial class State<S> : 
     Monad<State<S>>, 
-    StateM<State<S>, S>
+    Stateful<State<S>, S>
 {
     static K<State<S>, B> Monad<State<S>>.Bind<A, B>(K<State<S>, A> ma, Func<A, K<State<S>, B>> f) => 
         ma.As().Bind(f);
@@ -26,12 +26,12 @@ public partial class State<S> :
     static K<State<S>, B> Applicative<State<S>>.Action<A, B>(K<State<S>, A> ma, K<State<S>, B> mb) =>
         ma.As().Bind(_ => mb);
 
-    static K<State<S>, Unit> StateM<State<S>, S>.Modify(Func<S, S> modify) => 
+    static K<State<S>, Unit> Stateful<State<S>, S>.Modify(Func<S, S> modify) => 
         State<S, S>.Modify(modify);
 
-    static K<State<S>, A> StateM<State<S>, S>.Gets<A>(Func<S, A> f) => 
+    static K<State<S>, A> Stateful<State<S>, S>.Gets<A>(Func<S, A> f) => 
         State<S, A>.Gets(f);
 
-    static K<State<S>, Unit> StateM<State<S>, S>.Put(S value) => 
+    static K<State<S>, Unit> Stateful<State<S>, S>.Put(S value) => 
         State<S, S>.Put(value);
 }

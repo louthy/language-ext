@@ -7,7 +7,7 @@ namespace LanguageExt;
 
 public class Eff : 
     Monad<Eff>,
-    StateM<Eff, MinRT>,
+    Stateful<Eff, MinRT>,
     Alternative<Eff>
 {
     static K<Eff, B> Monad<Eff>.Bind<A, B>(K<Eff, A> ma, Func<A, K<Eff, B>> f) =>
@@ -31,14 +31,14 @@ public class Eff :
     static K<Eff, A> SemigroupK<Eff>.Combine<A>(K<Eff, A> ma, K<Eff, A> mb) => 
         ma.As() | mb.As();
 
-    static K<Eff, Unit> StateM<Eff, MinRT>.Put(MinRT value) => 
-        new Eff<Unit>(StateM.put<Eff<MinRT>, MinRT>(value).As());
+    static K<Eff, Unit> Stateful<Eff, MinRT>.Put(MinRT value) => 
+        new Eff<Unit>(Stateful.put<Eff<MinRT>, MinRT>(value).As());
 
-    static K<Eff, Unit> StateM<Eff, MinRT>.Modify(Func<MinRT, MinRT> modify) => 
-        new Eff<Unit>(StateM.modify<Eff<MinRT>, MinRT>(modify).As());
+    static K<Eff, Unit> Stateful<Eff, MinRT>.Modify(Func<MinRT, MinRT> modify) => 
+        new Eff<Unit>(Stateful.modify<Eff<MinRT>, MinRT>(modify).As());
 
-    static K<Eff, A> StateM<Eff, MinRT>.Gets<A>(Func<MinRT, A> f) => 
-        new Eff<A>(StateM.gets<Eff<MinRT>, MinRT, A>(f).As());
+    static K<Eff, A> Stateful<Eff, MinRT>.Gets<A>(Func<MinRT, A> f) => 
+        new Eff<A>(Stateful.gets<Eff<MinRT>, MinRT, A>(f).As());
 
     static K<Eff, A> Monad<Eff>.LiftIO<A>(IO<A> ma) =>
         Eff<A>.LiftIO(ma);

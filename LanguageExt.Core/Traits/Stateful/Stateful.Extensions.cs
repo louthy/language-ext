@@ -2,7 +2,7 @@
 
 namespace LanguageExt;
 
-public static partial class StateExtensions
+public static partial class StatefulExtensions
 {
     /// <summary>
     /// Runs the `stateSetter` to update the state-monad's inner state.  Then runs the
@@ -12,7 +12,7 @@ public static partial class StateExtensions
     /// The result of `operation`
     /// </returns>
     public static K<M, A> Bracket<M, S, A>(this K<M, Unit> stateSetter, K<M, A> operation)
-        where M : StateM<M, S>, Monad<M> =>
+        where M : Stateful<M, S>, Monad<M> =>
         from s in M.Get
         from _ in stateSetter
         from r in operation

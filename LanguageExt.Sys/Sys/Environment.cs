@@ -8,11 +8,11 @@ namespace LanguageExt.Sys;
 /// Environment IO
 /// </summary>
 public static class Environment<M, RT>
-    where M : StateM<M, RT>, Monad<M>
+    where M : Stateful<M, RT>, Monad<M>
     where RT : Has<M, EnvironmentIO>
 {
     static readonly K<M, EnvironmentIO> trait = 
-        StateM.getsM<M, RT, EnvironmentIO>(e => e.Trait);
+        Stateful.getsM<M, RT, EnvironmentIO>(e => e.Trait);
     
     /// <summary>
     /// Gets the command line for this process.

@@ -9,7 +9,7 @@ namespace LanguageExt;
 /// <typeparam name="Env">Reader environment type</typeparam>
 public partial class Reader<Env> : 
     Monad<Reader<Env>>,
-    ReaderM<Reader<Env>, Env> 
+    Readable<Reader<Env>, Env> 
 {
     static K<Reader<Env>, B> Monad<Reader<Env>>.Bind<A, B>(K<Reader<Env>, A> ma, Func<A, K<Reader<Env>, B>> f) => 
         ma.As().Bind(f);
@@ -26,12 +26,12 @@ public partial class Reader<Env> :
     static K<Reader<Env>, B> Applicative<Reader<Env>>.Action<A, B>(K<Reader<Env>, A> ma, K<Reader<Env>, B> mb) =>
         ma.As().Bind(_ => mb);
 
-    static K<Reader<Env>, Env> ReaderM<Reader<Env>, Env>.Ask =>
+    static K<Reader<Env>, Env> Readable<Reader<Env>, Env>.Ask =>
         Reader<Env, Env>.Asks(Prelude.identity);
 
-    static K<Reader<Env>, A> ReaderM<Reader<Env>, Env>.Asks<A>(Func<Env, A> f) => 
+    static K<Reader<Env>, A> Readable<Reader<Env>, Env>.Asks<A>(Func<Env, A> f) => 
         Reader<Env, A>.Asks(f);
 
-    static K<Reader<Env>, A> ReaderM<Reader<Env>, Env>.Local<A>(Func<Env, Env> f, K<Reader<Env>, A> ma) =>
+    static K<Reader<Env>, A> Readable<Reader<Env>, Env>.Local<A>(Func<Env, Env> f, K<Reader<Env>, A> ma) =>
         ma.As().Local(f);
 }

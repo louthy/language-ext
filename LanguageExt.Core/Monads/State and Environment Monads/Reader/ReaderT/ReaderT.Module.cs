@@ -96,4 +96,8 @@ public partial class ReaderT
     public static ReaderT<Env, M, A> local<Env, M, A>(Func<Env, Env> f, ReaderT<Env, M, A> ma) 
         where M : Monad<M>, SemiAlternative<M> => 
         ma.As().Local(f);
+
+    public static ReaderT<Env, M, A> with<Env, SubEnv, M, A>(Func<Env, SubEnv> f, ReaderT<SubEnv, M, A> ma) 
+        where M : Monad<M>, SemiAlternative<M> => 
+        ma.As().With(f);
 }

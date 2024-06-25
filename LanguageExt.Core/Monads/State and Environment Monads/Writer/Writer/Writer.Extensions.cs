@@ -3,7 +3,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public static partial class WriterExtensions
+public static partial class WritableExtensions
 {
     public static Writer<W, A> As<W, A>(this K<Writer<W>, A> ma)
         where W : Monoid<W> =>

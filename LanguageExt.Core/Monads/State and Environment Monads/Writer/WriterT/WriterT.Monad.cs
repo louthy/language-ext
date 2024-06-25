@@ -12,7 +12,7 @@ namespace LanguageExt;
 public partial class WriterT<W, M> : 
     MonadT<WriterT<W, M>, M>, 
     SemiAlternative<WriterT<W, M>>,
-    WriterM<WriterT<W, M>, W>
+    Writable<WriterT<W, M>, W>
     where M : Monad<M>, SemiAlternative<M>
     where W : Monoid<W>
 {
@@ -40,13 +40,13 @@ public partial class WriterT<W, M> :
     static K<WriterT<W, M>, A> SemigroupK<WriterT<W, M>>.Combine<A>(K<WriterT<W, M>, A> ma, K<WriterT<W, M>, A> mb) => 
         new WriterT<W, M, A>(w => M.Combine(ma.As().runWriter(w), mb.As().runWriter(w)));
 
-    static K<WriterT<W, M>, Unit> WriterM<WriterT<W, M>, W>.Tell(W item) =>
+    static K<WriterT<W, M>, Unit> Writable<WriterT<W, M>, W>.Tell(W item) =>
         new WriterT<W, M, Unit>(w => M.Pure((unit, w + item)));
 
-    static K<WriterT<W, M>, (A Value, W Output)> WriterM<WriterT<W, M>, W>.Listen<A>(K<WriterT<W, M>, A> ma) =>
+    static K<WriterT<W, M>, (A Value, W Output)> Writable<WriterT<W, M>, W>.Listen<A>(K<WriterT<W, M>, A> ma) =>
         ma.As().Listen();
 
-    static K<WriterT<W, M>, A> WriterM<WriterT<W, M>, W>.Pass<A>(
+    static K<WriterT<W, M>, A> Writable<WriterT<W, M>, W>.Pass<A>(
         K<WriterT<W, M>, (A Value, Func<W, W> Function)> action) =>
         new WriterT<W, M, A>(
             w => action.As()

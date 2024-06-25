@@ -10,11 +10,11 @@ namespace LanguageExt.Sys;
 /// DateTime IO 
 /// </summary>
 public static class Time<M, RT>
-    where M : StateM<M, RT>, Monad<M>
+    where M : Stateful<M, RT>, Monad<M>
     where RT : Has<M, TimeIO>
 {
     static readonly K<M, TimeIO> trait = 
-        StateM.getsM<M, RT, TimeIO>(e => e.Trait);
+        Stateful.getsM<M, RT, TimeIO>(e => e.Trait);
 
     /// <summary>
     /// Current local date time

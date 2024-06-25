@@ -17,7 +17,7 @@ namespace LanguageExt.Sys.Diag;
 /// <typeparam name="RT">Runtime</typeparam>
 public class Activity<M, RT>
     where M :
-        StateM<M, RT>,
+        Stateful<M, RT>,
         Monad<M>
 
     where RT :
@@ -25,13 +25,13 @@ public class Activity<M, RT>
         Mutates<M, RT, ActivityEnv>
 {
     static readonly K<M, ActivitySourceIO> trait =
-        StateM.getsM<M, RT, ActivitySourceIO>(e => e.Trait);
+        Stateful.getsM<M, RT, ActivitySourceIO>(e => e.Trait);
 
     static K<M, Unit> mutate(Func<ActivityEnv, ActivityEnv> f) =>
-        StateM.getsM<M, RT, Unit>(e => e.Modify(f));
+        Stateful.getsM<M, RT, Unit>(e => e.Modify(f));
 
     static K<M, ActivityEnv> env =>
-        StateM.getsM<M, RT, ActivityEnv>(e => e.Get);
+        Stateful.getsM<M, RT, ActivityEnv>(e => e.Get);
 
     static K<M, Activity?> currentActivity =>
         env.Map(e => e.Activity);
@@ -115,7 +115,7 @@ public class Activity<M, RT>
         DateTimeOffset startTime,
         K<M, TA> operation) =>
         from a in startActivity(name, activityKind, activityTags, activityLinks, startTime)
-        from r in StateM.bracket<M, RT, TA>(mutate(e => e with { Activity = a }), operation)
+        from r in Stateful.bracket<M, RT, TA>(mutate(e => e with { Activity = a }), operation)
         select r;
 
     /// <summary>
@@ -146,7 +146,7 @@ public class Activity<M, RT>
             activityLinks,
             startTime,
             parentContext)
-        from r in StateM.bracket<M, RT, A>(mutate(e => e with { Activity = a }), operation)
+        from r in Stateful.bracket<M, RT, A>(mutate(e => e with { Activity = a }), operation)
         select r;
 
     /// <summary>

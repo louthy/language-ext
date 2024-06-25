@@ -260,7 +260,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
                                 a.Swap(_ => p.Runtime);
                                 return p.Value;
                             }))
-        from _ in StateM.put<Eff<RT>, RT>(a.Value)
+        from _ in Stateful.put<Eff<RT>, RT>(a.Value)
         select r;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

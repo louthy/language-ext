@@ -11,11 +11,11 @@ namespace LanguageExt.Sys;
 /// Time IO 
 /// </summary>
 public static class Console<M, RT>
-    where M : StateM<M, RT>, Monad<M>
+    where M : Stateful<M, RT>, Monad<M>
     where RT : Has<M, ConsoleIO>
 {
     static readonly K<M, ConsoleIO> trait = 
-        StateM.getsM<M, RT, ConsoleIO>(e => e.Trait);
+        Stateful.getsM<M, RT, ConsoleIO>(e => e.Trait);
 
     /// <summary>
     /// Read a key from the console

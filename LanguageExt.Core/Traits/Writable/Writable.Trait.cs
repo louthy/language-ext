@@ -1,5 +1,4 @@
 ﻿using System;
-using LanguageExt.Traits;
 
 namespace LanguageExt.Traits;
 
@@ -17,8 +16,8 @@ namespace LanguageExt.Traits;
 /// </summary>
 /// <typeparam name="M">Writer self trait</typeparam>
 /// <typeparam name="W">Monoidal output type</typeparam>
-public interface WriterM<M, W>  
-    where M : WriterM<M, W>
+public interface Writable<M, W>  
+    where M : Writable<M, W>
     where W : Monoid<W>
 {
     /// <summary>
@@ -36,7 +35,7 @@ public interface WriterM<M, W>
 
     /// <summary>
     /// `Pass` is an action that executes the `action`, which returns a value and a
-    /// function; it then returns a the value with the output having been applied to
+    /// function; it then returns the value with the output having been applied to
     /// the function.
     /// </summary>
     /// <remarks>

@@ -20,14 +20,14 @@ public partial class Prelude
     /// </summary>
     public static Writer<W, A> write<W, A>((A, W) item) 
         where W : Monoid<W> =>
-        WriterM.write<Writer<W>, W, A>(item).As();
+        Writable.write<Writer<W>, W, A>(item).As();
 
     /// <summary>
     /// Writes an item and returns a value at the same time
     /// </summary>
     public static Writer<W, A> write<W, A>(A value, W item)
         where W : Monoid<W> =>
-        WriterM.write<Writer<W>, W, A>(value, item).As();
+        Writable.write<Writer<W>, W, A>(value, item).As();
 
     /// <summary>
     /// `pass` is an action that executes the `action`, which returns a value and a
@@ -36,7 +36,7 @@ public partial class Prelude
     /// </summary>
     public static Writer<W, A> pass<W, A>(Writer<W, (A Value, Func<W, W> Function)> action)
         where W : Monoid<W> =>
-        WriterM.pass(action).As();
+        Writable.pass(action).As();
 
     /// <summary>
     /// `listen` is executes the action `ma` and adds the result of applying `f` to the
@@ -44,7 +44,7 @@ public partial class Prelude
     /// </summary>
     public static Writer<W, (A Value, W Output)> listen<W, A>(Writer<W, A> ma)
         where W : Monoid<W> =>
-        WriterM.listen<Writer<W>, W, A>(ma).As();
+        Writable.listen<Writer<W>, W, A>(ma).As();
 
     /// <summary>
     /// `listens` is executes the action `ma` and adds the result of applying `f` to the
@@ -52,7 +52,7 @@ public partial class Prelude
     /// </summary>
     public static Writer<W, (A Value, B Output)> listens<W, A, B>(Func<W, B> f, Writer<W, A> ma)
         where W : Monoid<W> =>
-        WriterM.listens(f, ma).As();
+        Writable.listens(f, ma).As();
 
     /// <summary>
     /// `censor` is executes the action `ma` and applies the function `f` to its output,
@@ -60,5 +60,5 @@ public partial class Prelude
     /// </summary>
     public static Writer<W, A> censor<W, A>(Func<W, W> f, Writer<W, A> ma)
         where W : Monoid<W> =>
-        WriterM.censor(f, ma).As();
+        Writable.censor(f, ma).As();
 }

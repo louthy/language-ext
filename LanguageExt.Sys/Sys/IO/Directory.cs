@@ -7,10 +7,10 @@ namespace LanguageExt.Sys.IO;
 
 public class Directory<M, RT>
     where RT : Has<M, DirectoryIO>
-    where M : StateM<M, RT>, Monad<M>
+    where M : Stateful<M, RT>, Monad<M>
 {
     static readonly K<M, DirectoryIO> trait = 
-        StateM.getsM<M, RT, DirectoryIO>(e => e.Trait); 
+        Stateful.getsM<M, RT, DirectoryIO>(e => e.Trait); 
     
     /// <summary>
     /// Create a directory

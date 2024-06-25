@@ -2,8 +2,8 @@
 
 namespace LanguageExt.Traits;
 
-public interface ReaderM<M, Env>
-    where M : ReaderM<M, Env>
+public interface Readable<M, Env>
+    where M : Readable<M, Env>
 {
     public static abstract K<M, A> Asks<A>(Func<Env, A> f);
 

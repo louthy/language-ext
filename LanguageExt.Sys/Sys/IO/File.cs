@@ -13,11 +13,11 @@ namespace LanguageExt.Sys.IO;
 /// File IO 
 /// </summary>
 public class File<M, RT>
-    where M : StateM<M, RT>, Monad<M>
+    where M : Stateful<M, RT>, Monad<M>
     where RT : Has<M, FileIO>, Has<M, EncodingIO>
 {
     static readonly K<M, FileIO> trait = 
-        StateM.getsM<M, RT, FileIO>(e => (e as Has<M, FileIO>).Trait); 
+        Stateful.getsM<M, RT, FileIO>(e => (e as Has<M, FileIO>).Trait); 
     
     /// <summary>
     /// Copy file 
