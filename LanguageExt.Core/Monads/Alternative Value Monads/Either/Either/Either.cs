@@ -1277,7 +1277,9 @@ namespace LanguageExt
         /// <returns>Bound Either</returns>
         [Pure]
         public Either<L, B> Bind<B>(Func<R, Either<L, B>> f) =>
-            MEither<L, R>.Inst.Bind<MEither<L, B>, Either<L, B>, B>(this, f);
+            IsRight ? f(RightValue)
+          : IsLeft  ? Left<L, B>(LeftValue)
+          : Either<L, B>.Bottom;
 
         /// <summary>
         /// Bi-bind.  Allows mapping of both monad states
