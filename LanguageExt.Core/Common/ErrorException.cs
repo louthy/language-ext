@@ -177,7 +177,7 @@ public abstract class ErrorException : Exception, IEnumerable<ErrorException>, M
 /// <summary>
 /// Represents expected errors
 /// </summary>
-public sealed class ExpectedException : ErrorException
+public class ExpectedException : ErrorException
 {
     public ExpectedException(string message, int code, Option<ErrorException> inner) : base(code) =>
         (Message, Code, Inner) = (message, code, inner);
@@ -230,6 +230,17 @@ public sealed class ExpectedException : ErrorException
         error is ManyExceptions m
             ? new ManyExceptions(error.Cons(m.Errors))
             : new ManyExceptions(Seq(this, error));
+}
+
+/// <summary>
+/// Wraps an `Error` maintaining its type for subsequent conversion back to an `Error` later
+/// </summary>
+/// <param name="Error"></param>
+public sealed class WrappedErrorExpectedException(Error Error) : 
+    ExpectedException(Error.Message, Error.Code, Error.Inner.Map(e => e.ToErrorException()))
+{
+    public override Error ToError() => 
+        Error;
 }
 
 /// <summary>
@@ -304,6 +315,17 @@ public class ExceptionalException : ErrorException
         error is ManyExceptions m
             ? new ManyExceptions(error.Cons(m.Errors))
             : new ManyExceptions(Seq(this, error));
+}
+
+/// <summary>
+/// Wraps an `Error` maintaining its type for subsequent conversion back to an `Error` later
+/// </summary>
+/// <param name="Error"></param>
+public sealed class WrappedErrorExceptionalException(Error Error) : 
+    ExceptionalException(Error.Message, Error.Code)
+{
+    public override Error ToError() => 
+        Error;
 }
 
 /// <summary>

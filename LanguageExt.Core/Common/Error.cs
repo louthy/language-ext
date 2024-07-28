@@ -390,7 +390,7 @@ public record Expected(string Message, int Code, Option<Error> Inner = default) 
     /// </summary>
     [Pure]
     public override ErrorException ToErrorException() => 
-        new ExpectedException(Message, Code, Inner.Map(static e => e.ToErrorException()));
+        new WrappedErrorExpectedException(this);
 
     /// <summary>
     /// Returns false because this type isn't exceptional
@@ -482,9 +482,9 @@ public record Exceptional(string Message, int Code) : Error
     /// </summary>
     /// <returns></returns>
     [Pure]
-    public override ErrorException ToErrorException() => 
+    public override ErrorException ToErrorException() =>
         Value == null
-            ? new ExceptionalException(Message, Code)
+            ? new WrappedErrorExceptionalException(this)
             : new ExceptionalException(Value);
 
     /// <summary>

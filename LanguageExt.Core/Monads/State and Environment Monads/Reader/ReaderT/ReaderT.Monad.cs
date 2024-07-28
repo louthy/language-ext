@@ -55,5 +55,4 @@ public partial class ReaderT<Env, M> :
     static K<ReaderT<Env, M>, A> SemigroupK<ReaderT<Env, M>>.Combine<A>(
         K<ReaderT<Env, M>, A> ma, K<ReaderT<Env, M>, A> mb) =>
         new ReaderT<Env, M, A>(env => M.Combine(ma.As().runReader(env), mb.As().runReader(env)));
-
 }
