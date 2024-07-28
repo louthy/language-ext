@@ -41,7 +41,7 @@ public static class Eq
             EqA.GetHashCode(obj);
     }
 
-    public static IEqualityComparer<A> ToEqualityComparer<EqA, A>(this EqA self)
+    public static IEqualityComparer<A> Comparer<EqA, A>()
         where EqA : Eq<A> =>
         new EqEqualityComparer<EqA, A>();
 }
