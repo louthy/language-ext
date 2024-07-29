@@ -4,8 +4,10 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Threading.Tasks;
 using LanguageExt.Traits;
+using LanguageExt.UnsafeValueAccess;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Common;
@@ -333,6 +335,18 @@ public abstract record Error : Monoid<Error>
         ExceptionDispatchInfo.Capture(ToException()).Throw();
         return default;
     }
+
+    protected virtual bool PrintMembers(StringBuilder builder)
+    {
+        builder.Append("Message = ");
+        builder.Append(Message);
+        if (Code != 0)
+        {
+            builder.Append(", Code = ");
+            builder.Append(Code);
+        }
+        return true;
+    }
 }
 
 /// <summary>
@@ -421,10 +435,10 @@ public record Expected(string Message, int Code, Option<Error> Inner = default) 
 /// called against it; and `false` when `IsExpected` is called against it.  
 /// </summary>
 /// <remarks>
-/// If this record is constructed via deserialisation, or the default constructor then the internal `Exception` will
+/// If this record is constructed via deserialisation, or the default constructor then the internal `Exception`
 /// will be `null`.  This is intentional to stop exceptions leaking over application boundaries.  The type will
 /// gracefully handle that, but all stack-trace information (and the like) will be erased.  It is still considered
-/// an exceptional error however.
+/// an exceptional error, however.
 /// </remarks>
 [DataContract]
 public record Exceptional(string Message, int Code) : Error
@@ -633,7 +647,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
         Errors.Exists(e => e.Is(error));
 
     /// <summary>
-    /// True if any of the the errors are exceptional
+    /// True if any errors are exceptional
     /// </summary>
     [Pure]
     [IgnoreDataMember]
@@ -641,7 +655,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
         Errors.Exists(static e => e.IsExceptional);
 
     /// <summary>
-    /// True if all of the the errors are expected
+    /// True if all the errors are expected
     /// </summary>
     [Pure]
     [IgnoreDataMember]

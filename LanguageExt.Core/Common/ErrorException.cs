@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
+using System.Text;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -13,12 +14,17 @@ namespace LanguageExt.Common;
 /// Error value
 /// </summary>
 /// <remarks>
+/// This is a pair to the `Error` type, to allow `Error` to be converted to-and-from a classic `Exception`.
+///
+/// This allows code that can't handle the `Error` type to still throw something that keeps the fidelity of the `Error`
+/// type, and can be converted directly to an `Error` in a `catch` block. 
+/// </remarks>
+/// <remarks>
 /// Unlike exceptions, `Error` can be either:
 /// 
-/// * `Exceptional`         - representing an unexpected error
-/// * `LabelledExceptional` - representing an unexpected error with additional context (a message)
-/// * `Expected`            - representing an expected error
-/// * `ManyErrors`          - representing an many errors
+/// * `ExceptionalException`    - representing an unexpected error
+/// * `ExpectedException`       - representing an expected error
+/// * `ManyExceptions`          - representing many errors
 ///
 /// i.e. it is either created from an exception or it isn't.  This allows for expected errors to be represented
 /// without throwing exceptions.  
@@ -177,29 +183,33 @@ public abstract class ErrorException : Exception, IEnumerable<ErrorException>, M
 /// <summary>
 /// Represents expected errors
 /// </summary>
-public class ExpectedException : ErrorException
+public class ExpectedException(string message, int code, Option<ErrorException> inner = default) : ErrorException(code)
 {
-    public ExpectedException(string message, int code, Option<ErrorException> inner) : base(code) =>
-        (Message, Code, Inner) = (message, code, inner);
-    
     /// <summary>
     /// Error code
     /// </summary>
     [Pure]
-    public override int Code { get; } 
-    
+    public override int Code { get; } = code;
+
     /// <summary>
     /// Error message
     /// </summary>
     [Pure]
-    public override string Message { get; }
+    public override string Message { get; } = message;
+
+    /// <summary>
+    /// Convert the error to a string
+    /// </summary>
+    [Pure]
+    public override string ToString() => 
+        Message;
 
     /// <summary>
     /// Inner error
     /// </summary>
     [Pure]
-    public override Option<ErrorException> Inner { get; }
-    
+    public override Option<ErrorException> Inner { get; } = inner;
+
     /// <summary>
     /// Generates a new `Error` that contains the `Code`, `Message`, and `Inner` of this `ErrorException`.
     /// </summary>
@@ -239,8 +249,19 @@ public class ExpectedException : ErrorException
 public sealed class WrappedErrorExpectedException(Error Error) : 
     ExpectedException(Error.Message, Error.Code, Error.Inner.Map(e => e.ToErrorException()))
 {
+    /// <summary>
+    /// Convert back to an `Error`
+    /// </summary>
+    /// <returns></returns>
     public override Error ToError() => 
         Error;
+    
+    /// <summary>
+    /// Convert the error to a string
+    /// </summary>
+    [Pure]
+    public override string ToString() => 
+        Error.ToString();
 }
 
 /// <summary>
@@ -271,6 +292,13 @@ public class ExceptionalException : ErrorException
     public readonly Exception? Exception;
     public override int Code { get; }
     public override string Message { get; }
+    
+    /// <summary>
+    /// Convert the error to a string
+    /// </summary>
+    [Pure]
+    public override string ToString() => 
+        Message;
 
     /// <summary>
     /// Returns the inner exception as an `Error` (if one exists), None otherwise
@@ -324,22 +352,30 @@ public class ExceptionalException : ErrorException
 public sealed class WrappedErrorExceptionalException(Error Error) : 
     ExceptionalException(Error.Message, Error.Code)
 {
+    /// <summary>
+    /// Convert back to an `Error`
+    /// </summary>
+    /// <returns></returns>
     public override Error ToError() => 
         Error;
+    
+    /// <summary>
+    /// Convert the error to a string
+    /// </summary>
+    [Pure]
+    public override string ToString() => 
+        Message;
 }
 
 /// <summary>
 /// Represents multiple errors
 /// </summary>
 /// <param name="Errors">Errors</param>
-public sealed class ManyExceptions : ErrorException
+public sealed class ManyExceptions(Seq<ErrorException> errors) : ErrorException(0)
 {
     public new static ErrorException Empty { get; } = new ManyExceptions([]);
 
-    public ManyExceptions(Seq<ErrorException> errors) : base(0) =>
-        Errors = errors;
-
-    public readonly Seq<ErrorException> Errors;
+    public readonly Seq<ErrorException> Errors = errors;
 
     public override int Code => 
         Common.Errors.ManyErrorsCode;
@@ -359,6 +395,13 @@ public sealed class ManyExceptions : ErrorException
     /// </summary>
     public override Error ToError() => 
         new ManyErrors(Errors.Map(static e => e.ToError()));
+    
+    /// <summary>
+    /// Convert the error to a string
+    /// </summary>
+    [Pure]
+    public override string ToString() => 
+        Errors.ToFullArrayString();
 
     /// <summary>
     /// This type can contain zero or more errors.  If `IsEmpty` is `true` then this is like `None` in `Option`:  still
@@ -369,14 +412,14 @@ public sealed class ManyExceptions : ErrorException
         Errors.IsEmpty;
 
     /// <summary>
-    /// True if any of the the errors are exceptional
+    /// True if any of the errors are exceptional
     /// </summary>
     [Pure]
     public override bool IsExceptional =>
         Errors.Exists(static e => e.IsExceptional);
 
     /// <summary>
-    /// True if all of the the errors are expected
+    /// True if all the errors are expected
     /// </summary>
     [Pure]
     public override bool IsExpected =>
@@ -405,19 +448,14 @@ public sealed class ManyExceptions : ErrorException
 /// Value is bottom
 /// </summary>
 [Serializable]
-public class BottomException : ExceptionalException
+public class BottomException() : 
+    ExceptionalException(Errors.BottomText, Errors.BottomCode)
 {
     public static readonly BottomException Default;
 
-    static BottomException()
-    {
+    static BottomException() => 
         Default = new();
-    }
-    
-    public BottomException() : base(Errors.BottomText, Errors.BottomCode)
-    {
-    }
-    
+
     public override string Message =>
         Errors.BottomText;
 
