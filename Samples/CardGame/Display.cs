@@ -3,6 +3,9 @@ using static LanguageExt.Prelude;
 
 namespace CardGame;
 
+/// <summary>
+/// UI messages
+/// </summary>
 public static class Display
 {
     public static readonly IO<Unit> introduction =

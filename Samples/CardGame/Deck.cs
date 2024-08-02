@@ -10,13 +10,52 @@ namespace CardGame;
 public record Deck(Seq<Card> Cards)
 {
     public static Deck Empty = new ([]);
+
+    /// <summary>
+    /// Generate a randomly shuffled deck of cards 
+    /// </summary>
+    public static GameM<Unit> shuffle =>
+        from deck in generate
+        from _    in put(deck)
+        select unit;
+
+    /// <summary>
+    /// Get the deck from the game-state
+    /// </summary>
+    public static GameM<Deck> deck =>
+        GameM.gets(g => g.Deck);
+
+    /// <summary>
+    /// Return the number of cards remaining in the deck 
+    /// </summary>
+    public static GameM<int> cardsRemaining =>
+        deck.Map(d => d.Cards.Count);
+
+    /// <summary>
+    /// Deal a card from the deck
+    /// </summary>
+    /// <remarks>When the cards are exhausted the game will cancel</remarks>
+    public static GameM<Card> deal =>
+        from d in deck
+        from c in d.Cards switch
+                  {
+                      [] => from _ in Display.deckFinished
+                            from r in GameM.cancel
+                            select unit,
+                      _  => put(d.Take())
+                  }
+        from r in GameM.lift(d.Cards.Head)
+        select r;
+
+    /// <summary>
+    /// Update the deck 
+    /// </summary>
+    public static GameM<Unit> put(Deck deck) =>
+        GameM.modify(g => g with { Deck = deck });
     
-    public Deck Take() =>
-        new (Cards.Tail);
-
-    public override string ToString() =>
-        Cards.ToFullArrayString();
-
+    /// <summary>
+    /// Generate a randomly shuffled deck of cards
+    /// </summary>
     static IO<Deck> generate =>
         IO.lift(() =>
                 {
@@ -26,29 +65,9 @@ public record Deck(Seq<Card> Cards)
                     return new Deck(array.ToSeqUnsafe());
                 });
 
-    public static StateT<Game, OptionT<IO>, Unit> shuffle =>
-        from deck in generate
-        from _    in putDeck(deck)
-        select unit;
+    Deck Take() =>
+        new (Cards.Tail);
 
-    public static StateT<Game, OptionT<IO>, Deck> deck =>
-        StateT.gets<OptionT<IO>, Game, Deck>(g => g.Deck);
-
-    public static StateT<Game, OptionT<IO>, Unit> putDeck(Deck deck) =>
-        StateT.modify<OptionT<IO>, Game>(g => g with { Deck = deck });
-
-    public static StateT<Game, OptionT<IO>, int> cardsRemaining =>
-        deck.Map(d => d.Cards.Count);
-
-    public static StateT<Game, OptionT<IO>, Card> deal =>
-        from d in deck
-        from c in d.Cards switch
-                  {
-                      [] => from _ in Display.deckFinished
-                            from r in Game.noneM
-                            select unit,
-                      _  => putDeck(d.Take())
-                  }
-        from r in OptionT<IO>.lift(d.Cards.Head)
-        select r;
+    public override string ToString() =>
+        Cards.ToFullArrayString();
 }

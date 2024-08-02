@@ -4,9 +4,8 @@ using Console = System.Console;
 
 // Play the game!
 Game.play
-    .Run(Game.Zero).As() // Runs the StateT
-    .Run()               // Runs the OptionT
+    .Run(GameState.Zero) // Runs the GameM 
     .Run()               // Runs the IO
-    .Ignore();           // We don't care about the result
-    
+    .Ignore();
+
 Console.WriteLine("GAME OVER");
