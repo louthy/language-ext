@@ -8,8 +8,8 @@ namespace CardGame;
 /// </summary>
 public record Card(int Index)
 {
-    static string CardName(int index) =>
-        index switch
+    public string Name =>
+        (Index % 13) switch
         {
             0      => "Ace",
             10     => "Jack",
@@ -17,16 +17,20 @@ public record Card(int Index)
             12     => "King",
             var ix => $"{ix + 1}"
         };
-
-    public override string ToString() =>
+    
+    public string Suit =>
         Index switch
         {
-            < 13 => $"{CardName(Index)} of Hearts",
-            < 26 => $"{CardName(Index - 13)} of Clubs",
-            < 39 => $"{CardName(Index - 26)} of Spades",
-            _    => $"{CardName(Index - 39)} of Diamonds"
+            < 13 => "Hearts",
+            < 26 => "Clubs",
+            < 39 => "Spades",
+            < 52 => "Diamonds",
+            _    => throw new NotSupportedException()
         };
 
+    public override string ToString() =>
+        $"{Name} of {Suit}";
+    
     public Seq<int> FaceValues =>
         (Index % 13) switch
         {
