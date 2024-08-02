@@ -26,4 +26,14 @@ public record Card(int Index)
             < 39 => $"{CardName(Index - 26)} of Spades",
             _    => $"{CardName(Index - 39)} of Diamonds"
         };
+
+    public Seq<int> FaceValues =>
+        (Index % 13) switch
+        {
+            0     => [1, 11],    // Ace
+            10    => [10],       // Jack
+            11    => [10],       // Queen
+            12    => [10],       // King   
+            var x => [x + 1]
+        };
 }

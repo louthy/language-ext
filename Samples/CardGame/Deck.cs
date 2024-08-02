@@ -26,23 +26,28 @@ public record Deck(Seq<Card> Cards)
                     return new Deck(array.ToSeqUnsafe());
                 });
 
-    public static StateT<Deck, OptionT<IO>, Unit> shuffle =>
+    public static StateT<Game, OptionT<IO>, Unit> shuffle =>
         from deck in generate
-        from _    in StateT.put<OptionT<IO>, Deck>(deck)
+        from _    in putDeck(deck)
         select unit;
 
-    public static StateT<Deck, OptionT<IO>, Deck> deck =>
-        StateT.get<OptionT<IO>, Deck>();
+    public static StateT<Game, OptionT<IO>, Deck> deck =>
+        StateT.gets<OptionT<IO>, Game, Deck>(g => g.Deck);
 
-    public static StateT<Deck, OptionT<IO>, int> cardsRemaining =>
+    public static StateT<Game, OptionT<IO>, Unit> putDeck(Deck deck) =>
+        StateT.modify<OptionT<IO>, Game>(g => g with { Deck = deck });
+
+    public static StateT<Game, OptionT<IO>, int> cardsRemaining =>
         deck.Map(d => d.Cards.Count);
 
-    public static StateT<Deck, OptionT<IO>, Card> deal =>
+    public static StateT<Game, OptionT<IO>, Card> deal =>
         from d in deck
         from c in d.Cards switch
                   {
-                      [] => StateT<Deck>.lift(OptionT<IO>.None<Unit>()),
-                      _  => StateT.put<OptionT<IO>, Deck>(d.Take())
+                      [] => from _ in Display.deckFinished
+                            from r in Game.noneM
+                            select unit,
+                      _  => putDeck(d.Take())
                   }
         from r in OptionT<IO>.lift(d.Cards.Head)
         select r;
