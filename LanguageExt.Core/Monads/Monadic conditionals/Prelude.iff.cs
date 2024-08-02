@@ -1,106 +1,10 @@
-﻿using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.Traits;
 
-namespace LanguageExt.Traits;
+namespace LanguageExt;
 
-/// <summary>
-/// Monad module
-/// </summary>
-public static partial class Monad
+public static partial class Prelude
 {
-    [Pure]
-    public static K<M, A> pure<M, A>(A value) 
-        where M : Monad<M> =>
-        M.Pure(value);
-
-    [Pure]
-    public static K<M, A> flatten<M, A>(K<M, K<M, A>> mma)
-        where M : Monad<M> =>
-        M.Flatten(mma);
-
-    [Pure]
-    public static K<M, B> bind<M, A, B>(K<M, A> ma, Func<A, K<M, B>> f)
-        where M : Monad<M> =>
-        M.Bind(ma, f);
-    
-    [Pure]
-    public static MB bind<M, MB, A, B>(K<M, A> ma, Func<A, MB> f)
-        where MB : K<M, B>
-        where M : Monad<M> =>
-        (MB)bind(ma, x => f(x));
-
-    /// <summary>
-    /// When the predicate evaluates to `true`, compute `Then`
-    /// </summary>
-    /// <param name="Pred">Predicate</param>
-    /// <param name="Then">Computation</param>
-    /// <typeparam name="M">Monad</typeparam>
-    /// <returns>Unit monad</returns>
-    [Pure]
-    public static K<M, Unit> when<M>(K<M, bool> Pred, K<M, Unit> Then)
-        where M : Monad<M> =>
-        Pred.Bind(f => Applicative.when(f, Then));
-
-    /// <summary>
-    /// When the predicate evaluates to `true`, compute `Then`
-    /// </summary>
-    /// <param name="Pred">Predicate</param>
-    /// <param name="Then">Computation</param>
-    /// <typeparam name="M">Monad</typeparam>
-    /// <returns>Unit monad</returns>
-    [Pure]
-    public static K<M, Unit> when<M>(K<M, bool> Pred, K<IO, Unit> Then)
-        where M : Monad<M> =>
-        Pred.Bind(f => Applicative.when(f, Then));
-
-    /// <summary>
-    /// When the predicate evaluates to `true`, compute `Then`
-    /// </summary>
-    /// <param name="Pred">Predicate</param>
-    /// <param name="Then">Computation</param>
-    /// <typeparam name="M">Monad</typeparam>
-    /// <returns>Unit monad</returns>
-    [Pure]
-    public static K<M, Unit> when<M>(K<M, bool> Pred, Pure<Unit> Then)
-        where M : Monad<M> =>
-        Pred.Bind(f => Applicative.when(f, M.Pure(Prelude.unit)));
-
-    /// <summary>
-    /// When the predicate evaluates to `false`, compute `Then`
-    /// </summary>
-    /// <param name="Pred">Predicate</param>
-    /// <param name="Then">Computation</param>
-    /// <typeparam name="M">Monad</typeparam>
-    /// <returns>Unit monad</returns>
-    [Pure]
-    public static K<M, Unit> unless<M>(K<M, bool> Pred, K<M, Unit> Then)
-        where M : Monad<M> =>
-        Pred.Bind(f => Applicative.unless(f, Then));
-
-    /// <summary>
-    /// When the predicate evaluates to `false`, compute `Then`
-    /// </summary>
-    /// <param name="Pred">Predicate</param>
-    /// <param name="Then">Computation</param>
-    /// <typeparam name="M">Monad</typeparam>
-    /// <returns>Unit monad</returns>
-    [Pure]
-    public static K<M, Unit> unless<M>(K<M, bool> Pred, K<IO, Unit> Then)
-        where M : Monad<M> =>
-        Pred.Bind(f => Applicative.unless(f, Then));
-
-    /// <summary>
-    /// When the predicate evaluates to `false`, compute `Then`
-    /// </summary>
-    /// <param name="Pred">Predicate</param>
-    /// <param name="Then">Computation</param>
-    /// <typeparam name="M">Monad</typeparam>
-    /// <returns>Unit monad</returns>
-    [Pure]
-    public static K<M, Unit> unless<M>(K<M, bool> Pred, Pure<Unit> Then)
-        where M : Monad<M> =>
-        Pred.Bind(f => Applicative.unless(f, M.Pure(Prelude.unit)));
-
     /// <summary>
     /// Compute the predicate and depending on its state compute `Then` or `Else`
     /// </summary>
@@ -217,4 +121,16 @@ public static partial class Monad
     public static K<M, A> iff<M, A>(K<M, bool> Pred, K<IO, A> Then, Pure<A> Else)
         where M : Monad<M> =>
         Pred.Bind(f => f ? M.LiftIO(Then) : M.Pure(Else.Value));
+
+    /// <summary>
+    /// If this then that for higher-kinds
+    /// </summary>
+    /// <param name="Pred">Boolean flag to be computed</param>
+    /// <param name="Then">Then branch if the flag computes to `true`</param>
+    /// <param name="Else">Else branch if the flag computes to `false`</param>
+    /// <typeparam name="F">Trait type</typeparam>
+    /// <typeparam name="A">Bound return value</typeparam>
+    /// <returns>Returns either the `then` or `else` branches depending on the computed `flag`</returns>
+    public static K<F, A> iff<F, A>(bool Pred, K<F, A> Then, K<F, A> Else) =>
+        Pred ? Then : Else;
 }

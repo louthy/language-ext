@@ -220,6 +220,15 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
     public StateT<S, M, B> Bind<B>(Func<A, IO<B>> f) =>
         Bind(x => StateT<S, M, B>.LiftIO(f(x)));
 
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`StateT`</returns>
+    public StateT<S, M, B> Bind<B>(Func<A, K<IO, B>> f) =>
+        Bind(x => StateT<S, M, B>.LiftIO(f(x).As()));
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  SelectMany
@@ -314,6 +323,17 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
     /// <returns>`StateT`</returns>
     public StateT<S, M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`StateT`</returns>
+    public StateT<S, M, C> SelectMany<B, C>(Func<A, K<IO, B>> bind, Func<A, B, C> project) =>
+        Bind(x => bind(x).As().Map(y => project(x, y)));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

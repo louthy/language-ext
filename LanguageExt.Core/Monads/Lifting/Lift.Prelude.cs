@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using LanguageExt.Traits;
 
@@ -121,4 +122,12 @@ public static partial class Prelude
     public static ValidationT<L, IO, A> liftIO<L, A>(Task<Validation<L, A>> ma) 
         where L : Monoid<L> =>
         new(IO.liftAsync(async () => await ma.ConfigureAwait(false)));
+    
+    /// <summary>
+    /// Lift the IO monad into a transformer-stack with an IO as its innermost monad.
+    /// </summary>
+    public static K<T, A> liftIO<T, M, A>(IO<A> ma)
+        where T : MonadT<T, M>
+        where M : Monad<M> => 
+        T.Lift(M.LiftIO(ma));
 }

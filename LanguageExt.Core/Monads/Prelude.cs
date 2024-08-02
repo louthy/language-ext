@@ -50,12 +50,4 @@ public static partial class Prelude
     /// <returns>Pure monad</returns>
     public static Fail<E> Fail<E>(E error) =>
         new(error);
-    
-    /// <summary>
-    /// Lift the IO monad into a transformer-stack with an IO as its innermost monad.
-    /// </summary>
-    public static K<T, A> liftIO<T, M, A>(IO<A> ma)
-        where T : MonadT<T, M>
-        where M : Monad<M> => 
-        T.Lift(M.LiftIO(ma));
 }
