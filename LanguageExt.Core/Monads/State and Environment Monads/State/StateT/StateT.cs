@@ -246,7 +246,7 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
     /// <returns>`StateT`</returns>
     public StateT<S, M, C> SelectMany<B, C>(Func<A, StateT<S, M, B>> bind, Func<A, B, C> project) =>
         new(state => M.Bind(runState(state), 
-                            x => M.Map(y => (project(x.Value, y.Value), x.State), 
+                            x => M.Map(y => (project(x.Value, y.Value), y.State), 
                                        bind(x.Value).runState(x.State))));
 
     /// <summary>
