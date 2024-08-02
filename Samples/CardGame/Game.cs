@@ -44,9 +44,7 @@ public static class Game
         from _1 in playHand
         from _2 in Display.askPlayAgain
         from ky in Console.readKey
-        from _3 in ky.Key == ConsoleKey.Y
-                       ? playHands
-                       : GameM.unitM
+        from _3 in when(ky.Key == ConsoleKey.Y, playHands)
         select unit;
 
     /// <summary>
