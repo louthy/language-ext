@@ -145,7 +145,7 @@ public static partial class Prelude
     /// <returns>Result of computation</returns>
     [Pure]
     [MethodImpl(Opt.Default)]
-    public static K<M, A> local<M, A>(K<M, A> computation)
+    public static K<M, A> localIO<M, A>(K<M, A> computation)
         where M : Monad<M> =>
         from mk in M.UnliftIO<A>()
         from io in mk(computation).Bracket()
