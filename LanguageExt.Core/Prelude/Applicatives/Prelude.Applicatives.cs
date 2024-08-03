@@ -20,7 +20,7 @@ public static partial class Prelude
     /// Runs each applicative and returns the result of the last one
     /// </remarks>
     public static K<F, A> actions<F, A>(IEnumerable<K<F, A>> ms)
-        where F : Monad<F> =>
+        where F : Applicative<F> =>
         F.Actions(ms);
 
     /// <summary>
@@ -30,6 +30,6 @@ public static partial class Prelude
     /// Runs each applicative and returns the result of the last one
     /// </remarks>
     public static K<F, A> actions<F, A>(Seq<K<F, A>> ms)
-        where F : Monad<F> =>
+        where F : Applicative<F> =>
         F.Actions(ms);
 }
