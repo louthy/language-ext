@@ -37,15 +37,10 @@ public record Deck(Seq<Card> Cards)
     /// <remarks>When the cards are exhausted the game will cancel</remarks>
     public static GameM<Card> deal =>
         from d in deck
-        from c in d.Cards switch
-                  {
-                      [] => from _ in Display.deckFinished
-                            from r in GameM.cancel
-                            select unit,
-                      _  => put(d.Take())
-                  }
-        from r in GameM.lift(d.Cards.Head)
-        select r;
+        from x in when(d.Cards.IsEmpty, Display.deckFinished) 
+        from c in GameM.lift(d.Cards.Head)
+        from _ in put(new Deck(d.Cards.Tail))
+        select c;
 
     /// <summary>
     /// Update the deck 
@@ -58,12 +53,12 @@ public record Deck(Seq<Card> Cards)
     /// </summary>
     static IO<Deck> generate =>
         IO.lift(() =>
-                {
-                    var random = new Random((int)DateTime.Now.Ticks);
-                    var array  = LanguageExt.List.generate(52, ix => new Card(ix)).ToArray();
-                    random.Shuffle(array);
-                    return new Deck(array.ToSeqUnsafe());
-                });
+        {
+            var random = new Random((int)DateTime.Now.Ticks);
+            var array  = LanguageExt.List.generate(52, ix => new Card(ix)).ToArray();
+            random.Shuffle(array);
+            return new Deck(array.ToSeqUnsafe());
+        });
 
     Deck Take() =>
         new (Cards.Tail);
