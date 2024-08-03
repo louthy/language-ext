@@ -6,12 +6,12 @@ namespace CardGame;
 /// <summary>
 /// Pontoon / Vingt-Un / 21
 /// </summary>
-public static class Game
+public partial class Game
 {
     /// <summary>
     /// Play the game!
     /// </summary>
-    public static GameM<Unit> play =>
+    public static Game<Unit> play =>
         from _0 in Display.askPlayerNames
         from _1 in enterPlayerNames
         from _2 in Display.introduction
@@ -22,22 +22,22 @@ public static class Game
     /// <summary>
     /// Ask the users to enter their names until `enterPlayerName` returns `false`
     /// </summary>
-    static GameM<Unit> enterPlayerNames =>
-        when(enterPlayerName, GameM.lazy(() => enterPlayerNames)).As();
+    static Game<Unit> enterPlayerNames =>
+        when(enterPlayerName, lazy(() => enterPlayerNames)).As();
 
     /// <summary>
     /// Wait for the user to enter the name of a player, then add them to the game 
     /// </summary>
-    static GameM<bool> enterPlayerName =>
+    static Game<bool> enterPlayerName =>
         from name in Console.readLine
-        from _    in when(notEmpty(name), GameM.addPlayer(name))
+        from _    in when(notEmpty(name), addPlayer(name))
         select notEmpty(name);
 
     /// <summary>
     /// Play many hands until the players decide to quit
     /// </summary>
-    static GameM<Unit> playHands =>
-        from _0  in GameM.resetPlayers
+    static Game<Unit> playHands =>
+        from _0  in resetPlayers
         from _1  in playHand
         from _2  in Display.askPlayAgain
         from key in Console.readKey
@@ -47,7 +47,7 @@ public static class Game
     /// <summary>
     /// Play a single hand
     /// </summary>
-    static GameM<Unit> playHand =>
+    static Game<Unit> playHand =>
         from _1     in dealHands
         from _2     in playRound
         from _3     in gameOver
@@ -58,13 +58,13 @@ public static class Game
     /// <summary>
     /// Deal the initial cards to the players
     /// </summary>
-    static GameM<Unit> dealHands =>
-        Players.with(GameM.players, dealHand);
+    static Game<Unit> dealHands =>
+        Players.with(Game.players, dealHand);
 
     /// <summary>
     /// Deal the two initial cards to a player
     /// </summary>
-    static GameM<Unit> dealHand =>
+    static Game<Unit> dealHand =>
         from _1     in dealCard
         from _2     in dealCard
         from player in Player.current
@@ -75,7 +75,7 @@ public static class Game
     /// <summary>
     /// Deal a single card
     /// </summary>
-    static GameM<Unit> dealCard =>
+    static Game<Unit> dealCard =>
         from card in Deck.deal
         from _    in Player.addCard(card)
         select unit;
@@ -84,9 +84,9 @@ public static class Game
     /// For each active player check if they want to stick or twist
     /// Keep looping until the game ends
     /// </summary>
-    private static GameM<Unit> playRound =>
-        when(GameM.isGameActive,
-             from _ in Players.with(GameM.activePlayers, stickOrTwist) 
+    static Game<Unit> playRound =>
+        when(isGameActive,
+             from _ in Players.with(activePlayers, stickOrTwist) 
              from r in playRound
              select r)
             .As();
@@ -94,8 +94,8 @@ public static class Game
     /// <summary>
     /// Ask the player if they want to stick or twist, then follow their instruction
     /// </summary>
-    static GameM<Unit> stickOrTwist =>
-        when(GameM.isGameActive,
+    static Game<Unit> stickOrTwist =>
+        when(isGameActive,
              from player in Player.current
              from _0     in Display.askStickOrTwist(player)
              from _1     in Player.showCards
@@ -112,7 +112,7 @@ public static class Game
     /// <summary>
     /// Player wants to twist
     /// </summary>
-    static GameM<Unit> twist =>
+    static Game<Unit> twist =>
         from card in Deck.deal
         from _1   in Player.addCard(card)
         from _2   in Display.showCard(card)
@@ -122,7 +122,7 @@ public static class Game
     /// <summary>
     /// Berate the user for not following instructions!
     /// </summary>
-    static GameM<Unit> stickOrTwistBerate =>
+    static Game<Unit> stickOrTwistBerate =>
         from _1 in Display.stickOrTwistBerate
         from _2 in stickOrTwist
         select unit;
@@ -130,9 +130,9 @@ public static class Game
     /// <summary>
     /// Show the game over summary
     /// </summary>
-    static GameM<Unit> gameOver =>
-        from ps in GameM.playersState
-        from ws in GameM.winners
+    static Game<Unit> gameOver =>
+        from ws in winners
+        from ps in playersState
         from _1 in Display.winners(ws)
         from _2 in Display.playerStates(ps)
         select unit;

@@ -15,64 +15,64 @@ public record Player(string Name)
     /// <param name="ma"></param>
     /// <typeparam name="A"></typeparam>
     /// <returns></returns>
-    public static GameM<A> with<A>(Player player, GameM<A> ma) =>
-        from p in GameM.gets(s => s.CurrentPlayer)
-        from a in GameM.modify(s => s with { CurrentPlayer = player })
+    public static Game<A> with<A>(Player player, Game<A> ma) =>
+        from p in Game.gets(s => s.CurrentPlayer)
+        from a in Game.modify(s => s with { CurrentPlayer = player })
         from r in ma
-        from b in GameM.modify(s => s with { CurrentPlayer = p })
+        from b in Game.modify(s => s with { CurrentPlayer = p })
         select r;
 
     /// <summary>
-    /// Get the current player.  If there isn't one, then GameM.cancel is raised
+    /// Get the current player.  If there isn't one, then Game.cancel is raised
     /// </summary>
-    public static GameM<Player> current =>
-        from p in GameM.gets(s => s.CurrentPlayer)
-        from r in GameM.lift(p)
+    public static Game<Player> current =>
+        from p in Game.gets(s => s.CurrentPlayer)
+        from r in Game.lift(p)
         select r;
 
     /// <summary>
     /// Get a player's state from the StateT monad-transformer
     /// </summary>
-    public static GameM<PlayerState> state =>
+    public static Game<PlayerState> state =>
         from pl in current
-        from s1 in GameM.state.Map(s => s.State)
-        from s2 in GameM.lift(s1.Find(pl))
+        from s1 in Game.state.Map(s => s.State)
+        from s2 in Game.lift(s1.Find(pl))
         select s2;
 
     /// <summary>
     /// Show the player's cards
     /// </summary>
-    public static GameM<Unit> showCards =>
+    public static Game<Unit> showCards =>
         from state in state
-        from score in GameM.currentHighScore
+        from score in Game.currentHighScore
         from cards in Display.showCardsAndScores(state.Cards, state.Scores, score)
         select unit;
 
     /// <summary>
     /// Modify a player's game-state stored in the StateT monad-transformer
     /// </summary>
-    static GameM<Unit> modify(
+    static Game<Unit> modify(
         Func<PlayerState, PlayerState> f) =>
         from p in current
         from s in state
-        from _ in GameM.modifyPlayers(s1 => s1.SetItem(p, f(s)))
+        from _ in Game.modifyPlayers(s1 => s1.SetItem(p, f(s)))
         select unit;
     
     /// <summary>
     /// Add a card to a player's state
     /// </summary>
-    public static GameM<Unit> addCard(Card card) =>
+    public static Game<Unit> addCard(Card card) =>
         modify(p => p.AddCard(card));
 
     /// <summary>
     /// Set a player's state to stick
     /// </summary>
-    public static GameM<Unit> stick =>
+    public static Game<Unit> stick =>
         modify(p => p.Stick());
 
     /// <summary>
     /// Gets whether the player is bust or not
     /// </summary>
-    public static GameM<bool> isBust =>
+    public static Game<bool> isBust =>
         state.Map(p => p.IsBust);
 }
