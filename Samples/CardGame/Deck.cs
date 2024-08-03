@@ -60,9 +60,6 @@ public record Deck(Seq<Card> Cards)
             return new Deck(array.ToSeqUnsafe());
         });
 
-    Deck Take() =>
-        new (Cards.Tail);
-
     public override string ToString() =>
         Cards.ToFullArrayString();
 }
