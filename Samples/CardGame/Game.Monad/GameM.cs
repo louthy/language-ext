@@ -1,6 +1,5 @@
 using LanguageExt;
 using LanguageExt.Traits;
-using static LanguageExt.Prelude;
 namespace CardGame;
 
 public record GameM<A>(StateT<GameState, OptionT<IO>, A> runGame) : K<GameM, A>

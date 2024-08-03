@@ -11,7 +11,7 @@ public static class Display
     public static readonly IO<Unit> introduction =
         Console.writeLine("Let's play...");
 
-    public static readonly IO<Unit> askToEnterPlayerName =
+    public static readonly IO<Unit> askPlayerNames =
         Console.writeLine("Enter a player name, or just press enter complete");
     
     public static readonly IO<Unit> askPlayAgain =
@@ -24,7 +24,7 @@ public static class Display
         Console.writeLine($"{remain} cards remaining in the deck");
 
     public static readonly IO<Unit> bust =
-        Console.writeLine("Bust!");
+        Console.writeLine("\tBust!");
 
     public static IO<Unit> playerExists(string name) =>
         actions(Console.writeLine($"Player '{name}' already exists"),
@@ -38,17 +38,22 @@ public static class Display
 
     public static IO<Unit> playerState(Player player, PlayerState state) =>
         state.StickState
-            ? Console.writeLine($"Player: {player.Name} {state.Cards}, possible scores {state.Scores} [STICK]")
-            : Console.writeLine($"Player: {player.Name} {state.Cards}, possible scores {state.Scores}");
+            ? Console.writeLine($"{player.Name} {state.Cards}, possible scores {state.Scores} [STICK]")
+            : Console.writeLine($"{player.Name} {state.Cards}, possible scores {state.Scores}");
 
-    public static IO<Unit> playerWins(Player player) =>
-        Console.writeLine($"{player.Name} is the winner!");
+    public static IO<Unit> winners(Seq<(Player Player, int Score)> winners) =>
+        winners switch
+        {
+            []      => everyoneIsBust,
+            [var p] => Console.writeLine($"{p.Player.Name} is the winner with {p.Score}!"),
+            var ps  => Console.writeLine($"{ps.Map(p => p.Player.Name).ToFullString()} have won with {ps[0].Score}!")
+        };
 
-    public static IO<Unit> everyoneIsBust() =>
+    public static IO<Unit> everyoneIsBust =>
         Console.writeLine("Everyone's bust!");
     
     public static IO<Unit> askStickOrTwist(Player player) =>
-        Console.writeLine($"Player: {player.Name}, stick or twist? (S/T)");
+        Console.writeLine($"{player.Name}, stick or twist? (S/T)");
     
     public static readonly IO<Unit> stickOrTwistBerate =
         Console.writeLine("'S' key for stick, 'T' for twist!");

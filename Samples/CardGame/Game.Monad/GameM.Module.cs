@@ -76,6 +76,20 @@ public partial class GameM
     /// </summary>
     public static GameM<Unit> resetPlayers =>
         modifyPlayers(kv => kv.Map(_ => PlayerState.Zero));
+
+    /// <summary>
+    /// Return the winners of the game (there may be multiple winners!)
+    /// </summary>
+    public static GameM<Seq<(Player Player, int Score)>> winners =>
+        from ps in playersState
+        select ps.Choose(p => p.State.MaximumNonBustScore.Map(score => (p.Player, Score: score)))
+                 .OrderByDescending(p => p.Score)
+                 .Select(Seq)
+                 .Reduce((ss, sp) => (from s in ss
+                                      from p in sp
+                                      select s.Score == p.Score).ForAll(x => x)
+                                         ? ss + sp
+                                         : ss);
     
     /// <summary>
     /// Discover if a player exists
@@ -100,24 +114,30 @@ public partial class GameM
                   from _2 in Display.playerAdded(name)
                   select unit)
            .As();
+
+    /// <summary>
+    /// Lazy wrapper
+    /// </summary>
+    public static GameM<A> lazy<A>(Func<GameM<A>> f) =>
+        unitM.Bind(_ => f());
     
     /// <summary>
     /// Lift an option into the GameM - None will cancel the game
     /// </summary>
-    internal static GameM<A> lift<A>(Option<A> ma) => 
+    public static GameM<A> lift<A>(Option<A> ma) => 
         new (StateT<GameState>.lift(OptionT<IO>.lift(ma)));
     
     /// <summary>
     /// Lift an IO operation into the GameM
     /// </summary>
-    internal static GameM<A> liftIO<A>(IO<A> ma) => 
+    public static GameM<A> liftIO<A>(IO<A> ma) => 
         new (StateT.liftIO<GameState, OptionT<IO>, A>(ma));
     
     /// <summary>
     /// Represents a None state in the embedded OptionT transformer
     /// </summary>
     /// <remarks>Use this to cancel a GameM computation</remarks>
-    internal static GameM<A> lift<A>(StateT<GameState, OptionT<IO>, A> ma) => 
+    public static GameM<A> lift<A>(StateT<GameState, OptionT<IO>, A> ma) => 
         new (ma);
 
     /// <summary>

@@ -87,4 +87,16 @@ public readonly struct Unit : IEquatable<Unit>, IComparable<Unit>
     [Pure]
     public static implicit operator Unit(ValueTuple _) => 
         default;
+        
+    [Pure]
+    public static implicit operator Unit(Seq<Unit> _) => 
+        default;
+        
+    [Pure]
+    public static implicit operator Unit(Lst<Unit> _) => 
+        default;
+        
+    [Pure]
+    public static implicit operator Unit(EnumerableM<Unit> _) => 
+        default;
 }
