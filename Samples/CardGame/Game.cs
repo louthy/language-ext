@@ -63,7 +63,7 @@ public static class Game
     /// </summary>
     static GameM<Unit> dealHands =>
         from ps in GameM.players
-        from _1 in ps.Traverse(dealHand)
+        from _  in ps.Traverse(dealHand)
         select unit;
 
     /// <summary>
