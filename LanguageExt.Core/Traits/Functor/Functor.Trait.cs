@@ -9,7 +9,7 @@ namespace LanguageExt.Traits;
 /// `Map` is used to apply a function of type `Func<A, B>` to a value of type `K<F, A>`
 /// where `F` is a functor, to produce a value of type `K<F, B>`.
 ///
-/// Note that for any type type with more than one parameter (e.g., `Either`), only the
+/// Note that for any type with more than one parameter (e.g., `Either`), only the
 /// last type parameter can be modified with `Map` (e.g. `R` in `Either<L, R>`).
 /// 
 /// Some types two generic parameters or more have a `Bifunctor` instance that allows both

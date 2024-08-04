@@ -31,8 +31,8 @@ public static class Players
     /// Return a sequence of results, one for each player
     /// </summary>
     public static Game<Unit> with<A>(Seq<Player> players, Game<A> ma) =>
-        players.Traverse(p => Player.with(p, ma)).
-                Map(_ => unit)
+        players.Traverse(p => Player.with(p, ma))
+               .Map(_ => unit)
                .As();
     
     /// <summary>

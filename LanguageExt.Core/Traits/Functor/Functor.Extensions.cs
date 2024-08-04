@@ -8,10 +8,22 @@ namespace LanguageExt;
 public static partial class FunctorExtensions
 {
     /// <summary>
+    /// Ignores the bound value result and instead maps it to `Unit`
+    /// </summary>
+    /// <param name="fa">Functor that returns a bound value that should be ignored</param>
+    /// <typeparam name="F">Functor trait</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Functor with unit bound value</returns>
+    public static K<F, Unit> IgnoreF<F, A>(this K<F, A> fa)
+        where F : Functor<F> =>
+        fa.Map(_ => default(Unit));
+    
+    /// <summary>
     /// Monad bind operation
     /// </summary>
     /// <param name="bind">Monadic bind function</param>
     /// <param name="project">Projection function</param>
+    /// <typeparam name="F">Functor trait</typeparam>
     /// <typeparam name="A">Initial bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>M<C></returns>
@@ -31,6 +43,7 @@ public static partial class FunctorExtensions
     /// </summary>
     /// <param name="bind">Monadic bind function</param>
     /// <param name="project">Projection function</param>
+    /// <typeparam name="F">Functor trait</typeparam>
     /// <typeparam name="A">Initial bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>M<C></returns>
@@ -50,6 +63,7 @@ public static partial class FunctorExtensions
     /// </summary>
     /// <param name="bind">Monadic bind function</param>
     /// <param name="project">Projection function</param>
+    /// <typeparam name="F">Functor trait</typeparam>
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>M<C></returns>
@@ -69,6 +83,7 @@ public static partial class FunctorExtensions
     /// </summary>
     /// <param name="bind">Monadic bind function</param>
     /// <param name="project">Projection function</param>
+    /// <typeparam name="F">Functor trait</typeparam>
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>M<C></returns>
