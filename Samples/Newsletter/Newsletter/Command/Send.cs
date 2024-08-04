@@ -36,7 +36,7 @@ public static class Send<M, RT>
         from k in Console<M, RT>.readKey
         from x in Display<M, RT>.emptyLine
         from _ in k.Key == ConsoleKey.Y
-                      ? M.Pure(unit)
-                      : Fallible.error<M>(Error.New("user cancelled"))
+                      ? pure<M, Unit>(unit)
+                      : error<M>(Error.New("user cancelled"))
         select unit;
 }

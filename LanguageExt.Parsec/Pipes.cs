@@ -30,8 +30,8 @@ public static class ParsecPipes
         from t in Pipe.awaiting<M, PString, OUT>()
         from r in ma.Parse(t).ToEither() switch
                   {
-                      Either.Right<string, OUT> (var x) => IO.Pure(x),
-                      Either.Left<string, OUT> (var e)  => IO.Fail<OUT>(Errors.ParseError(e)),
+                      Either.Right<string, OUT> (var x) => IO.pure(x),
+                      Either.Left<string, OUT> (var e)  => IO.fail<OUT>(Errors.ParseError(e)),
                       _                                 => throw new NotSupportedException()
                   }
         from _ in Pipe.yield<PString, OUT, M>(r)
@@ -74,8 +74,8 @@ public static class ParsecPipes
         from t in Pipe.awaiting<M, PString<IN>, OUT>()
         from r in ma.Parse(t).ToEither() switch
                   {
-                      Either.Right<string, OUT> (var x) => IO.Pure(x),
-                      Either.Left<string, OUT> (var e)  => IO.Fail<OUT>(Errors.ParseError(e)),
+                      Either.Right<string, OUT> (var x) => IO.pure(x),
+                      Either.Left<string, OUT> (var e)  => IO.fail<OUT>(Errors.ParseError(e)),
                       _                                 => throw new NotSupportedException()
                   }
         from _ in Pipe.yield<PString<IN>, OUT, M>(r)

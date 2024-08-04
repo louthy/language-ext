@@ -154,7 +154,31 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
                          {
                              true  => f(ea.SuccessValue).runValidation,
                              false => M.Pure(Validation<L, B>.Fail(ea.FailValue))
-                         }));        
+                         }));    
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="Succ">Success mapping function</param>
+    /// <param name="Fail">Failure mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`ValidationT`</returns>
+    public ValidationT<L, M, B> BiBind<B>(Func<A, ValidationT<L, M, B>> Succ, Func<L, ValidationT<L, M, B>> Fail) =>
+        new(M.Bind(runValidation,
+                   ea => ea.IsSuccess switch
+                         {
+                             true  => Succ(ea.SuccessValue).runValidation,
+                             false => Fail(ea.FailValue).runValidation
+                         }));
+
+    /// <summary>
+    /// Failure bind operation
+    /// </summary>
+    /// <param name="Fail">Failure mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`ValidationT`</returns>
+    public ValidationT<L, M, A> BindFail(Func<L, ValidationT<L, M, A>> Fail) =>
+        BiBind(Success, Fail);
 
     /// <summary>
     /// Monad bind operation

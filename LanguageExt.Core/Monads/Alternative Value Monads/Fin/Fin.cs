@@ -144,6 +144,13 @@ public abstract class Fin<A> :
     public abstract Fin<B> BiBind<B>(Func<A, Fin<B>> Succ, Func<Error, Fin<B>> Fail);
 
     /// <summary>
+    /// Bind if in a fail state  
+    /// </summary>
+    [Pure]
+    public Fin<A> BindFail(Func<Error, Fin<A>> Fail) =>
+        BiBind(Succ, Fail);
+
+    /// <summary>
     /// Monoid empty
     /// </summary>
     [Pure]

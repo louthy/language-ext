@@ -7,7 +7,10 @@ namespace LanguageExt;
 /// Trait implementation for `OptionT` 
 /// </summary>
 /// <typeparam name="M">Given monad trait</typeparam>
-public partial class OptionT<M> : MonadT<OptionT<M>, M>, Alternative<OptionT<M>>
+public partial class OptionT<M> : 
+    MonadT<OptionT<M>, M>,
+    Alternative<OptionT<M>>,
+    Fallible<Unit, OptionT<M>>
     where M : Monad<M>
 {
     static K<OptionT<M>, B> Monad<OptionT<M>>.Bind<A, B>(K<OptionT<M>, A> ma, Func<A, K<OptionT<M>, B>> f) => 
@@ -41,4 +44,12 @@ public partial class OptionT<M> : MonadT<OptionT<M>, M>, Alternative<OptionT<M>>
                              ? M.Pure(ea)
                              : mb.As().runOption));
 
+    static K<OptionT<M>, A> Fallible<Unit, OptionT<M>>.Fail<A>(Unit error) =>
+        None<A>();
+
+    static K<OptionT<M>, A> Fallible<Unit, OptionT<M>>.Catch<A>(
+        K<OptionT<M>, A> fa, 
+        Func<Unit, bool> Predicate, 
+        Func<Unit, K<OptionT<M>, A>> Fail) => 
+        fa.As().BindNone(() => Predicate(default) ? Fail(default).As() : OptionT<M, A>.None);
 }

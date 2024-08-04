@@ -10,7 +10,8 @@ namespace LanguageExt;
 public partial class Validation<FAIL> : 
     Monad<Validation<FAIL>>, 
     Alternative<Validation<FAIL>>,
-    Traversable<Validation<FAIL>> 
+    Traversable<Validation<FAIL>>, 
+    Fallible<FAIL, Validation<FAIL>> 
     where FAIL : Monoid<FAIL>
 {
     static K<Validation<FAIL>, B> Monad<Validation<FAIL>>.Bind<A, B>(
@@ -151,4 +152,12 @@ static K<Validation<FAIL>, B> Applicative<Validation<FAIL>>.Apply<A, B>(
     static K<Validation<FAIL>, A> Fail<A>(FAIL value) =>
         Validation<FAIL, A>.Fail(value);
 
+    static K<Validation<FAIL>, A> Fallible<FAIL, Validation<FAIL>>.Fail<A>(FAIL error) => 
+        Validation<FAIL, A>.Fail(error);
+
+    static K<Validation<FAIL>, A> Fallible<FAIL, Validation<FAIL>>.Catch<A>(
+        K<Validation<FAIL>, A> fa,
+        Func<FAIL, bool> Predicate,
+        Func<FAIL, K<Validation<FAIL>, A>> Fail) =>
+        fa.As().BindFail(e => Predicate(e) ? Fail(e).As() : Validation<FAIL, A>.Fail(e));
 }

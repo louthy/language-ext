@@ -243,6 +243,28 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
                        None: () => M.Pure(Option<B>.None))));
 
     /// <summary>
+    /// Monad bi-bind operation
+    /// </summary>
+    /// <param name="Some">Some state mapping function</param>
+    /// <param name="None">None state mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`OptionT`</returns>
+    public OptionT<M, B> BiBind<B>(Func<A, OptionT<M, B>> Some, Func<OptionT<M, B>> None) =>
+        new(M.Bind(runOption, 
+                   ox => ox.Match(
+                       Some: x => Some(x).runOption,
+                       None: () => None().runOption)));
+
+    /// <summary>
+    /// Monad bi-bind operation
+    /// </summary>
+    /// <param name="None">None state mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`OptionT`</returns>
+    public OptionT<M, A> BindNone(Func<OptionT<M, A>> None) =>
+        BiBind(Some, None);
+
+    /// <summary>
     /// Monad bind operation
     /// </summary>
     /// <param name="f">Mapping function</param>

@@ -55,6 +55,6 @@ public static class Config<M, RT>
     /// </summary>
     public static K<M, string> sendGridApiKey =>
         from k in trait.Map(t => t.SendGridApiKey)
-        from _ in when(k.IsNone, Fallible.error<M>((Error)"SendGrid key not set.  No emails will be sent"))
+        from _ in when(k.IsNone, error<M>((Error)"SendGrid key not set.  No emails will be sent"))
         select (string)k;
 }

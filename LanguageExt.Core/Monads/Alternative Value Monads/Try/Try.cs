@@ -101,7 +101,7 @@ public record Try<A>(Func<Fin<A>> runTry) : K<Try, A>, Semigroup<Try<A>>
     /// <param name="Fail">Fail branch</param>
     /// <returns>Inner monad with the result of the `Succ` or `Fail` branches</returns>
     public B Match<B>(Func<A, B> Succ, Func<Error, B> Fail) =>
-        Run().Match(Succ, Fail);
+        this.Run().Match(Succ, Fail);
 
     /// <summary>
     /// Match the bound value and return a result (which gets packages back up inside the inner monad)
@@ -120,24 +120,6 @@ public record Try<A>(Func<Fin<A>> runTry) : K<Try, A>, Semigroup<Try<A>>
     /// <returns>Inner monad with the result of the `Succ` or `Fail` branches</returns>
     public Fin<A> IfFailM(Func<Error, Fin<A>> Fail) =>
         Match(FinSucc, Fail);
-
-    /// <summary>
-    /// Run the transformer
-    /// </summary>
-    /// <remarks>
-    /// This is where the exceptions are caught
-    /// </remarks>
-    public Fin<A> Run()
-    {
-        try
-        {
-            return runTry();
-        }
-        catch (Exception e)
-        {
-            return Fin<A>.Fail(e);
-        }
-    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -174,7 +156,13 @@ public record Try<A>(Func<Fin<A>> runTry) : K<Try, A>, Semigroup<Try<A>>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`TryT`</returns>
     public Try<B> Bind<B>(Func<A, K<Try, B>> f) =>
-        Map(f).Flatten();
+        new(() =>
+            {
+                var r = runTry();
+                return r.IsFail
+                           ? Fin<B>.Fail((Error)r)
+                           : f((A)r).As().runTry();
+            });
 
     /// <summary>
     /// Monad bind operation
@@ -183,7 +171,13 @@ public record Try<A>(Func<Fin<A>> runTry) : K<Try, A>, Semigroup<Try<A>>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`TryT`</returns>
     public Try<B> Bind<B>(Func<A, Try<B>> f) =>
-        Map(f).Flatten();
+        new(() =>
+            {
+                var r = runTry();
+                return r.IsFail
+                           ? Fin<B>.Fail((Error)r)
+                           : f((A)r).runTry();
+            });
 
     /// <summary>
     /// Monad bind operation
@@ -193,6 +187,30 @@ public record Try<A>(Func<Fin<A>> runTry) : K<Try, A>, Semigroup<Try<A>>
     /// <returns>`TryT`</returns>
     public Try<B> Bind<B>(Func<A, Pure<B>> f) =>
         Map(a => f(a).Value);
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="Succ">Mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`TryT`</returns>
+    public Try<B> BiBind<B>(Func<A, Try<B>> Succ, Func<Error, Try<B>> Fail) =>
+        new(() =>
+            {
+                var r = runTry();
+                return r.IsFail
+                           ? Fail((Error)r).runTry()
+                           : Succ((A)r).runTry();
+            });
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="Succ">Mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`TryT`</returns>
+    public Try<A> BindFail(Func<Error, Try<A>> Fail) =>
+        BiBind(Succ, Fail);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -315,7 +333,7 @@ public record Try<A>(Func<Fin<A>> runTry) : K<Try, A>, Semigroup<Try<A>>
         lhs.Combine(rhs);
 
     public Try<A> Combine(Try<A> rhs) =>
-        new(() => Run() switch
+        new(() => this.Run() switch
                   {
                       Fin.Fail<A> => rhs.Run(),
                       var fa      => fa

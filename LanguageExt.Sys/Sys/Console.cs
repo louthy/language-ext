@@ -23,7 +23,7 @@ public static class Console<M, RT>
     public static K<M, ConsoleKeyInfo> readKey =>
         from t in trait
         from k in t.ReadKey()
-        from r in k.Match(Some: IO<ConsoleKeyInfo>.Pure,
+        from r in k.Match(Some: IO<ConsoleKeyInfo>.pure,
                           None: Error.New("end of stream"))
         select r;                                         
 
@@ -47,7 +47,7 @@ public static class Console<M, RT>
     public static K<M, int> read =>
         from t in trait
         from k in t.Read()
-        from r in k.Match(Some: IO<int>.Pure,
+        from r in k.Match(Some: IO<int>.pure,
                           None: Errors.EndOfStream)
         select r;                                         
 
@@ -65,7 +65,7 @@ public static class Console<M, RT>
     public static K<M, string> readLine =>
         from t in trait
         from k in t.ReadLine()
-        from r in k.Match(Some: IO<string>.Pure,
+        from r in k.Match(Some: IO<string>.pure,
                           None: Errors.EndOfStream)
         select r;                                         
 

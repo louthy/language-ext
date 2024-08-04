@@ -7,6 +7,7 @@ namespace LanguageExt;
 
 public class Eff : 
     Monad<Eff>,
+    Fallible<Eff>,
     Stateful<Eff, MinRT>,
     Alternative<Eff>
 {
@@ -50,4 +51,11 @@ public class Eff :
                                  .effect
                                  .Run(env).As()
                                  .Map(p => p.Value)));
+
+    static K<Eff, A> Fallible<Error, Eff>.Fail<A>(Error error) =>
+        Eff<A>.Fail(error);
+
+    static K<Eff, A> Fallible<Error, Eff>.Catch<A>(K<Eff, A> fa, Func<Error, bool> Predicate,
+                                                   Func<Error, K<Eff, A>> Fail) =>
+        fa.As().IfFailEff(e => Predicate(e) ? Fail(e).As() : Eff<A>.Fail(e));
 }

@@ -11,8 +11,8 @@ namespace LanguageExt;
 /// <param name="runEither">Transducer that represents the transformer operation</param>
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="L">Left value type</typeparam>
-/// <typeparam name="A">Bound value type</typeparam>
-public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, A>
+/// <typeparam name="R">Bound value type</typeparam>
+public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) : K<EitherT<L, M>, R>
     where M : Monad<M>
 {
     /// <summary>
@@ -20,7 +20,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// </summary>
     /// <param name="value">Value to lift</param>
     /// <returns>`EitherT`</returns>
-    public static EitherT<L, M, A> Right(A value) =>
+    public static EitherT<L, M, R> Right(R value) =>
         Lift(M.Pure(value));
     
     /// <summary>
@@ -28,8 +28,8 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// </summary>
     /// <param name="value">Value to lift</param>
     /// <returns>`EitherT`</returns>
-    public static EitherT<L, M, A> Left(L value) =>
-        Lift(Either<L, A>.Left(value));
+    public static EitherT<L, M, R> Left(L value) =>
+        Lift(Either<L, R>.Left(value));
 
     /// <summary>
     /// Is the `EitherT` in a Right state?
@@ -48,7 +48,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// </summary>
     /// <param name="pure">Monad to lift</param>
     /// <returns>`EitherT`</returns>
-    public static EitherT<L, M, A> Lift(Pure<A> pure) =>
+    public static EitherT<L, M, R> Lift(Pure<R> pure) =>
         Right(pure.Value);
 
     /// <summary>
@@ -56,7 +56,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// </summary>
     /// <param name="either">Monad to lift</param>
     /// <returns>`EitherT`</returns>
-    public static EitherT<L, M, A> Lift(Either<L, A> either) =>
+    public static EitherT<L, M, R> Lift(Either<L, R> either) =>
         new(M.Pure(either));
 
     /// <summary>
@@ -64,23 +64,23 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// </summary>
     /// <param name="fail">Monad to lift</param>
     /// <returns>`EitherT`</returns>
-    public static EitherT<L, M, A> Lift(Fail<L> fail) =>
-        Lift(Either<L, A>.Left(fail.Value));
+    public static EitherT<L, M, R> Lift(Fail<L> fail) =>
+        Lift(Either<L, R>.Left(fail.Value));
 
     /// <summary>
     /// Lifts a given monad into the transformer
     /// </summary>
     /// <param name="monad">Monad to lift</param>
     /// <returns>`EitherT`</returns>
-    public static EitherT<L, M, A> Lift(K<M, A> monad) =>
-        new(M.Map(Either<L, A>.Right, monad));
+    public static EitherT<L, M, R> Lift(K<M, R> monad) =>
+        new(M.Map(Either<L, R>.Right, monad));
 
     /// <summary>
     /// Lifts a given monad into the transformer
     /// </summary>
     /// <param name="monad">Monad to lift</param>
     /// <returns>`EitherT`</returns>
-    public static EitherT<L, M, A> Lift(K<M, Either<L, A>> monad) =>
+    public static EitherT<L, M, R> Lift(K<M, Either<L, R>> monad) =>
         new(monad);
 
     /// <summary>
@@ -88,7 +88,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// </summary>
     /// <param name="monad">Monad to lift</param>
     /// <returns>`EitherT`</returns>
-    public static EitherT<L, M, A> LiftIO(IO<A> monad) =>
+    public static EitherT<L, M, R> LiftIO(IO<R> monad) =>
         Lift(M.LiftIO(monad));
 
     /// <summary>
@@ -96,7 +96,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// </summary>
     /// <param name="monad">Monad to lift</param>
     /// <returns>`EitherT`</returns>
-    public static EitherT<L, M, A> LiftIO(IO<Either<L, A>> monad) =>
+    public static EitherT<L, M, R> LiftIO(IO<Either<L, R>> monad) =>
         Lift(M.LiftIO(monad));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <param name="Right">Function to invoke if in a Right state</param>
     /// <returns>The return value of the invoked function</returns>
     [Pure]
-    public K<M, B> Match<B>(Func<L, B> Left, Func<A, B> Right) =>
+    public K<M, B> Match<B>(Func<L, B> Left, Func<R, B> Right) =>
         M.Map(mx => mx.Match(Left: Left, Right: Right), runEither);
 
     /// <summary>
@@ -122,7 +122,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <param name="Left">Action to invoke if in a Left state</param>
     /// <returns>Unit</returns>
     [Pure]
-    public K<M, Unit> Match(Action<L> Left, Action<A> Right) =>
+    public K<M, Unit> Match(Action<L> Left, Action<R> Right) =>
         M.Map(mx => mx.Match(Left: Left, Right: Right), runEither);
  
     /// <summary>
@@ -132,7 +132,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <param name="Left">Function to generate a Right value if in the Left state</param>
     /// <returns>Returns an unwrapped Right value</returns>
     [Pure]
-    public K<M, A> IfLeft(Func<A> Left) =>
+    public K<M, R> IfLeft(Func<R> Left) =>
         IfLeft(_ => Left());
 
     /// <summary>
@@ -142,7 +142,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <param name="leftMap">Function to generate a Right value if in the Left state</param>
     /// <returns>Returns an unwrapped Right value</returns>
     [Pure]
-    public K<M, A> IfLeft(Func<L, A> leftMap) =>
+    public K<M, R> IfLeft(Func<L, R> leftMap) =>
         Match(Left: leftMap, Right: identity);
 
     /// <summary>
@@ -152,7 +152,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <param name="rightValue">Value to return if in the Left state</param>
     /// <returns>Returns an unwrapped Right value</returns>
     [Pure]
-    public K<M, A> IfLeft(A rightValue) =>
+    public K<M, R> IfLeft(R rightValue) =>
         IfLeft(_ => rightValue);
 
     /// <summary>
@@ -168,7 +168,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// </summary>
     /// <param name="Right">Action to invoke</param>
     /// <returns>Unit</returns>
-    public K<M, Unit> IfRight(Action<A> Right) =>
+    public K<M, Unit> IfRight(Action<R> Right) =>
         Match(Left: _ => { }, Right: Right);
 
     /// <summary>
@@ -198,7 +198,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <param name="rightMap">Function to generate a Left value if in the Right state</param>
     /// <returns>Returns an unwrapped Left value</returns>
     [Pure]
-    public K<M, L> IfRight(Func<A, L> rightMap) =>
+    public K<M, L> IfRight(Func<R, L> rightMap) =>
         Match(Left: identity, Right: rightMap);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -209,7 +209,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <summary>
     /// Runs the EitherT exposing the outer monad with an inner wrapped `Either`
     /// </summary>
-    public K<M, Either<L, A>> Run() =>
+    public K<M, Either<L, R>> Run() =>
         runEither;
  
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -224,7 +224,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <typeparam name="M1">Target monad type</typeparam>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>Mapped monad</returns>
-    public EitherT<L, M1, B> MapT<M1, B>(Func<K<M, Either<L, A>>, K<M1, Either<L, B>>> f)
+    public EitherT<L, M1, B> MapT<M1, B>(Func<K<M, Either<L, R>>, K<M1, Either<L, B>>> f)
         where M1 : Monad<M1> =>
         new (f(runEither));
 
@@ -232,12 +232,12 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// Maps the given monad
     /// </summary>
     /// <param name="f">Mapping function</param>
-    public EitherT<L, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
+    public EitherT<L, M, B> MapM<B>(Func<K<M, R>, K<M, B>> f) =>
         new(runEither
                .Bind(fv => fv switch
                            {
-                               Either.Right<L, A> (var v) => f(M.Pure(v)).Map(Either<L, B>.Right),
-                               Either.Left<L, A> (var e)  => M.Pure<Either<L, B>>(e),
+                               Either.Right<L, R> (var v) => f(M.Pure(v)).Map(Either<L, B>.Right),
+                               Either.Left<L, R> (var e)  => M.Pure<Either<L, B>>(e),
                                _                          => throw new NotSupportedException()
                            }));
     
@@ -247,7 +247,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
-    public EitherT<L, M, B> Map<B>(Func<A, B> f) =>
+    public EitherT<L, M, B> Map<B>(Func<R, B> f) =>
         new(M.Map(mx => mx.Map(f), runEither));
     
     /// <summary>
@@ -256,7 +256,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <param name="f">Mapping transducer</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
-    public EitherT<L, M, B> Select<B>(Func<A, B> f) =>
+    public EitherT<L, M, B> Select<B>(Func<R, B> f) =>
         new(M.Map(mx => mx.Map(f), runEither));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -270,7 +270,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
-    public EitherT<L, M, B> Bind<B>(Func<A, K<EitherT<L, M>, B>> f) =>
+    public EitherT<L, M, B> Bind<B>(Func<R, K<EitherT<L, M>, B>> f) =>
         Bind(x => f(x).As());
 
     /// <summary>
@@ -279,7 +279,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
-    public EitherT<L, M, B> Bind<B>(Func<A, Either<L, B>> f) =>
+    public EitherT<L, M, B> Bind<B>(Func<R, Either<L, B>> f) =>
         Bind(x => EitherT<L, M, B>.Lift(f(x)));
 
     /// <summary>
@@ -288,7 +288,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
-    public EitherT<L, M, B> Bind<B>(Func<A, EitherT<L, M, B>> f) =>
+    public EitherT<L, M, B> Bind<B>(Func<R, EitherT<L, M, B>> f) =>
         new(M.Bind(runEither, 
                    ex => ex.Match(
                        Right: x => f(x).runEither,
@@ -300,7 +300,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
-    public EitherT<L, M, B> Bind<B>(Func<A, IO<B>> f) =>
+    public EitherT<L, M, B> Bind<B>(Func<R, IO<B>> f) =>
         Bind(a => EitherT<L, M, B>.LiftIO(f(a)));
 
     /// <summary>
@@ -309,7 +309,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
-    public EitherT<L, M, B> Bind<B>(Func<A, Pure<B>> f) =>
+    public EitherT<L, M, B> Bind<B>(Func<R, Pure<B>> f) =>
         Map(a => f(a).Value);
 
     /// <summary>
@@ -318,8 +318,29 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
-    public EitherT<L, M, B> Bind<B>(Func<A, Fail<L>> f) =>
+    public EitherT<L, M, B> Bind<B>(Func<R, Fail<L>> f) =>
         Bind(a => EitherT<L, M, B>.Lift(f(a).Value));
+
+    /// <summary>
+    /// Monad bi-bind operation
+    /// </summary>
+    /// <param name="Left">Left state mapping function</param>
+    /// <param name="Right">Left state mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`EitherT`</returns>
+    public EitherT<L, M, B> BiBind<B>(Func<L, EitherT<L, M, B>> Left, Func<R, EitherT<L, M, B>> Right) =>
+        new(M.Bind(runEither, 
+                   ex => ex.Match(
+                       Right: x => Right(x).runEither,
+                       Left: e => Left(e).runEither)));
+
+    /// <summary>
+    /// Monad bi-bind operation
+    /// </summary>
+    /// <param name="Left">Left state mapping function</param>
+    /// <returns>`EitherT`</returns>
+    public EitherT<L, M, R> BindLeft(Func<L, EitherT<L, M, R>> Left) =>
+        BiBind(Left, Right);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -334,7 +355,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
-    public EitherT<L, M, C> SelectMany<B, C>(Func<A, K<EitherT<L, M>, B>> bind, Func<A, B, C> project) =>
+    public EitherT<L, M, C> SelectMany<B, C>(Func<R, K<EitherT<L, M>, B>> bind, Func<R, B, C> project) =>
         SelectMany(x => bind(x).As(), project);
 
     /// <summary>
@@ -345,7 +366,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
-    public EitherT<L, M, C> SelectMany<B, C>(Func<A, EitherT<L, M, B>> bind, Func<A, B, C> project) =>
+    public EitherT<L, M, C> SelectMany<B, C>(Func<R, EitherT<L, M, B>> bind, Func<R, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     /// <summary>
@@ -356,7 +377,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
-    public EitherT<L, M, C> SelectMany<B, C>(Func<A, K<M, B>> bind, Func<A, B, C> project) =>
+    public EitherT<L, M, C> SelectMany<B, C>(Func<R, K<M, B>> bind, Func<R, B, C> project) =>
         SelectMany(x => EitherT<L, M, B>.Lift(bind(x)), project);
 
     /// <summary>
@@ -367,7 +388,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
-    public EitherT<L, M, C> SelectMany<B, C>(Func<A, Either<L, B>> bind, Func<A, B, C> project) =>
+    public EitherT<L, M, C> SelectMany<B, C>(Func<R, Either<L, B>> bind, Func<R, B, C> project) =>
         SelectMany(x => EitherT<L, M, B>.Lift(bind(x)), project);
 
     /// <summary>
@@ -378,7 +399,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
-    public EitherT<L, M, C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
+    public EitherT<L, M, C> SelectMany<B, C>(Func<R, Pure<B>> bind, Func<R, B, C> project) =>
         Map(x => project(x, bind(x).Value));
 
     /// <summary>
@@ -389,7 +410,7 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
-    public EitherT<L, M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
+    public EitherT<L, M, C> SelectMany<B, C>(Func<R, IO<B>> bind, Func<R, B, C> project) =>
         SelectMany(x => M.LiftIO(bind(x)), project);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -397,27 +418,27 @@ public record EitherT<L, M, A>(K<M, Either<L, A>> runEither) : K<EitherT<L, M>, 
     //  Conversion operators
     //
 
-    public static implicit operator EitherT<L, M, A>(Either<L, A> ma) =>
+    public static implicit operator EitherT<L, M, R>(Either<L, R> ma) =>
         Lift(ma);
     
-    public static implicit operator EitherT<L, M, A>(Pure<A> ma) =>
+    public static implicit operator EitherT<L, M, R>(Pure<R> ma) =>
         Right(ma.Value);
     
-    public static implicit operator EitherT<L, M, A>(Fail<L> ma) =>
-        Lift(Either<L, A>.Left(ma.Value));
+    public static implicit operator EitherT<L, M, R>(Fail<L> ma) =>
+        Lift(Either<L, R>.Left(ma.Value));
     
-    public static implicit operator EitherT<L, M, A>(IO<A> ma) =>
+    public static implicit operator EitherT<L, M, R>(IO<R> ma) =>
         LiftIO(ma);
     
-    public static implicit operator EitherT<L, M, A>(Lift<A> ma) =>
+    public static implicit operator EitherT<L, M, R>(Lift<R> ma) =>
         LiftIO(ma);
     
-    public static implicit operator EitherT<L, M, A>(Lift<EnvIO, A> ma) =>
+    public static implicit operator EitherT<L, M, R>(Lift<EnvIO, R> ma) =>
         LiftIO(ma);
     
-    public static implicit operator EitherT<L, M, A>(IO<Either<L, A>> ma) =>
+    public static implicit operator EitherT<L, M, R>(IO<Either<L, R>> ma) =>
         LiftIO(ma);
 
-    public OptionT<M, A> ToOption() =>
+    public OptionT<M, R> ToOption() =>
         new(runEither.Map(ma => ma.ToOption()));
 }

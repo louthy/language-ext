@@ -1020,7 +1020,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
         select r;
 
     internal static StateT<A, IO, X> fail<X>(Error value) =>
-        StateT.liftIO<A, IO, X>(IO<X>.Fail(value));
+        StateT.liftIO<A, IO, X>(IO<X>.fail(value));
 
     internal static StateT<A, IO, X> pure<X>(X value) =>
         StateT<A, IO, X>.Pure(value);

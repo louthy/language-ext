@@ -65,5 +65,5 @@ public static class MonadIO
     /// <returns></returns>
     public static K<M, IO<A>> toIO<M, A>(K<M, A> ma) 
         where M : Monad<M> =>
-        withRunInIO<M, A, IO<A>>(run => IO.Pure(run(ma)));
+        withRunInIO<M, A, IO<A>>(run => IO.pure(run(ma)));
 }

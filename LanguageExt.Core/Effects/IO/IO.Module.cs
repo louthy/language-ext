@@ -17,8 +17,8 @@ public partial class IO
     /// <param name="value">Error value</param>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>IO in a failed state.  Always yields an error.</returns>
-    public static IO<A> Fail<A>(Error value) =>
-        IO<A>.Fail(value);
+    public static IO<A> fail<A>(Error value) =>
+        IO<A>.fail(value);
     
     /// <summary>
     /// Lift an action into the IO monad
@@ -63,9 +63,9 @@ public partial class IO
     public static IO<A> lift<A>(Either<Error, A> ma) =>
         ma switch
         {
-            Either.Right<Error, A> (var r) => IO<A>.Pure(r),
-            Either.Left<Error, A> (var l)  => IO<A>.Fail(l),
-            _                              => IO<A>.Fail(Errors.Bottom)
+            Either.Right<Error, A> (var r) => IO<A>.pure(r),
+            Either.Left<Error, A> (var l)  => IO<A>.fail(l),
+            _                              => IO<A>.fail(Errors.Bottom)
         };
     
     public static IO<A> lift<A>(Fin<A> ma) =>

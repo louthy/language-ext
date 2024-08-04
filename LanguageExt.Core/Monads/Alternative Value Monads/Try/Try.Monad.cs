@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -6,7 +7,10 @@ namespace LanguageExt;
 /// <summary>
 /// Trait implementation for `Try` 
 /// </summary>
-public partial class Try : Monad<Try>, SemiAlternative<Try>
+public partial class Try : 
+    Monad<Try>,
+    Fallible<Try>, 
+    SemiAlternative<Try>
 {
     static K<Try, B> Monad<Try>.Bind<A, B>(K<Try, A> ma, Func<A, K<Try, B>> f) => 
         ma.As().Bind(f);
@@ -25,4 +29,10 @@ public partial class Try : Monad<Try>, SemiAlternative<Try>
 
     static K<Try, A> SemigroupK<Try>.Combine<A>(K<Try, A> ma, K<Try, A> mb) =>
         ma.As().Combine(mb.As());
+
+    static K<Try, A> Fallible<Error, Try>.Fail<A>(Error value) => 
+        Try<A>.Fail(value);
+
+    static K<Try, A> Fallible<Error, Try>.Catch<A>(K<Try, A> fa, Func<Error, bool> Predicate, Func<Error, K<Try, A>> Fail) =>
+        fa.As().BindFail(e => Predicate(e) ? Fail(e).As() : Try<A>.Fail(e));
 }

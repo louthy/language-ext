@@ -27,8 +27,8 @@ public static class Members<M, RT>
                                            .AsEnumerableM()
                                            .Head())
                               .Bind(path => path.Match(
-                                        Some: M.Pure,
-                                        None: M.Fail<string>(Error.New($"no member files found in {folder}"))));
+                                        Some: pure<M, string>,
+                                        None: error<M, string>(Error.New($"no member files found in {folder}"))));
 
     static Seq<Member> readMembers(string path)
     {

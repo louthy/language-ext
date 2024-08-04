@@ -2,14 +2,16 @@ using System;
 using System.Collections.Generic;
 using LanguageExt.Common;
 using LanguageExt.Traits;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public partial class IO : Monad<IO>, Alternative<IO>
+public partial class IO : 
+    Monad<IO>, 
+    Fallible<IO>,
+    Alternative<IO>
 {
-    public static IO<A> Pure<A>(A value) => 
-        IO<A>.Pure(value);
+    public static IO<A> pure<A>(A value) => 
+        IO<A>.pure(value);
     
     static K<IO, B> Monad<IO>.Bind<A, B>(K<IO, A> ma, Func<A, K<IO, B>> f) =>
         ma.As().Bind(f);
@@ -18,7 +20,7 @@ public partial class IO : Monad<IO>, Alternative<IO>
         ma.As().Map(f);
 
     static K<IO, A> Applicative<IO>.Pure<A>(A value) => 
-        IO<A>.Pure(value);
+        IO<A>.pure(value);
 
     static K<IO, B> Applicative<IO>.Apply<A, B>(K<IO, Func<A, B>> mf, K<IO, A> ma) => 
         mf.As().Bind(ma.As().Map);
@@ -52,4 +54,10 @@ public partial class IO : Monad<IO>, Alternative<IO>
     static K<IO, B> Monad<IO>.WithRunInIO<A, B>(
         Func<Func<K<IO, A>, IO<A>>, IO<B>> inner) =>
         inner(io => io.As());
+
+    static K<IO, A> Fallible<Error, IO>.Fail<A>(Error error) =>
+        fail<A>(error);
+
+    static K<IO, A> Fallible<Error, IO>.Catch<A>(K<IO, A> fa, Func<Error, bool> Predicate, Func<Error, K<IO, A>> Fail) =>
+        fa.As().IfFail(e => Predicate(e) ? Fail(e).As() : fail<A>(e));
 }

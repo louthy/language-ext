@@ -3,7 +3,11 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public class Option : Monad<Option>, Traversable<Option>, Alternative<Option>
+public class Option : 
+    Monad<Option>, 
+    Fallible<Unit, Option>,
+    Traversable<Option>, 
+    Alternative<Option>
 {
     static K<Option, B> Monad<Option>.Bind<A, B>(K<Option, A> ma, Func<A, K<Option, B>> f) =>
         ma.As().Bind(f);
@@ -51,4 +55,14 @@ public class Option : Monad<Option>, Traversable<Option>, Alternative<Option>
 
     static K<Option, X> None<X>() =>
         Option<X>.None;
+
+    static K<Option, A> Fallible<Unit, Option>.Fail<A>(Unit _) =>
+        Option<A>.None;
+
+    static K<Option, A> Fallible<Unit, Option>.Catch<A>(
+        K<Option, A> fa, 
+        Func<Unit, bool> Predicate, 
+        Func<Unit, K<Option, A>> Fail) => 
+        fa.As().Match(Some: Option<A>.Some, 
+                      None: () => Predicate(default) ? Fail(default).As() : Option<A>.None);
 }

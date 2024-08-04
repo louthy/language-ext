@@ -84,7 +84,7 @@ public interface Monad<M> : Applicative<M>
     /// overloaded in the inner monad or any monad in the stack on the way to the
     /// inner monad then it will throw an exception.</exception>
     public static virtual K<M, Func<K<M, A>, IO<A>>> UnliftIO<A>() =>
-        M.WithRunInIO((Func<K<M, A>, IO<A>> run) => IO.Pure(run));
+        M.WithRunInIO((Func<K<M, A>, IO<A>> run) => IO.pure(run));
     
     /// <summary>
     /// Unlifts the IO monad from the monad transformer stack.  

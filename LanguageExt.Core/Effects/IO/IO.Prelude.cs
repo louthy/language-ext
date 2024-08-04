@@ -31,7 +31,7 @@ public static partial class Prelude
     /// Always yields a `Unit` value
     /// </summary>
     public static readonly IO<Unit> unitIO = 
-        IO<Unit>.Pure(default);
+        IO<Unit>.pure(default);
     
     /// <summary>
     /// Yields the IO environment

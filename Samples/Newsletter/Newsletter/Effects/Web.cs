@@ -21,9 +21,9 @@ public static class Web<M, RT>
         Stateful.getsM<M, RT, HttpClient>(rt => rt.Get);
 
     public static K<M, string> downloadText(Uri uri) =>
-        (from en in Enc<M, RT>.encoding
-         from bs in download(uri)
-         select en.GetString(bs));
+        from en in Enc<M, RT>.encoding
+        from bs in download(uri)
+        select en.GetString(bs);
     
     public static K<M, string> downloadBase64(Uri uri) =>
         download(uri).Map(Convert.ToBase64String);

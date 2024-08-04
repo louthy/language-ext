@@ -14,6 +14,21 @@ public static class TryExt
         (Try<A>)ma;
 
     /// <summary>
+    /// Run the `Try`
+    /// </summary>
+    public static Fin<A> Run<A>(this K<Try, A> ma)
+    {
+        try
+        {
+            return ma.As().runTry();
+        }
+        catch (Exception e)
+        {
+            return Fin<A>.Fail(e);
+        }
+    }
+
+    /// <summary>
     /// Monadic join
     /// </summary>
     [Pure]

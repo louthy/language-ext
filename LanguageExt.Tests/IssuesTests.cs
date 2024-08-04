@@ -317,7 +317,7 @@ namespace Issues
             Pure(1);
 
         public static EitherT<string, IO, int> Op2() =>
-            IO.Pure(2);
+            IO.pure(2);
 
         public static EitherT<string, IO, int> Op3() =>
             Fail("error");

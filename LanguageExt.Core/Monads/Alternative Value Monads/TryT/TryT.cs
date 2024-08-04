@@ -176,6 +176,28 @@ public record TryT<M, A>(K<M, Try<A>> runTry) : K<TryT<M>, A>, Semigroup<TryT<M,
     /// <summary>
     /// Monad bind operation
     /// </summary>
+    /// <param name="Succ">Success mapping function</param>
+    /// <param name="Fail">Failure mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`TryT`</returns>
+    public TryT<M, B> BiBind<B>(Func<A, TryT<M, B>> Succ, Func<Error, TryT<M, B>> Fail) =>
+        new (runTry.Bind(
+                 ta => ta.runTry()
+                         .Match(Succ: Succ, Fail: Fail)
+                         .runTry));
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="Fail">Failure mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`TryT`</returns>
+    public TryT<M, A> BindFail(Func<Error, TryT<M, A>> Fail) =>
+        BiBind(Succ, Fail);
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`TryT`</returns>

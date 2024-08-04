@@ -7,7 +7,11 @@ namespace LanguageExt;
 /// Monad trait implementation for `Either<L, R>`
 /// </summary>
 /// <typeparam name="L">Left type parameter</typeparam>
-public class Either<L> : Monad<Either<L>>, Traversable<Either<L>>, SemiAlternative<Either<L>>
+public class Either<L> : 
+    Monad<Either<L>>, 
+    Fallible<L, Either<L>>,
+    Traversable<Either<L>>, 
+    SemiAlternative<Either<L>>
 {
     static K<Either<L>, B> Applicative<Either<L>>.Apply<A, B>(
         K<Either<L>, Func<A, B>> mf, 
@@ -82,4 +86,12 @@ public class Either<L> : Monad<Either<L>>, Traversable<Either<L>>, SemiAlternati
 
     public static K<Either<L>, A> Combine<A>(K<Either<L>, A> ma, K<Either<L>, A> mb) =>
         ma is Either.Right<L, A> ? ma : mb;
+
+    static K<Either<L>, A> Fallible<L, Either<L>>.Fail<A>(L error) => 
+        Either<L, A>.Left(error);
+
+    static K<Either<L>, A> Fallible<L, Either<L>>.Catch<A>(
+        K<Either<L>, A> fa, Func<L, bool> Predicate,
+        Func<L, K<Either<L>, A>> Fail) =>
+        fa.As().BindLeft(l => Predicate(l) ? Fail(l).As() : Either<L, A>.Left(l));
 }

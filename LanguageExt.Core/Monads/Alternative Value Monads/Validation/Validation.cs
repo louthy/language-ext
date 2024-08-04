@@ -144,6 +144,15 @@ public abstract record Validation<F, A> :
         where F1 : Monoid<F1>;
 
     /// <summary>
+    /// Bind the failure
+    /// </summary>
+    [Pure]
+    public Validation<F1, A> BindFail<F1>(
+        Func<F, Validation<F1, A>> Fail)
+        where F1 : Monoid<F1> =>
+        BiBind(Validation<F1, A>.Success, Fail);
+
+    /// <summary>
     /// Monoid empty
     /// </summary>
     [Pure]

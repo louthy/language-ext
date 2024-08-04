@@ -321,11 +321,11 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
                     }
                     catch (ErrorException e)
                     {
-                        return IO.Pure((Fail(e.ToError()), rt));
+                        return IO.pure((Fail(e.ToError()), rt));
                     }
                     catch (Exception e)
                     {
-                        return IO.Pure((Fail(e), rt));
+                        return IO.pure((Fail(e), rt));
                     }
                 }));
 

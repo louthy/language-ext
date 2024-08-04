@@ -9,6 +9,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class ValidationT<F, M> : 
     MonadT<ValidationT<F, M>, M>, 
+    Fallible<F, ValidationT<F, M>>, 
     Alternative<ValidationT<F, M>>
     where M : Monad<M>
     where F : Monoid<F>
@@ -49,4 +50,13 @@ public partial class ValidationT<F, M> :
         K<ValidationT<F, M>, A> ma,
         K<ValidationT<F, M>, A> mb) =>
         ma.As() | mb.As();
+
+    static K<ValidationT<F, M>, A> Fallible<F, ValidationT<F, M>>.Fail<A>(F error) => 
+        ValidationT<F, M, A>.Fail(error);
+
+    static K<ValidationT<F, M>, A> Fallible<F, ValidationT<F, M>>.Catch<A>(
+        K<ValidationT<F, M>, A> fa,
+        Func<F, bool> Predicate,
+        Func<F, K<ValidationT<F, M>, A>> Fail) =>
+        fa.As().BindFail(e => Predicate(e) ? Fail(e).As() : ValidationT<F, M, A>.Fail(e));
 }

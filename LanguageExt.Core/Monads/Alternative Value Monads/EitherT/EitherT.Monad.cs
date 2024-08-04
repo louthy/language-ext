@@ -7,7 +7,10 @@ namespace LanguageExt;
 /// Trait implementation for `EitherT` 
 /// </summary>
 /// <typeparam name="M">Given monad trait</typeparam>
-public partial class EitherT<L, M> : MonadT<EitherT<L, M>, M>, SemiAlternative<EitherT<L, M>>
+public partial class EitherT<L, M> : 
+    MonadT<EitherT<L, M>, M>, 
+    Fallible<L, EitherT<L, M>>,
+    SemiAlternative<EitherT<L, M>>
     where M : Monad<M>
 {
     static K<EitherT<L, M>, B> Monad<EitherT<L, M>>.Bind<A, B>(K<EitherT<L, M>, A> ma, Func<A, K<EitherT<L, M>, B>> f) => 
@@ -40,4 +43,12 @@ public partial class EitherT<L, M> : MonadT<EitherT<L, M>, M>, SemiAlternative<E
                           Either.Left<L, A>  => mb.As().runEither,
                           _                  => M.Pure(ea)
                       }));
+
+    static K<EitherT<L, M>, A> Fallible<L, EitherT<L, M>>.Fail<A>(L error) =>
+        Left<A>(error);
+
+    static K<EitherT<L, M>, A> Fallible<L, EitherT<L, M>>.Catch<A>(
+        K<EitherT<L, M>, A> fa, Func<L, bool> Predicate,
+        Func<L, K<EitherT<L, M>, A>> Fail) =>
+        fa.As().BindLeft(l => Predicate(l) ? Fail(l).As() : Left<A>(l));
 }

@@ -4,7 +4,11 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public partial class Fin : Monad<Fin>, Traversable<Fin>, Alternative<Fin>
+public partial class Fin : 
+    Monad<Fin>, 
+    Fallible<Fin>,
+    Traversable<Fin>, 
+    Alternative<Fin>
 {
     static K<Fin, B> Monad<Fin>.Bind<A, B>(K<Fin, A> ma, Func<A, K<Fin, B>> f) =>
         ma switch
@@ -82,4 +86,12 @@ public partial class Fin : Monad<Fin>, Traversable<Fin>, Alternative<Fin>
 
     static K<Fin, A> ConsFail<A>(Error value) =>
         Fin<A>.Fail(value);
+
+    static K<Fin, A> Fallible<Error, Fin>.Fail<A>(Error error) => 
+        Fin<A>.Fail(error);
+
+    static K<Fin, A> Fallible<Error, Fin>.Catch<A>(
+        K<Fin, A> fa, Func<Error, bool> Predicate,
+        Func<Error, K<Fin, A>> Fail) =>
+        fa.As().BindFail(e => Predicate(e) ? Fail(e).As() : Fin<A>.Fail(e));
 }

@@ -103,14 +103,14 @@ public static class Testing
    
     public static void Test6()
     {
-        var m1 = ReaderT<string>.lift(IdentityT<IO, int>.Lift(IO.Pure(123)));
-        var m2 = ReaderT<string>.lift(IdentityT<IO, int>.Lift(IO.Pure(123)));
+        var m1 = ReaderT<string>.lift(IdentityT<IO, int>.Lift(IO.pure(123)));
+        var m2 = ReaderT<string>.lift(IdentityT<IO, int>.Lift(IO.pure(123)));
                 
         var m0 = from w in Pure(123)
                  from p in ReaderT.ask<IdentityT<IO>, string>()
-                 from x in IO.Pure("Hello")
-                 from i in ReaderT<string, IdentityT<IO>>.liftIO(IO.Pure("Hello"))
-                 from j in IO.Pure("Hello").Fork()
+                 from x in IO.pure("Hello")
+                 from i in ReaderT<string, IdentityT<IO>>.liftIO(IO.pure("Hello"))
+                 from j in IO.pure("Hello").Fork()
                  from r in envIO 
                  from y in m2
                  select $"{p} {y} {j}";
@@ -176,14 +176,14 @@ public static class Testing
        
     public static void Test9()
     {
-        var m1 = OptionT.lift(StateT<string>.lift(IO.Pure(100)));
-        var m2 = OptionT.lift(StateT<string>.lift(IO.Pure(200)));
+        var m1 = OptionT.lift(StateT<string>.lift(IO.pure(100)));
+        var m2 = OptionT.lift(StateT<string>.lift(IO.pure(200)));
 
         var m0 = from w in Pure(123)
                  from q in m1
                  from x in StateT.get<IO, string>()
-                 from i in OptionT<StateT<string, IO>>.liftIO(IO.Pure("Hello"))
-                 from j in IO.Pure("Hello").Fork()
+                 from i in OptionT<StateT<string, IO>>.liftIO(IO.pure("Hello"))
+                 from j in IO.pure("Hello").Fork()
                  from _ in StateT.put<IO, string>(x)
                  from r in envIO
                  from y in m2
@@ -197,14 +197,14 @@ public static class Testing
        
     public static void Test10()
     {
-        var m1 = StateT<string>.lift(OptionT.lift(IO.Pure(100)));
-        var m2 = StateT<string>.lift(OptionT.lift(IO.Pure(200)));
+        var m1 = StateT<string>.lift(OptionT.lift(IO.pure(100)));
+        var m2 = StateT<string>.lift(OptionT.lift(IO.pure(200)));
 
         var m0 = from w in Pure(123)
                  from q in m1
                  from x in StateT.get<OptionT<IO>, string>()
-                 from i in StateT<string, OptionT<IO>>.liftIO(IO.Pure("Hello"))
-                 from j in IO.Pure("Hello").Fork()
+                 from i in StateT<string, OptionT<IO>>.liftIO(IO.pure("Hello"))
+                 from j in IO.pure("Hello").Fork()
                  from _ in StateT.put<OptionT<IO>, string>(x)
                  from r in envIO
                  from y in m2

@@ -33,10 +33,10 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     //  Construction
     //
     
-    public static IO<A> Pure(A value) => 
+    public static IO<A> pure(A value) => 
         new(_ => value);
     
-    public static IO<A> Fail(Error value) => 
+    public static IO<A> fail(Error value) => 
         new(_ => value.Throw<A>());
 
     public static readonly IO<A> Empty =
@@ -120,10 +120,10 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         Match(Prelude.identity, _ => Fail);
     
     public IO<A> IfFail(Func<Error, IO<A>> Fail) =>
-        Match(IO.Pure, Fail).Flatten();
+        Match(IO.pure, Fail).Flatten();
 
     public IO<A> IfFail(IO<A> Fail) =>
-        Match(IO.Pure, _ => Fail).Flatten();
+        Match(IO.pure, _ => Fail).Flatten();
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 
@@ -592,7 +592,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     //
     
     public static implicit operator IO<A>(Pure<A> ma) =>
-        Pure(ma.Value);
+        pure(ma.Value);
 
     public static implicit operator IO<A>(Error error) =>
         Lift(error.Throw<A>);

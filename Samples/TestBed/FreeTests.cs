@@ -46,7 +46,7 @@ public static class FreeTests
         ma switch
         {
             Pure<Op, A>(var value) => 
-                IO.Pure(value),
+                IO.pure(value),
             
             Bind<Op, A>(var bind) =>
                 bind switch
