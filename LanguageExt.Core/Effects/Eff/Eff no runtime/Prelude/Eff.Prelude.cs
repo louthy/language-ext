@@ -51,8 +51,8 @@ public static partial class Prelude
     /// <summary>
     /// Make the runtime into the bound value
     /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    internal static Eff<MinRT> runtimeMinRT() =>
+    [Pure]
+    internal static Eff<MinRT> runtimeMinRT =>
         LanguageExt.Eff<MinRT>.Lift(rt => rt);
 
     /// <summary>
@@ -68,8 +68,8 @@ public static partial class Prelude
     /// Cancellation token
     /// </summary>
     /// <returns>CancellationToken</returns>
-    public static Eff<CancellationToken> cancelTokenEff() =>
-        LanguageExt.Eff<CancellationToken>.Lift(static env => env.EnvIO.Token);
+    public static Eff<CancellationToken> cancelTokenEff =>
+        IO.token;
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

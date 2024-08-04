@@ -253,13 +253,13 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     public Eff<RT, B> MapIO<B>(Func<IO<A>, IO<B>> f) =>
         from s in getState<RT>()
         let a = Atom<RT>(s.Runtime)
-        from r in f(RunUnsafeIO(s.Runtime)
-                       .Map(p =>
-                            {
-                                // TODO: This is ugly -- work out whether it's needed
-                                a.Swap(_ => p.Runtime);
-                                return p.Value;
-                            }))
+        from r in f(this.RunIO(s.Runtime)
+                        .Map(p =>
+                             {
+                                 // TODO: This is ugly -- work out whether it's needed
+                                 a.Swap(_ => p.Runtime);
+                                 return p.Value;
+                             }))
         from _ in Stateful.put<Eff<RT>, RT>(a.Value)
         select r;
 
@@ -286,7 +286,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
         {
             try
             {
-                return StateT<RT, IO, B>.State(mapFirst(Succ, RunUnsafe(env, envIO)));
+                return StateT<RT, IO, B>.State(mapFirst(Succ, this.RunUnsafe(env, envIO)));
             }
             catch (ErrorException e)
             {
@@ -311,28 +311,23 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <param name="Fail">Failure value mapping</param>
     /// <returns>IO in a success state</returns>
     [Pure]
-    public Eff<RT, B> Match<B>(Func<A, B> Succ, Func<Error, B> Fail)
-    {
-        return new(from env in Eff<RT>.getState
-                   from res in go(env.Runtime, env.EnvIO)
-                   select res);
-
-        StateT<RT, IO, B> go(RT env, EnvIO envIO)
-        {
-            try
-            {
-                return StateT<RT, IO, B>.State(mapFirst(Succ, RunUnsafe(env, envIO)));
-            }
-            catch (ErrorException e)
-            {
-                return StateT<RT, IO, B>.State(Fail(e.ToError()), env);
-            }
-            catch (Exception e)
-            {
-                return StateT<RT, IO, B>.State(Fail(e), env);
-            }
-        }
-    }
+    public Eff<RT, B> Match<B>(Func<A, B> Succ, Func<Error, B> Fail) =>
+        new(new StateT<RT, IO, B>(
+                rt =>
+                {
+                    try
+                    {
+                        return IO.lift(e => mapFirst(Succ, this.RunUnsafe(rt, e)));
+                    }
+                    catch (ErrorException e)
+                    {
+                        return IO.Pure((Fail(e.ToError()), rt));
+                    }
+                    catch (Exception e)
+                    {
+                        return IO.Pure((Fail(e), rt));
+                    }
+                }));
 
     /// <summary>
     /// Map the failure to a success value
@@ -1046,6 +1041,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     // Invoking
     //
 
+    /*
     /// <summary>
     /// Invoke the effect
     /// </summary>
@@ -1097,7 +1093,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
     public IO<(A Value, RT Runtime)> RunUnsafeIO(RT env) => 
-        effect.Run(env).As();
+        effect.Run(env).As();*/
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

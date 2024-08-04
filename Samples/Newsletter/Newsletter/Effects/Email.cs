@@ -6,23 +6,28 @@ namespace Newsletter.Effects;
 /// <summary>
 /// Json parser
 /// </summary>
-public static class Email<RT>
-    where RT : Has<Eff<RT>, EmailIO>,
-               Reads<Eff<RT>, RT, Config>
+public static class Email<M, RT>
+    where RT : 
+        Has<M, EmailIO>,
+        Reads<M, RT, Config>
+    where M :
+        Monad<M>,
+        Fallible<M>,
+        Stateful<M, RT>
 {
-    static readonly Eff<RT, EmailIO> trait =
-        Stateful.getsM<Eff<RT>, RT, EmailIO>(rt => rt.Trait).As();
+    static readonly K<M, EmailIO> trait =
+        Stateful.getsM<M, RT, EmailIO>(rt => rt.Trait);
 
     /// <summary>
     /// Send an email
     /// </summary>
-    public static Eff<RT, Unit> send(
+    public static K<M, Unit> send(
         EmailAddress from,
         EmailAddress to,
         string subject,
         string plainTextContent,
         string htmlContent) =>
-        from key in Config<RT>.sendGridApiKey
+        from key in Config<M, RT>.sendGridApiKey
         from eml in trait
         from res in liftIO(io => eml.Send(key, @from, to, subject, plainTextContent, htmlContent, io.Token))
         select unit;

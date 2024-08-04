@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using LanguageExt.Effects;
 using LanguageExt.Traits;
 
@@ -17,6 +19,60 @@ public static partial class EffExtensions
     /// </summary>
     public static Eff<A> As<A>(this Eff<MinRT, A> ma) =>
         new(ma);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Invoking
+    //
+
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// Returns the result value only 
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Fin<A> Run<A>(this K<Eff, A> ma) =>
+        ma.As().effect.Run(default);
+
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// Returns the result value only 
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Fin<A> Run<A>(this K<Eff, A> ma, EnvIO envIO) =>
+        ma.As().effect.Run(default, envIO);
+    
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// This is labelled 'unsafe' because it can throw an exception, whereas
+    /// `Run` will capture any errors and return a `Fin` type.
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public static A RunUnsafe<A>(this K<Eff, A> ma) =>
+        ma.As().effect.RunUnsafe(default).Value;
+
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// This is labelled 'unsafe' because it can throw an exception, whereas
+    /// `Run` will capture any errors and return a `Fin` type.
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public static A RunUnsafe<A>(this K<Eff, A> ma, EnvIO envIO) =>
+        ma.As().effect.RunUnsafe(default, envIO).Value;
+
+    /// <summary>
+    /// Invoke the effect to leave the inner IO monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static IO<A> RunIO<A>(this K<Eff, A> ma) =>
+        ma.As().effect.RunIO(default).Map(p => p.Value);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

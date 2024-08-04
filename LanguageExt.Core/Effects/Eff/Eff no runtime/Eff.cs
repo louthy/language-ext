@@ -20,34 +20,9 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     K<Eff, A>,
     Stateful<Eff<A>, A>,
     Alternative<Eff<A>>,
-    Monad<Eff<A>>
+    Monad<Eff<A>>,
+    Fallible<Eff<A>>    
 {
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Invoking
-    //
-
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Fin<A> Run(MinRT env) =>
-        effect.Run(env);
-
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Fin<A> Run(EnvIO envIO) =>
-        Run(new MinRT(envIO));
-
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Fin<A> Run() =>
-        Run(new MinRT());
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Timeout
@@ -726,7 +701,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     {
         var e = effect;
         return Eff<RT, EnvIO>.LiftIO(envIO)
-                             .Map(eio => e.RunUnsafe(new MinRT(eio), eio).Value)
+                             .Map(eio => e.RunUnsafe(default, eio).Value)
                              .As();
     }
 
@@ -944,6 +919,20 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     //
     // It is this way to make it easier to work with Eff traits, even if this is a bit ugly.
     //
+
+    static K<Eff<A>, T> Fallible<Error, Eff<A>>.Fail<T>(Error error) => 
+        FailEff<A, T>(error);
+
+    static K<Eff<A>, T> Fallible<Error, Eff<A>>.Catch<T>(
+        K<Eff<A>, T> ma,
+        Func<Error, bool> pred,
+        Func<Error, K<Eff<A>, T>> f) =>
+        ma.As()
+          .Match(Succ: Eff<A, T>.Pure,
+                 Fail: e => pred(e)
+                     ? f(e).As()
+                     : Eff<A, T>.Fail(e))
+          .Flatten();
 
     static K<Eff<A>, U> Monad<Eff<A>>.Bind<T, U>(K<Eff<A>, T> ma, Func<T, K<Eff<A>, U>> f) =>
         ma.As().Bind(f);

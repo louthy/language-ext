@@ -4,35 +4,39 @@ using Newsletter.UI;
 
 namespace Newsletter.Command;
 
-public static class Send<RT>
+public static class Send<M, RT>
     where RT : 
-        Has<Eff<RT>, WebIO>,
-        Has<Eff<RT>, JsonIO>,
-        Has<Eff<RT>, FileIO>,
-        Has<Eff<RT>, EmailIO>,
-        Has<Eff<RT>, ConsoleIO>,
-        Has<Eff<RT>, EncodingIO>,
-        Has<Eff<RT>, DirectoryIO>,
-        Reads<Eff<RT>, RT, Config>,
-        Reads<Eff<RT>, RT, HttpClient>
+        Has<M, WebIO>,
+        Has<M, JsonIO>,
+        Has<M, FileIO>,
+        Has<M, EmailIO>,
+        Has<M, ConsoleIO>,
+        Has<M, EncodingIO>,
+        Has<M, DirectoryIO>,
+        Reads<M, RT, Config>,
+        Reads<M, RT, HttpClient>
+    where M :
+        Monad<M>,
+        Fallible<M>,
+        Stateful<M, RT>
 {
-    public static Eff<RT, Unit> newsletter =>
-        from posts     in Posts<RT>.readLastFromApi(4)
-        from members   in Members<RT>.readAll
-        from templates in Templates<RT>.loadDefault
-        from letter    in Newsletter<RT>.make(posts, templates)
-        from _1        in Newsletter<RT>.save(letter)
-        from _2        in Display<Eff<RT>, RT>.showWhatsAboutToHappen(members)
+    public static K<M, Unit> newsletter =>
+        from posts     in Posts<M, RT>.readLastFromApi(4)
+        from members   in Members<M, RT>.readAll
+        from templates in Templates<M, RT>.loadDefault
+        from letter    in Newsletter<M, RT>.make(posts, templates)
+        from _1        in Newsletter<M, RT>.save(letter)
+        from _2        in Display<M, RT>.showWhatsAboutToHappen(members)
         from _3        in askUserToConfirmSend
-        from _4        in Email<RT>.sendToAll(members, letter)
-        from _5        in Display<Eff<RT>, RT>.confirmSent
+        from _4        in Email<M, RT>.sendToAll(members, letter)
+        from _5        in Display<M, RT>.confirmSent
         select unit;
 
-    static K<Eff<RT>, Unit> askUserToConfirmSend =>
-        from k in Console<Eff<RT>, RT>.readKey
-        from x in Display<Eff<RT>, RT>.emptyLine
+    static K<M, Unit> askUserToConfirmSend =>
+        from k in Console<M, RT>.readKey
+        from x in Display<M, RT>.emptyLine
         from _ in k.Key == ConsoleKey.Y
-                      ? SuccessEff<RT, Unit>(unit)
-                      : Fail(Error.New("user cancelled"))
+                      ? M.Pure(unit)
+                      : Fallible.error<M>(Error.New("user cancelled"))
         select unit;
 }

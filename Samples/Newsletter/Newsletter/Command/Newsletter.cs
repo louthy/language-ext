@@ -5,6 +5,33 @@ using Newsletter.Effects;
 
 namespace Newsletter.Command;
 
+public static class Newsletter<M, RT>
+    where RT : 
+        Has<M, FileIO>,
+        Has<M, EncodingIO>,
+        Reads<M, RT, Config>,
+        Reads<M, RT, HttpClient>
+    where M :
+        Monad<M>,
+        Fallible<M>,
+        Stateful<M, RT>
+{
+    /// <summary>
+    /// Builds the newsletter
+    /// </summary>
+    public static K<M, Letter> make(Seq<Post> posts, Templates templates) =>
+        M.Pure(Newsletter.make(posts, templates));
+    
+    /// <summary>
+    /// Saves the newsletter as HTML and plain-text to the letters folder
+    /// </summary>
+    public static K<M, Unit> save(Letter letter) =>
+        from f in Config<M, RT>.lettersFolder
+        from h in File<M, RT>.writeAllText(Path.Combine(f, $"letter-{letter.PublishedAt:yyyy-MM-dd}.html"), letter.Html)
+        from t in File<M, RT>.writeAllText(Path.Combine(f, $"letter-{letter.PublishedAt:yyyy-MM-dd}.txt"), letter.PlainText)
+        select unit;
+}
+
 public static class Newsletter
 {
     /// <summary>
@@ -89,28 +116,4 @@ public static class Newsletter
             12 => "Dec",
             _  => "?"
         };
-}
-
-
-public static class Newsletter<RT>
-    where RT : 
-    Has<Eff<RT>, FileIO>,
-    Has<Eff<RT>, EncodingIO>,
-    Reads<Eff<RT>, RT, Config>,
-    Reads<Eff<RT>, RT, HttpClient>
-{
-    /// <summary>
-    /// Builds the newsletter
-    /// </summary>
-    public static Eff<RT, Letter> make(Seq<Post> posts, Templates templates) =>
-        Pure(Newsletter.make(posts, templates));
-    
-    /// <summary>
-    /// Saves the newsletter as HTML and plain-text to the letters folder
-    /// </summary>
-    public static Eff<RT, Unit> save(Letter letter) =>
-        from f in Config<RT>.lettersFolder
-        from h in File<Eff<RT>, RT>.writeAllText(Path.Combine(f, $"letter-{letter.PublishedAt:yyyy-MM-dd}.html"), letter.Html)
-        from t in File<Eff<RT>, RT>.writeAllText(Path.Combine(f, $"letter-{letter.PublishedAt:yyyy-MM-dd}.txt"), letter.PlainText)
-        select unit;
 }

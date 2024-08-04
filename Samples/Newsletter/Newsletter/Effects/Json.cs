@@ -6,12 +6,16 @@ namespace Newsletter.Effects;
 /// <summary>
 /// Json parser
 /// </summary>
-public static class Json<RT>
-    where RT : Has<Eff<RT>, JsonIO>
+public static class Json<M, RT>
+    where RT : 
+        Has<M, JsonIO>
+    where M :
+        Monad<M>,
+        Stateful<M, RT>
 {
-    public static readonly Eff<RT, JsonIO> trait =
-        Stateful.getsM<Eff<RT>, RT, JsonIO>(rt => rt.Trait).As();
+    public static readonly K<M, JsonIO> trait =
+        Stateful.getsM<M, RT, JsonIO>(rt => rt.Trait);
 
-    public static Eff<RT, JsonDocument> readJson(string text) =>
+    public static K<M, JsonDocument> readJson(string text) =>
         trait.Map(t => t.Parse(text));
 }

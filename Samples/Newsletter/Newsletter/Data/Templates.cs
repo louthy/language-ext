@@ -4,25 +4,28 @@ namespace Newsletter.Data;
 /// <summary>
 /// Loads the templates for the emails
 /// </summary>
-public static class Templates<RT>
+public static class Templates<M, RT>
     where RT : 
-    Has<Eff<RT>, EncodingIO>,
-    Has<Eff<RT>, FileIO>,
-    Has<Eff<RT>, DirectoryIO>,
-    Reads<Eff<RT>, RT, Config>
+        Has<M, EncodingIO>,
+        Has<M, FileIO>,
+        Has<M, DirectoryIO>,
+        Reads<M, RT, Config>
+    where M :
+        Monad<M>,
+        Fallible<M>,
+        Stateful<M, RT>
 {
-    public static Eff<RT, Templates> loadDefault =>
-        from folder in Config<RT>.templateFolder
+    public static K<M, Templates> loadDefault =>
+        from folder in Config<M, RT>.templateFolder
         from email in loadTemplate("email")
         from recnt in loadTemplate("recent-item")
         select new Templates(email, recnt);
     
-    public static Eff<RT, Template> loadTemplate(string name) =>
-        from fldr in Config<RT>.templateFolder
-        from html in File<Eff<RT>, RT>.readAllText(Path.Combine(fldr, $"{name}.html"))
-        from text in File<Eff<RT>, RT>.readAllText(Path.Combine(fldr, $"{name}.txt"))
+    public static K<M, Template> loadTemplate(string name) =>
+        from fldr in Config<M, RT>.templateFolder
+        from html in File<M, RT>.readAllText(Path.Combine(fldr, $"{name}.html"))
+        from text in File<M, RT>.readAllText(Path.Combine(fldr, $"{name}.txt"))
         select new Template(html, text);
-    
 }
 
 /// <summary>

@@ -4,78 +4,82 @@ using Newsletter.Effects.Traits;
 
 namespace Newsletter.Data;
 
-public static class Posts<RT>
+public static class Posts<M, RT>
     where RT : 
-        Has<Eff<RT>, JsonIO>,
-        Has<Eff<RT>, FileIO>,
-        Has<Eff<RT>, WebIO>,
-        Has<Eff<RT>, EncodingIO>,
-        Has<Eff<RT>, DirectoryIO>,
-        Reads<Eff<RT>, RT, HttpClient>,
-        Reads<Eff<RT>, RT, Config>
+        Has<M, JsonIO>,
+        Has<M, FileIO>,
+        Has<M, WebIO>,
+        Has<M, EncodingIO>,
+        Has<M, DirectoryIO>,
+        Reads<M, RT, HttpClient>,
+        Reads<M, RT, Config>
+    where M :
+        Monad<M>,
+        Fallible<M>,
+        Stateful<M, RT>
 {
     /// <summary>
     /// Read the latest post from the Ghost API
     /// </summary>
-    public static Eff<RT, Post> readFromApi =>
-        readAllFromApi.Bind(p => p.Head()
-                                  .Match(Some: SuccessEff<RT, Post>,
-                                         None: () => Fail(Error.New("no posts found"))));
+    public static K<M, Post> readFromApi =>
+        readAllFromApi.Bind(
+            p => p.Head()
+                  .Match(Some: M.Pure,
+                         None: M.Fail<Post>(Error.New("no posts found"))));
 
     /// <summary>
     /// Read the last n posts from the Ghost API
     /// </summary>
-    public static Eff<RT, Seq<Post>> readLastFromApi(int n) =>
+    public static K<M, Seq<Post>> readLastFromApi(int n) =>
         readAllFromApi.Map(ps => ps.Take(n).ToSeq());
 
     /// <summary>
     /// Read all posts from the Ghost API
     /// </summary>
-    public static Eff<RT, EnumerableM<Post>> readAllFromApi =>
-        from root    in Config<RT>.siteUrl
-        from apiKey  in Config<RT>.contentApiKey
-        from text    in Web<RT>.downloadText(makePostsUrl(root, apiKey))
+    public static K<M, EnumerableM<Post>> readAllFromApi =>
+        from root    in Config<M, RT>.siteUrl
+        from apiKey  in Config<M, RT>.contentApiKey
+        from text    in Web<M, RT>.downloadText(makePostsUrl(root, apiKey))
         from element in getPostsElementForApiResult(text)
         from posts   in readPostsFromText(element)
         select posts;
 
-    static K<Eff<RT>, string> readFirstFile(string folder) =>
-        from fs in Directory<Eff<RT>, RT>.enumerateFiles(folder, "*.json")
-                                         .Bind(fs => fs.OrderDescending()
-                                         .AsEnumerableM()
-                                         .Take(1)
-                                         .Traverse(File<Eff<RT>, RT>.readAllText))
+    static K<M, string> readFirstFile(string folder) =>
+        from fs in Directory<M, RT>.enumerateFiles(folder, "*.json")
+                                   .Bind(fs => fs.OrderDescending()
+                                                 .AsEnumerableM()
+                                                 .Take(1)
+                                                 .Traverse(File<M, RT>.readAllText))
         from rs in fs.Head() switch
-        {
-            { IsSome: true, Case: string text } => SuccessEff<RT, string>(text),
-            _ => Fail<Error>(Error.New($"no JSON posts file found in {folder}"))
-        }
+                   {
+                       { IsSome: true, Case: string text } => M.Pure(text),
+                       _ => M.Fail<string>(Error.New($"no JSON posts file found in {folder}"))
+                   }
         select rs;
 
-    static Eff<RT, JsonElement> getPostsElementForApiResult(string text) =>
-        Json<RT>.readJson(text)
-                .Map(doc => doc.RootElement
-                               .Get("posts"));
+    static K<M, JsonElement> getPostsElementForApiResult(string text) =>
+        Json<M, RT>.readJson(text)
+                   .Map(doc => doc.RootElement
+                                  .Get("posts"));
 
-    static Eff<RT, JsonElement> getPostsElementForFile(string text) =>
-        Json<RT>.readJson(text)
-                .Map(doc => doc.RootElement
-                               .Get("db")
-                               .EnumerateArray()
-                               .FirstOrDefault()
-                               .Get("data")
-                               .Get("posts"));
+    static K<M, JsonElement> getPostsElementForFile(string text) =>
+        Json<M, RT>.readJson(text)
+                   .Map(doc => doc.RootElement
+                                  .Get("db")
+                                  .EnumerateArray()
+                                  .FirstOrDefault()
+                                  .Get("data")
+                                  .Get("posts"));
 
-    static Eff<RT, EnumerableM<Post>> readPostsFromText(JsonElement postsElement) =>
+    static K<M, EnumerableM<Post>> readPostsFromText(JsonElement postsElement) =>
         postsElement.Enumerate()
                     .Traverse(readPost)
                     .Map(posts => posts.OrderDescending()
                                        .AsEnumerableM()
-                                       .Filter(p => p.IsPublic))
-                    .As();
+                                       .Filter(p => p.IsPublic));
 
-    static Eff<RT, Post> readPost(JsonElement element) =>
-        Config<RT>.siteUrl.Map(siteUrl =>
+    static K<M, Post> readPost(JsonElement element) =>
+        Config<M, RT>.siteUrl.Map(siteUrl =>
         {
             // Acquire
             var id = element.Get("id").GetString() ?? throw new Exception("failed to read post 'id'");

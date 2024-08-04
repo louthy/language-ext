@@ -1,19 +1,19 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Newsletter.Command;
+using Newsletter.Effects;
 
 var envIO       = EnvIO.New();
 var path        = args is [_, var p] ? p : Environment.CurrentDirectory;
 var secrets     = loadUserSecrets();
 var sendGridKey = secrets.Find("SendGridKey");
+var runtime     = args is ["live", ..]
+                     ? Runtime.Live(path, sendGridKey)
+                     : Runtime.Test(path, sendGridKey);
 
-var result = args is ["live", ..]
-    ? Send<Newsletter.Effects.Live.Runtime>.newsletter.Run(
-        Newsletter.Effects.Live.Runtime.New(path, sendGridKey),
-        envIO)
-    : Send<Newsletter.Effects.Test.Runtime>.newsletter.Run(
-        Newsletter.Effects.Test.Runtime.New(path, sendGridKey),
-        envIO);
+var result = Send<Eff<Runtime>, Runtime>
+                .newsletter
+                .Run(runtime);
 
 switch (result)
 {

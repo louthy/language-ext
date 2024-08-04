@@ -22,8 +22,9 @@ public static class EffRxExtensions
     public static Eff<Unit> Consume<A>(
         this IObservable<A> ma,
         Func<A, Eff<Unit>> next) =>
-        lift<MinRT, Fin<Unit>>(
-            rt =>
+        from t in cancelTokenEff
+        from _ in Eff<Unit>.Lift(
+            () =>
             {
                 using var  wait      = new AutoResetEvent(false);
                 var        items     = new ConcurrentQueue<A>();
@@ -56,7 +57,7 @@ public static class EffRxExtensions
                         return unit;
                     }
 
-                    if (rt.EnvIO.Token.IsCancellationRequested)
+                    if (t.IsCancellationRequested)
                     {
                         return Errors.Cancelled;
                     }
@@ -72,7 +73,8 @@ public static class EffRxExtensions
                         if (res.IsFail) return FinFail<Unit>((Error)res);
                     }
                 }
-            });
+            })
+        select unit;
 
     /// <summary>
     /// Fold an observable stream

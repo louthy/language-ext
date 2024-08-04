@@ -2,20 +2,23 @@ using Newsletter.Effects.Traits;
 
 namespace Newsletter.Effects.Test;
 
-public record Runtime(RuntimeEnv Env) : 
-    Has<Eff<Runtime>, WebIO>,
-    Has<Eff<Runtime>, FileIO>,
-    Has<Eff<Runtime>, JsonIO>,
-    Has<Eff<Runtime>, EmailIO>,
-    Has<Eff<Runtime>, ImageIO>,
-    Has<Eff<Runtime>, ConsoleIO>,
-    Has<Eff<Runtime>, EncodingIO>,
-    Has<Eff<Runtime>, DirectoryIO>,
-    Reads<Eff<Runtime>, Runtime, HttpClient>,
-    Reads<Eff<Runtime>, Runtime, Config>,
+public record Runtime<M>(RuntimeEnv Env) : 
+    Has<M, WebIO>,
+    Has<M, FileIO>,
+    Has<M, JsonIO>,
+    Has<M, EmailIO>,
+    Has<M, ImageIO>,
+    Has<M, ConsoleIO>,
+    Has<M, EncodingIO>,
+    Has<M, DirectoryIO>,
+    Reads<M, Runtime<M>, HttpClient>,
+    Reads<M, Runtime<M>, Config>,
     IDisposable
+    where M :
+        Monad<M>,
+        Stateful<M, Runtime<M>>
 {
-    public static Runtime New(string repoRootFolder, Option<string> sendGridKey) =>
+    public static Runtime<M> New(string repoRootFolder, Option<string> sendGridKey) =>
         new (new RuntimeEnv(
             new HttpClient(),
             new Config(
@@ -28,35 +31,35 @@ public record Runtime(RuntimeEnv Env) :
                 "6d15eacab40271bcdd552306d0",
                 sendGridKey)));
     
-    K<Eff<Runtime>, FileIO> Has<Eff<Runtime>, FileIO>.Trait =>
-        SuccessEff<Runtime, FileIO>(LanguageExt.Sys.Live.Implementations.FileIO.Default);
+    K<M, FileIO> Has<M, FileIO>.Trait =>
+        M.Pure(LanguageExt.Sys.Live.Implementations.FileIO.Default);
 
-    K<Eff<Runtime>, EncodingIO> Has<Eff<Runtime>, EncodingIO>.Trait => 
-        SuccessEff<Runtime, EncodingIO>(LanguageExt.Sys.Live.Implementations.EncodingIO.Default);
+    K<M, EncodingIO> Has<M, EncodingIO>.Trait => 
+        M.Pure(LanguageExt.Sys.Live.Implementations.EncodingIO.Default);
 
-    K<Eff<Runtime>, DirectoryIO> Has<Eff<Runtime>, DirectoryIO>.Trait =>
-        SuccessEff<Runtime, DirectoryIO>(LanguageExt.Sys.Live.Implementations.DirectoryIO.Default);
+    K<M, DirectoryIO> Has<M, DirectoryIO>.Trait =>
+        M.Pure(LanguageExt.Sys.Live.Implementations.DirectoryIO.Default);
 
-    K<Eff<Runtime>, ConsoleIO> Has<Eff<Runtime>, ConsoleIO>.Trait =>
-        SuccessEff<Runtime, ConsoleIO>(LanguageExt.Sys.Live.Implementations.ConsoleIO.Default);
+    K<M, ConsoleIO> Has<M, ConsoleIO>.Trait =>
+        M.Pure(LanguageExt.Sys.Live.Implementations.ConsoleIO.Default);
 
-    K<Eff<Runtime>, JsonIO> Has<Eff<Runtime>, JsonIO>.Trait => 
-        SuccessEff<Runtime, JsonIO>(Live.Json.Default); 
+    K<M, JsonIO> Has<M, JsonIO>.Trait => 
+        M.Pure(Live.Json.Default); 
 
-    K<Eff<Runtime>, EmailIO> Has<Eff<Runtime>, EmailIO>.Trait => 
-        SuccessEff<Runtime, EmailIO>(Live.Email.Default); 
+    K<M, EmailIO> Has<M, EmailIO>.Trait => 
+        M.Pure(Live.Email.Default); 
 
-    K<Eff<Runtime>, WebIO> Has<Eff<Runtime>, WebIO>.Trait =>
-        SuccessEff<Runtime, WebIO>(Live.Web.Default);
+    K<M, WebIO> Has<M, WebIO>.Trait =>
+        M.Pure(Live.Web.Default);
 
-    K<Eff<Runtime>, Config> Reads<Eff<Runtime>, Runtime, Config>.Get { get; } = 
-        liftEff<Runtime, Config>(rt => rt.Env.Config);
+    K<M, ImageIO> Has<M, ImageIO>.Trait =>
+        M.Pure(Live.Image.Default);
 
-    K<Eff<Runtime>, HttpClient> Reads<Eff<Runtime>, Runtime, HttpClient>.Get { get; } = 
-        liftEff<Runtime, HttpClient>(rt => rt.Env.HttpClient);
+    K<M, Config> Reads<M, Runtime<M>, Config>.Get { get; } = 
+        M.Gets(rt => rt.Env.Config);
 
-    K<Eff<Runtime>, ImageIO> Has<Eff<Runtime>, ImageIO>.Trait =>
-        SuccessEff<Runtime, ImageIO>(Live.Image.Default);
+    K<M, HttpClient> Reads<M, Runtime<M>, HttpClient>.Get { get; } = 
+        M.Gets(rt => rt.Env.HttpClient);
 
     public void Dispose() =>
         Env.Dispose();

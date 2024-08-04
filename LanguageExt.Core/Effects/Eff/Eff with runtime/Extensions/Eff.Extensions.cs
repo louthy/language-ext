@@ -26,10 +26,28 @@ public static partial class EffExtensions
     /// Returns the result value only 
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> Run<RT, A>(this K<Eff<RT>, A> ma, RT env)
-        where RT : HasIO<RT> =>
-        ma.As().Run(env, env.EnvIO);
+    public static Fin<A> Run<RT, A>(this K<Eff<RT>, A> ma, RT env) =>
+        ma.As().Run(env, EnvIO.New());
 
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// Returns the result value only 
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Fin<A> Run<RT, A>(this K<Eff<RT>, A> ma, RT env, EnvIO envIO)
+    {
+        try
+        {
+            return ma.As().effect.Run(env).Run(envIO).Value;
+        }
+        catch(Exception e)
+        {
+            return Fin<A>.Fail(e);
+        }
+    }  
+    
     /// <summary>
     /// Invoke the effect
     /// </summary>
@@ -38,8 +56,35 @@ public static partial class EffExtensions
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
     public static Fin<(A Value, RT Runtime)> RunState<RT, A>(this K<Eff<RT>, A> ma, RT env)
-        where RT : HasIO<RT> =>
-        ma.As().RunState(env,  env.EnvIO);
+    {
+        try
+        {
+            return ma.As().effect.Run(env).Run(EnvIO.New());
+        }
+        catch(Exception e)
+        {
+            return Fin<(A Value, RT Runtime)>.Fail(e);
+        }
+    }  
+    
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// Returns the result value and the runtime (which carries state) 
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Fin<(A Value, RT Runtime)> RunState<RT, A>(this K<Eff<RT>, A> ma, RT env, EnvIO envIO)
+    {
+        try
+        {
+            return ma.As().effect.Run(env).Run(envIO);
+        }
+        catch(Exception e)
+        {
+            return Fin<(A Value, RT Runtime)>.Fail(e);
+        }
+    }    
 
     /// <summary>
     /// Invoke the effect
@@ -49,9 +94,26 @@ public static partial class EffExtensions
     /// `Run` will capture any errors and return a `Fin` type.
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
-    public static (A Value, RT Runtime) RunUnsafe<RT, A>(this K<Eff<RT>, A> ma, RT env)
-        where RT : HasIO<RT> =>
-        ma.As().RunUnsafe(env, env.EnvIO);
+    public static (A Value, RT Runtime) RunUnsafe<RT, A>(this K<Eff<RT>, A> ma, RT env) =>
+        ma.As().effect.Run(env).Run(EnvIO.New());
+
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// This is labelled 'unsafe' because it can throw an exception, whereas
+    /// `Run` will capture any errors and return a `Fin` type.
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public static (A Value, RT Runtime) RunUnsafe<RT, A>(this K<Eff<RT>, A> ma, RT env, EnvIO envIO) =>
+        ma.As().effect.Run(env).Run(envIO);
+
+    /// <summary>
+    /// Invoke the effect to leave the inner IO monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static IO<(A Value, RT Runtime)> RunIO<RT, A>(this K<Eff<RT>, A> ma, RT env) =>
+        ma.As().effect.Run(env).As();
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
