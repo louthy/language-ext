@@ -37,7 +37,7 @@ public partial class Game
     /// Play many hands until the players decide to quit
     /// </summary>
     static Game<Unit> playHands =>
-        from _0  in resetPlayers
+        from _0  in initPlayers
         from _1  in playHand
         from _2  in Display.askPlayAgain
         from key in Console.readKey

@@ -1,4 +1,5 @@
 using LanguageExt;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace CardGame;
@@ -9,27 +10,29 @@ public record Player(string Name)
         Name;
 
     /// <summary>
-    /// Run a computation in a Player local context 
+    /// Run a computation in a `Player` local context 
     /// </summary>
     /// <param name="player"></param>
     /// <param name="ma"></param>
     /// <typeparam name="A"></typeparam>
     /// <returns></returns>
     public static Game<A> with<A>(Player player, Game<A> ma) =>
-        from p in Game.gets(s => s.CurrentPlayer)
-        from a in Game.modify(s => s with { CurrentPlayer = player })
-        from r in ma
-        from b in Game.modify(s => s with { CurrentPlayer = p })
-        select r;
+        Stateful.bracket<Game, GameState, A>(setCurrent(player), ma).As();
 
     /// <summary>
-    /// Get the current player.  If there isn't one, then Game.cancel is raised
+    /// Get the current player.  If there isn't one, then `Game.cancel` is raised
     /// </summary>
     public static Game<Player> current =>
         from p in Game.gets(s => s.CurrentPlayer)
         from r in Game.lift(p)
         select r;
 
+    /// <summary>
+    /// Set the current player
+    /// </summary>
+    public static Game<Unit> setCurrent(Player player) =>
+        Game.modify(s => s with { CurrentPlayer = player }).As();
+    
     /// <summary>
     /// Get a player's state from the StateT monad-transformer
     /// </summary>

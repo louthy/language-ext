@@ -72,9 +72,9 @@ public partial class Game
         activePlayersState.Map(ps => ps.Map(p => p.Player).Strict());
 
     /// <summary>
-    /// Reset the player's state
+    /// Initialise the player's state
     /// </summary>
-    public static Game<Unit> resetPlayers =>
+    public static Game<Unit> initPlayers =>
         modifyPlayers(kv => kv.Map(_ => PlayerState.Zero));
 
     /// <summary>
