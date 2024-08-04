@@ -50,10 +50,10 @@ public static class Posts<M, RT>
                                                  .AsEnumerableM()
                                                  .Take(1)
                                                  .Traverse(File<M, RT>.readAllText))
-        from rs in fs.Head() switch
+        from rs in fs.ToSeq() switch
                    {
-                       { IsSome: true, Case: string text } => M.Pure(text),
-                       _ => M.Fail<string>(Error.New($"no JSON posts file found in {folder}"))
+                       [var text, ..] => M.Pure(text),
+                       _              => M.Fail<string>(Error.New($"no JSON posts file found in {folder}"))
                    }
         select rs;
 

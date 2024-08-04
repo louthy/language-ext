@@ -46,10 +46,10 @@ public static class Newsletter
         foreach(var recent in posts.Tail)
         {
             var rhtml = templates.RecentItem
-                                         .Html
-                                         .Replace("[TITLE]", HttpUtility.HtmlEncode(recent.Title))
-                                         .Replace("[EXCERPT]", HttpUtility.HtmlEncode(recent.Excerpt))
-                                         .Replace("[URL]", recent.Url.ToString());
+                                 .Html
+                                 .Replace("[TITLE]", HttpUtility.HtmlEncode(recent.Title))
+                                 .Replace("[EXCERPT]", HttpUtility.HtmlEncode(recent.Excerpt))
+                                 .Replace("[URL]", recent.Url.ToString());
             
             if (recent.FeatureImageUrl)
             {

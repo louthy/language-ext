@@ -3,7 +3,7 @@ using SixLabors.ImageSharp.Processing;
 using Img = SixLabors.ImageSharp.Image;
 using Newsletter.Effects.Traits;
 
-namespace Newsletter.Effects.Live;
+namespace Newsletter.Effects.Impl;
 
 public class Image : ImageIO
 {

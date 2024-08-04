@@ -1,6 +1,6 @@
 using Newsletter.Effects.Traits;
 
-namespace Newsletter.Effects.Live;
+namespace Newsletter.Effects.Impl;
 
 public record Web : WebIO
 {

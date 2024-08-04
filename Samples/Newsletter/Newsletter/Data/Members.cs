@@ -5,6 +5,14 @@ using Newsletter.Effects;
 
 namespace Newsletter.Data;
 
+/// <summary>
+/// Member record
+/// </summary>
+public record Member(string Id, string Email, string Name, bool SubscribedToEmails, bool Supporter);
+
+/// <summary>
+/// Member access
+/// </summary>
 public static class Members<M, RT>
     where RT : 
         Has<M, EncodingIO>,
@@ -20,27 +28,26 @@ public static class Members<M, RT>
         from folder  in Config<M, RT>.membersFolder
         from path    in readFirstFile(folder)
         select readMembers(path).Filter(m => m.SubscribedToEmails);
-    
+
     static K<M, string> readFirstFile(string folder) =>
         Directory<M, RT>.enumerateFiles(folder, "*.csv")
-                              .Map(fs => fs.OrderDescending()
-                                           .AsEnumerableM()
-                                           .Head())
-                              .Bind(path => path.Match(
-                                        Some: pure<M, string>,
-                                        None: error<M, string>(Error.New($"no member files found in {folder}"))));
+                        .Map(fs => fs.OrderDescending()
+                                     .AsEnumerableM()
+                                     .Head())
+                        .Bind(path => path.Match(
+                                  Some: pure<M, string>,
+                                  None: error<M, string>(Error.New($"no member files found in {folder}"))));
 
     static Seq<Member> readMembers(string path)
     {
         var       config  = new CsvConfiguration(CultureInfo.InvariantCulture) { HasHeaderRecord = true };
         using var reader  = new StreamReader(path);
         using var csv     = new CsvReader(reader, config);
-        var       records = csv.GetRecords<Row>();
-        return records
-              .AsEnumerableM()
-              .Map(r => new Member(r.id, r.email, r.name, r.subscribed_to_emails == "true", r.tiers == "Supporter"))
-              .ToSeq()
-              .Strict();
+        return csv.GetRecords<Row>()
+                  .AsEnumerableM()
+                  .Map(r => new Member(r.id, r.email, r.name, r.subscribed_to_emails == "true", r.tiers == "Supporter"))
+                  .ToSeq()
+                  .Strict();
     }
 
     record Row(
@@ -57,4 +64,4 @@ public static class Members<M, RT>
         string tiers);
 }
 
-public record Member(string Id, string Email, string Name, bool SubscribedToEmails, bool Supporter);
+

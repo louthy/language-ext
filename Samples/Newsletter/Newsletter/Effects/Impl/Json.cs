@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Newsletter.Effects.Traits;
 
-namespace Newsletter.Effects.Live;
+namespace Newsletter.Effects.Impl;
 
 public record Json : JsonIO
 {

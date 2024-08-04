@@ -63,16 +63,16 @@ public record Runtime(RuntimeEnv Env) :
         SuccessEff<Runtime, ConsoleIO>(LanguageExt.Sys.Live.Implementations.ConsoleIO.Default);
 
     K<Eff<Runtime>, JsonIO> Has<Eff<Runtime>, JsonIO>.Trait => 
-        SuccessEff<Runtime, JsonIO>(Effects.Live.Json.Default); 
+        SuccessEff<Runtime, JsonIO>(Effects.Impl.Json.Default); 
 
     K<Eff<Runtime>, EmailIO> Has<Eff<Runtime>, EmailIO>.Trait => 
-        SuccessEff<Runtime, EmailIO>(Effects.Live.Email.Default); 
+        SuccessEff<Runtime, EmailIO>(Effects.Impl.Email.Default); 
 
     K<Eff<Runtime>, WebIO> Has<Eff<Runtime>, WebIO>.Trait =>
-        SuccessEff<Runtime, WebIO>(Effects.Live.Web.Default);
+        SuccessEff<Runtime, WebIO>(Effects.Impl.Web.Default);
 
     K<Eff<Runtime>, ImageIO> Has<Eff<Runtime>, ImageIO>.Trait =>
-        SuccessEff<Runtime, ImageIO>(Effects.Live.Image.Default);
+        SuccessEff<Runtime, ImageIO>(Effects.Impl.Image.Default);
 
     K<Eff<Runtime>, Config> Reads<Eff<Runtime>, Runtime, Config>.Get { get; } = 
         liftEff<Runtime, Config>(rt => rt.Env.Config);

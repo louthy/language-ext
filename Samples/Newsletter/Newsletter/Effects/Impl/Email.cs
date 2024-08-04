@@ -2,7 +2,7 @@ using SendGrid;
 using SendGrid.Helpers.Mail;
 using Newsletter.Effects.Traits;
 
-namespace Newsletter.Effects.Live;
+namespace Newsletter.Effects.Impl;
 
 public class Email : EmailIO
 {

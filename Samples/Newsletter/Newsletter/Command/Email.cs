@@ -26,5 +26,5 @@ public static class Email<M, RT>
                      letter.Title,
                      letter.PlainText,
                      letter.Html)
-              .Catch(Display<M, RT>.error); 
+               .Catch(Display<M, RT>.error); 
 }
