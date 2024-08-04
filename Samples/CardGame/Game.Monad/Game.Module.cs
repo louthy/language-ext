@@ -5,7 +5,7 @@ namespace CardGame;
 public partial class Game
 {
     /// <summary>
-    /// Cached unit returning GameM monad
+    /// Cached unit returning Game monad
     /// </summary>
     public static readonly Game<Unit> unitM = 
         Pure(unit).As();
@@ -122,13 +122,13 @@ public partial class Game
         unitM.Bind(_ => f());
     
     /// <summary>
-    /// Lift an option into the GameM - None will cancel the game
+    /// Lift an option into the Game - None will cancel the game
     /// </summary>
     public static Game<A> lift<A>(Option<A> ma) => 
         new (StateT<GameState>.lift(OptionT<IO>.lift(ma)));
     
     /// <summary>
-    /// Lift an IO operation into the GameM
+    /// Lift an IO operation into the Game
     /// </summary>
     public static Game<A> liftIO<A>(IO<A> ma) => 
         new (StateT.liftIO<GameState, OptionT<IO>, A>(ma));
@@ -136,7 +136,7 @@ public partial class Game
     /// <summary>
     /// Represents a None state in the embedded OptionT transformer
     /// </summary>
-    /// <remarks>Use this to cancel a GameM computation</remarks>
+    /// <remarks>Use this to cancel a Game computation</remarks>
     public static Game<A> lift<A>(StateT<GameState, OptionT<IO>, A> ma) => 
         new (ma);
 

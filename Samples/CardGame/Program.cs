@@ -4,7 +4,7 @@ using Console = System.Console;
 
 // Play the game!
 Game.play
-    .Run(GameState.Zero) // Runs the GameM 
+    .Run(GameState.Zero) // Runs the Game 
     .Run()               // Runs the IO
     .Ignore();
 
