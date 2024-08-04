@@ -525,19 +525,6 @@ public readonly struct Option<A> :
         typeof(A);
 
     /// <summary>
-    /// Convert to a `Transducer`
-    /// </summary>
-    [Pure]
-    public Transducer<Unit, Sum<Unit, A>> ToTransducer()
-    {
-        var sum = IsSome
-                      ? Sum<Unit, A>.Right(Value!)
-                      : Sum<Unit, A>.Left(default);
-
-        return Transducer.lift<Unit, Sum<Unit, A>>(_ => sum);
-    }
-        
-    /// <summary>
     /// Convert the Option to an enumerable of zero or one items
     /// </summary>
     /// <returns>An enumerable of zero or one items</returns>

@@ -1,8 +1,6 @@
 ﻿using System.IO;
-using System.Text;
 using LanguageExt;
 using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
 using LanguageExt.Sys;
 using LanguageExt.Sys.Traits;
 using LanguageExt.Traits;

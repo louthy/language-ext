@@ -553,12 +553,6 @@ public abstract class Fin<A> :
             : Option<A>.None;
 
     [Pure, MethodImpl(Opt.Default)]
-    public Sum<Error, A> ToSum() =>
-        IsSucc
-            ? Sum<Error, A>.Right(SuccValue)
-            : Sum<Error, A>.Left(FailValue);
-
-    [Pure, MethodImpl(Opt.Default)]
     public Either<Error, A> ToEither() =>
         IsSucc
             ? Either<Error, A>.Right(SuccValue)

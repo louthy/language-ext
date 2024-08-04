@@ -6,7 +6,6 @@
 //
 
 using System;
-using LanguageExt.Effects.Traits;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 

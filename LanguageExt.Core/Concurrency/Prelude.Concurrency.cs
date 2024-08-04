@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
 
 namespace LanguageExt;
 

@@ -344,15 +344,6 @@ public abstract record Validation<F, A> :
             _                                => throw new NotSupportedException()
         };
 
-    [Pure, MethodImpl(Opt.Default)]
-    public Sum<F, A> ToSum() =>
-        this switch
-        {
-            Validation.Success<F, A> (var x) => Sum<F, A>.Right(x),
-            Validation.Fail<F, A> (var x)    => Sum<F, A>.Left(x),
-            _                                => throw new NotSupportedException()
-        };
-
     /// <summary>
     /// Comparison operator
     /// </summary>

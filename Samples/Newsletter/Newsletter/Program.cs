@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration.UserSecrets;
 using Newsletter.Command;
 using Newsletter.Effects;
 
-var envIO       = EnvIO.New();
+// Setup
 var path        = args is [_, var p] ? p : Environment.CurrentDirectory;
 var secrets     = loadUserSecrets();
 var sendGridKey = secrets.Find("SendGridKey");
@@ -11,10 +11,12 @@ var runtime     = args is ["live", ..]
                      ? Runtime.Live(path, sendGridKey)
                      : Runtime.Test(path, sendGridKey);
 
+// Run
 var result = Send<Eff<Runtime>, Runtime>
                 .newsletter
                 .Run(runtime);
 
+// Show results
 switch (result)
 {
     case Fin.Succ<Unit>:

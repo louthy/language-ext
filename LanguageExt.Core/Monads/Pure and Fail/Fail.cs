@@ -37,12 +37,6 @@ public readonly record struct Fail<E>(E Value)
     //  Transducer
     //
 
-    public Transducer<Unit, E> ToTransducer() =>
-        Transducer.pure(Value);
-
-    public Reducer<Unit, S> Transform<S>(Reducer<E, S> reduce) =>
-        ToTransducer().Transform(reduce);
-
     public override string ToString() =>
         $"Fail({Value})";
 

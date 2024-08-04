@@ -1,9 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
 using LanguageExt.Traits;
-using static LanguageExt.Transducer;
 
 namespace LanguageExt.Pipes;
 

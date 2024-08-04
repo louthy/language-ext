@@ -275,13 +275,6 @@ public abstract record Either<L, R> :
         Match(Left: _ => None, Right: Some);
 
     /// <summary>
-    /// Convert the Either to a Sum
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Sum<L, R> ToSum() =>
-        Match(Left: Sum<L, R>.Left, Right: Sum<L, R>.Right);
-
-    /// <summary>
     /// Convert to an `Eff`
     /// </summary>
     /// <param name="Left">Map the `Left` value to the`Fail` state of the `Eff`</param>
