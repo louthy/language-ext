@@ -15,8 +15,8 @@ public record Member(string Id, string Email, string Name, bool SubscribedToEmai
 /// </summary>
 public static class Members<M, RT>
     where RT : 
-        Has<M, EncodingIO>,
         Has<M, FileIO>,
+        Has<M, EncodingIO>,
         Has<M, DirectoryIO>,
         Reads<M, RT, Config>
     where M :

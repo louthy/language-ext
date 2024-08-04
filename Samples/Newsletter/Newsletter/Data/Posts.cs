@@ -6,13 +6,13 @@ namespace Newsletter.Data;
 
 public static class Posts<M, RT>
     where RT : 
+        Has<M, WebIO>,
         Has<M, JsonIO>,
         Has<M, FileIO>,
-        Has<M, WebIO>,
         Has<M, EncodingIO>,
         Has<M, DirectoryIO>,
-        Reads<M, RT, HttpClient>,
-        Reads<M, RT, Config>
+        Reads<M, RT, Config>,
+        Reads<M, RT, HttpClient>
     where M :
         Monad<M>,
         Fallible<M>,

@@ -11,68 +11,65 @@ public record Runtime(RuntimeEnv Env) :
     Has<Eff<Runtime>, ConsoleIO>,
     Has<Eff<Runtime>, EncodingIO>,
     Has<Eff<Runtime>, DirectoryIO>,
-    Reads<Eff<Runtime>, Runtime, HttpClient>,
     Reads<Eff<Runtime>, Runtime, Config>,
+    Reads<Eff<Runtime>, Runtime, HttpClient>,
     IDisposable
 {
-    private static Config Common(string repoRootFolder) =>
-        new Config(
-                "",
-                Path.Combine(repoRootFolder, "templates"),
-                "",
-                "https://paullouth.com",
-                700,
-                // Public Ghost-API key. It's ok this only accesses public data,
-                // just don't abuse it, or I'll revoke it!
-                "6d15eacab40271bcdd552306d0",
-                None);
+    private static Config Common(string repoRootFolder, Option<string> sendGridKey) =>
+        new ("",
+             Path.Combine(repoRootFolder, "templates"),
+             "",
+             "https://paullouth.com",
+             700,
+             // Public Ghost-API key. It's ok this only accesses public data,
+             // just don't abuse it, or I'll revoke it!
+             "6d15eacab40271bcdd552306d0",
+             sendGridKey);
 
     public static Runtime Test(string repoRootFolder, Option<string> sendGridKey) =>
         New(new RuntimeEnv(
                 new HttpClient(),
-                Common(repoRootFolder) with
+                Common(repoRootFolder, sendGridKey) with
                 {
                     MembersFolder = Path.Combine(repoRootFolder, "members-test"),
-                    LettersFolder = Path.Combine(repoRootFolder, "letters-test"),
-                    SendGridApiKey = sendGridKey
+                    LettersFolder = Path.Combine(repoRootFolder, "letters-test")
                 }));
 
     public static Runtime Live(string repoRootFolder, Option<string> sendGridKey) =>
         New(new RuntimeEnv(
                 new HttpClient(),
-                Common(repoRootFolder) with
+                Common(repoRootFolder, sendGridKey) with
                 {
-                    MembersFolder  = Path.Combine(repoRootFolder, "members-live"),
-                    LettersFolder  = Path.Combine(repoRootFolder, "letters-live"),
-                    SendGridApiKey = sendGridKey
+                    MembersFolder = Path.Combine(repoRootFolder, "members-live"),
+                    LettersFolder = Path.Combine(repoRootFolder, "letters-live")
                 }));
     
     public static Runtime New(RuntimeEnv env) =>
         new (env);
     
     K<Eff<Runtime>, FileIO> Has<Eff<Runtime>, FileIO>.Trait =>
-        SuccessEff<Runtime, FileIO>(LanguageExt.Sys.Live.Implementations.FileIO.Default);
+        pure<Eff<Runtime>, FileIO>(LanguageExt.Sys.Live.Implementations.FileIO.Default);
 
     K<Eff<Runtime>, EncodingIO> Has<Eff<Runtime>, EncodingIO>.Trait => 
-        SuccessEff<Runtime, EncodingIO>(LanguageExt.Sys.Live.Implementations.EncodingIO.Default);
+        pure<Eff<Runtime>, EncodingIO>(LanguageExt.Sys.Live.Implementations.EncodingIO.Default);
 
     K<Eff<Runtime>, DirectoryIO> Has<Eff<Runtime>, DirectoryIO>.Trait =>
-        SuccessEff<Runtime, DirectoryIO>(LanguageExt.Sys.Live.Implementations.DirectoryIO.Default);
+        pure<Eff<Runtime>, DirectoryIO>(LanguageExt.Sys.Live.Implementations.DirectoryIO.Default);
 
     K<Eff<Runtime>, ConsoleIO> Has<Eff<Runtime>, ConsoleIO>.Trait =>
-        SuccessEff<Runtime, ConsoleIO>(LanguageExt.Sys.Live.Implementations.ConsoleIO.Default);
+        pure<Eff<Runtime>, ConsoleIO>(LanguageExt.Sys.Live.Implementations.ConsoleIO.Default);
 
     K<Eff<Runtime>, JsonIO> Has<Eff<Runtime>, JsonIO>.Trait => 
-        SuccessEff<Runtime, JsonIO>(Effects.Impl.Json.Default); 
+        pure<Eff<Runtime>, JsonIO>(Impl.Json.Default); 
 
     K<Eff<Runtime>, EmailIO> Has<Eff<Runtime>, EmailIO>.Trait => 
-        SuccessEff<Runtime, EmailIO>(Effects.Impl.Email.Default); 
+        pure<Eff<Runtime>, EmailIO>(Impl.Email.Default); 
 
     K<Eff<Runtime>, WebIO> Has<Eff<Runtime>, WebIO>.Trait =>
-        SuccessEff<Runtime, WebIO>(Effects.Impl.Web.Default);
+        pure<Eff<Runtime>, WebIO>(Impl.Web.Default);
 
     K<Eff<Runtime>, ImageIO> Has<Eff<Runtime>, ImageIO>.Trait =>
-        SuccessEff<Runtime, ImageIO>(Effects.Impl.Image.Default);
+        pure<Eff<Runtime>, ImageIO>(Impl.Image.Default);
 
     K<Eff<Runtime>, Config> Reads<Eff<Runtime>, Runtime, Config>.Get { get; } = 
         liftEff<Runtime, Config>(rt => rt.Env.Config);

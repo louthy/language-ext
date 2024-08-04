@@ -1,4 +1,5 @@
 using Newsletter.Data;
+using Newsletter.Effects;
 using Newsletter.Effects.Traits;
 using Newsletter.UI;
 

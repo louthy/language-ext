@@ -6,8 +6,8 @@ namespace Newsletter.Data;
 /// </summary>
 public static class Templates<M, RT>
     where RT : 
-        Has<M, EncodingIO>,
         Has<M, FileIO>,
+        Has<M, EncodingIO>,
         Has<M, DirectoryIO>,
         Reads<M, RT, Config>
     where M :
