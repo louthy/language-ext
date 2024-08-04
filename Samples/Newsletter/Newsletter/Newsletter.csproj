@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <UserSecretsId>fbefbe46-9ced-4f15-92b1-db45597ea1e3</UserSecretsId>
+    </PropertyGroup>
+    <ItemGroup>
+      <PackageReference Include="CsvHelper" Version="33.0.1" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
+      <PackageReference Include="SendGrid" Version="9.29.3" />
+      <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
+      <DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.2"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\LanguageExt.Core\LanguageExt.Core.csproj" />
+      <ProjectReference Include="..\..\..\LanguageExt.Sys\LanguageExt.Sys.csproj" />
+    </ItemGroup>
+
+</Project>
