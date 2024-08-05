@@ -60,13 +60,15 @@ public static partial class Prelude
     /// <summary>
     /// Catch an error if the predicate matches
     /// </summary>
-    internal static CatchM<M, A> matchErrorM<M, A>(Func<Error, bool> predicate, Func<Error, K<M, A>> Fail) =>
+    internal static CatchM<M, A> matchErrorM<M, A>(Func<Error, bool> predicate, Func<Error, K<M, A>> Fail)
+        where M : Fallible<M> =>
         new (predicate, Fail);
 
     /// <summary>
     /// Catch an error if the predicate matches
     /// </summary>
-    internal static CatchM<M, E, A> matchErrorM<M, E, A>(Func<E, bool> predicate, Func<E, K<M, A>> Fail) =>
+    internal static CatchM<M, E, A> matchErrorM<M, E, A>(Func<E, bool> predicate, Func<E, K<M, A>> Fail) 
+        where M : Fallible<E, M> =>
         new (predicate, Fail);
     
     /// <summary>
@@ -78,7 +80,8 @@ public static partial class Prelude
     /// <summary>
     /// Catch an error if the error matches the argument provided 
     /// </summary>
-    public static CatchM<M, A> @catchM<M, A>(Error error, Func<Error, K<M, A>> Fail) =>
+    public static CatchM<M, A> @catchM<M, A>(Error error, Func<Error, K<M, A>> Fail) 
+        where M : Fallible<M> =>
         matchErrorM(e => e == error, Fail);
        
     /// <summary>
@@ -96,7 +99,8 @@ public static partial class Prelude
     /// <summary>
     /// Catch an error if the error matches the argument provided 
     /// </summary>
-    public static CatchM<M, A> @catchM<M, A>(Error error, K<M, A> Fail) =>
+    public static CatchM<M, A> @catchM<M, A>(Error error, K<M, A> Fail)
+        where M : Fallible<M> =>
         matchErrorM(e => e == error, _ => Fail);
         
     /// <summary>
@@ -115,7 +119,8 @@ public static partial class Prelude
     /// <summary>
     /// Catch an error if the error matches the argument provided 
     /// </summary>
-    public static CatchM<M, A> @catchM<M, A>(int errorCode, Func<Error, K<M, A>> Fail) =>
+    public static CatchM<M, A> @catchM<M, A>(int errorCode, Func<Error, K<M, A>> Fail)
+        where M : Fallible<M> =>
         matchErrorM(e => e.Code == errorCode, Fail);
         
     /// <summary>
@@ -133,7 +138,8 @@ public static partial class Prelude
     /// <summary>
     /// Catch an error if the error matches the argument provided 
     /// </summary>
-    public static CatchM<M, A> @catchM<M, A>(int errorCode, K<M, A> Fail) =>
+    public static CatchM<M, A> @catchM<M, A>(int errorCode, K<M, A> Fail)
+        where M : Fallible<M> =>
         matchErrorM(e => e.Code == errorCode, _ => Fail);
         
     /// <summary>
@@ -152,7 +158,8 @@ public static partial class Prelude
     /// <summary>
     /// Catch an error if the error matches the argument provided 
     /// </summary>
-    public static CatchM<M, A> @catchM<M, A>(Func<Error, bool> predicate, Func<Error, K<M, A>> Fail) =>
+    public static CatchM<M, A> @catchM<M, A>(Func<Error, bool> predicate, Func<Error, K<M, A>> Fail)
+        where M : Fallible<M> =>
         matchErrorM(predicate, Fail);
                  
     // /// <summary>
@@ -170,7 +177,8 @@ public static partial class Prelude
     /// <summary>
     /// Catch an error if the error matches the argument provided 
     /// </summary>
-    public static CatchM<M, A> @catchM<M, A>(Func<Error, bool> predicate, K<M, A> Fail) =>
+    public static CatchM<M, A> @catchM<M, A>(Func<Error, bool> predicate, K<M, A> Fail) 
+        where M : Fallible<M> =>
         matchErrorM(predicate, _ => Fail);
                 
     /// <summary>
@@ -194,13 +202,15 @@ public static partial class Prelude
     /// <summary>
     /// Catch all errors and return Fail 
     /// </summary>
-    public static CatchM<M, A> @catchM<M, A>(K<M, A> Fail) =>
+    public static CatchM<M, A> @catchM<M, A>(K<M, A> Fail) 
+        where M : Fallible<M> =>
         matchErrorM(static _ => true, _ => Fail);
     
     /// <summary>
     /// Catch all errors and return Fail 
     /// </summary>
-    public static CatchM<M, A> @catchM<M, A>(Func<Error, K<M, A>> Fail) =>
+    public static CatchM<M, A> @catchM<M, A>(Func<Error, K<M, A>> Fail) 
+        where M : Fallible<M> =>
         matchErrorM(static _ => true, Fail);
         
     /// <summary>
@@ -212,13 +222,16 @@ public static partial class Prelude
     /// <summary>
     /// Catch all errors and return Fail 
     /// </summary>
-    public static CatchM<M, A> @catchOfM<E, M, A>(Func<E, K<M, A>> Fail) where E : Error =>
+    public static CatchM<M, A> @catchOfM<E, M, A>(Func<E, K<M, A>> Fail) 
+        where E : Error 
+        where M : Fallible<M> =>
         matchErrorM(static e => e is E, e => Fail((E)e));
         
     /// <summary>
     /// Catch errors
     /// </summary>
-    public static CatchError @catchOf<E>(Func<E, Error> Fail) where E : Error =>
+    public static CatchError @catchOf<E>(Func<E, Error> Fail) 
+        where E : Error =>
         matchError(static e => e is E, e => Fail((E)e));
 
     /// <summary>
@@ -230,7 +243,8 @@ public static partial class Prelude
     /// <summary>
     /// Catch all errors and return Fail 
     /// </summary>
-    public static CatchM<M, A> @expectedM<M, A>(Func<Expected, K<M, A>> Fail) =>
+    public static CatchM<M, A> @expectedM<M, A>(Func<Expected, K<M, A>> Fail) 
+        where M : Fallible<M> =>
         @catchOfM(Fail);
 
     /// <summary>
@@ -248,7 +262,9 @@ public static partial class Prelude
     /// <summary>
     /// Catch all errors and return Fail 
     /// </summary>
-    public static CatchM<M, A> @expectedOfM<E, M, A>(Func<E, K<M, A>> Fail) where E : Expected =>
+    public static CatchM<M, A> @expectedOfM<E, M, A>(Func<E, K<M, A>> Fail) 
+        where M : Fallible<M>
+        where E : Expected =>
         @catchOfM(Fail);
 
     /// <summary>
@@ -267,7 +283,8 @@ public static partial class Prelude
     /// <summary>
     /// Catch all errors and return Fail 
     /// </summary>
-    public static CatchM<M, A> @exceptionalM<M, A>(Func<Exceptional, K<M, A>> Fail) =>
+    public static CatchM<M, A> @exceptionalM<M, A>(Func<Exceptional, K<M, A>> Fail) 
+        where M : Fallible<M> =>
         @catchOfM(Fail);
 
     /// <summary>
@@ -279,13 +296,16 @@ public static partial class Prelude
     /// <summary>
     /// Catch exceptional errors
     /// </summary>
-    public static CatchValue<A> @exceptionalOf<E, A>(Func<E, A> Fail) where E : Exceptional =>
+    public static CatchValue<A> @exceptionalOf<E, A>(Func<E, A> Fail) 
+        where E : Exceptional =>
         @catchOf(Fail);
     
     /// <summary>
     /// Catch all errors and return Fail 
     /// </summary>
-    public static CatchM<M, A> @exceptionalOfM<E, M, A>(Func<E, K<M, A>> Fail) where E : Exceptional =>
+    public static CatchM<M, A> @exceptionalOfM<E, M, A>(Func<E, K<M, A>> Fail) 
+        where E : Exceptional 
+        where M : Fallible<M> =>
         @catchOfM(Fail);
             
     /// <summary>
