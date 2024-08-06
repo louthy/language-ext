@@ -9,12 +9,11 @@ public static class Newsletter<M, RT>
     where RT : 
         Has<M, FileIO>,
         Has<M, EncodingIO>,
-        Reads<M, RT, Config>,
-        Reads<M, RT, HttpClient>
+        Has<M, Config>,
+        Has<M, HttpClient>
     where M :
         Monad<M>,
-        Fallible<M>,
-        Stateful<M, RT>
+        Fallible<M>
 {
     /// <summary>
     /// Builds the newsletter

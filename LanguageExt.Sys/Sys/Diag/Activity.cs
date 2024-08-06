@@ -10,28 +10,23 @@ namespace LanguageExt.Sys.Diag;
 /// An `Activity` has an operation name, an ID, a start time and duration, tags, and baggage.
 /// 
 /// Activities should be created by calling the `span` functions, configured as necessary.  Each `span` function
-/// takes an `Eff` or `Aff` operation to run (which is the activity).  The runtime system will maintain the parent-
+/// takes an `Eff` or `Aff` operation to run (which is the activity).  The runtime system will maintain the parent/
 /// child relationships for the activities, and maintains the 'current' activity.
 /// </summary>
 /// <typeparam name="M">Reader, Resource, and monad trait</typeparam>
 /// <typeparam name="RT">Runtime</typeparam>
 public class Activity<M, RT>
-    where M :
-        Stateful<M, RT>,
+    where M : 
         Monad<M>
-
     where RT :
         Has<M, ActivitySourceIO>,
-        Mutates<M, RT, ActivityEnv>
+        Local<M, ActivityEnv>
 {
-    static readonly K<M, ActivitySourceIO> trait =
-        Stateful.getsM<M, RT, ActivitySourceIO>(e => e.Trait);
-
-    static K<M, Unit> mutate(Func<ActivityEnv, ActivityEnv> f) =>
-        Stateful.getsM<M, RT, Unit>(e => e.Modify(f));
+    static K<M, ActivitySourceIO> activityIO =>
+        Has<M, RT, ActivitySourceIO>.ask;
 
     static K<M, ActivityEnv> env =>
-        Stateful.getsM<M, RT, ActivityEnv>(e => e.Get);
+        Has<M, RT, ActivityEnv>.ask;
 
     static K<M, Activity?> currentActivity =>
         env.Map(e => e.Activity);
@@ -43,7 +38,7 @@ public class Activity<M, RT>
         Seq<ActivityLink> activityLinks,
         DateTimeOffset startTime,
         ActivityContext? parentContext = default) =>
-        from src in trait
+        from src in activityIO
         from cur in currentActivity
         from act in use(src.StartActivity(
                             name,
@@ -115,7 +110,8 @@ public class Activity<M, RT>
         DateTimeOffset startTime,
         K<M, TA> operation) =>
         from a in startActivity(name, activityKind, activityTags, activityLinks, startTime)
-        from r in Stateful.bracket<M, RT, TA>(mutate(e => e with { Activity = a }), operation)
+        from x in Local.with<M, RT, ActivityEnv, TA>(e => e with { Activity = a }, operation)
+        from r in operation
         select r;
 
     /// <summary>
@@ -146,7 +142,7 @@ public class Activity<M, RT>
             activityLinks,
             startTime,
             parentContext)
-        from r in Stateful.bracket<M, RT, A>(mutate(e => e with { Activity = a }), operation)
+        from r in Local.with<M, RT, ActivityEnv, A>(e => e with { Activity = a }, operation)
         select r;
 
     /// <summary>

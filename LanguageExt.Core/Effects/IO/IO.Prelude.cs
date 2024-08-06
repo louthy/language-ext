@@ -38,23 +38,6 @@ public static partial class Prelude
     /// </summary>
     public static readonly IO<EnvIO> envIO = 
         IO<EnvIO>.Lift(e => e);
-
-    /// <summary>
-    /// Creates a local cancellation environment
-    /// </summary>
-    /// <remarks>
-    /// A local cancellation environment stops other IO computations, that rely on the same
-    /// environmental cancellation token, from being taken down by a regional cancellation.
-    ///
-    /// If a `IO.cancel` is invoked locally then it will still create an exception that
-    /// propagates upwards and so catching cancellations is still important. 
-    /// </remarks>
-    /// <param name="ma">Computation to run within the local context</param>
-    /// <typeparam name="A">Bound value</typeparam>
-    /// <returns>Result of the computation</returns>
-    public static IO<A> local<A>(K<IO, A> ma) =>
-        IO.local(ma);
-    
     
     /// <summary>
     /// Queue this IO operation to run on the thread-pool. 
@@ -67,17 +50,16 @@ public static partial class Prelude
     [MethodImpl(Opt.Default)]
     public static K<M, ForkIO<A>> fork<M, A>(K<M, A> ma, Option<TimeSpan> timeout = default)
         where M : Monad<M> =>
-        from mk in M.UnliftIO<A>()
-        from rs in mk(ma).Fork(timeout)
-        select rs;
+        ma.Fork(timeout);
 
     /// <summary>
     /// Timeout operation if it takes too long
     /// </summary>
     [Pure]
     [MethodImpl(Opt.Default)]
-    public static IO<A> timeout<A>(TimeSpan timeout, K<IO, A> ma) =>
-         ma.As().Timeout(timeout);
+    public static K<M, A> timeout<M, A>(TimeSpan timeout, K<M, A> ma) 
+        where M : Monad<M> =>
+         ma.Timeout(timeout);
     
     /// <summary>
     /// Keeps repeating the computation   
@@ -85,8 +67,9 @@ public static partial class Prelude
     /// <param name="ma">Computation to repeat</param>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
-    public static IO<A> repeat<A>(K<IO, A> ma) =>
-        ma.As().Repeat();
+    public static K<M, A> repeat<M, A>(K<M, A> ma)
+        where M : Monad<M> =>
+        ma.Repeat();
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires  
@@ -95,8 +78,9 @@ public static partial class Prelude
     /// <param name="ma">Computation to repeat</param>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
-    public static IO<A> repeat<A>(Schedule schedule, K<IO, A> ma) =>
-        ma.As().Repeat(schedule);
+    public static K<M, A> repeat<M, A>(Schedule schedule, K<M, A> ma)
+        where M : Monad<M> =>
+        ma.Repeat(schedule);
 
     /// <summary>
     /// Keeps repeating the computation until the predicate returns false
@@ -104,8 +88,9 @@ public static partial class Prelude
     /// <param name="ma">Computation to repeat</param>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
-    public static IO<A> repeatWhile<A>(K<IO, A> ma, Func<A, bool> predicate) => 
-        ma.As().RepeatWhile(predicate);
+    public static K<M, A> repeatWhile<M, A>(K<M, A> ma, Func<A, bool> predicate) 
+        where M : Monad<M> =>
+        ma.RepeatWhile(predicate);
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns false
@@ -114,11 +99,12 @@ public static partial class Prelude
     /// <param name="ma">Computation to repeat</param>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
-    public static IO<A> repeatWhile<A>(
+    public static K<M, A> repeatWhile<M, A>(
         Schedule schedule,
-        K<IO, A> ma,
-        Func<A, bool> predicate) =>
-        ma.As().RepeatWhile(schedule, predicate);
+        K<M, A> ma,
+        Func<A, bool> predicate) 
+        where M : Monad<M> =>
+        ma.RepeatWhile(schedule, predicate);
 
     /// <summary>
     /// Keeps repeating the computation until the predicate returns true
@@ -126,10 +112,11 @@ public static partial class Prelude
     /// <param name="ma">Computation to repeat</param>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
-    public static IO<A> repeatUntil<A>(
-        K<IO, A> ma,
-        Func<A, bool> predicate) =>
-        ma.As().RepeatUntil(predicate);
+    public static K<M, A> repeatUntil<M, A>(
+        K<M, A> ma,
+        Func<A, bool> predicate)
+        where M : Monad<M> =>
+        ma.RepeatUntil(predicate);
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns true
@@ -138,11 +125,12 @@ public static partial class Prelude
     /// <param name="ma">Computation to repeat</param>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
-    public static IO<A> repeatUntil<A>(
+    public static K<M, A> repeatUntil<M, A>(
         Schedule schedule,
-        K<IO, A> ma,
-        Func<A, bool> predicate) =>
-        ma.As().RepeatUntil(schedule, predicate);
+        K<M, A> ma,
+        Func<A, bool> predicate) 
+        where M : Monad<M> =>
+        ma.RepeatUntil(schedule, predicate);
 
     /// <summary>
     /// Keeps retrying the computation   
@@ -150,8 +138,9 @@ public static partial class Prelude
     /// <param name="ma">Computation to retry</param>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
-    public static IO<A> retry<A>(K<IO, A> ma) =>
-        ma.As().Retry();
+    public static K<M, A> retry<M, A>(K<M, A> ma) 
+        where M : Monad<M> =>
+        ma.Retry();
 
     /// <summary>
     /// Keeps retrying the computation, until the scheduler expires  
@@ -160,8 +149,9 @@ public static partial class Prelude
     /// <param name="ma">Computation to retry</param>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
-    public static IO<A> retry<A>(Schedule schedule, K<IO, A> ma) =>
-        ma.As().Retry(schedule);
+    public static K<M, A> retry<M, A>(Schedule schedule, K<M, A> ma) 
+        where M : Monad<M> =>
+        ma.Retry(schedule);
 
     /// <summary>
     /// Keeps retrying the computation until the predicate returns false
@@ -169,10 +159,11 @@ public static partial class Prelude
     /// <param name="ma">Computation to retry</param>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
-    public static IO<A> retryWhile<A>(
-        K<IO, A> ma,
-        Func<Error, bool> predicate) =>
-        ma.As().RetryWhile(predicate);
+    public static K<M, A> retryWhile<M, A>(
+        K<M, A> ma,
+        Func<Error, bool> predicate) 
+        where M : Monad<M> =>
+        ma.RetryWhile(predicate);
 
     /// <summary>
     /// Keeps retrying the computation, until the scheduler expires, or the predicate returns false
@@ -181,11 +172,12 @@ public static partial class Prelude
     /// <param name="ma">Computation to retry</param>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
-    public static IO<A> retryWhile<A>(
+    public static K<M, A> retryWhile<M, A>(
         Schedule schedule,
-        K<IO, A> ma,
-        Func<Error, bool> predicate) =>
-        ma.As().RetryWhile(schedule, predicate);
+        K<M, A> ma,
+        Func<Error, bool> predicate) 
+        where M : Monad<M> =>
+        ma.RetryWhile(schedule, predicate);
 
     /// <summary>
     /// Keeps retrying the computation until the predicate returns true
@@ -193,10 +185,11 @@ public static partial class Prelude
     /// <param name="ma">Computation to retry</param>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
-    public static IO<A> retryUntil<A>(
-        K<IO, A> ma,
-        Func<Error, bool> predicate) =>
-        ma.As().RetryUntil(predicate);
+    public static K<M, A> retryUntil<M, A>(
+        K<M, A> ma,
+        Func<Error, bool> predicate) 
+        where M : Monad<M> =>
+        ma.RetryUntil(predicate);
 
     /// <summary>
     /// Keeps retrying the computation, until the scheduler expires, or the predicate returns true
@@ -205,11 +198,12 @@ public static partial class Prelude
     /// <param name="ma">Computation to retry</param>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
-    public static IO<A> retryUntil<A>(
+    public static K<M, A> retryUntil<M, A>(
         Schedule schedule,
-        K<IO, A> ma,
-        Func<Error, bool> predicate) =>
-        ma.As().RetryUntil(schedule, predicate);
+        K<M, A> ma,
+        Func<Error, bool> predicate) 
+        where M : Monad<M> =>
+        ma.RetryUntil(schedule, predicate);
 
     /// <summary>
     /// Yield the thread for the specified milliseconds or until cancelled.

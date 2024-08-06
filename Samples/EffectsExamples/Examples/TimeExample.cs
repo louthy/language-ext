@@ -16,8 +16,8 @@ namespace EffectsExamples;
 /// </remarks>
 public class TimeExample<RT>
     where RT : 
-    Has<Eff<RT>, TimeIO>, 
-    Has<Eff<RT>, ConsoleIO>
+        Has<Eff<RT>, TimeIO>, 
+        Has<Eff<RT>, ConsoleIO>
 {
     public static Eff<RT, Unit> main =>
         repeat(Schedule.spaced(10 * second) | Schedule.fibonacci(1 * second) | Schedule.recurs(9),

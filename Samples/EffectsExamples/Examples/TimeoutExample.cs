@@ -18,8 +18,8 @@ namespace EffectsExamples;
 /// <typeparam name="RT"></typeparam>
 public class TimeoutExample<RT>
     where RT : 
-    Has<Eff<RT>, TimeIO>, 
-    Has<Eff<RT>, ConsoleIO>
+        Has<Eff<RT>, TimeIO>, 
+        Has<Eff<RT>, ConsoleIO>
 {
     public static Eff<RT, Unit> main =>
         from _1 in timeout(60 * seconds, longRunning)

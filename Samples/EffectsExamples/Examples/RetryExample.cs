@@ -15,8 +15,9 @@ namespace EffectsExamples;
 /// If you don't type 'hello' then an error will be raised and it will retry.
 /// </remarks>
 /// <typeparam name="RT"></typeparam>
-public class RetryExample<RT> where RT : 
-    Has<Eff<RT>, ConsoleIO>
+public class RetryExample<RT> 
+    where RT : 
+        Has<Eff<RT>, ConsoleIO>
 {
     static readonly Error Failed = (Error)"I asked you to say hello, and you can't even do that?!";
         

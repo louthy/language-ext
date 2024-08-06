@@ -16,8 +16,8 @@ namespace EffectsExamples;
 /// </remarks>
 public class ForkCancelExample<RT>
     where RT : 
-    Has<Eff<RT>, ConsoleIO>,
-    Has<Eff<RT>, TimeIO>
+        Has<Eff<RT>, ConsoleIO>,
+        Has<Eff<RT>, TimeIO>
 {
     public static Eff<RT, Unit> main =>
         from frk in fork(inner)

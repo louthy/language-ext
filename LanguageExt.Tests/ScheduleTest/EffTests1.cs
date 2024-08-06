@@ -274,13 +274,11 @@ public static class EffTests1
             lift(() => { buffer.Add(value); return unit; });
 
         Eff<Unit> CreateEffect(ICollection<string> buffer) =>
-            repeat(
-                from ln in (
-                    from data in liftEff(() => memStream.ReadByte().AsTask())
-                    from _ in guard(data != -1, Errors.Cancelled)
-                    select data).FoldUntil(string.Empty, (s, ch) => s + (char)ch, ch => ch == '\0')
-                from _0 in AddToBuffer(buffer,ln)
-                select unit)
+            repeat(from ln in (from data in liftEff(() => memStream.ReadByte().AsTask())
+                               from _ in guard(data != -1, Errors.Cancelled)
+                               select data).FoldUntil(string.Empty, (s, ch) => s + (char)ch, ch => ch == '\0')
+                   from _0 in AddToBuffer(buffer,ln)
+                   select unit).As()
             | @catch(error => AddToBuffer(buffer,error.Message));
 
         var buffer = new List<string>();

@@ -85,10 +85,10 @@ public static partial class Prelude
          from st in getState<OuterRT>()
 
          // Run the local operation
-         from rs in IO.local(ma.effect.Run(f(st.Runtime)))   //ma.RunUnsafe(f(st.Runtime), res, io)
+         from rs in IO.local(ma.effect.Run(f(st.Runtime))).As()
          
          // Ignore any changes to the state and just return the result of the local operation
-         select rs.Value;
+         select rs;
  
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

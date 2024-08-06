@@ -7,5 +7,5 @@ namespace LanguageExt.Traits;
 /// <typeparam name="TRAIT"></typeparam>
 public interface Has<in M, TRAIT>
 {
-    K<M, TRAIT> Trait { get; }
+    public static abstract K<M, TRAIT> Ask { get; }
 }

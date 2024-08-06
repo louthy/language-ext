@@ -39,7 +39,7 @@ public static class ActivityTests
     static T ArrangeAndAct<T>(this K<Eff<Runtime>, T> effect) =>
         effect.As()
               .Run(Runtime.New(
-                       RuntimeEnv.Default with { ActivityEnv = new ActivityEnv(Source, default, default) }), 
+                       RuntimeEnv.Default with { Activity = new ActivityEnv(Source, default, default) }), 
                    EnvIO.New())
               .ThrowIfFail();
 

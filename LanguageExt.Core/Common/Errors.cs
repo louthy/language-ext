@@ -104,24 +104,28 @@ public static class Errors
     /// <summary>
     /// IO monad not in transformer stack text
     /// </summary>
-    public const string IONotInTransformerStackText = "IO monad not in transformer stack, so it's not possible to `liftIO`.";
+    public const string LiftIONotSupportedText = 
+        "The IO monad is not in the monad-transformer stack or MonadIO.LiftIO has not been implemented in the trait "   +
+        "implementation for your monad-type.  Therefore it's not possible to leverage `MonadIO` lifting functionality. " +
+        "To resolve this, implement `MonadIO.LiftIO`.";
 
     /// <summary>
     /// IO monad not in transformer stack code
     /// </summary>
-    public const int IONotInTransformerStackCode = -2000000007;
+    public const int LiftIONotSupportedCode = -2000000007;
 
     /// <summary>
     /// IO monad not in transformer stack error
     /// </summary>
-    public static readonly Error IONotInTransformerStack = (IONotInTransformerStackCode, IONotInTransformerStackText);
+    public static readonly Error LiftIONotSupported = (LiftIONotSupportedCode, LiftIONotSupportedText);
 
     /// <summary>
     /// Transformer stack has no unliftIO support text
     /// </summary>
-    public const string UnliftIONotSupportedText = 
-        "UnliftIO has limited support in monad transformer stacks.  Make sure the caller monad transformer right down " +
-        "to the inner IO monad has unlift support.";
+    public const string UnliftIONotSupportedText =
+        "The IO monad is not in the monad-transformer stack or MonadIO.ToIO has not been implemented in the trait " +
+        "implementation for your monad-type.  Therefore it's not possible to leverage `MonadIO` unlifting trait "   +
+        "functionality. To resolve this, implement `MonadIO.ToIO` and/or `MonadIO,MapIO`.";
 
     /// <summary>
     /// Transformer stack has no unliftIO support code

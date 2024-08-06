@@ -18,7 +18,8 @@ namespace EffectsExamples
     /// down the pipe 
     /// </remarks>
     public class FoldTest<RT>  
-        where RT : Has<Eff<RT>, ConsoleIO>
+        where RT : 
+            Has<Eff<RT>, ConsoleIO>
     {
         public static Eff<RT, Unit> main =>
             mainEffect.RunEffect().As();

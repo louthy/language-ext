@@ -47,8 +47,9 @@ public interface MonadIO<M>
     /// the inner monad or any monad in the stack on the way to the inner monad
     /// then it will throw an exception.</exception>
     public static virtual K<M, A> LiftIO<A>(IO<A> ma) =>
-        throw new ExceptionalException(Errors.IONotInTransformerStack);
+        throw new ExceptionalException(Errors.LiftIONotSupported);
 
+    /*
     /// <summary>
     /// Unlifts the IO monad from the monad transformer stack.  
     /// </summary>
@@ -85,17 +86,18 @@ public interface MonadIO<M>
     /// the inner monad or any monad in the stack on the way to the inner monad
     /// then it will throw an exception.</exception>
     public static virtual K<M, B> WithRunInIO<A, B>(Func<UnliftIO<M, A>, IO<B>> inner) =>
+        throw new ExceptionalException(Errors.UnliftIONotSupported);*/
+
+    /// <summary>
+    /// Extract the IO monad from within the M monad (usually as part of a monad-transformer stack).
+    /// </summary>
+    public static virtual K<M, IO<A>> ToIO<A>(K<M, A> ma) =>
         throw new ExceptionalException(Errors.UnliftIONotSupported);
 
     /// <summary>
-    /// Convert an action in `ma`to an action in `IO`.
-    /// </summary>
-    public static virtual K<M, IO<A>> ToIO<A>(K<M, A> ma) =>
-        M.WithRunInIO<A, IO<A>>(run => IO.pure(run(ma)));
-
-    /// <summary>
-    /// Convert an action in `ma`to an action in `IO`.
+    /// Extract the IO monad from within the `M` monad (usually as part of a monad-transformer stack).  Then perform
+    /// a mapping operation on the IO action before lifting the IO back into the `M` monad.
     /// </summary>
     public static virtual K<M, B> MapIO<A, B>(K<M, A> ma, Func<IO<A>, IO<B>> f) =>
-        M.ToIO(ma).Map(f).Bind(io => M.LiftIO(io));
+        M.ToIO(ma).Bind(io => M.LiftIO(f(io)));
 }

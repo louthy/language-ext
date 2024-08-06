@@ -44,21 +44,9 @@ public partial class IO
     /// <param name="ma">Computation to run within the local context</param>
     /// <typeparam name="A">Bound value</typeparam>
     /// <returns>Result of the computation</returns>
-    public static IO<A> local<A>(K<IO, A> ma) =>
-        new (env =>
-             {
-                 if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-            
-                 // Create a new local token-source with its own cancellation token
-                 using var tsrc = new CancellationTokenSource();
-                 var tok = tsrc.Token;
-
-                 // If the parent cancels, we should too
-                 using var reg = env.Token.Register(() => tsrc.Cancel());
-
-                 var env1 = EnvIO.New(env.Resources, tok, tsrc, env.SyncContext);
-                 return ma.As().Run(env1);
-             });
+    public static K<M, A> local<M, A>(K<M, A> ma) 
+        where M : Monad<M> =>
+        ma.Local();
     
     public static IO<A> lift<A>(Either<Error, A> ma) =>
         ma switch

@@ -8,7 +8,7 @@ namespace LanguageExt;
 public class Eff : 
     Monad<Eff>,
     Fallible<Eff>,
-    Stateful<Eff, MinRT>,
+    Readable<Eff, MinRT>,
     Alternative<Eff>
 {
     static K<Eff, B> Monad<Eff>.Bind<A, B>(K<Eff, A> ma, Func<A, K<Eff, B>> f) =>
@@ -32,27 +32,21 @@ public class Eff :
     static K<Eff, A> SemigroupK<Eff>.Combine<A>(K<Eff, A> ma, K<Eff, A> mb) => 
         ma.As() | mb.As();
 
-    static K<Eff, Unit> Stateful<Eff, MinRT>.Put(MinRT value) => 
-        new Eff<Unit>(Stateful.put<Eff<MinRT>, MinRT>(value).As());
+    static K<Eff, A> Readable<Eff, MinRT>.Asks<A>(Func<MinRT, A> f) => 
+        new Eff<A>(Readable.asks<Eff<MinRT>, MinRT, A>(f).As());
 
-    static K<Eff, Unit> Stateful<Eff, MinRT>.Modify(Func<MinRT, MinRT> modify) => 
-        new Eff<Unit>(Stateful.modify<Eff<MinRT>, MinRT>(modify).As());
-
-    static K<Eff, A> Stateful<Eff, MinRT>.Gets<A>(Func<MinRT, A> f) => 
-        new Eff<A>(Stateful.gets<Eff<MinRT>, MinRT, A>(f).As());
+    static K<Eff, A> Readable<Eff, MinRT>.Local<A>(Func<MinRT, MinRT> f, K<Eff, A> ma) => 
+        new Eff<A>(Readable.local(f, ma.As().effect).As());
 
     static K<Eff, A> MonadIO<Eff>.LiftIO<A>(IO<A> ma) =>
         Eff<A>.LiftIO(ma);
 
-    static K<Eff, B> MonadIO<Eff>.WithRunInIO<A, B>(Func<UnliftIO<Eff, A>, IO<B>> inner) =>
-        Eff<B>.LiftIO(
-            env => inner(ma => ma.As()                  // NOTE: We can safely ignore the state here as it's using
-                                 .effect                //       the MinRT runtime, which has no properties.
-                                 .effect
-                                 .Run(env)
-                                 .Map(p => p.Value)
-                                 .As()));
+    static K<Eff, IO<A>> MonadIO<Eff>.ToIO<A>(K<Eff, A> ma) =>
+        new Eff<IO<A>>(ma.As().effect.ToIO().As());
 
+    static K<Eff, B> MonadIO<Eff>.MapIO<A, B>(K<Eff, A> ma, Func<IO<A>, IO<B>> f) =>
+        new Eff<B>(ma.As().effect.MapIO(f).As());
+    
     static K<Eff, A> Fallible<Error, Eff>.Fail<A>(Error error) =>
         Eff<A>.Fail(error);
 

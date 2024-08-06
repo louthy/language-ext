@@ -564,7 +564,26 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// <param name="timeout">Timeout</param>
     /// <returns>Result of the operation or throws if the time limit exceeded.</returns>
     public IO<A> Timeout(TimeSpan timeout) =>
-        Fork(timeout).Await();
+        Fork(timeout).Await().As();
+
+    /// <summary>
+    /// Create a local cancellation environment
+    /// </summary>
+    public IO<A> Local() =>
+        new(env =>
+            {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+
+                // Create a new local token-source with its own cancellation token
+                using var tsrc = new CancellationTokenSource();
+                var       tok  = tsrc.Token;
+
+                // If the parent cancels, we should too
+                using var reg = env.Token.Register(() => tsrc.Cancel());
+
+                var env1 = EnvIO.New(env.Resources, tok, tsrc, env.SyncContext);
+                return Run(env1);
+            });    
     
     /// <summary>
     /// Queues the specified work to run on the thread pool  
@@ -653,23 +672,25 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
     public A Run(EnvIO env) =>
         runIO(env);
+    
 
     /// <summary>
     /// Run the `IO` monad to get its result.  Differs from `Run` in that it catches any exceptions and turns
     /// them into a `Fin<A>` result. 
     /// </summary>
-    public IO<Fin<A>> Try() =>
-        new(env =>
-            {
-                try
+    public FinT<IO, A> Try() =>
+        new(new IO<Fin<A>>(
+                env =>
                 {
-                    return Run(env);
-                }
-                catch (Exception e)
-                {
-                    return (Error)e;
-                }
-            });
+                    try
+                    {
+                        return Run(env);
+                    }
+                    catch (Exception e)
+                    {
+                        return (Error)e;
+                    }
+                }));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

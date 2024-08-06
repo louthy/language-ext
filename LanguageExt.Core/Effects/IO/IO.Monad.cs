@@ -50,10 +50,12 @@ public partial class IO :
 
     static K<IO, A> MonadIO<IO>.LiftIO<A>(IO<A> ma) => 
         ma;
-    
-    static K<IO, B> MonadIO<IO>.WithRunInIO<A, B>(
-        Func<UnliftIO<IO, A>, IO<B>> inner) =>
-        inner(io => io.As());
+
+    static K<IO, IO<A>> MonadIO<IO>.ToIO<A>(K<IO, A> ma) => 
+        pure(ma.As());
+
+    static K<IO, B> MonadIO<IO>.MapIO<A, B>(K<IO, A> ma, Func<IO<A>, IO<B>> f) =>
+        f(ma.As());
 
     static K<IO, A> Fallible<Error, IO>.Fail<A>(Error error) =>
         fail<A>(error);

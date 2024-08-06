@@ -15,6 +15,16 @@ public static class TryTExt
         (TryT<M, A>)ma;
 
     /// <summary>
+    /// Run the transformer
+    /// </summary>
+    /// <remarks>
+    /// This is where the exceptions are caught
+    /// </remarks>
+    public static K<M, Fin<A>> Run<M, A>(this K<TryT<M>, A> ma) 
+        where M : Monad<M> =>
+        ma.As().runTry.Map(t => t.Run());
+
+    /// <summary>
     /// Monadic join
     /// </summary>
     [Pure]

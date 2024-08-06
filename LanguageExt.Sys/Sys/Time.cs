@@ -10,41 +10,43 @@ namespace LanguageExt.Sys;
 /// DateTime IO 
 /// </summary>
 public static class Time<M, RT>
-    where M : Stateful<M, RT>, Monad<M>
-    where RT : Has<M, TimeIO>
+    where M : 
+        Monad<M>
+    where RT : 
+        Has<M, TimeIO>
 {
-    static readonly K<M, TimeIO> trait = 
-        Stateful.getsM<M, RT, TimeIO>(e => e.Trait);
+    static readonly K<M, TimeIO> timeIO =
+        Has<M, RT, TimeIO>.ask;
 
     /// <summary>
     /// Current local date time
     /// </summary>
     public static K<M, DateTime> now =>
-        trait.Bind(e => e.Now);
+        timeIO.Bind(e => e.Now);
 
     /// <summary>
     /// Current universal date time
     /// </summary>
     public static K<M, DateTime> nowUTC =>
-        trait.Bind(e => e.UtcNow);
+        timeIO.Bind(e => e.UtcNow);
 
     /// <summary>
     /// Today's date 
     /// </summary>
     public static K<M, DateTime> today =>
-        trait.Bind(e => e.Today);
+        timeIO.Bind(e => e.Today);
 
     /// <summary>
     /// Pause a task until a specified time
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, Unit> sleepUntil(DateTime dt) =>
-        trait.Bind(e => e.SleepUntil(dt));
+        timeIO.Bind(e => e.SleepUntil(dt));
 
     /// <summary>
     /// Pause a task until for a specified length of time
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, Unit> sleepFor(TimeSpan ts) =>
-        trait.Bind(e => e.SleepFor(ts));
+        timeIO.Bind(e => e.SleepFor(ts));
 }

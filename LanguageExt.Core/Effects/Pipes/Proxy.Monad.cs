@@ -34,26 +34,22 @@ public class Proxy<UOut, UIn, DIn, DOut, M> :
     public static K<Proxy<UOut, UIn, DIn, DOut, M>, A> LiftIO<A>(IO<A> ma) => 
         Proxy.lift<UOut, UIn, DIn, DOut, M, A>(M.LiftIO(ma));
 
-    public static K<Proxy<UOut, UIn, DIn, DOut, M>, B> WithRunInIO<A, B>(
-        Func<UnliftIO<Proxy<UOut, UIn, DIn, DOut, M>, A>, IO<B>> inner)
+    public static K<Proxy<UOut, UIn, DIn, DOut, M>, IO<A>> ToIO<A>(K<Proxy<UOut, UIn, DIn, DOut, M>, A> ma)
     {
-        return Proxy.lift<UOut, UIn, DIn, DOut, M, B>(
-            M.WithRunInIO<A, B>(
-                run =>
-                    inner(ma => run(Go(ma.As())))));
-
-        K<M, R> Go<R>(Proxy<UOut, UIn, DIn, DOut, M, R> p) =>
+        return Proxy.lift<UOut, UIn, DIn, DOut, M, IO<A>>(Go(ma.As()));
+        
+        K<M, IO<R>> Go<R>(Proxy<UOut, UIn, DIn, DOut, M, R> p) =>
             p.ToProxy() switch
             {
                 ProxyM<UOut, UIn, DIn, DOut, M, R> (var mx) => mx.Bind(x => Go(x)),
-                Pure<UOut, UIn, DIn, DOut, M, R> (var r)    => M.Pure(r),
+                Pure<UOut, UIn, DIn, DOut, M, R> (var r)    => M.Pure(IO.pure(r)),
                 Iterator<UOut, UIn, DIn, DOut, M, R> iter   => runIterator(iter),
-                Request<UOut, UIn, DIn, DOut, M, R>         => throw new InvalidOperationException("WithRunInIO only supported for closed Effects"),
-                Respond<UOut, UIn, DIn, DOut, M, R>         => throw new InvalidOperationException("WithRunInIO only supported for closed Effects"),
+                Request<UOut, UIn, DIn, DOut, M, R>         => throw new InvalidOperationException("ToIO only supported for closed Effects"),
+                Respond<UOut, UIn, DIn, DOut, M, R>         => throw new InvalidOperationException("ToIO only supported for closed Effects"),
                 _                                           => throw new NotSupportedException()
             };
         
-        K<M, R> runIterator<R>(Iterator<UOut, UIn, DIn, DOut, M, R> iter) =>
+        K<M, IO<R>> runIterator<R>(Iterator<UOut, UIn, DIn, DOut, M, R> iter) =>
             from _ in iter.Run().Select(Go).Actions()
             from r in Go(iter.Next())
             select r;

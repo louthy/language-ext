@@ -43,14 +43,9 @@ public partial class ReaderT<Env, M> :
 
     static K<ReaderT<Env, M>, A> MonadIO<ReaderT<Env, M>>.LiftIO<A>(IO<A> ma) =>
         ReaderT<Env, M, A>.Lift(M.LiftIO(ma));
-    
-    static K<ReaderT<Env, M>, B> MonadIO<ReaderT<Env, M>>.WithRunInIO<A, B>(
-        Func<UnliftIO<ReaderT<Env, M>, A>, IO<B>> inner) =>
-        new ReaderT<Env, M, B>(
-            env =>
-                M.WithRunInIO<A, B>(
-                    run =>
-                        inner(ma => run(ma.As().runReader(env)))));
+
+    static K<ReaderT<Env, M>, IO<A>> MonadIO<ReaderT<Env, M>>.ToIO<A>(K<ReaderT<Env, M>, A> ma) =>
+        new ReaderT<Env, M, IO<A>>(env => ma.As().runReader(env).ToIO());
 
     static K<ReaderT<Env, M>, A> SemigroupK<ReaderT<Env, M>>.Combine<A>(
         K<ReaderT<Env, M>, A> ma, K<ReaderT<Env, M>, A> mb) =>

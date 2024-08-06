@@ -52,12 +52,8 @@ public class IdentityT<M> : MonadT<IdentityT<M>, M>, SemiAlternative<IdentityT<M
     static K<IdentityT<M>, A> MonadIO<IdentityT<M>>.LiftIO<A>(IO<A> ma) => 
         IdentityT<M, A>.Lift(M.LiftIO(ma));
 
-    static K<IdentityT<M>, B> MonadIO<IdentityT<M>>.WithRunInIO<A, B>(
-        Func<UnliftIO<IdentityT<M>, A>, IO<B>> inner) =>
-        new IdentityT<M, B>(
-            M.WithRunInIO<A, B>(
-                run =>
-                    inner(ma => run(ma.As().Value))));
+    static K<IdentityT<M>, IO<A>> MonadIO<IdentityT<M>>.ToIO<A>(K<IdentityT<M>, A> ma) =>
+        new IdentityT<M, IO<A>>(ma.As().Value.ToIO()); 
 
     static K<IdentityT<M>, A> SemigroupK<IdentityT<M>>.Combine<A>(K<IdentityT<M>, A> ma, K<IdentityT<M>, A> mb) =>
         new IdentityT<M, A>(M.Combine(ma.As().Value, mb.As().Value));

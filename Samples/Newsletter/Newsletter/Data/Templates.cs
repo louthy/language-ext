@@ -9,11 +9,10 @@ public static class Templates<M, RT>
         Has<M, FileIO>,
         Has<M, EncodingIO>,
         Has<M, DirectoryIO>,
-        Reads<M, RT, Config>
+        Has<M, Config>
     where M :
         Monad<M>,
-        Fallible<M>,
-        Stateful<M, RT>
+        Fallible<M>
 {
     public static K<M, Templates> loadDefault =>
         from folder in Config<M, RT>.templateFolder

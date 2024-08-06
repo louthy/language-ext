@@ -14,12 +14,11 @@ public static class Send<M, RT>
         Has<M, ConsoleIO>,
         Has<M, EncodingIO>,
         Has<M, DirectoryIO>,
-        Reads<M, RT, Config>,
-        Reads<M, RT, HttpClient>
+        Has<M, Config>,
+        Has<M, HttpClient>
     where M :
         Monad<M>,
-        Fallible<M>,
-        Stateful<M, RT>
+        Fallible<M>
 {
     public static K<M, Unit> newsletter =>
         from posts     in Posts<M, RT>.readLastFromApi(4)

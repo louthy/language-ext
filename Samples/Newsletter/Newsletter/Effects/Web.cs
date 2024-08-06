@@ -9,16 +9,15 @@ public static class Web<M, RT>
     where RT : 
         Has<M, WebIO>,
         Has<M, EncodingIO>,
-        Reads<M, RT, HttpClient>
+        Has<M, HttpClient>
     where M :
-        Monad<M>,
-        Stateful<M, RT>
+        Monad<M>
 {
-    static readonly K<M, WebIO> trait =
-        Stateful.getsM<M, RT, WebIO>(rt => ((Has<M, WebIO>)rt).Trait);
+    static K<M, WebIO> trait =>
+        Has<M, RT, WebIO>.ask;
 
-    static readonly K<M, HttpClient> client =
-        Stateful.getsM<M, RT, HttpClient>(rt => rt.Get);
+    static K<M, HttpClient> client =>
+        Has<M, RT, HttpClient>.ask;
 
     public static K<M, string> downloadText(Uri uri) =>
         from en in Enc<M, RT>.encoding

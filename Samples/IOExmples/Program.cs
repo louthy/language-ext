@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using LanguageExt;
 using static LanguageExt.Prelude;
 
@@ -64,14 +63,14 @@ class Program
                from y in readNumber("Enter the second number to add")
                from _ in writeLine($"{x} + {y} = {x + y}")
                from t in waitOneSecond
-               select unit)
+               select unit).As()
       | writeLine("Obviously you don't know what a number is so I'm off.");
     
     static IO<int> readNumber(string question) =>
         retry(Schedule.recurs(3),
               from _1 in writeLine(question)
               from nx in readLine.Map(int.Parse)
-              select nx);
+              select nx).As();
     
     static readonly IO<string> readLine =
         lift(() => Console.ReadLine() ?? "");

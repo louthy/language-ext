@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -21,11 +20,13 @@ public static partial class Prelude
     [MethodImpl(Opt.Default)]
     public static K<M, A> use<M, A>(K<M, A> acquire, Action<A> release)
         where M : Monad<M> =>
-        use(acquire, x => IO.lift(() =>
-                                  {
-                                      release(x);
-                                      return unit;
-                                  }));
+        use(acquire,
+            x => IO.lift(
+                () =>
+                {
+                    release(x);
+                    return unit;
+                }));
 
     /// <summary>
     /// Acquire a resource and have it tracked by the IO environment.  The resource
@@ -145,73 +146,25 @@ public static partial class Prelude
     /// <returns>Result of computation</returns>
     [Pure]
     [MethodImpl(Opt.Default)]
-    public static K<M, A> localIO<M, A>(K<M, A> computation)
+    public static K<M, A> bracketIO<M, A>(K<M, A> computation)
         where M : Monad<M> =>
-        from mk in M.UnliftIO<A>()
-        from io in mk(computation).Bracket()
-        select io;    
+        computation.BracketIO();
     
     /// <summary>
     /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
     /// the acquisition and releasing, taking a function of the acquired value that specifies an action to be performed
     /// in between.
     /// </summary>
+    /// <remarks>
+    /// Consider using `bracketIO(computation)` rather than `bracket(acq, use, fin)`, the semantics are more attractive
+    /// as there's no need to provide function handlers, the cleanup is automatic. 
+    /// </remarks>
     /// <param name="Acq">Acquire resource</param>
     /// <param name="Use">Function to use the acquired resource</param>
     /// <param name="Fin">Function to invoke to release the resource</param>
     [Pure]
     [MethodImpl(Opt.Default)]
-    public static IO<C> bracket<A, B, C>(IO<A> Acq, Func<A, IO<C>> Use, Func<A, IO<B>> Fin) =>
-        Acq.As().Bracket(Use, Fin);
-    
-    /// <summary>
-    /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
-    /// the acquisition and releasing, taking a function of the acquired value that specifies an action to be performed
-    /// in between.
-    /// </summary>
-    /// <param name="Acq">Acquire resource</param>
-    /// <param name="Use">Function to use the acquired resource</param>
-    /// <param name="Fin">Function to invoke to release the resource</param>
-    [Pure]
-    [MethodImpl(Opt.Default)]
-    public static K<M, C> bracket<M, A, B, C>(K<M, A> Acq, Func<A, K<M, C>> Use, Func<A, K<M, B>> Fin)
+    public static K<M, C> bracketIO<M, A, B, C>(K<M, A> Acq, Func<A, IO<C>> Use, Func<A, IO<B>> Fin)
         where M : Monad<M> =>
-        from mka in M.UnliftIO<A>()
-        from mkb in M.UnliftIO<B>()
-        from mkc in M.UnliftIO<C>()
-        from res in mka(Acq).Bracket(x => mkc(Use(x)), x => mkb(Fin(x)))
-        select res;
-
-    /// <summary>
-    /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
-    /// the acquisition and releasing, taking a function of the acquired value that specifies an action to be performed
-    /// in between.
-    /// </summary>
-    /// <param name="Acq">Acquire resource</param>
-    /// <param name="Use">Function to use the acquired resource</param>
-    /// <param name="Err">Function to run to handle any exceptions</param>
-    /// <param name="Fin">Function to invoke to release the resource</param>
-    [Pure]
-    [MethodImpl(Opt.Default)]
-    public static IO<C> bracket<A, B, C>(K<IO, A> Acq, Func<A, IO<C>> Use, Func<Error, IO<C>> Err, Func<A, IO<B>> Fin) =>
-        Acq.As().Bracket(Use, Err, Fin);
-
-    /// <summary>
-    /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
-    /// the acquisition and releasing, taking a function of the acquired value that specifies an action to be performed
-    /// in between.
-    /// </summary>
-    /// <param name="Acq">Acquire resource</param>
-    /// <param name="Use">Function to use the acquired resource</param>
-    /// <param name="Err">Function to run to handle any exceptions</param>
-    /// <param name="Fin">Function to invoke to release the resource</param>
-    [Pure]
-    [MethodImpl(Opt.Default)]
-    public static K<M, C> bracket<M, A, B, C>(K<M, A> Acq, Func<A, K<M, C>> Use, Func<Error, K<M, C>> Err, Func<A, K<M, B>> Fin)
-        where M : Monad<M> =>
-        from mka in M.UnliftIO<A>()
-        from mkb in M.UnliftIO<B>()
-        from mkc in M.UnliftIO<C>()
-        from res in mka(Acq).Bracket(x => mkc(Use(x)), x => mkc(Err(x)), x => mkb(Fin(x)))
-        select res;
+        Acq.BracketIO(Use, Fin);
 }

@@ -13,11 +13,13 @@ using static LanguageExt.Pipes.Proxy;
 namespace LanguageExt.Sys.IO;
 
 public static class TextRead<M, RT>
-    where RT : Has<M, TextReadIO>
-    where M : Stateful<M, RT>, Monad<M>
+    where RT : 
+        Has<M, TextReadIO>
+    where M : 
+        Monad<M>
 {
-    static readonly K<M, TextReadIO> trait = 
-        Stateful.getsM<M, RT, TextReadIO>(e => e.Trait); 
+    static K<M, TextReadIO> textReadIO => 
+        Has<M, RT, TextReadIO>.ask;
     
     /// <summary>
     /// Open a text file and streams the lines through the pipe
@@ -136,5 +138,5 @@ public static class TextRead<M, RT>
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, Unit> close(TextReader reader) =>
-        trait.Bind(e => e.Close(reader));
+        textReadIO.Bind(e => e.Close(reader));
 }

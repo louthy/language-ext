@@ -10,11 +10,10 @@ public static class Email<M, RT>
     where RT : 
         Has<M, EmailIO>,
         Has<M, ConsoleIO>,
-        Reads<M, RT, Config>
+        Has<M, Config>
     where M :
-        Stateful<M, RT>,
-        Fallible<M>,
-        Monad<M>
+        Monad<M>,
+        Fallible<M>
 {
     public static K<M, Unit> sendToAll(Seq<Member> members, Letter letter) =>
         members.Traverse(m => send(m.Name, m.Email, letter))

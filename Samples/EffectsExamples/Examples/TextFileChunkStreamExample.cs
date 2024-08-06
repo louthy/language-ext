@@ -16,11 +16,12 @@ namespace EffectsExamples;
 /// <remarks>
 /// Streams the contents of a text file in chunks of 40 characters
 /// </remarks>
-public class TextFileChunkStreamExample<RT> where RT : 
-    Has<Eff<RT>, ConsoleIO>,
-    Has<Eff<RT>, FileIO>,
-    Has<Eff<RT>, TextReadIO>,
-    Has<Eff<RT>, EncodingIO>
+public class TextFileChunkStreamExample<RT> 
+    where RT : 
+        Has<Eff<RT>, ConsoleIO>,
+        Has<Eff<RT>, FileIO>,
+        Has<Eff<RT>, TextReadIO>,
+        Has<Eff<RT>, EncodingIO>
 {
     public static Eff<RT, Unit> main =>
         from _ in Console<Eff<RT>, RT>.writeLine("Please type in a path to a text file and press enter")

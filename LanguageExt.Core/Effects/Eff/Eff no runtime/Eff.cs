@@ -18,7 +18,7 @@ namespace LanguageExt;
 /// <typeparam name="A">Bound value type</typeparam>
 public record Eff<A>(Eff<MinRT, A> effect) :
     K<Eff, A>,
-    Stateful<Eff<A>, A>,
+    Readable<Eff<A>, A>,
     Alternative<Eff<A>>,
     Monad<Eff<A>>,
     Fallible<Eff<A>>    
@@ -304,29 +304,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <param name="f">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<B> Bind<B>(Func<A, Gets<MinRT, B>> f) =>
-        new(effect.Bind(f));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<Unit> Bind(Func<A, Put<MinRT>> f) =>
-        new(effect.Bind(f));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<Unit> Bind(Func<A, Modify<MinRT>> f) =>
+    public Eff<B> Bind<B>(Func<A, Ask<MinRT, B>> f) =>
         new(effect.Bind(f));
 
     /// <summary>
@@ -463,29 +441,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <param name="bind">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<C> SelectMany<B, C>(Func<A, Gets<MinRT, B>> bind, Func<A, B, C> project) =>
-        new(effect.SelectMany(bind, project));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="bind">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<C> SelectMany<C>(Func<A, Modify<MinRT>> bind, Func<A, Unit, C> project) =>
-        new(effect.SelectMany(bind, project));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="bind">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<C> SelectMany<C>(Func<A, Put<MinRT>> bind, Func<A, Unit, C> project) =>
+    public Eff<C> SelectMany<B, C>(Func<A, Ask<MinRT, B>> bind, Func<A, B, C> project) =>
         new(effect.SelectMany(bind, project));
 
     /// <summary>
@@ -697,13 +653,8 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <summary>
     /// Convert to an `Eff` monad with a runtime
     /// </summary>
-    public Eff<RT, A> WithRuntime<RT>()
-    {
-        var e = effect;
-        return Eff<RT, EnvIO>.LiftIO(envIO)
-                             .Map(eio => e.RunUnsafe(default, eio).Value)
-                             .As();
-    }
+    public Eff<RT, A> WithRuntime<RT>() =>
+        MonadIO.liftIO<Eff<RT>, A>(effect.RunIO(new MinRT())).As();
 
     /// <summary>
     /// Convert to an `Eff` monad
@@ -927,65 +878,59 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     static K<Eff<A>, T> SemigroupK<Eff<A>>.Combine<T>(K<Eff<A>, T> ma, K<Eff<A>, T> mb) =>
         ma.As() | mb.As();
 
-    static K<Eff<A>, Unit> Stateful<Eff<A>, A>.Put(A value) =>
-        new Eff<A, Unit>(StateT.put<IO, A>(value));
+    static K<Eff<A>, T> Readable<Eff<A>, A>.Asks<T>(Func<A, T> f) =>
+        new Eff<A, T>(ReaderT.asks<IO, T, A>(f));
 
-    static K<Eff<A>, Unit> Stateful<Eff<A>, A>.Modify(Func<A, A> modify) =>
-        new Eff<A, Unit>(StateT.modify<IO, A>(modify));
-
-    static K<Eff<A>, T> Stateful<Eff<A>, A>.Gets<T>(Func<A, T> f) =>
-        new Eff<A, T>(StateT.gets<IO, A, T>(f));
+    static K<Eff<A>, T> Readable<Eff<A>, A>.Local<T>(Func<A, A> f, K<Eff<A>, T> ma) =>
+        new Eff<A, T>(ReaderT.local(f, ma.As().effect));
 
     static K<Eff<A>, T> MonadIO<Eff<A>>.LiftIO<T>(IO<T> ma) =>
-        new Eff<A, T>(StateT.liftIO<A, IO, T>(ma));
+        new Eff<A, T>(ReaderT.liftIO<A, IO, T>(ma));
 
-    static K<Eff<A>, U> MonadIO<Eff<A>>.WithRunInIO<T, U>(Func<UnliftIO<Eff<A>, T>, IO<U>> inner) =>
-        Eff<A, U>.LiftIO(
-            env => inner(ma => ma.As().effect
-                                 .Run(env).As()
-                                 .Map(p => p.Value)));
-    
+    static K<Eff<A>, IO<T>> MonadIO<Eff<A>>.ToIO<T>(K<Eff<A>, T> ma) =>
+        new Eff<A, IO<T>>(ma.As().effect.ToIO().As());
+
+    static K<Eff<A>, U> MonadIO<Eff<A>>.MapIO<T, U>(K<Eff<A>, T> ma, Func<IO<T>, IO<U>> f) =>
+        new Eff<A, U>(ma.As().effect.MapIO(f).As());
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Transformer helpers
     //
 
-    internal static StateT<A, IO, X> getsM<X>(Func<A, IO<X>> f) =>
-        from e in StateT.get<IO, A>()
-        from r in StateT.liftIO<A, IO, X>(IO.lift(() => f(e)).Flatten())
+    internal static ReaderT<A, IO, X> getsM<X>(Func<A, IO<X>> f) =>
+        from e in ReaderT.ask<IO, A>()
+        from r in ReaderT.liftIO<A, IO, X>(IO.lift(() => f(e)).Flatten())
         select r;
 
-    internal static StateT<A, IO, X> getsIO<X>(Func<A, Task<X>> f) =>
-        from e in StateT.get<IO, A>()
-        from r in StateT.liftIO<A, IO, X>(IO.liftAsync(() => f(e)))
+    internal static ReaderT<A, IO, X> getsIO<X>(Func<A, Task<X>> f) =>
+        from e in ReaderT.ask<IO, A>()
+        from r in ReaderT.liftIO<A, IO, X>(IO.liftAsync(() => f(e)))
         select r;
 
-    internal static StateT<A, IO, X> gets<X>(Func<A, X> f) =>
-        from e in StateT.get<IO, A>()
-        from r in StateT.liftIO<A, IO, X>(IO.lift(() => f(e)))
+    internal static ReaderT<A, IO, X> gets<X>(Func<A, X> f) =>
+        from e in ReaderT.ask<IO, A>()
+        from r in ReaderT.liftIO<A, IO, X>(IO.lift(() => f(e)))
         select r;
 
-    internal static StateT<A, IO, X> gets<X>(Func<A, Fin<X>> f) =>
-        from e in StateT.get<IO, A>()
-        from r in StateT.liftIO<A, IO, X>(IO.lift(() => f(e)))
+    internal static ReaderT<A, IO, X> gets<X>(Func<A, Fin<X>> f) =>
+        from e in ReaderT.ask<IO, A>()
+        from r in ReaderT.liftIO<A, IO, X>(IO.lift(() => f(e)))
         select r;
 
-    internal static StateT<A, IO, X> gets<X>(Func<A, Either<Error, X>> f) =>
-        from e in StateT.get<IO, A>()
-        from r in StateT.liftIO<A, IO, X>(IO.lift(() => f(e)))
+    internal static ReaderT<A, IO, X> gets<X>(Func<A, Either<Error, X>> f) =>
+        from e in ReaderT.ask<IO, A>()
+        from r in ReaderT.liftIO<A, IO, X>(IO.lift(() => f(e)))
         select r;
 
-    internal static StateT<A, IO, X> fail<X>(Error value) =>
-        StateT.liftIO<A, IO, X>(IO<X>.fail(value));
+    internal static ReaderT<A, IO, X> fail<X>(Error value) =>
+        ReaderT.liftIO<A, IO, X>(IO<X>.fail(value));
 
-    internal static StateT<A, IO, X> pure<X>(X value) =>
-        StateT<A, IO, X>.Pure(value);
+    internal static ReaderT<A, IO, X> pure<X>(X value) =>
+        ReaderT<A, IO, X>.Pure(value);
 
-    internal static StateT<A, IO, X> state<X>(X value, A runtime) =>
-        StateT<A, IO, X>.State(value, runtime);
-
-    internal static readonly StateT<A, IO, (A Runtime, EnvIO EnvIO)> getState = 
-        from rt in StateT.get<IO, A>()
+    internal static readonly ReaderT<A, IO, (A Runtime, EnvIO EnvIO)> getState = 
+        from rt in ReaderT.ask<IO, A>()
         from io in IO.env
         select (rt, io);
     

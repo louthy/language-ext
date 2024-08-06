@@ -14,7 +14,7 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
+public record Eff<RT, A>(ReaderT<RT, IO, A> effect) : K<Eff<RT>, A>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -75,7 +75,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// </summary>
     [MethodImpl(Opt.Default)]
     Eff(IO<A> effect) 
-        : this(StateT.liftIO<RT, IO, A>(effect))
+        : this(ReaderT.liftIO<RT, IO, A>(effect))
     { }
 
 
@@ -251,17 +251,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <returns>Mapped `Eff` monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, B> MapIO<B>(Func<IO<A>, IO<B>> f) =>
-        from s in getState<RT>()
-        let a = Atom<RT>(s.Runtime)
-        from r in f(this.RunIO(s.Runtime)
-                        .Map(p =>
-                             {
-                                 // TODO: This is ugly -- work out whether it's needed
-                                 a.Swap(_ => p.Runtime);
-                                 return p.Value;
-                             }))
-        from _ in Stateful.put<Eff<RT>, RT>(a.Value)
-        select r;
+        IO.mapIO(this, f).As();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -276,28 +266,8 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <param name="Fail">Mapping to use if the `Eff` monad if in a failure state</param>
     /// <returns>Mapped `Eff` monad</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail)
-    {
-        return new(from env in Eff<RT>.getState
-                   from res in go(env.Runtime, env.EnvIO)
-                   select res);
-
-        StateT <RT, IO, B> go(RT env, EnvIO envIO)
-        {
-            try
-            {
-                return StateT<RT, IO, B>.State(mapFirst(Succ, this.RunUnsafe(env, envIO)));
-            }
-            catch (ErrorException e)
-            {
-                return Fail(e.ToError()).Throw<StateT<RT, IO, B>>();
-            }
-            catch (Exception e)
-            {
-                return Fail(e).Throw<StateT<RT, IO, B>>();
-            }
-        }
-    }    
+    public Eff<RT, B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail) =>
+        MapIO(io => io.BiMap(Succ: Succ, Fail: Fail));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -312,23 +282,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <returns>IO in a success state</returns>
     [Pure]
     public Eff<RT, B> Match<B>(Func<A, B> Succ, Func<Error, B> Fail) =>
-        new(new StateT<RT, IO, B>(
-                rt => IO.lift(
-                    e =>
-                    {
-                        try
-                        {
-                            return mapFirst(Succ, this.RunUnsafe(rt, e));
-                        }
-                        catch (ErrorException ex)
-                        {
-                            return (Fail(ex.ToError()), rt);
-                        }
-                        catch (Exception ex)
-                        {
-                            return (Fail(ex), rt);
-                        }
-                    })));
+        MapIO(io => io.Match(Succ: Succ, Fail: Fail));
 
     /// <summary>
     /// Map the failure to a success value
@@ -415,29 +369,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <param name="f">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, Unit> Bind(Func<A, Put<RT>> f) =>
-        new(effect.Bind(f));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, B> Bind<B>(Func<A, Gets<RT, B>> f) =>
-        new(effect.Bind(f));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, Unit> Bind(Func<A, Modify<RT>> f) =>
+    public Eff<RT, B> Bind<B>(Func<A, Ask<RT, B>> f) =>
         new(effect.Bind(f));
 
     /// <summary>
@@ -552,29 +484,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <param name="bind">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, C> SelectMany<C>(Func<A, Put<RT>> bind, Func<A, Unit, C> project) =>
-        new(effect.SelectMany(bind, project));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="bind">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, C> SelectMany<B, C>(Func<A, Gets<RT, B>> bind, Func<A, B, C> project) =>
-        new(effect.SelectMany(bind, project));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="bind">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, C> SelectMany<C>(Func<A, Modify<RT>> bind, Func<A, Unit, C> project) =>
+    public Eff<RT, C> SelectMany<B, C>(Func<A, Ask<RT, B>> bind, Func<A, B, C> project) =>
         new(effect.SelectMany(bind, project));
 
     /// <summary>

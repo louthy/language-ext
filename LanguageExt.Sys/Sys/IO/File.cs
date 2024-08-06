@@ -13,11 +13,14 @@ namespace LanguageExt.Sys.IO;
 /// File IO 
 /// </summary>
 public class File<M, RT>
-    where M : Stateful<M, RT>, Monad<M>
-    where RT : Has<M, FileIO>, Has<M, EncodingIO>
+    where M : 
+        Monad<M>
+    where RT : 
+        Has<M, FileIO>, 
+        Has<M, EncodingIO>
 {
-    static readonly K<M, FileIO> trait = 
-        Stateful.getsM<M, RT, FileIO>(e => (e as Has<M, FileIO>).Trait); 
+    static K<M, FileIO> fileIO => 
+        Has<M, RT, FileIO>.ask;
     
     /// <summary>
     /// Copy file 
@@ -29,7 +32,7 @@ public class File<M, RT>
     /// <returns>Unit</returns>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, Unit> copy(string fromPath, string toPath, bool overwrite = false) =>
-        trait.Bind(e => e.Copy(fromPath, toPath, overwrite));
+        fileIO.Bind(e => e.Copy(fromPath, toPath, overwrite));
 
     /// <summary>
     /// Append lines to the end of the file provided
@@ -37,7 +40,7 @@ public class File<M, RT>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, Unit> appendAllLines(string path, IEnumerable<string> contents) =>
         from en in Enc<M, RT>.encoding
-        from rs in trait.Bind(e => e.AppendAllLines(path, contents, en))
+        from rs in fileIO.Bind(e => e.AppendAllLines(path, contents, en))
         select rs;
 
     /// <summary>
@@ -46,7 +49,7 @@ public class File<M, RT>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, Seq<string>> readAllLines(string path) =>
         from en in Enc<M, RT>.encoding
-        from rs in trait.Bind(e => e.ReadAllLines(path, en))
+        from rs in fileIO.Bind(e => e.ReadAllLines(path, en))
         select rs;
 
     /// <summary>
@@ -55,7 +58,7 @@ public class File<M, RT>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, Unit> writeAllLines(string path, Seq<string> lines) =>
         from en in Enc<M, RT>.encoding
-        from rs in trait.Bind(e => e.WriteAllLines(path, lines, en))
+        from rs in fileIO.Bind(e => e.WriteAllLines(path, lines, en))
         select rs;
 
     /// <summary>
@@ -64,7 +67,7 @@ public class File<M, RT>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, string> readAllText(string path) =>
         from en in Enc<M, RT>.encoding
-        from rs in trait.Bind(e => e.ReadAllText(path, en))
+        from rs in fileIO.Bind(e => e.ReadAllText(path, en))
         select rs;
 
     /// <summary>
@@ -72,7 +75,7 @@ public class File<M, RT>
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, byte[]> readAllBytes(string path) =>
-        trait.Bind(e => e.ReadAllBytes(path));
+        fileIO.Bind(e => e.ReadAllBytes(path));
 
     /// <summary>
     /// Write all of the text to the path provided
@@ -80,7 +83,7 @@ public class File<M, RT>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, Unit> writeAllText(string path, string text) =>
         from en in Enc<M, RT>.encoding
-        from rs in trait.Bind(e => e.WriteAllText(path, text, en))
+        from rs in fileIO.Bind(e => e.WriteAllText(path, text, en))
         select rs;
 
     /// <summary>
@@ -88,21 +91,21 @@ public class File<M, RT>
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, Unit> writeAllBytes(string path, byte[] data) =>
-        trait.Bind(e => e.WriteAllBytes(path, data));
+        fileIO.Bind(e => e.WriteAllBytes(path, data));
 
     /// <summary>
     /// Delete the file provided
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, Unit> delete(string path) =>
-        trait.Bind(e => e.Delete(path));
+        fileIO.Bind(e => e.Delete(path));
 
     /// <summary>
     /// True if a file exists at the path
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, bool> exists(string path) =>
-        trait.Bind(e => e.Exists(path));
+        fileIO.Bind(e => e.Exists(path));
 
     /// <summary>
     /// Open a text file
@@ -118,14 +121,14 @@ public class File<M, RT>
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, TextWriter> createText(string path) =>
-        trait.Bind(e => e.CreateText(path));
+        fileIO.Bind(e => e.CreateText(path));
 
     /// <summary>
     /// Return a stream to append text to
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, TextWriter> appendText(string path) =>
-        trait.Bind(e => e.AppendText(path));
+        fileIO.Bind(e => e.AppendText(path));
 
     /// <summary>
     /// Open a file-stream
@@ -168,7 +171,7 @@ public class File<M, RT>
     /// Open a file-stream
     /// </summary>
     static K<M, Stream> openReadInternal(string path) =>
-        from io in trait.Map(e => e.OpenRead(path))
+        from io in fileIO.Map(e => e.OpenRead(path))
         from rs in use(io)
         select rs;
 
@@ -177,7 +180,7 @@ public class File<M, RT>
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
     static K<M, Stream> openInternal(string path, FileMode mode) =>
-        from io in trait.Map(e => e.Open(path, mode))
+        from io in fileIO.Map(e => e.Open(path, mode))
         from rs in use(io)
         select rs;
         
@@ -186,7 +189,7 @@ public class File<M, RT>
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
     static K<M, Stream> openInternal(string path, FileMode mode, FileAccess access) =>
-        from io in trait.Map(e => e.Open(path, mode, access))
+        from io in fileIO.Map(e => e.Open(path, mode, access))
         from rs in use(io)
         select rs;
         
@@ -195,7 +198,7 @@ public class File<M, RT>
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
     static K<M, Stream> openWriteInternal(string path) =>
-        from io in trait.Map(e => e.OpenWrite(path))
+        from io in fileIO.Map(e => e.OpenWrite(path))
         from rs in use(io)
         select rs;
 
@@ -204,7 +207,7 @@ public class File<M, RT>
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
     static K<M, TextReader> openTextInternal(string path) =>
-        from io in trait.Map(e => e.OpenText(path))
+        from io in fileIO.Map(e => e.OpenText(path))
         from rs in use(io)
         select rs;
 }

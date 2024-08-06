@@ -73,7 +73,7 @@ public record TryT<M, A>(K<M, Try<A>> runTry) : K<TryT<M>, A>, Semigroup<TryT<M,
     /// <param name="monad">Monad to lift</param>
     /// <returns>`TryT`</returns>
     public static TryT<M, A> LiftIO(IO<A> monad) =>
-        new(M.LiftIO(monad.Try()).Map(Try<A>.Lift));
+        new(M.LiftIO(monad.Try().Run()).Map(Try<A>.Lift));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -87,7 +87,7 @@ public record TryT<M, A>(K<M, Try<A>> runTry) : K<TryT<M>, A>, Semigroup<TryT<M,
     /// <param name="Fail">Fail branch</param>
     /// <returns>Inner monad with the result of the `Succ` or `Fail` branches</returns>
     public K<M, B> Match<B>(Func<A, B> Succ, Func<Error, B> Fail) =>
-        M.Map(mx => mx.Match(Succ, Fail), Run());
+        M.Map(mx => mx.Match(Succ, Fail), this.Run());
 
     /// <summary>
     /// Match the bound value and return a result (which gets packages back up inside the inner monad)
@@ -107,15 +107,6 @@ public record TryT<M, A>(K<M, Try<A>> runTry) : K<TryT<M>, A>, Semigroup<TryT<M,
     public K<M, A> IfFailM(Func<Error, K<M, A>> Fail) =>
         Match(M.Pure, Fail).Flatten();
 
-    /// <summary>
-    /// Run the transformer
-    /// </summary>
-    /// <remarks>
-    /// This is where the exceptions are caught
-    /// </remarks>
-    public K<M, Fin<A>> Run() =>
-        runTry.Map(t => t.Run());
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Map
@@ -130,7 +121,7 @@ public record TryT<M, A>(K<M, Try<A>> runTry) : K<TryT<M>, A>, Semigroup<TryT<M,
     /// <returns>Mapped monad</returns>
     public TryT<M1, B> MapT<M1, B>(Func<K<M, Fin<A>>, K<M1, Fin<B>>> f)
         where M1 : Monad<M1> =>
-        new(f(Run()).Map(Try.lift));
+        new(f(this.Run()).Map(Try.lift));
 
     /// <summary>
     /// Maps the bound value
@@ -343,7 +334,7 @@ public record TryT<M, A>(K<M, Try<A>> runTry) : K<TryT<M>, A>, Semigroup<TryT<M,
               .Flatten());
 
     public TryT<M, A> Combine(TryT<M, A> rhs) =>
-        new(Run().Bind(
+        new(this.Run().Bind(
                 lhs => lhs switch
                        {
                            Fin.Succ<A> (var x) => M.Pure(Try.Succ(x)),

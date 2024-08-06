@@ -19,7 +19,8 @@ namespace EffectsExamples;
 /// Or, 'err' that will throw an Exception - this will be caught to become 'there was a problem'
 /// </remarks>
 public static class ErrorAndGuardExample<RT>
-    where RT : Has<Eff<RT>, ConsoleIO>
+    where RT : 
+        Has<Eff<RT>, ConsoleIO>
 {
     static readonly Error UserExited = Error.New(100, "user exited");
     static readonly Error SafeError = Error.New(200, "there was a problem");

@@ -9,14 +9,13 @@ namespace Newsletter.Effects;
 public static class Email<M, RT>
     where RT : 
         Has<M, EmailIO>,
-        Reads<M, RT, Config>
+        Has<M, Config>
     where M :
         Monad<M>,
-        Fallible<M>,
-        Stateful<M, RT>
+        Fallible<M>
 {
-    static readonly K<M, EmailIO> trait =
-        Stateful.getsM<M, RT, EmailIO>(rt => rt.Trait);
+    static K<M, EmailIO> trait =>
+        Has<M, RT, EmailIO>.ask;
 
     /// <summary>
     /// Send an email

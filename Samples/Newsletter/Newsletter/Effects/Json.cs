@@ -10,11 +10,10 @@ public static class Json<M, RT>
     where RT : 
         Has<M, JsonIO>
     where M :
-        Monad<M>,
-        Stateful<M, RT>
+        Monad<M>
 {
-    public static readonly K<M, JsonIO> trait =
-        Stateful.getsM<M, RT, JsonIO>(rt => rt.Trait);
+    static readonly K<M, JsonIO> trait =
+        Has<M, RT, JsonIO>.ask;
 
     public static K<M, JsonDocument> readJson(string text) =>
         trait.Map(t => t.Parse(text));

@@ -54,7 +54,7 @@ public static partial class EffExtensions
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
     public static A RunUnsafe<A>(this K<Eff, A> ma) =>
-        ma.As().effect.RunUnsafe(default).Value;
+        ma.As().effect.RunUnsafe(default);
 
     /// <summary>
     /// Invoke the effect
@@ -65,14 +65,14 @@ public static partial class EffExtensions
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
     public static A RunUnsafe<A>(this K<Eff, A> ma, EnvIO envIO) =>
-        ma.As().effect.RunUnsafe(default, envIO).Value;
+        ma.As().effect.RunUnsafe(default, envIO);
 
     /// <summary>
     /// Invoke the effect to leave the inner IO monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<A> RunIO<A>(this K<Eff, A> ma) =>
-        ma.As().effect.RunIO(default).Map(p => p.Value);
+        ma.As().effect.RunIO(default);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

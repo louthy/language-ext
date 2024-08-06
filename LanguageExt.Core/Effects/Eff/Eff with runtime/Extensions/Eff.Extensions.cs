@@ -39,7 +39,7 @@ public static partial class EffExtensions
     {
         try
         {
-            return ma.As().effect.Run(env).Run(envIO).Value;
+            return ma.As().effect.Run(env).Run(envIO);
         }
         catch(Exception e)
         {
@@ -51,49 +51,11 @@ public static partial class EffExtensions
     /// Invoke the effect
     /// </summary>
     /// <remarks>
-    /// Returns the result value and the runtime (which carries state) 
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<(A Value, RT Runtime)> RunState<RT, A>(this K<Eff<RT>, A> ma, RT env)
-    {
-        try
-        {
-            return ma.As().effect.Run(env).Run(EnvIO.New());
-        }
-        catch(Exception e)
-        {
-            return Fin<(A Value, RT Runtime)>.Fail(e);
-        }
-    }  
-    
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
-    /// Returns the result value and the runtime (which carries state) 
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<(A Value, RT Runtime)> RunState<RT, A>(this K<Eff<RT>, A> ma, RT env, EnvIO envIO)
-    {
-        try
-        {
-            return ma.As().effect.Run(env).Run(envIO);
-        }
-        catch(Exception e)
-        {
-            return Fin<(A Value, RT Runtime)>.Fail(e);
-        }
-    }    
-
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
     /// This is labelled 'unsafe' because it can throw an exception, whereas
     /// `Run` will capture any errors and return a `Fin` type.
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
-    public static (A Value, RT Runtime) RunUnsafe<RT, A>(this K<Eff<RT>, A> ma, RT env) =>
+    public static A RunUnsafe<RT, A>(this K<Eff<RT>, A> ma, RT env) =>
         ma.As().effect.Run(env).Run(EnvIO.New());
 
     /// <summary>
@@ -104,14 +66,14 @@ public static partial class EffExtensions
     /// `Run` will capture any errors and return a `Fin` type.
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
-    public static (A Value, RT Runtime) RunUnsafe<RT, A>(this K<Eff<RT>, A> ma, RT env, EnvIO envIO) =>
+    public static A RunUnsafe<RT, A>(this K<Eff<RT>, A> ma, RT env, EnvIO envIO) =>
         ma.As().effect.Run(env).Run(envIO);
 
     /// <summary>
     /// Invoke the effect to leave the inner IO monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static IO<(A Value, RT Runtime)> RunIO<RT, A>(this K<Eff<RT>, A> ma, RT env) =>
+    public static IO<A> RunIO<RT, A>(this K<Eff<RT>, A> ma, RT env) =>
         ma.As().effect.Run(env).As();
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

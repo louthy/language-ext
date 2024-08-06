@@ -11,11 +11,11 @@ public record Runtime(RuntimeEnv Env) :
     Has<Eff<Runtime>, ConsoleIO>,
     Has<Eff<Runtime>, EncodingIO>,
     Has<Eff<Runtime>, DirectoryIO>,
-    Reads<Eff<Runtime>, Runtime, Config>,
-    Reads<Eff<Runtime>, Runtime, HttpClient>,
+    Has<Eff<Runtime>, Config>,
+    Has<Eff<Runtime>, HttpClient>,
     IDisposable
 {
-    private static Config Common(string repoRootFolder, Option<string> sendGridKey) =>
+    static Config Common(string repoRootFolder, Option<string> sendGridKey) =>
         new ("",
              Path.Combine(repoRootFolder, "templates"),
              "",
@@ -47,34 +47,34 @@ public record Runtime(RuntimeEnv Env) :
     public static Runtime New(RuntimeEnv env) =>
         new (env);
     
-    K<Eff<Runtime>, FileIO> Has<Eff<Runtime>, FileIO>.Trait =>
+    static K<Eff<Runtime>, FileIO> Has<Eff<Runtime>, FileIO>.Ask =>
         pure<Eff<Runtime>, FileIO>(LanguageExt.Sys.Live.Implementations.FileIO.Default);
 
-    K<Eff<Runtime>, EncodingIO> Has<Eff<Runtime>, EncodingIO>.Trait => 
+    static K<Eff<Runtime>, EncodingIO> Has<Eff<Runtime>, EncodingIO>.Ask => 
         pure<Eff<Runtime>, EncodingIO>(LanguageExt.Sys.Live.Implementations.EncodingIO.Default);
 
-    K<Eff<Runtime>, DirectoryIO> Has<Eff<Runtime>, DirectoryIO>.Trait =>
+    static K<Eff<Runtime>, DirectoryIO> Has<Eff<Runtime>, DirectoryIO>.Ask =>
         pure<Eff<Runtime>, DirectoryIO>(LanguageExt.Sys.Live.Implementations.DirectoryIO.Default);
 
-    K<Eff<Runtime>, ConsoleIO> Has<Eff<Runtime>, ConsoleIO>.Trait =>
+    static K<Eff<Runtime>, ConsoleIO> Has<Eff<Runtime>, ConsoleIO>.Ask =>
         pure<Eff<Runtime>, ConsoleIO>(LanguageExt.Sys.Live.Implementations.ConsoleIO.Default);
 
-    K<Eff<Runtime>, JsonIO> Has<Eff<Runtime>, JsonIO>.Trait => 
+    static K<Eff<Runtime>, JsonIO> Has<Eff<Runtime>, JsonIO>.Ask => 
         pure<Eff<Runtime>, JsonIO>(Impl.Json.Default); 
 
-    K<Eff<Runtime>, EmailIO> Has<Eff<Runtime>, EmailIO>.Trait => 
+    static K<Eff<Runtime>, EmailIO> Has<Eff<Runtime>, EmailIO>.Ask => 
         pure<Eff<Runtime>, EmailIO>(Impl.Email.Default); 
 
-    K<Eff<Runtime>, WebIO> Has<Eff<Runtime>, WebIO>.Trait =>
+    static K<Eff<Runtime>, WebIO> Has<Eff<Runtime>, WebIO>.Ask =>
         pure<Eff<Runtime>, WebIO>(Impl.Web.Default);
 
-    K<Eff<Runtime>, ImageIO> Has<Eff<Runtime>, ImageIO>.Trait =>
+    static K<Eff<Runtime>, ImageIO> Has<Eff<Runtime>, ImageIO>.Ask =>
         pure<Eff<Runtime>, ImageIO>(Impl.Image.Default);
 
-    K<Eff<Runtime>, Config> Reads<Eff<Runtime>, Runtime, Config>.Get { get; } = 
+    static K<Eff<Runtime>, Config> Has<Eff<Runtime>, Config>.Ask { get; } = 
         liftEff<Runtime, Config>(rt => rt.Env.Config);
 
-    K<Eff<Runtime>, HttpClient> Reads<Eff<Runtime>, Runtime, HttpClient>.Get { get; } = 
+    static K<Eff<Runtime>, HttpClient> Has<Eff<Runtime>, HttpClient>.Ask { get; } = 
         liftEff<Runtime, HttpClient>(rt => rt.Env.HttpClient);
 
     public void Dispose() =>

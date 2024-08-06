@@ -23,7 +23,8 @@ namespace EffectsExamples;
 /// </remarks>
 /// <typeparam name="RT"></typeparam>
 public class QueueExample<RT> 
-    where RT : Has<Eff<RT>, ConsoleIO>
+    where RT : 
+        Has<Eff<RT>, ConsoleIO>
 {
     public static Eff<RT, Unit> main()
     {
