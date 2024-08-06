@@ -65,7 +65,7 @@ class Program
                from _ in writeLine($"{x} + {y} = {x + y}")
                from t in waitOneSecond
                select unit)
-      | catchM(writeLine("Obviously you don't know what a number is so I'm off."));
+      | writeLine("Obviously you don't know what a number is so I'm off.");
     
     static IO<int> readNumber(string question) =>
         retry(Schedule.recurs(3),

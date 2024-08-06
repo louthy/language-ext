@@ -41,16 +41,17 @@ public class Eff :
     static K<Eff, A> Stateful<Eff, MinRT>.Gets<A>(Func<MinRT, A> f) => 
         new Eff<A>(Stateful.gets<Eff<MinRT>, MinRT, A>(f).As());
 
-    static K<Eff, A> Monad<Eff>.LiftIO<A>(IO<A> ma) =>
+    static K<Eff, A> MonadIO<Eff>.LiftIO<A>(IO<A> ma) =>
         Eff<A>.LiftIO(ma);
 
-    static K<Eff, B> Monad<Eff>.WithRunInIO<A, B>(Func<Func<K<Eff, A>, IO<A>>, IO<B>> inner) =>
+    static K<Eff, B> MonadIO<Eff>.WithRunInIO<A, B>(Func<UnliftIO<Eff, A>, IO<B>> inner) =>
         Eff<B>.LiftIO(
-            env => inner(ma => ma.As()
+            env => inner(ma => ma.As()                  // NOTE: We can safely ignore the state here as it's using
+                                 .effect                //       the MinRT runtime, which has no properties.
                                  .effect
-                                 .effect
-                                 .Run(env).As()
-                                 .Map(p => p.Value)));
+                                 .Run(env)
+                                 .Map(p => p.Value)
+                                 .As()));
 
     static K<Eff, A> Fallible<Error, Eff>.Fail<A>(Error error) =>
         Eff<A>.Fail(error);

@@ -280,57 +280,42 @@ public record Try<A>(Func<Fin<A>> runTry) : K<Try, A>, Semigroup<Try<A>>
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //  Trait implementation
+    //  Error catching operators
     //
+    
+    public static Try<A> operator |(Try<A> lhs, Try<A> rhs) =>
+        lhs.Combine(rhs);
+    
+    public static Try<A> operator |(Try<A> lhs, K<Try, A> rhs) =>
+        lhs.Combine(rhs.As());
+    
+    public static Try<A> operator |(K<Try, A> lhs, Try<A> rhs) =>
+        lhs.As().Combine(rhs);
 
     public static Try<A> operator |(Try<A> ma, Pure<A> mb) =>
         ma.Combine(mb);
 
-    public static Try<A> operator |(Try<A> ma, Fail<Error> mb) =>
-        ma.Combine(mb);
+    public static Try<A> operator |(Try<A> ma, A mb) =>
+        ma | pure<Try, A>(mb);
 
-    public static Try<A> operator |(Try<A> ma, Fail<Exception> mb) =>
+    public static Try<A> operator |(Try<A> ma, Fail<Error> mb) =>
         ma.Combine(mb);
 
     public static Try<A> operator |(Try<A> ma, Error mb) =>
         ma.Combine(mb);
 
-    public static Try<A> operator |(Try<A> ma, CatchError mb) =>
-        ma | mb.As();
+    public static Try<A> operator |(Try<A> ma, Fail<Exception> mb) =>
+        ma.Combine(mb);
 
-    public static Try<A> operator |(Try<A> ma, CatchValue<A> mb) =>
-        ma | mb.As();
+    public static Try<A> operator |(Try<A> ma, Exception mb) =>
+        ma.Combine((Error)mb);
 
-    public static Try<A> operator |(Try<A> ma, CatchError<Error> mb) =>
+    public static Try<A> operator |(Try<A> ma, CatchM<Error, Try, A> mb) =>
         new(() => ma.Run() switch
                   {
-                      Fin.Fail<A> (var err) when mb.Match(err) => FinFail<A>(mb.Value(err)),
+                      Fin.Fail<A> (var err) when mb.Match(err) => mb.Value(err).Run(),
                       var fa                                   => fa
                   });
-
-    public static Try<A> operator |(Try<A> ma, CatchError<Exception> mb) =>
-        new(() => ma.Run() switch
-                  {
-                      Fin.Fail<A> (var err) when mb.Match(err.ToException()) => FinFail<A>(mb.Value(err)),
-                      var fa                                                 => fa
-                  });
-
-    public static Try<A> operator |(Try<A> ma, CatchValue<Error, A> mb) =>
-        new(() => ma.Run() switch
-                  {
-                      Fin.Fail<A> (var err) when mb.Match(err) => mb.Value(err),
-                      var fa                                   => fa
-                  });
-
-    public static Try<A> operator |(Try<A> ma, CatchValue<Exception, A> mb) =>
-        new(() => ma.Run() switch
-                  {
-                      Fin.Fail<A> (var err) when mb.Match(err) => mb.Value(err),
-                      var fa                                   => fa
-                  });
-    
-    public static Try<A> operator |(Try<A> lhs, Try<A> rhs) =>
-        lhs.Combine(rhs);
 
     public Try<A> Combine(Try<A> rhs) =>
         new(() => this.Run() switch

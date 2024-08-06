@@ -27,5 +27,5 @@ public static class Email<M, RT>
                      letter.Title,
                      letter.PlainText,
                      letter.Html)
-              | catchM(Display<M, RT>.error); 
+              | @catch(Display<M, RT>.error); 
 }

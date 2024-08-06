@@ -110,6 +110,12 @@ public static partial class Prelude
         new(IO.liftAsync(async () => await ma.ConfigureAwait(false)));
 
     /// <summary>
+    /// Lift an Either into a `EitherT IO` 
+    /// </summary>
+    public static FinT<IO, A> liftIO<A>(Task<Fin<A>> ma) =>
+        new(IO.liftAsync(async () => await ma.ConfigureAwait(false)));
+
+    /// <summary>
     /// Lift an Validation into a `ValidationT IO` 
     /// </summary>
     public static ValidationT<L, IO, A> liftIO<L, A>(Validation<L, A> ma) 

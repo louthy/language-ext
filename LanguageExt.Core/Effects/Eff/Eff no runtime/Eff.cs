@@ -769,7 +769,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
         LiftIO(ma);
 
     /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
     /// result of the first without running the second.
     /// </summary>
     /// <param name="ma">First IO operation</param>
@@ -780,7 +780,29 @@ public record Eff<A>(Eff<MinRT, A> effect) :
         new(ma.effect | mb.effect);
 
     /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
+    /// result of the first without running the second.
+    /// </summary>
+    /// <param name="ma">First IO operation</param>
+    /// <param name="mb">Alternative IO operation</param>
+    /// <returns>Result of either the first or second operation</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> operator |(K<Eff, A> ma, Eff<A> mb) =>
+        new(ma.As().effect | mb.effect);
+
+    /// <summary>
+    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
+    /// result of the first without running the second.
+    /// </summary>
+    /// <param name="ma">First IO operation</param>
+    /// <param name="mb">Alternative IO operation</param>
+    /// <returns>Result of either the first or second operation</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> operator |(Eff<A> ma, K<Eff, A> mb) =>
+        new(ma.effect | mb.As().effect);
+
+    /// <summary>
+    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
     /// result of the first without running the second.
     /// </summary>
     /// <param name="ma">First IO operation</param>
@@ -791,7 +813,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
         new(ma.effect | mb);
 
     /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
     /// result of the first without running the second.
     /// </summary>
     /// <param name="ma">First IO operation</param>
@@ -802,7 +824,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
         new(ma.effect | error);
 
     /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
     /// result of the first without running the second.
     /// </summary>
     /// <param name="ma">First IO operation</param>
@@ -813,7 +835,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
         new(ma.effect | error);
 
     /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
     /// result of the first without running the second.
     /// </summary>
     /// <param name="ma">First IO operation</param>
@@ -824,80 +846,14 @@ public record Eff<A>(Eff<MinRT, A> effect) :
         new(ma.effect | Prelude.Pure(value));
 
     /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
     /// result of the first without running the second.
     /// </summary>
     /// <param name="ma">First IO operation</param>
     /// <param name="mb">Alternative IO operation</param>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, CatchError<Error> mb) =>
-        ma.MapIO(io => io | mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, CatchError mb) =>
-        ma.MapIO(io => io | mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, CatchError<Exception> mb) =>
-        ma.MapIO(io => io | mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, CatchValue<Error, A> mb) =>
-        ma.MapIO(io => io | mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, CatchValue<Exception, A> mb) =>
-        ma.MapIO(io => io | mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, CatchValue<A> mb) =>
-        ma.MapIO(io => io | mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, CatchM<Eff, A> mb) =>
+    public static Eff<A> operator |(Eff<A> ma, CatchM<Error, Eff, A> mb) =>
         ma.IfFailEff(e => mb.Run(e, Fail(e)).As());
 
     /// <summary>
@@ -980,10 +936,10 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     static K<Eff<A>, T> Stateful<Eff<A>, A>.Gets<T>(Func<A, T> f) =>
         new Eff<A, T>(StateT.gets<IO, A, T>(f));
 
-    static K<Eff<A>, T> Monad<Eff<A>>.LiftIO<T>(IO<T> ma) =>
+    static K<Eff<A>, T> MonadIO<Eff<A>>.LiftIO<T>(IO<T> ma) =>
         new Eff<A, T>(StateT.liftIO<A, IO, T>(ma));
 
-    static K<Eff<A>, U> Monad<Eff<A>>.WithRunInIO<T, U>(Func<Func<K<Eff<A>, T>, IO<T>>, IO<U>> inner) =>
+    static K<Eff<A>, U> MonadIO<Eff<A>>.WithRunInIO<T, U>(Func<UnliftIO<Eff<A>, T>, IO<U>> inner) =>
         Eff<A, U>.LiftIO(
             env => inner(ma => ma.As().effect
                                  .Run(env).As()

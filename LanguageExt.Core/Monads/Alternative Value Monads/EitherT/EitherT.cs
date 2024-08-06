@@ -6,7 +6,7 @@ using static LanguageExt.Prelude;
 namespace LanguageExt;
 
 /// <summary>
-/// `EitherT` monad transformer, which allows for an optional result. 
+/// `EitherT` monad transformer, which allows for either an `L` or `R` result value to be carried. 
 /// </summary>
 /// <param name="runEither">Transducer that represents the transformer operation</param>
 /// <typeparam name="M">Given monad trait</typeparam>
@@ -200,17 +200,6 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) : K<EitherT<L, M>, 
     [Pure]
     public K<M, L> IfRight(Func<R, L> rightMap) =>
         Match(Left: identity, Right: rightMap);
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Run
-    //
-
-    /// <summary>
-    /// Runs the EitherT exposing the outer monad with an inner wrapped `Either`
-    /// </summary>
-    public K<M, Either<L, R>> Run() =>
-        runEither;
  
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

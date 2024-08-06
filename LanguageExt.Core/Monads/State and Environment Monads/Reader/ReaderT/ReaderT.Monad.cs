@@ -41,11 +41,11 @@ public partial class ReaderT<Env, M> :
     static K<ReaderT<Env, M>, A> Readable<ReaderT<Env, M>, Env>.Local<A>(Func<Env, Env> f, K<ReaderT<Env, M>, A> ma) =>
         ma.As().Local(f);
 
-    static K<ReaderT<Env, M>, A> Monad<ReaderT<Env, M>>.LiftIO<A>(IO<A> ma) =>
+    static K<ReaderT<Env, M>, A> MonadIO<ReaderT<Env, M>>.LiftIO<A>(IO<A> ma) =>
         ReaderT<Env, M, A>.Lift(M.LiftIO(ma));
     
-    static K<ReaderT<Env, M>, B> Monad<ReaderT<Env, M>>.WithRunInIO<A, B>(
-        Func<Func<K<ReaderT<Env, M>, A>, IO<A>>, IO<B>> inner) =>
+    static K<ReaderT<Env, M>, B> MonadIO<ReaderT<Env, M>>.WithRunInIO<A, B>(
+        Func<UnliftIO<ReaderT<Env, M>, A>, IO<B>> inner) =>
         new ReaderT<Env, M, B>(
             env =>
                 M.WithRunInIO<A, B>(

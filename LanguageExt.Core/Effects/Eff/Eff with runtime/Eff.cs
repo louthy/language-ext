@@ -313,21 +313,22 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     [Pure]
     public Eff<RT, B> Match<B>(Func<A, B> Succ, Func<Error, B> Fail) =>
         new(new StateT<RT, IO, B>(
-                rt =>
-                {
-                    try
+                rt => IO.lift(
+                    e =>
                     {
-                        return IO.lift(e => mapFirst(Succ, this.RunUnsafe(rt, e)));
-                    }
-                    catch (ErrorException e)
-                    {
-                        return IO.pure((Fail(e.ToError()), rt));
-                    }
-                    catch (Exception e)
-                    {
-                        return IO.pure((Fail(e), rt));
-                    }
-                }));
+                        try
+                        {
+                            return mapFirst(Succ, this.RunUnsafe(rt, e));
+                        }
+                        catch (ErrorException ex)
+                        {
+                            return (Fail(ex.ToError()), rt);
+                        }
+                        catch (Exception ex)
+                        {
+                            return (Fail(ex), rt);
+                        }
+                    })));
 
     /// <summary>
     /// Map the failure to a success value
@@ -344,7 +345,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <param name="f">Function to map the fail value</param>
     /// <returns>IO that encapsulates that IfFail</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, A> IfFailEff(Func<Error, Eff<RT, A>> Fail) =>
+    public Eff<RT, A> IfFailEff(Func<Error, K<Eff<RT>, A>> Fail) =>
         Match(Succ: Pure, Fail: Fail).Flatten();
 
     /// <summary>
@@ -353,8 +354,8 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <param name="f">Function to map the fail value</param>
     /// <returns>IO that encapsulates that IfFail</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, A> IfFailEff(Func<Error, Eff<A>> Fail) =>
-        Match(Succ: Pure, Fail: x => Fail(x).WithRuntime<RT>()).Flatten();    
+    public Eff<RT, A> IfFailEff(Func<Error, K<Eff, A>> Fail) =>
+        Match(Succ: Pure, Fail: x => Fail(x).As().WithRuntime<RT>()).Flatten();    
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -894,7 +895,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
         LiftIO(ma);
 
     /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
     /// result of the first without running the second.
     /// </summary>
     /// <param name="ma">First IO operation</param>
@@ -905,7 +906,29 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
         ma.IfFailEff(_ => mb);
 
     /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
+    /// result of the first without running the second.
+    /// </summary>
+    /// <param name="ma">First IO operation</param>
+    /// <param name="mb">Alternative IO operation</param>
+    /// <returns>Result of either the first or second operation</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> operator |(Eff<RT, A> ma, K<Eff<RT>, A> mb) =>
+        ma.IfFailEff(_ => mb);
+
+    /// <summary>
+    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
+    /// result of the first without running the second.
+    /// </summary>
+    /// <param name="ma">First IO operation</param>
+    /// <param name="mb">Alternative IO operation</param>
+    /// <returns>Result of either the first or second operation</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> operator |(K<Eff<RT>, A> ma, Eff<RT, A> mb) =>
+        ma.As().IfFailEff(_ => mb);
+
+    /// <summary>
+    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
     /// result of the first without running the second.
     /// </summary>
     /// <param name="ma">First IO operation</param>
@@ -916,7 +939,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
         new (ma | (Eff<RT, A>)mb);
 
     /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
     /// result of the first without running the second.
     /// </summary>
     /// <param name="ma">First IO operation</param>
@@ -927,7 +950,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
         new (ma | (Eff<RT, A>)error);
 
     /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
     /// result of the first without running the second.
     /// </summary>
     /// <param name="ma">First IO operation</param>
@@ -938,7 +961,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
         new (ma | Fail(error));
 
     /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
     /// result of the first without running the second.
     /// </summary>
     /// <param name="ma">First IO operation</param>
@@ -948,92 +971,27 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     public static Eff<RT, A> operator |(Eff<RT, A> ma, A value) =>
         new (ma | (Eff<RT, A>)Prelude.Pure(value));
 
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchError<Error> mb) =>
-        ma.MapFail(e => mb.Match(e) ? mb.Value(e) : e);
 
     /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
     /// result of the first without running the second.
     /// </summary>
     /// <param name="ma">First IO operation</param>
     /// <param name="mb">Alternative IO operation</param>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchError mb) =>
-        ma.MapFail(e => mb.Match(e) ? mb.Value(e) : e);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchError<Exception> mb) =>
-        ma.MapFail(e => mb.Match(e) ? mb.Value(e) : e);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchValue<Error, A> mb) =>
-        ma.IfFailEff(e => mb.Match(e) ? Pure(mb.Value(e)) : Fail(e));
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchValue<Exception, A> mb) =>
-        ma.IfFailEff(e => mb.Match(e) ? Pure(mb.Value(e)) : Fail(e));
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchValue<A> mb) =>
-        ma.IfFailEff(e => mb.Match(e) ? Pure(mb.Value(e)) : Fail(e));
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchM<Eff<RT>, A> mb) =>
+    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchM<Error, Eff<RT>, A> mb) =>
         ma.IfFailEff(e => mb.Match(e) ? mb.Value(e).As() : Fail(e));
 
     /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
     /// result of the first without running the second.
     /// </summary>
     /// <param name="ma">First IO operation</param>
     /// <param name="mb">Alternative IO operation</param>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchM<Eff, A> mb) =>
+    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchM<Error, Eff, A> mb) =>
         ma.IfFailEff(e => mb.Match(e) ? mb.Value(e).As().WithRuntime<RT>() : Fail(e));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -35,7 +35,7 @@ public class Proxy<UOut, UIn, DIn, DOut, M> :
         Proxy.lift<UOut, UIn, DIn, DOut, M, A>(M.LiftIO(ma));
 
     public static K<Proxy<UOut, UIn, DIn, DOut, M>, B> WithRunInIO<A, B>(
-        Func<Func<K<Proxy<UOut, UIn, DIn, DOut, M>, A>, IO<A>>, IO<B>> inner)
+        Func<UnliftIO<Proxy<UOut, UIn, DIn, DOut, M>, A>, IO<B>> inner)
     {
         return Proxy.lift<UOut, UIn, DIn, DOut, M, B>(
             M.WithRunInIO<A, B>(

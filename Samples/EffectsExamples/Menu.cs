@@ -38,7 +38,7 @@ public class Menu<RT>
         from __0 in Console<Eff<RT>, RT>.setColor(ConsoleColor.Yellow)
         from __1 in Console<Eff<RT>, RT>.writeLine(exa.Desc)
         from __2 in Console<Eff<RT>, RT>.resetColor()
-        from res in localCancel(exa.Example) | @catchM(x => logError(x))
+        from res in localCancel(exa.Example) | @catch(logError)
         from __3 in showComplete(5)
         select res;
 
@@ -46,7 +46,7 @@ public class Menu<RT>
         menuItems.Find(item => item.Item == ix)
                  .Map(item => (Example: item.Example, Desc: item.Desc))
                  .ToEff()
-      | @catch((SuccessEff<RT, Unit>(unit), "invalid menu option"));
+      | (SuccessEff<RT, Unit>(unit), "invalid menu option");
 
     static Eff<RT, Unit> logError(Error e) =>
         from _0 in Console<Eff<RT>, RT>.setColor(ConsoleColor.Red).As()

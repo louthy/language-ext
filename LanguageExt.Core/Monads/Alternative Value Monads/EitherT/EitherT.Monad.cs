@@ -31,7 +31,7 @@ public partial class EitherT<L, M> :
     static K<EitherT<L, M>, A> MonadT<EitherT<L, M>, M>.Lift<A>(K<M, A> ma) => 
         EitherT<L, M, A>.Lift(ma);
         
-    static K<EitherT<L, M>, A> Monad<EitherT<L, M>>.LiftIO<A>(IO<A> ma) => 
+    static K<EitherT<L, M>, A> MonadIO<EitherT<L, M>>.LiftIO<A>(IO<A> ma) => 
         EitherT<L, M, A>.Lift(M.LiftIO(ma));
 
     static K<EitherT<L, M>, A> SemigroupK<EitherT<L, M>>.Combine<A>(K<EitherT<L, M>, A> ma, K<EitherT<L, M>, A> mb) => 

@@ -32,7 +32,7 @@ public partial class TryT<M> :
     static K<TryT<M>, A> MonadT<TryT<M>, M>.Lift<A>(K<M, A> ma) => 
         TryT<M, A>.Lift(ma);
     
-    static K<TryT<M>, A> Monad<TryT<M>>.LiftIO<A>(IO<A> ma) => 
+    static K<TryT<M>, A> MonadIO<TryT<M>>.LiftIO<A>(IO<A> ma) => 
         TryT<M, A>.Lift(M.LiftIO(ma));
 
     static K<TryT<M>, A> SemigroupK<TryT<M>>.Combine<A>(K<TryT<M>, A> ma, K<TryT<M>, A> mb) =>

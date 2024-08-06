@@ -127,6 +127,19 @@ public partial class IO
 
     public static IO<A> or<A>(K<IO, A> ma, K<IO, A> mb) => 
         ma.As() | mb.As();
+
+    /// <summary>
+    /// Queue this IO operation to run on the thread-pool. 
+    /// </summary>
+    /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
+    /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
+    /// the forked IO operation or to await the result of it.
+    /// </returns>
+    [Pure]
+    [MethodImpl(Opt.Default)]
+    public static K<M, B> mapIO<M, A, B>(K<M, A> ma, Func<IO<A>, IO<B>> f)
+        where M : Monad<M> =>
+        M.MapIO(ma, f);    
     
     /// <summary>
     /// Queue this IO operation to run on the thread-pool. 
@@ -139,6 +152,19 @@ public partial class IO
     [MethodImpl(Opt.Default)]
     public static IO<ForkIO<A>> fork<A>(K<IO, A> ma, Option<TimeSpan> timeout = default) =>
         ma.As().Fork(timeout);
+
+    /// <summary>
+    /// Queue this IO operation to run on the thread-pool. 
+    /// </summary>
+    /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
+    /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
+    /// the forked IO operation or to await the result of it.
+    /// </returns>
+    [Pure]
+    [MethodImpl(Opt.Default)]
+    public static K<M, ForkIO<A>> fork<M, A>(K<M, A> ma, Option<TimeSpan> timeout = default)
+        where M : Monad<M> =>
+        mapIO(ma, mio => fork(mio , timeout));
 
     /// <summary>
     /// Yield the thread for the specified milliseconds or until cancelled.

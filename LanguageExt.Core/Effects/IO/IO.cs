@@ -409,29 +409,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     public static IO<A> operator |(IO<A> ma, Error mb) =>
         ma.Or(mb);
 
-    public static IO<A> operator |(IO<A> ma, CatchError mb) =>
-        ma | mb.As();
-
-    public static IO<A> operator |(IO<A> ma, CatchValue<A> mb) =>
-        ma | mb.As();
-
-    public static IO<A> operator |(IO<A> ma, CatchIO<A> mb) =>
-        new(env =>
-            {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-                try
-                {
-                    return ma.Run(env);
-                }
-                catch (Exception ex)
-                {
-                    var err = Error.New(ex);
-                    if(mb.Match(err)) return mb.Value(err).Run(env);
-                    throw;
-                }
-            });
-
-    public static IO<A> operator |(IO<A> ma, CatchM<IO, A> mb) =>
+    public static IO<A> operator |(IO<A> ma, CatchM<Error, IO, A> mb) =>
         new(env =>
             {
                 if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
@@ -447,7 +425,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 }
             });
 
-    public static IO<A> operator |(IO<A> ma, CatchError<Error> mb) =>
+    public static IO<A> operator |(IO<A> ma, Exception mb) =>
         new(env =>
             {
                 if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
@@ -455,15 +433,13 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 {
                     return ma.Run(env);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    var err = Error.New(ex);
-                    if(mb.Match(err)) return mb.Value(err).Throw<A>();
-                    throw;
+                    return mb.Rethrow<A>();
                 }
             });
 
-    public static IO<A> operator |(IO<A> ma, CatchError<Exception> mb) =>
+    public static IO<A> operator |(IO<A> ma, A mb) =>
         new(env =>
             {
                 if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
@@ -473,39 +449,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 }
                 catch (Exception ex)
                 {
-                    if(mb.Match(ex)) return mb.Value(ex).Rethrow<A>();
-                    throw;
-                }
-            });
-
-    public static IO<A> operator |(IO<A> ma, CatchValue<Error, A> mb) =>
-        new(env =>
-            {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-                try
-                {
-                    return ma.Run(env);
-                }
-                catch (Exception ex)
-                {
-                    var err = Error.New(ex);
-                    if(mb.Match(err)) return mb.Value(err);
-                    throw;
-                }
-            });
-
-    public static IO<A> operator |(IO<A> ma, CatchValue<Exception, A> mb) =>
-        new(env =>
-            {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-                try
-                {
-                    return ma.Run(env);
-                }
-                catch (Exception ex)
-                {
-                    if(mb.Match(ex)) return mb.Value(ex);
-                    throw;
+                    return mb;
                 }
             });
 

@@ -48,11 +48,11 @@ public partial class IO :
     static K<IO, A> SemigroupK<IO>.Combine<A>(K<IO, A> ma, K<IO, A> mb) => 
         ma.As() | mb.As();
 
-    static K<IO, A> Monad<IO>.LiftIO<A>(IO<A> ma) => 
+    static K<IO, A> MonadIO<IO>.LiftIO<A>(IO<A> ma) => 
         ma;
     
-    static K<IO, B> Monad<IO>.WithRunInIO<A, B>(
-        Func<Func<K<IO, A>, IO<A>>, IO<B>> inner) =>
+    static K<IO, B> MonadIO<IO>.WithRunInIO<A, B>(
+        Func<UnliftIO<IO, A>, IO<B>> inner) =>
         inner(io => io.As());
 
     static K<IO, A> Fallible<Error, IO>.Fail<A>(Error error) =>

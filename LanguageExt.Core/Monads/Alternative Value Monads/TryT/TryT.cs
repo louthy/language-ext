@@ -306,8 +306,17 @@ public record TryT<M, A>(K<M, Try<A>> runTry) : K<TryT<M>, A>, Semigroup<TryT<M,
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //  Trait implementation
+    //  Error catching operators
     //
+    
+    public static TryT<M, A> operator |(TryT<M, A> lhs, TryT<M, A> rhs) =>
+        lhs.Combine(rhs);
+
+    public static TryT<M, A> operator |(K<TryT<M>, A> lhs, TryT<M, A> rhs) =>
+        lhs.As().Combine(rhs);
+
+    public static TryT<M, A> operator |(TryT<M, A> lhs, K<TryT<M>, A> rhs) =>
+        lhs.Combine(rhs.As());
 
     public static TryT<M, A> operator |(TryT<M, A> ma, Pure<A> mb) =>
         ma.Combine(mb);
@@ -321,25 +330,7 @@ public record TryT<M, A>(K<M, Try<A>> runTry) : K<TryT<M>, A>, Semigroup<TryT<M,
     public static TryT<M, A> operator |(TryT<M, A> ma, Error mb) =>
         ma.Combine(mb);
 
-    public static TryT<M, A> operator |(TryT<M, A> ma, CatchError mb) =>
-        ma | mb.As();
-
-    public static TryT<M, A> operator |(TryT<M, A> ma, CatchValue<A> mb) =>
-        ma | mb.As();
-
-    public static TryT<M, A> operator |(TryT<M, A> ma, CatchIO<A> mb) =>
-        new(ma.Run()
-              .Map(fa => fa switch
-                         {
-                             Fin.Fail<A> (var err) when mb.Match(err) => LiftIO(mb.Value(err)),
-                             Fin.Fail<A> (var err)                    => Fail(err),
-                             Fin.Succ<A> (var val)                    => Succ(val),
-                             _                                        => throw new NotSupportedException()
-                         })
-              .Map(ta => ta.runTry)
-              .Flatten());
-
-    public static TryT<M, A> operator |(TryT<M, A> ma, CatchM<TryT<M>, A> mb) =>
+    public static TryT<M, A> operator |(TryT<M, A> ma, CatchM<Error, TryT<M>, A> mb) =>
         new(ma.Run()
               .Map(fa => fa switch
                          {
@@ -350,49 +341,6 @@ public record TryT<M, A>(K<M, Try<A>> runTry) : K<TryT<M>, A>, Semigroup<TryT<M,
                          })
               .Map(ta => ta.runTry)
               .Flatten());
-
-    public static TryT<M, A> operator |(TryT<M, A> ma, CatchError<Error> mb) =>
-        new(ma.Run()
-              .Map(fa => fa switch
-                         {
-                             Fin.Fail<A> (var err) when mb.Match(err) => Try.Fail<A>(mb.Value(err)),
-                             Fin.Fail<A> (var err)                    => Try.Fail<A>(err),
-                             Fin.Succ<A> (var val)                    => Try.Succ(val),
-                             _                                        => throw new NotSupportedException()
-                         }));
-
-    public static TryT<M, A> operator |(TryT<M, A> ma, CatchError<Exception> mb) =>
-        new(ma.Run()
-              .Map(fa => fa switch
-                         {
-                             Fin.Fail<A> (var err) when mb.Match(err) => Try.Fail<A>(mb.Value(err.ToException())),
-                             Fin.Fail<A> (var err)                    => Try.Fail<A>(err),
-                             Fin.Succ<A> (var val)                    => Try.Succ(val),
-                             _                                        => throw new NotSupportedException()
-                         }));
-
-    public static TryT<M, A> operator |(TryT<M, A> ma, CatchValue<Error, A> mb) =>
-        new(ma.Run()
-              .Map(fa => fa switch
-                         {
-                             Fin.Fail<A> (var err) when mb.Match(err) => Try.Succ(mb.Value(err)),
-                             Fin.Fail<A> (var err)                    => Try.Fail<A>(err),
-                             Fin.Succ<A> (var val)                    => Try.Succ(val),
-                             _                                        => throw new NotSupportedException()
-                         }));
-
-    public static TryT<M, A> operator |(TryT<M, A> ma, CatchValue<Exception, A> mb) =>
-        new(ma.Run()
-              .Map(fa => fa switch
-                         {
-                             Fin.Fail<A> (var err) when mb.Match(err) => Try.Succ(mb.Value(err.ToException())),
-                             Fin.Fail<A> (var err)                    => Try.Fail<A>(err),
-                             Fin.Succ<A> (var val)                    => Try.Succ(val),
-                             _                                        => throw new NotSupportedException()
-                         }));
-    
-    public static TryT<M, A> operator |(TryT<M, A> lhs, TryT<M, A> rhs) =>
-        lhs.Combine(rhs);
 
     public TryT<M, A> Combine(TryT<M, A> rhs) =>
         new(Run().Bind(

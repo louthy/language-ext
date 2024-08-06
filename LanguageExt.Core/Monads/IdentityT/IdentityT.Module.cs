@@ -49,11 +49,11 @@ public class IdentityT<M> : MonadT<IdentityT<M>, M>, SemiAlternative<IdentityT<M
     static K<IdentityT<M>, A> MonadT<IdentityT<M>, M>.Lift<A>(K<M, A> ma) =>
         IdentityT<M, A>.Lift(ma);
 
-    static K<IdentityT<M>, A> Monad<IdentityT<M>>.LiftIO<A>(IO<A> ma) => 
+    static K<IdentityT<M>, A> MonadIO<IdentityT<M>>.LiftIO<A>(IO<A> ma) => 
         IdentityT<M, A>.Lift(M.LiftIO(ma));
 
-    static K<IdentityT<M>, B> Monad<IdentityT<M>>.WithRunInIO<A, B>(
-        Func<Func<K<IdentityT<M>, A>, IO<A>>, IO<B>> inner) =>
+    static K<IdentityT<M>, B> MonadIO<IdentityT<M>>.WithRunInIO<A, B>(
+        Func<UnliftIO<IdentityT<M>, A>, IO<B>> inner) =>
         new IdentityT<M, B>(
             M.WithRunInIO<A, B>(
                 run =>

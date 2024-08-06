@@ -34,7 +34,7 @@ public partial class WriterT<W, M> :
     static K<WriterT<W, M>, A> MonadT<WriterT<W, M>, M>.Lift<A>(K<M, A> ma) => 
         WriterT<W, M, A>.Lift(ma);
     
-    static K<WriterT<W, M>, A> Monad<WriterT<W, M>>.LiftIO<A>(IO<A> ma) =>
+    static K<WriterT<W, M>, A> MonadIO<WriterT<W, M>>.LiftIO<A>(IO<A> ma) =>
         WriterT<W, M, A>.Lift(M.LiftIO(ma));
 
     static K<WriterT<W, M>, A> SemigroupK<WriterT<W, M>>.Combine<A>(K<WriterT<W, M>, A> ma, K<WriterT<W, M>, A> mb) => 

@@ -26,8 +26,8 @@ public static class ErrorAndGuardExample<RT>
 
     public static Eff<RT, Unit> main =>
         from _1 in askUser
-                 | @catchM(ex => ex.Is<SystemException>(), Console<Eff<RT>, RT>.writeLine("system error"))
-                 | @catch(SafeError)
+                 | @catch(ex => ex.Is<SystemException>(), Console<Eff<RT>, RT>.writeLine("system error"))
+                 | SafeError
         from _2 in Console<Eff<RT>, RT>.writeLine("goodbye")
         select unit;
 
@@ -39,5 +39,5 @@ public static class ErrorAndGuardExample<RT>
                from _3 in guard(ln != "err", () => throw new Exception())
                from _4 in Console<Eff<RT>, RT>.writeLine(ln)
                select unit)
-      | @catch(UserExited, unit);
+      | @catch(UserExited, pure<Eff<RT>, Unit>(unit));
 }

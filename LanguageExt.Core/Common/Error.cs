@@ -7,7 +7,6 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using LanguageExt.Traits;
-using LanguageExt.UnsafeValueAccess;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Common;
@@ -57,6 +56,16 @@ public abstract record Error : Monoid<Error>
                 : Code == 0
                     ? Message == error.Message
                     : Code == error.Code;
+
+    [Pure]
+    public virtual bool Equals(Error? other) =>
+        other is not null && Is(other);
+
+    [Pure]
+    public override int GetHashCode() =>
+        Code == 0
+            ? Message.GetHashCode()
+            : Code;    
 
     /// <summary>
     /// True if the error is exceptional

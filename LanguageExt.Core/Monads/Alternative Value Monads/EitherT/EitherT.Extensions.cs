@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -15,6 +16,17 @@ public static class EitherTExt
     public static EitherT<L, M, A> As<L, M, A>(this K<EitherT<L, M>, A> ma)
         where M : Monad<M> =>
         (EitherT<L, M, A>)ma;
+
+    public static FinT<M, A> ToFin<M, A>(this K<EitherT<Error, M>, A> ma) 
+        where M : Monad<M> =>
+        new(ma.As().runEither.Map(ma => ma.ToFin()));
+
+    /// <summary>
+    /// Runs the EitherT exposing the outer monad with an inner wrapped `Either`
+    /// </summary>
+    public static K<M, Either<L, A>> Run<L, M, A>(this K<EitherT<L, M>, A> ma)
+        where M : Monad<M> =>
+        ma.As().runEither;
 
     /// <summary>
     /// Get the outer task and wrap it up in a new IO within the EitherT IO
