@@ -23,4 +23,7 @@ public record ActivityEnv(
         ActivitySource.Dispose();
         Activity?.Dispose();
     }
+
+    public override string ToString() => 
+        "Activity Environment";
 }

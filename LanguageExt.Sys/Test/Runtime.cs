@@ -36,6 +36,12 @@ public record Runtime(RuntimeEnv Env) :
     
     static K<Eff<Runtime>, A> local<A>(Func<Runtime, Runtime> f, K<Eff<Runtime>, A> ma) =>
         Readable.local(f, ma);
+    
+    static K<Eff<Runtime>, A> localEnv<A>(Func<RuntimeEnv, RuntimeEnv> f, K<Eff<Runtime>, A> ma) =>
+        local(e => e with { Env = f(e.Env) }, ma);
+
+    static K<Eff<Runtime>, A> localActivity<A>(Func<ActivityEnv, ActivityEnv> f, K<Eff<Runtime>, A> ma) =>
+        local(e => e with { Env = e.Env with { Activity = f(e.Env.Activity) } }, ma);
 
     /// <summary>
     /// Access the console environment
@@ -93,13 +99,16 @@ public record Runtime(RuntimeEnv Env) :
     /// Run with a local ActivityEnv 
     /// </summary>
     static K<Eff<Runtime>, A> Local<Eff<Runtime>, ActivityEnv>.With<A>(Func<ActivityEnv, ActivityEnv> f, K<Eff<Runtime>, A> ma) => 
-        local(rt => rt with { Env = rt.Env with { Activity = f(rt.Env.Activity) } }, ma);
+        localActivity(f, ma);
 
     /// <summary>
     /// Read the current ActivityEnv
     /// </summary>
     static K<Eff<Runtime>, ActivityEnv> Has<Eff<Runtime>, ActivityEnv>.Ask =>
         asks(rt => rt.Env.Activity);
+
+    public override string ToString() => 
+        "Test Runtime";
 }
     
 public record RuntimeEnv(
@@ -122,4 +131,7 @@ public record RuntimeEnv(
             Implementations.TestTimeSpec.RunningFromNow(),
             MemorySystemEnvironment.InitFromSystem(),
             ActivityEnv.Default);
+
+    public override string ToString() => 
+        "Runtime Environment";
 }

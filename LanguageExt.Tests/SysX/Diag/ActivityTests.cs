@@ -307,15 +307,15 @@ public static class ActivityTests
     [Fact(DisplayName = "Test span overload 4")]
     public static void Case27()
     {
-        var (kind, tags) = A.span(
-                "test",
-                ActivityKind.Client,
-                HashMap(("1", "a" as object), ("2", "b")),
-                A.kind.Zip(A.tags))
-            .ArrangeAndAct();
-        kind.IsSome.Should().BeTrue();
-        kind.Case.Should().Be(ActivityKind.Client);
+        var (kind, tags) = A.span("test",
+                                  ActivityKind.Client,
+                                  HashMap(("1", "a" as object), ("2", "b")),
+                                  A.kind.Zip(A.tags))
+                            .ArrangeAndAct();
         
+        Assert.True(kind.IsSome);
+        Assert.Equal(ActivityKind.Client, kind.Case);
+       
         Assert.True(tags.Find("1").ForAll(v => v is "a"));
         Assert.True(tags.Find("2").ForAll(v => v is "b"));
     }

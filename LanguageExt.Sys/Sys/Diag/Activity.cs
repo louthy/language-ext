@@ -110,8 +110,7 @@ public class Activity<M, RT>
         DateTimeOffset startTime,
         K<M, TA> operation) =>
         from a in startActivity(name, activityKind, activityTags, activityLinks, startTime)
-        from x in Local.with<M, RT, ActivityEnv, TA>(e => e with { Activity = a }, operation)
-        from r in operation
+        from r in Local.with<M, RT, ActivityEnv, TA>(e => e with { Activity = a }, operation)
         select r;
 
     /// <summary>
