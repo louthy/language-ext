@@ -18,12 +18,12 @@ public class Menu<RT>
     Has<Eff<RT>, EncodingIO>
 {
     public static Eff<RT, Unit> menu =>
-        repeat(from __0 in clearConsole(ConsoleColor.Green)
-               from __1 in showOptions
-               from key in Console<Eff<RT>, RT>.readKey
-               from __2 in clearConsole(ConsoleColor.White)
-               from __3 in runExample(key.KeyChar) 
-               select unit);
+        repeatIO(from __0 in clearConsole(ConsoleColor.Green)
+                 from __1 in showOptions
+                 from key in Console<Eff<RT>, RT>.readKey
+                 from __2 in clearConsole(ConsoleColor.White)
+                 from __3 in runExample(key.KeyChar) 
+                 select unit).As();
  
     static Eff<RT, Seq<Unit>> showOptions =>
         menuItems.Traverse(p => Console<Eff<RT>, RT>.writeLine($"{p.Item}. {p.Text}")).As();

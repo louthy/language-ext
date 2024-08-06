@@ -13,11 +13,11 @@ public static partial class EffExtensions
     public static Eff<RT, B> Apply<RT, A, B>(
         this K<Eff<RT>, Func<A, B>> mf,
         K<Eff<RT>, A> ma) =>
-        from tf in mf.As().Fork()
-        from ta in ma.As().Fork()
+       (from tf in mf.As().ForkIO()
+        from ta in ma.As().ForkIO()
         from f in tf.Await
         from a in ta.Await
-        select f(a);
+        select f(a)).As();
     
     /// <summary>
     /// Applicative apply: takes the lifted function and the lifted argument, applies the function to the argument

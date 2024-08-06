@@ -20,12 +20,12 @@ public class QueueExample<RT>
         memStream.Write(content, 0, content.Length);
         memStream.Seek(0, SeekOrigin.Begin);
 
-        return repeat(from _51 in SuccessEff(unit)
-                      from ln in (from data in liftEff(memStream.ReadByte)
-                                  from _    in guard(data != -1, Errors.Cancelled)
-                                  select data).FoldUntil(string.Empty, (s, ch) => s + ch, ch => ch == '\0')
-                      from _52 in Console<Eff<RT>, RT>.writeLine(ln)
-                      select unit)
+        return repeatIO(from _51 in SuccessEff(unit)
+                        from ln in (from data in liftEff(memStream.ReadByte)
+                                    from _    in guard(data != -1, Errors.Cancelled)
+                                    select data).FoldUntilIO(string.Empty, (s, ch) => s + ch, ch => ch == '\0')
+                        from _52 in Console<Eff<RT>, RT>.writeLine(ln)
+                        select unit).As()
              | @catch(exception => Console<Eff<RT>, RT>.writeLine(exception.Message));
     }
 }

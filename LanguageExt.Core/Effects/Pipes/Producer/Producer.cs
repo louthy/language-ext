@@ -296,7 +296,7 @@ public static class Producer
              select unit)
             .ToEffect()
             .RunEffect()
-            .Fork();    
+            .ForkIO();    
     }
     
     /// <summary>

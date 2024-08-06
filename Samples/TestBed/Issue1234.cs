@@ -13,10 +13,9 @@ public class Issue1234
         ignore(Main.Run(Runtime.New(), EnvIO.New()));
 
     public static Eff<Runtime, Unit> Main => 
-        repeat(
-            from _1 in Delay(TimeSpan.FromMilliseconds(10)).Timeout(TimeSpan.FromSeconds(5))
-            from _2 in Console<Eff<Runtime>, Runtime>.writeLine($"{DateTime.Now:hh:mm:ss}")
-            select unit);
+        repeatIO(from _1 in Delay(TimeSpan.FromMilliseconds(10)).TimeoutIO(TimeSpan.FromSeconds(5))
+                 from _2 in Console<Eff<Runtime>, Runtime>.writeLine($"{DateTime.Now:hh:mm:ss}")
+                 select unit).As();
 
     static Eff<Runtime, Unit> Delay(TimeSpan delay) =>
         liftEff<Runtime, Unit>(

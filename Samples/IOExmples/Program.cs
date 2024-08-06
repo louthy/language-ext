@@ -58,19 +58,19 @@ class Program
     //     select unit;
 
     static IO<Unit> repeating =>
-        repeat(Schedule.recurs(5),
-               from x in readNumber("Enter the first number to add")
-               from y in readNumber("Enter the second number to add")
-               from _ in writeLine($"{x} + {y} = {x + y}")
-               from t in waitOneSecond
-               select unit).As()
+        repeatIO(Schedule.recurs(5),
+                 from x in readNumber("Enter the first number to add")
+                 from y in readNumber("Enter the second number to add")
+                 from _ in writeLine($"{x} + {y} = {x + y}")
+                 from t in waitOneSecond
+                 select unit).As()
       | writeLine("Obviously you don't know what a number is so I'm off.");
     
     static IO<int> readNumber(string question) =>
-        retry(Schedule.recurs(3),
-              from _1 in writeLine(question)
-              from nx in readLine.Map(int.Parse)
-              select nx).As();
+        retryIO(Schedule.recurs(3),
+                from _1 in writeLine(question)
+                from nx in readLine.Map(int.Parse)
+                select nx).As();
     
     static readonly IO<string> readLine =
         lift(() => Console.ReadLine() ?? "");

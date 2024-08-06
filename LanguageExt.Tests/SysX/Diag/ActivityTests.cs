@@ -284,7 +284,7 @@ public static class ActivityTests
                 "test",
                 ActivityKind.Client,
                 HashMap(("1", "a" as object), ("2", "b")),
-                A.kind.Zip(A.tags))
+                A.kind.ZipIO(A.tags))
             .ArrangeAndAct();
         kind.IsSome.Should().BeTrue();
         kind.Case.Should().Be(ActivityKind.Client);
@@ -310,7 +310,7 @@ public static class ActivityTests
         var (kind, tags) = A.span("test",
                                   ActivityKind.Client,
                                   HashMap(("1", "a" as object), ("2", "b")),
-                                  A.kind.Zip(A.tags))
+                                  A.kind.ZipIO(A.tags))
                             .ArrangeAndAct();
         
         Assert.True(kind.IsSome);
@@ -334,7 +334,7 @@ public static class ActivityTests
                     HashMap(("1", "a" as object), ("2", "b")),
                     Seq<ActivityLink>.Empty,
                     DateTimeOffset.Now,
-                    A.kind.Zip(A.tags))
+                    A.kind.ZipIO(A.tags))
                 select result
             )
             .ArrangeAndAct();

@@ -110,7 +110,7 @@ public class Program
         // Run the queues in a forked task
         // Repeatedly read from the console and write to one of the two queues depending on
         // whether the first char is 1 or 2
-        var queueing = from _ in fork(Producer.merge(queues) | writeLine)
+        var queueing = from _ in forkIO(Producer.merge(queues) | writeLine)
                        from x in repeat(Console<Eff<Runtime>, Runtime>.readLines) | writeToQueue()
                        select unit;
 

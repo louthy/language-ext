@@ -91,126 +91,6 @@ public static partial class Prelude
     public static Eff<A> flatten<A>(Eff<Eff<A>> mma) =>
         mma.Flatten(); 
             
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Zipping
-    //
-
-    /// <summary>
-    /// Takes two IO monads and zips their result
-    /// </summary>
-    /// <remarks>
-    /// Asynchronous operations will run concurrently
-    /// </remarks>
-    /// <param name="tuple">Tuple of IO monads to run</param>
-    /// <typeparam name="RT">Runtime type</typeparam>
-    /// <typeparam name="E">Error type</typeparam>
-    /// <typeparam name="A">First IO monad bound value type</typeparam>
-    /// <typeparam name="B">Second IO monad bound value type</typeparam>
-    /// <returns>IO monad</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<(A First, B Second)> zip<A, B>(
-        (Eff<A> First, Eff<B> Second) tuple) =>
-        tuple.Zip(); 
-
-    /// <summary>
-    /// Takes two IO monads and zips their result
-    /// </summary>
-    /// <remarks>
-    /// Asynchronous operations will run concurrently
-    /// </remarks>
-    /// <param name="tuple">Tuple of IO monads to run</param>
-    /// <typeparam name="RT">Runtime type</typeparam>
-    /// <typeparam name="E">Error type</typeparam>
-    /// <typeparam name="A">First IO monad bound value type</typeparam>
-    /// <typeparam name="B">Second IO monad bound value type</typeparam>
-    /// <typeparam name="C">Third IO monad bound value type</typeparam>
-    /// <returns>IO monad</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<(A First, B Second, C Third)> zip<A, B, C>(
-        (Eff<A> First, Eff<B> Second, Eff<C> Third) tuple) =>
-        tuple.Zip(); 
-
-    /// <summary>
-    /// Takes two IO monads and zips their result
-    /// </summary>
-    /// <remarks>
-    /// Asynchronous operations will run concurrently
-    /// </remarks>
-    /// <param name="tuple">Tuple of IO monads to run</param>
-    /// <typeparam name="RT">Runtime type</typeparam>
-    /// <typeparam name="E">Error type</typeparam>
-    /// <typeparam name="A">First IO monad bound value type</typeparam>
-    /// <typeparam name="B">Second IO monad bound value type</typeparam>
-    /// <typeparam name="C">Third IO monad bound value type</typeparam>
-    /// <typeparam name="D">Fourth IO monad bound value type</typeparam>
-    /// <returns>IO monad</returns>
-    public static Eff<(A First, B Second, C Third, D Fourth)> zip<A, B, C, D>(
-        (Eff<A> First,
-            Eff<B> Second,
-            Eff<C> Third,
-            Eff<D> Fourth) tuple) =>
-        tuple.Zip(); 
-
-    /// <summary>
-    /// Takes two IO monads and zips their result
-    /// </summary>
-    /// <remarks>
-    /// Asynchronous operations will run concurrently
-    /// </remarks>
-    /// <param name="tuple">Tuple of IO monads to run</param>
-    /// <typeparam name="RT">Runtime type</typeparam>
-    /// <typeparam name="E">Error type</typeparam>
-    /// <typeparam name="A">First IO monad bound value type</typeparam>
-    /// <typeparam name="B">Second IO monad bound value type</typeparam>
-    /// <returns>IO monad</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<(A First, B Second)> zip<A, B>(
-        Eff<A> First,
-        Eff<B> Second) =>
-        (First, Second).Zip();
-
-    /// <summary>
-    /// Takes two IO monads and zips their result
-    /// </summary>
-    /// <remarks>
-    /// Asynchronous operations will run concurrently
-    /// </remarks>
-    /// <param name="tuple">Tuple of IO monads to run</param>
-    /// <typeparam name="RT">Runtime type</typeparam>
-    /// <typeparam name="E">Error type</typeparam>
-    /// <typeparam name="A">First IO monad bound value type</typeparam>
-    /// <typeparam name="B">Second IO monad bound value type</typeparam>
-    /// <typeparam name="C">Third IO monad bound value type</typeparam>
-    /// <returns>IO monad</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<(A First, B Second, C Third)> zip<A, B, C>(
-        Eff<A> First, 
-        Eff<B> Second, 
-        Eff<C> Third) =>
-        (First, Second, Third).Zip();
-
-    /// <summary>
-    /// Takes two IO monads and zips their result
-    /// </summary>
-    /// <remarks>
-    /// Asynchronous operations will run concurrently
-    /// </remarks>
-    /// <param name="tuple">Tuple of IO monads to run</param>
-    /// <typeparam name="RT">Runtime type</typeparam>
-    /// <typeparam name="E">Error type</typeparam>
-    /// <typeparam name="A">First IO monad bound value type</typeparam>
-    /// <typeparam name="B">Second IO monad bound value type</typeparam>
-    /// <typeparam name="C">Third IO monad bound value type</typeparam>
-    /// <typeparam name="D">Fourth IO monad bound value type</typeparam>
-    /// <returns>IO monad</returns>
-    public static Eff<(A First, B Second, C Third, D Fourth)> zip<A, B, C, D>(
-        Eff<A> First,
-        Eff<B> Second,
-        Eff<C> Third,
-        Eff<D> Fourth) =>
-        (First, Second, Third, Fourth).Zip();    
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Lifting
@@ -292,22 +172,6 @@ public static partial class Prelude
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> liftEff<A>(Func<Task<Fin<A>>> f) =>
         LanguageExt.Eff<A>.LiftIO(f);
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // 
-    // Forking
-    //
-
-    /// <summary>
-    /// Queue this IO operation to run on the thread-pool. 
-    /// </summary>
-    /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
-    /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
-    /// the forked IO operation or to await the result of it.
-    /// </returns>
-    [MethodImpl(Opt.Default)]
-    public static Eff<ForkIO<A>> fork<A>(Eff<A> ma, Option<TimeSpan> timeout = default) => 
-        ma.Fork(timeout);    
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -394,26 +258,6 @@ public static partial class Prelude
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> filter<A>(Eff<A> ma, Func<A, bool> predicate) =>
         ma.Filter(predicate);
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Synchronisation between contexts
-    //
-
-    /// <summary>
-    /// Make a transducer run on the `SynchronizationContext` that was captured at the start
-    /// of an `Invoke` call.
-    /// </summary>
-    /// <remarks>
-    /// The transducer receives its input value from the currently running sync-context and
-    /// then proceeds to run its operation in the captured `SynchronizationContext`:
-    /// typically a UI context, but could be any captured context.  The result of the
-    /// transducer is the received back on the currently running sync-context. 
-    /// </remarks>
-    /// <param name="f">Transducer</param>
-    /// <returns></returns>
-    public static Eff<A> post<A>(Eff<A> ma) =>
-        ma.Post();
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
