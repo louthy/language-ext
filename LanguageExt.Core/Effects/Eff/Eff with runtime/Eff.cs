@@ -692,7 +692,7 @@ public record Eff<RT, A>(ReaderT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchM<Error, Eff<RT>, A> mb) =>
-        ma.IfFailEff(e => mb.Match(e) ? mb.Value(e).As() : Fail(e));
+        (ma.Kind() | mb).As(); 
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
@@ -703,7 +703,7 @@ public record Eff<RT, A>(ReaderT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchM<Error, Eff, A> mb) =>
-        ma.IfFailEff(e => mb.Match(e) ? mb.Value(e).As().WithRuntime<RT>() : Fail(e));
+        ma.IfFailEff(e => mb.Match(e) ? mb.Action(e).As().WithRuntime<RT>() : Fail(e));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

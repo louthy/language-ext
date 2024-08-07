@@ -191,9 +191,37 @@ public abstract class Fin<A> :
         ma.FailValue;
 
     [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator |(Fin<A> left, Fin<A> right) =>
-        left.IsSucc ? left : right;
+    public static Fin<A> operator |(Fin<A> lhs, Fin<A> rhs) =>
+        lhs.Combine(rhs).As();
 
+    [Pure, MethodImpl(Opt.Default)]
+    public static Fin<A> operator |(K<Fin, A> lhs, Fin<A> rhs) =>
+        lhs.As().Combine(rhs).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Fin<A> operator |(Fin<A> lhs, K<Fin, A> rhs) =>
+        lhs.Combine(rhs.As()).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Fin<A> operator |(Fin<A> ma, Pure<A> mb) =>
+        ma.Combine(pure<Fin, A>(mb.Value)).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Fin<A> operator |(Fin<A> ma, Fail<Error> mb) =>
+        ma.Combine(fail<Error, Fin, A>(mb.Value)).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Fin<A> operator |(Fin<A> ma, Fail<Exception> mb) =>
+        ma.Combine(fail<Error, Fin, A>(mb.Value)).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Fin<A> operator |(Fin<A> ma, Error mb) =>
+        ma.Combine(fail<Error, Fin, A>(mb)).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Fin<A> operator |(Fin<A> ma, CatchM<Error, Fin, A> mb) =>
+        (ma.Kind() | mb).As();
+    
     [Pure, MethodImpl(Opt.Default)]
     public static bool operator true(Fin<A> ma) =>
         ma.IsSucc;

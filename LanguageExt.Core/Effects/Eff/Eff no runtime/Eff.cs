@@ -607,7 +607,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> operator |(Eff<A> ma, CatchM<Error, Eff, A> mb) =>
-        ma.IfFailEff(e => mb.Run(e, Fail(e)).As());
+        (ma.Kind() | mb).As(); 
 
     /// <summary>
     /// Convert to an `Eff` monad

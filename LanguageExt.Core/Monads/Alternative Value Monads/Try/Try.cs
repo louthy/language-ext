@@ -311,11 +311,7 @@ public record Try<A>(Func<Fin<A>> runTry) : K<Try, A>, Semigroup<Try<A>>
         ma.Combine((Error)mb);
 
     public static Try<A> operator |(Try<A> ma, CatchM<Error, Try, A> mb) =>
-        new(() => ma.Run() switch
-                  {
-                      Fin.Fail<A> (var err) when mb.Match(err) => mb.Value(err).Run(),
-                      var fa                                   => fa
-                  });
+        (ma.Kind() | mb).As(); 
 
     public Try<A> Combine(Try<A> rhs) =>
         new(() => this.Run() switch

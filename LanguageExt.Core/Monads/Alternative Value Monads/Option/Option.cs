@@ -308,12 +308,36 @@ public readonly struct Option<A> :
     /// <param name="lhs">Left hand side of the operation</param>
     /// <param name="rhs">Right hand side of the operation</param>
     /// <returns>if lhs is Some then lhs, else rhs</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Pure, MethodImpl(Opt.Default)]
     public static Option<A> operator |(Option<A> lhs, Option<A> rhs) =>
         lhs.IsSome
             ? lhs
             : rhs;
+    
+    [Pure, MethodImpl(Opt.Default)]
+    public static Option<A> operator |(K<Option, A> lhs, Option<A> rhs) =>
+        lhs.As().Combine(rhs).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Option<A> operator |(Option<A> lhs, K<Option, A> rhs) =>
+        lhs.Combine(rhs.As()).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Option<A> operator |(Option<A> ma, Pure<A> mb) =>
+        ma.Combine(pure<Option, A>(mb.Value)).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Option<A> operator |(Option<A> ma, Fail<Unit> mb) =>
+        ma.Combine(None).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Option<A> operator |(Option<A> ma, Unit _) =>
+        ma.Combine(None).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Option<A> operator |(Option<A> ma, CatchM<Unit, Option, A> mb) =>
+        (ma.Kind() | mb).As(); 
+    
 
     /// <summary>
     /// Truth operator

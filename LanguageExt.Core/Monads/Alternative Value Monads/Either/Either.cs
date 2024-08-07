@@ -549,31 +549,35 @@ public abstract record Either<L, R> :
     public static bool operator !=(Pure<R> lhs, Either<L, R> rhs) =>
         !(lhs == rhs);
 
-    /// <summary>
-    /// Override of the Or operator to be a Left coalescing operator
-    /// </summary>
-    [Pure]
+    [Pure, MethodImpl(Opt.Default)]
     public static Either<L, R> operator |(Either<L, R> lhs, Either<L, R> rhs) =>
-        (lhs, rhs) switch
-        {
-            (Either.Right<L, R>, _) => lhs,
-            _                       => rhs
-        };
+        lhs.Combine(rhs).As();
 
+    [Pure, MethodImpl(Opt.Default)]
+    public static Either<L, R> operator |(K<Either<L>, R> lhs, Either<L, R> rhs) =>
+        lhs.As().Combine(rhs).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Either<L, R> operator |(Either<L, R> lhs, K<Either<L>, R> rhs) =>
+        lhs.Combine(rhs.As()).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Either<L, R> operator |(Either<L, R> ma, Pure<R> mb) =>
+        ma.Combine(pure<Either<L>, R>(mb.Value)).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Either<L, R> operator |(Either<L, R> ma, Fail<L> mb) =>
+        ma.Combine(fail<L, Either<L>, R>(mb.Value)).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Either<L, R> operator |(Either<L, R> ma, L mb) =>
+        ma.Combine(fail<L, Either<L>, R>(mb)).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Either<L, R> operator |(Either<L, R> ma, CatchM<L, Either<L>, R> mb) =>
+        (ma.Kind() | mb).As();
+    
     /// <summary>
-    /// Override of the Or operator to be a Left coalescing operator
-    /// </summary>
-    [Pure]
-    public static Either<L, R> operator |(Either<L, R> lhs, Pure<R> rhs) =>
-        lhs | (Either<L, R>)rhs;
-
-    /// <summary>
-    /// Override of the Or operator to be a Left coalescing operator
-    /// </summary>
-    [Pure]
-    public static Either<L, R> operator |(Either<L, R> lhs, Fail<L> rhs) =>
-        lhs | (Either<L, R>)rhs;
-
     /// <summary>
     /// Override of the True operator to return True if the Either is Right
     /// </summary>

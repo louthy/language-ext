@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -8,18 +11,18 @@ namespace LanguageExt;
 /// </summary>
 /// <param name="runValidation">Transducer that represents the transformer operation</param>
 /// <typeparam name="M">Given monad trait</typeparam>
-/// <typeparam name="L">Left value type</typeparam>
+/// <typeparam name="F">Left value type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<ValidationT<L, M>, A>
+public record ValidationT<F, M, A>(K<M, Validation<F, A>> runValidation) : K<ValidationT<F, M>, A>
     where M : Monad<M>
-    where L : Monoid<L>
+    where F : Monoid<F>
 {
     /// <summary>
     /// Lift a pure value into the monad-transformer
     /// </summary>
     /// <param name="value">Value to lift</param>
     /// <returns>`ValidationT`</returns>
-    public static ValidationT<L, M, A> Success(A value) =>
+    public static ValidationT<F, M, A> Success(A value) =>
         Lift(M.Pure(value));
     
     /// <summary>
@@ -27,15 +30,15 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     /// </summary>
     /// <param name="value">Value to lift</param>
     /// <returns>`ValidationT`</returns>
-    public static ValidationT<L, M, A> Fail(L value) =>
-        Lift(Validation<L, A>.Fail(value));
+    public static ValidationT<F, M, A> Fail(F value) =>
+        Lift(Validation<F, A>.Fail(value));
 
     /// <summary>
     /// Lifts a given monad into the transformer
     /// </summary>
     /// <param name="pure">Monad to lift</param>
     /// <returns>`ValidationT`</returns>
-    public static ValidationT<L, M, A> Lift(Pure<A> pure) =>
+    public static ValidationT<F, M, A> Lift(Pure<A> pure) =>
         Success(pure.Value);
 
     /// <summary>
@@ -43,7 +46,7 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     /// </summary>
     /// <param name="Validation">Monad to lift</param>
     /// <returns>`ValidationT`</returns>
-    public static ValidationT<L, M, A> Lift(Validation<L, A> Validation) =>
+    public static ValidationT<F, M, A> Lift(Validation<F, A> Validation) =>
         new(M.Pure(Validation));
 
     /// <summary>
@@ -51,23 +54,23 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     /// </summary>
     /// <param name="fail">Monad to lift</param>
     /// <returns>`ValidationT`</returns>
-    public static ValidationT<L, M, A> Lift(Fail<L> fail) =>
-        Lift(Validation<L, A>.Fail(fail.Value));
+    public static ValidationT<F, M, A> Lift(Fail<F> fail) =>
+        Lift(Validation<F, A>.Fail(fail.Value));
 
     /// <summary>
     /// Lifts a given monad into the transformer
     /// </summary>
     /// <param name="monad">Monad to lift</param>
     /// <returns>`ValidationT`</returns>
-    public static ValidationT<L, M, A> Lift(K<M, A> monad) =>
-        new(M.Map(Validation<L, A>.Success, monad));
+    public static ValidationT<F, M, A> Lift(K<M, A> monad) =>
+        new(M.Map(Validation<F, A>.Success, monad));
 
     /// <summary>
     /// Lifts a given monad into the transformer
     /// </summary>
     /// <param name="monad">Monad to lift</param>
     /// <returns>`ValidationT`</returns>
-    public static ValidationT<L, M, A> LiftIO(IO<A> monad) =>
+    public static ValidationT<F, M, A> LiftIO(IO<A> monad) =>
         Lift(M.LiftIO(monad));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,10 +78,10 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     //  Match
     //
 
-    public K<M, B> Match<B>(Func<A, B> Succ, Func<L, B> Fail) =>
+    public K<M, B> Match<B>(Func<A, B> Succ, Func<F, B> Fail) =>
         M.Map(mx => mx.Match(Succ, Fail), runValidation);
  
-    public K<M, Validation<L, A>> Run() =>
+    public K<M, Validation<F, A>> Run() =>
         runValidation;
  
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -93,7 +96,7 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     /// <typeparam name="M1">Target monad type</typeparam>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>Mapped monad</returns>
-    public ValidationT<L, M1, B> MapT<M1, B>(Func<K<M, Validation<L, A>>, K<M1, Validation<L, B>>> f)
+    public ValidationT<F, M1, B> MapT<M1, B>(Func<K<M, Validation<F, A>>, K<M1, Validation<F, B>>> f)
         where M1 : Monad<M1> =>
         new (f(runValidation));
 
@@ -101,12 +104,12 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     /// Maps the given monad
     /// </summary>
     /// <param name="f">Mapping function</param>
-    public ValidationT<L, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
+    public ValidationT<F, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
         new(runValidation
                .Bind(fv => fv switch
                            {
-                               Validation.Success<L, A> (var v) => f(M.Pure(v)).Map(Validation<L, B>.Success),
-                               Validation.Fail<L, A> (var e)    => M.Pure<Validation<L, B>>(e),
+                               Validation.Success<F, A> (var v) => f(M.Pure(v)).Map(Validation<F, B>.Success),
+                               Validation.Fail<F, A> (var e)    => M.Pure<Validation<F, B>>(e),
                                _                                => throw new NotSupportedException()
                            }));
     
@@ -116,7 +119,7 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
-    public ValidationT<L, M, B> Map<B>(Func<A, B> f) =>
+    public ValidationT<F, M, B> Map<B>(Func<A, B> f) =>
         new(M.Map(mx => mx.Map(f), runValidation));
     
     /// <summary>
@@ -125,7 +128,7 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     /// <param name="f">Mapping transducer</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
-    public ValidationT<L, M, B> Select<B>(Func<A, B> f) =>
+    public ValidationT<F, M, B> Select<B>(Func<A, B> f) =>
         new(M.Map(mx => mx.Map(f), runValidation));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -139,7 +142,7 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
-    public ValidationT<L, M, B> Bind<B>(Func<A, K<ValidationT<L, M>, B>> f) =>
+    public ValidationT<F, M, B> Bind<B>(Func<A, K<ValidationT<F, M>, B>> f) =>
         Bind(x => f(x).As());
 
     /// <summary>
@@ -148,12 +151,12 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
-    public ValidationT<L, M, B> Bind<B>(Func<A, ValidationT<L, M, B>> f) =>
+    public ValidationT<F, M, B> Bind<B>(Func<A, ValidationT<F, M, B>> f) =>
         new(M.Bind(runValidation,
                    ea => ea.IsSuccess switch
                          {
                              true  => f(ea.SuccessValue).runValidation,
-                             false => M.Pure(Validation<L, B>.Fail(ea.FailValue))
+                             false => M.Pure(Validation<F, B>.Fail(ea.FailValue))
                          }));    
 
     /// <summary>
@@ -163,7 +166,7 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     /// <param name="Fail">Failure mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
-    public ValidationT<L, M, B> BiBind<B>(Func<A, ValidationT<L, M, B>> Succ, Func<L, ValidationT<L, M, B>> Fail) =>
+    public ValidationT<F, M, B> BiBind<B>(Func<A, ValidationT<F, M, B>> Succ, Func<F, ValidationT<F, M, B>> Fail) =>
         new(M.Bind(runValidation,
                    ea => ea.IsSuccess switch
                          {
@@ -177,7 +180,7 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     /// <param name="Fail">Failure mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
-    public ValidationT<L, M, A> BindFail(Func<L, ValidationT<L, M, A>> Fail) =>
+    public ValidationT<F, M, A> BindFail(Func<F, ValidationT<F, M, A>> Fail) =>
         BiBind(Success, Fail);
 
     /// <summary>
@@ -186,8 +189,8 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
-    public ValidationT<L, M, B> Bind<B>(Func<A, IO<B>> f) =>
-        Bind(a => ValidationT<L, M, B>.LiftIO(f(a)));
+    public ValidationT<F, M, B> Bind<B>(Func<A, IO<B>> f) =>
+        Bind(a => ValidationT<F, M, B>.LiftIO(f(a)));
 
     /// <summary>
     /// Monad bind operation
@@ -195,7 +198,7 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
-    public ValidationT<L, M, B> Bind<B>(Func<A, Pure<B>> f) =>
+    public ValidationT<F, M, B> Bind<B>(Func<A, Pure<B>> f) =>
         Map(a => f(a).Value);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -211,7 +214,7 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
-    public ValidationT<L, M, C> SelectMany<B, C>(Func<A, K<ValidationT<L, M>, B>> bind, Func<A, B, C> project) =>
+    public ValidationT<F, M, C> SelectMany<B, C>(Func<A, K<ValidationT<F, M>, B>> bind, Func<A, B, C> project) =>
         SelectMany(x => bind(x).As(), project);
 
     /// <summary>
@@ -222,7 +225,7 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
-    public ValidationT<L, M, C> SelectMany<B, C>(Func<A, ValidationT<L, M, B>> bind, Func<A, B, C> project) =>
+    public ValidationT<F, M, C> SelectMany<B, C>(Func<A, ValidationT<F, M, B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     /// <summary>
@@ -233,8 +236,8 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
-    public ValidationT<L, M, C> SelectMany<B, C>(Func<A, K<M, B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => ValidationT<L, M, B>.Lift(bind(x)), project);
+    public ValidationT<F, M, C> SelectMany<B, C>(Func<A, K<M, B>> bind, Func<A, B, C> project) =>
+        SelectMany(x => ValidationT<F, M, B>.Lift(bind(x)), project);
 
     /// <summary>
     /// Monad bind operation
@@ -244,8 +247,8 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
-    public ValidationT<L, M, C> SelectMany<B, C>(Func<A, Validation<L, B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => ValidationT<L, M, B>.Lift(bind(x)), project);
+    public ValidationT<F, M, C> SelectMany<B, C>(Func<A, Validation<F, B>> bind, Func<A, B, C> project) =>
+        SelectMany(x => ValidationT<F, M, B>.Lift(bind(x)), project);
 
     /// <summary>
     /// Monad bind operation
@@ -255,7 +258,7 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
-    public ValidationT<L, M, C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
+    public ValidationT<F, M, C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         Map(x => project(x, bind(x).Value));
 
     /// <summary>
@@ -266,7 +269,7 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
-    public ValidationT<L, M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
+    public ValidationT<F, M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
         SelectMany(x => M.LiftIO(bind(x)), project);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -274,19 +277,44 @@ public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<Val
     //  Operators
     //
 
-    public static implicit operator ValidationT<L, M, A>(Pure<A> ma) =>
+    public static implicit operator ValidationT<F, M, A>(Pure<A> ma) =>
         Success(ma.Value);
     
-    public static implicit operator ValidationT<L, M, A>(Fail<L> ma) =>
+    public static implicit operator ValidationT<F, M, A>(Fail<F> ma) =>
         Fail(ma.Value);
     
-    public static implicit operator ValidationT<L, M, A>(IO<A> ma) =>
+    public static implicit operator ValidationT<F, M, A>(IO<A> ma) =>
         LiftIO(ma);
 
-    public static ValidationT<L, M, A> operator |(ValidationT<L, M, A> ma, ValidationT<L, M, A> mb) =>
-        new(M.Bind(ma.runValidation, ea => M.Map(eb => ea | eb, mb.runValidation)));
+    [Pure, MethodImpl(Opt.Default)]
+    public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, ValidationT<F, M, A> rhs) =>
+        lhs.Combine(rhs).As();
 
-    public static ValidationT<L, M, Seq<A>> operator &(ValidationT<L, M, A> ma, ValidationT<L, M, A> mb) =>
+    [Pure, MethodImpl(Opt.Default)]
+    public static ValidationT<F, M, A> operator |(K<ValidationT<F, M>, A> lhs, ValidationT<F, M, A> rhs) =>
+        lhs.As().Combine(rhs).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, K<ValidationT<F, M>, A> rhs) =>
+        lhs.Combine(rhs.As()).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> ma, Pure<A> mb) =>
+        ma.Combine(pure<ValidationT<F, M>, A>(mb.Value)).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> ma, Fail<F> mb) =>
+        ma.Combine(fail<F, ValidationT<F, M>, A>(mb.Value)).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> ma, F mb) =>
+        ma.Combine(fail<F, ValidationT<F, M>, A>(mb)).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> ma, CatchM<F, ValidationT<F, M>, A> mb) =>
+        (ma.Kind() | mb).As();
+
+    public static ValidationT<F, M, Seq<A>> operator &(ValidationT<F, M, A> ma, ValidationT<F, M, A> mb) =>
         new(M.Bind(ma.runValidation, ea => M.Map(eb => ea & eb, mb.runValidation)));
     
 }

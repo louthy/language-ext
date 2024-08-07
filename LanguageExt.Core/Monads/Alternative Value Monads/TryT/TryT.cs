@@ -322,16 +322,7 @@ public record TryT<M, A>(K<M, Try<A>> runTry) : K<TryT<M>, A>, Semigroup<TryT<M,
         ma.Combine(mb);
 
     public static TryT<M, A> operator |(TryT<M, A> ma, CatchM<Error, TryT<M>, A> mb) =>
-        new(ma.Run()
-              .Map(fa => fa switch
-                         {
-                             Fin.Fail<A> (var err) when mb.Match(err) => mb.Value(err).As(),
-                             Fin.Fail<A> (var err)                    => Fail(err),
-                             Fin.Succ<A> (var val)                    => Succ(val),
-                             _                                        => throw new NotSupportedException()
-                         })
-              .Map(ta => ta.runTry)
-              .Flatten());
+        (ma.Kind() | mb).As(); 
 
     public TryT<M, A> Combine(TryT<M, A> rhs) =>
         new(this.Run().Bind(

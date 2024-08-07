@@ -410,20 +410,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         ma.Or(mb);
 
     public static IO<A> operator |(IO<A> ma, CatchM<Error, IO, A> mb) =>
-        new(env =>
-            {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-                try
-                {
-                    return ma.Run(env);
-                }
-                catch (Exception ex)
-                {
-                    var err = Error.New(ex);
-                    if(mb.Match(err)) return mb.Value(err).As().Run(env);
-                    throw;
-                }
-            });
+        (ma.Kind() | mb).As(); 
 
     public static IO<A> operator |(IO<A> ma, Exception mb) =>
         new(env =>

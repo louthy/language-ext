@@ -2,6 +2,7 @@
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -355,7 +356,7 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //  Conversion operators
+    //  Oerators
     //
     
     public static implicit operator OptionT<M, A>(Option<A> ma) =>
@@ -387,4 +388,26 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
 
     public EitherT<L, M, A> ToEither<L>() where L : Monoid<L> =>
         new(runOption.Map(ma => ma.ToEither<L>()));
+    
+    public static OptionT<M, A> operator |(OptionT<M, A> lhs, OptionT<M, A> rhs) =>
+        lhs.Combine(rhs).As();
+
+    public static OptionT<M, A> operator |(K<OptionT<M>, A> lhs, OptionT<M, A> rhs) =>
+        lhs.As().Combine(rhs).As();
+
+    public static OptionT<M, A> operator |(OptionT<M, A> lhs, K<OptionT<M>, A> rhs) =>
+        lhs.Combine(rhs).As();
+
+    public static OptionT<M, A> operator |(OptionT<M, A> ma, Pure<A> mb) =>
+        ma.Combine(pure<OptionT<M>, A>(mb.Value)).As();
+
+    public static OptionT<M, A> operator |(OptionT<M, A> ma, Fail<Unit> _) =>
+        ma.Combine(fail<Unit, OptionT<M>, A>(default)).As();
+
+    public static OptionT<M, A> operator |(OptionT<M, A> ma, Unit _) =>
+        ma.Combine(fail<Unit, OptionT<M>, A>(default)).As();
+
+    public static OptionT<M, A> operator |(OptionT<M, A> ma, CatchM<Unit, OptionT<M>, A> mb) =>
+        (ma.Kind() | mb).As(); 
+    
 }

@@ -91,8 +91,8 @@ public static partial class EffExtensions
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Bound value</typeparam>
     /// <returns>Flattened IO monad</returns>
-    public static Eff<RT, A> Flatten<RT, A>(this Eff<RT, Eff<RT, A>> mma) =>
-        mma.Bind(ma => ma);
+    public static Eff<RT, A> Flatten<RT, A>(this K<Eff<RT>, Eff<RT, A>> mma) =>
+        mma.As().Bind(ma => ma);
 
     /// <summary>
     /// Monadic join operator 
@@ -104,8 +104,8 @@ public static partial class EffExtensions
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Bound value</typeparam>
     /// <returns>Flattened IO monad</returns>
-    public static Eff<RT, A> Flatten<RT, A>(this Eff<RT, K<Eff<RT>, A>> mma) =>
-        mma.Bind(ma => ma);
+    public static Eff<RT, A> Flatten<RT, A>(this K<Eff<RT>, K<Eff<RT>, A>> mma) =>
+        mma.As().Bind(ma => ma);
     
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

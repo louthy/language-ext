@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -404,7 +406,7 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) : K<EitherT<L, M>, 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //  Conversion operators
+    //  Operators
     //
 
     public static implicit operator EitherT<L, M, R>(Either<L, R> ma) =>
@@ -427,6 +429,34 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) : K<EitherT<L, M>, 
     
     public static implicit operator EitherT<L, M, R>(IO<Either<L, R>> ma) =>
         LiftIO(ma);
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static EitherT<L, M, R> operator |(EitherT<L, M, R> lhs, EitherT<L, M, R> rhs) =>
+        lhs.Combine(rhs).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static EitherT<L, M, R> operator |(K<EitherT<L, M>, R> lhs, EitherT<L, M, R> rhs) =>
+        lhs.As().Combine(rhs).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static EitherT<L, M, R> operator |(EitherT<L, M, R> lhs, K<EitherT<L, M>, R> rhs) =>
+        lhs.Combine(rhs.As()).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static EitherT<L, M, R> operator |(EitherT<L, M, R> ma, Pure<R> mb) =>
+        ma.Combine(pure<EitherT<L, M>, R>(mb.Value)).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static EitherT<L, M, R> operator |(EitherT<L, M, R> ma, Fail<L> mb) =>
+        ma.Combine(fail<L, EitherT<L, M>, R>(mb.Value)).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static EitherT<L, M, R> operator |(EitherT<L, M, R> ma, L mb) =>
+        ma.Combine(fail<L, EitherT<L, M>, R>(mb)).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static EitherT<L, M, R> operator |(EitherT<L, M, R> ma, CatchM<L, EitherT<L, M>, R> mb) =>
+        (ma.Kind() | mb).As();
 
     public OptionT<M, R> ToOption() =>
         new(runEither.Map(ma => ma.ToOption()));

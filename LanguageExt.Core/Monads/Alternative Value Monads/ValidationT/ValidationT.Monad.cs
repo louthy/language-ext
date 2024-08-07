@@ -1,5 +1,6 @@
 ﻿using System;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -35,7 +36,7 @@ public partial class ValidationT<F, M> :
     static K<ValidationT<F, M>, B> Applicative<ValidationT<F, M>>.Action<A, B>(
         K<ValidationT<F, M>, A> ma, 
         K<ValidationT<F, M>, B> mb) =>
-        Prelude.fun((A _, B b) => b).Map(ma).Apply(mb).As();
+        fun((A _, B b) => b).Map(ma).Apply(mb).As();
 
     static K<ValidationT<F, M>, A> MonadT<ValidationT<F, M>, M>.Lift<A>(K<M, A> ma) => 
         ValidationT<F, M, A>.Lift(ma);
@@ -49,7 +50,7 @@ public partial class ValidationT<F, M> :
     static K<ValidationT<F, M>, A> SemigroupK<ValidationT<F, M>>.Combine<A>(
         K<ValidationT<F, M>, A> ma,
         K<ValidationT<F, M>, A> mb) =>
-        ma.As() | mb.As();
+        new ValidationT<F, M, A>(M.Bind(ma.As().runValidation, ea => M.Map(eb => ea | eb, mb.As().runValidation)));
 
     static K<ValidationT<F, M>, A> Fallible<F, ValidationT<F, M>>.Fail<A>(F error) => 
         ValidationT<F, M, A>.Fail(error);

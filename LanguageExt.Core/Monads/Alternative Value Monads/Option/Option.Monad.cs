@@ -48,7 +48,11 @@ public class Option :
         None<A>();
 
     static K<Option, A> SemigroupK<Option>.Combine<A>(K<Option, A> ma, K<Option, A> mb) =>
-        ma.As() || mb.As();
+        ma.As() switch
+        {
+            { IsSome: true } => ma,
+            _                => mb
+        };
 
     static K<Option, X> Some<X>(X value) =>
         Option<X>.Some(value);

@@ -439,6 +439,30 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) : K<FinT<M>, A>
     public static implicit operator FinT<M, A>(IO<Fin<A>> ma) =>
         LiftIO(ma);
 
+    public static FinT<M, A> operator |(FinT<M, A> lhs, FinT<M, A> rhs) =>
+        lhs.Combine(rhs).As();
+
+    public static FinT<M, A> operator |(K<FinT<M>, A> lhs, FinT<M, A> rhs) =>
+        lhs.As().Combine(rhs).As();
+
+    public static FinT<M, A> operator |(FinT<M, A> lhs, K<FinT<M>, A> rhs) =>
+        lhs.Combine(rhs.As()).As();
+
+    public static FinT<M, A> operator |(FinT<M, A> ma, Pure<A> mb) =>
+        ma.Combine(pure<FinT<M>, A>(mb.Value)).As();
+
+    public static FinT<M, A> operator |(FinT<M, A> ma, Fail<Error> mb) =>
+        ma.Combine(fail<Error, FinT<M>, A>(mb.Value)).As();
+
+    public static FinT<M, A> operator |(FinT<M, A> ma, Fail<Exception> mb) =>
+        ma.Combine(fail<Error, FinT<M>, A>(mb.Value)).As();
+
+    public static FinT<M, A> operator |(FinT<M, A> ma, Error mb) =>
+        ma.Combine(fail<Error, FinT<M>, A>(mb)).As();
+
+    public static FinT<M, A> operator |(FinT<M, A> ma, CatchM<Error, FinT<M>, A> mb) =>
+        (ma.Kind() | mb).As();
+    
     public OptionT<M, A> ToOption() =>
         new(runFin.Map(ma => ma.ToOption()));
 
