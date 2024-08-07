@@ -62,7 +62,7 @@ public static partial class IOExtensions
     /// <param name="ma">Computation to run within the local context</param>
     /// <typeparam name="A">Bound value</typeparam>
     /// <returns>Result of the computation</returns>
-    public static K<M, A> Local<M, A>(this K<M, A> ma) 
+    public static K<M, A> LocalIO<M, A>(this K<M, A> ma) 
         where M : Monad<M> =>
         ma.MapIO(io => io.Local());
 
@@ -87,7 +87,7 @@ public static partial class IOExtensions
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static K<M, A> Post<M, A>(this K<M, A> ma)
+    public static K<M, A> PostIO<M, A>(this K<M, A> ma)
         where M : Monad<M> =>
         ma.MapIO(io => io.Post());        
 
@@ -119,7 +119,7 @@ public static partial class IOExtensions
     [Pure]
     [MethodImpl(Opt.Default)]
     public static K<M, A> TimeoutIO<M, A>(this K<M, A> ma, TimeSpan timeout)
-        where M : Monad<M> =>
+        where M : Monad<M>, MonadIO<M> =>
         ma.MapIO(io => io.Timeout(timeout));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

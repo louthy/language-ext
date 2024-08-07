@@ -49,7 +49,7 @@ public static partial class Prelude
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static K<M, A> postIO<M, A>(K<M, A> ma)
         where M : Monad<M> =>
-        ma.Post();        
+        ma.PostIO();        
 
     /// <summary>
     /// Queue this IO operation to run on the thread-pool. 

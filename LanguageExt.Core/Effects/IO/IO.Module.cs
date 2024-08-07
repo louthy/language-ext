@@ -46,7 +46,7 @@ public partial class IO
     /// <returns>Result of the computation</returns>
     public static K<M, A> local<M, A>(K<M, A> ma) 
         where M : Monad<M> =>
-        ma.Local();
+        ma.LocalIO();
     
     public static IO<A> lift<A>(Either<Error, A> ma) =>
         ma switch
