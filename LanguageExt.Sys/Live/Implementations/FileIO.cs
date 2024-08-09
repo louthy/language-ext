@@ -33,7 +33,7 @@ public record FileIO : Sys.Traits.FileIO
     /// Read all lines from a file
     /// </summary>
     public IO<Seq<string>> ReadAllLines(string path, Encoding encoding) =>
-        liftIO(async env => (await File.ReadAllLinesAsync(path, encoding, env.Token).ConfigureAwait(false)).AsEnumerableM().ToSeq());
+        liftIO(async env => (await File.ReadAllLinesAsync(path, encoding, env.Token).ConfigureAwait(false)).AsIterable().ToSeq());
 
     /// <summary>
     /// Write all lines to a file
@@ -110,24 +110,24 @@ public record FileIO : Sys.Traits.FileIO
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    public IO<Stream> OpenRead(string path) =>
-        lift<Stream>(() =>File.OpenRead(path));
+    public IO<System.IO.Stream> OpenRead(string path) =>
+        lift<System.IO.Stream>(() =>File.OpenRead(path));
 
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    public IO<Stream> Open(string path, FileMode mode) =>
-        lift<Stream>(() => File.Open(path, mode));
+    public IO<System.IO.Stream> Open(string path, FileMode mode) =>
+        lift<System.IO.Stream>(() => File.Open(path, mode));
         
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    public IO<Stream> Open(string path, FileMode mode, FileAccess access) =>
-        lift<Stream>(() =>File.Open(path, mode, access));
+    public IO<System.IO.Stream> Open(string path, FileMode mode, FileAccess access) =>
+        lift<System.IO.Stream>(() =>File.Open(path, mode, access));
         
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    public IO<Stream> OpenWrite(string path) =>
-        lift<Stream>(() =>File.OpenWrite(path));
+    public IO<System.IO.Stream> OpenWrite(string path) =>
+        lift<System.IO.Stream>(() =>File.OpenWrite(path));
 }

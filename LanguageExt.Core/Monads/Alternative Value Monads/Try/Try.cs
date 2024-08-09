@@ -11,7 +11,8 @@ namespace LanguageExt;
 /// <param name="runEither">Transducer that represents the transformer operation</param>
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public record Try<A>(Func<Fin<A>> runTry) : K<Try, A>, Semigroup<Try<A>>
+public record Try<A>(Func<Fin<A>> runTry) : 
+    Fallible<Try<A>, Try, Error, A>
 {
     /// <summary>
     /// Lift a pure value into the monad-transformer
@@ -295,13 +296,7 @@ public record Try<A>(Func<Fin<A>> runTry) : K<Try, A>, Semigroup<Try<A>>
     public static Try<A> operator |(Try<A> ma, Pure<A> mb) =>
         ma.Combine(mb);
 
-    public static Try<A> operator |(Try<A> ma, A mb) =>
-        ma | pure<Try, A>(mb);
-
     public static Try<A> operator |(Try<A> ma, Fail<Error> mb) =>
-        ma.Combine(mb);
-
-    public static Try<A> operator |(Try<A> ma, Error mb) =>
         ma.Combine(mb);
 
     public static Try<A> operator |(Try<A> ma, Fail<Exception> mb) =>

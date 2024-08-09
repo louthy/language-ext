@@ -40,7 +40,7 @@ public record ActivitySourceIO(ActivityEnv Env) : LanguageExt.Sys.Traits.Activit
                  name,
                  kind,
                  parentContext,
-                 tags.AsEnumerable().Map(pair => new KeyValuePair<string, object?>(pair.Key, pair.Value)),
+                 tags.AsIterable().Map(pair => new KeyValuePair<string, object?>(pair.Key, pair.Value)),
                  links,
                  startTime));
 
@@ -66,7 +66,7 @@ public record ActivitySourceIO(ActivityEnv Env) : LanguageExt.Sys.Traits.Activit
                  name,
                  kind,
                  parentId,
-                 tags.AsEnumerable().Map(pair => new KeyValuePair<string, object?>(pair.Key, pair.Value)),
+                 tags.AsIterable().Map(pair => new KeyValuePair<string, object?>(pair.Key, pair.Value)),
                  links,
                  startTime));
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -14,7 +13,8 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="L">Left value type</typeparam>
 /// <typeparam name="R">Bound value type</typeparam>
-public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) : K<EitherT<L, M>, R>
+public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) : 
+    Fallible<EitherT<L, M, R>, EitherT<L, M>, L, R>
     where M : Monad<M>
 {
     /// <summary>
@@ -417,7 +417,10 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) : K<EitherT<L, M>, 
     
     public static implicit operator EitherT<L, M, R>(Fail<L> ma) =>
         Lift(Either<L, R>.Left(ma.Value));
-    
+
+    public static implicit operator EitherT<L, M, R>(L fail) => 
+        Lift(Either<L, R>.Left(fail));
+
     public static implicit operator EitherT<L, M, R>(IO<R> ma) =>
         LiftIO(ma);
     
@@ -441,6 +444,9 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) : K<EitherT<L, M>, 
     [Pure, MethodImpl(Opt.Default)]
     public static EitherT<L, M, R> operator |(EitherT<L, M, R> lhs, K<EitherT<L, M>, R> rhs) =>
         lhs.Combine(rhs.As()).As();
+
+    public static EitherT<L, M, R> operator |(EitherT<L, M, R> ma, R b) => 
+        ma.Combine(pure<EitherT<L, M>, R>(b)).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static EitherT<L, M, R> operator |(EitherT<L, M, R> ma, Pure<R> mb) =>

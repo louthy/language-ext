@@ -11,7 +11,8 @@ namespace LanguageExt;
 /// <param name="runEither">Transducer that represents the transformer operation</param>
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public record TryT<M, A>(K<M, Try<A>> runTry) : K<TryT<M>, A>, Semigroup<TryT<M, A>>
+public record TryT<M, A>(K<M, Try<A>> runTry) : 
+    Fallible<TryT<M, A>, TryT<M>, Error, A>
     where M : Monad<M>
 {
     /// <summary>
@@ -316,9 +317,6 @@ public record TryT<M, A>(K<M, Try<A>> runTry) : K<TryT<M>, A>, Semigroup<TryT<M,
         ma.Combine(mb);
 
     public static TryT<M, A> operator |(TryT<M, A> ma, Fail<Exception> mb) =>
-        ma.Combine(mb);
-
-    public static TryT<M, A> operator |(TryT<M, A> ma, Error mb) =>
         ma.Combine(mb);
 
     public static TryT<M, A> operator |(TryT<M, A> ma, CatchM<Error, TryT<M>, A> mb) =>

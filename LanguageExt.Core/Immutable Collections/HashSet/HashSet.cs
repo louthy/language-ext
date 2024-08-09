@@ -454,8 +454,8 @@ public readonly struct HashSet<A> :
         CollectionFormat.ToFullArrayString(this, separator);
 
     [Pure]
-    public EnumerableM<A> AsEnumerable() =>
-        new(this);
+    public Iterable<A> AsIterable() =>
+        IterableExtensions.AsIterable(this);
 
     /// <summary>
     /// Implicit conversion from an untyped empty list
@@ -630,7 +630,7 @@ public readonly struct HashSet<A> :
 
         IEnumerable<B> Yield()
         {
-            foreach (var x in self.AsEnumerable())
+            foreach (var x in self.AsIterable())
             {
                 foreach (var y in f(x))
                 {
@@ -648,7 +648,7 @@ public readonly struct HashSet<A> :
 
         IEnumerable<C> Yield()
         {
-            foreach (var x in self.AsEnumerable())
+            foreach (var x in self.AsIterable())
             {
                 foreach (var y in bind(x))
                 {

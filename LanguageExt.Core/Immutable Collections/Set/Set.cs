@@ -219,7 +219,7 @@ public readonly struct Set<A> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
     /// <returns>Range of values</returns>
     [Pure]
-    public EnumerableM<A> FindRange(A keyFrom, A keyTo) => Value.FindRange(keyFrom, keyTo);
+    public Iterable<A> FindRange(A keyFrom, A keyTo) => Value.FindRange(keyFrom, keyTo);
 
     /// <summary>
     /// Retrieve the value from previous item to specified key
@@ -328,6 +328,7 @@ public readonly struct Set<A> :
     /// <returns>IEnumerator</returns>
     [Pure]
     IEnumerator IEnumerable.GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         Value.GetEnumerator();
 
     /// <summary>
@@ -578,7 +579,7 @@ public readonly struct Set<A> :
     /// <returns>True if sets are equal</returns>
     [Pure]
     public bool Equals(Set<A> other) =>
-        Value.SetEquals(other.Value.AsEnumerable());
+        Value.SetEquals(other.Value.AsIterable());
 
     /// <summary>
     /// Equality operator
@@ -666,8 +667,8 @@ public readonly struct Set<A> :
         toSeq(this);
 
     [Pure]
-    public EnumerableM<A> AsEnumerable() =>
-        new(this);
+    public Iterable<A> AsEnumerable() =>
+        Iterable.createRange(this);
 
     [Pure]
     public Set<B> Select<B>(Func<A, B> f) =>
@@ -714,7 +715,7 @@ public readonly struct Set<A> :
     }
 
     [Pure]
-    public EnumerableM<A> Skip(int amount) =>
+    public Iterable<A> Skip(int amount) =>
         Value.Skip(amount);
 
     [Pure]

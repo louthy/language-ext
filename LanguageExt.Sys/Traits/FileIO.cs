@@ -74,20 +74,20 @@ public interface FileIO
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    IO<Stream> OpenRead(string path);
+    IO<System.IO.Stream> OpenRead(string path);
 
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    IO<Stream> Open(string path, FileMode mode);
+    IO<System.IO.Stream> Open(string path, FileMode mode);
 
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    IO<Stream> Open(string path, FileMode mode, FileAccess access);
+    IO<System.IO.Stream> Open(string path, FileMode mode, FileAccess access);
 
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    IO<Stream> OpenWrite(string path);
+    IO<System.IO.Stream> OpenWrite(string path);
 }

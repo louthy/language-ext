@@ -8,19 +8,19 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public static class EnumerableMExtensions
+public static class IterableExtensions
 {
-    public static EnumerableM<A> As<A>(this K<EnumerableM, A> xs) =>
-        (EnumerableM<A>)xs;
+    public static Iterable<A> As<A>(this K<Iterable, A> xs) =>
+        (Iterable<A>)xs;
     
-    public static EnumerableM<A> AsEnumerableM<A>(this IEnumerable<A> xs) =>
-        new (xs);
+    public static Iterable<A> AsIterable<A>(this IEnumerable<A> xs) =>
+        new IterableEnumerable<A>(xs);
     
     /// <summary>
     /// Monadic join
     /// </summary>
     [Pure]
-    public static EnumerableM<A> Flatten<A>(this EnumerableM<EnumerableM<A>> ma) =>
+    public static Iterable<A> Flatten<A>(this Iterable<Iterable<A>> ma) =>
         ma.Bind(identity);
 
     /// <summary>
@@ -32,10 +32,10 @@ public static class EnumerableMExtensions
     /// <param name="selector">Selector function</param>
     /// <returns>Mapped and filtered sequence</returns>
     [Pure]
-    public static EnumerableM<B> Choose<A, B>(this EnumerableM<A> list, Func<A, Option<B>> selector) =>
-        EnumerableM.choose(list, selector);
+    public static Iterable<B> Choose<A, B>(this Iterable<A> list, Func<A, Option<B>> selector) =>
+        Iterable.choose(list, selector);
 
     [Pure]
-    public static EnumerableM<T> Rev<T>(this EnumerableM<T> list) =>
-        EnumerableM.rev(list);
+    public static Iterable<T> Rev<T>(this Iterable<T> list) =>
+        Iterable.rev(list);
 }

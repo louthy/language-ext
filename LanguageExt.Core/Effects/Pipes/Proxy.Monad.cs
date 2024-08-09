@@ -1,5 +1,6 @@
 using System;
-using System.Linq;
+using System.Collections.Generic;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
@@ -31,27 +32,13 @@ public class Proxy<UOut, UIn, DIn, DOut, M> :
     static K<Proxy<UOut, UIn, DIn, DOut, M>, A> MonadT<Proxy<UOut, UIn, DIn, DOut, M>, M>.Lift<A>(K<M, A> ma) =>
         Proxy.lift<UOut, UIn, DIn, DOut, M, A>(ma);
 
-    public static K<Proxy<UOut, UIn, DIn, DOut, M>, A> LiftIO<A>(IO<A> ma) => 
+    static K<Proxy<UOut, UIn, DIn, DOut, M>, A> MonadIO<Proxy<UOut, UIn, DIn, DOut, M>>.LiftIO<A>(IO<A> ma) => 
         Proxy.lift<UOut, UIn, DIn, DOut, M, A>(M.LiftIO(ma));
 
-    public static K<Proxy<UOut, UIn, DIn, DOut, M>, IO<A>> ToIO<A>(K<Proxy<UOut, UIn, DIn, DOut, M>, A> ma)
-    {
-        return Proxy.lift<UOut, UIn, DIn, DOut, M, IO<A>>(Go(ma.As()));
-        
-        K<M, IO<R>> Go<R>(Proxy<UOut, UIn, DIn, DOut, M, R> p) =>
-            p.ToProxy() switch
-            {
-                ProxyM<UOut, UIn, DIn, DOut, M, R> (var mx) => mx.Bind(x => Go(x)),
-                Pure<UOut, UIn, DIn, DOut, M, R> (var r)    => M.Pure(IO.pure(r)),
-                Iterator<UOut, UIn, DIn, DOut, M, R> iter   => runIterator(iter),
-                Request<UOut, UIn, DIn, DOut, M, R>         => throw new InvalidOperationException("ToIO only supported for closed Effects"),
-                Respond<UOut, UIn, DIn, DOut, M, R>         => throw new InvalidOperationException("ToIO only supported for closed Effects"),
-                _                                           => throw new NotSupportedException()
-            };
-        
-        K<M, IO<R>> runIterator<R>(Iterator<UOut, UIn, DIn, DOut, M, R> iter) =>
-            from _ in iter.Run().Select(Go).Actions()
-            from r in Go(iter.Next())
-            select r;
-    }
+    static K<Proxy<UOut, UIn, DIn, DOut, M>, IO<A>> MonadIO<Proxy<UOut, UIn, DIn, DOut, M>>.ToIO<A>(K<Proxy<UOut, UIn, DIn, DOut, M>, A> ma) =>
+        ma.As().ToIO();
+
+    static K<Proxy<UOut, UIn, DIn, DOut, M>, A> Applicative<Proxy<UOut, UIn, DIn, DOut, M>>.Actions<A>(
+        IEnumerable<K<Proxy<UOut, UIn, DIn, DOut, M>, A>> fas) =>
+        fas.AsIterable().Map(fa => fa.ToIO()).Actions().Bind(io => io);
 }

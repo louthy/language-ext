@@ -27,7 +27,7 @@ public static class MonoidK
     [Pure]
     public static K<M, A> combine<M, A>(K<M, A> mx, K<M, A> my, K<M, A> mz, params K<M, A>[] xs)
         where M : MonoidK<M> =>
-        xs.AsEnumerableM().Fold(combine(combine(mx, my), mz), combine);
+        xs.AsIterable().Fold(combine(combine(mx, my), mz), combine);
 
     /// <summary>
     /// Fold a list using the monoid.
@@ -35,7 +35,7 @@ public static class MonoidK
     [Pure]
     public static K<M, A> combine<M, A>(IEnumerable<K<M, A>> xs)
         where M : MonoidK<M> =>
-        xs.AsEnumerableM().Fold(M.Empty<A>(), combine);
+        xs.AsIterable().Fold(M.Empty<A>(), combine);
 
     /// <summary>
     /// Fold a list using the monoid.

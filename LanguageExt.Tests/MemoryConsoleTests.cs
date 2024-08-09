@@ -16,7 +16,7 @@ public class MemoryConsoleTests
     [InlineData("abc\ndef\n")]
     public void Write_line(string unsplitLines)
     {
-        var lines = unsplitLines.Split('\n').AsEnumerableM().ToSeq();
+        var lines = unsplitLines.Split('\n').AsIterable().ToSeq();
         var rt    = Runtime.New();
 
         var xs = lines.Traverse(Either<Unit, string>.Right);
@@ -24,7 +24,7 @@ public class MemoryConsoleTests
         var comp = lines.Traverse(Console.writeLine).As();
         comp.Run(rt, EnvIO.New()).ThrowIfFail();
 
-        var clines = rt.Env.Console.AsEnumerableM().ToSeq();
+        var clines = rt.Env.Console.AsIterable().ToSeq();
         Assert.True(lines == clines, $"sequences don't match {lines} != {clines}");
     }
         
@@ -38,7 +38,7 @@ public class MemoryConsoleTests
     {
         // Prep the runtime and the keyboard buffer with the typed lines
         var rt    = Runtime.New();
-        var lines = unsplitLines.Split('\n').AsEnumerableM().ToSeq();
+        var lines = unsplitLines.Split('\n').AsIterable().ToSeq();
         lines.Iter(line => rt.Env.Console.WriteKeyLine(line));
 
         // test
@@ -48,6 +48,6 @@ public class MemoryConsoleTests
             
         // run and assert
         comp.Run(rt, EnvIO.New()).ThrowIfFail();
-        Assert.True(lines == rt.Env.Console.AsEnumerableM().ToSeq(), "sequences don't match");
+        Assert.True(lines == rt.Env.Console.AsIterable().ToSeq(), "sequences don't match");
     }
 }

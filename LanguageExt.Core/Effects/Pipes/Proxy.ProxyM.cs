@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
@@ -58,6 +59,16 @@ internal record ProxyM<UOut, UIn, DIn, DOut, M, A>(K<M, Proxy<UOut, UIn, DIn, DO
     public override Proxy<UOut, UIn, DIn, DOut, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
         new ProxyM<UOut, UIn, DIn, DOut, M, B>(M.Map(p => p.MapM(f), Value));
     
+    /// <summary>
+    /// Extract the lifted IO monad (if there is one)
+    /// </summary>
+    /// <param name="f">The map function</param>
+    /// <returns>A new `Proxy` that represents the innermost IO monad, if it exists.</returns>
+    /// <exception cref="ExceptionalException">`Errors.UnliftIONotSupported` if there's no IO monad in the stack</exception>
+    [Pure]
+    public override Proxy<UOut, UIn, DIn, DOut, M, IO<A>> ToIO() =>
+        new ProxyM<UOut, UIn, DIn, DOut, M, IO<A>>(M.Map(p => p.ToIO(), Value));
+
     /// <summary>
     /// `For(body)` loops over the `Proxy p` replacing each `yield` with `body`
     /// </summary>

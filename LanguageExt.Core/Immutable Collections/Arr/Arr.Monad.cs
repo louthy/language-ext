@@ -96,8 +96,8 @@ public partial class Arr : Monad<Arr>, MonoidK<Arr>, Traversable<Arr>
     static Lst<A> Foldable<Arr>.ToLst<A>(K<Arr, A> ta) =>
         new(ta.As());
 
-    static EnumerableM<A> Foldable<Arr>.ToEnumerable<A>(K<Arr, A> ta) =>
-        new(ta.As());
+    static Iterable<A> Foldable<Arr>.ToIterable<A>(K<Arr, A> ta) =>
+        ta.As().AsIterable();
     
     static Seq<A> Foldable<Arr>.ToSeq<A>(K<Arr, A> ta) =>
         Seq.FromArray(ta.As().Value);

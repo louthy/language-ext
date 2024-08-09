@@ -619,7 +619,7 @@ public readonly struct HashMap<EqK, K, V> :
     /// Enumerable of map keys
     /// </summary>
     [Pure]
-    public EnumerableM<K> Keys
+    public Iterable<K> Keys
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Value.Keys;
@@ -629,7 +629,7 @@ public readonly struct HashMap<EqK, K, V> :
     /// Enumerable of map values
     /// </summary>
     [Pure]
-    public EnumerableM<V> Values
+    public Iterable<V> Values
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Value.Values;
@@ -644,7 +644,7 @@ public readonly struct HashMap<EqK, K, V> :
         Func<(K Key, V Value), KR> keySelector, 
         Func<(K Key, V Value), VR> valueSelector)
         where KR : notnull =>
-        Value.AsEnumerable().ToDictionary(keySelector, valueSelector);
+        Value.AsIterable().ToDictionary(keySelector, valueSelector);
 
     #region IEnumerable interface
     /// <summary>
@@ -661,7 +661,7 @@ public readonly struct HashMap<EqK, K, V> :
 
     [Pure]
     public Seq<(K Key, V Value)> ToSeq() =>
-        toSeq(Value.AsEnumerable());
+        toSeq(Value.AsIterable());
 
     /// <summary>
     /// Allocation free conversion to a TrackingHashMap
@@ -695,8 +695,8 @@ public readonly struct HashMap<EqK, K, V> :
         CollectionFormat.ToFullArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
     [Pure]
-    public EnumerableM<(K Key, V Value)> AsEnumerable() =>
-        Value.AsEnumerable();
+    public Iterable<(K Key, V Value)> AsEnumerable() =>
+        Value.AsIterable();
 
     #endregion
         

@@ -8,25 +8,24 @@ public class IEnumerable
     [Fact]
     public void EmptyIEnumerableIsSuccessIEnumerable()
     {
-        var ma = EnumerableM.empty<Validation<Error, int>>();
+        var ma = Iterable.empty<Validation<Error, int>>();
         var mb = ma.Traverse(x => x);
-        Assert.Equal(Success<Error, EnumerableM<int>>(EnumerableM.empty<int>()), mb);
+        Assert.Equal(Success<Error, Iterable<int>>(Iterable.empty<int>()), mb);
     }
 
     [Fact]
     public void IEnumerableSuccessIsSuccessIEnumerable()
     {
-        var ma = List(Success<Error, int>(2), Success<Error, int>(8), Success<Error, int>(64))
-           .AsEnumerableM();
+        var ma = IterableExtensions.AsIterable(List(Success<Error, int>(2), Success<Error, int>(8), Success<Error, int>(64)));
         var mb = ma.Traverse(x => x);
-        Assert.Equal(Success<Error, EnumerableM<int>>(List(2, 8, 64).AsEnumerableM()), mb);
+        Assert.Equal(Success<Error, Iterable<int>>(IterableExtensions.AsIterable(List(2, 8, 64))), mb);
     }
 
     [Fact]
     public void IEnumerableSuccAndFailIsFailedIEnumerable()
     {
-        var ma = List(Fail<Error, int>(Error.New("failed")), Success<Error, int>(12)).AsEnumerableM();
+        var ma = IterableExtensions.AsIterable(List(Fail<Error, int>(Error.New("failed")), Success<Error, int>(12)));
         var mb = ma.Traverse(x => x);
-        Assert.Equal(Fail<Error, EnumerableM<int>>(Error.New("failed")), mb);
+        Assert.Equal(Fail<Error, Iterable<int>>(Error.New("failed")), mb);
     }
 }

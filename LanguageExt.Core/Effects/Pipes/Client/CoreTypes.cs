@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
@@ -35,7 +36,7 @@ public record Client<REQ, RES, M, A> : Proxy<REQ, RES, Unit, Void, M, A>
         Value = value;
                 
     /// <summary>
-    /// Calling this will effectively cast the sub-type to the base.
+    /// Calling this will effectively cast the subtype to the base.
     /// </summary>
     /// <remarks>This type wraps up a `Proxy` for convenience, and so it's a `Proxy` proxy.  So calling this method
     /// isn't exactly the same as a cast operation, as it unwraps the `Proxy` from within.  It has the same effect
@@ -74,6 +75,16 @@ public record Client<REQ, RES, M, A> : Proxy<REQ, RES, Unit, Void, M, A>
     [Pure]
     public override Proxy<REQ, RES, Unit, Void, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
         Value.MapM(f);
+                    
+    /// <summary>
+    /// Extract the lifted IO monad (if there is one)
+    /// </summary>
+    /// <param name="f">The map function</param>
+    /// <returns>A new `Proxy` that represents the innermost IO monad, if it exists.</returns>
+    /// <exception cref="ExceptionalException">`Errors.UnliftIONotSupported` if there's no IO monad in the stack</exception>
+    [Pure]
+    public override Proxy<REQ, RES, Unit, Void, M, IO<A>> ToIO() =>
+        Value.ToIO();
 
     /// <summary>
     /// Monadic bind operation, for chaining `Client` computations together.

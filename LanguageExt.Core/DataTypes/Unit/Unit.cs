@@ -97,6 +97,6 @@ public readonly struct Unit : IEquatable<Unit>, IComparable<Unit>
         default;
         
     [Pure]
-    public static implicit operator Unit(EnumerableM<Unit> _) => 
+    public static implicit operator Unit(Iterable<Unit> _) => 
         default;
 }

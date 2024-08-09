@@ -176,7 +176,7 @@ namespace LanguageExt
         /// Enumerable of keys
         /// </summary>
         [Pure]
-        public EnumerableM<K> Keys
+        public Iterable<K> Keys
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Items.Keys;
@@ -186,7 +186,7 @@ namespace LanguageExt
         /// Enumerable of value
         /// </summary>
         [Pure]
-        public EnumerableM<V> Values
+        public Iterable<V> Values
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Items.Values;
@@ -248,8 +248,8 @@ namespace LanguageExt
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EnumerableM<(K Key, V Value)> AsEnumerable() =>
-            Items.AsEnumerable();
+        public Iterable<(K Key, V Value)> AsIterable() =>
+            Items.AsIterable();
 
         /// <summary>
         /// Returns True if 'other' is a proper subset of this set

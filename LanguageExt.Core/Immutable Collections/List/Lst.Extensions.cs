@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Text;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -14,14 +15,14 @@ public static class ListExtensions
 {
     public static Lst<A> As<A>(this K<Lst, A> xs) =>
         (Lst<A>)xs;
- 
+
     /// <summary>
     /// Accesses the head of an enumerable and yields the remainder without multiple-enumerations
     /// </summary>
-    /// <exception cref="InvalidOperationException">Throws if sequence is empty</exception>
+    /// <exception cref="ExpectedException">Throws if sequence is empty</exception>
     public static (A Head, IEnumerable<A> Tail) HeadAndTail<A>(this IEnumerable<A> ma) =>
         ma.HeadAndTailSafe()
-          .IfNone(() => throw new InvalidOperationException("Sequence is empty"));
+          .IfNone(() => throw Exceptions.SequenceEmpty);
     
     /// <summary>
     /// Accesses the head of an enumerable and yields the remainder without multiple-enumerations
@@ -120,7 +121,7 @@ public static class ListExtensions
     /// <param name="list">List</param>
     /// <returns>Enumerable of T</returns>
     [Pure]
-    public static EnumerableM<T> Tail<T>(this IEnumerable<T> list) =>
+    public static Iterable<T> Tail<T>(this IEnumerable<T> list) =>
         List.tail(list);
 
     /// <summary>
@@ -297,7 +298,7 @@ public static class ListExtensions
     /// </summary>
     [Pure]
     public static Lst<B> Select<A, B>(this Lst<A> self, Func<A, B> map) =>
-        new (self.AsEnumerable().Select(map));
+        new (self.AsIterable().Select(map));
 
     /// <summary>
     /// Monadic bind function for Lst that returns an IEnumerable

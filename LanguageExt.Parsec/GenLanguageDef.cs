@@ -102,8 +102,8 @@ public class GenLanguageDef
         IdentLetter     = identLetter;
         OpStart         = opStart;
         OpLetter        = opLetter;
-        ReservedNames   = reservedNames.OrderBy(x => x).AsEnumerableM().ToLst();
-        ReservedOpNames = reservedOpNames.OrderBy(x=> x).AsEnumerableM().ToLst();
+        ReservedNames   = reservedNames.OrderBy(x => x).AsIterable().ToLst();
+        ReservedOpNames = reservedOpNames.OrderBy(x=> x).AsIterable().ToLst();
         CaseSensitive   = caseSensitive;
     }
 

@@ -941,7 +941,7 @@ internal class TrieMap<EqK, K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode() =>
         hash == 0
-            ? (hash = FNV32.Hash<HashablePair<EqK, HashableDefault<V>, K, V>, (K, V)>(AsEnumerable()))
+            ? (hash = FNV32.Hash<HashablePair<EqK, HashableDefault<V>, K, V>, (K, V)>(AsIterable()))
             : hash;
 
     /// <summary>
@@ -1192,7 +1192,7 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, U> Map<U>(Func<V, U> f) =>
-        new (AsEnumerable().Select(kv => (kv.Key, f(kv.Value))), false);
+        new (AsIterable().Select(kv => (kv.Key, f(kv.Value))), false);
 
     /// <summary>
     /// Map from V to U
@@ -1217,7 +1217,7 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, U> Map<U>(Func<K, V, U> f) =>
-        new (AsEnumerable().Select(kv => (kv.Key, f(kv.Key, kv.Value))), false);
+        new (AsIterable().Select(kv => (kv.Key, f(kv.Key, kv.Value))), false);
 
     /// <summary>
     /// Map from V to U
@@ -1242,7 +1242,7 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, V> Filter(Func<V, bool> f) =>
-        new (AsEnumerable().Filter(kv => f(kv.Value)), false);
+        new (AsIterable().Filter(kv => f(kv.Value)), false);
 
     /// <summary>
     /// Map from V to U
@@ -1273,7 +1273,7 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, V> Filter(Func<K, V, bool> f) =>
-        new (AsEnumerable().Filter(kv => f(kv.Key, kv.Value)), false);
+        new (AsIterable().Filter(kv => f(kv.Key, kv.Value)), false);
 
     /// <summary>
     /// Map from V to U
@@ -1304,14 +1304,14 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, V> Append(TrieMap<EqK, K, V> rhs) =>
-        TryAddRange(rhs.AsEnumerable());
+        TryAddRange(rhs.AsIterable());
 
     /// <summary>
     /// Associative union
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (TrieMap<EqK, K, V> Map, TrieMap<EqK, K, Change<V>> Changes) AppendWithLog(TrieMap<EqK, K, V> rhs) =>
-        TryAddRangeWithLog(rhs.AsEnumerable());
+        TryAddRangeWithLog(rhs.AsIterable());
 
     /// <summary>
     /// Subtract
@@ -2610,13 +2610,15 @@ internal class TrieMap<EqK, K, V> :
         }
     }
 
-    public EnumerableM<(K Key, V Value)> AsEnumerable() =>
-        new(Root);
+    public Iterable<(K Key, V Value)> AsIterable() =>
+        Root.AsIterable();
 
     public IEnumerator<(K Key, V Value)> GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         Root.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         Root.GetEnumerator();
 
     /// <summary>
@@ -2740,17 +2742,17 @@ internal class TrieMap<EqK, K, V> :
 
     public override string ToString() =>
         count < 50
-            ? $"[{ string.Join(", ", AsEnumerable().Select(TupleToString)) }]"
-            : $"[{ string.Join(", ", AsEnumerable().Select(TupleToString).Take(50)) } ... ]";
+            ? $"[{ string.Join(", ", AsIterable().Select(TupleToString)) }]"
+            : $"[{ string.Join(", ", AsIterable().Select(TupleToString).Take(50)) } ... ]";
 
     string TupleToString((K Key, V Value) tuple) =>
         $"({tuple.Key}, {tuple.Value})";
 
-    public EnumerableM<K> Keys =>
-        AsEnumerable().Map(kv => kv.Key);
+    public Iterable<K> Keys =>
+        AsIterable().Map(kv => kv.Key);
 
-    public EnumerableM<V> Values =>
-        AsEnumerable().Map(kv => kv.Value);
+    public Iterable<V> Values =>
+        AsIterable().Map(kv => kv.Value);
 
     public bool TryGetValue(K key, out V value)
     {

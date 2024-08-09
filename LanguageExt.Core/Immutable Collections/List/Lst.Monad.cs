@@ -129,8 +129,8 @@ public class Lst : Monad<Lst>, MonoidK<Lst>, Traversable<Lst>
     static Lst<A> Foldable<Lst>.ToLst<A>(K<Lst, A> ta) =>
         ta.As();
 
-    static EnumerableM<A> Foldable<Lst>.ToEnumerable<A>(K<Lst, A> ta) =>
-        new (ta.As());
+    static Iterable<A> Foldable<Lst>.ToIterable<A>(K<Lst, A> ta) =>
+        Iterable.createRange (ta.As());
     
     static Seq<A> Foldable<Lst>.ToSeq<A>(K<Lst, A> ta) =>
         new (ta.As());

@@ -6,6 +6,7 @@ using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -186,7 +187,7 @@ public class AtomQue<A> :
     /// <summary>
     /// Removes the item from the front of the queue atomically
     /// </summary>
-    /// <exception cref="InvalidOperationException">If the queue is empty</exception>
+    /// <exception cref="ExpectedException">If the queue is empty</exception>
     /// <returns>The item that was at the front of the queue, or an `InvalidOperationException` exception</returns>
     public A DequeueUnsafe()
     {
@@ -194,7 +195,7 @@ public class AtomQue<A> :
         while (true)
         {
             var oitems = items;
-            if (oitems.IsEmpty) throw new InvalidOperationException("Queue is empty");
+            if (oitems.IsEmpty) throw Exceptions.SequenceEmpty;
             var top = oitems.Peek();
             var nitems = oitems.Dequeue();
             if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
@@ -237,16 +238,18 @@ public class AtomQue<A> :
         items.ToSeq();
 
     [Pure]
-    public EnumerableM<A> AsEnumerable() =>
-        new(items);
+    public Iterable<A> AsIterable() =>
+        items.AsIterable();
 
     [Pure]
     public IEnumerator<A> GetEnumerator() =>
-        AsEnumerable().GetEnumerator();
+        // ReSharper disable once NotDisposedResourceIsReturned
+        AsIterable().GetEnumerator();
 
     [Pure]
     IEnumerator IEnumerable.GetEnumerator() =>
-        AsEnumerable().GetEnumerator();
+        // ReSharper disable once NotDisposedResourceIsReturned
+        AsIterable().GetEnumerator();
 
     [Pure]
     public Unit Append(Que<A> rhs)

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 
 namespace LanguageExt;
 
@@ -258,7 +259,7 @@ internal class SeqStrict<A> : ISeqInternal<A>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => count == 0
-                   ? throw new InvalidOperationException("Sequence is empty")
+                   ? throw Exceptions.SequenceEmpty
                    : data[start];
     }
 
@@ -306,7 +307,8 @@ internal class SeqStrict<A> : ISeqInternal<A>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get =>
             IsEmpty
-                ? throw new InvalidOperationException("Sequence is empty")
+                ? throw Exceptions.SequenceEmpty
+
                 : data[start + count - 1];
     }
 

@@ -171,9 +171,9 @@ public abstract record Error : Monoid<Error>
         lhs.Combine(rhs);
 
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual EnumerableM<Error> AsEnumerable()
+    public virtual Iterable<Error> AsIterable()
     {
-        return new EnumerableM<Error>(go());
+        return Iterable.createRange(go());
         IEnumerable<Error> go() 
         {
             yield return this;
@@ -263,7 +263,7 @@ public abstract record Error : Monoid<Error>
             ? Errors.None
             : errors.Length == 1
                 ? errors[0]
-                : new ManyErrors(errors.AsEnumerableM().ToSeq());
+                : new ManyErrors(errors.AsIterable().ToSeq());
 
     /// <summary>
     /// Create a new error 
@@ -712,14 +712,14 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
         Errors.Count;
 
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override EnumerableM<Error> AsEnumerable() =>
-        new (Errors.AsEnumerable());
+    public override Iterable<Error> AsIterable() =>
+        Errors.AsIterable();
 
     [Pure]
     internal static Error FromAggregate(AggregateException? e)
     {
         if (e is null) return Common.Errors.None;
-        var errs = e.InnerExceptions.Bind(x => New(x).AsEnumerable()).AsEnumerableM().ToSeq();
+        var errs = e.InnerExceptions.Bind(x => New(x).AsIterable()).AsIterable().ToSeq();
         if (errs.Count == 0) return Common.Errors.None;
         if (errs.Count == 1) return (Error)errs.Head;
         return Many(errs);

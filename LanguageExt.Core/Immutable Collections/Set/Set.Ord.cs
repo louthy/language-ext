@@ -220,7 +220,7 @@ public readonly struct Set<OrdA, A> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
     /// <returns>Range of values</returns>
     [Pure]
-    public EnumerableM<A> FindRange(A keyFrom, A keyTo) => Value.FindRange(keyFrom, keyTo);
+    public Iterable<A> FindRange(A keyFrom, A keyTo) => Value.FindRange(keyFrom, keyTo);
 
     /// <summary>
     /// Returns the elements that are in both this and other
@@ -289,6 +289,7 @@ public readonly struct Set<OrdA, A> :
     /// <returns>IEnumerator T</returns>
     [Pure]
     public IEnumerator<A> GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         Value.GetEnumerator();
 
     /// <summary>
@@ -297,6 +298,7 @@ public readonly struct Set<OrdA, A> :
     /// <returns>IEnumerator</returns>
     [Pure]
     IEnumerator IEnumerable.GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         Value.GetEnumerator();
 
     /// <summary>
@@ -346,7 +348,7 @@ public readonly struct Set<OrdA, A> :
     /// </returns>
     public Set<OrdA, A> Do(Action<A> f)
     {
-        this.AsEnumerableM().Iter(f);
+        this.AsIterable().Iter(f);
         return this;
     }
 
@@ -545,7 +547,7 @@ public readonly struct Set<OrdA, A> :
     /// <returns>True if sets are equal</returns>
     [Pure]
     public bool Equals(Set<OrdA, A> other) =>
-        Value.SetEquals(other.Value.AsEnumerable());
+        Value.SetEquals(other.Value.AsIterable());
 
     /// <summary>
     /// Equality operator
@@ -609,7 +611,8 @@ public readonly struct Set<OrdA, A> :
         toSeq(this);
 
     [Pure]
-    public EnumerableM<A> AsEnumerable() => new(this);
+    public Iterable<A> AsEnumerable() => 
+        Iterable.createRange(this);
 
     [Pure]
     public Set<OrdA, A> Where(Func<A, bool> pred) =>
@@ -652,7 +655,7 @@ public readonly struct Set<OrdA, A> :
     }
 
     [Pure]
-    public EnumerableM<A> Skip(int amount) =>
+    public Iterable<A> Skip(int amount) =>
         Value.Skip(amount);
 
     [Pure]

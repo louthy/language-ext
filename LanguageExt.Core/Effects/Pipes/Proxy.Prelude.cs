@@ -64,7 +64,7 @@ public static class Proxy
     /// <returns>`Producer`</returns>
     [Pure, MethodImpl(mops)]
     public static Producer<X, Unit> yieldAll<X>(IAsyncEnumerable<X> xs) =>
-        yieldAll(xs.ToBlockingEnumerable().AsEnumerableM());
+        yieldAll(xs.ToBlockingEnumerable().AsIterable());
 
     /// <summary>
     /// Create a `Producer` from an `IObservable`.  This will automatically `yield` each value of the
@@ -101,8 +101,8 @@ public static class Proxy
     [Pure, MethodImpl(mops)]
     public static Producer<OUT, M, Unit> repeat<OUT, M, R>(Producer<OUT, M, R> ma)
         where M : Monad<M> =>
-        new IteratorFoldable<Void, Unit, Unit, OUT, EnumerableM, Unit, M, Unit>(
-            Naturals.AsEnumerableM().Map(_ => unit),
+        new IteratorFoldable<Void, Unit, Unit, OUT, Iterable, Unit, M, Unit>(
+            Naturals.AsIterable().Map(_ => unit),
             _ => ma.ToProxy().Map(_ => unit),
             () => Producer.Pure<OUT, M, Unit>(unit))
            .ToProducer();
@@ -113,8 +113,8 @@ public static class Proxy
     [Pure, MethodImpl(mops)]
     public static Consumer<IN, M, Unit> repeat<IN, M, R>(Consumer<IN, M, R> ma) 
         where M : Monad<M> =>
-        new IteratorFoldable<Unit, IN, Unit, Void, EnumerableM, Unit, M, Unit>(
-                Naturals.AsEnumerableM().Map(_ => unit),
+        new IteratorFoldable<Unit, IN, Unit, Void, Iterable, Unit, M, Unit>(
+                Naturals.AsIterable().Map(_ => unit),
                 _ => ma.ToProxy().Map(_ => unit),
                 () => Consumer.Pure<IN, M, Unit>(unit))
            .ToConsumer();
@@ -125,8 +125,8 @@ public static class Proxy
     [Pure, MethodImpl(mops)]
     public static Pipe<IN, OUT, M, Unit> repeat<IN, OUT, M, R>(Pipe<IN, OUT, M, R> ma) 
         where M : Monad<M> =>
-        new IteratorFoldable<Unit, IN, Unit, OUT, EnumerableM, Unit, M, Unit>(
-                Naturals.AsEnumerableM().Map(_ => unit),
+        new IteratorFoldable<Unit, IN, Unit, OUT, Iterable, Unit, M, Unit>(
+                Naturals.AsIterable().Map(_ => unit),
                 _ => ma.ToProxy().Map(_ => unit),
                 () => Pipe.Pure<IN, OUT, M, Unit>(unit))
            .ToPipe();
@@ -143,7 +143,7 @@ public static class Proxy
     /// Lift an IO monad into the `Proxy` monad transformer
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Proxy<A1, A, B1, B, M, R> liftIO<A1, A, B1, B, M, R>(IO<R> ma) 
+    public static Proxy<A1, A, B1, B, M, R> liftIO<A1, A, B1, B, M, R>(K<IO, R> ma) 
         where M : Monad<M> =>
         lift<A1, A, B1, B, M, R>(M.LiftIO(ma));
 

@@ -177,20 +177,20 @@ public class VersionHashMap<ConflictV, K, V> :
     /// Enumerable of keys
     /// </summary>
     [Pure]
-    public EnumerableM<K> Keys
+    public Iterable<K> Keys
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => new(Items.Keys);
+        get => Items.Keys;
     }
 
     /// <summary>
     /// Enumerable of value
     /// </summary>
     [Pure]
-    public EnumerableM<V> Values
+    public Iterable<V> Values
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => new(Items.Values);
+        get => Items.Values;
     }
 
     /// <summary>
@@ -206,6 +206,7 @@ public class VersionHashMap<ConflictV, K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerator<(K Key, V Value)> GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         Items.GetEnumerator();
 
     /// <summary>
@@ -213,6 +214,7 @@ public class VersionHashMap<ConflictV, K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator IEnumerable.GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         Items.GetEnumerator();
 
     [Pure]
@@ -249,8 +251,8 @@ public class VersionHashMap<ConflictV, K, V> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<(K Key, V Value)> AsEnumerable() =>
-        new(Items);
+    public Iterable<(K Key, V Value)> AsIterable() =>
+        Items.AsIterable();
 
     /// <summary>
     /// Returns True if 'other' is a proper subset of this set

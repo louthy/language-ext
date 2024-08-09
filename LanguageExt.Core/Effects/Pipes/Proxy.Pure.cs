@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
@@ -15,12 +16,12 @@ namespace LanguageExt.Pipes;
 /// <typeparam name="A">The monadic bound variable - it doesn't flow up or down stream, it works just like any bound
 /// monadic variable.  If the effect represented by the `Proxy` ends, then this will be the result value.
 ///
-/// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
+/// When composing `Proxy` subtypes (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
 public record Pure<UOut, UIn, DIn, DOut, M, A>(A Value) : Proxy<UOut, UIn, DIn, DOut, M, A>
     where M : Monad<M>
 {
     /// <summary>
-    /// When working with sub-types, like `Producer`, calling this will effectively cast the sub-type to the base.
+    /// When working with subtypes, like `Producer`, calling this will effectively cast the subtype to the base.
     /// </summary>
     /// <returns>A general `Proxy` type from a more specialised type</returns>
     [Pure]
@@ -55,6 +56,16 @@ public record Pure<UOut, UIn, DIn, DOut, M, A>(A Value) : Proxy<UOut, UIn, DIn, 
     [Pure]
     public override Proxy<UOut, UIn, DIn, DOut, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
         Proxy.lift<UOut, UIn, DIn, DOut, M, B>(f(M.Pure(Value)));
+                    
+    /// <summary>
+    /// Extract the lifted IO monad (if there is one)
+    /// </summary>
+    /// <param name="f">The map function</param>
+    /// <returns>A new `Proxy` that represents the innermost IO monad, if it exists.</returns>
+    /// <exception cref="ExceptionalException">`Errors.UnliftIONotSupported` if there's no IO monad in the stack</exception>
+    [Pure]
+    public override Proxy<UOut, UIn, DIn, DOut, M, IO<A>> ToIO() =>
+        new Pure<UOut, UIn, DIn, DOut, M, IO<A>>(IO.pure(Value));
 
     /// <summary>
     /// `For(body)` loops over the `Proxy p` replacing each `yield` with `body`

@@ -57,7 +57,7 @@ public static class Choice
     [Pure]
     public static IEnumerable<B> toSeq<CHOICE, CH, A, B>(CH ma)
         where CHOICE : Choice<CH, A, B> =>
-        toArray<CHOICE, CH, A, B>(ma).AsEnumerable();
+        toArray<CHOICE, CH, A, B>(ma).AsIterable();
 
     /// <summary>
     /// Convert the structure to an Either

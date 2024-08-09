@@ -15,7 +15,7 @@ public class VersionHashMapTests
         data.Update(data["b"].Write("james", 2));
         data.Update(data["b"].Write("gavin", 3));
 
-        var str = data.AsEnumerable().OrderBy(p => p.Key).AsEnumerableM().ToSeq().ToString();
+        var str = data.AsIterable().OrderBy(p => p.Key).AsIterable().ToSeq().ToString();
 
         Assert.True(str == "[(a, 1), (b, 3)]");
     }
@@ -33,7 +33,7 @@ public class VersionHashMapTests
         data.Update(client2);
         data.Update(client3);
 
-        var str = data.AsEnumerable().OrderBy(p => p.Key).AsEnumerableM().ToSeq().ToString();
+        var str = data.AsIterable().OrderBy(p => p.Key).AsIterable().ToSeq().ToString();
 
         Assert.True(str == "[(a, 1), (b, 3)]");
     }
@@ -51,7 +51,7 @@ public class VersionHashMapTests
         data.Update(client1);
         data.Update(client3);
 
-        var str = data.AsEnumerable().OrderBy(p => p.Key).AsEnumerableM().ToSeq().ToString();
+        var str = data.AsIterable().OrderBy(p => p.Key).AsIterable().ToSeq().ToString();
 
         Assert.True(str == "[(a, 1), (b, 3)]");
     }
@@ -69,7 +69,7 @@ public class VersionHashMapTests
         data.Update(client2);
         data.Update(client3);
 
-        var str = data.AsEnumerable().OrderBy(p => p.Key).AsEnumerableM().ToSeq().ToString();
+        var str = data.AsIterable().OrderBy(p => p.Key).AsIterable().ToSeq().ToString();
 
         Assert.True(str == "[(a, 2), (b, 3)]");
     }
@@ -87,7 +87,7 @@ public class VersionHashMapTests
         data.Update(client1);
         data.Update(client3);
 
-        var str = data.AsEnumerable().OrderBy(p => p.Key).AsEnumerableM().ToSeq().ToString();
+        var str = data.AsIterable().OrderBy(p => p.Key).AsIterable().ToSeq().ToString();
 
         Assert.True(str == "[(a, 2), (b, 3)]");
     }

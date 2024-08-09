@@ -10,7 +10,7 @@ public class IEnumerableOption
     [Fact]
     public void EmptyIEnumerableIsSomeEmptyIEnumerable()
     {
-        var ma = EnumerableM.empty<Option<int>>();
+        var ma = Iterable.empty<Option<int>>();
 
         var mb = ma.Traverse(mx => mx).As();
 
@@ -24,7 +24,7 @@ public class IEnumerableOption
     [Fact]
     public void IEnumerableSomesIsSomeIEnumerables()
     {
-        var ma = new[] {Some(1), Some(2), Some(3)}.AsEnumerableM();
+        var ma = new[] {Some(1), Some(2), Some(3)}.AsIterable();
 
         var mb = ma.Traverse(mx => mx).As();
 
@@ -34,7 +34,7 @@ public class IEnumerableOption
     [Fact]
     public void IEnumerableSomeAndNoneIsNone()
     {
-        var ma = new[] {Some(1), Some(2), None}.AsEnumerableM();
+        var ma = new[] {Some(1), Some(2), None}.AsIterable();
         var mb = ma.Traverse(mx => mx).As();
         Assert.True(mb == None);
     }

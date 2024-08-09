@@ -97,7 +97,7 @@ public class RefTest
 
         var res = Range(0, count).AsParallel()
                                  .Select(_ => inc(num))
-                                 .AsEnumerableM() 
+                                 .AsIterable() 
                                  .ToSeq()
                                  .Strict();
 

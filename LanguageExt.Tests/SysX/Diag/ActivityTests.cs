@@ -127,7 +127,7 @@ public static class ActivityTests
         var events = A.span("test", from _ in A.addEvent(TestEvent) from result in A.events select result)
             .ArrangeAndAct();
         Assert.False(events.IsEmpty);
-        events.AsEnumerableM().Head().ValueUnsafe().Should().Be(TestEvent);
+        events.AsIterable().Head().ValueUnsafe().Should().Be(TestEvent);
     }
 
     [Fact(DisplayName = "The id can be read")]

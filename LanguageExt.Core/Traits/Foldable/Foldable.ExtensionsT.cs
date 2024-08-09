@@ -333,7 +333,7 @@ public static partial class FoldableExtensions
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
-    public static EnumerableM<A> ToEnumerableT<T, U, A>(this K<T, K<U, A>> tua)
+    public static Iterable<A> ToEnumerableT<T, U, A>(this K<T, K<U, A>> tua)
         where T : Foldable<T>
         where U : Foldable<U> =>
         Foldable.fold(
@@ -346,7 +346,7 @@ public static partial class FoldableExtensions
                       s1,
                       ua),
             new List<A>(),
-            tua).AsEnumerableM();
+            tua).AsIterable();
 
     /// <summary>
     /// List of elements of a structure, from left to right

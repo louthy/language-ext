@@ -297,9 +297,9 @@ internal class LstInternal<PRED, A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<A> Skip(int amount)
+    public Iterable<A> Skip(int amount)
     {
-        return new(Go());
+        return Iterable.createRange(Go());
         IEnumerable<A> Go()
         {
             var iter = new ListEnumerator<A>(Root, false, amount);
@@ -342,11 +342,11 @@ internal class LstInternal<PRED, A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<A> FindRange(int index, int count)
+    public Iterable<A> FindRange(int index, int count)
     {
         if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
         if (count < 0) throw new ArgumentOutOfRangeException(nameof(index));
-        return new(Go());
+        return Iterable.createRange(Go());
 
         IEnumerable<A> Go()
         {

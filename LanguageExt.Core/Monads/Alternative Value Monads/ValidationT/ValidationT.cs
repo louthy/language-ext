@@ -2,7 +2,6 @@
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -13,7 +12,8 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="F">Left value type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public record ValidationT<F, M, A>(K<M, Validation<F, A>> runValidation) : K<ValidationT<F, M>, A>
+public record ValidationT<F, M, A>(K<M, Validation<F, A>> runValidation) : 
+    Fallible<ValidationT<F, M, A>, ValidationT<F, M>, F, A>
     where M : Monad<M>
     where F : Monoid<F>
 {
@@ -282,37 +282,36 @@ public record ValidationT<F, M, A>(K<M, Validation<F, A>> runValidation) : K<Val
     
     public static implicit operator ValidationT<F, M, A>(Fail<F> ma) =>
         Fail(ma.Value);
-    
+
+    public static implicit operator ValidationT<F, M, A>(F fail) => 
+        Fail(fail);
+
     public static implicit operator ValidationT<F, M, A>(IO<A> ma) =>
         LiftIO(ma);
 
     [Pure, MethodImpl(Opt.Default)]
     public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, ValidationT<F, M, A> rhs) =>
-        lhs.Combine(rhs).As();
+        lhs.Catch<F, ValidationT<F, M>, A>(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static ValidationT<F, M, A> operator |(K<ValidationT<F, M>, A> lhs, ValidationT<F, M, A> rhs) =>
-        lhs.As().Combine(rhs).As();
+        lhs.Catch<F, ValidationT<F, M>, A>(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, K<ValidationT<F, M>, A> rhs) =>
-        lhs.Combine(rhs.As()).As();
+        lhs.Catch<F, ValidationT<F, M>, A>(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
-    public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> ma, Pure<A> mb) =>
-        ma.Combine(pure<ValidationT<F, M>, A>(mb.Value)).As();
+    public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, Pure<A> rhs) =>
+        lhs.Catch<F, ValidationT<F, M>, A>(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
-    public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> ma, Fail<F> mb) =>
-        ma.Combine(fail<F, ValidationT<F, M>, A>(mb.Value)).As();
+    public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, Fail<F> rhs) =>
+        lhs.Catch(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
-    public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> ma, F mb) =>
-        ma.Combine(fail<F, ValidationT<F, M>, A>(mb)).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> ma, CatchM<F, ValidationT<F, M>, A> mb) =>
-        (ma.Kind() | mb).As();
+    public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, CatchM<F, ValidationT<F, M>, A> rhs) =>
+        lhs.Catch(rhs).As();
 
     public static ValidationT<F, M, Seq<A>> operator &(ValidationT<F, M, A> ma, ValidationT<F, M, A> mb) =>
         new(M.Bind(ma.runValidation, ea => M.Map(eb => ea & eb, mb.runValidation)));

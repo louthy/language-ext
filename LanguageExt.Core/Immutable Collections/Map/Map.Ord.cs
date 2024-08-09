@@ -474,7 +474,7 @@ public readonly struct Map<OrdK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
     /// <returns>Range of values</returns>
     [Pure]
-    public EnumerableM<V> FindRange(K keyFrom, K keyTo) => Value.FindRange(keyFrom, keyTo);
+    public Iterable<V> FindRange(K keyFrom, K keyTo) => Value.FindRange(keyFrom, keyTo);
 
     /// <summary>
     /// Retrieve a range of values 
@@ -484,7 +484,7 @@ public readonly struct Map<OrdK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
     /// <returns>Range of values</returns>
     [Pure]
-    public EnumerableM<(K Key, V Value)> FindRangePairs(K keyFrom, K keyTo) => Value.FindRangePairs(keyFrom, keyTo);
+    public Iterable<(K Key, V Value)> FindRangePairs(K keyFrom, K keyTo) => Value.FindRangePairs(keyFrom, keyTo);
 
     /// <summary>
     /// Skips 'amount' values and returns a new tree without the 
@@ -493,7 +493,7 @@ public readonly struct Map<OrdK, K, V> :
     /// <param name="amount">Amount to skip</param>
     /// <returns>New tree</returns>
     [Pure]
-    public EnumerableM<(K Key, V Value)> Skip(int amount) => Value.Skip(amount);
+    public Iterable<(K Key, V Value)> Skip(int amount) => Value.Skip(amount);
 
     /// <summary>
     /// Checks for existence of a key in the map
@@ -604,13 +604,13 @@ public readonly struct Map<OrdK, K, V> :
     /// Enumerable of map keys
     /// </summary>
     [Pure]
-    public EnumerableM<K> Keys => Value.Keys;
+    public Iterable<K> Keys => Value.Keys;
 
     /// <summary>
     /// Enumerable of map values
     /// </summary>
     [Pure]
-    public EnumerableM<V> Values => Value.Values;
+    public Iterable<V> Values => Value.Values;
 
     /// <summary>
     /// Map the map the a dictionary
@@ -625,7 +625,7 @@ public readonly struct Map<OrdK, K, V> :
     /// </summary>
     /// <returns>Tuples</returns>
     [Pure]
-    public EnumerableM<(K Key, V Value)> Pairs =>
+    public Iterable<(K Key, V Value)> Pairs =>
         Value.Pairs;
 
     /// <summary>
@@ -634,7 +634,7 @@ public readonly struct Map<OrdK, K, V> :
     /// <returns>Tuples</returns>
     [Pure]
     [Obsolete("Use `Pairs` instead")]
-    public EnumerableM<(K Key, V Value)> ValueTuples =>
+    public Iterable<(K Key, V Value)> ValueTuples =>
         Value.Pairs;
 
     /// <summary>
@@ -681,7 +681,7 @@ public readonly struct Map<OrdK, K, V> :
 
 
     [Pure]
-    public EnumerableM<(K Key, V Value)> AsEnumerable() => 
+    public Iterable<(K Key, V Value)> AsEnumerable() => 
         Value.AsEnumerable();
 
     internal Map<OrdK, K, V> SetRoot(MapItem<K, V> root) => 

@@ -84,7 +84,7 @@ public static class AtomExtensions
         atom.OnChange()
             .SelectMany(static p =>
                             p.Changes
-                             .AsEnumerable()
+                             .AsIterable()
                              .Filter(static c => c.Value.HasChanged));
 
     /// <summary>

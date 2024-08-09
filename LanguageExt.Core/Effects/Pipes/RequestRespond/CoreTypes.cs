@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
@@ -104,6 +105,16 @@ public record Request<UOut, UIn, DIn, DOut, M, A>(UOut Value, Func<UIn, Proxy<UO
     [Pure]
     public override Proxy<UOut, UIn, DIn, DOut, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
         new Request<UOut, UIn, DIn, DOut, M, B>(Value, a => Next(a).MapM(f));
+
+    /// <summary>
+    /// Extract the lifted IO monad (if there is one)
+    /// </summary>
+    /// <param name="f">The map function</param>
+    /// <returns>A new `Proxy` that represents the innermost IO monad, if it exists.</returns>
+    /// <exception cref="ExceptionalException">`Errors.UnliftIONotSupported` if there's no IO monad in the stack</exception>
+    [Pure]
+    public override Proxy<UOut, UIn, DIn, DOut, M, IO<A>> ToIO() =>
+        new Request<UOut, UIn, DIn, DOut, M, IO<A>>(Value, a => Next(a).ToIO());
     
     [Pure]
     public override string ToString() => 
@@ -146,6 +157,16 @@ public record Respond<UOut, UIn, DIn, DOut, M, A>(DOut Value, Func<DIn, Proxy<UO
     [Pure]
     public override Proxy<UOut, UIn, DIn, DOut, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
         new Respond<UOut, UIn, DIn, DOut, M, B>(Value, a => Next(a).MapM(f));
+
+    /// <summary>
+    /// Extract the lifted IO monad (if there is one)
+    /// </summary>
+    /// <param name="f">The map function</param>
+    /// <returns>A new `Proxy` that represents the innermost IO monad, if it exists.</returns>
+    /// <exception cref="ExceptionalException">`Errors.UnliftIONotSupported` if there's no IO monad in the stack</exception>
+    [Pure]
+    public override Proxy<UOut, UIn, DIn, DOut, M, IO<A>> ToIO() =>
+        new Respond<UOut, UIn, DIn, DOut, M, IO<A>>(Value, a => Next(a).ToIO());
 
     [Pure]
     public override Proxy<UOut, UIn, C1, C, M, A> For<C1, C>(Func<DOut, Proxy<UOut, UIn, C1, C, M, DIn>> body) =>

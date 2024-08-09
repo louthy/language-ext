@@ -47,7 +47,7 @@ public class MemoryFS
     /// </summary>
     /// <returns>Sequence of drive names</returns>
     public Seq<string> GetLogicalDrives() =>
-        EnumerateFolders("[root]", "*", SearchOption.TopDirectoryOnly).AsEnumerableM().ToSeq();
+        EnumerateFolders("[root]", "*", SearchOption.TopDirectoryOnly).AsIterable().ToSeq();
         
     /// <summary>
     /// Add a logical in-memory drive
@@ -66,7 +66,7 @@ public class MemoryFS
         ValidatePathNames(path.Trim()
                               .TrimEnd([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar])
                               .Split([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar])
-                              .AsEnumerableM() 
+                              .AsIterable() 
                               .ToSeq());
 
     static Seq<string> ValidatePathNames(Seq<string> path)
@@ -74,12 +74,12 @@ public class MemoryFS
         if (path.IsEmpty) 
             throw new IOException($"Invalid path: {string.Join(Path.DirectorySeparatorChar.ToString(), path)}");
             
-        if (path.Head.ValueUnsafe()!.AsEnumerableM().Exists(invalidPath.Contains)) 
+        if (path.Head.ValueUnsafe()!.AsIterable().Exists(invalidPath.Contains)) 
             throw new IOException($"Invalid path: {string.Join(Path.DirectorySeparatorChar.ToString(), path)}");
             
         foreach (var name in path.Tail)
         {
-            if (name.AsEnumerableM().Exists(invalidFile.Contains)) 
+            if (name.AsIterable().Exists(invalidFile.Contains)) 
                 throw new IOException($"Invalid path: {string.Join(Path.DirectorySeparatorChar.ToString(), path)}");
         }
         return path;
@@ -104,7 +104,7 @@ public class MemoryFS
         return entry == null || entry is FileEntry
                    ? throw new DirectoryNotFoundException($"Directory not found: {path}")
                    : entry.EnumerateFolders(Empty, regex, option, false)
-                          .AsEnumerableM()
+                          .AsIterable()
                           .Map(e => string.Join(Path.DirectorySeparatorChar.ToString(), e.Path));
     }
 
@@ -115,7 +115,7 @@ public class MemoryFS
         return entry == null || entry is FileEntry
                    ? throw new DirectoryNotFoundException($"Directory not found: {path}")
                    : entry.EnumerateFiles(Empty, regex, option)
-                          .AsEnumerableM()
+                          .AsIterable()
                           .Map(e => string.Join(Path.DirectorySeparatorChar.ToString(), e.Path));
     }
 
@@ -126,7 +126,7 @@ public class MemoryFS
         return entry == null || entry is FileEntry
                    ? throw new DirectoryNotFoundException($"Directory not found: {path}")
                    : entry.EnumerateEntries(Empty, regex, option, false)
-                          .AsEnumerableM()
+                          .AsIterable()
                           .Map(e => string.Join(Path.DirectorySeparatorChar.ToString(), e.Path));
     }
 
@@ -582,21 +582,26 @@ public class MemoryFS
         public override IEnumerable<(Seq<string> Path, FolderEntry Entry)> EnumerateFolders(Seq<string> parent, Regex searchPattern, SearchOption option, bool includeSelf)
         {
             var self = includeSelf && searchPattern.IsMatch(Name)
-                           ? new [] {(parent.Add(Name), this)}
+                           ? [(parent.Add(Name), this)]
                            : Array.Empty<(Seq<string>, FolderEntry)>();
 
             var children = option switch
                            {
-                               SearchOption.AllDirectories => Entries.Values.Choose(e =>
-                                   e is FolderEntry f
-                                       ? Some(f.EnumerateFolders(parent.Add(Name), searchPattern, option, true))
-                                       : None).Bind(identity),
-                               SearchOption.TopDirectoryOnly => Entries.Values.Choose(e =>
-                                   e is FolderEntry f &&
-                                   searchPattern.IsMatch(f.Name)
-                                       ? Some((parent.Add(f.Name), f))
-                                       : None),
-                               _ => Array.Empty<(Seq<string>, FolderEntry)>()
+                               SearchOption.AllDirectories =>
+                                   Entries.Values.Choose(
+                                       e => e is FolderEntry f
+                                                ? Some(f.EnumerateFolders(parent.Add(Name),
+                                                                          searchPattern, option, true))
+                                                : None).Bind(identity),
+
+                               SearchOption.TopDirectoryOnly =>
+                                   Entries.Values.Choose(
+                                       e => e is FolderEntry f &&
+                                            searchPattern.IsMatch(f.Name)
+                                                ? Some((parent.Add(f.Name), f))
+                                                : None),
+
+                               _ => []
                            };
 
             return self.Concat(children);
@@ -609,17 +614,21 @@ public class MemoryFS
             var children = option switch
                            {
                                SearchOption.AllDirectories =>
-                                   Entries.Values.Choose(e =>
-                                                             e is FolderEntry f
-                                                                 ? Some(f.EnumerateFiles(parent.Add(Name), searchPattern, option))
-                                                                 : None)
+                                   Entries.Values.Choose(
+                                               e => e is FolderEntry f
+                                                        ? Some(f.EnumerateFiles(parent.Add(Name),
+                                                                   searchPattern, option))
+                                                        : None)
                                           .Bind(identity),
-                               SearchOption.TopDirectoryOnly => Entries.Values.Choose(e =>
-                                   e is FileEntry f &&
-                                   searchPattern.IsMatch(f.Name)
-                                       ? Some((parent.Add(f.Name), f))
-                                       : None),
-                               _ => Array.Empty<(Seq<string>, FileEntry)>()
+
+                               SearchOption.TopDirectoryOnly =>
+                                   Entries.Values.Choose(
+                                       e => e is FileEntry f &&
+                                            searchPattern.IsMatch(f.Name)
+                                                ? Some((parent.Add(f.Name), f))
+                                                : None),
+
+                               _ => []
                            };
 
             return files.Concat(children);
@@ -637,19 +646,19 @@ public class MemoryFS
             var children =
                 option switch
                 {
-                    SearchOption.AllDirectories => Entries.Values.Choose(
-                        e =>
-                            e is FolderEntry f
-                                ? Some(f.EnumerateEntries(parent.Add(Name), searchPattern, option, true))
-                                : None).Bind(identity),
-                    SearchOption.TopDirectoryOnly => Entries.Values.Choose(
-                        e =>
-                            searchPattern.IsMatch(e.Name)
-                                ? Some((parent.Add(e.Name), e))
-                                : None),
-                    _ => Array.Empty<(Seq<string>, Entry)>()
-                };
+                    SearchOption.AllDirectories =>
+                        Entries.Values.Choose(
+                            e => e is FolderEntry f
+                                     ? Some(f.EnumerateEntries(parent.Add(Name), searchPattern, option, true))
+                                     : None).Bind(identity),
+                    SearchOption.TopDirectoryOnly =>
+                        Entries.Values.Choose(
+                            e => searchPattern.IsMatch(e.Name)
+                                     ? Some((parent.Add(e.Name), e))
+                                     : None),
 
+                    _ => []
+                };
 
             return self.Concat(files).Concat(children);
         }

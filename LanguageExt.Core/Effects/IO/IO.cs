@@ -9,7 +9,7 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 /// <summary>
-/// A value of type `IO` a is a computation which, when performed, does some I/O before returning
+/// A value of type `IO` is a computation which, when performed, does some I/O before returning
 /// a value of type `A`.
 ///
 /// There is really only one way you should _"perform"_ an I/O action: bind it to `Main` in your
@@ -26,7 +26,8 @@ namespace LanguageExt;
 /// </summary>
 /// <param name="runIO">The lifted thunk that is the IO operation</param>
 /// <typeparam name="A">Bound value</typeparam>
-public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
+public record IO<A>(Func<EnvIO, A> runIO) : 
+    Fallible<IO<A>, IO, Error, A>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -72,58 +73,25 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
             });
 
     public IO<A> MapFail(Func<Error, Error> f) => 
-        new(e =>
-            {
-                if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
-                try
-                {
-                    return Run(e);
-                }
-                catch (Exception ex)
-                {
-                    return f(ex).Throw<A>();
-                }
-            });
+        this.Catch(f).As();
 
-    public IO<B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail) => 
-        new(e =>
-            {
-                if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
-                try
-                {
-                    return Succ(Run(e));
-                }
-                catch (Exception ex)
-                {
-                    return Fail(ex).Throw<B>();
-                }
-            });
+    public IO<B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail) =>
+        Map(Succ).Catch(Fail).As();
 
-    public IO<B> Match<B>(Func<A, B> Succ, Func<Error, B> Fail) => 
-        new(e =>
-            {
-                if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
-                try
-                {
-                    return Succ(Run(e));
-                }
-                catch (Exception ex)
-                {
-                    return Fail(ex);
-                }
-            });
+    public IO<B> Match<B>(Func<A, B> Succ, Func<Error, B> Fail) =>
+        Map(Succ).Catch(Fail).As();
 
     public IO<A> IfFail(Func<Error, A> Fail) =>
-        Match(Prelude.identity, Fail);
+        this.Catch(Fail).As();
 
     public IO<A> IfFail(A Fail) =>
-        Match(Prelude.identity, _ => Fail);
+        this.Catch(Fail).As();
     
     public IO<A> IfFail(Func<Error, IO<A>> Fail) =>
-        Match(IO.pure, Fail).Flatten();
+        this.Catch(Fail).As();
 
     public IO<A> IfFail(IO<A> Fail) =>
-        Match(IO.pure, _ => Fail).Flatten();
+        this.Catch(Fail).As();
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 
@@ -141,7 +109,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         Func<S, A, S> folder) =>
         FoldUntil(Schedule.Forever, initialState, folder, predicate: _ => false);
 
-
     public IO<S> FoldWhile<S>(
         Schedule schedule,
         S initialState,
@@ -154,7 +121,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
         FoldUntil(Schedule.Forever, initialState, folder, Prelude.not(stateIs));
-
     
     public IO<S> FoldWhile<S>(
         Schedule schedule,
@@ -168,7 +134,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
         FoldUntil(Schedule.Forever, initialState, folder, Prelude.not(valueIs));
-
     
     public IO<S> FoldWhile<S>(
         Schedule schedule,
@@ -183,7 +148,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         Func<(S State, A Value), bool> predicate) =>
         FoldUntil(Schedule.Forever, initialState, folder, Prelude.not(predicate));
     
-    
     public IO<S> FoldUntil<S>(
         Schedule schedule,
         S initialState,
@@ -196,7 +160,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
         FoldUntil(Schedule.Forever, initialState, folder, p => stateIs(p.State));
-
     
     public IO<S> FoldUntil<S>(
         Schedule schedule,
@@ -210,7 +173,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
         FoldUntil(Schedule.Forever, initialState, folder, p => valueIs(p.Value));
-    
     
     public IO<S> FoldUntil<S>(
         S initialState,
@@ -349,6 +311,10 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         where M : Monad<M>, Alternative<M> =>
         EitherT<L, M, A>.LiftIO(this).SelectMany(bind, project);
 
+    public FinT<M, C> SelectMany<M, B, C>(Func<A, FinT<M, B>> bind, Func<A, B, C> project)
+        where M : Monad<M>, Alternative<M> =>
+        FinT<M, A>.LiftIO(this).SelectMany(bind, project);
+
     public ValidationT<F, M, C> SelectMany<F, M, B, C>(Func<A, ValidationT<F, M, B>> bind, Func<A, B, C> project)
         where F : Monoid<F>
         where M : Monad<M>, Alternative<M> =>
@@ -375,70 +341,27 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     //
     //  Fail coalescing
     //
-
-    public IO<A> Or(IO<A> mb) =>
-        new(e =>
-            {
-                if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
-                var lenv = e.LocalResources; 
-                try
-                {
-                    var r = Run(lenv);
-                    e.Resources.Merge(lenv.Resources);
-                    return r;
-                }
-                catch
-                {
-                    lenv.Resources.ReleaseAll().Run(e);
-                    return mb.Run(e);
-                }
-            });
     
-    public static IO<A> operator |(IO<A> ma, IO<A> mb) =>
-        ma.Or(mb);
+    public static IO<A> operator |(IO<A> lhs, IO<A> rhs) =>
+        lhs.Catch(rhs).As();
 
-    public static IO<A> operator |(IO<A> ma, Pure<A> mb) =>
-        ma.Or(mb);
+    static IO<A> Fallible<IO<A>, IO, Error, A>.operator |(K<IO, A> lhs, IO<A> rhs) => 
+        lhs.Catch(rhs).As();
 
-    public static IO<A> operator |(IO<A> ma, Fail<Error> mb) =>
-        ma.Or(mb);
+    static IO<A> Fallible<IO<A>, IO, Error, A>.operator |(IO<A> lhs, K<IO, A> rhs) => 
+        lhs.Catch(rhs).As();
 
-    public static IO<A> operator |(IO<A> ma, Fail<Exception> mb) =>
-        ma.Or(mb);
+    public static IO<A> operator |(IO<A> lhs, Pure<A> rhs) =>
+        lhs.Catch(rhs).As();
 
-    public static IO<A> operator |(IO<A> ma, Error mb) =>
-        ma.Or(mb);
+    public static IO<A> operator |(IO<A> lhs, Fail<Error> rhs) =>
+        lhs.Catch(rhs).As();
 
-    public static IO<A> operator |(IO<A> ma, CatchM<Error, IO, A> mb) =>
-        (ma.Kind() | mb).As(); 
+    public static IO<A> operator |(IO<A> lhs, CatchM<Error, IO, A> rhs) =>
+        lhs.Catch(rhs).As();
 
-    public static IO<A> operator |(IO<A> ma, Exception mb) =>
-        new(env =>
-            {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-                try
-                {
-                    return ma.Run(env);
-                }
-                catch (Exception)
-                {
-                    return mb.Rethrow<A>();
-                }
-            });
-
-    public static IO<A> operator |(IO<A> ma, A mb) =>
-        new(env =>
-            {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-                try
-                {
-                    return ma.Run(env);
-                }
-                catch (Exception ex)
-                {
-                    return mb;
-                }
-            });
+    public static IO<A> operator |(IO<A> lhs, A rhs) =>
+        lhs.Catch(rhs).As();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -505,17 +428,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                     Finally(x).Run(env)?.Ignore();
                 }
             });
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Trait implementation
-    //
-    
-    IO<A> Semigroup<IO<A>>.Combine(IO<A> y) => 
-        this | y;
-
-    static IO<A> Monoid<IO<A>>.Empty =>
-        Empty;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -590,9 +502,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
                 
                 // Create a new local token-source with its own cancellation token
-                var tsrc = timeout.IsSome
-                               ? new CancellationTokenSource((TimeSpan)timeout)
-                               : new CancellationTokenSource();
+                var tsrc = new CancellationTokenSource();
                 var token = tsrc.Token;
 
                 // If the parent cancels, we should too
@@ -619,8 +529,18 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                     }, token);
 
                 return new ForkIO<A>(
-                        IO<Unit>.Lift(() => { tsrc.Cancel(); return default; }),
-                        Lift(e => AwaitTask(task, e, token)));
+                        IO<Unit>.Lift(() => {
+                                          try
+                                          {
+                                              tsrc.Cancel();
+                                          }
+                                          catch(ObjectDisposedException)
+                                          {
+                                              // ignore if already cancelled
+                                          }
+                                          return default; 
+                                      }),
+                        Lift(e => AwaitTask(task, e, token, tsrc, timeout)));
             });
     
     /// <summary>
@@ -659,25 +579,14 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
     public A Run(EnvIO env) =>
         runIO(env);
-    
+
 
     /// <summary>
     /// Run the `IO` monad to get its result.  Differs from `Run` in that it catches any exceptions and turns
     /// them into a `Fin<A>` result. 
     /// </summary>
     public FinT<IO, A> Try() =>
-        new(new IO<Fin<A>>(
-                env =>
-                {
-                    try
-                    {
-                        return Run(env);
-                    }
-                    catch (Exception e)
-                    {
-                        return (Error)e;
-                    }
-                }));
+        new (Map(Fin<A>.Succ).Catch(Fin<A>.Fail));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -981,16 +890,26 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         return t.Result;
     }
     
-    A AwaitTask(Task<A> t, EnvIO envIO, CancellationToken token)
+    A AwaitTask(Task<A> t, EnvIO envIO, CancellationToken token, CancellationTokenSource source, Option<TimeSpan> timeout)
     {
         if (envIO.Token.IsCancellationRequested) throw new TaskCanceledException();
         if (token.IsCancellationRequested) throw new TaskCanceledException();
-
+        var timedOut = timeout.Map(t => DateTimeOffset.Now.Add(t));
+        
         // Spin waiting for the task to complete or be cancelled
         SpinWait sw = default;
         while (!t.IsCompleted && !token.IsCancellationRequested && !envIO.Token.IsCancellationRequested)
         {
             sw.SpinOnce();
+            if (timedOut.IsSome)
+            {
+                if (DateTimeOffset.Now >= timedOut.Value)
+                {
+                    try { source.Cancel(); }
+                    catch(ObjectDisposedException) { /* ignore if already cancelled */ }
+                    throw Exceptions.TimedOut;
+                }
+            }
         }
 
         if (t.IsCanceled || token.IsCancellationRequested || envIO.Token.IsCancellationRequested)

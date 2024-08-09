@@ -37,7 +37,7 @@ public readonly struct Option<A> :
     IComparable<Option<A>>,
     IComparable,
     ISerializable,
-    K<Option, A>
+    Fallible<Option<A>, Option, Unit, A>
 {
     internal readonly A? Value;
     internal readonly bool isSome;
@@ -211,6 +211,15 @@ public readonly struct Option<A> :
         default;
 
     /// <summary>
+    /// Implicit conversion operator from None to Option<A>
+    /// </summary>
+    /// <param name="a">None value</param>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator Option<A>(in Unit fail) => 
+        default;
+
+    /// <summary>
     /// Comparison operator
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
@@ -331,13 +340,8 @@ public readonly struct Option<A> :
         ma.Combine(None).As();
 
     [Pure, MethodImpl(Opt.Default)]
-    public static Option<A> operator |(Option<A> ma, Unit _) =>
-        ma.Combine(None).As();
-
-    [Pure, MethodImpl(Opt.Default)]
     public static Option<A> operator |(Option<A> ma, CatchM<Unit, Option, A> mb) =>
         (ma.Kind() | mb).As(); 
-    
 
     /// <summary>
     /// Truth operator

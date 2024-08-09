@@ -1094,8 +1094,8 @@ internal class TrieSet<EqK, K> :
         }
     }
 
-    public EnumerableM<K> AsEnumerable() =>
-        Root.AsEnumerableM();
+    public Iterable<K> AsEnumerable() =>
+        Root.AsIterable();
 
     public IEnumerator<K> GetEnumerator() =>
         Root.GetEnumerator();

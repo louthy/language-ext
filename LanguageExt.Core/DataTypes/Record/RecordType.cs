@@ -56,7 +56,7 @@ internal static class RecordTypeIncludeBase<A>
     
     static RecordTypeIncludeBase() =>
         IncludeBase = !typeof(A).CustomAttributes
-                                .AsEnumerableM() 
+                                .AsIterable() 
                                 .Exists(a => a.AttributeType.Name == nameof(IgnoreBaseAttribute));
 }
 

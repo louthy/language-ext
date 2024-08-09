@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
@@ -44,12 +45,12 @@ namespace LanguageExt.Pipes;
 /// <typeparam name="A">The monadic bound variable - it doesn't flow up or down stream, it works just like any bound
 /// monadic variable.  If the effect represented by the `Proxy` ends, then this will be the result value.
 ///
-/// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
+/// When composing `Proxy` subtypes (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
 public abstract record Proxy<UOut, UIn, DIn, DOut, M, A> : K<Proxy<UOut, UIn, DIn, DOut, M>, A>
     where M : Monad<M>
 {
     /// <summary>
-    /// When working with sub-types, like `Producer`, calling this will effectively cast the sub-type to the base.
+    /// When working with subtypes, like `Producer`, calling this will effectively cast the sub-type to the base.
     /// </summary>
     /// <returns>A general `Proxy` type from a more specialised type</returns>
     public abstract Proxy<UOut, UIn, DIn, DOut, M, A> ToProxy();
@@ -76,7 +77,15 @@ public abstract record Proxy<UOut, UIn, DIn, DOut, M, A> : K<Proxy<UOut, UIn, DI
     /// <param name="f">The map function</param>
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
-    public abstract Proxy<UOut, UIn, DIn, DOut, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f); 
+    public abstract Proxy<UOut, UIn, DIn, DOut, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f);
+
+    /// <summary>
+    /// Extract the lifted IO monad (if there is one)
+    /// </summary>
+    /// <param name="f">The map function</param>
+    /// <returns>A new `Proxy` that represents the innermost IO monad, if it exists.</returns>
+    /// <exception cref="ExceptionalException">`Errors.UnliftIONotSupported` if there's no IO monad in the stack</exception>
+    public abstract Proxy<UOut, UIn, DIn, DOut, M, IO<A>> ToIO();
         
     /// <summary>
     /// `For(body)` loops over the `Proxy p` replacing each `yield` with `body`

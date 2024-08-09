@@ -37,7 +37,7 @@ public abstract record Either<L, R> :
     IComparable<Pure<R>>,
     IEquatable<Pure<R>>,
     IEquatable<R>,
-    K<Either<L>, R>
+    Fallible<Either<L, R>, Either<L>, L, R>
 {
     /// <summary>
     /// Is the Either in a Right state?
@@ -568,10 +568,6 @@ public abstract record Either<L, R> :
     [Pure, MethodImpl(Opt.Default)]
     public static Either<L, R> operator |(Either<L, R> ma, Fail<L> mb) =>
         ma.Combine(fail<L, Either<L>, R>(mb.Value)).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Either<L, R> operator |(Either<L, R> ma, L mb) =>
-        ma.Combine(fail<L, Either<L>, R>(mb)).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static Either<L, R> operator |(Either<L, R> ma, CatchM<L, Either<L>, R> mb) =>

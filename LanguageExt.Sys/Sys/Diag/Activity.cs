@@ -189,7 +189,7 @@ public class Activity<M, RT>
     public static K<M, HashMap<string, string?>> baggage =>
         currentActivity.Map(
             a => a is not null
-                     ? a.Baggage.AsEnumerableM().Map(kv => (kv.Key, kv.Value)).ToHashMap()
+                     ? a.Baggage.AsIterable().Map(kv => (kv.Key, kv.Value)).ToHashMap()
                      : HashMap<string, string?>());
 
     /// <summary>
@@ -225,7 +225,7 @@ public class Activity<M, RT>
     public static K<M, HashMap<string, string?>> tags =>
         currentActivity.Map(
             a => a is not null
-                     ? a.Tags.AsEnumerableM().Map(kv => (kv.Key, kv.Value)).ToHashMap()
+                     ? a.Tags.AsIterable().Map(kv => (kv.Key, kv.Value)).ToHashMap()
                      : HashMap<string, string?>());
 
     /// <summary>
@@ -234,7 +234,7 @@ public class Activity<M, RT>
     public static K<M, HashMap<string, object?>> tagObjects =>
         currentActivity.Map(
             a => a is not null
-                     ? a.TagObjects.AsEnumerableM().Map(kv => (kv.Key, kv.Value)).ToHashMap()
+                     ? a.TagObjects.AsIterable().Map(kv => (kv.Key, kv.Value)).ToHashMap()
                      : HashMap<string, object?>());
 
     /// <summary>
@@ -269,7 +269,7 @@ public class Activity<M, RT>
     public static K<M, Seq<ActivityEvent>> events =>
         currentActivity.Map(
             a => a is not null
-                     ? a.Events.AsEnumerableM().ToSeq()
+                     ? a.Events.AsIterable().ToSeq()
                      : Seq<ActivityEvent>());
 
     /// <summary>
@@ -292,7 +292,7 @@ public class Activity<M, RT>
     public static K<M, Seq<ActivityLink>> links =>
         currentActivity.Map(
             a => a is not null
-                     ? a.Links.AsEnumerableM().ToSeq()
+                     ? a.Links.AsIterable().ToSeq()
                      : Seq<ActivityLink>());
 
     /// <summary>

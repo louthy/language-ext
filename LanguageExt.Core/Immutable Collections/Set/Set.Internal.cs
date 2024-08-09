@@ -49,10 +49,10 @@ internal class SetInternal<OrdA, A> :
 
     public override int GetHashCode() =>
         hashCode == 0
-            ? hashCode = FNV32.Hash<OrdA, A>(AsEnumerable())
+            ? hashCode = FNV32.Hash<OrdA, A>(AsIterable())
             : hashCode;
 
-    public EnumerableM<A> AsEnumerable()
+    public Iterable<A> AsIterable()
     {
         IEnumerable<A> Yield()
         {
@@ -62,12 +62,12 @@ internal class SetInternal<OrdA, A> :
                 yield return iter.Current;
             }
         }
-        return new(Yield());
+        return Iterable.createRange(Yield());
     }
 
-    public EnumerableM<A> Skip(int amount)
+    public Iterable<A> Skip(int amount)
     {
-        return new(Go());
+        return Iterable.createRange(Go());
         IEnumerable<A> Go()
         {
             using var iter = new SetModule.SetEnumerator<A>(set, false, amount);
@@ -261,13 +261,13 @@ internal class SetInternal<OrdA, A> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
     /// <returns>Range of values</returns>
     [Pure]
-    public EnumerableM<A> FindRange(A keyFrom, A keyTo)
+    public Iterable<A> FindRange(A keyFrom, A keyTo)
     {
         if (isnull(keyFrom)) throw new ArgumentNullException(nameof(keyFrom));
         if (isnull(keyTo)) throw new ArgumentNullException(nameof(keyTo));
         return OrdA.Compare(keyFrom, keyTo) > 0
-                   ? SetModule.FindRange<OrdA, A>(set, keyTo, keyFrom).AsEnumerableM()
-                   : SetModule.FindRange<OrdA, A>(set, keyFrom, keyTo).AsEnumerableM();
+                   ? SetModule.FindRange<OrdA, A>(set, keyTo, keyFrom).AsIterable()
+                   : SetModule.FindRange<OrdA, A>(set, keyFrom, keyTo).AsIterable();
     }
 
 
@@ -460,7 +460,7 @@ internal class SetInternal<OrdA, A> :
     /// <returns>Filtered enumerable</returns>
     [Pure]
     public SetInternal<OrdA, A> Filter(Func<A, bool> pred) =>
-        new (AsEnumerable().Filter(pred), SetModuleM.AddOpt.TryAdd);
+        new (AsIterable().Filter(pred), SetModuleM.AddOpt.TryAdd);
 
     /// <summary>
     /// Check the existence of an item in the set using a 
@@ -700,7 +700,7 @@ internal class SetInternal<OrdA, A> :
     /// <returns>Unioned set</returns>
     [Pure]
     public SetInternal<OrdA, A> Append(SetInternal<OrdA, A> rhs) =>
-        Union(rhs.AsEnumerable());
+        Union(rhs.AsIterable());
 
     /// <summary>
     /// Subtract operator - performs a subtract of the two sets
@@ -753,7 +753,7 @@ internal class SetInternal<OrdA, A> :
     /// <returns>True if sets are equal</returns>
     [Pure]
     public bool Equals(SetInternal<OrdA, A>? other) =>
-        other is not null && SetEquals(other.AsEnumerable());
+        other is not null && SetEquals(other.AsIterable());
 
     [Pure]
     public int CompareTo(SetInternal<OrdA, A> other)

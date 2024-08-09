@@ -379,7 +379,7 @@ namespace Issues
 
             var result = someData
                             .Select(Some)
-                            .AsEnumerableM()
+                            .AsIterable()
                             .Traverse(x => x)
                             .Map(x => x.ToArray())
                             .As();

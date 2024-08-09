@@ -16,7 +16,7 @@ public class LinqTests
         var res = (from a in opt
                    from x in list
                    from y in x
-                   select a + y).AsEnumerableM();
+                   select a + y).AsIterable();
 
         Assert.True(res.Head().ValueUnsafe()        == "pre hello");
         Assert.True(res.Tail().Head().ValueUnsafe() == "pre world");
@@ -26,7 +26,7 @@ public class LinqTests
         res = (from a in opt
                from x in list
                from y in x
-               select a + y).AsEnumerableM();;
+               select a + y).AsIterable();;
 
         Assert.True(!res.Any());
     }

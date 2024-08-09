@@ -13,27 +13,27 @@ internal static class ValueTasks
     public static async ValueTask<bool> ForAll<A>(IEnumerable<ValueTask<A>> fs, Func<A, bool> pred, CancellationToken token = default)
     {
         var ra = await fs.WindowMap(pred, default).ConfigureAwait(false);
-        return ra.AsEnumerableM().ForAll(identity);
+        return ra.AsIterable().ForAll(identity);
     }
 
     [Pure]
     public static async ValueTask<bool> ForAll<A>(IEnumerable<ValueTask<A>> fs, Func<A, bool> pred, int windowSize, CancellationToken token = default)
     {
         var ra = await fs.WindowMap(windowSize, pred, default).ConfigureAwait(false);
-        return ra.AsEnumerableM().ForAll(identity);
+        return ra.AsIterable().ForAll(identity);
     }
 
     [Pure]
     public static async ValueTask<bool> Exists<A>(IEnumerable<ValueTask<A>> fs, Func<A, bool> pred, CancellationToken token = default)
     {
         var ra = await fs.WindowMap(pred, default).ConfigureAwait(false);
-        return ra.AsEnumerableM().Exists(identity);
+        return ra.AsIterable().Exists(identity);
     }
 
     [Pure]
     public static async ValueTask<bool> Exists<A>(IEnumerable<ValueTask<A>> fs, Func<A, bool> pred, int windowSize, CancellationToken token = default)
     {
         var ra = await fs.WindowMap(windowSize, pred, default).ConfigureAwait(false);
-        return ra.AsEnumerableM().Exists(identity);
+        return ra.AsIterable().Exists(identity);
     }    
 }

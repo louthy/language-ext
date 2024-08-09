@@ -12,7 +12,8 @@ namespace LanguageExt;
 /// <param name="runOption">Transducer that represents the transformer operation</param>
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
+public record OptionT<M, A>(K<M, Option<A>> runOption) : 
+    Fallible<OptionT<M, A>, OptionT<M>, Unit, A>
     where M : Monad<M>
 {
     /// <summary>
@@ -359,7 +360,7 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
     //  Oerators
     //
     
-    public static implicit operator OptionT<M, A>(Option<A> ma) =>
+    public static implicit operator OptionT<M, A>(in Option<A> ma) =>
         Lift(ma);
     
     public static implicit operator OptionT<M, A>(Pure<A> ma) =>
@@ -367,7 +368,10 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
     
     public static implicit operator OptionT<M, A>(Fail<Unit> ma) =>
         Lift(Option<A>.None);
-    
+
+    public static implicit operator OptionT<M, A>(in Unit fail) => 
+        Lift(Option<A>.None);
+
     public static implicit operator OptionT<M, A>(IO<A> ma) =>
         LiftIO(ma);
     
@@ -404,10 +408,6 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
     public static OptionT<M, A> operator |(OptionT<M, A> ma, Fail<Unit> _) =>
         ma.Combine(fail<Unit, OptionT<M>, A>(default)).As();
 
-    public static OptionT<M, A> operator |(OptionT<M, A> ma, Unit _) =>
-        ma.Combine(fail<Unit, OptionT<M>, A>(default)).As();
-
     public static OptionT<M, A> operator |(OptionT<M, A> ma, CatchM<Unit, OptionT<M>, A> mb) =>
         (ma.Kind() | mb).As(); 
-    
 }

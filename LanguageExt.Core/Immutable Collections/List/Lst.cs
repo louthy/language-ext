@@ -186,7 +186,7 @@ public readonly struct Lst<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lens<Lst<A>, Lst<B>> map<B>(Lens<A, B> lens) => Lens<Lst<A>, Lst<B>>.New(
         Get: la => la.Map(lens.Get),
-        Set: lb => la => la.Zip(lb).Select(ab => lens.Set(ab.Item2, ab.Item1)).AsEnumerableM().ToLst()
+        Set: lb => la => la.Zip(lb).Select(ab => lens.Set(ab.Item2, ab.Item1)).AsIterable().ToLst()
     );
 
     /// <summary>
@@ -258,7 +258,7 @@ public readonly struct Lst<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains(A value) =>
-        Value.AsEnumerableM().Find(a => EqDefault<A>.Equals(a, value)).IsSome;
+        Value.AsIterable().Find(a => EqDefault<A>.Equals(a, value)).IsSome;
 
     /// <summary>
     /// Contains with provided Eq class instance
@@ -269,7 +269,7 @@ public readonly struct Lst<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains<EqA>(A value) where EqA : Eq<A> =>
-        Value.AsEnumerableM().Find(a => EqA.Equals(a, value)).IsSome;
+        Value.AsIterable().Find(a => EqA.Equals(a, value)).IsSome;
 
     /// <summary>
     /// Add an item to the end of the list
@@ -394,7 +394,7 @@ public readonly struct Lst<A> :
     /// <returns>IEnumerable of items</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<A> FindRange(int index, int count) =>
+    public Iterable<A> FindRange(int index, int count) =>
         Value.FindRange(index, count);
 
     [Pure]
@@ -441,12 +441,12 @@ public readonly struct Lst<A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<A> AsEnumerable() =>
-        new(this);
+    public Iterable<A> AsIterable() =>
+        Iterable.createRange(this);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<A> Skip(int amount) =>
+    public Iterable<A> Skip(int amount) =>
         Value.Skip(amount);
 
     /// <summary>
@@ -548,7 +548,7 @@ public readonly struct Lst<A> :
         obj switch
         {
             Lst<A> s         => Equals(s),
-            IEnumerable<A> e => Equals(e.AsEnumerableM().ToLst()),
+            IEnumerable<A> e => Equals(e.AsIterable().ToLst()),
             _                => false
         };
 
@@ -567,7 +567,7 @@ public readonly struct Lst<A> :
         obj switch
         {
             Lst<A> s         => CompareTo(s),
-            IEnumerable<A> e => CompareTo(e.AsEnumerableM().ToLst()),
+            IEnumerable<A> e => CompareTo(e.AsIterable().ToLst()),
             _                => 1
         };
 

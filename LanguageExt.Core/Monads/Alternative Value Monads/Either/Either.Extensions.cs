@@ -104,7 +104,7 @@ public static class EitherExtensions
     /// <returns>An enumerable of L</returns>
     [Pure]
     public static Seq<L> Lefts<L, R>(this Seq<Either<L, R>> self) =>
-        Lefts(self.AsEnumerable()).AsEnumerableM().ToSeq();
+        Lefts(self.AsEnumerable()).AsIterable().ToSeq();
 
     /// <summary>
     /// Extracts from a list of 'Either' all the 'Right' elements.
@@ -136,7 +136,7 @@ public static class EitherExtensions
     /// <returns>An enumerable of L</returns>
     [Pure]
     public static Seq<R> Rights<L, R>(this Seq<Either<L, R>> self) =>
-        Rights(self.AsEnumerable()).AsEnumerableM().ToSeq();
+        Rights(self.AsEnumerable()).AsIterable().ToSeq();
 
     /// <summary>
     /// Partitions a list of 'Either' into two lists.
@@ -175,7 +175,7 @@ public static class EitherExtensions
     public static (Seq<L> Lefts, Seq<R> Rights) Partition<L, R>(this Seq<Either<L, R>> self)
     {
         var (l, r) =self.AsEnumerable().Partition();
-        return (l.AsEnumerableM().ToSeq(), r.AsEnumerableM().ToSeq());
+        return (l.AsIterable().ToSeq(), r.AsIterable().ToSeq());
     }
 
     /// <summary>
@@ -280,9 +280,9 @@ public static class EitherExtensions
     public static Eff<R> ToEff<R>(this Either<Error, R> ma) =>
         ma switch
         {
-            Either.Right<Error, R>       => Pure(ma.RightValue),
-            Either.Left<Error, R> => Fail(ma.LeftValue),
-            _                     => throw new BottomException()
+            Either.Right<Error, R> => Pure(ma.RightValue),
+            Either.Left<Error, R>  => Fail(ma.LeftValue),
+            _                      => throw new BottomException()
         };
 
     /// <summary>

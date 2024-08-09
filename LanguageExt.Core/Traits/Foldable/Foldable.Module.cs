@@ -470,13 +470,13 @@ public static class Foldable
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
-    public static EnumerableM<A> toEnumerable<T, A>(K<T, A> ta) 
+    public static Iterable<A> toEnumerable<T, A>(K<T, A> ta) 
         where T : Foldable<T> =>
         T.Fold(a => s =>
                     {
                         s.Add(a);
                         return s;
-                    }, new System.Collections.Generic.List<A>(), ta).AsEnumerableM();
+                    }, new System.Collections.Generic.List<A>(), ta).AsIterable();
 
     /// <summary>
     /// List of elements of a structure, from left to right

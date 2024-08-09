@@ -5,6 +5,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -125,10 +126,11 @@ public readonly struct Stck<A> :
     /// <returns>IEnumerator of T</returns>
     [Pure]
     public IEnumerator<A> GetEnumerator() =>
-        AsEnumerable().GetEnumerator();
+        // ReSharper disable once NotDisposedResourceIsReturned
+        AsIterable().GetEnumerator();
 
     /// <summary>
-    /// Returns the stack as a Sq.  The first item in the sequence
+    /// Returns the stack as a Seq.  The first item in the sequence
     /// will be the item at the top of the stack.
     /// </summary>
     /// <returns>IEnumerable of T</returns>
@@ -166,8 +168,8 @@ public readonly struct Stck<A> :
     /// </summary>
     /// <returns>IEnumerable of T</returns>
     [Pure]
-    public EnumerableM<A> AsEnumerable() =>
-        new(Value);
+    public Iterable<A> AsIterable() =>
+        Iterable.createRange(Value);
 
     /// <summary>
     /// Impure iteration of the bound value in the structure
@@ -183,9 +185,9 @@ public readonly struct Stck<A> :
 
     /// <summary>
     /// Return the item on the top of the stack without affecting the stack itself
-    /// NOTE: Will throw an InvalidOperationException if the stack is empty
+    /// NOTE: Will throw an ExpectedException if the stack is empty
     /// </summary>
-    /// <exception cref="InvalidOperationException">Stack is empty</exception>
+    /// <exception cref="ExpectedException">Stack is empty</exception>
     /// <returns>Top item value</returns>
     [Pure]
     public A Peek() =>
@@ -222,9 +224,9 @@ public readonly struct Stck<A> :
 
     /// <summary>
     /// Pop an item off the top of the stack
-    /// NOTE: Will throw an InvalidOperationException if the stack is empty
+    /// NOTE: Will throw an ExpectedException if the stack is empty
     /// </summary>
-    /// <exception cref="InvalidOperationException">Stack is empty</exception>
+    /// <exception cref="ExpectedException">Stack is empty</exception>
     /// <returns>Stack with the top item popped</returns>
     [Pure]
     public Stck<A> Pop() =>
@@ -274,7 +276,8 @@ public readonly struct Stck<A> :
     /// <returns>IEnumerator of T</returns>
     [Pure]
     IEnumerator IEnumerable.GetEnumerator() =>
-        AsEnumerable().GetEnumerator();
+        // ReSharper disable once NotDisposedResourceIsReturned
+        AsIterable().GetEnumerator();
         
     /// <summary>
     /// Implicit conversion from an untyped empty list

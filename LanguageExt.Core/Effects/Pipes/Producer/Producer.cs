@@ -51,16 +51,20 @@ public static class Producer
     [Pure, MethodImpl(mops)]
     public static Producer<X, M, Unit> yieldAll<M, X>(IEnumerable<X> xs)
         where M : Monad<M> =>
-        new IteratorFoldable<Void, Unit, Unit, X, EnumerableM, X, M, Unit>(
-            xs.AsEnumerableM(),
-            yield<X, M>,
-            () => Pure<X, M, Unit>(unit))
+        new IteratorFoldable<Void, Unit, Unit, X, Iterable, X, M, Unit>(
+                xs.AsIterable(),
+                yield<X, M>,
+                () => Pure<X, M, Unit>(unit))
            .ToProducer();
-    
+
     [Pure, MethodImpl(mops)]
     public static Producer<X, M, Unit> yieldAll<M, X>(IAsyncEnumerable<X> xs)
         where M : Monad<M> =>
-        yieldAll<M, X>(xs.ToBlockingEnumerable());
+        new IteratorAsyncEnumerable<Void, Unit, Unit, X, Iterable, X, M, Unit>(
+                xs,
+                yield<X, M>,
+                () => Pure<X, M, Unit>(unit))
+           .ToProducer();
 
     [Pure, MethodImpl(mops)]
     public static Producer<X, M, Unit> yieldAll<M, X>(IObservable<X> xs)
@@ -243,7 +247,7 @@ public static class Producer
         var complete = new CountdownEvent(ms.Count);
         var wait     = new AutoResetEvent(false);
         var queue    = new ConcurrentQueue<OUT>();
-        var effects  = ms.Map(runEffect).Actions();
+        var effects  = ms.Traverse(runEffect);
 
         return from t in liftIO<OUT, M, CancellationToken>(cancelToken)
                from _ in effects
@@ -290,13 +294,12 @@ public static class Producer
             return unit;
         }
 
-        K<M, ForkIO<Unit>> runEffect(Producer<OUT, M, Unit> p) =>
+        K<M, Unit> runEffect(Producer<OUT, M, Unit> p) =>
             (from _1 in p | receive()
              let _2 = countDown()
              select unit)
             .ToEffect()
-            .RunEffect()
-            .ForkIO();    
+            .RunEffect();    
     }
     
     /// <summary>
@@ -307,7 +310,7 @@ public static class Producer
     /// <returns>Queues merged into a single producer</returns>
     public static Producer<OUT, M, Unit> merge<OUT, M>(params Queue<OUT, M, Unit>[] ms) 
         where M : Monad<M> =>
-        merge(ms.AsEnumerableM().ToSeq().Map(m => (Producer<OUT, M, Unit>)m));
+        merge(ms.AsIterable().ToSeq().Map(m => (Producer<OUT, M, Unit>)m));
  
     /// <summary>
     /// Merge an array of producers into a single producer

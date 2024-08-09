@@ -58,31 +58,31 @@ public record DirectoryIO : Traits.DirectoryIO
         lift(() => Directory.GetLastAccessTimeUtc(path));
 
     public IO<Seq<string>> EnumerateDirectories(string path) =>
-        lift(() => Directory.EnumerateDirectories(path).AsEnumerableM().ToSeq());
+        lift(() => Directory.EnumerateDirectories(path).AsIterable().ToSeq());
 
     public IO<Seq<string>> EnumerateDirectories(string path, string searchPattern) =>
-        lift(() => Directory.EnumerateDirectories(path, searchPattern).AsEnumerableM().ToSeq());
+        lift(() => Directory.EnumerateDirectories(path, searchPattern).AsIterable().ToSeq());
 
     public IO<Seq<string>> EnumerateDirectories(string path, string searchPattern, SearchOption searchOption) =>
-        lift(() => Directory.EnumerateDirectories(path, searchPattern, searchOption).AsEnumerableM().ToSeq());
+        lift(() => Directory.EnumerateDirectories(path, searchPattern, searchOption).AsIterable().ToSeq());
 
     public IO<Seq<string>> EnumerateFiles(string path) =>
-        lift(() => Directory.EnumerateFiles(path).AsEnumerableM().ToSeq());
+        lift(() => Directory.EnumerateFiles(path).AsIterable().ToSeq());
 
     public IO<Seq<string>> EnumerateFiles(string path, string searchPattern) =>
-        lift(() => Directory.EnumerateFiles(path, searchPattern).AsEnumerableM().ToSeq());
+        lift(() => Directory.EnumerateFiles(path, searchPattern).AsIterable().ToSeq());
 
     public IO<Seq<string>> EnumerateFiles(string path, string searchPattern, SearchOption searchOption) =>
-        lift(() => Directory.EnumerateFiles(path, searchPattern, searchOption).AsEnumerableM().ToSeq());
+        lift(() => Directory.EnumerateFiles(path, searchPattern, searchOption).AsIterable().ToSeq());
 
     public IO<Seq<string>> EnumerateFileSystemEntries(string path) =>
-        lift(() => Directory.EnumerateFileSystemEntries(path).AsEnumerableM().ToSeq());
+        lift(() => Directory.EnumerateFileSystemEntries(path).AsIterable().ToSeq());
 
     public IO<Seq<string>> EnumerateFileSystemEntries(string path, string searchPattern) =>
-        lift(() => Directory.EnumerateFileSystemEntries(path, searchPattern).AsEnumerableM().ToSeq());
+        lift(() => Directory.EnumerateFileSystemEntries(path, searchPattern).AsIterable().ToSeq());
 
     public IO<Seq<string>> EnumerateFileSystemEntries(string path, string searchPattern, SearchOption searchOption)  =>
-        lift(() => Directory.EnumerateFileSystemEntries(path, searchPattern, searchOption).AsEnumerableM().ToSeq());
+        lift(() => Directory.EnumerateFileSystemEntries(path, searchPattern, searchOption).AsIterable().ToSeq());
 
     public IO<string> GetDirectoryRoot(string path) =>
         lift(() => Directory.GetDirectoryRoot(path));
@@ -97,5 +97,5 @@ public record DirectoryIO : Traits.DirectoryIO
         lift(() => Directory.Move(sourceDirName, destDirName));
 
     public IO<Seq<string>> GetLogicalDrives() =>
-        lift(() => Directory.GetLogicalDrives().AsEnumerableM().ToSeq());
+        lift(() => Directory.GetLogicalDrives().AsIterable().ToSeq());
 }

@@ -106,11 +106,11 @@ public class OptionTTests
     {
         var opt = Some(Map((1, "A"), (2, "B"), (3, "C"), (4, "D"), (5, "E")));
 
-        var res = from x in opt.AsEnumerableM()
+        var res = from x in opt.AsIterable()
                   from y in x.AsEnumerable()
                   select y.Value.ToLower();
 
-        var fd = res.AsEnumerableM().Fold("", (s, x) => s + x);
+        var fd = res.AsIterable().Fold("", (s, x) => s + x);
 
         Assert.True(fd == "abcde");
     }

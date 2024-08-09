@@ -601,8 +601,8 @@ public class AtomSeq<A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<A> AsEnumerable() => 
-        new(items);
+    public Iterable<A> AsIterable() => 
+        items.AsIterable();
 
     /// <summary>
     /// Match empty sequence, or multi-item sequence
@@ -1419,11 +1419,13 @@ public class AtomSeq<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerator<A> GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         items.GetEnumerator();
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator IEnumerable.GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         items.GetEnumerator();
 
     [Pure]

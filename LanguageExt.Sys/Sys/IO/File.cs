@@ -133,7 +133,7 @@ public class File<M, RT>
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    public static Producer<Stream, M, Unit> openRead(string path) =>
+    public static Producer<System.IO.Stream, M, Unit> openRead(string path) =>
         from s in openReadInternal(path)
         from _ in Proxy.yield(s)
         select unit;
@@ -142,7 +142,7 @@ public class File<M, RT>
     /// Open a file-stream
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
-    public static Producer<Stream, M, Unit> open(string path, FileMode mode) =>
+    public static Producer<System.IO.Stream, M, Unit> open(string path, FileMode mode) =>
         from s in openInternal(path, mode)
         from _ in Proxy.yield(s)
         select unit;
@@ -151,7 +151,7 @@ public class File<M, RT>
     /// Open a file-stream
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
-    public static Producer<Stream, M, Unit> open(string path, FileMode mode, FileAccess access) =>
+    public static Producer<System.IO.Stream, M, Unit> open(string path, FileMode mode, FileAccess access) =>
         from s in openInternal(path, mode, access)
         from _ in Proxy.yield(s)
         select unit;
@@ -160,7 +160,7 @@ public class File<M, RT>
     /// Open a file-stream
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
-    public static Producer<Stream, M, Unit> openWrite(string path) =>
+    public static Producer<System.IO.Stream, M, Unit> openWrite(string path) =>
         from s in openWriteInternal(path)
         from _ in Proxy.yield(s)
         select unit;
@@ -170,7 +170,7 @@ public class File<M, RT>
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    static K<M, Stream> openReadInternal(string path) =>
+    static K<M, System.IO.Stream> openReadInternal(string path) =>
         from io in fileIO.Map(e => e.OpenRead(path))
         from rs in use(io)
         select rs;
@@ -179,7 +179,7 @@ public class File<M, RT>
     /// Open a file-stream
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
-    static K<M, Stream> openInternal(string path, FileMode mode) =>
+    static K<M, System.IO.Stream> openInternal(string path, FileMode mode) =>
         from io in fileIO.Map(e => e.Open(path, mode))
         from rs in use(io)
         select rs;
@@ -188,7 +188,7 @@ public class File<M, RT>
     /// Open a file-stream
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
-    static K<M, Stream> openInternal(string path, FileMode mode, FileAccess access) =>
+    static K<M, System.IO.Stream> openInternal(string path, FileMode mode, FileAccess access) =>
         from io in fileIO.Map(e => e.Open(path, mode, access))
         from rs in use(io)
         select rs;
@@ -197,7 +197,7 @@ public class File<M, RT>
     /// Open a file-stream
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
-    static K<M, Stream> openWriteInternal(string path) =>
+    static K<M, System.IO.Stream> openWriteInternal(string path) =>
         from io in fileIO.Map(e => e.OpenWrite(path))
         from rs in use(io)
         select rs;

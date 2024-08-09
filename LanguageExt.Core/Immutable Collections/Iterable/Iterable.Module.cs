@@ -1,12 +1,8 @@
-﻿#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
-
-using System;
+﻿using System;
+using LanguageExt.Traits;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
-using System.Linq;
-using LanguageExt.Traits;
-using LanguageExt.ClassInstances;
 using System.Runtime.CompilerServices;
 
 namespace LanguageExt;
@@ -17,14 +13,14 @@ namespace LanguageExt;
 /// issues of multiple evaluation for key LINQ operators like Skip, Count, etc.
 /// </summary>
 /// <typeparam name="A">Type of the values in the sequence</typeparam>
-public partial class EnumerableM
+public partial class Iterable
 {
     /// <summary>
     /// Monadic join
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<A> flatten<A>(EnumerableM<EnumerableM<A>> ma) =>
+    public static Iterable<A> flatten<A>(Iterable<Iterable<A>> ma) =>
         ma.Bind(identity);
 
     /// <summary>
@@ -32,16 +28,16 @@ public partial class EnumerableM
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<A> empty<A>() =>
-        EnumerableM<A>.Empty;
+    public static Iterable<A> empty<A>() =>
+        Iterable<A>.Empty;
 
     /// <summary>
     /// Create an empty sequence
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<A> singleton<A>(A value) =>
-        [value];
+    public static Iterable<A> singleton<A>(A value) =>
+        new IterableEnumerable<A>([value]);
 
     /// <summary>
     /// Create a new empty sequence
@@ -49,8 +45,8 @@ public partial class EnumerableM
     /// <returns>sequence</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<A> create<A>() =>
-        EnumerableM<A>.Empty;
+    public static Iterable<A> create<A>() =>
+        Iterable<A>.Empty;
 
     /// <summary>
     /// Create a sequence from a initial set of items
@@ -58,12 +54,12 @@ public partial class EnumerableM
     /// <param name="items">Items</param>
     /// <returns>sequence</returns>
     [Pure]
-    public static EnumerableM<A> create<A>(params A[] items)
+    public static Iterable<A> create<A>(params A[] items)
     {
-        if (items.Length == 0) return EnumerableM<A>.Empty;
+        if (items.Length == 0) return Iterable<A>.Empty;
         var nitems = new A[items.Length];
         System.Array.Copy(items, nitems, items.Length);
-        return FromArray(items);
+        return Iterable<A>.FromSpan(items);
     }
 
     /// <summary>
@@ -73,8 +69,8 @@ public partial class EnumerableM
     /// <returns>sequence</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<A> createRange<A>(ReadOnlySpan<A> items) =>
-        items.Length == 0 ? EnumerableM<A>.Empty : new (items);
+    public static Iterable<A> createRange<A>(ReadOnlySpan<A> items) =>
+        items.Length == 0 ? Iterable<A>.Empty : Iterable<A>.FromSpan(items);
 
     /// <summary>
     /// Create a sequence from an initial set of items
@@ -83,8 +79,8 @@ public partial class EnumerableM
     /// <returns>sequence</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<A> createRange<A>(IEnumerable<A> items) =>
-        new (items);
+    public static Iterable<A> createRange<A>(IEnumerable<A> items) =>
+        new IterableEnumerable<A>(items);
 
     /// <summary>
     /// Generates a sequence of A using the provided delegate to initialise
@@ -92,16 +88,16 @@ public partial class EnumerableM
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<A> generate<A>(int count, Func<int, A> generator) =>
-        Range(0, count).AsEnumerableM().Map(generator);
+    public static Iterable<A> generate<A>(int count, Func<int, A> generator) =>
+        IterableExtensions.AsIterable(Range(0, count)).Map(generator);
 
     /// <summary>
     /// Generates a sequence that contains one repeated value.
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<A> repeat<A>(A item, int count) =>
-        Range(0, count).AsEnumerableM().Map(_ => item);
+    public static Iterable<A> repeat<A>(A item, int count) =>
+        IterableExtensions.AsIterable(Range(0, count)).Map(_ => item);
 
     /// <summary>
     /// Get the item at the head (first) of the sequence or None if the sequence is empty
@@ -110,7 +106,7 @@ public partial class EnumerableM
     /// <returns>Optional head item</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<A> head<A>(EnumerableM<A> list) =>
+    public static Option<A> head<A>(Iterable<A> list) =>
         list.Head();
 
     /// <summary>
@@ -123,19 +119,19 @@ public partial class EnumerableM
     /// <returns>Mapped and filtered sequence</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<B> choose<A, B>(EnumerableM<A> list, Func<A, Option<B>> selector) =>
+    public static Iterable<B> choose<A, B>(Iterable<A> list, Func<A, Option<B>> selector) =>
         list.Map(selector).Filter(t => t.IsSome).Map(t => t.Value!);
 
     /// <summary>
     /// Reverses the sequence (Reverse in LINQ)
     /// </summary>
-    /// <typeparam name="T">sequence item type</typeparam>
+    /// <typeparam name="A">sequence item type</typeparam>
     /// <param name="list">sequence to reverse</param>
     /// <returns>Reversed sequence</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<T> rev<T>(EnumerableM<T> list) =>
-        new (list.Reverse());
+    public static Iterable<A> rev<A>(Iterable<A> list) =>
+        list.Reverse();
 
     /// <summary>
     /// Applies a function to each element of the sequence, threading an accumulator argument 
@@ -145,25 +141,14 @@ public partial class EnumerableM
     /// results and the final result.
     /// </summary>
     /// <typeparam name="S">State type</typeparam>
-    /// <typeparam name="T">sequence item type</typeparam>
+    /// <typeparam name="A">sequence item type</typeparam>
     /// <param name="list">sequence to fold</param>
     /// <param name="state">Initial state</param>
     /// <param name="folder">Folding function</param>
     /// <returns>Aggregate state</returns>
     [Pure]
-    public static EnumerableM<S> scan<S, T>(EnumerableM<T> list, S state, Func<S, T, S> folder)
-    {
-        IEnumerable<S> Yield()
-        {
-            yield return state;
-            foreach (var item in list)
-            {
-                state = folder(state, item);
-                yield return state;
-            }
-        }
-        return new (Yield());
-    }
+    public static Iterable<S> scan<S, A>(Iterable<A> list, S state, Func<S, A, S> folder) =>
+        list.Scan(state, folder);
 
     /// <summary>
     /// Applies a function to each element of the sequence (from last element to first), 
@@ -173,14 +158,14 @@ public partial class EnumerableM
     /// it returns the list of intermediate results and the final result.
     /// </summary>
     /// <typeparam name="S">State type</typeparam>
-    /// <typeparam name="T">Enumerable item type</typeparam>
+    /// <typeparam name="A">Enumerable item type</typeparam>
     /// <param name="list">Enumerable to fold</param>
     /// <param name="state">Initial state</param>
     /// <param name="folder">Folding function</param>
     /// <returns>Aggregate state</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<S> scanBack<S, T>(EnumerableM<T> list, S state, Func<S, T, S> folder) =>
+    public static Iterable<S> scanBack<S, A>(Iterable<A> list, S state, Func<S, A, S> folder) =>
         scan(rev(list), state, folder);
 
     /// <summary>
@@ -193,8 +178,8 @@ public partial class EnumerableM
     /// <returns>Joined sequence</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<V> zip<T, U, V>(EnumerableM<T> list, EnumerableM<U> other, Func<T, U, V> zipper) =>
-        new (list.Zip(other, zipper));
+    public static Iterable<C> zip<A, B, C>(Iterable<A> list, Iterable<B> other, Func<A, B, C> zipper) =>
+        list.Zip(other, zipper);
 
     /// <summary>
     /// Joins two sequences together either into an sequence of tuples
@@ -205,124 +190,66 @@ public partial class EnumerableM
     /// <returns>Joined sequence of tuples</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<(T Left, U Right)> zip<T, U>(EnumerableM<T> list, EnumerableM<U> other) =>
-        new (list.Zip(other, (t, u) => (t, u)));
+    public static Iterable<(A Left, B Right)> zip<A, B>(Iterable<A> list, Iterable<B> other) =>
+        list.Zip(other, (t, u) => (t, u));
 
     /// <summary>
     /// Return a new sequence with all duplicate values removed
     /// </summary>
-    /// <typeparam name="T">sequence item type</typeparam>
+    /// <typeparam name="A">sequence item type</typeparam>
     /// <param name="list">sequence</param>
     /// <returns>A new sequence with all duplicate values removed</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<T> distinct<T>(EnumerableM<T> list) =>
-        new (list.Distinct());
+    public static Iterable<A> distinct<A>(Iterable<A> list) =>
+        list.Distinct();
 
     /// <summary>
     /// Return a new sequence with all duplicate values removed
     /// </summary>
-    /// <typeparam name="T">sequence item type</typeparam>
+    /// <typeparam name="A">sequence item type</typeparam>
     /// <param name="list">sequence</param>
     /// <returns>A new sequence with all duplicate values removed</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<T> distinct<EQ, T>(EnumerableM<T> list) where EQ : Eq<T> =>
-        new (list.Distinct(new EqCompare<T>(static (x, y) => EQ.Equals(x, y), static x => EQ.GetHashCode(x))));
-
-    /// <summary>
-    /// Return a new sequence with all duplicate values removed
-    /// </summary>
-    /// <typeparam name="T">sequence item type</typeparam>
-    /// <param name="list">sequence</param>
-    /// <returns>A new sequence with all duplicate values removed</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<T> distinct<T, K>(EnumerableM<T> list, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default) =>
-        new (list.Distinct(new EqCompare<T>(
-                               (a, b) => compare.IfNone(EqDefault<K>.Equals)(keySelector(a), keySelector(b)), 
-                               a => compare.Match(Some: _  => 0, None: () => EqDefault<K>.GetHashCode(keySelector(a))))));
+    public static Iterable<A> distinct<EqA, A>(Iterable<A> list) where EqA : Eq<A> =>
+        list.Distinct<EqA>();
 
     /// <summary>
     /// Returns a new sequence with the first 'count' items from the sequence provided
     /// </summary>
-    /// <typeparam name="T">sequence item type</typeparam>
+    /// <typeparam name="A">sequence item type</typeparam>
     /// <param name="list">sequence</param>
     /// <param name="count">Number of items to take</param>
     /// <returns>A new sequence with the first 'count' items from the sequence provided</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<T> take<T>(EnumerableM<T> list, int count) =>
+    public static Iterable<A> take<A>(Iterable<A> list, int count) =>
         list.Take(count);
 
     /// <summary>
     /// Iterate the sequence, yielding items if they match the predicate provided, and stopping 
     /// as soon as one doesn't
     /// </summary>
-    /// <typeparam name="T">sequence item type</typeparam>
+    /// <typeparam name="A">sequence item type</typeparam>
     /// <param name="list">sequence</param>
     /// <param name="count">Number of items to take</param>
     /// <returns>A new sequence with the first items that match the predicate</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<T> takeWhile<T>(EnumerableM<T> list, Func<T, bool> pred) =>
+    public static Iterable<A> takeWhile<A>(Iterable<A> list, Func<A, bool> pred) =>
         list.TakeWhile(pred);
 
     /// <summary>
     /// Iterate the sequence, yielding items if they match the predicate provided, and stopping 
     /// as soon as one doesn't.  An index value is also provided to the predicate function.
     /// </summary>
-    /// <typeparam name="T">sequence item type</typeparam>
+    /// <typeparam name="A">sequence item type</typeparam>
     /// <param name="list">sequence</param>
     /// <param name="count">Number of items to take</param>
     /// <returns>A new sequence with the first items that match the predicate</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<T> takeWhile<T>(EnumerableM<T> list, Func<T, int, bool> pred) =>
+    public static Iterable<A> takeWhile<A>(Iterable<A> list, Func<A, int, bool> pred) =>
         list.TakeWhile(pred);
-
-    /// <summary>
-    /// Span, applied to a predicate 'pred' and a list, returns a tuple where first element is 
-    /// longest prefix (possibly empty) of elements that satisfy 'pred' and second element is the 
-    /// remainder of the list:
-    /// </summary>
-    /// <example>
-    /// Seq.span(Seq(1,2,3,4,1,2,3,4), x => x &lt; 3) == (Seq(1,2), Seq(3,4,1,2,3,4))
-    /// </example>
-    /// <example>
-    /// Seq.span(Seq(1,2,3), x => x &lt; 9) == (Seq(1,2,3), Seq())
-    /// </example>
-    /// <example>
-    /// Seq.span(Seq(1,2,3), x => x &lt; 0) == (Seq(), Seq(1,2,3))
-    /// </example>
-    /// <typeparam name="T">List element type</typeparam>
-    /// <param name="self">List</param>
-    /// <param name="pred">Predicate</param>
-    /// <returns>Split list</returns>
-    [Pure]
-    public static (EnumerableM<T>, EnumerableM<T>) span<T>(EnumerableM<T> self, Func<T, bool> pred)
-    {
-        int index = 0;
-        foreach (var item in self)
-        {
-            if (!pred(item))
-            {
-                break;
-            }
-            index++;
-        }
-        return (self.Take(index), self.Skip(index));
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static EnumerableM<A> FromSingleValue<A>(A value) =>
-        new (SeqStrict<A>.FromSingleValue(value));
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static EnumerableM<A> FromArray<A>(A[] value) =>
-        new (new SeqStrict<A>(value, 0, value.Length, 0, 0));
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static EnumerableM<A> FromArray<A>(A[] value, int length) =>
-        new (new SeqStrict<A>(value, 0, length, 0, 0));
 }

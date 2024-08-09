@@ -557,7 +557,7 @@ public readonly struct Map<K, V> :
     /// <returns>Range of values</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<V> FindRange(K keyFrom, K keyTo) => Value.FindRange(keyFrom, keyTo);
+    public Iterable<V> FindRange(K keyFrom, K keyTo) => Value.FindRange(keyFrom, keyTo);
 
     /// <summary>
     /// Retrieve a range of values 
@@ -568,7 +568,7 @@ public readonly struct Map<K, V> :
     /// <returns>Range of key, values</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<(K Key, V Value)> FindRangePairs(K keyFrom, K keyTo) => Value.FindRangePairs(keyFrom, keyTo);
+    public Iterable<(K Key, V Value)> FindRangePairs(K keyFrom, K keyTo) => Value.FindRangePairs(keyFrom, keyTo);
 
     /// <summary>
     /// Skips 'amount' values and returns a new tree without the 
@@ -578,7 +578,7 @@ public readonly struct Map<K, V> :
     /// <returns>New tree</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<(K Key, V Value)> Skip(int amount) => Value.Skip(amount);
+    public Iterable<(K Key, V Value)> Skip(int amount) => Value.Skip(amount);
 
     /// <summary>
     /// Checks for existence of a key in the map
@@ -711,7 +711,7 @@ public readonly struct Map<K, V> :
     /// Enumerable of map keys
     /// </summary>
     [Pure]
-    public EnumerableM<K> Keys
+    public Iterable<K> Keys
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Value.Keys;
@@ -721,7 +721,7 @@ public readonly struct Map<K, V> :
     /// Enumerable of map values
     /// </summary>
     [Pure]
-    public EnumerableM<V> Values
+    public Iterable<V> Values
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Value.Values;
@@ -741,7 +741,7 @@ public readonly struct Map<K, V> :
     /// </summary>
     /// <returns>Tuples</returns>
     [Pure]
-    public EnumerableM<(K Key, V Value)> Pairs
+    public Iterable<(K Key, V Value)> Pairs
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Value.Pairs;
@@ -753,7 +753,7 @@ public readonly struct Map<K, V> :
     /// <returns>Tuples</returns>
     [Pure]
     [Obsolete("Use Pairs instead")]
-    public EnumerableM<(K Key, V Value)> ValueTuples =>
+    public Iterable<(K Key, V Value)> ValueTuples =>
         Value.Pairs;
 
     /// <summary>
@@ -814,7 +814,7 @@ public readonly struct Map<K, V> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<(K Key, V Value)> AsEnumerable() => 
+    public Iterable<(K Key, V Value)> AsEnumerable() => 
         Value.AsEnumerable();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

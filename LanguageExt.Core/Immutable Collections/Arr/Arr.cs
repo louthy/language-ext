@@ -135,7 +135,7 @@ public struct Arr<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lens<Arr<A>, Arr<B>> map<B>(Lens<A, B> lens) => Lens<Arr<A>, Arr<B>>.New(
         Get: la => la.Map(lens.Get),
-        Set: lb => la => la.Zip(lb).Select(ab => lens.Set(ab.Item2, ab.Item1)).AsEnumerableM().ToArr());
+        Set: lb => la => la.Zip(lb).Select(ab => lens.Set(ab.Item2, ab.Item1)).AsIterable().ToArr());
 
     /// <summary>
     /// Index accessor
@@ -533,12 +533,13 @@ public struct Arr<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         Value.AsEnumerable().GetEnumerator();
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<A> AsEnumerable() =>
-        new(this);
+    public Iterable<A> AsIterable() =>
+        Iterable.createRange(this);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -574,8 +575,8 @@ public struct Arr<A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<A> Skip(int amount) =>
-        new(Value.Skip(amount));
+    public Iterable<A> Skip(int amount) =>
+        Value.Skip(amount).AsIterable();
 
     /// <summary>
     /// Reverse the order of the items in the array

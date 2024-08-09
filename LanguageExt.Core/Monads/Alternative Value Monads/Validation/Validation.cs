@@ -25,7 +25,7 @@ public abstract record Validation<F, A> :
     IEquatable<Pure<A>>,
     IComparable<Pure<A>>,
     IEquatable<A>, 
-    K<Validation<F>, A>
+    Fallible<Validation<F, A>, Validation<F>, F, A>
     where F : Monoid<F>
 {
     [Pure]
@@ -604,28 +604,33 @@ public abstract record Validation<F, A> :
 
     [Pure, MethodImpl(Opt.Default)]
     public static Validation<F, A> operator |(Validation<F, A> lhs, Validation<F, A> rhs) =>
-        lhs.Combine(rhs).As();
+        lhs.Catch<F, Validation<F>, A>(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static Validation<F, A> operator |(K<Validation<F>, A> lhs, Validation<F, A> rhs) =>
-        lhs.As().Combine(rhs).As();
+        lhs.Catch<F, Validation<F>, A>(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static Validation<F, A> operator |(Validation<F, A> lhs, K<Validation<F>, A> rhs) =>
         lhs.Combine(rhs.As()).As();
 
-    [Pure, MethodImpl(Opt.Default)]
-    public static Validation<F, A> operator |(Validation<F, A> ma, Pure<A> mb) =>
-        ma.Combine(pure<Validation<F>, A>(mb.Value)).As();
+    public static Validation<F, A> operator |(Validation<F, A> lhs, A rhs) => 
+        lhs.Catch<F, Validation<F>, A>(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
-    public static Validation<F, A> operator |(Validation<F, A> ma, Fail<F> mb) =>
-        ma.Combine(fail<F, Validation<F>, A>(mb.Value)).As();
+    public static Validation<F, A> operator |(Validation<F, A> lhs, Pure<A> rhs) =>
+        lhs.Catch<F, Validation<F>, A>(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
-    public static Validation<F, A> operator |(Validation<F, A> ma, F mb) =>
-        ma.Combine(fail<F, Validation<F>, A>(mb)).As();
+    public static Validation<F, A> operator |(Validation<F, A> lhs, Fail<F> rhs) =>
+        lhs.Catch(rhs).As();
 
+    public static Validation<F, A> operator |(Validation<F, A> lhs, CatchM<F, Validation<F>, A> rhs) =>
+        lhs.Catch(rhs).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Validation<F, A> operator |(Validation<F, A> lhs, F rhs) =>
+        lhs.Catch(rhs).As();
     
     /// <summary>
     /// If any items are Fail then the errors are collected and returned.  If they

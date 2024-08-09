@@ -59,7 +59,7 @@ public static class Expr
         Parser<T> simpleExpr
         )
     {
-        return operators.AsEnumerableM().FoldBack(
+        return operators.AsIterable().FoldBack(
             simpleExpr, 
             (term, ops) => makeParser(ops, term)
         );
@@ -73,7 +73,7 @@ public static class Expr
         var e3 = Seq.empty<Parser<Func<T,T,T>>>();
         var e2 = Seq.empty<Parser<Func<T,T>>>();
 
-        return ops.AsEnumerableM()
+        return ops.AsIterable()
                   .Fold((e3, e3, e3, e2, e2), (state, op) => op.SplitOp(state))
                   .Map((rassoc, lassoc, nassoc, prefix, postfix) =>
                        {

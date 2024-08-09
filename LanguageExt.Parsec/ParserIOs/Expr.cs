@@ -57,7 +57,7 @@ public static class ExprIO
     public static Parser<I, O> buildExpressionParser<I, O>(
         Operator<I, O>[][] operators,
         Parser<I, O> simpleExpr) =>
-        operators.AsEnumerableM().FoldBack(
+        operators.AsIterable().FoldBack(
             simpleExpr, 
             (term, ops) => makeParser(ops, term));
 
@@ -68,7 +68,7 @@ public static class ExprIO
         var e3 = Seq.empty<Parser<I, Func<O,O,O>>>();
         var e2 = Seq.empty<Parser<I, Func<O,O>>>();
 
-        return ops.AsEnumerableM()
+        return ops.AsIterable()
                   .Fold((e3, e3, e3, e2, e2), (state, op) => op.SplitOp(state))
                   .Map((rassoc, lassoc, nassoc, prefix, postfix) =>
                        {

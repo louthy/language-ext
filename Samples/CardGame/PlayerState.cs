@@ -26,7 +26,7 @@ public record PlayerState(Seq<Card> Cards, bool StickState)
              .Map(s => s.Sum<Seq, int>())
              .Distinct() 
              .OrderBy(s => s)
-             .AsEnumerableM()
+             .AsIterable()
              .ToSeq();
 
     public bool StillInTheGame() =>

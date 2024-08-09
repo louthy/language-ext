@@ -14,35 +14,37 @@ public partial class ReaderT<Env, M> :
     SemiAlternative<ReaderT<Env, M>>
     where M : Monad<M>, SemiAlternative<M>
 {
-    static K<ReaderT<Env, M>, B> Monad<ReaderT<Env, M>>.Bind<A, B>(K<ReaderT<Env, M>, A> ma, Func<A, K<ReaderT<Env, M>, B>> f) => 
-        ma.As().Bind(f);
+    static K<ReaderT<Env, M>, B> Monad<ReaderT<Env, M>>.Bind<A, B>(
+        K<ReaderT<Env, M>, A> ma,
+        Func<A, K<ReaderT<Env, M>, B>> f) =>
+        new ReaderT<Env, M, B>(env => ma.As().runReader(env).Bind(a => f(a).As().runReader(env)));
 
     static K<ReaderT<Env, M>, B> Functor<ReaderT<Env, M>>.Map<A, B>(Func<A, B> f, K<ReaderT<Env, M>, A> ma) => 
-        ma.As().Map(f);
+        new ReaderT<Env, M, B>(env => ma.As().runReader(env).Map(f));
 
     static K<ReaderT<Env, M>, A> Applicative<ReaderT<Env, M>>.Pure<A>(A value) => 
-        ReaderT<Env, M, A>.Pure(value);
+        new ReaderT<Env, M, A>(_ => M.Pure(value));
 
     static K<ReaderT<Env, M>, B> Applicative<ReaderT<Env, M>>.Apply<A, B>(K<ReaderT<Env, M>, Func<A, B>> mf, K<ReaderT<Env, M>, A> ma) => 
-        mf.As().Bind(ma.As().Map);
+        new ReaderT<Env, M, B>(env => mf.As().runReader(env).Apply(ma.As().runReader(env)));
 
     static K<ReaderT<Env, M>, B> Applicative<ReaderT<Env, M>>.Action<A, B>(K<ReaderT<Env, M>, A> ma, K<ReaderT<Env, M>, B> mb) =>
-        ma.As().Bind(_ => mb);
+        new ReaderT<Env, M, B>(env => ma.As().runReader(env).Action(mb.As().runReader(env)));
 
     static K<ReaderT<Env, M>, A> MonadT<ReaderT<Env, M>, M>.Lift<A>(K<M, A> ma) => 
-        ReaderT<Env, M, A>.Lift(ma);
+        new ReaderT<Env, M, A>(_ => ma);
 
     static K<ReaderT<Env, M>, Env> Readable<ReaderT<Env, M>, Env>.Ask =>
-        ReaderT<Env, M, Env>.Asks(Prelude.identity);
+        new ReaderT<Env, M, Env>(M.Pure);
 
-    static K<ReaderT<Env, M>, A> Readable<ReaderT<Env, M>, Env>.Asks<A>(Func<Env, A> f) => 
-        ReaderT<Env, M, A>.Asks(f);
+    static K<ReaderT<Env, M>, A> Readable<ReaderT<Env, M>, Env>.Asks<A>(Func<Env, A> f) =>
+        new ReaderT<Env, M, A>(env => M.Pure(f(env)));
 
     static K<ReaderT<Env, M>, A> Readable<ReaderT<Env, M>, Env>.Local<A>(Func<Env, Env> f, K<ReaderT<Env, M>, A> ma) =>
-        ma.As().Local(f);
+        new ReaderT<Env, M, A>(env => ma.As().runReader(f(env)));
 
     static K<ReaderT<Env, M>, A> MonadIO<ReaderT<Env, M>>.LiftIO<A>(IO<A> ma) =>
-        ReaderT<Env, M, A>.Lift(M.LiftIO(ma));
+        new ReaderT<Env, M, A>(_ => M.LiftIO(ma));
 
     static K<ReaderT<Env, M>, IO<A>> MonadIO<ReaderT<Env, M>>.ToIO<A>(K<ReaderT<Env, M>, A> ma) =>
         new ReaderT<Env, M, IO<A>>(env => ma.As().runReader(env).ToIO());

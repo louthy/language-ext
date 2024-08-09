@@ -12,7 +12,8 @@ namespace LanguageExt;
 /// <param name="runFin">Transducer that represents the transformer operation</param>
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public record FinT<M, A>(K<M, Fin<A>> runFin) : K<FinT<M>, A>
+public record FinT<M, A>(K<M, Fin<A>> runFin) : 
+    Fallible<FinT<M, A>, FinT<M>, Error, A>
     where M : Monad<M>
 {
     /// <summary>
@@ -447,6 +448,9 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) : K<FinT<M>, A>
 
     public static FinT<M, A> operator |(FinT<M, A> lhs, K<FinT<M>, A> rhs) =>
         lhs.Combine(rhs.As()).As();
+
+    public static FinT<M, A> operator |(FinT<M, A> lhs, A rhs) => 
+        lhs.Combine(pure<FinT<M>, A>(rhs)).As();
 
     public static FinT<M, A> operator |(FinT<M, A> ma, Pure<A> mb) =>
         ma.Combine(pure<FinT<M>, A>(mb.Value)).As();

@@ -88,7 +88,7 @@ public class Resources : IDisposable
                 });
     
     internal Unit Merge(Resources rhs) =>
-        resources.Swap(r => r.AddRange(rhs.resources.AsEnumerable()));
+        resources.Swap(r => r.AddRange(rhs.resources.AsIterable()));
 }
 
 abstract record TrackedResource

@@ -121,21 +121,21 @@ public static partial class Prelude
     /// </summary>
     [Pure]
     public static Seq<A> Sort<OrdA, A>(this Seq<A> xs) where OrdA : Ord<A> =>
-        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).AsEnumerableM().ToSeq();
+        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).AsIterable().ToSeq();
 
     /// <summary>
     /// Provide a sorted Lst
     /// </summary>
     [Pure]
     public static Lst<A> Sort<OrdA, A>(this Lst<A> xs) where OrdA : Ord<A> =>
-        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).AsEnumerableM().ToLst();
+        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).AsIterable().ToLst();
 
     /// <summary>
     /// Provide a sorted Arr
     /// </summary>
     [Pure]
     public static Arr<A> Sort<OrdA, A>(this Arr<A> xs) where OrdA : Ord<A> =>
-        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).AsEnumerableM().ToArr();
+        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).AsIterable().ToArr();
 
     /// <summary>
     /// Provide a sorted array
@@ -148,11 +148,11 @@ public static partial class Prelude
     /// Lazy sequence of natural numbers up to Int32.MaxValue
     /// </summary>
     [Pure]
-    public static EnumerableM<int> Naturals
+    public static Iterable<int> Naturals
     {
         get
         {
-            return Go().AsEnumerableM();
+            return Go().AsIterable();
             IEnumerable<int> Go()
             {
                 for (var i = 0; i < int.MaxValue; i++)
@@ -167,11 +167,11 @@ public static partial class Prelude
     /// Lazy sequence of natural numbers up to Int64.MaxValue
     /// </summary>
     [Pure]
-    public static EnumerableM<long> LongNaturals
+    public static Iterable<long> LongNaturals
     {
         get
         {
-            return Go().AsEnumerableM();
+            return Go().AsIterable();
             IEnumerable<long> Go()
             {
                 for (var i = 0L; i < long.MaxValue; i++)

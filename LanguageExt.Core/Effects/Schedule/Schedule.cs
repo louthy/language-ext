@@ -67,7 +67,7 @@ public abstract partial record Schedule : Semigroup<Schedule>
     /// </summary>
     /// <returns>The underlying time-series of durations</returns>
     [Pure]
-    public abstract EnumerableM<Duration> Run();
+    public abstract Iterable<Duration> Run();
 
     /// <summary>
     /// Intersection of two schedules. As long as they are both running it returns the max duration

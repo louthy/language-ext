@@ -8,6 +8,7 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -82,7 +83,7 @@ public readonly struct Seq<A> :
 
     public void Deconstruct(out A head, out Seq<A> tail)
     {
-        head = Head.IfNone(() => throw new InvalidOperationException("sequence is empty"));
+        head = Head.IfNone(() => throw Exceptions.SequenceEmpty);
         tail = Tail;
     }
 
@@ -488,8 +489,16 @@ public readonly struct Seq<A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<A> AsEnumerable() => 
-        new(Value);
+    public IEnumerable<A> AsEnumerable() => 
+        this;
+
+    /// <summary>
+    /// Stream as an enumerable
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Iterable<A> AsIterable() => 
+        new IterableEnumerable<A>(Value);
 
     /// <summary>
     /// Match empty sequence, or multi-item sequence

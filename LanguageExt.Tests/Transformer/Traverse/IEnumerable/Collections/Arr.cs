@@ -10,11 +10,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
         [Fact]
         public void EmptyEmptyIsEmptyEmpty()
         {
-            Arr<EnumerableM<int>> ma = Empty;
+            Arr<Iterable<int>> ma = Empty;
 
             var mb = ma.Traverse(mx => mx).As();
 
-            var mc = EnumerableM.singleton(Arr.empty<int>());
+            var mc = Iterable.singleton(Arr.empty<int>());
 
             Assert.True(mb.ToSeq() == mc.ToSeq());
         }
@@ -22,7 +22,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
         [Fact]
         public void ArrIEnumerableCrossProduct()
         {
-            var ma = Array<EnumerableM<int>>([1, 2], [10, 20, 30]);
+            var ma = Array<Iterable<int>>([1, 2], [10, 20, 30]);
 
             var mb = ma.Traverse(mx => mx).As();
 
@@ -38,17 +38,17 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
                 }
                 .AsEnumerable();
 
-            Assert.True(mb.ToSeq() == mc.AsEnumerableM().ToSeq());
+            Assert.True(mb.ToSeq() == mc.AsIterable().ToSeq());
         }
 
         [Fact]
         public void ArrOfEmptiesAndNonEmptiesIsEmpty()
         {
-            var ma = Array<EnumerableM<int>>([], [1, 2, 3]);
+            var ma = Array<Iterable<int>>([], [1, 2, 3]);
 
             var mb = ma.Traverse(mx => mx).As();
 
-            var mc = EnumerableM.empty<Arr<int>>();
+            var mc = Iterable.empty<Arr<int>>();
 
             Assert.True(mb.ToSeq() == mc.ToSeq());
         }
@@ -56,12 +56,12 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
         [Fact]
         public void ArrOfEmptiesIsEmpty()
         {
-            var ma = Array<EnumerableM<int>>([], []);
+            var ma = Array<Iterable<int>>([], []);
 
             var mb = ma.Traverse(mx => mx).As();
 
 
-            var mc = EnumerableM.empty<Arr<int>>();
+            var mc = Iterable.empty<Arr<int>>();
 
             Assert.True(mb.ToSeq() == mc.ToSeq());
         }

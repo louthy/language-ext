@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 
 namespace LanguageExt
 {
@@ -125,7 +126,8 @@ namespace LanguageExt
         /// <returns>IEnumerator of T</returns>
         [Pure]
         public IEnumerator<A> GetEnumerator() =>
-            AsEnumerable().GetEnumerator();
+            // ReSharper disable once NotDisposedResourceIsReturned
+            AsIterable().GetEnumerator();
 
         /// <summary>
         /// Returns the stack as an IEnumerable.  The first item in the enumerable
@@ -133,7 +135,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>IEnumerable of T</returns>
         [Pure]
-        public EnumerableM<A> AsEnumerable()
+        public Iterable<A> AsIterable()
         {
             IEnumerable<A> Yield()
             {
@@ -144,14 +146,14 @@ namespace LanguageExt
                     self = self.tail;
                 }
             }
-            return new(Yield());
+            return Iterable.createRange(Yield());
         }
 
         /// <summary>
         /// Return the item on the top of the stack without affecting the stack itself
-        /// NOTE: Will throw an InvalidOperationException if the stack is empty
+        /// NOTE: Will throw an ExpectedException if the stack is empty
         /// </summary>
-        /// <exception cref="InvalidOperationException">Stack is empty</exception>
+        /// <exception cref="ExpectedException">Stack is empty</exception>
         /// <returns>Top item value</returns>
         [Pure]
         public A Peek()
@@ -162,7 +164,7 @@ namespace LanguageExt
             }
             else
             {
-                throw new InvalidOperationException("Stack is empty");
+                throw Exceptions.SequenceEmpty;
             }
         }
 
@@ -211,9 +213,9 @@ namespace LanguageExt
 
         /// <summary>
         /// Pop an item off the top of the stack
-        /// NOTE: Will throw an InvalidOperationException if the stack is empty
+        /// NOTE: Will throw an ExpectedException if the stack is empty
         /// </summary>
-        /// <exception cref="InvalidOperationException">Stack is empty</exception>
+        /// <exception cref="ExpectedException">Stack is empty</exception>
         /// <returns>Stack with the top item popped</returns>
         [Pure]
         public StckInternal<A> Pop()
@@ -224,7 +226,7 @@ namespace LanguageExt
             }
             else
             {
-                throw new InvalidOperationException("Stack is empty");
+                throw Exceptions.SequenceEmpty;
             }
         }
 
@@ -287,7 +289,7 @@ namespace LanguageExt
         /// <returns>IEnumerator of T</returns>
         [Pure]
         IEnumerator IEnumerable.GetEnumerator() =>
-            AsEnumerable().GetEnumerator();
+            AsIterable().GetEnumerator();
 
         /// <summary>
         /// Append another stack to the top of this stack

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using LanguageExt.Common;
 using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using LanguageExt.Effects;
@@ -17,11 +18,11 @@ namespace LanguageExt;
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record Eff<A>(Eff<MinRT, A> effect) :
-    K<Eff, A>,
     Readable<Eff<A>, A>,
     Alternative<Eff<A>>,
     Monad<Eff<A>>,
-    Fallible<Eff<A>>    
+    Fallible<Eff<A>>,
+    Fallible<Eff<A>, Eff, Error, A>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -147,7 +148,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <returns>Mapped `Eff` monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<B> Select<B>(Func<A, B> f) =>
-        new(effect.Select(f));
+        new(effect.Map(f));
 
     /// <summary>
     /// Maps the `Eff` monad if it's in a success state
@@ -156,7 +157,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <returns>Mapped `Eff` monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<A> MapFail(Func<Error, Error> f) =>
-        new(effect.MapFail(f));
+        this.Catch(f).As();
 
     /// <summary>
     /// Maps the inner IO monad
@@ -181,7 +182,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <returns>Mapped `Eff` monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail) =>
-        new(effect.BiMap(Succ, Fail));
+        Map(Succ).Catch(Fail).As();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -196,7 +197,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <returns>IO in a success state</returns>
     [Pure]
     public Eff<B> Match<B>(Func<A, B> Succ, Func<Error, B> Fail) =>
-        new(effect.Match(Succ, Fail));
+        Map(Succ).Catch(Fail).As();
 
     /// <summary>
     /// Map the failure to a success value
@@ -205,7 +206,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <returns>IO in a success state</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<A> IfFail(Func<Error, A> Fail) =>
-        new(effect.IfFail(Fail));
+        this.Catch(Fail).As();
 
     /// <summary>
     /// Map the failure to a new IO effect
@@ -214,7 +215,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <returns>IO that encapsulates that IfFail</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<A> IfFailEff(Func<Error, Eff<A>> Fail) =>
-        new(effect.IfFailEff(x => Fail(x).effect));
+        this.Catch(Fail).As();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -462,14 +463,14 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// Convert to an `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Eff<A>(in Pure<A> ma) =>
+    public static implicit operator Eff<A>(Pure<A> ma) =>
         ma.ToEff();
 
     /// <summary>
     /// Convert to an `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Eff<A>(in Fail<Error> ma) =>
+    public static implicit operator Eff<A>(Fail<Error> ma) =>
         ma.ToEff<A>();
 
     /// <summary>
@@ -521,6 +522,10 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     public static implicit operator Eff<A>(in IO<A> ma) =>
         LiftIO(ma);
 
+    [Pure, MethodImpl(Opt.Default)]
+    public static implicit operator Eff<A>(in Error fail) => 
+        Fail(fail);
+
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
     /// result of the first without running the second.
@@ -530,7 +535,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> operator |(Eff<A> ma, Eff<A> mb) =>
-        new(ma.effect | mb.effect);
+        ma.Catch(mb).As();
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
@@ -541,7 +546,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> operator |(K<Eff, A> ma, Eff<A> mb) =>
-        new(ma.As().effect | mb.effect);
+        ma.Catch(mb).As();
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
@@ -552,7 +557,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> operator |(Eff<A> ma, K<Eff, A> mb) =>
-        new(ma.effect | mb.As().effect);
+        ma.Catch(mb).As();
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
@@ -563,7 +568,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> operator |(Eff<A> ma, Pure<A> mb) =>
-        new(ma.effect | mb);
+        ma.Catch(mb).As();
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
@@ -574,7 +579,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> operator |(Eff<A> ma, Fail<Error> error) =>
-        new(ma.effect | error);
+        ma.Catch(error).As();
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
@@ -585,7 +590,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> operator |(Eff<A> ma, Error error) =>
-        new(ma.effect | error);
+        ma.Catch(error).As();
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
@@ -596,7 +601,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> operator |(Eff<A> ma, A value) =>
-        new(ma.effect | Prelude.Pure(value));
+        ma.Catch(value).As();
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
@@ -607,7 +612,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> operator |(Eff<A> ma, CatchM<Error, Eff, A> mb) =>
-        (ma.Kind() | mb).As(); 
+        ma.Catch(mb).As();
 
     /// <summary>
     /// Convert to an `Eff` monad
@@ -636,49 +641,35 @@ public record Eff<A>(Eff<MinRT, A> effect) :
         K<Eff<A>, T> ma,
         Func<Error, bool> pred,
         Func<Error, K<Eff<A>, T>> f) =>
-        ma.As()
-          .Match(Succ: Eff<A, T>.Pure,
-                 Fail: e => pred(e)
-                     ? f(e).As()
-                     : Eff<A, T>.Fail(e))
-          .Flatten();
+        new Eff<A, T>(
+            new ReaderT<A, IO, T>(
+                env => ma.As().RunIO(env).Catch(pred, e => f(e).As().effect.Run(env))));
 
     static K<Eff<A>, U> Monad<Eff<A>>.Bind<T, U>(K<Eff<A>, T> ma, Func<T, K<Eff<A>, U>> f) =>
-        ma.As().Bind(f);
+        new Eff<A, U>(ma.As().effect.Bind(a => f(a).As().effect));
 
     static K<Eff<A>, U> Functor<Eff<A>>.Map<T, U>(Func<T, U> f, K<Eff<A>, T> ma) =>
-        ma.As().Map(f);
+        new Eff<A, U>(ma.As().effect.Map(f));
 
     static K<Eff<A>, T> Applicative<Eff<A>>.Pure<T>(T value) =>
         Eff<A, T>.Pure(value);
 
     static K<Eff<A>, U> Applicative<Eff<A>>.Apply<T, U>(K<Eff<A>, Func<T, U>> mf, K<Eff<A>, T> ma) =>
-        mf.As().Apply(ma.As());
+        new Eff<A, U>(mf.As().effect.Apply(ma.As().effect).As());
 
     static K<Eff<A>, U> Applicative<Eff<A>>.Action<T, U>(K<Eff<A>, T> ma, K<Eff<A>, U> mb) =>
-        ma.As().Action(mb.As());
+        new Eff<A, U>(ma.As().effect.Action(mb.As().effect).As());
 
     static K<Eff<A>, T> Applicative<Eff<A>>.Actions<T>(IEnumerable<K<Eff<A>, T>> fas) =>
-        from s in getState<A>()
-        from r in Eff<A, T>.Lift(
-            rt =>
-            {
-                Fin<T> rs = Errors.SequenceEmpty;
-                foreach (var kfa in fas)
-                {
-                    var fa = kfa.As();
-                    rs = fa.Run(rt, s.EnvIO);
-                    if (rs.IsFail) return rs;
-                }
-                return rs;
-            })
-        select r;
-
+        new Eff<A, T>(
+            new ReaderT<A, IO, T>(
+                rt => fas.Select(fa => fa.RunIO(rt)).Actions())); 
+    
     static K<Eff<A>, T> MonoidK<Eff<A>>.Empty<T>() =>
         Eff<A, T>.Fail(Errors.None);
 
     static K<Eff<A>, T> SemigroupK<Eff<A>>.Combine<T>(K<Eff<A>, T> ma, K<Eff<A>, T> mb) =>
-        ma.As() | mb.As();
+        new Eff<A, T>(ma.As().effect.Combine(mb.As().effect).As());
 
     static K<Eff<A>, T> Readable<Eff<A>, A>.Asks<T>(Func<A, T> f) =>
         new Eff<A, T>(ReaderT.asks<IO, T, A>(f));

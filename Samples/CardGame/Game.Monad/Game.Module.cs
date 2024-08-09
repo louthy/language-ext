@@ -45,7 +45,7 @@ public partial class Game
     /// Get the player's state from the StateT monad-transformer
     /// </summary>
     public static Game<Seq<(Player Player, PlayerState State)>> playersState =>
-        state.Map(s => s.State).Map(gs => gs.AsEnumerable().ToSeq());
+        state.Map(s => s.State).Map(gs => gs.AsIterable().ToSeq());
 
     /// <summary>
     /// Get the player's that are still playing

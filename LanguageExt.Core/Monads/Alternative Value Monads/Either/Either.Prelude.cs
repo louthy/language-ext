@@ -429,7 +429,7 @@ public static partial class Prelude
     /// <param name="Left">Left match function</param>
     /// <returns>Sequence of mapped values</returns>
     [Pure]
-    public static EnumerableM<Ret> Match<L, R, Ret>(
+    public static Iterable<Ret> Match<L, R, Ret>(
         this IEnumerable<Either<L, R>> list,
         Func<R, Ret> Right,
         Func<L, Ret> Left) =>
@@ -446,12 +446,12 @@ public static partial class Prelude
     /// <param name="Left">Left match function</param>
     /// <returns>Sequence of mapped values</returns>
     [Pure]
-    public static EnumerableM<Ret> match<L, R, Ret>(
+    public static Iterable<Ret> match<L, R, Ret>(
         IEnumerable<Either<L, R>> list,
         Func<R, Ret> Right,
         Func<L, Ret> Left)
     {
-        return new(Go());
+        return Iterable.createRange(Go());
         IEnumerable<Ret> Go()
         {
             foreach (var item in list)
@@ -517,9 +517,9 @@ public static partial class Prelude
     /// <param name="self">Either list</param>
     /// <returns>An enumerable of L</returns>
     [Pure]
-    public static EnumerableM<L> lefts<L, R>(IEnumerable<Either<L, R>> self)
+    public static Iterable<L> lefts<L, R>(IEnumerable<Either<L, R>> self)
     {
-        return new(Go());
+        return Iterable.createRange(Go());
 
         IEnumerable<L> Go()
         {
@@ -551,9 +551,9 @@ public static partial class Prelude
     /// <param name="self">Either list</param>
     /// <returns>An enumerable of L</returns>
     [Pure]
-    public static EnumerableM<R> rights<L, R>(IEnumerable<Either<L, R>> self)
+    public static Iterable<R> rights<L, R>(IEnumerable<Either<L, R>> self)
     {
-        return new(Go());
+        return Iterable.createRange(Go());
         IEnumerable<R> Go()
         {
             foreach (var item in self)
@@ -578,15 +578,15 @@ public static partial class Prelude
     /// <summary>
     /// Partitions a list of 'Either' into two lists.
     /// All the 'Left' elements are extracted, in order, to the first
-    /// component of the output.  Similarly the 'Right' elements are extracted
+    /// component of the output.  Similarly, the 'Right' elements are extracted
     /// to the second component of the output.
     /// </summary>
     /// <typeparam name="L">Left</typeparam>
     /// <typeparam name="R">Right</typeparam>
     /// <param name="self">Either list</param>
-    /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
+    /// <returns>A tuple containing the iterables of L and of R</returns>
     [Pure]
-    public static (EnumerableM<L> Lefts, EnumerableM<R> Rights) partition<L, R>(IEnumerable<Either<L, R>> self)
+    public static (Iterable<L> Lefts, Iterable<R> Rights) partition<L, R>(IEnumerable<Either<L, R>> self)
     {
         var ls   = new List<L>();
         var rs   = new List<R>();
@@ -595,23 +595,23 @@ public static partial class Prelude
             if (item.IsLeft) ls.Add(item.LeftValue);
             if (item.IsRight) rs.Add(item.RightValue);
         }
-        return (new(ls), new(rs));
+        return (Iterable.createRange(ls), Iterable.createRange(rs));
     }
 
     /// <summary>
     /// Partitions a list of 'Either' into two lists.
     /// All the 'Left' elements are extracted, in order, to the first
-    /// component of the output.  Similarly the 'Right' elements are extracted
+    /// component of the output.  Similarly, the 'Right' elements are extracted
     /// to the second component of the output.
     /// </summary>
     /// <typeparam name="L">Left</typeparam>
     /// <typeparam name="R">Right</typeparam>
     /// <param name="self">Either list</param>
-    /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
+    /// <returns>A tuple containing the iterables of L and R</returns>
     [Pure]
     public static (Seq<L> Lefts, Seq<R> Rights) partition<L, R>(Seq<Either<L, R>> self)
     {
         var (ls, rs) = partition(self.AsEnumerable());
-        return (ls.AsEnumerableM().ToSeq(), rs.AsEnumerableM().ToSeq());
+        return (ls.AsIterable().ToSeq(), rs.AsIterable().ToSeq());
     }
 }

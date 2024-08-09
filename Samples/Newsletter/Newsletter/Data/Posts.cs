@@ -35,7 +35,7 @@ public static class Posts<M, RT>
     /// <summary>
     /// Read all posts from the Ghost API
     /// </summary>
-    public static K<M, EnumerableM<Post>> readAllFromApi =>
+    public static K<M, Iterable<Post>> readAllFromApi =>
         from root    in Config<M, RT>.siteUrl
         from apiKey  in Config<M, RT>.contentApiKey
         from text    in Web<M, RT>.downloadText(makePostsUrl(root, apiKey))
@@ -46,7 +46,7 @@ public static class Posts<M, RT>
     static K<M, string> readFirstFile(string folder) =>
         from fs in Directory<M, RT>.enumerateFiles(folder, "*.json")
                                    .Bind(fs => fs.OrderDescending()
-                                                 .AsEnumerableM()
+                                                 .AsIterable()
                                                  .Take(1)
                                                  .Traverse(File<M, RT>.readAllText))
         from rs in fs.ToSeq() switch
@@ -70,11 +70,11 @@ public static class Posts<M, RT>
                                   .Get("data")
                                   .Get("posts"));
 
-    static K<M, EnumerableM<Post>> readPostsFromText(JsonElement postsElement) =>
+    static K<M, Iterable<Post>> readPostsFromText(JsonElement postsElement) =>
         postsElement.Enumerate()
                     .Traverse(readPost)
                     .Map(posts => posts.OrderDescending()
-                                       .AsEnumerableM()
+                                       .AsIterable()
                                        .Filter(p => p.IsPublic));
 
     static K<M, Post> readPost(JsonElement element) =>

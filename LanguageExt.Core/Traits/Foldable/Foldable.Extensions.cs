@@ -474,9 +474,9 @@ public static partial class FoldableExtensions
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
-    public static EnumerableM<A> ToEnumerable<T, A>(this K<T, A> ta)
+    public static Iterable<A> ToEnumerable<T, A>(this K<T, A> ta)
         where T : Foldable<T> =>
-        T.ToEnumerable(ta);
+        T.ToIterable(ta);
 
     /// <summary>
     /// List of elements of a structure, from left to right

@@ -19,7 +19,7 @@ public abstract class Fin<A> :
     IComparable<Fin<A>>, 
     IEquatable<Fin<A>>,
     IComparable, 
-    K<Fin, A>
+    Fallible<Fin<A>, Fin, Error, A>
 {
     [Pure, MethodImpl(Opt.Default)]
     public static Fin<A> Succ(A value) => 
@@ -213,10 +213,6 @@ public abstract class Fin<A> :
     [Pure, MethodImpl(Opt.Default)]
     public static Fin<A> operator |(Fin<A> ma, Fail<Exception> mb) =>
         ma.Combine(fail<Error, Fin, A>(mb.Value)).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator |(Fin<A> ma, Error mb) =>
-        ma.Combine(fail<Error, Fin, A>(mb)).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static Fin<A> operator |(Fin<A> ma, CatchM<Error, Fin, A> mb) =>

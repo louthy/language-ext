@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 
@@ -38,7 +39,7 @@ public partial class IO :
                     var fa = kfa.As();
                     rs = fa.Run(envIO);
                 }
-                if (rs is null) throw new ExceptionalException(Errors.SequenceEmptyText, Errors.SequenceEmptyCode);
+                if (rs is null) throw Exceptions.SequenceEmpty;
                 return rs;
             });    
 
@@ -61,5 +62,23 @@ public partial class IO :
         fail<A>(error);
 
     static K<IO, A> Fallible<Error, IO>.Catch<A>(K<IO, A> fa, Func<Error, bool> Predicate, Func<Error, K<IO, A>> Fail) =>
-        fa.As().IfFail(e => Predicate(e) ? Fail(e).As() : fail<A>(e));
+        new IO<A>(env =>
+            {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                var lenv = env.LocalResources; 
+                try
+                {
+                    var r = fa.Run(lenv);
+                    env.Resources.Merge(lenv.Resources);
+                    return r;
+                }
+                catch(Exception ex)
+                {
+                    lenv.Resources.ReleaseAll().Run(env);
+                    var err = Error.New(ex);
+                    if (Predicate(err)) return Fail(err).Run(env);
+                    throw;
+                }
+            });
+
 }

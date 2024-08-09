@@ -55,31 +55,31 @@ public record DirectoryIO(MemoryFS fs, DateTime now) : Traits.DirectoryIO
         lift(() => fs.GetFolderLastAccessTime(path).ToUniversalTime());
 
     public IO<Seq<string>> EnumerateDirectories(string path) =>
-        lift(() => fs.EnumerateFolders(path, "*", SearchOption.TopDirectoryOnly).AsEnumerableM().ToSeq());
+        lift(() => fs.EnumerateFolders(path, "*", SearchOption.TopDirectoryOnly).AsIterable().ToSeq());
 
     public IO<Seq<string>> EnumerateDirectories(string path, string searchPattern) =>
-        lift(() => fs.EnumerateFolders(path, searchPattern, SearchOption.TopDirectoryOnly).AsEnumerableM().ToSeq());
+        lift(() => fs.EnumerateFolders(path, searchPattern, SearchOption.TopDirectoryOnly).AsIterable().ToSeq());
 
     public IO<Seq<string>> EnumerateDirectories(string path, string searchPattern, SearchOption searchOption) =>
-        lift(() => fs.EnumerateFolders(path, searchPattern, searchOption).AsEnumerableM().ToSeq());
+        lift(() => fs.EnumerateFolders(path, searchPattern, searchOption).AsIterable().ToSeq());
 
     public IO<Seq<string>> EnumerateFiles(string path) =>
-        lift(() => fs.EnumerateFiles(path, "*", SearchOption.TopDirectoryOnly).AsEnumerableM().ToSeq());
+        lift(() => fs.EnumerateFiles(path, "*", SearchOption.TopDirectoryOnly).AsIterable().ToSeq());
 
     public IO<Seq<string>> EnumerateFiles(string path, string searchPattern) =>
-        lift(() => fs.EnumerateFiles(path, searchPattern, SearchOption.TopDirectoryOnly).AsEnumerableM().ToSeq());
+        lift(() => fs.EnumerateFiles(path, searchPattern, SearchOption.TopDirectoryOnly).AsIterable().ToSeq());
 
     public IO<Seq<string>> EnumerateFiles(string path, string searchPattern, SearchOption searchOption) =>
-        lift(() => fs.EnumerateFiles(path, searchPattern, searchOption).AsEnumerableM().ToSeq());
+        lift(() => fs.EnumerateFiles(path, searchPattern, searchOption).AsIterable().ToSeq());
 
     public IO<Seq<string>> EnumerateFileSystemEntries(string path) =>
-        lift(() => fs.EnumerateEntries(path, "*", SearchOption.TopDirectoryOnly).AsEnumerableM().ToSeq());
+        lift(() => fs.EnumerateEntries(path, "*", SearchOption.TopDirectoryOnly).AsIterable().ToSeq());
 
     public IO<Seq<string>> EnumerateFileSystemEntries(string path, string searchPattern) =>
-        lift(() => fs.EnumerateEntries(path, searchPattern, SearchOption.TopDirectoryOnly).AsEnumerableM().ToSeq());
+        lift(() => fs.EnumerateEntries(path, searchPattern, SearchOption.TopDirectoryOnly).AsIterable().ToSeq());
 
     public IO<Seq<string>> EnumerateFileSystemEntries(string path, string searchPattern, SearchOption searchOption) =>
-        lift(() => fs.EnumerateEntries(path, searchPattern, searchOption).AsEnumerableM().ToSeq());
+        lift(() => fs.EnumerateEntries(path, searchPattern, searchOption).AsIterable().ToSeq());
 
     public IO<string> GetDirectoryRoot(string path) =>
         Live.Implementations.DirectoryIO.Default.GetDirectoryRoot(path);

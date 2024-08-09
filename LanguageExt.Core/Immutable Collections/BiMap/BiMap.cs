@@ -291,25 +291,25 @@ public readonly struct BiMap<A, B> :
     /// Enumerable of map lefts in-order
     /// </summary>
     [Pure]
-    public EnumerableM<A> LeftKeys => Left.Keys;
+    public Iterable<A> LeftKeys => Left.Keys;
 
     /// <summary>
     /// Enumerable of map rights in-order
     /// </summary>
     [Pure]
-    public EnumerableM<B> RightKeys => Right.Keys;
+    public Iterable<B> RightKeys => Right.Keys;
 
     /// <summary>
     /// Enumerable of map lefts in-rights-order
     /// </summary>
     [Pure]
-    public EnumerableM<B> LeftValues => Left.Values;
+    public Iterable<B> LeftValues => Left.Values;
 
     /// <summary>
     /// Enumerable of map rights in-lefts-order
     /// </summary>
     [Pure]
-    public EnumerableM<A> RightValues => Right.Values;
+    public Iterable<A> RightValues => Right.Values;
 
     /// <summary>
     /// Convert the map to an `IReadOnlyDictionary`
@@ -331,7 +331,7 @@ public readonly struct BiMap<A, B> :
     /// <returns>Tuples</returns>
     [Pure]
     [Obsolete("Use Pairs instead")]
-    public EnumerableM<(A Key, B Value)> Tuples =>
+    public Iterable<(A Key, B Value)> Tuples =>
         Left.Pairs;
 
     /// <summary>
@@ -339,7 +339,7 @@ public readonly struct BiMap<A, B> :
     /// </summary>
     /// <returns>Tuples</returns>
     [Pure]
-    public EnumerableM<(A Key, B Value)> Pairs =>
+    public Iterable<(A Key, B Value)> Pairs =>
         Left.Pairs;
 
     [Pure]

@@ -309,17 +309,17 @@ public interface Foldable<out T> where T : Foldable<T>
     /// List of elements of a structure, from left to right
     /// </summary>
     public static virtual Arr<A> ToArr<A>(K<T, A> ta) =>
-        new (T.ToEnumerable(ta).ToArray());
+        new (T.ToIterable(ta).ToArray());
 
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
-    public static virtual EnumerableM<A> ToEnumerable<A>(K<T, A> ta) =>
+    public static virtual Iterable<A> ToIterable<A>(K<T, A> ta) =>
         T.Fold(a => s =>
                {
                    s.Add(a);
                    return s;
-               }, new System.Collections.Generic.List<A>(), ta).AsEnumerableM();
+               }, new System.Collections.Generic.List<A>(), ta).AsIterable();
 
     /// <summary>
     /// List of elements of a structure, from left to right

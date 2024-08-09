@@ -42,7 +42,7 @@ public static class Ext
     }
 
     public static Producer<A, Eff<RT>, Unit> ToProducer<RT, A>(this IAsyncQueue<A>[] qs) =>
-        Producer.merge(qs.AsEnumerableM().Map(q => q.ToProducer<RT, A>()).ToSeq());
+        Producer.merge(qs.AsIterable().Map(q => q.ToProducer<RT, A>()).ToSeq());
 }
 
 public static class YourPrelude

@@ -8,11 +8,11 @@ public class HashSetIEnumerable
     [Fact]
     public void EmptyEmptyIsEmptyEmpty()
     {
-        HashSet<EnumerableM<int>> ma = Empty;
+        HashSet<Iterable<int>> ma = Empty;
 
         var mb = ma.Traverse(mx => mx).As();
 
-        var mc = EnumerableM.singleton(HashSet.empty<int>());
+        var mc = Iterable.singleton(HashSet.empty<int>());
 
         Assert.True(mb.ToSeq() == mc.ToSeq());
     }
@@ -20,7 +20,7 @@ public class HashSetIEnumerable
     [Fact]
     public void HashSetIEnumerableCrossProduct()
     {
-        var ma = HashSet<EnumerableM<int>>([1, 2], [10, 20, 30]);
+        var ma = HashSet<Iterable<int>>([1, 2], [10, 20, 30]);
 
         var mb = ma.Traverse(mx => mx).As();
 
@@ -36,29 +36,29 @@ public class HashSetIEnumerable
             }
            .AsEnumerable();
 
-        Assert.True(mb.ToSeq() == mc.AsEnumerableM().ToSeq());
+        Assert.True(mb.ToSeq() == mc.AsIterable().ToSeq());
     }
 
     [Fact]
     public void HashSetOfEmptiesAndNonEmptiesIsEmpty()
     {
-        var ma = HashSet<EnumerableM<int>>([], [1, 2, 3]);
+        var ma = HashSet<Iterable<int>>([], [1, 2, 3]);
 
         var mb = ma.Traverse(mx => mx).As();
 
         var mc = Enumerable.Empty<HashSet<int>>();
 
-        Assert.True(mb.ToSeq() == mc.AsEnumerableM().ToSeq());
+        Assert.True(mb.ToSeq() == mc.AsIterable().ToSeq());
     }
 
     [Fact]
     public void HashSetOfEmptiesIsEmpty()
     {
-        var ma = HashSet<EnumerableM<int>>([], []);
+        var ma = HashSet<Iterable<int>>([], []);
 
         var mb = ma.Traverse(mx => mx).As();
 
-        var mc = EnumerableM.empty<HashSet<int>>();
+        var mc = Iterable.empty<HashSet<int>>();
 
         Assert.True(mb.ToSeq() == mc.ToSeq());
     }

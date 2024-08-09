@@ -17,11 +17,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
         [Fact]
         public void EmptyEmptyIsEmptyEmpty()
         {
-            var ma = EnumerableM.empty<Lst<int>>();
+            var ma = Iterable.empty<Lst<int>>();
 
             var mb = ma.Traverse(mx => mx).As();
 
-            var mc = LanguageExt.List.singleton(EnumerableM<int>.Empty);
+            var mc = LanguageExt.List.singleton(Iterable<int>.Empty);
             
             Assert.True(mb == mc);
         }
@@ -29,7 +29,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
         [Fact]
         public void EnumLstCrossProduct()
         {
-            var ma = mkEnum(List(1, 2), List(10, 20, 30)).AsEnumerableM();
+            var ma = mkEnum(List(1, 2), List(10, 20, 30)).AsIterable();
 
             var mb = ma.Traverse(mx => mx).As();
 
@@ -43,12 +43,12 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
         [Fact]
         public void SeqOfEmptiesAndNonEmptiesIsEmpty()
         {
-            var ma = mkEnum(List<int>(), List(1, 2, 3)).AsEnumerableM();
+            var ma = mkEnum(List<int>(), List(1, 2, 3)).AsIterable();
 
             var mb = ma.Traverse(mx => mx).As();
 
 
-            var mc = Lst<EnumerableM<int>>.Empty;
+            var mc = Lst<Iterable<int>>.Empty;
             
             Assert.True(mb == mc);
         }
@@ -56,12 +56,12 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
         [Fact]
         public void SeqOfEmptiesIsEmpty()
         {
-            var ma = mkEnum(List<int>(), List<int>()).AsEnumerableM();
+            var ma = mkEnum(List<int>(), List<int>()).AsIterable();
 
             var mb = ma.Traverse(mx => mx).As();
 
 
-            var mc = Lst<EnumerableM<int>>.Empty;
+            var mc = Lst<Iterable<int>>.Empty;
             
             Assert.True(mb == mc);
         }

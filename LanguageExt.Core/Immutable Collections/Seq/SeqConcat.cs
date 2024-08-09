@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using LanguageExt.Common;
 using LanguageExt.UnsafeValueAccess;
 
 namespace LanguageExt;
@@ -51,7 +52,7 @@ internal class SeqConcat<A>(Seq<ISeqInternal<A>> ms) : ISeqInternal<A>
                     return a;
                 }
             } 
-            throw new InvalidOperationException("Sequence is empty");
+            throw Exceptions.SequenceEmpty;
         }
     }
 
@@ -83,7 +84,7 @@ internal class SeqConcat<A>(Seq<ISeqInternal<A>> ms) : ISeqInternal<A>
                     return a;
                 }
             } 
-            throw new InvalidOperationException("Sequence is empty");
+            throw Exceptions.SequenceEmpty;
         }
     }
 

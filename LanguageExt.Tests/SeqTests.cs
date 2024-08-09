@@ -63,7 +63,7 @@ public class SeqTests
             }
         }
 
-        var seq = Numbers().AsEnumerableM().ToSeq();
+        var seq = Numbers().AsIterable().ToSeq();
 
         var a = seq.Take(5).Sum();
         Assert.True(a == 10);
@@ -214,7 +214,7 @@ public class SeqTests
         var res1 = empty<int>();
         var res2 = empty<int>();
 
-        var a = new List<int> { 1, 2, 3, 4 }.AsEnumerableM();
+        var a = new List<int> { 1, 2, 3, 4 }.AsIterable();
 
         var s1 = a.ToSeq();
         var s2 = a.ToSeq().Strict();
@@ -338,7 +338,7 @@ public class SeqTests
     [Fact]
     public void TakeWhileTest()
     {
-        var str = "                          <p>The</p>".AsEnumerableM();
+        var str = "                          <p>The</p>".AsIterable();
         Assert.Equal("                          ",
                      String.Join("", str.ToSeq().TakeWhile(ch => ch == ' ')));
     }
@@ -346,7 +346,7 @@ public class SeqTests
     [Fact]
     public void TakeWhileIndex()
     {
-        var str = "                          <p>The</p>".AsEnumerableM();
+        var str = "                          <p>The</p>".AsIterable();
         Assert.Equal("                          ",
                      String.Join("", str.ToSeq().TakeWhile((ch, index) => index != 26)));
     }
@@ -354,14 +354,14 @@ public class SeqTests
     [Fact]
     public void TakeWhile_HalfDefaultCapacityTest()
     {
-        var str = "1234".AsEnumerableM();
+        var str = "1234".AsIterable();
         Assert.Equal("1234", String.Join("", str.ToSeq().TakeWhile(ch => true)));
     }
 
     [Fact]
     public void TakeWhileIndex_HalfDefaultCapacityTest()
     {
-        var str = "1234".AsEnumerableM();
+        var str = "1234".AsIterable();
         Assert.Equal("1234", String.Join("", str.ToSeq().TakeWhile((ch, index) => true)));
     }
         
@@ -404,14 +404,14 @@ public class SeqTests
     [Fact]
     public void SeqConcatTest()
     {
-        var seq1 = (from x in new[] { 1 }.AsEnumerableM()
+        var seq1 = (from x in new[] { 1 }.AsIterable()
                     select x).ToSeq();
 
-        var seq2 = (from x in new[] { 2 }.AsEnumerableM()
+        var seq2 = (from x in new[] { 2 }.AsIterable()
                     select x).ToSeq();
 
 
-        var seq3 = (from x in new[] { 3 }.AsEnumerableM()
+        var seq3 = (from x in new[] { 3 }.AsIterable()
                     select x).ToSeq();
 
         Assert.Equal(

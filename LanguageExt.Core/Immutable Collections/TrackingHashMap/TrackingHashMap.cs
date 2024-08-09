@@ -637,14 +637,14 @@ public readonly struct TrackingHashMap<K, V> :
     /// Enumerable of map keys
     /// </summary>
     [Pure]
-    public EnumerableM<K> Keys =>
+    public Iterable<K> Keys =>
         Value.Keys;
 
     /// <summary>
     /// Enumerable of map values
     /// </summary>
     [Pure]
-    public EnumerableM<V> Values =>
+    public Iterable<V> Values =>
         Value.Values;
 
     /// <summary>
@@ -713,8 +713,8 @@ public readonly struct TrackingHashMap<K, V> :
         CollectionFormat.ToFullArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
     [Pure]
-    public EnumerableM<(K Key, V Value)> AsEnumerable() =>
-        Value.AsEnumerable();
+    public Iterable<(K Key, V Value)> AsEnumerable() =>
+        Value.AsIterable();
 
     /// <summary>
     /// Implicit conversion from an untyped empty list

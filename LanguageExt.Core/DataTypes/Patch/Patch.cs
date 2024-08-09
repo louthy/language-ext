@@ -203,7 +203,7 @@ public readonly struct Patch<EqA, A> :
     /// <summary>
     /// Apply a patch to a document, returning the transformed document.
     /// </summary>
-    public EnumerableM<A> Apply(IEnumerable<A> va) =>
+    public Iterable<A> Apply(IEnumerable<A> va) =>
         Patch.apply(this, va);
 
     /// <summary>

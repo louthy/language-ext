@@ -30,7 +30,7 @@ public record FileIO(MemoryFS fs, DateTime now) : Sys.Traits.FileIO
     /// Read all lines from a file
     /// </summary>
     public IO<Seq<string>> ReadAllLines(string path, Encoding encoding) => 
-        lift(() => fs.GetLines(path).AsEnumerableM().ToSeq());
+        lift(() => fs.GetLines(path).AsIterable().ToSeq());
         
     /// <summary>
     /// Read all lines from a file
@@ -100,25 +100,25 @@ public record FileIO(MemoryFS fs, DateTime now) : Sys.Traits.FileIO
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    public IO<Stream> OpenRead(string path) =>
+    public IO<System.IO.Stream> OpenRead(string path) =>
         Open(path, FileMode.Open, FileAccess.Read);
         
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    public IO<Stream> Open(string path, FileMode mode) =>
+    public IO<System.IO.Stream> Open(string path, FileMode mode) =>
         lift(() => fs.Open(path, mode, FileAccess.ReadWrite));
         
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    public IO<Stream> Open(string path, FileMode mode, FileAccess access) =>
+    public IO<System.IO.Stream> Open(string path, FileMode mode, FileAccess access) =>
         lift(() => fs.Open(path, mode, access));
         
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    public IO<Stream> OpenWrite(string path) =>
+    public IO<System.IO.Stream> OpenWrite(string path) =>
         Open(path, FileMode.Open, FileAccess.Write);
 }
     
