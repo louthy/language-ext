@@ -30,17 +30,19 @@ public partial class Arr : Monad<Arr>, MonoidK<Arr>, Traversable<Arr>
 
     static K<Arr, B> Applicative<Arr>.Apply<A, B>(K<Arr, Func<A, B>> mf, K<Arr, A> ma) 
     {
-        return new Arr<B>(Go());
-        IEnumerable<B> Go()
+        var ff   = mf.As();
+        var fa   = ma.As();
+        var size = ff.Count * fa.Count;
+        var bs   = new B[size];
+        var ix   = 0;
+        for (var i = 0; i < ff.Count; i++)
         {
-            foreach (var f in mf.As())
+            for (var j = 0; j < fa.Count; j++)
             {
-                foreach (var a in ma.As())
-                {
-                    yield return f(a);
-                }
+                bs[ix] = ff[i](fa[j]);
             }
         }
+        return new Arr<B>(bs);
     }    
 
     static K<Arr, B> Applicative<Arr>.Action<A, B>(K<Arr, A> ma, K<Arr, B> mb) => 
@@ -102,25 +104,25 @@ public partial class Arr : Monad<Arr>, MonoidK<Arr>, Traversable<Arr>
     static Seq<A> Foldable<Arr>.ToSeq<A>(K<Arr, A> ta) =>
         Seq.FromArray(ta.As().Value);
     
-    static K<F, K<Arr, B>> Traversable<Arr>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Arr, A> ta) 
+    static K<F, K<Arr, B>> Traversable<Arr>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Arr, A> ta)
     {
-        return F.Map<Arr<B>, K<Arr, B>>(
-            ks => ks, 
-            F.Map(s => s.ToArr(), 
-                  Foldable.foldBack(cons, F.Pure(Seq.empty<B>()), ta)));
+        return Foldable.fold(addItem, F.Pure(new SeqStrict<B>(new B[ta.As().Count], 0, 0, 0, 0)), ta)
+                       .Map(bs => new Arr<B>(bs.data.AsSpan().Slice(bs.start, bs.Count)).Kind());
 
-        K<F, Seq<B>> cons(K<F, Seq<B>> ys, A x) =>
-            Applicative.lift(Prelude.Cons, f(x), ys);
+        Func<K<F, SeqStrict<B>>, K<F, SeqStrict<B>>> addItem(A value) =>
+            state =>
+                Applicative.lift((bs, b) => (SeqStrict<B>)bs.Add(b), state, f(value));                                            
     }
-    
+
     static K<F, K<Arr, B>> Traversable<Arr>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Arr, A> ta) 
     {
-        return F.Map<Arr<B>, K<Arr, B>>(
-            ks => ks, 
-            F.Map(s => s.ToArr(), 
-                  Foldable.foldBack(cons, F.Pure(Seq.empty<B>()), ta)));
+        return Foldable.fold(addItem, F.Pure(new SeqStrict<B>(new B[ta.As().Count], 0, 0, 0, 0)), ta)
+                       .Map(bs => new Arr<B>(bs.data.AsSpan().Slice(bs.start, bs.Count)).Kind());
 
-        K<F, Seq<B>> cons(K<F, Seq<B>> fys, A x) =>
-            fys.Bind(ys => f(x).Map(y => y.Cons(ys)));
+        Func<K<F, SeqStrict<B>>, K<F, SeqStrict<B>>> addItem(A value) =>
+            state =>
+                state.Bind(
+                    bs => f(value).Bind(
+                        b => F.Pure((SeqStrict<B>)bs.Add(b)))); 
     }
 }

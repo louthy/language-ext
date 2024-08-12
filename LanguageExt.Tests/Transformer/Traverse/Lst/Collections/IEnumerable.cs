@@ -33,8 +33,13 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
 
             var mb = ma.Traverse(mx => mx).As();
 
-
-            var mc = List(mkEnum(1, 10), mkEnum(1, 20), mkEnum(1, 30), mkEnum(2, 10), mkEnum(2, 20), mkEnum(2, 30));
+            var mc = List(
+                mkEnum(1, 10), 
+                mkEnum(1, 20), 
+                mkEnum(1, 30), 
+                mkEnum(2, 10), 
+                mkEnum(2, 20), 
+                mkEnum(2, 30));
             
             Assert.True(mb.Map(toList) == mc.Map(toList));
             

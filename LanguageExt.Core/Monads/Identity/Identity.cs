@@ -49,7 +49,15 @@ public record Identity<A>(A Value) :
     public K<M, Identity<B>> TraverseM<M, B>(Func<A, K<M, B>> f) 
         where M : Monad<M> =>
         M.Map(x => x.As(), Traversable.traverseM(f, this));
-    
+
+    [Pure]
+    public virtual bool Equals(Identity<A>? other) =>
+        other is not null && EqDefault<A>.Equals(Value, other.Value);
+
+    [Pure]
+    public override int GetHashCode() => 
+        HashableDefault<A>.GetHashCode(Value);
+
     [Pure]
     public Identity<B> Map<B>(Func<A, B> f) =>
         new(f(Value));

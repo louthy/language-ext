@@ -160,10 +160,6 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Add a range of items to the end of the sequence
     /// </summary>
-    /// <remarks>
-    /// Forces evaluation of the entire lazy sequence so the items
-    /// can be appended.  
-    /// </remarks>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<A> Concat(IEnumerable<A> items) =>
@@ -625,6 +621,28 @@ public readonly struct Seq<A> :
             foreach (var item in items)
             {
                 yield return f(item);
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Map the sequence using the function provided
+    /// </summary>
+    /// <remarks>
+    /// Exposes an index for each map 
+    /// </remarks>
+    /// <returns>Mapped sequence</returns>
+    [Pure]
+    public Seq<B> Map<B>(Func<A, int, B> f)
+    {
+        return new Seq<B>(new SeqLazy<B>(Yield(this)));
+        IEnumerable<B> Yield(Seq<A> items)
+        {
+            var ix = 0;
+            foreach (var item in items)
+            {
+                yield return f(item, ix);
+                ix++;
             }
         }
     }

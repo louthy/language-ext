@@ -22,10 +22,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         public void LstSeqCrossProduct()
         {
             var ma = List(Seq(1, 2), Seq(10, 20, 30));
-
             var mb = ma.Traverse(mx => mx).As();
-
-
             var mc = Seq(
                 List(1, 10),
                 List(1, 20),

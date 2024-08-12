@@ -22,7 +22,13 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Collections
             var ma = Set(List(1, 2), List(10, 20, 30));
             var mb = ma.Traverse(mx => mx).As();
 
-            var mc = List(Set(1, 10), Set(2, 10), Set(1, 20), Set(2, 20), Set(1, 30), Set(2, 30));
+            var mc = List(
+                Set(1, 10), 
+                Set(1, 20), 
+                Set(1, 30), 
+                Set(2, 10), 
+                Set(2, 20), 
+                Set(2, 30));
             
             Assert.True(mb == mc);
         }

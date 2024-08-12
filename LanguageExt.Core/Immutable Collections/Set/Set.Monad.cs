@@ -105,7 +105,7 @@ public partial class Set : Monad<Set>, MonoidK<Set>, Traversable<Set>
             Foldable.fold(acc, F.Pure(empty<B>()), ta));
 
         K<F, Set<B>> acc(K<F, Set<B>> ys, A x) =>
-            Applicative.lift((b, bs) => bs.Add(b), f(x), ys);
+            Applicative.lift((bs, b) => bs.Add(b), ys, f(x));
     }
 
     static K<F, K<Set, B>> Traversable<Set>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Set, A> ta) 

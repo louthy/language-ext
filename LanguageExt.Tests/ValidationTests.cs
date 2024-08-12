@@ -190,7 +190,7 @@ public class ValidationTests
     {
         var fakeDateTime = new DateTime(year: 2019, month: 1, day: 1);
         var cardHolderV  = ValidateCardHolder(cardHolder);
-        var numberV      = DigitsOnly(number) | MaxStrLength(16)(number);
+        var numberV      = DigitsOnly(number) & MaxStrLength(16)(number);
         var validToday   = ValidExpiration(fakeDateTime.Month, fakeDateTime.Year);
 
         // This falls back to monadic behaviour because validToday needs both
@@ -203,9 +203,9 @@ public class ValidationTests
         // The items to validate are placed in a tuple, then you call apply to
         // confirm that all items have passed the validation.  If not then all
         // the errors are collected.  If they have passed then the results are
-        // passed to the lambda function allowing the creation of a the 
+        // passed to the lambda function allowing the creation of the
         // CreditCard object.
-        return (cardHolderV, numberV, monthYear).Apply((c, num, my) => new CreditCard(c, num, my.month, my.year)).As();
+        return (cardHolderV, numberV, monthYear).Apply((c, num, my) => new CreditCard(c, num[0], my.month, my.year)).As();
     }
 
     public class CreditCard

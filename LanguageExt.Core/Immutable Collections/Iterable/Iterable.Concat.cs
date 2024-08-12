@@ -1,14 +1,13 @@
 using System;
-using System.Linq;
-using LanguageExt.Traits;
-using LanguageExt.ClassInstances;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
 namespace LanguageExt;
 
-sealed record IterableConcat<A>(Seq<Iterable<A>> Items) : Iterable<A>
+sealed class IterableConcat<A>(Seq<Iterable<A>> Items) : Iterable<A>
 {
+    public Seq<Iterable<A>> Items { get; } = Items;
+
     /// <summary>
     /// Number of items in the sequence.
     /// </summary>
@@ -114,18 +113,4 @@ sealed record IterableConcat<A>(Seq<Iterable<A>> Items) : Iterable<A>
     [Pure]
     public override string ToString() =>
         CollectionFormat.ToShortArrayString(this);
-
-    /// <summary>
-    /// Format the collection as `a, b, c, ...`
-    /// </summary>
-    [Pure]
-    public override string ToFullString(string separator = ", ") =>
-        CollectionFormat.ToFullString(this);
-
-    /// <summary>
-    /// Format the collection as `[a, b, c, ...]`
-    /// </summary>
-    [Pure]
-    public override string ToFullArrayString(string separator = ", ") =>
-        CollectionFormat.ToFullArrayString(this);
 }

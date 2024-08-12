@@ -16,7 +16,7 @@ public class MemoryConsoleTests
     [InlineData("abc\ndef\n")]
     public void Write_line(string unsplitLines)
     {
-        var lines = unsplitLines.Split('\n').AsIterable().ToSeq();
+        var lines = unsplitLines.Split('\n').AsIterable();
         var rt    = Runtime.New();
 
         var xs = lines.Traverse(Either<Unit, string>.Right);
@@ -24,7 +24,7 @@ public class MemoryConsoleTests
         var comp = lines.Traverse(Console.writeLine).As();
         comp.Run(rt, EnvIO.New()).ThrowIfFail();
 
-        var clines = rt.Env.Console.AsIterable().ToSeq();
+        var clines = rt.Env.Console.AsIterable();
         Assert.True(lines == clines, $"sequences don't match {lines} != {clines}");
     }
         

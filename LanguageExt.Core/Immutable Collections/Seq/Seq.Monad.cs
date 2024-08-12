@@ -103,24 +103,26 @@ public partial class Seq : Monad<Seq>, MonoidK<Seq>, Traversable<Seq>
         }
         return state;
     }
-
-    static K<F, K<Seq, B>> Traversable<Seq>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Seq, A> ta) 
+    
+    static K<F, K<Seq, B>> Traversable<Seq>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Seq, A> ta)
     {
-        return F.Map<Seq<B>, K<Seq, B>>(
-            ks => ks, 
-            Foldable.foldBack(cons, F.Pure(empty<B>()), ta));
+        return Foldable.fold(add, F.Pure(Seq<B>.Empty), ta)
+                       .Map(bs => bs.Kind());
 
-        K<F, Seq<B>> cons(K<F, Seq<B>> ys, A x) =>
-            Applicative.lift(Prelude.Cons, f(x), ys);
+        Func<K<F, Seq<B>>, K<F, Seq<B>>> add(A value) =>
+            state =>
+                Applicative.lift((bs, b) => bs.Add(b), state, f(value));                                            
     }
 
     static K<F, K<Seq, B>> Traversable<Seq>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Seq, A> ta) 
     {
-        return F.Map<Seq<B>, K<Seq, B>>(
-            ks => ks, 
-            Foldable.foldBack(cons, F.Pure(empty<B>()), ta));
+        return Foldable.fold(add, F.Pure(Seq<B>.Empty), ta)
+                       .Map(bs => bs.Kind());
 
-        K<F, Seq<B>> cons(K<F, Seq<B>> fys, A x) =>
-            fys.Bind(ys => f(x).Map(y => y.Cons(ys)));
+        Func<K<F, Seq<B>>, K<F, Seq<B>>> add(A value) =>
+            state =>
+                state.Bind(
+                    bs => f(value).Bind(
+                        b => F.Pure(bs.Add(b)))); 
     }
 }

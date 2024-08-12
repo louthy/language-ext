@@ -61,25 +61,27 @@ public class Lst : Monad<Lst>, MonoidK<Lst>, Traversable<Lst>
     static K<Lst, A> SemigroupK<Lst>.Combine<A>(K<Lst, A> ma, K<Lst, A> mb) => 
         ma.As() + mb.As();
 
-    static K<F, K<Lst, B>> Traversable<Lst>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Lst, A> ta) 
+    static K<F, K<Lst, B>> Traversable<Lst>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Lst, A> ta)
     {
-        return F.Map<Lst<B>, K<Lst, B>>(
-            ks => ks, 
-            Foldable.foldBack(cons, F.Pure(List.empty<B>()), ta));
+        return Foldable.fold(add, F.Pure(Lst<B>.Empty), ta)
+                       .Map(bs => bs.Kind());
 
-        K<F, Lst<B>> cons(K<F, Lst<B>> ys, A x) =>
-            Applicative.lift(Prelude.Cons, f(x), ys);
+        Func<K<F, Lst<B>>, K<F, Lst<B>>> add(A value) =>
+            state =>
+                Applicative.lift((bs, b) => bs.Add(b), state, f(value));                                            
     }
 
     static K<F, K<Lst, B>> Traversable<Lst>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Lst, A> ta) 
     {
-        return F.Map<Lst<B>, K<Lst, B>>(
-            ks => ks, 
-            Foldable.foldBack(cons, F.Pure(List.empty<B>()), ta));
+        return Foldable.fold(add, F.Pure(Lst<B>.Empty), ta)
+                       .Map(bs => bs.Kind());
 
-        K<F, Lst<B>> cons(K<F, Lst<B>> fys, A x) =>
-            fys.Bind(ys => f(x).Map(y => y.Cons(ys)));
-    }
+        Func<K<F, Lst<B>>, K<F, Lst<B>>> add(A value) =>
+            state =>
+                state.Bind(
+                    bs => f(value).Bind(
+                        b => F.Pure(bs.Add(b)))); 
+    }    
     
     static S Foldable<Lst>.FoldWhile<A, S>(
         Func<A, Func<S, S>> f,

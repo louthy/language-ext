@@ -23,22 +23,17 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
         public void ArrIEnumerableCrossProduct()
         {
             var ma = Array<Iterable<int>>([1, 2], [10, 20, 30]);
-
             var mb = ma.Traverse(mx => mx).As();
-
-
-            var mc = new[]
-                {
+            var mc = Iterable.create(
                     Array(1, 10),
                     Array(1, 20),
                     Array(1, 30),
                     Array(2, 10),
                     Array(2, 20),
-                    Array(2, 30)
-                }
-                .AsEnumerable();
+                    Array(2, 30));
 
-            Assert.True(mb.ToSeq() == mc.AsIterable().ToSeq());
+            var r = mb == mc;
+            Assert.True(r);
         }
 
         [Fact]

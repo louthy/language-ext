@@ -28,13 +28,12 @@ public class HashSetIEnumerable
         var mc = new[]
             {
                 HashSet(1, 10),
-                HashSet(2, 10),
                 HashSet(1, 20),
-                HashSet(2, 20),
                 HashSet(1, 30),
+                HashSet(2, 10),
+                HashSet(2, 20),
                 HashSet(2, 30)
-            }
-           .AsEnumerable();
+            };
 
         Assert.True(mb.ToSeq() == mc.AsIterable().ToSeq());
     }

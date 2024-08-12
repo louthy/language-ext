@@ -20,10 +20,11 @@ namespace LanguageExt;
 /// </remarks>
 /// <typeparam name="A">Type of the values in the sequence</typeparam>
 [CollectionBuilder(typeof(Iterable), nameof(Iterable.createRange))]
-public abstract record Iterable<A> :
+public abstract class Iterable<A> :
     IEnumerable<A>,
     Monoid<Iterable<A>>,
     IComparable<Iterable<A>>,
+    IEqualityOperators<Iterable<A>, Iterable<A>, bool>,
     IAdditiveIdentity<Iterable<A>, Iterable<A>>,
     IComparisonOperators<Iterable<A>, Iterable<A>, bool>,
     IAdditionOperators<Iterable<A>, Iterable<A>, Iterable<A>>,
@@ -33,13 +34,6 @@ public abstract record Iterable<A> :
 
     public static Iterable<A> FromSpan(ReadOnlySpan<A> ma) =>
         new IterableEnumerable<A>(ma.ToArray().AsEnumerable());
-    
-    /// <summary>
-    /// Semigroup combine two iterables (concatenate)
-    /// </summary>
-    [Pure]
-    public Iterable<A> Combine(Iterable<A> y) =>
-        Concat(y);
 
     /// <summary>
     /// Number of items in the sequence.
@@ -49,34 +43,6 @@ public abstract record Iterable<A> :
     /// </remarks>
     [Pure]
     public abstract int Count();
-
-    /// <summary>
-    /// Add a range of items to the end of the sequence
-    /// </summary>
-    /// <remarks>
-    /// Forces evaluation of the entire lazy sequence so the items
-    /// can be appended.  
-    /// </remarks>
-    [Pure]
-    public Iterable<A> Concat(IEnumerable<A> items) =>
-        Concat(new IterableEnumerable<A>(items));
-
-    /// <summary>
-    /// Add a range of items to the end of the sequence
-    /// </summary>
-    /// <remarks>
-    /// Forces evaluation of the entire lazy sequence so the items
-    /// can be appended.  
-    /// </remarks>
-    [Pure]
-    public Iterable<A> Concat(Iterable<A> items) =>
-        (this, items) switch
-        {
-            (IterableConcat<A> l, IterableConcat<A> r) => new IterableConcat<A>(l.Items + r.Items),
-            (IterableConcat<A> l, var r)               => new IterableConcat<A>(l.Items.Add(r)),
-            (var l, IterableConcat<A> r)               => new IterableConcat<A>(l.Cons(r.Items)),
-            var (l, r)                                 => new IterableConcat<A>(Seq(l, r))
-        }; 
 
     /// <summary>
     /// Stream as an enumerable
@@ -91,6 +57,189 @@ public abstract record Iterable<A> :
     [Pure]
     public abstract Iterable<A> Reverse();
 
+    /// <summary>
+    /// Add an item to the end of the sequence
+    /// </summary>
+    /// <remarks>
+    /// This does not force evaluation of the whole lazy sequence, nor does it cause
+    /// exponential iteration issues when repeated adds occur.
+    /// </remarks>
+    [Pure]
+    public virtual Iterable<A> Add(A item) =>
+        new IterableAdd<A>(
+            new SeqStrict<A>(new A[8], 8, 0, 0, 0),
+            this,
+            new SeqStrict<A>([item, default!, default!, default!, default!, default!, default!, default!], 0, 1, 0, 0)); 
+
+    /// <summary>
+    /// Add an item to the beginning of the sequence
+    /// </summary>
+    /// <remarks>
+    /// This does not force evaluation of the whole lazy sequence, nor does it cause
+    /// exponential iteration issues when repeated cons occur.
+    /// </remarks>
+    [Pure]
+    public virtual Iterable<A> Cons(A item) =>
+        new IterableAdd<A>(
+            new SeqStrict<A>([default!, default!, default!, default!, default!, default!, default!, item], 7, 1, 0, 0),
+            this,
+            new SeqStrict<A>(new A[8], 0, 0, 0, 0)); 
+
+    /// <summary>
+    /// Impure iteration of the bound values in the structure
+    /// </summary>
+    /// <returns>
+    /// Returns the original unmodified structure
+    /// </returns>
+    public abstract Unit Iter(Action<A> f);
+
+    /// <summary>
+    /// Impure iteration of the bound values in the structure
+    /// </summary>
+    /// <returns>
+    /// Returns the original unmodified structure
+    /// </returns>
+    public abstract Unit Iter(Action<A, int> f);
+    
+    /// <summary>
+    /// Map the sequence using the function provided
+    /// </summary>
+    /// <typeparam name="B"></typeparam>
+    /// <param name="f">Mapping function</param>
+    /// <returns>Mapped sequence</returns>
+    [Pure]
+    public abstract Iterable<B> Map<B>(Func<A, B> f);
+
+    /// <summary>
+    /// Map the sequence using the function provided
+    /// </summary>
+    /// <typeparam name="B"></typeparam>
+    /// <param name="f">Mapping function</param>
+    /// <returns>Mapped sequence</returns>
+    [Pure]
+    public abstract Iterable<B> Map<B>(Func<A, int, B> f);
+
+    /// <summary>
+    /// Monadic bind (flatmap) of the sequence
+    /// </summary>
+    /// <typeparam name="B">Bound return value type</typeparam>
+    /// <param name="f">Bind function</param>
+    /// <returns>Flat-mapped sequence</returns>
+    [Pure]
+    public abstract Iterable<B> Bind<B>(Func<A, Iterable<B>> f);
+
+    /// <summary>
+    /// Filter the items in the sequence
+    /// </summary>
+    /// <param name="f">Predicate to apply to the items</param>
+    /// <returns>Filtered sequence</returns>
+    [Pure]
+    public abstract Iterable<A> Filter(Func<A, bool> f);
+
+    /// <summary>
+    /// Equality test
+    /// </summary>
+    [Pure]
+    public virtual bool Equals(Iterable<A>? other) =>
+        other is not null && Equals<EqDefault<A>>(other);
+
+    [Pure]
+    public static bool operator ==(Iterable<A>? lhs, Iterable<A>? rhs) =>
+        (lhs, rhs) switch
+        {
+            (null, null) => true,
+            (null, _)    => false,
+            (_, null)    => false,
+            _            => lhs.Equals(rhs)
+        };
+
+    [Pure]
+    public static bool operator !=(Iterable<A>? lhs, Iterable<A>? rhs) =>
+        !(lhs == rhs);
+
+    [Pure]
+    public S FoldWhile<S>(
+        Func<A, Func<S, S>> f,
+        Func<(S State, A Value), bool> predicate,
+        S state)
+    {
+        foreach (var x in AsEnumerable())
+        {
+            if (!predicate((state, x))) return state;
+            state = f(x)(state);
+        }
+        return state;
+    }
+
+    [Pure]
+    public S FoldWhile<S>(
+        Func<S, A, S> f,
+        Func<(S State, A Value), bool> predicate,
+        S state)
+    {
+        foreach (var x in AsEnumerable())
+        {
+            if (!predicate((state, x))) return state;
+            state = f(state, x);
+        }
+        return state;
+    }
+
+    [Pure]
+    public S FoldBackWhile<S>(
+        Func<S, Func<A, S>> f,
+        Func<(S State, A Value), bool> predicate,
+        S state)
+    {
+        foreach (var x in AsEnumerable().Reverse())
+        {
+            if (!predicate((state, x))) return state;
+            state = f(state)(x);
+        }
+        return state;
+    }
+
+    [Pure]
+    public S FoldBackWhile<S>(
+        Func<S, A, S> f,
+        Func<(S State, A Value), bool> predicate,
+        S state)
+    {
+        foreach (var x in AsEnumerable().Reverse())
+        {
+            if (!predicate((state, x))) return state;
+            state = f(state, x);
+        }
+        return state;
+    }
+    
+    /// <summary>
+    /// Semigroup combine two iterables (concatenate)
+    /// </summary>
+    [Pure]
+    public Iterable<A> Combine(Iterable<A> y) =>
+        Concat(y);
+
+    /// <summary>
+    /// Add a range of items to the end of the sequence
+    /// </summary>
+    [Pure]
+    public Iterable<A> Concat(IEnumerable<A> items) =>
+        Concat(new IterableEnumerable<A>(items));
+
+    /// <summary>
+    /// Add a range of items to the end of the sequence
+    /// </summary>
+    [Pure]
+    public Iterable<A> Concat(Iterable<A> items) =>
+        (this, items) switch
+        {
+            (IterableConcat<A> l, IterableConcat<A> r) => new IterableConcat<A>(l.Items + r.Items),
+            (IterableConcat<A> l, var r)               => new IterableConcat<A>(l.Items.Add(r)),
+            (var l, IterableConcat<A> r)               => new IterableConcat<A>(l.Cons(r.Items)),
+            var (l, r)                                 => new IterableConcat<A>(Seq(l, r))
+        };
+    
     /// <summary>
     /// Applies a function to each element of the sequence, threading an accumulator argument 
     /// through the computation. This function takes the state argument, and applies the function 
@@ -163,22 +312,6 @@ public abstract record Iterable<A> :
     [Pure]
     public Iterable<A> Distinct() =>
         Distinct<EqDefault<A>>();
-
-    /// <summary>
-    /// Impure iteration of the bound values in the structure
-    /// </summary>
-    /// <returns>
-    /// Returns the original unmodified structure
-    /// </returns>
-    public abstract Unit Iter(Action<A> f);
-
-    /// <summary>
-    /// Impure iteration of the bound values in the structure
-    /// </summary>
-    /// <returns>
-    /// Returns the original unmodified structure
-    /// </returns>
-    public abstract Unit Iter(Action<A, int> f);
     
     /// <summary>
     /// Map each element of a structure to an action, evaluate these actions from
@@ -205,33 +338,6 @@ public abstract record Iterable<A> :
     public K<M, Iterable<B>> TraverseM<M, B>(Func<A, K<M, B>> f) 
         where M : Monad<M> =>
         M.Map(x => x.As(), Traversable.traverseM(f, this));
-    
-    /// <summary>
-    /// Map the sequence using the function provided
-    /// </summary>
-    /// <typeparam name="B"></typeparam>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped sequence</returns>
-    [Pure]
-    public abstract Iterable<B> Map<B>(Func<A, B> f);
-
-    /// <summary>
-    /// Map the sequence using the function provided
-    /// </summary>
-    /// <typeparam name="B"></typeparam>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped sequence</returns>
-    [Pure]
-    public abstract Iterable<B> Map<B>(Func<A, int, B> f);
-
-    /// <summary>
-    /// Monadic bind (flatmap) of the sequence
-    /// </summary>
-    /// <typeparam name="B">Bound return value type</typeparam>
-    /// <param name="f">Bind function</param>
-    /// <returns>Flat-mapped sequence</returns>
-    [Pure]
-    public abstract Iterable<B> Bind<B>(Func<A, Iterable<B>> f);
 
     /// <summary>
     /// Monadic bind (flatmap) of the sequence
@@ -252,14 +358,6 @@ public abstract record Iterable<A> :
     [Pure]
     public Iterable<B> Bind<B>(Func<A, IEnumerable<B>> f) =>
         Bind(x => new IterableEnumerable<B>(f(x)));
-
-    /// <summary>
-    /// Filter the items in the sequence
-    /// </summary>
-    /// <param name="f">Predicate to apply to the items</param>
-    /// <returns>Filtered sequence</returns>
-    [Pure]
-    public abstract Iterable<A> Filter(Func<A, bool> f);
 
     /// <summary>
     /// Returns true if the sequence has items in it
@@ -340,16 +438,28 @@ public abstract record Iterable<A> :
     }
 
     /// <summary>
+    /// Format the collection as `[a, b, c, ...]`
+    /// The ellipsis is used for collections over 50 items
+    /// To get a formatted string with all the items, use `ToFullString`
+    /// or `ToFullArrayString`.
+    /// </summary>
+    [Pure]
+    public override string ToString() =>
+        CollectionFormat.ToShortArrayString(AsEnumerable());
+
+    /// <summary>
     /// Format the collection as `a, b, c, ...`
     /// </summary>
     [Pure]
-    public abstract string ToFullString(string separator = ", ");
+    public virtual string ToFullString(string separator = ", ") =>
+        CollectionFormat.ToFullString(AsEnumerable(), separator);
 
     /// <summary>
     /// Format the collection as `[a, b, c, ...]`
     /// </summary>
     [Pure]
-    public abstract string ToFullArrayString(string separator = ", ");
+    public virtual string ToFullArrayString(string separator = ", ") =>
+        CollectionFormat.ToFullArrayString(AsEnumerable(), separator);
 
     /// <summary>
     /// Equality test
@@ -377,12 +487,6 @@ public abstract record Iterable<A> :
         }
         return true;
     }
-
-    /// <summary>
-    /// Equality test
-    /// </summary>
-    [Pure]
-    public abstract bool Equals(Iterable<A>? other);
 
     /// <summary>
     /// Skip count items

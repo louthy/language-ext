@@ -11,7 +11,7 @@ namespace LanguageExt;
 
 internal class SeqStrict<A> : ISeqInternal<A>
 {
-    const int DefaultCapacity = 8;
+    public const int DefaultCapacity = 8;
     /*
     const int HalfDefaultCapacity = DefaultCapacity >> 1;
     */
@@ -65,7 +65,7 @@ internal class SeqStrict<A> : ISeqInternal<A>
     public static SeqStrict<A> Empty
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get =>new (new A[DefaultCapacity], 4, 0, 0, 0);
+        get => new (new A[DefaultCapacity], 4, 0, 0, 0);
     }
 
     /// <summary>
@@ -497,5 +497,57 @@ internal class SeqStrict<A> : ISeqInternal<A>
     {
         var arr = ma.ToArray();
         return new SeqStrict<A>(arr, 0, arr.Length, 0, 0);
+    }
+
+    public SeqStrict<A> Rev()
+    {
+        var ndata = new A[data.Length];
+        var i     = start;
+        var j     = data.Length - start;
+        var end   = start + count;
+        for (; i < end; i++, j--)
+        {
+            ndata[j] = data[i];
+        }
+        return new SeqStrict<A>(ndata, data.Length - start, count, 0, 0);
+    }
+    
+    public SeqStrict<B> Map<B>(Func<A, B> f)
+    {
+        var ndata = new B[data.Length];
+        var end   = start + count;
+        for (var i = start; i < end; i++)
+        {
+            ndata[i] = f(data[i]);
+        }
+        return new SeqStrict<B>(ndata, start, count, 0, 0);
+    }
+    
+    public SeqStrict<B> Map<B>(Func<A, int, B> f)
+    {
+        var ndata = new B[data.Length];
+        var end   = start + count;
+        for (var i = start; i < end; i++)
+        {
+            ndata[i] = f(data[i], i - start);
+        }
+        return new SeqStrict<B>(ndata, start, count, 0, 0);
+    }
+    
+    public SeqStrict<A> Filter(Func<A, bool> f)
+    {
+        var ndata  = new A[data.Length];
+        var end    = start + count;
+        var ncount = 0;
+        for (var i = start; i < end; i++)
+        {
+            var d = data[i];
+            if (f(d))
+            {
+                ndata[start + ncount] = d;
+                ncount++;
+            }
+        }
+        return new SeqStrict<A>(ndata, start, ncount, 0, 0);
     }
 }

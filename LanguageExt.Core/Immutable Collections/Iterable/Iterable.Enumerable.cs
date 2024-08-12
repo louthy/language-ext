@@ -6,7 +6,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-sealed record IterableEnumerable<A>(IEnumerable<A> runEnumerable) : Iterable<A>
+sealed class IterableEnumerable<A>(IEnumerable<A> runEnumerable) : Iterable<A>
 {
     /// <summary>
     /// Number of items in the sequence.
@@ -16,40 +16,6 @@ sealed record IterableEnumerable<A>(IEnumerable<A> runEnumerable) : Iterable<A>
     /// </remarks>
     public override int Count() =>
         runEnumerable.Count();
-
-    /// <summary>
-    /// Prepend an item to the sequence
-    /// </summary>
-    [Pure]
-    internal Iterable<A> Cons(A value)
-    {
-        return new IterableEnumerable<A>(go());
-        IEnumerable<A> go()
-        {
-            yield return value;
-            foreach (var item in runEnumerable)
-            {
-                yield return item;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Append an item to the sequence
-    /// </summary>
-    [Pure]
-    internal Iterable<A> Add(A value)
-    {
-        return new IterableEnumerable<A>(go());
-        IEnumerable<A> go()
-        {
-            foreach (var item in runEnumerable)
-            {
-                yield return item;
-            }
-            yield return value;
-        }
-    }
 
     /// <summary>
     /// Stream as an enumerable
@@ -158,7 +124,7 @@ sealed record IterableEnumerable<A>(IEnumerable<A> runEnumerable) : Iterable<A>
             }
         }
     }
-
+    
     /// <summary>
     /// Format the collection as `[a, b, c, ...]`
     /// The ellipsis is used for collections over 50 items
@@ -167,19 +133,5 @@ sealed record IterableEnumerable<A>(IEnumerable<A> runEnumerable) : Iterable<A>
     /// </summary>
     [Pure]
     public override string ToString() =>
-        CollectionFormat.ToShortArrayString(runEnumerable);
-
-    /// <summary>
-    /// Format the collection as `a, b, c, ...`
-    /// </summary>
-    [Pure]
-    public override string ToFullString(string separator = ", ") =>
-        CollectionFormat.ToFullString(AsEnumerable(), separator);
-
-    /// <summary>
-    /// Format the collection as `[a, b, c, ...]`
-    /// </summary>
-    [Pure]
-    public override string ToFullArrayString(string separator = ", ") =>
-        CollectionFormat.ToFullArrayString(AsEnumerable(), separator);
+        CollectionFormat.ToShortArrayString(AsEnumerable());
 }
