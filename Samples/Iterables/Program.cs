@@ -2,21 +2,28 @@
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
+Examples.runCountForever();
 Examples.runSquares();
 
 public class Examples
 {
-    public static void runSquares()
-    {
-        var mx = sumOfSquares(5).Run();
-
-        var mr1 = mx.Run(EnvIO.New())
-                   .IgnoreF();
-
-        var mr2 = mx.Run(EnvIO.New())
-                    .IgnoreF();
-        
-    }
+    public static void runCountForever() =>
+        countForever
+           .Run()
+           .Run(EnvIO.New())
+           .IgnoreF();
+    
+    static IterableT<IO, Unit> countForever =>
+        from v in IterableT<IO>.lift(Range(0, long.MaxValue))
+        from _ in Console.writeLine(v.ToString())
+        where false
+        select unit;
+    
+    public static void runSquares() =>
+        sumOfSquares(5000000)
+           .Run()
+           .Run(EnvIO.New())
+           .IgnoreF();
 
     static IterableT<M, long> squares<M>(int n)
         where M : Monad<M> =>
