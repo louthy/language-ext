@@ -70,13 +70,13 @@ public partial class IO :
                 {
                     var r = fa.Run(lenv);
                     env.Resources.Merge(lenv.Resources);
-                    return r;
+                    return IOResponse.Complete(r);
                 }
                 catch(Exception ex)
                 {
                     lenv.Resources.ReleaseAll().Run(env);
                     var err = Error.New(ex);
-                    if (Predicate(err)) return Fail(err).Run(env);
+                    if (Predicate(err)) return Fail(err).As().runIO(env);
                     throw;
                 }
             });

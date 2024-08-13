@@ -422,8 +422,8 @@ public static partial class Prelude
                  }
                  
                  return errors.IsEmpty && resultSet
-                            ? result!
-                            : errors.Throw<A>();
+                            ? IOResponse.Complete(result!)
+                            : errors.Throw<IOResponse<A>>();
 
                  A onError(Error error)
                  {

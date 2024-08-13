@@ -16,7 +16,7 @@ public record Lift<A>(Func<A> Function)
         new (_ => M.Pure(Function()));
 
     public IO<A> ToIO() =>
-        new (_ => Function());
+        IO<A>.Lift(_ => Function());
 
     public Eff<A> ToEff() =>
         Eff<A>.Lift(Function);
