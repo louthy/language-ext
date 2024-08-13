@@ -6,11 +6,17 @@ Examples.runSquares();
 
 public class Examples
 {
-    public static void runSquares() =>
-        sumOfSquares(5000000)
-           .Run()
-           .Run(EnvIO.New())
-           .IgnoreF();
+    public static void runSquares()
+    {
+        var mx = sumOfSquares(5).Run();
+
+        var mr1 = mx.Run(EnvIO.New())
+                   .IgnoreF();
+
+        var mr2 = mx.Run(EnvIO.New())
+                    .IgnoreF();
+        
+    }
 
     static IterableT<M, long> squares<M>(int n)
         where M : Monad<M> =>
