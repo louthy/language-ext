@@ -17,8 +17,10 @@ public class IterableT<M> :
         new IterableMainT<M, A>(M.Pure(MList<A>.Cons(value, M.Pure(MList<A>.Nil))));
     
     public static IterableT<M, A> lift<A>(IEnumerable<A> items) =>
-        IterableT.pure<M, Unit>(default)                    // HACK: forces re-evaluation of the enumerable
-                 .Bind(_ => IterableT<M, A>.Lift(items));
+        IterableT<M, A>.Lift(items);
+    
+    public static IterableT<M, A> lift<A>(IAsyncEnumerable<A> items) =>
+        IterableT<M, A>.Lift(items);
 
     public static IterableT<M, A> lift<A>(Seq<A> items) =>
         IterableT<M, A>.Lift(items);

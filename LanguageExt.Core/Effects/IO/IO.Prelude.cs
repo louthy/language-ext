@@ -64,7 +64,6 @@ public static partial class Prelude
         where M : Monad<M> =>
         ma.ForkIO(timeout);
     
-    
     /// <summary>
     /// Yield the thread for the specified milliseconds or until cancelled.
     /// </summary>

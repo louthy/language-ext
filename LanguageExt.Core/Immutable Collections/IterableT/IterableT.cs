@@ -13,7 +13,10 @@ public abstract record IterableT<M, A> :
     where M : Monad<M>
 {
     public abstract K<M, MList<A>> runListT { get; }
-    
+
+    public K<M, Unit> Iter() =>
+        Run().IgnoreF();
+ 
     public K<M, Option<(A Head, IterableT<M, A> Tail)>> Run() =>
         runListT.Map(
             ma => ma switch
@@ -40,8 +43,12 @@ public abstract record IterableT<M, A> :
             var (x, xs) => new IterableMainT<M, A>(M.Pure<MList<A>>(new MCons<M, A>(x, Lift(xs).runListT))) 
         };
 
-    public static IterableT<M, A> Lift(IEnumerable<A> list) =>
-        new IterableEnumerableT<M, A>(list);
+    public static IterableT<M, A> Lift(IAsyncEnumerable<A> stream) =>
+        new IterableAsyncEnumerableT<M, A>(stream);
+    
+    public static IterableT<M, A> Lift(IEnumerable<A> stream) =>
+        IterableT.pure<M, Unit>(default)                    // HACK: forces re-evaluation of the enumerable
+                 .Bind(_ => new IterableEnumerableT<M, A>(stream));
 
     public static IterableT<M, A> Lift(K<M, A> ma) =>
         new IterableLiftM<M, A>(ma);

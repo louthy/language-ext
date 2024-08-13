@@ -12,6 +12,10 @@ public static class IterableT
         where M : Monad<M> =>
         new IterablePureT<M, A>(value);
     
+    public static IterableT<M, A> lift<M, A>(IAsyncEnumerable<A> items) 
+        where M : Monad<M> =>
+        IterableT<M, A>.Lift(items);
+
     public static IterableT<M, A> lift<M, A>(IEnumerable<A> items) 
         where M : Monad<M> =>
         IterableT<M, A>.Lift(items);
