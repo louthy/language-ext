@@ -5,7 +5,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public abstract record MList<A>
+public abstract record MList<A> : K<MList, A>
 {
     public abstract MList<B> Map<B>(Func<A, B> f);
 

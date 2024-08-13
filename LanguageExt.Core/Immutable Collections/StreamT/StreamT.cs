@@ -62,17 +62,7 @@ public abstract record StreamT<M, A> :
     /// Concatenate sequences
     /// </summary>
     public StreamT<M, A> Combine(StreamT<M, A> rhs) =>
-        new StreamMainT<M, A>(
-            from mxs in runListT
-            from mys in rhs.runListT
-            select (mxs, mys) switch
-                   {
-                       (MNil<A> l, MNil<A>) => l,
-                       (MNil<A>, var r)     => r,
-                       (var l, MNil<A>)     => l,
-                       (MCons<M, A> (var lh, var lt), MCons<M, A> (var rh, var rt)) =>
-                           throw new NotImplementedException()
-                   });
+        new StreamMainT<M, A>(runListT.Append(rhs.runListT));
 
     /// <summary>
     /// Empty sequence

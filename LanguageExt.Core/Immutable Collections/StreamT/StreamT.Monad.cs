@@ -9,7 +9,6 @@ namespace LanguageExt;
 /// </summary>
 public class StreamT<M> :
     MonadT<StreamT<M>, M>,
-    Traversable<StreamT<M>>,
     Alternative<StreamT<M>>
     where M : Monad<M>
 {
@@ -49,33 +48,11 @@ public class StreamT<M> :
     static K<StreamT<M>, A> MonadT<StreamT<M>, M>.Lift<A>(K<M, A> ma) =>
         new StreamLiftM<M, A>(ma);
 
-    static S Foldable<StreamT<M>>.FoldWhile<A, S>(
-        Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S initialState,
-        K<StreamT<M>, A> ta) =>
-        throw new NotImplementedException();
-
-    static S Foldable<StreamT<M>>.FoldBackWhile<A, S>(
-        Func<S, Func<A, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S initialState,
-        K<StreamT<M>, A> ta) =>
-        throw new NotImplementedException();
-
-    static K<F, K<StreamT<M>, B>> Traversable<StreamT<M>>.Traverse<F, A, B>(
-        Func<A, K<F, B>> f,
-        K<StreamT<M>, A> ta) =>
-        throw new NotImplementedException();
-
     static K<StreamT<M>, A> SemigroupK<StreamT<M>>.Combine<A>(K<StreamT<M>, A> lhs, K<StreamT<M>, A> rhs) =>
-        throw new NotImplementedException();
+        lhs.As().Combine(rhs.As());
 
     static K<StreamT<M>, A> MonoidK<StreamT<M>>.Empty<A>() =>
         StreamMainT<M, A>.Empty;
-
-    static K<StreamT<M>, B> MonadIO<StreamT<M>>.MapIO<A, B>(K<StreamT<M>, A> ma, Func<IO<A>, IO<B>> f) =>
-        throw new NotImplementedException();
 
     static K<StreamT<M>, A> MonadIO<StreamT<M>>.LiftIO<A>(IO<A> ma) =>
         new StreamLiftM<M, A>(M.LiftIO(ma));
