@@ -35,7 +35,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardGame", "Samples\CardGam
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Newsletter", "Samples\Newsletter\Newsletter\Newsletter.csproj", "{32BB0F08-5A9D-4245-8721-2A3B12607270}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Iterables", "Samples\Iterables\Iterables.csproj", "{B4D4721B-A599-4149-BD3A-822C277FC0FE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Streams", "Samples\Streams\Streams.csproj", "{B4D4721B-A599-4149-BD3A-822C277FC0FE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

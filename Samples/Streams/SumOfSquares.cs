@@ -3,7 +3,7 @@ using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
-namespace Iterables;
+namespace Streams;
 
 public class SumOfSquares
 {

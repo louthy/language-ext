@@ -1,7 +1,7 @@
 using LanguageExt;
 using static LanguageExt.Prelude;
 
-namespace Iterables;
+namespace Streams;
 
 // Simple IO wrappers of Console 
 public static class Console

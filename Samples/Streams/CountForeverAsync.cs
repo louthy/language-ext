@@ -1,9 +1,9 @@
 using LanguageExt;
 using static LanguageExt.Prelude;
 
-namespace Iterables;
+namespace Streams;
 
-public static class CountForever
+public static class CountForeverAsync
 {
     public static IO<Unit> run =>
         from f in forkIO(example.Iter()).As()
@@ -12,12 +12,20 @@ public static class CountForever
         select unit;
 
     static StreamT<IO, long> naturals =>
-        StreamT<IO>.lift(Range(0, long.MaxValue));
+        StreamT<IO>.lift(naturalsEnum());
     
     static StreamT<IO, Unit> example =>
         from v in naturals
-        where v % 10000 == 0
         from _ in Console.writeLine($"{v:N0}")
         where false
         select unit;
+
+    static async IAsyncEnumerable<long> naturalsEnum()
+    {
+        for (var i = 0L; i < long.MaxValue; i++)
+        {
+            yield return i;
+            await Task.Delay(100);
+        }
+    }
 }
