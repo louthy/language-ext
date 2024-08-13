@@ -11,10 +11,10 @@ public static class CountForeverAsync
         from r in f.Cancel 
         select unit;
 
-    static IterableT<IO, long> naturals =>
-        IterableT<IO>.lift(naturalsEnum());
+    static StreamT<IO, long> naturals =>
+        StreamT<IO>.lift(naturalsEnum());
     
-    static IterableT<IO, Unit> example =>
+    static StreamT<IO, Unit> example =>
         from v in naturals
         from _ in Console.writeLine($"{v:N0}")
         where false

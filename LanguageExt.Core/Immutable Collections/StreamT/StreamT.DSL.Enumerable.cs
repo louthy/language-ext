@@ -9,17 +9,17 @@ namespace LanguageExt;
 /// <summary>
 /// Lazy sequence monad transformer
 /// </summary>
-internal record IterableEnumerableT<M, A>(IEnumerable<A> items) : IterableT<M, A>
+internal record StreamEnumerableT<M, A>(IEnumerable<A> items) : StreamT<M, A>
     where M : Monad<M>
 {
-    public override K<M, MList<A>> runListT => 
+    public override K<M, MList<A>> runListT =>
         Lift(items.GetEnumerator()).runListT;
-    
-    public static IterableT<M, A> Lift(IEnumerator<A> iter)
+
+    public static StreamT<M, A> Lift(IEnumerator<A> iter)
     {
         if (iter.MoveNext())
         {
-            return new IterableEnumerableItemT<M, A>(
+            return new StreamEnumerableItemT<M, A>(
                 M.Pure(MList<A>.Iter<M>(iter.Current, iter)));
         }
         else
@@ -29,18 +29,18 @@ internal record IterableEnumerableT<M, A>(IEnumerable<A> items) : IterableT<M, A
         }
     }
 
-    public override IterableT<M, B> Map<B>(Func<A, B> f) =>
-        new IterableEnumerableT<M, B>(items.Select(f));
+    public override StreamT<M, B> Map<B>(Func<A, B> f) =>
+        new StreamEnumerableT<M, B>(items.Select(f));
 }
 
 /// <summary>
 /// Lazy sequence monad transformer
 /// </summary>
-internal record IterableEnumerableItemT<M, A>(K<M, MList<A>> runListT) : IterableT<M, A>
+internal record StreamEnumerableItemT<M, A>(K<M, MList<A>> runListT) : StreamT<M, A>
     where M : Monad<M>
 {
     public override K<M, MList<A>> runListT { get; } = runListT;
 
-    public override IterableT<M, B> Map<B>(Func<A, B> f) =>
-        new IterableEnumerableItemT<M, B>(runListT.Map(la => la.Map(f)));
+    public override StreamT<M, B> Map<B>(Func<A, B> f) =>
+        new StreamEnumerableItemT<M, B>(runListT.Map(la => la.Map(f)));
 }

@@ -53,10 +53,10 @@ public record MIter<M, A>(A Head, IEnumerator<A> Tail) : MList<A>
         new MIter<M, B>(f(Head), new MListMapEnumerator<A, B>(Tail, f));
 
     public MList<A> ToCons() =>
-        new MCons<M, A>(Head, IterableEnumerableT<M, A>.Lift(Tail).runListT);
+        new MCons<M, A>(Head, StreamEnumerableT<M, A>.Lift(Tail).runListT);
 
     public K<M, MList<A>> TailToMList() =>
-        IterableEnumerableT<M, A>.Lift(Tail).runListT;
+        StreamEnumerableT<M, A>.Lift(Tail).runListT;
 }
 
 class MListMapEnumerator<A, B>(IEnumerator<A> Iter, Func<A, B> Map) : IEnumerator<B>

@@ -11,10 +11,10 @@ public static class CountForever
         from r in f.Cancel 
         select unit;
 
-    static IterableT<IO, long> naturals =>
-        IterableT<IO>.lift(Range(0, long.MaxValue));
+    static StreamT<IO, long> naturals =>
+        StreamT<IO>.lift(Range(0, long.MaxValue));
     
-    static IterableT<IO, Unit> example =>
+    static StreamT<IO, Unit> example =>
         from v in naturals
         where v % 10000 == 0
         from _ in Console.writeLine($"{v:N0}")
