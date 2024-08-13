@@ -14,7 +14,7 @@ public class IterableT<M> :
     where M : Monad<M>
 {
     public static IterableT<M, A> pure<A>(A value) =>
-        new IterableMainT<M, A>(M.Pure(MList<A>.Cons(value, () => M.Pure(MList<A>.Nil))));
+        new IterableMainT<M, A>(M.Pure(MList<A>.Cons(value, M.Pure(MList<A>.Nil))));
     
     public static IterableT<M, A> lift<A>(IEnumerable<A> items) =>
         IterableT.pure<M, Unit>(default)                    // HACK: forces re-evaluation of the enumerable
@@ -70,7 +70,7 @@ public class IterableT<M> :
         throw new NotImplementedException();
 
     static K<IterableT<M>, A> MonoidK<IterableT<M>>.Empty<A>() => 
-        new IterableMainT<M, A>(M.Pure(MList<A>.Nil));
+        IterableMainT<M, A>.Empty;
 
     static K<IterableT<M>, B> MonadIO<IterableT<M>>.MapIO<A, B>(K<IterableT<M>, A> ma, Func<IO<A>, IO<B>> f) =>
         throw new NotImplementedException();

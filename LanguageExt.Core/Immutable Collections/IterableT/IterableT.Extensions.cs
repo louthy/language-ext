@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -32,9 +33,10 @@ public static class IterableTExtensions
         where M : Monad<M> =>
         mma switch
         {
-            MNil<K<M, MList<A>>>                    => M.Pure(MNil<A>.Default),
-            MCons<M, K<M, MList<A>>> (var h, var t) => h.Append(t().Flatten()),
-            _                                       => throw new NotSupportedException()
+            MNil<K<M, MList<A>>>                     => M.Pure(MNil<A>.Default),
+            MCons<M, K<M, MList<A>>> (var h, var t)  => h.Append(t.Flatten()),
+            MIter<M, K<M, MList<A>>> (var h, _) iter => h.Append(iter.TailToMList().Flatten()),
+            _                                        => throw new NotSupportedException()
         };
 
     public static K<M, MList<A>> Append<M, A>(this K<M, MList<A>> xs, K<M, MList<A>> ys)

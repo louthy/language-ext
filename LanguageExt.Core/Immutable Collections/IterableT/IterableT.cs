@@ -22,7 +22,10 @@ public abstract record IterableT<M, A> :
                           Option<(A Head, IterableT<M, A> Tail)>.None,
 
                       MCons<M, A>(var h, var t) =>
-                          Option<(A Head, IterableT<M, A> Tail)>.Some((h, new IterableMainT<M, A>(t()))),
+                          Option<(A Head, IterableT<M, A> Tail)>.Some((h, new IterableMainT<M, A>(t))),
+                      
+                      MIter<M, A>(var h, _) iter =>
+                          Option<(A Head, IterableT<M, A> Tail)>.Some((h, new IterableMainT<M, A>(iter.TailToMList()))),
                       
                       _ => throw new NotSupportedException()
                   });
@@ -34,7 +37,7 @@ public abstract record IterableT<M, A> :
         list switch
         {
             []          => Empty,
-            var (x, xs) => new IterableMainT<M, A>(M.Pure<MList<A>>(new MCons<M, A>(x, () => Lift(xs).runListT))) 
+            var (x, xs) => new IterableMainT<M, A>(M.Pure<MList<A>>(new MCons<M, A>(x, Lift(xs).runListT))) 
         };
 
     public static IterableT<M, A> Lift(IEnumerable<A> list) =>
@@ -67,7 +70,8 @@ public abstract record IterableT<M, A> :
     /// <summary>
     /// Empty sequence
     /// </summary>
-    public static IterableT<M, A> Empty { get; } = new IterableMainT<M, A>(M.Pure<MList<A>>(new MNil<A>()));
+    public static IterableT<M, A> Empty { get; } = 
+        new IterableMainT<M, A>(M.Pure<MList<A>>(new MNil<A>()));
 
     public IterableT<M, A> Filter(Func<A, bool> f) =>
         this.Kind().Filter(f).As();

@@ -14,12 +14,12 @@ internal record IterableEnumerableT<M, A>(IEnumerable<A> items) : IterableT<M, A
     public override K<M, MList<A>> runListT => 
         Lift(items.GetEnumerator()).runListT;
     
-    static IterableT<M, A> Lift(IEnumerator<A> iter)
+    public static IterableT<M, A> Lift(IEnumerator<A> iter)
     {
         if (iter.MoveNext())
         {
             return new IterableEnumerableItemT<M, A>(
-                M.Pure(MList<A>.Cons(iter.Current, () => Lift(iter).runListT)));
+                M.Pure(MList<A>.Iter<M>(iter.Current, iter)));
         }
         else
         {
