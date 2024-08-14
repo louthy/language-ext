@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
+using LanguageExt.Common;
 
 namespace LanguageExt;
 
@@ -43,7 +44,7 @@ public static partial class Prelude
     ///
     ///  * Writers will never block readers.
     ///
-    /// I/O and other activities with side-effects should be avoided in transactions, since transactions 
+    /// I/O and other activities with side effects should be avoided in transactions, since transactions 
     /// will be retried. 
     ///
     /// If a constraint on the validity of a value of a Ref that is being changed depends upon the 
@@ -66,8 +67,8 @@ public static partial class Prelude
     /// <param name="validator">Validator that is called on the ref value just
     /// before any transaction is committed (within a `sync`)</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Ref<A> Ref<A>(A value, Func<A, bool>? validator = null) =>
-        STM.NewRef(value, validator);
+    public static IO<Ref<A>> refIO<A>(A value, Func<A, bool>? validator = null) =>
+        lift(() => Ref(value, validator));
         
     /// <remarks>
     /// Snapshot isolation requires that nothing outside the transaction has written to any of the values that are
@@ -98,8 +99,8 @@ public static partial class Prelude
     /// ... would fail if something wrote to `y`.  
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static R atomic<R>(Func<R> op, Isolation isolation = Isolation.Snapshot) =>
-        STM.DoTransaction(op, isolation);
+    public static IO<R> atomicIO<R>(Func<R> op, Isolation isolation = Isolation.Snapshot) =>
+        lift(() => atomic(op, isolation));
 
     /// <summary>
     /// Run the op within a new transaction
@@ -134,8 +135,8 @@ public static partial class Prelude
     /// ... would fail if something wrote to `y`.  
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Unit atomic(Action op, Isolation isolation = Isolation.Snapshot) =>
-        STM.DoTransaction(() => { op(); return unit; }, isolation);
+    public static IO<Unit> atomicIO(Action op, Isolation isolation = Isolation.Snapshot) =>
+        lift(() => atomic(op, isolation));
         
     /// <summary>
     /// Run the op within a new transaction
@@ -147,8 +148,8 @@ public static partial class Prelude
     /// the transaction is rolled back and retried (using the latest 'world' state). 
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static R snapshot<R>(Func<R> op) =>
-        STM.DoTransaction(op, Isolation.Snapshot);
+    public static IO<R> snapshotIO<R>(Func<R> op) =>
+        lift(() => snapshot(op));
 
     /// <summary>
     /// Run the op within a new transaction
@@ -160,39 +161,8 @@ public static partial class Prelude
     /// the transaction is rolled back and retried (using the latest 'world' state). 
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Unit snapshot(Action op) =>
-        STM.DoTransaction(() => { op(); return unit; }, Isolation.Snapshot);        
-        
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    /// <remarks>
-    /// Serialisable isolation requires that nothing outside the transaction has written to any of the values that
-    /// are *read-from or written-to within the transaction*.  If anything does read from or written to the values used
-    /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
-    ///
-    /// It is the strictest form of isolation, and the most likely to conflict; but protects against cross read/write  
-    /// inconsistencies.  For example, if you have:
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     snapshot(() => x.Value = y.Value + 1);
-    ///
-    /// Then something writing to `y` mid-way through the transaction would *not* cause the transaction to fail.
-    /// Because `y` was only read-from, not written to.  However, this: 
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     serial(() => x.Value = y.Value + 1);
-    ///
-    /// ... would fail if something wrote to `y`.  
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static R serial<R>(Func<R> op) =>
-        STM.DoTransaction(op, Isolation.Snapshot);
+    public static IO<Unit> snapshotIO(Action op) =>
+        lift(() => snapshot(op));
 
     /// <summary>
     /// Run the op within a new transaction
@@ -222,10 +192,40 @@ public static partial class Prelude
     /// ... would fail if something wrote to `y`.  
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Unit serial(Action op) =>
-        STM.DoTransaction(() => { op(); return unit; }, Isolation.Snapshot);        
-    
+    public static IO<R> serialIO<R>(Func<R> op) =>
+        lift(() => serial(op));
+
     /// <summary>
+    /// Run the op within a new transaction
+    /// If a transaction is already running, then this becomes part of the parent transaction
+    /// </summary>
+    /// <remarks>
+    /// Serialisable isolation requires that nothing outside the transaction has written to any of the values that
+    /// are *read-from or written-to within the transaction*.  If anything does read from or written to the values used
+    /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+    ///
+    /// It is the strictest form of isolation, and the most likely to conflict; but protects against cross read/write  
+    /// inconsistencies.  For example, if you have:
+    ///
+    ///     var x = Ref(1);
+    ///     var y = Ref(2);
+    ///
+    ///     snapshot(() => x.Value = y.Value + 1);
+    ///
+    /// Then something writing to `y` mid-way through the transaction would *not* cause the transaction to fail.
+    /// Because `y` was only read-from, not written to.  However, this: 
+    ///
+    ///     var x = Ref(1);
+    ///     var y = Ref(2);
+    ///
+    ///     serial(() => x.Value = y.Value + 1);
+    ///
+    /// ... would fail if something wrote to `y`.  
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IO<Unit> serialIO(Action op) =>
+        lift(() => serial(op));        
+
     /// Swap the old value for the new returned by `f`
     /// Must be run within a `sync` transaction
     /// </summary>
@@ -233,8 +233,8 @@ public static partial class Prelude
     /// <param name="f">Function to update the `Ref`</param>
     /// <returns>The value returned from `f`</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static A swap<A>(Ref<A> r, Func<A, A> f) =>
-        r.Swap(f);
+    public static IO<A> swapIO<A>(Ref<A> r, Func<A, A> f) =>
+        r.SwapIO(f);
 
     /// <summary>
     /// Must be called in a transaction. Sets the in-transaction-value of
@@ -255,8 +255,8 @@ public static partial class Prelude
     /// Commute allows for more concurrency than just setting the Ref's value
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static A commute<A>(Ref<A> r, Func<A, A> f) =>
-        r.Commute(f);
+    public static IO<A> commuteIO<A>(Ref<A> r, Func<A, A> f) =>
+        lift(() => commute(r, f));
 
     /// <summary>
     /// Atoms provide a way to manage shared, synchronous, independent state without 
@@ -281,8 +281,8 @@ public static partial class Prelude
     /// coordinated with any other, and for which you wish to make synchronous changes.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Atom<A> Atom<A>(A value) =>
-        LanguageExt.Atom<A>.New(value);
+    public static IO<Atom<A>> atomIO<A>(A value) =>
+        lift(() => Atom(value));
 
     /// <summary>
     /// Atoms provide a way to manage shared, synchronous, independent state without 
@@ -314,8 +314,12 @@ public static partial class Prelude
     /// coordinated with any other, and for which you wish to make synchronous changes.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<Atom<A>> Atom<A>(A value, Func<A, bool> validator) =>
-        LanguageExt.Atom<A>.New(value, validator);
+    public static IO<Atom<A>> atomIO<A>(A value, Func<A, bool> validator) =>
+        lift(() => Atom(value, validator) switch
+                   {
+                       { IsSome: true } atom => (Atom<A>)atom,
+                       _                     => throw Exceptions.ValidationFailed
+                   });
 
     /// <summary>
     /// Atoms provide a way to manage shared, synchronous, independent state without 
@@ -341,8 +345,8 @@ public static partial class Prelude
     /// coordinated with any other, and for which you wish to make synchronous changes.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Atom<M, A> Atom<M, A>(M metadata, A value) =>
-        LanguageExt.Atom<M, A>.New(metadata, value);
+    public static IO<Atom<M, A>> atomIO<M, A>(M metadata, A value) =>
+        lift(() => Atom(metadata, value));
 
     /// <summary>
     /// Atoms provide a way to manage shared, synchronous, independent state without 
@@ -375,28 +379,88 @@ public static partial class Prelude
     /// coordinated with any other, and for which you wish to make synchronous changes.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<Atom<M, A>> Atom<M, A>(M metadata, A value, Func<A, bool> validator) =>
-        LanguageExt.Atom<M, A>.New(metadata, value, validator);
+    public static IO<Atom<M, A>> atomIO<M, A>(M metadata, A value, Func<A, bool> validator) =>
+        lift(() => Atom(metadata, value, validator) switch
+                   {
+                       { IsSome: true } atom => (Atom<M, A>)atom,
+                       _                     => throw Exceptions.ValidationFailed
+                   });
+        
+    /// <summary>
+    /// Atomically updates the value by passing the old value to `f` and updating
+    /// the atom with the result.  Note: `f` may be called multiple times, so it
+    /// should be free of side effects.
+    /// </summary>
+    /// <param name="f">Function to update the atom</param>
+    /// <returns>IO in a success state, with the result of the invocation of `f`, if the swap succeeded and its
+    /// validation passed. Failure state otherwise</returns>
+    public static IO<A> swapIO<A>(Atom<A> ma, Func<A, A> f) =>
+        ma.SwapIO(f);
+        
+    /// <summary>
+    /// Atomically updates the value by passing the old value to `f` and updating
+    /// the atom with the result.  Note: `f` may be called multiple times, so it
+    /// should be free of side effects.
+    /// </summary>
+    /// <param name="f">Function to update the atom</param>
+    /// <returns>IO in a success state, with the result of the invocation of `f`, if the swap succeeded and its
+    /// validation passed. Failure state otherwise</returns>
+    public static IO<A> swapIO<M, A>(Atom<M, A> ma, Func<M, A, A> f) =>
+        ma.SwapIO(f);
 
     /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side effects.
+    /// Retrieve an IO computation that on each invocation will snapshot of the
+    /// value in an atom
     /// </summary>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
-    /// and its validation passed. None otherwise</returns>
-    public static Option<A> swap<A>(Atom<A> ma, Func<A, A> f) =>
-        ma.Swap(f);
-    
+    /// <param name="ma">Atom to snapshot</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>IO representation of the snapshot</returns>
+    public static IO<A> valueIO<A>(Atom<A> ma) =>
+        ma.ValueIO;
+
     /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side effects.
+    /// Retrieve an IO computation that on each invocation will snapshot of the
+    /// value in an atom
     /// </summary>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
-    /// and its validation passed. None otherwise</returns>
-    public static Option<A> swap<M, A>(Atom<M, A> ma, Func<M, A, A> f) =>
-        ma.Swap(f);
+    /// <param name="ma">Atom to snapshot</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>IO representation of the snapshot</returns>
+    public static IO<A> valueIO<M, A>(Atom<M, A> ma) =>
+        ma.ValueIO;
+
+    /// <summary>
+    /// Write a value to an atom.
+    /// </summary>
+    /// <remarks>
+    /// Note, this can be dangerous and is usually better to use `swapIO` if the 
+    /// `value` is derived from a snapshot of the atom's value (via `valueIO`).
+    /// 
+    /// The computation is better run inside the swap operation for atomic consistency.
+    ///
+    /// However, using `writeIO` is reasonable if this is simply a forceful overwrite
+    /// of the atomic value without any dependency on the previous state.   
+    /// </remarks>
+    /// <param name="ma">Atom to write</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>IO representation of the write operation</returns>
+    public static IO<A> writeIO<A>(Atom<A> ma, A value) =>
+        ma.SwapIO(_ => value);
+
+    /// <summary>
+    /// Write a value to an atom.
+    /// </summary>
+    /// <remarks>
+    /// Note, this can be dangerous and is usually better to use `swapIO` if the 
+    /// `value` is derived from a snapshot of the atom's value (via `valueIO`).
+    /// 
+    /// The computation is better run inside the swap operation for atomic consistency.
+    ///
+    /// However, using `writeIO` is reasonable if this is simply a forceful overwrite
+    /// of the atomic value without any dependency on the previous state.   
+    /// </remarks>
+    /// <param name="ma">Atom to write</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>IO representation of the write operation</returns>
+    public static IO<A> writeIO<M, A>(Atom<M, A> ma, A value) =>
+        ma.SwapIO((_, _) => value);
 }

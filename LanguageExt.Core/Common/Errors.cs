@@ -152,4 +152,20 @@ public static class Errors
     /// End-of-stream error
     /// </summary>
     public static readonly Error EndOfStream = (EndOfStreamCode, EndOfStreamText);
+
+    /// <summary>
+    /// Validation failed text
+    /// </summary>
+    public const string ValidationFailedText = 
+        "validation failed";
+
+    /// <summary>
+    /// Validation failed code
+    /// </summary>
+    public const int ValidationFailedCode = -2000000010;
+
+    /// <summary>
+    /// Validation failed error
+    /// </summary>
+    public static readonly Error ValidationFailed = (ValidationFailedCode, ValidationFailedText);
 }

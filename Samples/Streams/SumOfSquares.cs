@@ -5,6 +5,11 @@ using static LanguageExt.Prelude;
 
 namespace Streams;
 
+/// <summary>
+/// Based on 'Sum of squares' from 'ListT done right'
+///
+/// https://wiki.haskell.org/ListT_done_right
+/// </summary>
 public class SumOfSquares
 {
     public static IO<Unit> run =>

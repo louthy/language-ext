@@ -56,4 +56,9 @@ public class Exceptions
     /// End-of-stream error
     /// </summary>
     public static readonly ExpectedException EndOfStream = new (Errors.EndOfStreamText, Errors.EndOfStreamCode);
+
+    /// <summary>
+    /// Validation failed error
+    /// </summary>
+    public static readonly ExpectedException ValidationFailed = new (Errors.ValidationFailedText, Errors.ValidationFailedCode);
 }

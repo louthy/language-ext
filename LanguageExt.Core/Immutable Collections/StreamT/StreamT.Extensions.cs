@@ -34,7 +34,7 @@ public static class IterableTExtensions
         {
             MNil<K<M, MList<A>>>                     => M.Pure(MNil<A>.Default),
             MCons<M, K<M, MList<A>>> (var h, var t)  => h.Append(t.Flatten()),
-            MIter<M, K<M, MList<A>>> (var h, _) iter => h.Append(iter.TailToMList().Flatten()),
+            MIter<M, K<M, MList<A>>> (var h, _) iter => h.Append(iter.TailM().Flatten()),
             _                                        => throw new NotSupportedException()
         };
 

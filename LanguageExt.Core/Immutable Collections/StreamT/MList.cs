@@ -26,7 +26,7 @@ public abstract record MList<A> : K<MList, A>
         {
             MNil<A>                     => ys,
             MCons<M, A> (var h, var t)  => M.Pure(Cons(h, t.Append(ys))),
-            MIter<M, A> (var h, _) iter => M.Pure(Cons(h, iter.TailToMList().Append(ys))),
+            MIter<M, A> (var h, _) iter => M.Pure(Cons(h, iter.TailM().Append(ys))),
             _                           => throw new NotSupportedException()
         };
 }
@@ -55,7 +55,7 @@ public record MIter<M, A>(A Head, IEnumerator<A> Tail) : MList<A>
     public MList<A> ToCons() =>
         new MCons<M, A>(Head, StreamEnumerableT<M, A>.Lift(Tail).runListT);
 
-    public K<M, MList<A>> TailToMList() =>
+    public K<M, MList<A>> TailM() =>
         StreamEnumerableT<M, A>.Lift(Tail).runListT;
 }
 

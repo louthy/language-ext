@@ -9,6 +9,9 @@ public static class Console
     public static IO<Unit> writeLine(string line) =>
         lift(() => System.Console.WriteLine(line));
 
+    public static IO<Unit> write(string text) =>
+        lift(() => System.Console.Write(text));
+
     public static IO<string> readLine =>
         lift(() => System.Console.ReadLine() ?? "");
 

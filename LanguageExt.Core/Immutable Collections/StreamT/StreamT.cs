@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -28,10 +29,17 @@ public abstract record StreamT<M, A> :
                           Option<(A Head, StreamT<M, A> Tail)>.Some((h, new StreamMainT<M, A>(t))),
 
                       MIter<M, A>(var h, _) iter =>
-                          Option<(A Head, StreamT<M, A> Tail)>.Some((h, new StreamMainT<M, A>(iter.TailToMList()))),
+                          Option<(A Head, StreamT<M, A> Tail)>.Some((h, new StreamMainT<M, A>(iter.TailM()))),
 
                       _ => throw new NotSupportedException()
                   });
+
+    public K<M, A> Head() =>
+        Run().Map(opt => opt switch
+                         { 
+                             { IsSome: true} => opt.Value.Item1,
+                             _               => throw Exceptions.None
+                         });
 
     public static StreamT<M, A> Pure(A value) =>
         new StreamPureT<M, A>(value);
@@ -108,4 +116,19 @@ public abstract record StreamT<M, A> :
 
     public StreamT<M, C> SelectMany<B, C>(Func<A, K<IO, B>> bind, Func<A, B, C> project) =>
         this.Kind().Bind(x => bind(x).Map(y => project(x, y))).As();
+
+    public static implicit operator StreamT<M, A>(Pure<A> value) =>
+        Pure(value.Value);
+
+    public static implicit operator StreamT<M, A>(Iterable<A> value) =>
+        Lift(value);
+
+    public static implicit operator StreamT<M, A>(IO<A> value) =>
+        LiftIO(value);
+
+    public static StreamT<M, A> operator +(StreamT<M, A> lhs, StreamT<M, A> rhs) =>
+        lhs.Combine(rhs);
+
+    public static StreamT<M, A> operator >> (StreamT<M, A> lhs, StreamT<M, A> rhs) =>
+        lhs.Bind(_ => rhs);
 }

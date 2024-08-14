@@ -19,8 +19,7 @@ internal record StreamEnumerableT<M, A>(IEnumerable<A> items) : StreamT<M, A>
     {
         if (iter.MoveNext())
         {
-            return new StreamEnumerableItemT<M, A>(
-                M.Pure(MList<A>.Iter<M>(iter.Current, iter)));
+            return new StreamEnumerableItemT<M, A>(M.Pure(MList<A>.Iter<M>(iter.Current, iter)));
         }
         else
         {

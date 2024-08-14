@@ -34,7 +34,7 @@ namespace LanguageExt
         {
             if (ILCapability.Available)
             {
-                var dynamic = new DynamicMethod("GetValue_Class", typeof(A), new[] {typeof(object)}, typeof(A).Module, true);
+                var dynamic = new DynamicMethod("GetValue_Class", typeof(A), [typeof(object)], typeof(A).Module, true);
                 var il      = dynamic.GetILGenerator();
 
                 il.Emit(OpCodes.Ldarg_0);
@@ -44,7 +44,7 @@ namespace LanguageExt
             }
             else
             {
-                return (object x) => (A)x;
+                return x => (A)x;
             }
         }
 
