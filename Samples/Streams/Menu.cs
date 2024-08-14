@@ -14,6 +14,7 @@ public static class Menu
                        ConsoleKey.D2 => CountForeverAsync.run,
                        ConsoleKey.D3 => SumOfSquares.run,
                        ConsoleKey.D4 => Grouping.run,
+                       ConsoleKey.D5 => RecursionIO.run,
                        _             => unitIO
                    }
         from _1 in run
@@ -24,5 +25,6 @@ public static class Menu
         Console.writeLine("2. Count forever sample (async, with per-item delay)") >>
         Console.writeLine("3. Sum of squares example")                            >>
         Console.writeLine("4. Grouping test")                                     >>
+        Console.writeLine("5. IO recursion test")                                 >>
         Console.writeLine("Enter a number for the example you wish to run");
 }

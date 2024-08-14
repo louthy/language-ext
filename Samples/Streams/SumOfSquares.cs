@@ -10,7 +10,7 @@ namespace Streams;
 ///
 /// https://wiki.haskell.org/ListT_done_right
 /// </summary>
-public class SumOfSquares
+public static class SumOfSquares
 {
     public static IO<Unit> run =>
         from _ in Console.writeLine("Enter a number to find the sum of squares")

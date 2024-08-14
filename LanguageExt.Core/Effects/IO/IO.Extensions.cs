@@ -45,10 +45,16 @@ public static partial class IOExtensions
     /// <summary>
     /// Unwrap the inner IO to flatten the structure
     /// </summary>
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IO<A> Flatten<A>(this IO<IO<A>> mma) =>
         mma.Bind(x => x);
-    
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IO<C> SelectMany<A, B, C>(this K<IO, A> ma, Func<A, K<IO, B>> bind, Func<A, B, C> project) =>
+        ma.As().SelectMany(bind, project);
+
     /// <summary>
     /// Creates a local cancellation environment
     /// </summary>

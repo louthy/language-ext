@@ -170,7 +170,7 @@ public class Trampoline
 }
 
 /// <summary>
-/// Two argument trampoline 
+/// Zero argument trampoline 
 /// </summary>
 public abstract record TrampolineF<A>
 {
@@ -182,17 +182,17 @@ public abstract record TrampolineF<A>
 }
 
 /// <summary>
-/// Two argument trampoline continue 
+/// Zero argument trampoline continue 
 /// </summary>
 public record TrampolineContinueF<A> : TrampolineF<A>;
 
 /// <summary>
-/// Two argument trampoline complete 
+/// Zero argument trampoline complete 
 /// </summary>
 public record TrampolineCompleteF<A>(A Result) : TrampolineF<A>;
 
 /// <summary>
-/// Two argument trampoline 
+/// One argument trampoline 
 /// </summary>
 public abstract record TrampolineF<A, B>
 {
@@ -204,12 +204,12 @@ public abstract record TrampolineF<A, B>
 }
 
 /// <summary>
-/// Two argument trampoline continue 
+/// One argument trampoline continue 
 /// </summary>
 public record TrampolineContinueF<A, B>(A Arg1) : TrampolineF<A, B>;
 
 /// <summary>
-/// Two argument trampoline complete 
+/// One argument trampoline complete 
 /// </summary>
 public record TrampolineCompleteF<A, B>(B Result) : TrampolineF<A, B>;
 
@@ -236,7 +236,7 @@ public record TrampolineContinueF<A, B, C>(A Arg1, B Arg2) : TrampolineF<A, B, C
 public record TrampolineCompleteF<A, B, C>(C Result) : TrampolineF<A, B, C>;
 
 /// <summary>
-/// Two argument trampoline 
+/// Three argument trampoline 
 /// </summary>
 public abstract record TrampolineF<A, B, C, D>
 {
@@ -248,11 +248,11 @@ public abstract record TrampolineF<A, B, C, D>
 }
 
 /// <summary>
-/// Two argument trampoline continue 
+/// Three argument trampoline continue 
 /// </summary>
 public record TrampolineContinueF<A, B, C, D>(A Arg1, B Arg2, C Arg3) : TrampolineF<A, B, C, D>;
 
 /// <summary>
-/// Two argument trampoline complete 
+/// Three argument trampoline complete 
 /// </summary>
 public record TrampolineCompleteF<A, B, C, D>(D Result) : TrampolineF<A, B, C, D>;

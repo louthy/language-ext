@@ -6,6 +6,9 @@ namespace Streams;
 // Simple IO wrappers of Console 
 public static class Console
 {
+    public static readonly IO<Unit> emptyLine =
+        lift(System.Console.WriteLine);
+
     public static IO<Unit> writeLine(string line) =>
         lift(() => System.Console.WriteLine(line));
 

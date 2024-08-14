@@ -15,8 +15,7 @@ public static class Grouping
         runTestIO("test 2", test2);
 
     static IO<Unit> runTestIO(string name, StreamT<IO, int> test) =>
-        runTest(name, test1).Iter().As() >>
-        Console.writeLine("\n");
+        runTest(name, test1).Iter().As() >> Console.emptyLine;
 
     static StreamT<IO, Unit> runTest(string name, StreamT<IO, int> test) =>
         from t in Console.writeLine($"{name}")
