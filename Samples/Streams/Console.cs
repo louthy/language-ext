@@ -16,7 +16,5 @@ public static class Console
         lift(() => System.Console.ReadLine() ?? "");
 
     public static IO<ConsoleKeyInfo> readKey =>
-        from k in lift(System.Console.ReadKey)
-        from _ in writeLine("")
-        select k;
+        IO.lift(System.Console.ReadKey) >> writeLine("");
 }

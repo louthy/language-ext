@@ -340,11 +340,45 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
     //  Operators
     //
 
+    /// <summary>
+    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
+    /// as the semicolon) in C#.
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the second action</returns>
     public static StateT<S, M, A> operator >> (StateT<S, M, A> lhs, StateT<S, M, A> rhs) =>
         lhs.Bind(_ => rhs);
     
+    /// <summary>
+    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
+    /// as the semicolon) in C#.
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the second action</returns>
     public static StateT<S, M, A> operator >> (StateT<S, M, A> lhs, K<StateT<S, M>, A> rhs) =>
         lhs.Bind(_ => rhs);
+
+    /// <summary>
+    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// first action is propagated. 
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the first action</returns>
+    public static StateT<S, M, A> operator >> (StateT<S, M, A> lhs, StateT<S, M, Unit> rhs) =>
+        lhs.Bind(x => rhs.Map(_ => x));
+    
+    /// <summary>
+    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// first action is propagated. 
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the first action</returns>
+    public static StateT<S, M, A> operator >> (StateT<S, M, A> lhs, K<StateT<S, M>, Unit> rhs) =>
+        lhs.Bind(x => rhs.Map(_ => x));
     
     public static implicit operator StateT<S, M, A>(Pure<A> ma) =>
         Pure(ma.Value);

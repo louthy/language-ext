@@ -235,11 +235,45 @@ public record ReaderT<Env, M, A>(Func<Env, K<M, A>> runReader) : K<ReaderT<Env, 
     //  Operators
     //
 
+    /// <summary>
+    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
+    /// as the semicolon) in C#.
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the second action</returns>
     public static ReaderT<Env, M, A> operator >> (ReaderT<Env, M, A> lhs, ReaderT<Env, M, A> rhs) =>
         lhs.Bind(_ => rhs);
     
+    /// <summary>
+    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
+    /// as the semicolon) in C#.
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the second action</returns>
     public static ReaderT<Env, M, A> operator >> (ReaderT<Env, M, A> lhs, K<ReaderT<Env, M>, A> rhs) =>
         lhs.Bind(_ => rhs);
+
+    /// <summary>
+    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// first action is propagated. 
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the first action</returns>
+    public static ReaderT<Env, M, A> operator >> (ReaderT<Env, M, A> lhs, ReaderT<Env, M, Unit> rhs) =>
+        lhs.Bind(x => rhs.Map(_ => x));
+    
+    /// <summary>
+    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// first action is propagated. 
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the first action</returns>
+    public static ReaderT<Env, M, A> operator >> (ReaderT<Env, M, A> lhs, K<ReaderT<Env, M>, Unit> rhs) =>
+        lhs.Bind(x => rhs.Map(_ => x));
     
     public static implicit operator ReaderT<Env, M, A>(Pure<A> ma) =>
         Pure(ma.Value);

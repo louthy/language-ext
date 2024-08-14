@@ -20,10 +20,9 @@ public static class Menu
         select ex;
 
     static IO<Unit> introduction =>
-        from _1 in Console.writeLine("1. Count forever sample")
-        from _2 in Console.writeLine("2. Count forever sample (async, with per-item delay)")
-        from _3 in Console.writeLine("3. Sum of squares example")
-        from _4 in Console.writeLine("4. Grouping test")
-        from __ in Console.writeLine("Enter a number for the example you wish to run")
-        select unit;
+        Console.writeLine("1. Count forever sample")                              >>
+        Console.writeLine("2. Count forever sample (async, with per-item delay)") >>
+        Console.writeLine("3. Sum of squares example")                            >>
+        Console.writeLine("4. Grouping test")                                     >>
+        Console.writeLine("Enter a number for the example you wish to run");
 }

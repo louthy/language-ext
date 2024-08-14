@@ -237,6 +237,26 @@ public record State<S, A>(Func<S, (A Value, S State)> runState) : K<State<S>, A>
     
     public static State<S, A> operator >> (State<S, A> lhs, K<State<S>, A> rhs) =>
         lhs.Bind(_ => rhs);
+
+    /// <summary>
+    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// first action is propagated. 
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the first action</returns>
+    public static State<S, A> operator >> (State<S, A> lhs, State<S, Unit> rhs) =>
+        lhs.Bind(x => rhs.Map(_ => x));
+    
+    /// <summary>
+    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// first action is propagated. 
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the first action</returns>
+    public static State<S, A> operator >> (State<S, A> lhs, K<State<S>, Unit> rhs) =>
+        lhs.Bind(x => rhs.Map(_ => x));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

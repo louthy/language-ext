@@ -1,6 +1,7 @@
 
 using System;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -11,9 +12,9 @@ namespace LanguageExt;
 /// </summary>
 public record Lift<A>(Func<A> Function)
 {
-    public ReaderT<Env, M, A> ToReaderT<Env, M>() 
-        where M : Monad<M>, Alternative<M> =>
-        new (_ => M.Pure(Function()));
+    public K<F, A> ToApplicative<F>() 
+        where F : Applicative<F> =>
+        F.Pure(unit).Map(_ => Function());
 
     public IO<A> ToIO() =>
         IO<A>.Lift(_ => Function());
@@ -30,11 +31,15 @@ public record Lift<A>(Func<A> Function)
     public Lift<B> Bind<B>(Func<A, Lift<B>> f) =>
         new(() => f(Function()).Function());
 
-    public IO<B> Bind<B>(Func<A, IO<B>> f) =>
-        ToIO().Bind(f);
-
     public Lift<B> Bind<B>(Func<A, Pure<B>> f) =>
         new (() => f(Function()).Value);
+
+    public K<M, B> Bind<M, B>(Func<A, K<M, B>> f)
+        where M : Monad<M> =>
+        M.Pure(unit).Map(_ => Function()).Bind(f);
+
+    public IO<B> Bind<B>(Func<A, IO<B>> f) =>
+        ToIO().Bind(f);
 
     public Lift<B> Select<B>(Func<A, B> f) =>
         Map(f);
@@ -42,9 +47,9 @@ public record Lift<A>(Func<A> Function)
     public IO<C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) => 
         ToIO().SelectMany(bind, project);
 
-    public ReaderT<Env, M, C> SelectMany<Env, M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project) 
-        where M : Monad<M>, Alternative<M> =>
-        ToReaderT<Env, M>().SelectMany(bind, project);
+    public K<M, C> SelectMany<M, B, C>(Func<A, K<M, B>> bind, Func<A, B, C> project)  
+        where M : Monad<M> =>
+        Bind(x => bind(x).Map(y => project(x, y)));
 
     public Lift<C> SelectMany<B, C>(Func<A, Lift<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));

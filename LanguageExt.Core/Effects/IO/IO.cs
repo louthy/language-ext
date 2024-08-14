@@ -369,11 +369,45 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     public static IO<A> operator |(IO<A> lhs, A rhs) =>
         lhs.Catch(rhs).As();
     
+    /// <summary>
+    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
+    /// as the semicolon) in C#.
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the second action</returns>
     public static IO<A> operator >> (IO<A> lhs, IO<A> rhs) =>
         lhs.Bind(_ => rhs);
     
+    /// <summary>
+    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
+    /// as the semicolon) in C#.
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the second action</returns>
     public static IO<A> operator >> (IO<A> lhs, K<IO, A> rhs) =>
         lhs.Bind(_ => rhs);
+    
+    /// <summary>
+    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// first action is propagated. 
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the first action</returns>
+    public static IO<A> operator >> (IO<A> lhs, IO<Unit> rhs) =>
+        lhs.Bind(x => rhs.Map(_ => x));
+    
+    /// <summary>
+    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// first action is propagated. 
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the first action</returns>
+    public static IO<A> operator >> (IO<A> lhs, K<IO, Unit> rhs) =>
+        lhs.Bind(x => rhs.Map(_ => x));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
