@@ -409,6 +409,12 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
     //  Operators
     //
 
+    public static EitherT<L, M, R> operator >> (EitherT<L, M, R> lhs, EitherT<L, M, R> rhs) =>
+        lhs.Bind(_ => rhs);
+    
+    public static EitherT<L, M, R> operator >> (EitherT<L, M, R> lhs, K<EitherT<L, M>, R> rhs) =>
+        lhs.Bind(_ => rhs);
+    
     public static implicit operator EitherT<L, M, R>(Either<L, R> ma) =>
         Lift(ma);
     

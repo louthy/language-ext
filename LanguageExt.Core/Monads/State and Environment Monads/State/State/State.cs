@@ -226,11 +226,17 @@ public record State<S, A>(Func<S, (A Value, S State)> runState) : K<State<S>, A>
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //  Conversion operators
+    //  Operators
     //
 
     public static implicit operator State<S, A>(Pure<A> ma) =>
         Pure(ma.Value);
+
+    public static State<S, A> operator >> (State<S, A> lhs, State<S, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
+    public static State<S, A> operator >> (State<S, A> lhs, K<State<S>, A> rhs) =>
+        lhs.Bind(_ => rhs);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

@@ -413,9 +413,15 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //  Conversion operators
+    //  Operators
     //
 
+    public static FinT<M, A> operator >> (FinT<M, A> lhs, FinT<M, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
+    public static FinT<M, A> operator >> (FinT<M, A> lhs, K<FinT<M>, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
     public static implicit operator FinT<M, A>(Fin<A> ma) =>
         Lift(ma);
     

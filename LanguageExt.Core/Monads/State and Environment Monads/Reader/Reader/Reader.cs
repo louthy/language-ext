@@ -183,6 +183,12 @@ public record Reader<Env, A>(Func<Env, A> runReader) : K<Reader<Env>, A>
     public static implicit operator Reader<Env, A>(Ask<Env, A> ma) =>
         Asks(ma.F);
 
+    public static Reader<Env, A> operator >> (Reader<Env, A> lhs, Reader<Env, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
+    public static Reader<Env, A> operator >> (Reader<Env, A> lhs, K<Reader<Env>, A> rhs) =>
+        lhs.Bind(_ => rhs);
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Run the reader

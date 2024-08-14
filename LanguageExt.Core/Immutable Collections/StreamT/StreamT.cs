@@ -131,4 +131,7 @@ public abstract record StreamT<M, A> :
 
     public static StreamT<M, A> operator >> (StreamT<M, A> lhs, StreamT<M, A> rhs) =>
         lhs.Bind(_ => rhs);
+
+    public static StreamT<M, A> operator >> (StreamT<M, A> lhs, K<StreamT<M>, A> rhs) =>
+        lhs.Bind(_ => rhs);
 }

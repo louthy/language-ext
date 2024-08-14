@@ -277,6 +277,12 @@ public record ValidationT<F, M, A>(K<M, Validation<F, A>> runValidation) :
     //  Operators
     //
 
+    public static ValidationT<F, M, A> operator >> (ValidationT<F, M, A> lhs, ValidationT<F, M, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
+    public static ValidationT<F, M, A> operator >> (ValidationT<F, M, A> lhs, K<ValidationT<F, M>, A> rhs) =>
+        lhs.Bind(_ => rhs);
+
     public static implicit operator ValidationT<F, M, A>(Pure<A> ma) =>
         Success(ma.Value);
     

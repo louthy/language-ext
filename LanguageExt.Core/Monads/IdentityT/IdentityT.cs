@@ -63,4 +63,10 @@ public record IdentityT<M, A>(K<M, A> Value) : K<IdentityT<M>, A>
     [Pure]
     public IdentityT<M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
+    
+    public static IdentityT<M, A> operator >> (IdentityT<M, A> lhs, IdentityT<M, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
+    public static IdentityT<M, A> operator >> (IdentityT<M, A> lhs, K<IdentityT<M>, A> rhs) =>
+        lhs.Bind(_ => rhs);
 }

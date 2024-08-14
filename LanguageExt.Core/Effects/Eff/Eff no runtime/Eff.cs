@@ -44,6 +44,12 @@ public record Eff<A>(Eff<MinRT, A> effect) :
         new(Eff<MinRT, A>.Fail(error));
 
     /// <summary>
+    /// Convert to an `Eff` monad with a runtime
+    /// </summary>
+    public Eff<RT, A> WithRuntime<RT>() =>
+        MonadIO.liftIO<Eff<RT>, A>(effect.RunIO(new MinRT())).As();
+
+    /// <summary>
     /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
@@ -453,12 +459,12 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     // Operators
     //
 
-    /// <summary>
-    /// Convert to an `Eff` monad with a runtime
-    /// </summary>
-    public Eff<RT, A> WithRuntime<RT>() =>
-        MonadIO.liftIO<Eff<RT>, A>(effect.RunIO(new MinRT())).As();
+    public static Eff<A> operator >> (Eff<A> lhs, Eff<A> rhs) =>
+        lhs.Bind(_ => rhs);
 
+    public static Eff<A> operator >> (Eff<A> lhs, K<Eff, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
     /// <summary>
     /// Convert to an `Eff` monad
     /// </summary>

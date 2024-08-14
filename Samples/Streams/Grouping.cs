@@ -11,14 +11,12 @@ namespace Streams;
 public static class Grouping
 {
     public static IO<Unit> run =>
-        from _1 in runTestIO("test 1", test1)
-        from _2 in runTestIO("test 2", test2)
-        select unit;
+        runTestIO("test 1", test1) >>
+        runTestIO("test 2", test2);
 
     static IO<Unit> runTestIO(string name, StreamT<IO, int> test) =>
-        from _1 in runTest(name, test1).Iter().As()
-        from _2 in Console.writeLine("\n")
-        select unit;
+        runTest(name, test1).Iter().As() >>
+        Console.writeLine("\n");
 
     static StreamT<IO, Unit> runTest(string name, StreamT<IO, int> test) =>
         from t in Console.writeLine($"{name}")
@@ -41,8 +39,4 @@ public static class Grouping
         from x in valueIO(atom)
         from _ in writeIO(atom, x + 1)
         select x;
-
-    static StreamT<IO, int> next1(Atom<int> atom) =>
-        atom.SwapIO(x => x + 1);
-    
 }

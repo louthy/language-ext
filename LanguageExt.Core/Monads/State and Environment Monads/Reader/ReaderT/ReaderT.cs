@@ -235,6 +235,12 @@ public record ReaderT<Env, M, A>(Func<Env, K<M, A>> runReader) : K<ReaderT<Env, 
     //  Operators
     //
 
+    public static ReaderT<Env, M, A> operator >> (ReaderT<Env, M, A> lhs, ReaderT<Env, M, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
+    public static ReaderT<Env, M, A> operator >> (ReaderT<Env, M, A> lhs, K<ReaderT<Env, M>, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
     public static implicit operator ReaderT<Env, M, A>(Pure<A> ma) =>
         Pure(ma.Value);
     

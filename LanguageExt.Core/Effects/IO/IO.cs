@@ -345,7 +345,7 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //  Fail coalescing
+    //  Operators
     //
     
     public static IO<A> operator |(IO<A> lhs, IO<A> rhs) =>
@@ -368,6 +368,12 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
 
     public static IO<A> operator |(IO<A> lhs, A rhs) =>
         lhs.Catch(rhs).As();
+    
+    public static IO<A> operator >> (IO<A> lhs, IO<A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
+    public static IO<A> operator >> (IO<A> lhs, K<IO, A> rhs) =>
+        lhs.Bind(_ => rhs);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

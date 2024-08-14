@@ -255,9 +255,15 @@ public record WriterT<W, M, A>(Func<W, K<M, (A Value, W Output)>> runWriter) : K
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //  Conversion operators
+    //  Operators
     //
 
+    public static WriterT<W, M, A> operator >> (WriterT<W, M, A> lhs, WriterT<W, M, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
+    public static WriterT<W, M, A> operator >> (WriterT<W, M, A> lhs, K<WriterT<W, M>, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
     public static implicit operator WriterT<W, M, A>(Pure<A> ma) =>
         Pure(ma.Value);
     

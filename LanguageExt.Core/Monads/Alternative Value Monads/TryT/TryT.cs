@@ -278,9 +278,15 @@ public record TryT<M, A>(K<M, Try<A>> runTry) :
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //  Conversion operators
+    //  Operators
     //
 
+    public static TryT<M, A> operator >> (TryT<M, A> lhs, TryT<M, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
+    public static TryT<M, A> operator >> (TryT<M, A> lhs, K<TryT<M>, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
     public static implicit operator TryT<M, A>(Pure<A> ma) =>
         Succ(ma.Value);
     
@@ -295,11 +301,6 @@ public record TryT<M, A>(K<M, Try<A>> runTry) :
     
     public static implicit operator TryT<M, A>(IO<A> ma) =>
         LiftIO(ma);
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Error catching operators
-    //
     
     public static TryT<M, A> operator |(TryT<M, A> lhs, TryT<M, A> rhs) =>
         lhs.Combine(rhs);

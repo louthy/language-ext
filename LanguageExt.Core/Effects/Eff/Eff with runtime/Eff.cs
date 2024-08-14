@@ -528,6 +528,18 @@ public record Eff<RT, A>(ReaderT<RT, IO, A> effect) :
     //
     // Operators
     //
+    
+    public static Eff<RT, A> operator >> (Eff<RT, A> lhs, Eff<RT, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
+    public static Eff<RT, A> operator >> (Eff<RT, A> lhs, Eff<A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
+    public static Eff<RT, A> operator >> (Eff<RT, A> lhs, K<Eff<RT>, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
+    public static Eff<RT, A> operator >> (Eff<RT, A> lhs, K<Eff, A> rhs) =>
+        lhs.Bind(_ => rhs);
 
     /// <summary>
     /// Convert to an `Eff` monad

@@ -357,8 +357,14 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) :
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //  Oerators
+    //  Operators
     //
+
+    public static OptionT<M, A> operator >> (OptionT<M, A> lhs, OptionT<M, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
+    public static OptionT<M, A> operator >> (OptionT<M, A> lhs, K<OptionT<M>, A> rhs) =>
+        lhs.Bind(_ => rhs);
     
     public static implicit operator OptionT<M, A>(in Option<A> ma) =>
         Lift(ma);
