@@ -629,7 +629,7 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     public A Run(EnvIO env)
     {
         var ma = this;
-        while (true)
+        while (!env.Token.IsCancellationRequested)
         {
             switch (ma.runIO(env))
             {
@@ -641,6 +641,7 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
                     break;
             }
         }
+        throw new TaskCanceledException();
     }
 
     /// <summary>
