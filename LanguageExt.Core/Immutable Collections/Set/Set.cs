@@ -140,6 +140,14 @@ public readonly struct Set<A> :
             : toSeq(Value).Case;
 
     /// <summary>
+    /// Stream as an enumerable
+    /// </summary>
+    [Pure]
+    public StreamT<M, A> AsStream<M>()
+        where M : Monad<M> =>
+        StreamT<M, A>.Lift(AsEnumerable());
+
+    /// <summary>
     /// Add an item to the set
     /// </summary>
     /// <param name="value">Value to add to the set</param>

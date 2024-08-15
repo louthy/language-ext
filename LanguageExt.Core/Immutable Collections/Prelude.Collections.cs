@@ -835,6 +835,55 @@ public static partial class Prelude
         match(LanguageExt.HashMap.find(map, key),
               Some,
               None);
+    
+    /// <summary>
+    /// Construct an empty Iterable
+    /// </summary>
+    [Pure]
+    public static Iterable<A> Iterable<A>() =>
+        LanguageExt.Iterable<A>.Empty;
+        
+    /// <summary>
+    /// Construct a sequence from an Enumerable
+    /// </summary>
+    [Pure]
+    public static Iterable<A> Iterable<A>(ReadOnlySpan<A> value) =>
+        LanguageExt.Iterable<A>.FromSpan(value);
+
+    /// <summary>
+    /// Construct a sequence from an Enumerable
+    /// </summary>
+    [Pure]
+    public static Iterable<A> Iterable<A>(A fst, A snd, params A[] rest)
+    {
+        return new IterableEnumerable<A>(Yield());
+        IEnumerable<A> Yield()
+        {
+            yield return fst;
+            yield return snd;
+            foreach (var value in rest)
+            {
+                yield return value;
+            }
+        }
+    }
+        
+    /// <summary>
+    /// Construct a sequence from an Enumerable
+    /// Deals with `value == null` by returning `[]` and also memoizes the
+    /// items in the enumerable as they're being consumed.
+    /// </summary>
+    [Pure]
+    public static Iterable<A> Iterable<A>(IEnumerable<A>? value) =>
+        value switch
+        {
+            null                => LanguageExt.Iterable<A>.Empty,
+            Iterable<A> iter    => iter, 
+            Seq<A> seq          => seq.AsIterable(),
+            Arr<A> arr          => arr.AsIterable(),
+            A[] array           => Iterable(array),
+            _                   => new IterableEnumerable<A>(value)
+        };
 
     /// <summary>
     /// Construct an empty Seq

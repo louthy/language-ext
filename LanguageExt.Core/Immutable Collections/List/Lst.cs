@@ -231,6 +231,14 @@ public readonly struct Lst<A> :
         get => Count;
     }
 
+    /// <summary>
+    /// Stream as an enumerable
+    /// </summary>
+    [Pure]
+    public StreamT<M, A> AsStream<M>()
+        where M : Monad<M> =>
+        StreamT<M, A>.Lift(this);
+
     [Pure]
     A IReadOnlyList<A>.this[int index]
     {

@@ -492,6 +492,14 @@ public readonly struct Seq<A> :
     /// Stream as an enumerable
     /// </summary>
     [Pure]
+    public StreamT<M, A> AsStream<M>()
+        where M : Monad<M> =>
+        StreamT<M, A>.Lift(AsEnumerable());
+
+    /// <summary>
+    /// Stream as an enumerable
+    /// </summary>
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Iterable<A> AsIterable() => 
         new IterableEnumerable<A>(Value);

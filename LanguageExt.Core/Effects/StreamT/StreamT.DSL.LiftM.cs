@@ -12,6 +12,9 @@ internal record StreamLiftM<M, A>(K<M, A> pureMA) : StreamT<M, A>
     public override K<M, MList<A>> runListT { get; } =
         pureMA.Map(a => MList<A>.Cons(a, M.Pure(MList<A>.Nil)));
 
+    public override StreamT<M, A> Tail =>
+        Empty;
+
     public override StreamT<M, B> Map<B>(Func<A, B> f) =>
         new StreamLiftM<M, B>(pureMA.Map(f));
 }

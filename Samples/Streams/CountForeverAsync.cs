@@ -25,7 +25,7 @@ public static class CountForeverAsync
         for (var i = 0L; i < long.MaxValue; i++)
         {
             yield return i;
-            await Task.Delay(100);
+            await Task.Delay(1000);
         }
     }
 }

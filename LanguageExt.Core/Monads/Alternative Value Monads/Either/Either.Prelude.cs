@@ -451,7 +451,7 @@ public static partial class Prelude
         Func<R, Ret> Right,
         Func<L, Ret> Left)
     {
-        return Iterable.createRange(Go());
+        return Iterable(Go());
         IEnumerable<Ret> Go()
         {
             foreach (var item in list)
@@ -519,7 +519,7 @@ public static partial class Prelude
     [Pure]
     public static Iterable<L> lefts<L, R>(IEnumerable<Either<L, R>> self)
     {
-        return Iterable.createRange(Go());
+        return Iterable(Go());
 
         IEnumerable<L> Go()
         {
@@ -553,7 +553,7 @@ public static partial class Prelude
     [Pure]
     public static Iterable<R> rights<L, R>(IEnumerable<Either<L, R>> self)
     {
-        return Iterable.createRange(Go());
+        return Iterable(Go());
         IEnumerable<R> Go()
         {
             foreach (var item in self)
@@ -595,7 +595,7 @@ public static partial class Prelude
             if (item.IsLeft) ls.Add(item.LeftValue);
             if (item.IsRight) rs.Add(item.RightValue);
         }
-        return (Iterable.createRange(ls), Iterable.createRange(rs));
+        return (Iterable(ls), Iterable(rs));
     }
 
     /// <summary>

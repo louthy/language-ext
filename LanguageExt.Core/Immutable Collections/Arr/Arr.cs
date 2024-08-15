@@ -74,6 +74,14 @@ public struct Arr<A> :
         this.value = value;
     }
 
+    /// <summary>
+    /// Stream as an enumerable
+    /// </summary>
+    [Pure]
+    public StreamT<M, A> AsStream<M>()
+        where M : Monad<M> =>
+        StreamT<M, A>.Lift(this);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Arr<A>(A[] xs) =>
         new (xs);

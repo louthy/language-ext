@@ -18,6 +18,9 @@ internal record StreamAsyncEnumerableT<M, A>(IAsyncEnumerable<A> items) : Stream
          .Bind(e => StreamEnumerableT<M, A>.Lift(items.ToBlockingEnumerable(e.Token).GetEnumerator())
                                            .runListT);
 
+    public override StreamT<M, A> Tail =>
+        new StreamAsyncEnumerableT<M, A>(Skip(items, 1));
+
     public override StreamT<M, B> Map<B>(Func<A, B> f) =>
         new StreamAsyncEnumerableT<M, B>(MapAsync(items, f));
 
@@ -28,4 +31,15 @@ internal record StreamAsyncEnumerableT<M, A>(IAsyncEnumerable<A> items) : Stream
             yield return f(a);
         }
     }
+
+    async IAsyncEnumerable<A> Skip(IAsyncEnumerable<A> ma, int n)
+    {
+        await foreach (var a in ma)
+        {
+            if (n == 0)
+                yield return a;
+            else
+                n--;
+        }
+    }    
 }

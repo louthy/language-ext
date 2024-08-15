@@ -24,7 +24,6 @@ public abstract class Iterable<A> :
     IEnumerable<A>,
     Monoid<Iterable<A>>,
     IComparable<Iterable<A>>,
-    IEqualityOperators<Iterable<A>, Iterable<A>, bool>,
     IAdditiveIdentity<Iterable<A>, Iterable<A>>,
     IComparisonOperators<Iterable<A>, Iterable<A>, bool>,
     IAdditionOperators<Iterable<A>, Iterable<A>, Iterable<A>>,
@@ -49,7 +48,14 @@ public abstract class Iterable<A> :
     /// </summary>
     [Pure]
     public abstract IEnumerable<A> AsEnumerable();
-    
+
+    /// <summary>
+    /// Stream as an enumerable
+    /// </summary>
+    [Pure]
+    public StreamT<M, A> AsStream<M>()
+        where M : Monad<M> =>
+        StreamT<M, A>.Lift(AsEnumerable());
 
     /// <summary>
     /// Reverse the sequence
@@ -142,6 +148,10 @@ public abstract class Iterable<A> :
     [Pure]
     public virtual bool Equals(Iterable<A>? other) =>
         other is not null && Equals<EqDefault<A>>(other);
+
+    [Pure]
+    public override bool Equals(object? obj) =>
+        obj is Iterable<A> rhs && Equals(rhs);
 
     [Pure]
     public static bool operator ==(Iterable<A>? lhs, Iterable<A>? rhs) =>

@@ -13,11 +13,20 @@ public abstract record StreamT<M, A> :
     Monoid<StreamT<M, A>>
     where M : Monad<M>
 {
+    /// <summary>
+    /// Get the lifted monad
+    /// </summary>
     public abstract K<M, MList<A>> runListT { get; }
 
+    /// <summary>
+    /// Iterate the stream, ignoring any result.
+    /// </summary>
     public K<M, Unit> Iter() =>
         Run().IgnoreF();
 
+    /// <summary>
+    /// Iterate the stream, returning final position.
+    /// </summary>
     public K<M, Option<(A Head, StreamT<M, A> Tail)>> Run() =>
         runListT.Map(
             ma => ma switch
@@ -34,12 +43,23 @@ public abstract record StreamT<M, A> :
                       _ => throw new NotSupportedException()
                   });
 
-    public K<M, A> Head() =>
-        Run().Map(opt => opt switch
-                         { 
-                             { IsSome: true} => opt.Value.Item1,
-                             _               => throw Exceptions.None
-                         });
+    /// <summary>
+    /// Retrieve the head of the sequence
+    /// </summary>
+    public K<M, Option<A>> Head =>
+        Run().Map(opt => opt.Map(o => o.Head));
+
+    /// <summary>
+    /// Retrieve the head of the sequence
+    /// </summary>
+    /// <exception cref="ExpectedException">Throws sequence-empty expected-exception</exception>
+    public K<M, A> HeadUnsafe =>
+        Run().Map(opt => opt.Map(o => o.Head).IfNone(() => throw Exceptions.SequenceEmpty));
+
+    /// <summary>
+    /// Retrieve the tail of the sequence
+    /// </summary>
+    public abstract StreamT<M, A> Tail { get; }
 
     public static StreamT<M, A> Pure(A value) =>
         new StreamPureT<M, A>(value);
