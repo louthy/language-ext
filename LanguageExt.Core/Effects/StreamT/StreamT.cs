@@ -19,10 +19,77 @@ public abstract record StreamT<M, A> :
     public abstract K<M, MList<A>> runListT { get; }
 
     /// <summary>
-    /// Iterate the stream, ignoring any result.
+    /// Empty stream
     /// </summary>
-    public K<M, Unit> Iter() =>
-        Run().IgnoreF();
+    public static StreamT<M, A> Empty { get; } =
+        new StreamMainT<M, A>(M.Pure<MList<A>>(new MNil<A>()));
+
+    /// <summary>
+    /// Construct a singleton stream
+    /// </summary>
+    /// <param name="value">Single value in the stream</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> Pure(A value) =>
+        new StreamPureT<M, A>(value);
+
+    /// <summary>
+    /// Lift any foldable into the stream
+    /// </summary>
+    /// <remarks>This is likely to consume the foldable structure eagerly</remarks>
+    /// <param name="foldable">Foldable structure to lift</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> LiftF<F>(K<F, A> foldable)
+        where F : Foldable<F> =>
+        foldable switch
+        {
+            IEnumerable<A> ma => Lift(ma),
+            _ => new StreamMainT<M, A>(M.Pure(foldable.FoldBack(MList<A>.Nil, s => a => MList<A>.Cons(a, M.Pure(s)))))
+        };
+
+    /// <summary>
+    /// Lift an async-enumerable into the stream
+    /// </summary>
+    /// <param name="stream">Sequence to lift</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> Lift(IAsyncEnumerable<A> stream) =>
+        new StreamAsyncEnumerableT<M, A>(stream);
+
+    /// <summary>
+    /// Lift an enumerable into the stream
+    /// </summary>
+    /// <param name="stream">Sequence to lift</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> Lift(IEnumerable<A> stream) =>
+        StreamT.pure<M, Unit>(default) // HACK: forces re-evaluation of the enumerable
+               .Bind(_ => new StreamEnumerableT<M, A>(stream));
+
+    /// <summary>
+    /// Lift a (possibly lazy) sequence into the stream
+    /// </summary>
+    /// <param name="list">Sequence to lift</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> Lift(Seq<A> list) =>
+        list switch
+        {
+            []          => Empty,
+            var (x, xs) => new StreamMainT<M, A>(M.Pure<MList<A>>(new MCons<M, A>(x, Lift(xs).runListT)))
+        };
+
+    /// <summary>
+    /// Lift an effect into the stream
+    /// </summary>
+    /// <param name="ma">Effect to lift</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> Lift(K<M, A> ma) =>
+        new StreamLiftM<M, A>(ma);
+
+    /// <summary>
+    /// Lift side effect into the stream
+    /// </summary>
+    /// <param name="ma">Side effect to lift</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> LiftIO(IO<A> ma) =>
+        Lift(M.LiftIO(ma));
 
     /// <summary>
     /// Iterate the stream, returning final position.
@@ -44,6 +111,12 @@ public abstract record StreamT<M, A> :
                   });
 
     /// <summary>
+    /// Iterate the stream, ignoring any result.
+    /// </summary>
+    public K<M, Unit> Iter() =>
+        Run().IgnoreF();
+
+    /// <summary>
     /// Retrieve the head of the sequence
     /// </summary>
     public K<M, Option<A>> Head =>
@@ -59,44 +132,51 @@ public abstract record StreamT<M, A> :
     /// <summary>
     /// Retrieve the tail of the sequence
     /// </summary>
+    /// <returns>Stream transformer</returns>
     public abstract StreamT<M, A> Tail { get; }
-
-    public static StreamT<M, A> Pure(A value) =>
-        new StreamPureT<M, A>(value);
-
-    public static StreamT<M, A> Lift(Seq<A> list) =>
-        list switch
-        {
-            []          => Empty,
-            var (x, xs) => new StreamMainT<M, A>(M.Pure<MList<A>>(new MCons<M, A>(x, Lift(xs).runListT)))
-        };
-
-    public static StreamT<M, A> Lift(IAsyncEnumerable<A> stream) =>
-        new StreamAsyncEnumerableT<M, A>(stream);
-
-    public static StreamT<M, A> Lift(IEnumerable<A> stream) =>
-        StreamT.pure<M, Unit>(default) // HACK: forces re-evaluation of the enumerable
-               .Bind(_ => new StreamEnumerableT<M, A>(stream));
-
-    public static StreamT<M, A> Lift(K<M, A> ma) =>
-        new StreamLiftM<M, A>(ma);
-
-    public static StreamT<M, A> LiftIO(IO<A> ma) =>
-        Lift(M.LiftIO(ma));
-
+    
+    /// <summary>
+    /// Map the stream
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Resulting bound value type</typeparam>
+    /// <returns>Stream transformer</returns>
     public abstract StreamT<M, B> Map<B>(Func<A, B> f);
 
     /// <summary>
-    /// Concatenate sequences
+    /// Left fold
     /// </summary>
-    public StreamT<M, A> Combine(StreamT<M, A> rhs) =>
-        new StreamMainT<M, A>(runListT.Append(rhs.runListT));
+    /// <param name="state">Initial state</param>
+    /// <param name="f">Folding function</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Accumulate state wrapped in the StreamT inner monad</returns>
+    public K<M, S> Fold<S>(S state, Func<S, A, K<M, S>> f)
+    {
+        return go(state, runListT);
+        K<M, S> go(S acc, K<M, MList<A>> run) =>
+            run.Bind(
+                mx => mx switch
+                      {
+                          MNil<A> =>
+                              M.Pure(acc),
+
+                          MCons<M, A>(var element, var next) =>
+                              f(acc, element).Bind(acc1 => go(acc1, next)),
+
+                          MIter<M, A>(var element, _) iter =>
+                              f(acc, element).Bind(acc1 => go(acc1, iter.TailM())),
+
+                          _ => throw new NotSupportedException()
+                      });
+    }
+
 
     /// <summary>
-    /// Empty sequence
+    /// Concatenate streams
     /// </summary>
-    public static StreamT<M, A> Empty { get; } =
-        new StreamMainT<M, A>(M.Pure<MList<A>>(new MNil<A>()));
+    /// <returns>Stream transformer</returns>
+    public StreamT<M, A> Combine(StreamT<M, A> rhs) =>
+        new StreamMainT<M, A>(runListT.Append(rhs.runListT));
 
     public StreamT<M, A> Filter(Func<A, bool> f) =>
         this.Kind().Filter(f).As();
@@ -141,7 +221,7 @@ public abstract record StreamT<M, A> :
         Pure(value.Value);
 
     public static implicit operator StreamT<M, A>(Iterable<A> value) =>
-        Lift(value);
+        Lift(value.AsEnumerable());
 
     public static implicit operator StreamT<M, A>(IO<A> value) =>
         LiftIO(value);

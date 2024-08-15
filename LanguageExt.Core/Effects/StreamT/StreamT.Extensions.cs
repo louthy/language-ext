@@ -12,9 +12,45 @@ public static class IterableTExtensions
         where M : Monad<M> =>
         (StreamT<M, A>)ma;
 
-    public static K<M, Option<(A Head, StreamT<M, A> Tail)>> Run<M, A>(this StreamT<M, A> mma)
+    public static MList<A> As<M, A>(this K<MList, A> ma)
+        where M : Monad<M> =>
+        (MList<A>)ma;
+
+    public static K<M, Option<(A Head, StreamT<M, A> Tail)>> Run<M, A>(this K<StreamT<M>, A> mma)
         where M : Monad<M> =>
         mma.As().Run();
+
+    /// <summary>
+    /// Execute the stream's inner monad `M`, combining the results using
+    /// its `Alternative<M>.Combine` operator.
+    /// </summary>
+    /// <param name="mma">Stream to combine</param>
+    /// <returns>Result of the combined effects</returns>
+    public static K<M, A> Combine<M, A>(this K<StreamT<M>, A> mma) 
+        where M : Monad<M>, Alternative<M> =>
+        mma.As().runListT.Combine();
+
+    /// <summary>
+    /// Execute the stream's inner monad `M`, combining the results using
+    /// its `Alternative<M>.Combine` operator.
+    /// </summary>
+    /// <param name="mma">Stream to combine</param>
+    /// <returns>Result of the combined effects</returns>
+    static K<M, A> Combine<M, A>(this K<M, MList<A>> mma)
+        where M : Monad<M>, Alternative<M> =>
+        mma.Bind(ml => ml switch
+                       {
+                           MNil<A> =>
+                               M.Empty<A>(),
+
+                           MCons<M, A>(var head, var tail) =>
+                               M.Combine(M.Pure(head), tail.Combine()),
+
+                           MIter<M, A> iter =>
+                               M.Combine(M.Pure(iter.Head), iter.TailM().Combine()),
+
+                           _ => throw new NotSupportedException()
+                       });
 
     public static StreamT<M, A> Flatten<M, A>(this K<StreamT<M>, StreamT<M, A>> mma)
         where M : Monad<M> =>
