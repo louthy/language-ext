@@ -5,11 +5,11 @@ namespace LanguageExt;
 
 public static class Trampoline
 {
-    public static Trampoline<A> Done<A>(A value) =>
-        new Trampoline<A>.Done(value);
+    public static Trampoline<A> Pure<A>(A value) =>
+        new Trampoline<A>.PureStep(value);
     
     public static Trampoline<A> More<A>(Func<Trampoline<A>> value) =>
-        new Trampoline<A>.More(value);
+        new Trampoline<A>.MoreStep(value);
 
     public static Trampoline<B> Bind<A, B>(Trampoline<A> ma, Func<A, Trampoline<B>> f) =>
         ma switch
@@ -49,23 +49,23 @@ public abstract record Trampoline<A>
         Trampoline.Bind(this, f);
     
     public Trampoline<B> Map<B>(Func<A, B> f) =>
-        Trampoline.Bind(this, x => Trampoline.Done(f(x)));
+        Trampoline.Bind(this, x => Trampoline.Pure(f(x)));
     
     public Trampoline<B> Select<B>(Func<A, B> f) =>
-        Trampoline.Bind(this, x => Trampoline.Done(f(x)));
+        Trampoline.Bind(this, x => Trampoline.Pure(f(x)));
 
     public Trampoline<C> SelectMany<B, C>(Func<A, Trampoline<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     protected abstract Either<Func<Trampoline<A>>, A> Resume();
 
-    internal record Done(A Result) : Trampoline<A>
+    internal record PureStep(A Result) : Trampoline<A>
     {
         protected override Either<Func<Trampoline<A>>, A> Resume() =>
             Result;
     }
 
-    internal record More(Func<Trampoline<A>> Next) : Trampoline<A>
+    internal record MoreStep(Func<Trampoline<A>> Next) : Trampoline<A>
     {
         protected override Either<Func<Trampoline<A>>, A> Resume() =>
             Next;
@@ -84,10 +84,10 @@ public abstract record Trampoline<A>
         protected override Either<Func<Trampoline<A>>, A> Resume() =>
             Sub switch
             {
-                Trampoline<X>.Done (var x) =>
+                Trampoline<X>.PureStep (var x) =>
                     Next(x).Resume(),
 
-                Trampoline<X>.More (var f) =>
+                Trampoline<X>.MoreStep (var f) =>
                     Left(() => Trampoline.Bind(f(), Next)),
 
                 Trampoline<X>.BindStep bind =>
