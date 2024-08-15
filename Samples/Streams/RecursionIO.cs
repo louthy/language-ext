@@ -1,5 +1,6 @@
 using LanguageExt;
 using LanguageExt.Common;
+using static Streams.Console;
 using static LanguageExt.Prelude;
 
 namespace Streams;
@@ -7,15 +8,15 @@ namespace Streams;
 public static class RecursionIO
 {
     public static IO<Unit> run =>
-        from _ in Console.writeLine("Enter a number to count from")
-        from s in Console.readLine
+        from _ in writeLine("Enter a number to count from")
+        from s in readLine
         from n in parseInt(s).Match(Some: IO.pure, None: IO.fail<int>(Errors.Cancelled))
         from r in recurse(n) >>
-                  Console.emptyLine
+                  emptyLine
         select r;
 
     public static IO<Unit> recurse(int n) =>
-        from _ in Console.write($"{n} ")
+        from _ in write($"{n} ")
         from r in when(n > 0, recurse(n - 1))
         select r;
 }

@@ -1,6 +1,7 @@
 using LanguageExt;
 using LanguageExt.Common;
 using LanguageExt.Traits;
+using static Streams.Console;
 using static LanguageExt.Prelude;
 
 namespace Streams;
@@ -13,8 +14,8 @@ namespace Streams;
 public static class SumOfSquares
 {
     public static IO<Unit> run =>
-        from _ in Console.writeLine("Enter a number to find the sum of squares")
-        from s in Console.readLine
+        from _ in writeLine("Enter a number to find the sum of squares")
+        from s in readLine
         from n in parseInt(s).Match(Some: IO.pure, None: IO.fail<int>(Errors.Cancelled))
         from x in example(n).Iter().As()
         select unit;
@@ -26,8 +27,8 @@ public static class SumOfSquares
     static StreamT<IO, (long X, long Y)> example(int n) =>
         from x in squares<IO>(n)
         from y in squares<IO>(n)
-        from _1 in Console.writeLine((x, y).ToString())
+        from _1 in writeLine((x, y).ToString())
         where x + y == n
-        from _2 in Console.writeLine("Sum of squares!")
+        from _2 in writeLine("Sum of squares!")
         select (x, y);
 }

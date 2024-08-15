@@ -1,22 +1,23 @@
 using LanguageExt;
 using static LanguageExt.Prelude;
+using static Streams.Console;
 
 namespace Streams;
 
 public static class CountForeverAsync
 {
     public static IO<Unit> run =>
-        from f in forkIO(example.Iter())
-        from k in Console.readKey
+        from f in forkIO(example)
+        from k in readKey
         from r in f.Cancel 
         select unit;
 
     static StreamT<IO, long> naturals =>
-        StreamT<IO>.lift(naturalsEnum());
+        naturalsEnum().AsStream<IO, long>();
     
     static StreamT<IO, Unit> example =>
         from v in naturals
-        from _ in Console.writeLine($"{v:N0}")
+        from _ in writeLine($"{v:N0}")
         where false
         select unit;
 

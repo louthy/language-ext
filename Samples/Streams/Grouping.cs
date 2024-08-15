@@ -1,5 +1,6 @@
 using LanguageExt;
 using static LanguageExt.Prelude;
+using static Streams.Console;
 
 namespace Streams;
 
@@ -15,12 +16,12 @@ public static class Grouping
         runTestIO("test 2", test2);
 
     static IO<Unit> runTestIO(string name, StreamT<IO, int> test) =>
-        runTest(name, test1).Iter().As() >> Console.emptyLine;
+        runTest(name, test1).Iter().As() >> emptyLine;
 
     static StreamT<IO, Unit> runTest(string name, StreamT<IO, int> test) =>
-        from t in Console.writeLine($"{name}")
+        from t in writeLine($"{name}")
         from r in test
-        from _ in Console.write($"{r} ")
+        from _ in write($"{r} ")
         where false
         select unit;
 

@@ -31,6 +31,11 @@ public record Range<A>(A From, A To, A Step, IEnumerable<A> runRange) :
         runRange.AsIterable();
 
     [Pure]
+    public StreamT<M, A> AsStream<M>() 
+        where M : Monad<M> =>
+        StreamT<M>.lift(runRange);
+
+    [Pure]
     public IEnumerator<A> GetEnumerator() => 
         // ReSharper disable once NotDisposedResourceIsReturned
         runRange.GetEnumerator();

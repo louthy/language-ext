@@ -63,6 +63,21 @@ public static partial class Prelude
     public static K<M, ForkIO<A>> forkIO<M, A>(K<M, A> ma, Option<TimeSpan> timeout = default)
         where M : Monad<M> =>
         ma.ForkIO(timeout);
+
+    /// <summary>
+    /// Queue this IO operation to run on the thread-pool. 
+    /// </summary>
+    /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
+    /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
+    /// the forked IO operation or to await the result of it.
+    /// </returns>
+    [Pure]
+    [MethodImpl(Opt.Default)]
+    public static K<M, ForkIO<Option<A>>> forkIO<M, A>(StreamT<M, A> ma, Option<TimeSpan> timeout = default)
+        where M : Monad<M> =>
+        ma.Run()
+          .Map(oht => oht.Map(ht => ht.Item1))
+          .ForkIO(timeout);
     
     /// <summary>
     /// Yield the thread for the specified milliseconds or until cancelled.
