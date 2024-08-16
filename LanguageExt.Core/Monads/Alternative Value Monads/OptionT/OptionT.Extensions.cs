@@ -15,6 +15,10 @@ public static class OptionTExt
         where M : Monad<M> =>
         (OptionT<M, A>)ma;
 
+    public static K<M, Option<A>> Run<M, A>(this K<OptionT<M>, A> ma)
+        where M : Monad<M> =>
+        ((OptionT<M, A>)ma).Run();
+
     /// <summary>
     /// Get the outer task and wrap it up in a new IO within the OptionT IO
     /// </summary>

@@ -17,11 +17,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
         [Fact]
         public void EmptyEmptyIsEmptyEmpty()
         {
-            var ma = Iterable.empty<Lst<int>>();
+            var ma = Iterable<Lst<int>>();
 
             var mb = ma.Traverse(mx => mx).As();
 
-            var mc = LanguageExt.List.singleton(Iterable<int>.Empty);
+            var mc = LanguageExt.List.singleton<Iterable<int>>(Empty);
             
             Assert.True(mb == mc);
         }
