@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -76,26 +75,73 @@ public sealed class Atom<M, A>
     /// should be free of side effects.
     /// </summary>
     /// <param name="f">Function to update the atom</param>
-    /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
-    /// and its validation passed. None otherwise</returns>
-    public Option<A> Swap(Func<M, A, A> f)
+    /// <returns>
+    /// If the swap operation succeeded then a snapshot of the value that was set is returned.
+    /// If the swap operation fails (which can only happen due to its validator returning false),
+    /// then a snapshot of the current value within the Atom is returned.
+    /// If there is no validator for the Atom then the return value is always the snapshot of
+    /// the successful `f` function. 
+    /// </returns>
+    public A Swap(Func<M, A, A> f)
     {
         f = f ?? throw new ArgumentNullException(nameof(f));
 
         SpinWait sw = default;
         while (true)
         {
-            var current = value;
-            var newValueA = f(metadata, Box<A>.GetValue(value));
-            var newValue = Box<A>.New(newValueA);
+            var current   = value;
+            var currentV  = Box<A>.GetValue(current);
+            var newValueA = f(metadata, currentV);
+            var newValue  = Box<A>.New(newValueA);
             if (!validator(newValueA))
             {
-                return default;
+                return currentV;
             }
             if(Interlocked.CompareExchange(ref value, newValue, current) == current)
             {
                 Change?.Invoke(newValueA);
-                return Optional(newValueA);
+                return newValueA;
+            }
+            sw.SpinOnce();
+        }
+    }
+    
+    /// <summary>
+    /// Atomically updates the value by passing the old value to `f` and updating
+    /// the atom with the result.  Note: `f` may be called multiple times, so it
+    /// should be free of side effects.
+    /// </summary>
+    /// <param name="f">Function to update the atom</param>
+    /// <returns>
+    /// * If `f` returns `None` then no update occurs and the result of the call
+    ///   to `Swap` will be the latest (unchanged) value of `A`.
+    /// * If the swap operation fails, due to its validator returning false, then a snapshot of
+    ///   the current value within the Atom is returned.
+    /// * If the swap operation succeeded then a snapshot of the value that was set is returned.
+    /// * If there is no validator for the Atom then the return value is always the snapshot of
+    ///   the successful `f` function. 
+    /// </returns>
+    public A Swap(Func<M, A, Option<A>> f)
+    {
+        f = f ?? throw new ArgumentNullException(nameof(f));
+
+        SpinWait sw = default;
+        while (true)
+        {
+            var current           = value;
+            var currentV          = Box<A>.GetValue(current);
+            var optionalNewValueA = f(metadata, currentV);
+            if (optionalNewValueA.IsNone) return currentV;
+            var newValueA = (A)optionalNewValueA;
+            var newValue  = Box<A>.New(newValueA);
+            if (!validator(newValueA))
+            {
+                return currentV;
+            }
+            if(Interlocked.CompareExchange(ref value, newValue, current) == current)
+            {
+                Change?.Invoke(newValueA);
+                return newValueA;
             }
             sw.SpinOnce();
         }
@@ -108,14 +154,33 @@ public sealed class Atom<M, A>
     /// </summary>
     /// <param name="x">Additional value to pass to `f`</param>
     /// <param name="f">Function to update the atom</param>
-    /// <returns>IO in a success state, with the result of the invocation of `f`, if the swap succeeded and its
-    /// validation passed. Failure state otherwise</returns>
+    /// <returns>
+    /// If the swap operation succeeded then a snapshot of the value that was set is returned.
+    /// If the swap operation fails (which can only happen due to its validator returning false),
+    /// then a snapshot of the current value within the Atom is returned.
+    /// If there is no validator for the Atom then the return value is always the snapshot of
+    /// the successful `f` function. 
+    /// </returns>
     public IO<A> SwapIO(Func<M, A, A> f) =>
-        IO.lift(_ => Swap(f) switch
-                     {
-                         { IsSome: true } value => (A)value,
-                         _                      => throw Exceptions.ValidationFailed
-                     });
+        IO.lift(_ => Swap(f));
+
+    /// <summary>
+    /// Atomically updates the value by passing the old value to `f` and updating
+    /// the atom with the result.  Note: `f` may be called multiple times, so it
+    /// should be free of side effects.
+    /// </summary>
+    /// <param name="f">Function to update the atom</param>
+    /// <returns>
+    /// * If `f` returns `None` then no update occurs and the result of the call
+    ///   to `Swap` will be the latest (unchanged) value of `A`.
+    /// * If the swap operation fails, due to its validator returning false, then a snapshot of
+    ///   the current value within the Atom is returned.
+    /// * If the swap operation succeeded then a snapshot of the value that was set is returned.
+    /// * If there is no validator for the Atom then the return value is always the snapshot of
+    ///   the successful `f` function. 
+    /// </returns>
+    public IO<A> SwapIO(Func<M, A, Option<A>> f) =>
+        IO.lift(_ => Swap(f));
 
     /// <summary>
     /// Value accessor (read and write)

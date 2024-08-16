@@ -384,9 +384,14 @@ public static partial class Prelude
     /// should be free of side effects.
     /// </summary>
     /// <param name="f">Function to update the atom</param>
-    /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
-    /// and its validation passed. None otherwise</returns>
-    public static Option<A> swap<A>(Atom<A> ma, Func<A, A> f) =>
+    /// <returns>
+    /// If the swap operation succeeded then a snapshot of the value that was set is returned.
+    /// If the swap operation fails (which can only happen due to its validator returning false),
+    /// then a snapshot of the current value within the Atom is returned.
+    /// If there is no validator for the Atom then the return value is always the snapshot of
+    /// the successful `f` function. 
+    /// </returns>
+    public static A swap<A>(Atom<A> ma, Func<A, A> f) =>
         ma.Swap(f);
     
     /// <summary>
@@ -395,8 +400,49 @@ public static partial class Prelude
     /// should be free of side effects.
     /// </summary>
     /// <param name="f">Function to update the atom</param>
-    /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
-    /// and its validation passed. None otherwise</returns>
-    public static Option<A> swap<M, A>(Atom<M, A> ma, Func<M, A, A> f) =>
+    /// <returns>
+    /// * If `f` returns `None` then no update occurs and the result of the call
+    ///   to `Swap` will be the latest (unchanged) value of `A`.
+    /// * If the swap operation fails, due to its validator returning false, then a snapshot of
+    ///   the current value within the Atom is returned.
+    /// * If the swap operation succeeded then a snapshot of the value that was set is returned.
+    /// * If there is no validator for the Atom then the return value is always the snapshot of
+    ///   the successful `f` function. 
+    /// </returns>
+    public static A swap<A>(Atom<A> ma, Func<A, Option<A>> f) =>
+        ma.Swap(f);
+    
+    /// <summary>
+    /// Atomically updates the value by passing the old value to `f` and updating
+    /// the atom with the result.  Note: `f` may be called multiple times, so it
+    /// should be free of side effects.
+    /// </summary>
+    /// <param name="f">Function to update the atom</param>
+    /// <returns>
+    /// If the swap operation succeeded then a snapshot of the value that was set is returned.
+    /// If the swap operation fails (which can only happen due to its validator returning false),
+    /// then a snapshot of the current value within the Atom is returned.
+    /// If there is no validator for the Atom then the return value is always the snapshot of
+    /// the successful `f` function. 
+    /// </returns>
+    public static A swap<M, A>(Atom<M, A> ma, Func<M, A, A> f) =>
+        ma.Swap(f);
+    
+    /// <summary>
+    /// Atomically updates the value by passing the old value to `f` and updating
+    /// the atom with the result.  Note: `f` may be called multiple times, so it
+    /// should be free of side effects.
+    /// </summary>
+    /// <param name="f">Function to update the atom</param>
+    /// <returns>
+    /// * If `f` returns `None` then no update occurs and the result of the call
+    ///   to `Swap` will be the latest (unchanged) value of `A`.
+    /// * If the swap operation fails, due to its validator returning false, then a snapshot of
+    ///   the current value within the Atom is returned.
+    /// * If the swap operation succeeded then a snapshot of the value that was set is returned.
+    /// * If there is no validator for the Atom then the return value is always the snapshot of
+    ///   the successful `f` function. 
+    /// </returns>
+    public static A swap<M, A>(Atom<M, A> ma, Func<M, A, Option<A>> f) =>
         ma.Swap(f);
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using static LanguageExt.Prelude;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 
@@ -144,13 +145,73 @@ public abstract record StreamT<M, A> :
     public abstract StreamT<M, B> Map<B>(Func<A, B> f);
 
     /// <summary>
+    /// Fold the stream itself, yielding the latest state value when the fold function returns `None`
+    /// </summary>
+    /// <param name="state">Initial state of the fold</param>
+    /// <param name="f">Fold operation</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Stream transformer</returns>
+    public StreamT<M, S> Fold<S>(S state, Func<S, A, Option<S>> f) =>
+        from s in refIO(state)
+        from a in this
+        from r in snapshot<StreamT<M, S>>(
+            () => {
+                switch (f(s.Value, a))
+                {
+                    case { IsSome: true, Case: S value }:
+                        s.Value = value;
+                        return StreamT<M, S>.Empty;
+
+                    default:
+                        return StreamT<M, S>.Pure(s.Value);
+                }
+            })
+        select r;
+
+    /// <summary>
+    /// Fold the stream itself, yielding values when the `until` predicate is `true`
+    /// </summary>
+    /// <param name="state">Initial state of the fold</param>
+    /// <param name="f">Fold operation</param>
+    /// <param name="until">Predicate</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Stream transformer</returns>
+    public StreamT<M, S> FoldUntil<S>(S state, Func<S, A, S> f, Func<S, A, bool> until) =>
+        from atom in atomIO(state)
+        from a in this
+        from r in atom.Swap(s => f(s, a)) switch
+                  {
+                      var ns when until(ns, a) => StreamT<M, S>.Pure(ns),
+                      _                        => StreamT<M, S>.Empty
+                  }
+        select r;
+
+    /// <summary>
+    /// Fold the stream itself, yielding values when the `until` predicate is `true`
+    /// </summary>
+    /// <param name="state">Initial state of the fold</param>
+    /// <param name="f">Fold operation</param>
+    /// <param name="until">Predicate</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Stream transformer</returns>
+    public StreamT<M, S> FoldWhile<S>(S state, Func<S, A, S> f, Func<S, A, bool> @while) =>
+        from atom in atomIO(state)
+        from a in this
+        from r in atom.Swap(s => f(s, a)) switch
+                  {
+                      var ns when @while(ns, a) => StreamT<M, S>.Empty,
+                      var ns                    => StreamT<M, S>.Pure(ns)
+                  }
+        select r;
+
+    /// <summary>
     /// Left fold
     /// </summary>
     /// <param name="state">Initial state</param>
     /// <param name="f">Folding function</param>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Accumulate state wrapped in the StreamT inner monad</returns>
-    public K<M, S> Fold<S>(S state, Func<S, A, K<M, S>> f)
+    public K<M, S> FoldM<S>(S state, Func<S, A, K<M, S>> f)
     {
         return go(state, runListT);
         K<M, S> go(S acc, K<M, MList<A>> run) =>
@@ -239,4 +300,5 @@ public abstract record StreamT<M, A> :
 
     public static StreamT<M, A> operator >> (StreamT<M, A> lhs, K<StreamT<M>, Unit> rhs) =>
         lhs.Bind(x => rhs.Map(_ => x));
+
 }
