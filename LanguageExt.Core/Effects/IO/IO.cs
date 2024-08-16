@@ -589,7 +589,9 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
                                           }
                                           return IOResponse.Complete<Unit>(default); 
                                       }),
-                        Lift(e => AwaitTask(task, e, token, tsrc, timeout)));
+                        Lift(e => AwaitTask(task, e, token, tsrc, timeout)),
+                        IO<Task<A>>.Lift(e => AwaitAsync(task, e, token, tsrc, timeout))
+                        );
             });
     
     /// <summary>
@@ -609,6 +611,30 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
     public A Run() =>
        Run(EnvIO.New());
+
+    /// <summary>
+    /// Run the `IO` monad to get its result
+    /// </summary>
+    /// <remarks>
+    /// This forks the operation to run on a new task that is then awaited.
+    /// 
+    /// Any lifted asynchronous operations will yield to the thread-scheduler, allowing other queued
+    /// operations to run concurrently.  So, even though this call isn't awaitable it still plays
+    /// nicely and doesn't block the thread.
+    /// </remarks>
+    /// <remarks>
+    /// NOTE: An exception will always be thrown if the IO operation fails.  Lift this monad into
+    /// other error handling monads to leverage more declarative error handling. 
+    /// </remarks>
+    /// <returns>Result of the IO operation</returns>
+    /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
+    /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
+    public Task<A> RunAsync(EnvIO? envIO = null)
+    {
+        envIO ??= EnvIO.New();
+        var f = Fork().Run(envIO);
+        return f.AwaitAsync.Run(envIO);
+    }
 
     /// <summary>
     /// Run the `IO` monad to get its result
@@ -987,6 +1013,17 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
                        : throw new BottomException();
         }
         return t.Result;
+    }
+    
+    async Task<A> AwaitAsync(Task<IOResponse<A>> t, EnvIO envIO, CancellationToken token, CancellationTokenSource source, Option<TimeSpan> timeout)
+    {
+        var response = await t;
+        switch (response)
+        {
+            case CompleteIO<A> (var value): return value;
+            case RecurseIO<A> (var ma): return ma.Run();
+        }
+        throw new NotSupportedException();
     }
     
     record CleanUp(CancellationTokenSource Src, CancellationTokenRegistration Reg) : IDisposable

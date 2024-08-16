@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace LanguageExt;
 
 /// <summary>
@@ -10,4 +12,6 @@ namespace LanguageExt;
 /// <typeparam name="A">Bound value type</typeparam>
 public readonly record struct ForkIO<A>(
     IO<Unit> Cancel, 
-    IO<A> Await);
+    IO<A> Await,
+    IO<Task<A>> AwaitAsync
+    );
