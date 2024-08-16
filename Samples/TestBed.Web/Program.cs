@@ -12,8 +12,6 @@ app.MapGet("/", async () =>
                                         });
 
                     await effect.RunAsync();
-
-                    return "Hello";
                 });
 
 app.Run();

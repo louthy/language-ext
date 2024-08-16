@@ -562,7 +562,7 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
 
                 var parentResources = env.Resources;
 
-                var task = Task.Run(
+                var task = Task.Factory.StartNew(
                     () =>
                     {
                         var forkedResources = new Resources(parentResources);
@@ -575,7 +575,7 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
                             forkedResources.Dispose();
                             cleanup.Dispose();
                         }
-                    }, token);
+                    }, TaskCreationOptions.LongRunning);
 
                 return new ForkIO<A>(
                         IO<Unit>.Lift(() => {
