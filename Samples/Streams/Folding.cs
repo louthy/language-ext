@@ -10,9 +10,11 @@ public static class Folding
         from x in example(1000).Iter().As()
         select unit;
 
+    static StreamT<IO, int> naturals =>
+        Range(0, int.MaxValue).AsStream<IO>();
+    
     static StreamT<IO, Unit> example(int n) =>
-        from v in Range(0, n).AsStream<IO>()
-                             .FoldUntil(0, (s, x) => s + x, (s, _) => s % 10 == 0)
+        from v in naturals.FoldUntil(0, (s, x) => s + x, (s, _) => s % 10 == 0)
         from _ in writeLine(v.ToString())
         where false
         select unit;
