@@ -18,7 +18,5 @@ public static class Console
         lift(System.Console.ReadLine).Map(ln => ln ?? "");
 
     public static IO<ConsoleKeyInfo> readKey =>
-        from k in lift(System.Console.ReadKey)
-        from _ in emptyLine
-        select k;
+        IO.lift(System.Console.ReadKey) >> emptyLine;
 }

@@ -6,6 +6,6 @@ using Console = System.Console;
 Game.play
     .Run(GameState.Zero) // Runs the Game 
     .Run()               // Runs the IO
-    .Ignore();
+    .Ignore();           // Discard the result
 
 Console.WriteLine("GAME OVER");

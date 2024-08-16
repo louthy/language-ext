@@ -36,4 +36,16 @@ public record Game<A>(StateT<GameState, OptionT<IO>, A> runGame) : K<Game, A>
 
     public static implicit operator Game<A>(Option<A> ma) =>
         Game.lift(ma);
+
+    public static Game<A> operator >>(Game<A> ma, K<Game, A> mb) =>
+        ma.Bind(_ => mb);
+
+    public static Game<A> operator >>(Game<A> ma, K<Game, Unit> mb) =>
+        ma.Bind(x => mb.Map(_ => x));
+
+    public static Game<A> operator >>(Game<A> ma, K<IO, A> mb) =>
+        ma.Bind(_ => mb.As());
+
+    public static Game<A> operator >>(Game<A> ma, K<IO, Unit> mb) =>
+        ma.Bind(x => mb.As().Map(_ => x));
 }
