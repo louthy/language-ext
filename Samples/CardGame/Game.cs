@@ -40,7 +40,7 @@ public partial class Game
                     playHand >>
                     Display.askPlayAgain
         from key in Console.readKey
-        from _3  in when(key.Key == ConsoleKey.Y, playHands)
+        from __  in when(key.Key == ConsoleKey.Y, playHands)
         select unit;
 
     /// <summary>
@@ -96,7 +96,7 @@ public partial class Game
              from _      in Display.askStickOrTwist(player) >>
                             Player.showCards
              from key    in Console.readKey
-             from r      in key.Key switch
+             from __     in key.Key switch
                             {
                                 ConsoleKey.S => Player.stick,
                                 ConsoleKey.T => twist,
