@@ -83,5 +83,5 @@ public partial class MainWindow : WindowRT
     /// Set the count value
     /// </summary>
     Eff<MinRT, int> modifyCount(Func<int, int> f) =>
-        count.SwapEff(x => SuccessEff(f(x)));
+        lift(() =>count.Swap(f));
 }
