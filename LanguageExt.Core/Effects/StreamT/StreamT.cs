@@ -170,7 +170,6 @@ public abstract record StreamT<M, A> :
                       });
     }
 
-
     /// <summary>
     /// Concatenate streams
     /// </summary>
