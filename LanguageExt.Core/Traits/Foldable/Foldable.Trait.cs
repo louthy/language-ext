@@ -39,6 +39,52 @@ public interface Foldable<out T> where T : Foldable<T>
     //
 
     /// <summary>
+    /// Fold until the `Option` returns `None`
+    /// </summary>
+    /// <param name="f">Fold function</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Aggregated value</returns>
+    public static virtual S FoldOption<A, S>(
+        Func<S, Func<A, Option<S>>> f,
+        S initialState,
+        K<T, A> ta) =>
+        T.FoldWhile<A, (bool IsSome, S Value)>(
+            a => s => f(s.Value)(a) switch
+                      {
+                          { IsSome: true, Case: S value } => (true, value),
+                          _                               => (false, s.Value)
+                      },
+            s => s.State.IsSome,
+            (true, initialState), 
+            ta).Value;
+
+    /// <summary>
+    /// Fold until the `Option` returns `None`
+    /// </summary>
+    /// <param name="f">Fold function</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Aggregated value</returns>
+    public static virtual S FoldBackOption<A, S>(
+        Func<A, Func<S, Option<S>>> f,
+        S initialState,
+        K<T, A> ta) =>
+        T.FoldBackWhile<A, (bool IsSome, S Value)>(
+            s => a => f(a)(s.Value) switch
+                      {
+                          { IsSome: true, Case: S value } => (true, value),
+                          _                               => (false, s.Value)
+                      },
+            s => s.State.IsSome,
+            (true, initialState),
+            ta).Value;
+    
+    /// <summary>
     /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 

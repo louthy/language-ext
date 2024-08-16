@@ -8,6 +8,70 @@ namespace LanguageExt;
 public static partial class FoldableExtensions
 {
     /// <summary>
+    /// Fold until the `Option` returns `None`
+    /// </summary>
+    /// <param name="f">Fold function</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Aggregated value</returns>
+    public static S FoldOption<T, A, S>(
+        Func<S, Func<A, Option<S>>> f,
+        S initialState,
+        K<T, A> ta) 
+        where T : Foldable<T> =>
+        T.FoldOption(f, initialState, ta);
+
+    /// <summary>
+    /// Fold until the `Option` returns `None`
+    /// </summary>
+    /// <param name="f">Fold function</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Aggregated value</returns>
+    public static S FoldOption<T, A, S>(
+        Func<S, A, Option<S>> f,
+        S initialState,
+        K<T, A> ta) 
+        where T : Foldable<T> =>
+        T.FoldOption(s => a => f(s, a), initialState, ta);
+
+    /// <summary>
+    /// Fold until the `Option` returns `None`
+    /// </summary>
+    /// <param name="f">Fold function</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Aggregated value</returns>
+    public static S FoldBackOption<T, A, S>(
+        Func<A, Func<S, Option<S>>> f,
+        S initialState,
+        K<T, A> ta)
+        where T : Foldable<T> =>
+        T.FoldBackOption(f, initialState, ta);
+
+    /// <summary>
+    /// Fold until the `Option` returns `None`
+    /// </summary>
+    /// <param name="f">Fold function</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Aggregated value</returns>
+    public static S FoldBackOption<T, A, S>(
+        Func<A, S, Option<S>> f,
+        S initialState,
+        K<T, A> ta)
+        where T : Foldable<T> =>
+        T.FoldBackOption(a => s => f(a, s), initialState, ta);
+    
+    /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
     /// </summary>

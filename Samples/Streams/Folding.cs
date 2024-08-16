@@ -1,6 +1,4 @@
 using LanguageExt;
-using LanguageExt.Common;
-using LanguageExt.Traits;
 using static Streams.Console;
 using static LanguageExt.Prelude;
 
