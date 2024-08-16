@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -75,6 +76,58 @@ public static partial class EffExtensions
     [Pure, MethodImpl(Opt.Default)]
     public static IO<A> RunIO<RT, A>(this K<Eff<RT>, A> ma, RT env) =>
         ma.As().effect.Run(env).As();
+
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// Returns the result value only 
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Task<Fin<A>> RunAsync<RT, A>(this K<Eff<RT>, A> ma, RT env) =>
+        ma.As().RunAsync(env, EnvIO.New());
+
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// Returns the result value only 
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public static async Task<Fin<A>> RunAsync<RT, A>(this K<Eff<RT>, A> ma, RT env, EnvIO envIO)
+    {
+        try
+        {
+            return await ma.As().effect.Run(env).RunAsync(envIO);
+        }
+        catch(Exception e)
+        {
+            return Fin<A>.Fail(e);
+        }
+    }  
+    
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// This is labelled 'unsafe' because it can throw an exception, whereas
+    /// `Run` will capture any errors and return a `Fin` type.
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Task<A> RunUnsafeAsync<RT, A>(this K<Eff<RT>, A> ma, RT env) =>
+        ma.As().effect.Run(env).RunAsync(EnvIO.New());
+
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// This is labelled 'unsafe' because it can throw an exception, whereas
+    /// `Run` will capture any errors and return a `Fin` type.
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Task<A> RunUnsafeAsync<RT, A>(this K<Eff<RT>, A> ma, RT env, EnvIO envIO) =>
+        ma.As().effect.Run(env).RunAsync(envIO);
+    
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

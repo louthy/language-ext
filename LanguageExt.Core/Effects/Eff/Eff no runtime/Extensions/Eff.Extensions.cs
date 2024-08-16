@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using LanguageExt.Effects;
 using LanguageExt.Traits;
 
@@ -73,6 +74,48 @@ public static partial class EffExtensions
     [Pure, MethodImpl(Opt.Default)]
     public static IO<A> RunIO<A>(this K<Eff, A> ma) =>
         ma.As().effect.RunIO(default);
+
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// Returns the result value only 
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Task<Fin<A>> RunAsync<A>(this K<Eff, A> ma) =>
+        ma.As().effect.RunAsync(default);
+
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// Returns the result value only 
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Task<Fin<A>> RunAsync<A>(this K<Eff, A> ma, EnvIO envIO) =>
+        ma.As().effect.RunAsync(default, envIO);
+    
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// This is labelled 'unsafe' because it can throw an exception, whereas
+    /// `Run` will capture any errors and return a `Fin` type.
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Task<A> RunUnsafeAsync<A>(this K<Eff, A> ma) =>
+        ma.As().effect.RunUnsafeAsync(default);
+
+    /// <summary>
+    /// Invoke the effect
+    /// </summary>
+    /// <remarks>
+    /// This is labelled 'unsafe' because it can throw an exception, whereas
+    /// `Run` will capture any errors and return a `Fin` type.
+    /// </remarks>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Task<A> RunUnsafeAsync<A>(this K<Eff, A> ma, EnvIO envIO) =>
+        ma.As().effect.RunUnsafeAsync(default, envIO);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
