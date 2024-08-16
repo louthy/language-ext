@@ -19,7 +19,8 @@ public static class Players
     /// </returns>
     public static Game<Unit> with<A>(Game<Seq<Player>> playersM, Game<A> ma) =>
         playersM.Bind(ps => with(ps, ma))
-                .Map(_ => unit);
+                .IgnoreF()
+                .As();
     
     /// <summary>
     /// For each player in a collection of players:
@@ -31,7 +32,7 @@ public static class Players
     /// Return a sequence of results, one for each player
     /// </summary>
     public static Game<Unit> with<A>(Seq<Player> players, Game<A> ma) =>
-        players.Traverse(p => Player.with(p, ma))
+        players.TraverseM(p => Player.with(p, ma))
                .Map(_ => unit)
                .As();
     
@@ -61,6 +62,6 @@ public static class Players
     /// Return a sequence of results, one for each player
     /// </returns>
     public static Game<Seq<A>> map<A>(Seq<Player> players, Game<A> ma) =>
-        players.Traverse(p => Player.with(p, ma))
+        players.TraverseM(p => Player.with(p, ma))
                .As();
 }

@@ -17,7 +17,10 @@ public record Player(string Name)
     /// <typeparam name="A"></typeparam>
     /// <returns></returns>
     public static Game<A> with<A>(Player player, Game<A> ma) =>
-        Stateful.bracket<Game, GameState, A>(setCurrent(player), ma).As();
+        from cp in Game.gets(s => s.CurrentPlayer)
+        from _1 in setCurrent(player)
+        from rs in ma >> setCurrent(cp)
+        select rs;
 
     /// <summary>
     /// Get the current player.  If there isn't one, then `Game.cancel` is raised
@@ -31,6 +34,12 @@ public record Player(string Name)
     /// Set the current player
     /// </summary>
     public static Game<Unit> setCurrent(Player player) =>
+        Game.modify(s => s with { CurrentPlayer = player }).As();
+
+    /// <summary>
+    /// Set the current player
+    /// </summary>
+    public static Game<Unit> setCurrent(Option<Player> player) =>
         Game.modify(s => s with { CurrentPlayer = player }).As();
     
     /// <summary>

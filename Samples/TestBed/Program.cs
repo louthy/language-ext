@@ -82,6 +82,7 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
+        StateTTest();
         //AtomHashMapTests.Test();
         //await AtomHashMapPerf.Test();
         // await PipesTest();
@@ -96,6 +97,19 @@ public class Program
         //Issue1234.Test();
         //SequenceParallelTest.Run();
         FreeTests.Test();
+    }
+
+    public static void StateTTest()
+    {
+        var mx = StateT<string, OptionT<IO>, int>.Pure(100);
+        var my = from s in StateT.get<OptionT<IO>, string>()
+                 from x in IO.lift(() => Console.WriteLine(s))
+                 from _ in StateT.put<OptionT<IO>, string>($"Hello: {s}")
+                 from t in StateT.get<OptionT<IO>, string>()
+                 from y in IO.lift(() => Console.WriteLine(t))
+                 select unit;
+
+        var mr = my.Run("Paul").Run().Run();
     }
 
     public static void PipesTest()

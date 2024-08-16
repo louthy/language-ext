@@ -109,7 +109,7 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
         new(state => M.Pure((f(), state)));
     
     /// <summary>
-    /// Lifts a an IO monad into the monad 
+    /// Lifts an IO monad into the monad 
     /// </summary>
     /// <remarks>NOTE: If the IO monad isn't the innermost monad of the transformer
     /// stack then this will throw an exception.</remarks>
