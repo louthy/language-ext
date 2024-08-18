@@ -20,7 +20,7 @@ namespace LanguageExt;
 /// </remarks>
 /// <typeparam name="A">Type of the values in the sequence</typeparam>
 [CollectionBuilder(typeof(Iterable), nameof(Iterable.createRange))]
-public abstract class Iterable<A> :
+public class Iterable<A> :
     IEnumerable<A>,
     Monoid<Iterable<A>>,
     IComparable<Iterable<A>>,
@@ -41,13 +41,14 @@ public abstract class Iterable<A> :
     /// NOTE: This will force evaluation of the sequence
     /// </remarks>
     [Pure]
-    public abstract int Count();
+    public virtual int Count() => 0;
 
     /// <summary>
     /// Stream as an enumerable
     /// </summary>
     [Pure]
-    public abstract IEnumerable<A> AsEnumerable();
+    public virtual IEnumerable<A> AsEnumerable() => 
+        [];
 
     /// <summary>
     /// Stream as an enumerable
@@ -61,7 +62,8 @@ public abstract class Iterable<A> :
     /// Reverse the sequence
     /// </summary>
     [Pure]
-    public abstract Iterable<A> Reverse();
+    public virtual Iterable<A> Reverse() =>
+        [];
 
     /// <summary>
     /// Add an item to the end of the sequence
@@ -89,7 +91,7 @@ public abstract class Iterable<A> :
         new IterableAdd<A>(
             new SeqStrict<A>([default!, default!, default!, default!, default!, default!, default!, item], 7, 1, 0, 0),
             this,
-            new SeqStrict<A>(new A[8], 0, 0, 0, 0)); 
+            new SeqStrict<A>(new A[8], 0, 0, 0, 0));
 
     /// <summary>
     /// Impure iteration of the bound values in the structure
@@ -97,7 +99,8 @@ public abstract class Iterable<A> :
     /// <returns>
     /// Returns the original unmodified structure
     /// </returns>
-    public abstract Unit Iter(Action<A> f);
+    public virtual Unit Iter(Action<A> f) =>
+        default;
 
     /// <summary>
     /// Impure iteration of the bound values in the structure
@@ -105,7 +108,8 @@ public abstract class Iterable<A> :
     /// <returns>
     /// Returns the original unmodified structure
     /// </returns>
-    public abstract Unit Iter(Action<A, int> f);
+    public virtual Unit Iter(Action<A, int> f) =>
+        default;
     
     /// <summary>
     /// Map the sequence using the function provided
@@ -114,7 +118,8 @@ public abstract class Iterable<A> :
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped sequence</returns>
     [Pure]
-    public abstract Iterable<B> Map<B>(Func<A, B> f);
+    public virtual Iterable<B> Map<B>(Func<A, B> f) =>
+        [];
 
     /// <summary>
     /// Map the sequence using the function provided
@@ -123,7 +128,8 @@ public abstract class Iterable<A> :
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped sequence</returns>
     [Pure]
-    public abstract Iterable<B> Map<B>(Func<A, int, B> f);
+    public virtual Iterable<B> Map<B>(Func<A, int, B> f) =>
+        [];
 
     /// <summary>
     /// Monadic bind (flatmap) of the sequence
@@ -132,7 +138,8 @@ public abstract class Iterable<A> :
     /// <param name="f">Bind function</param>
     /// <returns>Flat-mapped sequence</returns>
     [Pure]
-    public abstract Iterable<B> Bind<B>(Func<A, Iterable<B>> f);
+    public virtual Iterable<B> Bind<B>(Func<A, Iterable<B>> f) =>
+        [];
 
     /// <summary>
     /// Filter the items in the sequence
@@ -140,7 +147,8 @@ public abstract class Iterable<A> :
     /// <param name="f">Predicate to apply to the items</param>
     /// <returns>Filtered sequence</returns>
     [Pure]
-    public abstract Iterable<A> Filter(Func<A, bool> f);
+    public virtual Iterable<A> Filter(Func<A, bool> f) =>
+        [];
 
     /// <summary>
     /// Equality test
