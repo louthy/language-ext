@@ -13,7 +13,7 @@ public static class Folding
     static StreamT<IO, Unit> example(int n) =>
         from v in Range(0, n).AsStream<IO>()
                              .FoldUntil(0, (s, x) => s + x, (s, _) => s % 10 == 0)
-        from _ in writeLine(v.ToString())
+        from _ in writeLine(v)
         where false
         select unit;
 }

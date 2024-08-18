@@ -10,7 +10,7 @@ public static class HeadsAndTails
         from item in Iterable(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).AsStream<IO>()
         from col  in colour >> 
                      red
-        from _    in writeLine($"Evaluated item: {item}") >> 
+        from _    in writeLine($"\tEvaluated item: {item}") >> 
                      setForegroundColour(col)
         select item;
 

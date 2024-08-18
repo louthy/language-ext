@@ -31,4 +31,5 @@ internal record StreamMainT<M, A>(K<M, MList<A>> runListT) : StreamT<M, A>
                            _ => throw new NotSupportedException()
                        }
             select rl);
+
 }

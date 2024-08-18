@@ -27,7 +27,7 @@ public static class SumOfSquares
     static StreamT<IO, (long X, long Y)> example(int n) =>
         from x in squares<IO>(n)
         from y in squares<IO>(n)
-        from _1 in writeLine((x, y).ToString())
+        from _1 in writeLine((x, y))
         where x + y == n
         from _2 in writeLine("Sum of squares!")
         select (x, y);

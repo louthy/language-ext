@@ -15,9 +15,11 @@ public static class Menu
                        ConsoleKey.D2 => CountForeverAsync.run,
                        ConsoleKey.D3 => SumOfSquares.run,
                        ConsoleKey.D4 => Grouping.run,
-                       ConsoleKey.D5 => RecursionIO.run,
-                       ConsoleKey.D6 => HeadsAndTails.run,
-                       ConsoleKey.D7 => Folding.run,
+                       ConsoleKey.D5 => HeadsAndTails.run,
+                       ConsoleKey.D6 => Folding.run,
+                       ConsoleKey.D7 => Merging.run,
+                       ConsoleKey.D8 => Zipping.run,
+                       ConsoleKey.X  => RecursionIO.run,
                        _             => unitIO
                    }
         from _1 in run
@@ -30,8 +32,9 @@ public static class Menu
         writeLine("2. Count forever (async, with per-item 1s delay)") >>
         writeLine("3. Sum of squares")                                >>
         writeLine("4. Grouping test")                                 >>
-        writeLine("5. IO recursion test (currently broken)")          >>
-        writeLine("6. Heads and tails")                               >>
-        writeLine("7. Folding")                                       >>
+        writeLine("5. Heads and tails")                               >>
+        writeLine("6. Folding")                                       >>
+        writeLine("7. Merging")                                       >>
+        writeLine("8. Zipping")                                       >>
         writeLine("Enter a number for the example you wish to run");
 }

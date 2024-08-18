@@ -32,6 +32,60 @@ internal record StreamEnumerableT<M, A>(IEnumerable<A> items) : StreamT<M, A>
 
     public override StreamT<M, B> Map<B>(Func<A, B> f) =>
         new StreamEnumerableT<M, B>(items.Select(f));
+
+    /// <summary>
+    /// Interleave the items of two streams
+    /// </summary>
+    /// <param name="rhs">Other stream to merge with</param>
+    /// <returns>Stream transformer</returns>
+    public override StreamT<M, A> Merge(StreamT<M, A> rhs) =>
+        rhs switch
+        {
+            StreamAsyncEnumerableT<M, A> r => new StreamAsyncEnumerableT<M, A>(MergeAsync(items, r.items)),
+            StreamEnumerableT<M, A> r      => new StreamEnumerableT<M, A>(MergeSync(items, r.items)),
+            _                              => base.Merge(rhs)
+        };
+    
+    static IEnumerable<A> MergeSync(IEnumerable<A> lhs, IEnumerable<A> rhs)
+    {
+        using var iter = lhs.GetEnumerator();
+        foreach(var a in rhs)
+        {
+            if (iter.MoveNext())
+            {
+                yield return iter.Current;
+                yield return a;
+            }
+            else
+            {
+                yield return a;
+            }
+        }
+        while (iter.MoveNext())
+        {
+            yield return iter.Current;
+        }
+    }    
+    static async IAsyncEnumerable<A> MergeAsync(IEnumerable<A> lhs, IAsyncEnumerable<A> rhs)
+    {
+        using var iter = lhs.GetEnumerator();
+        await foreach(var a in rhs)
+        {
+            if (iter.MoveNext())
+            {
+                yield return iter.Current;
+                yield return a;
+            }
+            else
+            {
+                yield return a;
+            }
+        }
+        while (iter.MoveNext())
+        {
+            yield return iter.Current;
+        }
+    }    
 }
 
 /*

@@ -27,11 +27,14 @@ public static class Console
     public static readonly IO<Unit> cyan =
         setForegroundColour(ConsoleColor.Cyan);
 
-    public static IO<Unit> writeLine(string line) =>
-        lift(() => System.Console.WriteLine(line));
+    public static readonly IO<Unit> magenta =
+        setForegroundColour(ConsoleColor.Magenta);
 
-    public static IO<Unit> write(string text) =>
-        lift(() => System.Console.Write(text));
+    public static IO<Unit> writeLine<A>(A? line) =>
+        lift(() => System.Console.WriteLine(line?.ToString() ?? "(null)"));
+
+    public static IO<Unit> write<A>(A? text) =>
+        lift(() => System.Console.Write(text?.ToString() ?? "(null)"));
 
     public static IO<string> readLine =>
         lift(() => System.Console.ReadLine() ?? "");

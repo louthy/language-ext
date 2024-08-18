@@ -20,6 +20,20 @@ public abstract record StreamT<M, A> :
     public abstract K<M, MList<A>> runListT { get; }
 
     /// <summary>
+    /// Retrieve the tail of the sequence
+    /// </summary>
+    /// <returns>Stream transformer</returns>
+    public abstract StreamT<M, A> Tail { get; }
+    
+    /// <summary>
+    /// Map the stream
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Resulting bound value type</typeparam>
+    /// <returns>Stream transformer</returns>
+    public abstract StreamT<M, B> Map<B>(Func<A, B> f);
+
+    /// <summary>
     /// Empty stream
     /// </summary>
     public static StreamT<M, A> Empty { get; } =
@@ -131,20 +145,6 @@ public abstract record StreamT<M, A> :
         Run().Map(opt => opt.Map(o => o.Head).IfNone(() => throw Exceptions.SequenceEmpty));
 
     /// <summary>
-    /// Retrieve the tail of the sequence
-    /// </summary>
-    /// <returns>Stream transformer</returns>
-    public abstract StreamT<M, A> Tail { get; }
-    
-    /// <summary>
-    /// Map the stream
-    /// </summary>
-    /// <param name="f">Mapping function</param>
-    /// <typeparam name="B">Resulting bound value type</typeparam>
-    /// <returns>Stream transformer</returns>
-    public abstract StreamT<M, B> Map<B>(Func<A, B> f);
-
-    /// <summary>
     /// Fold the stream itself, yielding the latest state value when the fold function returns `None`
     /// </summary>
     /// <param name="state">Initial state of the fold</param>
@@ -237,7 +237,106 @@ public abstract record StreamT<M, A> :
     /// <returns>Stream transformer</returns>
     public StreamT<M, A> Combine(StreamT<M, A> rhs) =>
         new StreamMainT<M, A>(runListT.Append(rhs.runListT));
+    
+    /// <summary>
+    /// Interleave the items of two streams
+    /// </summary>
+    /// <param name="rhs">Other stream to merge with</param>
+    /// <returns>Stream transformer</returns>
+    public virtual StreamT<M, A> Merge(StreamT<M, A> rhs)
+    {
+        return new StreamMainT<M, A>(go(runListT, rhs.runListT));
 
+        K<M, MList<A>> go(K<M, MList<A>> lhs, K<M, MList<A>> rhs) =>
+            from l in lhs
+            from r in rhs
+            from x in M.Pure((l, r) switch
+                      {
+                          (MNil<A>, MNil<A>) =>
+                              l,
+
+                          (MNil<A>, _) =>
+                              r,
+
+                          (_, MNil<A>) =>
+                              l,
+
+                          (MCons<M, A>(var lx, var lnext), MCons<M, A>(var rx, var rnext)) =>
+                              MList<A>.Cons<M>(lx, M.Pure(MList<A>.Cons<M>(rx, go(lnext, rnext)))),
+
+                          (MIter<M, A>(var lx, var lnext), MIter<M, A>(var rx, var rnext)) =>
+                              MList<A>.Cons(lx, M.Pure(MList<A>.Iter<M>(rx, JoinIter(lnext, rnext)))),
+
+                          (MCons<M, A>(var lx, var lnext), MIter<M, A>(var rx, _) iter) =>
+                              MList<A>.Cons<M>(lx, M.Pure(MList<A>.Cons<M>(rx, go(lnext, iter.TailM())))),
+
+                          (MIter<M, A>(var lx, _) iter, MCons<M, A>(var rx, var rnext)) =>
+                              MList<A>.Cons<M>(lx, M.Pure(MList<A>.Cons<M>(rx, go(iter.TailM(), rnext)))),
+
+                          _ => throw new NotSupportedException()
+                      })
+            select x;
+
+        IEnumerator<A> JoinIter(IEnumerator<A> lhs, IEnumerator<A> rhs)
+        {
+            while (lhs.MoveNext() && rhs.MoveNext())
+            {
+                yield return lhs.Current;
+                yield return rhs.Current;
+            }
+            while (lhs.MoveNext()) yield return lhs.Current;
+            while (rhs.MoveNext()) yield return rhs.Current;
+        }
+    }
+    
+    /// <summary>
+    /// Interleave the items of two streams
+    /// </summary>
+    /// <param name="rhs">Other stream to merge with</param>
+    /// <returns>Stream transformer</returns>
+    public virtual StreamT<M, (A Left, B Right)> Zip<B>(StreamT<M, B> rhs)
+    {
+        return new StreamMainT<M, (A, B)>(go(runListT, rhs.runListT));
+
+        K<M, MList<(A, B)>> go(K<M, MList<A>> lhs, K<M, MList<B>> rhs) =>
+            from l in lhs
+            from r in rhs
+            from x in M.Pure((l, r) switch
+                      {
+                          (MNil<A>, _) =>
+                              MList<(A, B)>.Nil,
+
+                          (_, MNil<A>) =>
+                              MList<(A, B)>.Nil,
+
+                          (MCons<M, A>(var lx, var lnext), MCons<M, B>(var rx, var rnext)) =>
+                              MList<(A, B)>.Cons<M>((lx, rx), go(lnext, rnext)),
+
+                          (MIter<M, A>(var lx, _) liter, MIter<M, B>(var rx, _) riter) =>
+                              MList<(A, B)>.Cons((lx, rx), go(liter.TailM(), riter.TailM())),
+
+                          (MCons<M, A>(var lx, var lnext), MIter<M, B>(var rx, _) iter) =>
+                              MList<(A, B)>.Cons<M>((lx, rx), go(lnext, iter.TailM())),
+
+                          (MIter<M, A>(var lx, _) iter, MCons<M, B>(var rx, var rnext)) =>
+                              MList<(A, B)>.Cons<M>((lx, rx), go(iter.TailM(), rnext)),
+
+                          _ => throw new NotSupportedException()
+                      })
+            select x;
+
+        IEnumerator<A> JoinIter(IEnumerator<A> lhs, IEnumerator<A> rhs)
+        {
+            while (lhs.MoveNext() && rhs.MoveNext())
+            {
+                yield return lhs.Current;
+                yield return rhs.Current;
+            }
+            while (lhs.MoveNext()) yield return lhs.Current;
+            while (rhs.MoveNext()) yield return rhs.Current;
+        }
+    }
+    
     public StreamT<M, A> Filter(Func<A, bool> f) =>
         this.Kind().Filter(f).As();
 
@@ -288,6 +387,9 @@ public abstract record StreamT<M, A> :
 
     public static StreamT<M, A> operator +(StreamT<M, A> lhs, StreamT<M, A> rhs) =>
         lhs.Combine(rhs);
+
+    public static StreamT<M, A> operator &(StreamT<M, A> lhs, StreamT<M, A> rhs) =>
+        lhs.Merge(rhs);
 
     public static StreamT<M, A> operator >> (StreamT<M, A> lhs, StreamT<M, A> rhs) =>
         lhs.Bind(_ => rhs);
