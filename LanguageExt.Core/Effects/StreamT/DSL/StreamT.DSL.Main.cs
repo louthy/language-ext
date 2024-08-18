@@ -14,7 +14,7 @@ internal record StreamMainT<M, A>(K<M, MList<A>> runListT) : StreamT<M, A>
     public override StreamT<M, B> Map<B>(Func<A, B> f) =>
         new StreamMainT<M, B>(runListT.Map(la => la.Map(f)));
 
-    public override StreamT<M, A> Tail =>
+    public override StreamT<M, A> Tail() =>
         new StreamMainT<M, A>(
             from ml in runListT
             from rl in ml switch

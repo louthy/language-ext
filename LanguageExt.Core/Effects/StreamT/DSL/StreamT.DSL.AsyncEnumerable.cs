@@ -20,7 +20,7 @@ internal record StreamAsyncEnumerableT<M, A>(IAsyncEnumerable<A> items) : Stream
          .Bind(e => StreamEnumerableT<M, A>.Lift(items.ToBlockingEnumerable(e.Token).GetEnumerator())
                                            .runListT);
 
-    public override StreamT<M, A> Tail =>
+    public override StreamT<M, A> Tail() =>
         new StreamAsyncEnumerableT<M, A>(items.Skip(1));
 
     public override StreamT<M, B> Map<B>(Func<A, B> f) =>
@@ -31,7 +31,7 @@ internal record StreamAsyncEnumerableT<M, A>(IAsyncEnumerable<A> items) : Stream
     /// </summary>
     /// <param name="rhs">Other stream to merge with</param>
     /// <returns>Stream transformer</returns>
-    public override StreamT<M, A> Merge(StreamT<M, A> rhs) =>
+    public override StreamT<M, A> Merge(K<StreamT<M>, A> rhs) =>
         rhs switch
         {
             StreamAsyncEnumerableT<M, A> r => new StreamAsyncEnumerableT<M, A>(MergeAsync(items, r.items)),

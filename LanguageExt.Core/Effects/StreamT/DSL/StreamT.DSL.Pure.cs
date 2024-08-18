@@ -12,7 +12,7 @@ internal record StreamPureT<M, A>(A value) : StreamT<M, A>
     public override K<M, MList<A>> runListT { get; } =
         M.Pure(MList<A>.Cons(value, M.Pure(MList<A>.Nil)));
 
-    public override StreamT<M, A> Tail =>
+    public override StreamT<M, A> Tail() =>
         Empty;
 
     public override StreamT<M, B> Map<B>(Func<A, B> f) =>

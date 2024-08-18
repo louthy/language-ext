@@ -23,7 +23,7 @@ public abstract record StreamT<M, A> :
     /// Retrieve the tail of the sequence
     /// </summary>
     /// <returns>Stream transformer</returns>
-    public abstract StreamT<M, A> Tail { get; }
+    public abstract StreamT<M, A> Tail();
     
     /// <summary>
     /// Map the stream
@@ -134,14 +134,14 @@ public abstract record StreamT<M, A> :
     /// <summary>
     /// Retrieve the head of the sequence
     /// </summary>
-    public K<M, Option<A>> Head =>
+    public K<M, Option<A>> Head() =>
         Run().Map(opt => opt.Map(o => o.Head));
 
     /// <summary>
     /// Retrieve the head of the sequence
     /// </summary>
     /// <exception cref="ExpectedException">Throws sequence-empty expected-exception</exception>
-    public K<M, A> HeadUnsafe =>
+    public K<M, A> HeadUnsafe() =>
         Run().Map(opt => opt.Map(o => o.Head).IfNone(() => throw Exceptions.SequenceEmpty));
 
     /// <summary>
@@ -235,17 +235,24 @@ public abstract record StreamT<M, A> :
     /// Concatenate streams
     /// </summary>
     /// <returns>Stream transformer</returns>
-    public StreamT<M, A> Combine(StreamT<M, A> rhs) =>
-        new StreamMainT<M, A>(runListT.Append(rhs.runListT));
-    
+    public StreamT<M, A> Combine(StreamT<M, A> second) =>
+        new StreamMainT<M, A>(runListT.Append(second.runListT));
+
+    /// <summary>
+    /// Concatenate streams
+    /// </summary>
+    /// <returns>Stream transformer</returns>
+    public StreamT<M, A> Combine(K<StreamT<M>, A> second) =>
+        new StreamMainT<M, A>(runListT.Append(second.As().runListT));
+
     /// <summary>
     /// Interleave the items of two streams
     /// </summary>
-    /// <param name="rhs">Other stream to merge with</param>
+    /// <param name="second">Other stream to merge with</param>
     /// <returns>Stream transformer</returns>
-    public virtual StreamT<M, A> Merge(StreamT<M, A> rhs)
+    public virtual StreamT<M, A> Merge(K<StreamT<M>, A> second)
     {
-        return new StreamMainT<M, A>(go(runListT, rhs.runListT));
+        return new StreamMainT<M, A>(go(runListT, second.As().runListT));
 
         K<M, MList<A>> go(K<M, MList<A>> lhs, K<M, MList<A>> rhs) =>
             from l in lhs
@@ -288,15 +295,30 @@ public abstract record StreamT<M, A> :
             while (rhs.MoveNext()) yield return rhs.Current;
         }
     }
-    
+
     /// <summary>
-    /// Interleave the items of two streams
+    /// Interleave the items of many streams
     /// </summary>
     /// <param name="rhs">Other stream to merge with</param>
     /// <returns>Stream transformer</returns>
-    public virtual StreamT<M, (A Left, B Right)> Zip<B>(StreamT<M, B> rhs)
+    public virtual StreamT<M, A> Merge(K<StreamT<M>, A> second, params K<StreamT<M>, A>[] rest)
     {
-        return new StreamMainT<M, (A, B)>(go(runListT, rhs.runListT));
+        var r = Merge(second);
+        foreach (var s in rest)
+        {
+            r = r.Merge(s);
+        }
+        return r;
+    }
+ 
+    /// <summary>
+    /// Merge the items of two streams into pairs
+    /// </summary>
+    /// <param name="second">Other stream to merge with</param>
+    /// <returns>Stream transformer</returns>
+    public virtual StreamT<M, (A First, B Second)> Zip<B>(K<StreamT<M>, B> second)
+    {
+        return new StreamMainT<M, (A, B)>(go(runListT, second.As().runListT));
 
         K<M, MList<(A, B)>> go(K<M, MList<A>> lhs, K<M, MList<B>> rhs) =>
             from l in lhs
@@ -336,6 +358,33 @@ public abstract record StreamT<M, A> :
             while (rhs.MoveNext()) yield return rhs.Current;
         }
     }
+
+    /// <summary>
+    /// Merge the items of two streams into 3-tuples
+    /// </summary>
+    /// <param name="second">Second stream to merge with</param>
+    /// <param name="third">Third stream to merge with</param>
+    /// <returns>Stream transformer</returns>
+    public virtual StreamT<M, (A First, B Second, C Third)> Zip<B, C>(
+        K<StreamT<M>, B> second,
+        K<StreamT<M>, C> third) =>
+        Zip(second).Zip(third).Map(pp => (pp.First.First, pp.First.Second, pp.Second));
+
+    /// <summary>
+    /// Merge the items of two streams into 4-tuples
+    /// </summary>
+    /// <param name="second">Second stream to merge with</param>
+    /// <param name="third">Third stream to merge with</param>
+    /// <param name="fourth">Fourth stream to merge with</param>
+    /// <returns>Stream transformer</returns>
+    public virtual StreamT<M, (A First, B Second, C Third, D Fourth)> Zip<B, C, D>(
+        K<StreamT<M>, B> second,
+        K<StreamT<M>, C> third,
+        K<StreamT<M>, D> fourth) =>
+        Zip(second)
+           .Zip(third)
+           .Zip(fourth)
+           .Map(ppp => (ppp.First.First.First, ppp.First.First.Second, ppp.First.Second, ppp.Second));
     
     public StreamT<M, A> Filter(Func<A, bool> f) =>
         this.Kind().Filter(f).As();
@@ -385,20 +434,14 @@ public abstract record StreamT<M, A> :
     public static implicit operator StreamT<M, A>(IO<A> value) =>
         LiftIO(value);
 
-    public static StreamT<M, A> operator +(StreamT<M, A> lhs, StreamT<M, A> rhs) =>
+    public static StreamT<M, A> operator +(StreamT<M, A> lhs, K<StreamT<M>, A> rhs) =>
         lhs.Combine(rhs);
 
-    public static StreamT<M, A> operator &(StreamT<M, A> lhs, StreamT<M, A> rhs) =>
+    public static StreamT<M, A> operator &(StreamT<M, A> lhs, K<StreamT<M>, A> rhs) =>
         lhs.Merge(rhs);
-
-    public static StreamT<M, A> operator >> (StreamT<M, A> lhs, StreamT<M, A> rhs) =>
-        lhs.Bind(_ => rhs);
 
     public static StreamT<M, A> operator >> (StreamT<M, A> lhs, K<StreamT<M>, A> rhs) =>
         lhs.Bind(_ => rhs);
-
-    public static StreamT<M, A> operator >> (StreamT<M, A> lhs, StreamT<M, Unit> rhs) =>
-        lhs.Bind(x => rhs.Map(_ => x));
 
     public static StreamT<M, A> operator >> (StreamT<M, A> lhs, K<StreamT<M>, Unit> rhs) =>
         lhs.Bind(x => rhs.Map(_ => x));

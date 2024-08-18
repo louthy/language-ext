@@ -20,13 +20,13 @@ public static class HeadsAndTails
 
     static IO<Unit> headExample =>
         from _ in writeLine("Head example")
-        from h in collection.Head
+        from h in collection.Head()
         from x in writeLine($"\tHead is: {h}")
         select unit;
 
     static StreamT<IO, Unit> tailExample =>
         from _ in writeLine("Tail example")
-        from x in collection.Tail
+        from x in collection.Tail()
         from y in writeLine($"\tYielded: {x}")
         where false
         select unit;

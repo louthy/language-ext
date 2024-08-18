@@ -14,7 +14,7 @@ internal record StreamEnumerableT<M, A>(IEnumerable<A> items) : StreamT<M, A>
     public override K<M, MList<A>> runListT =>
         Lift(items.GetEnumerator()).runListT;
 
-    public override StreamT<M, A> Tail =>
+    public override StreamT<M, A> Tail() =>
         new StreamEnumerableT<M, A>(items.Skip(1));
     
     public static StreamT<M, A> Lift(IEnumerator<A> iter)
@@ -38,7 +38,7 @@ internal record StreamEnumerableT<M, A>(IEnumerable<A> items) : StreamT<M, A>
     /// </summary>
     /// <param name="rhs">Other stream to merge with</param>
     /// <returns>Stream transformer</returns>
-    public override StreamT<M, A> Merge(StreamT<M, A> rhs) =>
+    public override StreamT<M, A> Merge(K<StreamT<M>, A> rhs) =>
         rhs switch
         {
             StreamAsyncEnumerableT<M, A> r => new StreamAsyncEnumerableT<M, A>(MergeAsync(items, r.items)),
