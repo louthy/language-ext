@@ -1,13 +1,11 @@
-using System;
 using LanguageExt.Traits;
-using System.Collections.Generic;
 
 namespace LanguageExt;
 
 /// <summary>
 /// StreamT module
 /// </summary>
-public static partial class Predule
+public static partial class Prelude
 {
     /// <summary>
     /// Interleave the items of two streams
