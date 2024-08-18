@@ -354,10 +354,10 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     public static IO<A> operator |(IO<A> lhs, IO<A> rhs) =>
         lhs.Catch(rhs).As();
 
-    static IO<A> Fallible<IO<A>, IO, Error, A>.operator |(K<IO, A> lhs, IO<A> rhs) => 
+    public static IO<A> operator |(IO<A> lhs, K<IO, A> rhs) => 
         lhs.Catch(rhs).As();
 
-    static IO<A> Fallible<IO<A>, IO, Error, A>.operator |(IO<A> lhs, K<IO, A> rhs) => 
+    public static IO<A> operator |(K<IO, A> lhs, IO<A> rhs) => 
         lhs.Catch(rhs).As();
 
     public static IO<A> operator |(IO<A> lhs, Pure<A> rhs) =>

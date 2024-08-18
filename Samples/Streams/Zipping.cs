@@ -15,12 +15,6 @@ public static class Zipping
         from _ in writeLine(v)
         where false
         select unit;
-    
-    static bool isOdd(int n) =>
-        (n & 1) == 1;
-
-    static bool isEven(int n) =>
-        !isOdd(n);
 
     static StreamT<IO, int> evens(int n) =>
         from x in Range(0, n).AsStream<IO>()
@@ -31,4 +25,10 @@ public static class Zipping
         from x in Range(0, n).AsStream<IO>()
         where isOdd(x)
         select x;
+    
+    static bool isOdd(int n) =>
+        (n & 1) == 1;
+
+    static bool isEven(int n) =>
+        !isOdd(n);
 }

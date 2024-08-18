@@ -10,7 +10,7 @@ public static class RecursionIO
     public static IO<Unit> run =>
         from _ in writeLine("Enter a number to count from")
         from s in readLine
-        from n in parseInt<IO>(s) | @catch(IO.fail<int>("expected a number!"))
+        from n in parseInt<IO>(s) | IO.fail<int>("expected a number!")
         from r in recurse(n) >>
                   emptyLine
         select r;
