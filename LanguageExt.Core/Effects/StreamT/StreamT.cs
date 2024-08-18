@@ -301,7 +301,7 @@ public abstract record StreamT<M, A> :
     /// </summary>
     /// <param name="rhs">Other stream to merge with</param>
     /// <returns>Stream transformer</returns>
-    public virtual StreamT<M, A> Merge(K<StreamT<M>, A> second, params K<StreamT<M>, A>[] rest)
+    public StreamT<M, A> Merge(K<StreamT<M>, A> second, params K<StreamT<M>, A>[] rest)
     {
         var r = Merge(second);
         foreach (var s in rest)
@@ -365,10 +365,13 @@ public abstract record StreamT<M, A> :
     /// <param name="second">Second stream to merge with</param>
     /// <param name="third">Third stream to merge with</param>
     /// <returns>Stream transformer</returns>
-    public virtual StreamT<M, (A First, B Second, C Third)> Zip<B, C>(
+    public StreamT<M, (A First, B Second, C Third)> Zip<B, C>(
         K<StreamT<M>, B> second,
         K<StreamT<M>, C> third) =>
-        Zip(second).Zip(third).Map(pp => (pp.First.First, pp.First.Second, pp.Second));
+        Zip(second)
+           .Zip(third)
+           .Map(pp => (First: pp.First.First, Second: pp.First.Second, Third: pp.Second))
+           .As();
 
     /// <summary>
     /// Merge the items of two streams into 4-tuples
@@ -377,14 +380,15 @@ public abstract record StreamT<M, A> :
     /// <param name="third">Third stream to merge with</param>
     /// <param name="fourth">Fourth stream to merge with</param>
     /// <returns>Stream transformer</returns>
-    public virtual StreamT<M, (A First, B Second, C Third, D Fourth)> Zip<B, C, D>(
+    public StreamT<M, (A First, B Second, C Third, D Fourth)> Zip<B, C, D>(
         K<StreamT<M>, B> second,
         K<StreamT<M>, C> third,
         K<StreamT<M>, D> fourth) =>
         Zip(second)
            .Zip(third)
            .Zip(fourth)
-           .Map(ppp => (ppp.First.First.First, ppp.First.First.Second, ppp.First.Second, ppp.Second));
+           .Map(ppp => (First: ppp.First.First.First, Second: ppp.First.First.Second, Third: ppp.First.Second, Fourth: ppp.Second))
+           .As();
     
     public StreamT<M, A> Filter(Func<A, bool> f) =>
         this.Kind().Filter(f).As();

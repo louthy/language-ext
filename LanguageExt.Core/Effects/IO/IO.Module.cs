@@ -21,6 +21,15 @@ public partial class IO
         IO<A>.fail(value);
     
     /// <summary>
+    /// Put the IO into a failure state
+    /// </summary>
+    /// <param name="value">Error value</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>IO in a failed state.  Always yields an error.</returns>
+    public static IO<A> fail<A>(string value) =>
+        IO<A>.fail(Error.New(value));
+    
+    /// <summary>
     /// Lift an action into the IO monad
     /// </summary>
     /// <param name="f">Action to lift</param>
