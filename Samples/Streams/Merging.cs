@@ -15,12 +15,6 @@ public static class Merging
         where false
         select unit;
     
-    static bool isOdd(int n) =>
-        (n & 1) == 1;
-
-    static bool isEven(int n) =>
-        !isOdd(n);
-
     static StreamT<IO, int> evens(int n) =>
         from x in Range(0, n).AsStream<IO>()
         where isEven(x)
@@ -32,4 +26,10 @@ public static class Merging
         where isOdd(x)
         from _ in yellow >> write($"{x} ")
         select x;
+    
+    static bool isOdd(int n) =>
+        (n & 1) == 1;
+
+    static bool isEven(int n) =>
+        !isOdd(n);
 }
