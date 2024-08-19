@@ -160,42 +160,6 @@ public static partial class Prelude
     /// </returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int compare<NEWTYPE, ORD, T, PRED>(NEWTYPE x, NEWTYPE y)
-        where ORD : Ord<T>
-        where PRED : Pred<T>
-        where NEWTYPE : NewType<NEWTYPE, T, PRED, ORD> =>
-        OrdNewType<NEWTYPE, ORD, T, PRED>.Compare(x, y);
-
-    /// <summary>
-    /// Compare one item to another to ascertain ordering
-    /// </summary>
-    /// <param name="x">The first item to compare</param>
-    /// <param name="y">The second item to compare</param>
-    /// <returns>
-    ///  0 if x is equal to y
-    /// -1 if x greater than y
-    ///  1 if x less than y
-    /// </returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int compare<NEWTYPE, NUM, T, PRED>(NEWTYPE x, NumType<NEWTYPE, NUM, T, PRED> y)
-        where NUM : Num<T>
-        where PRED : Pred<T>
-        where NEWTYPE : NumType<NEWTYPE, NUM, T, PRED> =>
-        OrdNumType<NEWTYPE, NUM, T, PRED>.Compare(x, y);
-
-    /// <summary>
-    /// Compare one item to another to ascertain ordering
-    /// </summary>
-    /// <param name="x">The first item to compare</param>
-    /// <param name="y">The second item to compare</param>
-    /// <returns>
-    ///  0 if x is equal to y
-    /// -1 if x greater than y
-    ///  1 if x less than y
-    /// </returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int compare<ORD, L, R>(Either<L, R> x, Either<L, R> y) where ORD : Ord<R> =>
         x.CompareTo<ORD>(y);
 }

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Numerics;
 using static LanguageExt.Prelude;
-using LanguageExt.ClassInstances.Pred;
 using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
 using System.Runtime.CompilerServices;
@@ -35,11 +34,11 @@ public readonly struct Lst<A> :
     /// </summary>
     public static Lst<A> Empty { get; } = new (System.Array.Empty<A>().AsSpan());
     
-    readonly LstInternal<True<A>, A>? value;
-    internal LstInternal<True<A>, A> Value
+    readonly LstInternal<A>? value;
+    internal LstInternal<A> Value
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value ?? LstInternal<True<A>, A>.Empty;
+        get => value ?? LstInternal<A>.Empty;
     }
 
     /// <summary>
@@ -47,20 +46,20 @@ public readonly struct Lst<A> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst(IEnumerable<A> initial) =>
-        value = new LstInternal<True<A>, A>(initial);
+        value = new LstInternal<A>(initial);
 
     /// <summary>
     /// Ctor
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst(ReadOnlySpan<A> initial) =>
-        value = new LstInternal<True<A>, A>(initial);
+        value = new LstInternal<A>(initial);
 
     /// <summary>
     /// Ctor
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    Lst(LstInternal<True<A>, A> initial) =>
+    Lst(LstInternal<A> initial) =>
         value = initial;
 
     /// <summary>
@@ -68,7 +67,7 @@ public readonly struct Lst<A> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal Lst(ListItem<A> root) =>
-        value = new LstInternal<True<A>, A>(root);
+        value = new LstInternal<A>(root);
 
     ListItem<A> Root
     {
@@ -251,11 +250,11 @@ public readonly struct Lst<A> :
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    Lst<A> Wrap(LstInternal<True<A>, A> list) =>
+    Lst<A> Wrap(LstInternal<A> list) =>
         new (list);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static Lst<X> Wrap<X>(LstInternal<True<X>, X> list) =>
+    static Lst<X> Wrap<X>(LstInternal<X> list) =>
         new (list);
 
     /// <summary>
@@ -484,7 +483,7 @@ public readonly struct Lst<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<U> Map<U>(Func<A, U> map) =>
-        Wrap(Value.Map<True<U>, U>(map));
+        Wrap(Value.Map<U>(map));
     
     /// <summary>
     /// Map each element of a structure to an action, evaluate these actions from

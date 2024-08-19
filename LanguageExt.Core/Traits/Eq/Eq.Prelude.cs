@@ -146,17 +146,4 @@ public static partial class Prelude
     [Pure]
     public static bool equals<EQ, A>(Seq<A> x, Seq<A> y) where EQ : Eq<A> =>
         EqSeq<EQ, A>.Equals(x, y);
-
-    /// <summary>
-    /// Structural equality test
-    /// </summary>
-    /// <param name="x">The left hand side of the equality operation</param>
-    /// <param name="y">The right hand side of the equality operation</param>
-    /// <returns>True if x and y are equal</returns>
-    [Pure]
-    public static bool equals<NEWTYPE, EQ, A, PRED>(NewType<NEWTYPE, A, PRED> x, NewType<NEWTYPE, A, PRED> y) 
-        where EQ      : Eq<A>
-        where PRED    : Pred<A>
-        where NEWTYPE : NewType<NEWTYPE, A, PRED> =>
-        ReferenceEquals(x, y) && !ReferenceEquals(x, null) && !ReferenceEquals(y, null) && EQ.Equals((A)x, (A)y);
 }

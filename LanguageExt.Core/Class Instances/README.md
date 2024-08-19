@@ -1,6 +1,6 @@
 __If you're new to this library or functional-programming this is almost certainly not the place to start browsing!__
 
-Class-instances try to replicate the instances of Haskell in C#.  They pair with the traites using ad-hoc polymorphism.
+Class-instances try to replicate the instances of Haskell in C#.  They pair with the traits using ad-hoc polymorphism.
 
 Ad-hoc polymorphism has long been believed to not be possible in C#. However with some cunning _it is_. Ad-hoc polymorphism allows 
 programmers to add traits to a type later. For example in C# it would be amazing if we had an interface called `INumeric` for numeric 

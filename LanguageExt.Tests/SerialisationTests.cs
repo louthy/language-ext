@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using static LanguageExt.Prelude;
 using Xunit;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
@@ -82,22 +80,16 @@ namespace LanguageExt.Tests
         [Fact]
         public void ActionTypeTest()
         {
-            var x = ActionType.New("Test1");
-            var y = ActionType.New("Test2");
-            var z = ActionType.New("Test3");
+            var x = new ActionType("Test1");
+            var y = new ActionType("Test2");
+            var z = new ActionType("Test3");
 
             Assert.False(x == y);
-            Assert.False(x > y);
-            Assert.True(x < y);
             Assert.True(x != y);
         }
 
         [Serializable]
-        public class ActionType : NewType<ActionType, string>, ISerializable
-        {
-            public ActionType(string value) : base(value) { }
-            protected ActionType(SerializationInfo info, StreamingContext context) : base(info, context) { }
-        }
+        public record ActionType(string Value);
 
         [Fact]
         public void ErrorSerialisationTest()
