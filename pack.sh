@@ -11,7 +11,7 @@ LangExtRoot=/home/paul/Documents/dev/language-ext
 # $LangExtDocs is where the docs root should be (i.e. c:\dev\louthy.github.io)
 LangExtDocs=/home/paul/Documents/dev/louthy.github.io
 
-#dotnet build $BestFormBin/bestform.csproj -c Release
+dotnet build $BestFormBin/bestform.csproj -c Release
 dotnet run --project $BestFormBin -c Release --no-build "LanguageExt.Core" "$LangExtRoot/LanguageExt.Core" "$LangExtDocs/language-ext" "https://github.com/louthy/language-ext/tree/main"
 dotnet run --project $BestFormBin -c Release --no-build "LanguageExt.Parsec" "$LangExtRoot/LanguageExt.Parsec" "$LangExtDocs/language-ext" "https://github.com/louthy/language-ext/tree/main"
 dotnet run --project $BestFormBin -c Release --no-build "LanguageExt.FSharp" "$LangExtRoot/LanguageExt.FSharp" "$LangExtDocs/language-ext" "https://github.com/louthy/language-ext/tree/main"
