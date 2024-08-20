@@ -37,12 +37,12 @@ public static class KExtensions
     /// </remarks>
     /// <example>
     ///
-    ///    var mx = Seq<Option<int>>(Some(1), Some(2), Some(3));
+    ///     var mx = Seq<Option<int>>(Some(1), Some(2), Some(3));
     ///         
-    ///    var ma = mx.KindT<Seq, Option, Option<int>, int>()
-    ///               .BindT(a => Some(a + 1))
-    ///               .MapT(a => a + 1);
-    ///               .AsT<Seq, Option, Option<int>, int>();
+    ///     var ma = mx.KindT<Seq, Option, Option<int>, int>()
+    ///                .BindT(a => Some(a + 1))
+    ///                .MapT(a => a + 1);
+    ///                .AsT<Seq, Option, Option<int>, int>();
     ///
     /// </example>
     /// <param name="mna">Nested functor value</param>
@@ -68,12 +68,12 @@ public static class KExtensions
     /// </remarks>
     /// <example>
     ///
-    ///    var mx = Seq<Option<int>>(Some(1), Some(2), Some(3));
+    ///     var mx = Seq<Option<int>>(Some(1), Some(2), Some(3));
     ///         
-    ///    var ma = mx.KindT<Seq, Option, Option<int>, int>()
-    ///               .BindT(a => Some(a + 1))
-    ///               .MapT(a => a + 1);
-    ///               .AsT<Seq, Option, Option<int>, int>();
+    ///     var ma = mx.KindT<Seq, Option, Option<int>, int>()
+    ///                .BindT(a => Some(a + 1))
+    ///                .MapT(a => a + 1);
+    ///                .AsT<Seq, Option, Option<int>, int>();
     ///
     /// </example>
     /// <param name="mna">Nested functor value</param>
