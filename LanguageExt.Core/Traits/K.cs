@@ -11,7 +11,7 @@ namespace LanguageExt.Traits;
 /// For example:
 ///
 ///     K<F, A> where F : Functor<F>
-///     K<M, A> where M : Monad<F>
+///     K<M, A> where M : Monad<M>
 ///
 /// That means we can write generic functions that work with monads, functors, etc.
 /// </remarks>

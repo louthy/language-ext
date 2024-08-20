@@ -26,10 +26,4 @@ rm -rf $LangExtRoot/LanguageExt.FSharp/obj
 rm -rf $LangExtRoot/LanguageExt.Rx/obj
 rm -rf $LangExtRoot/LanguageExt.Sys/obj
 
-rm -rf $LangExtDocs/language-ext/LanguageExt.Core
-rm -rf $LangExtDocs/language-ext/LanguageExt.Parsec
-rm -rf $LangExtDocs/language-ext/LanguageExt.FSharp
-rm -rf $LangExtDocs/language-ext/LanguageExt.Rx
-rm -rf $LangExtDocs/language-ext/LanguageExt.Sys
-
 echo cleaned
