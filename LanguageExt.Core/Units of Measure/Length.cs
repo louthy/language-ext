@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using LanguageExt.Traits.Domain;
 
 namespace LanguageExt;
@@ -13,10 +14,8 @@ namespace LanguageExt;
 /// accessors (Metres, Centimetres, etc.) or divide by 1.Metre()
 /// </summary>
 public readonly struct Length :
-    IComparable<Length>,
-    IEquatable<Length>,
     IComparable,
-    AmountLike<Length, double, double> 
+    Amount<Length, double, double> 
 {
     readonly double Value;
 
@@ -144,9 +143,12 @@ public readonly struct Length :
     public double Nanometres  => Value * 1000000000.0;
     public double Angstroms   => Value * 10000000000.0;
     
+    static Fin<Length> DomainType<Length, double>.From(double repr) =>
+        new Length(repr);
+
     public static Length From(double repr) => 
         new (repr);
-
+    
     public double To() =>
         Value;
 }

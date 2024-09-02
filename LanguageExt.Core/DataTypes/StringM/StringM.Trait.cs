@@ -9,8 +9,7 @@ namespace LanguageExt;
 /// </summary>
 /// <param name="Value">Contained value</param>
 public interface StringM<SELF> : 
-    IdentifierLike<SELF, string>,
-    IEquatable<SELF>,
+    Identifier<SELF, string>,
     IComparable<SELF>,
     ISpanParsable<SELF>,
     OrdString<SELF>,
@@ -18,7 +17,7 @@ public interface StringM<SELF> :
     where SELF : 
         StringM<SELF>,
         DomainType<SELF, string>,
-        IdentifierLike<SELF, string>,
+        Identifier<SELF, string>,
         IEquatable<SELF>,
         IComparable<SELF>,
         ISpanParsable<SELF>,
@@ -29,12 +28,12 @@ public interface StringM<SELF> :
     /// Monoid append
     /// </summary>
     SELF Semigroup<SELF>.Combine(SELF rhs) =>
-        SELF.From(To() + rhs.To()); 
+        SELF.FromUnsafe(To() + rhs.To()); 
 
     /// <summary>
     /// Monoid empty
     /// </summary>
-    static SELF Monoid<SELF>.Empty => SELF.From(string.Empty);
+    static SELF Monoid<SELF>.Empty => SELF.FromUnsafe(string.Empty);
 
     /// <summary>
     /// Length of the string
@@ -50,12 +49,6 @@ public interface StringM<SELF> :
 
     public int GetHashCode() =>
         Hashable.code((SELF)this);
-
-    public static virtual bool operator ==(SELF lhs, SELF rhs) =>
-        SELF.Equals(lhs, rhs);
-
-    public static virtual bool operator !=(SELF lhs, SELF rhs) =>
-        !(lhs == rhs);
     
     bool IEquatable<SELF>.Equals(SELF? rhs) =>
         rhs is not null && SELF.Equals((SELF)this, rhs);
@@ -66,11 +59,11 @@ public interface StringM<SELF> :
             : SELF.Compare((SELF)this, rhs);
 
     static SELF IParsable<SELF>.Parse(string s, IFormatProvider? provider) => 
-        SELF.From(s);
+        SELF.FromUnsafe(s);
 
     static bool IParsable<SELF>.TryParse(string? s, IFormatProvider? provider, out SELF result)
     {
-        result = SELF.From(s ?? "");
+        result = SELF.FromUnsafe(s ?? "");
         return s != null;
     }
 
@@ -78,14 +71,14 @@ public interface StringM<SELF> :
     {
         // magic number from System.String
         if (s.Length > 1073741791) throw new ArgumentException(nameof(s));
-        return SELF.From(s.ToString());
+        return SELF.FromUnsafe(s.ToString());
     }
 
     static bool ISpanParsable<SELF>.TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, out SELF result)
     {
         if (s.Length <= 1073741791) // magic number from System.String
         {
-            result = SELF.From(s.ToString());
+            result = SELF.FromUnsafe(s.ToString());
             return true;
         }
         result = default!;

@@ -21,14 +21,12 @@ namespace LanguageExt.Traits.Domain;
 /// operations defined on the elements of this set: addition, subtraction, and scalar multiplication, such that
 /// behaviors of these operations satisfy a few natural axioms.
 /// </summary>
+/// <remarks>This is the same as `VectorSpace` but with ordering</remarks>
 /// <typeparam name="SELF">Type implementing this interface</typeparam>
 /// <typeparam name="REPR">Underlying representation</typeparam>
 /// <typeparam name="SCALAR">Scalar units</typeparam>
-public interface VectorSpace<SELF, REPR, SCALAR> :
-    Identifier<SELF, REPR>,
-    IUnaryNegationOperators<SELF, SELF>,
-    IAdditionOperators<SELF, SELF, SELF>,
-    ISubtractionOperators<SELF, SELF, SELF>,
-    IMultiplyOperators<SELF, SCALAR, SELF>,
-    IDivisionOperators<SELF, SCALAR, SELF>
-    where SELF : VectorSpace<SELF, REPR, SCALAR>;
+public interface Amount<SELF, REPR, SCALAR> :
+    VectorSpace<SELF, REPR, SCALAR>,
+    IComparable<SELF>,
+    IComparisonOperators<SELF, SELF, bool>
+    where SELF : Amount<SELF, REPR, SCALAR>;
