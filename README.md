@@ -166,7 +166,7 @@ Location | Feature | Description
 ---------|---------|------------
 `Core` | `Arr<A>` | [Immutable array](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Arr/index.html)
 `Core` | `Seq<A>` | [Lazy immutable list, evaluate at-most-once](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Seq/index.html) - very, very fast!
-`Core` | `EnumerableM<A>` | [Wrapper around `IEnumerable`](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Enumerable/index.html) - enables the higher-kinded traits to work with enumerables.
+`Core` | `Iteravle<A>` | [Wrapper around `IEnumerable` with support for traits](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Iterable/index.html) - enables the higher-kinded traits to work with enumerables.
 `Core` | `Lst<A>` | [Immutable list](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/List/index.html) - use `Seq` over `Lst` unless you need `InsertAt`
 `Core` | `Map<K, V>` | [Immutable map](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Map/index.html)
 `Core` | `Map<OrdK, K, V>` | [Immutable map with Ord constraint on `K`](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Map/index.html)
