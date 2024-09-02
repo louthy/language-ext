@@ -213,14 +213,6 @@ Location | Feature | Description
 `Parsec` | `Parser<A>` | [String parser monad and full parser combinators library](https://louthy.github.io/language-ext/LanguageExt.Parsec/index.html)
 `Parsec` | `Parser<I, O>` | [Parser monad that can work with any input stream type](https://louthy.github.io/language-ext/LanguageExt.Parsec/index.html)
 
-### [New types - Type aliasing](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/New%20Types/index.html)
-
-Location | Feature | Description
----------|---------|------------
-`Core` | `NewType<SELF, A, PRED>` | [Haskell `newtype` equivalent](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/New%20Types/NewType/index.html) i.e: `class Hours : NewType<Hours, double> { public Hours(double value) : base(value) { } }`. The resulting type is: equatable, comparable, foldable, a functor, monadic, and iterable
-`Core` | `NumType<SELF, NUM, A, PRED>` | [Haskell `newtype` equivalent but for numeric types](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/New%20Types/NumType/index.html) i.e: `class Hours : NumType<Hours, TDouble, double> { public Hours(double value) : base(value) { } }`. The resulting type is: equatable, comparable, foldable, a functor, a monoid, a semigroup, monadic, iterable, and can have basic artithmetic operations performed upon it.
-`Core` | `FloatType<SELF, FLOATING, A, PRED>` | [Haskell `newtype` equivalent but for real numeric types](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/New%20Types/FloatType/index.html) i.e: `class Hours : FloatType<Hours, TDouble, double> { public Hours(double value) : base(value) { } }`. The resulting type is: equatable, comparable, foldable, a functor, a monoid, a semigroup, monadic, iterable, and can have complex artithmetic operations performed upon it.
-
 ### [Pretty](https://louthy.github.io/language-ext/LanguageExt.Core/Pretty/index.html)
 
 Location | Feature | Description
@@ -242,10 +234,12 @@ Location | Feature | Description
 `Core` | `Alternative<F>` | [A monoid on applicative functors](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Alternative/index.html)
 `Core` | `Applicative<F>` | [Applicative functor](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Applicative/index.html)
 `Core` | `Eq<A>` | [Ad-hoc equality trait](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Eq/index.html)
+`Core` | `Fallible<F>` | [Trait that describes types that can fail](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Fallible/index.html)
 `Core` | `Foldable<T>` | [Aggregation over a structure](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Foldable/index.html)
 `Core` | `Functor<F>` | [Functor `Map`](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Functor/index.html)
 `Core` | `Has<M, TRAIT>` | [Used in runtimes to enable DI-like capabilities](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Has/index.html)
 `Core` | `Hashable<A>` | [Ad-hoc has-a-hash-code trait](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Hashable/index.html)
+`Core` | `Local<M, E>` | [Creates a local environment to run a computation ](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Local/index.html)
 `Core` | `Monad<M>` | [Monad trait](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Monads/Monad/index.html)
 `Core` | `MonadT<M, N>` | [Monad transformer trait](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Monads/MonadT/index.html)
 `Core` | `Monoid<A>` | [A monoid is a type with an identity `Empty` and an associative binary operation `+`](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Monoid/index.html)
@@ -253,14 +247,13 @@ Location | Feature | Description
 `Core` | `Mutates<M, OUTER_STATE, INNER_STATE>` | [Used in runtimes to enable stateful operations](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Mutates/index.html)
 `Core` | `Ord<A>` | [Ad-hoc ordering / comparisons](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Ord/index.html)
 `Core` | `Range<SELF, NumOrdA, A>` | [Abstraction of a range of values](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Range/index.html)
-`Core` | `ReaderM<M, Env>` | [Generalised Reader monad abstraction](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Reader/index.html)
-`Core` | `Reads<M, OUTER_STATE, INNER_STATE>` | [Used in runtimes to enable environment value access](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Reads/index.html)
+`Core` | `Readable<M, Env>` | [Generalised Reader monad abstraction](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Readable/index.html)
 `Core` | `SemiAlternative<F>` | [A semigroup on functors](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/SemiAlternative/index.html)
 `Core` | `Semigroup<A>` | [Provides an associative binary operation `+`](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Semigroup/index.html)
 `Core` | `SemigroupK<M>` | [Equivalent of semigroups for working with higher-kinded types](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/SemigroupK/index.html)
 `Core` | `StateM<M, S>` | [Generalised State monad abstraction](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/State/index.html)
 `Core` | `Traversable<T>` | [Traversable structures support element-wise sequencing of Applicative effects](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Traversable/index.html)
-`Core` | `Writer<M, W>` | [Generalised Writer monad abstraction](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Writer/index.html)
+`Core` | `Writable<M, W>` | [Generalised Writer monad abstraction](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Writable/index.html)
 
 
 ### [Value traits](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Domain/index.html)
@@ -270,11 +263,10 @@ These work a little like `NewType` but they impart semantic meaning and some com
 Location | Feature | Description
 ---------|---------|------------
 `Core` | `DomainType<SELF, REPR>` | Provides a mapping from `SELF` to an underlying representation: `REPR`
-`Core` | `IdentifierLike <SELF, REPR>` | Identifiers (like IDs in databases: `PersonId` for example), they are equivalent to `DomaintType` with equality.
+`Core` | `Identifier <SELF>` | Identifiers (like IDs in databases: `PersonId` for example), they are equivalent to `DomaintType` with equality.
 `Core` | `VectorSpace<SELF, SCALAR>` | Scalable values; can add and subtract self, but can only multiply and divide by a scalar. Can also negate.
-`Core` | `AmountLike <SELF, REPR, SCALAR>` | Quantities, such as the amount of money in USD on a bank account or a file size in bytes. Derives `VectorSpace`, `IdentifierLike`, `DomainType`, and is orderable (comparable).
-`Core` | `LocusLike <SELF, REPR, SCALAR, DISTANCE>` | Works with space-like structures. Spaces have absolute and relative distances. Has an origin/zero point and derives `DomainType`, `IdentifierLike`, `AmountLike` and `VectorSpace`.  `DISTANCE` must also be an `AmountLike<SELF, REPR, SCALAR>`.
-`Core` | `QuantityLike` | WIP - derives `DomainType`, `VectorSpace`, `IdentifierLike`, `AmountLike`
+`Core` | `Amount <SELF, SCALAR>` | Quantities, such as the amount of money in USD on a bank account or a file size in bytes. Derives `VectorSpace`, `IdentifierLike`, `DomainType`, and is orderable (comparable).
+`Core` | `LocusLike <SELF, SCALAR, DISTANCE>` | Works with space-like structures. Spaces have absolute and relative distances. Has an origin/zero point and derives `DomainType`, `IdentifierLike`, `AmountLike` and `VectorSpace`.  `DISTANCE` must also be an `AmountLike<SELF, REPR, SCALAR>`.
 
 _These features are still a little in-flux as of 17th May 2024 - they may evolve, be renamed, or removed - but I like the idea!_
 
