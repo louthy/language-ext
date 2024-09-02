@@ -251,7 +251,7 @@ Location | Feature | Description
 `Core` | `SemiAlternative<F>` | [A semigroup on functors](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/SemiAlternative/index.html)
 `Core` | `Semigroup<A>` | [Provides an associative binary operation `+`](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Semigroup/index.html)
 `Core` | `SemigroupK<M>` | [Equivalent of semigroups for working with higher-kinded types](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/SemigroupK/index.html)
-`Core` | `StateM<M, S>` | [Generalised State monad abstraction](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/State/index.html)
+`Core` | `Stateful<M, S>` | [Generalised State monad abstraction](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Stateful/index.html)
 `Core` | `Traversable<T>` | [Traversable structures support element-wise sequencing of Applicative effects](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Traversable/index.html)
 `Core` | `Writable<M, W>` | [Generalised Writer monad abstraction](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Writable/index.html)
 
