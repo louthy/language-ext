@@ -180,18 +180,18 @@ Location | Feature | Description
 `Core` | `Que<A>` | [Immutable queue](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Queue/index.html)
 `Core` | `Stck<A>` | [Immutable stack](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Stack/index.html)
 
-### [Optional and alternative value monads](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/index.html)
+### [Optional and alternative value monads](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/index.html)
 
 Location | Feature | Description
 ---------|---------|------------
-`Core` | `Option<A>` | [Option monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Option/index.html)
-`Core` | `OptionT<M, A>` | [Option monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/OptionT/index.html)
-`Core` | `Either<L,R>` | [Right/Left choice monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Either/index.html)
-`Core` | `EitherT<L, M, R>` | [Right/Left choice monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/EitherT/index.html)
-`Core` | `Try<A>` | [Exception handling monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Try/Try/index.html)
-`Core` | `TryT<M, A>` | [Exception handling monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/TryT/index.html)
-`Core` | `Validation<FAIL ,SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Validation/index.html) for collecting multiple errors before aborting an operation
-`Core` | `ValidationT<FAIL, M, SUCCESS>` | [Validation applicative and monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/ValidationT/index.html)
+`Core` | `Option<A>` | [Option monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/Option/index.html)
+`Core` | `OptionT<M, A>` | [Option monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/OptionT/index.html)
+`Core` | `Either<L,R>` | [Right/Left choice monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/Either/index.html)
+`Core` | `EitherT<L, M, R>` | [Right/Left choice monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/EitherT/index.html)
+`Core` | `Try<A>` | [Exception handling monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/Try/Try/index.html)
+`Core` | `TryT<M, A>` | [Exception handling monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/TryT/index.html)
+`Core` | `Validation<FAIL ,SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/Validation/index.html) for collecting multiple errors before aborting an operation
+`Core` | `ValidationT<FAIL, M, SUCCESS>` | [Validation applicative and monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/ValidationT/index.html)
 
 ### [State managing monads](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/State%20and%20Environment%20Monads/index.html)
 
