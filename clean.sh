@@ -1,16 +1,10 @@
 echo cleaing bin, obj, and /louthy.github.io/language-ext
 
-# $BestFormBin is where the bestform.exe is compiled to 
+# Artifacts is where the DLLs are compiled to 
 Artifacts=/home/paul/Documents/dev/artifacts
-
-# $BestFormBin is where the bestform.exe is compiled to 
-BestFormBin=/home/paul/Documents/dev/best-form/bestform
 
 # $LangExtRoot is where the source code root should be (i.e. c:\dev\language-ext)
 LangExtRoot=/home/paul/Documents/dev/language-ext
-
-# $LangExtDocs is where the docs root should be (i.e. c:\dev\louthy.github.io)
-LangExtDocs=/home/paul/Documents/dev/louthy.github.io
 
 rm -rf $Artifacts
 
