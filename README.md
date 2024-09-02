@@ -188,7 +188,9 @@ Location | Feature | Description
 `Core` | `OptionT<M, A>` | [Option monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/OptionT/index.html)
 `Core` | `Either<L,R>` | [Right/Left choice monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/Either/index.html)
 `Core` | `EitherT<L, M, R>` | [Right/Left choice monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/EitherT/index.html)
-`Core` | `Try<A>` | [Exception handling monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/Try/Try/index.html)
+`Core` | `Fin<A>` | [`Error` handling monad, like `Either<Errror, A>`](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/Fin/index.html)
+`Core` | `FinT<M, A>` | [`Error` handling monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/FinT/index.html)
+`Core` | `Try<A>` | [Exception handling monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/Try/index.html)
 `Core` | `TryT<M, A>` | [Exception handling monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/TryT/index.html)
 `Core` | `Validation<FAIL ,SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/Validation/index.html) for collecting multiple errors before aborting an operation
 `Core` | `ValidationT<FAIL, M, SUCCESS>` | [Validation applicative and monad-transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/ValidationT/index.html)
