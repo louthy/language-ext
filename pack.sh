@@ -17,3 +17,5 @@ dotnet pack LanguageExt.FSharp -c Release -o $Artifacts
 dotnet pack LanguageExt.Parsec -c Release -o $Artifacts
 dotnet pack LanguageExt.Rx -c Release -o $Artifacts
 dotnet pack LanguageExt.Sys -c Release -o $Artifacts
+
+sh ../push-language-ext.sh
