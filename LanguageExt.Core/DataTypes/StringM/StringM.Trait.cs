@@ -8,17 +8,16 @@ namespace LanguageExt;
 /// Simple wrapper around String
 /// </summary>
 /// <param name="Value">Contained value</param>
-public interface StringM<SELF> : 
-    Identifier<SELF, string>,
+public interface StringM<SELF> :
+    DomainType<SELF, string>,
+    Identifier<SELF>,
     IComparable<SELF>,
     ISpanParsable<SELF>,
     OrdString<SELF>,
     Monoid<SELF>
     where SELF : 
         StringM<SELF>,
-        DomainType<SELF, string>,
-        Identifier<SELF, string>,
-        IEquatable<SELF>,
+        Identifier<SELF>,
         IComparable<SELF>,
         ISpanParsable<SELF>,
         OrdString<SELF>,
@@ -39,7 +38,7 @@ public interface StringM<SELF> :
     /// Length of the string
     /// </summary>
     public int Length =>
-        To()?.Length ?? 0;
+        To().Length;
 
     /// <summary>
     /// ToString override

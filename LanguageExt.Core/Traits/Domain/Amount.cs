@@ -23,10 +23,9 @@ namespace LanguageExt.Traits.Domain;
 /// </summary>
 /// <remarks>This is the same as `VectorSpace` but with ordering</remarks>
 /// <typeparam name="SELF">Type implementing this interface</typeparam>
-/// <typeparam name="REPR">Underlying representation</typeparam>
 /// <typeparam name="SCALAR">Scalar units</typeparam>
-public interface Amount<SELF, REPR, SCALAR> :
-    VectorSpace<SELF, REPR, SCALAR>,
+public interface Amount<SELF, SCALAR> :
+    VectorSpace<SELF, SCALAR>,
     IComparable<SELF>,
     IComparisonOperators<SELF, SELF, bool>
-    where SELF : Amount<SELF, REPR, SCALAR>;
+    where SELF : Amount<SELF, SCALAR>;

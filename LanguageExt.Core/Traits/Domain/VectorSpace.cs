@@ -22,13 +22,12 @@ namespace LanguageExt.Traits.Domain;
 /// behaviors of these operations satisfy a few natural axioms.
 /// </summary>
 /// <typeparam name="SELF">Type implementing this interface</typeparam>
-/// <typeparam name="REPR">Underlying representation</typeparam>
 /// <typeparam name="SCALAR">Scalar units</typeparam>
-public interface VectorSpace<SELF, REPR, SCALAR> :
-    Identifier<SELF, REPR>,
+public interface VectorSpace<SELF, SCALAR> :
+    Identifier<SELF>,
     IUnaryNegationOperators<SELF, SELF>,
     IAdditionOperators<SELF, SELF, SELF>,
     ISubtractionOperators<SELF, SELF, SELF>,
     IMultiplyOperators<SELF, SCALAR, SELF>,
     IDivisionOperators<SELF, SCALAR, SELF>
-    where SELF : VectorSpace<SELF, REPR, SCALAR>;
+    where SELF : VectorSpace<SELF, SCALAR>;

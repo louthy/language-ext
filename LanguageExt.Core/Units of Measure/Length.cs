@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 using LanguageExt.Traits.Domain;
 
 namespace LanguageExt;
@@ -15,7 +14,8 @@ namespace LanguageExt;
 /// </summary>
 public readonly struct Length :
     IComparable,
-    Amount<Length, double, double> 
+    DomainType<Length, double>,
+    Amount<Length, double> 
 {
     readonly double Value;
 
