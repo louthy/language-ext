@@ -147,7 +147,7 @@ Location | Feature | Description
 `Core` | `Eff<A>` | [A synchronous and asynchronous side-effect with error handling](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Eff/Eff%20no%20runtime/index.html)
 `Core` | `Eff<RT, A>` | [Same as `Eff<A>` but with an injectable runtime for dependency-injection: a unit testable IO monad](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Eff/Eff%20with%20runtime/index.html)
 `Core` | Pipes | [A clean and powerful stream processing system that lets you build and connect reusable streaming components](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Pipes/index.html)
-`Core` | Pipes | [less powerful (than Pipes), but easier to use streaming effects transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/StreamT/index.html)
+`Core` | StreamT | [less powerful (than Pipes), but easier to use streaming effects transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/StreamT/index.html)
 
 ### [Atomic concurrency and collections ](https://louthy.github.io/language-ext/LanguageExt.Core/Concurrency/index.html)
 
