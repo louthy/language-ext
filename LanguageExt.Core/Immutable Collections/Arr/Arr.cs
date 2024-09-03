@@ -81,6 +81,14 @@ public struct Arr<A> :
     public StreamT<M, A> AsStream<M>()
         where M : Monad<M> =>
         StreamT<M, A>.Lift(this);
+    
+    [Pure]
+    public ReadOnlySpan<A> AsSpan() =>
+        new (Value);
+    
+    [Pure]
+    public ReadOnlySpan<A> AsSpan(int start, int length) =>
+        new (Value, start, length);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Arr<A>(A[] xs) =>

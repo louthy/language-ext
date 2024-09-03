@@ -14,15 +14,15 @@ namespace LanguageExt.Traits.Domain;
 /// between two such points.
 ///
 /// Some natural languages acknowledge the distinction and offer different words for these concepts, such as o’clock vs.
-/// hours in English or Uhr vs. Stunden in German.
+/// hours.
 ///
 /// While distances behave the same way as `Amount`, positions are trickier. We can compare, order, and subtract them to
 /// compute the distance between two points. For example, subtracting 5 am on Friday from 3 am on Saturday gives us
 /// twenty-two hours. Adding or multiplying these dates makes no sense, however. This semantic demands a new class of
 /// types, loci (plural of locus).
 ///
-/// We can view each position as a distance from a fixed origin point. Changing the origin or the distance type calls for
-/// a new locus type.
+/// We can view each position as a distance from a fixed origin point. Changing the origin or the distance type calls
+/// for a new locus type.
 /// </summary>
 /// <typeparam name="SELF">Type implementing this interface</typeparam>
 /// <typeparam name="SCALAR">Scalar units</typeparam>
@@ -30,11 +30,11 @@ namespace LanguageExt.Traits.Domain;
 public interface Locus<SELF, SCALAR, DISTANCE> :
     Identifier<SELF>,
     IComparable<SELF>,
-    IUnaryNegationOperators<SELF, SELF>,
     IComparisonOperators<SELF, SELF, bool>,
+    IUnaryNegationOperators<SELF, SELF>,
     IAdditiveIdentity<SELF, SELF>,
     IAdditionOperators<SELF, DISTANCE, SELF>,
-    ISubtractionOperators<SELF, DISTANCE, SELF>
+    ISubtractionOperators<SELF, SELF, DISTANCE>
     where SELF : Locus<SELF, SCALAR, DISTANCE>
     where DISTANCE: Amount<DISTANCE, SCALAR>
 {

@@ -1,5 +1,11 @@
 namespace LanguageExt.Traits.Domain;
 
+/// <summary>
+/// Fundamental base-trait for implementing domain-types.  This is the basis for `Identifier`, `Locus`, `VectorSpace`,
+/// and `Quantity`.  It allows the derived types to be safely instantiated from simpler values, like `int`, `float`, etc.
+/// And, to be converted back from the domain-type to the simpler representation.
+/// </summary>
+/// <typeparam name="SELF">Type implementing this interface</typeparam>
 public interface DomainType<SELF> 
     where SELF : DomainType<SELF>;
     

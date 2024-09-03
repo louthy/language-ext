@@ -17,6 +17,7 @@ using System.Reactive.Linq;
 using LanguageExt.Sys.Live;
 using System.Threading.Tasks;
 using LanguageExt.Common;
+using LanguageExt.Traits.Domain;
 using TestBed;
 using static LanguageExt.Prelude;
 using static LanguageExt.Pipes.Proxy;
