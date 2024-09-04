@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
 
-namespace LanguageExt;
+namespace LanguageExt.Async;
 
 /// <summary>
 /// The `Async` module helps transition away from the `Task` / `async` / `await` world and into one
