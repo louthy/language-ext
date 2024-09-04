@@ -62,23 +62,5 @@ public partial class IO :
         fail<A>(error);
 
     static K<IO, A> Fallible<Error, IO>.Catch<A>(K<IO, A> fa, Func<Error, bool> Predicate, Func<Error, K<IO, A>> Fail) =>
-        new IO<A>(env =>
-            {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-                var lenv = env.LocalResources; 
-                try
-                {
-                    var r = fa.Run(lenv);
-                    env.Resources.Merge(lenv.Resources);
-                    return IOResponse.Complete(r);
-                }
-                catch(Exception ex)
-                {
-                    lenv.Resources.ReleaseAll().Run(env);
-                    var err = Error.New(ex);
-                    if (Predicate(err)) return Fail(err).As().runIO(env);
-                    throw;
-                }
-            });
-
+        fa.As().Catch(Predicate, Fail);
 }

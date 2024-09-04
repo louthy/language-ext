@@ -12,6 +12,4 @@ namespace LanguageExt;
 /// <typeparam name="A">Bound value type</typeparam>
 public readonly record struct ForkIO<A>(
     IO<Unit> Cancel, 
-    IO<A> Await,
-    IO<Task<A>> AwaitAsync
-    );
+    IO<A> Await);

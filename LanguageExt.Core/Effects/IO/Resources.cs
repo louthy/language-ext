@@ -16,7 +16,7 @@ public class Resources : IDisposable
         this.parent = parent;
 
     public static IO<Resources> NewIO(Resources? parent) => 
-        new (_ => IOResponse.Complete(new Resources(parent)));
+        IO.lift(_ => new Resources(parent));
     
     public void Dispose()
     {
@@ -41,7 +41,7 @@ public class Resources : IDisposable
     }
 
     public IO<Unit> DisposeIO() =>
-        new (_ => IOResponse.Complete(DisposeU()));
+        IO.lift(_ => DisposeU());
 
     public Unit Acquire<A>(A value) where A : IDisposable
     {

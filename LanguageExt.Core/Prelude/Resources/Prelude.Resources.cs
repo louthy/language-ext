@@ -134,7 +134,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(Opt.Default)]
     public static IO<Unit> release<A>(A value) =>
-        new(env => env.Resources.Release(value).runIO(env));
+        IO.lift(env => env.Resources.Release(value).Run(env));
 
     /// <summary>
     /// The IO monad tracks resources automatically, this creates a local resource environment

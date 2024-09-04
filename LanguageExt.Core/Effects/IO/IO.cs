@@ -26,8 +26,7 @@ namespace LanguageExt;
 /// </summary>
 /// <param name="runIO">The lifted thunk that is the IO operation</param>
 /// <typeparam name="A">Bound value</typeparam>
-public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) : 
-    Fallible<IO<A>, IO, Error, A>
+public abstract record IO<A> : Fallible<IO<A>, IO, Error, A>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -35,13 +34,13 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     //
     
     public static IO<A> pure(A value) => 
-        new(_ => IOResponse.Complete(value));
+        new IOPure<A>(value);
     
     public static IO<A> fail(Error value) => 
-        new(_ => value.Throw<IOResponse<A>>());
+        new IOSync<A>(_ => value.Throw<IOResponse<A>>());
 
     public static readonly IO<A> Empty =
-        new(_ => throw new ManyExceptions([]));
+        new IOSync<A>(_ => throw new ManyExceptions([]));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -49,34 +48,35 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     //
     
     public static IO<A> Lift(Func<A> f) =>
-        new(_ => IOResponse.Complete(f()));
+        new IOSync<A>(_ => IOResponse.Complete(f()));
 
     public static IO<A> Lift(Func<IOResponse<A>> f) =>
-        new(_ => f());
+        new IOSync<A>(_ => f());
 
     public static IO<A> Lift(Func<EnvIO, A> f) =>
-        new(e => IOResponse.Complete(f(e)));
+        new IOSync<A>(e => IOResponse.Complete(f(e)));
 
     public static IO<A> Lift(Func<EnvIO, IOResponse<A>> f) =>
-        new(f);
+        new IOSync<A>(f);
+
+    public static IO<A> LiftAsync(Func<Task<IOResponse<A>>> f) =>
+        new IOAsync<A>(async _ => await f());
+
+    public static IO<A> LiftAsync(Func<EnvIO, Task<IOResponse<A>>> f) =>
+        new IOAsync<A>(f);
 
     public static IO<A> LiftAsync(Func<Task<A>> f) =>
-        new(env => Run(_ => f(), env));
+        new IOAsync<A>(async _ => IOResponse.Complete(await f()));
 
     public static IO<A> LiftAsync(Func<EnvIO, Task<A>> f) =>
-        new(env => Run(f, env));
+        new IOAsync<A>(async env => IOResponse.Complete(await f(env)));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Functor
     //
 
-    public IO<B> Map<B>(Func<A, B> f) =>
-        new(e =>
-            {
-                if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
-                return IOResponse.Complete(f(Run(e)));
-            });
+    public abstract IO<B> Map<B>(Func<A, B> f);
 
     public IO<A> MapFail(Func<Error, Error> f) => 
         this.Catch(f).As();
@@ -186,29 +186,11 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
         Func<(S State, A Value), bool> predicate) =>
         FoldUntil(Schedule.Forever, initialState, folder, predicate);
 
-    public IO<S> FoldUntil<S>(
+    public abstract IO<S> FoldUntil<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
-        Func<(S State, A Value), bool> predicate) =>
-        new(envIO =>
-            {
-                if (envIO.Token.IsCancellationRequested) throw new TaskCanceledException();
-                var r     = Run(envIO);
-                var state = folder(initialState, r);
-                if (predicate((state, r))) return IOResponse.Complete(state);
-
-                var token = envIO.Token;
-                foreach (var delay in schedule.Run())
-                {
-                    IO.yieldFor(delay, token);
-                    r     = Run(envIO);
-                    state = folder(state, r);
-                    if (predicate((state, r))) return IOResponse.Complete(state);
-                }
-
-                return IOResponse.Complete(state);
-            });
+        Func<(S State, A Value), bool> predicate);
     
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -220,76 +202,20 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     /// of the IO chain (i.e. the one embedded within the `EnvIO` environment that is passed through
     /// all IO computations)
     /// </summary>
-    public IO<A> Post() =>
-        new(env =>
-            {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-                if (env.SyncContext is null) return runIO(env);
-
-                A?         value   = default;
-                Exception? error   = default;
-                var        waiting = true;
-
-                try
-                {
-                    env.SyncContext.Post(_ =>
-                                         {
-                                             try
-                                             {
-                                                 value = Run(env);
-                                             }
-                                             catch (Exception e)
-                                             {
-                                                 error = e;
-                                             }
-                                             finally
-                                             {
-                                                 waiting = false;
-                                             }
-                                         },
-                                         null);
-                }
-                catch(Exception)
-                {
-                    waiting = false;
-                    throw;
-                }
-
-                SpinWait sw = default;
-                while (waiting && !env.Token.IsCancellationRequested)
-                {
-                    sw.SpinOnce();
-                }
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-                if (error is not null) error.Rethrow<A>();
-                return IOResponse.Complete(value!);
-            });
+    public abstract IO<A> Post();
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Monad
     //
 
-    public IO<B> Bind<B>(Func<A, IO<B>> f) =>
-        new(e =>
-            {
-                if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
-                return IOResponse.Recurse(f(Run(e)));
-            });
+    public abstract IO<B> Bind<B>(Func<A, IO<B>> f);
 
     public IO<B> Bind<B>(Func<A, K<IO, B>> f) =>
-        new(e =>
-            {
-                if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
-                return IOResponse.Recurse(f(Run(e)).As());
-            });
+        Bind(x => f(x).As());
 
     public IO<B> Bind<B>(Func<A, Pure<B>> f) =>
-        new(e =>
-            {
-                if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
-                return IOResponse.Complete(f(Run(e)).Value);
-            });
+        Map(x => f(x).Value);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -424,12 +350,7 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     /// </summary>
     [Pure]
     [MethodImpl(Opt.Default)]
-    public IO<A> Bracket() =>
-        new(env =>
-            {
-                using var lenv = env.LocalResources;
-                return IOResponse.Complete(Run(lenv));
-            });
+    public abstract IO<A> Bracket();
 
     /// <summary>
     /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
@@ -439,18 +360,7 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     /// <param name="Use">Function to use the acquired resource</param>
     /// <param name="Finally">Function to invoke to release the resource</param>
     public IO<C> Bracket<B, C>(Func<A, IO<C>> Use, Func<A, IO<B>> Finally) =>
-        new(env =>
-            {
-                var x = Run(env);
-                try
-                {
-                    return IOResponse.Complete(Use(x).Run(env));
-                }
-                finally
-                {
-                    Finally(x).Run(env)?.Ignore();
-                }
-            });
+        Bracket(Use, IO<C>.fail, Finally);
 
     /// <summary>
     /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
@@ -460,23 +370,7 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     /// <param name="Use">Function to use the acquired resource</param>
     /// <param name="Catch">Function to run to handle any exceptions</param>
     /// <param name="Finally">Function to invoke to release the resource</param>
-    public IO<C> Bracket<B, C>(Func<A, IO<C>> Use, Func<Error, IO<C>> Catch, Func<A, IO<B>> Finally) =>
-        new(env =>
-            {
-                var x = Run(env);
-                try
-                {
-                    return IOResponse.Complete(Use(x).Run(env));
-                }
-                catch (Exception e)
-                {
-                    return IOResponse.Complete(Catch(e).Run(env));
-                }
-                finally
-                {
-                    Finally(x).Run(env)?.Ignore();
-                }
-            });
+    public abstract IO<C> Bracket<B, C>(Func<A, IO<C>> Use, Func<Error, IO<C>> Catch, Func<A, IO<B>> Finally);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -517,21 +411,7 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     /// <summary>
     /// Create a local cancellation environment
     /// </summary>
-    public IO<A> Local() =>
-        new(env =>
-            {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-
-                // Create a new local token-source with its own cancellation token
-                using var tsrc = new CancellationTokenSource();
-                var       tok  = tsrc.Token;
-
-                // If the parent cancels, we should too
-                using var reg = env.Token.Register(() => tsrc.Cancel());
-
-                var env1 = EnvIO.New(env.Resources, tok, tsrc, env.SyncContext);
-                return IOResponse.Complete(Run(env1));
-            });    
+    public abstract IO<A> Local();    
     
     /// <summary>
     /// Queues the specified work to run on the thread pool  
@@ -544,73 +424,7 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     /// </remarks>
     /// <param name="timeout">Optional timeout</param>
     /// <returns>`Fork` record that contains members for cancellation and optional awaiting</returns>
-    public IO<ForkIO<A>> Fork(Option<TimeSpan> timeout = default) =>
-        IO<ForkIO<A>>.Lift(
-            env =>
-            {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-                
-                // Create a new local token-source with its own cancellation token
-                var tsrc = new CancellationTokenSource();
-                var token = tsrc.Token;
-
-                // If the parent cancels, we should too
-                var reg = env.Token.Register(() => tsrc.Cancel());
-
-                // Run the transducer asynchronously
-                var cleanup = new CleanUp(tsrc, reg);
-
-                var parentResources = env.Resources;
-
-                var task = Task.Factory.StartNew(
-                    () =>
-                    {
-                        var forkedResources = new Resources(parentResources);
-                        try
-                        {
-                            return runIO(EnvIO.New(forkedResources, token, tsrc, env.SyncContext));
-                        }
-                        finally
-                        {
-                            forkedResources.Dispose();
-                            cleanup.Dispose();
-                        }
-                    }, TaskCreationOptions.LongRunning);
-
-                return new ForkIO<A>(
-                        IO<Unit>.Lift(() => {
-                                          try
-                                          {
-                                              tsrc.Cancel();
-                                          }
-                                          catch(ObjectDisposedException)
-                                          {
-                                              // ignore if already cancelled
-                                          }
-                                          return IOResponse.Complete<Unit>(default); 
-                                      }),
-                        Lift(e => AwaitTask(task, e, token, tsrc, timeout)),
-                        IO<Task<A>>.Lift(e => AwaitAsync(task, e, token, tsrc, timeout))
-                        );
-            });
-    
-    /// <summary>
-    /// Run the `IO` monad to get its result
-    /// </summary>
-    /// <remarks>
-    /// Any lifted asynchronous operations will yield to the thread-scheduler, allowing other queued
-    /// operations to run concurrently.  So, even though this call isn't awaitable it still plays
-    /// nicely and doesn't block the thread.
-    /// </remarks>
-    /// <remarks>
-    /// NOTE: An exception will always be thrown if the IO operation fails.  Lift this monad into
-    /// other error handling monads to leverage more declarative error handling. 
-    /// </remarks>
-    /// <returns>Result of the IO operation</returns>
-    /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
-    /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
-    public A Run() =>
-       Run(EnvIO.New());
+    public abstract IO<ForkIO<A>> Fork(Option<TimeSpan> timeout = default);
 
     /// <summary>
     /// Run the `IO` monad to get its result
@@ -629,12 +443,7 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     /// <returns>Result of the IO operation</returns>
     /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
     /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
-    public Task<A> RunAsync(EnvIO? envIO = null)
-    {
-        envIO ??= EnvIO.New();
-        var f = Fork().Run(envIO);
-        return f.AwaitAsync.Run(envIO);
-    }
+    public abstract ValueTask<A> RunAsync(EnvIO? envIO = null);
 
     /// <summary>
     /// Run the `IO` monad to get its result
@@ -652,23 +461,7 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     /// <returns>Result of the IO operation</returns>
     /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
     /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
-    public A Run(EnvIO env)
-    {
-        var ma = this;
-        while (!env.Token.IsCancellationRequested)
-        {
-            switch (ma.runIO(env))
-            {
-                case CompleteIO<A> (var x):
-                    return x;
-
-                case RecurseIO<A>(var io):
-                    ma = io;
-                    break;
-            }
-        }
-        throw new TaskCanceledException();
-    }
+    public abstract A Run(EnvIO? envIO = null);
 
     /// <summary>
     /// Run the `IO` monad to get its result.  Differs from `Run` in that it catches any exceptions and turns
@@ -691,7 +484,7 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     /// </remarks>
     /// <returns>The result of the last invocation</returns>
     public IO<A> Repeat() =>
-        RepeatUntil(Schedule.Forever, _ => false);
+        RepeatUntil(_ => false);
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or an error occurs  
@@ -715,7 +508,7 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     /// <param name="predicate">Keep repeating while this predicate returns `true` for each computed value</param>
     /// <returns>The result of the last invocation</returns>
     public IO<A> RepeatWhile(Func<A, bool> predicate) => 
-        RepeatUntil(Schedule.Forever, Prelude.not(predicate));
+        RepeatUntil(Prelude.not(predicate));
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns false, or an error occurs
@@ -741,9 +534,8 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     /// </remarks>
     /// <param name="predicate">Keep repeating until this predicate returns `true` for each computed value</param>
     /// <returns>The result of the last invocation</returns>
-    public IO<A> RepeatUntil(
-        Func<A, bool> predicate) =>
-        RepeatUntil(Schedule.Forever, predicate);
+    public abstract IO<A> RepeatUntil(
+        Func<A, bool> predicate);
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns true, or an error occurs
@@ -755,42 +547,9 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     /// <param name="schedule">Scheduler strategy for repeating</param>
     /// <param name="predicate">Keep repeating until this predicate returns `true` for each computed value</param>
     /// <returns>The result of the last invocation</returns>
-    public IO<A> RepeatUntil(
+    public abstract IO<A> RepeatUntil(
         Schedule schedule,
-        Func<A, bool> predicate) =>
-        new(env =>
-            {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-                var token = env.Token;
-                var lenv  = env.LocalResources;
-                try
-                {
-                    var result = Run(lenv);
-                    
-                    // free any resources acquired during a repeat
-                    lenv.Resources.ReleaseAll().Run(env);
-                    
-                    if (predicate(result)) return IOResponse.Complete(result);
-
-                    foreach (var delay in schedule.Run())
-                    {
-                        IO.yieldFor(delay, token);
-                        result = Run(lenv);
-                        
-                        // free any resources acquired during a repeat
-                        lenv.Resources.ReleaseAll().Run(env);
-                        
-                        if (predicate(result)) return IOResponse.Complete(result);
-                    }
-
-                    return IOResponse.Complete(result);
-                }
-                finally
-                {
-                    // free any resources acquired during a repeat
-                    lenv.Resources.ReleaseAll().Run(env);
-                }
-            });
+        Func<A, bool> predicate);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -809,7 +568,7 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
     public IO<A> Retry() =>
-        RetryUntil(Schedule.Forever, _ => false);
+        RetryUntil(_ => false);
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -838,7 +597,7 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
     public IO<A> RetryWhile(Func<Error, bool> predicate) => 
-        RetryUntil(Schedule.Forever, Prelude.not(predicate));
+        RetryUntil(Prelude.not(predicate));
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -869,9 +628,8 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     /// So, successive retries will not grow the acquired resources on each retry iteration.  Any successful operation that
     /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
-    public IO<A> RetryUntil(
-        Func<Error, bool> predicate) =>
-        RetryUntil(Schedule.Forever, predicate);
+    public abstract IO<A> RetryUntil(
+        Func<Error, bool> predicate);
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -885,160 +643,19 @@ public record IO<A>(Func<EnvIO, IOResponse<A>> runIO) :
     /// So, successive retries will not grow the acquired resources on each retry iteration.  Any successful operation that
     /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
-    public IO<A> RetryUntil(
+    public abstract IO<A> RetryUntil(
         Schedule schedule,
-        Func<Error, bool> predicate) =>
-        new(env =>
-            {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-                var token     = env.Token;
-                var lastError = BottomException.Default as Exception;
-                var lenv      = env.LocalResources;
-                try
-                {
-                    var r = Run(lenv);
-                    
-                    // Any resources that were acquired should be propagated through to the `env`
-                    env.Resources.Merge(lenv.Resources);
-
-                    return IOResponse.Complete(r);
-                }
-                catch (Exception e)
-                {
-                    // Any resources created whilst trying should be removed for the retry
-                    lenv.Resources.ReleaseAll().Run(env);
-                    
-                    if (predicate(Error.New(e))) throw;
-                    lastError = e;
-                }
-                
-                foreach(var delay in  schedule.Run())
-                {
-                    IO.yieldFor(delay, token);
-                    try
-                    {
-                        var r = Run(lenv);
-                        
-                        // Any resources that were acquired should be propagated through to the `env`
-                        env.Resources.Merge(lenv.Resources);
-
-                        return IOResponse.Complete(r);
-                    }
-                    catch (Exception e)
-                    {
-                        // Any resources created whilst trying should be removed for the retry
-                        lenv.Resources.ReleaseAll().Run(env);
-                        
-                        if (predicate(Error.New(e))) throw;
-                        lastError = e;
-                    }
-                }
-                return lastError.Rethrow<IOResponse<A>>();
-            });
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Internal
-    //
+        Func<Error, bool> predicate);
 
     /// <summary>
-    /// Internal running of tasks without using the async/await machinery but still
-    /// yielding the thread for concurrency.
+    /// Catches any error thrown by invoking this IO computation, passes it through a predicate,
+    /// and if that returns true, returns the result of invoking the Fail function, otherwise
+    /// this is returned.
     /// </summary>
-    /// <exception cref="TaskCanceledException"></exception>
-    /// <exception cref="BottomException"></exception>
-    static IOResponse<A> Run(Func<EnvIO, Task<A>> runIO, EnvIO env)
-    {
-        var token = env.Token;
-        if (token.IsCancellationRequested) throw new TaskCanceledException();
-
-        // Launch the task
-        #pragma warning disable CA2012
-        var t = runIO(env);
-        #pragma warning restore CA2012
-
-        // Spin waiting for the task to complete or be cancelled
-        SpinWait sw = default;
-        while (!t.IsCompleted && !token.IsCancellationRequested)
-        {
-            sw.SpinOnce();
-        }
-
-        if (t.IsCanceled || token.IsCancellationRequested)
-        {
-            throw new TaskCanceledException();
-        }
-
-        if (t.IsFaulted)
-        {
-            return t.Exception is Exception e
-                       ? e.Rethrow<IOResponse<A>>()
-                       : throw new BottomException();
-        }
-
-        return IOResponse.Complete(t.Result);
-    }
+    /// <param name="Predicate">Predicate</param>
+    /// <param name="Fail">Fail functions</param>
+    public abstract IO<A> Catch(Func<Error, bool> Predicate, Func<Error, K<IO, A>> Fail);
     
-    IOResponse<A> AwaitTask(Task<IOResponse<A>> t, EnvIO envIO, CancellationToken token, CancellationTokenSource source, Option<TimeSpan> timeout)
-    {
-        if (envIO.Token.IsCancellationRequested) throw new TaskCanceledException();
-        if (token.IsCancellationRequested) throw new TaskCanceledException();
-        var timedOut = timeout.Map(t => DateTimeOffset.Now.Add(t));
-        
-        // Spin waiting for the task to complete or be cancelled
-        SpinWait sw = default;
-        while (!t.IsCompleted && !token.IsCancellationRequested && !envIO.Token.IsCancellationRequested)
-        {
-            sw.SpinOnce();
-            if (timedOut.IsSome)
-            {
-                if (DateTimeOffset.Now >= timedOut.Value)
-                {
-                    try { source.Cancel(); }
-                    catch(ObjectDisposedException) { /* ignore if already cancelled */ }
-                    throw Exceptions.TimedOut;
-                }
-            }
-        }
-
-        if (t.IsCanceled || token.IsCancellationRequested || envIO.Token.IsCancellationRequested)
-        {
-            throw new TaskCanceledException();
-        }
-
-        if (t.IsFaulted)
-        {
-            return t.Exception is Exception e
-                       ? e.Rethrow<IOResponse<A>>()
-                       : throw new BottomException();
-        }
-        return t.Result;
-    }
-    
-    async Task<A> AwaitAsync(Task<IOResponse<A>> t, EnvIO envIO, CancellationToken token, CancellationTokenSource source, Option<TimeSpan> timeout)
-    {
-        var response = await t;
-        switch (response)
-        {
-            case CompleteIO<A> (var value): return value;
-            case RecurseIO<A> (var ma): return ma.Run();
-        }
-        throw new NotSupportedException();
-    }
-    
-    record CleanUp(CancellationTokenSource Src, CancellationTokenRegistration Reg) : IDisposable
-    {
-        volatile int disposed;
-        public void Dispose()
-        {
-            if (Interlocked.Exchange(ref disposed, 1) == 0)
-            {
-                try{Src.Dispose();} catch { /* not important */ } 
-                try{Reg.Dispose();} catch { /* not important */ }
-            }
-        }
-    }
-
     public override string ToString() => 
         "IO";
 }

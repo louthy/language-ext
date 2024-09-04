@@ -8,16 +8,10 @@ app.MapGet("/sync", () =>
                         var effect = liftIO(async () =>
                                             {
                                                 await Task.Delay(1000).ConfigureAwait(false);
-                                                return unit;
+                                                return "Hello, World";
                                             });
 
-                        // TODO: This is 5x slower than the RunAsync version below
-                        // TODO: Make it faster
-                        var computation = from f in effect.Fork()
-                                          from r in f.Await
-                                          select r;
-
-                        return computation.Run();
+                        return effect.Run();
                     });
 
 app.MapGet("/async", async () =>
@@ -25,7 +19,7 @@ app.MapGet("/async", async () =>
                          var effect = liftIO(async () =>
                                              {
                                                  await Task.Delay(1000).ConfigureAwait(false);
-                                                 return unit;
+                                                 return "Hello, World";
                                              });
 
                          return await effect.RunAsync();

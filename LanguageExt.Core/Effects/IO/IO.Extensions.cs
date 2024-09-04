@@ -36,12 +36,12 @@ public static partial class IOExtensions
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Task<A> RunAsync<A>(this K<IO, A> ma, EnvIO envIO) =>
+    public static ValueTask<A> RunAsync<A>(this K<IO, A> ma, EnvIO envIO) =>
         ma.As().RunAsync(envIO);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Task<A> RunAsync<A>(this K<IO, A> ma) =>
+    public static ValueTask<A> RunAsync<A>(this K<IO, A> ma) =>
         ma.As().RunAsync();
     
     /// <summary>

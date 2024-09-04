@@ -103,7 +103,7 @@ public static partial class EffExtensions
     /// `Run` will capture any errors and return a `Fin` type.
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
-    public static Task<A> RunUnsafeAsync<A>(this K<Eff, A> ma) =>
+    public static ValueTask<A> RunUnsafeAsync<A>(this K<Eff, A> ma) =>
         ma.As().effect.RunUnsafeAsync(default);
 
     /// <summary>
@@ -114,7 +114,7 @@ public static partial class EffExtensions
     /// `Run` will capture any errors and return a `Fin` type.
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
-    public static Task<A> RunUnsafeAsync<A>(this K<Eff, A> ma, EnvIO envIO) =>
+    public static ValueTask<A> RunUnsafeAsync<A>(this K<Eff, A> ma, EnvIO envIO) =>
         ma.As().effect.RunUnsafeAsync(default, envIO);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
