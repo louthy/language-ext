@@ -11,16 +11,13 @@ var sim = (string name) =>
                                           var response = await Http.Send(http, request).ConfigureAwait(false);
                                           return response;
                                       })
-                      .WithoutWarmUp()
+                    //.WithoutWarmUp()
                       .WithLoadSimulations(
                            Simulation.Inject(rate: 500,
                                              interval: TimeSpan.FromSeconds(1),
                                              during: TimeSpan.FromSeconds(30)));
 
-var fork = sim("fork");
-var sync = sim("sync");
-var async = sim("async");
-
-NBomberRunner.RegisterScenarios(fork).Run();
-NBomberRunner.RegisterScenarios(sync).Run();
-NBomberRunner.RegisterScenarios(async).Run();
+NBomberRunner.RegisterScenarios(sim("async")).Run();
+NBomberRunner.RegisterScenarios(sim("sync")).Run();
+NBomberRunner.RegisterScenarios(sim("fork-async")).Run();
+NBomberRunner.RegisterScenarios(sim("fork-sync")).Run();
