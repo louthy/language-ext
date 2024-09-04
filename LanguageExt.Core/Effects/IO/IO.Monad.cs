@@ -12,7 +12,7 @@ public partial class IO :
     Alternative<IO>
 {
     public static IO<A> pure<A>(A value) => 
-        IO<A>.pure(value);
+        IO<A>.Pure(value);
     
     static K<IO, B> Monad<IO>.Bind<A, B>(K<IO, A> ma, Func<A, K<IO, B>> f) =>
         ma.As().Bind(f);
@@ -21,7 +21,7 @@ public partial class IO :
         ma.As().Map(f);
 
     static K<IO, A> Applicative<IO>.Pure<A>(A value) => 
-        IO<A>.pure(value);
+        IO<A>.Pure(value);
 
     static K<IO, B> Applicative<IO>.Apply<A, B>(K<IO, Func<A, B>> mf, K<IO, A> ma) => 
         mf.As().Bind(ma.As().Map);
@@ -30,14 +30,14 @@ public partial class IO :
         ma.As().Bind(_ => mb);
     
     static K<IO, A> Applicative<IO>.Actions<A>(IEnumerable<K<IO, A>> fas) =>
-        IO<A>.Lift(
-            envIO =>
+        IO<A>.LiftAsync(
+            async envIO =>
             {
                 A? rs = default;
                 foreach (var kfa in fas)
                 {
                     var fa = kfa.As();
-                    rs = fa.Run(envIO);
+                    rs = await fa.RunAsync(envIO);
                 }
                 if (rs is null) throw Exceptions.SequenceEmpty;
                 return rs;

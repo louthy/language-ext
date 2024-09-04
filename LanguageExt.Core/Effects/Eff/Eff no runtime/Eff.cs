@@ -757,7 +757,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
         select r;
 
     internal static ReaderT<A, IO, X> fail<X>(Error value) =>
-        ReaderT.liftIO<A, IO, X>(IO<X>.fail(value));
+        ReaderT.liftIO<A, IO, X>(IO<X>.Fail(value));
 
     internal static ReaderT<A, IO, X> pure<X>(X value) =>
         ReaderT<A, IO, X>.Pure(value);

@@ -285,6 +285,9 @@ record IOAsync<A>(Func<EnvIO, Task<IOResponse<A>>> runIO) : IO<A>
 
                 case RecurseIO<A>(IOPure<A> io):
                     return io.Value;
+                
+                case RecurseIO<A>(IOFail<A> io):
+                    return io.Error.ToErrorException().Rethrow<A>();
 
                 case RecurseIO<A>(IOSync<A> io):
                     return await io.RunAsync(env);

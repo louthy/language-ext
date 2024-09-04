@@ -240,7 +240,10 @@ public record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
 
                 case RecurseIO<A>(IOPure<A> io):
                     return io.Value;
-
+                
+                case RecurseIO<A>(IOFail<A> io):
+                    return io.Error.ToErrorException().Rethrow<A>();
+                
                 case RecurseIO<A>(IOSync<A> io):
                     response = io.runIO(envIO);
                     break;

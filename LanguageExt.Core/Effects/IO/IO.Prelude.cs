@@ -33,7 +33,7 @@ public static partial class Prelude
     /// Always yields a `Unit` value
     /// </summary>
     public static readonly IO<Unit> unitIO = 
-        IO<Unit>.pure(default);
+        IO<Unit>.Pure(default);
     
     /// <summary>
     /// Yields the IO environment
@@ -177,7 +177,6 @@ public static partial class Prelude
     public static IO<Seq<A>> awaitAll<A>(Seq<IO<ForkIO<A>>> mfs) =>
         new IOAsync<Seq<A>>(async eio =>
                             {
-                                // Run the IO<ForkIO> to get the ForkIO structures, this should happen immediately.
                                 var forks  = mfs.Map(mf => mf.Run(eio));
                                 var result = await Task.WhenAll(forks.Map(f => f.Await.RunAsync(eio).AsTask()));
                                 return IOResponse.Complete(result.ToSeqUnsafe());
@@ -313,7 +312,6 @@ public static partial class Prelude
     public static IO<A> awaitAny<A>(Seq<IO<ForkIO<A>>> mfs) =>
         new IOAsync<A>(async eio =>
                        {
-                           // Run the IO<ForkIO> to get the ForkIO structures, this should happen immediately.
                            var forks  = mfs.Map(mf => mf.Run(eio));
                            var result = await await Task.WhenAny(forks.Map(f => f.Await.RunAsync(eio).AsTask()));
                            return IOResponse.Complete(result);

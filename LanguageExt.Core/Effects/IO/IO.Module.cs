@@ -18,7 +18,7 @@ public partial class IO
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>IO in a failed state.  Always yields an error.</returns>
     public static IO<A> fail<A>(Error value) =>
-        IO<A>.fail(value);
+        IO<A>.Fail(value);
     
     /// <summary>
     /// Put the IO into a failure state
@@ -27,7 +27,7 @@ public partial class IO
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>IO in a failed state.  Always yields an error.</returns>
     public static IO<A> fail<A>(string value) =>
-        IO<A>.fail(Error.New(value));
+        IO<A>.Fail(Error.New(value));
     
     /// <summary>
     /// Lift an action into the IO monad
@@ -60,9 +60,9 @@ public partial class IO
     public static IO<A> lift<A>(Either<Error, A> ma) =>
         ma switch
         {
-            Either.Right<Error, A> (var r) => IO<A>.pure(r),
-            Either.Left<Error, A> (var l)  => IO<A>.fail(l),
-            _                              => IO<A>.fail(Errors.Bottom)
+            Either.Right<Error, A> (var r) => IO<A>.Pure(r),
+            Either.Left<Error, A> (var l)  => IO<A>.Fail(l),
+            _                              => IO<A>.Fail(Errors.Bottom)
         };
     
     public static IO<A> lift<A>(Fin<A> ma) =>
@@ -171,7 +171,7 @@ public partial class IO
     [Pure]
     [MethodImpl(Opt.Default)]
     public static IO<Unit> yield(double milliseconds) =>
-        IO<Unit>.Lift(env => yieldFor(new Duration(milliseconds), env.Token));
+        IO<Unit>.LiftAsync(env => yieldFor(new Duration(milliseconds), env.Token));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -182,17 +182,9 @@ public partial class IO
     /// Yields the thread for the `Duration` specified allowing for concurrency
     /// on the current thread without having to use async/await
     /// </summary>
-    internal static Unit yieldFor(Duration d, CancellationToken token)
+    internal static async Task<Unit> yieldFor(Duration d, CancellationToken token)
     {
-        if (d == Duration.Zero) return default;
-        var      start = TimeProvider.System.GetTimestamp();
-        var      span  = (TimeSpan)d;
-        SpinWait sw    = default;
-        do
-        {
-            if (token.IsCancellationRequested) throw new TaskCanceledException();
-            if (TimeProvider.System.GetElapsedTime(start) >= span) return default;
-            sw.SpinOnce();
-        } while (true);
+        await Task.Delay((TimeSpan)d, token);
+        return unit;
     }
 }

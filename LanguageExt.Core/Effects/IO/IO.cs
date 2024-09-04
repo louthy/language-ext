@@ -33,14 +33,14 @@ public abstract record IO<A> : Fallible<IO<A>, IO, Error, A>
     //  Construction
     //
     
-    public static IO<A> pure(A value) => 
+    public static IO<A> Pure(A value) => 
         new IOPure<A>(value);
     
-    public static IO<A> fail(Error value) => 
-        new IOSync<A>(_ => value.Throw<IOResponse<A>>());
+    public static IO<A> Fail(Error value) => 
+        new IOFail<A>(value);
 
     public static readonly IO<A> Empty =
-        new IOSync<A>(_ => throw new ManyExceptions([]));
+        new IOFail<A>(Errors.None);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -360,7 +360,7 @@ public abstract record IO<A> : Fallible<IO<A>, IO, Error, A>
     /// <param name="Use">Function to use the acquired resource</param>
     /// <param name="Finally">Function to invoke to release the resource</param>
     public IO<C> Bracket<B, C>(Func<A, IO<C>> Use, Func<A, IO<B>> Finally) =>
-        Bracket(Use, IO<C>.fail, Finally);
+        Bracket(Use, IO<C>.Fail, Finally);
 
     /// <summary>
     /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
@@ -378,7 +378,7 @@ public abstract record IO<A> : Fallible<IO<A>, IO, Error, A>
     //
     
     public static implicit operator IO<A>(Pure<A> ma) =>
-        pure(ma.Value);
+        Pure(ma.Value);
 
     public static implicit operator IO<A>(Error error) =>
         Lift(_ => error.Throw<IOResponse<A>>());
