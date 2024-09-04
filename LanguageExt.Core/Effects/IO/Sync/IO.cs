@@ -209,6 +209,7 @@ public record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
         }
         throw new TaskCanceledException();
     }
+
     /// <summary>
     /// Run the `IO` monad to get its result
     /// </summary>
@@ -225,8 +226,36 @@ public record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
     /// <returns>Result of the IO operation</returns>
     /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
     /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
-    public override A Run(EnvIO? envIO = null) =>
-        RunAsync(envIO).GetAwaiter().GetResult();
+    public override A Run(EnvIO? envIO = null)
+    {
+        if(envIO?.Token.IsCancellationRequested ?? false) throw new TaskCanceledException();
+        envIO ??= EnvIO.New();
+        var response = runIO(envIO);
+        while (!envIO.Token.IsCancellationRequested)
+        {
+            switch (response)
+            {
+                case CompleteIO<A> (var x):
+                    return x;
+
+                case RecurseIO<A>(IOPure<A> io):
+                    return io.Value;
+
+                case RecurseIO<A>(IOSync<A> io):
+                    response = io.runIO(envIO);
+                    break;
+
+                case RecurseIO<A>(IOAsync<A> io):
+                    // Switch to the async path for the remainder of the computation
+                    return io.RunAsync(envIO).GetAwaiter().GetResult();
+                
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+        throw new TaskCanceledException();
+
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
