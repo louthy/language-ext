@@ -18,8 +18,8 @@
         <TargetFramework>net8.0</TargetFramework>
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
         <OutputType>library</OutputType>
-        <AssemblyVersion>4.0.0.0</AssemblyVersion>
-        <FileVersion>4.0.0.0</FileVersion>
+        <AssemblyVersion>5.0.0.0</AssemblyVersion>
+        <FileVersion>5.0.0.0</FileVersion>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 

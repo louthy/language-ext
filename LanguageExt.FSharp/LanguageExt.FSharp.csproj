@@ -23,8 +23,8 @@
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
         <OutputType>library</OutputType>
-        <AssemblyVersion>4.0.0.0</AssemblyVersion>
-        <FileVersion>4.0.0.0</FileVersion>
+        <AssemblyVersion>5.0.0.0</AssemblyVersion>
+        <FileVersion>5.0.0.0</FileVersion>
         <LangVersion>default</LangVersion>
     </PropertyGroup>
     <ItemGroup>
