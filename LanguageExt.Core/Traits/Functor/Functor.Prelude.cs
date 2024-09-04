@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics.Contracts;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -13,5 +15,13 @@ public static partial class Prelude
     /// <returns>Functor with unit bound value</returns>
     public static K<F, Unit> ignore<F, A>(K<F, A> fa)
         where F : Functor<F> =>
-        fa.Map(_ => default(Unit));
+        map(_ => default(Unit), fa);
+    
+    /// <summary>
+    /// Functor map
+    /// </summary>
+    [Pure]
+    public static K<F, B> map<F, A, B>(Func<A, B> f, K<F, A> ma) 
+        where F : Functor<F> =>
+        ma.Map(f);
 }
