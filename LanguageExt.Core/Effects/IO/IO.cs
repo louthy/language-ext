@@ -78,6 +78,9 @@ public abstract record IO<A> : Fallible<IO<A>, IO, Error, A>
 
     public abstract IO<B> Map<B>(Func<A, B> f);
 
+    public IO<B> Map<B>(B value) =>
+        Map(_ => value);
+
     public IO<A> MapFail(Func<Error, Error> f) => 
         this.Catch(f).As();
 
@@ -297,7 +300,7 @@ public abstract record IO<A> : Fallible<IO<A>, IO, Error, A>
 
     public static IO<A> operator |(IO<A> lhs, A rhs) =>
         lhs.Catch(rhs).As();
-    
+
     /// <summary>
     /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
     /// as the semicolon) in C#.

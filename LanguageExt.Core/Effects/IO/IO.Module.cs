@@ -180,7 +180,7 @@ public partial class IO
     
     /// <summary>
     /// Yields the thread for the `Duration` specified allowing for concurrency
-    /// on the current thread without having to use async/await
+    /// on the current thread 
     /// </summary>
     internal static async Task<Unit> yieldFor(Duration d, CancellationToken token)
     {

@@ -61,7 +61,7 @@ record IOAsync<A>(Func<EnvIO, Task<IOResponse<A>>> runIO) : IO<A>
                 var token = envIO.Token;
                 foreach (var delay in schedule.Run())
                 {
-                    IO.yieldFor(delay, token);
+                    await IO.yieldFor(delay, token);
                     r     = await RunAsync(envIO);
                     state = folder(state, r);
                     if (predicate((state, r))) return IOResponse.Complete(state);
@@ -219,7 +219,7 @@ record IOAsync<A>(Func<EnvIO, Task<IOResponse<A>>> runIO) : IO<A>
                 // If the parent cancels, we should too
                 var reg = env.Token.Register(() => tsrc.Cancel());
 
-                // Run the transducer asynchronously
+                // Gather our resources for clean-up
                 var cleanup = new CleanUp(tsrc, reg);
 
                 var parentResources = env.Resources;

@@ -147,8 +147,8 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
 
                 var env1 = EnvIO.New(env.Resources, tok, tsrc, env.SyncContext);
                 return IOResponse.Complete(Run(env1));
-            });    
-    
+            });
+
     /// <summary>
     /// Queues the specified work to run on the thread pool  
     /// </summary>
@@ -161,7 +161,53 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
     /// <param name="timeout">Optional timeout</param>
     /// <returns>`Fork` record that contains members for cancellation and optional awaiting</returns>
     public override IO<ForkIO<A>> Fork(Option<TimeSpan> timeout = default) =>
-        ToAsync().Fork(timeout);
+        IO<ForkIO<A>>.Lift(
+            env =>
+            {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                
+                // Create a new local token-source with its own cancellation token
+                var tsrc  = timeout.Match(Some: to => new CancellationTokenSource(to), 
+                                          None: () => new CancellationTokenSource());
+                var token = tsrc.Token;
+
+                // If the parent cancels, we should too
+                var reg = env.Token.Register(() => tsrc.Cancel());
+
+                // Gather our resources for clean-up
+                var cleanup = new CleanUp(tsrc, reg);
+
+                var parentResources = env.Resources;
+
+                var task = Task.Factory.StartNew(
+                    () =>
+                    {
+                        var forkedResources = new Resources(parentResources);
+                        try
+                        {
+                            return runIO(EnvIO.New(forkedResources, token, tsrc, env.SyncContext));
+                        }
+                        finally
+                        {
+                            forkedResources.Dispose();
+                            cleanup.Dispose();
+                        }
+                    }, TaskCreationOptions.LongRunning);
+
+                return new ForkIO<A>(
+                        IO<Unit>.Lift(() => {
+                                          try
+                                          {
+                                              tsrc.Cancel();
+                                          }
+                                          catch(ObjectDisposedException)
+                                          {
+                                              // ignore if already cancelled
+                                          }
+                                          return IOResponse.Complete<Unit>(default); 
+                                      }),
+                        LiftAsync(e => AwaitAsync(task, e, token, tsrc)));
+            });
     
     /// <summary>
     /// Run the `IO` monad to get its result
@@ -406,4 +452,25 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
     
     public override string ToString() => 
         "IO";
+    
+    async Task<IOResponse<A>> AwaitAsync(Task<IOResponse<A>> t, EnvIO envIO, CancellationToken token, CancellationTokenSource source)
+    {
+        if (envIO.Token.IsCancellationRequested) throw new TaskCanceledException();
+        if (token.IsCancellationRequested) throw new TaskCanceledException();
+        await using var reg = envIO.Token.Register(source.Cancel);
+        return await t;        
+    }
+    
+    record CleanUp(CancellationTokenSource Src, CancellationTokenRegistration Reg) : IDisposable
+    {
+        volatile int disposed;
+        public void Dispose()
+        {
+            if (Interlocked.Exchange(ref disposed, 1) == 0)
+            {
+                try{Src.Dispose();} catch { /* not important */ } 
+                try{Reg.Dispose();} catch { /* not important */ }
+            }
+        }
+    }
 }
