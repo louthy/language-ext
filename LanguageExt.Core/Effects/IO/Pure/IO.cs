@@ -26,7 +26,7 @@ namespace LanguageExt;
 /// </summary>
 /// <param name="runIO">The lifted thunk that is the IO operation</param>
 /// <typeparam name="A">Bound value</typeparam>
-public record IOPure<A>(A Value) : IO<A>
+record IOPure<A>(A Value) : IO<A>
 {
     public IO<A> ToSync() =>
         new IOSync<A>(_ => IOResponse.Complete(Value));

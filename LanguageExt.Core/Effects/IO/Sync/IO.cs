@@ -26,7 +26,7 @@ namespace LanguageExt;
 /// </summary>
 /// <param name="runIO">The lifted thunk that is the IO operation</param>
 /// <typeparam name="A">Bound value</typeparam>
-public record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
+record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
 {
     public IO<A> ToAsync() =>
         new IOAsync<A>(e => Task.FromResult(runIO(e)));

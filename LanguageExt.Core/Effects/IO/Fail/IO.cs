@@ -26,7 +26,7 @@ namespace LanguageExt;
 /// </summary>
 /// <param name="runIO">The lifted thunk that is the IO operation</param>
 /// <typeparam name="A">Bound value</typeparam>
-public record IOFail<A>(Error Error) : IO<A>
+record IOFail<A>(Error Error) : IO<A>
 {
     public IO<A> ToSync() =>
         new IOSync<A>(_ => throw Error.ToErrorException());
