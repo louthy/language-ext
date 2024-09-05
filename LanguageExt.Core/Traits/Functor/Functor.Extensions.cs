@@ -118,6 +118,24 @@ public static partial class FunctorExtensions
     /// Functor map operation
     /// </summary>
     /// <remarks>
+    /// Invokes the functor, extracting its bound value, which it then ignores and
+    /// then maps to the default `value` provided.  This is useful for side-effecting
+    /// monads that have an effect on the world, which the result value can be ignored,
+    /// to then return a default.
+    /// </remarks>
+    /// <param name="ma">Functor to map</param>
+    /// <param name="value">Ignore the bound value and map to this</param>
+    /// <typeparam name="Fnctr">Trait of the functor</typeparam>
+    /// <returns>Mapped functor</returns>
+    public static K<Fnctr, B> Map<Fnctr, A, B>(
+        this K<Fnctr, A> ma, B value) 
+        where Fnctr : Functor<Fnctr> =>
+        Fnctr.Map(_ => value, ma);
+    
+    /// <summary>
+    /// Functor map operation
+    /// </summary>
+    /// <remarks>
     /// Unwraps the value within the functor, passes it to the map function `f` provided, and
     /// then takes the mapped value and wraps it back up into a new functor.
     /// </remarks>
