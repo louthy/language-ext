@@ -274,30 +274,39 @@ record IOAsync<A>(Func<EnvIO, Task<IOResponse<A>>> runIO) : IO<A>
     /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
     public override async ValueTask<A> RunAsync(EnvIO? env = null)
     {
+        var envRequiresDisposal = env is null;
         env ??= EnvIO.New();
-        var ma = this;
-        while (!env.Token.IsCancellationRequested)
+        try
         {
-            switch (await ma.runIO(env))
+            var ma = this;
+            while (!env.Token.IsCancellationRequested)
             {
-                case CompleteIO<A> (var x):
-                    return x;
+                switch (await ma.runIO(env))
+                {
+                    case CompleteIO<A> (var x):
+                        return x;
 
-                case RecurseIO<A>(IOPure<A> io):
-                    return io.Value;
-                
-                case RecurseIO<A>(IOFail<A> io):
-                    return io.Error.ToErrorException().Rethrow<A>();
+                    case RecurseIO<A>(IOPure<A> io):
+                        return io.Value;
 
-                case RecurseIO<A>(IOSync<A> io):
-                    return await io.RunAsync(env);
+                    case RecurseIO<A>(IOFail<A> io):
+                        return io.Error.ToErrorException().Rethrow<A>();
 
-                case RecurseIO<A>(IOAsync<A> io):
-                    ma = io;
-                    break;
+                    case RecurseIO<A>(IOSync<A> io):
+                        return await io.RunAsync(env);
+
+                    case RecurseIO<A>(IOAsync<A> io):
+                        ma = io;
+                        break;
+                }
             }
+
+            throw new TaskCanceledException();
         }
-        throw new TaskCanceledException();
+        finally
+        {
+            if(envRequiresDisposal) env.Dispose();
+        }
     }
 
     /// <summary>

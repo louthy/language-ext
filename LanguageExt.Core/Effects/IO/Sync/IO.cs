@@ -229,31 +229,43 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
     public override async ValueTask<A> RunAsync(EnvIO? envIO = null)
     {
         if(envIO?.Token.IsCancellationRequested ?? false) throw new TaskCanceledException();
+        var envRequiresDisposal = envIO is null;
         envIO ??= EnvIO.New();
-        var response = runIO(envIO);
-        while (!envIO.Token.IsCancellationRequested)
+        try
         {
-            switch (response)
+            var response = runIO(envIO);
+            while (!envIO.Token.IsCancellationRequested)
             {
-                case CompleteIO<A> (var x):
-                    return x;
+                switch (response)
+                {
+                    case CompleteIO<A> (var x):
+                        return x;
 
-                case RecurseIO<A>(IOPure<A> io):
-                    return io.Value;
+                    case RecurseIO<A>(IOPure<A> io):
+                        return io.Value;
+                    
+                    case RecurseIO<A>(IOFail<A> io):
+                        return io.Error.ToErrorException().Rethrow<A>();
 
-                case RecurseIO<A>(IOSync<A> io):
-                    response = io.runIO(envIO);
-                    break;
+                    case RecurseIO<A>(IOSync<A> io):
+                        response = io.runIO(envIO);
+                        break;
 
-                case RecurseIO<A>(IOAsync<A> io):
-                    response = await io.runIO(envIO);
-                    break;
-                
-                default:
-                    throw new NotSupportedException();
+                    case RecurseIO<A>(IOAsync<A> io):
+                        response = await io.runIO(envIO);
+                        break;
+
+                    default:
+                        throw new NotSupportedException();
+                }
             }
+
+            throw new TaskCanceledException();
         }
-        throw new TaskCanceledException();
+        finally
+        {
+            if(envRequiresDisposal) envIO.Dispose();
+        }
     }
 
     /// <summary>
@@ -275,35 +287,43 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
     public override A Run(EnvIO? envIO = null)
     {
         if(envIO?.Token.IsCancellationRequested ?? false) throw new TaskCanceledException();
+        var envRequiresDisposal = envIO is null;
         envIO ??= EnvIO.New();
-        var response = runIO(envIO);
-        while (!envIO.Token.IsCancellationRequested)
+        try
         {
-            switch (response)
+            var response = runIO(envIO);
+            while (!envIO.Token.IsCancellationRequested)
             {
-                case CompleteIO<A> (var x):
-                    return x;
+                switch (response)
+                {
+                    case CompleteIO<A> (var x):
+                        return x;
 
-                case RecurseIO<A>(IOPure<A> io):
-                    return io.Value;
-                
-                case RecurseIO<A>(IOFail<A> io):
-                    return io.Error.ToErrorException().Rethrow<A>();
-                
-                case RecurseIO<A>(IOSync<A> io):
-                    response = io.runIO(envIO);
-                    break;
+                    case RecurseIO<A>(IOPure<A> io):
+                        return io.Value;
 
-                case RecurseIO<A>(IOAsync<A> io):
-                    // Switch to the async path for the remainder of the computation
-                    return io.RunAsync(envIO).GetAwaiter().GetResult();
-                
-                default:
-                    throw new NotSupportedException();
+                    case RecurseIO<A>(IOFail<A> io):
+                        return io.Error.ToErrorException().Rethrow<A>();
+
+                    case RecurseIO<A>(IOSync<A> io):
+                        response = io.runIO(envIO);
+                        break;
+
+                    case RecurseIO<A>(IOAsync<A> io):
+                        // Switch to the async path for the remainder of the computation
+                        return io.RunAsync(envIO).GetAwaiter().GetResult();
+
+                    default:
+                        throw new NotSupportedException();
+                }
             }
-        }
-        throw new TaskCanceledException();
 
+            throw new TaskCanceledException();
+        }
+        finally
+        {
+            if(envRequiresDisposal) envIO.Dispose();
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
