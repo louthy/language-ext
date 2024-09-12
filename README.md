@@ -29,7 +29,6 @@ __Author on...__
   * [Optional and Alternative value monads](#optional-and-alternative-value-monads)
   * [State managing monads](#state-managing-monads)
   * [Parser combinators](#parser-combinators)
-  * [Type aliasing](#new-types---type-aliasing)
   * [Pretty: Produce nicely formatted text with smart layouts](#pretty)
   * [Differencing](#differencing)
   * [Traits](#traits)
