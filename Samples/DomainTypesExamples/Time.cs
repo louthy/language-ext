@@ -5,7 +5,7 @@ namespace DomainTypesExamples;
 
 public readonly record struct Time(long Timestamp) :
     DomainType<Time, long>,
-    Locus<Time, long, TimeSpan>
+    Locus<Time, TimeSpan, long>
 {
     static Fin<Time> DomainType<Time, long>.From(long repr) => 
         new Time(repr);
@@ -44,5 +44,5 @@ public readonly record struct Time(long Timestamp) :
         new (left.Timestamp + right.Step);
 
     public static TimeSpan operator -(Time left, Time right) => 
-        new (left.Timestamp - right.Timestamp);
+        new(left.Timestamp - right.Timestamp);
 }

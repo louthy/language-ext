@@ -583,6 +583,12 @@ public abstract class Fin<A> :
             : Either<Error, A>.Left(FailValue);
 
     [Pure, MethodImpl(Opt.Default)]
+    public Validation<Error, A> ToValidation() =>
+        IsSucc
+            ? Validation<Error, A>.Success(SuccValue)
+            : Validation<Error, A>.Fail(FailValue);
+
+    [Pure, MethodImpl(Opt.Default)]
     public Eff<A> ToEff() =>
         IsSucc
             ? Eff<A>.Pure(SuccValue)

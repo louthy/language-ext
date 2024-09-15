@@ -25,9 +25,9 @@ namespace LanguageExt.Traits.Domain;
 /// for a new locus type.
 /// </summary>
 /// <typeparam name="SELF">Type implementing this interface</typeparam>
-/// <typeparam name="SCALAR">Scalar units</typeparam>
 /// <typeparam name="DISTANCE">Additive units</typeparam>
-public interface Locus<SELF, SCALAR, DISTANCE> :
+/// <typeparam name="DISTANCE_SCALAR">Distance scalar units</typeparam>
+public interface Locus<SELF, DISTANCE, DISTANCE_SCALAR> :
     Identifier<SELF>,
     IComparable<SELF>,
     IComparisonOperators<SELF, SELF, bool>,
@@ -35,15 +35,5 @@ public interface Locus<SELF, SCALAR, DISTANCE> :
     IAdditiveIdentity<SELF, SELF>,
     IAdditionOperators<SELF, DISTANCE, SELF>,
     ISubtractionOperators<SELF, SELF, DISTANCE>
-    where SELF : Locus<SELF, SCALAR, DISTANCE>
-    where DISTANCE: Amount<DISTANCE, SCALAR>
-{
-    /// The origin for the absolute coordinate system.
-    public static abstract SELF Origin { get; }
-
-    /// <summary>
-    /// Default AdditiveIdentity
-    /// </summary>
-    public static virtual SELF AdditiveIdentity => 
-        SELF.Origin;
-}
+    where SELF : Locus<SELF, DISTANCE, DISTANCE_SCALAR>
+    where DISTANCE : Amount<DISTANCE, DISTANCE_SCALAR>;
