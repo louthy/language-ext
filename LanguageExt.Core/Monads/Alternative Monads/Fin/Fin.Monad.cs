@@ -32,11 +32,11 @@ public partial class Fin :
     static K<Fin, B> Applicative<Fin>.Apply<A, B>(K<Fin, Func<A, B>> mf, K<Fin, A> ma) =>
         (mf, ma) switch
         {
-            (Succ<Func<A, B>> (var f), Succ<A> (var a))            => Fin<B>.Succ(f(a)),
-            (Fail<Func<A, B>> (var e1), Fail<Func<A, B>> (var e2)) => Fin<B>.Fail(e1 + e2),
-            (Fail<Func<A, B>> (var e1), _)                         => Fin<B>.Fail(e1),
-            (_, Fail<A> (var e2))                                  => Fin<B>.Fail(e2),
-            _                                                      => throw new NotSupportedException()
+            (Succ<Func<A, B>> (var f), Succ<A> (var a))   => Fin<B>.Succ(f(a)),
+            (Fail<Func<A, B>> (var e1), Fail<A> (var e2)) => Fin<B>.Fail(e1 + e2),
+            (Fail<Func<A, B>> (var e1), _)                => Fin<B>.Fail(e1),
+            (_, Fail<A> (var e2))                         => Fin<B>.Fail(e2),
+            _                                             => throw new NotSupportedException()
         };
 
     static K<Fin, B> Applicative<Fin>.Action<A, B>(K<Fin, A> ma, K<Fin, B> mb) =>
