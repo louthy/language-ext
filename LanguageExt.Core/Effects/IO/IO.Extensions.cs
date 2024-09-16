@@ -4,10 +4,11 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public static partial class IOExtensions
+public static class IOExtensions
 {
     /// <summary>
     /// Convert the kind version of the `IO` monad to an `IO` monad.
@@ -75,11 +76,7 @@ public static partial class IOExtensions
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IO<B> Apply<A, B>(this IO<Func<A, B>> ff, IO<A> fa) =>
-        from tf in ff.Fork()
-        from ta in fa.Fork()
-        from f in tf.Await
-        from a in ta.Await
-        select f(a);
+        ff.Kind().Apply(fa.Kind()).As();
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -525,11 +522,9 @@ public static partial class IOExtensions
     public static K<M, (A First, B Second)> ZipIO<M, A, B>(
         this (K<M, A> First, K<M, B> Second) tuple)
         where M : Monad<M> =>
-        from e1 in tuple.First.ForkIO()
-        from e2 in tuple.Second.ForkIO()
-        from r1 in e1.Await
-        from r2 in e2.Await
-        select (r1, r2);
+        fun((A a, B b) => (a, b))
+           .Map(tuple.First)
+           .Apply(tuple.Second);
 
     /// <summary>
     /// Takes two IO monads and zips their result
@@ -545,16 +540,13 @@ public static partial class IOExtensions
     /// <returns>IO monad</returns>
     public static K<M, (A First, B Second, C Third)> ZipIO<M, A, B, C>(
         this (K<M, A> First,
-              K<M, B> Second,
-              K<M, C> Third) tuple)
+            K<M, B> Second,
+            K<M, C> Third) tuple)
         where M : Monad<M> =>
-        from e1 in tuple.First.ForkIO()
-        from e2 in tuple.Second.ForkIO()
-        from e3 in tuple.Third.ForkIO()
-        from r1 in e1.Await
-        from r2 in e2.Await
-        from r3 in e3.Await
-        select (r1, r2, r3);
+        fun((A a, B b, C c) => (a, b, c))
+           .Map(tuple.First)
+           .Apply(tuple.Second)
+           .Apply(tuple.Third);
 
     /// <summary>
     /// Takes two IO monads and zips their result
@@ -575,15 +567,12 @@ public static partial class IOExtensions
               K<M, C> Third, 
               K<M, D> Fourth) tuple) 
         where M : Monad<M> =>
-        from e1 in tuple.First.ForkIO()
-        from e2 in tuple.Second.ForkIO()
-        from e3 in tuple.Third.ForkIO()
-        from e4 in tuple.Fourth.ForkIO()
-        from r1 in e1.Await
-        from r2 in e2.Await
-        from r3 in e3.Await
-        from r4 in e4.Await
-        select (r1, r2, r3, r4);
+        fun((A a, B b, C c, D d) => (a, b, c, d))
+           .Map(tuple.First)
+           .Apply(tuple.Second)
+           .Apply(tuple.Third)
+           .Apply(tuple.Fourth);
+    
     /// <summary>
     /// Takes two IO monads and zips their result
     /// </summary>

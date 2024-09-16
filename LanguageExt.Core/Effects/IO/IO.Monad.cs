@@ -23,8 +23,60 @@ public partial class IO :
     static K<IO, A> Applicative<IO>.Pure<A>(A value) => 
         IO<A>.Pure(value);
 
-    static K<IO, B> Applicative<IO>.Apply<A, B>(K<IO, Func<A, B>> mf, K<IO, A> ma) => 
-        mf.As().Bind(ma.As().Map);
+    static K<IO, B> Applicative<IO>.Apply<A, B>(K<IO, Func<A, B>> mf, K<IO, A> ma) =>
+        (mf, ma) switch
+        {
+            (IOAsync<Func<A, B>> mf1, IOAsync<A> ma1) =>
+                ApplyAsyncAsync(mf1, ma1),
+            
+            (IOAsync<Func<A, B>> mf1, IO<A> ma1) =>
+                ApplyAsyncSync(mf1, ma1),
+            
+            (IO<Func<A, B>> mf1, IOAsync<A> ma1) =>
+                ApplySyncAsync(mf1, ma1),
+            
+            (IO<Func<A, B>> mf1, IO<A> ma1) =>
+                ApplySyncSync(mf1, ma1),
+            
+            _ => throw new NotSupportedException()
+        };
+
+    static IO<B> ApplyAsyncAsync<A, B>(IOAsync<Func<A, B>> mf, IOAsync<A> ma) =>
+        new IOAsync<B>(
+            async env =>
+            {
+                var tf = mf.RunAsync(env).AsTask();
+                var ta = ma.RunAsync(env).AsTask();
+                await Task.WhenAll(tf, ta);
+                return IOResponse.Complete(tf.Result(ta.Result));
+            });
+
+    static IO<B> ApplyAsyncSync<A, B>(IOAsync<Func<A, B>> mf, IO<A> ma) =>
+        new IOAsync<B>(
+            async env =>
+            {
+                var f = await mf.RunAsync(env).ConfigureAwait(false);
+                var a = ma.Run(env);
+                return IOResponse.Complete(f(a));
+            });
+
+    static IO<B> ApplySyncAsync<A, B>(IO<Func<A, B>> mf, IOAsync<A> ma) =>
+        new IOAsync<B>(
+            async env =>
+            {
+                var f = mf.Run(env);
+                var a = await ma.RunAsync(env).ConfigureAwait(false);
+                return IOResponse.Complete(f(a));
+            });
+
+    static IO<B> ApplySyncSync<A, B>(IO<Func<A, B>> mf, IO<A> ma) =>
+        new IOSync<B>(
+            env =>
+            {
+                var f = mf.Run(env);
+                var a = ma.Run(env);
+                return IOResponse.Complete(f(a));
+            });
 
     static K<IO, B> Applicative<IO>.Action<A, B>(K<IO, A> ma, K<IO, B> mb) =>
         ma.As().Bind(_ => mb);

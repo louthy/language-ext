@@ -110,7 +110,7 @@ public static class FinExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
-    public static Fin<B> Apply<A, B>(this Func<A, B> fab, Fin<A> fa) =>
+    public static Fin<B> Map<A, B>(this Func<A, B> fab, Fin<A> fa) =>
         fa.Map(fab); 
 
     /// <summary>
@@ -137,7 +137,7 @@ public static class FinExtensions
     /// <param name="fb">Applicative b to apply</param>
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
-    public static Fin<C> Apply<A, B, C>(this Func<A, B, C> fabc, Fin<A> fa, Fin<B> fb)
+    public static Fin<C> Map<A, B, C>(this Func<A, B, C> fabc, Fin<A> fa, Fin<B> fb)
     {
         if (fa.IsFail) return Fin<C>.Fail(fa.FailValue);
         if (fb.IsFail) return Fin<C>.Fail(fb.FailValue);
@@ -165,7 +165,7 @@ public static class FinExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
-    public static Fin<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, Fin<A> fa)
+    public static Fin<Func<B, C>> Map<A, B, C>(this Func<A, B, C> fabc, Fin<A> fa)
     {
         if (fa.IsFail) return Fin<Func<B, C>>.Fail(fa.FailValue);
         return curry(fabc)(fa.SuccValue);
@@ -192,7 +192,7 @@ public static class FinExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
-    public static Fin<Func<B, C>> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, Fin<A> fa)
+    public static Fin<Func<B, C>> Map<A, B, C>(this Func<A, Func<B, C>> fabc, Fin<A> fa)
     {
         if (fa.IsFail) return Fin<Func<B, C>>.Fail(fa.FailValue);
         return fabc(fa.SuccValue);
@@ -253,7 +253,7 @@ public static class FinExtensions
     /// <summary>
     /// Partitions a list of 'Fin' into two lists.
     /// All the Fail elements are extracted, in order, to the first
-    /// component of the output.  Similarly the Succ elements are extracted
+    /// component of the output.  Similarly, the Succ elements are extracted
     /// to the second component of the output.
     /// </summary>
     /// <remarks>Bottom values are dropped</remarks>

@@ -503,11 +503,9 @@ public static partial class Prelude
     public static K<M, (A First, B Second)> zipIO<M, A, B>(
         (K<M, A> First, K<M, B> Second) tuple)
         where M : Monad<M> =>
-        from e1 in tuple.First.ForkIO()
-        from e2 in tuple.Second.ForkIO()
-        from r1 in e1.Await
-        from r2 in e2.Await
-        select (r1, r2);
+        fun((A a, B b) => (a, b))
+           .Map(tuple.First)
+           .Apply(tuple.Second);
 
     /// <summary>
     /// Takes two IO monads and zips their result
@@ -524,13 +522,10 @@ public static partial class Prelude
     public static K<M, (A First, B Second, C Third)> zipIO<M, A, B, C>(
         (K<M, A> First, K<M, B> Second, K<M, C> Third) tuple)
         where M : Monad<M> =>
-        from e1 in tuple.First.ForkIO()
-        from e2 in tuple.Second.ForkIO()
-        from e3 in tuple.Third.ForkIO()
-        from r1 in e1.Await
-        from r2 in e2.Await
-        from r3 in e3.Await
-        select (r1, r2, r3);
+        fun((A a, B b, C c) => (a, b, c))
+           .Map(tuple.First)
+           .Apply(tuple.Second)
+           .Apply(tuple.Third);
 
     /// <summary>
     /// Takes two IO monads and zips their result
@@ -548,15 +543,12 @@ public static partial class Prelude
     public static K<M, (A First, B Second, C Third, D Fourth)> zipIO<M, A, B, C, D>(
         (K<M, A> First, K<M, B> Second, K<M, C> Third, K<M, D> Fourth) tuple) 
         where M : Monad<M> =>
-        from e1 in tuple.First.ForkIO()
-        from e2 in tuple.Second.ForkIO()
-        from e3 in tuple.Third.ForkIO()
-        from e4 in tuple.Fourth.ForkIO()
-        from r1 in e1.Await
-        from r2 in e2.Await
-        from r3 in e3.Await
-        from r4 in e4.Await
-        select (r1, r2, r3, r4);
+        fun((A a, B b, C c, D d) => (a, b, c, d))
+           .Map(tuple.First)
+           .Apply(tuple.Second)
+           .Apply(tuple.Third)
+           .Apply(tuple.Fourth);
+    
     /// <summary>
     /// Takes two IO monads and zips their result
     /// </summary>
@@ -604,5 +596,4 @@ public static partial class Prelude
         K<M, A> First, K<M, B> Second, K<M, C> Third, K<M, D> Fourth) 
         where M : Monad<M> =>
         (First, Second, Third, Fourth).ZipIO();    
-
 }
