@@ -38,6 +38,15 @@ public static class StreamT
         StreamT<M, A>.Lift(items);
 
     /// <summary>
+    /// Lift an async-enumerable into the stream
+    /// </summary>
+    /// <param name="stream">Sequence to lift</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> liftM<M, A>(IAsyncEnumerable<K<M, A>> items)
+        where M : Monad<M> =>
+        StreamT<M, A>.LiftM(items);
+
+    /// <summary>
     /// Lift an enumerable into the stream
     /// </summary>
     /// <param name="stream">Sequence to lift</param>
@@ -47,6 +56,15 @@ public static class StreamT
         StreamT<M, A>.Lift(items);
 
     /// <summary>
+    /// Lift an enumerable into the stream
+    /// </summary>
+    /// <param name="stream">Sequence to lift</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> liftM<M, A>(IEnumerable<K<M, A>> items)
+        where M : Monad<M> =>
+        StreamT<M, A>.LiftM(items);
+
+    /// <summary>
     /// Lift a (possibly lazy) sequence into the stream
     /// </summary>
     /// <param name="list">Sequence to lift</param>
@@ -54,6 +72,15 @@ public static class StreamT
     public static StreamT<M, A> lift<M, A>(Seq<A> items)
         where M : Monad<M> =>
         StreamT<M, A>.Lift(items);
+
+    /// <summary>
+    /// Lift a (possibly lazy) sequence into the stream
+    /// </summary>
+    /// <param name="list">Sequence to lift</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> liftM<M, A>(Seq<K<M, A>> items)
+        where M : Monad<M> =>
+        StreamT<M, A>.LiftM(items);
 
     /// <summary>
     /// Lift an effect into the stream

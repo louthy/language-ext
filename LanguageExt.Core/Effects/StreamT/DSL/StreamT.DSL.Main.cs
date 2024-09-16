@@ -22,7 +22,7 @@ internal record StreamMainT<M, A>(K<M, MList<A>> runListT) : StreamT<M, A>
                            MNil<A> => 
                                Empty.runListT,
 
-                           MCons<M, A>(var h, var t) =>
+                           MCons<M, A>(_, var t) =>
                                new StreamMainT<M, A>(t).runListT,
 
                            MIter<M, A> iter  =>

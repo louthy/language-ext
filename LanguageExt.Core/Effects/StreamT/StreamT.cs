@@ -70,6 +70,17 @@ public abstract record StreamT<M, A> :
         new StreamAsyncEnumerableT<M, A>(stream);
 
     /// <summary>
+    /// Lift an async-enumerable into the stream
+    /// </summary>
+    /// <param name="stream">Sequence to lift</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> LiftM(IAsyncEnumerable<K<M, A>> stream) =>
+       (from ma in StreamT<M, K<M, A>>.Lift(stream)
+        from a in Lift(ma)
+        where true
+        select a).As();
+
+    /// <summary>
     /// Lift an enumerable into the stream
     /// </summary>
     /// <param name="stream">Sequence to lift</param>
@@ -79,16 +90,38 @@ public abstract record StreamT<M, A> :
                .Bind(_ => new StreamEnumerableT<M, A>(stream));
 
     /// <summary>
+    /// Lift an enumerable into the stream
+    /// </summary>
+    /// <param name="stream">Sequence to lift</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> LiftM(IEnumerable<K<M, A>> stream) =>
+       (from ma in StreamT<M, K<M, A>>.Lift(stream)
+        from a in Lift(ma)
+        where true
+        select a).As();
+
+    /// <summary>
     /// Lift a (possibly lazy) sequence into the stream
     /// </summary>
-    /// <param name="list">Sequence to lift</param>
+    /// <param name="stream">Sequence to lift</param>
     /// <returns>Stream transformer</returns>
-    public static StreamT<M, A> Lift(Seq<A> list) =>
-        list switch
+    public static StreamT<M, A> Lift(Seq<A> stream) =>
+        stream switch
         {
             []          => Empty,
             var (x, xs) => new StreamMainT<M, A>(M.Pure<MList<A>>(new MCons<M, A>(x, Lift(xs).runListT)))
         };
+
+    /// <summary>
+    /// Lift a (possibly lazy) sequence into the stream
+    /// </summary>
+    /// <param name="stream">Sequence to lift</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> LiftM(Seq<K<M, A>> stream) =>
+       (from ma in StreamT<M, K<M, A>>.Lift(stream)
+        from a in Lift(ma)
+        where true
+        select a).As();
 
     /// <summary>
     /// Lift an effect into the stream
