@@ -278,14 +278,35 @@ record IOAsync<A>(Func<EnvIO, Task<IOResponse<A>>> runIO) : IO<A>
         env ??= EnvIO.New();
         try
         {
-            var ma = this;
+            var response = await runIO(env).ConfigureAwait(false); 
             while (!env.Token.IsCancellationRequested)
             {
-                switch (await ma.runIO(env))
+                switch (response)
                 {
                     case CompleteIO<A> (var x):
                         return x;
 
+                    case BindIO<A> io:
+                        switch(io.Run()) 
+                        {
+                            case IOAsync<A> io1:
+                                response = await io1.runIO(env).ConfigureAwait(false);
+                                break;
+                            case IOSync<A> io1:
+                                response = io1.runIO(env);
+                                break;
+
+                            case IOPure<A> io1:
+                                return io1.Value;
+
+                            case IOFail<A> io1:
+                                return io1.Error.ToErrorException().Rethrow<A>();
+                           
+                            default:
+                                throw new NotSupportedException();
+                        }
+                        break;                    
+                    
                     case RecurseIO<A>(IOPure<A> io):
                         return io.Value;
 
@@ -293,14 +314,14 @@ record IOAsync<A>(Func<EnvIO, Task<IOResponse<A>>> runIO) : IO<A>
                         return io.Error.ToErrorException().Rethrow<A>();
 
                     case RecurseIO<A>(IOSync<A> io):
-                        return await io.RunAsync(env);
+                        response = io.runIO(env);
+                        break;
 
                     case RecurseIO<A>(IOAsync<A> io):
-                        ma = io;
+                        response = await io.runIO(env).ConfigureAwait(false);
                         break;
                 }
             }
-
             throw new TaskCanceledException();
         }
         finally

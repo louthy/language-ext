@@ -35,7 +35,7 @@ record IOPure<A>(A Value) : IO<A>
         new IOAsync<A>(_ => Task.FromResult(IOResponse.Complete(Value)));
     
     public override IO<B> Map<B>(Func<A, B> f) =>
-        new IOPure<B>(f(Value));
+        new IOSync<B>(_ => IOResponse.Complete(f(Value)));
 
     public override IO<S> FoldUntil<S>(
         Schedule schedule, 
@@ -47,8 +47,8 @@ record IOPure<A>(A Value) : IO<A>
     public override IO<A> Post() => 
         this;
 
-    public override IO<B> Bind<B>(Func<A, IO<B>> f) => 
-        f(Value);
+    public override IO<B> Bind<B>(Func<A, IO<B>> f) =>
+        new IOSync<B>(_ => IOResponse.Bind(Value, f));
 
     public override IO<A> Bracket() => 
         this;

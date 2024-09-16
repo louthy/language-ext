@@ -241,6 +241,27 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
                     case CompleteIO<A> (var x):
                         return x;
 
+                    case BindIO<A> io:
+                        switch(io.Run()) 
+                        {
+                           case IOAsync<A> io1:
+                               response = await io1.runIO(envIO).ConfigureAwait(false);
+                               break;
+                           case IOSync<A> io1:
+                               response = io1.runIO(envIO);
+                               break;
+
+                           case IOPure<A> io1:
+                               return io1.Value;
+
+                           case IOFail<A> io1:
+                               return io1.Error.ToErrorException().Rethrow<A>();
+                           
+                           default:
+                               throw new NotSupportedException();
+                        }
+                        break;
+
                     case RecurseIO<A>(IOPure<A> io):
                         return io.Value;
                     
@@ -299,6 +320,27 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
                     case CompleteIO<A> (var x):
                         return x;
 
+                    case BindIO<A> io:
+                        switch(io.Run()) 
+                        {
+                            case IOAsync<A> io1:
+                                return io1.RunAsync(envIO).GetAwaiter().GetResult();
+                            
+                            case IOSync<A> io1:
+                                response = io1.runIO(envIO);
+                                break;
+
+                            case IOPure<A> io1:
+                                return io1.Value;
+
+                            case IOFail<A> io1:
+                                return io1.Error.ToErrorException().Rethrow<A>();
+                           
+                            default:
+                                throw new NotSupportedException();
+                        }
+                        break;
+                    
                     case RecurseIO<A>(IOPure<A> io):
                         return io.Value;
 
