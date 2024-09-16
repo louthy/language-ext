@@ -1,10 +1,10 @@
 echo cleaing bin, obj, and /louthy.github.io/language-ext
 
 # Artifacts is where the DLLs are compiled to 
-Artifacts=/home/paul/Documents/dev/artifacts
+Artifacts=/media/paul/raid/dev/artifacts
 
 # $LangExtRoot is where the source code root should be (i.e. c:\dev\language-ext)
-LangExtRoot=/home/paul/Documents/dev/language-ext
+LangExtRoot=/media/paul/raid/dev/language-ext
 
 rm -rf $Artifacts
 
