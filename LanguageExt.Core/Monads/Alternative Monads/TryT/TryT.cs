@@ -355,14 +355,8 @@ public record TryT<M, A>(K<M, Try<A>> runTry) :
         ma.Combine(mb);
 
     public static TryT<M, A> operator |(TryT<M, A> ma, CatchM<Error, TryT<M>, A> mb) =>
-        (ma.Kind() | mb).As(); 
+        (ma.Kind() | mb).As();
 
     public TryT<M, A> Combine(TryT<M, A> rhs) =>
-        new(this.Run().Bind(
-                lhs => lhs switch
-                       {
-                           Fin.Succ<A> (var x) => M.Pure(Try.Succ(x)),
-                           Fin.Fail<A>         => rhs.runTry,
-                           _                   => throw new NotSupportedException()
-                       }));
+        this.Kind().Combine(rhs).As();
 }

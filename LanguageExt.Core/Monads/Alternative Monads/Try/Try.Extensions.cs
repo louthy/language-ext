@@ -47,9 +47,9 @@ public static class TryExt
     [Pure]
     public static Try<A> Flatten<A>(this K<Try, K<Try, A>> mma) =>
         new(() =>
-                mma.As().Run() switch
+                mma.Run() switch
                 {
-                    Fin.Succ<K<Try, A>> (var succ) => succ.As().Run(),
+                    Fin.Succ<K<Try, A>> (var succ) => succ.Run(),
                     Fin.Fail<K<Try, A>> (var fail) => FinFail<A>(fail),
                     _                              => throw new NotSupportedException()
                 });
@@ -59,12 +59,12 @@ public static class TryExt
     /// </summary>
     [Pure]
     public static Try<B> Apply<A, B>(this Try<Func<A, B>> mf, Try<A> ma) => 
-        mf.As().Bind(ma.As().Map);
+        mf.Kind().Apply(ma).As();
 
     /// <summary>
     /// Applicative action
     /// </summary>
     [Pure]
     public static Try<B> Action<A, B>(this Try<A> ma, Try<B> mb) => 
-        ma.As().Bind(_ => mb);
+        ma.Kind().Action(mb).As();
 }

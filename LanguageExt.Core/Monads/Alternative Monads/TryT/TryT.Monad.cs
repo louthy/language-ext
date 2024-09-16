@@ -23,8 +23,10 @@ public partial class TryT<M> :
     static K<TryT<M>, A> Applicative<TryT<M>>.Pure<A>(A value) => 
         TryT<M, A>.Succ(value);
 
-    static K<TryT<M>, B> Applicative<TryT<M>>.Apply<A, B>(K<TryT<M>, Func<A, B>> mf, K<TryT<M>, A> ma) => 
-        mf.As().Bind(ma.As().Map);
+    static K<TryT<M>, B> Applicative<TryT<M>>.Apply<A, B>(K<TryT<M>, Func<A, B>> mf, K<TryT<M>, A> ma) =>
+        new TryT<M, B>(mf.As().runTry.Bind(
+                           mf1 => ma.As().runTry.Bind(
+                               ma1 => M.Pure(mf1.Apply(ma1)))));
 
     static K<TryT<M>, B> Applicative<TryT<M>>.Action<A, B>(K<TryT<M>, A> ma, K<TryT<M>, B> mb) =>
         ma.As().Bind(_ => mb);
@@ -36,7 +38,22 @@ public partial class TryT<M> :
         TryT<M, A>.Lift(M.LiftIO(ma));
 
     static K<TryT<M>, A> SemigroupK<TryT<M>>.Combine<A>(K<TryT<M>, A> ma, K<TryT<M>, A> mb) =>
-        ma.As().Combine(mb.As());
+        new TryT<M, A>(ma.Run().Bind(
+                           lhs => lhs switch
+                                  {
+                                      Fin.Succ<A> (var x) =>
+                                          M.Pure(Try.Succ(x)),
+
+                                      Fin.Fail<A> (var e1) =>
+                                          mb.Run().Bind(
+                                              r => r switch
+                                                   {
+                                                       Fin.Succ<A> (var x)  => M.Pure(Try.Succ(x)),
+                                                       Fin.Fail<A> (var e2) => M.Pure(Try.Fail<A>(e1 + e2)),
+                                                       _                    => throw new NotSupportedException()
+                                                   }),
+                                      _ => throw new NotSupportedException()
+                                  }));
 
     static K<TryT<M>, A> Fallible<Error, TryT<M>>.Fail<A>(Error error) =>
         Fail<A>(error);

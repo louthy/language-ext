@@ -306,12 +306,12 @@ public record Try<A>(Func<Fin<A>> runTry) :
         ma.Combine((Error)mb);
 
     public static Try<A> operator |(Try<A> ma, CatchM<Error, Try, A> mb) =>
-        (ma.Kind() | mb).As(); 
+        (ma.Kind() | mb).As();
 
     public Try<A> Combine(Try<A> rhs) =>
         new(() => this.Run() switch
                   {
-                      Fin.Fail<A> => rhs.Run(),
-                      var fa      => fa
+                      Fin.Fail<A> fa => fa.Combine(rhs.Run()).As(),
+                      var fa         => fa
                   });
 }

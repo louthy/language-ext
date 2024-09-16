@@ -88,9 +88,11 @@ public static class TryTExt
     /// Applicative apply
     /// </summary>
     [Pure]
-    public static TryT<M, B> Apply<M, A, B>(this TryT<M, Func<A, B>> mf, TryT<M, A> ma) 
-        where M : Monad<M> => 
-        mf.As().Bind(ma.As().Map);
+    public static TryT<M, B> Apply<M, A, B>(this TryT<M, Func<A, B>> mf, TryT<M, A> ma)
+        where M : Monad<M> =>
+        new(mf.runTry.Bind(
+                mf1 => ma.runTry.Bind(
+                    ma1 => M.Pure(mf1.Apply(ma1)))));
 
     /// <summary>
     /// Applicative action
