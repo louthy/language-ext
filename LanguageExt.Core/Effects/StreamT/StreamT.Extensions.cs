@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 
@@ -296,4 +298,377 @@ public static class IterableTExtensions
         K<StreamT<M>, D> fourth)
         where M : Monad<M> =>
         first.As().Zip(second, third, fourth);
+
+    /// <summary>
+    /// Access the `Some` values from the asynchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of optional values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, A> Somes<M, A>(this IAsyncEnumerable<OptionT<M, A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Map(mx => mx.ToStream()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Some` values from the asynchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of optional values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, A> SomesStream<M, A>(this IAsyncEnumerable<Option<A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Map(mx => mx.ToStream<M>()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Some` values from the synchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of optional values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, A> Somes<M, A>(this IEnumerable<OptionT<M, A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Select(mx => mx.ToStream()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Some` values from the synchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of optional values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, A> SomesStream<M, A>(this IEnumerable<Option<A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Select(mx => mx.ToStream<M>()))
+        from x in xs
+        select x;    
+
+    /// <summary>
+    /// Access the `Right` values from the asynchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, A> Rights<M, L, A>(this IAsyncEnumerable<EitherT<L, M, A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Map(mx => mx.ToStream()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Right` values from the asynchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, A> RightsStream<M, L, A>(this IAsyncEnumerable<Either<L, A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Map(mx => mx.ToStream<M>()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Right` values from the synchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, A> Rights<M, L, A>(this IEnumerable<EitherT<L, M, A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Select(mx => mx.ToStream()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Right` values from the synchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, A> RightsStream<M, L, A>(this IEnumerable<Either<L, A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Select(mx => mx.ToStream<M>()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Left` values from the asynchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, L> Lefts<M, L, A>(this IAsyncEnumerable<EitherT<L, M, A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, L>>.Lift(stream.Map(mx => mx.LeftToStream()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Left` values from the asynchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, L> LeftsStream<M, L, A>(this IAsyncEnumerable<Either<L, A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, L>>.Lift(stream.Map(mx => mx.LeftToStream<M>()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Left` values from the synchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, L> Lefts<M, L, A>(this IEnumerable<EitherT<L, M, A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, L>>.Lift(stream.Select(mx => mx.LeftToStream()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Succ` values from the synchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, L> LeftsStream<M, L, A>(this IEnumerable<Either<L, A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, L>>.Lift(stream.Select(mx => mx.LeftToStream<M>()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Succ` values from the asynchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, A> Succs<M, A>(this IAsyncEnumerable<FinT<M, A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Map(mx => mx.ToStream()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Succ` values from the asynchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, A> SuccsStream<M, A>(this IAsyncEnumerable<Fin<A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Map(mx => mx.ToStream<M>()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Succ` values from the synchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, A> Succs<M, A>(this IEnumerable<FinT<M, A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Select(mx => mx.ToStream()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Succ` values from the synchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, A> SuccsStream<M, A>(this IEnumerable<Fin<A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Select(mx => mx.ToStream<M>()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Fail` values from the asynchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, Error> Fails<M, A>(this IAsyncEnumerable<FinT<M, A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, Error>>.Lift(stream.Map(mx => mx.FailToStream()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Fail` values from the asynchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, Error> FailsStream<M, A>(this IAsyncEnumerable<Fin<A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, Error>>.Lift(stream.Map(mx => mx.FailToStream<M>()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Fail` values from the synchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, Error> Fails<M, A>(this IEnumerable<FinT<M, A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, Error>>.Lift(stream.Select(mx => mx.FailToStream()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Fail` values from the synchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, Error> FailsStream<M, A>(this IEnumerable<Fin<A>> stream)
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, Error>>.Lift(stream.Select(mx => mx.FailToStream<M>()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Right` values from the asynchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, A> Succs<M, L, A>(this IAsyncEnumerable<ValidationT<L, M, A>> stream)
+        where L : Monoid<L> 
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Map(mx => mx.ToStream()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Right` values from the asynchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, A> SuccsStream<M, L, A>(this IAsyncEnumerable<Validation<L, A>> stream)
+        where L : Monoid<L> 
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Map(mx => mx.ToStream<M>()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Right` values from the synchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, A> Succs<M, L, A>(this IEnumerable<ValidationT<L, M, A>> stream)
+        where L : Monoid<L> 
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Select(mx => mx.ToStream()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Right` values from the synchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, A> SuccsStream<M, L, A>(this IEnumerable<Validation<L, A>> stream)
+        where L : Monoid<L> 
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Select(mx => mx.ToStream<M>()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Left` values from the asynchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, L> Fails<M, L, A>(this IAsyncEnumerable<ValidationT<L, M, A>> stream)
+        where L : Monoid<L> 
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, L>>.Lift(stream.Map(mx => mx.FailToStream()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Left` values from the asynchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, L> FailsStream<M, L, A>(this IAsyncEnumerable<Validation<L, A>> stream)
+        where L : Monoid<L> 
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, L>>.Lift(stream.Map(mx => mx.FailToStream<M>()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Left` values from the synchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, L> Fails<M, L, A>(this IEnumerable<ValidationT<L, M, A>> stream)
+        where L : Monoid<L> 
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, L>>.Lift(stream.Select(mx => mx.FailToStream()))
+        from x in xs
+        select x;
+
+    /// <summary>
+    /// Access the `Succ` values from the synchronous stream
+    /// </summary>
+    /// <param name="stream">Stream of values</param>
+    /// <typeparam name="M">Transformer monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Stream of values</returns>
+    public static StreamT<M, L> FailsStream<M, L, A>(this IEnumerable<Validation<L, A>> stream)
+        where L : Monoid<L> 
+        where M : Monad<M> =>
+        from xs in StreamT<M, StreamT<M, L>>.Lift(stream.Select(mx => mx.FailToStream<M>()))
+        from x in xs
+        select x;
+    
 }

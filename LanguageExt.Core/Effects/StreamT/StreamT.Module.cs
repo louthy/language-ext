@@ -99,6 +99,15 @@ public static class StreamT
     public static StreamT<M, A> liftIO<M, A>(IO<A> ma)
         where M : Monad<M> =>
         StreamT<M, A>.LiftIO(ma);
+
+    /// <summary>
+    /// Lift side effect into the stream
+    /// </summary>
+    /// <param name="ma">Side effect to lift</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> liftIO<M, A>(K<IO, A> ma)
+        where M : Monad<M> =>
+        StreamT<M, A>.LiftIO(ma.As());
     
     /// <summary>
     /// Interleave the items of two streams

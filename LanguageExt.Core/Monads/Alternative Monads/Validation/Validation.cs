@@ -345,6 +345,26 @@ public abstract record Validation<F, A> :
         };
 
     /// <summary>
+    /// Convert to a stream
+    /// </summary>
+    [Pure]
+    public StreamT<M, A> ToStream<M>() 
+        where M : Monad<M> =>
+        IsSuccess
+            ? StreamT<M, A>.Pure(SuccessValue) 
+            : StreamT<M, A>.Empty;
+
+    /// <summary>
+    /// Convert to a stream
+    /// </summary>
+    [Pure]
+    public StreamT<M, F> FailToStream<M>() 
+        where M : Monad<M> =>
+        IsFail
+            ? StreamT<M, F>.Pure(FailValue) 
+            : StreamT<M, F>.Empty;
+
+    /// <summary>
     /// Comparison operator
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>

@@ -610,9 +610,19 @@ public readonly struct Option<A> :
     [Pure]
     public OptionT<IO, A> ToIO() =>
         OptionT<IO, A>.Lift(this);
+
+    /// <summary>
+    /// Convert to a stream
+    /// </summary>
+    [Pure]
+    public StreamT<M, A> ToStream<M>() 
+        where M : Monad<M> =>
+        isSome 
+            ? StreamT<M, A>.Pure(Value!) 
+            : StreamT<M, A>.Empty;
     
     /// <summary>
-    /// Convert the structure to an Eff
+    /// Convert the structure to an `Eff`
     /// </summary>
     /// <param name="Fail">Default value if the structure is in a None state</param>
     /// <returns>An Eff representation of the structure</returns>

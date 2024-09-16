@@ -275,6 +275,26 @@ public abstract record Either<L, R> :
         Match(Left: _ => None, Right: Some);
 
     /// <summary>
+    /// Convert to a stream
+    /// </summary>
+    [Pure]
+    public StreamT<M, R> ToStream<M>() 
+        where M : Monad<M> =>
+        IsRight
+            ? StreamT<M, R>.Pure(RightValue!) 
+            : StreamT<M, R>.Empty;
+
+    /// <summary>
+    /// Convert to a stream
+    /// </summary>
+    [Pure]
+    public StreamT<M, L> LeftToStream<M>() 
+        where M : Monad<M> =>
+        IsLeft
+            ? StreamT<M, L>.Pure(LeftValue!) 
+            : StreamT<M, L>.Empty;
+
+    /// <summary>
     /// Convert to an `Eff`
     /// </summary>
     /// <param name="Left">Map the `Left` value to the`Fail` state of the `Eff`</param>

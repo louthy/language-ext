@@ -356,4 +356,15 @@ public record ValidationT<F, M, A>(K<M, Validation<F, A>> runValidation) :
 
     public static ValidationT<F, M, Seq<A>> operator &(ValidationT<F, M, A> ma, ValidationT<F, M, A> mb) =>
         new(M.Bind(ma.runValidation, ea => M.Map(eb => ea & eb, mb.runValidation)));
+
+    public StreamT<M, A> ToStream() =>
+        from seq in StreamT<M, Seq<A>>.Lift(runValidation.Map(ma => ma.IsSuccess ? Prelude.Seq((A)ma) : Seq<A>.Empty))
+        from res in StreamT<M, A>.Lift(seq)
+        select res;
+
+    public StreamT<M, F> FailToStream() =>
+        from seq in StreamT<M, Seq<F>>.Lift(runValidation.Map(ma => ma.IsSuccess ? Prelude.Seq((F)ma) : Seq<F>.Empty))
+        from res in StreamT<M, F>.Lift(seq)
+        select res;
+    
 }

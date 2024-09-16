@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
@@ -308,6 +309,7 @@ public record Try<A>(Func<Fin<A>> runTry) :
     public static Try<A> operator |(Try<A> ma, CatchM<Error, Try, A> mb) =>
         (ma.Kind() | mb).As();
 
+    [Pure]
     public Try<A> Combine(Try<A> rhs) =>
         new(() => this.Run() switch
                   {

@@ -506,4 +506,15 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
 
     public OptionT<M, R> ToOption() =>
         new(runEither.Map(ma => ma.ToOption()));
+
+    public StreamT<M, R> ToStream() =>
+        from seq in StreamT<M, Seq<R>>.Lift(runEither.Map(ma => ma.IsRight ? Seq((R)ma) : Seq<R>.Empty))
+        from res in StreamT<M, R>.Lift(seq)
+        select res;
+
+    public StreamT<M, L> LeftToStream() =>
+        from seq in StreamT<M, Seq<L>>.Lift(runEither.Map(ma => ma.IsLeft ? Seq((L)ma) : Seq<L>.Empty))
+        from res in StreamT<M, L>.Lift(seq)
+        select res;
+    
 }

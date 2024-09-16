@@ -75,10 +75,9 @@ public abstract record StreamT<M, A> :
     /// <param name="stream">Sequence to lift</param>
     /// <returns>Stream transformer</returns>
     public static StreamT<M, A> LiftM(IAsyncEnumerable<K<M, A>> stream) =>
-       (from ma in StreamT<M, K<M, A>>.Lift(stream)
-        from a in Lift(ma)
-        where true
-        select a).As();
+       from ma in StreamT<M, K<M, A>>.Lift(stream)
+       from a in Lift(ma)
+       select a;
 
     /// <summary>
     /// Lift an enumerable into the stream
@@ -95,10 +94,9 @@ public abstract record StreamT<M, A> :
     /// <param name="stream">Sequence to lift</param>
     /// <returns>Stream transformer</returns>
     public static StreamT<M, A> LiftM(IEnumerable<K<M, A>> stream) =>
-       (from ma in StreamT<M, K<M, A>>.Lift(stream)
+        from ma in StreamT<M, K<M, A>>.Lift(stream)
         from a in Lift(ma)
-        where true
-        select a).As();
+        select a;
 
     /// <summary>
     /// Lift a (possibly lazy) sequence into the stream
@@ -118,10 +116,9 @@ public abstract record StreamT<M, A> :
     /// <param name="stream">Sequence to lift</param>
     /// <returns>Stream transformer</returns>
     public static StreamT<M, A> LiftM(Seq<K<M, A>> stream) =>
-       (from ma in StreamT<M, K<M, A>>.Lift(stream)
-        from a in Lift(ma)
-        where true
-        select a).As();
+       from ma in StreamT<M, K<M, A>>.Lift(stream)
+       from a in Lift(ma)
+       select a;
 
     /// <summary>
     /// Lift an effect into the stream
@@ -137,6 +134,14 @@ public abstract record StreamT<M, A> :
     /// <param name="ma">Side effect to lift</param>
     /// <returns>Stream transformer</returns>
     public static StreamT<M, A> LiftIO(IO<A> ma) =>
+        Lift(M.LiftIO(ma));
+
+    /// <summary>
+    /// Lift side effect into the stream
+    /// </summary>
+    /// <param name="ma">Side effect to lift</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> LiftIO(K<IO, A> ma) =>
         Lift(M.LiftIO(ma));
 
     /// <summary>

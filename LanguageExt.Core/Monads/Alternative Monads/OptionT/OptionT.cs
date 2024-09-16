@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
+using System.IO;
 using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
@@ -112,31 +113,31 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) :
         M.Map(mx => mx.Match(Some, None), runOption);
 
     /// <summary>
-    /// Invokes the action if Option is in the Some state, otherwise nothing happens.
+    /// Invokes the action if Option is in the `Some` state, otherwise nothing happens.
     /// </summary>
-    /// <param name="f">Action to invoke if Option is in the Some state</param>
+    /// <param name="f">Action to invoke if Option is in the `Some` state</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public K<M, Unit> IfSome(Action<A> f) =>
         M.Map(mx => mx.IfSome(f), runOption);
 
     /// <summary>
-    /// Invokes the f function if Option is in the Some state, otherwise nothing
+    /// Invokes the f function if Option is in the `Some` state, otherwise nothing
     /// happens.
     /// </summary>
-    /// <param name="f">Function to invoke if Option is in the Some state</param>
+    /// <param name="f">Function to invoke if Option is in the `Some` state</param>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public K<M, Unit> IfSome(Func<A, Unit> f) =>
         M.Map(mx => mx.IfSome(f), runOption);
 
     /// <summary>
-    /// Returns the result of invoking the None() operation if the optional 
-    /// is in a None state, otherwise the bound Some(x) value is returned.
+    /// Returns the result of invoking the `None()` operation if the optional 
+    /// is in a None state, otherwise the bound `Some(x)` value is returned.
     /// </summary>
     /// <remarks>Will not accept a null return value from the None operation</remarks>
     /// <param name="None">Operation to invoke if the structure is in a None state</param>
-    /// <returns>Result of invoking the None() operation if the optional 
-    /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
+    /// <returns>Result of invoking the `None()` operation if the optional 
+    /// is in a None state, otherwise the bound `Some(x)` value is returned.</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public K<M, A> IfNone(Func<A> None) =>
@@ -432,6 +433,11 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) :
 
     public EitherT<L, M, A> ToEither<L>() where L : Monoid<L> =>
         new(runOption.Map(ma => ma.ToEither<L>()));
+
+    public StreamT<M, A> ToStream() =>
+        from seq in StreamT<M, Seq<A>>.Lift(runOption.Map(ma => ma.IsSome ? Seq((A)ma) : Seq<A>.Empty))
+        from res in StreamT<M, A>.Lift(seq)
+        select res;
     
     public static OptionT<M, A> operator |(OptionT<M, A> lhs, OptionT<M, A> rhs) =>
         lhs.Combine(rhs).As();
