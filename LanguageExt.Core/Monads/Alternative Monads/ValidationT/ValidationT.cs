@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -355,5 +356,4 @@ public record ValidationT<F, M, A>(K<M, Validation<F, A>> runValidation) :
 
     public static ValidationT<F, M, Seq<A>> operator &(ValidationT<F, M, A> ma, ValidationT<F, M, A> mb) =>
         new(M.Bind(ma.runValidation, ea => M.Map(eb => ea & eb, mb.runValidation)));
-    
 }

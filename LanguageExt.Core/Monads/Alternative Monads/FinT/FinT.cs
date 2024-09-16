@@ -512,4 +512,7 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
 
     public EitherT<Error, M, A> ToEither() =>
         new(runFin.Map(ma => ma.ToEither()));
+
+    public ValidationT<Error, M, A> ToValidation() =>
+        new(runFin.Map(ma => ma.ToValidation()));
 }

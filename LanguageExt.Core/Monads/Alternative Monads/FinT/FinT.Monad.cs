@@ -5,7 +5,7 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 /// <summary>
-/// Trait implementation for `EitherT` 
+/// Trait implementation for `FinT` 
 /// </summary>
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class FinT<M> : 
@@ -23,8 +23,13 @@ public partial class FinT<M> :
     static K<FinT<M>, A> Applicative<FinT<M>>.Pure<A>(A value) => 
         FinT<M, A>.Succ(value);
 
-    static K<FinT<M>, B> Applicative<FinT<M>>.Apply<A, B>(K<FinT<M>, Func<A, B>> mf, K<FinT<M>, A> ma) => 
-        mf.As().Bind(ma.As().Map);
+    static K<FinT<M>, B> Applicative<FinT<M>>.Apply<A, B>(K<FinT<M>, Func<A, B>> mf, K<FinT<M>, A> ma) =>
+        new FinT<M, B>(
+            M.Pure((Fin<Func<A, B>> ff) => 
+                       (Fin<A> fa) => 
+                           ff.Apply(fa).As())
+             .Apply(mf.As().runFin)
+             .Apply(ma.As().runFin));
 
     static K<FinT<M>, B> Applicative<FinT<M>>.Action<A, B>(K<FinT<M>, A> ma, K<FinT<M>, B> mb) =>
         ma.As().Bind(_ => mb);
@@ -41,7 +46,7 @@ public partial class FinT<M> :
                    ea => ea switch
                          {
                              Fin.Succ<A> => M.Pure(ea),
-                             Fin.Fail<A> => mb.As().runFin,
+                             Fin.Fail<A> => mb.As().runFin.Map(fb => ea.Combine(fb).As()),
                              _           => M.Pure(ea)
                          }));
 

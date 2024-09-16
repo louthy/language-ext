@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -171,4 +172,16 @@ public static class ValidationExtensions
     public static Seq<F> Fails<F, S>(this Seq<Validation<F, S>> vs)
         where F : Monoid<F> => 
         toSeq(Fails(vs.AsEnumerable()));
+
+    /// <summary>
+    /// Convert `Validation` type to `Fin` type.
+    /// </summary>
+    [Pure]
+    public static Fin<A> ToFin<A>(this Validation<Error, A> ma) =>
+        ma switch
+        {
+            Validation.Success<Error, A> (var x) => new Fin.Succ<A>(x),
+            Validation.Fail<Error, A> (var x)    => new Fin.Fail<A>(x),
+            _                                    => throw new NotSupportedException()
+        };
 }

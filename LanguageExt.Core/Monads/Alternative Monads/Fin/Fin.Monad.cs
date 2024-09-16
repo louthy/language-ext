@@ -32,14 +32,20 @@ public partial class Fin :
     static K<Fin, B> Applicative<Fin>.Apply<A, B>(K<Fin, Func<A, B>> mf, K<Fin, A> ma) =>
         (mf, ma) switch
         {
-            (Succ<Func<A, B>> (var f), Succ<A> (var a)) => Fin<B>.Succ(f(a)),
-            (Fail<Func<A, B>> (var e1), _)              => Fin<B>.Fail(e1),
-            (_, Fail<A> (var e2))                       => Fin<B>.Fail(e2),
-            _                                           => throw new NotSupportedException()
+            (Succ<Func<A, B>> (var f), Succ<A> (var a))            => Fin<B>.Succ(f(a)),
+            (Fail<Func<A, B>> (var e1), Fail<Func<A, B>> (var e2)) => Fin<B>.Fail(e1 + e2),
+            (Fail<Func<A, B>> (var e1), _)                         => Fin<B>.Fail(e1),
+            (_, Fail<A> (var e2))                                  => Fin<B>.Fail(e2),
+            _                                                      => throw new NotSupportedException()
         };
 
     static K<Fin, B> Applicative<Fin>.Action<A, B>(K<Fin, A> ma, K<Fin, B> mb) =>
-        mb;
+        (ma, mb) switch
+        {
+            (Fail<A> (var e1), Fail<B> (var e2)) => Fin<B>.Fail(e1 + e2),
+            (Fail<A> (var e1), _)                => Fin<B>.Fail(e1),
+            var (_, r2)                          => r2
+        };
 
     static S Foldable<Fin>.FoldWhile<A, S>(
         Func<A, Func<S, S>> f, 
@@ -78,7 +84,13 @@ public partial class Fin :
         ma switch
         {
             Succ<A> => ma,
-            _       => mb
+            Fail<A> (var e1) => mb switch
+                                {
+                                    Succ<A>          => mb,
+                                    Fail<A> (var e2) => Fin<A>.Fail(e1 + e2),
+                                    _                => mb
+                                },
+            _                => ma
         };
     
     static K<Fin, A> ConsSucc<A>(A value) =>

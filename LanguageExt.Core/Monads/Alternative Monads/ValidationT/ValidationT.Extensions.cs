@@ -2,6 +2,7 @@
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -40,6 +41,20 @@ public static class ValidationTExt
     public static ValidationT<L, IO, A> ToIO<L, A>(this Task<Validation<L, A>> ma)
         where L : Monoid<L> =>
         liftIO(ma);
+    
+    public static OptionT<M, A> ToOption<F, M, A>(this ValidationT<F, M, A> ma)
+        where F : Monoid<F>
+        where M : Monad<M> =>
+        new(ma.runValidation.Map(ma => ma.ToOption()));
+
+    public static EitherT<F, M, A> ToEither<F, M, A>(this ValidationT<F, M, A> ma)
+        where F : Monoid<F>
+        where M : Monad<M> =>
+        new(ma.runValidation.Map(ma => ma.ToEither()));
+
+    public static FinT<M, A> ToFin<M, A>(this ValidationT<Error, M, A> ma)
+        where M : Monad<M> =>
+        new(ma.runValidation.Map(ma => ma.ToFin()));
     
     /// <summary>
     /// Monad bind operation
