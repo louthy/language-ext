@@ -57,7 +57,7 @@ public static partial class EffExtensions
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
     public static A RunUnsafe<RT, A>(this K<Eff<RT>, A> ma, RT env) =>
-        ma.As().effect.Run(env).Run(EnvIO.New());
+        ma.As().effect.Run(env).Run();
 
     /// <summary>
     /// Invoke the effect
@@ -84,8 +84,17 @@ public static partial class EffExtensions
     /// Returns the result value only 
     /// </remarks>
     [Pure, MethodImpl(Opt.Default)]
-    public static Task<Fin<A>> RunAsync<RT, A>(this K<Eff<RT>, A> ma, RT env) =>
-        ma.As().RunAsync(env, EnvIO.New());
+    public static async Task<Fin<A>> RunAsync<RT, A>(this K<Eff<RT>, A> ma, RT env)
+    {
+        try
+        {
+            return await ma.As().effect.Run(env).RunAsync();
+        }
+        catch(Exception e)
+        {
+            return Fin<A>.Fail(e);
+        }
+    }  
 
     /// <summary>
     /// Invoke the effect
