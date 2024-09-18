@@ -115,6 +115,20 @@ public static partial class Prelude
     /// <returns>Acquired resource</returns>
     [Pure]
     [MethodImpl(Opt.Default)]
+    public static IO<A> useAsync<A>(Func<A> acquire)
+        where A : IAsyncDisposable =>
+        useAsync(IO.lift(acquire)).As();
+
+    /// <summary>
+    /// Acquire a resource and have it tracked by the IO environment.  The resource
+    /// can be released manually using `release` or from wrapping a section of IO
+    /// code with `@using`.
+    /// </summary>
+    /// <param name="acquire">Computation that acquires the resource</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Acquired resource</returns>
+    [Pure]
+    [MethodImpl(Opt.Default)]
     public static K<M, A> use<M, A>(K<M, A> acquire)
         where M : Monad<M>
         where A : IDisposable =>
@@ -122,6 +136,26 @@ public static partial class Prelude
             val => IO.lift(env =>
                            {
                                env.Resources.Acquire(val);
+                               return val;
+                           }));
+
+    /// <summary>
+    /// Acquire a resource and have it tracked by the IO environment.  The resource
+    /// can be released manually using `release` or from wrapping a section of IO
+    /// code with `@using`.
+    /// </summary>
+    /// <param name="acquire">Computation that acquires the resource</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Acquired resource</returns>
+    [Pure]
+    [MethodImpl(Opt.Default)]
+    public static K<M, A> useAsync<M, A>(K<M, A> acquire)
+        where M : Monad<M>
+        where A : IAsyncDisposable =>
+        acquire.Bind(
+            val => IO.lift(env =>
+                           {
+                               env.Resources.AcquireAsync(val);
                                return val;
                            }));
 

@@ -83,7 +83,8 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        StateTTest();
+        ResourcesDiscussion1366.Run();
+        //StateTTest();
         //AtomHashMapTests.Test();
         //await AtomHashMapPerf.Test();
         // await PipesTest();
@@ -97,7 +98,7 @@ public class Program
         //Issue1230.Run();
         //Issue1234.Test();
         //SequenceParallelTest.Run();
-        FreeTests.Test();
+        //FreeTests.Test();
     }
 
     public static void StateTTest()
