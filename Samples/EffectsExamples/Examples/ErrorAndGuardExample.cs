@@ -27,7 +27,7 @@ public static class ErrorAndGuardExample<RT>
 
     public static Eff<RT, Unit> main =>
         from _1 in askUser
-                 | @catch(ex => ex.Is<SystemException>(), Console<Eff<RT>, RT>.writeLine("system error"))
+                 | @catch(ex => ex.HasException<SystemException>(), Console<Eff<RT>, RT>.writeLine("system error"))
                  | SafeError
         from _2 in Console<Eff<RT>, RT>.writeLine("goodbye")
         select unit;

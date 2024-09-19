@@ -33,60 +33,19 @@ namespace LanguageExt;
 /// </example>
 public static partial class Prelude
 {
-    /// <summary>
-    /// Catch an error if the predicate matches
-    /// </summary>
-    internal static CatchM<E, M, A> matchError<E, M, A>(Func<E, bool> predicate, Func<E, K<M, A>> Fail) 
-        where M : Fallible<E, M> =>
-        new (predicate, Fail);
-    
-    /// <summary>
-    /// Catch an error if the predicate matches
-    /// </summary>
-    internal static CatchM<E, M, A> matchError<E, M, A>(Func<E, bool> predicate, Func<E, K<IO, A>> Fail) 
-        where M : Fallible<E, M>, Monad<M> =>
-        new (predicate, e => MonadIO.liftIO<M, A>(Fail(e)));
-    
-    /// <summary>
-    /// Catch an error if the error matches the argument provided 
-    /// </summary>
-    public static CatchM<E, M, A> @catch<E, M, A>(E error, Func<E, K<M, A>> Fail) 
-        where M : Fallible<E, M> =>
-        matchError(e => e?.Equals(error) ?? false, Fail);
-    
-    /// <summary>
-    /// Catch an error if the error matches the argument provided 
-    /// </summary>
-    public static CatchM<E, M, A> @catch<E, M, A>(E error, K<M, A> Fail)
-        where M : Fallible<E, M> =>
-        matchError(e => e?.Equals(error) ?? false, (E _) => Fail);
-    
-    /// <summary>
-    /// Catch an error if the error matches the argument provided 
-    /// </summary>
-    public static CatchM<E, M, A> @catch<E, M, A>(Func<E, bool> predicate, Func<E, K<M, A>> Fail)
-        where M : Fallible<E, M> =>
-        matchError(predicate, Fail);
-    
-    /// <summary>
-    /// Catch an error if the error matches the argument provided 
-    /// </summary>
-    public static CatchM<E, M, A> @catch<E, M, A>(Func<E, bool> predicate, K<M, A> Fail) 
-        where M : Fallible<E, M> =>
-        matchError(predicate, _ => Fail);
-    
-    /// <summary>
-    /// Catch all errors and return Fail 
-    /// </summary>
-    public static CatchM<E, M, A> @catch<E, M, A>(Func<E, K<M, A>> Fail) 
-        where M : Fallible<E, M> =>
-        matchError(static _ => true, Fail);
-    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Error specific
     //
-    
+        
+    /// <summary>
+    /// Catch all `Error` errors of subtype `E` and return Fail 
+    /// </summary>
+    public static CatchM<Error, M, A> catchOf<E, M, A>(Func<E, K<M, A>> Fail) 
+        where E : Error 
+        where M : Fallible<Error, M> =>
+        matchError<Error, M, A>(static e => e.IsType<E>(), e => Fail((E)e));
+
     /// <summary>
     /// Catch an error if the error matches the argument provided 
     /// </summary>
@@ -121,14 +80,6 @@ public static partial class Prelude
     public static CatchM<Error, M, A> @catch<M, A>(Func<Error, K<M, A>> Fail) 
         where M : Fallible<M> =>
         matchError(static _ => true, Fail);
-    
-    /// <summary>
-    /// Catch all `Error` errors of subtype `E` and return Fail 
-    /// </summary>
-    public static CatchM<Error, M, A> catchOf<E, M, A>(Func<E, K<M, A>> Fail) 
-        where E : Error 
-        where M : Fallible<Error, M> =>
-        matchError<Error, M, A>(static e => e is E, e => Fail((E)e));
     
     /// <summary>
     /// Catch all errors and return Fail 

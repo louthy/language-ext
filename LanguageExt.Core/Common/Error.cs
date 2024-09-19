@@ -44,7 +44,14 @@ public abstract record Error : Monoid<Error>
     /// If this error represents an exceptional error, then this will return true if the exceptional error is of type E
     /// </summary>
     [Pure]
-    public abstract bool Is<E>() where E : Exception;
+    public abstract bool HasException<E>() where E : Exception;
+
+    /// <summary>
+    /// Return true if this error contains or *is* the `error` provided
+    /// </summary>
+    [Pure]
+    public virtual bool IsType<E>() where E : Error =>
+        this is E;
 
     /// <summary>
     /// Return true if this error contains or *is* the `error` provided
@@ -56,16 +63,6 @@ public abstract record Error : Monoid<Error>
                 : Code == 0
                     ? Message == error.Message
                     : Code == error.Code;
-
-    [Pure]
-    public virtual bool Equals(Error? other) =>
-        other is not null && Is(other);
-
-    [Pure]
-    public override int GetHashCode() =>
-        Code == 0
-            ? Message.GetHashCode()
-            : Code;    
 
     /// <summary>
     /// True if the error is exceptional
@@ -419,9 +416,9 @@ public record Expected(string Message, int Code, Option<Error> Inner = default) 
     /// Returns false because this type isn't exceptional
     /// </summary>
     [Pure]
-    public override bool Is<E>() =>
+    public override bool HasException<E>() =>
         false;
-    
+
     /// <summary>
     /// True if the error is exceptional
     /// </summary>
@@ -514,7 +511,7 @@ public record Exceptional(string Message, int Code) : Error
     /// Return true if the exceptional error is of type E
     /// </summary>
     [Pure]
-    public override bool Is<E>() =>
+    public override bool HasException<E>() =>
         Value is E;
 
     [Pure]
@@ -579,7 +576,7 @@ public sealed record BottomError() : Exceptional(BottomException.Default)
     /// Return true if the exceptional error is of type E
     /// </summary>
     [Pure]
-    public override bool Is<E>() =>
+    public override bool HasException<E>() =>
         BottomException.Default is E;
 
     /// <summary>
@@ -645,9 +642,13 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     /// False
     /// </summary>
     [Pure]
-    public override bool Is<E>() =>
-        Errors.Exists(static e => e.Is<E>());
-
+    public override bool HasException<E>() =>
+        Errors.Exists(static e => e.HasException<E>());
+    
+    [Pure]
+    public override bool IsType<E>() =>
+        Errors.Exists(static e => e.IsType<E>());
+    
     /// <summary>
     /// Return true this error contains or *is* the `error` provided
     /// </summary>
