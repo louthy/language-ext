@@ -93,6 +93,21 @@ namespace LanguageExt.Parsec
             inp => EmptyError<T>(ParserError.Unexpect(inp.Pos, msg));
 
         /// <summary>
+        /// The parser unexpected(msg) always fails with an Unexpect error
+        /// message msg without consuming any input.
+        /// </summary>
+        /// <remarks>
+        /// The parsers 'failure', 'label' and 'unexpected' are the three parsers
+        /// used to generate error messages.  Of these, only 'label' is commonly
+        /// used.  For an example of the use of unexpected, see the definition
+        /// of 'Text.Parsec.Combinator.notFollowedBy'.
+        /// </remarks>
+        /// <param name="pos">Location of the failure</param>
+        /// <param name="msg">Error message to use when parsed</param>
+        public static Parser<T> unexpected<T>(Pos pos, string msg) =>
+            _ => EmptyError<T>(ParserError.Unexpect(pos, msg));
+
+        /// <summary>
         /// The parser failure(msg) always fails with a Message error
         /// without consuming any input.
         /// 
@@ -750,10 +765,11 @@ namespace LanguageExt.Parsec
         ///                                select x);
         ///                                
         /// </example>
-        public static Parser<Unit> notFollowedBy<T>(Parser<T> p) =>
+        public static Parser<Unit> notFollowedBy<T>(Parser<T> p, string? label = null) =>
             attempt(
-                either(from c in attempt(p)
-                       from u in unexpected<Unit>(c.ToString())
+                either(from l in getPos
+                       from c in attempt(p)
+                       from u in unexpected<Unit>(l, label ?? c.ToString())
                        select u,
                        result(unit)));
 
