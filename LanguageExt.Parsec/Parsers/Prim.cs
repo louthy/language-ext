@@ -20,7 +20,7 @@ namespace LanguageExt.Parsec
             unitp = inp => EmptyOK(unit, inp);
             getPos = (PString inp) => ConsumedOK(inp.Pos, inp);
             getIndex = (PString inp) => ConsumedOK(inp.Index, inp);
-            eof = notFollowedBy(satisfy(_ => true)).label("end of input");
+            eof = notFollowedBy(satisfy(_ => true), "end of input").label("end of input");
         }
 
         /// <summary>
@@ -747,7 +747,7 @@ namespace LanguageExt.Parsec
         /// This parser only succeeds at the end of the input. This is not a
         /// primitive parser but it is defined using 'notFollowedBy'.
         /// </summary>
-        public readonly static Parser<Unit> eof;
+        public static readonly Parser<Unit> eof;
 
         /// <summary>
         /// notFollowedBy(p) only succeeds when parser p fails. This parser
@@ -767,9 +767,10 @@ namespace LanguageExt.Parsec
         /// </example>
         public static Parser<Unit> notFollowedBy<T>(Parser<T> p, string? label = null) =>
             attempt(
-                either(from l in getPos
-                       from c in attempt(p)
-                       from u in unexpected<Unit>(l, label ?? c.ToString())
+                either(from c in attempt(from l in getPos
+                                         from r in p
+                                         select (Pos: l, Value: r))
+                       from u in unexpected<Unit>(c.Pos, label ?? c.Value.ToString())
                        select u,
                        result(unit)));
 
