@@ -83,7 +83,8 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        ResourcesDiscussion1366.Run();
+        SeqConstructTests.Test();
+        //ResourcesDiscussion1366.Run();
         //StateTTest();
         //AtomHashMapTests.Test();
         //await AtomHashMapPerf.Test();
