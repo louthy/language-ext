@@ -84,8 +84,11 @@ public abstract record Error : Monoid<Error>
     
     /// <summary>
     /// For each error in this structure, invoke the `f` function and
-    /// monad bind it with the subsequent value.  If any `f` invocation
-    /// yields a failure, then subsequent error values won't be processed. 
+    /// monad bind it with the subsequent value.
+    ///
+    /// If any `f` invocation yields a failure, then subsequent error will
+    /// not be processed.
+    /// monad
     /// </summary>
     /// <remarks>
     /// The final `A` is returned.
@@ -99,8 +102,10 @@ public abstract record Error : Monoid<Error>
     
     /// <summary>
     /// For each error in this structure, invoke the `f` function and
-    /// monoid combine it with the subsequent value.  If any `f` invocation
-    /// yields a failure, then subsequent error values won't be processed. 
+    /// monoid combine it with the subsequent value.
+    ///
+    /// If any `f` invocation yields a failure, then subsequent error
+    /// values may be processed.  This is dependent on the `M` monoid. 
     /// </summary>
     /// <remarks>
     /// The aggregated `K<M, A>` is returned.
@@ -727,8 +732,11 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
 
     /// <summary>
     /// For each error in this structure, invoke the `f` function and
-    /// monad bind it with the subsequent value.  If any `f` invocation
-    /// yields a failure, then subsequent error values won't be processed. 
+    /// monad bind it with the subsequent value.
+    ///
+    /// If any `f` invocation yields a failure, then subsequent error will
+    /// not be processed.
+    /// monad
     /// </summary>
     /// <remarks>
     /// The final `A` is returned.
@@ -739,18 +747,20 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     public override K<M, A> ForAllM<M, A>(Func<Error, K<M, A>> f)
     {
         if(Errors.IsEmpty) return M.Fail<A>(this);
-        var result = f(Errors[0]);
+        var result = Errors[0].ForAllM(f);
         foreach (var e in Errors.Tail)
         {
-            result = result.Bind(_ => f(e));
+            result = result.Bind(_ => e.ForAllM(f));
         }
         return result;
     }
     
     /// <summary>
     /// For each error in this structure, invoke the `f` function and
-    /// monoid combine it with the subsequent value.  If any `f` invocation
-    /// yields a failure, then subsequent error values won't be processed. 
+    /// monoid combine it with the subsequent value.
+    ///
+    /// If any `f` invocation yields a failure, then subsequent error
+    /// values may be processed.  This is dependent on the `M` monoid. 
     /// </summary>
     /// <remarks>
     /// The aggregated `K<M, A>` is returned.
@@ -763,7 +773,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
         var result = M.Empty<A>();
         foreach (var e in Errors)
         {
-            result = result.Combine(f(e));
+            result = result.Combine(e.FoldM(f));
         }
         return result;
     }
