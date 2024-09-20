@@ -73,6 +73,46 @@ public abstract record Error : Monoid<Error>
                 : Code == error.Code;
 
     /// <summary>
+    /// Filter the error(s) so that only errors of type `E` are left
+    /// </summary>
+    /// <remarks>
+    /// If no errors match, then returns `Errors.None`.
+    /// </remarks>
+    [Pure]
+    public virtual Error Filter<E>() where E : Error =>
+        this is E ? this : Errors.None;
+    
+    /// <summary>
+    /// For each error in this structure, invoke the `f` function and
+    /// monad bind it with the subsequent value.  If any `f` invocation
+    /// yields a failure, then subsequent error values won't be processed. 
+    /// </summary>
+    /// <remarks>
+    /// The final `A` is returned.
+    /// </remarks>
+    /// <param name="f">Function</param>
+    /// <returns>The final `A` is returned.</returns>
+    [Pure]
+    public virtual K<M, A> ForAllM<M, A>(Func<Error, K<M, A>> f) 
+        where M : Monad<M>, Fallible<Error, M> =>
+        f(this);
+    
+    /// <summary>
+    /// For each error in this structure, invoke the `f` function and
+    /// monoid combine it with the subsequent value.  If any `f` invocation
+    /// yields a failure, then subsequent error values won't be processed. 
+    /// </summary>
+    /// <remarks>
+    /// The aggregated `K<M, A>` is returned.
+    /// </remarks>
+    /// <param name="f">Function</param>
+    /// <returns>The aggregated `K<M, A>` is returned.</returns>
+    [Pure]
+    public virtual K<M, A> FoldM<M, A>(Func<Error, K<M, A>> f) 
+        where M : MonoidK<M> =>
+        f(this);
+
+    /// <summary>
     /// True if the error is exceptional
     /// </summary>
     [Pure]
@@ -670,6 +710,63 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     [Pure]
     public override bool Is(Error error) =>
         Errors.Exists(e => e.Is(error));
+
+    /// <summary>
+    /// Filter the error(s) so that only errors of type `E` are left
+    /// </summary>
+    /// <remarks>
+    /// If no errors match, then returns `Errors.None`.
+    /// </remarks>
+    [Pure]
+    public override Error Filter<E>() =>
+        Errors.Choose(e => e.IsType<E>() ? Some(e.Filter<E>()) : None) switch
+        {
+            []     => Common.Errors.None,
+            var es => Many(es)
+        };
+
+    /// <summary>
+    /// For each error in this structure, invoke the `f` function and
+    /// monad bind it with the subsequent value.  If any `f` invocation
+    /// yields a failure, then subsequent error values won't be processed. 
+    /// </summary>
+    /// <remarks>
+    /// The final `A` is returned.
+    /// </remarks>
+    /// <param name="f">Function</param>
+    /// <returns>The final `A` is returned.</returns>
+    [Pure]
+    public override K<M, A> ForAllM<M, A>(Func<Error, K<M, A>> f)
+    {
+        if(Errors.IsEmpty) return M.Fail<A>(this);
+        var result = f(Errors[0]);
+        foreach (var e in Errors.Tail)
+        {
+            result = result.Bind(_ => f(e));
+        }
+        return result;
+    }
+    
+    /// <summary>
+    /// For each error in this structure, invoke the `f` function and
+    /// monoid combine it with the subsequent value.  If any `f` invocation
+    /// yields a failure, then subsequent error values won't be processed. 
+    /// </summary>
+    /// <remarks>
+    /// The aggregated `K<M, A>` is returned.
+    /// </remarks>
+    /// <param name="f">Function</param>
+    /// <returns>The aggregated `K<M, A>` is returned.</returns>
+    [Pure]
+    public override K<M, A> FoldM<M, A>(Func<Error, K<M, A>> f)
+    {
+        var result = M.Empty<A>();
+        foreach (var e in Errors)
+        {
+            result = result.Combine(f(e));
+        }
+        return result;
+    }
 
     /// <summary>
     /// True if any errors are exceptional
