@@ -121,7 +121,7 @@ public static partial class Prelude
     /// Catch all `Expected` errors and return Fail 
     /// </summary>
     public static CatchM<Error, M, A> expected<M, A>(Func<Expected, K<M, A>> Fail) 
-        where M : Fallible<M>, Monad<M> =>
+        where M : Fallible<Error, M>, Monad<M> =>
         catchOf(Fail);
     
     /// <summary>
@@ -151,7 +151,7 @@ public static partial class Prelude
     /// Catch all `Expected` errors and return Fail 
     /// </summary>
     public static CatchM<Error, M, A> expectedFold<M, A>(Func<Expected, K<M, A>> Fail) 
-        where M : Fallible<M>, MonoidK<M> =>
+        where M : Fallible<Error, M>, MonoidK<M> =>
         catchOfFold(Fail);
     
     /// <summary>
