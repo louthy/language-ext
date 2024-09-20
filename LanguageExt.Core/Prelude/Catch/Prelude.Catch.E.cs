@@ -52,14 +52,14 @@ public static partial class Prelude
     /// </summary>
     public static CatchM<E, M, A> @catch<E, M, A>(E error, Func<E, K<M, A>> Fail) 
         where M : Fallible<E, M> =>
-        matchError(e => e?.Equals(error) ?? false, Fail);
+        matchError(e => error?.Equals(e) ?? false, Fail);
     
     /// <summary>
     /// Catch an error if the error matches the argument provided 
     /// </summary>
     public static CatchM<E, M, A> @catch<E, M, A>(E error, K<M, A> Fail)
         where M : Fallible<E, M> =>
-        matchError(e => e?.Equals(error) ?? false, (E _) => Fail);
+        matchError(e => error?.Equals(e) ?? false, (E _) => Fail);
     
     /// <summary>
     /// Catch an error if the error matches the argument provided 

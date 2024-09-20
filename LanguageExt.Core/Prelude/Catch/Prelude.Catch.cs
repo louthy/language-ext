@@ -44,21 +44,35 @@ public static partial class Prelude
     public static CatchM<Error, M, A> catchOf<E, M, A>(Func<E, K<M, A>> Fail) 
         where E : Error 
         where M : Fallible<Error, M> =>
-        matchError<Error, M, A>(static e => e.IsType<E>(), e => Fail((E)e));
+        matchError<Error, M, A>(static e => e is E || e.IsType<E>(), e => Fail((E)e));
 
+    /// <summary>
+    /// Catch an error if the error matches the argument provided 
+    /// </summary>
+    public static CatchM<Error, M, A> @catch<M, A>(Error error, Func<Error, K<M, A>> Fail) 
+        where M : Fallible<M> =>
+        matchError(error.Is, Fail);
+    
+    /// <summary>
+    /// Catch an error if the error matches the argument provided 
+    /// </summary>
+    public static CatchM<Error, M, A> @catch<M, A>(Error error, K<M, A> Fail)
+        where M : Fallible<M> =>
+        matchError(error.Is, (Error _) => Fail);
+    
     /// <summary>
     /// Catch an error if the error matches the argument provided 
     /// </summary>
     public static CatchM<Error, M, A> @catch<M, A>(int errorCode, Func<Error, K<M, A>> Fail)
         where M : Fallible<Error, M> =>
-        matchError(e => e.Code == errorCode, Fail);
+        matchError(e => e.Code == errorCode || e.HasCode(errorCode), Fail);
     
     /// <summary>
     /// Catch an error if the error matches the argument provided 
     /// </summary>
     public static CatchM<Error, M, A> @catch<M, A>(int errorCode, K<M, A> Fail)
         where M : Fallible<Error, M> =>
-        matchError(e => e.Code == errorCode, (Error _) => Fail);
+        matchError(e => e.Code == errorCode || e.HasCode(errorCode), (Error _) => Fail);
     
     /// <summary>
     /// Catch an error if the error matches the argument provided 

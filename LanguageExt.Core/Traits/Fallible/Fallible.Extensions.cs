@@ -123,7 +123,7 @@ public static class FallibleExtensions
         Error Match,
         Func<Error, K<F, A>> Fail) 
         where F : Fallible<F> =>
-        F.Catch(fa, e => e.Is(Match), Fail);
+        F.Catch(fa, Match.Is, Fail);
     
     /// <summary>
     /// Run the `Fallible` structure.  If in a failed state, test the failure value
@@ -141,7 +141,7 @@ public static class FallibleExtensions
         Error Match,
         Func<Error, K<IO, A>> Fail) 
         where M : Fallible<M>, Monad<M> =>
-        M.Catch(ma, e => e.Is(Match), e => M.LiftIO(Fail(e)));
+        M.Catch(ma, Match.Is, e => M.LiftIO(Fail(e)));
     
     /// <summary>
     /// Run the `Fallible` structure.  If in a failed state, test the failure value
@@ -159,7 +159,7 @@ public static class FallibleExtensions
         Error Match,
         Func<Error, Error> Fail) 
         where F : Fallible<F> =>
-        F.Catch(fa, e => e.Is(Match), e => F.Fail<A>(Fail(e)));
+        F.Catch(fa, Match.Is, e => F.Fail<A>(Fail(e)));
     
     /// <summary>
     /// Run the `Fallible` structure.  If in a failed state, test the failure value
@@ -177,7 +177,84 @@ public static class FallibleExtensions
         Error Match,
         Func<Error, A> Fail) 
         where F : Fallible<F>, Applicative<F> =>
-        F.Catch(fa, e => e.Is(Match), e => F.Pure(Fail(e)));
+        F.Catch(fa, Match.Is, e => F.Pure(Fail(e)));
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 
+    //  Error catching by error code equality
+    //
+    
+    /// <summary>
+    /// Run the `Fallible` structure.  If in a failed state, test the failure value
+    /// against the predicate.  If, it returns `true`, run the `Fail` function with
+    /// the failure value.
+    /// </summary>
+    /// <param name="fa">`Fallible` structure</param>
+    /// <param name="Code">Error code to match to</param>
+    /// <param name="Fail">Handler when in failed state</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Either `fa` or the result of `Fail` if `fa` is in a failed state and the
+    /// predicate returns true for the failure value</returns>
+    public static K<F, A> Catch<F, A>(
+        this K<F, A> fa,
+        int Code,
+        Func<Error, K<F, A>> Fail) 
+        where F : Fallible<F> =>
+        F.Catch(fa, e => Code == e.Code || e.HasCode(Code), Fail);
+    
+    /// <summary>
+    /// Run the `Fallible` structure.  If in a failed state, test the failure value
+    /// against the predicate.  If, it returns `true`, run the `Fail` function with
+    /// the failure value.
+    /// </summary>
+    /// <param name="ma">`Fallible` structure</param>
+    /// <param name="Code">Error code to match to</param>
+    /// <param name="Fail">Handler when in failed state</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Either `fa` or the result of `Fail` if `fa` is in a failed state and the
+    /// predicate returns true for the failure value</returns>
+    public static K<M, A> Catch<M, A>(
+        this K<M, A> ma,
+        int Code,
+        Func<Error, K<IO, A>> Fail) 
+        where M : Fallible<M>, Monad<M> =>
+        M.Catch(ma, e => Code == e.Code || e.HasCode(Code), e => M.LiftIO(Fail(e)));
+    
+    /// <summary>
+    /// Run the `Fallible` structure.  If in a failed state, test the failure value
+    /// against the predicate.  If, it returns `true`, run the `Fail` function with
+    /// the failure value.
+    /// </summary>
+    /// <param name="fa">`Fallible` structure</param>
+    /// <param name="Code">Error code to match to</param>
+    /// <param name="Fail">Handler when in failed state</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Either `fa` or the result of `Fail` if `fa` is in a failed state and the
+    /// predicate returns true for the failure value</returns>
+    public static K<F, A> Catch<F, A>(
+        this K<F, A> fa,
+        int Code,
+        Func<Error, Error> Fail) 
+        where F : Fallible<F> =>
+        F.Catch(fa, e => Code == e.Code || e.HasCode(Code), e => F.Fail<A>(Fail(e)));
+    
+    /// <summary>
+    /// Run the `Fallible` structure.  If in a failed state, test the failure value
+    /// against the predicate.  If, it returns `true`, run the `Fail` function with
+    /// the failure value.
+    /// </summary>
+    /// <param name="fa">`Fallible` structure</param>
+    /// <param name="Code">Error code to match to</param>
+    /// <param name="Fail">Handler when in failed state</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Either `fa` or the result of `Fail` if `fa` is in a failed state and the
+    /// predicate returns true for the failure value</returns>
+    public static K<F, A> Catch<F, A>(
+        this K<F, A> fa,
+        int Code,
+        Func<Error, A> Fail) 
+        where F : Fallible<F>, Applicative<F> =>
+        F.Catch(fa, e => Code == e.Code || e.HasCode(Code), e => F.Pure(Fail(e)));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 
@@ -264,7 +341,6 @@ public static class FallibleExtensions
         Func<Error, A> Fail) 
         where F : Fallible<F>, Applicative<F> =>
         F.Catch(fa, _ => true, e => F.Pure(Fail(e)));
-    
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 

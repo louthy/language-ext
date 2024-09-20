@@ -44,8 +44,16 @@ public abstract record Error : Monoid<Error>
     /// If this error represents an exceptional error, then this will return true if the exceptional error is of type E
     /// </summary>
     [Pure]
-    public abstract bool HasException<E>() where E : Exception;
+    public virtual bool HasException<E>() where E : Exception =>
+        false;
 
+    /// <summary>
+    /// Return true if an `Error` with `Code` equalling `code` is contained within 
+    /// </summary>
+    [Pure]
+    public virtual bool HasCode(int code) =>
+        Code == code;
+    
     /// <summary>
     /// Return true if this error contains or *is* the `error` provided
     /// </summary>
@@ -60,9 +68,9 @@ public abstract record Error : Monoid<Error>
     public virtual bool Is(Error error) =>
         error is ManyErrors errors
             ? errors.Errors.Exists(Is) 
-                : Code == 0
-                    ? Message == error.Message
-                    : Code == error.Code;
+            : Code == 0
+                ? Message == error.Message
+                : Code == error.Code;
 
     /// <summary>
     /// True if the error is exceptional
@@ -639,11 +647,18 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
         new ManyExceptions(Errors.Map(static e => e.ToErrorException()));
 
     /// <summary>
-    /// False
+    /// Return true if an exception of type E is contained within 
     /// </summary>
     [Pure]
     public override bool HasException<E>() =>
         Errors.Exists(static e => e.HasException<E>());
+
+    /// <summary>
+    /// Return true if an `Error` with `Code` equalling `code` is contained within 
+    /// </summary>
+    [Pure]
+    public override bool HasCode(int code) =>
+        Errors.Exists(e => e.Code == code);
     
     [Pure]
     public override bool IsType<E>() =>
