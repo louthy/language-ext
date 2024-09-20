@@ -75,7 +75,7 @@ public readonly struct Velocity :
     public static VelocitySq operator *(Velocity lhs, Velocity rhs) =>
         new (lhs.Value * rhs.Value);
 
-    public static VelocitySq operator^(Velocity lhs, int power) =>
+    public static VelocitySq operator ^(Velocity lhs, int power) =>
         power == 2
             ? new VelocitySq(lhs.Value * lhs.Value)
             : raise<VelocitySq>(new NotSupportedException("Velocity can only be raised to the power of 2"));
@@ -133,6 +133,7 @@ public readonly struct Velocity :
     public double KilometresPerHour   => Value / 1000.0                           * 3600.0;
     public double MilesPerSecond      => Value                                    / 1609.344000006437376000025749504;
     public double MilesPerHour        => Value / 1609.344000006437376000025749504 * 3600.0;
+    public double Knots               => Value                                    / 0.51444444444444;
 }
 
 public static class UnitsVelocityExtensions
@@ -181,4 +182,13 @@ public static class UnitsVelocityExtensions
 
     public static Velocity MilesPerHour(this double self) =>
         new (self * 1609.344000006437376000025749504 / 3600.0);
+
+    public static Velocity Knots(this int self) =>
+        new (self * 0.51444444444444);
+
+    public static Velocity Knots(this float self) =>
+        new(self * 0.51444444444444);
+
+    public static Velocity Knots(this double self) =>
+        new(self * 0.51444444444444);
 }
