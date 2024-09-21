@@ -4,6 +4,24 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 /// <summary>
+/// Bifunctor trait implementation for `Either<L, R>`
+/// </summary>
+public partial class Either :
+    Bifunctor<Either>
+{
+    static K<Either, X, Y> Bifunctor<Either>.BiMap<A, B, X, Y>(
+        Func<A, X> first,
+        Func<B, Y> second,
+        K<Either, A, B> fab) =>
+        fab switch
+        {
+            Right<A, B>(A value) => Either<X, Y>.Left(first(value)),
+            Left<A, B>(B value)  => Either<X, Y>.Right(second(value)),
+            _                    => throw new NotSupportedException()
+        };
+}
+
+/// <summary>
 /// Monad trait implementation for `Either<L, R>`
 /// </summary>
 /// <typeparam name="L">Left type parameter</typeparam>

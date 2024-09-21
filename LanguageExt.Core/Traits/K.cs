@@ -18,3 +18,11 @@ namespace LanguageExt.Traits;
 /// <typeparam name="F">Trait type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public interface K<in F, A>;
+
+/// <summary>
+/// Arrow kind: `* -> * -> *` used to represent higher-kinded types.
+/// </summary>
+/// <typeparam name="F">Trait type</typeparam>
+/// <typeparam name="A">Alternative value type</typeparam>
+/// <typeparam name="B">Bound value type</typeparam>
+public interface K<in F, A, B>;

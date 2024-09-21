@@ -4,7 +4,7 @@ using LanguageExt.ClassInstances;
 
 namespace LanguageExt;
 
-public static partial class Either
+public partial class Either
 {
     public sealed record Right<L, R>(R Value) : Either<L, R>
     {

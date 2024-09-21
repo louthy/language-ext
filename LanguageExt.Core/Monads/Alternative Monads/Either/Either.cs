@@ -37,7 +37,8 @@ public abstract record Either<L, R> :
     IComparable<Pure<R>>,
     IEquatable<Pure<R>>,
     IEquatable<R>,
-    Fallible<Either<L, R>, Either<L>, L, R>
+    Fallible<Either<L, R>, Either<L>, L, R>,
+    K<Either, L, R>
 {
     /// <summary>
     /// Is the Either in a Right state?
