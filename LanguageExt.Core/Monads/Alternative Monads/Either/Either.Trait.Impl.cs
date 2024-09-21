@@ -7,25 +7,29 @@ namespace LanguageExt;
 /// Bifunctor trait implementation for `Either<L, R>`
 /// </summary>
 public partial class Either :
-    Bifunctor<Either>
+    Bifunctor<Either>,
+    Functor<Either>
 {
-    static K<Either, X, Y> Bifunctor<Either>.BiMap<A, B, X, Y>(
-        Func<A, X> first,
-        Func<B, Y> second,
-        K<Either, A, B> fab) =>
+    static K<Either, Q, B> Bifunctor<Either>.BiMap<P, A, Q, B>(
+        Func<P, Q> first,
+        Func<A, B> second,
+        K<Either, P, A> fab) =>
         fab switch
         {
-            Right<A, B>(A value) => Either<X, Y>.Left(first(value)),
-            Left<A, B>(B value)  => Either<X, Y>.Right(second(value)),
+            Right<P, A>(P value) => Either<Q, B>.Left(first(value)),
+            Left<P, A>(A value)  => Either<Q, B>.Right(second(value)),
             _                    => throw new NotSupportedException()
         };
+
+    public static K<Either, B> Map<A, B>(Func<A, B> f, K<Either, A> ma) => 
+        throw new NotImplementedException();
 }
 
 /// <summary>
 /// Monad trait implementation for `Either<L, R>`
 /// </summary>
 /// <typeparam name="L">Left type parameter</typeparam>
-public class Either<L> : 
+public class Either<L> : Either,
     Monad<Either<L>>, 
     Fallible<L, Either<L>>,
     Traversable<Either<L>>, 

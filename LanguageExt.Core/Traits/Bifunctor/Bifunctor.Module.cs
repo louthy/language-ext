@@ -15,7 +15,7 @@ public static class Bifunctor
     /// <param name="fab">Bifunctor structure</param>
     /// <typeparam name="F">Bifunctor trait</typeparam>
     /// <returns>Mapped bifunctor</returns>
-    public static K<F, X, Y> bimap<F, A, B, X, Y>(Func<A, X> first, Func<B, Y> second, K<F, A, B> fab) 
+    public static K<F, Q, B> bimap<F, P, A, Q, B>(Func<P, Q> first, Func<A, B> second, K<F, P, A> fab) 
         where F : Bifunctor<F> =>
         F.BiMap(first, second, fab);
     
@@ -26,7 +26,7 @@ public static class Bifunctor
     /// <param name="fab">Bifunctor structure</param>
     /// <typeparam name="F">Bifunctor trait</typeparam>
     /// <returns>Mapped bifunctor</returns>
-    public static K<F, X, B> first<F, A, B, X>(Func<A, X> first, K<F, A, B> fab) 
+    public static K<F, Q, A> first<F, P, A, Q>(Func<P, Q> first, K<F, P, A> fab) 
         where F : Bifunctor<F> =>
         F.First(first, fab);
     
@@ -37,7 +37,7 @@ public static class Bifunctor
     /// <param name="fab">Bifunctor structure</param>
     /// <typeparam name="F">Bifunctor trait</typeparam>
     /// <returns>Mapped bifunctor</returns>
-    public static K<F, A, Y> second<F, A, B, Y>(Func<B, Y> second, K<F, A, B> fab) 
+    public static K<F, P, B> second<F, P, A, B>(Func<A, B> second, K<F, P, A> fab) 
         where F : Bifunctor<F> =>
         F.Second(second, fab);
 }

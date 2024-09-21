@@ -15,7 +15,7 @@ public static class BifunctorExtensions
     /// <param name="fab">Bifunctor structure</param>
     /// <typeparam name="F">Bifunctor trait</typeparam>
     /// <returns>Mapped bifunctor</returns>
-    public static K<F, X, Y> BiMap<F, A, B, X, Y>(this K<F, A, B> fab, Func<A, X> First, Func<B, Y> Second) 
+    public static K<F, Q, B> BiMap<F, P, A, Q, B>(this K<F, P, A> fab, Func<P, Q> First, Func<A, B> Second) 
         where F : Bifunctor<F> =>
         F.BiMap(First, Second, fab);
     
@@ -26,7 +26,7 @@ public static class BifunctorExtensions
     /// <param name="fab">Bifunctor structure</param>
     /// <typeparam name="F">Bifunctor trait</typeparam>
     /// <returns>Mapped bifunctor</returns>
-    public static K<F, X, B> First<F, A, B, X>(this K<F, A, B> fab, Func<A, X> first) 
+    public static K<F, Q, A> First<F, P, A, Q>(this K<F, P, A> fab, Func<P, Q> first) 
         where F : Bifunctor<F> =>
         F.First(first, fab);
     
@@ -37,7 +37,7 @@ public static class BifunctorExtensions
     /// <param name="fab">Bifunctor structure</param>
     /// <typeparam name="F">Bifunctor trait</typeparam>
     /// <returns>Mapped bifunctor</returns>
-    public static K<F, A, Y> Second<F, A, B, Y>(this K<F, A, B> fab, Func<B, Y> second) 
+    public static K<F, P, B> Second<F, P, A, B>(this K<F, P, A> fab, Func<A, B> second) 
         where F : Bifunctor<F> =>
         F.Second(second, fab);
 }
