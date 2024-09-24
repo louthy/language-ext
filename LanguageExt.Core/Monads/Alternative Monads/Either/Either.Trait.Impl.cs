@@ -7,8 +7,7 @@ namespace LanguageExt;
 /// Bifunctor trait implementation for `Either<L, R>`
 /// </summary>
 public partial class Either :
-    Bifunctor<Either>,
-    Functor<Either>
+    Bifunctor<Either>
 {
     static K<Either, Q, B> Bifunctor<Either>.BiMap<P, A, Q, B>(
         Func<P, Q> first,
@@ -20,9 +19,6 @@ public partial class Either :
             Left<P, A>(A value)  => Either<Q, B>.Right(second(value)),
             _                    => throw new NotSupportedException()
         };
-
-    public static K<Either, B> Map<A, B>(Func<A, B> f, K<Either, A> ma) => 
-        throw new NotImplementedException();
 }
 
 /// <summary>
