@@ -202,6 +202,8 @@ public abstract record Error : Monoid<Error>
     public Error Combine(Error error) =>
         (this, error) switch
         {
+            ({IsEmpty: true}, var e)       => e,
+            (var e, {IsEmpty: true})       => e,
             (ManyErrors e1, ManyErrors e2) => new ManyErrors(e1.Errors + e2.Errors), 
             (ManyErrors e1, var e2)        => new ManyErrors(e1.Errors.Add(e2)), 
             (var e1,        ManyErrors e2) => new ManyErrors(e1.Cons(e2.Errors)), 
