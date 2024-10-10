@@ -20,8 +20,15 @@ public static class EitherExtensions
     /// Monadic join
     /// </summary>
     [Pure]
-    public static Either<L, R> Flatten<L, R>(this Either<L, Either<L, R>> ma) =>
-        ma.Bind(x => x);
+    public static Either<L, R> Flatten<L, R>(this K<Either<L>, Either<L, R>> ma) =>
+        ma.As().Bind(x => x);
+ 
+    /// <summary>
+    /// Monadic join
+    /// </summary>
+    [Pure]
+    public static Either<L, R> Flatten<L, R>(this K<Either<L>, K<Either<L>, R>> ma) =>
+        ma.As().Bind(x => x);
 
     /// <summary>
     /// Apply
@@ -30,7 +37,7 @@ public static class EitherExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
-    public static Either<L, B> Apply<L, A, B>(this Either<L, Func<A, B>> fab, Either<L, A> fa) =>
+    public static Either<L, B> Apply<L, A, B>(this K<Either<L>, Func<A, B>> fab, Either<L, A> fa) =>
         Applicative.apply(fab, fa).As();
 
     /// <summary>
@@ -41,7 +48,7 @@ public static class EitherExtensions
     /// <param name="fb">Applicative b to apply</param>
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
-    public static Either<L, C> Apply<L, A, B, C>(this Either<L, Func<A, B, C>> fabc, Either<L, A> fa, Either<L, B> fb) =>
+    public static Either<L, C> Apply<L, A, B, C>(this K<Either<L>, Func<A, B, C>> fabc, Either<L, A> fa, Either<L, B> fb) =>
         Applicative.apply(fabc.Map(curry), fa).As().Apply(fb);
 
     /// <summary>
@@ -51,7 +58,7 @@ public static class EitherExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
-    public static Either<L, Func<B, C>> Apply<L, A, B, C>(this Either<L, Func<A, B, C>> fabc, Either<L, A> fa) =>
+    public static Either<L, Func<B, C>> Apply<L, A, B, C>(this K<Either<L>, Func<A, B, C>> fabc, Either<L, A> fa) =>
         Applicative.apply(fabc.Map(curry), fa).As();
 
     /// <summary>
@@ -61,7 +68,7 @@ public static class EitherExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
-    public static Either<L, Func<B, C>> Apply<L, A, B, C>(this Either<L, Func<A, Func<B, C>>> fabc, Either<L, A> fa) =>
+    public static Either<L, Func<B, C>> Apply<L, A, B, C>(this K<Either<L>, Func<A, Func<B, C>>> fabc, Either<L, A> fa) =>
         Applicative.apply(fabc, fa).As();
 
     /// <summary>
@@ -71,7 +78,7 @@ public static class EitherExtensions
     /// <param name="fb">Applicative to evaluate second and then return</param>
     /// <returns>Applicative of type Option<B></returns>
     [Pure]
-    public static Either<L, B> Action<L, A, B>(this Either<L, A> fa, Either<L, B> fb) =>
+    public static Either<L, B> Action<L, A, B>(this K<Either<L>, A> fa, Either<L, B> fb) =>
         Applicative.action(fa, fb).As();
 
     /// <summary>
@@ -178,90 +185,6 @@ public static class EitherExtensions
         return (l.AsIterable().ToSeq(), r.AsIterable().ToSeq());
     }
 
-    /// <summary>
-    /// Match the two states of the Either and return a promise of a non-null R2.
-    /// </summary>
-    public static async Task<R2> MatchAsync<L, R, R2>(this Either<L, Task<R>> self, Func<R, R2> Right, Func<L, R2> Left) =>
-        Check.NullReturn(self.IsRight
-            ? Right(await self.RightValue.ConfigureAwait(false))
-            : Left(self.LeftValue));
-
-    public static async Task<Either<L, R2>> MapAsync<L, R, R2>(this Either<L, R> self, Func<R, Task<R2>> map) =>
-        self.IsRight
-            ? await map(self.RightValue).ConfigureAwait(false)
-            : Left<L, R2>(self.LeftValue);
-
-    public static async Task<Either<L, R2>> MapAsync<L, R, R2>(this Task<Either<L, R>> self, Func<R, Task<R2>> map)
-    {
-        var val = await self.ConfigureAwait(false);
-        return val.IsRight
-            ? await map(val.RightValue).ConfigureAwait(false)
-            : Left<L, R2>(val.LeftValue);
-    }
-
-    public static async Task<Either<L, R2>> MapAsync<L, R, R2>(this Task<Either<L, R>> self, Func<R, R2> map)
-    {
-        var val = await self.ConfigureAwait(false);
-        return val.IsRight
-            ? map(val.RightValue)
-            : Left<L, R2>(val.LeftValue);
-    }
-
-    public static async Task<Either<L, R2>> MapAsync<L, R, R2>(this Either<L, Task<R>> self, Func<R, R2> map) =>
-        self.IsRight
-            ? map(await self.RightValue.ConfigureAwait(false))
-            : Left<L, R2>(self.LeftValue);
-
-    public static async Task<Either<L, R2>> MapAsync<L, R, R2>(this Either<L, Task<R>> self, Func<R, Task<R2>> map) =>
-        self.IsRight
-            ? await map(await self.RightValue).ConfigureAwait(false)
-            : Left<L, R2>(self.LeftValue);
-
-
-    public static async Task<Either<L, R2>> BindAsync<L, R, R2>(this Either<L, R> self, Func<R, Task<Either<L, R2>>> bind) =>
-        self.IsRight
-            ? await bind(self.RightValue).ConfigureAwait(false)
-            : Left<L, R2>(self.LeftValue);
-
-    public static async Task<Either<L, R2>> BindAsync<L, R, R2>(this Task<Either<L, R>> self, Func<R, Task<Either<L, R2>>> bind)
-    {
-        var val = await self.ConfigureAwait(false);
-        return val.IsRight
-            ? await bind(val.RightValue).ConfigureAwait(false)
-            : Left<L, R2>(val.LeftValue);
-    }
-
-    public static async Task<Either<L, R2>> BindAsync<L, R, R2>(this Task<Either<L, R>> self, Func<R, Either<L, R2>> bind)
-    {
-        var val = await self.ConfigureAwait(false);
-        return val.IsRight
-            ? bind(val.RightValue)
-            : Left<L, R2>(val.LeftValue);
-    }
-
-    public static async Task<Either<L, R2>> BindAsync<L, R, R2>(this Either<L, Task<R>> self, Func<R, Either<L, R2>> bind) =>
-        self.IsRight
-            ? bind(await self.RightValue.ConfigureAwait(false))
-            : Left<L, R2>(self.LeftValue);
-
-    public static async Task<Either<L, R2>> BindAsync<L, R, R2>(this Either<L, Task<R>> self, Func<R, Task<Either<L, R2>>> bind) =>
-        self.IsRight
-            ? await bind(await self.RightValue.ConfigureAwait(false)).ConfigureAwait(false)
-            : Left<L, R2>(self.LeftValue);
-
-    public static async Task<Unit> IterAsync<L, R>(this Task<Either<L, R>> self, Action<R> action)
-    {
-        var val = await self.ConfigureAwait(false);
-        if (val.IsRight) action(val.RightValue);
-        return unit;
-    }
-
-    public static async Task<Unit> IterAsync<L, R>(this Either<L, Task<R>> self, Action<R> action)
-    {
-        if (self.IsRight) action(await self.RightValue.ConfigureAwait(false));
-        return unit;
-    }
-
     [Pure]
     public static Validation<L, R> ToValidation<L, R>(this Either<L, R> ma)
         where L : Monoid<L> =>
@@ -310,4 +233,131 @@ public static class EitherExtensions
             Either.Left<string, R>  => Fail(Error.New(ma.LeftValue)),
             _                       => throw new BottomException()
         };
+    
+    /// <summary>
+    /// Functor map operation
+    /// </summary>
+    /// <remarks>
+    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
+    /// then takes the mapped value and wraps it back up into a new functor.
+    /// </remarks>
+    /// <param name="ma">Functor to map</param>
+    /// <param name="f">Mapping function</param>
+    /// <returns>Mapped functor</returns>
+    public static Either<L, B> Map<L, A, B>(this Func<A, B> f, K<Either<L>, A> ma) =>
+        ma.Map(f).As();
+    
+    /// <summary>
+    /// Functor map operation
+    /// </summary>
+    /// <remarks>
+    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
+    /// then takes the mapped value and wraps it back up into a new functor.
+    /// </remarks>
+    /// <param name="ma">Functor to map</param>
+    /// <param name="f">Mapping function</param>
+    /// <returns>Mapped functor</returns>
+    public static Either<L, Func<B, C>> Map<L, A, B, C>(
+        this Func<A, B, C> f, K<Either<L>, A> ma) =>
+        ma.Map(x => curry(f)(x)).As();
+    
+    /// <summary>
+    /// Functor map operation
+    /// </summary>
+    /// <remarks>
+    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
+    /// then takes the mapped value and wraps it back up into a new functor.
+    /// </remarks>
+    /// <param name="ma">Functor to map</param>
+    /// <param name="f">Mapping function</param>
+    /// <returns>Mapped functor</returns>
+    public static Either<L, Func<B, Func<C, D>>> Map<L, A, B, C, D>(
+        this Func<A, B, C, D> f, K<Either<L>, A> ma) =>
+        ma.Map(x => curry(f)(x)).As();
+    
+    /// <summary>
+    /// Functor map operation
+    /// </summary>
+    /// <remarks>
+    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
+    /// then takes the mapped value and wraps it back up into a new functor.
+    /// </remarks>
+    /// <param name="ma">Functor to map</param>
+    /// <param name="f">Mapping function</param>
+    /// <returns>Mapped functor</returns>
+    public static Either<L, Func<B, Func<C, Func<D, E>>>> Map<L, A, B, C, D, E>(
+        this Func<A, B, C, D, E> f, K<Either<L>, A> ma) =>
+        ma.Map(x => curry(f)(x)).As();
+    
+    /// <summary>
+    /// Functor map operation
+    /// </summary>
+    /// <remarks>
+    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
+    /// then takes the mapped value and wraps it back up into a new functor.
+    /// </remarks>
+    /// <param name="ma">Functor to map</param>
+    /// <param name="f">Mapping function</param>
+    /// <returns>Mapped functor</returns>
+    public static Either<L, Func<B, Func<C, Func<D, Func<E, F>>>>> Map<L, A, B, C, D, E, F>(
+        this Func<A, B, C, D, E, F> f, K<Either<L>, A> ma) => 
+        ma.Map(x => curry(f)(x)).As();
+    
+    /// <summary>
+    /// Functor map operation
+    /// </summary>
+    /// <remarks>
+    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
+    /// then takes the mapped value and wraps it back up into a new functor.
+    /// </remarks>
+    /// <param name="ma">Functor to map</param>
+    /// <param name="f">Mapping function</param>
+    /// <returns>Mapped functor</returns>
+    public static Either<L, Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> Map<L, A, B, C, D, E, F, G>(
+        this Func<A, B, C, D, E, F, G> f, K<Either<L>, A> ma) => 
+        ma.Map(x => curry(f)(x)).As();
+    
+    /// <summary>
+    /// Functor map operation
+    /// </summary>
+    /// <param name="ma">Functor to map</param>
+    /// <param name="f">Mapping function</param>
+    /// <returns>Mapped functor</returns>
+    public static Either<L, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> Map<L, A, B, C, D, E, F, G, H>(
+        this Func<A, B, C, D, E, F, G, H> f, K<Either<L>, A> ma) => 
+        ma.Map(x => curry(f)(x)).As();
+    
+    /// <summary>
+    /// Functor map operation
+    /// </summary>
+    /// <param name="ma">Functor to map</param>
+    /// <param name="f">Mapping function</param>
+    /// <returns>Mapped functor</returns>
+    public static Either<L, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> Map<L, A, B, C, D, E, F, G, H, I>(
+        this Func<A, B, C, D, E, F, G, H, I> f, K<Either<L>, A> ma) => 
+        ma.Map(x => curry(f)(x)).As();
+    
+    /// <summary>
+    /// Functor map operation
+    /// </summary>
+    /// <param name="ma">Functor to map</param>
+    /// <param name="f">Mapping function</param>
+    /// <returns>Mapped functor</returns>
+    public static Either<L, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, J>>>>>>>>> Map<L, A, B, C, D, E, F, G, H, I, J>(
+        this Func<A, B, C, D, E, F, G, H, I, J> f, K<Either<L>, A> ma) => 
+        ma.Map(x => curry(f)(x)).As();
+    
+    /// <summary>
+    /// Functor map operation
+    /// </summary>
+    /// <remarks>
+    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
+    /// then takes the mapped value and wraps it back up into a new functor.
+    /// </remarks>
+    /// <param name="ma">Functor to map</param>
+    /// <param name="f">Mapping function</param>
+    /// <returns>Mapped functor</returns>
+    public static Either<L, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, Func<J, K>>>>>>>>>> Map<L, A, B, C, D, E, F, G, H, I, J, K>(
+        this Func<A, B, C, D, E, F, G, H, I, J, K> f, K<Either<L>, A> ma) => 
+        ma.Map(x => curry(f)(x)).As();
 }

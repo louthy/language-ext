@@ -13,7 +13,7 @@ public class Free<F> : Monad<Free<F>>, SemiAlternative<Free<F>>
     {
         return go(ma.As());
         Free<F, B> go(Free<F, A> mx) =>
-            mx.As() switch
+            mx switch
             {
                 Pure<F, A> (var a)  => new Pure<F, B>(f(a)),
                 Bind<F, A> (var fa) => new Bind<F, B>(F.Map(go, fa)),
@@ -22,7 +22,7 @@ public class Free<F> : Monad<Free<F>>, SemiAlternative<Free<F>>
     }
 
     static K<Free<F>, B> Monad<Free<F>>.Bind<A, B>(K<Free<F>, A> ma, Func<A, K<Free<F>, B>> f) =>
-        ma.As() switch
+        ma switch
         {
             Pure<F, A> (var a) => f(a),
             Bind<F, A> (var m) => new Bind<F, B>(m.Map(mx => mx.Bind(f).As())),
@@ -33,7 +33,7 @@ public class Free<F> : Monad<Free<F>>, SemiAlternative<Free<F>>
         new Pure<F, A>(value);
 
     static K<Free<F>, B> Applicative<Free<F>>.Apply<A, B>(K<Free<F>, Func<A, B>> mf, K<Free<F>, A> ma) =>
-        (mf.As(), ma.As()) switch
+        (mf, ma) switch
         {
             (Pure<F, Func<A, B>> (var f), Pure<F, A> (var a)) => new Pure<F, B>(f(a)),
             (Pure<F, Func<A, B>> (var f), Bind<F, A> (var a)) => new Bind<F, B>(a.Map(x => x.Map(f).As())),
