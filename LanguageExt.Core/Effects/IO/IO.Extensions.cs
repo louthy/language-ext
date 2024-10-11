@@ -8,7 +8,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public static class IOExtensions
+public static partial class IOExtensions
 {
     /// <summary>
     /// Convert the kind version of the `IO` monad to an `IO` monad.

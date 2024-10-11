@@ -9,7 +9,7 @@ namespace LanguageExt;
 /// <summary>
 /// StreamT extensions
 /// </summary>
-public static class IterableTExtensions
+public static partial class StreamTExtensions
 {
     public static StreamT<M, A> As<M, A>(this K<StreamT<M>, A> ma)
         where M : Monad<M> =>

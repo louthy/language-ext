@@ -11,7 +11,7 @@ namespace LanguageExt;
 /// <summary>
 /// Extension methods for Fin
 /// </summary>
-public static class FinExtensions
+public static partial class FinExtensions
 {
     public static Fin<A> As<A>(this K<Fin, A> ma) =>
         (Fin<A>)ma;
@@ -107,16 +107,6 @@ public static class FinExtensions
     /// Apply
     /// </summary>
     /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type FB derived from Applicative of B</returns>
-    [Pure]
-    public static Fin<B> Map<A, B>(this Func<A, B> fab, Fin<A> fa) =>
-        fa.Map(fab); 
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
     /// <param name="fa">Applicative a to apply</param>
     /// <param name="fb">Applicative b to apply</param>
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
@@ -156,19 +146,6 @@ public static class FinExtensions
         if (fabc.IsFail) return Fin<Func<B, C>>.Fail(fabc.FailValue);
         if (fa.IsFail) return Fin<Func<B, C>>.Fail(fa.FailValue);
         return curry(fabc.SuccValue)(fa.SuccValue);
-    }
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
-    [Pure]
-    public static Fin<Func<B, C>> Map<A, B, C>(this Func<A, B, C> fabc, Fin<A> fa)
-    {
-        if (fa.IsFail) return Fin<Func<B, C>>.Fail(fa.FailValue);
-        return curry(fabc)(fa.SuccValue);
     }
 
     /// <summary>
@@ -311,131 +288,4 @@ public static class FinExtensions
 
         return (fs, rs);
     }
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped functor</returns>
-    public static Fin<B> Map<A, B>(this Func<A, B> f, K<Fin, A> ma) =>
-        ma.Map(f).As();
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped functor</returns>
-    public static Fin<Func<B, C>> Map<A, B, C>(
-        this Func<A, B, C> f, K<Fin, A> ma) =>
-        ma.Map(x => curry(f)(x)).As();
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped functor</returns>
-    public static Fin<Func<B, Func<C, D>>> Map<A, B, C, D>(
-        this Func<A, B, C, D> f, K<Fin, A> ma) =>
-        ma.Map(x => curry(f)(x)).As();
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped functor</returns>
-    public static Fin<Func<B, Func<C, Func<D, E>>>> Map<A, B, C, D, E>(
-        this Func<A, B, C, D, E> f, K<Fin, A> ma) =>
-        ma.Map(x => curry(f)(x)).As();
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped functor</returns>
-    public static Fin<Func<B, Func<C, Func<D, Func<E, F>>>>> Map<A, B, C, D, E, F>(
-        this Func<A, B, C, D, E, F> f, K<Fin, A> ma) => 
-        ma.Map(x => curry(f)(x)).As();
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped functor</returns>
-    public static Fin<Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> Map<A, B, C, D, E, F, G>(
-        this Func<A, B, C, D, E, F, G> f, K<Fin, A> ma) => 
-        ma.Map(x => curry(f)(x)).As();
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped functor</returns>
-    public static Fin<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> Map<A, B, C, D, E, F, G, H>(
-        this Func<A, B, C, D, E, F, G, H> f, K<Fin, A> ma) => 
-        ma.Map(x => curry(f)(x)).As();
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped functor</returns>
-    public static Fin<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> Map<A, B, C, D, E, F, G, H, I>(
-        this Func<A, B, C, D, E, F, G, H, I> f, K<Fin, A> ma) => 
-        ma.Map(x => curry(f)(x)).As();
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped functor</returns>
-    public static Fin<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, J>>>>>>>>> Map<A, B, C, D, E, F, G, H, I, J>(
-        this Func<A, B, C, D, E, F, G, H, I, J> f, K<Fin, A> ma) => 
-        ma.Map(x => curry(f)(x)).As();
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped functor</returns>
-    public static Fin<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, Func<J, K>>>>>>>>>> Map<A, B, C, D, E, F, G, H, I, J, K>(
-        this Func<A, B, C, D, E, F, G, H, I, J, K> f, K<Fin, A> ma) => 
-        ma.Map(x => curry(f)(x)).As();    
 }
