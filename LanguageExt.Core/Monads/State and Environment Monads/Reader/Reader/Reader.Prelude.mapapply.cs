@@ -15,13 +15,13 @@ public static partial class Prelude
     /// <param name="ma">Functor to map</param>
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
-    public static Try<B> map<A, B>(Func<A, B> f, K<Try, A> ma) =>
+    public static Reader<Env, B> map<Env, A, B>(Func<A, B> f, K<Reader<Env>, A> ma) =>
         ma.As().Map(f);
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
-    public static Try<B> action<A, B>(K<Try, A> ma, K<Try, B> mb) =>
+    public static Reader<Env, B> action<Env, A, B>(K<Reader<Env>, A> ma, K<Reader<Env>, B> mb) =>
         ma.As().Action(mb);    
 
     /// <summary>
@@ -34,6 +34,6 @@ public static partial class Prelude
     /// <param name="ma">Value(s) applicative functor</param>
     /// <param name="mf">Mapping function(s)</param>
     /// <returns>Mapped applicative functor</returns>
-    public static Try<B> apply<A, B>(K<Try, Func<A, B>> mf, K<Try, A> ma) =>
+    public static Reader<Env, B> apply<Env, A, B>(K<Reader<Env>, Func<A, B>> mf, K<Reader<Env>, A> ma) =>
         mf.As().Apply(ma);
 }    

@@ -8,7 +8,7 @@ namespace LanguageExt;
 /// <summary>
 /// Reader monad extensions
 /// </summary>
-public static partial class ReaderExt
+public static partial class ReaderTExtensions
 {
      // public static Reader<Env, A> As<Env, A>(this K<ReaderT<Env, Identity>, A> ma) =>
      //    (Reader<Env, A>)ma;

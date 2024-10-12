@@ -15,13 +15,15 @@ public static partial class Prelude
     /// <param name="ma">Functor to map</param>
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
-    public static Try<B> map<A, B>(Func<A, B> f, K<Try, A> ma) =>
+    public static ReaderT<Env, M, B> map<Env, M, A, B>(Func<A, B> f, K<ReaderT<Env, M>, A> ma) 
+        where M : Monad<M>, SemiAlternative<M> =>
         ma.As().Map(f);
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
-    public static Try<B> action<A, B>(K<Try, A> ma, K<Try, B> mb) =>
+    public static ReaderT<Env, M, B> action<Env, M, A, B>(K<ReaderT<Env, M>, A> ma, K<ReaderT<Env, M>, B> mb) 
+        where M : Monad<M>, SemiAlternative<M> =>
         ma.As().Action(mb);    
 
     /// <summary>
@@ -34,6 +36,7 @@ public static partial class Prelude
     /// <param name="ma">Value(s) applicative functor</param>
     /// <param name="mf">Mapping function(s)</param>
     /// <returns>Mapped applicative functor</returns>
-    public static Try<B> apply<A, B>(K<Try, Func<A, B>> mf, K<Try, A> ma) =>
+    public static ReaderT<Env, M, B> apply<Env, M, A, B>(K<ReaderT<Env, M>, Func<A, B>> mf, K<ReaderT<Env, M>, A> ma) 
+        where M : Monad<M>, SemiAlternative<M> =>
         mf.As().Apply(ma);
 }    

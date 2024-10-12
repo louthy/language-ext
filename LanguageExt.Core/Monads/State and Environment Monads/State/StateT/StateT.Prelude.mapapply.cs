@@ -15,14 +15,16 @@ public static partial class Prelude
     /// <param name="ma">Functor to map</param>
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
-    public static Try<B> map<A, B>(Func<A, B> f, K<Try, A> ma) =>
-        ma.As().Map(f);
-    
+    public static StateT<S, M, B> map<S, M, A, B>(Func<A, B> f, K<StateT<S, M>, A> ma)
+        where M : Monad<M>, SemiAlternative<M> =>
+        f.Map(ma);
+
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
-    public static Try<B> action<A, B>(K<Try, A> ma, K<Try, B> mb) =>
-        ma.As().Action(mb);    
+    public static StateT<S, M, B> action<S, M, A, B>(K<StateT<S, M>, A> ma, K<StateT<S, M>, B> mb)
+        where M : Monad<M>, SemiAlternative<M> =>
+        ma.Action(mb);    
 
     /// <summary>
     /// Applicative functor apply operation
@@ -34,6 +36,7 @@ public static partial class Prelude
     /// <param name="ma">Value(s) applicative functor</param>
     /// <param name="mf">Mapping function(s)</param>
     /// <returns>Mapped applicative functor</returns>
-    public static Try<B> apply<A, B>(K<Try, Func<A, B>> mf, K<Try, A> ma) =>
-        mf.As().Apply(ma);
+    public static StateT<S, M, B> apply<S, M, A, B>(K<StateT<S, M>, Func<A, B>> mf, K<StateT<S, M>, A> ma) 
+        where M : Monad<M>, SemiAlternative<M> =>
+        mf.Apply(ma);
 }    

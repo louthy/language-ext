@@ -7,7 +7,7 @@ namespace LanguageExt;
 /// <summary>
 /// State monad extensions
 /// </summary>
-public static class StateTExtensions
+public static partial class StateTExtensions
 {
     public static StateT<Env, M, A> As<Env, M, A>(this K<StateT<Env, M>, A> ma)
         where M : Monad<M>, SemiAlternative<M> =>

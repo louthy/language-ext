@@ -4,7 +4,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public static class WriterTExtensions
+public static partial class WriterTExtensions
 {
     public static WriterT<W, M, A> As<W, M, A>(this K<WriterT<W, M>, A> ma)
         where M : Monad<M>, SemiAlternative<M> 

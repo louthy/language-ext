@@ -7,7 +7,7 @@ using Void = LanguageExt.Pipes.Void;
 
 namespace LanguageExt;
 
-public static class ProxyExtensions
+public static partial class ProxyExtensions
 {
     /// <summary>
     /// Monad bind (specialised)

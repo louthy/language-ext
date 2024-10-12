@@ -1,5 +1,6 @@
 ﻿using System;
 using LanguageExt.Traits;
+using LanguageExt.Pipes;
 
 namespace LanguageExt;
 
@@ -15,14 +16,20 @@ public static partial class Prelude
     /// <param name="ma">Functor to map</param>
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
-    public static Try<B> map<A, B>(Func<A, B> f, K<Try, A> ma) =>
+    public static Proxy<UOut, UIn, DIn, DOut, M, B> map<UOut, UIn, DIn, DOut, M, A, B>(
+        Func<A, B> f, 
+        K<Proxy<UOut, UIn, DIn, DOut, M>, A> ma) 
+        where M : Monad<M> =>
         ma.As().Map(f);
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
-    public static Try<B> action<A, B>(K<Try, A> ma, K<Try, B> mb) =>
-        ma.As().Action(mb);    
+    public static Proxy<UOut, UIn, DIn, DOut, M, B> action<UOut, UIn, DIn, DOut, M, A, B>(
+        K<Proxy<UOut, UIn, DIn, DOut, M>, A> ma, 
+        K<Proxy<UOut, UIn, DIn, DOut, M>, B> mb) 
+        where M : Monad<M> =>
+        ma.Action(mb).As();    
 
     /// <summary>
     /// Applicative functor apply operation
@@ -34,6 +41,9 @@ public static partial class Prelude
     /// <param name="ma">Value(s) applicative functor</param>
     /// <param name="mf">Mapping function(s)</param>
     /// <returns>Mapped applicative functor</returns>
-    public static Try<B> apply<A, B>(K<Try, Func<A, B>> mf, K<Try, A> ma) =>
-        mf.As().Apply(ma);
+    public static Proxy<UOut, UIn, DIn, DOut, M, B> apply<UOut, UIn, DIn, DOut, M, A, B>(
+        K<Proxy<UOut, UIn, DIn, DOut, M>, Func<A, B>> mf, 
+        K<Proxy<UOut, UIn, DIn, DOut, M>, A> ma) 
+        where M : Monad<M> =>
+        mf.Apply(ma).As();
 }    

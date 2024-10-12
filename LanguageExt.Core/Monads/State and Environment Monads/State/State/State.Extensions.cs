@@ -6,7 +6,7 @@ namespace LanguageExt;
 /// <summary>
 /// State monad extensions
 /// </summary>
-public static partial class StatefulExtensions
+public static partial class StateExtensions
 {
     public static State<S, A> As<S, A>(this K<State<S>, A> ma) =>
         (State<S, A>)ma;

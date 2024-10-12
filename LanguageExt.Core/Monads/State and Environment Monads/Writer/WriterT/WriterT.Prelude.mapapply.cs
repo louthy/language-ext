@@ -15,14 +15,18 @@ public static partial class Prelude
     /// <param name="ma">Functor to map</param>
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
-    public static Try<B> map<A, B>(Func<A, B> f, K<Try, A> ma) =>
+    public static WriterT<W, M, B> map<W, M, A, B>(Func<A, B> f, K<WriterT<W, M>, A> ma) 
+        where W : Monoid<W> 
+        where M : Monad<M>, SemiAlternative<M> =>
         ma.As().Map(f);
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
-    public static Try<B> action<A, B>(K<Try, A> ma, K<Try, B> mb) =>
-        ma.As().Action(mb);    
+    public static WriterT<W, M, B> action<W, M, A, B>(K<WriterT<W, M>, A> ma, K<WriterT<W, M>, B> mb) 
+        where W : Monoid<W> 
+        where M : Monad<M>, SemiAlternative<M> =>
+        ma.Action(mb).As();    
 
     /// <summary>
     /// Applicative functor apply operation
@@ -34,6 +38,8 @@ public static partial class Prelude
     /// <param name="ma">Value(s) applicative functor</param>
     /// <param name="mf">Mapping function(s)</param>
     /// <returns>Mapped applicative functor</returns>
-    public static Try<B> apply<A, B>(K<Try, Func<A, B>> mf, K<Try, A> ma) =>
-        mf.As().Apply(ma);
+    public static WriterT<W, M, B> apply<W, M, A, B>(K<WriterT<W, M>, Func<A, B>> mf, K<WriterT<W, M>, A> ma) 
+        where W : Monoid<W> 
+        where M : Monad<M>, SemiAlternative<M> =>
+        mf.Apply(ma).As();
 }    
