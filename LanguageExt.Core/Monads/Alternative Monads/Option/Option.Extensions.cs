@@ -135,62 +135,6 @@ public static partial class OptionExtensions
         select divide<NUM, A>(a, b);
 
     /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type FB derived from Applicative of B</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<B> Apply<A, B>(this Option<Func<A, B>> fab, Option<A> fa) =>
-        fab.Bind(fa.Map);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative a to apply</param>
-    /// <param name="fb">Applicative b to apply</param>
-    /// <returns>Applicative of type FC derived from Applicative of C</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<C> Apply<A, B, C>(this Option<Func<A, B, C>> fabc, Option<A> fa, Option<B> fb) =>
-        fabc.Bind(f => fa.Bind(a => fb.Map(b => f(a, b))));
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<Func<B, C>> Apply<A, B, C>(this Option<Func<A, B, C>> fabc, Option<A> fa) =>
-        fabc.Map(curry).Bind(fa.Map);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<Func<B, C>> Apply<A, B, C>(this Option<Func<A, Func<B, C>>> fabc, Option<A> fa) =>
-        fabc.Bind(fa.Map);
-
-    /// <summary>
-    /// Evaluate fa, then fb, ignoring the result of fa
-    /// </summary>
-    /// <param name="fa">Applicative to evaluate first</param>
-    /// <param name="fb">Applicative to evaluate second and then return</param>
-    /// <returns>Applicative of type Option<B></returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<B> Action<A, B>(this Option<A> fa, Option<B> fb) =>
-        fb;
-
-    /// <summary>
     /// Convert the Option type to a Nullable of A
     /// </summary>
     /// <typeparam name="A">Type of the bound value</typeparam>

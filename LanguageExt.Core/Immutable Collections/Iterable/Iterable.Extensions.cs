@@ -8,7 +8,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public static class IterableExtensions
+public static partial class IterableExtensions
 {
     public static Iterable<A> As<A>(this K<Iterable, A> xs) =>
         (Iterable<A>)xs;

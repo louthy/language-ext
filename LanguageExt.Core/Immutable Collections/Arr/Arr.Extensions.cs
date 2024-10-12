@@ -7,7 +7,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public static class ArrExtensions
+public static partial class ArrExtensions
 {
     public static Arr<A> As<A>(this K<Arr, A> xs) =>
         (Arr<A>)xs;

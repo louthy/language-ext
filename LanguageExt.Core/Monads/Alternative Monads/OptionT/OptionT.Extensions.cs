@@ -72,20 +72,4 @@ public static partial class OptionTExtensions
         Func<A, B, C> project)
         where M : Monad<M> =>
         OptionT<M, A>.Lift(ma).SelectMany(bind, project);
-
-    /// <summary>
-    /// Applicative apply
-    /// </summary>
-    [Pure]
-    public static OptionT<M, B> Apply<M, A, B>(this OptionT<M, Func<A, B>> mf, OptionT<M, A> ma) 
-        where M : Monad<M> => 
-        mf.As().Bind(ma.As().Map);
-
-    /// <summary>
-    /// Applicative action
-    /// </summary>
-    [Pure]
-    public static OptionT<M, B> Action<M, A, B>(this OptionT<M, A> ma, OptionT<M, B> mb)
-        where M : Monad<M> => 
-        ma.As().Bind(_ => mb);
 }

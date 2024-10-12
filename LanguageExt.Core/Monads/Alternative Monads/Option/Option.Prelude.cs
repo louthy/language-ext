@@ -186,62 +186,6 @@ public static partial class Prelude
         option.Match(Some, None);
 
     /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type FB derived from Applicative of B</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<B> apply<A, B>(Option<Func<A, B>> fab, Option<A> fa) =>
-        fab.Apply(fa);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative a to apply</param>
-    /// <param name="fb">Applicative b to apply</param>
-    /// <returns>Applicative of type FC derived from Applicative of C</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<C> apply<A, B, C>(Option<Func<A, B, C>> fabc, Option<A> fa, Option<B> fb) =>
-        fabc.Apply(fa, fb);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<Func<B, C>> apply<A, B, C>(Option<Func<A, B, C>> fabc, Option<A> fa) =>
-        fabc.Apply(fa);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<Func<B, C>> apply<A, B, C>(Option<Func<A, Func<B, C>>> fabc, Option<A> fa) =>
-        fabc.Apply(fa);
-
-    /// <summary>
-    /// Evaluate fa, then fb, ignoring the result of fa
-    /// </summary>
-    /// <param name="fa">Applicative to evaluate first</param>
-    /// <param name="fb">Applicative to evaluate second and then return</param>
-    /// <returns>Applicative of type Option<B></returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<B> action<A, B>(Option<A> fa, Option<B> fb) =>
-        fa.Action(fb);
-
-    /// <summary>
     /// <para>
     /// Option types are like lists of 0 or 1 items, and therefore follow the 
     /// same rules when folding.

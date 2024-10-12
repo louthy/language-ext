@@ -83,23 +83,6 @@ public static partial class EitherTExtensions
         EitherT<L, M, A>.Lift(ma).SelectMany(bind, project);
 
     /// <summary>
-    /// Applicative apply
-    /// </summary>
-    [Pure]
-    public static EitherT<L, M, B> Apply<L, M, A, B>(this EitherT<L, M, Func<A, B>> mf, EitherT<L, M, A> ma) 
-        where M : Monad<M> => 
-        mf.As().Bind(ma.As().Map);
-
-    /// <summary>
-    /// Applicative action
-    /// </summary>
-    [Pure]
-    public static EitherT<L, M, B> Action<L, M, A, B>(this EitherT<L, M, A> ma, EitherT<L, M, B> mb)
-        where M : Monad<M> => 
-        ma.As().Bind(_ => mb);
-    
-
-    /// <summary>
     /// Extracts from a list of 'Either' all the 'Left' elements.
     /// All the 'Left' elements are extracted in order.
     /// </summary>

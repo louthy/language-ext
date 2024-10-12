@@ -121,66 +121,6 @@ public static partial class Prelude
         select NUM.Divide(a, b);
 
     /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type FB derived from Applicative of B</returns>
-    [Pure]
-    public static Either<L, B> apply<L, A, B>(Either<L, Func<A, B>> fab, Either<L, A> fa) =>
-        from f in fab
-        from a in fa
-        select f(a);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative a to apply</param>
-    /// <param name="fb">Applicative b to apply</param>
-    /// <returns>Applicative of type FC derived from Applicative of C</returns>
-    [Pure]
-    public static Either<L, C> apply<L, A, B, C>(Either<L, Func<A, B, C>> fabc, Either<L, A> fa, Either<L, B> fb) =>
-        from f in fabc
-        from a in fa
-        from b in fb
-        select f(a, b);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
-    [Pure]
-    public static Either<L, Func<B, C>> apply<L, A, B, C>(Either<L, Func<A, B, C>> fabc, Either<L, A> fa) =>
-        from f in fabc
-        from a in fa
-        select curry(f)(a);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
-    [Pure]
-    public static Either<L, Func<B, C>> apply<L, A, B, C>(Either<L, Func<A, Func<B, C>>> fabc, Either<L, A> fa) =>
-        from f in fabc
-        from a in fa
-        select f(a);
-
-    /// <summary>
-    /// Evaluate fa, then fb, ignoring the result of fa
-    /// </summary>
-    /// <param name="fa">Applicative to evaluate first</param>
-    /// <param name="fb">Applicative to evaluate second and then return</param>
-    /// <returns>Applicative of type Option<B></returns>
-    [Pure]
-    public static Either<L, B> action<L, A, B>(Either<L, A> fa, Either<L, B> fb) =>
-        fa.Bind(_ => fb);
-
-    /// <summary>
     /// Returns the state of the Either provided
     /// </summary>
     /// <typeparam name="L">Left</typeparam>

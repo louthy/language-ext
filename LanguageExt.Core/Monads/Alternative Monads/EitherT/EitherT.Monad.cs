@@ -22,7 +22,7 @@ public partial class EitherT<L, M> :
     static K<EitherT<L, M>, A> Applicative<EitherT<L, M>>.Pure<A>(A value) => 
         EitherT<L, M, A>.Right(value);
 
-    static K<EitherT<L, M>, B> Applicative<EitherT<L, M>>.Apply<A, B>(K<EitherT<L, M>, Func<A, B>> mf, K<EitherT<L, M>, A> ma) => 
+    static K<EitherT<L, M>, B> Applicative<EitherT<L, M>>.Apply<A, B>(K<EitherT<L, M>, Func<A, B>> mf, K<EitherT<L, M>, A> ma) =>
         mf.As().Bind(ma.As().Map);
 
     static K<EitherT<L, M>, B> Applicative<EitherT<L, M>>.Action<A, B>(K<EitherT<L, M>, A> ma, K<EitherT<L, M>, B> mb) =>

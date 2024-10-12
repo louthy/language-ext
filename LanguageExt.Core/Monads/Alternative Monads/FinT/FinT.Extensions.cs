@@ -80,22 +80,6 @@ public static partial class FinTExtensions
         FinT<M, A>.Lift(ma).SelectMany(bind, project);
 
     /// <summary>
-    /// Applicative apply
-    /// </summary>
-    [Pure]
-    public static FinT<M, B> Apply<M, A, B>(this FinT<M, Func<A, B>> mf, FinT<M, A> ma) 
-        where M : Monad<M> => 
-        mf.As().Bind(ma.As().Map);
-
-    /// <summary>
-    /// Applicative action
-    /// </summary>
-    [Pure]
-    public static FinT<M, B> Action<M, A, B>(this FinT<M, A> ma, FinT<M, B> mb)
-        where M : Monad<M> => 
-        ma.As().Bind(_ => mb);
-
-    /// <summary>
     /// Extracts from a sequence of 'Fin' transformers all the 'Fail' values.
     /// The 'Fail' elements are extracted in order.
     /// </summary>

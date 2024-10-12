@@ -7,7 +7,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public static class MapExtensions
+public static partial class MapExtensions
 {
     public static Map<Key, V> As<Key, V>(this K<Map<Key>, V> ma) =>
         (Map<Key, V>)ma;

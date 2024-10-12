@@ -11,7 +11,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public static class SeqExtensions
+public static partial class SeqExtensions
 {
     public static Seq<A> As<A>(this K<Seq, A> xs) =>
         (Seq<A>)xs;

@@ -73,16 +73,6 @@ public static partial class IOExtensions
         where M : Monad<M> =>
         ma.MapIO(io => io.Local());
 
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IO<B> Apply<A, B>(this IO<Func<A, B>> ff, IO<A> fa) =>
-        ff.Kind().Apply(fa.Kind()).As();
-
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IO<B> Action<A, B>(this IO<A> fa, IO<B> fb) =>
-        fa.Bind(_ => fb);
-
     /// <summary>
     /// Make this IO computation run on the `SynchronizationContext` that was captured at the start
     /// of the IO chain (i.e. the one embedded within the `EnvIO` environment that is passed through

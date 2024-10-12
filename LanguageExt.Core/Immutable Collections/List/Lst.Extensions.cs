@@ -11,7 +11,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public static class ListExtensions
+public static partial class LstExtensions
 {
     public static Lst<A> As<A>(this K<Lst, A> xs) =>
         (Lst<A>)xs;
