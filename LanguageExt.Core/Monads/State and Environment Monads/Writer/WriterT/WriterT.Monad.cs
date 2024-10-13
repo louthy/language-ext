@@ -44,7 +44,7 @@ public partial class WriterT<W, M> :
         new WriterT<W, M, Unit>(w => M.Pure((unit, w + item)));
 
     static K<WriterT<W, M>, (A Value, W Output)> Writable<WriterT<W, M>, W>.Listen<A>(K<WriterT<W, M>, A> ma) =>
-        ma.As().Listen();
+        ma.As().Listen;
 
     static K<WriterT<W, M>, A> Writable<WriterT<W, M>, W>.Pass<A>(
         K<WriterT<W, M>, (A Value, Func<W, W> Function)> action) =>

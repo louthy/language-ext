@@ -29,7 +29,7 @@ public record WriterT<W, M, A>(Func<W, K<M, (A Value, W Output)>> runWriter) : K
     /// The inverse of `Run()`
     /// </remarks>
     /// <param name="result">Result / Output pair</param>
-    public WriterT<W, M, A> Write((A Value, W Output) result) =>
+    public static WriterT<W, M, A> Write((A Value, W Output) result) =>
         new(w => M.Pure((result.Value, w.Combine(result.Output))));
 
     /// <summary>
@@ -39,13 +39,13 @@ public record WriterT<W, M, A>(Func<W, K<M, (A Value, W Output)>> runWriter) : K
     /// The inverse of `Run()`
     /// </remarks>
     /// <param name="result">Result / Output pair</param>
-    public WriterT<W, M, A> Write(A value, W output) =>
+    public static WriterT<W, M, A> Write(A value, W output) =>
         new(w => M.Pure((value, w.Combine(output))));
 
     /// <summary>
     /// Writes an item and returns a value at the same time
     /// </summary>
-    public WriterT<W, M, (A Value, W Output)> Listen() =>
+    public WriterT<W, M, (A Value, W Output)> Listen =>
         Listens(x => x);
 
     /// <summary>
