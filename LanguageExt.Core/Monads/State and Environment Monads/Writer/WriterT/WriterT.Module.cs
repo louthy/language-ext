@@ -70,7 +70,7 @@ public class WriterT
     /// <typeparam name="W">Writer type</typeparam>
     /// <returns>Structure with the told item</returns>
     public static WriterT<W, M, Unit> tell<M, W>(W item)
-        where M : Writable<M, W>, Monad<M>, SemiAlternative<M>
+        where M : Monad<M>, SemiAlternative<M>
         where W : Monoid<W> =>
         new (w => M.Pure((default(Unit), w + item)));
 
@@ -78,7 +78,7 @@ public class WriterT
     /// Writes an item and returns a value at the same time
     /// </summary>
     public static WriterT<W, M, A> write<M, W, A>((A, W) item)
-        where M : Writable<M, W>, Monad<M>, SemiAlternative<M> 
+        where M : Monad<M>, SemiAlternative<M> 
         where W : Monoid<W> =>
         new (w => M.Pure((item.Item1, w + item.Item2)));
 
@@ -86,44 +86,44 @@ public class WriterT
     /// Writes an item and returns a value at the same time
     /// </summary>
     public static WriterT<W, M, A> write<M, W, A>(A value, W item)
-        where M : Writable<M, W>, Monad<M>, SemiAlternative<M> 
+        where M : Monad<M>, SemiAlternative<M> 
         where W : Monoid<W> =>
         new (w => M.Pure((value, w + item)));
 
     /// <summary>
     /// `pass` is an action that executes the `action`, which returns a value and a
-    /// function; it then returns a the value with the output having been applied to
+    /// function; it then returns the value with the output having been applied to
     /// the function.
     /// </summary>
     public static WriterT<W, M, A> pass<M, W, A>(WriterT<W, M, (A Value, Func<W, W> Function)> action)
-        where M : Writable<M, W>, Monad<M>, SemiAlternative<M> 
+        where M : Monad<M>, SemiAlternative<M> 
         where W : Monoid<W> =>
         Writable.pass(action).As();
 
     /// <summary>
-    /// `listen` is executes the action `ma` and adds the result of applying `f` to the
+    /// `listen` executes the action `ma` and adds the result of applying `f` to the
     /// output to the value of the computation.
     /// </summary>
     public static WriterT<W, M, (A Value, W Output)> listen<M, W, A>(WriterT<W, M, A> ma)
-        where M : Writable<M, W>, Monad<M>, SemiAlternative<M>
+        where M : Monad<M>, SemiAlternative<M>
         where W : Monoid<W> =>
         Writable.listen<WriterT<W, M>, W, A>(ma).As();
 
     /// <summary>
-    /// `listens` is executes the action `ma` and adds the result of applying `f` to the
+    /// `listens` executes the action `ma` and adds the result of applying `f` to the
     /// output to the value of the computation.
     /// </summary>
     public static WriterT<W, M, (A Value, B Output)> listens<M, W, A, B>(Func<W, B> f, WriterT<W, M, A> ma)
-        where M : Writable<M, W>, Monad<M>, SemiAlternative<M>
+        where M : Monad<M>, SemiAlternative<M>
         where W : Monoid<W> =>
         Writable.listens(f, ma).As();
 
     /// <summary>
-    /// `censor` is executes the action `ma` and applies the function `f` to its output,
+    /// `censor` executes the action `ma` and applies the function `f` to its output,
     /// leaving the return value unchanged.
     /// </summary>
     public static WriterT<W, M, A> censor<M, W, A>(Func<W, W> f, WriterT<W, M, A> ma)
-        where M : Writable<M, W>, Monad<M>, SemiAlternative<M> 
+        where M : Monad<M>, SemiAlternative<M> 
         where W : Monoid<W> =>
         Writable.censor(f, ma).As();
 }
