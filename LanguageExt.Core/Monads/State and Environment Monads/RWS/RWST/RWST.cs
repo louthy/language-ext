@@ -85,7 +85,7 @@ public record RWST<R, W, S, M, A>(Func<(R Env, W Output, S State), K<M, (A Value
     /// </remarks>
     /// <param name="result">Result / Output pair</param>
     public static RWST<R, W, S, M, A> Write((A Value, W Output) result) =>
-        Writable.write<RWST<R, W, S, M>, W, A>(result).As();
+        Writable.write<W, RWST<R, W, S, M>, A>(result).As();
 
     /// <summary>
     /// Construct a writer computation from a (result, output) pair.
@@ -95,13 +95,13 @@ public record RWST<R, W, S, M, A>(Func<(R Env, W Output, S State), K<M, (A Value
     /// </remarks>
     /// <param name="result">Result / Output pair</param>
     public static RWST<R, W, S, M, A> Write(A value, W output) =>
-        Writable.write<RWST<R, W, S, M>, W, A>(value, output).As();
+        Writable.write<W, RWST<R, W, S, M>, A>(value, output).As();
 
     /// <summary>
     /// Writes an item and returns a value at the same time
     /// </summary>
     public RWST<R, W, S, M, (A Value, W Output)> Listen =>
-        Writable.listen<RWST<R, W, S, M>, W, A>(this).As();
+        Writable.listen<W, RWST<R, W, S, M>, A>(this).As();
 
     /// <summary>
     /// `Listens` executes the action and adds the result of applying `f` to the
@@ -116,7 +116,6 @@ public record RWST<R, W, S, M, A>(Func<(R Env, W Output, S State), K<M, (A Value
     /// </summary>
     public RWST<R, W, S, M, A> Censor(Func<W, W> f) =>
         Writable.censor(f, this).As();
-
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

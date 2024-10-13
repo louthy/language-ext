@@ -24,6 +24,14 @@ public static partial class ReaderTExtensions
     public static ReaderT<Env, M, A> Flatten<Env, M, A>(this ReaderT<Env, M, ReaderT<Env, M, A>> mma)
         where M : Monad<M>, SemiAlternative<M> =>
         mma.Bind(identity);
+    
+    /// <summary>
+    /// Monadic join
+    /// </summary>
+    [Pure]
+    public static ReaderT<Env, M, A> Flatten<Env, M, A>(this ReaderT<Env, M, K<ReaderT<Env, M>, A>> mma)
+        where M : Monad<M>, SemiAlternative<M> =>
+        mma.Bind(identity);
 
     /// <summary>
     /// Monad bind operation
