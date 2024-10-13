@@ -43,7 +43,7 @@ public partial class WriterT<W, M>
 /// <typeparam name="M">Given monad trait</typeparam>
 public class WriterT
 {
-    public static WriterT<W, M, A> Pure<W, M, A>(A value)  
+    public static WriterT<W, M, A> pure<W, M, A>(A value)  
         where W : Monoid<W>
         where M : Monad<M>, SemiAlternative<M> => 
         WriterT<W, M, A>.Pure(value);

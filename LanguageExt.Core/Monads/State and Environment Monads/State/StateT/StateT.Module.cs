@@ -23,7 +23,7 @@ public class StateT<S>
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class StateT<S, M>
 {
-    public static StateT<S, M, A> Pure<A>(A value) => 
+    public static StateT<S, M, A> pure<A>(A value) => 
         StateT<S, M, A>.Pure(value);
 
     /// <summary>
@@ -42,7 +42,7 @@ public partial class StateT<S, M>
 /// <typeparam name="M">Given monad trait</typeparam>
 public class StateT
 {
-    public static StateT<S, M, A> Pure<S, M, A>(A value)  
+    public static StateT<S, M, A> pure<S, M, A>(A value)  
         where M : Monad<M>, SemiAlternative<M> => 
         StateT<S, M, A>.Pure(value);
 

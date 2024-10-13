@@ -5,13 +5,13 @@ namespace LanguageExt;
 
 public partial class Writer<W>
 {
-    public static Writer<W, A> Pure<A>(A value) => 
+    public static Writer<W, A> pure<A>(A value) => 
         Writer<W, A>.Pure(value);
 }
 
 public class Writer
 {
-    public static Writer<W, A> Pure<W, A>(A value)  
+    public static Writer<W, A> pure<W, A>(A value)  
         where W : Monoid<W> => 
         Writer<W, A>.Pure(value);
 

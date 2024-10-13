@@ -253,8 +253,8 @@ namespace Issues
         [Fact]
         public void Test1()
         {
-            var ma = Writer.Pure<Seq<string>, int>(100);
-            var mb = Writer.Pure<Seq<string>, int>(200);
+            var ma = Writer.pure<Seq<string>, int>(100);
+            var mb = Writer.pure<Seq<string>, int>(200);
 
             var mc = from x in ma
                      from y in mb
@@ -272,8 +272,8 @@ namespace Issues
         [Fact]
         public void Test2()
         {
-            var ma = Writer.Pure<Lst<string>, int>(100);
-            var mb = Writer.Pure<Lst<string>, int>(200);
+            var ma = Writer.pure<Lst<string>, int>(100);
+            var mb = Writer.pure<Lst<string>, int>(200);
 
             var mc = from x in ma
                      from y in mb
