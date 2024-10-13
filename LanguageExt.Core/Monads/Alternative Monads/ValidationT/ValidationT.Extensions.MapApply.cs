@@ -18,7 +18,7 @@ public static partial class ValidationTExtensions
     public static ValidationT<F, M, B> Map<F, M, A, B>(this Func<A, B> f, K<ValidationT<F, M>, A> ma)
         where F : Monoid<F> 
         where M : Monad<M> =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Functor map operation
@@ -33,7 +33,7 @@ public static partial class ValidationTExtensions
     public static ValidationT<F, M, B> Map<F, M, A, B>(this Func<A, B> f, ValidationT<F, M, A> ma) 
         where F : Monoid<F> 
         where M : Monad<M> =>
-        ma.Map(f);    
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
@@ -41,7 +41,7 @@ public static partial class ValidationTExtensions
     public static ValidationT<F, M, B> Action<F, M, A, B>(this ValidationT<F, M, A> ma, K<ValidationT<F, M>, B> mb)
         where F : Monoid<F> 
         where M : Monad<M> =>
-        ma.Kind().Action(mb).As();    
+        Applicative.action(ma, mb).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
@@ -49,7 +49,7 @@ public static partial class ValidationTExtensions
     public static ValidationT<F, M, B> Action<F, M, A, B>(this K<ValidationT<F, M>, A> ma, K<ValidationT<F, M>, B> mb)
         where F : Monoid<F> 
         where M : Monad<M> =>
-        ma.As().Action(mb);    
+        Applicative.action(ma, mb).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -64,7 +64,7 @@ public static partial class ValidationTExtensions
     public static ValidationT<F, M, B> Apply<F, M, A, B>(this ValidationT<F, M, Func<A, B>> mf, K<ValidationT<F, M>, A> ma)
         where F : Monoid<F> 
         where M : Monad<M> =>
-        mf.Kind().Apply(ma).As();
+        Applicative.apply(mf, ma).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -79,5 +79,5 @@ public static partial class ValidationTExtensions
     public static ValidationT<F, M, B> Apply<F, M, A, B>(this K<ValidationT<F, M>, Func<A, B>> mf, K<ValidationT<F, M>, A> ma)
         where F : Monoid<F> 
         where M : Monad<M> =>
-        mf.As().Apply(ma);
+        Applicative.apply(mf, ma).As();
 }    

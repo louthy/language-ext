@@ -17,14 +17,14 @@ public static partial class Prelude
     /// <returns>Mapped functor</returns>
     public static Validation<F, B> map<F, A, B>(Func<A, B> f, K<Validation<F>, A> ma) 
         where F : Monoid<F> =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static Validation<F, B> action<F, A, B>(K<Validation<F>, A> ma, K<Validation<F>, B> mb) 
         where F : Monoid<F> =>
-        ma.As().Action(mb);    
+        Applicative.action(ma, mb).As();
 
     /// <summary>
     /// Applicative functor apply operation

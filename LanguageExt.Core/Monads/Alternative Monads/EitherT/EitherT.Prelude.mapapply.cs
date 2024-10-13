@@ -17,14 +17,14 @@ public static partial class Prelude
     /// <returns>Mapped functor</returns>
     public static EitherT<L, M, B> map<L, M, A, B>(Func<A, B> f, K<EitherT<L, M>, A> ma) 
         where M : Monad<M> =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static EitherT<L, M, B> action<L, M, A, B>(K<EitherT<L, M>, A> ma, K<EitherT<L, M>, B> mb)
         where M : Monad<M> =>
-        ma.Kind().Action(mb).As();    
+        Applicative.action(ma, mb).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -38,5 +38,5 @@ public static partial class Prelude
     /// <returns>Mapped applicative functor</returns>
     public static EitherT<L, M, B> apply<L, M, A, B>(K<EitherT<L, M>, Func<A, B>> mf, K<EitherT<L, M>, A> ma) 
         where M : Monad<M> =>
-        mf.As().Apply(ma);
+        Applicative.apply(mf, ma).As();
 }    

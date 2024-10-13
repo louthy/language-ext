@@ -42,25 +42,9 @@ public partial class StateT<S, M>
 /// <typeparam name="M">Given monad trait</typeparam>
 public class StateT
 {
-    public static StateT<S, M, B> bind<S, M, A, B>(StateT<S, M, A> ma, Func<A, StateT<S, M, B>> f) 
-        where M : Monad<M>, SemiAlternative<M> => 
-        ma.As().Bind(f);
-
-    public static StateT<S, M, B> map<S, M, A, B>(Func<A, B> f, StateT<S, M, A> ma)  
-        where M : Monad<M>, SemiAlternative<M> => 
-        ma.As().Map(f);
-
     public static StateT<S, M, A> Pure<S, M, A>(A value)  
         where M : Monad<M>, SemiAlternative<M> => 
         StateT<S, M, A>.Pure(value);
-
-    public static StateT<S, M, B> apply<S, M, A, B>(StateT<S, M, Func<A, B>> mf, StateT<S, M, A> ma)  
-        where M : Monad<M>, SemiAlternative<M> => 
-        mf.As().Bind(x =>ma.As().Map(x));
-
-    public static StateT<S, M, B> action<S, M, A, B>(StateT<S, M, A> ma, StateT<S, M, B> mb) 
-        where M : Monad<M>, SemiAlternative<M> => 
-        ma.As().Bind(_ => mb);
 
     public static StateT<S, M, A> lift<S, M, A>(K<M, A> ma)  
         where M : Monad<M>, SemiAlternative<M> => 

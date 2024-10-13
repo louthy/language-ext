@@ -17,14 +17,14 @@ public static partial class Prelude
     /// <returns>Mapped functor</returns>
     public static StreamT<M, B> map<M, A, B>(Func<A, B> f, K<StreamT<M>, A> ma) 
         where M : Monad<M> =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static StreamT<M, B> action<M, A, B>(K<StreamT<M>, A> ma, K<StreamT<M>, B> mb)
         where M : Monad<M> =>
-        ma.Kind().Action(mb).As();    
+        Applicative.action(ma, mb).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -38,5 +38,5 @@ public static partial class Prelude
     /// <returns>Mapped applicative functor</returns>
     public static StreamT<M, B> apply<M, A, B>(K<StreamT<M>, Func<A, B>> mf, K<StreamT<M>, A> ma)
         where M : Monad<M> =>
-        mf.As().Apply(ma);
+        Applicative.apply(mf, ma).As();
 }    

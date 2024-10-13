@@ -16,7 +16,7 @@ public static partial class MapExtensions
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
     public static Map<Key, B> Map<Key, A, B>(this Func<A, B> f, K<Map<Key>, A> ma) =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Functor map operation
@@ -29,5 +29,5 @@ public static partial class MapExtensions
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
     public static Map<Key, B> Map<Key, A, B>(this Func<A, B> f, Map<Key, A> ma) =>
-        ma.Map(f);    
+        Functor.map(f, ma).As();
 }    

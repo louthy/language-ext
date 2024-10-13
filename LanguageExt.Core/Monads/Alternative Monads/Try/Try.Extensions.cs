@@ -53,18 +53,4 @@ public static partial class TryExtensions
                     Fin.Fail<K<Try, A>> (var fail) => FinFail<A>(fail),
                     _                              => throw new NotSupportedException()
                 });
-
-    /// <summary>
-    /// Applicative apply
-    /// </summary>
-    [Pure]
-    public static Try<B> Apply<A, B>(this Try<Func<A, B>> mf, Try<A> ma) => 
-        mf.Kind().Apply(ma).As();
-
-    /// <summary>
-    /// Applicative action
-    /// </summary>
-    [Pure]
-    public static Try<B> Action<A, B>(this Try<A> ma, Try<B> mb) => 
-        ma.Kind().Action(mb).As();
 }

@@ -89,47 +89,4 @@ public static partial class ValidationTExtensions
         where M : Monad<M>
         where L : Monoid<L> =>
         ValidationT<L, M, A>.Lift(ma).SelectMany(bind, project);
-
-    /// <summary>
-    /// Applicative apply
-    /// </summary>
-    [Pure]
-    public static ValidationT<L, M, B> Apply<L, M, A, B>(this ValidationT<L, M, Func<A, B>> mf, ValidationT<L, M, A> ma)
-        where M : Monad<M>
-        where L : Monoid<L> =>
-        new(M.Bind(mf.As().runValidation,
-                   ef => ef.IsSuccess switch
-                         {
-                             true => 
-                                 M.Bind(ma.As().runValidation,
-                                        ea => ea.IsSuccess switch
-                                              {
-                                                  true => 
-                                                      M.Pure(Validation<L, B>.Success(ef.SuccessValue(ea.SuccessValue))),
-                                                 
-                                                  false => 
-                                                      M.Pure(Validation<L, B>.Fail(ef.FailValue.Combine(ea.FailValue))),
-                                              }),
-                             
-                             false =>
-                                 M.Bind(ma.As().runValidation,
-                                        ea => ea.IsSuccess switch
-                                              {
-                                                  true => 
-                                                      M.Pure(Validation<L, B>.Fail(ef.FailValue.Combine(ea.FailValue))),
-                                                 
-                                                  false => 
-                                                      M.Pure(Validation<L, B>.Fail(ef.FailValue))
-
-                                              })
-                         }));
-
-    /// <summary>
-    /// Applicative action
-    /// </summary>
-    [Pure]
-    public static ValidationT<L, M, B> Action<L, M, A, B>(this ValidationT<L, M, A> ma, ValidationT<L, M, B> mb)
-        where M : Monad<M>
-        where L : Monoid<L> =>
-        fun((A _, B b) => b).Map(ma).Apply(mb).As();
 }

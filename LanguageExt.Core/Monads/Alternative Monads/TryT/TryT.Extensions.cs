@@ -83,22 +83,4 @@ public static partial class TryTExtensions
         Func<A, B, C> project)
         where M : Monad<M> =>
         TryT<M, A>.Lift(ma).SelectMany(bind, project);
-
-    /// <summary>
-    /// Applicative apply
-    /// </summary>
-    [Pure]
-    public static TryT<M, B> Apply<M, A, B>(this TryT<M, Func<A, B>> mf, TryT<M, A> ma)
-        where M : Monad<M> =>
-        new(mf.runTry.Bind(
-                mf1 => ma.runTry.Bind(
-                    ma1 => M.Pure(mf1.Apply(ma1)))));
-
-    /// <summary>
-    /// Applicative action
-    /// </summary>
-    [Pure]
-    public static TryT<M, B> Action<M, A, B>(this TryT<M, A> ma, TryT<M, B> mb)
-        where M : Monad<M> => 
-        ma.As().Bind(_ => mb);
 }

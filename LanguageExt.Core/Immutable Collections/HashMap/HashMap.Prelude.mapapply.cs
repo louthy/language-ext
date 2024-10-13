@@ -16,7 +16,7 @@ public static partial class Prelude
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
     public static HashMap<Key, B> map<Key, A, B>(Func<A, B> f, K<HashMap<Key>, A> ma) =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Functor map operation
@@ -30,5 +30,5 @@ public static partial class Prelude
     /// <returns>Mapped functor</returns>
     public static HashMap<EqKey, Key, B> map<EqKey, Key, A, B>(this Func<A, B> f, K<HashMapEq<EqKey, Key>, A> ma)
         where EqKey : Eq<Key> =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
 }    

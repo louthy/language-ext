@@ -26,14 +26,6 @@ public partial class EitherT<L, M>
 
 public partial class EitherT
 {
-    public static EitherT<L, M, B> bind<L, M, A, B>(EitherT<L, M, A> ma, Func<A, EitherT<L, M, B>> f) 
-        where M : Monad<M> =>
-        ma.As().Bind(f);
-
-    public static EitherT<L, M, B> map<L, M, A, B>(Func<A, B> f, EitherT<L, M, A> ma)  
-        where M : Monad<M> =>
-        ma.As().Map(f);
-
     public static EitherT<L, M, A> Right<L, M, A>(A value)  
         where M : Monad<M> =>
         EitherT<L, M, A>.Right(value);
@@ -41,14 +33,6 @@ public partial class EitherT
     public static EitherT<L, M, A> Left<L, M, A>(L value)  
         where M : Monad<M> =>
         EitherT<L, M, A>.Left(value);
-
-    public static EitherT<L, M, B> apply<L, M, A, B>(EitherT<L, M, Func<A, B>> mf, EitherT<L, M, A> ma) 
-        where M : Monad<M> =>
-        mf.Apply(ma);
-
-    public static EitherT<L, M, B> action<L, M, A, B>(EitherT<L, M, A> ma, EitherT<L, M, B> mb) 
-        where M : Monad<M> =>
-        ma.Action(mb);
 
     public static EitherT<L, M, A> lift<L, M, A>(Either<L, A> ma)  
         where M : Monad<M> =>

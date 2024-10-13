@@ -42,14 +42,6 @@ public partial class OptionT
         where M : Monad<M> =>
         OptionT<M, A>.None;
 
-    public static OptionT<M, B> apply<M, A, B>(OptionT<M, Func<A, B>> mf, OptionT<M, A> ma) 
-        where M : Monad<M> =>
-        mf.Apply(ma);
-
-    public static OptionT<M, B> action<M, A, B>(OptionT<M, A> ma, OptionT<M, B> mb) 
-        where M : Monad<M> =>
-        ma.Action(mb);
-
     public static OptionT<M, A> lift<M, A>(Option<A> ma)  
         where M : Monad<M> =>
         OptionT<M, A>.Lift(ma);

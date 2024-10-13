@@ -30,57 +30,6 @@ public static partial class EitherExtensions
         ma.As().Bind(x => x);
 
     /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type FB derived from Applicative of B</returns>
-    [Pure]
-    public static Either<L, B> Apply<L, A, B>(this K<Either<L>, Func<A, B>> fab, Either<L, A> fa) =>
-        Applicative.apply(fab, fa).As();
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative a to apply</param>
-    /// <param name="fb">Applicative b to apply</param>
-    /// <returns>Applicative of type FC derived from Applicative of C</returns>
-    [Pure]
-    public static Either<L, C> Apply<L, A, B, C>(this K<Either<L>, Func<A, B, C>> fabc, Either<L, A> fa, Either<L, B> fb) =>
-        Applicative.apply(fabc.Map(curry), fa).As().Apply(fb);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
-    [Pure]
-    public static Either<L, Func<B, C>> Apply<L, A, B, C>(this K<Either<L>, Func<A, B, C>> fabc, Either<L, A> fa) =>
-        Applicative.apply(fabc.Map(curry), fa).As();
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
-    [Pure]
-    public static Either<L, Func<B, C>> Apply<L, A, B, C>(this K<Either<L>, Func<A, Func<B, C>>> fabc, Either<L, A> fa) =>
-        Applicative.apply(fabc, fa).As();
-
-    /// <summary>
-    /// Evaluate fa, then fb, ignoring the result of fa
-    /// </summary>
-    /// <param name="fa">Applicative to evaluate first</param>
-    /// <param name="fb">Applicative to evaluate second and then return</param>
-    /// <returns>Applicative of type Option<B></returns>
-    [Pure]
-    public static Either<L, B> Action<L, A, B>(this K<Either<L>, A> fa, Either<L, B> fb) =>
-        Applicative.action(fa, fb).As();
-
-    /// <summary>
     /// Extracts from a list of 'Either' all the 'Left' elements.
     /// All the 'Left' elements are extracted in order.
     /// </summary>

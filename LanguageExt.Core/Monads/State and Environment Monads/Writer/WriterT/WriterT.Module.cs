@@ -43,30 +43,10 @@ public partial class WriterT<W, M>
 /// <typeparam name="M">Given monad trait</typeparam>
 public class WriterT
 {
-    public static WriterT<W, M, B> bind<W, M, A, B>(WriterT<W, M, A> ma, Func<A, WriterT<W, M, B>> f) 
-        where W : Monoid<W>
-        where M : Monad<M>, SemiAlternative<M> => 
-        ma.As().Bind(f);
-
-    public static WriterT<W, M, B> map<W, M, A, B>(Func<A, B> f, WriterT<W, M, A> ma)  
-        where W : Monoid<W>
-        where M : Monad<M>, SemiAlternative<M> => 
-        ma.As().Map(f);
-
     public static WriterT<W, M, A> Pure<W, M, A>(A value)  
         where W : Monoid<W>
         where M : Monad<M>, SemiAlternative<M> => 
         WriterT<W, M, A>.Pure(value);
-
-    public static WriterT<W, M, B> apply<W, M, A, B>(WriterT<W, M, Func<A, B>> mf, WriterT<W, M, A> ma)  
-        where W : Monoid<W>
-        where M : Monad<M>, SemiAlternative<M> => 
-        mf.As().Bind(x =>ma.As().Map(x));
-
-    public static WriterT<W, M, B> action<W, M, A, B>(WriterT<W, M, A> ma, WriterT<W, M, B> mb) 
-        where W : Monoid<W>
-        where M : Monad<M>, SemiAlternative<M> => 
-        ma.As().Bind(_ => mb);
 
     public static WriterT<W, M, A> lift<W, M, A>(K<M, A> ma)  
         where W : Monoid<W>

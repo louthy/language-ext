@@ -16,7 +16,7 @@ public static partial class ReaderExtensions
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
     public static Reader<Env, B> Map<Env, A, B>(this Func<A, B> f, K<Reader<Env>, A> ma) =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Functor map operation
@@ -29,19 +29,19 @@ public static partial class ReaderExtensions
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
     public static Reader<Env, B> Map<Env, A, B>(this Func<A, B> f, Reader<Env, A> ma) =>
-        ma.Map(f);    
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static Reader<Env, B> Action<Env, A, B>(this Reader<Env, A> ma, K<Reader<Env>, B> mb) =>
-        ma.Kind().Action(mb).As();    
+        Applicative.action(ma, mb).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static Reader<Env, B> Action<Env, A, B>(this K<Reader<Env>, A> ma, K<Reader<Env>, B> mb) =>
-        ma.As().Action(mb);    
+        Applicative.action(ma, mb).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -54,7 +54,7 @@ public static partial class ReaderExtensions
     /// <param name="mf">Mapping function(s)</param>
     /// <returns>Mapped applicative functor</returns>
     public static Reader<Env, B> Apply<Env, A, B>(this Reader<Env, Func<A, B>> mf, K<Reader<Env>, A> ma) =>
-        mf.Kind().Apply(ma).As();
+        Applicative.apply(mf, ma).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -67,5 +67,5 @@ public static partial class ReaderExtensions
     /// <param name="mf">Mapping function(s)</param>
     /// <returns>Mapped applicative functor</returns>
     public static Reader<Env, B> Apply<Env, A, B>(this K<Reader<Env>, Func<A, B>> mf, K<Reader<Env>, A> ma) =>
-        mf.As().Apply(ma);
+        Applicative.apply(mf, ma).As();
 }    

@@ -17,14 +17,14 @@ public static partial class Prelude
     /// <returns>Mapped functor</returns>
     public static FinT<M, B> map<M, A, B>(Func<A, B> f, K<FinT<M>, A> ma)
         where M : Monad<M> =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static FinT<M, B> action<M, A, B>(K<FinT<M>, A> ma, K<FinT<M>, B> mb) 
         where M : Monad<M> =>
-        ma.Kind().Action(mb).As();    
+        Applicative.action(ma, mb).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -38,5 +38,5 @@ public static partial class Prelude
     /// <returns>Mapped applicative functor</returns>
     public static FinT<M, B> apply<M, A, B>(K<FinT<M>, Func<A, B>> mf, K<FinT<M>, A> ma)
         where M : Monad<M> =>
-        mf.As().Apply(ma);
+        Applicative.apply(mf, ma).As();
 }    

@@ -17,14 +17,14 @@ public static partial class Prelude
     /// <returns>Mapped functor</returns>
     public static Free<F, B> map<F, A, B>(Func<A, B> f, K<Free<F>, A> ma) 
         where F : Functor<F> =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static Free<F, B> action<F, A, B>(K<Free<F>, A> ma, K<Free<F>, B> mb) 
         where F : Functor<F> =>
-        ma.As().Action(mb);    
+        Applicative.action(ma, mb).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -38,5 +38,5 @@ public static partial class Prelude
     /// <returns>Mapped applicative functor</returns>
     public static Free<F, B> apply<F, A, B>(K<Free<F>, Func<A, B>> mf, K<Free<F>, A> ma) 
         where F : Functor<F> =>
-        mf.As().Apply(ma);
+        Applicative.apply(mf, ma).As();
 }    

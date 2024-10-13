@@ -16,7 +16,7 @@ public static partial class TryExtensions
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
     public static Try<B> Map<A, B>(this Func<A, B> f, K<Try, A> ma) =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Functor map operation
@@ -29,19 +29,19 @@ public static partial class TryExtensions
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
     public static Try<B> Map<A, B>(this Func<A, B> f, Try<A> ma) =>
-        ma.Map(f);    
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static Try<B> Action<A, B>(this Try<A> ma, K<Try, B> mb) =>
-        ma.Kind().Action(mb).As();    
+        Applicative.action(ma, mb).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static Try<B> Action<A, B>(this K<Try, A> ma, K<Try, B> mb) =>
-        ma.As().Action(mb);    
+        Applicative.action(ma, mb).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -54,7 +54,7 @@ public static partial class TryExtensions
     /// <param name="mf">Mapping function(s)</param>
     /// <returns>Mapped applicative functor</returns>
     public static Try<B> Apply<A, B>(this Try<Func<A, B>> mf, K<Try, A> ma) =>
-        mf.Kind().Apply(ma).As();
+        Applicative.apply(mf, ma).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -67,5 +67,5 @@ public static partial class TryExtensions
     /// <param name="mf">Mapping function(s)</param>
     /// <returns>Mapped applicative functor</returns>
     public static Try<B> Apply<A, B>(this K<Try, Func<A, B>> mf, K<Try, A> ma) =>
-        mf.As().Apply(ma);
+        Applicative.apply(mf, ma).As();
 }    

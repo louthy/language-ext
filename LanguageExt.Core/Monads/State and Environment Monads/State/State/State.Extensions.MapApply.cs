@@ -16,7 +16,7 @@ public static partial class StateExtensions
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
     public static State<S, B> Map<S, A, B>(this Func<A, B> f, K<State<S>, A> ma) =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Functor map operation
@@ -29,19 +29,19 @@ public static partial class StateExtensions
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
     public static State<S, B> Map<S, A, B>(this Func<A, B> f, State<S, A> ma) =>
-        ma.Map(f);    
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static State<S, B> Action<S, A, B>(this State<S, A> ma, K<State<S>, B> mb) =>
-        ma.Kind().Action(mb).As();    
+        Applicative.action(ma, mb).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static State<S, B> Action<S, A, B>(this K<State<S>, A> ma, K<State<S>, B> mb) =>
-        ma.As().Action(mb);    
+        Applicative.action(ma, mb).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -54,7 +54,7 @@ public static partial class StateExtensions
     /// <param name="mf">Mapping function(s)</param>
     /// <returns>Mapped applicative functor</returns>
     public static State<S, B> Apply<S, A, B>(this State<S, Func<A, B>> mf, K<State<S>, A> ma) =>
-        mf.Kind().Apply(ma).As();
+        Applicative.apply(mf, ma).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -67,5 +67,5 @@ public static partial class StateExtensions
     /// <param name="mf">Mapping function(s)</param>
     /// <returns>Mapped applicative functor</returns>
     public static State<S, B> Apply<S, A, B>(this K<State<S>, Func<A, B>> mf, K<State<S>, A> ma) =>
-        mf.As().Apply(ma);
+        Applicative.apply(mf, ma).As();
 }    

@@ -17,7 +17,7 @@ public static partial class TryTExtensions
     /// <returns>Mapped functor</returns>
     public static TryT<M, B> Map<M, A, B>(this Func<A, B> f, K<TryT<M>, A> ma) 
         where M : Monad<M> =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Functor map operation
@@ -31,21 +31,21 @@ public static partial class TryTExtensions
     /// <returns>Mapped functor</returns>
     public static TryT<M, B> Map<M, A, B>(this Func<A, B> f, TryT<M, A> ma) 
         where M : Monad<M> =>
-        ma.Map(f);    
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static TryT<M, B> Action<M, A, B>(this TryT<M, A> ma, K<TryT<M>, B> mb)
         where M : Monad<M> =>
-        ma.Kind().Action(mb).As();    
+        Applicative.action(ma, mb).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static TryT<M, B> Action<M, A, B>(this K<TryT<M>, A> ma, K<TryT<M>, B> mb) 
         where M : Monad<M> =>
-        ma.As().Action(mb);    
+        Applicative.action(ma, mb).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -59,7 +59,7 @@ public static partial class TryTExtensions
     /// <returns>Mapped applicative functor</returns>
     public static TryT<M, B> Apply<M, A, B>(this TryT<M, Func<A, B>> mf, K<TryT<M>, A> ma) 
         where M : Monad<M> =>
-        mf.Kind().Apply(ma).As();
+        Applicative.apply(mf, ma).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -73,5 +73,5 @@ public static partial class TryTExtensions
     /// <returns>Mapped applicative functor</returns>
     public static TryT<M, B> Apply<M, A, B>(this K<TryT<M>, Func<A, B>> mf, K<TryT<M>, A> ma) 
         where M : Monad<M> =>
-        mf.As().Apply(ma);
+        Applicative.apply(mf, ma).As();
 }    

@@ -17,7 +17,7 @@ public static partial class ValidationExtensions
     /// <returns>Mapped functor</returns>
     public static Validation<F, B> Map<F, A, B>(this Func<A, B> f, K<Validation<F>, A> ma) 
         where F : Monoid<F> =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Functor map operation
@@ -31,21 +31,21 @@ public static partial class ValidationExtensions
     /// <returns>Mapped functor</returns>
     public static Validation<F, B> Map<F, A, B>(this Func<A, B> f, Validation<F, A> ma) 
         where F : Monoid<F> =>
-        ma.Map(f);    
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static Validation<F, B> Action<F, A, B>(this Validation<F, A> ma, K<Validation<F>, B> mb) 
         where F : Monoid<F> =>
-        ma.Kind().Action(mb).As();    
+        Applicative.action(ma, mb).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static Validation<F, B> Action<F, A, B>(this K<Validation<F>, A> ma, K<Validation<F>, B> mb) 
         where F : Monoid<F> =>
-        ma.As().Action(mb);    
+        Applicative.action(ma, mb).As();
 
     /// <summary>
     /// Applicative functor apply operation

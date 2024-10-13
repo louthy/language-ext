@@ -15,22 +15,6 @@ public class Writer
         where W : Monoid<W> => 
         Writer<W, A>.Pure(value);
 
-    public static Writer<W, B> bind<W, A, B>(Writer<W, A> ma, Func<A, Writer<W, B>> f) 
-        where W : Monoid<W> => 
-        ma.As().Bind(f);
-
-    public static Writer<W, B> map<W, A, B>(Func<A, B> f, Writer<W, A> ma)  
-        where W : Monoid<W> => 
-        ma.As().Map(f);
-
-    public static Writer<W, B> apply<W, A, B>(Writer<W, Func<A, B>> mf, Writer<W, A> ma)  
-        where W : Monoid<W> => 
-        mf.As().Bind(x =>ma.As().Map(x));
-
-    public static Writer<W, B> action<W, A, B>(Writer<W, A> ma, Writer<W, B> mb) 
-        where W : Monoid<W> => 
-        ma.As().Bind(_ => mb);
-
     /// <summary>
     /// Tell is an action that produces the writer output
     /// </summary>

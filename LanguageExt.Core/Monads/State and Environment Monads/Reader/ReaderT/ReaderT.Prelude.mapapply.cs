@@ -17,14 +17,14 @@ public static partial class Prelude
     /// <returns>Mapped functor</returns>
     public static ReaderT<Env, M, B> map<Env, M, A, B>(Func<A, B> f, K<ReaderT<Env, M>, A> ma) 
         where M : Monad<M>, SemiAlternative<M> =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static ReaderT<Env, M, B> action<Env, M, A, B>(K<ReaderT<Env, M>, A> ma, K<ReaderT<Env, M>, B> mb) 
         where M : Monad<M>, SemiAlternative<M> =>
-        ma.As().Action(mb);    
+        Applicative.action(ma, mb).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -38,5 +38,5 @@ public static partial class Prelude
     /// <returns>Mapped applicative functor</returns>
     public static ReaderT<Env, M, B> apply<Env, M, A, B>(K<ReaderT<Env, M>, Func<A, B>> mf, K<ReaderT<Env, M>, A> ma) 
         where M : Monad<M>, SemiAlternative<M> =>
-        mf.As().Apply(ma);
+        Applicative.apply(mf, ma).As();
 }    

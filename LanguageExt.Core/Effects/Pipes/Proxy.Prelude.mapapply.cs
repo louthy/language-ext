@@ -20,7 +20,7 @@ public static partial class Prelude
         Func<A, B> f, 
         K<Proxy<UOut, UIn, DIn, DOut, M>, A> ma) 
         where M : Monad<M> =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
@@ -29,7 +29,7 @@ public static partial class Prelude
         K<Proxy<UOut, UIn, DIn, DOut, M>, A> ma, 
         K<Proxy<UOut, UIn, DIn, DOut, M>, B> mb) 
         where M : Monad<M> =>
-        ma.Action(mb).As();    
+        Applicative.action(ma, mb).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -45,5 +45,5 @@ public static partial class Prelude
         K<Proxy<UOut, UIn, DIn, DOut, M>, Func<A, B>> mf, 
         K<Proxy<UOut, UIn, DIn, DOut, M>, A> ma) 
         where M : Monad<M> =>
-        mf.Apply(ma).As();
+        Applicative.apply(mf, ma).As();
 }    

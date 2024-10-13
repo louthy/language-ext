@@ -16,7 +16,7 @@ public static partial class Prelude
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
     public static Fin<B> map<A, B>(Func<A, B> f, K<Fin, A> ma) =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
@@ -35,5 +35,5 @@ public static partial class Prelude
     /// <param name="mf">Mapping function(s)</param>
     /// <returns>Mapped applicative functor</returns>
     public static Fin<B> apply<A, B>(K<Fin, Func<A, B>> mf, K<Fin, A> ma) =>
-        mf.As().Apply(ma);
+        Applicative.apply(mf, ma).As();
 }    

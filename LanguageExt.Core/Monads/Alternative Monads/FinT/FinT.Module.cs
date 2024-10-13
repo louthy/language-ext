@@ -43,14 +43,6 @@ public partial class FinT
         where M : Monad<M> =>
         FinT<M, A>.Fail(value);
 
-    public static FinT<M, B> apply<M, A, B>(FinT<M, Func<A, B>> mf, FinT<M, A> ma) 
-        where M : Monad<M> =>
-        mf.Apply(ma);
-
-    public static FinT<M, B> action<M, A, B>(FinT<M, A> ma, FinT<M, B> mb) 
-        where M : Monad<M> =>
-        ma.Action(mb);
-
     public static FinT<M, A> lift<M, A>(Fin<A> ma)  
         where M : Monad<M> =>
         FinT<M, A>.Lift(ma);

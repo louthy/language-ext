@@ -17,7 +17,7 @@ public static partial class FreeExtensions
     /// <returns>Mapped functor</returns>
     public static Free<F, B> Map<F, A, B>(this Func<A, B> f, K<Free<F>, A> ma) 
         where F : Functor<F> =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Functor map operation
@@ -31,21 +31,21 @@ public static partial class FreeExtensions
     /// <returns>Mapped functor</returns>
     public static Free<F, B> Map<F, A, B>(this Func<A, B> f, Free<F, A> ma) 
         where F : Functor<F> =>
-        ma.Map(f);    
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static Free<F, B> Action<F, A, B>(this Free<F, A> ma, K<Free<F>, B> mb) 
         where F : Functor<F> =>
-        ma.Kind().Action(mb).As();    
+        Applicative.action(ma, mb).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static Free<F, B> Action<F, A, B>(this K<Free<F>, A> ma, K<Free<F>, B> mb) 
         where F : Functor<F> =>
-        ma.As().Action(mb);    
+        Applicative.action(ma, mb).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -59,7 +59,7 @@ public static partial class FreeExtensions
     /// <returns>Mapped applicative functor</returns>
     public static Free<F, B> Apply<F, A, B>(this Free<F, Func<A, B>> mf, K<Free<F>, A> ma)
         where F : Functor<F> =>
-        mf.Kind().Apply(ma).As();
+        Applicative.apply(mf, ma).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -73,5 +73,5 @@ public static partial class FreeExtensions
     /// <returns>Mapped applicative functor</returns>
     public static Free<F, B> Apply<F, A, B>(this K<Free<F>, Func<A, B>> mf, K<Free<F>, A> ma) 
         where F : Functor<F> =>
-        mf.As().Apply(ma);
+        Applicative.apply(mf, ma).As();
 }    

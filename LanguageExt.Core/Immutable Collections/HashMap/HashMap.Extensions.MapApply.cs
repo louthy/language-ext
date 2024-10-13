@@ -16,7 +16,7 @@ public static partial class HashMapExtensions
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
     public static HashMap<Key, B> Map<Key, A, B>(this Func<A, B> f, K<HashMap<Key>, A> ma) =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Functor map operation
@@ -29,7 +29,7 @@ public static partial class HashMapExtensions
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
     public static HashMap<Key, B> Map<Key, A, B>(this Func<A, B> f, HashMap<Key, A> ma) =>
-        ma.Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Functor map operation

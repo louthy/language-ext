@@ -48,25 +48,9 @@ public partial class ReaderT
         where M : Monad<M>, SemiAlternative<M> => 
         new (env => M.Combine(ma.runReader(env), mb.runReader(env)));
     
-    public static ReaderT<Env, M, B> bind<Env, M, A, B>(ReaderT<Env, M, A> ma, Func<A, ReaderT<Env, M, B>> f) 
-        where M : Monad<M>, SemiAlternative<M> => 
-        ma.As().Bind(f);
-
-    public static ReaderT<Env, M, B> map<Env, M, A, B>(Func<A, B> f, ReaderT<Env, M, A> ma)  
-        where M : Monad<M>, SemiAlternative<M> => 
-        ma.As().Map(f);
-
     public static ReaderT<Env, M, A> Pure<Env, M, A>(A value)  
         where M : Monad<M>, SemiAlternative<M> => 
         ReaderT<Env, M, A>.Pure(value);
-
-    public static ReaderT<Env, M, B> apply<Env, M, A, B>(ReaderT<Env, M, Func<A, B>> mf, ReaderT<Env, M, A> ma)  
-        where M : Monad<M>, SemiAlternative<M> => 
-        mf.As().Bind(ma.As().Map);
-
-    public static ReaderT<Env, M, B> action<Env, M, A, B>(ReaderT<Env, M, A> ma, ReaderT<Env, M, B> mb) 
-        where M : Monad<M>, SemiAlternative<M> => 
-        ma.As().Bind(_ => mb);
 
     public static ReaderT<Env, M, A> lift<Env, M, A>(K<M, A> ma)  
         where M : Monad<M>, SemiAlternative<M> => 

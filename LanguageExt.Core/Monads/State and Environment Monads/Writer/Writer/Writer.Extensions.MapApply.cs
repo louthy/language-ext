@@ -17,7 +17,7 @@ public static partial class WriterExtensions
     /// <returns>Mapped functor</returns>
     public static Writer<W, B> Map<W, A, B>(this Func<A, B> f, K<Writer<W>, A> ma) 
         where W : Monoid<W> =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Functor map operation
@@ -31,21 +31,21 @@ public static partial class WriterExtensions
     /// <returns>Mapped functor</returns>
     public static Writer<W, B> Map<W, A, B>(this Func<A, B> f, Writer<W, A> ma) 
         where W : Monoid<W> =>
-        ma.Map(f);    
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static Writer<W, B> Action<W, A, B>(this Writer<W, A> ma, K<Writer<W>, B> mb) 
         where W : Monoid<W> =>
-        ma.Kind().Action(mb).As();    
+        Applicative.action(ma, mb).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static Writer<W, B> Action<W, A, B>(this K<Writer<W>, A> ma, K<Writer<W>, B> mb)
         where W : Monoid<W> =>
-        ma.As().Action(mb);    
+        Applicative.action(ma, mb).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -59,7 +59,7 @@ public static partial class WriterExtensions
     /// <returns>Mapped applicative functor</returns>
     public static Writer<W, B> Apply<W, A, B>(this Writer<W, Func<A, B>> mf, K<Writer<W>, A> ma)
         where W : Monoid<W> =>
-        mf.Kind().Apply(ma).As();
+        Applicative.apply(mf, ma).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -73,5 +73,5 @@ public static partial class WriterExtensions
     /// <returns>Mapped applicative functor</returns>
     public static Writer<W, B> Apply<W, A, B>(this K<Writer<W>, Func<A, B>> mf, K<Writer<W>, A> ma) 
         where W : Monoid<W> =>
-        mf.As().Apply(ma);
+        Applicative.apply(mf, ma).As();
 }    

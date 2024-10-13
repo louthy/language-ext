@@ -18,7 +18,7 @@ public static partial class Prelude
     public static ValidationT<F, M, B> map<F, M, A, B>(Func<A, B> f, K<ValidationT<F, M>, A> ma)
         where F : Monoid<F> 
         where M : Monad<M> =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
@@ -26,7 +26,7 @@ public static partial class Prelude
     public static ValidationT<F, M, B> action<F, M, A, B>(K<ValidationT<F, M>, A> ma, K<ValidationT<F, M>, B> mb)
         where F : Monoid<F> 
         where M : Monad<M> =>
-        ma.As().Action(mb);    
+        Applicative.action(ma, mb).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -41,5 +41,5 @@ public static partial class Prelude
     public static ValidationT<F, M, B> apply<F, M, A, B>(K<ValidationT<F, M>, Func<A, B>> mf, K<ValidationT<F, M>, A> ma)
         where F : Monoid<F> 
         where M : Monad<M> =>
-        mf.As().Apply(ma);
+        Applicative.apply(mf, ma).As();
 }    

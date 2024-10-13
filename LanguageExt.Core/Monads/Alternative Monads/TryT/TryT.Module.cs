@@ -33,14 +33,6 @@ public partial class TryT<M>
 
 public class TryT
 {
-    public static TryT<M, B> bind<M, A, B>(TryT<M, A> ma, Func<A, TryT<M, B>> f) 
-        where M : Monad<M> =>
-        ma.As().Bind(f);
-
-    public static TryT<M, B> map<M, A, B>(Func<A, B> f, TryT<M, A> ma)  
-        where M : Monad<M> =>
-        ma.As().Map(f);
-
     public static TryT<M, A> Succ<M, A>(A value)  
         where M : Monad<M> =>
         TryT<M, A>.Succ(value);
@@ -48,14 +40,6 @@ public class TryT
     public static TryT<M, A> Fail<M, A>(Error value)  
         where M : Monad<M> =>
         TryT<M, A>.Fail(value);
-
-    public static TryT<M, B> apply<M, A, B>(TryT<M, Func<A, B>> mf, TryT<M, A> ma) 
-        where M : Monad<M> =>
-        mf.Apply(ma);
-
-    public static TryT<M, B> action<M, A, B>(TryT<M, A> ma, TryT<M, B> mb) 
-        where M : Monad<M> =>
-        ma.Action(mb);
 
     public static TryT<M, A> lift<M, A>(Func<Fin<A>> ma)  
         where M : Monad<M> =>

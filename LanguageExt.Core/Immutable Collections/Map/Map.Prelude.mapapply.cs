@@ -16,5 +16,5 @@ public static partial class Prelude
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
     public static Map<Key, B> map<Key, A, B>(Func<A, B> f, K<Map<Key>, A> ma) =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
 }    

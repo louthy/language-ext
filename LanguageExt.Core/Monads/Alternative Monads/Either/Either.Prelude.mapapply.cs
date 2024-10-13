@@ -16,13 +16,13 @@ public static partial class Prelude
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
     public static Either<L, B> map<L, A, B>(Func<A, B> f, K<Either<L>, A> ma) =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static Either<L, B> action<L, A, B>(K<Either<L>, A> ma, K<Either<L>, B> mb) =>
-        ma.Kind().Action(mb).As();    
+        Applicative.action(ma, mb).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -35,5 +35,5 @@ public static partial class Prelude
     /// <param name="mf">Mapping function(s)</param>
     /// <returns>Mapped applicative functor</returns>
     public static Either<L, B> apply<L, A, B>(K<Either<L>, Func<A, B>> mf, K<Either<L>, A> ma) =>
-        mf.As().Apply(ma);
+        Applicative.apply(mf, ma).As();
 }    

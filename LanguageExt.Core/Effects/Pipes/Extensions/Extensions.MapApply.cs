@@ -20,7 +20,7 @@ public static partial class ProxyExtensions
         this Func<A, B> f, 
         K<Proxy<UOut, UIn, DIn, DOut, M>, A> ma) 
         where M : Monad<M> =>
-        ma.As().Map(f);
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Functor map operation
@@ -36,7 +36,7 @@ public static partial class ProxyExtensions
         this Func<A, B> f, 
         Proxy<UOut, UIn, DIn, DOut, M, A> ma) 
         where M : Monad<M> =>
-        ma.Map(f);    
+        Functor.map(f, ma).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
@@ -45,7 +45,7 @@ public static partial class ProxyExtensions
         this Proxy<UOut, UIn, DIn, DOut, M, A> ma, 
         K<Proxy<UOut, UIn, DIn, DOut, M>, B> mb) 
         where M : Monad<M> =>
-        ma.Kind().Action(mb).As();    
+        Applicative.action(ma, mb).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
@@ -54,7 +54,7 @@ public static partial class ProxyExtensions
         this K<Proxy<UOut, UIn, DIn, DOut, M>, A> ma, 
         K<Proxy<UOut, UIn, DIn, DOut, M>, B> mb) 
         where M : Monad<M> =>
-        ma.As().Action(mb);    
+        Applicative.action(ma, mb).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -70,7 +70,7 @@ public static partial class ProxyExtensions
         this Proxy<UOut, UIn, DIn, DOut, M, Func<A, B>> mf, 
         K<Proxy<UOut, UIn, DIn, DOut, M>, A> ma) 
         where M : Monad<M> =>
-        mf.Kind().Apply(ma).As();
+        Applicative.apply(mf, ma).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -86,5 +86,5 @@ public static partial class ProxyExtensions
         this K<Proxy<UOut, UIn, DIn, DOut, M>, Func<A, B>> mf, 
         K<Proxy<UOut, UIn, DIn, DOut, M>, A> ma) 
         where M : Monad<M> =>
-        mf.As().Apply(ma);
+        Applicative.apply(mf, ma).As();
 }    
