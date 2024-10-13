@@ -9,7 +9,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class State<S>
 {
-    public static State<S, A> Pure<A>(A value) => 
+    public static State<S, A> pure<A>(A value) => 
         State<S, A>.Pure(value);
 }
 
@@ -20,7 +20,7 @@ public partial class State<S>
 /// <typeparam name="M">Given monad trait</typeparam>
 public class State
 {
-    public static State<S, A> Pure<S, A>(A value) =>  
+    public static State<S, A> pure<S, A>(A value) =>  
         State<S, A>.Pure(value);
 
     public static State<S, S> get<S>() => 

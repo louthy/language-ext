@@ -24,7 +24,7 @@ public class WriterT<W>
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class WriterT<W, M>
 {
-    public static WriterT<W, M, A> Pure<A>(A value) => 
+    public static WriterT<W, M, A> pure<A>(A value) => 
         WriterT<W, M, A>.Pure(value);
 
     /// <summary>

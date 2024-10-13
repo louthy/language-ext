@@ -23,7 +23,7 @@ public class ReaderT<Env>
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class ReaderT<Env, M>
 {
-    public static ReaderT<Env, M, A> Pure<A>(A value) => 
+    public static ReaderT<Env, M, A> pure<A>(A value) => 
         ReaderT<Env, M, A>.Pure(value);
 
     /// <summary>
@@ -48,7 +48,7 @@ public partial class ReaderT
         where M : Monad<M>, SemiAlternative<M> => 
         new (env => M.Combine(ma.runReader(env), mb.runReader(env)));
     
-    public static ReaderT<Env, M, A> Pure<Env, M, A>(A value)  
+    public static ReaderT<Env, M, A> pure<Env, M, A>(A value)  
         where M : Monad<M>, SemiAlternative<M> => 
         ReaderT<Env, M, A>.Pure(value);
 
