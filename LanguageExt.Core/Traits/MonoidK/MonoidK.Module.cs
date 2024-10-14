@@ -105,19 +105,23 @@ public static partial class MonoidK
     ///
     /// Will always succeed if at least one item has been yielded.
     /// </remarks>
+    /// <remarks>
+    /// NOTE: It is important that the `F` applicative-type overrides `ApplyLazy` in its trait-implementations
+    /// otherwise this will likely result in a stack-overflow. 
+    /// </remarks>
     /// <param name="fa">Applicative functor</param>
     /// <returns>One or more values</returns>
     [Pure]
     public static K<F, Seq<A>> some<F, A>(K<F, A> fa)
         where F : MonoidK<F>, Applicative<F>
     {
-        var lfa    = LazyF.lift(fa);
-        var emptyF = LazyF.lift(F.Pure(Seq<A>()));
-        var some_v = default(K<LazyF<F>, Seq<A>>?);
-        var many_v = LazyF.lazy(() => some_v!).Combine(emptyF);
-        some_v = Append<A>.cons.Map(lfa).Apply(many_v);
+        return some_v();
         
-        return some_v.Run();
+        K<F, Seq<A>> many_v() =>
+            F.Combine(some_v(), F.Pure(Seq<A>()));
+
+        K<F, Seq<A>> some_v() =>
+            Append<A>.cons.Map(fa).ApplyLazy(many_v);
     }
     
     /// <summary>
@@ -125,8 +129,11 @@ public static partial class MonoidK
     /// </summary>
     /// <remarks>
     /// Run the applicative functor repeatedly, collecting the results, until failure.
-    ///
     /// Will always succeed.
+    /// </remarks>
+    /// <remarks>
+    /// NOTE: It is important that the `F` applicative-type overrides `ApplyLazy` in its trait-implementations
+    /// otherwise this will likely result in a stack-overflow. 
     /// </remarks>
     /// <param name="fa">Applicative functor</param>
     /// <returns>Zero or more values</returns>
@@ -134,14 +141,14 @@ public static partial class MonoidK
     public static K<F, Seq<A>> many<F, A>(K<F, A> fa)
         where F : MonoidK<F>, Applicative<F>
     {
-        var lfa    = LazyF.lift(fa);
-        var emptyF = LazyF.lift(F.Pure(Seq<A>()));
-        var some_v = default(K<LazyF<F>, Seq<A>>?);
-        var many_v = LazyF.lazy(() => some_v!).Combine(emptyF);
-        some_v = Append<A>.cons.Map(lfa).Apply(many_v);
+        return many_v();
         
-        return many_v.Run();
-    }    
+        K<F, Seq<A>> many_v() =>
+            F.Combine(some_v(), F.Pure(Seq<A>()));
+
+        K<F, Seq<A>> some_v() =>
+            Append<A>.cons.Map(fa).ApplyLazy(many_v);
+    }
     
     /// <summary>
     /// Conditional failure of `Alternative` computations. Defined by

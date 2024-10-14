@@ -41,6 +41,11 @@ public partial class IO :
             _ => throw new NotSupportedException()
         };
 
+    static K<IO, B> Applicative<IO>.ApplyLazy<A, B>(K<IO, Func<A, B>> mf, Func<K<IO, A>> ma) =>
+        from f in mf
+        from a in ma()
+        select f(a);
+
     static IO<B> ApplyAsyncAsync<A, B>(IOAsync<Func<A, B>> mf, IOAsync<A> ma) =>
         new IOAsync<B>(
             async env =>

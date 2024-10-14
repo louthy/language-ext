@@ -22,6 +22,9 @@ public interface Applicative<F> : Functor<F>
     
     public static abstract K<F, A> Pure<A>(A value);
     public static abstract K<F, B> Apply<A, B>(K<F, Func<A, B>> mf, K<F, A> ma);
+
+    public static virtual K<F, B> ApplyLazy<A, B>(K<F, Func<A, B>> mf, Func<K<F, A>> ma) =>
+        F.Apply(mf, ma());
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
