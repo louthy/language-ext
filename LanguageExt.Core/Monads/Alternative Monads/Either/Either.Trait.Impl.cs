@@ -29,7 +29,7 @@ public class Either<L> : Either,
     Monad<Either<L>>, 
     Fallible<L, Either<L>>,
     Traversable<Either<L>>, 
-    SemiAlternative<Either<L>>
+    SemigroupK<Either<L>>
 {
     static K<Either<L>, B> Applicative<Either<L>>.Apply<A, B>(
         K<Either<L>, Func<A, B>> mf,

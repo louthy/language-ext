@@ -20,7 +20,7 @@ public record Tell<W>(W Value) where W : Monoid<W>
     /// Convert ot a `WriterT`
     /// </summary>
     public WriterT<W, M, Unit> ToWriterT<M>()
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, SemigroupK<M> =>
         new (w => M.Pure((unit, w + Value)));
     
     /// <summary>
@@ -39,7 +39,7 @@ public record Tell<W>(W Value) where W : Monoid<W>
     /// Monadic bind with `WriterT`
     /// </summary>
     public WriterT<W, M, C> SelectMany<M, B, C>(Func<Unit, WriterT<W, M, B>> bind, Func<Unit, B, C> project)
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, SemigroupK<M> =>
         ToWriterT<M>().SelectMany(bind, project);
 
     /// <summary>

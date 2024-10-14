@@ -11,8 +11,8 @@ namespace LanguageExt;
 public partial class ReaderT<Env, M> :
     MonadT<ReaderT<Env, M>, M>,
     Readable<ReaderT<Env, M>, Env>, 
-    SemiAlternative<ReaderT<Env, M>>
-    where M : Monad<M>, SemiAlternative<M>
+    SemigroupK<ReaderT<Env, M>>
+    where M : Monad<M>, SemigroupK<M>
 {
     static K<ReaderT<Env, M>, B> Monad<ReaderT<Env, M>>.Bind<A, B>(
         K<ReaderT<Env, M>, A> ma,

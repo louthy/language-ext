@@ -11,9 +11,9 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class WriterT<W, M> : 
     MonadT<WriterT<W, M>, M>, 
-    SemiAlternative<WriterT<W, M>>,
+    SemigroupK<WriterT<W, M>>,
     Writable<WriterT<W, M>, W>
-    where M : Monad<M>, SemiAlternative<M>
+    where M : Monad<M>, SemigroupK<M>
     where W : Monoid<W>
 {
     static K<WriterT<W, M>, B> Monad<WriterT<W, M>>.Bind<A, B>(K<WriterT<W, M>, A> ma, Func<A, K<WriterT<W, M>, B>> f) => 

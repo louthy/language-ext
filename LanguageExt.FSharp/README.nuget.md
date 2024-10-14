@@ -104,7 +104,7 @@ The traits are major feature of `v5`+ language-ext that makes generic programmin
 
 | Location | Feature                                | Description                                                                                                                                                            |
 |----------|----------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `Core`   | `Alternative<F>`                       | [A monoid on applicative functors](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Alternative/index.html)                                               |
+| `Core`   | `MonoidK<F>`                       | [A monoid on applicative functors](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Alternative/index.html)                                               |
 | `Core`   | `Applicative<F>`                       | [Applicative functor](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Applicative/index.html)                                                            |
 | `Core`   | `Eq<A>`                                | [Ad-hoc equality trait](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Eq/index.html)                                                                   |
 | `Core`   | `Fallible<F>`                          | [Trait that describes types that can fail](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Fallible/index.html)                                          |
@@ -121,7 +121,7 @@ The traits are major feature of `v5`+ language-ext that makes generic programmin
 | `Core`   | `Ord<A>`                               | [Ad-hoc ordering / comparisons](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Ord/index.html)                                                          |
 | `Core`   | `Range<SELF, NumOrdA, A>`              | [Abstraction of a range of values](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Range/index.html)                                                     |
 | `Core`   | `Readable<M, Env>`                     | [Generalised Reader monad abstraction](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Readable/index.html)                                              |
-| `Core`   | `SemiAlternative<F>`                   | [A semigroup on functors](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/SemiAlternative/index.html)                                                    |
+| `Core`   | `SemigroupK<F>`                   | [A semigroup on functors](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/SemigroupK/index.html)                                                    |
 | `Core`   | `Semigroup<A>`                         | [Provides an associative binary operation `+`](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Semigroup/index.html)                                     |
 | `Core`   | `SemigroupK<M>`                        | [Equivalent of semigroups for working with higher-kinded types](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/SemigroupK/index.html)                   |
 | `Core`   | `Stateful<M, S>`                       | [Generalised State monad abstraction](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Stateful/index.html)                                               |

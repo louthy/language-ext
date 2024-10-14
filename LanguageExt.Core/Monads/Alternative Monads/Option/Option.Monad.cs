@@ -7,7 +7,7 @@ public class Option :
     Monad<Option>, 
     Fallible<Unit, Option>,
     Traversable<Option>, 
-    Alternative<Option>
+    MonoidK<Option>
 {
     static K<Option, B> Monad<Option>.Bind<A, B>(K<Option, A> ma, Func<A, K<Option, B>> f) =>
         ma.As().Bind(f);

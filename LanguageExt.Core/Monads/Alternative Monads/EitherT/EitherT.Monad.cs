@@ -10,7 +10,7 @@ namespace LanguageExt;
 public partial class EitherT<L, M> : 
     MonadT<EitherT<L, M>, M>, 
     Fallible<L, EitherT<L, M>>,
-    SemiAlternative<EitherT<L, M>>
+    SemigroupK<EitherT<L, M>>
     where M : Monad<M>
 {
     static K<EitherT<L, M>, B> Monad<EitherT<L, M>>.Bind<A, B>(K<EitherT<L, M>, A> ma, Func<A, K<EitherT<L, M>, B>> f) => 

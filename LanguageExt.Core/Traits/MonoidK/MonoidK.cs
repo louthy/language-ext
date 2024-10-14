@@ -3,7 +3,7 @@
 namespace LanguageExt.Traits;
 
 /// <summary>
-/// Equivalent of monoids for working on higher-kinded types
+/// A monoid for higher-kindS
 /// </summary>
 /// <typeparam name="M">Higher kind</typeparam>
 public interface MonoidK<M> : SemigroupK<M>

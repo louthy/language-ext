@@ -17,7 +17,7 @@ public static partial class WriterTExtensions
     /// <returns>Mapped functor</returns>
     public static WriterT<W, M, B> Map<W, M, A, B>(this Func<A, B> f, K<WriterT<W, M>, A> ma) 
         where W : Monoid<W> 
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, SemigroupK<M> =>
         ma.As().Map(f);
 
     /// <summary>
@@ -32,7 +32,7 @@ public static partial class WriterTExtensions
     /// <returns>Mapped functor</returns>
     public static WriterT<W, M, B> Map<W, M, A, B>(this Func<A, B> f, WriterT<W, M, A> ma)
         where W : Monoid<W>
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, SemigroupK<M> =>
         Functor.map(f, ma).As();
     
     /// <summary>
@@ -40,7 +40,7 @@ public static partial class WriterTExtensions
     /// </summary>
     public static WriterT<W, M, B> Action<W, M, A, B>(this WriterT<W, M, A> ma, K<WriterT<W, M>, B> mb)
         where W : Monoid<W> 
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, SemigroupK<M> =>
         Applicative.action(ma, mb).As();
     
     /// <summary>
@@ -48,7 +48,7 @@ public static partial class WriterTExtensions
     /// </summary>
     public static WriterT<W, M, B> Action<W, M, A, B>(this K<WriterT<W, M>, A> ma, K<WriterT<W, M>, B> mb)
         where W : Monoid<W> 
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, SemigroupK<M> =>
         Applicative.action(ma, mb).As();
 
     /// <summary>
@@ -63,7 +63,7 @@ public static partial class WriterTExtensions
     /// <returns>Mapped applicative functor</returns>
     public static WriterT<W, M, B> Apply<W, M, A, B>(this WriterT<W, M, Func<A, B>> mf, K<WriterT<W, M>, A> ma)
         where W : Monoid<W> 
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, SemigroupK<M> =>
         Applicative.apply(mf, ma).As();
 
     /// <summary>
@@ -78,6 +78,6 @@ public static partial class WriterTExtensions
     /// <returns>Mapped applicative functor</returns>
     public static WriterT<W, M, B> Apply<W, M, A, B>(this K<WriterT<W, M>, Func<A, B>> mf, K<WriterT<W, M>, A> ma)
         where W : Monoid<W> 
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, SemigroupK<M> =>
         Applicative.apply(mf, ma).As();
 }    

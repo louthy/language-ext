@@ -9,7 +9,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class Validation<FAIL> : 
     Monad<Validation<FAIL>>, 
-    Alternative<Validation<FAIL>>,
+    MonoidK<Validation<FAIL>>,
     Traversable<Validation<FAIL>>, 
     Fallible<FAIL, Validation<FAIL>> 
     where FAIL : Monoid<FAIL>

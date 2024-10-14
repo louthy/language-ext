@@ -8,7 +8,7 @@ public partial class Fin :
     Monad<Fin>, 
     Fallible<Fin>,
     Traversable<Fin>, 
-    Alternative<Fin>
+    MonoidK<Fin>
 {
     static K<Fin, B> Monad<Fin>.Bind<A, B>(K<Fin, A> ma, Func<A, K<Fin, B>> f) =>
         ma switch

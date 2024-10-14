@@ -238,32 +238,32 @@ public abstract record IO<A> : Fallible<IO<A>, IO, Error, A>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     public OptionT<M, C> SelectMany<M, B, C>(Func<A, OptionT<M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, MonoidK<M> =>
         OptionT<M, A>.LiftIO(this).SelectMany(bind, project);
 
     public TryT<M, C> SelectMany<M, B, C>(Func<A, TryT<M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, MonoidK<M> =>
         TryT<M, A>.LiftIO(this).SelectMany(bind, project);
 
     public EitherT<L, M, C> SelectMany<L, M, B, C>(Func<A, EitherT<L, M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, MonoidK<M> =>
         EitherT<L, M, A>.LiftIO(this).SelectMany(bind, project);
 
     public FinT<M, C> SelectMany<M, B, C>(Func<A, FinT<M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, MonoidK<M> =>
         FinT<M, A>.LiftIO(this).SelectMany(bind, project);
 
     public ValidationT<F, M, C> SelectMany<F, M, B, C>(Func<A, ValidationT<F, M, B>> bind, Func<A, B, C> project)
         where F : Monoid<F>
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, MonoidK<M> =>
         ValidationT<F, M, A>.LiftIO(this).SelectMany(bind, project);
 
     public ReaderT<Env, M, C> SelectMany<Env, M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, MonoidK<M> =>
         ReaderT<Env, M, A>.LiftIO(this).SelectMany(bind, project);
 
     public StateT<S, M, C> SelectMany<S, M, B, C>(Func<A, StateT<S, M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, MonoidK<M> =>
         StateT<S, M, A>.LiftIO(this).SelectMany(bind, project);
 
     public Eff<C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>

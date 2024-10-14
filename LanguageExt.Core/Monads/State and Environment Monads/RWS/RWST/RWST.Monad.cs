@@ -13,11 +13,11 @@ namespace LanguageExt;
 /// <typeparam name="M">Lifted monad type</typeparam>
 public class RWST<R, W, S, M> :
     MonadT<RWST<R, W, S, M>, M>, 
-    SemiAlternative<RWST<R, W, S, M>>,
+    SemigroupK<RWST<R, W, S, M>>,
     Readable<RWST<R, W, S, M>, R>,
     Writable<RWST<R, W, S, M>, W>,
     Stateful<RWST<R, W, S, M>, S>
-    where M : Monad<M>, SemiAlternative<M>
+    where M : Monad<M>, SemigroupK<M>
     where W : Monoid<W>
 {
     static K<RWST<R, W, S, M>, B> Monad<RWST<R, W, S, M>>.Bind<A, B>(

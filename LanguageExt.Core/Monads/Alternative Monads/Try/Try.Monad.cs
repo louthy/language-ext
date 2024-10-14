@@ -10,7 +10,7 @@ namespace LanguageExt;
 public partial class Try : 
     Monad<Try>,
     Fallible<Try>, 
-    SemiAlternative<Try>
+    SemigroupK<Try>
 {
     static K<Try, B> Monad<Try>.Bind<A, B>(K<Try, A> ma, Func<A, K<Try, B>> f) =>
         new Try<B>(() => ma.Run() switch

@@ -10,7 +10,7 @@ namespace LanguageExt;
 public static partial class StateTExtensions
 {
     public static StateT<Env, M, A> As<Env, M, A>(this K<StateT<Env, M>, A> ma)
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, SemigroupK<M> =>
         (StateT<Env, M, A>)ma;
     
     /// <summary>
@@ -18,7 +18,7 @@ public static partial class StateTExtensions
     /// </summary>
     [Pure]
     public static StateT<Env, M, A> Flatten<Env, M, A>(this StateT<Env, M, StateT<Env, M, A>> mma)
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, SemigroupK<M> =>
         mma.Bind(x => x);
 
     /// <summary>
@@ -33,7 +33,7 @@ public static partial class StateTExtensions
         this K<M, A> ma, 
         Func<A, K<StateT<Env, M>, B>> bind, 
         Func<A, B, C> project)
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, SemigroupK<M> =>
         StateT<Env, M, A>.Lift(ma).SelectMany(bind, project);
 
     /// <summary>
@@ -48,6 +48,6 @@ public static partial class StateTExtensions
         this K<M, A> ma, 
         Func<A, StateT<Env, M, B>> bind, 
         Func<A, B, C> project)
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, SemigroupK<M> =>
         StateT<Env, M, A>.Lift(ma).SelectMany(bind, project);
 }

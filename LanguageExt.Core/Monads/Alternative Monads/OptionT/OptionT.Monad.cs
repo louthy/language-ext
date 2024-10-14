@@ -9,7 +9,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class OptionT<M> : 
     MonadT<OptionT<M>, M>,
-    Alternative<OptionT<M>>,
+    MonoidK<OptionT<M>>,
     Fallible<Unit, OptionT<M>>
     where M : Monad<M>
 {

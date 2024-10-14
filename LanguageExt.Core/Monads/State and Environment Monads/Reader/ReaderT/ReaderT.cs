@@ -11,7 +11,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record ReaderT<Env, M, A>(Func<Env, K<M, A>> runReader) : K<ReaderT<Env, M>, A>
-    where M : Monad<M>, SemiAlternative<M>
+    where M : Monad<M>, SemigroupK<M>
 {
     /// <summary>
     /// Lift a pure value into the monad-transformer
@@ -97,7 +97,7 @@ public record ReaderT<Env, M, A>(Func<Env, K<M, A>> runReader) : K<ReaderT<Env, 
     /// <typeparam name="M1">Trait of the monad to map to</typeparam>
     /// <returns>`ReaderT`</returns>
     public ReaderT<Env, M1, B> MapM<M1, B>(Func<K<M, A>, K<M1, B>> f)
-        where M1 : Monad<M1>, SemiAlternative<M1> =>
+        where M1 : Monad<M1>, SemigroupK<M1> =>
         new (env => f(runReader(env)));
 
     /// <summary>

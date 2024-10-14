@@ -11,7 +11,7 @@ public class Eff :
     Monad<Eff>,
     Fallible<Eff>,
     Readable<Eff, MinRT>,
-    Alternative<Eff>
+    MonoidK<Eff>
 {
     static K<Eff, B> Monad<Eff>.Bind<A, B>(K<Eff, A> ma, Func<A, K<Eff, B>> f) =>
         new Eff<B>(ma.As().effect.Bind(f));

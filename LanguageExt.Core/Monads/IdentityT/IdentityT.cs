@@ -9,7 +9,7 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="A">Bound value type</typeparam>
 public record IdentityT<M, A>(K<M, A> Value) : K<IdentityT<M>, A>
-    where M : Monad<M>, SemiAlternative<M>
+    where M : Monad<M>, SemigroupK<M>
 {
     public static IdentityT<M, A> Pure(A value) =>
         new (M.Pure(value));

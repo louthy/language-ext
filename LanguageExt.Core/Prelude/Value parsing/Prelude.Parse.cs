@@ -29,7 +29,7 @@ public static partial class Prelude
 
     [Pure]
     public static K<M, A> convert<M, A>(object? value)
-        where M : Alternative<M>
+        where M : MonoidK<M>, Applicative<M>
     {
         if (value == null)
         {
@@ -53,7 +53,7 @@ public static partial class Prelude
 
     [Pure]
     public static K<M, long> parseLong<M>(string value) 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         Parse<M, long>(long.TryParse, value);
 
     [Pure]
@@ -62,7 +62,7 @@ public static partial class Prelude
 
     [Pure]
     public static K<M, int> parseInt<M>(string value)
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         Parse<M, int>(int.TryParse, value);
 
     [Pure]
@@ -80,7 +80,7 @@ public static partial class Prelude
 
     [Pure]
     public static K<M, int> parseInt<M>(string value, int fromBase)
-        where M : Alternative<M>
+        where M : MonoidK<M>, Applicative<M>
     {
         try
         {
@@ -98,7 +98,7 @@ public static partial class Prelude
 
     [Pure]
     public static K<M, short> parseShort<M>(string value) 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         Parse<M, short>(short.TryParse, value);
 
     [Pure]
@@ -107,7 +107,7 @@ public static partial class Prelude
 
     [Pure]
     public static K<M, char> parseChar<M>(string value) 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         Parse<M, char>(char.TryParse, value);
 
     [Pure]
@@ -116,7 +116,7 @@ public static partial class Prelude
 
     [Pure]
     public static K<M, sbyte> parseSByte<M>(string value) 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         Parse<M, sbyte>(sbyte.TryParse, value);
 
     [Pure]
@@ -125,7 +125,7 @@ public static partial class Prelude
 
     [Pure]
     public static K<M, byte> parseByte<M>(string value) 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         Parse<M, byte>(byte.TryParse, value);
 
     [Pure]
@@ -134,7 +134,7 @@ public static partial class Prelude
 
     [Pure]
     public static K<M, ulong> parseULong<M>(string value) 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         Parse<M, ulong>(ulong.TryParse, value);
 
     [Pure]
@@ -143,7 +143,7 @@ public static partial class Prelude
 
     [Pure]
     public static K<M, uint> parseUInt<M>(string value) 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         Parse<M, uint>(uint.TryParse, value);
 
     [Pure]
@@ -152,7 +152,7 @@ public static partial class Prelude
 
     [Pure]
     public static K<M, ushort> parseUShort<M>(string value) 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         Parse<M, ushort>(ushort.TryParse, value);
 
     [Pure]
@@ -161,7 +161,7 @@ public static partial class Prelude
 
     [Pure]
     public static K<M, float> parseFloat<M>(string value) 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         Parse<M, float>(float.TryParse, value);
 
     [Pure]
@@ -170,7 +170,7 @@ public static partial class Prelude
 
     [Pure]
     public static K<M, double> parseDouble<M>(string value) 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         Parse<M, double>(double.TryParse, value);
 
     [Pure]
@@ -179,7 +179,7 @@ public static partial class Prelude
 
     [Pure]
     public static K<M, decimal> parseDecimal<M>(string value) 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         Parse<M, decimal>(decimal.TryParse, value);
 
     [Pure]
@@ -188,7 +188,7 @@ public static partial class Prelude
 
     [Pure]
     public static K<M, bool> parseBool<M>(string value) 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         Parse<M, bool>(bool.TryParse, value);
 
     [Pure]
@@ -197,7 +197,7 @@ public static partial class Prelude
 
     [Pure]
     public static K<M, Guid> parseGuid<M>(string value) 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         Parse<M, Guid>(Guid.TryParse, value);
 
     [Pure]
@@ -206,7 +206,7 @@ public static partial class Prelude
 
     [Pure]
     public static K<M, DateTime> parseDateTime<M>(string value) 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         Parse<M, DateTime>(DateTime.TryParse, value);
 
     [Pure]
@@ -215,7 +215,7 @@ public static partial class Prelude
 
     [Pure]
     public static K<M, DateTimeOffset> parseDateTimeOffset<M>(string value) 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         Parse<M, DateTimeOffset>(DateTimeOffset.TryParse, value);
         
     [Pure]
@@ -224,7 +224,7 @@ public static partial class Prelude
         
     [Pure]
     public static K<M, TimeSpan> parseTimeSpan<M>(string value) 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         Parse<M, TimeSpan>(TimeSpan.TryParse, value);
 
     [Pure]
@@ -235,7 +235,7 @@ public static partial class Prelude
     [Pure]
     public static K<M, TEnum> parseEnum<M, TEnum>(string value)
         where TEnum : struct 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         Parse<M, TEnum>(Enum.TryParse, value);
 
     [Pure]
@@ -246,7 +246,7 @@ public static partial class Prelude
     [Pure]
     public static K<M, TEnum> parseEnumIgnoreCase<M, TEnum>(string value)
         where TEnum : struct 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         ParseIgnoreCase<M, TEnum>(Enum.TryParse, value);
 
     [Pure]
@@ -255,7 +255,7 @@ public static partial class Prelude
 
     [Pure]
     public static K<M, IPAddress> parseIPAddress<M>(string value) 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         Parse<M, IPAddress>(IPAddress.TryParse, value);
 
     delegate bool TryParse<T>(string value, [NotNullWhen(true)] out T? result);
@@ -268,7 +268,7 @@ public static partial class Prelude
             : None;
 
     static K<M, A> Parse<M, A>(TryParse<A> tryParse, string value) 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         tryParse(value, out var result)
             ? M.Pure(result)
             : M.Empty<A>();
@@ -279,7 +279,7 @@ public static partial class Prelude
             : None;
     
     static K<M, A> ParseIgnoreCase<M, A>(TryParseIgnoreCase<A> tryParse, string value) 
-        where M : Alternative<M> =>
+        where M : MonoidK<M>, Applicative<M> =>
         tryParse(value, true, out var result)
             ? M.Pure(result)
             : M.Empty<A>();

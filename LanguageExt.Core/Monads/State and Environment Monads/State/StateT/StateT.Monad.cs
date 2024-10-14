@@ -10,9 +10,9 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class StateT<S, M> : 
     MonadT<StateT<S, M>, M>, 
-    SemiAlternative<StateT<S, M>>,
+    SemigroupK<StateT<S, M>>,
     Stateful<StateT<S, M>, S>
-    where M : Monad<M>, SemiAlternative<M>
+    where M : Monad<M>, SemigroupK<M>
 {
     static K<StateT<S, M>, B> Monad<StateT<S, M>>.Bind<A, B>(K<StateT<S, M>, A> ma, Func<A, K<StateT<S, M>, B>> f) => 
         ma.As().Bind(f);

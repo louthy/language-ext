@@ -17,7 +17,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static K<F, Unit> guard<F>(bool flag)
-        where F : Alternative<F> =>
+        where F : MonoidK<F>, Applicative<F> =>
         flag ? F.Pure(unit) : F.Empty<Unit>();
     
     /// <summary>

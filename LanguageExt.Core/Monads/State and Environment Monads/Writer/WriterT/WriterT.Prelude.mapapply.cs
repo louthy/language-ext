@@ -17,7 +17,7 @@ public static partial class Prelude
     /// <returns>Mapped functor</returns>
     public static WriterT<W, M, B> map<W, M, A, B>(Func<A, B> f, K<WriterT<W, M>, A> ma) 
         where W : Monoid<W> 
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, SemigroupK<M> =>
         Functor.map(f, ma).As();
     
     /// <summary>
@@ -25,7 +25,7 @@ public static partial class Prelude
     /// </summary>
     public static WriterT<W, M, B> action<W, M, A, B>(K<WriterT<W, M>, A> ma, K<WriterT<W, M>, B> mb) 
         where W : Monoid<W> 
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, SemigroupK<M> =>
         Applicative.action(ma, mb).As();
 
     /// <summary>
@@ -40,6 +40,6 @@ public static partial class Prelude
     /// <returns>Mapped applicative functor</returns>
     public static WriterT<W, M, B> apply<W, M, A, B>(K<WriterT<W, M>, Func<A, B>> mf, K<WriterT<W, M>, A> ma) 
         where W : Monoid<W> 
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, SemigroupK<M> =>
         Applicative.apply(mf, ma).As();
 }    

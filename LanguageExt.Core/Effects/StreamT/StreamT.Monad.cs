@@ -9,7 +9,7 @@ namespace LanguageExt;
 /// </summary>
 public class StreamT<M> :
     MonadT<StreamT<M>, M>,
-    Alternative<StreamT<M>>
+    MonoidK<StreamT<M>>
     where M : Monad<M>
 {
     public static StreamT<M, A> pure<A>(A value) =>

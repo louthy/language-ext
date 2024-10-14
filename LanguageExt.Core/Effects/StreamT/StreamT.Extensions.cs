@@ -25,22 +25,22 @@ public static partial class StreamTExtensions
 
     /// <summary>
     /// Execute the stream's inner monad `M`, combining the results using
-    /// its `Alternative<M>.Combine` operator.
+    /// its `MonoidK<M>.Combine` operator.
     /// </summary>
     /// <param name="mma">Stream to combine</param>
     /// <returns>Result of the combined effects</returns>
     public static K<M, A> Combine<M, A>(this K<StreamT<M>, A> mma) 
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, MonoidK<M> =>
         mma.As().runListT.Combine();
 
     /// <summary>
     /// Execute the stream's inner monad `M`, combining the results using
-    /// its `Alternative<M>.Combine` operator.
+    /// its `MonoidK<M>.Combine` operator.
     /// </summary>
     /// <param name="mma">Stream to combine</param>
     /// <returns>Result of the combined effects</returns>
     static K<M, A> Combine<M, A>(this K<M, MList<A>> mma)
-        where M : Monad<M>, Alternative<M> =>
+        where M : Monad<M>, MonoidK<M> =>
         mma.Bind(ml => ml switch
                        {
                            MNil<A> =>

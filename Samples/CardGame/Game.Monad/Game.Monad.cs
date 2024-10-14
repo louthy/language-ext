@@ -4,7 +4,7 @@ namespace CardGame;
 
 public partial class Game : 
     Monad<Game>, 
-    SemiAlternative<Game>,
+    SemigroupK<Game>,
     Stateful<Game, GameState>
 {
     public static K<Game, B> Bind<A, B>(K<Game, A> ma, Func<A, K<Game, B>> f) =>

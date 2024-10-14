@@ -11,7 +11,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record WriterT<W, M, A>(Func<W, K<M, (A Value, W Output)>> runWriter) : K<WriterT<W, M>, A>
-    where M : Monad<M>, SemiAlternative<M>
+    where M : Monad<M>, SemigroupK<M>
     where W : Monoid<W>
 {
     /// <summary>
@@ -108,7 +108,7 @@ public record WriterT<W, M, A>(Func<W, K<M, (A Value, W Output)>> runWriter) : K
     /// <typeparam name="M1">Trait of the monad to map to</typeparam>
     /// <returns>`WriterT`</returns>
     public WriterT<W, M1, B> MapT<M1, B>(Func<K<M, (A Value, W Output)>, K<M1, (B Value, W Output)>> f)
-        where M1 : Monad<M1>, SemiAlternative<M1> =>
+        where M1 : Monad<M1>, SemigroupK<M1> =>
         new (w => f(runWriter(w)));
 
     /// <summary>

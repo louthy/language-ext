@@ -6,8 +6,8 @@ namespace LanguageExt;
 /// <summary>
 /// Identity module
 /// </summary>
-public class IdentityT<M> : MonadT<IdentityT<M>, M>, SemiAlternative<IdentityT<M>>
-    where M : Monad<M>, SemiAlternative<M>
+public class IdentityT<M> : MonadT<IdentityT<M>, M>, SemigroupK<IdentityT<M>>
+    where M : Monad<M>, SemigroupK<M>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

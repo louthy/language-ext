@@ -19,7 +19,7 @@ namespace LanguageExt;
 /// <typeparam name="A">Bound value type</typeparam>
 public record Eff<A>(Eff<MinRT, A> effect) :
     Readable<Eff<A>, A>,
-    Alternative<Eff<A>>,
+    MonoidK<Eff<A>>,
     Monad<Eff<A>>,
     Fallible<Eff<A>>,
     Fallible<Eff<A>, Eff, Error, A>

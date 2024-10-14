@@ -14,7 +14,7 @@ namespace LanguageExt;
 /// <typeparam name="A">Bound value type</typeparam>
 public record RWST<R, W, S, M, A>(Func<(R Env, W Output, S State), K<M, (A Value, W Output, S State)>> runRWST): 
     K<RWST<R, W, S, M>, A>
-    where M : Monad<M>, SemiAlternative<M>
+    where M : Monad<M>, SemigroupK<M>
     where W : Monoid<W>
 {
     public K<M, (A Value, W Output, S State)> Run(R env, W output, S state) => 

@@ -6,7 +6,7 @@ namespace LanguageExt;
 /// <summary>
 /// Free monad makes any functor into a monad 
 /// </summary>
-public class Free<F> : Monad<Free<F>>, SemiAlternative<Free<F>>
+public class Free<F> : Monad<Free<F>>, SemigroupK<Free<F>>
     where F : Functor<F>
 {
     static K<Free<F>, B> Functor<Free<F>>.Map<A, B>(Func<A, B> f, K<Free<F>, A> ma)

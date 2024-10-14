@@ -9,7 +9,7 @@ namespace LanguageExt;
 public partial class IO : 
     Monad<IO>, 
     Fallible<IO>,
-    Alternative<IO>
+    MonoidK<IO>
 {
     public static IO<A> pure<A>(A value) => 
         IO<A>.Pure(value);

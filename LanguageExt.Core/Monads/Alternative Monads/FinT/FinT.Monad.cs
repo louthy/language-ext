@@ -11,7 +11,7 @@ namespace LanguageExt;
 public partial class FinT<M> : 
     MonadT<FinT<M>, M>, 
     Fallible<FinT<M>>,
-    SemiAlternative<FinT<M>>
+    SemigroupK<FinT<M>>
     where M : Monad<M>
 {
     static K<FinT<M>, B> Monad<FinT<M>>.Bind<A, B>(K<FinT<M>, A> ma, Func<A, K<FinT<M>, B>> f) => 

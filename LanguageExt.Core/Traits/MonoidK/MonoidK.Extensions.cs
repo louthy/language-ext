@@ -7,20 +7,20 @@ namespace LanguageExt;
 /// A monoid on applicative functors
 /// </summary>
 /// <typeparam name="F">Applicative functor</typeparam>
-public static partial class AlternativeExtensions
+public static class MonoidKExtensions
 {
     /// <summary>
     /// Results in Empty if the predicate results in `false` 
     /// </summary>
     public static K<M, A> Filter<M, A>(this K<M, A> ma, Func<A, bool> predicate)
-        where M : Alternative<M>, Monad<M> =>
+        where M : MonoidK<M>, Monad<M> =>
         M.Bind(ma, a => predicate(a) ? M.Pure(a) : M.Empty<A>());
     
     /// <summary>
     /// Results in Empty if the predicate results in `false` 
     /// </summary>
     public static K<M, A> Where<M, A>(this K<M, A> ma, Func<A, bool> predicate)
-        where M : Alternative<M>, Monad<M> =>
+        where M : MonoidK<M>, Monad<M> =>
         M.Bind(ma, a => predicate(a) ? M.Pure(a) : M.Empty<A>());
 
     /// <summary>
@@ -28,7 +28,7 @@ public static partial class AlternativeExtensions
     /// maps the resulting value at the same time. 
     /// </summary>
     public static K<M, B> Choose<M, A, B>(this K<M, A> ma, Func<A, Option<B>> selector)
-        where M : Alternative<M>, Monad<M> =>
+        where M : MonoidK<M>, Monad<M> =>
         M.Bind(ma, a => selector(a).Match(Some: M.Pure, None: M.Empty<B>));
     
     /// <summary>
@@ -38,8 +38,8 @@ public static partial class AlternativeExtensions
     /// If none succeed, the last applicative functor will be returned.
     /// </remarks>
     public static K<F, A> OneOf<F, A>(this Seq<K<F, A>> ms)
-        where F : Alternative<F> =>
-        Alternative.oneOf(ms);
+        where F : MonoidK<F> =>
+        MonoidK.oneOf(ms);
 
     /// <summary>
     /// One or more...
@@ -52,8 +52,8 @@ public static partial class AlternativeExtensions
     /// <param name="v">Applicative functor</param>
     /// <returns>One or more values</returns>
     public static K<F, Seq<A>> Some<F, A>(this K<F, A> v)
-        where F : Alternative<F> =>
-        F.Some(v);
+        where F : MonoidK<F>, Applicative<F> =>
+        MonoidK.some(v);
 
     /// <summary>
     /// Zero or more...
@@ -66,6 +66,6 @@ public static partial class AlternativeExtensions
     /// <param name="v">Applicative functor</param>
     /// <returns>Zero or more values</returns>
     public static K<F, Seq<A>> Many<F, A>(this K<F, A> v)
-        where F : Alternative<F> =>
-        F.Many(v);
+        where F : MonoidK<F>, Applicative<F> =>
+        MonoidK.many(v);
 }

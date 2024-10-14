@@ -9,7 +9,7 @@ namespace LanguageExt;
 public class Identity : 
     Monad<Identity>, 
     Traversable<Identity>,
-    Alternative<Identity>
+    MonoidK<Identity>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
