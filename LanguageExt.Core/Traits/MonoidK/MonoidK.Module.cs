@@ -76,7 +76,7 @@ public static partial class MonoidK
     [Pure]
     public static K<F, A> oneOf<F, A>(params K<F, A>[] ms)
         where F : MonoidK<F> =>
-        oneOf(ms.AsIterable().ToSeq());
+        oneOf(toSeq(ms));
 
     /// <summary>
     /// Given a set of applicative functors, return the first one to succeed.
@@ -86,10 +86,16 @@ public static partial class MonoidK
     /// </remarks>
     [Pure]
     public static K<F, A> oneOf<F, A>(Seq<K<F, A>> ms)
-        where F : MonoidK<F> =>
-        ms.IsEmpty
-            ? F.Empty<A>()
-            : F.Combine(ms.Head.Value!, oneOf(ms.Tail));
+        where F : MonoidK<F>
+    {
+        if(ms.IsEmpty()) return F.Empty<A>();
+        var r = ms[0];
+        foreach (var m in ms.Tail)
+        {
+            r = F.Combine(r, m);
+        }
+        return r;
+    }
     
     /// <summary>
     /// One or more...
@@ -99,20 +105,19 @@ public static partial class MonoidK
     ///
     /// Will always succeed if at least one item has been yielded.
     /// </remarks>
-    /// <param name="v">Applicative functor</param>
+    /// <param name="fa">Applicative functor</param>
     /// <returns>One or more values</returns>
     [Pure]
-    public static K<F, Seq<A>> some<F, A>(K<F, A> v)
+    public static K<F, Seq<A>> some<F, A>(K<F, A> fa)
         where F : MonoidK<F>, Applicative<F>
     {
-        // TODO: Make lazy
-        return some_v();
+        var lfa    = LazyF.lift(fa);
+        var emptyF = LazyF.lift(F.Pure(Seq<A>()));
+        var some_v = default(K<LazyF<F>, Seq<A>>?);
+        var many_v = LazyF.lazy(() => some_v!).Combine(emptyF);
+        some_v = Append<A>.cons.Map(lfa).Apply(many_v);
         
-        K<F, Seq<A>> many_v() =>
-            F.Combine(some_v(), F.Pure(Seq<A>()));
-
-        K<F, Seq<A>> some_v() =>
-            F.Apply(Append<F, A>.cons, v, many_v());
+        return some_v.Run();
     }
     
     /// <summary>
@@ -123,20 +128,19 @@ public static partial class MonoidK
     ///
     /// Will always succeed.
     /// </remarks>
-    /// <param name="v">Applicative functor</param>
+    /// <param name="fa">Applicative functor</param>
     /// <returns>Zero or more values</returns>
     [Pure]
-    public static K<F, Seq<A>> many<F, A>(K<F, A> v)
+    public static K<F, Seq<A>> many<F, A>(K<F, A> fa)
         where F : MonoidK<F>, Applicative<F>
     {
-        // TODO: Make lazy
-        return many_v();
+        var lfa    = LazyF.lift(fa);
+        var emptyF = LazyF.lift(F.Pure(Seq<A>()));
+        var some_v = default(K<LazyF<F>, Seq<A>>?);
+        var many_v = LazyF.lazy(() => some_v!).Combine(emptyF);
+        some_v = Append<A>.cons.Map(lfa).Apply(many_v);
         
-        K<F, Seq<A>> many_v() =>
-            F.Combine(some_v(), F.Pure(Seq<A>()));
-
-        K<F, Seq<A>> some_v() =>
-            F.Apply(Append<F, A>.cons, v, many_v());
+        return many_v.Run();
     }    
     
     /// <summary>
@@ -154,10 +158,11 @@ public static partial class MonoidK
         where F : MonoidK<F>, Applicative<F> =>
         flag ? Applicative.pure<F, Unit>(default) : empty<F, Unit>();
     
-    static class Append<M, A>
-        where M : Applicative<M>
+    static class Append<A>
     {
-        public static readonly K<M, Func<A, Seq<A>, Seq<A>>> cons =
-            M.Pure((A x, Seq<A> y) => x.Cons(y));
+        public static readonly Func<A, Func<Seq<A>, Seq<A>>> cons =
+            x => xs => x.Cons(xs);
     }    
 }
+
+
