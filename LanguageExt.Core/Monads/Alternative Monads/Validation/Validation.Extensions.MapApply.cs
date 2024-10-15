@@ -59,7 +59,7 @@ public static partial class ValidationExtensions
     /// <returns>Mapped applicative functor</returns>
     public static Validation<F, B> Apply<F, A, B>(this Validation<F, Func<A, B>> mf, K<Validation<F>, A> ma)
         where F : Monoid<F> =>
-        mf.Kind().Apply(ma).As();
+        Applicative.apply(mf, ma).As();
 
     /// <summary>
     /// Applicative functor apply operation
@@ -73,5 +73,5 @@ public static partial class ValidationExtensions
     /// <returns>Mapped applicative functor</returns>
     public static Validation<F, B> Apply<F, A, B>(this K<Validation<F>, Func<A, B>> mf, K<Validation<F>, A> ma)
         where F : Monoid<F> =>
-        mf.As().Apply(ma);
+        Applicative.apply(mf, ma).As();
 }    

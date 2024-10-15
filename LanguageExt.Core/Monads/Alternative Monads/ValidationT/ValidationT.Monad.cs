@@ -21,9 +21,9 @@ public partial class ValidationT<F, M> :
         ma.As().Bind(f);
 
     static K<ValidationT<F, M>, B> Functor<ValidationT<F, M>>.Map<A, B>(
-        Func<A, B> f, 
-        K<ValidationT<F, M>, A> ma) => 
-        ma.As().Map(f);
+        Func<A, B> f,
+        K<ValidationT<F, M>, A> ma) =>
+        new ValidationT<F, M, B>(ma.As().runValidation.Map(fa => fa.Map(f)));
 
     static K<ValidationT<F, M>, A> Applicative<ValidationT<F, M>>.Pure<A>(A value) => 
         ValidationT<F, M, A>.Success(value);
@@ -31,12 +31,18 @@ public partial class ValidationT<F, M> :
     static K<ValidationT<F, M>, B> Applicative<ValidationT<F, M>>.Apply<A, B>(
         K<ValidationT<F, M>, Func<A, B>> mf,
         K<ValidationT<F, M>, A> ma) =>
-        mf.As().Apply(ma.As());
+        new ValidationT<F, M, B>(
+            from ff in mf.As().runValidation
+            from fa in ma.As().runValidation
+            select ff.Apply(fa));
 
     static K<ValidationT<F, M>, B> Applicative<ValidationT<F, M>>.Action<A, B>(
         K<ValidationT<F, M>, A> ma, 
         K<ValidationT<F, M>, B> mb) =>
-        fun((A _, B b) => b).Map(ma).Apply(mb).As();
+        new ValidationT<F, M, B>(
+            from ff in ma.As().runValidation
+            from fa in mb.As().runValidation
+            select ff.Action(fa));
 
     static K<ValidationT<F, M>, A> MonadT<ValidationT<F, M>, M>.Lift<A>(K<M, A> ma) => 
         ValidationT<F, M, A>.Lift(ma);

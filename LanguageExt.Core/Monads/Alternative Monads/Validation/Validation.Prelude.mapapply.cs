@@ -38,5 +38,5 @@ public static partial class Prelude
     /// <returns>Mapped applicative functor</returns>
     public static Validation<F, B> apply<F, A, B>(K<Validation<F>, Func<A, B>> mf, K<Validation<F>, A> ma)
         where F : Monoid<F> =>
-        mf.As().Apply(ma);
+        Applicative.apply(mf, ma).As();
 }    
