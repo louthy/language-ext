@@ -7,8 +7,9 @@ namespace LanguageExt.Traits;
 /// Functions that test that functor-laws hold for the `F` functor provided.
 /// </summary>
 /// <remarks>
-/// NOTE: `Equals` must be implemented for the `K<F, A>` derived-type, so that the laws
-/// can be proven to be true.
+/// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+/// can be proven to be true.  If your functor doesn't have `Equals` then you must provide
+/// the optional `equals` parameter so that the equality of outcomes can be tested.
 /// </remarks>
 /// <typeparam name="F">Functor type</typeparam>
 public static class FunctorLaw<F>
@@ -17,6 +18,11 @@ public static class FunctorLaw<F>
     /// <summary>
     /// Assert that the functor laws hold
     /// </summary>
+    /// <remarks>
+    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// can be proven to be true.  If your functor doesn't have `Equals` then you must provide
+    /// the optional `equals` parameter so that the equality of outcomes can be tested.
+    /// </remarks>
     public static Unit assert(K<F, int> fa, Func<K<F, int>, K<F, int>, bool>? equals = null) =>
         validate(fa, equals)
            .IfFail(errors => errors.Throw());
@@ -24,23 +30,30 @@ public static class FunctorLaw<F>
     /// <summary>
     /// Validate that the functor laws hold
     /// </summary>
+    /// <remarks>
+    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// can be proven to be true.  If your functor doesn't have `Equals` then you must provide
+    /// the optional `equals` parameter so that the equality of outcomes can be tested.
+    /// </remarks>
     public static Validation<Error, Unit> validate(K<F, int> fa, Func<K<F, int>, K<F, int>, bool>? equals = null)
     {
         equals ??= (fa, fb) => fa.Equals(fb);
-        return (identityLaw(fa, equals), compositionLaw(fa, f, g, equals))
-                    .Apply((_, _) => unit)
-                    .As();
+        return identityLaw(fa, equals) >> 
+               compositionLaw(fa, f, g, equals);
     }
 
     /// <summary>
     /// Validate the identity law
     /// </summary>
-    public static Validation<Error, Unit> identityLaw<A>(
-        K<F, A> fa, 
-        Func<K<F, A>, K<F, A>, bool> equals)
+    /// <remarks>
+    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// can be proven to be true.  If your functor doesn't have `Equals` then you must provide
+    /// the optional `equals` parameter so that the equality of outcomes can be tested.
+    /// </remarks>
+    public static Validation<Error, Unit> identityLaw(K<F, int> lhs, Func<K<F, int>, K<F, int>, bool> equals)
     {
-        var fa1 = fa.Map(identity);
-        return equals(fa, fa1) 
+        var rhs = lhs.Map(identity);
+        return equals(lhs, rhs) 
                    ? unit
                    : Error.New($"Functor identity-law does not hold for {typeof(F).Name}");
     }
@@ -48,14 +61,20 @@ public static class FunctorLaw<F>
     /// <summary>
     /// Validate the composition law
     /// </summary>
-    public static Validation<Error, Unit> compositionLaw<A, B, C>(
-        K<F, A> fa, Func<A, B> f,
-        Func<B, C> g, 
-        Func<K<F, C>, K<F, C>, bool> equals)
+    /// <remarks>
+    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// can be proven to be true.  If your functor doesn't have `Equals` then you must provide
+    /// the optional `equals` parameter so that the equality of outcomes can be tested.
+    /// </remarks>
+    public static Validation<Error, Unit> compositionLaw(
+        K<F, int> fa, 
+        Func<int, int> f,
+        Func<int, int> g, 
+        Func<K<F, int>, K<F, int>, bool> equals)
     {
-        var fa1 = fa.Map(a => g(f(a)));
-        var fa2 = fa.Map(f).Map(g);
-        return equals(fa1, fa2)
+        var lhs = fa.Map(a => g(f(a)));
+        var rhs = fa.Map(f).Map(g);
+        return equals(lhs, rhs)
                    ? unit
                    : Error.New($"Functor composition-law does not hold for {typeof(F).Name}");
     }
