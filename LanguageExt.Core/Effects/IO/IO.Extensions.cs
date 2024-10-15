@@ -32,8 +32,18 @@ public static partial class IOExtensions
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Fin<A> RunSafe<A>(this K<IO, A> ma, EnvIO? envIO = null) =>
+        ma.As().Try().Run().Run(envIO);
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ValueTask<A> RunAsync<A>(this K<IO, A> ma, EnvIO? envIO = null) =>
         ma.As().RunAsync(envIO);
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ValueTask<Fin<A>> RunSafeAsync<A>(this K<IO, A> ma, EnvIO? envIO = null) =>
+        ma.As().Try().Run().RunAsync(envIO);
     
     /// <summary>
     /// Get the outer task and wrap it up in a new IO within the IO
