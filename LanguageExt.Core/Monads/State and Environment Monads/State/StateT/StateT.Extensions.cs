@@ -9,15 +9,24 @@ namespace LanguageExt;
 /// </summary>
 public static partial class StateTExtensions
 {
-    public static StateT<Env, M, A> As<Env, M, A>(this K<StateT<Env, M>, A> ma)
+    public static StateT<S, M, A> As<S, M, A>(this K<StateT<S, M>, A> ma)
         where M : Monad<M>, SemigroupK<M> =>
-        (StateT<Env, M, A>)ma;
+        (StateT<S, M, A>)ma;
+
+    /// <summary>
+    /// Run the state monad 
+    /// </summary>
+    /// <param name="state">Initial state</param>
+    /// <returns>Bound monad</returns>
+    public static K<M, (A Value, S State)> Run<S, M, A>(this K<StateT<S, M>, A> ma, S state) 
+        where M : Monad<M>, SemigroupK<M> =>
+        ((StateT<S, M, A>)ma).runState(state);
     
     /// <summary>
     /// Monadic join
     /// </summary>
     [Pure]
-    public static StateT<Env, M, A> Flatten<Env, M, A>(this StateT<Env, M, StateT<Env, M, A>> mma)
+    public static StateT<S, M, A> Flatten<S, M, A>(this StateT<S, M, StateT<S, M, A>> mma)
         where M : Monad<M>, SemigroupK<M> =>
         mma.Bind(x => x);
 
@@ -29,12 +38,12 @@ public static partial class StateTExtensions
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`StateT`</returns>
-    public static StateT<Env, M, C> SelectMany<Env, M, A, B, C>(
+    public static StateT<S, M, C> SelectMany<S, M, A, B, C>(
         this K<M, A> ma, 
-        Func<A, K<StateT<Env, M>, B>> bind, 
+        Func<A, K<StateT<S, M>, B>> bind, 
         Func<A, B, C> project)
         where M : Monad<M>, SemigroupK<M> =>
-        StateT<Env, M, A>.Lift(ma).SelectMany(bind, project);
+        StateT<S, M, A>.Lift(ma).SelectMany(bind, project);
 
     /// <summary>
     /// Monad bind operation
@@ -44,10 +53,10 @@ public static partial class StateTExtensions
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`StateT`</returns>
-    public static StateT<Env, M, C> SelectMany<Env, M, A, B, C>(
+    public static StateT<S, M, C> SelectMany<S, M, A, B, C>(
         this K<M, A> ma, 
-        Func<A, StateT<Env, M, B>> bind, 
+        Func<A, StateT<S, M, B>> bind, 
         Func<A, B, C> project)
         where M : Monad<M>, SemigroupK<M> =>
-        StateT<Env, M, A>.Lift(ma).SelectMany(bind, project);
+        StateT<S, M, A>.Lift(ma).SelectMany(bind, project);
 }

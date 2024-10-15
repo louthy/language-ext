@@ -10,6 +10,24 @@ public static partial class WriterTExtensions
         where M : Monad<M>, SemigroupK<M> 
         where W : Monoid<W> =>
         (WriterT<W, M, A>)ma;
+
+    /// <summary>
+    /// Run the writer 
+    /// </summary>
+    /// <returns>Bound monad</returns>
+    public static K<M, (A Value, W Output)> Run<W, M, A>(this K<WriterT<W, M>, A> ma) 
+        where M : Monad<M>, SemigroupK<M> 
+        where W : Monoid<W> =>
+        ((WriterT<W, M, A>)ma).runWriter(W.Empty);
+
+    /// <summary>
+    /// Run the writer 
+    /// </summary>
+    /// <returns>Bound monad</returns>
+    public static K<M, (A Value, W Output)> Run<W, M, A>(this K<WriterT<W, M>, A> ma, W initial) 
+        where M : Monad<M>, SemigroupK<M> 
+        where W : Monoid<W> =>
+        ((WriterT<W, M, A>)ma).runWriter(initial);
     
     /// <summary>
     /// Monadic join

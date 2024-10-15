@@ -16,6 +16,15 @@ public static partial class ReaderTExtensions
     public static ReaderT<Env, M, A> As<Env, M, A>(this K<ReaderT<Env, M>, A> ma)
         where M : Monad<M>, SemigroupK<M> =>
         (ReaderT<Env, M, A>)ma;
+
+    /// <summary>
+    /// Run the reader monad 
+    /// </summary>
+    /// <param name="env">Input environment</param>
+    /// <returns>Bound monad</returns>
+    public static K<M, A> Run<Env, M, A>(this K<ReaderT<Env, M>, A> ma, Env env)
+        where M : Monad<M>, SemigroupK<M> =>
+        ((ReaderT<Env, M, A>)ma).runReader(env);
     
     /// <summary>
     /// Monadic join

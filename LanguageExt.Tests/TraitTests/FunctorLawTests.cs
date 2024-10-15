@@ -12,10 +12,8 @@ public class FunctorLawTests
         
         var ma = Eff<Unit, int>.Pure(1);
         var mx = Eff<Unit, int>.Fail(Errors.Closed);
-        var r1 = FunctorLaw<Eff<Unit>>.lawsHold(ma, eq);
-        var r2 = FunctorLaw<Eff<Unit>>.lawsHold(mx, eq);
-        Assert.True(r1);
-        Assert.True(r2);
+        FunctorLaw<Eff<Unit>>.assert(ma, eq);
+        FunctorLaw<Eff<Unit>>.assert(mx, eq);
     }
     
     [Fact]
@@ -26,10 +24,8 @@ public class FunctorLawTests
         
         var ma = Eff<int>.Pure(1);
         var mx = Eff<int>.Fail(Errors.Closed);
-        var r1 = FunctorLaw<Eff>.lawsHold(ma, eq);
-        var r2 = FunctorLaw<Eff>.lawsHold(mx, eq);
-        Assert.True(r1);
-        Assert.True(r2);
+        FunctorLaw<Eff>.assert(ma, eq);
+        FunctorLaw<Eff>.assert(mx, eq);
     }
     
     [Fact]
@@ -40,10 +36,8 @@ public class FunctorLawTests
         
         var ma = IO<int>.Pure(1);
         var mx = IO<int>.Fail(Errors.Closed);
-        var r1 = FunctorLaw<IO>.lawsHold(ma, eq);
-        var r2 = FunctorLaw<IO>.lawsHold(mx, eq);
-        Assert.True(r1);
-        Assert.True(r2);
+        FunctorLaw<IO>.assert(ma, eq);
+        FunctorLaw<IO>.assert(mx, eq);
     }
     
     [Fact]
@@ -60,11 +54,8 @@ public class FunctorLawTests
         var ma = StreamT<Identity, int>.Pure(1);
         var mb = StreamT<Identity, int>.Lift([1, 2, 3, 4, 5 , 6, 7, 8, 9, 10]);
         
-        var r1 = FunctorLaw<StreamT<Identity>>.lawsHold(ma, eq);
-        var r2 = FunctorLaw<StreamT<Identity>>.lawsHold(mb, eq);
-        
-        Assert.True(r1);
-        Assert.True(r2);
+        FunctorLaw<StreamT<Identity>>.assert(ma, eq);
+        FunctorLaw<StreamT<Identity>>.assert(mb, eq);
     }
     
     [Fact]
@@ -72,10 +63,8 @@ public class FunctorLawTests
     {
         var fa = Either<string, int>.Right(1);
         var fx = Either<string, int>.Left("failed");
-        var r1 = FunctorLaw<Either<string>>.lawsHold(fa);
-        var r2 = FunctorLaw<Either<string>>.lawsHold(fx);
-        Assert.True(r1);
-        Assert.True(r2);
+        FunctorLaw<Either<string>>.assert(fa);
+        FunctorLaw<Either<string>>.assert(fx);
     }
     
     [Fact]
@@ -83,10 +72,8 @@ public class FunctorLawTests
     {
         var fa = EitherT<string, Identity, int>.Right(1);
         var fx = EitherT<string, Identity, int>.Left("failed");
-        var r1 = FunctorLaw<EitherT<string, Identity>>.lawsHold(fa);
-        var r2 = FunctorLaw<EitherT<string, Identity>>.lawsHold(fx);
-        Assert.True(r1);
-        Assert.True(r2);
+        FunctorLaw<EitherT<string, Identity>>.assert(fa);
+        FunctorLaw<EitherT<string, Identity>>.assert(fx);
     }
 
     [Fact]
@@ -94,10 +81,8 @@ public class FunctorLawTests
     {
         var fa = Fin<int>.Succ(1);
         var fx = Fin<int>.Fail(Errors.TimedOut);
-        var r1 = FunctorLaw<Fin>.lawsHold(fa);
-        var r2 = FunctorLaw<Fin>.lawsHold(fx);
-        Assert.True(r1);
-        Assert.True(r2);
+        FunctorLaw<Fin>.assert(fa);
+        FunctorLaw<Fin>.assert(fx);
     }
     
     [Fact]
@@ -105,10 +90,8 @@ public class FunctorLawTests
     {
         var fa = FinT<Identity, int>.Succ(1);
         var fx = FinT<Identity, int>.Fail(Errors.TimedOut);
-        var r1 = FunctorLaw<FinT<Identity>>.lawsHold(fa);
-        var r2 = FunctorLaw<FinT<Identity>>.lawsHold(fx);
-        Assert.True(r1);
-        Assert.True(r2);
+        FunctorLaw<FinT<Identity>>.assert(fa);
+        FunctorLaw<FinT<Identity>>.assert(fx);
     }
     
     [Fact]
@@ -116,10 +99,8 @@ public class FunctorLawTests
     {
         var fa = Option<int>.Some(1);
         var fx = Option<int>.None;
-        var r1 = FunctorLaw<Option>.lawsHold(fa);
-        var r2 = FunctorLaw<Option>.lawsHold(fx);
-        Assert.True(r1);
-        Assert.True(r2);
+        FunctorLaw<Option>.assert(fa);
+        FunctorLaw<Option>.assert(fx);
     }
     
     [Fact]
@@ -127,10 +108,8 @@ public class FunctorLawTests
     {
         var fa = OptionT<Identity, int>.Some(1);
         var fx = OptionT<Identity, int>.None;
-        var r1 = FunctorLaw<OptionT<Identity>>.lawsHold(fa);
-        var r2 = FunctorLaw<OptionT<Identity>>.lawsHold(fx);
-        Assert.True(r1);
-        Assert.True(r2);
+        FunctorLaw<OptionT<Identity>>.assert(fa);
+        FunctorLaw<OptionT<Identity>>.assert(fx);
     }
     
     [Fact]
@@ -141,10 +120,8 @@ public class FunctorLawTests
         
         var fa = Try<int>.Succ(1);
         var fx = Try<int>.Fail(Errors.EndOfStream);
-        var r1 = FunctorLaw<Try>.lawsHold(fa, eq);
-        var r2 = FunctorLaw<Try>.lawsHold(fx, eq);
-        Assert.True(r1);
-        Assert.True(r2);
+        FunctorLaw<Try>.assert(fa, eq);
+        FunctorLaw<Try>.assert(fx, eq);
     }
     
     [Fact]
@@ -155,10 +132,8 @@ public class FunctorLawTests
         
         var fa = TryT<Identity, int>.Succ(1);
         var fx = TryT<Identity, int>.Fail(Errors.EndOfStream);
-        var r1 = FunctorLaw<TryT<Identity>>.lawsHold(fa, eq);
-        var r2 = FunctorLaw<TryT<Identity>>.lawsHold(fx, eq);
-        Assert.True(r1);
-        Assert.True(r2);
+        FunctorLaw<TryT<Identity>>.assert(fa, eq);
+        FunctorLaw<TryT<Identity>>.assert(fx, eq);
     }
     
     [Fact]
@@ -166,10 +141,8 @@ public class FunctorLawTests
     {
         var fa = Validation<StringM, int>.Success(1);
         var fx = Validation<StringM, int>.Fail("failed");
-        var r1 = FunctorLaw<Validation<StringM>>.lawsHold(fa);
-        var r2 = FunctorLaw<Validation<StringM>>.lawsHold(fx);
-        Assert.True(r1);
-        Assert.True(r2);
+        FunctorLaw<Validation<StringM>>.assert(fa);
+        FunctorLaw<Validation<StringM>>.assert(fx);
     }
     
     [Fact]
@@ -177,26 +150,99 @@ public class FunctorLawTests
     {
         var fa = ValidationT<StringM, Identity, int>.Success(1);
         var fx = ValidationT<StringM, Identity, int>.Fail("failed");
-        var r1 = FunctorLaw<ValidationT<StringM, Identity>>.lawsHold(fa);
-        var r2 = FunctorLaw<ValidationT<StringM, Identity>>.lawsHold(fx);
-        Assert.True(r1);
-        Assert.True(r2);
+        FunctorLaw<ValidationT<StringM, Identity>>.assert(fa);
+        FunctorLaw<ValidationT<StringM, Identity>>.assert(fx);
     }
     
     [Fact]
     public void Identity()
     {
         var fa = LanguageExt.Identity.Pure(1);
-        var r1 = FunctorLaw<Identity>.lawsHold(fa);
-        Assert.True(r1);
+        FunctorLaw<Identity>.assert(fa);
     }
     
     [Fact]
     public void IdentityT()
     {
         var fa = IdentityT<Identity, int>.Pure(1);
-        var r1 = FunctorLaw<IdentityT<Identity>>.lawsHold(fa);
-        Assert.True(r1);
+        FunctorLaw<IdentityT<Identity>>.assert(fa);
     }
+    
+    [Fact]
+    public void Reader()
+    {
+        bool eq(K<Reader<string>, int> vx, K<Reader<string>, int> vy) => 
+            vx.Run("Hello").Equals(vy.Run("Hello"));
+        
+        var fa = from e in Readable.ask<Reader<string>, string>()   
+                 from v in Reader<string, int>.Pure(1)
+                 select e.Length + v;
+        
+        FunctorLaw<Reader<string>>.assert(fa, eq);
+    }
+    
+    [Fact]
+    public void ReaderT()
+    {
+        bool eq(K<ReaderT<string, Identity>, int> vx, K<ReaderT<string, Identity>, int> vy) => 
+            vx.Run("Hello").Run().Equals(vy.Run("Hello").Run());
+        
+        var fa = from e in Readable.ask<ReaderT<string, Identity>, string>()  
+                 from v in ReaderT<string, Identity, int>.Pure(1)
+                 select e.Length + v;
+                 
+        FunctorLaw<ReaderT<string, Identity>>.assert(fa, eq);
+    }
+    
+    [Fact]
+    public void State()
+    {
+        bool eq(K<State<string>, int> vx, K<State<string>, int> vy) => 
+            vx.Run("Hello").Equals(vy.Run("Hello"));
+        
+        var fa = from e in Stateful.get<State<string>, string>()  
+                 from v in State<string, int>.Pure(1)
+                 select e.Length + v;
+        
+        FunctorLaw<State<string>>.assert(fa, eq);
+    }
+    
+    [Fact]
+    public void StateT()
+    {
+        bool eq(K<StateT<string, Identity>, int> vx, K<StateT<string, Identity>, int> vy) => 
+            vx.Run("Hello").Run().Equals(vy.Run("Hello").Run());
+        
+        var fa = from e in Stateful.get<StateT<string, Identity>, string>()  
+                 from v in StateT<string, Identity, int>.Pure(1)
+                 select e.Length + v;
+                 
+        FunctorLaw<StateT<string, Identity>>.assert(fa, eq);
+    }
+    
+    [Fact]
+    public void Writer()
+    {
+        bool eq(K<Writer<StringM>, int> vx, K<Writer<StringM>, int> vy) => 
+            vx.Run("Hello, ").Equals(vy.Run("Hello, "));
+        
+        var fa = from _ in Writable.tell<Writer<StringM>, StringM>("World")  
+                 from v in Writer<StringM, int>.Pure(1)
+                 select v;
+        
+        FunctorLaw<Writer<StringM>>.assert(fa, eq);
+    }
+    
+    [Fact]
+    public void WriterT()
+    {
+        bool eq(K<WriterT<StringM, Identity>, int> vx, K<WriterT<StringM, Identity>, int> vy) => 
+            vx.Run("Hello, ").Run().Equals(vy.Run("Hello, ").Run());
+        
+        var fa = from _ in Writable.tell<WriterT<StringM, Identity>, StringM>("World")  
+                 from v in WriterT<StringM, Identity, int>.Pure(1)
+                 select v;
+                 
+        FunctorLaw<WriterT<StringM, Identity>>.assert(fa, eq);
+    }      
 }
-

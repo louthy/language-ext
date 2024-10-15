@@ -232,7 +232,7 @@ public record Reader<Env, A>(Func<Env, A> runReader) : K<Reader<Env>, A>
     /// Run the reader monad 
     /// </summary>
     /// <param name="env">Input environment</param>
-    /// <returns>Bound monad</returns>
+    /// <returns>Computed value</returns>
     public A Run(Env env) =>
         runReader(env);
 }
