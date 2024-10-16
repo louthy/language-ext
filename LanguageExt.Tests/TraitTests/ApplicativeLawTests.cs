@@ -4,6 +4,26 @@ namespace LanguageExt.Tests.TraitTests;
 public class ApplicativeFunctorLawTests
 {
     [Fact]
+    public void Arr() =>
+        ApplicativeLaw<Arr>.assert();
+    
+    [Fact]
+    public void HashSet() =>
+        ApplicativeLaw<HashSet>.assert();
+    
+    [Fact]
+    public void Iterable() =>
+        ApplicativeLaw<Iterable>.assert();
+    
+    [Fact]
+    public void Lst() =>
+        ApplicativeLaw<Lst>.assert();
+    
+    [Fact]
+    public void Seq() =>
+        ApplicativeLaw<Seq>.assert();
+    
+    [Fact]
     public void EffRT()
     {
         bool eq(K<Eff<Unit>, int> vx, K<Eff<Unit>, int> vy) => 

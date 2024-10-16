@@ -1,9 +1,58 @@
-using LanguageExt.Common;
 using Xunit;
+using LanguageExt.Common;
 namespace LanguageExt.Tests.TraitTests;
 
 public class FunctorLawTests
 {
+    [Fact]
+    public void Arr()
+    {
+        Arr<int> fa = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        FunctorLaw<Arr>.assert(fa);
+    }
+    
+    [Fact]
+    public void HashMap()
+    {
+        HashMap<string, int> fa = [("one", 1), ("two", 2), ("three", 3), ("four", 4), ("five", 5)];
+        FunctorLaw<HashMap<string>>.assert(fa);
+    }
+    
+    [Fact]
+    public void HashSet()
+    {
+        HashSet<int> fa = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        FunctorLaw<HashSet>.assert(fa);
+    }
+    
+    [Fact]
+    public void Iterable()
+    {
+        Iterable<int> fa = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        FunctorLaw<Iterable>.assert(fa);
+    }
+    
+    [Fact]
+    public void Lst()
+    {
+        Lst<int> fa = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        FunctorLaw<Lst>.assert(fa);
+    }
+    
+    [Fact]
+    public void Map()
+    {
+        Map<string, int> fa = [("one", 1), ("two", 2), ("three", 3), ("four", 4), ("five", 5)];
+        FunctorLaw<Map<string>>.assert(fa);
+    }
+    
+    [Fact]
+    public void Seq()
+    {
+        Seq<int> fa = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        FunctorLaw<Seq>.assert(fa);
+    }    
+    
     [Fact]
     public void EffRT()
     {

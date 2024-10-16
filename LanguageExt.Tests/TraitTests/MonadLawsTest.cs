@@ -5,6 +5,26 @@ namespace LanguageExt.Tests.TraitTests;
 public class MonadLawsTest
 {
     [Fact]
+    public void Arr() =>
+        MonadLaw<Arr>.assert();
+    
+    [Fact]
+    public void HashSet() =>
+        MonadLaw<HashSet>.assert();
+    
+    [Fact]
+    public void Iterable() =>
+        MonadLaw<Iterable>.assert();
+    
+    [Fact]
+    public void Lst() =>
+        MonadLaw<Lst>.assert();
+    
+    [Fact]
+    public void Seq() =>
+        MonadLaw<Seq>.assert();
+    
+    [Fact]
     public void EffRT()
     {
         bool eq(K<Eff<Unit>, int> vx, K<Eff<Unit>, int> vy) => 
