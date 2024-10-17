@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -7,7 +8,7 @@ namespace LanguageExt;
 /// A unit type is a type that allows only one value (and thus can hold no information)
 /// </summary>
 [Serializable]
-public readonly struct Unit : IEquatable<Unit>, IComparable<Unit>
+public readonly struct Unit : IEquatable<Unit>, IComparable<Unit>, Monoid<Unit>
 {
     public static readonly Unit Default = default;
 
@@ -77,6 +78,10 @@ public readonly struct Unit : IEquatable<Unit>, IComparable<Unit>
         0;
 
     [Pure]
+    public Unit Combine(Unit rhs) => 
+        default;
+
+    [Pure]
     public static Unit operator +(Unit a, Unit b) =>
         Default;
 
@@ -98,5 +103,9 @@ public readonly struct Unit : IEquatable<Unit>, IComparable<Unit>
         
     [Pure]
     public static implicit operator Unit(Iterable<Unit> _) => 
+        default;
+
+    [Pure]
+    public static Unit Empty =>
         default;
 }
