@@ -17,17 +17,38 @@ namespace LanguageExt;
 public readonly record struct Ask<Env, A>(Func<Env, A> F)
 {
     /// <summary>
+    /// Use a `Readable` trait to convert to an `M<A>`
+    /// </summary>
+    public K<M, A> ToReadable<M>()
+        where M : Readable<M, Env> =>
+        Readable.asks<M, Env, A>(F);
+
+    /// <summary>
     /// Convert to a `Reader`
     /// </summary>
     public Reader<Env, A> ToReader() =>
-        Reader<Env, A>.Asks(F);
+        ToReadable<Reader<Env>>().As();
     
     /// <summary>
     /// Convert to a `ReaderT`
     /// </summary>
     public ReaderT<Env, M, A> ToReaderT<M>()
         where M : Monad<M>, SemigroupK<M> =>
-        ReaderT<Env, M, A>.Asks(F);
+        ToReadable<ReaderT<Env, M>>().As();
+    
+    /// <summary>
+    /// Convert to a `RWS`
+    /// </summary>
+    //public RWS<Env, W, S, A> ToRWS() =>
+    //    ToReadable<RWS<Env, W, S>>().As();
+    
+    /// <summary>
+    /// Convert to a `RWST`
+    /// </summary>
+    public RWST<Env, W, S, M, A> ToRWST<W, S, M>()
+        where W : Monoid<W>
+        where M : Monad<M>, SemigroupK<M> =>
+        ToReadable<RWST<Env, W, S, M>>().As();
     
     /// <summary>
     /// Monadic bind with any `Reader`

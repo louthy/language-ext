@@ -16,17 +16,24 @@ namespace LanguageExt;
 public readonly record struct Put<S>(S Value)
 {
     /// <summary>
+    /// Convert ot a `Stateful`
+    /// </summary>
+    public K<M, Unit> ToStateful<M>()
+        where M : Stateful<M, S> =>
+        Stateful.put<M, S>(Value);
+    
+    /// <summary>
     /// Convert ot a `StateT`
     /// </summary>
     public StateT<S, M, Unit> ToStateT<M>()
         where M : Monad<M>, SemigroupK<M> =>
-        StateT<S, M, Unit>.Put(Value);
+        Stateful.put<StateT<S, M>, S>(Value).As();
     
     /// <summary>
     /// Convert ot a `StateT`
     /// </summary>
     public State<S, Unit> ToState() =>
-        State<S, Unit>.Put(Value);
+        Stateful.put<State<S>, S>(Value).As();
     
     /// <summary>
     /// Convert ot a `State`
@@ -61,14 +68,21 @@ public readonly record struct Put<S>(S Value)
 public readonly record struct Modify<S>(Func<S, S> f)
 {
     /// <summary>
-    /// Convert ot a `StateT`
+    /// Convert with `Stateful`
+    /// </summary>
+    public K<M, Unit> ToStateful<M>()
+        where M : Stateful<M, S> =>
+        Stateful.modify<M, S>(f);
+    
+    /// <summary>
+    /// Convert to a `StateT`
     /// </summary>
     public StateT<S, M, Unit> ToStateT<M>()
         where M : Monad<M>, SemigroupK<M> =>
         StateT<S, M, Unit>.Modify(f);
     
     /// <summary>
-    /// Convert ot a `State`
+    /// Convert to a `State`
     /// </summary>
     public State<S, Unit> ToState() =>
         State<S, Unit>.Modify(f);
@@ -100,6 +114,13 @@ public readonly record struct Modify<S>(Func<S, S> f)
 /// <typeparam name="S">State type</typeparam>
 public readonly record struct Gets<S, A>(Func<S, A> f)
 {
+    /// <summary>
+    /// Convert with `Stateful`
+    /// </summary>
+    public K<M, A> ToStateful<M>()
+        where M : Stateful<M, S> =>
+        Stateful.gets<M, S, A>(f);
+    
     /// <summary>
     /// Convert ot a `StateT`
     /// </summary>

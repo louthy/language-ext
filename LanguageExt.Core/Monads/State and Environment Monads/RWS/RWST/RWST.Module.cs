@@ -36,7 +36,36 @@ public static class RWST
         where W : Monoid<W>
         where M : Monad<M>, SemigroupK<M> =>
         SemigroupK.combine(ma, mb).As();
+    
+    public static RWST<R, W, S, M, A> combine<R, W, S, M, A>(
+        K<IO, A> ma,
+        K<RWST<R, W, S, M>, A> mb)
+        where W : Monoid<W>
+        where M : Monad<M>, SemigroupK<M> =>
+        SemigroupK.combine(RWST<R, W, S, M, A>.LiftIO(ma), mb).As();
+    
+    public static RWST<R, W, S, M, A> combine<R, W, S, M, A>(
+        K<RWST<R, W, S, M>, A> ma,
+        K<IO, A> mb)
+        where W : Monoid<W>
+        where M : Monad<M>, SemigroupK<M> =>
+        SemigroupK.combine(ma, RWST<R, W, S, M, A>.LiftIO(mb)).As();
+    
+    public static RWST<R, W, S, M, A> combine<R, W, S, M, A>(
+        Ask<R, A> ma,
+        K<RWST<R, W, S, M>, A> mb)
+        where W : Monoid<W>
+        where M : Monad<M>, SemigroupK<M> =>
+        SemigroupK.combine(asks<R, W, S, M, A>(ma.F), mb).As();
 
+    
+    public static RWST<R, W, S, M, A> combine<R, W, S, M, A>(
+        K<RWST<R, W, S, M>, A> ma,
+        Ask<R, A> mb)
+        where W : Monoid<W>
+        where M : Monad<M>, SemigroupK<M> =>
+        SemigroupK.combine(ma, asks<R, W, S, M, A>(mb.F)).As();
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Reader behaviours
