@@ -3,7 +3,7 @@
 C# Functional Programming Language Extensions
 =============================================
 
-This library uses and abuses the features of C# to provide a pure functional-programming 'Base Class Library' that, if you squint, can look like 
+This library uses and abuses the features of C# to provide a pure functional-programming framework that, if you squint, can look like 
 extensions to the language itself. The desire here is to make programming in C# much more robust by helping the engineer's inertia flow 
 in the direction of declarative and pure functional code rather than imperative.  Using these techniques for large code-bases can bring 
 tangible benefits to long-term maintenance by removing hidden complexity and by easing the engineer's cognitive load.
@@ -230,7 +230,6 @@ The traits are major feature of `v5`+ language-ext that makes generic programmin
 
 | Location | Feature                                | Description                                                                                                                                                            |
 |----------|----------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `Core`   | `Alternative<F>`                       | [A monoid on applicative functors](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Alternative/index.html)                                               |
 | `Core`   | `Applicative<F>`                       | [Applicative functor](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Applicative/index.html)                                                            |
 | `Core`   | `Eq<A>`                                | [Ad-hoc equality trait](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Eq/index.html)                                                                   |
 | `Core`   | `Fallible<F>`                          | [Trait that describes types that can fail](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Fallible/index.html)                                          |
@@ -256,7 +255,7 @@ The traits are major feature of `v5`+ language-ext that makes generic programmin
 
 ### [Value traits](https://louthy.github.io/language-ext/LanguageExt.Core/Traits/Domain/index.html)
 
-These work a little like `NewType` but they impart semantic meaning and some common operators for the underlying value.
+These work a little like type-aliasing but they impart semantic meaning and some common operators for the underlying value.
 
 | Location | Feature                              | Description                                                                                                                                                                                                                                       |
 |----------|--------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -264,9 +263,9 @@ These work a little like `NewType` but they impart semantic meaning and some com
 | `Core`   | `Identifier <SELF>`                  | Identifiers (like IDs in databases: `PersonId` for example), they are equivalent to `DomaintType` with equality.                                                                                                                                  |
 | `Core`   | `VectorSpace<SELF, SCALAR>`          | Scalable values; can add and subtract self, but can only multiply and divide by a scalar. Can also negate.                                                                                                                                        |
 | `Core`   | `Amount <SELF, SCALAR>`              | Quantities, such as the amount of money in USD on a bank account or a file size in bytes. Derives `VectorSpace`, `IdentifierLike`, `DomainType`, and is orderable (comparable).                                                                   |
-| `Core`   | `LocusLike <SELF, SCALAR, DISTANCE>` | Works with space-like structures. Spaces have absolute and relative distances. Has an origin/zero point and derives `DomainType`, `IdentifierLike`, `AmountLike` and `VectorSpace`.  `DISTANCE` must also be an `AmountLike<SELF, REPR, SCALAR>`. |
+| `Core`   | `Locus <SELF, DISTANCE, SCALAR>`     | Works with space-like structures. Spaces have absolute and relative distances. Has an origin/zero point and derives `DomainType`, `IdentifierLike`, `AmountLike` and `VectorSpace`.  `DISTANCE` must also be an `AmountLike<SELF, REPR, SCALAR>`. |
 
-_These features are still a little in-flux as of 17th May 2024 - they may evolve, be renamed, or removed - but I like the idea!_
+_These features are still a little in-flux as of 17th Oct 2024 - they may evolve, be renamed, or removed - but I like the idea!_
 
 ## Further 
 
