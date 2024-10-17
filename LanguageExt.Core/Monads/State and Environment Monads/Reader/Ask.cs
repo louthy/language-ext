@@ -63,12 +63,55 @@ public readonly record struct Ask<Env, A>(Func<Env, A> F)
     public ReaderT<Env, M, C> SelectMany<M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
         where M : Monad<M>, SemigroupK<M> =>
         ToReaderT<M>().SelectMany(bind, project);
+    
+    /// <summary>
+    /// Monadic bind with `ReaderT`
+    /// </summary>
+    public ReaderT<Env, M, C> SelectMany<M, B, C>(Func<A, K<ReaderT<Env, M>, B>> bind, Func<A, B, C> project)
+        where M : Monad<M>, SemigroupK<M> =>
+        ToReaderT<M>().SelectMany(bind, project);
 
     /// <summary>
     /// Monadic bind with `Reader`
     /// </summary>
     public Reader<Env, C> SelectMany<B, C>(Func<A, Reader<Env, B>> bind, Func<A, B, C> project) =>
          ToReader().SelectMany(bind, project).As();
+
+    /// <summary>
+    /// Monadic bind with `Reader`
+    /// </summary>
+    public Reader<Env, C> SelectMany<B, C>(Func<A, K<Reader<Env>, B>> bind, Func<A, B, C> project) =>
+        ToReader().SelectMany(bind, project).As();
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`ReaderT`</returns>
+    public RWST<Env, W, S, M, C> SelectMany<W, S, M, B, C>(
+        Func<A, RWST<Env, W, S, M, B>> bind, 
+        Func<A, B, C> project)
+        where W : Monoid<W>
+        where M : Monad<M>, SemigroupK<M> =>
+        RWST<Env, W, S, M, A>.Asks(F).SelectMany(bind, project);    
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`ReaderT`</returns>
+    public RWST<Env, W, S, M, C> SelectMany<W, S, M, B, C>(
+        Func<A, K<RWST<Env, W, S, M>, B>> bind, 
+        Func<A, B, C> project)
+        where W : Monoid<W>
+        where M : Monad<M>, SemigroupK<M> =>
+        RWST<Env, W, S, M, A>.Asks(F).SelectMany(bind, project);      
 }
 
 public static class AskExtensions

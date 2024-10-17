@@ -57,7 +57,6 @@ public static class RWST
         where W : Monoid<W>
         where M : Monad<M>, SemigroupK<M> =>
         SemigroupK.combine(asks<R, W, S, M, A>(ma.F), mb).As();
-
     
     public static RWST<R, W, S, M, A> combine<R, W, S, M, A>(
         K<RWST<R, W, S, M>, A> ma,

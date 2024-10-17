@@ -368,7 +368,18 @@ public record RWST<R, W, S, M, A>(Func<(R Env, W Output, S State), K<M, (A Value
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`RWST`</returns>
     public RWST<R, W, S, M, C> SelectMany<C>(Func<A, Modify<S>> bind, Func<A, Unit, C> project) =>
-        SelectMany(x => bind(x).ToStateful<RWST<R, W, S, M>>(), project);    
+        SelectMany(x => bind(x).ToStateful<RWST<R, W, S, M>>(), project);
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`RWST`</returns>
+    public RWST<R, W, S, M, C> SelectMany<C>(Func<A, Tell<W>> bind, Func<A, Unit, C> project) =>
+        SelectMany(x => bind(x).ToWritable<RWST<R, W, S, M>>(), project);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
