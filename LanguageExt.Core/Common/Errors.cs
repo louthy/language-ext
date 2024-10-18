@@ -168,4 +168,20 @@ public static class Errors
     /// Validation failed error
     /// </summary>
     public static readonly Error ValidationFailed = (ValidationFailedCode, ValidationFailedText);
+
+    /// <summary>
+    /// Source completed text
+    /// </summary>
+    public const string SourceCompletedText =
+        "source completed";
+    
+    /// <summary>
+    /// Source completed code
+    /// </summary>
+    public const int SourceCompletedCode = -2000000011;
+
+    /// <summary>
+    /// Source completed error
+    /// </summary>
+    public static readonly Error SourceCompleted = (SourceCompletedCode, SourceCompletedText);
 }

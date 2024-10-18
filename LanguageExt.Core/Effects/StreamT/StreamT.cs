@@ -89,6 +89,14 @@ public abstract record StreamT<M, A> :
                .Bind(_ => new StreamEnumerableT<M, A>(stream));
 
     /// <summary>
+    /// Lift an enumerator into the stream
+    /// </summary>
+    /// <param name="stream">Sequence to lift</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> Lift(IEnumerator<A> stream) =>
+        new StreamEnumeratorT<M, A>(stream);
+
+    /// <summary>
     /// Lift an enumerable into the stream
     /// </summary>
     /// <param name="stream">Sequence to lift</param>

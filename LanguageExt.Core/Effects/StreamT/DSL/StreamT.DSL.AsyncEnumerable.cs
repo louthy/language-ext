@@ -33,8 +33,9 @@ internal record StreamAsyncEnumerableT<M, A>(IAsyncEnumerable<A> items) : Stream
     public override StreamT<M, A> Merge(K<StreamT<M>, A> rhs) =>
         rhs switch
         {
-            StreamAsyncEnumerableT<M, A> r => new StreamAsyncEnumerableT<M, A>(MergeAsync(items, r.items)),
+            StreamAsyncEnumerableT<M, A> r => new StreamEnumerableT<M, A>(MergeAsync(items, r.items)),
             StreamEnumerableT<M, A> r      => new StreamAsyncEnumerableT<M, A>(MergeSync(items, r.items)),
+            StreamEnumeratorT<M, A> r      => new StreamAsyncEnumerableT<M, A>(MergeSync(items, r.items)),
             _                              => base.Merge(rhs)
         };
 
@@ -59,9 +60,29 @@ internal record StreamAsyncEnumerableT<M, A>(IAsyncEnumerable<A> items) : Stream
         }
     }
 
-    static async IAsyncEnumerable<A> MergeAsync(IAsyncEnumerable<A> lhs, IAsyncEnumerable<A> rhs)
+    static async IAsyncEnumerable<A> MergeSync(IAsyncEnumerable<A> lhs, IEnumerator<A> rhs)
     {
-        var complete = new CountdownEvent(2);
+        using var iter = rhs;
+        await foreach(var a in lhs)
+        {
+            if (iter.MoveNext())
+            {
+                yield return a;
+                yield return iter.Current;
+            }
+            else
+            {
+                yield return a;
+            }
+        }
+        while (iter.MoveNext())
+        {
+            yield return iter.Current;
+        }
+    }
+
+    static IEnumerable<A> MergeAsync(IAsyncEnumerable<A> lhs, IAsyncEnumerable<A> rhs)
+    {
         var wait = new AutoResetEvent(true);
         ConcurrentQueue<A> queue = [];
         var lt = EnumerateAsync(lhs, queue, wait);
