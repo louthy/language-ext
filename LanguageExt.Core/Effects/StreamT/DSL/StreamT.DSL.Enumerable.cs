@@ -17,7 +17,7 @@ internal record StreamEnumerableT<M, A>(IEnumerable<A> items) : StreamT<M, A>
     public override StreamT<M, A> Tail() =>
         new StreamEnumerableT<M, A>(items.Skip(1));
     
-    public static StreamT<M, A> Lift(IEnumerator<A> iter)
+    public new static StreamT<M, A> Lift(IEnumerator<A> iter)
     {
         if (iter.MoveNext())
         {
@@ -43,7 +43,6 @@ internal record StreamEnumerableT<M, A>(IEnumerable<A> items) : StreamT<M, A>
         {
             StreamAsyncEnumerableT<M, A> r => new StreamAsyncEnumerableT<M, A>(MergeAsync(items, r.items)),
             StreamEnumerableT<M, A> r      => new StreamEnumerableT<M, A>(MergeSync(items, r.items)),
-            StreamEnumeratorT<M, A> r      => new StreamEnumerableT<M, A>(MergeSync(items, r.items)),
             _                              => base.Merge(rhs)
         };
     
@@ -67,28 +66,6 @@ internal record StreamEnumerableT<M, A>(IEnumerable<A> items) : StreamT<M, A>
             yield return iter.Current;
         }
     }
-    
-    static IEnumerable<A> MergeSync(IEnumerable<A> lhs, IEnumerator<A> rhs)
-    {
-        using var iter = lhs.GetEnumerator();
-        while(rhs.MoveNext())
-        {
-            var a = rhs.Current;
-            if (iter.MoveNext())
-            {
-                yield return iter.Current;
-                yield return a;
-            }
-            else
-            {
-                yield return a;
-            }
-        }
-        while (iter.MoveNext())
-        {
-            yield return iter.Current;
-        }
-    }    
     
     static async IAsyncEnumerable<A> MergeAsync(IEnumerable<A> lhs, IAsyncEnumerable<A> rhs)
     {

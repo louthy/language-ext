@@ -20,6 +20,7 @@ public static class Menu
                        ConsoleKey.D7 => Merging.run,
                        ConsoleKey.D8 => Zipping.run,
                        ConsoleKey.D9 => OptionalItems.run,
+                       ConsoleKey.D0 => SourceStream.run,
                        ConsoleKey.X  => RecursionIO.run,
                        _             => unitIO
                    }
@@ -38,5 +39,6 @@ public static class Menu
         writeLine("7. Merging")                                       >>
         writeLine("8. Zipping")                                       >>
         writeLine("9. Optional items")                                >>
+        writeLine("0. Source stream")                                 >>
         writeLine("Enter a number for the example you wish to run");
 }

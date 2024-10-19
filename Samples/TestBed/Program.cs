@@ -104,6 +104,27 @@ public class Program
     }
 
 
+    public record Item;
+    public record ItemId;
+    public record ItemRepo
+    {
+        public Task<Item> GetById(ItemId id) => 
+            throw new NotImplementedException();
+    }
+
+    public static ReaderT<ItemRepo, Eff, Item> GetItem(ItemId itemId) =>
+        from repo in ReaderT.ask<Eff, ItemRepo>()
+        from item in liftIO(async () => await repo.GetById(itemId))
+        select item;
+
+    public static ReaderT<ItemRepo, Eff, Unit> ProcessItem(Item item) =>
+        throw new NotImplementedException();
+
+    public static ReaderT<ItemRepo, Eff, Unit> ReaderTEffExample(ItemId id) =>
+        from item in GetItem(id)
+        from _    in ProcessItem(item)
+        select unit;
+
     public static void StateTTest()
     {
         var mx = StateT<string, OptionT<IO>, int>.Pure(100);

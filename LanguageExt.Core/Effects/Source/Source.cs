@@ -48,7 +48,7 @@ public class Source<A> : IDisposable
         IO.lift(envIO => new Source<A>(envIO));
 
     /// <summary>
-    /// Subscribe to the source
+    /// Subscribe to the source and await the values
     /// </summary>
     /// <remarks>
     /// Each subscriber runs on the same thread as the event-distributor.  So, if you have multiple
@@ -58,7 +58,7 @@ public class Source<A> : IDisposable
     /// </remarks>
     /// <typeparam name="M">Monad type lifted into the stream</typeparam>
     /// <returns>StreamT monad transformer that will get the values coming downstream</returns>
-    public StreamT<M, A> Subscribe<M>()
+    public StreamT<M, A> Await<M>()
         where M : Monad<M>
     {
         var id  = Interlocked.Increment(ref identifier);
@@ -84,7 +84,6 @@ public class Source<A> : IDisposable
                         break;
                 }
             }
-
             wait.WaitOne();
         }
     }

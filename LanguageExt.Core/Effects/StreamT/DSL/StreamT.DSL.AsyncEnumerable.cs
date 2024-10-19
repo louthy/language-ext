@@ -35,34 +35,12 @@ internal record StreamAsyncEnumerableT<M, A>(IAsyncEnumerable<A> items) : Stream
         {
             StreamAsyncEnumerableT<M, A> r => new StreamEnumerableT<M, A>(MergeAsync(items, r.items)),
             StreamEnumerableT<M, A> r      => new StreamAsyncEnumerableT<M, A>(MergeSync(items, r.items)),
-            StreamEnumeratorT<M, A> r      => new StreamAsyncEnumerableT<M, A>(MergeSync(items, r.items)),
             _                              => base.Merge(rhs)
         };
 
     static async IAsyncEnumerable<A> MergeSync(IAsyncEnumerable<A> lhs, IEnumerable<A> rhs)
     {
         using var iter = rhs.GetEnumerator();
-        await foreach(var a in lhs)
-        {
-            if (iter.MoveNext())
-            {
-                yield return a;
-                yield return iter.Current;
-            }
-            else
-            {
-                yield return a;
-            }
-        }
-        while (iter.MoveNext())
-        {
-            yield return iter.Current;
-        }
-    }
-
-    static async IAsyncEnumerable<A> MergeSync(IAsyncEnumerable<A> lhs, IEnumerator<A> rhs)
-    {
-        using var iter = rhs;
         await foreach(var a in lhs)
         {
             if (iter.MoveNext())

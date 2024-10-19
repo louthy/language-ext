@@ -80,6 +80,24 @@ public abstract record StreamT<M, A> :
        select a;
 
     /// <summary>
+    /// Lift an async-enumerator into the stream
+    /// </summary>
+    /// <param name="stream">Sequence to lift</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> Lift(IAsyncEnumerator<A> stream) =>
+        new StreamAsyncEnumerableT<M, A>(FromEnumerator(stream));
+
+    /// <summary>
+    /// Lift an async-enumerator into the stream
+    /// </summary>
+    /// <param name="stream">Sequence to lift</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> LiftM(IAsyncEnumerator<K<M, A>> stream) =>
+        from ma in StreamT<M, K<M, A>>.Lift(stream)
+        from a in Lift(ma)
+        select a;
+
+    /// <summary>
     /// Lift an enumerable into the stream
     /// </summary>
     /// <param name="stream">Sequence to lift</param>
@@ -87,14 +105,6 @@ public abstract record StreamT<M, A> :
     public static StreamT<M, A> Lift(IEnumerable<A> stream) =>
         StreamT.pure<M, Unit>(default) // HACK: forces re-evaluation of the enumerable
                .Bind(_ => new StreamEnumerableT<M, A>(stream));
-
-    /// <summary>
-    /// Lift an enumerator into the stream
-    /// </summary>
-    /// <param name="stream">Sequence to lift</param>
-    /// <returns>Stream transformer</returns>
-    public static StreamT<M, A> Lift(IEnumerator<A> stream) =>
-        new StreamEnumeratorT<M, A>(stream);
 
     /// <summary>
     /// Lift an enumerable into the stream
@@ -105,6 +115,31 @@ public abstract record StreamT<M, A> :
         from ma in StreamT<M, K<M, A>>.Lift(stream)
         from a in Lift(ma)
         select a;
+
+    /// <summary>
+    /// Lift an enumerator into the stream
+    /// </summary>
+    /// <param name="stream">Sequence to lift</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> Lift(IEnumerator<A> stream) =>
+        Lift(FromEnumerator(stream));
+
+    /// <summary>
+    /// Lift an enumerator into the stream
+    /// </summary>
+    /// <param name="stream">Sequence to lift</param>
+    /// <returns>Stream transformer</returns>
+    public static StreamT<M, A> LiftM(IEnumerator<K<M, A>> stream)
+    {
+        return LiftM(go());
+        IEnumerable<K<M, A>> go()
+        {
+            while (stream.MoveNext())
+            {
+                yield return stream.Current;
+            }
+        }
+    }
 
     /// <summary>
     /// Lift a (possibly lazy) sequence into the stream
@@ -496,4 +531,19 @@ public abstract record StreamT<M, A> :
     public static StreamT<M, A> operator >> (StreamT<M, A> lhs, K<StreamT<M>, Unit> rhs) =>
         lhs.Bind(x => rhs.Map(_ => x));
 
+    static IEnumerable<A> FromEnumerator(IEnumerator<A> stream)
+    {
+        while (stream.MoveNext())
+        {
+            yield return stream.Current;
+        }
+    }
+
+    static async IAsyncEnumerable<A> FromEnumerator(IAsyncEnumerator<A> stream)
+    {
+        while (await stream.MoveNextAsync().ConfigureAwait(false))
+        {
+            yield return stream.Current;
+        }
+    }
 }
