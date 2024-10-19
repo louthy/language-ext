@@ -13,7 +13,7 @@ public class StreamT<M> :
     where M : Monad<M>
 {
     public static StreamT<M, A> pure<A>(A value) =>
-        new StreamMainT<M, A>(M.Pure(MList<A>.Cons(value, M.Pure(MList<A>.Nil))));
+        new (() => M.Pure(MList<A>.Cons(value, () => M.Pure(MList<A>.Nil))));
 
     public static StreamT<M, A> lift<A>(IEnumerable<A> items) =>
         StreamT<M, A>.Lift(items);
@@ -38,7 +38,7 @@ public class StreamT<M> :
         mma.As().Map(f);
 
     static K<StreamT<M>, A> Applicative<StreamT<M>>.Pure<A>(A value) =>
-        new StreamPureT<M, A>(value);
+        StreamT<M, A>.Pure(value);
 
     static K<StreamT<M>, B> Applicative<StreamT<M>>.Apply<A, B>(
         K<StreamT<M>, Func<A, B>> mf,
@@ -46,14 +46,14 @@ public class StreamT<M> :
         mf.Bind(f => ma.Map(f));
 
     static K<StreamT<M>, A> MonadT<StreamT<M>, M>.Lift<A>(K<M, A> ma) =>
-        new StreamLiftM<M, A>(ma);
+        StreamT<M, A>.Lift(ma);
 
     static K<StreamT<M>, A> SemigroupK<StreamT<M>>.Combine<A>(K<StreamT<M>, A> lhs, K<StreamT<M>, A> rhs) =>
         lhs.As().Combine(rhs.As());
 
     static K<StreamT<M>, A> MonoidK<StreamT<M>>.Empty<A>() =>
-        StreamMainT<M, A>.Empty;
+        StreamT<M, A>.Empty;
 
     static K<StreamT<M>, A> MonadIO<StreamT<M>>.LiftIO<A>(IO<A> ma) =>
-        new StreamLiftM<M, A>(M.LiftIO(ma));
+        StreamT<M, A>.LiftIO(ma);
 }

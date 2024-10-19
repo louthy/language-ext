@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 using LanguageExt.Common;
 using LanguageExt.Traits;
@@ -9,21 +11,23 @@ namespace LanguageExt;
 /// <summary>
 /// Lazy sequence monad transformer
 /// </summary>
-public abstract record StreamT<M, A> :
+public record StreamT<M, A>(Func<K<M, MList<A>>>  runListT) :
     K<StreamT<M>, A>,
     Monoid<StreamT<M, A>>
     where M : Monad<M>
 {
     /// <summary>
-    /// Get the lifted monad
-    /// </summary>
-    public abstract K<M, MList<A>> runListT { get; }
-
-    /// <summary>
     /// Retrieve the tail of the sequence
     /// </summary>
     /// <returns>Stream transformer</returns>
-    public abstract StreamT<M, A> Tail();
+    public StreamT<M, A> Tail() =>
+        new (() => runListT().Bind(
+                     ml => ml switch
+                           {
+                               MNil<A>               => M.Pure(MList<A>.Nil),
+                               MCons<M, A>(_, var t) => t(),
+                               _                     => throw new NotSupportedException()
+                           }));
     
     /// <summary>
     /// Map the stream
@@ -31,13 +35,14 @@ public abstract record StreamT<M, A> :
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Resulting bound value type</typeparam>
     /// <returns>Stream transformer</returns>
-    public abstract StreamT<M, B> Map<B>(Func<A, B> f);
+    public StreamT<M, B> Map<B>(Func<A, B> f) =>
+        new (() => runListT().Map(la => la.Map(f)));
 
     /// <summary>
     /// Empty stream
     /// </summary>
     public static StreamT<M, A> Empty { get; } =
-        new StreamMainT<M, A>(M.Pure<MList<A>>(new MNil<A>()));
+        new (() => M.Pure<MList<A>>(new MNil<A>()));
 
     /// <summary>
     /// Construct a singleton stream
@@ -45,7 +50,7 @@ public abstract record StreamT<M, A> :
     /// <param name="value">Single value in the stream</param>
     /// <returns>Stream transformer</returns>
     public static StreamT<M, A> Pure(A value) =>
-        new StreamPureT<M, A>(value);
+        new (() => M.Pure(MList<A>.Cons(value, () => M.Pure(MList<A>.Nil))));
 
     /// <summary>
     /// Lift any foldable into the stream
@@ -58,7 +63,7 @@ public abstract record StreamT<M, A> :
         foldable switch
         {
             IEnumerable<A> ma => Lift(ma),
-            _ => new StreamMainT<M, A>(M.Pure(foldable.FoldBack(MList<A>.Nil, s => a => MList<A>.Cons(a, M.Pure(s)))))
+            _ => new StreamT<M, A>(() => M.Pure(foldable.FoldBack(MList<A>.Nil, s => a => MList<A>.Cons(a, () => M.Pure(s)))))
         };
 
     /// <summary>
@@ -67,7 +72,9 @@ public abstract record StreamT<M, A> :
     /// <param name="stream">Sequence to lift</param>
     /// <returns>Stream transformer</returns>
     public static StreamT<M, A> Lift(IAsyncEnumerable<A> stream) =>
-        new StreamAsyncEnumerableT<M, A>(stream);
+        from t in IO.token
+        from s in Lift(stream.ToBlockingEnumerable(t))
+        select s;
 
     /// <summary>
     /// Lift an async-enumerable into the stream
@@ -85,7 +92,7 @@ public abstract record StreamT<M, A> :
     /// <param name="stream">Sequence to lift</param>
     /// <returns>Stream transformer</returns>
     public static StreamT<M, A> Lift(IAsyncEnumerator<A> stream) =>
-        new StreamAsyncEnumerableT<M, A>(FromEnumerator(stream));
+        Lift(FromEnumerator(stream));
 
     /// <summary>
     /// Lift an async-enumerator into the stream
@@ -102,9 +109,28 @@ public abstract record StreamT<M, A> :
     /// </summary>
     /// <param name="stream">Sequence to lift</param>
     /// <returns>Stream transformer</returns>
-    public static StreamT<M, A> Lift(IEnumerable<A> stream) =>
-        StreamT.pure<M, Unit>(default) // HACK: forces re-evaluation of the enumerable
-               .Bind(_ => new StreamEnumerableT<M, A>(stream));
+    public static StreamT<M, A> Lift(IEnumerable<A> stream)
+    {
+        return new StreamT<M, A>(() => 
+        {
+            var iter = stream.GetEnumerator();
+            return next(iter)();
+        });
+
+        static Func<K<M, MList<A>>> next(IEnumerator<A> iter) =>
+            () =>
+            {
+                if (iter.MoveNext())
+                {
+                    return M.Pure(MList<A>.Cons(iter.Current, next(iter)));
+                }
+                else
+                {
+                    iter.Dispose();
+                    return M.Pure(MList<A>.Nil);
+                }
+            };
+    }
 
     /// <summary>
     /// Lift an enumerable into the stream
@@ -142,34 +168,12 @@ public abstract record StreamT<M, A> :
     }
 
     /// <summary>
-    /// Lift a (possibly lazy) sequence into the stream
-    /// </summary>
-    /// <param name="stream">Sequence to lift</param>
-    /// <returns>Stream transformer</returns>
-    public static StreamT<M, A> Lift(Seq<A> stream) =>
-        stream switch
-        {
-            []          => Empty,
-            var (x, xs) => new StreamMainT<M, A>(M.Pure<MList<A>>(new MCons<M, A>(x, Lift(xs).runListT)))
-        };
-
-    /// <summary>
-    /// Lift a (possibly lazy) sequence into the stream
-    /// </summary>
-    /// <param name="stream">Sequence to lift</param>
-    /// <returns>Stream transformer</returns>
-    public static StreamT<M, A> LiftM(Seq<K<M, A>> stream) =>
-       from ma in StreamT<M, K<M, A>>.Lift(stream)
-       from a in Lift(ma)
-       select a;
-
-    /// <summary>
     /// Lift an effect into the stream
     /// </summary>
     /// <param name="ma">Effect to lift</param>
     /// <returns>Stream transformer</returns>
     public static StreamT<M, A> Lift(K<M, A> ma) =>
-        new StreamLiftM<M, A>(ma);
+        new (() => ma.Map(a => MList<A>.Cons(a, () => M.Pure(MList<A>.Nil))));
 
     /// <summary>
     /// Lift side effect into the stream
@@ -191,17 +195,14 @@ public abstract record StreamT<M, A> :
     /// Iterate the stream, returning final position.
     /// </summary>
     public K<M, Option<(A Head, StreamT<M, A> Tail)>> Run() =>
-        runListT.Map(
+        runListT().Map(
             ma => ma switch
                   {
                       MNil<A> =>
                           Option<(A Head, StreamT<M, A> Tail)>.None,
 
                       MCons<M, A>(var h, var t) =>
-                          Option<(A Head, StreamT<M, A> Tail)>.Some((h, new StreamMainT<M, A>(t))),
-
-                      MIter<M, A>(var h, _) iter =>
-                          Option<(A Head, StreamT<M, A> Tail)>.Some((h, new StreamMainT<M, A>(iter.TailM()))),
+                          Option<(A Head, StreamT<M, A> Tail)>.Some((h, new StreamT<M, A>(t))),
 
                       _ => throw new NotSupportedException()
                   });
@@ -295,8 +296,8 @@ public abstract record StreamT<M, A> :
     public K<M, S> FoldM<S>(S state, Func<S, A, K<M, S>> f)
     {
         return go(state, runListT);
-        K<M, S> go(S acc, K<M, MList<A>> run) =>
-            run.Bind(
+        K<M, S> go(S acc, Func<K<M, MList<A>>> run) =>
+            run().Bind(
                 mx => mx switch
                       {
                           MNil<A> =>
@@ -304,9 +305,6 @@ public abstract record StreamT<M, A> :
 
                           MCons<M, A>(var element, var next) =>
                               f(acc, element).Bind(acc1 => go(acc1, next)),
-
-                          MIter<M, A>(var element, _) iter =>
-                              f(acc, element).Bind(acc1 => go(acc1, iter.TailM())),
 
                           _ => throw new NotSupportedException()
                       });
@@ -317,14 +315,14 @@ public abstract record StreamT<M, A> :
     /// </summary>
     /// <returns>Stream transformer</returns>
     public StreamT<M, A> Combine(StreamT<M, A> second) =>
-        new StreamMainT<M, A>(runListT.Append(second.runListT));
+        new (() => runListT().Append(second.runListT()));
 
     /// <summary>
     /// Concatenate streams
     /// </summary>
     /// <returns>Stream transformer</returns>
     public StreamT<M, A> Combine(K<StreamT<M>, A> second) =>
-        new StreamMainT<M, A>(runListT.Append(second.As().runListT));
+        new (() => runListT().Append(second.As().runListT()));
 
     /// <summary>
     /// Interleave the items of two streams
@@ -333,11 +331,11 @@ public abstract record StreamT<M, A> :
     /// <returns>Stream transformer</returns>
     public virtual StreamT<M, A> Merge(K<StreamT<M>, A> second)
     {
-        return new StreamMainT<M, A>(go(runListT, second.As().runListT));
+        return new StreamT<M, A>(() => go(runListT, second.As().runListT));
 
-        K<M, MList<A>> go(K<M, MList<A>> lhs, K<M, MList<A>> rhs) =>
-            from l in lhs
-            from r in rhs
+        K<M, MList<A>> go(Func<K<M, MList<A>>> lhs, Func<K<M, MList<A>>> rhs) =>
+            from l in lhs()
+            from r in rhs()
             from x in M.Pure((l, r) switch
                       {
                           (MNil<A>, MNil<A>) =>
@@ -350,16 +348,7 @@ public abstract record StreamT<M, A> :
                               l,
 
                           (MCons<M, A>(var lx, var lnext), MCons<M, A>(var rx, var rnext)) =>
-                              MList<A>.Cons<M>(lx, M.Pure(MList<A>.Cons<M>(rx, go(lnext, rnext)))),
-
-                          (MIter<M, A>(var lx, var lnext), MIter<M, A>(var rx, var rnext)) =>
-                              MList<A>.Cons(lx, M.Pure(MList<A>.Iter<M>(rx, JoinIter(lnext, rnext)))),
-
-                          (MCons<M, A>(var lx, var lnext), MIter<M, A>(var rx, _) iter) =>
-                              MList<A>.Cons<M>(lx, M.Pure(MList<A>.Cons<M>(rx, go(lnext, iter.TailM())))),
-
-                          (MIter<M, A>(var lx, _) iter, MCons<M, A>(var rx, var rnext)) =>
-                              MList<A>.Cons<M>(lx, M.Pure(MList<A>.Cons<M>(rx, go(iter.TailM(), rnext)))),
+                              MList<A>.Cons<M>(lx, () => M.Pure(MList<A>.Cons<M>(rx, () => go(lnext, rnext)))),
 
                           _ => throw new NotSupportedException()
                       })
@@ -399,11 +388,11 @@ public abstract record StreamT<M, A> :
     /// <returns>Stream transformer</returns>
     public virtual StreamT<M, (A First, B Second)> Zip<B>(K<StreamT<M>, B> second)
     {
-        return new StreamMainT<M, (A, B)>(go(runListT, second.As().runListT));
+        return new StreamT<M, (A, B)>(() => go(runListT, second.As().runListT));
 
-        K<M, MList<(A, B)>> go(K<M, MList<A>> lhs, K<M, MList<B>> rhs) =>
-            from l in lhs
-            from r in rhs
+        K<M, MList<(A, B)>> go(Func<K<M, MList<A>>> lhs, Func<K<M, MList<B>>> rhs) =>
+            from l in lhs()
+            from r in rhs()
             from x in M.Pure((l, r) switch
                       {
                           (MNil<A>, _) =>
@@ -413,31 +402,11 @@ public abstract record StreamT<M, A> :
                               MList<(A, B)>.Nil,
 
                           (MCons<M, A>(var lx, var lnext), MCons<M, B>(var rx, var rnext)) =>
-                              MList<(A, B)>.Cons<M>((lx, rx), go(lnext, rnext)),
-
-                          (MIter<M, A>(var lx, _) liter, MIter<M, B>(var rx, _) riter) =>
-                              MList<(A, B)>.Cons((lx, rx), go(liter.TailM(), riter.TailM())),
-
-                          (MCons<M, A>(var lx, var lnext), MIter<M, B>(var rx, _) iter) =>
-                              MList<(A, B)>.Cons<M>((lx, rx), go(lnext, iter.TailM())),
-
-                          (MIter<M, A>(var lx, _) iter, MCons<M, B>(var rx, var rnext)) =>
-                              MList<(A, B)>.Cons<M>((lx, rx), go(iter.TailM(), rnext)),
+                              MList<(A, B)>.Cons<M>((lx, rx), () => go(lnext, rnext)),
 
                           _ => throw new NotSupportedException()
                       })
             select x;
-
-        IEnumerator<A> JoinIter(IEnumerator<A> lhs, IEnumerator<A> rhs)
-        {
-            while (lhs.MoveNext() && rhs.MoveNext())
-            {
-                yield return lhs.Current;
-                yield return rhs.Current;
-            }
-            while (lhs.MoveNext()) yield return lhs.Current;
-            while (rhs.MoveNext()) yield return rhs.Current;
-        }
     }
 
     /// <summary>

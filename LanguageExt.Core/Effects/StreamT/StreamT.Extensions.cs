@@ -31,7 +31,7 @@ public static partial class StreamTExtensions
     /// <returns>Result of the combined effects</returns>
     public static K<M, A> Combine<M, A>(this K<StreamT<M>, A> mma) 
         where M : Monad<M>, MonoidK<M> =>
-        mma.As().runListT.Combine();
+        mma.As().runListT().Combine();
 
     /// <summary>
     /// Execute the stream's inner monad `M`, combining the results using
@@ -47,21 +47,18 @@ public static partial class StreamTExtensions
                                M.Empty<A>(),
 
                            MCons<M, A>(var head, var tail) =>
-                               M.Combine(M.Pure(head), tail.Combine()),
-
-                           MIter<M, A> iter =>
-                               M.Combine(M.Pure(iter.Head), iter.TailM().Combine()),
+                               M.Combine(M.Pure(head), tail().Combine()),
 
                            _ => throw new NotSupportedException()
                        });
 
     public static StreamT<M, A> Flatten<M, A>(this K<StreamT<M>, StreamT<M, A>> mma)
         where M : Monad<M> =>
-        new StreamMainT<M, A>(mma.As().runListT.Map(ml => ml.Map(ma => ma.runListT)).Flatten());
+        new (() => mma.As().runListT().Map(ml => ml.Map(ma => ma.runListT())).Flatten());
 
     public static StreamT<M, A> Flatten<M, A>(this K<StreamT<M>, K<StreamT<M>, A>> mma)
         where M : Monad<M> =>
-        new StreamMainT<M, A>(mma.As().runListT.Map(ml => ml.Map(ma => ma.As().runListT)).Flatten());
+        new (() => mma.As().runListT().Map(ml => ml.Map(ma => ma.As().runListT())).Flatten());
 
     public static K<M, MList<A>> Flatten<M, A>(this K<M, MList<K<M, MList<A>>>> mma)
         where M : Monad<M> =>
@@ -72,8 +69,7 @@ public static partial class StreamTExtensions
         mma switch
         {
             MNil<K<M, MList<A>>>                     => M.Pure(MNil<A>.Default),
-            MCons<M, K<M, MList<A>>> (var h, var t)  => h.Append(t.Flatten()),
-            MIter<M, K<M, MList<A>>> (var h, _) iter => h.Append(iter.TailM().Flatten()),
+            MCons<M, K<M, MList<A>>> (var h, var t)  => h.Append(t().Flatten()),
             _                                        => throw new NotSupportedException()
         };
 

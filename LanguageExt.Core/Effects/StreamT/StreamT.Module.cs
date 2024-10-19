@@ -15,7 +15,7 @@ public static class StreamT
     /// <returns>Stream transformer</returns>
     public static StreamT<M, A> pure<M, A>(A value)
         where M : Monad<M> =>
-        new StreamPureT<M, A>(value);
+        StreamT<M, A>.Pure(value);
 
     /// <summary>
     /// Lift any foldable into the stream
