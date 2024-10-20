@@ -67,9 +67,7 @@ global using LanguageExt.Traits.Domain;
 A minimum, might be:
 ```c#
 global using LanguageExt;
-global using LanguageExt.Common;
 global using static LanguageExt.Prelude;
-global using LanguageExt.Traits;
 ```
 
 The namespace `LanguageExt` contains most of the core types; `LanguageExt.Prelude` contains the functions that bring into scope the prelude functions that behave like standalone functions in ML style functional programming languages; `LanguageExt.Traits` brings in the higher-kinded trait-types and many extensions; `LanguageExt.Common` brings in the `Error` type and predefined `Errors`.
