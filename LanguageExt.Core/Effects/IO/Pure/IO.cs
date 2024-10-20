@@ -33,7 +33,7 @@ record IOPure<A>(A Value) : IO<A>
     
     public IO<A> ToAsync() =>
         new IOAsync<A>(_ => Task.FromResult(IOResponse.Complete(Value)));
-    
+
     public override IO<B> Map<B>(Func<A, B> f) =>
         new IOSync<B>(_ => IOResponse.Complete(f(Value)));
 
@@ -48,7 +48,7 @@ record IOPure<A>(A Value) : IO<A>
         this;
 
     public override IO<B> Bind<B>(Func<A, IO<B>> f) =>
-        new IOSync<B>(_ => IOResponse.Bind(Value, f));
+        f(Value);
 
     public override IO<A> Bracket() => 
         this;

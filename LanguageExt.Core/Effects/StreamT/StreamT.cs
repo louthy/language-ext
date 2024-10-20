@@ -218,7 +218,7 @@ public record StreamT<M, A>(Func<K<M, MList<A>>>  runListT) :
     /// Iterate the stream, ignoring any result.
     /// </summary>
     public K<M, Unit> Iter() =>
-        Run().IgnoreF();
+        runListT().IgnoreF();
 
     /// <summary>
     /// Retrieve the head of the sequence
