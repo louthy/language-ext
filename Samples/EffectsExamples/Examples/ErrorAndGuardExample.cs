@@ -27,18 +27,18 @@ public static class ErrorAndGuardExample<RT>
 
     public static Eff<RT, Unit> main =>
         from _1 in askUser
-                 | @catch(ex => ex.HasException<SystemException>(), Console<Eff<RT>, RT>.writeLine("system error"))
+                 | @catch(ex => ex.HasException<SystemException>(), Console<RT>.writeLine("system error"))
                  | SafeError
-        from _2 in Console<Eff<RT>, RT>.writeLine("goodbye")
+        from _2 in Console<RT>.writeLine("goodbye")
         select unit;
 
     static Eff<RT, Unit> askUser =>
         repeatIO(Schedule.spaced(1 * second) | Schedule.recurs(3),
-                 from ln in Console<Eff<RT>, RT>.readLine
+                 from ln in Console<RT>.readLine
                  from _1 in guard(notEmpty(ln), UserExited)
                  from _2 in guard(ln != "sys", () => throw new SystemException())
                  from _3 in guard(ln != "err", () => throw new Exception())
-                 from _4 in Console<Eff<RT>, RT>.writeLine(ln)
+                 from _4 in Console<RT>.writeLine(ln)
                  select unit).As()
       | @catch(UserExited, pure<Eff<RT>, Unit>(unit));
 }

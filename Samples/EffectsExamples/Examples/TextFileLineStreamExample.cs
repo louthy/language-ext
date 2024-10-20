@@ -23,18 +23,18 @@ public class TextFileLineStreamExample<RT>
         Has<Eff<RT>, EncodingIO>
 {
     public static Eff<RT, Unit> main =>
-        from _ in Console<Eff<RT>, RT>.writeLine("Please type in a path to a text file and press enter")
-        from p in Console<Eff<RT>, RT>.readLine
+        from _ in Console<RT>.writeLine("Please type in a path to a text file and press enter")
+        from p in Console<RT>.readLine
         from e in mainEffect(p)
         select unit;
         
     static Effect<Eff<RT>, Unit> mainEffect(string path) =>
-        File<Eff<RT>, RT>.openText(path) 
-      | TextRead<Eff<RT>, RT>.readLine 
-      | writeLine;
+        File<RT>.openText(path) 
+            | TextRead<RT>.readLine 
+            | writeLine;
 
     static Consumer<string, Eff<RT>, Unit> writeLine =>
         from l in awaiting<string>()
-        from _ in Console<Eff<RT>, RT>.writeLine(l)
+        from _ in Console<RT>.writeLine(l)
         select unit;
 }

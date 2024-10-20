@@ -13,43 +13,32 @@ namespace LanguageExt.Sys.Diag;
 /// takes an `Eff` or `Aff` operation to run (which is the activity).  The runtime system will maintain the parent/
 /// child relationships for the activities, and maintains the 'current' activity.
 /// </summary>
-/// <typeparam name="M">Monad trait</typeparam>
 /// <typeparam name="RT">Runtime</typeparam>
-public class Activity<M, RT>
-    where M : 
-        Monad<M>
+public class Activity<RT>
     where RT :
-        Has<M, ActivitySourceIO>,
-        Local<M, ActivityEnv>
+        Has<Eff<RT>, ActivitySourceIO>,
+        Local<Eff<RT>, ActivityEnv>
 {
-    static K<M, ActivitySourceIO> activityIO =>
-        Has<M, RT, ActivitySourceIO>.ask;
+    static Eff<RT, ActivityEnv> env =>
+        Has<Eff<RT>, RT, ActivityEnv>.ask.As();
 
-    static K<M, ActivityEnv> env =>
-        Has<M, RT, ActivityEnv>.ask;
-
-    public static K<M, Activity?> currentActivity =>
+    static Eff<RT, Activity?> currentActivity =>
         env.Map(e => e.Activity);
 
-    public static K<M, Activity> startActivity(
+    public static Eff<RT, Activity> startActivity(
         string name,
         ActivityKind activityKind,
         HashMap<string, object> activityTags,
         Seq<ActivityLink> activityLinks,
         DateTimeOffset startTime,
         ActivityContext? parentContext = default) =>
-        from src in activityIO
-        from cur in currentActivity
-        from act in use(src.StartActivity(
-                            name,
-                            activityKind,
-                            cur is null
-                                ? default
-                                : parentContext ?? cur.Context,
-                            activityTags,
-                            activityLinks,
-                            startTime))
-        select act;
+        Activity<Eff<RT>, RT>.startActivity(
+            name, 
+            activityKind, 
+            activityTags, 
+            activityLinks, 
+            startTime, 
+            parentContext).As();
 
     /// <summary>
     /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
@@ -58,8 +47,8 @@ public class Activity<M, RT>
     /// <param name="name">The operation name of the activity.</param>
     /// <param name="operation">The operation to whose activity will be traced</param>
     /// <returns>The result of the `operation`</returns>
-    public static K<M, A> span<A>(string name, K<M, A> operation) =>
-        span(name, ActivityKind.Internal, default, default, DateTimeOffset.Now, operation);
+    public static Eff<RT, A> span<A>(string name, K<Eff<RT>, A> operation) =>
+        Activity<Eff<RT>, RT>.span(name, operation).As();
 
     /// <summary>
     /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
@@ -69,11 +58,11 @@ public class Activity<M, RT>
     /// <param name="activityKind">The activity kind.</param>
     /// <param name="operation">The operation to whose activity will be traced</param>
     /// <returns>The result of the `operation`</returns>
-    public static K<M, A> span<A>(
+    public static Eff<RT, A> span<A>(
         string name,
         ActivityKind activityKind,
-        K<M, A> operation) =>
-        span(name, activityKind, default, default, DateTimeOffset.Now, operation);
+        K<Eff<RT>, A> operation) =>
+        Activity<Eff<RT>, RT>.span(name, activityKind, operation).As();
 
     /// <summary>
     /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
@@ -84,12 +73,12 @@ public class Activity<M, RT>
     /// <param name="activityTags">The optional tags list to initialise the created activity object with.</param>
     /// <param name="operation">The operation to whose activity will be traced</param>
     /// <returns>The result of the `operation`</returns>
-    public static K<M, A> span<A>(
+    public static Eff<RT, A> span<A>(
         string name,
         ActivityKind activityKind,
         HashMap<string, object> activityTags,
-        K<M, A> operation) =>
-        span(name, activityKind, activityTags, default, DateTimeOffset.Now, operation);
+        K<Eff<RT>, A> operation) =>
+        Activity<Eff<RT>, RT>.span(name, activityKind, activityTags, operation).As();
 
     /// <summary>
     /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
@@ -102,16 +91,14 @@ public class Activity<M, RT>
     /// <param name="startTime">The optional start timestamp to set on the created activity object.</param>
     /// <param name="operation">The operation to whose activity will be traced</param>
     /// <returns>The result of the `operation`</returns>
-    public static K<M, TA> span<TA>(
+    public static Eff<RT, TA> span<TA>(
         string name,
         ActivityKind activityKind,
         HashMap<string, object> activityTags,
         Seq<ActivityLink> activityLinks,
         DateTimeOffset startTime,
-        K<M, TA> operation) =>
-        from a in startActivity(name, activityKind, activityTags, activityLinks, startTime)
-        from r in Local.with<M, RT, ActivityEnv, TA>(e => e with { Activity = a }, operation)
-        select r;
+        K<Eff<RT>, TA> operation) =>
+        Activity<Eff<RT>, RT>.span(name, activityKind, activityTags, activityLinks, startTime, operation).As();
 
     /// <summary>
     /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
@@ -126,48 +113,42 @@ public class Activity<M, RT>
     /// <param name="startTime">The optional start timestamp to set on the created activity object.</param>
     /// <param name="operation">The operation to whose activity will be traced</param>
     /// <returns>The result of the `operation`</returns>
-    public static K<M, A> span<A>(
+    public static Eff<RT, A> span<A>(
         string name,
         ActivityKind activityKind,
         ActivityContext parentContext,
         HashMap<string, object> activityTags,
         Seq<ActivityLink> activityLinks,
         DateTimeOffset startTime,
-        K<M, A> operation) =>
-        from a in startActivity(
-            name,
-            activityKind,
-            activityTags,
-            activityLinks,
-            startTime,
-            parentContext)
-        from r in Local.with<M, RT, ActivityEnv, A>(e => e with { Activity = a }, operation)
-        select r;
+        K<Eff<RT>, A> operation) =>
+        Activity<Eff<RT>, RT>.span(
+            name, 
+            activityKind, 
+            parentContext, 
+            activityTags, 
+            activityLinks, 
+            startTime, 
+            operation).As();
 
     /// <summary>
     /// Set the state trace string
     /// </summary>
     /// <param name="traceStateString">Trace state string</param>
     /// <returns>Unit effect</returns>
-    public static K<M, Unit> setTraceState(string traceStateString) =>
-        currentActivity.Map(
-            a =>
-            {
-                if (a is not null) a.TraceStateString = traceStateString;
-                return unit;
-            });
+    public static Eff<RT, Unit> setTraceState(string traceStateString) =>
+        Activity<Eff<RT>, RT>.setTraceState(traceStateString).As();
 
     /// <summary>
     /// Read the trace-state string of the current activity
     /// </summary>
-    public static K<M, Option<string>> traceState =>
-        currentActivity.Map(a => Optional(a?.TraceStateString));
+    public static Eff<RT, Option<string>> traceState =>
+        Activity<Eff<RT>, RT>.traceState.As();
 
     /// <summary>
     /// Read the trace ID of the current activity
     /// </summary>
-    public static K<M, Option<ActivityTraceId>> traceId =>
-        currentActivity.Map(a => Optional(a?.TraceId));
+    public static Eff<RT, Option<ActivityTraceId>> traceId =>
+        Activity<Eff<RT>, RT>.traceId.As();
 
     /// <summary>
     /// Add baggage to the current activity
@@ -175,22 +156,14 @@ public class Activity<M, RT>
     /// <param name="key">Baggage key</param>
     /// <param name="value">Baggage value</param>
     /// <returns>Unit effect</returns>
-    public static K<M, Unit> addBaggage(string key, string? value) =>
-        currentActivity.Map(
-            a =>
-            {
-                a?.AddBaggage(key, value);
-                return unit;
-            });
+    public static Eff<RT, Unit> addBaggage(string key, string? value) =>
+        Activity<Eff<RT>, RT>.addBaggage(key, value).As();
 
     /// <summary>
     /// Read the baggage of the current activity
     /// </summary>
-    public static K<M, HashMap<string, string?>> baggage =>
-        currentActivity.Map(
-            a => a is not null
-                     ? a.Baggage.AsIterable().Map(kv => (kv.Key, kv.Value)).ToHashMap()
-                     : HashMap<string, string?>());
+    public static Eff<RT, HashMap<string, string?>> baggage =>
+        Activity<Eff<RT>, RT>.baggage.As();
 
     /// <summary>
     /// Add tag to the current activity
@@ -198,163 +171,136 @@ public class Activity<M, RT>
     /// <param name="name">Tag name</param>
     /// <param name="value">Tag value</param>
     /// <returns>Unit effect</returns>
-    public static K<M, Unit> addTag(string name, string? value) =>
-        currentActivity.Map(
-            a =>
-            {
-                a?.AddTag(name, value);
-                return unit;
-            });
+    public static Eff<RT, Unit> addTag(string name, string? value) =>
+        Activity<Eff<RT>, RT>.addTag(name, value).As();
 
     /// <summary>
     /// Add tag to the current activity
     /// </summary>
     /// <param name="name">Tag name</param>
     /// <param name="value">Tag value</param>
-    public static K<M, Unit> addTag(string name, object? value) =>
-        currentActivity.Map(
-            a =>
-            {
-                a?.AddTag(name, value);
-                return unit;
-            });
+    public static Eff<RT, Unit> addTag(string name, object? value) =>
+        Activity<Eff<RT>, RT>.addTag(name, value).As();
 
     /// <summary>
     /// Read the tags of the current activity
     /// </summary>
-    public static K<M, HashMap<string, string?>> tags =>
-        currentActivity.Map(
-            a => a is not null
-                     ? a.Tags.AsIterable().Map(kv => (kv.Key, kv.Value)).ToHashMap()
-                     : HashMap<string, string?>());
+    public static Eff<RT, HashMap<string, string?>> tags =>
+        Activity<Eff<RT>, RT>.tags.As();
 
     /// <summary>
     /// Read the tags of the current activity
     /// </summary>
-    public static K<M, HashMap<string, object?>> tagObjects =>
-        currentActivity.Map(
-            a => a is not null
-                     ? a.TagObjects.AsIterable().Map(kv => (kv.Key, kv.Value)).ToHashMap()
-                     : HashMap<string, object?>());
+    public static Eff<RT, HashMap<string, object?>> tagObjects =>
+        Activity<Eff<RT>, RT>.tagObjects.As();
 
     /// <summary>
     /// Read the context of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static K<M, Option<ActivityContext>> context =>
-        currentActivity.Map(a => Optional(a?.Context));
+    public static Eff<RT, Option<ActivityContext>> context =>
+        Activity<Eff<RT>, RT>.context.As();
 
     /// <summary>
     /// Read the duration of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static K<M, Option<TimeSpan>> duration =>
-        currentActivity.Map(a => Optional(a?.Duration));
+    public static Eff<RT, Option<TimeSpan>> duration =>
+        Activity<Eff<RT>, RT>.duration.As();
 
     /// <summary>
     /// Add an event to the current activity
     /// </summary>
     /// <param name="event">Event</param>
-    public static K<M, Unit> addEvent(ActivityEvent @event) =>
-        currentActivity.Map(
-            a =>
-            {
-                a?.AddEvent(@event);
-                return unit;
-            });
+    public static Eff<RT, Unit> addEvent(ActivityEvent @event) =>
+        Activity<Eff<RT>, RT>.addEvent(@event).As();
 
     /// <summary>
     /// Read the events of the current activity
     /// </summary>
-    public static K<M, Seq<ActivityEvent>> events =>
-        currentActivity.Map(
-            a => a is not null
-                     ? a.Events.AsIterable().ToSeq()
-                     : Seq<ActivityEvent>());
+    public static Eff<RT, Seq<ActivityEvent>> events =>
+        Activity<Eff<RT>, RT>.events.As();
 
     /// <summary>
     /// Read the ID of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static K<M, Option<string>> id =>
-        currentActivity.Map(a => Optional(a?.Id));
+    public static Eff<RT, Option<string>> id =>
+        Activity<Eff<RT>, RT>.id.As();
 
     /// <summary>
     /// Read the kind of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static K<M, Option<ActivityKind>> kind =>
-        currentActivity.Map(a => Optional(a?.Kind));
+    public static Eff<RT, Option<ActivityKind>> kind =>
+        Activity<Eff<RT>, RT>.kind.As();
 
     /// <summary>
     /// Read the links of the current activity
     /// </summary>
-    public static K<M, Seq<ActivityLink>> links =>
-        currentActivity.Map(
-            a => a is not null
-                     ? a.Links.AsIterable().ToSeq()
-                     : Seq<ActivityLink>());
+    public static Eff<RT, Seq<ActivityLink>> links =>
+        Activity<Eff<RT>, RT>.links.As();
 
     /// <summary>
     /// Read the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static K<M, Option<Activity>> current =>
-        currentActivity.Map(a => Optional(a));
+    public static Eff<RT, Option<Activity>> current =>
+        Activity<Eff<RT>, RT>.current.As();
 
     /// <summary>
     /// Read the parent ID of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static K<M, Option<string>> parentId =>
-        currentActivity.Map(a => Optional(a?.ParentId));
+    public static Eff<RT, Option<string>> parentId =>
+        Activity<Eff<RT>, RT>.parentId.As();
 
     /// <summary>
     /// Read the parent span ID of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static K<M, Option<ActivitySpanId>> parentSpanId =>
-        currentActivity.Map(a => Optional(a?.ParentSpanId));
+    public static Eff<RT, Option<ActivitySpanId>> parentSpanId =>
+        Activity<Eff<RT>, RT>.parentSpanId.As();
 
     /// <summary>
     /// Read the recorded flag of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static K<M, Option<bool>> recorded =>
-        currentActivity.Map(a => Optional(a?.Recorded));
+    public static Eff<RT, Option<bool>> recorded =>
+        Activity<Eff<RT>, RT>.recorded.As();
 
     /// <summary>
     /// Read the display-name of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static K<M, Option<string>> displayName =>
-        currentActivity.Map(a => Optional(a?.DisplayName));
+    public static Eff<RT, Option<string>> displayName =>
+        Activity<Eff<RT>, RT>.displayName.As();
 
     /// <summary>
     /// Read the operation-name of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static K<M, Option<string>> operationName =>
-        currentActivity.Map(a => Optional(a?.OperationName));
+    public static Eff<RT, Option<string>> operationName =>
+        Activity<Eff<RT>, RT>.operationName.As();
 
     /// <summary>
     /// Read the root ID of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static K<M, Option<string>> rootId =>
-        currentActivity.Map(a => Optional(a?.RootId));
+    public static Eff<RT, Option<string>> rootId =>
+        Activity<Eff<RT>, RT>.rootId.As();
 
     /// <summary>
     /// Read the span ID of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static K<M, Option<ActivitySpanId>> spanId =>
-        currentActivity.Map(a => Optional(a?.SpanId));
+    public static Eff<RT, Option<ActivitySpanId>> spanId =>
+        Activity<Eff<RT>, RT>.spanId.As();
 
     /// <summary>
     /// Read the start-time of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static K<M, Option<DateTime>> startTimeUTC =>
-        currentActivity.Map(a => Optional(a?.StartTimeUtc));
+    public static Eff<RT, Option<DateTime>> startTimeUTC =>
+        Activity<Eff<RT>, RT>.startTimeUTC.As();
 }

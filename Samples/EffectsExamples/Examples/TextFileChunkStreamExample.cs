@@ -16,7 +16,7 @@ namespace EffectsExamples;
 /// <remarks>
 /// Streams the contents of a text file in chunks of 40 characters
 /// </remarks>
-public class TextFileChunkStreamExample<RT> 
+public static class TextFileChunkStreamExample<RT> 
     where RT : 
         Has<Eff<RT>, ConsoleIO>,
         Has<Eff<RT>, FileIO>,
@@ -24,13 +24,13 @@ public class TextFileChunkStreamExample<RT>
         Has<Eff<RT>, EncodingIO>
 {
     public static Eff<RT, Unit> main =>
-        from _ in Console<Eff<RT>, RT>.writeLine("Please type in a path to a text file and press enter")
-        from p in Console<Eff<RT>, RT>.readLine
+        from _ in Console<RT>.writeLine("Please type in a path to a text file and press enter")
+        from p in Console<RT>.readLine
         from e in mainEffect(p)
         select unit;
         
     static Effect<Eff<RT>, Unit> mainEffect(string path) =>
-        File<Eff<RT>, RT>.openRead(path) 
+        File<RT>.openRead(path) 
           | Stream<Eff<RT>>.read(80) 
           | decodeUtf8 
           | writeLine;
@@ -42,6 +42,6 @@ public class TextFileChunkStreamExample<RT>
         
     static Consumer<string, Eff<RT>, Unit> writeLine =>
         from l in awaiting<string>()
-        from _ in Console<Eff<RT>, RT>.writeLine(l)
+        from _ in Console<RT>.writeLine(l)
         select unit;
 }

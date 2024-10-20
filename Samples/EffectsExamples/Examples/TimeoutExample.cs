@@ -24,12 +24,12 @@ public class TimeoutExample<RT>
     public static Eff<RT, Unit> main =>
         from _1 in timeoutIO(60 * seconds, longRunning).As()
                      | @catch(Errors.TimedOut, pure<Eff<RT>, Unit>(unit))
-        from _2 in Console<Eff<RT>, RT>.writeLine("done")
+        from _2 in Console<RT>.writeLine("done")
         select unit;
 
     static Eff<RT, Unit> longRunning =>
-        (from tm in Time<Eff<RT>, RT>.now
-         from _1 in Console<Eff<RT>, RT>.writeLine(tm.ToLongTimeString())
+        (from tm in Time<RT>.now
+         from _1 in Console<RT>.writeLine(tm.ToLongTimeString())
          select unit)
         .RepeatIO(Schedule.fibonacci(1 * second)).As();
 }

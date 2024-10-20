@@ -109,18 +109,18 @@ public static class Console<M, RT>
     public static K<M, Unit> write(char line) =>
         consoleIO.Bind(e => e.Write(line.ToString()));
 
-    public static K<M, Unit> setBgColor(ConsoleColor color) =>
-        consoleIO.Bind(e => e.SetBgColor(color));
+    public static K<M, Unit> setBgColour(ConsoleColor colour) =>
+        consoleIO.Bind(e => e.SetBgColor(colour));
 
-    public static K<M, Unit> setColor(ConsoleColor color) =>
-        consoleIO.Bind(e => e.SetColor(color));
+    public static K<M, Unit> setColour(ConsoleColor colour) =>
+        consoleIO.Bind(e => e.SetColor(colour));
 
-    public static K<M, Unit> resetColor() =>
+    public static K<M, Unit> resetColour() =>
         consoleIO.Bind(e => e.ResetColor());
 
-    public static K<M, ConsoleColor> bgColor =>
+    public static K<M, ConsoleColor> bgColour =>
         consoleIO.Bind(e => e.BgColor);
 
-    public static K<M, ConsoleColor> color =>
+    public static K<M, ConsoleColor> colour =>
         consoleIO.Bind(e => e.Color);
 }

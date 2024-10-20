@@ -55,9 +55,9 @@ public static class PipesTestBed
     public static Effect<Eff<Runtime>, Unit> effect2 =>
         Producer.repeatM(Time<Eff<Runtime>, Runtime>.nowUTC)
       | Pipe.mapM<DateTime, DateTime, Eff<Runtime>, Unit>(dt => 
-            from _1 in Console<Eff<Runtime>, Runtime>.setColor(ConsoleColor.Green)
+            from _1 in Console<Eff<Runtime>, Runtime>.setColour(ConsoleColor.Green)
             from _2 in Console<Eff<Runtime>, Runtime>.writeLine(dt.ToLongTimeString())
-            from _3 in Console<Eff<Runtime>, Runtime>.resetColor()
+            from _3 in Console<Eff<Runtime>, Runtime>.resetColour()
             select dt)
       | writeLine<DateTime>();
     

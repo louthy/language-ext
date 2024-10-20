@@ -17,7 +17,7 @@ namespace EffectsExamples
     /// Processes keys from the keyboard into words, when a whitespace is encountered the folded word is yielded
     /// down the pipe 
     /// </remarks>
-    public class FoldTest<RT>  
+    public static class FoldTest<RT>  
         where RT : 
             Has<Eff<RT>, ConsoleIO>
     {
@@ -25,7 +25,7 @@ namespace EffectsExamples
             mainEffect.RunEffect().As();
         
         static Effect<Eff<RT>, Unit> mainEffect =>
-            repeat(Console<Eff<RT>, RT>.readKeys)
+            repeat(Console<RT>.readKeys)
                 | exitIfEscape
                 | keyChar
                 | words
@@ -49,7 +49,7 @@ namespace EffectsExamples
         
         static Consumer<string, Eff<RT>, Unit> writeLine =>
             from l in awaiting<string>()
-            from _ in Console<Eff<RT>, RT>.writeLine(l)
+            from _ in Console<RT>.writeLine(l)
             select unit;
     }
 }

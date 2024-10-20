@@ -22,7 +22,7 @@ namespace EffectsExamples;
 /// Then the fork is cancelled. 
 /// </remarks>
 /// <typeparam name="RT"></typeparam>
-public class QueueExample<RT> 
+public static class QueueExample<RT> 
     where RT : 
         Has<Eff<RT>, ConsoleIO>
 {
@@ -39,7 +39,7 @@ public class QueueExample<RT>
         // Repeatedly read from the console and write to one of the two queues depending on
         // whether the first char is 1 or 2
         return from f in forkIO(Producer.merge(queues) | writeLine).As()
-               from x in repeat(Console<Eff<RT>, RT>.readLines) | writeToQueue(queue1, queue2)
+               from x in repeat(Console<RT>.readLines) | writeToQueue(queue1, queue2)
                from _ in f.Cancel // cancels the forked task
                select unit;
     }
@@ -72,6 +72,6 @@ public class QueueExample<RT>
     /// </summary>
     static Consumer<string, Eff<RT>, Unit> writeLine =>
         from l in awaiting<string>()
-        from _ in Console<Eff<RT>, RT>.writeLine(l)
+        from _ in Console<RT>.writeLine(l)
         select unit;
 }

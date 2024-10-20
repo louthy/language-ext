@@ -15,7 +15,7 @@ namespace EffectsExamples;
 /// If you don't type 'hello' then an error will be raised and it will retry.
 /// </remarks>
 /// <typeparam name="RT"></typeparam>
-public class RetryExample<RT> 
+public static class RetryExample<RT> 
     where RT : 
         Has<Eff<RT>, ConsoleIO>
 {
@@ -23,9 +23,9 @@ public class RetryExample<RT>
         
     public static Eff<RT, Unit> main =>
         retryIO(Schedule.recurs(5),
-                from _ in Console<Eff<RT>, RT>.writeLine("Say hello")
-                from t in Console<Eff<RT>, RT>.readLine
+                from _ in Console<RT>.writeLine("Say hello")
+                from t in Console<RT>.readLine
                 from e in guard(t == "hello", Failed)  
-                from m in Console<Eff<RT>, RT>.writeLine("Hi")
+                from m in Console<RT>.writeLine("Hi")
                 select unit).As();
 }
