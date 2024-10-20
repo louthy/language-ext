@@ -24,9 +24,9 @@ public class QueueExample<RT>
                         from ln in (from data in liftEff(memStream.ReadByte)
                                     from _    in guard(data != -1, Errors.Cancelled)
                                     select data).FoldUntilIO(string.Empty, (s, ch) => s + ch, ch => ch == '\0')
-                        from _52 in Console<Eff<RT>, RT>.writeLine(ln)
+                        from _52 in Console<RT>.writeLine(ln)
                         select unit).As()
-             | @catch(exception => Console<Eff<RT>, RT>.writeLine(exception.Message));
+             | @catch(exception => Console<RT>.writeLine(exception.Message));
     }
 }
 

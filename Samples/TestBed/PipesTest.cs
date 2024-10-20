@@ -14,7 +14,7 @@ public static class PipesTestBed
 {
     static Producer<int, Eff<Runtime>, Unit> numbers(int n, int failOn) =>
         from _ in yield(n)
-        from t in Time<Eff<Runtime>, Runtime>.sleepFor(1000 * ms)
+        from t in Time<Runtime>.sleepFor(1000 * ms)
         from x in failOn == n 
                     ? FailEff<Runtime, Unit>(Error.New($"failed on {n}")) 
                     : unitEff
@@ -28,7 +28,7 @@ public static class PipesTestBed
     
     static Consumer<X, Eff<Runtime>, Unit> writeLine<X>() =>
         from x in awaiting<X>()
-        from _ in Console<Eff<Runtime>, Runtime>.writeLine($"{x}")
+        from _ in Console<Runtime>.writeLine($"{x}")
         from r in writeLine<X>()
         select r;
     
@@ -36,9 +36,9 @@ public static class PipesTestBed
         repeat(producer) | doubleIt | consumer;
 
     static Producer<int, Eff<Runtime>, Unit> producer =>
-        from _1 in Console<Eff<Runtime>, Runtime>.writeLine("before")
+        from _1 in Console<Runtime>.writeLine("before")
         from _2 in yieldAll(Range(1, 5))
-        from _3 in Console<Eff<Runtime>, Runtime>.writeLine("after")
+        from _3 in Console<Runtime>.writeLine("after")
         select unit;
 
      static Pipe<int, int, Eff<Runtime>, Unit> doubleIt =>
@@ -48,16 +48,16 @@ public static class PipesTestBed
     
     static Consumer<int, Eff<Runtime>, Unit> consumer =>
         from i in awaiting<int>()
-        from _ in Console<Eff<Runtime>, Runtime>.writeLine(i.ToString())
+        from _ in Console<Runtime>.writeLine(i.ToString())
         from r in consumer
         select r;
     
     public static Effect<Eff<Runtime>, Unit> effect2 =>
-        Producer.repeatM(Time<Eff<Runtime>, Runtime>.nowUTC)
+        Producer.repeatM(Time<Runtime>.nowUTC)
       | Pipe.mapM<DateTime, DateTime, Eff<Runtime>, Unit>(dt => 
-            from _1 in Console<Eff<Runtime>, Runtime>.setColour(ConsoleColor.Green)
-            from _2 in Console<Eff<Runtime>, Runtime>.writeLine(dt.ToLongTimeString())
-            from _3 in Console<Eff<Runtime>, Runtime>.resetColour()
+            from _1 in Console<Runtime>.setColour(ConsoleColor.Green)
+            from _2 in Console<Runtime>.writeLine(dt.ToLongTimeString())
+            from _3 in Console<Runtime>.resetColour
             select dt)
       | writeLine<DateTime>();
     

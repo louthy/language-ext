@@ -1,7 +1,5 @@
-﻿using System;
+﻿using LanguageExt;
 using LanguageExt.Sys.Live;
-using LanguageExt;
-using LanguageExt.Common;
 
 namespace EffectsExamples;
 

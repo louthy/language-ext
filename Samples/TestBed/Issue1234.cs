@@ -14,7 +14,7 @@ public class Issue1234
 
     public static Eff<Runtime, Unit> Main => 
         repeatIO(from _1 in Delay(TimeSpan.FromMilliseconds(10)).TimeoutIO(TimeSpan.FromSeconds(5))
-                 from _2 in Console<Eff<Runtime>, Runtime>.writeLine($"{DateTime.Now:hh:mm:ss}")
+                 from _2 in Console<Runtime>.writeLine($"{DateTime.Now:hh:mm:ss}")
                  select unit).As();
 
     static Eff<Runtime, Unit> Delay(TimeSpan delay) =>

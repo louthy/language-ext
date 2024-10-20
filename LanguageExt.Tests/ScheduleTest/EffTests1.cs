@@ -304,9 +304,9 @@ public static class EffTests1
                                  select data)
                                 .FoldUntilIO(string.Empty, (s, ch) => s + (char)ch, ch => ch == '\0')
                                 .As()
-                     from _0 in Console<Eff<RT>, RT>.writeLine(ln)
+                     from _0 in Console<RT>.writeLine(ln)
                      select unit).As()
-            | @catch(error => Console<Eff<RT>, RT>.writeLine(error.Message));
+            | @catch(error => Console<RT>.writeLine(error.Message));
 
         var runtime = Runtime.New();
         var effect = CreateEffect<Runtime>();

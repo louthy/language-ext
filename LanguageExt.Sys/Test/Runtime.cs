@@ -55,7 +55,7 @@ public record Runtime(RuntimeEnv Env) :
     /// </summary>
     /// <returns>File environment</returns>
     static K<Eff<Runtime>, FileIO> Has<Eff<Runtime>, FileIO>.Ask => 
-        from n in Time<Eff<Runtime>, Runtime>.now
+        from n in Time<Runtime>.now
         from r in asks<FileIO>(rt => new Implementations.FileIO(rt.Env.FileSystem, n))
         select r;
 
@@ -85,7 +85,7 @@ public record Runtime(RuntimeEnv Env) :
     /// </summary>
     /// <returns>Directory environment</returns>
     static K<Eff<Runtime>, DirectoryIO> Has<Eff<Runtime>, DirectoryIO>.Ask =>
-        from n in Time<Eff<Runtime>, Runtime>.now
+        from n in Time<Runtime>.now
         from r in asks<DirectoryIO>(rt => new Implementations.DirectoryIO(rt.Env.FileSystem, n))
         select r;
 

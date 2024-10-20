@@ -10,7 +10,7 @@ using LanguageExt.UnsafeValueAccess;
 
 namespace LanguageExt.Tests.SysX.Diag;
 
-using A = Activity<Eff<Runtime>, Runtime>;
+using A = Activity<Runtime>;
 
 public static class ActivityTests
 {

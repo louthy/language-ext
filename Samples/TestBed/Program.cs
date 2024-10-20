@@ -151,7 +151,7 @@ public class Program
         // Repeatedly read from the console and write to one of the two queues depending on
         // whether the first char is 1 or 2
         var queueing = from _ in forkIO(Producer.merge(queues) | writeLine)
-                       from x in repeat(Console<Eff<Runtime>, Runtime>.readLines) | writeToQueue()
+                       from x in repeat(Console<Runtime>.readLines) | writeToQueue()
                        select unit;
 
         // Consumer of the console.  It enqueues the item to queue1 or queue2 depending
@@ -168,28 +168,28 @@ public class Program
 
         //var clientServer = incrementer | oneTwoThree;
 
-        var file1 = File<Eff<Runtime>, Runtime>.openRead("i:\\defaults.xml")
+        var file1 = File<Runtime>.openRead("i:\\defaults.xml")
                   | Stream<Eff<Runtime>>.read(240)
                   | decodeUtf8
                   | writeLine;
 
-        var file2 = File<Eff<Runtime>, Runtime>.openText("i:\\defaults.xml")
-                  | TextRead<Eff<Runtime>, Runtime>.readLine
+        var file2 = File<Runtime>.openText("i:\\defaults.xml")
+                  | TextRead<Runtime>.readLine
                   | writeLine;
 
-        var file3 = File<Eff<Runtime>, Runtime>.openText("i:\\defaults.xml")
-                  | TextRead<Eff<Runtime>, Runtime>.readChar
+        var file3 = File<Runtime>.openText("i:\\defaults.xml")
+                  | TextRead<Runtime>.readChar
                   | words
                   | filterEmpty
                   | writeLine;
 
-        var foldTest1 = repeat(Console<Eff<Runtime>, Runtime>.readKeys)
+        var foldTest1 = repeat(Console<Runtime>.readKeys)
                       | keyChar
                       | words
                       | filterEmpty
                       | writeLine;
 
-        var foldTest2 = Producer.lift<string, Eff<Runtime>, char>(Console<Eff<Runtime>, Runtime>.readKey.Map(k => k.KeyChar))
+        var foldTest2 = Producer.lift<string, Eff<Runtime>, char>(Console<Runtime>.readKey.Map(k => k.KeyChar))
                                 .FoldUntil("", (word, ch) => word + ch, char.IsWhiteSpace)
                       | repeat(writeLine);
 

@@ -2,7 +2,7 @@ using System;
 using Xunit;
 using LanguageExt.Sys.Test;
 
-using Console = LanguageExt.Sys.Console<LanguageExt.Eff<LanguageExt.Sys.Test.Runtime>, LanguageExt.Sys.Test.Runtime>;
+using Console = LanguageExt.Sys.Console<LanguageExt.Sys.Test.Runtime>;
 
 namespace LanguageExt.Tests;
 
