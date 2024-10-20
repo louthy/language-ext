@@ -125,19 +125,18 @@ public record StreamT<M, A>(Func<K<M, MList<A>>>  runListT) :
             return next(iter);
         }
 
-        static Func<K<M, MList<A>>> next(IEnumerator<A> iter) =>
-            () =>
+        static Func<K<M, MList<A>>> next(IEnumerator<A> iter) => () =>
+        {
+            if (iter.MoveNext())
             {
-                if (iter.MoveNext())
-                {
-                    return M.Pure(MList<A>.Cons(iter.Current, next(iter)));
-                }
-                else
-                {
-                    iter.Dispose();
-                    return emptyM;
-                }
-            };
+                return M.Pure(MList<A>.Cons(iter.Current, next(iter)));
+            }
+            else
+            {
+                iter.Dispose();
+                return emptyM;
+            }
+        };
     }
 
     /// <summary>

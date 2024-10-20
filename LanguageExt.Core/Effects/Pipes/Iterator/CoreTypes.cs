@@ -29,7 +29,7 @@ public record IteratorFoldable<UOut, UIn, DIn, DOut, F, X, M, A>(
 
     public override IEnumerable<Proxy<UOut, UIn, DIn, DOut, M, Unit>> Run()
     {
-        foreach (var item in Items.ToEnumerable())
+        foreach (var item in Items.ToIterable())
         {
             yield return Yield(item);
         }

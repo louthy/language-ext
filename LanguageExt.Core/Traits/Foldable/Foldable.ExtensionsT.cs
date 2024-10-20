@@ -320,9 +320,9 @@ public static partial class FoldableExtensions
         return new(Go().ToArray());
         IEnumerable<A> Go()
         {
-            foreach(var ua in tua.ToEnumerable())
+            foreach(var ua in tua.ToIterable())
             {
-                foreach (var a in ua.ToEnumerable())
+                foreach (var a in ua.ToIterable())
                 {
                     yield return a;
                 }
