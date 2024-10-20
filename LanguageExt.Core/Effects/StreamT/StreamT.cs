@@ -16,6 +16,9 @@ public record StreamT<M, A>(Func<K<M, MList<A>>>  runListT) :
     Monoid<StreamT<M, A>>
     where M : Monad<M>
 {
+    static readonly K<M, MList<A>> emptyM = M.Pure(MList<A>.Nil);
+    static readonly Func<K<M, MList<A>>> fEmptyM = () => emptyM;
+
     /// <summary>
     /// Retrieve the tail of the sequence
     /// </summary>
@@ -24,7 +27,7 @@ public record StreamT<M, A>(Func<K<M, MList<A>>>  runListT) :
         new (() => runListT().Bind(
                      ml => ml switch
                            {
-                               MNil<A>               => M.Pure(MList<A>.Nil),
+                               MNil<A>               => emptyM,
                                MCons<M, A>(_, var t) => t(),
                                _                     => throw new NotSupportedException()
                            }));
@@ -42,15 +45,15 @@ public record StreamT<M, A>(Func<K<M, MList<A>>>  runListT) :
     /// Empty stream
     /// </summary>
     public static StreamT<M, A> Empty { get; } =
-        new (() => M.Pure<MList<A>>(new MNil<A>()));
-
+        new (() => emptyM);
+    
     /// <summary>
     /// Construct a singleton stream
     /// </summary>
     /// <param name="value">Single value in the stream</param>
     /// <returns>Stream transformer</returns>
     public static StreamT<M, A> Pure(A value) =>
-        new (() => M.Pure(MList<A>.Cons(value, () => M.Pure(MList<A>.Nil))));
+        new (() => M.Pure(MList<A>.Cons(value, fEmptyM)));
 
     /// <summary>
     /// Lift any foldable into the stream
@@ -63,7 +66,8 @@ public record StreamT<M, A>(Func<K<M, MList<A>>>  runListT) :
         foldable switch
         {
             IEnumerable<A> ma => Lift(ma),
-            _ => new StreamT<M, A>(() => M.Pure(foldable.FoldBack(MList<A>.Nil, s => a => MList<A>.Cons(a, () => M.Pure(s)))))
+            _ => new StreamT<M, A>(() => M.Pure(foldable.FoldBack(MList<A>.Nil, 
+                                                                  s => a => MList<A>.Cons(a, () => M.Pure(s)))))
         };
 
     /// <summary>
@@ -111,11 +115,15 @@ public record StreamT<M, A>(Func<K<M, MList<A>>>  runListT) :
     /// <returns>Stream transformer</returns>
     public static StreamT<M, A> Lift(IEnumerable<A> stream)
     {
-        return new StreamT<M, A>(() => 
+        return StreamT<M, Unit>
+              .Pure(unit)
+              .Bind(_ => new StreamT<M, A>(init(stream)));
+
+        static Func<K<M, MList<A>>> init(IEnumerable<A> stream)
         {
             var iter = stream.GetEnumerator();
-            return next(iter)();
-        });
+            return next(iter);
+        }
 
         static Func<K<M, MList<A>>> next(IEnumerator<A> iter) =>
             () =>
@@ -127,7 +135,7 @@ public record StreamT<M, A>(Func<K<M, MList<A>>>  runListT) :
                 else
                 {
                     iter.Dispose();
-                    return M.Pure(MList<A>.Nil);
+                    return emptyM;
                 }
             };
     }
@@ -173,7 +181,7 @@ public record StreamT<M, A>(Func<K<M, MList<A>>>  runListT) :
     /// <param name="ma">Effect to lift</param>
     /// <returns>Stream transformer</returns>
     public static StreamT<M, A> Lift(K<M, A> ma) =>
-        new (() => ma.Map(a => MList<A>.Cons(a, () => M.Pure(MList<A>.Nil))));
+        new (() => ma.Map(a => MList<A>.Cons(a, fEmptyM)));
 
     /// <summary>
     /// Lift side effect into the stream
@@ -218,13 +226,6 @@ public record StreamT<M, A>(Func<K<M, MList<A>>>  runListT) :
     /// </summary>
     public K<M, Option<A>> Head() =>
         Run().Map(opt => opt.Map(o => o.Head));
-
-    /// <summary>
-    /// Retrieve the head of the sequence
-    /// </summary>
-    /// <exception cref="ExpectedException">Throws sequence-empty expected-exception</exception>
-    public K<M, A> HeadUnsafe() =>
-        Run().Map(opt => opt.Map(o => o.Head).IfNone(() => throw Exceptions.SequenceEmpty));
 
     /// <summary>
     /// Fold the stream itself, yielding the latest state value when the fold function returns `None`
@@ -353,17 +354,6 @@ public record StreamT<M, A>(Func<K<M, MList<A>>>  runListT) :
                           _ => throw new NotSupportedException()
                       })
             select x;
-
-        IEnumerator<A> JoinIter(IEnumerator<A> lhs, IEnumerator<A> rhs)
-        {
-            while (lhs.MoveNext() && rhs.MoveNext())
-            {
-                yield return lhs.Current;
-                yield return rhs.Current;
-            }
-            while (lhs.MoveNext()) yield return lhs.Current;
-            while (rhs.MoveNext()) yield return rhs.Current;
-        }
     }
 
     /// <summary>
@@ -481,9 +471,6 @@ public record StreamT<M, A>(Func<K<M, MList<A>>>  runListT) :
 
     public static implicit operator StreamT<M, A>(Pure<A> value) =>
         Pure(value.Value);
-
-    public static implicit operator StreamT<M, A>(Iterable<A> value) =>
-        Lift(value.AsEnumerable());
 
     public static implicit operator StreamT<M, A>(IO<A> value) =>
         LiftIO(value);

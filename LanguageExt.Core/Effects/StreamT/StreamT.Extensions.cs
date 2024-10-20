@@ -24,6 +24,42 @@ public static partial class StreamTExtensions
         mma.As().Run();
 
     /// <summary>
+    /// Retrieve the head of the sequence
+    /// </summary>
+    /// <remarks>
+    /// Works only with `Fallible` lifted monads.  Raises a `SequenceEmpty` error if empty.
+    /// </remarks>
+    public static K<M, A> HeadOrFail<M, A>(this K<StreamT<M>, A> ma)
+        where M : Monad<M>, Fallible<Error, M> =>
+        ma.Head().Bind(
+            opt => opt.Match(Some: M.Pure,
+                             None: () => Fallible.error<M, A>(Errors.SequenceEmpty)));  
+
+    /// <summary>
+    /// Retrieve the head of the sequence
+    /// </summary>
+    /// <remarks>
+    /// Works only with `Fallible` lifted monads.  Raises `error` if the stream is empty 
+    /// </remarks>
+    public static K<M, A> HeadOrFail<E, M, A>(this K<StreamT<M>, A> ma, E error)
+        where M : Monad<M>, Fallible<E, M> =>
+        ma.Head().Bind(
+            opt => opt.Match(Some: M.Pure,
+                             None: () => Fallible.fail<E, M, A>(error)));  
+
+    /// <summary>
+    /// Retrieve the head of the sequence
+    /// </summary>
+    /// <remarks>
+    /// Works only with `Fallible` lifted monads.  Raises `error` if the stream is empty 
+    /// </remarks>
+    public static K<M, A> HeadOrFail<E, M, A>(this K<StreamT<M>, A> ma, Func<E> error)
+        where M : Monad<M>, Fallible<E, M> =>
+        ma.Head().Bind(
+            opt => opt.Match(Some: M.Pure,
+                             None: () => Fallible.fail<E, M, A>(error())));  
+
+    /// <summary>
     /// Execute the stream's inner monad `M`, combining the results using
     /// its `MonoidK<M>.Combine` operator.
     /// </summary>
@@ -134,14 +170,6 @@ public static partial class StreamTExtensions
     public static K<M, Option<A>> Head<M, A>(this K<StreamT<M>, A> ma) 
         where M : Monad<M> =>
         ma.As().Head();
-
-    /// <summary>
-    /// Retrieve the head of the sequence
-    /// </summary>
-    /// <exception cref="ExpectedException">Throws sequence-empty expected-exception</exception>
-    public static K<M, A> HeadUnsafe<M, A>(this K<StreamT<M>, A> ma) 
-        where M : Monad<M> =>
-        ma.As().HeadUnsafe();
 
     /// <summary>
     /// Retrieve the head of the sequence
