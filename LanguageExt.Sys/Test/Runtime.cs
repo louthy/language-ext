@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Text;
 using LanguageExt.Sys.Traits;
 using LanguageExt.Traits;
@@ -17,13 +18,19 @@ public record Runtime(RuntimeEnv Env) :
     Has<Eff<Runtime>, TextReadIO>,
     Has<Eff<Runtime>, TimeIO>,
     Has<Eff<Runtime>, EnvironmentIO>,
-    Has<Eff<Runtime>, DirectoryIO>
+    Has<Eff<Runtime>, DirectoryIO>,
+    IDisposable
 {
     /// <summary>
     /// Constructor function
     /// </summary>
-    public static Runtime New() =>
-        new(RuntimeEnv.Default);
+    public static Runtime New()
+    {
+        var tmp = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tmp);
+        return new(RuntimeEnv.New(tmp));
+    }
+
     /// <summary>
     /// Constructor function
     /// </summary>
@@ -54,10 +61,8 @@ public record Runtime(RuntimeEnv Env) :
     /// Access the file environment
     /// </summary>
     /// <returns>File environment</returns>
-    static K<Eff<Runtime>, FileIO> Has<Eff<Runtime>, FileIO>.Ask => 
-        from n in Time<Runtime>.now
-        from r in asks<FileIO>(rt => new Implementations.FileIO(rt.Env.FileSystem, n))
-        select r;
+    static K<Eff<Runtime>, FileIO> Has<Eff<Runtime>, FileIO>.Ask =>
+        asks<FileIO>(rt => new Implementations.FileIO(rt.Env.RootPath));
 
     /// <summary>
     /// Access the TextReader environment
@@ -85,9 +90,7 @@ public record Runtime(RuntimeEnv Env) :
     /// </summary>
     /// <returns>Directory environment</returns>
     static K<Eff<Runtime>, DirectoryIO> Has<Eff<Runtime>, DirectoryIO>.Ask =>
-        from n in Time<Runtime>.now
-        from r in asks<DirectoryIO>(rt => new Implementations.DirectoryIO(rt.Env.FileSystem, n))
-        select r;
+        asks<DirectoryIO>(rt => new Implementations.DirectoryIO(rt.Env.RootPath));
 
     static K<Eff<Runtime>, EncodingIO> Has<Eff<Runtime>, EncodingIO>.Ask =>
         asks<EncodingIO>(_ => Live.Implementations.EncodingIO.Default);
@@ -109,13 +112,16 @@ public record Runtime(RuntimeEnv Env) :
 
     public override string ToString() => 
         "Test Runtime";
+
+    public void Dispose() => 
+        Directory.Delete(Env.RootPath, recursive: true);
 }
     
 public record RuntimeEnv(
     EnvIO EnvIO,
     Encoding Encoding,
     MemoryConsole Console,
-    MemoryFS FileSystem,
+    string RootPath,
     Implementations.TestTimeSpec TimeSpec,
     MemorySystemEnvironment SysEnv,
     ActivityEnv Activity)
@@ -123,11 +129,11 @@ public record RuntimeEnv(
     public RuntimeEnv LocalCancel =>
         this with { EnvIO = EnvIO.LocalCancel };
 
-    public static RuntimeEnv Default =>
+    public static RuntimeEnv New(string rootPath) =>
         new(EnvIO.New(),
             Encoding.Default,
             new MemoryConsole(),
-            new MemoryFS(),
+            rootPath,
             Implementations.TestTimeSpec.RunningFromNow(),
             MemorySystemEnvironment.InitFromSystem(),
             ActivityEnv.Default);

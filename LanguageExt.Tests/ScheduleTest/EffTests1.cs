@@ -28,9 +28,10 @@ public static class EffTests1
     [Fact]
     public static void BailBeforeScheduleTest2()
     {
+        using var rt      = Runtime.New();
         const int counter = 0;
         var       effect  = FailEff<Runtime, int>((Error)"Failed");
-        var       result  = effect.RepeatIO(TestSchedule()).Run(Runtime.New(), EnvIO.New());
+        var       result  = effect.RepeatIO(TestSchedule()).Run(rt, EnvIO.New());
         counter.Should().Be(0);
         result.AssertFail(Error.New("Failed"));
     }
@@ -48,9 +49,10 @@ public static class EffTests1
     [Fact]
     public static void RepeatTest2()
     {
-        var counter = 0;
-        var effect = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask());
-        var result = effect.RepeatIO(TestSchedule()).Run(Runtime.New(), EnvIO.New());
+        using var rt      = Runtime.New();
+        var       counter = 0;
+        var       effect  = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask());
+        var       result  = effect.RepeatIO(TestSchedule()).Run(rt, EnvIO.New());
         Assert.True(counter == 6);
         result.AssertSucc(6);
     }
@@ -73,14 +75,15 @@ public static class EffTests1
     [Fact]
     public static void RetryTest2()
     {
-        var counter = 0;
+        using var rt      = Runtime.New();
+        var       counter = 0;
         var effect = liftEff<Runtime, int>(
             async _ =>
             {
                 await (++counter).AsValueTask();
                 return Error.New("Failed");
             });
-        var result = effect.RetryIO(TestSchedule()).Run(Runtime.New(), EnvIO.New());
+        var result = effect.RetryIO(TestSchedule()).Run(rt, EnvIO.New());
         counter.Should().Be(6);
         result.AssertFail(Error.New("Failed"));
     }
@@ -98,9 +101,10 @@ public static class EffTests1
     [Fact]
     public static void RepeatWhileTest2()
     {
-        var counter = 0;
-        var effect  = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask());
-        var result  = effect.RepeatWhileIO(TestSchedule(), static i => i < 3).Run(Runtime.New(), EnvIO.New());
+        using var rt      = Runtime.New();
+        var       counter = 0;
+        var       effect  = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask());
+        var       result  = effect.RepeatWhileIO(TestSchedule(), static i => i < 3).Run(rt, EnvIO.New());
         counter.Should().Be(3);
         result.AssertSucc(3);
     }
@@ -123,15 +127,15 @@ public static class EffTests1
     [Fact]
     public static void RetryWhileTest2()
     {
-        var counter = 0;
+        using var rt      = Runtime.New();
+        var       counter = 0;
         var effect = liftEff<Runtime, int>(
             async _ =>
             {
                 await (++counter).AsValueTask();
                 return Error.New(counter.ToString());
             });
-        var result = effect.RetryWhileIO(TestSchedule(), static e => (int)parseInt(e.Message) < 3)
-            .Run(Runtime.New(), EnvIO.New());
+        var result = effect.RetryWhileIO(TestSchedule(), static e => (int)parseInt(e.Message) < 3).Run(rt, EnvIO.New());
         counter.Should().Be(3);
         result.AssertFail(Error.New("3"));
     }
@@ -149,9 +153,10 @@ public static class EffTests1
     [Fact]
     public static void RepeatUntilTest2()
     {
-        var counter = 0;
-        var effect = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask());
-        var result = effect.RepeatUntilIO(static i => i == 10).Run(Runtime.New(), EnvIO.New());
+        using var rt      = Runtime.New();
+        var       counter = 0;
+        var       effect  = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask());
+        var       result  = effect.RepeatUntilIO(static i => i == 10).Run(rt, EnvIO.New());
         counter.Should().Be(10);
         result.AssertSucc(10);
     }
@@ -174,14 +179,15 @@ public static class EffTests1
     [Fact]
     public static void RetryUntilTest2()
     {
-        var counter = 0;
+        using var rt      = Runtime.New();
+        var       counter = 0;
         var effect = liftEff<Runtime, int>(
             async _ =>
             {
                 await (++counter).AsValueTask();
                 return Error.New(counter.ToString());
             });
-        var result = effect.RetryUntilIO(static e => (int)parseInt(e.Message) == 10).Run(Runtime.New(), EnvIO.New());
+        var result = effect.RetryUntilIO(static e => (int)parseInt(e.Message) == 10).Run(rt, EnvIO.New());
         counter.Should().Be(10);
         result.AssertFail(Error.New("10"));
     }
@@ -199,9 +205,10 @@ public static class EffTests1
     [Fact]
     public static void FoldTest2()
     {
-        var counter = 0;
-        var effect  = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask());
-        var result  = effect.FoldIO(TestSchedule(), 1, (i, j) => i + j).Run(Runtime.New(), EnvIO.New());
+        using var rt      = Runtime.New();
+        var       counter = 0;
+        var       effect  = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask());
+        var       result  = effect.FoldIO(TestSchedule(), 1, (i, j) => i + j).Run(rt, EnvIO.New());
         counter.Should().Be(6);
         result.AssertSucc(22);
     }
@@ -219,9 +226,10 @@ public static class EffTests1
     [Fact]
     public static void FoldWhileTest2()
     {
+        using var rt = Runtime.New();
         var counter = 0;
         var effect  = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask());
-        var result  = effect.FoldWhileIO(TestSchedule(), 1, (i, j) => i + j, valueIs: i => i < 3).Run(Runtime.New(), EnvIO.New());
+        var result  = effect.FoldWhileIO(TestSchedule(), 1, (i, j) => i + j, valueIs: i => i < 3).Run(rt, EnvIO.New());
         counter.Should().Be(3);
         result.AssertSucc(7);
     }
@@ -239,11 +247,11 @@ public static class EffTests1
     [Fact]
     public static void FoldUntilTest2()
     {
-        var counter = 0;
-        var effect = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask());
-        
+        using var rt      = Runtime.New();
+        var       counter = 0;
+        var       effect  = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask());
         var result = effect.FoldUntilIO(TestSchedule(), 1, (i, j) => i + j, valueIs: i => i > 4)
-                           .Run(Runtime.New(), EnvIO.New());
+                           .Run(rt, EnvIO.New());
         
         counter.Should().Be(5);
         result.AssertSucc(16);
@@ -252,12 +260,12 @@ public static class EffTests1
     [Fact]
     public static void CancelTest()
     {
+        using var rt = Runtime.New();
         var counter = 0;
         var envIO   = EnvIO.New();
-        var runtime = Runtime.New();
         var effect  = liftEff<Runtime, int>(async _ => await (++counter).AsValueTask()).RepeatIO(Schedule.Forever);
         envIO.Source.Cancel();
-        var result = effect.Run(runtime, envIO);
+        var result = effect.Run(rt, envIO);
         Assert.True(counter == 0);
         result.AssertFail(Errors.Cancelled);
     }
@@ -308,7 +316,7 @@ public static class EffTests1
                      select unit).As()
             | @catch(error => Console<RT>.writeLine(error.Message));
 
-        var runtime = Runtime.New();
+        using var runtime = Runtime.New();
         var effect = CreateEffect<Runtime>();
 
         effect.Run(runtime, EnvIO.New()).Ignore();

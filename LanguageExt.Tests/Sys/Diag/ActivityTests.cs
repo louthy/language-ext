@@ -8,7 +8,7 @@ using FluentAssertions;
 using LanguageExt.Common;
 using LanguageExt.UnsafeValueAccess;
 
-namespace LanguageExt.Tests.SysX.Diag;
+namespace LanguageExt.Tests.Sys.Diag;
 
 using A = Activity<Runtime>;
 
@@ -16,17 +16,7 @@ public static class ActivityTests
 {
     static readonly ActivitySource Source = new(nameof(ActivityTests));
     
-    static ActivityTests()
-    {
-        /*Runtime.New().
-        
-        var rt = Runtime.New(
-            new RuntimeEnv(
-                EnvIO.New(), 
-                Encoding.Default, 
-                new MemoryConsole(), 
-                new MemoryFS(), TestTimeSpec. ))*/
-        
+    static ActivityTests() =>
         ActivitySource.AddActivityListener(
             new ActivityListener
             {
@@ -34,14 +24,13 @@ public static class ActivityTests
                 Sample = (ref ActivityCreationOptions<ActivityContext> _) =>
                              ActivitySamplingResult.AllData
             });
-    }
 
-    static T ArrangeAndAct<T>(this K<Eff<Runtime>, T> effect) =>
-        effect.As()
-              .Run(Runtime.New(
-                       RuntimeEnv.Default with { Activity = new ActivityEnv(Source, default, default) }), 
-                   EnvIO.New())
-              .ThrowIfFail();
+    static T ArrangeAndAct<T>(this K<Eff<Runtime>, T> effect)
+    {
+        using var rt = Runtime.New();
+        var rt1 = rt with { Env = rt.Env with { Activity = new ActivityEnv(Source, default, default) } };
+        return effect.As().Run(rt1, EnvIO.New()).ThrowIfFail();
+    }
 
     [Fact(DisplayName = "An activity span can be created and effect run within")]
     public static void Case1() =>

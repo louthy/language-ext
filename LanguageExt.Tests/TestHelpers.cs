@@ -124,42 +124,77 @@ public static class AssertExt
     //  Eff helpers
     //
 
-    public static void AssertFail<A>(this Eff<Runtime, A> ma) =>
-        ma.Run(Runtime.New(), EnvIO.New()).AssertFail();
+    public static void AssertFail<A>(this Eff<Runtime, A> ma)
+    {
+        using var rt = Runtime.New();
+        ma.Run(rt, EnvIO.New()).AssertFail();
+    }
 
-    public static void AssertFail<A>(this Eff<Runtime, A> ma, string userMessage) =>
-        ma.Run(Runtime.New(), EnvIO.New()).AssertFail(userMessage);
+    public static void AssertFail<A>(this Eff<Runtime, A> ma, string userMessage)
+    {
+        using var rt = Runtime.New();
+        ma.Run(rt, EnvIO.New()).AssertFail(userMessage);
+    }
 
-    public static void AssertSucc<A>(this Eff<Runtime, A> ma) =>
-        ma.Run(Runtime.New(), EnvIO.New()).AssertSucc();
+    public static void AssertSucc<A>(this Eff<Runtime, A> ma)
+    {
+        using var rt = Runtime.New();
+        ma.Run(rt, EnvIO.New()).AssertSucc();
+    }
 
-    public static void AssertSucc<A>(this Eff<Runtime, A> ma, string userMessage) =>
-        ma.Run(Runtime.New(), EnvIO.New()).AssertSucc(userMessage);
-    
-    public static void AssertFail<A>(this Eff<Runtime, A> ma, Error expected) =>
-        ma.Run(Runtime.New(), EnvIO.New()).AssertFail(expected);
+    public static void AssertSucc<A>(this Eff<Runtime, A> ma, string userMessage)
+    {
+        using var rt = Runtime.New();
+        ma.Run(rt, EnvIO.New()).AssertSucc(userMessage);
+    }
 
-    public static void AssertFail<A>(this Eff<Runtime, A> ma, Error expected, string userMessage) =>
-        ma.Run(Runtime.New(), EnvIO.New()).AssertFail(expected, userMessage);
+    public static void AssertFail<A>(this Eff<Runtime, A> ma, Error expected)
+    {
+        using var rt = Runtime.New();
+        ma.Run(rt, EnvIO.New()).AssertFail(expected);
+    }
 
-    public static void AssertSucc<A>(this Eff<Runtime, A> ma, A expected) =>
-        ma.Run(Runtime.New(), EnvIO.New()).AssertSucc(expected);
+    public static void AssertFail<A>(this Eff<Runtime, A> ma, Error expected, string userMessage)
+    {
+        using var rt = Runtime.New();
+        ma.Run(rt, EnvIO.New()).AssertFail(expected, userMessage);
+    }
 
-    public static void AssertSucc<A>(this Eff<Runtime, A> ma, A expected, string userMessage) =>
-        ma.Run(Runtime.New(), EnvIO.New()).AssertSucc(expected, userMessage);
-    
-    public static void AssertFail<A>(this Eff<Runtime, A> ma, Func<Error, bool> predicate) =>
-        ma.Run(Runtime.New(), EnvIO.New()).AssertFail(predicate);
+    public static void AssertSucc<A>(this Eff<Runtime, A> ma, A expected)
+    {
+        using var rt = Runtime.New();
+        ma.Run(rt, EnvIO.New()).AssertSucc(expected);
+    }
 
-    public static void AssertFail<A>(this Eff<Runtime, A> ma, Func<Error, bool> predicate, string userMessage) =>
-        ma.Run(Runtime.New(), EnvIO.New()).AssertFail(predicate, userMessage);
+    public static void AssertSucc<A>(this Eff<Runtime, A> ma, A expected, string userMessage)
+    {
+        using var rt = Runtime.New();
+        ma.Run(rt, EnvIO.New()).AssertSucc(expected, userMessage);
+    }
 
-    public static void AssertSucc<A>(this Eff<Runtime, A> ma, Func<A, bool> predicate) =>
-        ma.Run(Runtime.New(), EnvIO.New()).AssertSucc(predicate);
+    public static void AssertFail<A>(this Eff<Runtime, A> ma, Func<Error, bool> predicate)
+    {
+        using var rt = Runtime.New();
+        ma.Run(rt, EnvIO.New()).AssertFail(predicate);
+    }
 
-    public static void AssertSucc<A>(this Eff<Runtime, A> ma, Func<A, bool> predicate, string userMessage) =>
-        ma.Run(Runtime.New(), EnvIO.New()).AssertSucc(predicate, userMessage);
-    
+    public static void AssertFail<A>(this Eff<Runtime, A> ma, Func<Error, bool> predicate, string userMessage)
+    {
+        using var rt = Runtime.New();
+        ma.Run(rt, EnvIO.New()).AssertFail(predicate, userMessage);
+    }
+
+    public static void AssertSucc<A>(this Eff<Runtime, A> ma, Func<A, bool> predicate)
+    {
+        using var rt = Runtime.New();
+        ma.Run(rt, EnvIO.New()).AssertSucc(predicate);
+    }
+
+    public static void AssertSucc<A>(this Eff<Runtime, A> ma, Func<A, bool> predicate, string userMessage)
+    {
+        using var rt = Runtime.New();
+        ma.Run(rt, EnvIO.New()).AssertSucc(predicate, userMessage);
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

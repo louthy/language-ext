@@ -8,13 +8,15 @@ namespace LanguageExt.Tests;
 public class PipesTests
 {
     [Fact]
-    public void MergeSynchronousProducersSucceeds() =>
-        compose(
-            Producer.merge<int, Eff<Runtime>>(
-                yield(1),
-                yield(1)),
-            awaiting<int>().Map(ignore))
-        .RunEffect().As()
-        .Run(Runtime.New(), EnvIO.New())
-        .Ignore();
+    public void MergeSynchronousProducersSucceeds()
+    {
+        using var rt = Runtime.New();
+        compose(Producer.merge<int, Eff<Runtime>>(
+                    yield(1),
+                    yield(1)),
+                awaiting<int>().Map(ignore))
+              .RunEffect().As()
+              .Run(rt, EnvIO.New())
+              .Ignore();
+    }
 }
