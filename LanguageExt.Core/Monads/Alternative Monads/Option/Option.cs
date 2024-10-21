@@ -37,7 +37,8 @@ public readonly struct Option<A> :
     IComparable<Option<A>>,
     IComparable,
     ISerializable,
-    Fallible<Option<A>, Option, Unit, A>
+    Fallible<Option<A>, Option, Unit, A>,
+    Monoid<Option<A>>
 {
     internal readonly A? Value;
     internal readonly bool isSome;
@@ -561,7 +562,7 @@ public readonly struct Option<A> :
     public Arr<A> ToArray() =>
         isSome
             ? Arr.create(Value!)
-            : Empty;
+            : [];
 
     /// <summary>
     /// Convert the Option to an immutable list of zero or one items
@@ -572,7 +573,7 @@ public readonly struct Option<A> :
     public Lst<A> ToList() =>
         isSome
             ? List.create(Value!)
-            : Empty;
+            : [];
 
     /// <summary>
     /// Convert the Option to an enumerable sequence of zero or one items
@@ -583,7 +584,7 @@ public readonly struct Option<A> :
     public Seq<A> ToSeq() =>
         isSome
             ? [Value!]
-            : Empty;
+            : [];
 
     /// <summary>
     /// Convert the Option to an enumerable of zero or one items
@@ -1274,4 +1275,20 @@ public readonly struct Option<A> :
     [Pure]
     public static implicit operator Option<A>(Pure<A> mr) =>
         mr.Value is null ? None : Some(mr.Value);
+
+    /// <summary>
+    /// Semigroup combine
+    /// </summary>
+    /// <param name="rhs">Alternative to return if this is None</param>
+    /// <returns>This if in a Some state, `rhs` otherwise</returns>
+    [Pure]
+    public Option<A> Combine(Option<A> rhs) => 
+        IsSome ? this : rhs;
+
+    /// <summary>
+    /// Monoid empty (aka None)
+    /// </summary>
+    [Pure]
+    public static Option<A> Empty =>
+        None;
 }
