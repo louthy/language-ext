@@ -8,22 +8,24 @@ namespace Streams;
 public class SourceStream
 {
     public static IO<Unit> run =>
-        from s in Source<string>.Start()
-        from f in show(s).Iter().ForkIO()
-        from w in writeLine("Type something and press enter (empty-line ends the demo)")
-        from r in interaction(s)
-        select r;
-
-    static IO<Unit> interaction(Source<string> source) =>
-        from l in readLine
-        from _ in l == ""
-                      ? Pure(unit)
-                      : source.Post(l)
-                              .Bind(_ => interaction(source))
+        from s in Source<string>()
+        from f in forkIO(subscribe(s))
+        from _ in writeLine("Type something and press enter (empty-line ends the demo)") >>
+                  interaction(s)
         select unit;
 
-    static StreamT<IO, Unit> show(Source<string> source) =>
-        from v in source.Await<IO>()
+    static IO<Unit> interaction(Source<string> source) =>
+        repeat(from l in readLine
+               from _ in deliver(source, l)
+               select unit) 
+      | @catch(unitIO);
+
+    static IO<Unit> deliver(Source<string> source, string line) =>
+        guardIO(line != "") >>
+        post(source, line);
+
+    static StreamT<IO, Unit> subscribe(Source<string> source) =>
+        from v in await<IO, string>(source)
         from _ in writeLine(v)
         where false
         select unit;

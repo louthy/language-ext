@@ -348,6 +348,15 @@ public static partial class Prelude
     public static K<M, A> repeatIO<M, A>(K<M, A> ma)
         where M : Monad<M> =>
         ma.RepeatIO();
+    
+    /// <summary>
+    /// Keeps repeating the computation   
+    /// </summary>
+    /// <param name="ma">Computation to repeat</param>
+    /// <typeparam name="A">Computation bound value type</typeparam>
+    /// <returns>The result of the last invocation of `ma`</returns>
+    public static IO<A> repeat<A>(IO<A> ma) =>
+        ma.Repeat();
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires  

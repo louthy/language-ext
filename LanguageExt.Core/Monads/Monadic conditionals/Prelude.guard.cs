@@ -21,6 +21,17 @@ public static partial class Prelude
         flag ? F.Pure(unit) : F.Empty<Unit>();
     
     /// <summary>
+    /// Guard against continuing an applicative expression
+    /// </summary>
+    /// <param name="flag">Flag for continuing</param>
+    /// <returns>Applicative that yields `()` if `flag` is `true`; otherwise it yields `Applicative.Empty` - 
+    /// shortcutting the expression</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IO<Unit> guardIO(bool flag) =>
+        flag ? IO.pure(unit) : IO.empty<Unit>();
+    
+    /// <summary>
     /// Guard against continuing a monadic expression
     /// </summary>
     /// <param name="flag">Flag for continuing</param>
