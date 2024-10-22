@@ -22,6 +22,18 @@ public record FileIO(string root) : Sys.Traits.FileIO
         Live.Implementations.FileIO.Default.Copy(FixPath(fromPath), FixPath(toPath), overwrite);
 
     /// <summary>
+    /// Move file from one place to another
+    /// </summary>
+    public IO<Unit> Move(string fromPath, string toPath) =>
+        Live.Implementations.FileIO.Default.Move(fromPath, toPath);
+
+    /// <summary>
+    /// Move file from one place to another
+    /// </summary>
+    public IO<Unit> Move(string fromPath, string toPath, bool overwrite) =>
+        Live.Implementations.FileIO.Default.Move(fromPath, toPath, overwrite);
+
+    /// <summary>
     /// Append lines to the end of a file
     /// </summary>
     public IO<Unit> AppendAllLines(string path, IEnumerable<string> lines, Encoding encoding) =>

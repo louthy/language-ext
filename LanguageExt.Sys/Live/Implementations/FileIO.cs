@@ -20,6 +20,18 @@ public record FileIO : Sys.Traits.FileIO
         lift(() => File.Copy(fromPath, toPath, overwrite));
 
     /// <summary>
+    /// Move file from one place to another
+    /// </summary>
+    public IO<Unit> Move(string fromPath, string toPath) =>
+        lift(() => File.Move(fromPath, toPath));
+
+    /// <summary>
+    /// Move file from one place to another
+    /// </summary>
+    public IO<Unit> Move(string fromPath, string toPath, bool overwrite) =>
+        lift(() => File.Move(fromPath, toPath, overwrite));
+
+    /// <summary>
     /// Append lines to the end of a file
     /// </summary>
     public IO<Unit> AppendAllLines(string path, IEnumerable<string> lines, Encoding encoding) =>
@@ -110,24 +122,24 @@ public record FileIO : Sys.Traits.FileIO
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    public IO<System.IO.Stream> OpenRead(string path) =>
-        lift<System.IO.Stream>(() =>File.OpenRead(path));
+    public IO<Stream> OpenRead(string path) =>
+        lift<Stream>(() =>File.OpenRead(path));
 
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    public IO<System.IO.Stream> Open(string path, FileMode mode) =>
-        lift<System.IO.Stream>(() => File.Open(path, mode));
+    public IO<Stream> Open(string path, FileMode mode) =>
+        lift<Stream>(() => File.Open(path, mode));
         
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    public IO<System.IO.Stream> Open(string path, FileMode mode, FileAccess access) =>
-        lift<System.IO.Stream>(() =>File.Open(path, mode, access));
+    public IO<Stream> Open(string path, FileMode mode, FileAccess access) =>
+        lift<Stream>(() =>File.Open(path, mode, access));
         
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    public IO<System.IO.Stream> OpenWrite(string path) =>
-        lift<System.IO.Stream>(() =>File.OpenWrite(path));
+    public IO<Stream> OpenWrite(string path) =>
+        lift<Stream>(() =>File.OpenWrite(path));
 }

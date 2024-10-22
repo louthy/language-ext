@@ -10,6 +10,16 @@ public interface FileIO
     /// Copy file from one place to another
     /// </summary>
     IO<Unit> Copy(string fromPath, string toPath, bool overwrite = false);
+    
+    /// <summary>
+    /// Move file from one place to another
+    /// </summary>
+    IO<Unit> Move(string fromPath, string toPath);
+    
+    /// <summary>
+    /// Move file from one place to another
+    /// </summary>
+    IO<Unit> Move(string fromPath, string toPath, bool overwrite);
 
     /// <summary>
     /// Append lines to the end of a file

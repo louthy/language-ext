@@ -33,6 +33,29 @@ public class File<M, RT>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, Unit> copy(string fromPath, string toPath, bool overwrite = false) =>
         fileIO.Bind(e => e.Copy(fromPath, toPath, overwrite));
+    
+    /// <summary>
+    /// Move file 
+    /// </summary>
+    /// <param name="fromPath">Source path</param>
+    /// <param name="toPath">Destination path</param>
+    /// <typeparam name="RT">Runtime</typeparam>
+    /// <returns>Unit</returns>
+    [Pure, MethodImpl(EffOpt.mops)]
+    public static K<M, Unit> move(string fromPath, string toPath) =>
+        fileIO.Bind(e => e.Move(fromPath, toPath));
+    
+    /// <summary>
+    /// Move file 
+    /// </summary>
+    /// <param name="fromPath">Source path</param>
+    /// <param name="toPath">Destination path</param>
+    /// <param name="overwrite">Overwrite if the file already exists at the destination</param>
+    /// <typeparam name="RT">Runtime</typeparam>
+    /// <returns>Unit</returns>
+    [Pure, MethodImpl(EffOpt.mops)]
+    public static K<M, Unit> move(string fromPath, string toPath, bool overwrite) =>
+        fileIO.Bind(e => e.Move(fromPath, toPath, overwrite));
 
     /// <summary>
     /// Append lines to the end of the file provided
