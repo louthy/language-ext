@@ -9,7 +9,7 @@ public class SourceStream
 {
     public static IO<Unit> run =>
         from s in Source<string>()
-        from f in forkIO(subscribe(s))
+        from f in fork(subscribe(s))
         from _ in writeLine("Type something and press enter (empty-line ends the demo)") >>
                   interaction(s)
         select unit;

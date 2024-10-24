@@ -12,7 +12,7 @@ namespace LanguageExt.Pipes;
 /// <summary>
 /// The `static Proxy` class is the `Prelude` of the Pipes system.
 /// </summary>
-public static class Proxy
+public static partial class Proxy
 {
     internal const MethodImplOptions mops = MethodImplOptions.AggressiveInlining;
     

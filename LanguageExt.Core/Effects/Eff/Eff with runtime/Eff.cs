@@ -4,7 +4,6 @@ using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using LanguageExt.Pipes;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -643,13 +642,6 @@ public record Eff<RT, A>(ReaderT<RT, IO, A> effect) :
     [Pure, MethodImpl(Opt.Default)]
     public static implicit operator Eff<RT, A>(in Eff<A> ma) =>
         ma.WithRuntime<RT>();
-
-    /// <summary>
-    /// Convert to an `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Eff<RT, A>(in Effect<Eff<RT>, A> ma) =>
-        ma.RunEffect().As();
 
     /// <summary>
     /// Convert to an `Eff` monad

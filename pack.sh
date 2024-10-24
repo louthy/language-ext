@@ -13,6 +13,7 @@ echo building the artefacts
  
 dotnet restore
 dotnet pack LanguageExt.Core -c Release -o $Artifacts
+dotnet pack LanguageExt.Pipes -c Release -o $Artifacts
 dotnet pack LanguageExt.FSharp -c Release -o $Artifacts
 dotnet pack LanguageExt.Parsec -c Release -o $Artifacts
 dotnet pack LanguageExt.Rx -c Release -o $Artifacts

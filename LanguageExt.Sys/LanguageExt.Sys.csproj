@@ -28,6 +28,7 @@
       <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
         <None Include="README.nuget.md" Pack="true" PackagePath="\"/>
         <None Include="..\Images\lang-ext-small.png" Pack="true" PackagePath="\"/>
+        <ProjectReference Include="..\LanguageExt.Pipes\LanguageExt.Pipes.csproj" />
     </ItemGroup>
 
     <ItemGroup>

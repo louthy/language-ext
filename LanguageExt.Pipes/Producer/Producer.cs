@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt.Traits;
+using LanguageExt.UnsafeValueAccess;
 using static LanguageExt.Pipes.Proxy;
 using static LanguageExt.Prelude;
 
@@ -233,9 +233,9 @@ public static class Producer
         ms switch
         {
             { IsEmpty     : true }               => lift<OUT, M, Unit>(M.Pure(unit)),
-            { Tail.IsEmpty: true }               => ms.Head.Value!,
+            { Tail.IsEmpty: true }               => ms[0],
             { Head        : var h, Tail: var t } => 
-                from x in h.Value!
+                from x in h.ValueUnsafe()!
                 from xs in merge<OUT, M>(t)
                 select x
         };

@@ -26,7 +26,7 @@ public static class TextFileChunkStreamExample<RT>
     public static Eff<RT, Unit> main =>
         from _ in Console<RT>.writeLine("Please type in a path to a text file and press enter")
         from p in Console<RT>.readLine
-        from e in mainEffect(p)
+        from e in mainEffect(p).RunEffect()
         select unit;
         
     static Effect<Eff<RT>, Unit> mainEffect(string path) =>

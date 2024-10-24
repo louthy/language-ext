@@ -27,10 +27,10 @@ namespace LanguageExt.Pipes;
 public static class Effect
 {
     [Pure]
-    public static K<M, R> RunEffect<M, R>(this Proxy<Void, Unit, Unit, Void, M, R> ma)
+    public static K<M, R> RunEffect<M, R>(this K<Proxy<Void, Unit, Unit, Void, M>, R> ma)
         where M : Monad<M>
     {
-        return Go(ma);
+        return Go(ma.As());
 
         K<M, R> Go(Proxy<Void, Unit, Unit, Void, M, R> p) =>
             p.ToProxy() switch

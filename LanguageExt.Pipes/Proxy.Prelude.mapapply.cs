@@ -2,9 +2,9 @@
 using LanguageExt.Traits;
 using LanguageExt.Pipes;
 
-namespace LanguageExt;
+namespace LanguageExt.Pipes;
 
-public static partial class Prelude
+public static partial class Proxy
 {
     /// <summary>
     /// Functor map operation

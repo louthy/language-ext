@@ -10,6 +10,7 @@ LangExtDocs=/media/paul/raid/dev/louthy.github.io
 echo cleaning the docs
 
 rm -rf $LangExtDocs/language-ext/LanguageExt.Core
+rm -rf $LangExtDocs/language-ext/LanguageExt.Pipes
 rm -rf $LangExtDocs/language-ext/LanguageExt.Parsec
 rm -rf $LangExtDocs/language-ext/LanguageExt.FSharp
 rm -rf $LangExtDocs/language-ext/LanguageExt.Rx
@@ -19,6 +20,7 @@ echo building the docs
 
 dotnet build $BestFormBin/bestform.csproj -c Release
 dotnet run --project $BestFormBin -c Release --no-build "LanguageExt.Core" "$LangExtRoot/LanguageExt.Core" "$LangExtDocs/language-ext" "https://github.com/louthy/language-ext/tree/main"
+dotnet run --project $BestFormBin -c Release --no-build "LanguageExt.Pipes" "$LangExtRoot/LanguageExt.Pipes" "$LangExtDocs/language-ext" "https://github.com/louthy/language-ext/tree/main"
 dotnet run --project $BestFormBin -c Release --no-build "LanguageExt.Parsec" "$LangExtRoot/LanguageExt.Parsec" "$LangExtDocs/language-ext" "https://github.com/louthy/language-ext/tree/main"
 dotnet run --project $BestFormBin -c Release --no-build "LanguageExt.FSharp" "$LangExtRoot/LanguageExt.FSharp" "$LangExtDocs/language-ext" "https://github.com/louthy/language-ext/tree/main"
 dotnet run --project $BestFormBin -c Release --no-build "LanguageExt.Rx" "$LangExtRoot/LanguageExt.Rx" "$LangExtDocs/language-ext" "https://github.com/louthy/language-ext/tree/main"

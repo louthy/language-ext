@@ -20,7 +20,7 @@ public static class ForkCancelExample<RT>
         Has<Eff<RT>, TimeIO>
 {
     public static Eff<RT, Unit> main =>
-        from frk in forkIO(inner).As()
+        from frk in fork(inner).As()
         from key in Console<RT>.readKey
         from _1  in frk.Cancel
         from _2  in Console<RT>.writeLine("done")

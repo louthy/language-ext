@@ -6,7 +6,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using LanguageExt.Effects;
-using LanguageExt.Pipes;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -653,13 +652,6 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> operator |(Eff<A> ma, CatchM<Error, Eff, A> mb) =>
         ma.Catch(mb).As();
-
-    /// <summary>
-    /// Convert to an `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Eff<A>(in Effect<Eff, A> ma) =>
-        ma.RunEffect().As();
 
     public override string ToString() => 
         "Eff";

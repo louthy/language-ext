@@ -43,6 +43,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainTypesExamples", "Samp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreditCardValidation", "Samples\CreditCardValidation\CreditCardValidation.csproj", "{AF8ED740-D77D-4080-9952-59232C57767C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Pipes", "LanguageExt.Pipes\LanguageExt.Pipes.csproj", "{6661A967-81D7-4236-99BC-AD42F71B6C1F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -293,6 +295,18 @@ Global
 		{AF8ED740-D77D-4080-9952-59232C57767C}.Release|x64.Build.0 = Release|Any CPU
 		{AF8ED740-D77D-4080-9952-59232C57767C}.Release|x86.ActiveCfg = Release|Any CPU
 		{AF8ED740-D77D-4080-9952-59232C57767C}.Release|x86.Build.0 = Release|Any CPU
+		{6661A967-81D7-4236-99BC-AD42F71B6C1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6661A967-81D7-4236-99BC-AD42F71B6C1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6661A967-81D7-4236-99BC-AD42F71B6C1F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6661A967-81D7-4236-99BC-AD42F71B6C1F}.Debug|x64.Build.0 = Debug|Any CPU
+		{6661A967-81D7-4236-99BC-AD42F71B6C1F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6661A967-81D7-4236-99BC-AD42F71B6C1F}.Debug|x86.Build.0 = Debug|Any CPU
+		{6661A967-81D7-4236-99BC-AD42F71B6C1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6661A967-81D7-4236-99BC-AD42F71B6C1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6661A967-81D7-4236-99BC-AD42F71B6C1F}.Release|x64.ActiveCfg = Release|Any CPU
+		{6661A967-81D7-4236-99BC-AD42F71B6C1F}.Release|x64.Build.0 = Release|Any CPU
+		{6661A967-81D7-4236-99BC-AD42F71B6C1F}.Release|x86.ActiveCfg = Release|Any CPU
+		{6661A967-81D7-4236-99BC-AD42F71B6C1F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

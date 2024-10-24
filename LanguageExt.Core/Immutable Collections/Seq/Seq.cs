@@ -407,9 +407,11 @@ public readonly struct Seq<A> :
         new (Value.Cons(value));
 
     /// <summary>
-    /// Head item in the sequence.  NOTE:  If `IsEmpty` is true then Head 
-    /// is undefined.  Call HeadOrNone() if for maximum safety.
+    /// Head item in the sequence.
     /// </summary>
+    /// <remarks>
+    /// If `IsEmpty` is `true` then Head is undefined and therefore returns `None`
+    /// </remarks>
     public Option<A> Head
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

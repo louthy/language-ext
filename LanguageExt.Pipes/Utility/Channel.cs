@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace LanguageExt;
+namespace LanguageExt.Pipes;
 
 /// <summary>
 /// An asynchronous queue that guarantees that only one item in the queue is being processed at any one time.

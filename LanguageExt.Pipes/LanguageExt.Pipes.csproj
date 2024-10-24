@@ -1,22 +1,22 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Debug'">
         <DefineConstants>TRACE;DEBUG</DefineConstants>
     </PropertyGroup>
     <PropertyGroup Label="Configuration">
         <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
         <DefineConstants>CONTRACTS_FULL</DefineConstants>
+        <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
         <PackageVersion>5.0.0-beta-29</PackageVersion>
-        <PackageId>LanguageExt.Parsec</PackageId>
-        <Title>LanguageExt.Parsec</Title>
+        <PackageId>LanguageExt.Pipes</PackageId>
+        <Title>LanguageExt.Pipes</Title>
         <Authors>Paul Louth</Authors>
-        <Summary>Functional language extensions for C#</Summary>
-        <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
+        <Summary>Compositional pipelines for language-ext</Summary>
         <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
-        <Description>Parser combinators library based on Haskell Parsec.  This is part of the LanguageExt functional framework and requires LanguageExt.Core</Description>
+        <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
+        <Description>Pipes is a clean and powerful stream processing library that lets you build and connect reusable streaming components</Description>
         <PackageTags>C#, Functional, Language Extension, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
         <PackageIcon>lang-ext-small.png</PackageIcon>
         <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
@@ -29,10 +29,12 @@
         <LangVersion>default</LangVersion>
     </PropertyGroup>
     <ItemGroup>
-        <None Include="README.nuget.md" Pack="true" PackagePath="\"/>
         <None Include="..\Images\lang-ext-small.png" Pack="true" PackagePath="\"/>
+        <None Update="README.nuget.md">
+          <Pack>true</Pack>
+          <PackagePath>/</PackagePath>
+        </None>
     </ItemGroup>
-
     <ItemGroup>
         <Compile Include="**\*.cs" />
         <EmbeddedResource Include="**\*.resx" />
@@ -43,10 +45,9 @@
         <None Remove="obj\**" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="System.ValueTuple" Version="[4.5.0,)" />
+        <None Include="README.md" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
-        <ProjectReference Include="..\LanguageExt.Pipes\LanguageExt.Pipes.csproj" />
+      <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
     </ItemGroup>
 </Project>

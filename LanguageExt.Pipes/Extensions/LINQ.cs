@@ -12,7 +12,7 @@ public static partial class ProxyExtensions
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
-    [Pure, MethodImpl(Proxy.mops)]
+    [Pure]
     public static Producer<OUT, M, B> Bind<OUT, A, M, B>(
         this Proxy<Void, Unit, Unit, OUT, M, A> ma, 
         Func<A, Producer<OUT, M, B>> f) 
@@ -22,7 +22,7 @@ public static partial class ProxyExtensions
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
-    [Pure, MethodImpl(Proxy.mops)]
+    [Pure]
     public static Consumer<IN, M, B> Bind<IN, A, M, B>(
         this Proxy<Unit, IN, Unit, Void, M, A> ma, 
         Func<A, Consumer<IN, M, B>> f) 
@@ -32,7 +32,7 @@ public static partial class ProxyExtensions
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
-    [Pure, MethodImpl(Proxy.mops)]
+    [Pure]
     public static Pipe<IN, OUT, M, B> Bind<IN, OUT, A, M, B>(
         this Proxy<Unit, IN, Unit, OUT, M, A> ma, 
         Func<A, Pipe<IN, OUT, M, B>> f) 
@@ -42,7 +42,7 @@ public static partial class ProxyExtensions
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
-    [Pure, MethodImpl(Proxy.mops)]
+    [Pure]
     public static Client<REQ, RES, M, B> Bind<REQ, RES, A, M, B>(
         this Proxy<REQ, RES, Unit, Void, M, A> ma, 
         Func<A, Client<REQ, RES, M, B>> f) 
@@ -52,7 +52,7 @@ public static partial class ProxyExtensions
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
-    [Pure, MethodImpl(Proxy.mops)]
+    [Pure]
     public static Server<REQ, RES, M, B> Bind<REQ, RES, A, M, B>(
         this Proxy<Void, Unit, REQ, RES, M, A> ma, 
         Func<A, Server<REQ, RES, M, B>> f) 
@@ -63,7 +63,7 @@ public static partial class ProxyExtensions
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
-    [Pure, MethodImpl(Proxy.mops)]
+    [Pure]
     public static Producer<OUT, M, B> SelectMany<OUT, A, M, B>(
         this Proxy<Void, Unit, Unit, OUT, M, A> ma, 
         Func<A, Producer<OUT, M, B>> f) 
@@ -73,7 +73,7 @@ public static partial class ProxyExtensions
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
-    [Pure, MethodImpl(Proxy.mops)]
+    [Pure]
     public static Consumer<IN, M, B> SelectMany<IN, A, M, B>(
         this Proxy<Unit, IN, Unit, Void, M, A> ma, 
         Func<A, Consumer<IN, M, B>> f) 
@@ -83,7 +83,7 @@ public static partial class ProxyExtensions
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
-    [Pure, MethodImpl(Proxy.mops)]
+    [Pure]
     public static Pipe<IN, OUT, M, B> SelectMany<IN, OUT, A, M, B>(
         this Proxy<Unit, IN, Unit, OUT, M, A> ma, 
         Func<A, Pipe<IN, OUT, M, B>> f) 
@@ -93,7 +93,7 @@ public static partial class ProxyExtensions
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
-    [Pure, MethodImpl(Proxy.mops)]
+    [Pure]
     public static Client<REQ, RES, M, B> SelectMany<REQ, RES, A, M, B>(
         this Proxy<REQ, RES, Unit, Void, M, A> ma, 
         Func<A, Client<REQ, RES, M, B>> f) 
@@ -103,7 +103,7 @@ public static partial class ProxyExtensions
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
-    [Pure, MethodImpl(Proxy.mops)]
+    [Pure]
     public static Server<REQ, RES, M, B> SelectMany<REQ, RES, A, M, B>(
         this Proxy<Void, Unit, REQ, RES, M, A> ma, Func<A, Server<REQ, RES, M, B>> f) 
         where M : Monad<M> =>
@@ -113,7 +113,7 @@ public static partial class ProxyExtensions
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
-    [Pure, MethodImpl(Proxy.mops)]
+    [Pure]
     public static Producer<OUT, M, C> SelectMany<OUT, A, B, M, C>(
         this Proxy<Void, Unit, Unit, OUT, M, A> ma, Func<A, Producer<OUT, M, B>> f, 
         Func<A, B, C> project) 
@@ -123,7 +123,7 @@ public static partial class ProxyExtensions
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
-    [Pure, MethodImpl(Proxy.mops)]
+    [Pure]
     public static Consumer<IN, M, C> SelectMany<IN, A, B, M, C>(
         this Proxy<Unit, IN, Unit, Void, M, A> ma, 
         Func<A, Consumer<IN, M, B>> f, Func<A, B, C> project) 
@@ -133,7 +133,7 @@ public static partial class ProxyExtensions
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
-    [Pure, MethodImpl(Proxy.mops)]
+    [Pure]
     public static Pipe<IN, OUT, M, C> SelectMany<IN, OUT, A, B, M, C>(
         this Proxy<Unit, IN, Unit, OUT, M, A> ma, 
         Func<A, Pipe<IN, OUT, M, B>> f, 
@@ -144,7 +144,7 @@ public static partial class ProxyExtensions
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
-    [Pure, MethodImpl(Proxy.mops)]
+    [Pure]
     public static Client<REQ, RES, M, C> SelectMany<REQ, RES, A, B, M, C>(
         this Proxy<REQ, RES, Unit, Void, M, A> ma, 
         Func<A, Client<REQ, RES, M, B>> f, 
@@ -155,7 +155,7 @@ public static partial class ProxyExtensions
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
-    [Pure, MethodImpl(Proxy.mops)]
+    [Pure]
     public static Server<REQ, RES, M, C> SelectMany<REQ, RES, A, B, M, C>(
         this Proxy<Void, Unit, REQ, RES, M, A> ma, 
         Func<A, Server<REQ, RES, M, B>> f, Func<A, B, C> project) 

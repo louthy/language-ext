@@ -83,7 +83,7 @@ public static partial class Prelude
     /// </returns>
     [Pure]
     [MethodImpl(Opt.Default)]
-    public static K<M, ForkIO<A>> forkIO<M, A>(K<M, A> ma, Option<TimeSpan> timeout = default)
+    public static K<M, ForkIO<A>> fork<M, A>(K<M, A> ma, Option<TimeSpan> timeout = default)
         where M : Monad<M> =>
         ma.ForkIO(timeout);
 
@@ -96,7 +96,7 @@ public static partial class Prelude
     /// </returns>
     [Pure]
     [MethodImpl(Opt.Default)]
-    public static K<M, ForkIO<Option<A>>> forkIO<M, A>(StreamT<M, A> ma, Option<TimeSpan> timeout = default)
+    public static K<M, ForkIO<Option<A>>> fork<M, A>(StreamT<M, A> ma, Option<TimeSpan> timeout = default)
         where M : Monad<M> =>
         ma.Run()
           .Map(oht => oht.Map(ht => ht.Item1))
