@@ -33,12 +33,12 @@ public static class ErrorAndGuardExample<RT>
         select unit;
 
     static Eff<RT, Unit> askUser =>
-        repeatIO(Schedule.spaced(1 * second) | Schedule.recurs(3),
-                 from ln in Console<RT>.readLine
-                 from _1 in guard(notEmpty(ln), UserExited)
-                 from _2 in guard(ln != "sys", () => throw new SystemException())
-                 from _3 in guard(ln != "err", () => throw new Exception())
-                 from _4 in Console<RT>.writeLine(ln)
-                 select unit).As()
+        repeat(Schedule.spaced(1 * second) | Schedule.recurs(3),
+               from ln in Console<RT>.readLine
+               from _1 in guard(notEmpty(ln), UserExited)
+               from _2 in guard(ln != "sys", () => throw new SystemException())
+               from _3 in guard(ln != "err", () => throw new Exception())
+               from _4 in Console<RT>.writeLine(ln)
+               select unit).As()
       | @catch(UserExited, pure<Eff<RT>, Unit>(unit));
 }

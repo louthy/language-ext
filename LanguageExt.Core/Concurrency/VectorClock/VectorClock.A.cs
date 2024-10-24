@@ -64,11 +64,11 @@ public record VectorClock<A>(Seq<(A, long)> Entries)
     public static readonly VectorClock<A> Empty = new(Seq<(A, long)>());
 
     public virtual bool Equals(VectorClock<A>? rhs) =>
-        rhs is not null                                                                             &&
-        GetHashCode() == rhs.GetHashCode()                                                          &&
-        Count         == rhs.Count                                                                  &&
-        Entries.Zip(rhs.Entries).ForAll(p => equals<OrdDefault<A>, A>(p.Left.Item1, p.Right.Item1)) &&
-        Entries.Zip(rhs.Entries).ForAll(p => p.Left.Item2 == p.Right.Item2);
+        rhs is not null                                                                               &&
+        GetHashCode() == rhs.GetHashCode()                                                            &&
+        Count         == rhs.Count                                                                    &&
+        Entries.Zip(rhs.Entries).ForAll(p => equals<OrdDefault<A>, A>(p.First.Item1, p.Second.Item1)) &&
+        Entries.Zip(rhs.Entries).ForAll(p => p.First.Item2 == p.Second.Item2);
 
     public override int GetHashCode() =>
         Entries.GetHashCode();

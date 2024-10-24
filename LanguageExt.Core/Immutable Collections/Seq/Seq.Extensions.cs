@@ -134,7 +134,7 @@ public static partial class SeqExtensions
     /// <param name="zipper">Join function</param>
     /// <returns>Joined sequence of tuples</returns>
     [Pure]
-    public static Seq<(T Left, U Right)> Zip<T, U>(this Seq<T> list, Seq<U> other) =>
+    public static Seq<(T First, U Second)> Zip<T, U>(this Seq<T> list, Seq<U> other) =>
         toSeq(Enumerable.Zip(list, other, (t, u) => (t, u)));
 
     /// <summary>

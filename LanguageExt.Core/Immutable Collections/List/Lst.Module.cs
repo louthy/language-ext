@@ -857,7 +857,7 @@ public static class List
     /// <param name="zipper">Join function</param>
     /// <returns>Joined enumerable of tuples</returns>
     [Pure]
-    public static IEnumerable<(T Left, U Right)> zip<T, U>(IEnumerable<T> list, IEnumerable<U> other) =>
+    public static IEnumerable<(T First, U Second)> zip<T, U>(IEnumerable<T> list, IEnumerable<U> other) =>
         list.Zip(other, (t, u) => (t, u));
 
     /// <summary>

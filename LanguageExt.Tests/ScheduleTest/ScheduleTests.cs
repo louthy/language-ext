@@ -411,7 +411,7 @@ public sealed class ScheduleTests
     {
         var schedule = Schedule.linear(10 * sec) | Schedule.decorrelate(seed: Seed);
         var result   = schedule.Take(5).Run().ToSeq();
-        Assert.True(result.Zip(result.Skip(1)).Filter(x => x.Left > x.Right).Any());
+        Assert.True(result.Zip(result.Skip(1)).Filter(x => x.First > x.Second).Any());
     }
 
     [Fact]

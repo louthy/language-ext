@@ -331,7 +331,7 @@ public partial class Seq
     /// <returns>Joined sequence of tuples</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Seq<(T Left, U Right)> zip<T, U>(Seq<T> list, Seq<U> other) =>
+    public static Seq<(T First, U Second)> zip<T, U>(Seq<T> list, Seq<U> other) =>
         toSeq(list.Zip(other, (t, u) => (t, u)));
 
 

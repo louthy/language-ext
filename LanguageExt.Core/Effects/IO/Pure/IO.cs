@@ -28,6 +28,9 @@ namespace LanguageExt;
 /// <typeparam name="A">Bound value</typeparam>
 record IOPure<A>(A Value) : IO<A>
 {
+    internal override bool IsAsync =>
+        false;
+
     public IO<A> ToSync() =>
         new IOSync<A>(_ => IOResponse.Complete(Value));
     

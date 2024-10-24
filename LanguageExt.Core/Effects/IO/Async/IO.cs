@@ -28,6 +28,9 @@ namespace LanguageExt;
 /// <typeparam name="A">Bound value</typeparam>
 record IOAsync<A>(Func<EnvIO, Task<IOResponse<A>>> runIO) : IO<A>
 {
+    internal override bool IsAsync =>
+        true;
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Functor

@@ -22,10 +22,10 @@ public static class RetryExample<RT>
     static readonly Error Failed = (Error)"I asked you to say hello, and you can't even do that?!";
         
     public static Eff<RT, Unit> main =>
-        retryIO(Schedule.recurs(5),
-                from _ in Console<RT>.writeLine("Say hello")
-                from t in Console<RT>.readLine
-                from e in guard(t == "hello", Failed)  
-                from m in Console<RT>.writeLine("Hi")
-                select unit).As();
+        retry(Schedule.recurs(5),
+              from _ in Console<RT>.writeLine("Say hello")
+              from t in Console<RT>.readLine
+              from e in guard(t == "hello", Failed)  
+              from m in Console<RT>.writeLine("Hi")
+              select unit).As();
 }

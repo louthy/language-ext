@@ -56,6 +56,22 @@ public partial class IO
     public static K<M, A> local<M, A>(K<M, A> ma) 
         where M : Monad<M> =>
         ma.LocalIO();
+
+    /// <summary>
+    /// Creates a local cancellation environment
+    /// </summary>
+    /// <remarks>
+    /// A local cancellation environment stops other IO computations, that rely on the same
+    /// environmental cancellation token, from being taken down by a regional cancellation.
+    ///
+    /// If a `IO.cancel` is invoked locally then it will still create an exception that
+    /// propagates upwards and so catching cancellations is still important. 
+    /// </remarks>
+    /// <param name="ma">Computation to run within the local context</param>
+    /// <typeparam name="A">Bound value</typeparam>
+    /// <returns>Result of the computation</returns>
+    public static IO<A> local<A>(K<IO, A> ma) => 
+        ma.As().Local();
     
     public static IO<A> lift<A>(Either<Error, A> ma) =>
         ma switch
@@ -107,7 +123,7 @@ public partial class IO
     public static IO<A> empty<A>() =>
         IO<A>.Empty;
 
-    public static IO<A> or<A>(K<IO, A> ma, K<IO, A> mb) => 
+    public static IO<A> combine<A>(K<IO, A> ma, K<IO, A> mb) => 
         ma.As() | mb.As();
 
     /// <summary>
@@ -149,14 +165,24 @@ public partial class IO
         mapIO(ma, mio => fork(mio , timeout));
 
     /// <summary>
-    /// Yield the thread for the specified milliseconds or until cancelled.
+    /// Yield the thread for the specified duration or until cancelled.
     /// </summary>
-    /// <param name="milliseconds">Amount of time to yield for</param>
+    /// <param name="duration">Amount of time to yield for</param>
     /// <returns>Unit</returns>
     [Pure]
     [MethodImpl(Opt.Default)]
-    public static IO<Unit> yield(double milliseconds) =>
-        IO<Unit>.LiftAsync(env => yieldFor(new Duration(milliseconds), env.Token));
+    public static IO<Unit> yieldFor(Duration duration) =>
+        IO<Unit>.LiftAsync(env => yieldFor(duration, env.Token));
+
+    /// <summary>
+    /// Yield the thread for the specified duration or until cancelled.
+    /// </summary>
+    /// <param name="timeSpan">Amount of time to yield for</param>
+    /// <returns>Unit</returns>
+    [Pure]
+    [MethodImpl(Opt.Default)]
+    public static IO<Unit> yieldFor(TimeSpan timeSpan) =>
+        IO<Unit>.LiftAsync(env => yieldFor(timeSpan, env.Token));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

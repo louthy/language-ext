@@ -28,6 +28,9 @@ namespace LanguageExt;
 /// <typeparam name="A">Bound value</typeparam>
 record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
 {
+    internal override bool IsAsync =>
+        false;
+
     public IO<A> ToAsync() =>
         new IOAsync<A>(e => Task.FromResult(runIO(e)));
     
@@ -514,7 +517,7 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
     
     public override string ToString() => 
         "IO";
-    
+
     async Task<IOResponse<A>> AwaitAsync(Task<IOResponse<A>> t, EnvIO envIO, CancellationToken token, CancellationTokenSource source)
     {
         if (envIO.Token.IsCancellationRequested) throw new TaskCanceledException();

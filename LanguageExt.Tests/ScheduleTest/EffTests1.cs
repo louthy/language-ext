@@ -282,12 +282,12 @@ public static class EffTests1
             lift(() => { buffer.Add(value); return unit; });
 
         Eff<Unit> CreateEffect(ICollection<string> buffer) =>
-            repeatIO(from ln in (from data in liftEff(() => memStream.ReadByte().AsTask())
-                                 from _ in guard(data != -1, Errors.Cancelled)
-                                 select data)
-                                .FoldUntilIO(string.Empty, (s, ch) => s + (char)ch, ch => ch == '\0')
-                     from _0 in AddToBuffer(buffer,ln)
-                     select unit).As()
+            repeat(from ln in (from data in liftEff(() => memStream.ReadByte().AsTask())
+                               from _ in guard(data != -1, Errors.Cancelled)
+                               select data)
+                              .FoldUntilIO(string.Empty, (s, ch) => s + (char)ch, ch => ch == '\0')
+                   from _0 in AddToBuffer(buffer,ln)
+                   select unit).As()
             | @catch(error => AddToBuffer(buffer,error.Message));
 
         var buffer = new List<string>();
@@ -307,13 +307,13 @@ public static class EffTests1
         memStream.Seek(0, SeekOrigin.Begin);
 
         Eff<RT, Unit> CreateEffect<RT>() where RT : Has<Eff<RT>, ConsoleIO> =>
-            repeatIO(from ln in (from data in liftEff(() => memStream.ReadByte().AsTask())
-                                 from _ in guard(data != -1, Errors.Cancelled)
-                                 select data)
-                                .FoldUntilIO(string.Empty, (s, ch) => s + (char)ch, ch => ch == '\0')
-                                .As()
-                     from _0 in Console<RT>.writeLine(ln)
-                     select unit).As()
+            repeat(from ln in (from data in liftEff(() => memStream.ReadByte().AsTask())
+                               from _ in guard(data != -1, Errors.Cancelled)
+                               select data)
+                              .FoldUntilIO(string.Empty, (s, ch) => s + (char)ch, ch => ch == '\0')
+                              .As()
+                   from _0 in Console<RT>.writeLine(ln)
+                   select unit).As()
             | @catch(error => Console<RT>.writeLine(error.Message));
 
         using var runtime = Runtime.New();

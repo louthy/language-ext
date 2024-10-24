@@ -26,7 +26,9 @@ namespace LanguageExt;
 /// </summary>
 /// <param name="runIO">The lifted thunk that is the IO operation</param>
 /// <typeparam name="A">Bound value</typeparam>
-public abstract record IO<A> : Fallible<IO<A>, IO, Error, A>
+public abstract record IO<A> : 
+    Fallible<IO<A>, IO, Error, A>,
+    Monoid<IO<A>>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -39,8 +41,15 @@ public abstract record IO<A> : Fallible<IO<A>, IO, Error, A>
     public static IO<A> Fail(Error value) => 
         new IOFail<A>(value);
 
-    public static readonly IO<A> Empty =
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  General
+    //
+    
+    public static IO<A> Empty { get; } = 
         new IOFail<A>(Errors.None);
+
+    internal abstract bool IsAsync { get; }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -658,6 +667,14 @@ public abstract record IO<A> : Fallible<IO<A>, IO, Error, A>
     /// <param name="Predicate">Predicate</param>
     /// <param name="Fail">Fail functions</param>
     public abstract IO<A> Catch(Func<Error, bool> Predicate, Func<Error, K<IO, A>> Fail);
+
+    /// <summary>
+    /// Monoid combine
+    /// </summary>
+    /// <param name="rhs">Alternative</param>
+    /// <returns>This if computation runs without error.  `rhs` otherwise</returns>
+    public IO<A> Combine(IO<A> rhs) =>
+        Catch(_ => true, _ => rhs);
     
     public override string ToString() => 
         "IO";

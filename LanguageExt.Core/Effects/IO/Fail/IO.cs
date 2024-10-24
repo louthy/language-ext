@@ -28,6 +28,9 @@ namespace LanguageExt;
 /// <typeparam name="A">Bound value</typeparam>
 record IOFail<A>(Error Error) : IO<A>
 {
+    internal override bool IsAsync =>
+        false;
+    
     public IO<A> ToSync() =>
         new IOSync<A>(_ => throw Error.ToErrorException());
     

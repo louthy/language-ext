@@ -6,10 +6,8 @@ namespace IOExamples;
 
 class Program
 {
-    static void Main(string[] args)
-    {
+    static void Main(string[] args) => 
         infiniteLoop(0).Run();
-    }
 
     static IO<Unit> infiniteLoop(int value) =>
         from _ in value % 1 == 0
@@ -58,19 +56,19 @@ class Program
     //     select unit;
 
     static IO<Unit> repeating =>
-        repeatIO(Schedule.recurs(5),
-                 from x in readNumber("Enter the first number to add")
-                 from y in readNumber("Enter the second number to add")
-                 from _ in writeLine($"{x} + {y} = {x + y}")
-                 from t in waitOneSecond
-                 select unit).As()
+        repeat(Schedule.recurs(5),
+               from x in readNumber("Enter the first number to add")
+               from y in readNumber("Enter the second number to add")
+               from _ in writeLine($"{x} + {y} = {x + y}")
+               from t in waitOneSecond
+               select unit).As()
       | writeLine("Obviously you don't know what a number is so I'm off.");
     
     static IO<int> readNumber(string question) =>
-        retryIO(Schedule.recurs(3),
-                from _1 in writeLine(question)
-                from nx in readLine.Map(int.Parse)
-                select nx).As();
+        retry(Schedule.recurs(3),
+              from _1 in writeLine(question)
+              from nx in readLine.Map(int.Parse)
+              select nx).As();
     
     static readonly IO<string> readLine =
         lift(() => Console.ReadLine() ?? "");
@@ -86,7 +84,7 @@ class Program
         wait(1000);
 
     static IO<Unit> wait(int milliseconds) =>
-        IO.yield(milliseconds);
+        yieldFor(milliseconds);
 
     static IO<DateTime> now =>
         lift(() => DateTime.Now);

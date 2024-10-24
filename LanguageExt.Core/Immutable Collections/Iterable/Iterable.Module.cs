@@ -190,7 +190,7 @@ public partial class Iterable
     /// <returns>Joined sequence of tuples</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Iterable<(A Left, B Right)> zip<A, B>(Iterable<A> list, Iterable<B> other) =>
+    public static Iterable<(A First, B Second)> zip<A, B>(Iterable<A> list, Iterable<B> other) =>
         list.Zip(other, (t, u) => (t, u));
 
     /// <summary>
