@@ -15,7 +15,7 @@ If you're new to this library, you may need a few pointers of where to look for 
   * [`Monads`](Monads) contains the common monads like `Option<A>` and `Either<L, R>`, as well as state-managing monads like `Reader`, `Writer`, and `State`.  It also is home to many monad-transformers (types with a `T` suffix, like `OptionT`).  Transformers allow 'stacking' of monadic effects into 'super monads'.
   * [`Immutable Collections`](Immutable%20Collections) contains the high-performance functional collection types this library is famous for.
   * [`Effects`](Effects) is where the pure IO functionality of language-ext resides.  It is also where you'll find 
-    the `StreamT` and  `Pipes` compositional streaming features.  To understand more about how to deal with side-effects, 
+    the `StreamT` for 'effectful' streaming.  To understand more about how to deal with side-effects, 
     [check the wiki](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects).
   * [`Concurrency`](Concurrency) is where you'll find lots of help in atomically managing shared data without locks. 
   
