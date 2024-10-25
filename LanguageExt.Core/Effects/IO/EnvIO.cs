@@ -31,42 +31,6 @@ public class EnvIO : IDisposable
         Own          = own;
     }
 
-    /// <summary>
-    /// Creates a new EnvIO and registers it with the `token` provided, so if the `token` gets
-    /// a cancellation signal then so will any computation that uses the `EnvIO`. 
-    /// </summary>
-    /// <param name="token">Token to register with</param>
-    /// <returns>Constructed EnvIO</returns>
-    public static EnvIO FromToken(CancellationToken token)
-    {
-        if (!token.CanBeCanceled) return New();
-        var       nsource    = new CancellationTokenSource();
-        var       ntoken     = nsource.Token;
-        var       ncontext   = SynchronizationContext.Current;
-        using var nreg       = token.Register(() => nsource.Cancel());
-        var       nresources = new Resources(null);
-        var       own        = 3;
-        return new EnvIO(nresources, ntoken, nsource, ncontext, nreg, own);
-    }
-
-    /// <summary>
-    /// Creates a new EnvIO and registers it with the `token` provided, so if the `token` gets
-    /// a cancellation signal then so will any computation that uses the `EnvIO`. 
-    /// </summary>
-    /// <param name="resources">Resources collection to use instead of letting EnvIO construct one</param>
-    /// <param name="token">Token to register with</param>
-    /// <returns>Constructed EnvIO</returns>
-    public static EnvIO FromToken(Resources resources, CancellationToken token)
-    {
-        if (!token.CanBeCanceled) return New(resources);
-        var       nsource    = new CancellationTokenSource();
-        var       ntoken     = nsource.Token;
-        var       ncontext   = SynchronizationContext.Current;
-        using var nreg       = token.Register(() => nsource.Cancel());
-        var       own        = 1;
-        return new EnvIO(resources, ntoken, nsource, ncontext, nreg, own);
-    }
-
     public static EnvIO New(
         Resources? resources = null,
         CancellationToken token = default,
@@ -74,28 +38,41 @@ public class EnvIO : IDisposable
         SynchronizationContext? syncContext = null)
     {
         var own = 0;
+        CancellationTokenRegistration? reg = null; 
         if (source is null)
         {
-            source =  new CancellationTokenSource();
-            own    |= 1;
+            source = new CancellationTokenSource();
+            own |= 1;
         }
 
         if (resources is null)
         {
-            resources =  new Resources(null);
-            own       |= 2;
+            resources = new Resources(null);
+            own |= 2;
         }
 
-        token       =   token.CanBeCanceled ? token : source.Token;
+        if ((own & 1) == 1)
+        {
+            if (token.CanBeCanceled)
+            {
+                reg = token.Register(() => source.Cancel());
+            }
+
+            token = source.Token;
+        }
+
         syncContext ??= SynchronizationContext.Current;
-        return new EnvIO(resources, token, source, syncContext, null, own);
+        return new EnvIO(resources, token, source, syncContext, reg, own);
     }
+
+    public EnvIO Local =>
+        New(null, Token, null, SynchronizationContext.Current);
 
     public EnvIO LocalResources =>
         New(null, Token, Source, SyncContext);
 
     public EnvIO LocalCancel =>
-        New(Resources, default, null, SyncContext);
+        New(Resources, Token, null, SyncContext);
 
     public EnvIO LocalSyncContext =>
         New(Resources, Token, Source, SynchronizationContext.Current);
