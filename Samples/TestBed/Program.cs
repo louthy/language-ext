@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using LanguageExt;
 using System.Text;
 using LanguageExt.Sys;
@@ -17,8 +18,6 @@ using System.Reactive.Linq;
 using LanguageExt.Sys.Live;
 using System.Threading.Tasks;
 using LanguageExt.Common;
-using LanguageExt.Traits;
-using LanguageExt.Traits.Domain;
 using TestBed;
 using static LanguageExt.Prelude;
 using static LanguageExt.Pipes.Proxy;
@@ -76,6 +75,10 @@ public class Program
 {
     static void Main(string[] args)
     {
+        IEnumerable<int> ma = [];
+        IEnumerable<int> mb = [];
+        var mc = ma.SelectMany(a => mb.Select(b => a + b));
+        
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
         //                                                                                                    //
         //                                                                                                    //

@@ -6,6 +6,7 @@ using static LanguageExt.Prelude;
 namespace TestBed;
 
 
+/*
 public record AppConfig(int X, int Y);
 
 public record AppState(int Value)
@@ -94,3 +95,4 @@ var app = from config in App.config<IO>()
           select unit;
     }
 }
+*/
