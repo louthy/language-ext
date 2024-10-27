@@ -50,7 +50,11 @@ public partial class EitherT
         where M : Monad<M> =>
         EitherT<L, M, A>.Lift(ma);
 
-    public static EitherT<L, M, A> liftIO<L, M, A>(IO<A> ma)  
+    public static EitherT<L, M, A> liftIO<L, M, A>(K<IO, A> ma)  
+        where M : Monad<M> =>
+        EitherT<L, M, A>.Lift(M.LiftIO(ma));
+
+    public static EitherT<L, M, A> liftIO<L, M, A>(IO<Either<L, A>> ma)  
         where M : Monad<M> =>
         EitherT<L, M, A>.Lift(M.LiftIO(ma));
     
