@@ -18,7 +18,7 @@ namespace LanguageExt.Traits;
 /// can be proven to be true.  If your applicative-functor doesn't have `Equals` then you must provide
 /// the optional `equals` parameter so that the equality of outcomes can be tested.
 /// </remarks>
-/// <typeparam name="F">Functor type</typeparam>
+/// <typeparam name="F">Applicative functor type</typeparam>
 public static class ApplicativeLaw<F>
     where F : Applicative<F>
 {

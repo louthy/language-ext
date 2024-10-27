@@ -30,42 +30,4 @@ public static class MonoidKExtensions
     public static K<M, B> Choose<M, A, B>(this K<M, A> ma, Func<A, Option<B>> selector)
         where M : MonoidK<M>, Monad<M> =>
         M.Bind(ma, a => selector(a).Match(Some: M.Pure, None: M.Empty<B>));
-    
-    /// <summary>
-    /// Given a set of applicative functors, return the first one to succeed.
-    /// </summary>
-    /// <remarks>
-    /// If none succeed, the last applicative functor will be returned.
-    /// </remarks>
-    public static K<F, A> OneOf<F, A>(this Seq<K<F, A>> ms)
-        where F : MonoidK<F> =>
-        MonoidK.oneOf(ms);
-
-    /// <summary>
-    /// One or more...
-    /// </summary>
-    /// <remarks>
-    /// Run the applicative functor repeatedly, collecting the results, until failure.
-    ///
-    /// Will always succeed if at least one item has been yielded.
-    /// </remarks>
-    /// <param name="v">Applicative functor</param>
-    /// <returns>One or more values</returns>
-    public static K<F, Seq<A>> Some<F, A>(this K<F, A> v)
-        where F : MonoidK<F>, Applicative<F> =>
-        MonoidK.some(v);
-
-    /// <summary>
-    /// Zero or more...
-    /// </summary>
-    /// <remarks>
-    /// Run the applicative functor repeatedly, collecting the results, until failure.
-    ///
-    /// Will always succeed.
-    /// </remarks>
-    /// <param name="v">Applicative functor</param>
-    /// <returns>Zero or more values</returns>
-    public static K<F, Seq<A>> Many<F, A>(this K<F, A> v)
-        where F : MonoidK<F>, Applicative<F> =>
-        MonoidK.many(v);
 }

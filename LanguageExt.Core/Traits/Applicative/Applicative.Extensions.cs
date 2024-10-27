@@ -23,7 +23,7 @@ public static class ApplicativeExtensions
         AF.Apply(mf, ma);
     
     [Pure]
-    public static K<AF, B> ApplyLazy<AF, A, B>(this K<AF, Func<A, B>> mf, Func<K<AF, A>> ma)
+    public static K<AF, B> Apply<AF, A, B>(this K<AF, Func<A, B>> mf, Func<K<AF, A>> ma)
         where AF : Applicative<AF> =>
         AF.ApplyLazy(mf, ma);
 
