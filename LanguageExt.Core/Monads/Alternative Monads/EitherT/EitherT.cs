@@ -242,6 +242,15 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
         new(M.Map(mx => mx.Map(f), runEither));
     
     /// <summary>
+    /// Maps the left value
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`EitherT`</returns>
+    public EitherT<B, M, R> MapLeft<B>(Func<L, B> f) =>
+        new(M.Map(mx => mx.MapLeft(f), runEither));
+    
+    /// <summary>
     /// Maps the bound value
     /// </summary>
     /// <param name="f">Mapping transducer</param>
@@ -403,6 +412,17 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
     /// <returns>`EitherT`</returns>
     public EitherT<L, M, C> SelectMany<B, C>(Func<R, IO<B>> bind, Func<R, B, C> project) =>
         SelectMany(x => M.LiftIO(bind(x)), project);
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`EitherT`</returns>
+    public EitherT<L, M, C> SelectMany<C>(Func<R, Guard<L, Unit>> bind, Func<R, Unit, C> project) =>
+        SelectMany(x => bind(x).ToEither(), project);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

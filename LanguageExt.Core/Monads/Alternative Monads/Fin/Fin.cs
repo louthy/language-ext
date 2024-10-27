@@ -119,7 +119,15 @@ public abstract class Fin<A> :
     /// <param name="f">Map function</param>
     /// <returns>Mapped structure</returns>
     [Pure]
-    public abstract Fin<B> Map<B>(Func<A, B> Succ);
+    public abstract Fin<B> Map<B>(Func<A, B> f);
+
+    /// <summary>
+    /// Maps the value in the structure
+    /// </summary>
+    /// <param name="f">Map function</param>
+    /// <returns>Mapped structure</returns>
+    [Pure]
+    public abstract Fin<A> MapFail(Func<Error, Error> f);
 
     /// <summary>
     /// Bi-maps the structure

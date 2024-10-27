@@ -98,8 +98,17 @@ public partial class Fin
         /// <param name="f">Map function</param>
         /// <returns>Mapped structure</returns>
         [Pure]
-        public override Fin<B> Map<B>(Func<A, B> Succ) =>
+        public override Fin<B> Map<B>(Func<A, B> f) =>
             new Fail<B>(Error);
+
+        /// <summary>
+        /// Maps the value in the structure
+        /// </summary>
+        /// <param name="f">Map function</param>
+        /// <returns>Mapped structure</returns>
+        [Pure]
+        public override Fin<A> MapFail(Func<Error, Error> f) =>
+            new Fail<A>(f(Error));
 
         /// <summary>
         /// Bi-maps the structure

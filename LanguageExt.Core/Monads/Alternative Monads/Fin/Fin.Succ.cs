@@ -110,6 +110,15 @@ public partial class Fin
             new Succ<B>(Succ(Value));
 
         /// <summary>
+        /// Maps the value in the structure
+        /// </summary>
+        /// <param name="f">Map function</param>
+        /// <returns>Mapped structure</returns>
+        [Pure]
+        public override Fin<A> MapFail(Func<Error, Error> f) =>
+            this;
+
+        /// <summary>
         /// Bi-maps the structure
         /// </summary>
         /// <returns>Mapped Either</returns>

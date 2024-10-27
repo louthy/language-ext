@@ -136,6 +136,14 @@ public record Try<A>(Func<Fin<A>> runTry) :
     /// <returns>`TryT`</returns>
     public Try<B> Map<B>(Func<A, B> f) =>
         new(() => runTry().Map(f));
+
+    /// <summary>
+    /// Maps the bound value
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <returns>`TryT`</returns>
+    public Try<A> MapFail(Func<Error, Error> f) =>
+        new(() => runTry().MapFail(f));
     
     /// <summary>
     /// Maps the bound value

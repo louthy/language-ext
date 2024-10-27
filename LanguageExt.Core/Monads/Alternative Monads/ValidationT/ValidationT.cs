@@ -126,6 +126,16 @@ public record ValidationT<F, M, A>(K<M, Validation<F, A>> runValidation) :
     /// <summary>
     /// Maps the bound value
     /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`ValidationT`</returns>
+    public ValidationT<F1, M, A> MapFail<F1>(Func<F, F1> f) 
+        where F1 : Monoid<F1> =>
+        new(M.Map(mx => mx.MapFail(f), runValidation));
+    
+    /// <summary>
+    /// Maps the bound value
+    /// </summary>
     /// <param name="f">Mapping transducer</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
