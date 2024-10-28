@@ -112,7 +112,7 @@ public partial class App :
         new App<A>(ReaderT.lift<AppEnv, EitherT<YourError, IO>, A>(EitherT.Right<YourError, IO, A>(value)));
 
     static K<App, B> Applicative<App>.Apply<A, B>(K<App, Func<A, B>> mf, K<App, A> ma) => 
-        new App<B>(mf.As().runApp.Apply(ma.As().runApp));
+        new App<B>(mf.As().runApp.Apply(ma.As().runApp).As());
 
     static K<App, A> MonadIO<App>.LiftIO<A>(IO<A> ma) =>
         new App<A>(
