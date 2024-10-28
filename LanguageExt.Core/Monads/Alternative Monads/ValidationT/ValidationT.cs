@@ -341,24 +341,44 @@ public record ValidationT<F, M, A>(K<M, Validation<F, A>> runValidation) :
         LiftIO(ma);
 
     [Pure, MethodImpl(Opt.Default)]
+    public static ValidationT<F, M, A> operator +(ValidationT<F, M, A> lhs, ValidationT<F, M, A> rhs) =>
+        lhs.Combine(rhs).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static ValidationT<F, M, A> operator +(K<ValidationT<F, M>, A> lhs, ValidationT<F, M, A> rhs) =>
+        lhs.Combine(rhs).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static ValidationT<F, M, A> operator +(ValidationT<F, M, A> lhs, K<ValidationT<F, M>, A> rhs) =>
+        lhs.Combine(rhs).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static ValidationT<F, M, A> operator +(ValidationT<F, M, A> lhs, Pure<A> rhs) =>
+        lhs.Combine(Success(rhs.Value)).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static ValidationT<F, M, A> operator +(ValidationT<F, M, A> lhs, Fail<F> rhs) =>
+        lhs.Combine(Fail(rhs.Value)).As();
+    
+    [Pure, MethodImpl(Opt.Default)]
     public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, ValidationT<F, M, A> rhs) =>
-        lhs.Catch<F, ValidationT<F, M>, A>(rhs).As();
+        lhs.Choose(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static ValidationT<F, M, A> operator |(K<ValidationT<F, M>, A> lhs, ValidationT<F, M, A> rhs) =>
-        lhs.Catch<F, ValidationT<F, M>, A>(rhs).As();
+        lhs.Choose(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, K<ValidationT<F, M>, A> rhs) =>
-        lhs.Catch<F, ValidationT<F, M>, A>(rhs).As();
+        lhs.Choose(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, Pure<A> rhs) =>
-        lhs.Catch<F, ValidationT<F, M>, A>(rhs).As();
+        lhs.Choose(Success(rhs.Value)).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, Fail<F> rhs) =>
-        lhs.Catch(rhs).As();
+        lhs.Choose(Fail(rhs.Value)).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, CatchM<F, ValidationT<F, M>, A> rhs) =>

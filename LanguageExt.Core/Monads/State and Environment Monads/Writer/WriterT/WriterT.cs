@@ -303,18 +303,42 @@ public record WriterT<W, M, A>(Func<W, K<M, (A Value, W Output)>> runWriter) : K
     
     public static implicit operator WriterT<W, M, A>(IO<A> ma) =>
         LiftIO(ma);
-    
-    public static WriterT<W, M, A> operator |(WriterT<W, M, A> ma, WriterT<W, M, A> mb) =>
-        new (w => M.Combine(ma.runWriter(w), mb.runWriter(w)));
+
+    public static WriterT<W, M, A> operator |(K<WriterT<W, M>, A> ma, WriterT<W, M, A> mb) =>
+        ma.Choose(mb).As();
+
+    public static WriterT<W, M, A> operator |(WriterT<W, M, A> ma, K<WriterT<W, M>, A> mb) =>
+        ma.Choose(mb).As();
     
     public static WriterT<W, M, A> operator |(WriterT<W, M, A> ma, Pure<A> mb) =>
-        new (w => M.Combine(ma.runWriter(w), Pure(mb.Value).runWriter(w)));
+        ma.Choose(Pure(mb.Value)).As();
     
     public static WriterT<W, M, A> operator |(Pure<A> ma,  WriterT<W, M, A>mb) =>
-        new (w => M.Combine(Pure(ma.Value).runWriter(w), mb.runWriter(w)));
+        Pure(ma.Value).Choose(mb).As();
     
     public static WriterT<W, M, A> operator |(IO<A> ma, WriterT<W, M, A> mb) =>
-        new (w => M.Combine(LiftIO(ma).runWriter(w), mb.runWriter(w)));
+        LiftIO(ma).Choose(mb).As();
+    
+    public static WriterT<W, M, A> operator |(WriterT<W, M, A> ma, IO<A> mb) =>
+        ma.Choose(LiftIO(mb)).As();
+
+    public static WriterT<W, M, A> operator +(K<WriterT<W, M>, A> ma, WriterT<W, M, A> mb) =>
+        ma.Combine(mb).As();
+
+    public static WriterT<W, M, A> operator +(WriterT<W, M, A> ma, K<WriterT<W, M>, A> mb) =>
+        ma.Combine(mb).As();
+    
+    public static WriterT<W, M, A> operator +(WriterT<W, M, A> ma, Pure<A> mb) =>
+        ma.Combine(Pure(mb.Value)).As();
+    
+    public static WriterT<W, M, A> operator +(Pure<A> ma,  WriterT<W, M, A>mb) =>
+        Pure(ma.Value).Combine(mb).As();
+    
+    public static WriterT<W, M, A> operator +(IO<A> ma, WriterT<W, M, A> mb) =>
+        LiftIO(ma).Combine(mb).As();
+    
+    public static WriterT<W, M, A> operator +(WriterT<W, M, A> ma, IO<A> mb) =>
+        ma.Combine(LiftIO(mb)).As();
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
