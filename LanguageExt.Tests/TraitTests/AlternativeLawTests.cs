@@ -1,5 +1,3 @@
-using System;
-using LanguageExt.Common;
 using Xunit;
 
 namespace LanguageExt.Tests.TraitTests;
@@ -26,7 +24,6 @@ public class AlternativeLawTests
     public void Seq() =>
         AlternativeLaw<Seq>.assert();
     
-    /*
     [Fact]
     public void EffRT()
     {
@@ -53,28 +50,6 @@ public class AlternativeLawTests
         
         AlternativeLaw<IO>.assert(eq);
     }
-    
-    [Fact]
-    public void StreamT()
-    {
-        static Seq<int> toSeq(StreamT<Identity, int> s) =>
-            s.Head().Run()
-             .Match(Some: x => x.Cons(toSeq(s.Tail())),
-                    None: []);
-
-        static bool eq(K<StreamT<Identity>, int> vx, K<StreamT<Identity>, int> vy) =>
-            toSeq(vx.As()) == toSeq(vy.As());
-        
-        AlternativeLaw<StreamT<Identity>>.assert(eq);
-    }
-    
-    [Fact]
-    public void Either() => 
-        AlternativeLaw<Either<string>>.assert();
-
-    [Fact]
-    public void EitherT() => 
-        AlternativeLaw<EitherT<string, Identity>>.assert();
 
     [Fact]
     public void Fin() => 
@@ -117,66 +92,4 @@ public class AlternativeLawTests
     [Fact]
     public void ValidationT() => 
         AlternativeLaw<ValidationT<StringM, Identity>>.assert();
-
-    [Fact]
-    public void Identity() => 
-        AlternativeLaw<Identity>.assert();
-
-    [Fact]
-    public void IdentityT() => 
-        AlternativeLaw<IdentityT<Identity>>.assert();
-
-    [Fact]
-    public void Reader()
-    {
-        bool eq(K<Reader<string>, int> vx, K<Reader<string>, int> vy) => 
-            vx.Run("Hello").Equals(vy.Run("Hello"));
-        
-        AlternativeLaw<Reader<string>>.assert(eq);
-    }
-    
-    [Fact]
-    public void ReaderT()
-    {
-        bool eq(K<ReaderT<string, Identity>, int> vx, K<ReaderT<string, Identity>, int> vy) => 
-            vx.Run("Hello").Run().Equals(vy.Run("Hello").Run());
-                 
-        AlternativeLaw<ReaderT<string, Identity>>.assert(eq);
-    }
-
-    [Fact]
-    public void State()
-    {
-        bool eq(K<State<string>, int> vx, K<State<string>, int> vy) => 
-            vx.Run("Hello").Equals(vy.Run("Hello"));
-        
-        AlternativeLaw<State<string>>.assert(eq);
-    }
-    
-    [Fact]
-    public void StateT()
-    {
-        bool eq(K<StateT<string, Identity>, int> vx, K<StateT<string, Identity>, int> vy) => 
-            vx.Run("Hello").Run().Equals(vy.Run("Hello").Run());
-                 
-        AlternativeLaw<StateT<string, Identity>>.assert(eq);
-    }
-    
-    [Fact]
-    public void Writer()
-    {
-        bool eq(K<Writer<StringM>, int> vx, K<Writer<StringM>, int> vy) => 
-            vx.Run("Hello, ").Equals(vy.Run("Hello, "));
-        
-        AlternativeLaw<Writer<StringM>>.assert(eq);
-    }
-    
-    [Fact]
-    public void WriterT()
-    {
-        bool eq(K<WriterT<StringM, Identity>, int> vx, K<WriterT<StringM, Identity>, int> vy) => 
-            vx.Run("Hello, ").Run().Equals(vy.Run("Hello, ").Run());
-        
-        AlternativeLaw<WriterT<StringM, Identity>>.assert(eq);
-    }*/
 }
