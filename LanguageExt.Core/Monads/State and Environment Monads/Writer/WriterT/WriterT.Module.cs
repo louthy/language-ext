@@ -13,7 +13,7 @@ public class WriterT<W>
     where W : Monoid<W>
 {
     public static WriterT<W, M, A> lift<M, A>(K<M, A> ma)
-        where M : Monad<M>, SemigroupK<M> => 
+        where M : Monad<M>, Choice<M> => 
         WriterT<W, M, A>.Lift(ma);
 }
 
@@ -45,12 +45,12 @@ public class WriterT
 {
     public static WriterT<W, M, A> pure<W, M, A>(A value)  
         where W : Monoid<W>
-        where M : Monad<M>, SemigroupK<M> => 
+        where M : Monad<M>, Choice<M> => 
         WriterT<W, M, A>.Pure(value);
 
     public static WriterT<W, M, A> lift<W, M, A>(K<M, A> ma)  
         where W : Monoid<W>
-        where M : Monad<M>, SemigroupK<M> => 
+        where M : Monad<M>, Choice<M> => 
         WriterT<W, M, A>.Lift(ma);
 
     /// <summary>
@@ -60,7 +60,7 @@ public class WriterT
     /// <returns>`WriterT`</returns>
     public static WriterT<W, M, A> liftIO<W, M, A>(IO<A> effect)
         where W : Monoid<W>
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         WriterT<W, M, A>.LiftIO(effect);
 
     /// <summary>
@@ -70,7 +70,7 @@ public class WriterT
     /// <typeparam name="W">Writer type</typeparam>
     /// <returns>Structure with the told item</returns>
     public static WriterT<W, M, Unit> tell<W, M>(W item)
-        where M : Monad<M>, SemigroupK<M>
+        where M : Monad<M>, Choice<M>
         where W : Monoid<W> =>
         new (w => M.Pure((default(Unit), w + item)));
 
@@ -78,7 +78,7 @@ public class WriterT
     /// Writes an item and returns a value at the same time
     /// </summary>
     public static WriterT<W, M, A> write<W, M, A>((A, W) item)
-        where M : Monad<M>, SemigroupK<M> 
+        where M : Monad<M>, Choice<M> 
         where W : Monoid<W> =>
         new (w => M.Pure((item.Item1, w + item.Item2)));
 
@@ -86,7 +86,7 @@ public class WriterT
     /// Writes an item and returns a value at the same time
     /// </summary>
     public static WriterT<W, M, A> write<W, M, A>(A value, W item)
-        where M : Monad<M>, SemigroupK<M> 
+        where M : Monad<M>, Choice<M> 
         where W : Monoid<W> =>
         new (w => M.Pure((value, w + item)));
 
