@@ -5,7 +5,10 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public partial class HashMap<Key> : Foldable<HashMap<Key>>, Functor<HashMap<Key>>, MonoidK<HashMap<Key>>
+public partial class HashMap<Key> : 
+    Foldable<HashMap<Key>>, 
+    Functor<HashMap<Key>>, 
+    MonoidK<HashMap<Key>>
 {
     static K<HashMap<Key>, B> Functor<HashMap<Key>>.Map<A, B>(Func<A, B> f, K<HashMap<Key>, A> ma)
     {

@@ -9,7 +9,7 @@ namespace LanguageExt;
 public partial class IO : 
     Monad<IO>, 
     Fallible<IO>,
-    MonoidK<IO>
+    Alternative<IO>
 {
     public static IO<A> pure<A>(A value) => 
         IO<A>.Pure(value);
@@ -103,8 +103,8 @@ public partial class IO :
     static K<IO, A> MonoidK<IO>.Empty<A>() =>
         IO<A>.Empty;
 
-    static K<IO, A> SemigroupK<IO>.Combine<A>(K<IO, A> ma, K<IO, A> mb) => 
-        ma.As() | mb.As();
+    static K<IO, A> Choice<IO>.Choose<A>(K<IO, A> ma, K<IO, A> mb) =>
+        ma.As().Catch(_ => true, _ => mb);
 
     static K<IO, A> MonadIO<IO>.LiftIO<A>(IO<A> ma) => 
         ma;

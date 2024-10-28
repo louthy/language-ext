@@ -7,7 +7,7 @@ public class Option :
     Monad<Option>, 
     Fallible<Unit, Option>,
     Traversable<Option>, 
-    MonoidK<Option>
+    Alternative<Option>
 {
     static K<Option, B> Monad<Option>.Bind<A, B>(K<Option, A> ma, Func<A, K<Option, B>> f) =>
         ma.As().Bind(f);
@@ -47,7 +47,7 @@ public class Option :
     static K<Option, A> MonoidK<Option>.Empty<A>() =>
         None<A>();
 
-    static K<Option, A> SemigroupK<Option>.Combine<A>(K<Option, A> ma, K<Option, A> mb) =>
+    static K<Option, A> Choice<Option>.Choose<A>(K<Option, A> ma, K<Option, A> mb) =>
         ma.As() switch
         {
             { IsSome: true } => ma,

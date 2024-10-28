@@ -43,7 +43,7 @@ public static class FallibleExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Either `fa` or the result of `Fail` if `fa` is in a failed state and the
     /// predicate returns true for the failure value</returns>
-    public static K<M, A> Catch<M, A>(
+    public static K<M, A> CatchIO<M, A>(
         this K<M, A> ma,
         Func<Error, bool> Predicate,
         Func<Error, K<IO, A>> Fail) 
@@ -136,7 +136,7 @@ public static class FallibleExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Either `fa` or the result of `Fail` if `fa` is in a failed state and the
     /// predicate returns true for the failure value</returns>
-    public static K<M, A> Catch<M, A>(
+    public static K<M, A> CatchIO<M, A>(
         this K<M, A> ma,
         Error Match,
         Func<Error, K<IO, A>> Fail) 
@@ -213,7 +213,7 @@ public static class FallibleExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Either `fa` or the result of `Fail` if `fa` is in a failed state and the
     /// predicate returns true for the failure value</returns>
-    public static K<M, A> Catch<M, A>(
+    public static K<M, A> CatchIO<M, A>(
         this K<M, A> ma,
         int Code,
         Func<Error, K<IO, A>> Fail) 
@@ -304,7 +304,7 @@ public static class FallibleExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Either `fa` or the result of `Fail` if `fa` is in a failed state and the
     /// predicate returns true for the failure value</returns>
-    public static K<M, A> Catch<M, A>(
+    public static K<M, A> CatchIO<M, A>(
         this K<M, A> ma,
         Func<Error, K<IO, A>> Fail) 
         where M : Fallible<M>, Monad<M> =>

@@ -5,7 +5,10 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public partial class Seq : Monad<Seq>, MonoidK<Seq>, Traversable<Seq>
+public partial class Seq : 
+    Monad<Seq>, 
+    Alternative<Seq>, 
+    Traversable<Seq>
 {
     static K<Seq, B> Monad<Seq>.Bind<A, B>(K<Seq, A> ma, Func<A, K<Seq, B>> f)
     {
@@ -60,6 +63,9 @@ public partial class Seq : Monad<Seq>, MonoidK<Seq>, Traversable<Seq>
 
     static K<Seq, A> MonoidK<Seq>.Empty<A>() =>
         Seq<A>.Empty;
+
+    static K<Seq, A> Choice<Seq>.Choose<A>(K<Seq, A> ma, K<Seq, A> mb) => 
+        ma.As().IsEmpty ? mb : ma;
 
     static K<Seq, A> SemigroupK<Seq>.Combine<A>(K<Seq, A> ma, K<Seq, A> mb) =>
         ma.As() + mb.As();

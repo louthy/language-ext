@@ -344,23 +344,41 @@ public record TryT<M, A>(K<M, Try<A>> runTry) :
     public static implicit operator TryT<M, A>(IO<A> ma) =>
         LiftIO(ma);
     
-    public static TryT<M, A> operator |(TryT<M, A> lhs, TryT<M, A> rhs) =>
+    public static TryT<M, A> operator +(TryT<M, A> lhs, TryT<M, A> rhs) =>
         lhs.Combine(rhs);
 
-    public static TryT<M, A> operator |(K<TryT<M>, A> lhs, TryT<M, A> rhs) =>
+    public static TryT<M, A> operator +(K<TryT<M>, A> lhs, TryT<M, A> rhs) =>
         lhs.As().Combine(rhs);
 
-    public static TryT<M, A> operator |(TryT<M, A> lhs, K<TryT<M>, A> rhs) =>
+    public static TryT<M, A> operator +(TryT<M, A> lhs, K<TryT<M>, A> rhs) =>
         lhs.Combine(rhs.As());
 
-    public static TryT<M, A> operator |(TryT<M, A> ma, Pure<A> mb) =>
+    public static TryT<M, A> operator +(TryT<M, A> ma, Pure<A> mb) =>
         ma.Combine(mb);
+
+    public static TryT<M, A> operator +(TryT<M, A> ma, Fail<Error> mb) =>
+        ma.Combine(mb);
+
+    public static TryT<M, A> operator +(TryT<M, A> ma, Fail<Exception> mb) =>
+        ma.Combine(mb);
+    
+    public static TryT<M, A> operator |(TryT<M, A> lhs, TryT<M, A> rhs) =>
+        lhs.Choose(rhs).As();
+
+    public static TryT<M, A> operator |(K<TryT<M>, A> lhs, TryT<M, A> rhs) =>
+        lhs.As().Choose(rhs).As();
+
+    public static TryT<M, A> operator |(TryT<M, A> lhs, K<TryT<M>, A> rhs) =>
+        lhs.Choose(rhs.As()).As();
+
+    public static TryT<M, A> operator |(TryT<M, A> ma, Pure<A> mb) =>
+        ma.Choose(Succ(mb.Value)).As();
 
     public static TryT<M, A> operator |(TryT<M, A> ma, Fail<Error> mb) =>
-        ma.Combine(mb);
+        ma.Choose(Fail(mb.Value)).As();
 
     public static TryT<M, A> operator |(TryT<M, A> ma, Fail<Exception> mb) =>
-        ma.Combine(mb);
+        ma.Choose(Fail(mb.Value)).As();
 
     public static TryT<M, A> operator |(TryT<M, A> ma, CatchM<Error, TryT<M>, A> mb) =>
         (ma.Kind() | mb).As();

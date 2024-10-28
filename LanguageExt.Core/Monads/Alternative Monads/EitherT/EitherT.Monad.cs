@@ -10,7 +10,7 @@ namespace LanguageExt;
 public partial class EitherT<L, M> : 
     MonadT<EitherT<L, M>, M>, 
     Fallible<L, EitherT<L, M>>,
-    SemigroupK<EitherT<L, M>>
+    Choice<EitherT<L, M>>
     where M : Monad<M>
 {
     static K<EitherT<L, M>, B> Monad<EitherT<L, M>>.Bind<A, B>(K<EitherT<L, M>, A> ma, Func<A, K<EitherT<L, M>, B>> f) => 
@@ -34,15 +34,15 @@ public partial class EitherT<L, M> :
     static K<EitherT<L, M>, A> MonadIO<EitherT<L, M>>.LiftIO<A>(IO<A> ma) => 
         EitherT<L, M, A>.Lift(M.LiftIO(ma));
 
-    static K<EitherT<L, M>, A> SemigroupK<EitherT<L, M>>.Combine<A>(K<EitherT<L, M>, A> ma, K<EitherT<L, M>, A> mb) => 
+    static K<EitherT<L, M>, A> Choice<EitherT<L, M>>.Choose<A>(K<EitherT<L, M>, A> ma, K<EitherT<L, M>, A> mb) => 
         new EitherT<L, M, A>( 
             M.Bind(ma.As().runEither, 
-                ea => ea switch
-                      {
-                          Either.Right<L, A> => M.Pure(ea),
-                          Either.Left<L, A>  => mb.As().runEither,
-                          _                  => M.Pure(ea)
-                      }));
+                   ea => ea switch
+                         {
+                             Either.Right<L, A> => M.Pure(ea),
+                             Either.Left<L, A>  => mb.As().runEither,
+                             _                  => M.Pure(ea)
+                         }));
 
     static K<EitherT<L, M>, A> Fallible<L, EitherT<L, M>>.Fail<A>(L error) =>
         Left<A>(error);

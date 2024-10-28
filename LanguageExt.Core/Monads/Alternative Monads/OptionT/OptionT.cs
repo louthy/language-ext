@@ -440,19 +440,19 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) :
         select res;
     
     public static OptionT<M, A> operator |(OptionT<M, A> lhs, OptionT<M, A> rhs) =>
-        lhs.Combine(rhs).As();
+        lhs.Choose(rhs).As();
 
     public static OptionT<M, A> operator |(K<OptionT<M>, A> lhs, OptionT<M, A> rhs) =>
-        lhs.As().Combine(rhs).As();
+        lhs.As().Choose(rhs).As();
 
     public static OptionT<M, A> operator |(OptionT<M, A> lhs, K<OptionT<M>, A> rhs) =>
-        lhs.Combine(rhs).As();
+        lhs.Choose(rhs).As();
 
     public static OptionT<M, A> operator |(OptionT<M, A> ma, Pure<A> mb) =>
-        ma.Combine(pure<OptionT<M>, A>(mb.Value)).As();
+        ma.Choose(pure<OptionT<M>, A>(mb.Value)).As();
 
     public static OptionT<M, A> operator |(OptionT<M, A> ma, Fail<Unit> _) =>
-        ma.Combine(fail<Unit, OptionT<M>, A>(default)).As();
+        ma.Choose(fail<Unit, OptionT<M>, A>(default)).As();
 
     public static OptionT<M, A> operator |(OptionT<M, A> ma, CatchM<Unit, OptionT<M>, A> mb) =>
         (ma.Kind() | mb).As(); 

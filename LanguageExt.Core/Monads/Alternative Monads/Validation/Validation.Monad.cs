@@ -9,7 +9,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class Validation<FAIL> : 
     Monad<Validation<FAIL>>, 
-    MonoidK<Validation<FAIL>>,
+    Alternative<Validation<FAIL>>,
     Traversable<Validation<FAIL>>, 
     Fallible<FAIL, Validation<FAIL>> 
     where FAIL : Monoid<FAIL>
@@ -104,6 +104,16 @@ static K<Validation<FAIL>, B> Applicative<Validation<FAIL>>.Apply<A, B>(
                 Validation<FAIL, A>.Fail(e1.Combine(e2)),
             
             _ => mb
+        };
+
+    static K<Validation<FAIL>, A> Choice<Validation<FAIL>>.Choose<A>(
+        K<Validation<FAIL>, A> ma,
+        K<Validation<FAIL>, A> mb) =>
+        (ma, mb) switch
+        {
+            (Validation.Success<FAIL, A>, _) => ma,
+            (_, Validation.Success<FAIL, A>) => mb,
+            _                                => ma
         };
 
     static S Foldable<Validation<FAIL>>.FoldWhile<A, S>(

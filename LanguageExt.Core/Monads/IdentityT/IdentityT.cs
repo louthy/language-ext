@@ -9,7 +9,7 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="A">Bound value type</typeparam>
 public record IdentityT<M, A>(K<M, A> Value) : K<IdentityT<M>, A>
-    where M : Monad<M>, SemigroupK<M>
+    where M : Monad<M>, Choice<M>
 {
     public static IdentityT<M, A> Pure(A value) =>
         new (M.Pure(value));
@@ -103,4 +103,28 @@ public record IdentityT<M, A>(K<M, A> Value) : K<IdentityT<M>, A>
     /// <returns>Result of the first action</returns>
     public static IdentityT<M, A> operator >> (IdentityT<M, A> lhs, K<IdentityT<M>, Unit> rhs) =>
         lhs.Bind(x => rhs.Map(_ => x));
+
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    public static IdentityT<M, A> operator | (IdentityT<M, A> lhs, K<IdentityT<M>, A> rhs) =>
+        lhs.Choose(rhs).As();
+
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    public static IdentityT<M, A> operator | (K<IdentityT<M>, A> lhs, IdentityT<M, A> rhs) =>
+        lhs.Choose(rhs).As();
+
+    /// <summary>
+    /// Combine operator
+    /// </summary>
+    public static IdentityT<M, A> operator + (IdentityT<M, A> lhs, K<IdentityT<M>, A> rhs) =>
+        lhs.Combine(rhs).As();
+
+    /// <summary>
+    /// Combine operator
+    /// </summary>
+    public static IdentityT<M, A> operator + (K<IdentityT<M>, A> lhs, IdentityT<M, A> rhs) =>
+        lhs.Combine(rhs).As();
 }

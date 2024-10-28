@@ -553,6 +553,22 @@ public readonly struct Set<A> :
         Wrap(lhs.Value + rhs.Value);
 
     /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Set<A> operator |(Set<A> x, K<Set, A> y) =>
+        x.Choose(y).As();
+
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Set<A> operator |(K<Set, A> x, Set<A> y) =>
+        x.Choose(y).As();
+
+    /// <summary>
     /// Append performs a union of the two sets
     /// </summary>
     /// <param name="rhs">Right hand side set</param>

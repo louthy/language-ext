@@ -572,23 +572,23 @@ public abstract record Either<L, R> :
 
     [Pure, MethodImpl(Opt.Default)]
     public static Either<L, R> operator |(Either<L, R> lhs, Either<L, R> rhs) =>
-        lhs.Combine(rhs).As();
+        lhs.Choose(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static Either<L, R> operator |(K<Either<L>, R> lhs, Either<L, R> rhs) =>
-        lhs.As().Combine(rhs).As();
+        lhs.As().Choose(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static Either<L, R> operator |(Either<L, R> lhs, K<Either<L>, R> rhs) =>
-        lhs.Combine(rhs.As()).As();
+        lhs.Choose(rhs.As()).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static Either<L, R> operator |(Either<L, R> ma, Pure<R> mb) =>
-        ma.Combine(pure<Either<L>, R>(mb.Value)).As();
+        ma.Choose(pure<Either<L>, R>(mb.Value)).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static Either<L, R> operator |(Either<L, R> ma, Fail<L> mb) =>
-        ma.Combine(fail<L, Either<L>, R>(mb.Value)).As();
+        ma.Choose(fail<L, Either<L>, R>(mb.Value)).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static Either<L, R> operator |(Either<L, R> ma, CatchM<L, Either<L>, R> mb) =>

@@ -326,19 +326,19 @@ public readonly struct Option<A> :
     
     [Pure, MethodImpl(Opt.Default)]
     public static Option<A> operator |(K<Option, A> lhs, Option<A> rhs) =>
-        lhs.As().Combine(rhs).As();
+        lhs.As().Choose(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static Option<A> operator |(Option<A> lhs, K<Option, A> rhs) =>
-        lhs.Combine(rhs.As()).As();
+        lhs.Choose(rhs.As()).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static Option<A> operator |(Option<A> ma, Pure<A> mb) =>
-        ma.Combine(pure<Option, A>(mb.Value)).As();
+        ma.Choose(pure<Option, A>(mb.Value)).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static Option<A> operator |(Option<A> ma, Fail<Unit> mb) =>
-        ma.Combine(None).As();
+        ma.Choose(None).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static Option<A> operator |(Option<A> ma, CatchM<Unit, Option, A> mb) =>

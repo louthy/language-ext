@@ -14,7 +14,7 @@ namespace LanguageExt;
 /// <typeparam name="A">Bound value type</typeparam>
 public record RWST<R, W, S, M, A>(Func<(R Env, W Output, S State), K<M, (A Value, W Output, S State)>> runRWST): 
     K<RWST<R, W, S, M>, A>
-    where M : Monad<M>, SemigroupK<M>
+    where M : Monad<M>, Choice<M>
     where W : Monoid<W>
 {
     public static RWST<R, W, S, M, A> Pure(A value) =>
@@ -435,24 +435,90 @@ public record RWST<R, W, S, M, A>(Func<(R Env, W Output, S State), K<M, (A Value
     public static implicit operator RWST<R, W, S, M, A>(IO<A> ma) =>
         LiftIO(ma);
 
-    public static RWST<R, W, S, M, A> operator |(RWST<R, W, S, M, A> ma, RWST<R, W, S, M, A> mb) =>
-        RWST.combine(ma, mb);
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    public static RWST<R, W, S, M, A> operator |(RWST<R, W, S, M, A> ma, K<RWST<R, W, S, M>, A> mb) =>
+        ma.Choose(mb).As();
 
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    public static RWST<R, W, S, M, A> operator |(K<RWST<R, W, S, M>, A> ma, RWST<R, W, S, M, A> mb) =>
+        ma.Choose(mb).As();
+
+    /// <summary>
+    /// Choice operator
+    /// </summary>
     public static RWST<R, W, S, M, A> operator |(RWST<R, W, S, M, A> ma, Pure<A> mb) =>
-        RWST.combine(ma, Pure(mb.Value));
+        ma.Choose(Pure(mb.Value)).As();
 
+    /// <summary>
+    /// Choice operator
+    /// </summary>
     public static RWST<R, W, S, M, A> operator |(RWST<R, W, S, M, A> ma, Ask<R, A> mb) =>
-        RWST.combine(ma, mb);
+        ma.Choose(mb.ToRWST<W, S, M>()).As();
 
+    /// <summary>
+    /// Choice operator
+    /// </summary>
     public static RWST<R, W, S, M, A> operator |(Ask<R, A> ma, RWST<R, W, S, M, A> mb) =>
-        RWST.combine(ma, mb);
+        ma.ToRWST<W, S, M>().Choose(mb).As();
 
+    /// <summary>
+    /// Choice operator
+    /// </summary>
     public static RWST<R, W, S, M, A> operator |(RWST<R, W, S, M, A> ma, K<IO, A> mb) =>
-        RWST.combine(ma, mb);
+        ma.Choose(LiftIO(mb)).As();
 
+    /// <summary>
+    /// Choice operator
+    /// </summary>
     public static RWST<R, W, S, M, A> operator |(K<IO, A> ma, RWST<R, W, S, M, A> mb) =>
-        RWST.combine(ma, mb);
+        LiftIO(ma).Choose(mb).As();
+    
+    /// <summary>
+    /// Combine operator
+    /// </summary>
+    public static RWST<R, W, S, M, A> operator +(RWST<R, W, S, M, A> ma, K<RWST<R, W, S, M>, A> mb) =>
+        ma.Combine(mb).As();
 
+    /// <summary>
+    /// Combine operator
+    /// </summary>
+    public static RWST<R, W, S, M, A> operator +(K<RWST<R, W, S, M>, A> ma, RWST<R, W, S, M, A> mb) =>
+        ma.Combine(mb).As();
+
+    /// <summary>
+    /// Combine operator
+    /// </summary>
+    public static RWST<R, W, S, M, A> operator +(RWST<R, W, S, M, A> ma, Pure<A> mb) =>
+        ma.Combine(Pure(mb.Value)).As();
+
+    /// <summary>
+    /// Combine operator
+    /// </summary>
+    public static RWST<R, W, S, M, A> operator +(RWST<R, W, S, M, A> ma, Ask<R, A> mb) =>
+        ma.Combine(mb.ToRWST<W, S, M>()).As();
+
+    /// <summary>
+    /// Combine operator
+    /// </summary>
+    public static RWST<R, W, S, M, A> operator +(Ask<R, A> ma, RWST<R, W, S, M, A> mb) =>
+        ma.ToRWST<W, S, M>().Combine(mb).As();
+
+    /// <summary>
+    /// Combine operator
+    /// </summary>
+    public static RWST<R, W, S, M, A> operator +(RWST<R, W, S, M, A> ma, K<IO, A> mb) =>
+        ma.Combine(LiftIO(mb)).As();
+
+    /// <summary>
+    /// Combine operator
+    /// </summary>
+    public static RWST<R, W, S, M, A> operator +(K<IO, A> ma, RWST<R, W, S, M, A> mb) =>
+        LiftIO(ma).Combine(mb).As();
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Run the RWST

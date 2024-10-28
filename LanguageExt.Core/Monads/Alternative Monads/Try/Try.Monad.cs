@@ -10,7 +10,7 @@ namespace LanguageExt;
 public partial class Try : 
     Monad<Try>,
     Fallible<Try>, 
-    SemigroupK<Try>
+    Alternative<Try>
 {
     static K<Try, B> Monad<Try>.Bind<A, B>(K<Try, A> ma, Func<A, K<Try, B>> f) =>
         new Try<B>(() => ma.Run() switch
@@ -37,11 +37,22 @@ public partial class Try :
                              _                  => throw new NotSupportedException()
                          });
 
+    static K<Try, A> MonoidK<Try>.Empty<A>() =>
+        Try<A>.Fail(Error.Empty);
+
     static K<Try, A> SemigroupK<Try>.Combine<A>(K<Try, A> ma, K<Try, A> mb) =>
         new Try<A>(() => ma.Run() switch
                          {
                              Fin.Succ<A>(var x) => Fin<A>.Succ(x),
                              Fin.Fail<A> fa     => fa.Combine(mb.Run()).As(),
+                             _                  => throw new NotSupportedException()
+                         });
+
+    static K<Try, A> Choice<Try>.Choose<A>(K<Try, A> ma, K<Try, A> mb) =>
+        new Try<A>(() => ma.Run() switch
+                         {
+                             Fin.Succ<A>(var x) => Fin<A>.Succ(x),
+                             Fin.Fail<A>        => mb.Run(),
                              _                  => throw new NotSupportedException()
                          });
 

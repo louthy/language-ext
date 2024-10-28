@@ -11,7 +11,7 @@ namespace LanguageExt;
 public partial class TryT<M> : 
     Fallible<TryT<M>>, 
     MonadT<TryT<M>, M>, 
-    SemigroupK<TryT<M>>
+    Alternative<TryT<M>>
     where M : Monad<M>
 {
     static K<TryT<M>, B> Monad<TryT<M>>.Bind<A, B>(K<TryT<M>, A> ma, Func<A, K<TryT<M>, B>> f) => 
@@ -37,6 +37,9 @@ public partial class TryT<M> :
     static K<TryT<M>, A> MonadIO<TryT<M>>.LiftIO<A>(IO<A> ma) => 
         TryT<M, A>.Lift(M.LiftIO(ma));
 
+    static K<TryT<M>, A> MonoidK<TryT<M>>.Empty<A>() =>
+        Fail<A>(Error.Empty);
+ 
     static K<TryT<M>, A> SemigroupK<TryT<M>>.Combine<A>(K<TryT<M>, A> ma, K<TryT<M>, A> mb) =>
         new TryT<M, A>(ma.Run().Bind(
                            lhs => lhs switch
@@ -53,6 +56,15 @@ public partial class TryT<M> :
                                                        _                    => throw new NotSupportedException()
                                                    }),
                                       _ => throw new NotSupportedException()
+                                  }));
+
+    static K<TryT<M>, A> Choice<TryT<M>>.Choose<A>(K<TryT<M>, A> ma, K<TryT<M>, A> mb) =>
+        new TryT<M, A>(ma.Run().Bind(
+                           lhs => lhs switch
+                                  {
+                                      Fin.Succ<A> (var x) => M.Pure(Try.Succ(x)),
+                                      Fin.Fail<A>         => mb.As().runTry,
+                                      _                   => throw new NotSupportedException()
                                   }));
 
     static K<TryT<M>, A> Fallible<Error, TryT<M>>.Fail<A>(Error error) =>

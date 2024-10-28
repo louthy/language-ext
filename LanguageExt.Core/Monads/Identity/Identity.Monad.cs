@@ -4,12 +4,12 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 /// <summary>
-/// Identity module
+/// Identity trait implementation
 /// </summary>
 public class Identity : 
     Monad<Identity>, 
     Traversable<Identity>,
-    MonoidK<Identity>
+    Choice<Identity>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -98,9 +98,6 @@ public class Identity :
     //  Alternative
     //
 
-    static K<Identity, A> MonoidK<Identity>.Empty<A>() => 
-        throw new NotSupportedException("Identity<A> doesn't have Alternative support and can't therefore use Alternative.Empty");
-
-    static K<Identity, A> SemigroupK<Identity>.Combine<A>(K<Identity, A> ma, K<Identity, A> mb) => 
-        throw new NotSupportedException("Identity<A> doesn't have Alternative support and can't therefore use Alternative.Or");
+    static K<Identity, A> Choice<Identity>.Choose<A>(K<Identity, A> fa, K<Identity, A> fb) => 
+        fa;
 }

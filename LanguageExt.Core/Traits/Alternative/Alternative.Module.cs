@@ -7,20 +7,6 @@ namespace LanguageExt.Traits;
 public static class Alternative
 {
     /// <summary>
-    /// Where `F` defines some notion of failure or choice, this function picks the
-    /// first argument that succeeds.  So, if `fa` succeeds, then `fa` is returned;
-    /// if it fails, then `fb` is returned.
-    /// </summary>
-    /// <param name="fa">First structure to test</param>
-    /// <param name="fb">Second structure to return if the first one fails</param>
-    /// <typeparam name="F">Alternative structure type</typeparam>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <returns>First argument to succeed</returns>
-    public static K<F, A> choice<F, A>(K<F, A> fa, K<F, A> fb)
-        where F : Alternative<F> =>
-        F.Choice(fa, fb);
-    
-    /// <summary>
     /// Given a set of applicative functors, return the first one to succeed.
     /// </summary>
     /// <remarks>
@@ -45,7 +31,7 @@ public static class Alternative
         var r = ms[0];
         foreach (var m in ms.Tail)
         {
-            r = F.Choice(r, m);
+            r = F.Choose(r, m);
         }
         return r;
     }
@@ -71,7 +57,7 @@ public static class Alternative
         return some_v();
         
         K<F, Seq<A>> many_v() =>
-            F.Choice(some_v(), F.Pure(Seq<A>()));
+            F.Choose(some_v(), F.Pure(Seq<A>()));
 
         K<F, Seq<A>> some_v() =>
             Append<A>.cons.Map(fa).Apply(many_v);
@@ -97,7 +83,7 @@ public static class Alternative
         return many_v();
         
         K<F, Seq<A>> many_v() =>
-            F.Choice(some_v(), F.Pure(Seq<A>()));
+            F.Choose(some_v(), F.Pure(Seq<A>()));
 
         K<F, Seq<A>> some_v() =>
             Append<A>.cons.Map(fa).Apply(many_v);

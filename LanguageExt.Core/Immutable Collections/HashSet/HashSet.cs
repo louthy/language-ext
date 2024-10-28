@@ -469,6 +469,22 @@ public readonly struct HashSet<A> :
     public static HashSet<A> operator +(HashSet<A> lhs, HashSet<A> rhs) =>
         lhs.Combine(rhs);
 
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static HashSet<A> operator |(HashSet<A> x, K<HashSet, A> y) =>
+        x.Choose(y).As();
+
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static HashSet<A> operator |(K<HashSet, A> x, HashSet<A> y) =>
+        x.Choose(y).As();
+    
     [Pure]
     public HashSet<A> Combine(HashSet<A> rhs) =>
         Wrap(Value.Append(rhs.Value));

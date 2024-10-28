@@ -681,6 +681,22 @@ public struct Arr<A> :
     public static Arr<A> operator +(Arr<A> lhs, Arr<A> rhs) =>
         rhs.InsertRange(0, lhs);
 
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Arr<A> operator |(Arr<A> x, K<Arr, A> y) =>
+        x.Choose(y).As();
+
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Arr<A> operator |(K<Arr, A> x, Arr<A> y) =>
+        x.Choose(y).As();
+
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Arr<A> Combine(Arr<A> rhs) =>

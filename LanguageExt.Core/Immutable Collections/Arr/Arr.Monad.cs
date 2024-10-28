@@ -5,7 +5,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public partial class Arr : Monad<Arr>, MonoidK<Arr>, Traversable<Arr>
+public partial class Arr : Monad<Arr>, Traversable<Arr>, Alternative<Arr>
 {
     static K<Arr, B> Monad<Arr>.Bind<A, B>(K<Arr, A> ma, Func<A, K<Arr, B>> f)
     {
@@ -53,7 +53,10 @@ public partial class Arr : Monad<Arr>, MonoidK<Arr>, Traversable<Arr>
 
     static K<Arr, A> SemigroupK<Arr>.Combine<A>(K<Arr, A> ma, K<Arr, A> mb) =>
         ma.As() + mb.As();
-
+    
+    static K<Arr, A> Choice<Arr>.Choose<A>(K<Arr, A> ma, K<Arr, A> mb) => 
+        ma.IsEmpty() ? mb : ma;
+    
     static int Foldable<Arr>.Count<A>(K<Arr, A> ta) =>
         ta.As().Count;
 

@@ -106,7 +106,7 @@ public abstract record IO<A> :
         this.Catch(Fail).As();
     
     public IO<A> IfFail(Func<Error, IO<A>> Fail) =>
-        this.Catch(Fail).As();
+        this.CatchIO(Fail).As();
 
     public IO<A> IfFail(IO<A> Fail) =>
         this.Catch(Fail).As();
@@ -247,32 +247,32 @@ public abstract record IO<A> :
         Bind(x => bind(x).Map(y => project(x, y)));
 
     public OptionT<M, C> SelectMany<M, B, C>(Func<A, OptionT<M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, MonoidK<M> =>
+        where M : Monad<M>, Alternative<M> =>
         OptionT<M, A>.LiftIO(this).SelectMany(bind, project);
 
     public TryT<M, C> SelectMany<M, B, C>(Func<A, TryT<M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, MonoidK<M> =>
+        where M : Monad<M>, Alternative<M> =>
         TryT<M, A>.LiftIO(this).SelectMany(bind, project);
 
     public EitherT<L, M, C> SelectMany<L, M, B, C>(Func<A, EitherT<L, M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, MonoidK<M> =>
+        where M : Monad<M>, Alternative<M> =>
         EitherT<L, M, A>.LiftIO(this).SelectMany(bind, project);
 
     public FinT<M, C> SelectMany<M, B, C>(Func<A, FinT<M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, MonoidK<M> =>
+        where M : Monad<M>, Alternative<M> =>
         FinT<M, A>.LiftIO(this).SelectMany(bind, project);
 
     public ValidationT<F, M, C> SelectMany<F, M, B, C>(Func<A, ValidationT<F, M, B>> bind, Func<A, B, C> project)
         where F : Monoid<F>
-        where M : Monad<M>, MonoidK<M> =>
+        where M : Monad<M>, Alternative<M> =>
         ValidationT<F, M, A>.LiftIO(this).SelectMany(bind, project);
 
     public ReaderT<Env, M, C> SelectMany<Env, M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, MonoidK<M> =>
+        where M : Monad<M>, Alternative<M> =>
         ReaderT<Env, M, A>.LiftIO(this).SelectMany(bind, project);
 
     public StateT<S, M, C> SelectMany<S, M, B, C>(Func<A, StateT<S, M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, MonoidK<M> =>
+        where M : Monad<M>, Alternative<M> =>
         StateT<S, M, A>.LiftIO(this).SelectMany(bind, project);
 
     public Eff<C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>
@@ -290,16 +290,16 @@ public abstract record IO<A> :
     //
     
     public static IO<A> operator |(IO<A> lhs, IO<A> rhs) =>
-        lhs.Catch(rhs).As();
+        lhs.Choose(rhs).As();
 
     public static IO<A> operator |(IO<A> lhs, K<IO, A> rhs) => 
-        lhs.Catch(rhs).As();
+        lhs.Choose(rhs).As();
 
     public static IO<A> operator |(K<IO, A> lhs, IO<A> rhs) => 
-        lhs.Catch(rhs).As();
+        lhs.Choose(rhs).As();
 
     public static IO<A> operator |(IO<A> lhs, Pure<A> rhs) =>
-        lhs.Catch(rhs).As();
+        lhs.Choose(rhs.ToIO()).As();
 
     public static IO<A> operator |(IO<A> lhs, Fail<Error> rhs) =>
         lhs.Catch(rhs).As();
@@ -308,7 +308,7 @@ public abstract record IO<A> :
         lhs.Catch(rhs).As();
 
     public static IO<A> operator |(IO<A> lhs, A rhs) =>
-        lhs.Catch(rhs).As();
+        lhs.Choose(IO.pure(rhs)).As();
 
     /// <summary>
     /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
@@ -474,7 +474,7 @@ public abstract record IO<A> :
     /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
     /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
     public abstract A Run(EnvIO? envIO = null);
-
+    
     /// <summary>
     /// Run the `IO` monad to get its result.  Differs from `Run` in that it catches any exceptions and turns
     /// them into a `Fin<A>` result. 

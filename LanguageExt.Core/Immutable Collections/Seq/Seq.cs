@@ -864,13 +864,47 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Append operator
     /// </summary>
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> operator +(Seq<A> x, Seq<A> y) =>
         x.Concat(y);
 
     /// <summary>
+    /// Append operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Seq<A> operator +(Seq<A> x, K<Seq, A> y) =>
+        x.Concat(y.As());
+
+    /// <summary>
+    /// Append operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Seq<A> operator +(K<Seq, A> x, Seq<A> y) =>
+        x.As().Concat(y);
+
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Seq<A> operator |(Seq<A> x, K<Seq, A> y) =>
+        x.Choose(y).As();
+
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Seq<A> operator |(K<Seq, A> x, Seq<A> y) =>
+        x.Choose(y).As();
+
+    /// <summary>
     /// Ordering operator
     /// </summary>
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >(Seq<A> x, Seq<A> y) =>
         x.CompareTo(y) > 0;
@@ -878,6 +912,7 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Ordering operator
     /// </summary>
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >=(Seq<A> x, Seq<A> y) =>
         x.CompareTo(y) >= 0;
@@ -885,6 +920,7 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Ordering  operator
     /// </summary>
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(Seq<A> x, Seq<A> y) =>
         x.CompareTo(y) < 0;
@@ -892,6 +928,7 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Ordering  operator
     /// </summary>
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <=(Seq<A> x, Seq<A> y) =>
         x.CompareTo(y) <= 0;
@@ -899,6 +936,7 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Equality operator
     /// </summary>
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(Seq<A> x, Seq<A> y) =>
         x.Equals(y);
@@ -906,6 +944,7 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Non-equality operator
     /// </summary>
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(Seq<A> x, Seq<A> y) =>
         !(x == y);
@@ -913,6 +952,7 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Equality test
     /// </summary>
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool Equals(object? obj) =>
         obj switch

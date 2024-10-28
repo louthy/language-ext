@@ -629,34 +629,106 @@ public abstract record Validation<F, A> :
     public static bool operator !=(Pure<A> lhs, Validation<F, A> rhs) =>
         !(lhs == rhs);
 
+    /// <summary>
+    /// Combine operator: uses the underlying `F.Combine` to collect failures
+    /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Validation<F, A> operator |(Validation<F, A> lhs, Validation<F, A> rhs) =>
-        lhs.Catch<F, Validation<F>, A>(rhs).As();
+    public static Validation<F, A> operator +(Validation<F, A> lhs, Validation<F, A> rhs) =>
+        lhs.Combine(rhs).As();
 
+    /// <summary>
+    /// Combine operator: uses the underlying `F.Combine` to collect failures
+    /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Validation<F, A> operator |(K<Validation<F>, A> lhs, Validation<F, A> rhs) =>
-        lhs.Catch<F, Validation<F>, A>(rhs).As();
+    public static Validation<F, A> operator +(K<Validation<F>, A> lhs, Validation<F, A> rhs) =>
+        lhs.Combine(rhs).As();
 
+    /// <summary>
+    /// Combine operator: uses the underlying `F.Combine` to collect failures
+    /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Validation<F, A> operator |(Validation<F, A> lhs, K<Validation<F>, A> rhs) =>
+    public static Validation<F, A> operator +(Validation<F, A> lhs, K<Validation<F>, A> rhs) =>
         lhs.Combine(rhs.As()).As();
 
-    public static Validation<F, A> operator |(Validation<F, A> lhs, A rhs) => 
-        lhs.Catch<F, Validation<F>, A>(rhs).As();
+    /// <summary>
+    /// Combine operator: uses the underlying `F.Combine` to collect failures
+    /// </summary>
+    public static Validation<F, A> operator +(Validation<F, A> lhs, A rhs) => 
+        lhs.Combine(Success(rhs)).As();
 
+    /// <summary>
+    /// Combine operator: uses the underlying `F.Combine` to collect failures
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Validation<F, A> operator +(Validation<F, A> lhs, Pure<A> rhs) =>
+        lhs.Combine(Success(rhs.Value)).As();
+
+    /// <summary>
+    /// Combine operator: uses the underlying `F.Combine` to collect failures
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Validation<F, A> operator +(Validation<F, A> lhs, Fail<F> rhs) =>
+        lhs.Combine(Fail(rhs.Value)).As();
+
+    /// <summary>
+    /// Combine operator: uses the underlying `F.Combine` to collect failures
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Validation<F, A> operator +(Validation<F, A> lhs, F rhs) =>
+        lhs.Combine(Fail(rhs)).As();    
+    
+    /// <summary>
+    /// Choice operator: returns the first argument to succeed.  If both fail, then the last failure is returned.
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Validation<F, A> operator |(Validation<F, A> lhs, Validation<F, A> rhs) =>
+        lhs.Choose(rhs).As();
+
+    /// <summary>
+    /// Choice operator: returns the first argument to succeed.  If both fail, then the last failure is returned.
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Validation<F, A> operator |(K<Validation<F>, A> lhs, Validation<F, A> rhs) =>
+        lhs.Choose(rhs).As();
+
+    /// <summary>
+    /// Choice operator: returns the first argument to succeed.  If both fail, then the last failure is returned.
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Validation<F, A> operator |(Validation<F, A> lhs, K<Validation<F>, A> rhs) =>
+        lhs.Choose(rhs.As()).As();
+
+    /// <summary>
+    /// Choice operator: returns the first argument to succeed.  If both fail, then the last failure is returned.
+    /// </summary>
+    public static Validation<F, A> operator |(Validation<F, A> lhs, A rhs) => 
+        lhs.Choose(Success(rhs)).As();
+
+    /// <summary>
+    /// Choice operator: returns the first argument to succeed.  If both fail, then the last failure is returned.
+    /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Validation<F, A> operator |(Validation<F, A> lhs, Pure<A> rhs) =>
-        lhs.Catch<F, Validation<F>, A>(rhs).As();
+        lhs.Choose(Success(rhs.Value)).As();
 
+    /// <summary>
+    /// Choice operator: returns the first argument to succeed.  If both fail, then the last failure is returned.
+    /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Validation<F, A> operator |(Validation<F, A> lhs, Fail<F> rhs) =>
-        lhs.Catch(rhs).As();
+        lhs.Choose(Fail(rhs.Value)).As();
 
-    public static Validation<F, A> operator |(Validation<F, A> lhs, CatchM<F, Validation<F>, A> rhs) =>
-        lhs.Catch(rhs).As();
-
+    /// <summary>
+    /// Choice operator: returns the first argument to succeed.  If both fail, then the last failure is returned.
+    /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Validation<F, A> operator |(Validation<F, A> lhs, F rhs) =>
+        lhs.Choose(Fail(rhs)).As();
+
+    /// <summary>
+    /// Catch operator: returns the first argument if it to succeeds. Otherwise, the `F` failure is mapped.
+    /// </summary>
+    public static Validation<F, A> operator |(Validation<F, A> lhs, CatchM<F, Validation<F>, A> rhs) =>
         lhs.Catch(rhs).As();
     
     /// <summary>
@@ -721,20 +793,6 @@ public abstract record Validation<F, A> :
             _ => 
                 rhs.FailValue
         };
-
-    /// <summary>
-    /// Override of the Or operator to be a Left coalescing operator
-    /// </summary>
-    [Pure]
-    public static Validation<F, Seq<A>> operator &(Validation<F, A> lhs, Pure<A> rhs) =>
-        lhs & (Validation<F, A>)rhs;
-
-    /// <summary>
-    /// Override of the Or operator to be a Left coalescing operator
-    /// </summary>
-    [Pure]
-    public static Validation<F, Seq<A>> operator &(Validation<F, A> lhs, Fail<F> rhs) =>
-        lhs & (Validation<F, A>)rhs;
 
     /// <summary>
     /// Override of the True operator to return True if the Either is Right

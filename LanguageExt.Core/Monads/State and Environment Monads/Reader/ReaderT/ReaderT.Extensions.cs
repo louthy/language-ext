@@ -14,7 +14,7 @@ public static partial class ReaderTExtensions
      //    (Reader<Env, A>)ma;
     
     public static ReaderT<Env, M, A> As<Env, M, A>(this K<ReaderT<Env, M>, A> ma)
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         (ReaderT<Env, M, A>)ma;
 
     /// <summary>
@@ -23,7 +23,7 @@ public static partial class ReaderTExtensions
     /// <param name="env">Input environment</param>
     /// <returns>Bound monad</returns>
     public static K<M, A> Run<Env, M, A>(this K<ReaderT<Env, M>, A> ma, Env env)
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         ((ReaderT<Env, M, A>)ma).runReader(env);
     
     /// <summary>
@@ -31,7 +31,7 @@ public static partial class ReaderTExtensions
     /// </summary>
     [Pure]
     public static ReaderT<Env, M, A> Flatten<Env, M, A>(this ReaderT<Env, M, ReaderT<Env, M, A>> mma)
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         mma.Bind(identity);
     
     /// <summary>
@@ -39,7 +39,7 @@ public static partial class ReaderTExtensions
     /// </summary>
     [Pure]
     public static ReaderT<Env, M, A> Flatten<Env, M, A>(this ReaderT<Env, M, K<ReaderT<Env, M>, A>> mma)
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         mma.Bind(identity);
 
     /// <summary>
@@ -54,7 +54,7 @@ public static partial class ReaderTExtensions
         this K<M, A> ma, 
         Func<A, K<ReaderT<Env, M>, B>> bind, 
         Func<A, B, C> project)
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         ReaderT<Env, M, A>.Lift(ma).SelectMany(bind, project);
 
     /// <summary>
@@ -69,6 +69,6 @@ public static partial class ReaderTExtensions
         this K<M, A> ma, 
         Func<A, ReaderT<Env, M, B>> bind, 
         Func<A, B, C> project)
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         ReaderT<Env, M, A>.Lift(ma).SelectMany(bind, project);
 }

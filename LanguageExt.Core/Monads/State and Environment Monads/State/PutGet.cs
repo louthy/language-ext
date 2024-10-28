@@ -26,7 +26,7 @@ public readonly record struct Put<S>(S Value)
     /// Convert to a `StateT`
     /// </summary>
     public StateT<S, M, Unit> ToStateT<M>()
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         Stateful.put<StateT<S, M>, S>(Value).As();
     
     /// <summary>
@@ -39,14 +39,14 @@ public readonly record struct Put<S>(S Value)
     /// Monadic bind
     /// </summary>
     public StateT<S, M, C> SelectMany<M, B, C>(Func<Unit, StateT<S, M, B>> bind, Func<Unit, B, C> project)
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         ToStateT<M>().SelectMany(bind, project);
 
     /// <summary>
     /// Monadic bind
     /// </summary>
     public StateT<S, M, C> SelectMany<M, B, C>(Func<Unit, K<StateT<S, M>, B>> bind, Func<Unit, B, C> project)
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         ToStateT<M>().SelectMany(bind, project);
 
     /// <summary>
@@ -66,7 +66,7 @@ public readonly record struct Put<S>(S Value)
     /// </summary>
     public RWST<R, W, S, M, C> SelectMany<R, W, M, B, C>(Func<Unit, RWST<R, W, S, M, B>> bind, Func<Unit, B, C> project) 
         where W : Monoid<W>
-        where M : Stateful<M, S>, Monad<M>, SemigroupK<M> =>
+        where M : Stateful<M, S>, Monad<M>, Choice<M> =>
         ToStateful<RWST<R, W, S, M>>().SelectMany(bind, project).As();
 
     /// <summary>
@@ -74,7 +74,7 @@ public readonly record struct Put<S>(S Value)
     /// </summary>
     public RWST<R, W, S, M, C> SelectMany<R, W, M, B, C>(Func<Unit, K<RWST<R, W, S, M>, B>> bind, Func<Unit, B, C> project) 
         where W : Monoid<W>
-        where M : Stateful<M, S>, Monad<M>, SemigroupK<M> =>
+        where M : Stateful<M, S>, Monad<M>, Choice<M> =>
         ToStateful<RWST<R, W, S, M>>().SelectMany(bind, project).As();
 }
 
@@ -101,7 +101,7 @@ public readonly record struct Modify<S>(Func<S, S> f)
     /// Convert to a `StateT`
     /// </summary>
     public StateT<S, M, Unit> ToStateT<M>()
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         StateT<S, M, Unit>.Modify(f);
     
     /// <summary>
@@ -114,14 +114,14 @@ public readonly record struct Modify<S>(Func<S, S> f)
     /// Monadic bind
     /// </summary>
     public StateT<S, M, C> SelectMany<M, B, C>(Func<Unit, StateT<S, M, B>> bind, Func<Unit, B, C> project)
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         ToStateT<M>().SelectMany(bind, project);
 
     /// <summary>
     /// Monadic bind
     /// </summary>
     public StateT<S, M, C> SelectMany<M, B, C>(Func<Unit, K<StateT<S, M>, B>> bind, Func<Unit, B, C> project)
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         ToStateT<M>().SelectMany(bind, project);
 
     /// <summary>
@@ -141,7 +141,7 @@ public readonly record struct Modify<S>(Func<S, S> f)
     /// </summary>
     public RWST<R, W, S, M, C> SelectMany<R, W, M, B, C>(Func<Unit, RWST<R, W, S, M, B>> bind, Func<Unit, B, C> project) 
         where W : Monoid<W>
-        where M : Stateful<M, S>, Monad<M>, SemigroupK<M> =>
+        where M : Stateful<M, S>, Monad<M>, Choice<M> =>
         ToStateful<RWST<R, W, S, M>>().SelectMany(bind, project).As();
 
     /// <summary>
@@ -149,7 +149,7 @@ public readonly record struct Modify<S>(Func<S, S> f)
     /// </summary>
     public RWST<R, W, S, M, C> SelectMany<R, W, M, B, C>(Func<Unit, K<RWST<R, W, S, M>, B>> bind, Func<Unit, B, C> project) 
         where W : Monoid<W>
-        where M : Stateful<M, S>, Monad<M>, SemigroupK<M> =>
+        where M : Stateful<M, S>, Monad<M>, Choice<M> =>
         ToStateful<RWST<R, W, S, M>>().SelectMany(bind, project).As();
 }
 
@@ -177,7 +177,7 @@ public readonly record struct Gets<S, A>(Func<S, A> f)
     /// Convert ot a `StateT`
     /// </summary>
     public StateT<S, M, A> ToStateT<M>()
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         StateT<S, M, A>.Gets(f);
     
     /// <summary>
@@ -190,14 +190,14 @@ public readonly record struct Gets<S, A>(Func<S, A> f)
     /// Monadic bind
     /// </summary>
     public StateT<S, M, C> SelectMany<M, B, C>(Func<A, StateT<S, M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         ToStateT<M>().SelectMany(bind, project);
 
     /// <summary>
     /// Monadic bind
     /// </summary>
     public StateT<S, M, C> SelectMany<M, B, C>(Func<A, K<StateT<S, M>, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         ToStateT<M>().SelectMany(bind, project);
 
     /// <summary>
@@ -217,7 +217,7 @@ public readonly record struct Gets<S, A>(Func<S, A> f)
     /// </summary>
     public RWST<R, W, S, M, C> SelectMany<R, W, M, B, C>(Func<A, RWST<R, W, S, M, B>> bind, Func<A, B, C> project) 
         where W : Monoid<W>
-        where M : Stateful<M, S>, Monad<M>, SemigroupK<M> =>
+        where M : Stateful<M, S>, Monad<M>, Choice<M> =>
         ToStateful<RWST<R, W, S, M>>().SelectMany(bind, project).As();
 
     /// <summary>
@@ -225,6 +225,6 @@ public readonly record struct Gets<S, A>(Func<S, A> f)
     /// </summary>
     public RWST<R, W, S, M, C> SelectMany<R, W, M, B, C>(Func<A, K<RWST<R, W, S, M>, B>> bind, Func<A, B, C> project) 
         where W : Monoid<W>
-        where M : Stateful<M, S>, Monad<M>, SemigroupK<M> =>
+        where M : Stateful<M, S>, Monad<M>, Choice<M> =>
         ToStateful<RWST<R, W, S, M>>().SelectMany(bind, project).As();
 }

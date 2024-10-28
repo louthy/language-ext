@@ -6,8 +6,10 @@ namespace LanguageExt;
 /// <summary>
 /// Identity module
 /// </summary>
-public class IdentityT<M> : MonadT<IdentityT<M>, M>, SemigroupK<IdentityT<M>>
-    where M : Monad<M>, SemigroupK<M>
+public class IdentityT<M> : 
+    MonadT<IdentityT<M>, M>, 
+    Choice<IdentityT<M>> 
+    where M : Monad<M>, Choice<M>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -56,5 +58,8 @@ public class IdentityT<M> : MonadT<IdentityT<M>, M>, SemigroupK<IdentityT<M>>
         new IdentityT<M, IO<A>>(ma.As().Value.ToIO()); 
 
     static K<IdentityT<M>, A> SemigroupK<IdentityT<M>>.Combine<A>(K<IdentityT<M>, A> ma, K<IdentityT<M>, A> mb) =>
+        new IdentityT<M, A>(M.Combine(ma.As().Value, mb.As().Value));
+
+    static K<IdentityT<M>, A> Choice<IdentityT<M>>.Choose<A>(K<IdentityT<M>, A> ma, K<IdentityT<M>, A> mb) =>
         new IdentityT<M, A>(M.Combine(ma.As().Value, mb.As().Value));
 }

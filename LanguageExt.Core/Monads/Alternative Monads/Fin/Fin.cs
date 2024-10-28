@@ -199,28 +199,52 @@ public abstract class Fin<A> :
         ma.FailValue;
 
     [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator |(Fin<A> lhs, Fin<A> rhs) =>
+    public static Fin<A> operator +(Fin<A> lhs, Fin<A> rhs) =>
         lhs.Combine(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator |(K<Fin, A> lhs, Fin<A> rhs) =>
+    public static Fin<A> operator +(K<Fin, A> lhs, Fin<A> rhs) =>
         lhs.As().Combine(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator |(Fin<A> lhs, K<Fin, A> rhs) =>
+    public static Fin<A> operator +(Fin<A> lhs, K<Fin, A> rhs) =>
         lhs.Combine(rhs.As()).As();
 
     [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator |(Fin<A> ma, Pure<A> mb) =>
+    public static Fin<A> operator +(Fin<A> ma, Pure<A> mb) =>
         ma.Combine(pure<Fin, A>(mb.Value)).As();
 
     [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator |(Fin<A> ma, Fail<Error> mb) =>
+    public static Fin<A> operator +(Fin<A> ma, Fail<Error> mb) =>
         ma.Combine(fail<Error, Fin, A>(mb.Value)).As();
 
     [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator |(Fin<A> ma, Fail<Exception> mb) =>
+    public static Fin<A> operator +(Fin<A> ma, Fail<Exception> mb) =>
         ma.Combine(fail<Error, Fin, A>(mb.Value)).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Fin<A> operator |(Fin<A> lhs, Fin<A> rhs) =>
+        lhs.Choose(rhs).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Fin<A> operator |(K<Fin, A> lhs, Fin<A> rhs) =>
+        lhs.As().Choose(rhs).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Fin<A> operator |(Fin<A> lhs, K<Fin, A> rhs) =>
+        lhs.Choose(rhs.As()).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Fin<A> operator |(Fin<A> ma, Pure<A> mb) =>
+        ma.Choose(pure<Fin, A>(mb.Value)).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Fin<A> operator |(Fin<A> ma, Fail<Error> mb) =>
+        ma.Choose(fail<Error, Fin, A>(mb.Value)).As();
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static Fin<A> operator |(Fin<A> ma, Fail<Exception> mb) =>
+        ma.Choose(fail<Error, Fin, A>(mb.Value)).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static Fin<A> operator |(Fin<A> ma, CatchM<Error, Fin, A> mb) =>

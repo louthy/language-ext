@@ -17,6 +17,11 @@ public static partial class ValidationTExtensions
         where L : Monoid<L> =>
         (ValidationT<L, M, A>)ma;
     
+    public static K<M, Validation<L, A>> Run<L, M, A>(this K<ValidationT<L, M>, A> ma)
+        where M : Monad<M>
+        where L : Monoid<L> =>
+        ((ValidationT<L, M, A>)ma).Run();
+    
     /// <summary>
     /// Monadic join
     /// </summary>

@@ -11,7 +11,7 @@ namespace LanguageExt;
 public partial class FinT<M> : 
     MonadT<FinT<M>, M>, 
     Fallible<FinT<M>>,
-    SemigroupK<FinT<M>>
+    Alternative<FinT<M>>
     where M : Monad<M>
 {
     static K<FinT<M>, B> Monad<FinT<M>>.Bind<A, B>(K<FinT<M>, A> ma, Func<A, K<FinT<M>, B>> f) => 
@@ -40,6 +40,9 @@ public partial class FinT<M> :
     static K<FinT<M>, A> MonadIO<FinT<M>>.LiftIO<A>(IO<A> ma) => 
         FinT<M, A>.Lift(M.LiftIO(ma));
 
+    static K<FinT<M>, A> MonoidK<FinT<M>>.Empty<A>() =>
+        FinT.Fail<M, A>(Error.Empty);
+
     static K<FinT<M>, A> SemigroupK<FinT<M>>.Combine<A>(K<FinT<M>, A> ma, K<FinT<M>, A> mb) =>
         new FinT<M, A>(
             M.Bind(ma.As().runFin,
@@ -47,6 +50,16 @@ public partial class FinT<M> :
                          {
                              Fin.Succ<A> => M.Pure(ea),
                              Fin.Fail<A> => mb.As().runFin.Map(fb => ea.Combine(fb).As()),
+                             _           => M.Pure(ea)
+                         }));
+
+    static K<FinT<M>, A> Choice<FinT<M>>.Choose<A>(K<FinT<M>, A> ma, K<FinT<M>, A> mb) =>
+        new FinT<M, A>(
+            M.Bind(ma.As().runFin,
+                   ea => ea switch
+                         {
+                             Fin.Succ<A> => M.Pure(ea),
+                             Fin.Fail<A> => mb.As().runFin,
                              _           => M.Pure(ea)
                          }));
 

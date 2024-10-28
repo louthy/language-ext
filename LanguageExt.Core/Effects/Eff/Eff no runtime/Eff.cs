@@ -18,10 +18,10 @@ namespace LanguageExt;
 /// <typeparam name="A">Bound value type</typeparam>
 public record Eff<A>(Eff<MinRT, A> effect) :
     Readable<Eff<A>, A>,
-    MonoidK<Eff<A>>,
     Monad<Eff<A>>,
     Fallible<Eff<A>>,
-    Fallible<Eff<A>, Eff, Error, A>
+    Fallible<Eff<A>, Eff, Error, A>,
+    Alternative<Eff<A>>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -574,7 +574,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> operator |(Eff<A> ma, Eff<A> mb) =>
-        ma.Catch(mb).As();
+        ma.Choose(mb).As();
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
@@ -585,7 +585,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> operator |(K<Eff, A> ma, Eff<A> mb) =>
-        ma.Catch(mb).As();
+        ma.Choose(mb).As();
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
@@ -596,7 +596,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> operator |(Eff<A> ma, K<Eff, A> mb) =>
-        ma.Catch(mb).As();
+        ma.Choose(mb).As();
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
@@ -607,7 +607,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> operator |(Eff<A> ma, Pure<A> mb) =>
-        ma.Catch(mb).As();
+        ma.Choose(mb.ToEff()).As();
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
@@ -700,8 +700,8 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     static K<Eff<A>, T> MonoidK<Eff<A>>.Empty<T>() =>
         Eff<A, T>.Fail(Errors.None);
 
-    static K<Eff<A>, T> SemigroupK<Eff<A>>.Combine<T>(K<Eff<A>, T> ma, K<Eff<A>, T> mb) =>
-        new Eff<A, T>(ma.As().effect.Combine(mb.As().effect).As());
+    static K<Eff<A>, T> Choice<Eff<A>>.Choose<T>(K<Eff<A>, T> ma, K<Eff<A>, T> mb) => 
+        new Eff<A, T>(ma.As().effect.Choose(mb.As().effect).As());
 
     static K<Eff<A>, T> Readable<Eff<A>, A>.Asks<T>(Func<A, T> f) =>
         new Eff<A, T>(ReaderT.asks<IO, T, A>(f));

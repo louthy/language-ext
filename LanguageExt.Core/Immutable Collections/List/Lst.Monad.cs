@@ -5,7 +5,10 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public class Lst : Monad<Lst>, MonoidK<Lst>, Traversable<Lst>
+public class Lst : 
+    Monad<Lst>, 
+    Alternative<Lst>, 
+    Traversable<Lst>
 {
     static K<Lst, B> Monad<Lst>.Bind<A, B>(K<Lst, A> ma, Func<A, K<Lst, B>> f)
     {
@@ -60,6 +63,9 @@ public class Lst : Monad<Lst>, MonoidK<Lst>, Traversable<Lst>
 
     static K<Lst, A> SemigroupK<Lst>.Combine<A>(K<Lst, A> ma, K<Lst, A> mb) => 
         ma.As() + mb.As();
+
+    static K<Lst, A> Choice<Lst>.Choose<A>(K<Lst, A> ma, K<Lst, A> mb) => 
+        ma.IsEmpty() ? mb : ma;
 
     static K<F, K<Lst, B>> Traversable<Lst>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Lst, A> ta)
     {

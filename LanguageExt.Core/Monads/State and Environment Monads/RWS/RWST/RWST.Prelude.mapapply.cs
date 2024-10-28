@@ -17,7 +17,7 @@ public static partial class Prelude
     /// <returns>Mapped functor</returns>
     public static RWST<R, W, S, M, B> map<R, W, S, M, A, B>(Func<A, B> f, K<RWST<R, W, S, M>, A> ma)
         where W : Monoid<W>
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         Functor.map(f, ma).As();
 
     /// <summary>
@@ -25,7 +25,7 @@ public static partial class Prelude
     /// </summary>
     public static RWST<R, W, S, M, B> action<R, W, S, M, A, B>(K<RWST<R, W, S, M>, A> ma, K<RWST<R, W, S, M>, B> mb)
         where W : Monoid<W>
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         Applicative.action(ma, mb).As();
 
     /// <summary>
@@ -40,6 +40,6 @@ public static partial class Prelude
     /// <returns>Mapped applicative functor</returns>
     public static RWST<R, W, S, M, B> apply<R, W, S, M, A, B>(K<RWST<R, W, S, M>, Func<A, B>> mf, K<RWST<R, W, S, M>, A> ma)
         where W : Monoid<W>
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         Applicative.apply(mf, ma).As();
 }    

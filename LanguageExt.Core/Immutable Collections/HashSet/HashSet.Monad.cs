@@ -5,7 +5,10 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public partial class HashSet : Monad<HashSet>, MonoidK<HashSet>, Traversable<HashSet>
+public partial class HashSet : 
+    Monad<HashSet>, 
+    Alternative<HashSet>, 
+    Traversable<HashSet>
 {
     static K<HashSet, B> Monad<HashSet>.Bind<A, B>(K<HashSet, A> ma, Func<A, K<HashSet, B>> f)
     {
@@ -60,6 +63,9 @@ public partial class HashSet : Monad<HashSet>, MonoidK<HashSet>, Traversable<Has
 
     static K<HashSet, A> SemigroupK<HashSet>.Combine<A>(K<HashSet, A> ma, K<HashSet, A> mb) =>
         ma.As() + mb.As();
+    
+    static K<HashSet, A> Choice<HashSet>.Choose<A>(K<HashSet, A> ma, K<HashSet, A> mb) => 
+        ma.IsEmpty() ? mb : ma;
     
     static bool Foldable<HashSet>.Contains<EqA, A>(A value, K<HashSet, A> ta) =>
         ta.As().Contains(value);

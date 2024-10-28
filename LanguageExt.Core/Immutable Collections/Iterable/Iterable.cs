@@ -644,6 +644,22 @@ public class Iterable<A> :
         x.Concat(y);
 
     /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Iterable<A> operator |(Iterable<A> x, K<Iterable, A> y) =>
+        x.Choose(y).As();
+
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Iterable<A> operator |(K<Iterable, A> x, Iterable<A> y) =>
+        x.Choose(y).As();
+
+    /// <summary>
     /// Ordering operator
     /// </summary>
     [Pure]

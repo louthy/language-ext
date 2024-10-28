@@ -9,6 +9,7 @@ namespace LanguageExt;
 /// <typeparam name="Env">Reader environment type</typeparam>
 public partial class Reader<Env> : 
     Monad<Reader<Env>>,
+    Choice<Reader<Env>>,
     Readable<Reader<Env>, Env> 
 {
     static K<Reader<Env>, B> Monad<Reader<Env>>.Bind<A, B>(K<Reader<Env>, A> ma, Func<A, K<Reader<Env>, B>> f) => 
@@ -34,4 +35,7 @@ public partial class Reader<Env> :
 
     static K<Reader<Env>, A> Readable<Reader<Env>, Env>.Local<A>(Func<Env, Env> f, K<Reader<Env>, A> ma) =>
         ma.As().Local(f);
+
+    static K<Reader<Env>, A> Choice<Reader<Env>>.Choose<A>(K<Reader<Env>, A> ma, K<Reader<Env>, A> mb) =>
+        ma;
 }

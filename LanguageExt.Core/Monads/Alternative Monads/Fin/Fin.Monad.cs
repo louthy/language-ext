@@ -8,7 +8,7 @@ public partial class Fin :
     Monad<Fin>, 
     Fallible<Fin>,
     Traversable<Fin>, 
-    MonoidK<Fin>
+    Alternative<Fin>
 {
     static K<Fin, B> Monad<Fin>.Bind<A, B>(K<Fin, A> ma, Func<A, K<Fin, B>> f) =>
         ma switch
@@ -91,6 +91,13 @@ public partial class Fin :
                                     _                => mb
                                 },
             _                => ma
+        };
+
+    static K<Fin, A> Choice<Fin>.Choose<A>(K<Fin, A> ma, K<Fin, A> mb) =>
+        ma switch
+        {
+            Succ<A> => ma,
+            _       => mb
         };
     
     static K<Fin, A> ConsSucc<A>(A value) =>

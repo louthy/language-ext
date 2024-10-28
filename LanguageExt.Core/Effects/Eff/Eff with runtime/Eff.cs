@@ -663,7 +663,7 @@ public record Eff<RT, A>(ReaderT<RT, IO, A> effect) :
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, Eff<RT, A> mb) =>
-        ma.Catch(mb).As();
+        ma.Choose(mb).As();
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
@@ -674,7 +674,7 @@ public record Eff<RT, A>(ReaderT<RT, IO, A> effect) :
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, K<Eff<RT>, A> mb) =>
-        ma.Catch(mb).As();
+        ma.Choose(mb).As();
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
@@ -685,7 +685,7 @@ public record Eff<RT, A>(ReaderT<RT, IO, A> effect) :
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(K<Eff<RT>, A> ma, Eff<RT, A> mb) =>
-        ma.Catch(mb).As();
+        ma.Choose(mb).As();
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
@@ -696,7 +696,7 @@ public record Eff<RT, A>(ReaderT<RT, IO, A> effect) :
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, Pure<A> mb) =>
-        ma.Catch(mb).As();
+        ma.Choose(mb.ToEff<RT>()).As();
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
@@ -730,7 +730,6 @@ public record Eff<RT, A>(ReaderT<RT, IO, A> effect) :
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(Eff<RT, A> ma, A value) =>
         ma.Catch(value).As();
-
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise, return the

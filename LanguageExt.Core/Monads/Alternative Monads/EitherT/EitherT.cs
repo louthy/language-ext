@@ -495,30 +495,30 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
 
     [Pure, MethodImpl(Opt.Default)]
     public static EitherT<L, M, R> operator |(EitherT<L, M, R> lhs, EitherT<L, M, R> rhs) =>
-        lhs.Combine(rhs).As();
+        lhs.Choose(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static EitherT<L, M, R> operator |(K<EitherT<L, M>, R> lhs, EitherT<L, M, R> rhs) =>
-        lhs.As().Combine(rhs).As();
+        lhs.As().Choose(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static EitherT<L, M, R> operator |(EitherT<L, M, R> lhs, K<EitherT<L, M>, R> rhs) =>
-        lhs.Combine(rhs.As()).As();
+        lhs.Choose(rhs.As()).As();
 
     public static EitherT<L, M, R> operator |(EitherT<L, M, R> ma, R b) => 
-        ma.Combine(pure<EitherT<L, M>, R>(b)).As();
+        ma.Choose(pure<EitherT<L, M>, R>(b)).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static EitherT<L, M, R> operator |(EitherT<L, M, R> ma, Pure<R> mb) =>
-        ma.Combine(pure<EitherT<L, M>, R>(mb.Value)).As();
+        ma.Choose(pure<EitherT<L, M>, R>(mb.Value)).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static EitherT<L, M, R> operator |(EitherT<L, M, R> ma, Fail<L> mb) =>
-        ma.Combine(fail<L, EitherT<L, M>, R>(mb.Value)).As();
+        ma.Choose(fail<L, EitherT<L, M>, R>(mb.Value)).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static EitherT<L, M, R> operator |(EitherT<L, M, R> ma, L mb) =>
-        ma.Combine(fail<L, EitherT<L, M>, R>(mb)).As();
+        ma.Choose(fail<L, EitherT<L, M>, R>(mb)).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static EitherT<L, M, R> operator |(EitherT<L, M, R> ma, CatchM<L, EitherT<L, M>, R> mb) =>

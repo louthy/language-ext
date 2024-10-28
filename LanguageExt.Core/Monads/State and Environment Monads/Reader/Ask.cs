@@ -33,7 +33,7 @@ public readonly record struct Ask<Env, A>(Func<Env, A> F)
     /// Convert to a `ReaderT`
     /// </summary>
     public ReaderT<Env, M, A> ToReaderT<M>()
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         ToReadable<ReaderT<Env, M>>().As();
     
     /// <summary>
@@ -47,28 +47,28 @@ public readonly record struct Ask<Env, A>(Func<Env, A> F)
     /// </summary>
     public RWST<Env, W, S, M, A> ToRWST<W, S, M>()
         where W : Monoid<W>
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         ToReadable<RWST<Env, W, S, M>>().As();
     
     /// <summary>
     /// Monadic bind with any `Reader`
     /// </summary>
     public K<M, C> SelectMany<M, B, C>(Func<A, K<M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, SemigroupK<M>, Readable<M, Env> =>
+        where M : Monad<M>, Choice<M>, Readable<M, Env> =>
         M.Bind(M.Asks(F), x => M.Map(y => project(x, y), bind(x)));
     
     /// <summary>
     /// Monadic bind with `ReaderT`
     /// </summary>
     public ReaderT<Env, M, C> SelectMany<M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         ToReaderT<M>().SelectMany(bind, project);
     
     /// <summary>
     /// Monadic bind with `ReaderT`
     /// </summary>
     public ReaderT<Env, M, C> SelectMany<M, B, C>(Func<A, K<ReaderT<Env, M>, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         ToReaderT<M>().SelectMany(bind, project);
 
     /// <summary>
@@ -95,7 +95,7 @@ public readonly record struct Ask<Env, A>(Func<Env, A> F)
         Func<A, RWST<Env, W, S, M, B>> bind, 
         Func<A, B, C> project)
         where W : Monoid<W>
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         RWST<Env, W, S, M, A>.Asks(F).SelectMany(bind, project);    
 
     /// <summary>
@@ -110,7 +110,7 @@ public readonly record struct Ask<Env, A>(Func<Env, A> F)
         Func<A, K<RWST<Env, W, S, M>, B>> bind, 
         Func<A, B, C> project)
         where W : Monoid<W>
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         RWST<Env, W, S, M, A>.Asks(F).SelectMany(bind, project);      
 }
 
@@ -123,6 +123,6 @@ public static class AskExtensions
         this K<M, A> ma,
         Func<A, Ask<Env, B>> bind,
         Func<A, B, C> project)
-        where M : Monad<M>, SemigroupK<M>, Readable<M, Env> =>
+        where M : Monad<M>, Choice<M>, Readable<M, Env> =>
         M.Bind(ma, a => M.Map(b => project(a, b), M.Asks(bind(a).F)));
 }

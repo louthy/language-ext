@@ -27,7 +27,7 @@ public record Tell<W>(W Value) where W : Monoid<W>
     /// Convert to a `WriterT`
     /// </summary>
     public WriterT<W, M, Unit> ToWriterT<M>()
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         Writable.tell<WriterT<W, M>, W>(Value).As();
     
     /// <summary>
@@ -40,14 +40,14 @@ public record Tell<W>(W Value) where W : Monoid<W>
     /// Monadic bind with `WriterT`
     /// </summary>
     public WriterT<W, M, C> SelectMany<M, B, C>(Func<Unit, WriterT<W, M, B>> bind, Func<Unit, B, C> project)
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         ToWriterT<M>().SelectMany(bind, project);
 
     /// <summary>
     /// Monadic bind with `WriterT`
     /// </summary>
     public WriterT<W, M, C> SelectMany<M, B, C>(Func<Unit, K<WriterT<W, M>, B>> bind, Func<Unit, B, C> project)
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         ToWriterT<M>().SelectMany(bind, project);
 
     /// <summary>
@@ -66,13 +66,13 @@ public record Tell<W>(W Value) where W : Monoid<W>
     /// Monadic bind with `RWST`
     /// </summary>
     public RWST<R, W, S, M, C> SelectMany<R, S, M, B, C>(Func<Unit, RWST<R, W, S, M, B>> bind, Func<Unit, B, C> project)
-        where M : Writable<M, W>, Monad<M>, SemigroupK<M> =>
+        where M : Writable<M, W>, Monad<M>, Choice<M> =>
         ToWritable<M>().SelectMany(bind, project);
 
     /// <summary>
     /// Monadic bind with `RWST`
     /// </summary>
     public RWST<R, W, S, M, C> SelectMany<R, S, M, B, C>(Func<Unit, K<RWST<R, W, S, M>, B>> bind, Func<Unit, B, C> project)
-        where M : Writable<M, W>, Monad<M>, SemigroupK<M> =>
+        where M : Writable<M, W>, Monad<M>, Choice<M> =>
         ToWritable<M>().SelectMany(bind, project);
 }

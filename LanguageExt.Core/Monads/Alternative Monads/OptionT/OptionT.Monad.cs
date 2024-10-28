@@ -9,7 +9,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class OptionT<M> : 
     MonadT<OptionT<M>, M>,
-    MonoidK<OptionT<M>>,
+    Alternative<OptionT<M>>,
     Fallible<Unit, OptionT<M>>
     where M : Monad<M>
 {
@@ -37,7 +37,7 @@ public partial class OptionT<M> :
     static K<OptionT<M>, A> MonoidK<OptionT<M>>.Empty<A>() =>
         OptionT<M, A>.None;
  
-    static K<OptionT<M>, A> SemigroupK<OptionT<M>>.Combine<A>(K<OptionT<M>, A> ma, K<OptionT<M>, A> mb) =>
+    static K<OptionT<M>, A> Choice<OptionT<M>>.Choose<A>(K<OptionT<M>, A> ma, K<OptionT<M>, A> mb) =>
         new OptionT<M, A>(
             M.Bind(ma.As().runOption,
                    ea => ea.IsSome

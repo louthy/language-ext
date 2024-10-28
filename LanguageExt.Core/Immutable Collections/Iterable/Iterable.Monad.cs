@@ -4,7 +4,10 @@ using G = System.Collections.Generic;
 
 namespace LanguageExt;
 
-public partial class Iterable : Monad<Iterable>, MonoidK<Iterable>, Traversable<Iterable>
+public partial class Iterable : 
+    Monad<Iterable>, 
+    Alternative<Iterable>, 
+    Traversable<Iterable>
 {
     static K<Iterable, B> Monad<Iterable>.Bind<A, B>(K<Iterable, A> ma, Func<A, K<Iterable, B>> f) =>
         ma.As().Bind(f);
@@ -30,6 +33,9 @@ public partial class Iterable : Monad<Iterable>, MonoidK<Iterable>, Traversable<
     static K<Iterable, A> SemigroupK<Iterable>.Combine<A>(K<Iterable, A> ma, K<Iterable, A> mb) =>
         ma.As().Concat(mb.As());
 
+    static K<Iterable, A> Choice<Iterable>.Choose<A>(K<Iterable, A> ma, K<Iterable, A> mb) => 
+        ma.IsEmpty() ? mb : ma;
+    
     static K<F, K<Iterable, B>> Traversable<Iterable>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Iterable, A> ta)
     {
         return Foldable.fold(add, F.Pure(Iterable<B>.Empty), ta)

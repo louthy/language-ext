@@ -96,7 +96,7 @@ public class WriterT
     /// the function.
     /// </summary>
     public static WriterT<W, M, A> pass<W, M, A>(WriterT<W, M, (A Value, Func<W, W> Function)> action)
-        where M : Monad<M>, SemigroupK<M> 
+        where M : Monad<M>, Choice<M> 
         where W : Monoid<W> =>
         Writable.pass(action).As();
 
@@ -105,7 +105,7 @@ public class WriterT
     /// output to the value of the computation.
     /// </summary>
     public static WriterT<W, M, (A Value, W Output)> listen<W, M, A>(WriterT<W, M, A> ma)
-        where M : Monad<M>, SemigroupK<M>
+        where M : Monad<M>, Choice<M>
         where W : Monoid<W> =>
         Writable.listen<W, WriterT<W, M>, A>(ma).As();
 
@@ -114,7 +114,7 @@ public class WriterT
     /// output to the value of the computation.
     /// </summary>
     public static WriterT<W, M, (A Value, B Output)> listens<W, M, A, B>(Func<W, B> f, WriterT<W, M, A> ma)
-        where M : Monad<M>, SemigroupK<M>
+        where M : Monad<M>, Choice<M>
         where W : Monoid<W> =>
         Writable.listens(f, ma).As();
 
@@ -123,7 +123,7 @@ public class WriterT
     /// leaving the return value unchanged.
     /// </summary>
     public static WriterT<W, M, A> censor<W, M, A>(Func<W, W> f, WriterT<W, M, A> ma)
-        where M : Monad<M>, SemigroupK<M> 
+        where M : Monad<M>, Choice<M> 
         where W : Monoid<W> =>
         Writable.censor(f, ma).As();
 }

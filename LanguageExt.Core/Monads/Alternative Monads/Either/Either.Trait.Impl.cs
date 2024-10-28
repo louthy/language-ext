@@ -29,7 +29,7 @@ public class Either<L> : Either,
     Monad<Either<L>>, 
     Fallible<L, Either<L>>,
     Traversable<Either<L>>, 
-    SemigroupK<Either<L>>
+    Choice<Either<L>>
 {
     static K<Either<L>, B> Applicative<Either<L>>.Apply<A, B>(
         K<Either<L>, Func<A, B>> mf,
@@ -102,7 +102,7 @@ public class Either<L> : Either,
     static K<Either<L>, A> Left<A>(L value) =>
         Either<L, A>.Left(value);
 
-    public static K<Either<L>, A> Combine<A>(K<Either<L>, A> ma, K<Either<L>, A> mb) =>
+    static K<Either<L>, A> Choice<Either<L>>.Choose<A>(K<Either<L>, A> ma, K<Either<L>, A> mb) =>
         ma is Right<L, A> ? ma : mb;
 
     static K<Either<L>, A> Fallible<L, Either<L>>.Fail<A>(L error) => 

@@ -17,7 +17,7 @@ public static partial class RWSTExtensions
     /// <returns>Mapped functor</returns>
     public static RWST<R, W, S, M, B> Map<R, W, S, M, A, B>(this Func<A, B> f, K<RWST<R, W, S, M>, A> ma)
         where W : Monoid<W>
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         Functor.map(f, ma).As();
     
     /// <summary>
@@ -32,7 +32,7 @@ public static partial class RWSTExtensions
     /// <returns>Mapped functor</returns>
     public static RWST<R, W, S, M, B> Map<R, W, S, M, A, B>(this Func<A, B> f, RWST<R, W, S, M, A> ma) 
         where W : Monoid<W>
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         Functor.map(f, ma).As();
     
     /// <summary>
@@ -40,7 +40,7 @@ public static partial class RWSTExtensions
     /// </summary>
     public static RWST<R, W, S, M, B> Action<R, W, S, M, A, B>(this RWST<R, W, S, M, A> ma, K<RWST<R, W, S, M>, B> mb) 
         where W : Monoid<W>
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         Applicative.action(ma, mb).As();
 
     /// <summary>
@@ -48,7 +48,7 @@ public static partial class RWSTExtensions
     /// </summary>
     public static RWST<R, W, S, M, B> Action<R, W, S, M, A, B>(this K<RWST<R, W, S, M>, A> ma, K<RWST<R, W, S, M>, B> mb) 
         where W : Monoid<W>
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         Applicative.action(ma, mb).As();
 
     /// <summary>
@@ -63,7 +63,7 @@ public static partial class RWSTExtensions
     /// <returns>Mapped applicative functor</returns>
     public static RWST<R, W, S, M, B> Apply<R, W, S, M, A, B>(this RWST<R, W, S, M, Func<A, B>> mf, K<RWST<R, W, S, M>, A> ma) 
         where W : Monoid<W>
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         Applicative.apply(mf, ma).As();
 
     /// <summary>
@@ -78,6 +78,6 @@ public static partial class RWSTExtensions
     /// <returns>Mapped applicative functor</returns>
     public static RWST<R, W, S, M, B> Apply<R, W, S, M, A, B>(this K<RWST<R, W, S, M>, Func<A, B>> mf, K<RWST<R, W, S, M>, A> ma)
         where W : Monoid<W>
-        where M : Monad<M>, SemigroupK<M> =>
+        where M : Monad<M>, Choice<M> =>
         Applicative.apply(mf, ma).As();
 }    

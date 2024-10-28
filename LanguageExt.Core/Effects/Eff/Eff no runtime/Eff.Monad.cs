@@ -11,7 +11,7 @@ public class Eff :
     Monad<Eff>,
     Fallible<Eff>,
     Readable<Eff, MinRT>,
-    MonoidK<Eff>
+    Alternative<Eff>
 {
     static K<Eff, B> Monad<Eff>.Bind<A, B>(K<Eff, A> ma, Func<A, K<Eff, B>> f) =>
         new Eff<B>(ma.As().effect.Bind(f));
@@ -34,8 +34,8 @@ public class Eff :
     static K<Eff, A> MonoidK<Eff>.Empty<A>() => 
         Eff<A>.Fail(Errors.None);
 
-    static K<Eff, A> SemigroupK<Eff>.Combine<A>(K<Eff, A> ma, K<Eff, A> mb) => 
-        new Eff<A>(ma.As().effect.Combine(mb.As().effect).As());
+    static K<Eff, A> Choice<Eff>.Choose<A>(K<Eff, A> ma, K<Eff, A> mb) => 
+        new Eff<A>(ma.As().effect.Choose(mb.As().effect).As());
 
     static K<Eff, A> Readable<Eff, MinRT>.Asks<A>(Func<MinRT, A> f) => 
         new Eff<A>(Readable.asks<Eff<MinRT>, MinRT, A>(f).As());

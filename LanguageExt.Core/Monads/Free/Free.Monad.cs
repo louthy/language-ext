@@ -6,7 +6,9 @@ namespace LanguageExt;
 /// <summary>
 /// Free monad makes any functor into a monad 
 /// </summary>
-public class Free<F> : Monad<Free<F>>, SemigroupK<Free<F>>
+public class Free<F> : 
+    Monad<Free<F>>, 
+    Choice<Free<F>>
     where F : Functor<F>
 {
     static K<Free<F>, B> Functor<Free<F>>.Map<A, B>(Func<A, B> f, K<Free<F>, A> ma)
@@ -41,6 +43,6 @@ public class Free<F> : Monad<Free<F>>, SemigroupK<Free<F>>
             _                                                 => throw new InvalidOperationException()
         };
 
-    static K<Free<F>, A> SemigroupK<Free<F>>.Combine<A>(K<Free<F>, A> lhs, K<Free<F>, A> rhs) => 
-        throw new NotImplementedException();
+    static K<Free<F>, A> Choice<Free<F>>.Choose<A>(K<Free<F>, A> lhs, K<Free<F>, A> rhs) => 
+        lhs;
 }

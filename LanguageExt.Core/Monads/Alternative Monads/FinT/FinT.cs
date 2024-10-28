@@ -489,29 +489,50 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     public static implicit operator FinT<M, A>(IO<Fin<A>> ma) =>
         LiftIO(ma);
 
-    public static FinT<M, A> operator |(FinT<M, A> lhs, FinT<M, A> rhs) =>
+    public static FinT<M, A> operator +(FinT<M, A> lhs, FinT<M, A> rhs) =>
         lhs.Combine(rhs).As();
 
-    public static FinT<M, A> operator |(K<FinT<M>, A> lhs, FinT<M, A> rhs) =>
+    public static FinT<M, A> operator +(K<FinT<M>, A> lhs, FinT<M, A> rhs) =>
         lhs.As().Combine(rhs).As();
 
-    public static FinT<M, A> operator |(FinT<M, A> lhs, K<FinT<M>, A> rhs) =>
+    public static FinT<M, A> operator +(FinT<M, A> lhs, K<FinT<M>, A> rhs) =>
         lhs.Combine(rhs.As()).As();
 
-    public static FinT<M, A> operator |(FinT<M, A> lhs, A rhs) => 
+    public static FinT<M, A> operator +(FinT<M, A> lhs, A rhs) => 
         lhs.Combine(pure<FinT<M>, A>(rhs)).As();
 
-    public static FinT<M, A> operator |(FinT<M, A> ma, Pure<A> mb) =>
+    public static FinT<M, A> operator +(FinT<M, A> ma, Pure<A> mb) =>
         ma.Combine(pure<FinT<M>, A>(mb.Value)).As();
 
-    public static FinT<M, A> operator |(FinT<M, A> ma, Fail<Error> mb) =>
+    public static FinT<M, A> operator +(FinT<M, A> ma, Fail<Error> mb) =>
         ma.Combine(fail<Error, FinT<M>, A>(mb.Value)).As();
+
+    public static FinT<M, A> operator +(FinT<M, A> ma, Fail<Exception> mb) =>
+        ma.Combine(fail<Error, FinT<M>, A>(mb.Value)).As();
+    
+    public static FinT<M, A> operator |(FinT<M, A> lhs, FinT<M, A> rhs) =>
+        lhs.Choose(rhs).As();
+
+    public static FinT<M, A> operator |(K<FinT<M>, A> lhs, FinT<M, A> rhs) =>
+        lhs.As().Choose(rhs).As();
+
+    public static FinT<M, A> operator |(FinT<M, A> lhs, K<FinT<M>, A> rhs) =>
+        lhs.Choose(rhs.As()).As();
+
+    public static FinT<M, A> operator |(FinT<M, A> lhs, A rhs) => 
+        lhs.Choose(pure<FinT<M>, A>(rhs)).As();
+
+    public static FinT<M, A> operator |(FinT<M, A> ma, Pure<A> mb) =>
+        ma.Choose(pure<FinT<M>, A>(mb.Value)).As();
+
+    public static FinT<M, A> operator |(FinT<M, A> ma, Fail<Error> mb) =>
+        ma.Choose(fail<Error, FinT<M>, A>(mb.Value)).As();
 
     public static FinT<M, A> operator |(FinT<M, A> ma, Fail<Exception> mb) =>
-        ma.Combine(fail<Error, FinT<M>, A>(mb.Value)).As();
+        ma.Choose(fail<Error, FinT<M>, A>(mb.Value)).As();
 
     public static FinT<M, A> operator |(FinT<M, A> ma, Error mb) =>
-        ma.Combine(fail<Error, FinT<M>, A>(mb)).As();
+        ma.Choose(fail<Error, FinT<M>, A>(mb)).As();
 
     public static FinT<M, A> operator |(FinT<M, A> ma, CatchM<Error, FinT<M>, A> mb) =>
         (ma.Kind() | mb).As();

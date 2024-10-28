@@ -11,7 +11,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record ReaderT<Env, M, A>(Func<Env, K<M, A>> runReader) : K<ReaderT<Env, M>, A>
-    where M : Monad<M>, SemigroupK<M>
+    where M : Monad<M>, Choice<M>
 {
     /// <summary>
     /// Lift a pure value into the monad-transformer
@@ -97,7 +97,7 @@ public record ReaderT<Env, M, A>(Func<Env, K<M, A>> runReader) : K<ReaderT<Env, 
     /// <typeparam name="M1">Trait of the monad to map to</typeparam>
     /// <returns>`ReaderT`</returns>
     public ReaderT<Env, M1, B> MapM<M1, B>(Func<K<M, A>, K<M1, B>> f)
-        where M1 : Monad<M1>, SemigroupK<M1> =>
+        where M1 : Monad<M1>, Alternative<M1> =>
         new (env => f(runReader(env)));
 
     /// <summary>
@@ -285,23 +285,41 @@ public record ReaderT<Env, M, A>(Func<Env, K<M, A>> runReader) : K<ReaderT<Env, 
         LiftIO(ma);
 
     public static ReaderT<Env, M, A> operator |(ReaderT<Env, M, A> ma, ReaderT<Env, M, A> mb) =>
-        ReaderT.combine(ma, mb);
+        ma.Choose(mb).As();
 
     public static ReaderT<Env, M, A> operator |(ReaderT<Env, M, A> ma, Pure<A> mb) =>
-        ReaderT.combine(ma, mb);
+        ma.Choose(Pure(mb.Value)).As();
 
     public static ReaderT<Env, M, A> operator |(ReaderT<Env, M, A> ma, Ask<Env, A> mb) =>
-        ReaderT.combine(ma, mb);
+        ma.Choose(mb.ToReaderT<M>()).As();
 
     public static ReaderT<Env, M, A> operator |(Ask<Env, A> ma, ReaderT<Env, M, A> mb) =>
-        ReaderT.combine(ma, mb);
+        ma.ToReaderT<M>().Choose(mb).As();
 
     public static ReaderT<Env, M, A> operator |(ReaderT<Env, M, A> ma, IO<A> mb) =>
-        ReaderT.combine(ma, mb);
+        ma.Choose(ReaderT.liftIO<Env, M, A>(mb)).As();
 
     public static ReaderT<Env, M, A> operator |(IO<A> ma, ReaderT<Env, M, A> mb) =>
-        ReaderT.combine(ma, mb);
+        ReaderT.liftIO<Env, M, A>(ma).Choose(mb).As();
 
+    public static ReaderT<Env, M, A> operator +(ReaderT<Env, M, A> ma, ReaderT<Env, M, A> mb) =>
+        ma.Combine(mb).As();
+
+    public static ReaderT<Env, M, A> operator +(ReaderT<Env, M, A> ma, Pure<A> mb) =>
+        ma.Combine(Pure(mb.Value)).As();
+
+    public static ReaderT<Env, M, A> operator +(ReaderT<Env, M, A> ma, Ask<Env, A> mb) =>
+        ma.Combine(mb.ToReaderT<M>()).As();
+
+    public static ReaderT<Env, M, A> operator +(Ask<Env, A> ma, ReaderT<Env, M, A> mb) =>
+        ma.ToReaderT<M>().Combine(mb).As();
+
+    public static ReaderT<Env, M, A> operator +(ReaderT<Env, M, A> ma, IO<A> mb) =>
+        ma.Combine(ReaderT.liftIO<Env, M, A>(mb)).As();
+
+    public static ReaderT<Env, M, A> operator +(IO<A> ma, ReaderT<Env, M, A> mb) =>
+        ReaderT.liftIO<Env, M, A>(ma).Combine(mb).As();
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Run the reader

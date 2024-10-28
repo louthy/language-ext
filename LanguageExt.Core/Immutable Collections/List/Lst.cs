@@ -534,6 +534,22 @@ public readonly struct Lst<A> :
     public static Lst<A> operator +(Lst<A> lhs, Lst<A> rhs) =>
         lhs.Combine(rhs);
 
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Lst<A> operator |(Lst<A> x, K<Lst, A> y) =>
+        x.Choose(y).As();
+
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Lst<A> operator |(K<Lst, A> x, Lst<A> y) =>
+        x.Choose(y).As();
+    
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<A> Combine(Lst<A> rhs) =>

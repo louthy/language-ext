@@ -9,6 +9,7 @@ namespace LanguageExt;
 /// <typeparam name="S">State environment type</typeparam>
 public partial class State<S> : 
     Monad<State<S>>, 
+    Choice<State<S>>,
     Stateful<State<S>, S>
 {
     static K<State<S>, B> Monad<State<S>>.Bind<A, B>(K<State<S>, A> ma, Func<A, K<State<S>, B>> f) => 
@@ -34,4 +35,7 @@ public partial class State<S> :
 
     static K<State<S>, Unit> Stateful<State<S>, S>.Put(S value) => 
         State<S, S>.Put(value);
+
+    static K<State<S>, A> Choice<State<S>>.Choose<A>(K<State<S>, A> fa, K<State<S>, A> fb) => 
+        fa;
 }
