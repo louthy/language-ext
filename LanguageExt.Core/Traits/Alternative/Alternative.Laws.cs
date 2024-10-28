@@ -7,9 +7,9 @@ namespace LanguageExt.Traits;
 /// Functions that test that Alternative laws hold for the `F` Alternative provided.
 /// </summary>
 /// <para>
-///     choice(pure(a), pure(b)) = pure(a)
-///     choice(empty(), pure(b)) = pure(b)
-///     choice(pure(a), empty()) = pure(a)
+///     choose(pure(a), pure(b)) = pure(a)
+///     choose(empty(), pure(b)) = pure(b)
+///     choose(pure(a), empty()) = pure(a)
 /// </para>
 /// <remarks>
 /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
@@ -46,16 +46,16 @@ public static class AlternativeLaw<F>
     {
         equals ??= (fa, fb) => fa.Equals(fb);
         return ApplicativeLaw<F>.validate(equals) >>
+               ChoiceLaw<F>.validate(equals)      >>
                leftZeroLaw(equals)                >>
-               rightZeroLaw(equals)               >>
-               leftCatchLaw(equals);
+               rightZeroLaw(equals);
     }
 
     /// <summary>
     /// Left-zero law
     /// </summary>
     /// <remarks>
-    ///    choice(empty, pure(x)) = pure(x)
+    ///    choose(empty, pure(x)) = pure(x)
     /// </remarks>
     /// <remarks>
     /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
@@ -67,7 +67,7 @@ public static class AlternativeLaw<F>
     {
         var fa = F.Empty<int>();
         var fb = F.Pure(100);
-        var fr = choice(fa, fb);
+        var fr = choose(fa, fb);
 
         return equals(fr, fb) 
                    ? unit
@@ -78,7 +78,7 @@ public static class AlternativeLaw<F>
     /// Right-zero law
     /// </summary>
     /// <remarks>
-    ///    choice(pure(x), empty) = pure(x)
+    ///    choose(pure(x), empty) = pure(x)
     /// </remarks>
     /// <remarks>
     /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
@@ -90,33 +90,10 @@ public static class AlternativeLaw<F>
     {
         var fa = F.Pure(100);
         var fb = F.Empty<int>();
-        var fr = choice(fa, fb);
+        var fr = choose(fa, fb);
 
         return equals(fr, fa) 
                    ? unit
                    : Error.New($"Alternative right-zero law does not hold for {typeof(F).Name}");
-    }
-
-    /// <summary>
-    /// Left catch law
-    /// </summary>
-    /// <remarks>
-    ///    choice(pure(x), pure(y)) = pure(x)
-    /// </remarks>
-    /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
-    /// can be proven to be true.  If your Alternative structure doesn't have `Equals` then
-    /// you must provide the optional `equals` parameter so that the equality of outcomes can
-    /// be tested.
-    /// </remarks>
-    public static Validation<Error, Unit> leftCatchLaw(Func<K<F, int>, K<F, int>, bool> equals)
-    {
-        var fa = F.Pure(100);
-        var fb = F.Pure(200);
-        var fr = choice(fa, fb);
-
-        return equals(fr, fa) 
-                   ? unit
-                   : Error.New($"Alternative left-catch law does not hold for {typeof(F).Name}");
     }    
 }
