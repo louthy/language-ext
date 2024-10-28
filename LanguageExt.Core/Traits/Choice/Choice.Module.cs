@@ -1,11 +1,10 @@
 using System;
 using System.Diagnostics.Contracts;
-using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt;
+namespace LanguageExt.Traits;
 
-public static partial class Prelude
+public static class Choice
 {
     /// <summary>
     /// Where `F` defines some notion of failure or choice, this function picks the
@@ -19,7 +18,7 @@ public static partial class Prelude
     /// <returns>First argument to succeed</returns>
     public static K<F, A> choose<F, A>(K<F, A> fa, K<F, A> fb)
         where F : Choice<F> =>
-        Choice.choose(fa, fb);
+        F.Choose(fa, fb);
     
     /// <summary>
     /// One or more...
@@ -37,9 +36,17 @@ public static partial class Prelude
     /// <returns>One or more values</returns>
     [Pure]
     public static K<F, Seq<A>> some<F, A>(K<F, A> fa)
-        where F : Choice<F>, Applicative<F> =>
-        Choice.some(fa);
+        where F : Choice<F>, Applicative<F>
+    {
+        return some_v();
+        
+        K<F, Seq<A>> many_v() =>
+            F.Choose(some_v(), F.Pure(Seq<A>()));
 
+        K<F, Seq<A>> some_v() =>
+            Append<A>.cons.Map(fa).Apply(many_v);
+    }
+    
     /// <summary>
     /// Zero or more...
     /// </summary>
@@ -55,6 +62,20 @@ public static partial class Prelude
     /// <returns>Zero or more values</returns>
     [Pure]
     public static K<F, Seq<A>> many<F, A>(K<F, A> fa)
-        where F : Choice<F>, Applicative<F> =>
-        Choice.many(fa);
+        where F : Choice<F>, Applicative<F>
+    {
+        return many_v();
+        
+        K<F, Seq<A>> many_v() =>
+            F.Choose(some_v(), F.Pure(Seq<A>()));
+
+        K<F, Seq<A>> some_v() =>
+            Append<A>.cons.Map(fa).Apply(many_v);
+    }
+        
+    static class Append<A>
+    {
+        public static readonly Func<A, Func<Seq<A>, Seq<A>>> cons =
+            x => xs => x.Cons(xs);
+    }    
 }
