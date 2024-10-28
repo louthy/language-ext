@@ -17,8 +17,8 @@ should also implement the `+` operator.
 `AlternativeLaw` can help you test your implementation:
 
     choose(Pure(a), Pure(b)) = Pure(a)
-    choose(Empty(), Pure(b)) = Pure(b)
-    choose(Pure(a), Empty()) = Pure(a)
-    choose(Empty(), Empty()) = Empty()
+    choose(Empty  , Pure(b)) = Pure(b)
+    choose(Pure(a), Empty  ) = Pure(a)
+    choose(Empty  , Empty  ) = Empty
 
 It also tests the `Applicative` and `Functor` laws.
