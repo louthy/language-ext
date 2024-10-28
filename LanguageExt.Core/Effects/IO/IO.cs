@@ -370,9 +370,9 @@ public abstract record IO<A> :
     /// in between.
     /// </summary>
     /// <param name="Use">Function to use the acquired resource</param>
-    /// <param name="Finally">Function to invoke to release the resource</param>
-    public IO<C> Bracket<B, C>(Func<A, IO<C>> Use, Func<A, IO<B>> Finally) =>
-        Bracket(Use, IO<C>.Fail, Finally);
+    /// <param name="Fin">Function to invoke to release the resource</param>
+    public IO<C> Bracket<B, C>(Func<A, IO<C>> Use, Func<A, IO<B>> Fin) =>
+        Bracket(Use, IO<C>.Fail, Fin);
 
     /// <summary>
     /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
@@ -381,8 +381,8 @@ public abstract record IO<A> :
     /// </summary>
     /// <param name="Use">Function to use the acquired resource</param>
     /// <param name="Catch">Function to run to handle any exceptions</param>
-    /// <param name="Finally">Function to invoke to release the resource</param>
-    public abstract IO<C> Bracket<B, C>(Func<A, IO<C>> Use, Func<Error, IO<C>> Catch, Func<A, IO<B>> Finally);
+    /// <param name="Fin">Function to invoke to release the resource</param>
+    public abstract IO<C> Bracket<B, C>(Func<A, IO<C>> Use, Func<Error, IO<C>> Catch, Func<A, IO<B>> Fin);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

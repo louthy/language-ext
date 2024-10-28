@@ -165,14 +165,13 @@ public static partial class IOExtensions
     /// </summary>
     /// <param name="acq">Resource acquisition</param>
     /// <param name="Use">Function to use the acquired resource</param>
-    /// <param name="Finally">Function to invoke to release the resource</param>
+    /// <param name="Fin">Function to invoke to release the resource</param>
     public static K<M, C> BracketIO<M, A, B, C>(
         this K<M, A> acq, 
         Func<A, IO<C>> Use, 
-        Func<A, IO<B>> Finally) 
+        Func<A, IO<B>> Fin) 
         where M : Monad<M> =>
-        acq.MapIO(io => io.Bracket(Use, Finally));
-
+        acq.MapIO(io => io.Bracket(Use, Fin));
 
     /// <summary>
     /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
@@ -182,14 +181,14 @@ public static partial class IOExtensions
     /// <param name="acq">Resource acquisition</param>
     /// <param name="Use">Function to use the acquired resource</param>
     /// <param name="Catch">Function to run to handle any exceptions</param>
-    /// <param name="Finally">Function to invoke to release the resource</param>
+    /// <param name="Fin">Function to invoke to release the resource</param>
     public static K<M, C> BracketIO<M, A, B, C>(
         this K<M, A> acq,
         Func<A, IO<C>> Use,
         Func<Error, IO<C>> Catch,
-        Func<A, IO<B>> Finally)
+        Func<A, IO<B>> Fin)
         where M : Monad<M> =>
-        acq.MapIO(io => io.Bracket(Use, Catch, Finally));
+        acq.MapIO(io => io.Bracket(Use, Catch, Fin));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

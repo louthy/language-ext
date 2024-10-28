@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -201,4 +202,23 @@ public static partial class Prelude
     public static K<M, C> bracketIO<M, A, B, C>(K<M, A> Acq, Func<A, IO<C>> Use, Func<A, IO<B>> Fin)
         where M : Monad<M> =>
         Acq.BracketIO(Use, Fin);
+    
+    /// <summary>
+    /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
+    /// the acquisition and releasing, taking a function of the acquired value that specifies an action to be performed
+    /// in between.
+    /// </summary>
+    /// <remarks>
+    /// Consider using `bracketIO(computation)` rather than `bracket(acq, use, fin)`, the semantics are more attractive
+    /// as there's no need to provide function handlers, the cleanup is automatic. 
+    /// </remarks>
+    /// <param name="Acq">Acquire resource</param>
+    /// <param name="Use">Function to use the acquired resource</param>
+    /// <param name="Catch">Function called when an `Error` is raised within the `Acq` computation</param>
+    /// <param name="Finally">Function to invoke to release the resource</param>
+    [Pure]
+    [MethodImpl(Opt.Default)]
+    public static K<M, C> bracketIO<M, A, B, C>(K<M, A> Acq, Func<A, IO<C>> Use, Func<Error, IO<C>> Catch, Func<A, IO<B>> Fin)
+        where M : Monad<M> =>
+        Acq.BracketIO(Use, Catch, Fin);
 }
