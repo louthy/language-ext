@@ -18,6 +18,7 @@ using System.Reactive.Linq;
 using LanguageExt.Sys.Live;
 using System.Threading.Tasks;
 using LanguageExt.Common;
+using LanguageExt.Traits;
 using TestBed;
 using static LanguageExt.Prelude;
 using static LanguageExt.Pipes.Proxy;
@@ -75,9 +76,14 @@ public class Program
 {
     static void Main(string[] args)
     {
-        IEnumerable<int> ma = [];
-        IEnumerable<int> mb = [];
-        var mc = ma.SelectMany(a => mb.Select(b => a + b));
+        //var mx = ReaderT<Unit, OptionT<Seq>, int>.Lift(OptionT<Seq, int>.None);
+        //var my = ReaderT<Unit, OptionT<Seq>, int>.Lift(OptionT<Seq, int>.Lift(Seq(6, 7, 8, 9, 10)));
+        var mx = ReaderT<Unit, Seq, int>.Lift(Seq(1, 2, 3, 4, 5));
+        var my = ReaderT<Unit, Seq, int>.Lift(Seq(6, 7, 8, 9, 10));
+        var mr = mx + my;
+        
+        Console.WriteLine(mr.Run(unit));
+        
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
         //                                                                                                    //
