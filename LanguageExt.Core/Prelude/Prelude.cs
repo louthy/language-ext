@@ -191,11 +191,9 @@ public static partial class Prelude
     /// return false.</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    #nullable disable
-    public static bool isnull<A>(A value) =>
-        Check<A>.IsNull(value);
-    #nullable restore
-
+    public static bool isnull<A>([System.Diagnostics.CodeAnalysis.NotNullWhen(false)]A? value) =>
+        ObjectExt.IsNull(value);
+    
     /// <summary>
     /// Returns true if the value is not null, and does so without
     /// boxing of any value-types.  Value-types will always return 
@@ -215,11 +213,9 @@ public static partial class Prelude
     /// return false.</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    #nullable disable
-    public static bool notnull<A>(A value) =>
-        !Check<A>.IsNull(value);
-    #nullable restore
-
+    public static bool notnull<A>([System.Diagnostics.CodeAnalysis.NotNullWhen(true)]A? value) =>
+        !ObjectExt.IsNull(value);
+    
     /// <summary>
     /// Convert a value to string
     /// </summary>
