@@ -25,12 +25,8 @@ public static class ObjectExt
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNull<A>([System.Diagnostics.CodeAnalysis.NotNullWhen(false)]this A? value) =>
         value is null;
-}
-
-internal static class Check<A>
-{
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static bool IsDefault(A value) =>
+    internal static bool IsDefault<A>(A value) =>
         EqDefault<A>.Equals(value, default!);
 }
