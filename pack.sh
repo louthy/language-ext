@@ -7,7 +7,7 @@ LangExtRoot=/media/paul/raid/dev/language-ext
 sh clean.sh
 sh docs.sh
 
-cd $LangExtRoot
+cd $LangExtRoot || exit
 
 echo building the artefacts
  
