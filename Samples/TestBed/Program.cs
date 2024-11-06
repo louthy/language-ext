@@ -15,6 +15,7 @@ using LanguageExt.Sys;
 using LanguageExt.Pipes;
 using LanguageExt.Sys.IO;
 using System.Reactive.Linq;
+using System.Threading;
 using LanguageExt.Sys.Live;
 using System.Threading.Tasks;
 using LanguageExt.Common;
@@ -76,13 +77,11 @@ public class Program
 {
     static void Main(string[] args)
     {
-        //var mx = ReaderT<Unit, OptionT<Seq>, int>.Lift(OptionT<Seq, int>.None);
-        //var my = ReaderT<Unit, OptionT<Seq>, int>.Lift(OptionT<Seq, int>.Lift(Seq(6, 7, 8, 9, 10)));
-        var mx = ReaderT<Unit, Seq, int>.Lift(Seq(1, 2, 3, 4, 5));
-        var my = ReaderT<Unit, Seq, int>.Lift(Seq(6, 7, 8, 9, 10));
-        var mr = mx + my;
-        
-        Console.WriteLine(mr.Run(unit));
+        var eff1 = liftEff(e => Task.FromException<int>(Error.New("failed 1")));
+        var eff2 = liftEff(e => Task.FromException<int>(Error.New("failed 2")));
+        var eff3 = Seq(eff1, eff2).Traverse(x => x);
+        var res  = eff3.Run();
+        Console.WriteLine(res);
         
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -111,7 +110,6 @@ public class Program
         //SequenceParallelTest.Run();
         //FreeTests.Test();
     }
-
 
     public record Item;
     public record ItemId;

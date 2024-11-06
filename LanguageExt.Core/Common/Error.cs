@@ -247,13 +247,15 @@ public abstract record Error : Monoid<Error>
     public static Error New(Exception? thisException) =>
         thisException switch
         {
-            null                       => Errors.None,
-            ErrorException e           => e.ToError(),
-            TaskCanceledException      => Errors.Cancelled,
-            OperationCanceledException => Errors.Cancelled,
-            TimeoutException           => Errors.TimedOut,
-            AggregateException a       => ManyErrors.FromAggregate(a),
-            var e                      => new Exceptional(e)
+            null                               => Errors.None,
+            WrappedErrorExceptionalException w => w.ToError(),
+            WrappedErrorExpectedException w    => w.ToError(),
+            ErrorException e                   => e.ToError(),
+            TaskCanceledException              => Errors.Cancelled,
+            OperationCanceledException         => Errors.Cancelled,
+            TimeoutException                   => Errors.TimedOut,
+            AggregateException a               => ManyErrors.FromAggregate(a),
+            var e                              => new Exceptional(e)
         };
         
 
@@ -345,7 +347,7 @@ public abstract record Error : Monoid<Error>
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Exception(Error e) =>
         e.ToException();
-    
+
     /// <summary>
     /// Attempt to recover an error from an object.
     /// Will accept Error, ErrorException, Exception, string, Option<Error>
@@ -355,12 +357,14 @@ public abstract record Error : Monoid<Error>
     public static Error FromObject(object? value) =>
         value switch
         {
-            Error err          => err,
-            ErrorException ex  => ex.ToError(),
-            Exception ex       => New(ex),
-            string str         => New(str),
-            Option<Error> oerr => oerr.IfNone(Errors.Bottom),
-            _                  => Errors.Bottom
+            Error err                          => err,
+            WrappedErrorExceptionalException w => w.ToError(),
+            WrappedErrorExpectedException w    => w.ToError(),
+            ErrorException ex                  => ex.ToError(),
+            Exception ex                       => New(ex),
+            string str                         => New(str),
+            Option<Error> oerr                 => oerr.IfNone(Errors.Bottom),
+            _                                  => Errors.Bottom
         };
     
     [Pure]
