@@ -9,7 +9,7 @@
     </PropertyGroup>
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
-        <PackageVersion>5.0.0-beta-36</PackageVersion>
+        <PackageVersion>5.0.0-beta-37</PackageVersion>
         <PackageId>LanguageExt.Rx</PackageId>
         <Title>LanguageExt.Rx</Title>
         <Authors>Paul Louth</Authors>
