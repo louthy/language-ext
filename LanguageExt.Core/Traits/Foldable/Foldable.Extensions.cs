@@ -17,9 +17,9 @@ public static partial class FoldableExtensions
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Aggregated value</returns>
     public static S FoldMaybe<T, A, S>(
-        Func<S, Func<A, Option<S>>> f,
+        this K<T, A> ta,
         S initialState,
-        K<T, A> ta) 
+        Func<S, Func<A, Option<S>>> f) 
         where T : Foldable<T> =>
         T.FoldMaybe(f, initialState, ta);
 
@@ -33,9 +33,9 @@ public static partial class FoldableExtensions
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Aggregated value</returns>
     public static S FoldMaybe<T, A, S>(
-        Func<S, A, Option<S>> f,
+        this K<T, A> ta,
         S initialState,
-        K<T, A> ta) 
+        Func<S, A, Option<S>> f) 
         where T : Foldable<T> =>
         T.FoldMaybe(s => a => f(s, a), initialState, ta);
 
@@ -49,9 +49,9 @@ public static partial class FoldableExtensions
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Aggregated value</returns>
     public static S FoldBackMaybe<T, A, S>(
-        Func<A, Func<S, Option<S>>> f,
+        this K<T, A> ta,
         S initialState,
-        K<T, A> ta)
+        Func<A, Func<S, Option<S>>> f)
         where T : Foldable<T> =>
         T.FoldBackMaybe(f, initialState, ta);
 
@@ -65,11 +65,11 @@ public static partial class FoldableExtensions
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Aggregated value</returns>
     public static S FoldBackMaybe<T, A, S>(
-        Func<A, S, Option<S>> f,
+        this K<T, A> ta,
         S initialState,
-        K<T, A> ta)
+        Func<S, A, Option<S>> f)
         where T : Foldable<T> =>
-        T.FoldBackMaybe(a => s => f(a, s), initialState, ta);
+        T.FoldBackMaybe(a => s => f(s, a), initialState, ta);
     
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
