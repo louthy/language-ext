@@ -7,7 +7,7 @@ namespace LanguageExt.Traits;
 /// Extensions for higher-kinded structures that have a failure state `Error`
 /// </summary>
 /// <typeparam name="F">Higher-kinded structure</typeparam>
-public static class FallibleExtensions
+public static partial class FallibleExtensions
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 
@@ -260,23 +260,6 @@ public static class FallibleExtensions
     // 
     //  Catch all errors 
     //
-    
-    /// <summary>
-    /// Run the `Fallible` structure.  If in a failed state, test the failure value
-    /// against the predicate.  If, it returns `true`, run the `Fail` function with
-    /// the failure value.
-    /// </summary>
-    /// <param name="fa">`Fallible` structure</param>
-    /// <param name="Fail">Handler when in failed state</param>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <returns>Either `fa` or the result of `Fail` if `fa` is in a failed state and the
-    /// predicate returns true for the failure value</returns>
-    public static K<F, A> 
-        Catch<E, F, A>(
-        this K<F, A> fa,
-        Func<E, K<F, A>> Fail) 
-        where F : Fallible<E, F> =>
-        F.Catch(fa, _ => true, Fail);
     
     /// <summary>
     /// Run the `Fallible` structure.  If in a failed state, test the failure value

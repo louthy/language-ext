@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using LanguageExt.Common;
 using LanguageExt.Effects;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -188,4 +191,75 @@ public static partial class EffExtensions
         Func<A, (K<Eff, B> First, K<Eff, C> Second, K<Eff, D> Third)> bind,
         Func<A, (B First, C Second, D Third), E> project) =>
         self.As().Bind(a => bind(a).ZipIO().Map(cd => project(a, cd)));
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Partitioning
+    //
+    /*
+    /// <summary>
+    /// Partitions a list of 'Eff' effects into two lists.
+    /// All the Fail elements are extracted, in order, to the first
+    /// component of the output.  Similarly, the `Succ` elements are extracted
+    /// to the second component of the output.
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="xs">Effects list</param>
+    /// <returns>A tuple containing `Error` list and `Succ` list</returns>
+    [Pure]
+    public static Eff<(IEnumerable<Error> Fails, IEnumerable<A> Succs)> Partition<A>(this IEnumerable<Eff<A>> xs) =>
+        liftIO(async envIO =>
+               {
+                   var fs = new List<Error>();
+                   var rs = new List<A>();
+
+                   foreach (var mx in xs)
+                   {
+                       var fx = await mx.RunAsync(envIO).ConfigureAwait(false);
+                       if (fx.IsSucc)
+                       {
+                           rs.Add(fx.SuccValue);
+                       }
+
+                       if (fx.IsFail)
+                       {
+                           fs.Add(fx.FailValue);
+                       }
+                   }
+
+                   return ((IEnumerable<Error>)fs, (IEnumerable<A>)rs);
+               });
+
+    /// <summary>
+    /// Partitions a list of 'Eff' effects into two lists.
+    /// All the Fail elements are extracted, in order, to the first
+    /// component of the output.  Similarly, the `Succ` elements are extracted
+    /// to the second component of the output.
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="xs">Effects list</param>
+    /// <returns>A tuple containing `Error` list and `Succ` list</returns>
+    [Pure]
+    public static Eff<(Seq<Error> Fails, Seq<A> Succs)> Partition<A>(this Seq<Eff<A>> xs) =>    
+        liftIO(async envIO =>
+           {
+               var fs = Seq<Error>();
+               var rs = Seq<A>();
+
+               foreach (var mx in xs)
+               {
+                   var fx = await mx.RunAsync(envIO).ConfigureAwait(false);
+                   if (fx.IsSucc)
+                   {
+                       rs = rs.Add(fx.SuccValue);
+                   }
+
+                   if (fx.IsFail)
+                   {
+                       fs = fs.Add(fx.FailValue);
+                   }
+               }
+
+               return (fs, rs);
+           });*/
 }

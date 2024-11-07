@@ -134,13 +134,12 @@ public static partial class FinExtensions
     /// <summary>
     /// Partitions a list of 'Fin' into two lists.
     /// All the Fail elements are extracted, in order, to the first
-    /// component of the output.  Similarly, the Succ elements are extracted
+    /// component of the output.  Similarly, the `Succ` elements are extracted
     /// to the second component of the output.
     /// </summary>
-    /// <remarks>Bottom values are dropped</remarks>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="xs">Fin list</param>
-    /// <returns>A tuple containing the an enumerable of Erorr and an enumerable of Succ</returns>
+    /// <returns>A tuple containing `Error` list and `Succ` list</returns>
     [Pure]
     public static (IEnumerable<Error> Fails, IEnumerable<A> Succs) Partition<A>(this IEnumerable<Fin<A>> xs)
     {
@@ -165,13 +164,12 @@ public static partial class FinExtensions
     /// <summary>
     /// Partitions a list of 'Fin' into two lists.
     /// All the Fail elements are extracted, in order, to the first
-    /// component of the output.  Similarly the Succ elements are extracted
+    /// component of the output.  Similarly, the `Succ` elements are extracted
     /// to the second component of the output.
     /// </summary>
-    /// <remarks>Bottom values are dropped</remarks>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="xs">Fin list</param>
-    /// <returns>A tuple containing the an enumerable of Erorr and an enumerable of Succ</returns>
+    /// <returns>A tuple containing `Error` list and `Succ` list</returns>
     [Pure]
     public static (Seq<Error> Fails, Seq<A> Succs) Partition<A>(this Seq<Fin<A>> xs)
     {

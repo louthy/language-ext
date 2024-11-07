@@ -8,7 +8,7 @@ namespace LanguageExt.Traits;
 /// </summary>
 /// <typeparam name="F">Higher-kinded structure</typeparam>
 /// <typeparam name="E">Failure type</typeparam>
-public static class FallibleExtensionsE
+public static partial class FallibleExtensionsE
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 

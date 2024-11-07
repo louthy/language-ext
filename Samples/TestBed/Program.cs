@@ -79,8 +79,9 @@ public class Program
     {
         var eff1 = liftEff(e => Task.FromException<int>(Error.New("failed 1")));
         var eff2 = liftEff(e => Task.FromException<int>(Error.New("failed 2")));
-        var eff3 = Seq(eff1, eff2).Traverse(x => x);
-        var res  = eff3.Run();
+        var effs = Seq(eff1, eff2);
+        var res = effs.Partition();
+
         Console.WriteLine(res);
         
         

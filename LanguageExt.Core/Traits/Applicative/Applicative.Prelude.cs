@@ -7,6 +7,17 @@ namespace LanguageExt;
 
 public static partial class Prelude
 {
+    /// <summary>
+    /// Construct an applicative structure from a pure value  
+    /// </summary>
+    /// <param name="value">Pure value to lift into the applicative structure</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Applicative structure</returns>
+    [Pure]
+    public static K<F, A> pure<F, A>(A value)
+        where F : Applicative<F> =>
+        F.Pure(value);    
+    
     [Pure]
     public static K<M, B> applyM<M, A, B>(K<M, Func<A, K<M, B>>> mf, K<M, A> ma)
         where M : Monad<M> =>
