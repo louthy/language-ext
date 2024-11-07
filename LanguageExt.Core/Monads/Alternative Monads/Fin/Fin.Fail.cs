@@ -43,7 +43,7 @@ public partial class Fin
         /// </summary>
         [Pure]
         public override string ToString() =>
-            $"Succ({Error})";
+            $"Fail({Error})";
 
         [Pure]
         public override int GetHashCode<HashA>() =>

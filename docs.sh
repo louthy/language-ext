@@ -28,7 +28,7 @@ dotnet run --project $BestFormBin -c Release --no-build "LanguageExt.Sys" "$Lang
 
 echo committing docs to git
 
-cd $LangExtDocs
+cd $LangExtDocs || exit
 
 git add .
 git commit -m "Language-ext documentation update"

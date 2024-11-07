@@ -52,35 +52,163 @@ public partial class IO :
             {
                 var tf = mf.RunAsync(env).AsTask();
                 var ta = ma.RunAsync(env).AsTask();
-                await Task.WhenAll(tf, ta);
-                return IOResponse.Complete(tf.Result(ta.Result));
+                try
+                {
+                    await Task.WhenAll(tf, ta);
+                }
+                catch
+                {
+                    // ignore and flow through to the switch below
+                }
+
+                return (tf, ta) switch
+                       {
+                           ({ IsCanceled: true }, _) =>
+                               Errors.Cancelled.Throw<IOResponse<B>>(),
+
+                           (_, { IsCanceled: true }) =>
+                               Errors.Cancelled.Throw<IOResponse<B>>(),
+
+                           ({ IsFaulted: true }, { IsFaulted: true }) =>
+                               (Error.New(tf.Exception) + Error.New(ta.Exception)).Throw<IOResponse<B>>(),
+
+                           ({ IsFaulted: true }, _) =>
+                               Error.New(tf.Exception).Throw<IOResponse<B>>(),
+
+                           (_, { IsFaulted: true }) =>
+                               Error.New(ta.Exception).Throw<IOResponse<B>>(),
+
+                           _ => IOResponse.Complete(tf.Result(ta.Result))
+                       };
             });
 
     static IO<B> ApplyAsyncSync<A, B>(IOAsync<Func<A, B>> mf, IO<A> ma) =>
         new IOAsync<B>(
             async env =>
             {
-                var f = await mf.RunAsync(env).ConfigureAwait(false);
-                var a = ma.Run(env);
-                return IOResponse.Complete(f(a));
+                var ff = Fin<Func<A, B>>.Empty;
+                var fa = Fin<A>.Empty;
+
+                try
+                {
+                    ff = await mf.RunAsync(env).ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    ff = Error.New(e);
+                }
+
+                try
+                {
+                    fa = ma.Run(env);
+                }
+                catch (Exception e)
+                {
+                    fa = Error.New(e);
+                }
+
+                return (ff, fa) switch
+                       {
+                           (Fin.Fail<Func<A, B>> (var e1), Fin.Fail<A> (var e2)) =>
+                               (e1 + e2).Throw<IOResponse<B>>(),
+
+                           (Fin.Fail<Func<A, B>> (var e1), _) =>
+                               e1.Throw<IOResponse<B>>(),
+
+                           (_, Fin.Fail<A> (var e2)) =>
+                               e2.Throw<IOResponse<B>>(),
+
+                           (Fin.Succ<Func<A, B>> (var f), Fin.Succ<A> (var a)) =>
+                               IOResponse.Complete(f(a)),
+                           
+                           _ => throw new NotSupportedException()
+                       };
             });
 
     static IO<B> ApplySyncAsync<A, B>(IO<Func<A, B>> mf, IOAsync<A> ma) =>
         new IOAsync<B>(
             async env =>
             {
-                var f = mf.Run(env);
-                var a = await ma.RunAsync(env).ConfigureAwait(false);
-                return IOResponse.Complete(f(a));
+                var ff = Fin<Func<A, B>>.Empty;
+                var fa = Fin<A>.Empty;
+
+                try
+                {
+                    ff = mf.Run(env);
+                }
+                catch (Exception e)
+                {
+                    ff = Error.New(e);
+                }
+
+                try
+                {
+                    fa = await ma.RunAsync(env).ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    fa = Error.New(e);
+                }
+
+                return (ff, fa) switch
+                       {
+                           (Fin.Fail<Func<A, B>> (var e1), Fin.Fail<A> (var e2)) =>
+                               (e1 + e2).Throw<IOResponse<B>>(),
+
+                           (Fin.Fail<Func<A, B>> (var e1), _) =>
+                               e1.Throw<IOResponse<B>>(),
+
+                           (_, Fin.Fail<A> (var e2)) =>
+                               e2.Throw<IOResponse<B>>(),
+
+                           (Fin.Succ<Func<A, B>> (var f), Fin.Succ<A> (var a)) =>
+                               IOResponse.Complete(f(a)),
+                           
+                           _ => throw new NotSupportedException()
+                       };
             });
 
     static IO<B> ApplySyncSync<A, B>(IO<Func<A, B>> mf, IO<A> ma) =>
         new IOSync<B>(
             env =>
             {
-                var f = mf.Run(env);
-                var a = ma.Run(env);
-                return IOResponse.Complete(f(a));
+                var ff = Fin<Func<A, B>>.Empty;
+                var fa = Fin<A>.Empty;
+
+                try
+                {
+                    ff = mf.Run(env);
+                }
+                catch (Exception e)
+                {
+                    ff = Error.New(e);
+                }
+
+                try
+                {
+                    fa = ma.Run(env);
+                }
+                catch (Exception e)
+                {
+                    fa = Error.New(e);
+                }
+
+                return (ff, fa) switch
+                       {
+                           (Fin.Fail<Func<A, B>> (var e1), Fin.Fail<A> (var e2)) =>
+                               (e1 + e2).Throw<IOResponse<B>>(),
+
+                           (Fin.Fail<Func<A, B>> (var e1), _) =>
+                               e1.Throw<IOResponse<B>>(),
+
+                           (_, Fin.Fail<A> (var e2)) =>
+                               e2.Throw<IOResponse<B>>(),
+
+                           (Fin.Succ<Func<A, B>> (var f), Fin.Succ<A> (var a)) =>
+                               IOResponse.Complete(f(a)),
+                           
+                           _ => throw new NotSupportedException()
+                       };
             });
 
     static K<IO, B> Applicative<IO>.Action<A, B>(K<IO, A> ma, K<IO, B> mb) =>
