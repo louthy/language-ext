@@ -1,11 +1,12 @@
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Traits;
+namespace LanguageExt;
 
-public static class Foldable
+public static partial class Prelude
 {
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
@@ -448,140 +449,6 @@ public static class Foldable
         T.FoldMapBackUntil(f, predicate, ta);
 
     /// <summary>
-    /// List of elements of a structure, from left to right
-    /// </summary>
-    public static Seq<A> toSeq<T, A>(K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.ToSeq(ta);
-
-    /// <summary>
-    /// List of elements of a structure, from left to right
-    /// </summary>
-    public static Lst<A> toLst<T, A>(K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.ToLst(ta);
-
-    /// <summary>
-    /// List of elements of a structure, from left to right
-    /// </summary>
-    public static Arr<A> toArr<T, A>(K<T, A> ta)
-        where T : Foldable<T> =>
-        T.ToArr(ta);
-
-    /// <summary>
-    /// List of elements of a structure, from left to right
-    /// </summary>
-    public static Iterable<A> toIterable<T, A>(K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.ToIterable(ta);
-
-    /// <summary>
-    /// List of elements of a structure, from left to right
-    /// </summary>
-    public static bool isEmpty<T, A>(K<T, A> ta)
-        where T : Foldable<T> =>
-        T.IsEmpty(ta);
-
-    /// <summary>
-    /// Returns the size/length of a finite structure as an `int`.  The
-    /// default implementation just counts elements starting with the leftmost.
-    /// 
-    /// Instances for structures that can compute the element count faster
-    /// than via element-by-element counting, should provide a specialised
-    /// implementation.
-    /// </summary>
-    public static int count<T, A>(K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.Count(ta);
-
-    /// <summary>
-    /// Does an element that fits the predicate occur in the structure?
-    /// </summary>
-    public static bool exists<T, A>(Func<A, bool> predicate, K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.Exists(predicate, ta);
-
-    /// <summary>
-    /// Does the predicate hold for all elements in the structure?
-    /// </summary>
-    public static bool forAll<T, A>(Func<A, bool> predicate, K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.ForAll(predicate, ta);
-
-    /// <summary>
-    /// Does the element exist in the structure?
-    /// </summary>
-    public static bool contains<EqA, T, A>(A value, K<T, A> ta) 
-        where EqA : Eq<A> 
-        where T : Foldable<T> =>
-        T.Contains<EqA, A>(value, ta);
-
-    /// <summary>
-    /// Does the element exist in the structure?
-    /// </summary>
-    public static bool contains<T, A>(A value, K<T, A> ta)
-        where T : Foldable<T> =>
-        T.Contains(value, ta);
-
-    /// <summary>
-    /// Find the first element that match the predicate
-    /// </summary>
-    public static Option<A> find<T, A>(Func<A, bool> predicate, K<T, A> ta)
-        where T : Foldable<T> =>
-        T.Find(predicate, ta);
-
-    /// <summary>
-    /// Find the last element that match the predicate
-    /// </summary>
-    public static Option<A> findBack<T, A>(Func<A, bool> predicate, K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.FindBack(predicate, ta);
-
-    /// <summary>
-    /// Find the elements that match the predicate
-    /// </summary>
-    public static Seq<A> findAll<T, A>(Func<A, bool> predicate, K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.FindAll(predicate, ta);
-
-    /// <summary>
-    /// Find the elements that match the predicate
-    /// </summary>
-    public static Seq<A> findAllBack<T, A>(Func<A, bool> predicate, K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.FindAllBack(predicate, ta);
-
-    /// <summary>
-    /// Computes the sum of the numbers of a structure.
-    /// </summary>
-    public static A sum<T, A>(K<T, A> ta) 
-        where T : Foldable<T> 
-        where A : IAdditionOperators<A, A, A>, IAdditiveIdentity<A, A> =>
-        T.Sum(ta);
-
-    /// <summary>
-    /// Computes the product of the numbers of a structure.
-    /// </summary>
-    public static A product<T, A>(K<T, A> ta) 
-        where T : Foldable<T> 
-        where A : IMultiplyOperators<A, A, A>, IMultiplicativeIdentity<A, A> =>
-        T.Product(ta);
-
-    /// <summary>
-    /// Get the head item in the foldable or `None`
-    /// </summary>
-    public static Option<A> head<T, A>(K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.Head(ta);
-
-    /// <summary>
-    /// Get the head item in the foldable or `None`
-    /// </summary>
-    public static Option<A> last<T, A>(K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.Last(ta);
-
-    /// <summary>
     /// Map each element of a structure to an 'Applicative' action, evaluate these
     /// actions from left to right, and ignore the results.  For a version that
     /// doesn't ignore the results see `Traversable.traverse`.
@@ -608,93 +475,6 @@ public static class Foldable
     public static Unit iter<T, A>(Action<A> f, K<T, A> ta)
         where T : Foldable<T> =>
         T.Iter(f, ta);
-    
-    /// <summary>
-    /// Find the minimum value in the structure
-    /// </summary>
-    public static Option<A> min<OrdA, T, A>(K<T, A> ta)
-        where T : Foldable<T>
-        where OrdA : Ord<A> =>
-        T.Min<OrdA, A>(ta);
-
-    /// <summary>
-    /// Find the minimum value in the structure
-    /// </summary>
-    public static Option<A> min<T, A>(K<T, A> ta)
-        where T : Foldable<T>
-        where A : IComparable<A> =>
-        T.Min(ta);
-
-    /// <summary>
-    /// Find the maximum value in the structure
-    /// </summary>
-    public static Option<A> max<OrdA, T, A>(K<T, A> ta)
-        where T : Foldable<T>
-        where OrdA : Ord<A> =>
-        T.Max<OrdA, A>(ta);
-
-    /// <summary>
-    /// Find the maximum value in the structure
-    /// </summary>
-    public static Option<A> max<T, A>(K<T, A> ta)
-        where T : Foldable<T>
-        where A : IComparable<A> =>
-        T.Max(ta);
-    
-    /// <summary>
-    /// Find the minimum value in the structure
-    /// </summary>
-    public static A min<OrdA, T, A>(K<T, A> ta, A initialMin)
-        where T : Foldable<T>
-        where OrdA : Ord<A> =>
-        T.Min<OrdA, A>(ta, initialMin);
-
-    /// <summary>
-    /// Find the minimum value in the structure
-    /// </summary>
-    public static A min<T, A>(K<T, A> ta, A initialMin)
-        where T : Foldable<T>
-        where A : IComparable<A> =>
-        T.Min(ta, initialMin);
-
-    /// <summary>
-    /// Find the maximum value in the structure
-    /// </summary>
-    public static A max<OrdA, T, A>(K<T, A> ta, A initialMax)
-        where T : Foldable<T>
-        where OrdA : Ord<A> =>
-        T.Max<OrdA, A>(ta, initialMax);
-
-    /// <summary>
-    /// Find the maximum value in the structure
-    /// </summary>
-    public static A max<T, A>(K<T, A> ta, A initialMax)
-        where T : Foldable<T>
-        where A : IComparable<A> =>
-        T.Max(ta, initialMax);
-
-    /// <summary>
-    /// Find the average of all the values in the structure
-    /// </summary>
-    public static A average<T, A>(K<T, A> ta)
-        where T : Foldable<T>
-        where A : INumber<A> =>
-        T.Average(ta);
-
-    /// <summary>
-    /// Find the average of all the values in the structure
-    /// </summary>
-    public static B average<T, A, B>(Func<A, B> f, K<T, A> ta)
-        where T : Foldable<T>
-        where B : INumber<B> =>
-        T.Average(f, ta);
-
-    /// <summary>
-    /// Find the element at the specified index or `None` if out of range
-    /// </summary>
-    public static Option<A> at<T, A>(K<T, A> ta, Index index)
-        where T : Foldable<T> =>
-        T.At(ta, index);
 
     /// <summary>
     /// Partition a foldable into two sequences based on a predicate

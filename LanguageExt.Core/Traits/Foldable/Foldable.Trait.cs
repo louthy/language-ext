@@ -47,7 +47,7 @@ public interface Foldable<out T> where T : Foldable<T>
     /// <typeparam name="A">Value type</typeparam>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Aggregated value</returns>
-    public static virtual S FoldOption<A, S>(
+    public static virtual S FoldMaybe<A, S>(
         Func<S, Func<A, Option<S>>> f,
         S initialState,
         K<T, A> ta) =>
@@ -70,7 +70,7 @@ public interface Foldable<out T> where T : Foldable<T>
     /// <typeparam name="A">Value type</typeparam>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Aggregated value</returns>
-    public static virtual S FoldBackOption<A, S>(
+    public static virtual S FoldBackMaybe<A, S>(
         Func<A, Func<S, Option<S>>> f,
         S initialState,
         K<T, A> ta) =>
@@ -610,4 +610,17 @@ public interface Foldable<out T> where T : Foldable<T>
                           s => s.State.Result.IsNone,
                           (Index: 0, Result: Option<A>.None),
                           ta).Result;
+
+    /// <summary>
+    /// Partition a foldable into two sequences based on a predicate
+    /// </summary>
+    /// <param name="f">Predicate function</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Partitioned structure</returns>
+    public static virtual (Seq<A> True, Seq<A> False) Partition<A>(Func<A, bool> f, K<T, A> ta) =>
+        T.Fold(x => s => f(x) ? (s.True.Add(x), s.False)
+                              : (s.True, s.False.Add(x)),
+               (True: Seq<A>(), False: Seq<A>()),
+               ta);
 }

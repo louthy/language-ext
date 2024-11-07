@@ -16,12 +16,12 @@ public static partial class FoldableExtensions
     /// <typeparam name="A">Value type</typeparam>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Aggregated value</returns>
-    public static S FoldOption<T, A, S>(
+    public static S FoldMaybe<T, A, S>(
         Func<S, Func<A, Option<S>>> f,
         S initialState,
         K<T, A> ta) 
         where T : Foldable<T> =>
-        T.FoldOption(f, initialState, ta);
+        T.FoldMaybe(f, initialState, ta);
 
     /// <summary>
     /// Fold until the `Option` returns `None`
@@ -32,12 +32,12 @@ public static partial class FoldableExtensions
     /// <typeparam name="A">Value type</typeparam>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Aggregated value</returns>
-    public static S FoldOption<T, A, S>(
+    public static S FoldMaybe<T, A, S>(
         Func<S, A, Option<S>> f,
         S initialState,
         K<T, A> ta) 
         where T : Foldable<T> =>
-        T.FoldOption(s => a => f(s, a), initialState, ta);
+        T.FoldMaybe(s => a => f(s, a), initialState, ta);
 
     /// <summary>
     /// Fold until the `Option` returns `None`
@@ -48,12 +48,12 @@ public static partial class FoldableExtensions
     /// <typeparam name="A">Value type</typeparam>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Aggregated value</returns>
-    public static S FoldBackOption<T, A, S>(
+    public static S FoldBackMaybe<T, A, S>(
         Func<A, Func<S, Option<S>>> f,
         S initialState,
         K<T, A> ta)
         where T : Foldable<T> =>
-        T.FoldBackOption(f, initialState, ta);
+        T.FoldBackMaybe(f, initialState, ta);
 
     /// <summary>
     /// Fold until the `Option` returns `None`
@@ -64,12 +64,12 @@ public static partial class FoldableExtensions
     /// <typeparam name="A">Value type</typeparam>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Aggregated value</returns>
-    public static S FoldBackOption<T, A, S>(
+    public static S FoldBackMaybe<T, A, S>(
         Func<A, S, Option<S>> f,
         S initialState,
         K<T, A> ta)
         where T : Foldable<T> =>
-        T.FoldBackOption(a => s => f(a, s), initialState, ta);
+        T.FoldBackMaybe(a => s => f(a, s), initialState, ta);
     
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
@@ -605,14 +605,14 @@ public static partial class FoldableExtensions
         T.FindBack(predicate, ta);
 
     /// <summary>
-    /// Find the the elements that match the predicate
+    /// Find the elements that match the predicate
     /// </summary>
     public static Seq<A> FindAll<T, A>(this K<T, A> ta, Func<A, bool> predicate) 
         where T : Foldable<T> =>
         T.FindAll(predicate, ta);
 
     /// <summary>
-    /// Find the the elements that match the predicate
+    /// Find the elements that match the predicate
     /// </summary>
     public static Seq<A> FindAllBack<T, A>(this K<T, A> ta, Func<A, bool> predicate) 
         where T : Foldable<T> =>
@@ -674,7 +674,7 @@ public static partial class FoldableExtensions
     /// </summary>
     public static Unit Iter<T, A>(this K<T, A> ta, Action<int, A> f) 
         where T : Foldable<T> =>
-        ignore(T.Fold(a => ix => { f(ix, a); return ix + 1; }, 0, ta));
+        T.Iter(f, ta);
         
     /// <summary>
     /// Find the minimum value in the structure
@@ -762,4 +762,15 @@ public static partial class FoldableExtensions
     public static Option<A> At<T, A>(this K<T, A> ta, Index index)
         where T : Foldable<T> =>
         T.At(ta, index);
+
+    /// <summary>
+    /// Partition a foldable into two sequences based on a predicate
+    /// </summary>
+    /// <param name="f">Predicate function</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Partitioned structure</returns>
+    public static (Seq<A> True, Seq<A> False) Partition<T, A>(this K<T, A> ta, Func<A, bool> f)
+        where T : Foldable<T> =>
+        T.Partition(f, ta);
 }
