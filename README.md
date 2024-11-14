@@ -12,6 +12,7 @@ tangible benefits to long-term maintenance by removing hidden complexity and by 
 
 __Author on...__
 * __Blog__: [Notes from a Small Functional Island](https://paullouth.com/)
+* __Bluesky__: [@paullouth.bsky.social](https://bsky.app/profile/paullouth.bsky.social)
 * __Twitter:__ [@paullouth](https://twitter.com/paullouth)
 * __Mastodon:__ [@louthy@4four.org](https://4four.org/@louthy)
 * __Github ReadME project__: ['Functional programming is finally going mainstream'](https://github.com/readme/featured/functional-programming)
