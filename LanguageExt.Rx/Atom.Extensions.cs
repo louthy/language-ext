@@ -20,6 +20,19 @@ public static class AtomExtensions
             remove => atom.Change -= new AtomChangedEvent<A>(remove));
 
     /// <summary>
+    /// Creates an observable that watches for changes to the `Atom`, but
+    /// also gets primed with the initial state on subscription, so there's
+    /// always at least one value that flows downstream.
+    /// </summary>
+    /// <param name="atom">Atom to observe</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Observable atom</returns>
+    [Pure]
+    public static IObservable<A> Latest<A>(this Atom<A> atom) =>
+        Observable.Return(atom.Value)
+                  .Merge(atom.OnChange());
+
+    /// <summary>
     /// Observe changes to the `Atom`
     /// </summary>
     /// <param name="atom">Atom to observe</param>
@@ -32,6 +45,19 @@ public static class AtomExtensions
             remove => atom.Change -= new AtomChangedEvent<A>(remove));
 
     /// <summary>
+    /// Creates an observable that watches for changes to the `Atom`, but
+    /// also gets primed with the initial state on subscription, so there's
+    /// always at least one value that flows downstream.
+    /// </summary>
+    /// <param name="atom">Atom to observe</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Observable atom</returns>
+    [Pure]
+    public static IObservable<A> Latest<M, A>(this Atom<M, A> atom) =>
+        Observable.Return(atom.Value)
+                  .Merge(atom.OnChange());
+
+    /// <summary>
     /// Observe changes to the `Ref`
     /// </summary>
     /// <param name="value">Ref to observe</param>
@@ -42,6 +68,19 @@ public static class AtomExtensions
         Observable.FromEvent<A>(
             add => atom.Change += new AtomChangedEvent<A>(add),
             remove => atom.Change -= new AtomChangedEvent<A>(remove));
+
+    /// <summary>
+    /// Creates an observable that watches for changes to the `Atom`, but
+    /// also gets primed with the initial state on subscription, so there's
+    /// always at least one value that flows downstream.
+    /// </summary>
+    /// <param name="atom">Atom to observe</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Observable atom</returns>
+    [Pure]
+    public static IObservable<A> Latest<A>(this Ref<A> atom) =>
+        Observable.Return(atom.Value)
+                  .Merge(atom.OnChange());
 
     /// <summary>
     /// Observe changes to the `AtomHashMap`
