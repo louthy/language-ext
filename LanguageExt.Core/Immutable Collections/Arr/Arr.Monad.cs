@@ -5,7 +5,15 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public partial class Arr : Monad<Arr>, Traversable<Arr>, Alternative<Arr>
+public partial class Arr : 
+    Monad<Arr>, 
+    Traversable<Arr>, 
+    Alternative<Arr>,
+    Natural<Arr, Seq>,
+    Natural<Arr, Iterable>,
+    Natural<Arr, Lst>,
+    Natural<Arr, Set>,
+    Natural<Arr, HashSet>
 {
     static K<Arr, B> Monad<Arr>.Bind<A, B>(K<Arr, A> ma, Func<A, K<Arr, B>> f)
     {
@@ -128,4 +136,19 @@ public partial class Arr : Monad<Arr>, Traversable<Arr>, Alternative<Arr>
                     bs => f(value).Bind(
                         b => F.Pure((SeqStrict<B>)bs.Add(b)))); 
     }
+
+    static K<Seq, A> Natural<Arr, Seq>.Transform<A>(K<Arr, A> fa) => 
+        toSeq(fa.As().ToSeq());
+
+    static K<Iterable, A> Natural<Arr, Iterable>.Transform<A>(K<Arr, A> fa) => 
+        fa.As().AsIterable();
+
+    static K<Lst, A> Natural<Arr, Lst>.Transform<A>(K<Arr, A> fa) => 
+        toList(fa.As());
+
+    static K<Set, A> Natural<Arr, Set>.Transform<A>(K<Arr, A> fa) => 
+        toSet(fa.As());
+
+    static K<HashSet, A> Natural<Arr, HashSet>.Transform<A>(K<Arr, A> fa) => 
+        toHashSet(fa.As());
 }

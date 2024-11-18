@@ -7,7 +7,14 @@ public class Option :
     Monad<Option>, 
     Fallible<Unit, Option>,
     Traversable<Option>, 
-    Alternative<Option>
+    Alternative<Option>,
+    Natural<Option, Arr>,
+    Natural<Option, Lst>,
+    Natural<Option, Seq>,
+    Natural<Option, Iterable>,
+    Natural<Option, Eff>,
+    Natural<Option, OptionT<IO>>,
+    Natural<Option, Fin>
 {
     static K<Option, B> Monad<Option>.Bind<A, B>(K<Option, A> ma, Func<A, K<Option, B>> f) =>
         ma.As().Bind(f);
@@ -69,4 +76,25 @@ public class Option :
         Func<Unit, K<Option, A>> Fail) => 
         fa.As().Match(Some: Option<A>.Some, 
                       None: () => Predicate(default) ? Fail(default).As() : Option<A>.None);
+
+    static K<Arr, A> Natural<Option, Arr>.Transform<A>(K<Option, A> fa) => 
+        fa.As().ToArr();
+
+    static K<Lst, A> Natural<Option, Lst>.Transform<A>(K<Option, A> fa) => 
+        fa.As().ToLst();
+
+    static K<Seq, A> Natural<Option, Seq>.Transform<A>(K<Option, A> fa) => 
+        fa.As().ToSeq();
+
+    static K<Iterable, A> Natural<Option, Iterable>.Transform<A>(K<Option, A> fa) => 
+        fa.As().ToIterable();
+
+    static K<Eff, A> Natural<Option, Eff>.Transform<A>(K<Option, A> fa) => 
+        fa.As().ToEff();
+
+    static K<OptionT<IO>, A> Natural<Option, OptionT<IO>>.Transform<A>(K<Option, A> fa) => 
+        fa.As().ToIO();
+
+    static K<Fin, A> Natural<Option, Fin>.Transform<A>(K<Option, A> fa) => 
+        fa.As().ToFin();
 }

@@ -1,13 +1,19 @@
 using System;
 using LanguageExt.Traits;
 using G = System.Collections.Generic;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
 public partial class Iterable : 
     Monad<Iterable>, 
     Alternative<Iterable>, 
-    Traversable<Iterable>
+    Traversable<Iterable>,
+    Natural<Iterable, Arr>,
+    Natural<Iterable, Seq>,
+    Natural<Iterable, Lst>,
+    Natural<Iterable, Set>,
+    Natural<Iterable, HashSet>
 {
     static K<Iterable, B> Monad<Iterable>.Bind<A, B>(K<Iterable, A> ma, Func<A, K<Iterable, B>> f) =>
         ma.As().Bind(f);
@@ -83,4 +89,18 @@ public partial class Iterable :
     
     static Seq<A> Foldable<Iterable>.ToSeq<A>(K<Iterable, A> ta) =>
         new(ta.As());
-}
+
+    static K<Seq, A> Natural<Iterable, Seq>.Transform<A>(K<Iterable, A> fa) => 
+        toSeq(fa.As());
+
+    static K<Arr, A> Natural<Iterable, Arr>.Transform<A>(K<Iterable, A> fa) => 
+        toArray(fa.As());
+
+    static K<Lst, A> Natural<Iterable, Lst>.Transform<A>(K<Iterable, A> fa) => 
+        toList(fa.As());
+
+    static K<Set, A> Natural<Iterable, Set>.Transform<A>(K<Iterable, A> fa) => 
+        toSet(fa.As());
+
+    static K<HashSet, A> Natural<Iterable, HashSet>.Transform<A>(K<Iterable, A> fa) => 
+        toHashSet(fa.As());}
