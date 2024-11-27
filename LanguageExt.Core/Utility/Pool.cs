@@ -27,12 +27,12 @@ namespace LanguageExt
     /// Manages a concurrent stack of values that will grow as needed
     /// When spent new objects are allocated used the `New<A>` trait
     /// </summary>
-    internal static class Pool<NewA, A> where NewA : New<A>
+    internal static class Pool<NewA, A> where NewA : struct, New<A>
     {
         static ConcurrentStack<A> stack = new ConcurrentStack<A>();
 
         public static A Pop() =>
-            stack.TryPop(out A var)
+            stack.TryPop(out var var)
                 ? var
                 : default(NewA).New();
 
@@ -45,13 +45,13 @@ namespace LanguageExt
     /// Manages a concurrent stack of values that will grow as needed
     /// When spent new objects are allocated used the `New<A>` trait
     /// </summary>
-    internal static class Pool<NewA, A, B> where NewA : New<A, B>
+    internal static class Pool<NewA, A, B> where NewA : struct, New<A, B>
     {
         static ConcurrentStack<A> stack = new ConcurrentStack<A>();
 
         public static A Pop(B value)
         {
-            if(stack.TryPop(out A var))
+            if(stack.TryPop(out var var))
             {
                 default(NewA).Set(var, value);
                 return var;

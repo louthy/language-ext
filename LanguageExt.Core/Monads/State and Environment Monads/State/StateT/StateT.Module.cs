@@ -3,12 +3,6 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-
-/// <summary>
-/// `MonadStateT` trait implementation for `StateT` 
-/// </summary>
-/// <typeparam name="S">State environment type</typeparam>
-/// <typeparam name="M">Given monad trait</typeparam>
 public class StateT<S>
 {
     public static StateT<S, M, A> lift<M, A>(K<M, A> ma)  
@@ -16,11 +10,6 @@ public class StateT<S>
         StateT<S, M, A>.Lift(ma);
 }
 
-/// <summary>
-/// `MonadStateT` trait implementation for `StateT` 
-/// </summary>
-/// <typeparam name="S">State environment type</typeparam>
-/// <typeparam name="M">Given monad trait</typeparam>
 public partial class StateT<S, M>
 {
     public static StateT<S, M, A> pure<A>(A value) => 
@@ -35,11 +24,6 @@ public partial class StateT<S, M>
         StateT<S, M, A>.LiftIO(effect);
 }
 
-/// <summary>
-/// `MonadStateT` trait implementation for `StateT` 
-/// </summary>
-/// <typeparam name="S">State environment type</typeparam>
-/// <typeparam name="M">Given monad trait</typeparam>
 public class StateT
 {
     public static StateT<S, M, A> pure<S, M, A>(A value)  

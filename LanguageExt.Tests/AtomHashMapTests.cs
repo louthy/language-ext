@@ -728,5 +728,32 @@ public class AtomHashMapTests
                 ("biz", Change<int>.Added(7)),
                 ("baz", Change<int>.Added(9))),
             state.Changes);
-    }        
+    }
+    
+    [Theory]
+    [InlineData(-2)]
+    [InlineData(0b10000011001)]
+    [InlineData(0b1001100111001)]
+    [InlineData(0b1001110000010)]
+    [InlineData(4114)]
+    public void AppendInvokesChangeInt(int conflictKey)
+    {
+        var                    hashMap      = AtomHashMap((conflictKey, 3), (2, 42));
+        var                    toAppend     = HashMap((conflictKey, 6), (5, 7), (25, 9));
+        var                    initialValue = hashMap.ToHashMap();
+        HashMapPatch<int, int> state        = default!;
+        hashMap.Change += v => state = v;
+
+        hashMap.Append(toAppend);
+
+        Assert.Equal(initialValue, state.From);
+        Assert.Equal(hashMap.ToHashMap(), state.To);
+        Assert.Equal(initialValue.Combine(toAppend), hashMap.ToHashMap());
+        Assert.Equal(3, hashMap[conflictKey]);
+        Assert.Equal(
+            HashMap(
+                (5, Change<int>.Added(7)),
+                (25, Change<int>.Added(9))),
+            state.Changes);
+    }
 }

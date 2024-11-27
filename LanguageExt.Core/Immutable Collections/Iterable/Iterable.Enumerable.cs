@@ -6,7 +6,9 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
+#pragma warning disable CA2260
 sealed class IterableEnumerable<A>(IEnumerable<A> runEnumerable) : Iterable<A>
+#pragma warning restore CA2260
 {
     /// <summary>
     /// Number of items in the sequence.

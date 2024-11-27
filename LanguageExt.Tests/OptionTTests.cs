@@ -107,7 +107,7 @@ public class OptionTTests
         var opt = Some(Map((1, "A"), (2, "B"), (3, "C"), (4, "D"), (5, "E")));
 
         var res = from x in opt.AsIterable()
-                  from y in x.AsEnumerable()
+                  from y in x.AsIterable()
                   select y.Value.ToLower();
 
         var fd = res.AsIterable().Fold("", (s, x) => s + x);

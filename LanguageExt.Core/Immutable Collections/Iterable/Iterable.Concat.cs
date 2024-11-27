@@ -4,7 +4,9 @@ using System.Diagnostics.Contracts;
 
 namespace LanguageExt;
 
+#pragma warning disable CA2260
 sealed class IterableConcat<A>(Seq<Iterable<A>> Items) : Iterable<A>
+#pragma warning restore CA2260
 {
     public Seq<Iterable<A>> Items { get; } = Items;
 

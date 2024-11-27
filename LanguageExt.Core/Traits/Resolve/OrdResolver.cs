@@ -155,7 +155,7 @@ public static class OrdResolve<A>
         var gtype = gens[0].Assembly.GetType($"{iname}`{tgens.Length + 1}");
 
         var ngens = tgens.Concat([gens[1]]).ToArray();
-        var type  = gtype.MakeGenericType(ngens);
+        var type  = gtype!.MakeGenericType(ngens);
 
         var resolver = typeof(OrdResolve<>).MakeGenericType(type);
 

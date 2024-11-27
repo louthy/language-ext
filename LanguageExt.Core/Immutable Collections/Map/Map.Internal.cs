@@ -159,7 +159,7 @@ internal class MapInternal<OrdK, K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode() =>
         hashCode == 0
-            ? (hashCode = FNV32.Hash<HashablePair<OrdK, HashableDefault<V>, K, V>, (K, V)>(AsEnumerable()))
+            ? (hashCode = FNV32.Hash<HashablePair<OrdK, HashableDefault<V>, K, V>, (K, V)>(AsIterable()))
             : hashCode;
 
     /// <summary>
@@ -1106,7 +1106,7 @@ internal class MapInternal<OrdK, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<(K Key, V Value), KR> keySelector, Func<(K Key, V Value), VR> valueSelector) where KR : notnull =>
-        AsEnumerable().ToDictionary(keySelector, valueSelector);
+        AsIterable().ToDictionary(keySelector, valueSelector);
 
     /// <summary>
     /// Enumerable of in-order tuples that make up the map
@@ -1116,7 +1116,7 @@ internal class MapInternal<OrdK, K, V> :
     public Iterable<(K Key, V Value)> Pairs
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => AsEnumerable().Map(kv => (kv.Key, kv.Value));
+        get => AsIterable().Map(kv => (kv.Key, kv.Value));
     }
 
     /// <summary>
@@ -1146,11 +1146,11 @@ internal class MapInternal<OrdK, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<(K Key, V Value)> ToSeq() =>
-        toSeq(AsEnumerable());
+        toSeq(AsIterable());
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Iterable<(K Key, V Value)> AsEnumerable()
+    public Iterable<(K Key, V Value)> AsIterable()
     {
         return Iterable.createRange(Go());
         IEnumerable<(K, V)> Go()
@@ -1160,6 +1160,17 @@ internal class MapInternal<OrdK, K, V> :
             {
                 yield return iter.Current;
             }
+        }
+    }
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public IEnumerable<(K Key, V Value)> AsEnumerable()
+    {
+        using var iter = new MapEnumerator<K, V>(Root, Rev, 0);
+        while (iter.MoveNext())
+        {
+            yield return iter.Current;
         }
     }
 
@@ -1413,13 +1424,13 @@ internal class MapInternal<OrdK, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MapInternal<OrdK, K, V> Filter(Func<K, V, bool> f) =>
-        new(AsEnumerable().Filter(mi => f(mi.Key, mi.Value)), 
+        new(AsIterable().Filter(mi => f(mi.Key, mi.Value)), 
             MapModuleM.AddOpt.ThrowOnDuplicate);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MapInternal<OrdK, K, V> Filter(Func<V, bool> f) =>
-        new(AsEnumerable().Filter(mi => f(mi.Value)),
+        new(AsIterable().Filter(mi => f(mi.Value)),
             MapModuleM.AddOpt.ThrowOnDuplicate);
 }
 
@@ -1639,16 +1650,6 @@ static class MapModule
 
     public static bool Exists<K, V>(MapItem<K, V> node, Func<K, V, bool> pred) =>
         !node.IsEmpty && (pred(node.KeyValue.Key, node.KeyValue.Value) || Exists(node.Left, pred) || Exists(node.Right, pred));
-
-    public static MapItem<K, U> Map<K, V, U>(MapItem<K, V> node, Func<V, U> mapper) =>
-        node.IsEmpty
-            ? MapItem<K, U>.Empty
-            : new MapItem<K, U>(node.Height, node.Count, (node.KeyValue.Key, mapper(node.KeyValue.Value)), Map(node.Left, mapper), Map(node.Right, mapper));
-
-    public static MapItem<K, U> Map<K, V, U>(MapItem<K, V> node, Func<K, V, U> mapper) =>
-        node.IsEmpty
-            ? MapItem<K, U>.Empty
-            : new MapItem<K, U>(node.Height, node.Count, (node.KeyValue.Key, mapper(node.KeyValue.Key, node.KeyValue.Value)), Map(node.Left, mapper), Map(node.Right, mapper));
 
     public static MapItem<K, V> Add<OrdK, K, V>(MapItem<K, V> node, K key, V value)
         where OrdK : Ord<K>

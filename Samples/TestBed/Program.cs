@@ -77,13 +77,12 @@ public class Program
 {
     static void Main(string[] args)
     {
-        var eff1 = liftEff(e => Task.FromException<int>(Error.New("failed 1")));
-        var eff2 = liftEff(e => Task.FromException<int>(Error.New("failed 2")));
-        var effs = Seq(eff1, eff2);
-        var res = effs.Partition();
+        var ma = Set(1,2,3,4);
+        var mb = ma.Map(x => 1);
 
-        Console.WriteLine(res);
-        
+        var mc = Set(1);
+
+               
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
         //                                                                                                    //

@@ -687,7 +687,7 @@ public abstract record Either<L, R> :
     /// </summary>
     [Pure]
     public virtual bool Equals(Either<L, R>? other) =>
-        Equals<EqDefault<L>, EqDefault<R>>(other);
+        other is not null && Equals<EqDefault<L>, EqDefault<R>>(other);
 
     /// <summary>
     /// Equality override

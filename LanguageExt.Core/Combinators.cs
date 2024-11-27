@@ -126,7 +126,7 @@ namespace LanguageExt
         public static Func<Func<Func<A, B>, A, B>, Func<A, B>> Y = 
             (Func<Func<A, B>, A, B> f) => 
                 (A x) =>
-                    f(Y(f), x);
+                    f(Y!(f), x);
     }
 
     public static class Combinators

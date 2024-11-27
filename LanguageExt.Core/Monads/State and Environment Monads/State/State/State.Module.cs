@@ -2,22 +2,12 @@
 
 namespace LanguageExt;
 
-/// <summary>
-/// `MonadStateT` trait implementation for `StateT` 
-/// </summary>
-/// <typeparam name="S">State environment type</typeparam>
-/// <typeparam name="M">Given monad trait</typeparam>
 public partial class State<S>
 {
     public static State<S, A> pure<A>(A value) => 
         State<S, A>.Pure(value);
 }
 
-/// <summary>
-/// `MonadStateT` trait implementation for `StateT` 
-/// </summary>
-/// <typeparam name="S">State environment type</typeparam>
-/// <typeparam name="M">Given monad trait</typeparam>
 public class State
 {
     public static State<S, A> pure<S, A>(A value) =>  

@@ -15,7 +15,7 @@ namespace LanguageExt
             {
                 foreach (var b in mb)
                 {
-                    if (a.Equals(b)) return true;
+                    if (a?.Equals(b) ?? false) return true;
                 }
             }
 

@@ -80,14 +80,14 @@ public static class EnumerableOptimal
             this.ms = ms;
             this.index = 0;
             this.iter = ms[0].GetEnumerator();
-            current = default;
+            current = default!;
         }
 
         public readonly A Current => 
             current;
 
         readonly object IEnumerator.Current => 
-            current;
+            current!;
 
         public void Dispose() =>
             iter?.Dispose();
@@ -101,7 +101,7 @@ public static class EnumerableOptimal
             }
             else
             {
-                current = default;
+                current = default!;
                 index++;
                 while(index < ms.Count)
                 {
@@ -135,24 +135,24 @@ public static class EnumerableOptimal
     {
         readonly Func<A, IEnumerable<B>> f;
         readonly IEnumerable<A> ema;
-        IEnumerator<A> ma;
-        IEnumerator<B> mb;
+        IEnumerator<A>? ma;
+        IEnumerator<B>? mb;
         B current;
 
         public BindIter(IEnumerable<A> ma, Func<A, IEnumerable<B>> f)
         {
             this.ema = ma;
             this.ma = ema.GetEnumerator();
-            this.mb = default;
+            this.mb = default!;
             this.f = f;
-            current = default;
+            current = default!;
         }
 
         public B Current =>
             current;
 
         object IEnumerator.Current =>
-            current;
+            current!;
 
         public void Dispose()
         {

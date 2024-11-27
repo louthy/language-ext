@@ -60,7 +60,7 @@ public struct OrdOptional<OrdA, OPTION, OA, A> : Ord<OA>
     /// <returns>Hash code of x</returns>
     [Pure]
     public static int GetHashCode(OA x) =>
-        x.IsNull() ? 0 : x.GetHashCode();
+        x?.GetHashCode() ?? 0;
 }
 
 /// <summary>

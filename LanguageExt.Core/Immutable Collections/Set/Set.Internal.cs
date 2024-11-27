@@ -438,7 +438,7 @@ internal class SetInternal<OrdA, A> :
     /// <returns>Mapped Set</returns>
     [Pure]
     public SetInternal<OrdB, B> Map<OrdB, B>(Func<A, B> f) where OrdB : Ord<B> =>
-        new (SetModule.Map(set, f));
+        new (AsIterable().Map(f));
 
     /// <summary>
     /// Maps the values of this set into a new set of values using the
@@ -449,7 +449,7 @@ internal class SetInternal<OrdA, A> :
     /// <returns>Mapped Set</returns>
     [Pure]
     public SetInternal<OrdA, A> Map(Func<A, A> f) =>
-        new (SetModule.Map(set, f));
+        new (AsIterable().Map(f));
 
     /// <summary>
     /// Filters items from the set using the predicate.  If the predicate
@@ -1242,12 +1242,6 @@ internal static class SetModule
         node.IsEmpty
             ? node
             : RotLeft(Make(node.Key, node.Left, RotRight(node.Right)));
-
-    [Pure]
-    public static SetItem<B> Map<A, B>(SetItem<A> node, Func<A, B> f) =>
-        node.IsEmpty
-            ? SetItem<B>.Empty
-            : new SetItem<B>(node.Height, node.Count, f(node.Key), Map(node.Left, f), Map(node.Right, f));
 
     internal static Option<A> Max<A>(SetItem<A> node) =>
         node.Right.IsEmpty
