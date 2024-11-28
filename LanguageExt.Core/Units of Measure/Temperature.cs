@@ -2,6 +2,8 @@
 using System.Runtime.CompilerServices;
 using static LanguageExt.Prelude;
 
+namespace LanguageExt;
+
 public readonly struct Temperature :
     IComparable<Temperature>,
     IEquatable<Temperature>,
@@ -286,7 +288,7 @@ public readonly struct Temperature :
                           },
             _ => throw new NotSupportedException(Type.ToString())
         };
-
+    
     public Temperature Max(Temperature rhs) =>
         Type switch
         {
