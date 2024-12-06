@@ -11,7 +11,7 @@ using static LanguageExt.Prelude;
 namespace LanguageExt;
 
 /// <summary>
-/// Equivalent of `Either<Error, A>`
+/// Equivalent of `Either&lt;Error, A&gt;`
 /// Called `Fin` because it is expected to be used as the concrete result of a computation
 /// </summary>
 public abstract class Fin<A> : 
