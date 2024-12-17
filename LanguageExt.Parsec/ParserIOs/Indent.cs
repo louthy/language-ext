@@ -89,9 +89,9 @@ namespace LanguageExt.Parsec
                       pres.Tag,
                       new Reply<TOKEN, A>(
                           pres.Reply.Tag,
-                          pres.Reply.Result,
+                          pres.Reply.Result!,
                           new PString<TOKEN>(inp.Value, pres.Reply.State.Index, inp.EndIndex, pres.Reply.State.UserState, pres.Reply.State.TokenPos),
-                          pres.Reply.Error));
+                          pres.Reply.Error!));
         }  
     }
 }

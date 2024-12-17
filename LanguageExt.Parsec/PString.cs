@@ -43,7 +43,7 @@ namespace LanguageExt.Parsec
         public PString SetIndex(int index) =>
             new PString(Value, index, EndIndex, Pos, DefPos, Side, UserState);
 
-        public PString SetUserState(object state) =>
+        public PString SetUserState(object? state) =>
             new PString(Value, Index, EndIndex, Pos, DefPos, Side, state);
 
         public PString SetEndIndex(int endIndex) =>

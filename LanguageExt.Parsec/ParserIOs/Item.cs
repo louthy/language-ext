@@ -38,7 +38,7 @@ namespace LanguageExt.Parsec
 
                     if (ns.Tag == ResultTag.Consumed)
                     {
-                        if (pred(ns.Reply.Result))
+                        if (pred(ns.Reply.Result!))
                         {
                             return ns;
                         }
