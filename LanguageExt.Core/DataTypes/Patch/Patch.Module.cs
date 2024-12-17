@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace LanguageExt;
 
 /// <summary>
-/// A `Patch` is a collection of edits performed to a _document_, in this case an 'IEnumerable&lt;A&gt;'. 
+/// A `Patch` is a collection of edits performed to a _document_, in this case an 'IEnumerable〈A〉'. 
 /// They are implemented as a list of 'Edit', and can be converted to and from raw lists of edits using 
 /// `toList` and `fromList` respectively.
 /// 

@@ -463,13 +463,13 @@ public partial class Seq
     /// remainder of the list:
     /// </summary>
     /// <example>
-    /// Seq.span(Seq(1,2,3,4,1,2,3,4), x => x &lt; 3) == (Seq(1,2), Seq(3,4,1,2,3,4))
+    /// Seq.span(Seq(1,2,3,4,1,2,3,4), x => x 〈 3) == (Seq(1,2), Seq(3,4,1,2,3,4))
     /// </example>
     /// <example>
-    /// Seq.span(Seq(1,2,3), x => x &lt; 9) == (Seq(1,2,3), Seq())
+    /// Seq.span(Seq(1,2,3), x => x 〈 9) == (Seq(1,2,3), Seq())
     /// </example>
     /// <example>
-    /// Seq.span(Seq(1,2,3), x => x &lt; 0) == (Seq(), Seq(1,2,3))
+    /// Seq.span(Seq(1,2,3), x => x 〈 0) == (Seq(), Seq(1,2,3))
     /// </example>
     /// <typeparam name="T">List element type</typeparam>
     /// <param name="self">List</param>

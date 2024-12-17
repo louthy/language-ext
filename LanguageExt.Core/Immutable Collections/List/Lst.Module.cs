@@ -1190,13 +1190,13 @@ public static class List
     /// remainder of the list:
     /// </summary>
     /// <example>
-    /// List.span(List(1,2,3,4,1,2,3,4), x => x &lt; 3) == (List(1,2),List(3,4,1,2,3,4))
+    /// List.span(List(1,2,3,4,1,2,3,4), x => x 〈 3) == (List(1,2),List(3,4,1,2,3,4))
     /// </example>
     /// <example>
-    /// List.span(List(1,2,3), x => x &lt; 9) == (List(1,2,3),List())
+    /// List.span(List(1,2,3), x => x 〈 9) == (List(1,2,3),List())
     /// </example>
     /// <example>
-    /// List.span(List(1,2,3), x => x &lt; 0) == (List(),List(1,2,3))
+    /// List.span(List(1,2,3), x => x 〈 0) == (List(),List(1,2,3))
     /// </example>
     /// <typeparam name="T">List element type</typeparam>
     /// <param name="self">List</param>

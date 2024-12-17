@@ -15,10 +15,10 @@ namespace LanguageExt
     /// elements in a list, in order.
     /// </para>
     /// <code>
-    ///     var vc = VectorClock&lt;char&gt;.Empty;
+    ///     var vc = VectorClock〈char〉.Empty;
     ///     vc = vc.Insert('a', 1);
     ///     vc = vc.Insert('b', 2);
-    ///     vc == VectorClock&lt;char&gt;.fromList(Seq(('a', 1), ('b', 2)))
+    ///     vc == VectorClock〈char〉.fromList(Seq(('a', 1), ('b', 2)))
     /// </code>
     /// <para>
     /// Note that, for different keys, the order of insertion does not
