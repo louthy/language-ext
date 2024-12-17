@@ -28,26 +28,26 @@ public static class ExprIO
     ///  This is an example of an expression parser that handles prefix signs, 
     ///  postfix increment and basic arithmetic.
     /// 
-    ///    Parser<int> expr = null;
+    ///    Parser〈int〉 expr = null;
     /// 
-    ///    var binary = fun((string name, Func<int,int,int> f, Assoc assoc) =>
-    ///         Operator.Infix<int>( assoc,
+    ///    var binary = fun((string name, Func〈int, int, int〉 f, Assoc assoc) =〉
+    ///         Operator.Infix〈int〉( assoc,
     ///                              from x in reservedOp(name)
     ///                              select fun );
     ///                              
-    ///    var prefix = fun((string name, Func<int,int> f) =>
-    ///         Operator.Prefix<int>(from x in reservedOp(name)
+    ///    var prefix = fun((string name, Func〈int, int〉 f) =〉
+    ///         Operator.Prefix〈int〉(from x in reservedOp(name)
     ///                              select fun );
     /// 
-    ///    var postfix = fun((string name, Func<int,int> f) =>
-    ///         Operator.Postfix<int>(from x in reservedOp(name)
+    ///    var postfix = fun((string name, Func〈int, int〉 f) =〉
+    ///         Operator.Postfix〈int〉(from x in reservedOp(name)
     ///                               select fun );
     ///         
-    ///    Operator<int>[][] table = { { prefix("-",negate), prefix("+",id) }
-    ///                              , { postfix("++", incr) }
-    ///                              , { binary("*", mult) Assoc.Left), binary("/", div, Assoc.Left) }
-    ///                              , { binary("+", add, Assoc.Left), binary("-", subtr, Assoc.Left) } };
-    ///              ]
+    ///    Operator〈int〉[][] table = [ [ prefix("-",negate), prefix("+",id) ]
+    ///                               , [ postfix("++", incr) ]
+    ///                               , [ binary("*", mult) Assoc.Left), binary("/", div, Assoc.Left) ]
+    ///                               , [ binary("+", add, Assoc.Left), binary("-", subtr, Assoc.Left) ] ];
+    ///              
     ///    var term              = either(parens(expr),natural).label("simple expression")
     ///            
     ///    expr                  = buildExpressionParser(table,term).label("expression")

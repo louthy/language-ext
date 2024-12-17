@@ -42,8 +42,8 @@ static class Internal
             ? unexpected<T>("choice parser with no choices")
             : inp =>
               {
-                  List<T>     results = new List<T>();
-                  ParserError error   = null;
+                  List<T>      results = new List<T>();
+                  ParserError? error   = null;
 
                   foreach (var p in ps)
                   {

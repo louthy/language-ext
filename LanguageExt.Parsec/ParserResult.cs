@@ -17,7 +17,7 @@ namespace LanguageExt.Parsec
         public static ParserResult<T> Empty<T>(Reply<T> reply) =>
             new ParserResult<T>(ResultTag.Empty, reply);
 
-        public static ParserResult<T> EmptyOK<T>(T value, PString input, ParserError error = null) =>
+        public static ParserResult<T> EmptyOK<T>(T value, PString input, ParserError? error = null) =>
             new ParserResult<T>(ResultTag.Empty, Reply.OK(value, input, error));
 
         public static ParserResult<T> EmptyError<T>(ParserError error) =>
@@ -73,11 +73,11 @@ namespace LanguageExt.Parsec
         {
             if (Tag == ResultTag.Empty && Reply.Tag == ReplyTag.Error)
             {
-                return EmptyError(Reply.Error);
+                return EmptyError(Reply.Error!);
             }
             if (Tag == ResultTag.Consumed && Reply.Tag == ReplyTag.Error)
             {
-                return ConsumedError(Reply.Error);
+                return ConsumedError(Reply.Error!);
             }
             return Otherwise(this);
         }
@@ -89,7 +89,7 @@ namespace LanguageExt.Parsec
         {
             if (Tag == ResultTag.Empty && Reply.Tag == ReplyTag.Error)
             {
-                return EmptyError(Reply.Error);
+                return EmptyError(Reply.Error!);
             }
             return Otherwise(this);
         }

@@ -172,8 +172,8 @@ namespace LanguageExt.Parsec
             select x;
 
         /// <summary>
-        /// Lexeme parser angles(p) parses p enclosed in angle brackets <
-        /// and >, returning the value of p. 
+        /// Lexeme parser angles(p) parses p enclosed in angle brackets 〈
+        /// and 〉, returning the value of p. 
         /// </summary>
         public Parser<T> Angles<T>(Parser<T> p) =>
             from o in Symbol("<")

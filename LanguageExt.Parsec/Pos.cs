@@ -22,11 +22,12 @@ namespace LanguageExt.Parsec
 
         public static readonly Pos Zero = new Pos(0, 0);
 
-        public bool Equals(Pos other) =>
+        public bool Equals(Pos? other) =>
+            other is not null &&
             Line == other.Line &&
             Column == other.Column;
 
-        public override bool Equals(object obj) =>
+        public override bool Equals(object? obj) =>
             ((obj as Pos)?.Equals(this)).GetValueOrDefault();
 
         public override int GetHashCode() =>
@@ -35,12 +36,14 @@ namespace LanguageExt.Parsec
         public override string ToString() =>
             $"(line {Line + 1}, column {Column + 1})";
 
-        public int CompareTo(Pos other) =>
-            Line < other.Line
-                ? -1
-                : Line > other.Line
-                    ? 1
-                    : Column.CompareTo(other.Column);
+        public int CompareTo(Pos? other) =>
+            other is null
+                ? 1
+                : Line < other.Line
+                    ? -1
+                    : Line > other.Line
+                        ? 1
+                        : Column.CompareTo(other.Column);
 
         public static bool operator ==(Pos lhs, Pos rhs) =>
             lhs.Equals(rhs);

@@ -47,7 +47,7 @@ public class GenLanguageDef
 
     /// <summary>
     /// This parser should accept any start characters of operators. For
-    /// example oneOf(":!#$%&*+.\/\<=>?\@\\\\^|-~")
+    /// example oneOf(":!#$%＆*+.\/\〈=〉?\@\\\\^|-~")
     /// </summary>
     public readonly Parser<char> OpStart;
 
