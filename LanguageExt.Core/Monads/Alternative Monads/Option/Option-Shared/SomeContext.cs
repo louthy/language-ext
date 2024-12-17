@@ -4,7 +4,7 @@ namespace LanguageExt;
 
 /// <summary>
 /// Provides a fluent context when calling the Some(Func) method from
-/// a member of the Optional<A> trait.  Must call None(Func) or 
+/// a member of the Optional〈A〉 trait.  Must call None(Func) or 
 /// None(Value) on this context to complete the matching operation.
 /// </summary>
 /// <typeparam name="A">Bound optional value type</typeparam>

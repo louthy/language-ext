@@ -117,8 +117,8 @@ public readonly struct Option<A> :
 
     /// <summary>
     /// Uses the `EqDefault` instance to do an equality check on the bound value.  
-    /// To use anything other than the default call `oa.Equals<EqA>(ob)`
-    /// where `EqA` is an instance derived from `Eq<A>`
+    /// To use anything other than the default call `oa.Equals〈EqA〉(ob)`
+    /// where `EqA` is an instance derived from `Eq〈A〉`
     /// </summary>
     /// <remarks>
     /// This uses the `EqDefault` instance for comparison of the bound `A` values.  
@@ -149,8 +149,8 @@ public readonly struct Option<A> :
 
     /// <summary>
     /// Uses the `OrdDefault` instance to do an ordering comparison on the bound 
-    /// value.  To use anything other than the default call  `this.Compare<OrdA>(this, other)`, 
-    /// where `OrdA` is an instance derived  from `Ord<A>`
+    /// value.  To use anything other than the default call  `this.Compare〈OrdA〉(this, other)`, 
+    /// where `OrdA` is an instance derived  from `Ord〈A〉`
     /// </summary>
     /// <param name="other">The `Option` type to compare `this` type with</param>
     [Pure]
@@ -179,7 +179,7 @@ public readonly struct Option<A> :
     }
 
     /// <summary>
-    /// Explicit conversion operator from `Option<A>` to `A`
+    /// Explicit conversion operator from `Option〈A〉` to `A`
     /// </summary>
     /// <param name="a">None value</param>
     [Pure]
@@ -194,7 +194,7 @@ public readonly struct Option<A> :
     }
 
     /// <summary>
-    /// Implicit conversion operator from A to Option<A>
+    /// Implicit conversion operator from A to Option〈A〉
     /// </summary>
     /// <param name="a">Unit value</param>
     [Pure]
@@ -203,7 +203,7 @@ public readonly struct Option<A> :
         Optional(a);
 
     /// <summary>
-    /// Implicit conversion operator from None to Option<A>
+    /// Implicit conversion operator from None to Option〈A〉
     /// </summary>
     /// <param name="a">None value</param>
     [Pure]
@@ -212,7 +212,7 @@ public readonly struct Option<A> :
         default;
 
     /// <summary>
-    /// Implicit conversion operator from None to Option<A>
+    /// Implicit conversion operator from None to Option〈A〉
     /// </summary>
     /// <param name="a">None value</param>
     [Pure]
@@ -225,7 +225,7 @@ public readonly struct Option<A> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs < rhs</returns>
+    /// <returns>True if lhs〈 rhs</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(Option<A> lhs, Option<A> rhs) =>
@@ -236,7 +236,7 @@ public readonly struct Option<A> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs <= rhs</returns>
+    /// <returns>True if lhs〈= rhs</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <=(Option<A> lhs, Option<A> rhs) =>
@@ -247,7 +247,7 @@ public readonly struct Option<A> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs > rhs</returns>
+    /// <returns>True if lhs 〉rhs</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >(Option<A> lhs, Option<A> rhs) =>
@@ -258,7 +258,7 @@ public readonly struct Option<A> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs >= rhs</returns>
+    /// <returns>True if lhs 〉= rhs</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >=(Option<A> lhs, Option<A> rhs) =>
@@ -272,12 +272,12 @@ public readonly struct Option<A> :
     /// The EqDefault instance wraps up the .NET EqualityComparer.Default 
     /// behaviour.  For more control over equality you can call:
     /// 
-    ///     equals<EQ, A>(lhs, rhs);
+    ///     equals〈EQ, A〉(lhs, rhs);
     ///     
-    /// Where EQ is a struct derived from Eq<A>.  For example: 
+    /// Where EQ is a struct derived from Eq〈A〉.  For example: 
     /// 
-    ///     equals<EqString, string>(lhs, rhs);
-    ///     equals<EqArray<int>, int[]>(lhs, rhs);
+    ///     equals〈EqString, string〉(lhs, rhs);
+    ///     equals〈EqArray〈int〉, int[]〉(lhs, rhs);
     ///     
     /// </remarks>
     /// <param name="lhs">Left hand side of the operation</param>
@@ -296,12 +296,12 @@ public readonly struct Option<A> :
     /// The EqDefault trait wraps up the .NET EqualityComparer.Default 
     /// behaviour.  For more control over equality you can call:
     /// 
-    ///     !equals<EQ, A>(lhs, rhs);
+    ///     !equals〈EQ, A〉(lhs, rhs);
     ///     
-    /// Where EQ is a struct derived from Eq<A>.  For example: 
+    /// Where EQ is a struct derived from Eq〈A〉.  For example: 
     /// 
-    ///     !equals<EqString, string>(lhs, rhs);
-    ///     !equals<EqArray<int>, int[]>(lhs, rhs);
+    ///     !equals〈EqString, string〉(lhs, rhs);
+    ///     !equals〈EqArray〈int〉, int[]〉(lhs, rhs);
     ///     
     /// </remarks>
     /// <param name="lhs">Left hand side of the operation</param>
@@ -361,7 +361,7 @@ public readonly struct Option<A> :
         value.IsNone;
 
     /// <summary>
-    /// DO NOT USE - Use the Structural equality variant of this method Equals<EQ, A>(y)
+    /// DO NOT USE - Use the Structural equality variant of this method Equals〈EQ, A〉(y)
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -729,10 +729,10 @@ public readonly struct Option<A> :
     /// <summary>
     /// Fluent pattern matching.  Provide a Some handler and then follow
     /// on fluently with .None(...) to complete the matching operation.
-    /// This is for dispatching actions, use Some<A,B>(...) to return a value
+    /// This is for dispatching actions, use Some〈A, B〉(...) to return a value
     /// from the match operation.
     /// </summary>
-    /// <param name="f">The Some(x) match operation</param>
+    /// <param name="f">The `Some(x)` match operation</param>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public SomeUnitContext<A> Some(Action<A> f) =>
@@ -742,10 +742,10 @@ public readonly struct Option<A> :
     /// Fluent pattern matching.  Provide a Some handler and then follow
     /// on fluently with .None(...) to complete the matching operation.
     /// This is for returning a value from the match operation, to dispatch
-    /// an action instead, use Some<A>(...)
+    /// an action instead, use Some〈A〉(...)
     /// </summary>
     /// <typeparam name="B">Match operation return value type</typeparam>
-    /// <param name="f">The Some(x) match operation</param>
+    /// <param name="f">The `Some(x)` match operation</param>
     /// <returns>The result of the match operation</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

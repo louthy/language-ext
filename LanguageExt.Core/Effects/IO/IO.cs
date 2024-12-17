@@ -477,7 +477,7 @@ public abstract record IO<A> :
     
     /// <summary>
     /// Run the `IO` monad to get its result.  Differs from `Run` in that it catches any exceptions and turns
-    /// them into a `Fin<A>` result. 
+    /// them into a `Fin〈A〉` result. 
     /// </summary>
     public FinT<IO, A> Try() =>
         new (Map(Fin<A>.Succ).Catch(Fin<A>.Fail));

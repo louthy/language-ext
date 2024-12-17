@@ -364,7 +364,7 @@ namespace LanguageExt
             Items.Except(rhs);
         
         /// <summary>
-        /// Equality of keys and values with `EqDefault<V>` used for values
+        /// Equality of keys and values with `EqDefault〈V〉` used for values
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -372,7 +372,7 @@ namespace LanguageExt
             obj is VersionHashMap<K, V> hm && Equals(hm);
 
         /// <summary>
-        /// Equality of keys and values with `EqDefault<V>` used for values
+        /// Equality of keys and values with `EqDefault〈V〉` used for values
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

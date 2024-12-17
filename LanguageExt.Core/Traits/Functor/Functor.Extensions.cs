@@ -26,7 +26,7 @@ public static partial class FunctorExtensions
     /// <typeparam name="F">Functor trait</typeparam>
     /// <typeparam name="A">Initial bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>M<C></returns>
+    /// <returns>M〈C〉</returns>
     public static K<F, C> SelectMany<F, A, C>(
         this K<F, A> ma,
         Func<A, Guard<Error, Unit>> bind,
@@ -46,7 +46,7 @@ public static partial class FunctorExtensions
     /// <typeparam name="F">Functor trait</typeparam>
     /// <typeparam name="A">Initial bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>M<C></returns>
+    /// <returns>M〈C〉</returns>
     public static K<F, C> SelectMany<F, A, C>(
         this K<F, A> ma,
         Func<A, Guard<Fail<Error>, Unit>> bind,
@@ -66,7 +66,7 @@ public static partial class FunctorExtensions
     /// <typeparam name="F">Functor trait</typeparam>
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>M<C></returns>
+    /// <returns>M〈C〉</returns>
     public static K<F, C> SelectMany<F, B, C>(
         this Guard<Error, Unit> ma,
         Func<Unit, K<F, B>> bind,
@@ -86,7 +86,7 @@ public static partial class FunctorExtensions
     /// <typeparam name="F">Functor trait</typeparam>
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>M<C></returns>
+    /// <returns>M〈C〉</returns>
     public static K<F, C> SelectMany<F, B, C>(
         this Guard<Fail<Error>, Unit> ma,
         Func<Unit, K<F, B>> bind,

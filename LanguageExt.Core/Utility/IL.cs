@@ -463,7 +463,7 @@ public static class IL
     /// the hash-codes of all the *fields* that make up the type.  
     /// </summary>
     /// <remarks>You should cache the result of this method to reduce the work of building the IL 
-    /// each time.  Better still use the `RecordType<A>` type to provide a cached version of these
+    /// each time.  Better still use the `RecordType〈A〉` type to provide a cached version of these
     /// results.
     /// </remarks>
     public static Func<A, int> GetHashCode<A>(bool includeBase)
@@ -533,7 +533,7 @@ public static class IL
     /// all are equal.  
     /// </summary>
     /// <remarks>You should cache the result of this method to reduce the work of building the IL 
-    /// each time.  Better still use the `RecordType<A>` type to provide a cached version of these
+    /// each time.  Better still use the `RecordType〈A〉` type to provide a cached version of these
     /// results.
     /// </remarks>
     public static Func<A, object, bool> Equals<A>(bool includeBase)
@@ -601,7 +601,7 @@ public static class IL
     /// equal.  
     /// </summary>
     /// <remarks>You should cache the result of this method to reduce the work of building the IL 
-    /// each time.  Better still use the `RecordType<A>` type to provide a cached version of these
+    /// each time.  Better still use the `RecordType〈A〉` type to provide a cached version of these
     /// results.
     /// </remarks>
     public static Func<A, A, bool> EqualsTyped<A>(bool includeBase)
@@ -665,7 +665,7 @@ public static class IL
     /// if X is less than Y, and 1 if X is greater than Y.
     /// </summary>
     /// <remarks>You should cache the result of this method to reduce the work of building the IL 
-    /// each time.  Better still use the `RecordType<A>` type to provide a cached version of these
+    /// each time.  Better still use the `RecordType〈A〉` type to provide a cached version of these
     /// results.
     /// </remarks>
     public static Func<A, A, int> Compare<A>(bool includeBase)

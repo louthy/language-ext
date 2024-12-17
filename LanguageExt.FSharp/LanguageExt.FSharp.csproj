@@ -4,7 +4,7 @@
     </PropertyGroup>
     <PropertyGroup Label="Configuration">
         <DefineConstants>CONTRACTS_FULL</DefineConstants>
-        <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
+        <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1711;CS1572;CS1587</NoWarn>
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <PropertyGroup>

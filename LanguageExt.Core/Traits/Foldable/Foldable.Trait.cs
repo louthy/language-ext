@@ -135,7 +135,7 @@ public interface Foldable<out T> where T : Foldable<T>
     /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static virtual K<M, S> FoldUntilM<A, M, S>(
         Func<A, Func<S, K<M, S>>> f, 
         Func<A, bool> predicate, 

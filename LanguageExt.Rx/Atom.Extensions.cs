@@ -117,7 +117,7 @@ public static class AtomExtensions
     /// </summary>
     /// <remarks>This publishes the changes to individual key-values within the `AtomHashMap`</remarks>
     /// <typeparam name="A">Value type</typeparam>
-    /// <returns>Observable `(K, Change<V>)`</returns>
+    /// <returns>Observable `(K, Change〈V〉)`</returns>
     [Pure]
     public static IObservable<(K, Change<V>)> OnEntryChange<K, V>(this AtomHashMap<K, V> atom) =>
         atom.OnChange()
@@ -131,7 +131,7 @@ public static class AtomExtensions
     /// </summary>
     /// <remarks>This publishes the changes to individual key-values within the `AtomHashMap`</remarks>
     /// <typeparam name="A">Value type</typeparam>
-    /// <returns>Observable `(K, Change<V>)`</returns>
+    /// <returns>Observable `(K, Change〈V〉)`</returns>
     [Pure]
     public static IObservable<(K, Change<V>)> OnEntryChange<EqK, K, V>(this AtomHashMap<EqK, K, V> atom)
         where EqK : Eq<K> =>

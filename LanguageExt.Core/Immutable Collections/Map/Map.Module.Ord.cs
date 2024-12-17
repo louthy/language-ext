@@ -731,6 +731,7 @@ public static partial class Map
     /// Intersect two maps.  Only keys that are in both maps are
     /// returned.  The merge function is called for every resulting
     /// key.
+    /// </summary>
     [Pure]
     public static Map<OrdK, K, R> intersect<OrdK, K, A, B, R>(Map<OrdK, K, A> left, Map<OrdK, K, B> right, WhenMatched<K, A, B, R> merge) where OrdK : Ord<K> =>
         left.Intersect(right, merge);

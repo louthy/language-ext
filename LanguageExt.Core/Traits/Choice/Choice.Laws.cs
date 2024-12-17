@@ -10,7 +10,7 @@ namespace LanguageExt.Traits;
 ///     choose(pure(a), pure(b)) = pure(a)
 /// </para>
 /// <remarks>
-/// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+/// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
 /// can be proven to be true.  If your Alternative structure doesn't have `Equals` then you
 /// must provide the optional `equals` parameter so that the equality of outcomes can be tested.
 /// </remarks>
@@ -22,7 +22,7 @@ public static class ChoiceLaw<F>
     /// Assert that the Alternative laws hold
     /// </summary>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your Alternative structure doesn't have `Equals` then
     /// you must provide the optional `equals` parameter so that the equality of outcomes can
     /// be tested.
@@ -35,7 +35,7 @@ public static class ChoiceLaw<F>
     /// Validate that the Alternative laws hold
     /// </summary>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your Alternative structure doesn't have `Equals` then
     /// you must provide the optional `equals` parameter so that the equality of outcomes can
     /// be tested.
@@ -56,7 +56,7 @@ public static class ChoiceLaw<F>
     ///    choose(empty, pure(x)) = pure(x)
     /// </remarks>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your Alternative structure doesn't have `Equals` then
     /// you must provide the optional `equals` parameter so that the equality of outcomes can
     /// be tested.
@@ -79,7 +79,7 @@ public static class ChoiceLaw<F>
     ///    choose(pure(x), empty) = pure(x)
     /// </remarks>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your Alternative structure doesn't have `Equals` then
     /// you must provide the optional `equals` parameter so that the equality of outcomes can
     /// be tested.
@@ -102,7 +102,7 @@ public static class ChoiceLaw<F>
     ///    choose(pure(x), pure(y)) = pure(x)
     /// </remarks>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your Alternative structure doesn't have `Equals` then
     /// you must provide the optional `equals` parameter so that the equality of outcomes can
     /// be tested.

@@ -19,7 +19,7 @@ public static partial class Prelude
     /// <example>
     ///
     ///     from x in ma
-    ///     from _ in unless(x == 100, Console.writeLine<RT>("x should be 100!"))
+    ///     from _ in unless(x == 100, Console.writeLine〈RT〉("x should be 100!"))
     ///     select x;
     /// 
     /// </example>

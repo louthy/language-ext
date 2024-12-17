@@ -100,7 +100,7 @@ public struct TBigInt : Num<bigint>, Bool<bigint>
     /// Generate a numeric value from an integer
     /// </summary>
     /// <param name="x">The integer to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static bigint FromInteger(int x) =>
         x;
@@ -109,7 +109,7 @@ public struct TBigInt : Num<bigint>, Bool<bigint>
     /// Generate a numeric value from a float
     /// </summary>
     /// <param name="x">The float to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static bigint FromDecimal(decimal x) =>
         (bigint)x;
@@ -118,7 +118,7 @@ public struct TBigInt : Num<bigint>, Bool<bigint>
     /// Generate a numeric value from a double
     /// </summary>
     /// <param name="x">The double to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static bigint FromFloat(float x) =>
         (bigint)x;
@@ -127,7 +127,7 @@ public struct TBigInt : Num<bigint>, Bool<bigint>
     /// Generate a numeric value from a decimal
     /// </summary>
     /// <param name="x">The decimal to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static bigint FromDouble(double x) =>
         (bigint)x;

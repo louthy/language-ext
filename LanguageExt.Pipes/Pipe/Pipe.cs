@@ -14,9 +14,9 @@ namespace LanguageExt.Pipes;
 ///       Upstream | Downstream
 ///           +---------+
 ///           |         |
-///     Unit <==       <== Unit
+///     Unit〈==      〈== Unit
 ///           |         |
-///      IN  ==>       ==> OUT
+///      IN  ==〉      ==〉OUT
 ///           |    |    |
 ///           +----|----+
 ///                |

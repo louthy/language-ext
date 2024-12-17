@@ -170,7 +170,7 @@ public struct Arr<A> :
     ///
     ///     Empty collection     = result is null
     ///     Singleton collection = result is A
-    ///     More                 = result is (A, Seq<A>) -- head and tail
+    ///     More                 = result is (A, Seq〈A〉) -- head and tail
     ///
     ///  Example:
     ///

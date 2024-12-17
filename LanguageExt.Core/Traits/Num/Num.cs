@@ -31,7 +31,7 @@ public interface Num<A> : Ord<A>, Arithmetic<A>
     /// Generate a numeric value from an integer
     /// </summary>
     /// <param name="x">The integer to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static abstract A FromInteger(int x);
 
@@ -39,7 +39,7 @@ public interface Num<A> : Ord<A>, Arithmetic<A>
     /// Generate a numeric value from a decimal
     /// </summary>
     /// <param name="x">The decimal to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static abstract A FromDecimal(decimal x);
 
@@ -47,7 +47,7 @@ public interface Num<A> : Ord<A>, Arithmetic<A>
     /// Generate a numeric value from a float
     /// </summary>
     /// <param name="x">The float to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static abstract A FromFloat(float x);
 
@@ -55,7 +55,7 @@ public interface Num<A> : Ord<A>, Arithmetic<A>
     /// Generate a numeric value from a double
     /// </summary>
     /// <param name="x">The double to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static abstract A FromDouble(double x);
 

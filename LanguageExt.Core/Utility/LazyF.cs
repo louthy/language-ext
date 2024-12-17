@@ -4,7 +4,7 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 /// <summary>
-/// Makes `K<F, A>` lazy
+/// Makes `K〈F, A〉` lazy
 /// </summary>
 /// <remarks>
 /// This is more of a utility type right now, so it hasn't been fleshed out like other Applicatives

@@ -14,9 +14,9 @@ namespace LanguageExt.Pipes;
 ///       Upstream | Downstream
 ///           +---------+
 ///           |         |
-///     Void <==       <== RES
+///     Void〈==      〈== RES
 ///           |         |
-///     Unit ==>       ==> REQ
+///     Unit ==〉      ==〉REQ
 ///           |    |    |
 ///           +----|----+
 ///                |

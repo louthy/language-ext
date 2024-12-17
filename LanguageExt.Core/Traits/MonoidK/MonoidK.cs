@@ -11,7 +11,7 @@ public interface MonoidK<M> : SemigroupK<M>
 {
     /// <summary>
     /// Identity
-    /// <summary>
+    /// </summary>
     [Pure]
     public static abstract K<M, A> Empty<A>();
 }

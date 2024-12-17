@@ -27,6 +27,7 @@ public static partial class Prelude
 
     /// <summary>
     /// Find the product of the Ts
+    /// </summary>
     [Pure]
     public static Option<T> product<NUM, T>(Option<T> lhs, Option<T> rhs) where NUM : Num<T> =>
         lhs.Product<NUM, T>(rhs);
@@ -83,7 +84,7 @@ public static partial class Prelude
     /// </summary>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="value">Non-null value to be made optional</param>
-    /// <returns>`Option<A>` in a `Some` state or throws `ValueIsNullException`
+    /// <returns>`Option〈A〉` in a `Some` state or throws `ValueIsNullException`
     /// if `isnull(value)`.</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -91,11 +92,11 @@ public static partial class Prelude
         Option<A>.Some(value);
 
     /// <summary>
-    /// Create a `Some` of `A` from a `Nullable<A>`
+    /// Create a `Some` of `A` from a `Nullable〈A〉`
     /// </summary>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="value">Non-null value to be made optional</param>
-    /// <returns>`Option<A>` in a `Some` state or throws `ValueIsNullException`
+    /// <returns>`Option〈A〉` in a `Some` state or throws `ValueIsNullException`
     /// if `isnull(value)`</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -144,7 +145,7 @@ public static partial class Prelude
     /// </summary>
     /// <remarks>Will not accept a null return value from the None operation</remarks>
     /// <param name="None">Operation to invoke if the structure is in a None state</param>
-    /// <returns>Tesult of invoking the None() operation if the optional 
+    /// <returns>Result of invoking the None() operation if the optional 
     /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

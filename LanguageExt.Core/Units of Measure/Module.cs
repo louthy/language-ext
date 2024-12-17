@@ -516,7 +516,7 @@ public class UnitsOfMeasure
     /// </summary>
     /// <example>
     ///    Mass x = 10*g;
-    /// <example>
+    /// </example>
     public static readonly Mass g = 1.Grams();
 
     /// <summary>
@@ -524,7 +524,7 @@ public class UnitsOfMeasure
     /// </summary>
     /// <example>
     ///    Mass x = 10*gram;
-    /// <example>
+    /// </example>
     public static readonly Mass gram = 1.Grams();
 
     /// <summary>
@@ -532,7 +532,7 @@ public class UnitsOfMeasure
     /// </summary>
     /// <example>
     ///    Mass x = 10*kg;
-    /// <example>
+    /// </example>
     public static readonly Mass kg = 1.Kilograms();
 
     /// <summary>
@@ -540,7 +540,7 @@ public class UnitsOfMeasure
     /// </summary>
     /// <example>
     ///    Mass x = 10*kilogram;
-    /// <example>
+    /// </example>
     public static readonly Mass kilogram = 1.Kilograms();
 
     /// <summary>
@@ -548,7 +548,7 @@ public class UnitsOfMeasure
     /// </summary>
     /// <example>
     ///    Mass x = 10*tonne;
-    /// <example>
+    /// </example>
     public static readonly Mass tonne = 1.Tonnes();
 
     /// <summary>
@@ -556,7 +556,7 @@ public class UnitsOfMeasure
     /// </summary>
     /// <example>
     ///    Mass x = 10*oz;
-    /// <example>
+    /// </example>
     public static readonly Mass oz = 1.Ounces();
 
     /// <summary>
@@ -564,7 +564,7 @@ public class UnitsOfMeasure
     /// </summary>
     /// <example>
     ///    Mass x = 10*ounce;
-    /// <example>
+    /// </example>
     public static readonly Mass ounce = 1.Ounces();
 
     /// <summary>
@@ -572,7 +572,7 @@ public class UnitsOfMeasure
     /// </summary>
     /// <example>
     ///    Mass x = 10*lb;
-    /// <example>
+    /// </example>
     public static readonly Mass lb = 1.Pounds();
 
     /// <summary>
@@ -580,7 +580,7 @@ public class UnitsOfMeasure
     /// </summary>
     /// <example>
     ///    Mass x = 10*pound;
-    /// <example>
+    /// </example>
     public static readonly Mass pound = 1.Pounds();
 
     /// <summary>
@@ -588,7 +588,7 @@ public class UnitsOfMeasure
     /// </summary>
     /// <example>
     ///    Mass x = 10*st;
-    /// <example>
+    /// </example>
     public static readonly Mass st = 1.Stones();
 
     /// <summary>
@@ -596,7 +596,7 @@ public class UnitsOfMeasure
     /// </summary>
     /// <example>
     ///    Mass x = 10*stone;
-    /// <example>
+    /// </example>
     public static readonly Mass stone = 1.Stones();
 
     /// <summary>
@@ -604,7 +604,7 @@ public class UnitsOfMeasure
     /// </summary>
     /// <example>
     ///    Mass x = 10*ton;
-    /// <example>
+    /// </example>
     public static readonly Mass ton = 1.ImperialTons();
 
     /// <summary>
@@ -612,6 +612,6 @@ public class UnitsOfMeasure
     /// </summary>
     /// <example>
     ///    Mass x = 10*shortTon;
-    /// <example>
+    /// </example>
     public static readonly Mass shortTon = 1.ShortTon();
 }

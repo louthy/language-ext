@@ -226,6 +226,7 @@ public static partial class Prelude
     public static IO<Unit> serialIO(Action op) =>
         lift(() => serial(op));        
 
+    /// <summary>
     /// Swap the old value for the new returned by `f`
     /// Must be run within a `sync` transaction
     /// </summary>

@@ -90,7 +90,7 @@ public struct TFloat : Floating<float>
     /// Generate a numeric value from an integer
     /// </summary>
     /// <param name="x">The integer to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static float FromInteger(int x) => x;
 
@@ -98,7 +98,7 @@ public struct TFloat : Floating<float>
     /// Generate a numeric value from a decimal
     /// </summary>
     /// <param name="x">The decimal to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static float FromDecimal(decimal x) => (float)x;
 
@@ -106,7 +106,7 @@ public struct TFloat : Floating<float>
     /// Generate a numeric value from a float
     /// </summary>
     /// <param name="x">The float to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static float FromFloat(float x) => x;
 
@@ -114,7 +114,7 @@ public struct TFloat : Floating<float>
     /// Generate a numeric value from a double
     /// </summary>
     /// <param name="x">The double to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static float FromDouble(double x) => (float)x;
 

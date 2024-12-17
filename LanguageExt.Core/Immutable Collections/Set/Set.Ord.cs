@@ -91,7 +91,7 @@ public readonly struct Set<OrdA, A> :
     ///
     ///     Empty collection     = null
     ///     Singleton collection = A
-    ///     More                 = (A, Seq<A>)   -- head and tail
+    ///     More                 = (A, Seq〈A〉)   -- head and tail
     ///
     ///     var res = set.Case switch
     ///     {

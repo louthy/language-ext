@@ -4,8 +4,8 @@ using static LanguageExt.Prelude;
 namespace LanguageExt;
 
 /// <summary>
-/// Provides a fluent context when calling the Some(Action) method from
-/// Optional<A> trait.  Must call None(Action) or None(Value) on this 
+/// Provides a fluent context when calling the `Some(Action)` method from
+/// Optional〈A〉 trait.  Must call `None(Action)` or `None(Value)` on this 
 /// context to complete the matching operation.
 /// </summary>
 /// <typeparam name="A">Bound optional value type</typeparam>

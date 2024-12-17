@@ -61,7 +61,7 @@ public static partial class StreamTExtensions
 
     /// <summary>
     /// Execute the stream's inner monad `M`, combining the results using
-    /// its `MonoidK<M>.Combine` operator.
+    /// its `MonoidK〈M〉.Combine` operator.
     /// </summary>
     /// <param name="mma">Stream to combine</param>
     /// <returns>Result of the combined effects</returns>
@@ -71,7 +71,7 @@ public static partial class StreamTExtensions
 
     /// <summary>
     /// Execute the stream's inner monad `M`, combining the results using
-    /// its `MonoidK<M>.Combine` operator.
+    /// its `MonoidK〈M〉.Combine` operator.
     /// </summary>
     /// <param name="mma">Stream to combine</param>
     /// <returns>Result of the combined effects</returns>

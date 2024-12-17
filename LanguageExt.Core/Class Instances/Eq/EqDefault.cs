@@ -8,7 +8,7 @@ namespace LanguageExt.ClassInstances;
 
 /// <summary>
 /// Finds an appropriate Eq from the loaded assemblies, if one can't be found then it
-/// falls back to the standard .NET EqualityComparer<A>.Default.Equals(a,b) method to
+/// falls back to the standard .NET EqualityComparer〈A〉.Default.Equals(a,b) method to
 /// provide equality testing.
 /// </summary>
 public readonly struct EqDefault<A> : Eq<A>

@@ -1241,6 +1241,7 @@ internal class MapInternal<OrdK, K, V> :
     /// Intersect two maps.  Only keys that are in both maps are
     /// returned.  The merge function is called for every resulting
     /// key.
+    /// </summary>
     [Pure]
     public MapInternal<OrdK, K, R> Intersect<V2, R>(MapInternal<OrdK, K, V2> other, WhenMatched<K, V, V2, R> Merge)
     {

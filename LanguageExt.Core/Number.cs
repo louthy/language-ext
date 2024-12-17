@@ -4,7 +4,7 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 /// <summary>
-/// `Num<A>` trait for `INumber<A>` 
+/// `Num〈A〉` trait for `INumber〈A〉` 
 /// </summary>
 /// <typeparam name="A"></typeparam>
 public class Number<A> : Num<A>

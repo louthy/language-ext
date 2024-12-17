@@ -724,14 +724,14 @@ public readonly struct TrackingHashMap<EqK, K, V> :
         Empty;
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public static bool operator ==(TrackingHashMap<EqK, K, V> lhs, TrackingHashMap<EqK, K, V> rhs) =>
         lhs.Equals(rhs);
 
     /// <summary>
-    /// In-equality of keys and values with `EqDefault<V>` used for values
+    /// In-equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public static bool operator !=(TrackingHashMap<EqK, K, V> lhs, TrackingHashMap<EqK, K, V> rhs) =>
@@ -948,14 +948,14 @@ public readonly struct TrackingHashMap<EqK, K, V> :
         Wrap(Value.UnionWithLog(other, static (_, v) => v, MapRight, Merge));
         
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public override bool Equals(object? obj) =>
         obj is TrackingHashMap<EqK, K, V> hm && Equals(hm);
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public bool Equals(TrackingHashMap<EqK, K, V> other) =>

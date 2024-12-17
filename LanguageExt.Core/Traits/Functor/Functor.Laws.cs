@@ -7,7 +7,7 @@ namespace LanguageExt.Traits;
 /// Functions that test that functor-laws hold for the `F` functor provided.
 /// </summary>
 /// <remarks>
-/// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+/// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
 /// can be proven to be true.  If your functor doesn't have `Equals` then you must provide
 /// the optional `equals` parameter so that the equality of outcomes can be tested.
 /// </remarks>
@@ -19,7 +19,7 @@ public static class FunctorLaw<F>
     /// Assert that the functor laws hold
     /// </summary>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your functor doesn't have `Equals` then you must provide
     /// the optional `equals` parameter so that the equality of outcomes can be tested.
     /// </remarks>
@@ -31,7 +31,7 @@ public static class FunctorLaw<F>
     /// Validate that the functor laws hold
     /// </summary>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your functor doesn't have `Equals` then you must provide
     /// the optional `equals` parameter so that the equality of outcomes can be tested.
     /// </remarks>
@@ -46,7 +46,7 @@ public static class FunctorLaw<F>
     /// Validate the identity law
     /// </summary>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your functor doesn't have `Equals` then you must provide
     /// the optional `equals` parameter so that the equality of outcomes can be tested.
     /// </remarks>
@@ -62,7 +62,7 @@ public static class FunctorLaw<F>
     /// Validate the composition law
     /// </summary>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your functor doesn't have `Equals` then you must provide
     /// the optional `equals` parameter so that the equality of outcomes can be tested.
     /// </remarks>

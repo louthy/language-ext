@@ -18,9 +18,9 @@ namespace LanguageExt.Pipes;
 ///       Upstream | Downstream
 ///           +---------+
 ///           |         |
-///     Void <==       <== Unit
+///     Void ==       == Unit
 ///           |         |
-///     Unit ==>       ==> OUT
+///     Unit ==〉      ==〉OUT
 ///           |    |    |
 ///           +----|----+
 ///                |
@@ -278,8 +278,8 @@ public static class Producer
         
         Unit enqueue(OUT value)
         {
-            queue.Enqueue(value);
-            wait.Set();
+            queue?.Enqueue(value);
+            wait?.Set();
             return unit;
         }
         

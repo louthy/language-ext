@@ -14,7 +14,7 @@ public interface Monoid<A> : Semigroup<A>
 {
     /// <summary>
     /// Identity
-    /// <summary>
+    /// </summary>
     [Pure]
     public static abstract A Empty { get; }
 }

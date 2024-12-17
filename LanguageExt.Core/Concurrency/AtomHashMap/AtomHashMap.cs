@@ -1360,42 +1360,42 @@ public class AtomHashMap<K, V> :
         Empty;
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public static bool operator ==(AtomHashMap<K, V> lhs, AtomHashMap<K, V> rhs) =>
         lhs.Equals(rhs);
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public static bool operator ==(AtomHashMap<K, V> lhs, HashMap<K, V> rhs) =>
         lhs?.Items.Equals(rhs.Value) ?? false;
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public static bool operator ==(HashMap<K, V> lhs, AtomHashMap<K, V> rhs) =>
         lhs.Value.Equals(rhs.Items);
 
     /// <summary>
-    /// In-equality of keys and values with `EqDefault<V>` used for values
+    /// In-equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public static bool operator !=(AtomHashMap<K, V> lhs, AtomHashMap<K, V> rhs) =>
         !(lhs == rhs);
 
     /// <summary>
-    /// In-equality of keys and values with `EqDefault<V>` used for values
+    /// In-equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public static bool operator !=(AtomHashMap<K, V> lhs, HashMap<K, V> rhs) =>
         !(lhs == rhs);
 
     /// <summary>
-    /// In-equality of keys and values with `EqDefault<V>` used for values
+    /// In-equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public static bool operator !=(HashMap<K, V> lhs, AtomHashMap<K, V> rhs) =>
@@ -1886,21 +1886,21 @@ public class AtomHashMap<K, V> :
     }
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public override bool Equals(object? obj) =>
         obj is AtomHashMap<K, V> hm && Equals(hm);
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public bool Equals(AtomHashMap<K, V>? other) =>
         other is not null && Items.Equals(other.Items);
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public bool Equals(HashMap<K, V> other) =>

@@ -70,7 +70,7 @@ public class AtomQue<A> :
     ///
     ///     Empty collection     = null
     ///     Singleton collection = A
-    ///     More                 = (A, Seq<A>)   -- head and tail
+    ///     More                 = (A, Seq〈A〉)   -- head and tail
     ///
     ///     var res = list.Case switch
     ///     {

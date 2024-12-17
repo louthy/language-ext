@@ -94,7 +94,7 @@ public struct TDouble : Floating<double>
     /// Generate a numeric value from an integer
     /// </summary>
     /// <param name="x">The integer to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static double FromInteger(int x) => 
         x;
@@ -103,7 +103,7 @@ public struct TDouble : Floating<double>
     /// Generate a numeric value from a decimal
     /// </summary>
     /// <param name="x">The decimal to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static double FromDecimal(decimal x) => 
         (double)x;
@@ -112,7 +112,7 @@ public struct TDouble : Floating<double>
     /// Generate a numeric value from a float
     /// </summary>
     /// <param name="x">The float to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static double FromFloat(float x) => 
         x;
@@ -121,7 +121,7 @@ public struct TDouble : Floating<double>
     /// Generate a numeric value from a double
     /// </summary>
     /// <param name="x">The double to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static double FromDouble(double x) => 
         x;

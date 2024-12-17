@@ -5,7 +5,7 @@ using LanguageExt.Traits.Resolve;
 namespace LanguageExt.ClassInstances;
 
 /// <summary>
-/// Uses the standard .NET  Comparer<A>.Default.Compare(a,b) method to
+/// Uses the standard .NET  Comparer〈A〉.Default.Compare(a,b) method to
 /// provide equality testing.
 /// </summary>
 public struct OrdDefault<A> : Ord<A>

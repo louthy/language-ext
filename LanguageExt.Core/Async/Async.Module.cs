@@ -10,7 +10,7 @@ namespace LanguageExt.Async;
 /// where awaiting is the default setting for concurrent programming and branching/forking is the
 /// thing we do the least.
 ///
-/// The `Async.await` function will convert a `Task<A>` into an `A` by waiting for the `Task` to
+/// The `Async.await` function will convert a `Task〈A〉` into an `A` by waiting for the `Task` to
 /// complete; it will yield the thread whilst it's waiting (to play nice with other tasks in the
 /// task-pool).  This is just like the regular `await` keyword without all the ceremony and
 /// colouring of methods.

@@ -80,7 +80,7 @@ public readonly struct Map<OrdK, K, V> :
     ///
     ///     Empty collection     = null
     ///     Singleton collection = (K, V)
-    ///     More                 = ((K, V), Seq<(K, V)>)   -- head and tail
+    ///     More                 = ((K, V), Seq〈(K, V)〉)   -- head and tail
     ///
     ///     var res = list.Case switch
     ///     {
@@ -727,14 +727,14 @@ public readonly struct Map<OrdK, K, V> :
         new(lhs.Value - rhs.Value);
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public override bool Equals(object? obj) =>
         obj is Map<OrdK, K, V> m && Equals(m);
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public bool Equals(Map<OrdK, K, V> y) =>
@@ -1156,6 +1156,7 @@ public readonly struct Map<OrdK, K, V> :
     /// Intersect two maps.  Only keys that are in both maps are
     /// returned.  The merge function is called for every resulting
     /// key.
+    /// </summary>
     [Pure]
     public Map<OrdK, K, R> Intersect<V2, R>(Map<OrdK, K, V2> other, WhenMatched<K, V, V2, R> Merge) =>
         new (Value.Intersect(other.Value, Merge));
@@ -1176,7 +1177,7 @@ public readonly struct Map<OrdK, K, V> :
         new (Value.SymmetricExcept(other.Value));
 
     /// <summary>
-    /// Compare keys and values (values use `OrdDefault<V>` for ordering)
+    /// Compare keys and values (values use `OrdDefault〈V〉` for ordering)
     /// </summary>
     [Pure]
     public int CompareTo(Map<OrdK, K, V> other) =>

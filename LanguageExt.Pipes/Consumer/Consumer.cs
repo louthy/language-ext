@@ -11,12 +11,13 @@ namespace LanguageExt.Pipes;
 /// Consumers both can only be `awaiting` 
 /// </summary>
 /// <remarks>
+/// 
 ///       Upstream | Downstream
 ///           +---------+
 ///           |         |
-///     Unit <==       <== Unit
+///     Unit〈==      〈== Unit
 ///           |         |
-///      IN  ==>       ==> Void
+///      IN  ==〉      ==〉Void
 ///           |    |    |
 ///           +----|----+
 ///                |

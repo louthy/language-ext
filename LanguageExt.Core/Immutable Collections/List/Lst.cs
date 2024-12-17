@@ -89,7 +89,7 @@ public readonly struct Lst<A> :
     ///
     ///     Empty collection     = null
     ///     Singleton collection = A
-    ///     More                 = (A, Seq<A>)   -- head and tail
+    ///     More                 = (A, Seq〈A〉)   -- head and tail
     ///
     ///  Example:
     ///

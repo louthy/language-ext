@@ -14,7 +14,7 @@ public static partial class MonadExtensions
     /// <param name="f">Monadic bind function</param>
     /// <typeparam name="A">Initial bound value type</typeparam>
     /// <typeparam name="B">Intermediate bound value type</typeparam>
-    /// <returns>M<B></returns>
+    /// <returns>M〈B〉</returns>
     public static K<M, B> Bind<M, A, B>(
         this K<M, A> ma,
         Func<A, K<M, B>> f)
@@ -27,7 +27,7 @@ public static partial class MonadExtensions
     /// <param name="f">Monadic bind function</param>
     /// <typeparam name="A">Initial bound value type</typeparam>
     /// <typeparam name="B">Intermediate bound value type</typeparam>
-    /// <returns>M<B></returns>
+    /// <returns>M〈B〉</returns>
     public static K<M, B> Bind<M, A, B>(
         this K<M, A> ma,
         Func<A, Pure<B>> f)
@@ -40,7 +40,7 @@ public static partial class MonadExtensions
     /// <param name="f">Monadic bind function</param>
     /// <typeparam name="A">Initial bound value type</typeparam>
     /// <typeparam name="B">Intermediate bound value type</typeparam>
-    /// <returns>M<B></returns>
+    /// <returns>M〈B〉</returns>
     public static K<M, B> Bind<M, A, B>(
         this K<M, A> ma,
         Func<A, K<IO, B>> f)
@@ -55,7 +55,7 @@ public static partial class MonadExtensions
     /// <typeparam name="A">Initial bound value type</typeparam>
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>M<C></returns>
+    /// <returns>M〈C〉</returns>
     public static K<M, C> SelectMany<M, A, B, C>(
         this K<M, A> ma,
         Func<A, K<M, B>> bind,
@@ -71,7 +71,7 @@ public static partial class MonadExtensions
     /// <typeparam name="A">Initial bound value type</typeparam>
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>M<C></returns>
+    /// <returns>M〈C〉</returns>
     public static K<M, C> SelectMany<M, A, B, C>(
         this K<M, A> ma,
         Func<A, Pure<B>> bind,
@@ -87,7 +87,7 @@ public static partial class MonadExtensions
     /// <typeparam name="A">Initial bound value type</typeparam>
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>M<C></returns>
+    /// <returns>M〈C〉</returns>
     public static K<M, C> SelectMany<M, A, B, C>(
         this K<M, A> ma,
         Func<A, K<IO, B>> bind,

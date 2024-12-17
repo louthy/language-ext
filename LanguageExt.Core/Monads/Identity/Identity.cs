@@ -12,7 +12,7 @@ namespace LanguageExt;
 /// Simply carries the bound value through its bind expressions without imparting any additional behaviours.  It can
 /// be constructed using:
 ///
-///     Identity<int> ma = Id(123);
+///     Identity〈int〉 ma = Id(123);
 /// 
 /// </remarks>
 /// <typeparam name="A">Bound value type</typeparam>
@@ -27,7 +27,6 @@ public record Identity<A>(A Value) :
     /// Map each element of a structure to an action, evaluate these actions from
     /// left to right, and collect the results.
     /// </summary>
-    /// </remarks>
     /// <param name="f"></param>
     /// <param name="ta">Traversable structure</param>
     /// <typeparam name="F">Applicative functor trait</typeparam>

@@ -709,7 +709,7 @@ public readonly struct HashMap<EqK, K, V> :
         Empty;
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -717,7 +717,7 @@ public readonly struct HashMap<EqK, K, V> :
         lhs.Equals(rhs);
 
     /// <summary>
-    /// In-equality of keys and values with `EqDefault<V>` used for values
+    /// In-equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -995,7 +995,7 @@ public readonly struct HashMap<EqK, K, V> :
         obj is HashMap<EqK, K, V> hm && Equals(hm);
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

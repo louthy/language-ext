@@ -367,7 +367,7 @@ public class VersionHashMap<ConflictV, K, V> :
         Items.Except(rhs);
         
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -375,7 +375,7 @@ public class VersionHashMap<ConflictV, K, V> :
         obj is VersionHashMap<ConflictV, K, V> hm && Equals(hm);
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

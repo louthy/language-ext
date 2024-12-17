@@ -317,7 +317,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs < rhs</returns>
+    /// <returns>True if lhs〈 rhs</returns>
     [Pure]
     public static bool operator <(Either<L, R> lhs, Fail<L> rhs) =>
         lhs.CompareTo(rhs) < 0;
@@ -327,7 +327,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs < rhs</returns>
+    /// <returns>True if lhs〈 rhs</returns>
     [Pure]
     public static bool operator <=(Either<L, R> lhs, Fail<L> rhs) =>
         lhs.CompareTo(rhs) <= 0;
@@ -337,7 +337,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs < rhs</returns>
+    /// <returns>True if lhs 〉rhs</returns>
     [Pure]
     public static bool operator >(Either<L, R> lhs, Fail<L> rhs) =>
         lhs.CompareTo(rhs) > 0;
@@ -347,7 +347,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs < rhs</returns>
+    /// <returns>True if lhs >= rhs</returns>
     [Pure]
     public static bool operator >=(Either<L, R> lhs, Fail<L> rhs) =>
         lhs.CompareTo(rhs) >= 0;
@@ -357,7 +357,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs < rhs</returns>
+    /// <returns>True if lhs〈 rhs</returns>
     [Pure]
     public static bool operator <(Either<L, R> lhs, Pure<R> rhs) =>
         lhs.CompareTo(rhs) < 0;
@@ -367,7 +367,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs < rhs</returns>
+    /// <returns>True if lhs〈= rhs</returns>
     [Pure]
     public static bool operator <=(Either<L, R> lhs, Pure<R> rhs) =>
         lhs.CompareTo(rhs) <= 0;
@@ -377,7 +377,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs < rhs</returns>
+    /// <returns>True if lhs 〉rhs</returns>
     [Pure]
     public static bool operator >(Either<L, R> lhs, Pure<R> rhs) =>
         lhs.CompareTo(rhs) > 0;
@@ -387,7 +387,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs < rhs</returns>
+    /// <returns>True if lhs 〉= rhs</returns>
     [Pure]
     public static bool operator >=(Either<L, R> lhs, Pure<R> rhs) =>
         lhs.CompareTo(rhs) >= 0;
@@ -398,7 +398,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs < rhs</returns>
+    /// <returns>True if lhs〈 rhs</returns>
     [Pure]
     public static bool operator <(Fail<L> lhs, Either<L, R> rhs) =>
         ((Either<L, R>)lhs).CompareTo(rhs) < 0;
@@ -408,7 +408,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs < rhs</returns>
+    /// <returns>True if lhs〈= rhs</returns>
     [Pure]
     public static bool operator <=(Fail<L>  lhs, Either<L, R> rhs) =>
         ((Either<L, R>)lhs).CompareTo(rhs) <= 0;
@@ -418,7 +418,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs < rhs</returns>
+    /// <returns>True if lhs 〉rhs</returns>
     [Pure]
     public static bool operator >(Fail<L> lhs, Either<L, R>rhs) =>
         ((Either<L, R>)lhs).CompareTo(rhs) > 0;
@@ -428,7 +428,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs < rhs</returns>
+    /// <returns>True if lhs 〉= rhs</returns>
     [Pure]
     public static bool operator >=(Fail<L> lhs, Either<L, R>  rhs) =>
         ((Either<L, R>)lhs).CompareTo(rhs) >= 0;
@@ -438,7 +438,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs < rhs</returns>
+    /// <returns>True if lhs〈 rhs</returns>
     [Pure]
     public static bool operator <(Pure<R> lhs, Either<L, R>  rhs) =>
         ((Either<L, R>)lhs).CompareTo(rhs) < 0;
@@ -448,7 +448,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs < rhs</returns>
+    /// <returns>True if lhs〈= rhs</returns>
     [Pure]
     public static bool operator <=(Pure<R> lhs, Either<L, R> rhs) =>
         ((Either<L, R>)lhs).CompareTo(rhs) <= 0;
@@ -458,7 +458,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs < rhs</returns>
+    /// <returns>True if lhs 〉rhs</returns>
     [Pure]
     public static bool operator >(Pure<R> lhs, Either<L, R> rhs) =>
         ((Either<L, R>)lhs).CompareTo(rhs) > 0;
@@ -468,7 +468,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs < rhs</returns>
+    /// <returns>True if lhs 〉= rhs</returns>
     [Pure]
     public static bool operator >=(Pure<R> lhs, Either<L, R> rhs) =>
         ((Either<L, R>)lhs).CompareTo(rhs) >= 0;
@@ -478,7 +478,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs < rhs</returns>
+    /// <returns>True if lhs〈 rhs</returns>
     [Pure]
     public static bool operator <(Either<L, R> lhs, Either<L, R> rhs) =>
         lhs.CompareTo(rhs) < 0;
@@ -488,7 +488,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs <= rhs</returns>
+    /// <returns>True if lhs〈= rhs</returns>
     [Pure]
     public static bool operator <=(Either<L, R> lhs, Either<L, R> rhs) =>
         lhs.CompareTo(rhs) <= 0;
@@ -498,7 +498,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs > rhs</returns>
+    /// <returns>True if lhs 〉rhs</returns>
     [Pure]
     public static bool operator >(Either<L, R> lhs, Either<L, R> rhs) =>
         lhs.CompareTo(rhs) > 0;
@@ -508,7 +508,7 @@ public abstract record Either<L, R> :
     /// </summary>
     /// <param name="lhs">The left hand side of the operation</param>
     /// <param name="rhs">The right hand side of the operation</param>
-    /// <returns>True if lhs >= rhs</returns>
+    /// <returns>True if lhs 〉= rhs</returns>
     [Pure]
     public static bool operator >=(Either<L, R> lhs, Either<L, R> rhs) =>
         lhs.CompareTo(rhs) >= 0;
@@ -594,7 +594,6 @@ public abstract record Either<L, R> :
     public static Either<L, R> operator |(Either<L, R> ma, CatchM<L, Either<L>, R> mb) =>
         (ma.Kind() | mb).As();
     
-    /// <summary>
     /// <summary>
     /// Override of the True operator to return True if the Either is Right
     /// </summary>

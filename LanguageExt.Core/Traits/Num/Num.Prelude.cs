@@ -38,7 +38,7 @@ public static partial class Trait
     /// Generate a numeric value from an integer
     /// </summary>
     /// <param name="x">The integer to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static A fromInteger<NUM, A>(int x) where NUM : Num<A> =>
         NUM.FromInteger(x);
@@ -47,7 +47,7 @@ public static partial class Trait
     /// Generate a numeric value from a float
     /// </summary>
     /// <param name="x">The float to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static A fromDecimal<NUM, A>(decimal x) where NUM : Num<A> =>
         NUM.FromDecimal(x);
@@ -56,7 +56,7 @@ public static partial class Trait
     /// Generate a numeric value from a double
     /// </summary>
     /// <param name="x">The double to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static A fromFloat<NUM, A>(float x) where NUM : Num<A> =>
         NUM.FromFloat(x);
@@ -65,7 +65,7 @@ public static partial class Trait
     /// Generate a numeric value from a decimal
     /// </summary>
     /// <param name="x">The decimal to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static A fromDouble<NUM, A>(double x) where NUM : Num<A> =>
         NUM.FromDouble(x);

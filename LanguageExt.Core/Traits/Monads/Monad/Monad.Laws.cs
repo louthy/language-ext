@@ -7,14 +7,14 @@ namespace LanguageExt.Traits;
 /// Functions that test that monad laws hold for the `F` monad provided.
 /// </summary>
 /// <para>
-///  * Homomorphism: pure g <*> pure x ≡ pure (g x)
-///  * Identity: pure id <*> xs ≡ xs
-///  * Interchange: fs <*> pure x ≡ pure ($ x) <*> fs
-///  * monad: g <$> xs ≡ pure g <*> xs
-///  * Composition: (.) <$> us <*> vs <*> xs ≡ us <*> (vs <*> xs)
+///  * Homomorphism
+///  * Identity
+///  * Interchange
+///  * Monad
+///  * Composition
 /// </para>
 /// <remarks>
-/// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+/// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
 /// can be proven to be true.  If your monad doesn't have `Equals` then you must provide
 /// the optional `equals` parameter so that the equality of outcomes can be tested.
 /// </remarks>
@@ -26,7 +26,7 @@ public static class MonadLaw<F>
     /// Assert that the monad laws hold
     /// </summary>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your monad doesn't have `Equals` then you must provide
     /// the optional `equals` parameter so that the equality of outcomes can be tested.
     /// </remarks>
@@ -38,7 +38,7 @@ public static class MonadLaw<F>
     /// Validate that the monad laws hold
     /// </summary>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your monad doesn't have `Equals` then you must provide
     /// the optional `equals` parameter so that the equality of outcomes can be tested.
     /// </remarks>
@@ -55,7 +55,7 @@ public static class MonadLaw<F>
     /// Validate the left-identity law
     /// </summary>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your monad doesn't have `Equals` then you must provide
     /// the optional `equals` parameter so that the equality of outcomes can be tested.
     /// </remarks>
@@ -75,7 +75,7 @@ public static class MonadLaw<F>
     /// Validate the right-identity law
     /// </summary>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your monad doesn't have `Equals` then you must provide
     /// the optional `equals` parameter so that the equality of outcomes can be tested.
     /// </remarks>
@@ -95,7 +95,7 @@ public static class MonadLaw<F>
     /// Validate the associativity law
     /// </summary>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your monad doesn't have `Equals` then you must provide
     /// the optional `equals` parameter so that the equality of outcomes can be tested.
     /// </remarks>

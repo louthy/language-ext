@@ -10,7 +10,7 @@ public interface Mutates<in M, InnerEnv> : Has<M, InnerEnv>
 {
     /// <summary>
     /// Extracts the `A` from the `Env`, passes it to the `f`
-    /// mapping functions, and then wraps it back up into the generic `M<Unit>` type.
+    /// mapping functions, and then wraps it back up into the generic `M〈Unit〉` type.
     /// </summary>
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped value</returns>

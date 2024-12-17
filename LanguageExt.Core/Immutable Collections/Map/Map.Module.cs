@@ -760,6 +760,7 @@ public static partial class Map
     /// Intersect two maps.  Only keys that are in both maps are
     /// returned.  The merge function is called for every resulting
     /// key.
+    /// </summary>
     [Pure]
     public static Map<K, R> intersect<K, A, B, R>(Map<K, A> left, Map<K, B> right, WhenMatched<K, A, B, R> merge) =>
         left.Intersect(right, merge);

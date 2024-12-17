@@ -452,7 +452,7 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     } 
         
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -460,7 +460,7 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
         obj is VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> hm && Equals(hm);
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

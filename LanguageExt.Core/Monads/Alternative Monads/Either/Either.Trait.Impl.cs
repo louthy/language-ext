@@ -4,7 +4,7 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 /// <summary>
-/// Bifunctor trait implementation for `Either<L, R>`
+/// Bifunctor trait implementation for `Either〈L, R〉`
 /// </summary>
 public partial class Either :
     Bifunctor<Either>
@@ -22,7 +22,7 @@ public partial class Either :
 }
 
 /// <summary>
-/// Monad trait implementation for `Either<L, R>`
+/// Monad trait implementation for `Either〈L, R〉`
 /// </summary>
 /// <typeparam name="L">Left type parameter</typeparam>
 public class Either<L> : Either,

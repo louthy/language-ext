@@ -15,8 +15,8 @@ namespace LanguageExt.Traits;
 public interface Liftable<out LA, in A> : Trait
 {
     /// <summary>
-    /// Lift value A into a Liftable<A>
-    /// <summary>
+    /// Lift value A into a Liftable〈A〉
+    /// </summary>
     [Pure]
     public static abstract LA Lift(A x);
 }

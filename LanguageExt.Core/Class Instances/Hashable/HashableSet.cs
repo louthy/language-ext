@@ -3,7 +3,7 @@
 namespace LanguageExt.ClassInstances;
 
 /// <summary>
-/// Set<T> hashing
+/// Set〈T〉 hashing
 /// </summary>
 public struct HashableSet<HashA, A> : Hashable<Set<A>> where HashA : Hashable<A>
 {
@@ -18,7 +18,7 @@ public struct HashableSet<HashA, A> : Hashable<Set<A>> where HashA : Hashable<A>
 }
 
 /// <summary>
-/// Set<T> hashing
+/// Set〈T〉 hashing
 /// </summary>
 public struct HashableSet<A> : Hashable<Set<A>>
 {

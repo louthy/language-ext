@@ -259,7 +259,7 @@ public static class ValueTaskExtensions
         await ma.AsTask().PlusFirst(mb.AsTask());
         
     /// <summary>
-    /// Cast a ValueTask to a ValueTask<A> (may throw if underlying value doesn't exist)
+    /// Cast a ValueTask to a ValueTask〈A〉 (may throw if underlying value doesn't exist)
     /// </summary>
     public static ValueTask<A> Cast<A>(this ValueTask source) => 
         new(source.AsTask().Cast<A>());

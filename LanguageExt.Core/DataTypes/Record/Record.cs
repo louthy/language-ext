@@ -7,7 +7,7 @@ namespace LanguageExt;
 /// Base class for types that are 'records'.  A record has a set of readonly *fields(
 /// that make up its data structure.  By deriving from this you get structural equality,
 /// structural ordering (`IComparable`), structural hashing (`GetHashCode`) as well as the
-/// operators `==`, `!=`, `<`, `<=`, `>`, `>=`, 
+/// operators `==`, `!=`, `〈`, `〈=`, `〉`, `〉=`, 
 /// </summary>
 /// <typeparam name="RECORDTYPE"></typeparam>
 [Serializable]

@@ -7,14 +7,14 @@ namespace LanguageExt.Traits;
 /// Functions that test that Applicative-functor laws hold for the `F` applicative-functor provided.
 /// </summary>
 /// <para>
-///  * Homomorphism: pure g <*> pure x ≡ pure (g x)
-///  * Identity: pure id <*> xs ≡ xs
-///  * Interchange: fs <*> pure x ≡ pure ($ x) <*> fs
-///  * Applicative-Functor: g <$> xs ≡ pure g <*> xs
-///  * Composition: (.) <$> us <*> vs <*> xs ≡ us <*> (vs <*> xs)
+///  * Homomorphism
+///  * Identity
+///  * Interchange
+///  * Applicative-Functor
+///  * Composition
 /// </para>
 /// <remarks>
-/// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+/// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
 /// can be proven to be true.  If your applicative-functor doesn't have `Equals` then you must provide
 /// the optional `equals` parameter so that the equality of outcomes can be tested.
 /// </remarks>
@@ -26,7 +26,7 @@ public static class ApplicativeLaw<F>
     /// Assert that the applicative-functor laws hold
     /// </summary>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your applicative-functor doesn't have `Equals` then you must provide
     /// the optional `equals` parameter so that the equality of outcomes can be tested.
     /// </remarks>
@@ -38,7 +38,7 @@ public static class ApplicativeLaw<F>
     /// Validate that the applicative-functor laws hold
     /// </summary>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your applicative-functor doesn't have `Equals` then you must provide
     /// the optional `equals` parameter so that the equality of outcomes can be tested.
     /// </remarks>
@@ -58,10 +58,10 @@ public static class ApplicativeLaw<F>
     /// Validate the homomorphism law
     /// </summary>
     /// <remarks>
-    /// Homomorphism: pure g <*> pure x ≡ pure (g x)
+    /// Homomorphism
     /// </remarks>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your applicative-functor doesn't have `Equals` then you must provide
     /// the optional `equals` parameter so that the equality of outcomes can be tested.
     /// </remarks>
@@ -85,10 +85,10 @@ public static class ApplicativeLaw<F>
     /// Validate the interchange law
     /// </summary>
     /// <remarks>
-    /// Interchange: fs <*> pure x ≡ pure ($ x) <*> fs
+    /// Interchange
     /// </remarks>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your applicative-functor doesn't have `Equals` then you must provide
     /// the optional `equals` parameter so that the equality of outcomes can be tested.
     /// </remarks>
@@ -114,10 +114,10 @@ public static class ApplicativeLaw<F>
     /// Validate the identity law
     /// </summary>
     /// <remarks>
-    /// Identity: pure id <*> xs ≡ xs
+    /// Identity
     /// </remarks>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your applicative-functor doesn't have `Equals` then you must provide
     /// the optional `equals` parameter so that the equality of outcomes can be tested.
     /// </remarks>
@@ -135,10 +135,10 @@ public static class ApplicativeLaw<F>
     /// Validate the composition law
     /// </summary>
     /// <remarks>
-    /// Composition: (.) <$> us <*> vs <*> xs ≡ us <*> (vs <*> xs)
+    /// Composition
     /// </remarks>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your functor doesn't have `Equals` then you must provide
     /// the optional `equals` parameter so that the equality of outcomes can be tested.
     /// </remarks>
@@ -161,13 +161,13 @@ public static class ApplicativeLaw<F>
     }
 
     /// <summary>
-    /// Validate the composition law
+    /// Validate the functor law
     /// </summary>
     /// <remarks>
-    /// Applicative-Functor: g <$> xs ≡ pure g <*> xs
+    /// Applicative-Functor
     /// </remarks>
     /// <remarks>
-    /// NOTE: `Equals` must be implemented for the `K<F, *>` derived-type, so that the laws
+    /// NOTE: `Equals` must be implemented for the `K〈F, *〉` derived-type, so that the laws
     /// can be proven to be true.  If your functor doesn't have `Equals` then you must provide
     /// the optional `equals` parameter so that the equality of outcomes can be tested.
     /// </remarks>

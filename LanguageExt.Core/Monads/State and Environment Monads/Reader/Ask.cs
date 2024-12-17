@@ -17,7 +17,7 @@ namespace LanguageExt;
 public readonly record struct Ask<Env, A>(Func<Env, A> F)
 {
     /// <summary>
-    /// Use a `Readable` trait to convert to an `M<A>`
+    /// Use a `Readable` trait to convert to an `M〈A〉`
     /// </summary>
     public K<M, A> ToReadable<M>()
         where M : Readable<M, Env> =>

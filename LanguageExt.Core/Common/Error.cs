@@ -108,10 +108,10 @@ public abstract record Error : Monoid<Error>
     /// values may be processed.  This is dependent on the `M` monoid. 
     /// </summary>
     /// <remarks>
-    /// The aggregated `K<M, A>` is returned.
+    /// The aggregated `K〈M, A〉` is returned.
     /// </remarks>
     /// <param name="f">Function</param>
-    /// <returns>The aggregated `K<M, A>` is returned.</returns>
+    /// <returns>The aggregated `K〈M, A〉` is returned.</returns>
     [Pure]
     public virtual K<M, A> FoldM<M, A>(Func<Error, K<M, A>> f) 
         where M : MonoidK<M> =>
@@ -350,7 +350,7 @@ public abstract record Error : Monoid<Error>
 
     /// <summary>
     /// Attempt to recover an error from an object.
-    /// Will accept Error, ErrorException, Exception, string, Option<Error>
+    /// Will accept Error, ErrorException, Exception, string, Option〈Error〉
     /// If it fails, Errors.Bottom is returned
     /// </summary>
     [Pure]
@@ -419,7 +419,7 @@ public abstract record Error : Monoid<Error>
 /// 
 /// * `Code` - an integer value
 /// * `Message` - display text
-/// * `Option<Error>` - a nested inner error
+/// * `Option〈Error〉` - a nested inner error
 /// 
 /// It returns `false` when `IsExceptional` is called against it; and `true` when `IsExpected` is
 /// called against it.
@@ -769,10 +769,10 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     /// values may be processed.  This is dependent on the `M` monoid. 
     /// </summary>
     /// <remarks>
-    /// The aggregated `K<M, A>` is returned.
+    /// The aggregated `K〈M, A〉` is returned.
     /// </remarks>
     /// <param name="f">Function</param>
-    /// <returns>The aggregated `K<M, A>` is returned.</returns>
+    /// <returns>The aggregated `K〈M, A〉` is returned.</returns>
     [Pure]
     public override K<M, A> FoldM<M, A>(Func<Error, K<M, A>> f)
     {

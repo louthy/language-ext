@@ -17,17 +17,13 @@ public static partial class FunctorExtensions
     /// </remarks>
     /// <example>
     ///
-    ///    var mx = Seq<Option<int>>(Some(1), Some(2), Some(3));
-    ///         
-    ///    var ma = mx.KindT<Seq, Option, Option<int>, int>()
-    ///               .BindT(a => Some(a + 1))
-    ///               .MapT(a => a + 1);
-    ///               .AsT<Seq, Option, Option<int>, int>();
+    ///    var mx = Seq〈Option〈int〉〉(Some(1), Some(2), Some(3));
+    ///    var ma = mx.MapT(a => a + 1);
     ///
     /// </example>
     /// <param name="mna">Nested functor value</param>
     /// <param name="f">Bind function</param>
-    /// <typeparam name="NA">`N<A>`</typeparam>
+    /// <typeparam name="NA">`N〈A〉`</typeparam>
     /// <typeparam name="M">Outer functor trait</typeparam>
     /// <typeparam name="N">Inner functor trait</typeparam>
     /// <typeparam name="A">Input bound value</typeparam>
