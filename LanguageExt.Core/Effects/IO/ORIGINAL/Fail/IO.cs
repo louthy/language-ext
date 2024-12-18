@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
@@ -26,60 +27,56 @@ namespace LanguageExt;
 /// </summary>
 /// <param name="runIO">The lifted thunk that is the IO operation</param>
 /// <typeparam name="A">Bound value</typeparam>
-record IOPure<A>(A Value) : IO<A>
+record IOFail<A>(Error Error) : IO<A>
 {
     internal override bool IsAsync =>
         false;
-
+    
     public IO<A> ToSync() =>
-        new IOSync<A>(_ => IOResponse.Complete(Value));
+        new IOSync<A>(_ => throw Error.ToErrorException());
     
     public IO<A> ToAsync() =>
-        new IOAsync<A>(_ => Task.FromResult(IOResponse.Complete(Value)));
-
+        new IOAsync<A>(_ => throw Error.ToErrorException());
+    
     public override IO<B> Map<B>(Func<A, B> f) =>
-        new IOSync<B>(_ => IOResponse.Complete(f(Value)));
+        new IOFail<B>(Error);
 
     public override IO<S> FoldUntil<S>(
         Schedule schedule, 
         S initialState, 
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        ToAsync().FoldUntil(schedule, initialState, folder, predicate);
+        new IOFail<S>(Error);
 
     public override IO<A> Post() => 
         this;
 
-    public override IO<B> Bind<B>(Func<A, IO<B>> f) =>
-        f(Value);
+    public override IO<B> Bind<B>(Func<A, IO<B>> f) => 
+        new IOFail<B>(Error);
 
     public override IO<A> Bracket() => 
         this;
 
     public override IO<C> Bracket<B, C>(Func<A, IO<C>> Use, Func<Error, IO<C>> Catch, Func<A, IO<B>> Finally) => 
-        ToSync().Bracket(Use, Catch, Finally);
+        new IOFail<C>(Error);
 
     public override IO<A> Local() => 
         this;
 
     public override IO<ForkIO<A>> Fork(Option<TimeSpan> timeout = default) => 
-        new IOPure<ForkIO<A>>(new ForkIO<A>(Prelude.unitIO, this));
+        new IOFail<ForkIO<A>>(Error);
 
     public override ValueTask<A> RunAsync(EnvIO? envIO = null) => 
-        ValueTask.FromResult(Value);
+        ValueTask.FromException<A>(Error.ToErrorException());
 
     public override A Run(EnvIO? envIO = null) => 
-        Value;
+        Error.ToErrorException().Rethrow<A>();
 
     public override IO<A> RepeatUntil(Func<A, bool> predicate) =>
-        predicate(Value)
-            ? this
-            : throw new InvalidOperationException("non-terminating and non-effectful IO repeat");
+        this;
 
     public override IO<A> RepeatUntil(Schedule schedule, Func<A, bool> predicate) => 
-        predicate(Value)
-            ? this
-            : throw new InvalidOperationException("non-terminating and non-effectful IO repeat");
+        this;
 
     public override IO<A> RetryUntil(Func<Error, bool> predicate) => 
         this;
@@ -95,5 +92,8 @@ record IOPure<A>(A Value) : IO<A>
     /// <param name="Predicate">Predicate</param>
     /// <param name="Fail">Fail functions</param>
     public override IO<A> Catch(Func<Error, bool> Predicate, Func<Error, K<IO, A>> Fail) =>
-        this;
+        Predicate(Error)
+            ? Fail(Error).As()
+            : this;
 }
+*/

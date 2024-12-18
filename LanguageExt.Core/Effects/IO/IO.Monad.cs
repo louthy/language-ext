@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -249,3 +250,4 @@ public partial class IO :
     static K<IO, A> Fallible<Error, IO>.Catch<A>(K<IO, A> fa, Func<Error, bool> Predicate, Func<Error, K<IO, A>> Fail) =>
         fa.As().Catch(Predicate, Fail);
 }
+*/

@@ -12,6 +12,15 @@ namespace LanguageExt;
 public partial class IO
 {
     /// <summary>
+    /// Lift a pure value into an IO computation
+    /// </summary>
+    /// <param name="value">value</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>IO in a success state.  Always yields the lifted value.</returns>
+    public static IO<A> pure<A>(A value) =>
+        IO<A>.Pure(value);
+    
+    /// <summary>
     /// Put the IO into a failure state
     /// </summary>
     /// <param name="value">Error value</param>

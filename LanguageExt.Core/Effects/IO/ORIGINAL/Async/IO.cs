@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
@@ -26,26 +27,24 @@ namespace LanguageExt;
 /// </summary>
 /// <param name="runIO">The lifted thunk that is the IO operation</param>
 /// <typeparam name="A">Bound value</typeparam>
-record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
+record IOAsync<A>(Func<EnvIO, Task<IOResponse<A>>> runIO) : IO<A>
 {
     internal override bool IsAsync =>
-        false;
+        true;
 
-    public IO<A> ToAsync() =>
-        new IOAsync<A>(e => Task.FromResult(runIO(e)));
-    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Functor
     //
 
     public override IO<B> Map<B>(Func<A, B> f) =>
-        new IOSync<B>(e =>
+        new IOAsync<B>(
+            async e =>
             {
                 if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
-                return IOResponse.Complete(f(Run(e)));
+                return IOResponse.Complete(f(await RunAsync(e)));
             });
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 
     //  Folding
@@ -56,7 +55,24 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        ToAsync().FoldUntil(schedule, initialState, folder, predicate);
+        new IOAsync<S>(async envIO =>
+            {
+                if (envIO.Token.IsCancellationRequested) throw new TaskCanceledException();
+                var r     = await RunAsync(envIO);
+                var state = folder(initialState, r);
+                if (predicate((state, r))) return IOResponse.Complete(state);
+
+                var token = envIO.Token;
+                foreach (var delay in schedule.Run())
+                {
+                    await IO.yieldFor(delay, token);
+                    r     = await RunAsync(envIO);
+                    state = folder(state, r);
+                    if (predicate((state, r))) return IOResponse.Complete(state);
+                }
+
+                return IOResponse.Complete(state);
+            });
     
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -69,7 +85,37 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
     /// all IO computations)
     /// </summary>
     public override IO<A> Post() =>
-        ToAsync().Post();
+        new IOAsync<A>(async env =>
+            {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                if (env.SyncContext is null) return await runIO(env);
+
+                A?         value = default;
+                Exception? error = default;
+                using var  wait  = new AutoResetEvent(false);
+
+                env.SyncContext.Post(_ =>
+                                     {
+                                         try
+                                         {
+                                             value = Run(env);
+                                         }
+                                         catch (Exception e)
+                                         {
+                                             error = e;
+                                         }
+                                         finally
+                                         {
+                                             wait.Set();
+                                         }
+                                     },
+                                     null);
+
+                await wait.WaitOneAsync(env.Token);
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                if (error is not null) error.Rethrow<A>();
+                return IOResponse.Complete(value!);
+            });
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -77,10 +123,10 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
     //
 
     public override IO<B> Bind<B>(Func<A, IO<B>> f) =>
-        new IOSync<B>(e =>
+        new IOAsync<B>(async e =>
             {
                 if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
-                return IOResponse.Recurse(f(Run(e)));
+                return IOResponse.Recurse(f(await RunAsync(e)));
             });
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,10 +142,10 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
     [Pure]
     [MethodImpl(Opt.Default)]
     public override IO<A> Bracket() =>
-        new IOSync<A>(env =>
+        new IOAsync<A>(async env =>
             {
                 using var lenv = env.LocalResources;
-                return IOResponse.Complete(Run(lenv));
+                return IOResponse.Complete(await RunAsync(lenv));
             });
 
     /// <summary>
@@ -111,20 +157,20 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
     /// <param name="Catch">Function to run to handle any exceptions</param>
     /// <param name="Finally">Function to invoke to release the resource</param>
     public override IO<C> Bracket<B, C>(Func<A, IO<C>> Use, Func<Error, IO<C>> Catch, Func<A, IO<B>> Finally) =>
-        new IOSync<C>(env =>
+        new IOAsync<C>(async env =>
             {
-                var x = Run(env);
+                var x = await RunAsync(env);
                 try
                 {
-                    return IOResponse.Complete(Use(x).Run(env));
+                    return IOResponse.Complete(await Use(x).RunAsync(env));
                 }
                 catch (Exception e)
                 {
-                    return IOResponse.Complete(Catch(e).Run(env));
+                    return IOResponse.Complete(await Catch(e).RunAsync(env));
                 }
                 finally
                 {
-                    Finally(x).Run(env)?.Ignore();
+                    (await Finally(x).RunAsync(env))?.Ignore();
                 }
             });
 
@@ -137,7 +183,7 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
     /// Create a local cancellation environment
     /// </summary>
     public override IO<A> Local() =>
-        new IOSync<A>(env =>
+        new IOAsync<A>(async env =>
             {
                 if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
 
@@ -146,12 +192,12 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
                 var       tok  = tsrc.Token;
 
                 // If the parent cancels, we should too
-                using var reg = env.Token.Register(() => tsrc.Cancel());
+                await using var reg = env.Token.Register(() => tsrc.Cancel());
 
                 var env1 = EnvIO.New(env.Resources, tok, tsrc, env.SyncContext);
-                return IOResponse.Complete(Run(env1));
-            });
-
+                return IOResponse.Complete(await RunAsync(env1));
+            });    
+    
     /// <summary>
     /// Queues the specified work to run on the thread pool  
     /// </summary>
@@ -188,7 +234,8 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
                         var forkedResources = new Resources(parentResources);
                         try
                         {
-                            return runIO(EnvIO.New(forkedResources, token, tsrc, env.SyncContext));
+                            var t = runIO(EnvIO.New(forkedResources, token, tsrc, env.SyncContext));
+                            return t.GetAwaiter().GetResult();
                         }
                         finally
                         {
@@ -211,7 +258,7 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
                                       }),
                         LiftAsync(e => AwaitAsync(task, e, token, tsrc)));
             });
-    
+
     /// <summary>
     /// Run the `IO` monad to get its result
     /// </summary>
@@ -229,15 +276,14 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
     /// <returns>Result of the IO operation</returns>
     /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
     /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
-    public override async ValueTask<A> RunAsync(EnvIO? envIO = null)
+    public override async ValueTask<A> RunAsync(EnvIO? env = null)
     {
-        if(envIO?.Token.IsCancellationRequested ?? false) throw new TaskCanceledException();
-        var envRequiresDisposal = envIO is null;
-        envIO ??= EnvIO.New();
+        var envRequiresDisposal = env is null;
+        env ??= EnvIO.New();
         try
         {
-            var response = runIO(envIO);
-            while (!envIO.Token.IsCancellationRequested)
+            var response = await runIO(env).ConfigureAwait(false); 
+            while (!env.Token.IsCancellationRequested)
             {
                 switch (response)
                 {
@@ -247,48 +293,44 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
                     case BindIO<A> io:
                         switch(io.Run()) 
                         {
-                           case IOAsync<A> io1:
-                               response = await io1.runIO(envIO).ConfigureAwait(false);
-                               break;
-                           case IOSync<A> io1:
-                               response = io1.runIO(envIO);
-                               break;
+                            case IOAsync<A> io1:
+                                response = await io1.runIO(env).ConfigureAwait(false);
+                                break;
+                            case IOSync<A> io1:
+                                response = io1.runIO(env);
+                                break;
 
-                           case IOPure<A> io1:
-                               return io1.Value;
+                            case IOPure<A> io1:
+                                return io1.Value;
 
-                           case IOFail<A> io1:
-                               return io1.Error.ToErrorException().Rethrow<A>();
+                            case IOFail<A> io1:
+                                return io1.Error.ToErrorException().Rethrow<A>();
                            
-                           default:
-                               throw new NotSupportedException();
+                            default:
+                                throw new NotSupportedException();
                         }
-                        break;
-
+                        break;                    
+                    
                     case RecurseIO<A>(IOPure<A> io):
                         return io.Value;
-                    
+
                     case RecurseIO<A>(IOFail<A> io):
                         return io.Error.ToErrorException().Rethrow<A>();
 
                     case RecurseIO<A>(IOSync<A> io):
-                        response = io.runIO(envIO);
+                        response = io.runIO(env);
                         break;
 
                     case RecurseIO<A>(IOAsync<A> io):
-                        response = await io.runIO(envIO);
+                        response = await io.runIO(env).ConfigureAwait(false);
                         break;
-
-                    default:
-                        throw new NotSupportedException();
                 }
             }
-
             throw new TaskCanceledException();
         }
         finally
         {
-            if(envRequiresDisposal) envIO.Dispose();
+            if(envRequiresDisposal) env.Dispose();
         }
     }
 
@@ -304,72 +346,12 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
     /// NOTE: An exception will always be thrown if the IO operation fails.  Lift this monad into
     /// other error handling monads to leverage more declarative error handling. 
     /// </remarks>
-    /// <param name="envIO">IO environment</param>
+    /// <param name="env">IO environment</param>
     /// <returns>Result of the IO operation</returns>
     /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
     /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
-    public override A Run(EnvIO? envIO = null)
-    {
-        if(envIO?.Token.IsCancellationRequested ?? false) throw new TaskCanceledException();
-        var envRequiresDisposal = envIO is null;
-        envIO ??= EnvIO.New();
-        try
-        {
-            var response = runIO(envIO);
-            while (!envIO.Token.IsCancellationRequested)
-            {
-                switch (response)
-                {
-                    case CompleteIO<A> (var x):
-                        return x;
-
-                    case BindIO<A> io:
-                        switch(io.Run()) 
-                        {
-                            case IOAsync<A> io1:
-                                return io1.RunAsync(envIO).GetAwaiter().GetResult();
-                            
-                            case IOSync<A> io1:
-                                response = io1.runIO(envIO);
-                                break;
-
-                            case IOPure<A> io1:
-                                return io1.Value;
-
-                            case IOFail<A> io1:
-                                return io1.Error.ToErrorException().Rethrow<A>();
-                           
-                            default:
-                                throw new NotSupportedException();
-                        }
-                        break;
-                    
-                    case RecurseIO<A>(IOPure<A> io):
-                        return io.Value;
-
-                    case RecurseIO<A>(IOFail<A> io):
-                        return io.Error.ToErrorException().Rethrow<A>();
-
-                    case RecurseIO<A>(IOSync<A> io):
-                        response = io.runIO(envIO);
-                        break;
-
-                    case RecurseIO<A>(IOAsync<A> io):
-                        // Switch to the async path for the remainder of the computation
-                        return io.RunAsync(envIO).GetAwaiter().GetResult();
-
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-
-            throw new TaskCanceledException();
-        }
-        finally
-        {
-            if(envRequiresDisposal) envIO.Dispose();
-        }
-    }
+    public override A Run(EnvIO? env = null) =>
+        RunAsync(env).GetAwaiter().GetResult();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -389,7 +371,39 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
     public override IO<A> RepeatUntil(
         Schedule schedule,
         Func<A, bool> predicate) =>
-        ToAsync().RepeatUntil(schedule, predicate);
+        new IOAsync<A>(async env =>
+            {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                var token = env.Token;
+                var lenv  = env.LocalResources;
+                try
+                {
+                    var result = await RunAsync(lenv);
+                    
+                    // free any resources acquired during a repeat
+                    await lenv.Resources.ReleaseAll().RunAsync(env);
+                    
+                    if (predicate(result)) return IOResponse.Complete(result);
+
+                    foreach (var delay in schedule.Run())
+                    {
+                        await Task.Delay((TimeSpan)delay, token);
+                        result = await RunAsync(lenv);
+                        
+                        // free any resources acquired during a repeat
+                        await lenv.Resources.ReleaseAll().RunAsync(env);
+                        
+                        if (predicate(result)) return IOResponse.Complete(result);
+                    }
+
+                    return IOResponse.Complete(result);
+                }
+                finally
+                {
+                    // free any resources acquired during a repeat
+                    await lenv.Resources.ReleaseAll().RunAsync(env);
+                }
+            });
     
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns true, or an error occurs
@@ -402,7 +416,7 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
     /// <param name="predicate">Keep repeating until this predicate returns `true` for each computed value</param>
     /// <returns>The result of the last invocation</returns>
     public override IO<A> RepeatUntil(Func<A, bool> predicate) =>
-        new IOSync<A>(env =>
+        new IOAsync<A>(async env =>
             {
                 if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
                 var lenv = env.LocalResources;
@@ -410,10 +424,10 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
                 {
                     while(!env.Token.IsCancellationRequested)
                     {
-                        var result = Run(lenv);
+                        var result = await RunAsync(lenv);
                         
                         // free any resources acquired during a repeat
-                        lenv.Resources.ReleaseAll().Run(env);
+                        await lenv.Resources.ReleaseAll().RunAsync(env);
                         
                         if (predicate(result)) return IOResponse.Complete(result);
                     }
@@ -422,7 +436,7 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
                 finally
                 {
                     // free any resources acquired during a repeat
-                    lenv.Resources.ReleaseAll().Run(env);
+                    await lenv.Resources.ReleaseAll().RunAsync(env);
                 }
             });
     
@@ -446,8 +460,54 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
     public override IO<A> RetryUntil(
         Schedule schedule,
         Func<Error, bool> predicate) =>
-        ToAsync().RetryUntil(schedule, predicate);
-    
+        new IOAsync<A>(async env =>
+            {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                var token     = env.Token;
+                Exception? lastError;
+                var lenv      = env.LocalResources;
+                try
+                {
+                    var r = await RunAsync(lenv);
+                    
+                    // Any resources that were acquired should be propagated through to the `env`
+                    env.Resources.Merge(lenv.Resources);
+
+                    return IOResponse.Complete(r);
+                }
+                catch (Exception e)
+                {
+                    // Any resources created whilst trying should be removed for the retry
+                    await lenv.Resources.ReleaseAll().RunAsync(env);
+                    
+                    if (predicate(Error.New(e))) throw;
+                    lastError = e;
+                }
+                
+                foreach(var delay in schedule.Run())
+                {
+                    await Task.Delay((TimeSpan)delay, token);
+                    try
+                    {
+                        var r = await RunAsync(lenv);
+                        
+                        // Any resources that were acquired should be propagated through to the `env`
+                        env.Resources.Merge(lenv.Resources);
+
+                        return IOResponse.Complete(r);
+                    }
+                    catch (Exception e)
+                    {
+                        // Any resources created whilst trying should be removed for the retry
+                        await lenv.Resources.ReleaseAll().RunAsync(env);
+                        
+                        if (predicate(Error.New(e))) throw;
+                        lastError = e;
+                    }
+                }
+                return lastError.Rethrow<IOResponse<A>>();
+            });
+
     /// <summary>
     /// Retry if the IO computation fails 
     /// </summary>
@@ -461,7 +521,7 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
     /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
     public override IO<A> RetryUntil(Func<Error, bool> predicate) =>
-        new IOSync<A>(env =>
+        new IOAsync<A>(async env =>
             {
                 if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
                 var lenv = env.LocalResources;
@@ -470,7 +530,7 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
                 {
                     try
                     {
-                        var r = Run(lenv);
+                        var r = await RunAsync(lenv);
                         
                         // Any resources that were acquired should be propagated through to the `env`
                         env.Resources.Merge(lenv.Resources);
@@ -480,44 +540,19 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
                     catch (Exception e)
                     {
                         // Any resources created whilst trying should be removed for the retry
-                        lenv.Resources.ReleaseAll().Run(env);
+                        await lenv.Resources.ReleaseAll().RunAsync(env);
                         
                         if (predicate(Error.New(e))) throw;
                     }
                 }
                 throw new TaskCanceledException();
-            });    
-
-    /// <summary>
-    /// Catches any error thrown by invoking this IO computation, passes it through a predicate,
-    /// and if that returns true, returns the result of invoking the Fail function, otherwise
-    /// this is returned.
-    /// </summary>
-    /// <param name="Predicate">Predicate</param>
-    /// <param name="Fail">Fail functions</param>
-    public override IO<A> Catch(Func<Error, bool> Predicate, Func<Error, K<IO, A>> Fail) =>
-        new IOSync<A>(env =>
-                  {
-                      if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-                      var lenv = env.LocalResources; 
-                      try
-                      {
-                          var r = Run(lenv);
-                          env.Resources.Merge(lenv.Resources);
-                          return IOResponse.Complete(r);
-                      }
-                      catch(Exception ex)
-                      {
-                          lenv.Resources.ReleaseAll().Run(env);
-                          var err = Error.New(ex);
-                          if (Predicate(err)) return IOResponse.Complete(Fail(err).As().Run(env));
-                          throw;
-                      }
-                  });
+            });
     
-    public override string ToString() => 
-        "IO";
-
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Internal
+    //
+    
     async Task<IOResponse<A>> AwaitAsync(Task<IOResponse<A>> t, EnvIO envIO, CancellationToken token, CancellationTokenSource source)
     {
         if (envIO.Token.IsCancellationRequested) throw new TaskCanceledException();
@@ -533,9 +568,40 @@ record IOSync<A>(Func<EnvIO, IOResponse<A>> runIO) : IO<A>
         {
             if (Interlocked.Exchange(ref disposed, 1) == 0)
             {
-                try{Src.Dispose();} catch { /* not important */ } 
-                try{Reg.Dispose();} catch { /* not important */ }
+                try{Src.Dispose();} catch { /* not important #1# } 
+                try{Reg.Dispose();} catch { /* not important #1# }
             }
         }
     }
+
+    /// <summary>
+    /// Catches any error thrown by invoking this IO computation, passes it through a predicate,
+    /// and if that returns true, returns the result of invoking the Fail function, otherwise
+    /// this is returned.
+    /// </summary>
+    /// <param name="Predicate">Predicate</param>
+    /// <param name="Fail">Fail functions</param>
+    public override IO<A> Catch(Func<Error, bool> Predicate, Func<Error, K<IO, A>> Fail) =>
+        new IOAsync<A>(async env =>
+                      {
+                          if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                          var lenv = env.LocalResources; 
+                          try
+                          {
+                              var r = await RunAsync(lenv);
+                              env.Resources.Merge(lenv.Resources);
+                              return IOResponse.Complete(r);
+                          }
+                          catch(Exception ex)
+                          {
+                              await lenv.Resources.ReleaseAll().RunAsync(env);
+                              var err = Error.New(ex);
+                              if (Predicate(err)) return IOResponse.Complete(await Fail(err).As().RunAsync(env));
+                              throw;
+                          }
+                      });
+
+    public override string ToString() => 
+        "IOAsync";
 }
+*/

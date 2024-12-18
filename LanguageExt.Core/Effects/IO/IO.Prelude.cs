@@ -22,7 +22,7 @@ public static partial class Prelude
     /// Request a cancellation of the IO expression
     /// </summary>
     public static readonly IO<Unit> cancel =
-        new IOSync<Unit>(
+        IO<Unit>.Lift(
             e =>
             {
                 e.Source.Cancel();
@@ -221,18 +221,18 @@ public static partial class Prelude
     /// <returns>Sequence of results</returns>
     public static IO<Seq<A>> awaitAll<A>(Seq<K<IO, A>> ms) =>
         awaitAll(ms.Map(f => f.As()));
-    
+
     /// <summary>
     /// Awaits all operations
     /// </summary>
     /// <param name="ms">Operations to await</param>
     /// <returns>Sequence of results</returns>
     public static IO<Seq<A>> awaitAll<A>(Seq<IO<A>> ms) =>
-        new IOAsync<Seq<A>>(async eio => 
-                       {
-                           var result = await Task.WhenAll(ms.Map(io => io.RunAsync(eio).AsTask()));
-                           return IOResponse.Complete(result.ToSeqUnsafe());
-                       });
+        IO.liftAsync(async eio =>
+                     {
+                         var result = await Task.WhenAll(ms.Map(io => io.RunAsync(eio).AsTask()));
+                         return result.ToSeqUnsafe();
+                     });
 
     /// <summary>
     /// Awaits all forks
@@ -249,12 +249,12 @@ public static partial class Prelude
     /// <param name="ms">IO operations to await</param>
     /// <returns>Sequence of results</returns>
     public static IO<Seq<A>> awaitAll<A>(Seq<IO<ForkIO<A>>> mfs) =>
-        new IOAsync<Seq<A>>(async eio =>
-                            {
-                                var forks  = mfs.Map(mf => mf.Run(eio));
-                                var result = await Task.WhenAll(forks.Map(f => f.Await.RunAsync(eio).AsTask()));
-                                return IOResponse.Complete(result.ToSeqUnsafe());
-                            });
+        IO.liftAsync(async eio =>
+                     {
+                         var forks  = mfs.Map(mf => mf.Run(eio));
+                         var result = await Task.WhenAll(forks.Map(f => f.Await.RunAsync(eio).AsTask()));
+                         return result.ToSeqUnsafe();
+                     });
 
     /// <summary>
     /// Awaits for any forks to complete
@@ -368,11 +368,11 @@ public static partial class Prelude
     /// If we have collected as many errors as we have forks, then we'll return them all.
     /// </returns>
     public static IO<A> awaitAny<A>(Seq<IO<A>> ms) =>
-        new IOAsync<A>(async eio => 
-                       {
-                           var result = await await Task.WhenAny(ms.Map(io => io.RunAsync(eio).AsTask()));
-                           return IOResponse.Complete(result);
-                       });
+        IO.liftAsync(async eio => 
+                     {
+                         var result = await await Task.WhenAny(ms.Map(io => io.RunAsync(eio).AsTask()));
+                         return result;
+                     });
 
     /// <summary>
     /// Awaits for any forks to complete
@@ -384,12 +384,12 @@ public static partial class Prelude
     /// If we have collected as many errors as we have forks, then we'll return them all.
     /// </returns>
     public static IO<A> awaitAny<A>(Seq<IO<ForkIO<A>>> mfs) =>
-        new IOAsync<A>(async eio =>
-                       {
-                           var forks  = mfs.Map(mf => mf.Run(eio));
-                           var result = await await Task.WhenAny(forks.Map(f => f.Await.RunAsync(eio).AsTask()));
-                           return IOResponse.Complete(result);
-                       });
+        IO.liftAsync(async eio =>
+                     {
+                         var forks  = mfs.Map(mf => mf.Run(eio));
+                         var result = await await Task.WhenAny(forks.Map(f => f.Await.RunAsync(eio).AsTask()));
+                         return result;
+                     });
 
     /// <summary>
     /// Timeout operation if it takes too long
