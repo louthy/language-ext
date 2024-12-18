@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.DSL;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -28,7 +29,6 @@ namespace LanguageExt;
 /// <param name="runIO">The lifted thunk that is the IO operation</param>
 /// <typeparam name="A">Bound value</typeparam>
 public abstract record IO<A> :
-    K<IO, A>,
     Fallible<IO<A>, IO, Error, A>,
     Monoid<IO<A>>
 {
@@ -41,22 +41,22 @@ public abstract record IO<A> :
         new IOPure<A>(value);
     
     public static IO<A> Fail(Error value) => 
-        new IOFail<A>(value);
+        Lift(IODsl.Fail<A>(value));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  General
     //
     
-    public static IO<A> Empty { get; } = 
-        new IOFail<A>(Errors.None);
+    public static IO<A> Empty { get; } =
+        Lift(IODsl.Fail<A>(Errors.None));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Lifting
     //
 
-    static IO<A> Lift(IODsl<A> fa) => 
+    internal static IO<A> Lift(IODsl<A> fa) => 
         new IOBind<A>(fa.Map(IO.pure));
     
     public static IO<A> Lift(Func<EnvIO, A> f) => 
@@ -78,7 +78,8 @@ public abstract record IO<A> :
 
     public abstract IO<B> Map<B>(Func<A, B> f);
 
-    public abstract IO<B> ApplyBack<B>(K<IO, Func<A, B>> f);
+    public IO<B> ApplyBack<B>(K<IO, Func<A, B>> f) =>
+        IO<B>.Lift(IODsl.Apply(f.As(), this));
     
     public IO<B> Map<B>(B value) =>
         Map(_ => value);
@@ -883,7 +884,7 @@ public abstract record IO<A> :
     /// <param name="Predicate">Predicate</param>
     /// <param name="Fail">Fail functions</param>
     public IO<A> Catch(Func<Error, bool> Predicate, Func<Error, K<IO, A>> Fail) =>
-        new IOCatch<A, A>(this, Predicate, Fail, Pure);
+        Lift(IODsl.Catch(this, Predicate, Fail));
 
     /// <summary>
     /// Monoid combine
@@ -947,17 +948,13 @@ public abstract record IO<A> :
 
                     case IOPureAsync<A> (var value):
                         return await value;
-                            
-                    case IOFail<A> (var value):
-                        return value.Throw<A>();
-
-                    case IOCatch<A> @catch:
-                        ma = await @catch.Invoke(envIO);
-                        break;
 
                     case IOBind<A> (var dsl):
                         switch (dsl)
                         {
+                            case IOFail<IO<A>> (var value):
+                                return value.Throw<A>();
+                            
                             case IOLiftSync<IO<A>> (var f):
                                 ma = f(envIO);
                                 break;
@@ -966,10 +963,29 @@ public abstract record IO<A> :
                                 ma = await f(envIO);
                                 break;
 
+                            case IOCatch<IO<A>> @catch:
+                                ma = await @catch.Invoke(envIO);
+                                break;
+
+                            case IOMap<IO<A>> map:
+                                ma = map.Invoke(envIO);
+                                break;
+
+                            case IOMapAsync<IO<A>> map:
+                                ma = await map.Invoke(envIO);
+                                break;
+                            
+                            case IOApply<IO<A>> apply:
+                                ma = await apply.Invoke(envIO);
+                                break;
+
                             default:
                                 throw new InvalidOperationException("We shouldn't be here!");
                         }
                         break;
+
+                    default:
+                        throw new InvalidOperationException("We shouldn't be here!");
                 }
             }
 

@@ -75,15 +75,32 @@ public static class YourPrelude
 
 public class Program
 {
+    static async Task<int> t1()
+    {
+        await Task.Delay(1000);
+        Console.WriteLine("t1");
+        return 1;
+    }
+
+    static async Task<int> t2()
+    {
+        await Task.Delay(10);
+        Console.WriteLine("t2");
+        return 2;
+    }
+
+    public static async Task Issue1426()
+    {
+        // Changing 1st IO.lift to IO.liftAsync(() => Task.FromResult(1)) will print out t2 first.
+        var s1         = IO.lift(() => 1).Bind(_ => IO.lift(() => 1)).Bind(_ => IO.liftAsync(() => t1()));
+        var s2         = IO.lift(() => 1).Bind(_ => IO.lift(() => 2)).Bind(_ => IO.liftAsync(() => t2()));
+        var add        = static (int x, int y) => x + y;
+        var runTest    = add.Map(s1).Apply(s2);
+        var resultTest = await runTest.RunAsync();
+    }    
+    
     static void Main(string[] args)
     {
-        var ma = Set(1,2,3,4);
-        var mb = ma.Map(x => 1);
-
-        var mc = Set(1);
-
-               
-        
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
         //                                                                                                    //
         //                                                                                                    //
@@ -92,6 +109,12 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
+        var mx = IO.pure(100).Map(x => x * 2);
+        var mr = mx.Run();
+        
+        Issue1426().GetAwaiter().GetResult();
+        return;
+        
         SeqConstructTests.Test();
         //ResourcesDiscussion1366.Run();
         //StateTTest();
