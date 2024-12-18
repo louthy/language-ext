@@ -1,3 +1,5 @@
+#pragma warning disable LX_StreamT
+
 using System;
 using System.Collections.Concurrent;
 using System.Threading;

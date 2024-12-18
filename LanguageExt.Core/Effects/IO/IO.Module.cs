@@ -21,6 +21,15 @@ public partial class IO
         IO<A>.Pure(value);
     
     /// <summary>
+    /// Lift a pure value into an IO computation
+    /// </summary>
+    /// <param name="value">value</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>IO in a success state.  Always yields the lifted value.</returns>
+    internal static IO<A> pureAsync<A>(Task<A> value) =>
+        new IOPureAsync<A>(value);
+    
+    /// <summary>
     /// Put the IO into a failure state
     /// </summary>
     /// <param name="value">Error value</param>
