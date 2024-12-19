@@ -57,7 +57,7 @@ public abstract record IO<A> :
     //
 
     internal static IO<A> Lift(IODsl<A> fa) => 
-        new IOBind<A>(fa.Map(IO.pure));
+        new IOLift<A>(fa.Map(IO.pure));
     
     public static IO<A> Lift(Func<EnvIO, A> f) => 
         Lift(IODsl.Lift(f));
@@ -949,7 +949,15 @@ public abstract record IO<A> :
                     case IOPureAsync<A> (var value):
                         return await value;
 
-                    case IOBind<A> (var dsl):
+                    case IOBind<A> bind:
+                        ma = bind.Invoke(envIO);
+                        break;
+
+                    case IOBindAsync<A> bind:
+                        ma = await bind.Invoke(envIO);
+                        break;
+                    
+                    case IOLift<A> (var dsl):
                         switch (dsl)
                         {
                             case IOFail<IO<A>> (var value):

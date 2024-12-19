@@ -1,14 +1,40 @@
 using System;
+using System.Threading.Tasks;
 using LanguageExt.DSL;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-record IOBind<A>(IODsl<IO<A>> Value) : IO<A>
+abstract record IOBind<A> : IO<A>
 {
-    public override IO<B> Map<B>(Func<A, B> f) =>
-        new IOBind<B>(Value.Map(fa => fa.Map(f)));
+    public abstract IO<A> Invoke(EnvIO envIO);
+}
 
-    public override IO<B> Bind<B>(Func<A, K<IO, B>> f) =>
-        new IOBind<B>(Value.Map(mx => mx.Bind(f)));
+abstract record IOBindAsync<A> : IO<A>
+{
+    public abstract ValueTask<IO<A>> Invoke(EnvIO envIO);
+}
+
+record IOBind<A, B>(A Value, Func<A, K<IO, B>> F) : IOBind<B>
+{
+    public override IO<C> Map<C>(Func<B, C> f) =>
+        new IOBind<A, C>(Value, x => F(x).Map(f));
+
+    public override IO<C> Bind<C>(Func<B, K<IO, C>> f) =>
+        new IOBind<A, C>(Value, x => F(x).Bind(f));
+
+    public override IO<B> Invoke(EnvIO envIO) =>
+        F(Value).As();
+}
+
+record IOBindAsync<A, B>(Task<A> Value, Func<A, K<IO, B>> F) : IOBindAsync<B>
+{
+    public override IO<C> Map<C>(Func<B, C> f) =>
+        new IOBindAsync<A, C>(Value, x => F(x).Map(f));
+
+    public override IO<C> Bind<C>(Func<B, K<IO, C>> f) =>
+        new IOBindAsync<A, C>(Value, x => F(x).Bind(f));
+
+    public override async ValueTask<IO<B>> Invoke(EnvIO envIO) =>
+        F(await Value).As();
 }

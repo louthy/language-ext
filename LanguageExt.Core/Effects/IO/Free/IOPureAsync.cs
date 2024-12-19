@@ -11,5 +11,5 @@ record IOPureAsync<A>(Task<A> Value) : IO<A>
         IO<B>.Lift(IODsl.MapAsync(Value, f));
 
     public override IO<B> Bind<B>(Func<A, K<IO, B>> f) =>
-        Map(f).Bind(x => x);
+        new IOBindAsync<A, B>(Value, f);
 }
