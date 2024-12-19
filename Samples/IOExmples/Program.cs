@@ -15,6 +15,12 @@ class Program
                     : Pure(unit)
         from r in tail(infiniteLoop(value + 1))
         select unit;
+
+    static IO<Unit> infiniteLoop1(int value) =>
+        (value % 10000 == 0
+            ? writeLine($"{value}")
+            : Pure(unit))
+           .Bind(_ => infiniteLoop1(value + 1));
     
     static IO<int> recursiveAskForNumber =>
         from n in askForNumber(1)

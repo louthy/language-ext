@@ -52,6 +52,16 @@ public static partial class Prelude
     /// <returns></returns>
     public static IO<A> tail<A>(IO<A> tailIO) =>
         new IOTail<A>(tailIO);
+
+    /// <summary>
+    /// Tail call 
+    /// </summary>
+    /// <param name="ma"></param>
+    /// <typeparam name="A"></typeparam>
+    /// <returns></returns>
+    public static K<M, A> tailIO<M, A>(K<M, A> ma) 
+        where M : Monad<M> =>
+        ma.MapIO(tail);
     
     /// <summary>
     /// Make this IO computation run on the `SynchronizationContext` that was captured at the start
