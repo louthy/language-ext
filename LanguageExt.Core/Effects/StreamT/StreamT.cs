@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
@@ -11,6 +12,7 @@ namespace LanguageExt;
 /// <summary>
 /// Lazy sequence monad transformer
 /// </summary>
+[Experimental("LX_StreamT")]
 public record StreamT<M, A>(Func<K<M, MList<A>>>  runListT) :
     K<StreamT<M>, A>,
     Monoid<StreamT<M, A>>

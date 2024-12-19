@@ -10,11 +10,10 @@ class Program
         infiniteLoop(0).Run();
 
     static IO<Unit> infiniteLoop(int value) =>
-        from _ in value % 1 == 0
+        from _ in value % 10000 == 0
                     ? writeLine($"{value}")
                     : Pure(unit)
-        from x in wait(1)
-        from r in infiniteLoop(value + 1)
+        from r in tail(infiniteLoop(value + 1))
         select unit;
     
     static IO<int> recursiveAskForNumber =>

@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
+using LanguageExt.DSL;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -11,6 +12,24 @@ namespace LanguageExt;
 
 public partial class IO
 {
+    /// <summary>
+    /// Lift a pure value into an IO computation
+    /// </summary>
+    /// <param name="value">value</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>IO in a success state.  Always yields the lifted value.</returns>
+    public static IO<A> pure<A>(A value) =>
+        IO<A>.Pure(value);
+    
+    /// <summary>
+    /// Lift a pure value into an IO computation
+    /// </summary>
+    /// <param name="value">value</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>IO in a success state.  Always yields the lifted value.</returns>
+    internal static IO<A> pureAsync<A>(Task<A> value) =>
+        new IOPureAsync<A>(value);
+    
     /// <summary>
     /// Put the IO into a failure state
     /// </summary>
@@ -107,6 +126,12 @@ public partial class IO
 
     public static IO<A> liftAsync<A>(Func<EnvIO, Task<A>> f) => 
         IO<A>.LiftAsync(f);
+
+    public static IO<A> liftVAsync<A>(Func<ValueTask<A>> f) => 
+        IO<A>.LiftVAsync(f);
+
+    public static IO<A> liftVAsync<A>(Func<EnvIO, ValueTask<A>> f) => 
+        IO<A>.LiftVAsync(f);
 
     public static readonly IO<EnvIO> env = 
         lift(e => e);

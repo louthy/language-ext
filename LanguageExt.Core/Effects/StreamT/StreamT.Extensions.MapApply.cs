@@ -1,4 +1,6 @@
-﻿using System;
+﻿#pragma warning disable LX_StreamT
+
+using System;
 using LanguageExt.Traits;
 
 namespace LanguageExt;

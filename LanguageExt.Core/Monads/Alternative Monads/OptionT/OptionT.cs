@@ -1,4 +1,6 @@
-﻿using System;
+﻿#pragma warning disable LX_StreamT
+
+using System;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Runtime.CompilerServices;

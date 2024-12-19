@@ -1,3 +1,5 @@
+#pragma warning disable LX_StreamT
+
 using Xunit;
 using LanguageExt.Common;
 namespace LanguageExt.Tests.TraitTests;

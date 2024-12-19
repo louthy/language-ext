@@ -4,7 +4,9 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
+using LanguageExt.DSL;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -26,7 +28,7 @@ namespace LanguageExt;
 /// </summary>
 /// <param name="runIO">The lifted thunk that is the IO operation</param>
 /// <typeparam name="A">Bound value</typeparam>
-public abstract record IO<A> : 
+public abstract record IO<A> :
     Fallible<IO<A>, IO, Error, A>,
     Monoid<IO<A>>
 {
@@ -46,39 +48,31 @@ public abstract record IO<A> :
     //  General
     //
     
-    public static IO<A> Empty { get; } = 
+    public static IO<A> Empty { get; } =
         new IOFail<A>(Errors.None);
-
-    internal abstract bool IsAsync { get; }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Lifting
     //
-    
-    public static IO<A> Lift(Func<A> f) =>
-        new IOSync<A>(_ => IOResponse.Complete(f()));
-
-    public static IO<A> Lift(Func<IOResponse<A>> f) =>
-        new IOSync<A>(_ => f());
 
     public static IO<A> Lift(Func<EnvIO, A> f) =>
-        new IOSync<A>(e => IOResponse.Complete(f(e)));
-
-    public static IO<A> Lift(Func<EnvIO, IOResponse<A>> f) =>
-        new IOSync<A>(f);
-
-    public static IO<A> LiftAsync(Func<Task<IOResponse<A>>> f) =>
-        new IOAsync<A>(async _ => await f());
-
-    public static IO<A> LiftAsync(Func<EnvIO, Task<IOResponse<A>>> f) =>
-        new IOAsync<A>(f);
+        new IOLiftSync<A, A>(f, Pure);
+    
+    public static IO<A> LiftAsync(Func<EnvIO, Task<A>> f) => 
+        new IOLiftAsync<A, A>(f, Pure);
+    
+    public static IO<A> LiftVAsync(Func<EnvIO, ValueTask<A>> f) => 
+        new IOLiftVAsync<A, A>(f, Pure);
+    
+    public static IO<A> Lift(Func<A> f) =>
+        Lift(_ => f());
 
     public static IO<A> LiftAsync(Func<Task<A>> f) =>
-        new IOAsync<A>(async _ => IOResponse.Complete(await f()));
+        LiftAsync(_ => f());
 
-    public static IO<A> LiftAsync(Func<EnvIO, Task<A>> f) =>
-        new IOAsync<A>(async env => IOResponse.Complete(await f(env)));
+    public static IO<A> LiftVAsync(Func<ValueTask<A>> f) =>
+        LiftVAsync(_ => f());
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -87,6 +81,9 @@ public abstract record IO<A> :
 
     public abstract IO<B> Map<B>(Func<A, B> f);
 
+    public IO<B> ApplyBack<B>(K<IO, Func<A, B>> f) =>
+        new IOApply<A, B, B>(f, this, IO.pure);
+    
     public IO<B> Map<B>(B value) =>
         Map(_ => value);
 
@@ -132,39 +129,39 @@ public abstract record IO<A> :
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        FoldUntil(schedule, initialState, folder, Prelude.not(stateIs));
+        FoldUntil(schedule, initialState, folder, not(stateIs));
 
     public IO<S> FoldWhile<S>(
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        FoldUntil(Schedule.Forever, initialState, folder, Prelude.not(stateIs));
+        FoldUntil(Schedule.Forever, initialState, folder, not(stateIs));
     
     public IO<S> FoldWhile<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        FoldUntil(schedule, initialState, folder, Prelude.not(valueIs));
+        FoldUntil(schedule, initialState, folder, not(valueIs));
 
     public IO<S> FoldWhile<S>(
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        FoldUntil(Schedule.Forever, initialState, folder, Prelude.not(valueIs));
+        FoldUntil(Schedule.Forever, initialState, folder, not(valueIs));
     
     public IO<S> FoldWhile<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        FoldUntil(schedule, initialState, folder, Prelude.not(predicate));
+        FoldUntil(schedule, initialState, folder, not(predicate));
 
     public IO<S> FoldWhile<S>(
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        FoldUntil(Schedule.Forever, initialState, folder, Prelude.not(predicate));
+        FoldUntil(Schedule.Forever, initialState, folder, not(predicate));
     
     public IO<S> FoldUntil<S>(
         Schedule schedule,
@@ -198,11 +195,12 @@ public abstract record IO<A> :
         Func<(S State, A Value), bool> predicate) =>
         FoldUntil(Schedule.Forever, initialState, folder, predicate);
 
-    public abstract IO<S> FoldUntil<S>(
+    public IO<S> FoldUntil<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
-        Func<(S State, A Value), bool> predicate);
+        Func<(S State, A Value), bool> predicate) =>
+        new IOFold<S, A, S>(this, schedule, initialState, folder, predicate, IO.pure);
     
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -214,17 +212,48 @@ public abstract record IO<A> :
     /// of the IO chain (i.e. the one embedded within the `EnvIO` environment that is passed through
     /// all IO computations)
     /// </summary>
-    public abstract IO<A> Post();
+    public IO<A> Post() =>
+        LiftAsync(async env =>
+                       {
+                           if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                           if (env.SyncContext is null) return await RunAsync(env);
+
+                           A?         value = default;
+                           Exception? error = default;
+                           using var  wait  = new AutoResetEvent(false);
+
+                           env.SyncContext.Post(_ =>
+                                                {
+                                                    try
+                                                    {
+                                                        value = Run(env);
+                                                    }
+                                                    catch (Exception e)
+                                                    {
+                                                        error = e;
+                                                    }
+                                                    finally
+                                                    {
+                                                        wait.Set();
+                                                    }
+                                                },
+                                                null);
+
+                           await wait.WaitOneAsync(env.Token);
+                           if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                           if (error is not null) error.Rethrow<A>();
+                           return value!;
+                       });
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Monad
     //
 
-    public abstract IO<B> Bind<B>(Func<A, IO<B>> f);
+    public abstract IO<B> Bind<B>(Func<A, K<IO, B>> f);
 
-    public IO<B> Bind<B>(Func<A, K<IO, B>> f) =>
-        Bind(x => f(x).As());
+    public IO<B> Bind<B>(Func<A, IO<B>> f) =>
+        Bind(x => f(x).Kind());
 
     public IO<B> Bind<B>(Func<A, Pure<B>> f) =>
         Map(x => f(x).Value);
@@ -238,10 +267,22 @@ public abstract record IO<A> :
         Map(f);
 
     public IO<C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
-        Bind(x => bind(x).Map(y => project(x, y)));
+        Bind(x => bind(x) switch
+                  {
+                      IOTail<B> tail when typeof(B) == typeof(C) => (IO<C>)(object)tail,
+                      IOTail<B> => throw new NotSupportedException("Tail calls can't transform in the `select`"),
+                      var mb => mb.Map(y => project(x, y)).Kind()
+                  });
 
     public IO<C> SelectMany<B, C>(Func<A, K<IO, B>> bind, Func<A, B, C> project) =>
-        Bind(x => bind(x).Map(y => project(x, y)));
+        Bind(x => bind(x) switch
+                  {
+                      IOTail<B> tail when typeof(B) == typeof(C) => (IO<C>)(object)tail,
+                      IOTail<B> => throw new NotSupportedException("Tail calls can't transform in the `select`"),
+                      var mb => mb.Map(y => project(x, y))
+                  });
+        
+        //Bind(x => bind(x).Map(y => project(x, y)));
 
     public IO<C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
@@ -362,7 +403,12 @@ public abstract record IO<A> :
     /// </summary>
     [Pure]
     [MethodImpl(Opt.Default)]
-    public abstract IO<A> Bracket();
+    public IO<A> Bracket() =>
+        LiftVAsync(async env =>
+                  {
+                      using var lenv = env.LocalResources;
+                      return await RunAsync(lenv);
+                  });
 
     /// <summary>
     /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
@@ -382,7 +428,23 @@ public abstract record IO<A> :
     /// <param name="Use">Function to use the acquired resource</param>
     /// <param name="Catch">Function to run to handle any exceptions</param>
     /// <param name="Fin">Function to invoke to release the resource</param>
-    public abstract IO<C> Bracket<B, C>(Func<A, IO<C>> Use, Func<Error, IO<C>> Catch, Func<A, IO<B>> Fin);
+    public IO<C> Bracket<B, C>(Func<A, IO<C>> Use, Func<Error, IO<C>> Catch, Func<A, IO<B>> Fin) =>
+        IO<C>.LiftVAsync(async env =>
+                        {
+                            var x = await RunAsync(env);
+                            try
+                            {
+                                return await Use(x).RunAsync(env);
+                            }
+                            catch (Exception e)
+                            {
+                                return await Catch(e).RunAsync(env);
+                            }
+                            finally
+                            {
+                                (await Fin(x).RunAsync(env))?.Ignore();
+                            }
+                        });    
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -393,7 +455,7 @@ public abstract record IO<A> :
         Pure(ma.Value);
 
     public static implicit operator IO<A>(Error error) =>
-        Lift(_ => error.Throw<IOResponse<A>>());
+        Lift(_ => error.Throw<A>());
 
     public static implicit operator IO<A>(Fail<Error> ma) =>
         Lift(() => ma.Value.Throw<A>());
@@ -423,7 +485,21 @@ public abstract record IO<A> :
     /// <summary>
     /// Create a local cancellation environment
     /// </summary>
-    public abstract IO<A> Local();    
+    public IO<A> Local() =>
+        LiftAsync(async env =>
+                  {
+                      if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+
+                      // Create a new local token-source with its own cancellation token
+                      using var tsrc = new CancellationTokenSource();
+                      var       tok  = tsrc.Token;
+
+                      // If the parent cancels, we should too
+                      await using var reg = env.Token.Register(() => tsrc.Cancel());
+
+                      var env1 = EnvIO.New(env.Resources, tok, tsrc, env.SyncContext);
+                      return await RunAsync(env1);
+                  });    
     
     /// <summary>
     /// Queues the specified work to run on the thread pool  
@@ -436,44 +512,56 @@ public abstract record IO<A> :
     /// </remarks>
     /// <param name="timeout">Optional timeout</param>
     /// <returns>`Fork` record that contains members for cancellation and optional awaiting</returns>
-    public abstract IO<ForkIO<A>> Fork(Option<TimeSpan> timeout = default);
+    public IO<ForkIO<A>> Fork(Option<TimeSpan> timeout = default) =>
+        IO<ForkIO<A>>.Lift(
+            env =>
+            {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                
+                // Create a new local token-source with its own cancellation token
+                var tsrc  = timeout.Match(Some: to => new CancellationTokenSource(to), 
+                                          None: () => new CancellationTokenSource());
+                var token = tsrc.Token;
 
-    /// <summary>
-    /// Run the `IO` monad to get its result
-    /// </summary>
-    /// <remarks>
-    /// This forks the operation to run on a new task that is then awaited.
-    /// 
-    /// Any lifted asynchronous operations will yield to the thread-scheduler, allowing other queued
-    /// operations to run concurrently.  So, even though this call isn't awaitable it still plays
-    /// nicely and doesn't block the thread.
-    /// </remarks>
-    /// <remarks>
-    /// NOTE: An exception will always be thrown if the IO operation fails.  Lift this monad into
-    /// other error handling monads to leverage more declarative error handling. 
-    /// </remarks>
-    /// <returns>Result of the IO operation</returns>
-    /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
-    /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
-    public abstract ValueTask<A> RunAsync(EnvIO? envIO = null);
+                // If the parent cancels, we should too
+                var reg = env.Token.Register(() => tsrc.Cancel());
 
-    /// <summary>
-    /// Run the `IO` monad to get its result
-    /// </summary>
-    /// <remarks>
-    /// Any lifted asynchronous operations will yield to the thread-scheduler, allowing other queued
-    /// operations to run concurrently.  So, even though this call isn't awaitable it still plays
-    /// nicely and doesn't block the thread.
-    /// </remarks>
-    /// <remarks>
-    /// NOTE: An exception will always be thrown if the IO operation fails.  Lift this monad into
-    /// other error handling monads to leverage more declarative error handling. 
-    /// </remarks>
-    /// <param name="env">IO environment</param>
-    /// <returns>Result of the IO operation</returns>
-    /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
-    /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
-    public abstract A Run(EnvIO? envIO = null);
+                // Gather our resources for clean-up
+                var cleanup = new CleanUp(tsrc, reg);
+
+                var parentResources = env.Resources;
+
+                var task = Task.Factory.StartNew(
+                    () =>
+                    {
+                        var forkedResources = new Resources(parentResources);
+                        try
+                        {
+                            var t = RunAsync(EnvIO.New(forkedResources, token, tsrc, env.SyncContext));
+                            return t.GetAwaiter().GetResult();
+                        }
+                        finally
+                        {
+                            forkedResources.Dispose();
+                            cleanup.Dispose();
+                        }
+                    }, TaskCreationOptions.LongRunning);
+
+                return new ForkIO<A>(
+                        IO<Unit>.Lift(() => {
+                                          try
+                                          {
+                                              tsrc.Cancel();
+                                          }
+                                          catch(ObjectDisposedException)
+                                          {
+                                              // ignore if already cancelled
+                                          }
+                                          return default; 
+                                      }),
+                        LiftAsync(e => AwaitAsync(task, e, token, tsrc)));
+            });
+    
     
     /// <summary>
     /// Run the `IO` monad to get its result.  Differs from `Run` in that it catches any exceptions and turns
@@ -546,8 +634,31 @@ public abstract record IO<A> :
     /// </remarks>
     /// <param name="predicate">Keep repeating until this predicate returns `true` for each computed value</param>
     /// <returns>The result of the last invocation</returns>
-    public abstract IO<A> RepeatUntil(
-        Func<A, bool> predicate);
+    public IO<A> RepeatUntil(Func<A, bool> predicate) =>
+        LiftAsync(async env =>
+                  {
+                      if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                      var lenv = env.LocalResources;
+                      try
+                      {
+                          while (!env.Token.IsCancellationRequested)
+                          {
+                              var result = await RunAsync(lenv);
+
+                              // free any resources acquired during a repeat
+                              await lenv.Resources.ReleaseAll().RunAsync(env);
+
+                              if (predicate(result)) return result;
+                          }
+
+                          throw new TaskCanceledException();
+                      }
+                      finally
+                      {
+                          // free any resources acquired during a repeat
+                          await lenv.Resources.ReleaseAll().RunAsync(env);
+                      }
+                  });
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns true, or an error occurs
@@ -559,9 +670,42 @@ public abstract record IO<A> :
     /// <param name="schedule">Scheduler strategy for repeating</param>
     /// <param name="predicate">Keep repeating until this predicate returns `true` for each computed value</param>
     /// <returns>The result of the last invocation</returns>
-    public abstract IO<A> RepeatUntil(
+    public IO<A> RepeatUntil(
         Schedule schedule,
-        Func<A, bool> predicate);
+        Func<A, bool> predicate) =>
+        LiftAsync(async env =>
+                  {
+                      if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                      var token = env.Token;
+                      var lenv  = env.LocalResources;
+                      try
+                      {
+                          var result = await RunAsync(lenv);
+
+                          // free any resources acquired during a repeat
+                          await lenv.Resources.ReleaseAll().RunAsync(env);
+
+                          if (predicate(result)) return result;
+
+                          foreach (var delay in schedule.Run())
+                          {
+                              await Task.Delay((TimeSpan)delay, token);
+                              result = await RunAsync(lenv);
+
+                              // free any resources acquired during a repeat
+                              await lenv.Resources.ReleaseAll().RunAsync(env);
+
+                              if (predicate(result)) return result;
+                          }
+
+                          return result;
+                      }
+                      finally
+                      {
+                          // free any resources acquired during a repeat
+                          await lenv.Resources.ReleaseAll().RunAsync(env);
+                      }
+                  });      
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -640,8 +784,34 @@ public abstract record IO<A> :
     /// So, successive retries will not grow the acquired resources on each retry iteration.  Any successful operation that
     /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
-    public abstract IO<A> RetryUntil(
-        Func<Error, bool> predicate);
+    public IO<A> RetryUntil(Func<Error, bool> predicate) =>
+        LiftAsync(async env =>
+                  {
+                      if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                      var lenv = env.LocalResources;
+
+                      while (!env.Token.IsCancellationRequested)
+                      {
+                          try
+                          {
+                              var r = await RunAsync(lenv);
+
+                              // Any resources that were acquired should be propagated through to the `env`
+                              env.Resources.Merge(lenv.Resources);
+
+                              return r;
+                          }
+                          catch (Exception e)
+                          {
+                              // Any resources created whilst trying should be removed for the retry
+                              await lenv.Resources.ReleaseAll().RunAsync(env);
+
+                              if (predicate(Error.New(e))) throw;
+                          }
+                      }
+
+                      throw new TaskCanceledException();
+                  });
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -655,9 +825,55 @@ public abstract record IO<A> :
     /// So, successive retries will not grow the acquired resources on each retry iteration.  Any successful operation that
     /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
-    public abstract IO<A> RetryUntil(
-        Schedule schedule,
-        Func<Error, bool> predicate);
+    public IO<A> RetryUntil(Schedule schedule, Func<Error, bool> predicate) =>
+        LiftAsync(async env =>
+                  {
+                      if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                      var        token = env.Token;
+                      Exception? lastError;
+                      var        lenv = env.LocalResources;
+                      try
+                      {
+                          var r = await RunAsync(lenv);
+
+                          // Any resources that were acquired should be propagated through to the `env`
+                          env.Resources.Merge(lenv.Resources);
+
+                          return r;
+                      }
+                      catch (Exception e)
+                      {
+                          // Any resources created whilst trying should be removed for the retry
+                          await lenv.Resources.ReleaseAll().RunAsync(env);
+
+                          if (predicate(Error.New(e))) throw;
+                          lastError = e;
+                      }
+
+                      foreach (var delay in schedule.Run())
+                      {
+                          await Task.Delay((TimeSpan)delay, token);
+                          try
+                          {
+                              var r = await RunAsync(lenv);
+
+                              // Any resources that were acquired should be propagated through to the `env`
+                              env.Resources.Merge(lenv.Resources);
+
+                              return r;
+                          }
+                          catch (Exception e)
+                          {
+                              // Any resources created whilst trying should be removed for the retry
+                              await lenv.Resources.ReleaseAll().RunAsync(env);
+
+                              if (predicate(Error.New(e))) throw;
+                              lastError = e;
+                          }
+                      }
+
+                      return lastError.Rethrow<A>();
+                  });        
 
     /// <summary>
     /// Catches any error thrown by invoking this IO computation, passes it through a predicate,
@@ -666,7 +882,8 @@ public abstract record IO<A> :
     /// </summary>
     /// <param name="Predicate">Predicate</param>
     /// <param name="Fail">Fail functions</param>
-    public abstract IO<A> Catch(Func<Error, bool> Predicate, Func<Error, K<IO, A>> Fail);
+    public IO<A> Catch(Func<Error, bool> Predicate, Func<Error, K<IO, A>> Fail) =>
+        new IOCatch<A, A>(this, Predicate, Fail, IO.pure);
 
     /// <summary>
     /// Monoid combine
@@ -675,7 +892,136 @@ public abstract record IO<A> :
     /// <returns>This if computation runs without error.  `rhs` otherwise</returns>
     public IO<A> Combine(IO<A> rhs) =>
         Catch(_ => true, _ => rhs);
+
+    /// <summary>
+    /// Run the `IO` monad to get its result
+    /// </summary>
+    /// <remarks>
+    /// Any lifted asynchronous operations will yield to the thread-scheduler, allowing other queued
+    /// operations to run concurrently.  So, even though this call isn't awaitable it still plays
+    /// nicely and doesn't block the thread.
+    /// </remarks>
+    /// <remarks>
+    /// NOTE: An exception will always be thrown if the IO operation fails.  Lift this monad into
+    /// other error handling monads to leverage more declarative error handling. 
+    /// </remarks>
+    /// <param name="env">IO environment</param>
+    /// <returns>Result of the IO operation</returns>
+    /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
+    /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
+    public A Run(EnvIO? envIO = null) =>
+        RunAsync(envIO).GetAwaiter().GetResult();
+
+    /// <summary>
+    /// Run the `IO` monad to get its result
+    /// </summary>
+    /// <remarks>
+    /// This forks the operation to run on a new task that is then awaited.
+    /// 
+    /// Any lifted asynchronous operations will yield to the thread-scheduler, allowing other queued
+    /// operations to run concurrently.  So, even though this call isn't awaitable it still plays
+    /// nicely and doesn't block the thread.
+    /// </remarks>
+    /// <remarks>
+    /// NOTE: An exception will always be thrown if the IO operation fails.  Lift this monad into
+    /// other error handling monads to leverage more declarative error handling. 
+    /// </remarks>
+    /// <returns>Result of the IO operation</returns>
+    /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
+    /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
+    public async ValueTask<A> RunAsync(EnvIO? envIO = null)
+    {
+        if (envIO?.Token.IsCancellationRequested ?? false) throw new TaskCanceledException();
+        var envRequiresDisposal = envIO is null;
+        envIO ??= EnvIO.New();
+        var ma      = this;
+        var catches = Seq<Func<Exception, IO<A>>>(); 
+
+        try
+        {
+            while (!envIO.Token.IsCancellationRequested)
+            {
+                try
+                {
+                    switch (ma)
+                    {
+                        case InvokeAsync<A> op:
+                            return await op.Invoke(envIO);
+                        
+                        case InvokeSync<A> op:
+                            return op.Invoke(envIO);
+
+                        case InvokeSyncIO<A> op:
+                            ma = op.Invoke(envIO);
+                            break;
+                        
+                        case InvokeAsyncIO<A> op:
+                            ma = await op.Invoke(envIO);
+                            break;
+
+                        case IOCatch<A> @catch:
+                            var handler = @catch.MakeHandler();
+                            catches = handler.Cons(catches);
+                            ma = @catch.MakeOperation();
+                            break;
+                        
+                        case IOCatchPop<A> pop:
+                            catches = catches.Tail;
+                            ma = pop.Next;
+                            break;
+                        
+                        case IOTail<A> tail:
+                            ma = tail.Tail;
+                            break;
+
+                        default:
+                            throw new InvalidOperationException("We shouldn't be here!");
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (catches.IsEmpty) throw;
+                    var handler = catches[0];
+                    catches = catches.Tail;
+                    ma = handler(e);
+                }
+            }
+
+            throw new TaskCanceledException();
+        }
+        finally
+        {
+            if (envRequiresDisposal) envIO.Dispose();
+        }
+    }    
     
     public override string ToString() => 
         "IO";
+    
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Internal
+    //
+    
+    async Task<A> AwaitAsync(Task<A> t, EnvIO envIO, CancellationToken token, CancellationTokenSource source)
+    {
+        if (envIO.Token.IsCancellationRequested) throw new TaskCanceledException();
+        if (token.IsCancellationRequested) throw new TaskCanceledException();
+        await using var reg = envIO.Token.Register(source.Cancel);
+        return await t;        
+    }
+    
+    record CleanUp(CancellationTokenSource Src, CancellationTokenRegistration Reg) : IDisposable
+    {
+        volatile int disposed;
+        public void Dispose()
+        {
+            if (Interlocked.Exchange(ref disposed, 1) == 0)
+            {
+                try{Src.Dispose();} catch { /* not important */ }
+                try{Reg.Dispose();} catch { /* not important */ }
+            }
+        }
+    }
 }
