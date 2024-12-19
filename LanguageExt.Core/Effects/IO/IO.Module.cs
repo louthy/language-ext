@@ -127,6 +127,12 @@ public partial class IO
     public static IO<A> liftAsync<A>(Func<EnvIO, Task<A>> f) => 
         IO<A>.LiftAsync(f);
 
+    public static IO<A> liftVAsync<A>(Func<ValueTask<A>> f) => 
+        IO<A>.LiftVAsync(f);
+
+    public static IO<A> liftVAsync<A>(Func<EnvIO, ValueTask<A>> f) => 
+        IO<A>.LiftVAsync(f);
+
     public static readonly IO<EnvIO> env = 
         lift(e => e);
     

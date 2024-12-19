@@ -62,11 +62,17 @@ public abstract record IO<A> :
     public static IO<A> LiftAsync(Func<EnvIO, Task<A>> f) => 
         new IOLiftAsync<A, A>(f, Pure);
     
+    public static IO<A> LiftVAsync(Func<EnvIO, ValueTask<A>> f) => 
+        new IOLiftVAsync<A, A>(f, Pure);
+    
     public static IO<A> Lift(Func<A> f) =>
         Lift(_ => f());
 
     public static IO<A> LiftAsync(Func<Task<A>> f) =>
         LiftAsync(_ => f());
+
+    public static IO<A> LiftVAsync(Func<ValueTask<A>> f) =>
+        LiftVAsync(_ => f());
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -398,7 +404,7 @@ public abstract record IO<A> :
     [Pure]
     [MethodImpl(Opt.Default)]
     public IO<A> Bracket() =>
-        LiftAsync(async env =>
+        LiftVAsync(async env =>
                   {
                       using var lenv = env.LocalResources;
                       return await RunAsync(lenv);
@@ -423,7 +429,7 @@ public abstract record IO<A> :
     /// <param name="Catch">Function to run to handle any exceptions</param>
     /// <param name="Fin">Function to invoke to release the resource</param>
     public IO<C> Bracket<B, C>(Func<A, IO<C>> Use, Func<Error, IO<C>> Catch, Func<A, IO<B>> Fin) =>
-        IO<C>.LiftAsync(async env =>
+        IO<C>.LiftVAsync(async env =>
                         {
                             var x = await RunAsync(env);
                             try
