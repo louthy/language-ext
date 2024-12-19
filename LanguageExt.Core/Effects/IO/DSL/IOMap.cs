@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using LanguageExt.Traits;
 
-namespace LanguageExt;
+namespace LanguageExt.DSL;
 
 record IOMap<A, B, C>(Func<A, B> Ff, IO<A> Fa, Func<B, K<IO, C>> Next) : InvokeAsyncIO<C>
 {

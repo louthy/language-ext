@@ -1,5 +1,6 @@
 using System;
 using LanguageExt.Common;
+using LanguageExt.DSL;
 using LanguageExt.Traits;
 
 namespace LanguageExt;

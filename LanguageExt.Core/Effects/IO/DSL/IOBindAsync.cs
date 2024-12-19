@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using LanguageExt.Traits;
 
-namespace LanguageExt;
+namespace LanguageExt.DSL;
 
 record IOBindAsync<A, B>(Task<A> Value, Func<A, K<IO, B>> F) : InvokeAsyncIO<B>
 {

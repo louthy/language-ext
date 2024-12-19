@@ -1,7 +1,7 @@
 using System;
 using LanguageExt.Traits;
 
-namespace LanguageExt;
+namespace LanguageExt.DSL;
 
 record IOLiftSync<A, B>(Func<EnvIO, A> F, Func<A, K<IO, B>> Next) : InvokeSyncIO<B>
 {

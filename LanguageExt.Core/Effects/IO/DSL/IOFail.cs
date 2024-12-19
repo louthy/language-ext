@@ -2,7 +2,7 @@ using System;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 
-namespace LanguageExt;
+namespace LanguageExt.DSL;
 
 record IOFail<A>(Error Value) : InvokeSync<A>
 {

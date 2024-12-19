@@ -1,0 +1,6 @@
+namespace LanguageExt;
+
+record IOFoldUntil
+{
+    
+}

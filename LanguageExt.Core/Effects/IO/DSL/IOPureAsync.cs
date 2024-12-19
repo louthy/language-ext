@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using LanguageExt.Traits;
 
-namespace LanguageExt;
+namespace LanguageExt.DSL;
 
 record IOPureAsync<A>(Task<A> Value) : InvokeAsync<A>
 {

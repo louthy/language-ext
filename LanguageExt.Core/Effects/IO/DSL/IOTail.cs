@@ -1,7 +1,7 @@
 using System;
 using LanguageExt.Traits;
 
-namespace LanguageExt;
+namespace LanguageExt.DSL;
 
 record IOTail<A>(IO<A> Tail) : IO<A>
 {

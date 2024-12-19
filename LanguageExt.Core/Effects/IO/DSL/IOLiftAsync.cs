@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using LanguageExt.Traits;
 
-namespace LanguageExt;
+namespace LanguageExt.DSL;
     
 record IOLiftAsync<A, B>(Func<EnvIO, Task<A>> F, Func<A, K<IO, B>> Next) : InvokeAsyncIO<B>
 {

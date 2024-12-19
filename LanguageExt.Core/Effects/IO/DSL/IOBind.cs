@@ -1,7 +1,7 @@
 using System;
 using LanguageExt.Traits;
 
-namespace LanguageExt;
+namespace LanguageExt.DSL;
 
 record IOBind<A, B>(A Value, Func<A, K<IO, B>> F) : InvokeSyncIO<B>
 {

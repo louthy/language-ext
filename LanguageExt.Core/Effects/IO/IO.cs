@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
+using LanguageExt.DSL;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
