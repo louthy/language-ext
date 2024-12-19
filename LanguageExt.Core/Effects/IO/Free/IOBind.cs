@@ -18,10 +18,10 @@ abstract record IOBindAsync<A> : IO<A>
 record IOBind<A, B>(A Value, Func<A, K<IO, B>> F) : IOBind<B>
 {
     public override IO<C> Map<C>(Func<B, C> f) =>
-        new IOBind<A, C>(Value, x => F(x).Map(f));
+        new IOBind<A, C>(Value, x => F(x).As().Map(f));
 
     public override IO<C> Bind<C>(Func<B, K<IO, C>> f) =>
-        new IOBind<A, C>(Value, x => F(x).Bind(f));
+        new IOBind<A, C>(Value, x => F(x).As().Bind(f));
 
     public override IO<B> Invoke(EnvIO envIO) =>
         F(Value).As();
@@ -30,10 +30,10 @@ record IOBind<A, B>(A Value, Func<A, K<IO, B>> F) : IOBind<B>
 record IOBindAsync<A, B>(Task<A> Value, Func<A, K<IO, B>> F) : IOBindAsync<B>
 {
     public override IO<C> Map<C>(Func<B, C> f) =>
-        new IOBindAsync<A, C>(Value, x => F(x).Map(f));
+        new IOBindAsync<A, C>(Value, x => F(x).As().Map(f));
 
     public override IO<C> Bind<C>(Func<B, K<IO, C>> f) =>
-        new IOBindAsync<A, C>(Value, x => F(x).Bind(f));
+        new IOBindAsync<A, C>(Value, x => F(x).As().Bind(f));
 
     public override async ValueTask<IO<B>> Invoke(EnvIO envIO) =>
         F(await Value).As();
