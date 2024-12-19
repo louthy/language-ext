@@ -123,39 +123,39 @@ public abstract record IO<A> :
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        FoldUntil(schedule, initialState, folder, Prelude.not(stateIs));
+        FoldUntil(schedule, initialState, folder, not(stateIs));
 
     public IO<S> FoldWhile<S>(
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        FoldUntil(Schedule.Forever, initialState, folder, Prelude.not(stateIs));
+        FoldUntil(Schedule.Forever, initialState, folder, not(stateIs));
     
     public IO<S> FoldWhile<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        FoldUntil(schedule, initialState, folder, Prelude.not(valueIs));
+        FoldUntil(schedule, initialState, folder, not(valueIs));
 
     public IO<S> FoldWhile<S>(
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        FoldUntil(Schedule.Forever, initialState, folder, Prelude.not(valueIs));
+        FoldUntil(Schedule.Forever, initialState, folder, not(valueIs));
     
     public IO<S> FoldWhile<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        FoldUntil(schedule, initialState, folder, Prelude.not(predicate));
+        FoldUntil(schedule, initialState, folder, not(predicate));
 
     public IO<S> FoldWhile<S>(
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        FoldUntil(Schedule.Forever, initialState, folder, Prelude.not(predicate));
+        FoldUntil(Schedule.Forever, initialState, folder, not(predicate));
     
     public IO<S> FoldUntil<S>(
         Schedule schedule,
@@ -194,23 +194,7 @@ public abstract record IO<A> :
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        IO<S>.LiftAsync(async envIO =>
-                        {
-                            if (envIO.Token.IsCancellationRequested) throw new TaskCanceledException();
-                            var r     = await RunAsync(envIO);
-                            var state = folder(initialState, r);
-                            if (predicate((state, r))) return state;
-
-                            var token = envIO.Token;
-                            foreach (var delay in schedule.Run())
-                            {
-                                await IO.yieldFor(delay, token);
-                                r = await RunAsync(envIO);
-                                state = folder(state, r);
-                                if (predicate((state, r))) return state;
-                            }
-                            return state;
-                        });
+        new IOFold<S, A, S>(this, schedule, initialState, folder, predicate, IO.pure);
     
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -964,6 +948,7 @@ public abstract record IO<A> :
                         case InvokeSyncIO<A> op:
                             ma = op.Invoke(envIO);
                             break;
+                        
                         case InvokeAsyncIO<A> op:
                             ma = await op.Invoke(envIO);
                             break;
