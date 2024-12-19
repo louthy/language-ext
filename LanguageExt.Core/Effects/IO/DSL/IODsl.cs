@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using LanguageExt.Common;
-using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.DSL;
@@ -28,15 +27,15 @@ static class IODsl
     
     public static IODsl<C> Apply<A, B, C>(IO<Func<A, B>> ff, IO<A> fa, Func<B, C> next) => 
         new IOApply<A, B, C>(ff, fa, next);
-    
-    public static IODsl<A> Catch<A>(K<IO, A> op, Func<Error, bool> pred, Func<Error, K<IO, A>> fail) =>
-        Catch(op, pred, fail, identity);
-    
-    public static IODsl<A> Catch<X, A>(K<IO, X> op, Func<Error, bool> pred, Func<Error, K<IO, X>> fail, Func<X, A> next) =>
-        new IOCatch<X, A>(op, pred, fail, next);
 }
 
 abstract record IODsl<A>
 {
     public abstract IODsl<B> Map<B>(Func<A, B> f);
+    public virtual bool IsAsync => false;
+}
+
+abstract record IODslAsync<A> : IODsl<A>
+{
+    public override bool IsAsync => true;
 }

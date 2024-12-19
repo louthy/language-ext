@@ -1,41 +1,36 @@
 using System;
 using LanguageExt.Traits;
 using LanguageExt.Common;
-using System.Threading.Tasks;
-using LanguageExt.DSL;
 
 namespace LanguageExt.DSL;
 
-abstract record IOCatch<A> : IODsl<A>
+abstract record IOCatch<A> : IO<A>
 {
-    public abstract ValueTask<A> Invoke(EnvIO envIO);
+    public abstract IO<A> MakeOperation();
+    public abstract Func<Exception, IO<A>> MakeHandler();
 }
 
 record IOCatch<X, A>(
     K<IO, X> Operation,
     Func<Error, bool> Predicate,
     Func<Error, K<IO, X>> Failure,
-    Func<X, A> Next) : IOCatch<A>
+    Func<X, K<IO, A>> Next) : IOCatch<A>
 {
-    public override IODsl<B> Map<B>(Func<A, B> f) =>
-        new IOCatch<X, B>(Operation, Predicate, Failure, x => f(Next(x)));
+    public override IO<B> Map<B>(Func<A, B> f) =>
+        new IOCatch<X, B>(Operation, Predicate, Failure, x => Next(x).Map(f));
 
-    public override async ValueTask<A> Invoke(EnvIO envIO)
-    {
-        try
-        {
-            var x = await Operation.As().RunAsync(envIO);
-            return Next(x);
-        }
-        catch(Exception e)
+    public override IO<B> Bind<B>(Func<A, K<IO, B>> f) =>
+        new IOCatch<X, B>(Operation, Predicate, Failure, x => Next(x).Bind(f));
+
+    public override Func<Exception, IO<A>> MakeHandler() =>
+        e =>
         {
             var err = Error.New(e);
-            if (Predicate(err))
-            {
-                var x = await Failure(e).As().RunAsync(envIO);
-                return Next(x);
-            }
-            throw;
-        }
-    }
+            return Predicate(err)
+                ? Failure(e).Bind(Next).As()
+                : IO.fail<A>(err);
+        };
+
+    public override IO<A> MakeOperation() =>
+        Operation.Bind(x => new IOCatchPop<X>(IO.pure(x))).Bind(Next).As();
 }

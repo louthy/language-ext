@@ -884,7 +884,7 @@ public abstract record IO<A> :
     /// <param name="Predicate">Predicate</param>
     /// <param name="Fail">Fail functions</param>
     public IO<A> Catch(Func<Error, bool> Predicate, Func<Error, K<IO, A>> Fail) =>
-        Lift(IODsl.Catch(this, Predicate, Fail));
+        new IOCatch<A, A>(this, Predicate, Fail, IO.pure);
 
     /// <summary>
     /// Monoid combine
@@ -935,65 +935,84 @@ public abstract record IO<A> :
         if (envIO?.Token.IsCancellationRequested ?? false) throw new TaskCanceledException();
         var envRequiresDisposal = envIO is null;
         envIO ??= EnvIO.New();
-        var ma = this;
+        var ma      = this;
+        var catches = Seq<Func<Exception, IO<A>>>(); 
 
         try
         {
             while (!envIO.Token.IsCancellationRequested)
             {
-                switch (ma)
+                try
                 {
-                    case IOPure<A> (var value):
-                        return value;
+                    switch (ma)
+                    {
+                        case IOPure<A> (var value):
+                            return value;
 
-                    case IOPureAsync<A> (var value):
-                        return await value;
+                        case IOPureAsync<A> (var value):
+                            return await value;
 
-                    case IOBind<A> bind:
-                        ma = bind.Invoke(envIO);
-                        break;
+                        case IOBind<A> bind:
+                            ma = bind.Invoke(envIO);
+                            break;
 
-                    case IOBindAsync<A> bind:
-                        ma = await bind.Invoke(envIO);
-                        break;
-                    
-                    case IOLift<A> (var dsl):
-                        switch (dsl)
-                        {
-                            case IOFail<IO<A>> (var value):
-                                return value.Throw<A>();
-                            
-                            case IOLiftSync<IO<A>> (var f):
-                                ma = f(envIO);
-                                break;
+                        case IOBindAsync<A> bind:
+                            ma = await bind.Invoke(envIO);
+                            break;
 
-                            case IOLiftAsync<IO<A>> (var f):
-                                ma = await f(envIO);
-                                break;
+                        case IOCatch<A> @catch:
+                            var handler = @catch.MakeHandler();
+                            catches = handler.Cons(catches);
+                            ma = @catch.MakeOperation();
+                            break;
+                        
+                        case IOCatchPop<A> pop:
+                            catches = catches.Tail;
+                            ma = pop.Next;
+                            break;
 
-                            case IOCatch<IO<A>> @catch:
-                                ma = await @catch.Invoke(envIO);
-                                break;
+                        case IOLift<A> (var dsl):
+                            switch (dsl)
+                            {
+                                case IOFail<IO<A>> (var value):
+                                    return value.Throw<A>();
 
-                            case IOMap<IO<A>> map:
-                                ma = map.Invoke(envIO);
-                                break;
+                                case IOLiftSync<IO<A>> (var f):
+                                    ma = f(envIO);
+                                    break;
 
-                            case IOMapAsync<IO<A>> map:
-                                ma = await map.Invoke(envIO);
-                                break;
-                            
-                            case IOApply<IO<A>> apply:
-                                ma = await apply.Invoke(envIO);
-                                break;
+                                case IOLiftAsync<IO<A>> (var f):
+                                    ma = await f(envIO);
+                                    break;
 
-                            default:
-                                throw new InvalidOperationException("We shouldn't be here!");
-                        }
-                        break;
+                                case IOMap<IO<A>> map:
+                                    ma = map.Invoke(envIO);
+                                    break;
 
-                    default:
-                        throw new InvalidOperationException("We shouldn't be here!");
+                                case IOMapAsync<IO<A>> map:
+                                    ma = await map.Invoke(envIO);
+                                    break;
+
+                                case IOApply<IO<A>> apply:
+                                    ma = await apply.Invoke(envIO);
+                                    break;
+
+                                default:
+                                    throw new InvalidOperationException("We shouldn't be here!");
+                            }
+
+                            break;
+
+                        default:
+                            throw new InvalidOperationException("We shouldn't be here!");
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (catches.IsEmpty) throw;
+                    var handler = catches[0];
+                    catches = catches.Tail;
+                    ma = handler(e);
                 }
             }
 

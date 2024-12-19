@@ -30,10 +30,10 @@ public partial class IO :
         K<IO, A> fa, 
         Func<Error, bool> Predicate,
         Func<Error, K<IO, A>> Fail) =>
-        IO<A>.Lift(new IOCatch<A, A>(fa, Predicate, Fail, identity));
+        new IOCatch<A, A>(fa, Predicate, Fail, pure);
 
     static K<IO, A> Choice<IO>.Choose<A>(K<IO, A> fa, K<IO, A> fb) => 
-        IO<A>.Lift(new IOCatch<A, A>(fa, _ => true, _ => fb, identity));
+        new IOCatch<A, A>(fa, _ => true, _ => fb, pure);
 
     static K<IO, A> MonoidK<IO>.Empty<A>() =>
         fail<A>(Errors.None);
