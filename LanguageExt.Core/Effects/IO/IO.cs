@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
-using LanguageExt.DSL;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -41,7 +40,7 @@ public abstract record IO<A> :
         new IOPure<A>(value);
     
     public static IO<A> Fail(Error value) => 
-        Lift(IODsl.Fail<A>(value));
+        new IOFail<A>(value);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -49,27 +48,24 @@ public abstract record IO<A> :
     //
     
     public static IO<A> Empty { get; } =
-        Lift(IODsl.Fail<A>(Errors.None));
+        new IOFail<A>(Errors.None);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Lifting
     //
 
-    internal static IO<A> Lift(IODsl<A> fa) => 
-        new IOLift<A>(fa.Map(IO.pure));
-    
-    public static IO<A> Lift(Func<EnvIO, A> f) => 
-        Lift(IODsl.Lift(f));
+    public static IO<A> Lift(Func<EnvIO, A> f) =>
+        new IOLiftSync<A, A>(f, Pure);
     
     public static IO<A> LiftAsync(Func<EnvIO, Task<A>> f) => 
-        Lift(IODsl.Lift(f));
+        new IOLiftAsync<A, A>(f, Pure);
     
     public static IO<A> Lift(Func<A> f) =>
-        Lift(IODsl.Lift(_ => f()));
+        Lift(_ => f());
 
     public static IO<A> LiftAsync(Func<Task<A>> f) =>
-        Lift(IODsl.Lift(_ => f()));
+        LiftAsync(_ => f());
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -79,7 +75,7 @@ public abstract record IO<A> :
     public abstract IO<B> Map<B>(Func<A, B> f);
 
     public IO<B> ApplyBack<B>(K<IO, Func<A, B>> f) =>
-        IO<B>.Lift(IODsl.Apply(f.As(), this));
+        new IOApply<A, B, B>(f, this, IO.pure);
     
     public IO<B> Map<B>(B value) =>
         Map(_ => value);
@@ -984,26 +980,6 @@ public abstract record IO<A> :
                         
                         case IOTail<A> tail:
                             ma = tail.Tail;
-                            break;
-
-                        case IOLift<A> (var dsl):
-                            switch (dsl)
-                            {
-                                case IOFail<IO<A>> (var value):
-                                    return value.Throw<A>();
-
-                                case DslInvokeIO<IO<A>> op:
-                                    ma = op.Invoke(envIO);
-                                    break;
-
-                                case DslInvokeIOAsync<IO<A>> op:
-                                    ma = await op.Invoke(envIO);
-                                    break;
-
-                                default:
-                                    throw new InvalidOperationException("We shouldn't be here!");
-                            }
-
                             break;
 
                         default:

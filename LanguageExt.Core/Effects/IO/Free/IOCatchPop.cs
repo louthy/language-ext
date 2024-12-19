@@ -1,7 +1,7 @@
 using System;
 using LanguageExt.Traits;
 
-namespace LanguageExt.DSL;
+namespace LanguageExt;
 
 record IOCatchPop<A>(IO<A> Next) : IO<A>
 {

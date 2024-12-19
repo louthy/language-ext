@@ -2,7 +2,7 @@ using System;
 using LanguageExt.Traits;
 using LanguageExt.Common;
 
-namespace LanguageExt.DSL;
+namespace LanguageExt;
 
 abstract record IOCatch<A> : IO<A>
 {
