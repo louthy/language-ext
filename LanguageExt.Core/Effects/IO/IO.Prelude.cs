@@ -42,6 +42,15 @@ public static partial class Prelude
     /// </summary>
     public static readonly IO<EnvIO> envIO = 
         IO<EnvIO>.Lift(e => e);
+
+    /// <summary>
+    /// Tail call 
+    /// </summary>
+    /// <param name="tailIO"></param>
+    /// <typeparam name="A"></typeparam>
+    /// <returns></returns>
+    public static IO<A> tail<A>(IO<A> tailIO) =>
+        new IOTail<A>(tailIO);
     
     /// <summary>
     /// Make this IO computation run on the `SynchronizationContext` that was captured at the start

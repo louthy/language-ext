@@ -1,7 +1,5 @@
 using System;
 using LanguageExt.Traits;
-using LanguageExt.Common;
-using System.Threading.Tasks;
 
 namespace LanguageExt.DSL;
 

@@ -3,12 +3,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.DSL;
 
-abstract record IOApply<A> : IODsl<A>
-{
-    public abstract ValueTask<A> Invoke(EnvIO envIO);
-}
-
-record IOApply<A, B, C>(IO<Func<A, B>> ff, IO<A> fa, Func<B, C> Next) : IOApply<C>
+record IOApply<A, B, C>(IO<Func<A, B>> ff, IO<A> fa, Func<B, C> Next) : DslInvokeIOAsync<C>
 {
     public override IODsl<D> Map<D>(Func<C, D> f) =>
         IODsl.Apply(ff, fa, x => f(Next(x)));

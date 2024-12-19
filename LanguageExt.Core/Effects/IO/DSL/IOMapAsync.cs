@@ -3,12 +3,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.DSL;
 
-abstract record IOMapAsync<A> : IODslAsync<A>
-{
-    public abstract ValueTask<A> Invoke(EnvIO envIO);
-}
-
-record IOMapAsync<A, B>(Task<A> Value, Func<A, B> Ff) : IOMapAsync<B>
+record IOMapAsync<A, B>(Task<A> Value, Func<A, B> Ff) : DslInvokeIOAsync<B>
 {
     public override IODsl<C> Map<C>(Func<B, C> f) =>
         new IOMapAsync<A, B, C>(Value, Ff, f);
@@ -17,7 +12,7 @@ record IOMapAsync<A, B>(Task<A> Value, Func<A, B> Ff) : IOMapAsync<B>
         Ff(await Value);
 }
 
-record IOMapAsync<A, B, C>(Task<A> Value, Func<A, B> Ff, Func<B, C> Fg) : IOMapAsync<C>
+record IOMapAsync<A, B, C>(Task<A> Value, Func<A, B> Ff, Func<B, C> Fg) : DslInvokeIOAsync<C>
 {
     public override IODsl<D> Map<D>(Func<C, D> f) =>
         new IOMapAsync<A, B, C, D>(Value, Ff, Fg, f);
@@ -26,7 +21,7 @@ record IOMapAsync<A, B, C>(Task<A> Value, Func<A, B> Ff, Func<B, C> Fg) : IOMapA
         Fg(Ff(await Value));
 }
 
-record IOMapAsync<A, B, C, D>(Task<A> Value, Func<A, B> Ff, Func<B, C> Fg, Func<C, D> Fh) : IOMapAsync<D>
+record IOMapAsync<A, B, C, D>(Task<A> Value, Func<A, B> Ff, Func<B, C> Fg, Func<C, D> Fh) : DslInvokeIOAsync<D>
 {
     public override IODsl<E> Map<E>(Func<D, E> f) =>
         new IOMapAsync<A, B, C, D, E>(Value, Ff, Fg, Fh, f);
@@ -35,7 +30,7 @@ record IOMapAsync<A, B, C, D>(Task<A> Value, Func<A, B> Ff, Func<B, C> Fg, Func<
         Fh(Fg(Ff(await Value)));
 }
 
-record IOMapAsync<A, B, C, D, E>(Task<A> Value, Func<A, B> Ff, Func<B, C> Fg, Func<C, D> Fh, Func<D, E> Fi) : IOMapAsync<E>
+record IOMapAsync<A, B, C, D, E>(Task<A> Value, Func<A, B> Ff, Func<B, C> Fg, Func<C, D> Fh, Func<D, E> Fi) : DslInvokeIOAsync<E>
 {
     public override IODsl<F> Map<F>(Func<E, F> f) =>
         new IOMapAsync<A, B, C, D, F>(Value, Ff, Fg, Fh, x => f(Fi(x)));

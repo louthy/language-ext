@@ -280,10 +280,22 @@ public abstract record IO<A> :
         Map(f);
 
     public IO<C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
-        Bind(x => bind(x).Map(y => project(x, y)));
+        Bind(x => bind(x) switch
+                  {
+                      IOTail<B> tail when typeof(B) == typeof(C) => (IO<C>)(object)tail,
+                      IOTail<B> => throw new NotSupportedException("Tail calls can't transform in the `select`"),
+                      var mb => mb.Map(y => project(x, y)).Kind()
+                  });
 
     public IO<C> SelectMany<B, C>(Func<A, K<IO, B>> bind, Func<A, B, C> project) =>
-        Bind(x => bind(x).Map(y => project(x, y)));
+        Bind(x => bind(x) switch
+                  {
+                      IOTail<B> tail when typeof(B) == typeof(C) => (IO<C>)(object)tail,
+                      IOTail<B> => throw new NotSupportedException("Tail calls can't transform in the `select`"),
+                      var mb => mb.Map(y => project(x, y))
+                  });
+        
+        //Bind(x => bind(x).Map(y => project(x, y)));
 
     public IO<C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
@@ -946,18 +958,17 @@ public abstract record IO<A> :
                 {
                     switch (ma)
                     {
-                        case IOPure<A> (var value):
-                            return value;
+                        case InvokeAsync<A> op:
+                            return await op.Invoke(envIO);
+                        
+                        case InvokeSync<A> op:
+                            return op.Invoke(envIO);
 
-                        case IOPureAsync<A> (var value):
-                            return await value;
-
-                        case IOBind<A> bind:
-                            ma = bind.Invoke(envIO);
+                        case InvokeSyncIO<A> op:
+                            ma = op.Invoke(envIO);
                             break;
-
-                        case IOBindAsync<A> bind:
-                            ma = await bind.Invoke(envIO);
+                        case InvokeAsyncIO<A> op:
+                            ma = await op.Invoke(envIO);
                             break;
 
                         case IOCatch<A> @catch:
@@ -970,6 +981,10 @@ public abstract record IO<A> :
                             catches = catches.Tail;
                             ma = pop.Next;
                             break;
+                        
+                        case IOTail<A> tail:
+                            ma = tail.Tail;
+                            break;
 
                         case IOLift<A> (var dsl):
                             switch (dsl)
@@ -977,24 +992,12 @@ public abstract record IO<A> :
                                 case IOFail<IO<A>> (var value):
                                     return value.Throw<A>();
 
-                                case IOLiftSync<IO<A>> (var f):
-                                    ma = f(envIO);
+                                case DslInvokeIO<IO<A>> op:
+                                    ma = op.Invoke(envIO);
                                     break;
 
-                                case IOLiftAsync<IO<A>> (var f):
-                                    ma = await f(envIO);
-                                    break;
-
-                                case IOMap<IO<A>> map:
-                                    ma = map.Invoke(envIO);
-                                    break;
-
-                                case IOMapAsync<IO<A>> map:
-                                    ma = await map.Invoke(envIO);
-                                    break;
-
-                                case IOApply<IO<A>> apply:
-                                    ma = await apply.Invoke(envIO);
+                                case DslInvokeIOAsync<IO<A>> op:
+                                    ma = await op.Invoke(envIO);
                                     break;
 
                                 default:
