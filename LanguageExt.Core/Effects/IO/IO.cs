@@ -909,8 +909,19 @@ public abstract record IO<A> :
     /// <returns>Result of the IO operation</returns>
     /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
     /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
-    public A Run(EnvIO? envIO = null) =>
-        RunAsync(envIO).GetAwaiter().GetResult();
+    public A Run(EnvIO? envIO = null)
+    {
+        // RunAsync can run completely synchronously and without the creation of a async/await state-machine, so calling
+        // it for operations that are completely synchronous has no additional overhead for us.  Therefore, calling it
+        // directly here and then unpacking the `ValueTask` makes sense to reduce code duplication.
+        
+        var task = RunAsync(envIO);
+        if(task.IsCompleted) return task.Result;
+        
+        // If RunAsync really had to do some asynchronous work, then make sure we use the awaiter and get its result
+        
+        return task.GetAwaiter().GetResult(); 
+    }
 
     /// <summary>
     /// Run the `IO` monad to get its result
@@ -929,9 +940,9 @@ public abstract record IO<A> :
     /// <returns>Result of the IO operation</returns>
     /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
     /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
-    public async ValueTask<A> RunAsync(EnvIO? envIO = null)
+    public ValueTask<A> RunAsync(EnvIO? envIO = null)
     {
-        if (envIO?.Token.IsCancellationRequested ?? false) throw new TaskCanceledException();
+        if (envIO?.Token.IsCancellationRequested ?? false) return ValueTask.FromCanceled<A>(envIO?.Token ?? default);
         var envRequiresDisposal = envIO is null;
         envIO ??= EnvIO.New();
         var ma      = this;
@@ -941,59 +952,166 @@ public abstract record IO<A> :
         {
             while (!envIO.Token.IsCancellationRequested)
             {
-                try
+                switch (ma)
                 {
-                    switch (ma)
-                    {
-                        case InvokeAsync<A> op:
-                            return await op.Invoke(envIO);
-                        
-                        case InvokeSync<A> op:
-                            return op.Invoke(envIO);
+                    case InvokeAsync<A>:
+                        return ma.RunAsyncInternal(catches, envIO);
 
-                        case InvokeSyncIO<A> op:
+                    case InvokeAsyncIO<A> op:
+                        return ma.RunAsyncInternal(catches, envIO);
+
+                    case InvokeSync<A> op:
+                        try
+                        {
+                            return new ValueTask<A>(op.Invoke(envIO));
+                        }
+                        catch (Exception e)
+                        {
+                            if (catches.IsEmpty) throw;
+                            ma = RunCatchHandler(e);
+                            break;
+                        }
+
+                    case InvokeSyncIO<A> op:
+                        try
+                        {
                             ma = op.Invoke(envIO);
-                            break;
-                        
-                        case InvokeAsyncIO<A> op:
-                            ma = await op.Invoke(envIO);
-                            break;
+                        }
+                        catch (Exception e)
+                        {
+                            if (catches.IsEmpty) throw;
+                            ma = RunCatchHandler(e);
+                        }
 
-                        case IOCatch<A> @catch:
-                            var handler = @catch.MakeHandler();
-                            catches = handler.Cons(catches);
-                            ma = @catch.MakeOperation();
-                            break;
-                        
-                        case IOCatchPop<A> pop:
-                            catches = catches.Tail;
-                            ma = pop.Next;
-                            break;
-                        
-                        case IOTail<A> tail:
-                            ma = tail.Tail;
-                            break;
+                        break;
 
-                        default:
-                            throw new InvalidOperationException("We shouldn't be here!");
+                    case IOCatch<A> @catch:
+                    {
+                        var handler = @catch.MakeHandler();
+                        catches = handler.Cons(catches);
+                        ma = @catch.MakeOperation();
+                        break;
                     }
-                }
-                catch (Exception e)
-                {
-                    if (catches.IsEmpty) throw;
-                    var handler = catches[0];
-                    catches = catches.Tail;
-                    ma = handler(e);
+
+                    case IOCatchPop<A> pop:
+                        catches = catches.Tail;
+                        ma = pop.Next;
+                        break;
+
+                    case IOTail<A> tail:
+                        ma = tail.Tail;
+                        break;
+
+                    default:
+                        return ValueTask.FromException<A>(Errors.IODSLExtension);
                 }
             }
 
-            throw new TaskCanceledException();
+            return ValueTask.FromCanceled<A>(envIO.Token);
         }
         finally
         {
             if (envRequiresDisposal) envIO.Dispose();
         }
-    }    
+
+        IO<A> RunCatchHandler(Exception e)
+        {
+            var handler = catches[0];
+            catches = catches.Tail;
+            return handler(e);
+        }
+    }
+
+    /// <summary>
+    /// This version of `RunAsync` uses the async/await machinery.  It is kept separate from the `RunAsync` version
+    /// so that we can avoid creating the async/await state-machine if all operations are synchronous.
+    /// </summary>
+    async ValueTask<A> RunAsyncInternal(Seq<Func<Exception, IO<A>>> catches, EnvIO envIO)
+    {
+        var ma = this;
+        while (!envIO.Token.IsCancellationRequested)
+        {
+            switch (ma)
+            {
+                case InvokeAsync<A> op:
+                    try
+                    {
+                        return await op.Invoke(envIO);
+                    }
+                    catch (Exception e)
+                    {
+                        if (catches.IsEmpty) throw;
+                        ma = RunCatchHandler(e);
+                        break;
+                    }
+
+                case InvokeSync<A> op:
+                    try
+                    {
+                        return op.Invoke(envIO);
+                    }
+                    catch (Exception e)
+                    {
+                        if (catches.IsEmpty) throw;
+                        ma = RunCatchHandler(e);
+                        break;
+                    }
+
+                case InvokeSyncIO<A> op:
+                    try
+                    {
+                        ma = op.Invoke(envIO);
+                    }
+                    catch (Exception e)
+                    {
+                        if (catches.IsEmpty) throw;
+                        ma = RunCatchHandler(e);
+                    }
+                    break;
+
+                case InvokeAsyncIO<A> op:
+                    try
+                    {
+                        ma = await op.Invoke(envIO);
+                    }
+                    catch (Exception e)
+                    {
+                        if (catches.IsEmpty) throw;
+                        ma = RunCatchHandler(e);
+                    }
+                    break;
+
+                case IOCatch<A> @catch:
+                {
+                    var handler = @catch.MakeHandler();
+                    catches = handler.Cons(catches);
+                    ma = @catch.MakeOperation();
+                    break;
+                }
+
+                case IOCatchPop<A> pop:
+                    catches = catches.Tail;
+                    ma = pop.Next;
+                    break;
+
+                case IOTail<A> tail:
+                    ma = tail.Tail;
+                    break;
+
+                default:
+                    return Errors.IODSLExtension.Throw<A>();
+            }
+        }
+
+        throw new TaskCanceledException();
+
+        IO<A> RunCatchHandler(Exception e)
+        {
+            var handler = catches[0];
+            catches = catches.Tail;
+            return handler(e);
+        }
+    }       
     
     public override string ToString() => 
         "IO";

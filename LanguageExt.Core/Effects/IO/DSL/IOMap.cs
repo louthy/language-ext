@@ -4,7 +4,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt.DSL;
 
-record IOMap<A, B, C>(Func<A, B> Ff, IO<A> Fa, Func<B, K<IO, C>> Next) : InvokeAsyncIO<C>
+record IOMap<A, B, C>(Func<A, B> Ff, IO<A> Fa, Func<B, K<IO, C>> Next) : InvokeSyncIO<C>
 {
     public override IO<D> Map<D>(Func<C, D> f) => 
         new IOMap<A, B, D>(Ff, Fa, x => Next(x).As().Map(f));
@@ -12,10 +12,12 @@ record IOMap<A, B, C>(Func<A, B> Ff, IO<A> Fa, Func<B, K<IO, C>> Next) : InvokeA
     public override IO<D> Bind<D>(Func<C, K<IO, D>> f) => 
         new IOMap<A, B, D>(Ff, Fa, x => Next(x).As().Bind(f));
 
-    public override async ValueTask<IO<C>> Invoke(EnvIO envIO)
+    public override IO<C> Invoke(EnvIO envIO)
     {
-        var a = await Fa.RunAsync(envIO);
-        return Next(Ff(a)).As();
+        var task = Fa.RunAsync(envIO);
+        return task.IsCompleted
+                   ? Next(Ff(task.Result)).As()
+                   : new IOPureMapAsync<A, B, C>(Ff, task.AsTask(), Next);
     }
 }
 

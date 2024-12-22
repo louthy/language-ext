@@ -87,7 +87,7 @@ public static class Errors
     public static readonly Error Closed = (ClosedCode, ClosedText);    
 
     /// <summary>
-    /// Parse error code
+    /// Parse error error code
     /// </summary>
     public const int ParseErrorCode = -2000000005;
 
@@ -102,7 +102,7 @@ public static class Errors
     public const int ManyErrorsCode = -2000000006;
 
     /// <summary>
-    /// IO monad not in transformer stack text
+    /// IO monad not in transformer stack error text
     /// </summary>
     public const string LiftIONotSupportedText = 
         "The IO monad is not in the monad-transformer stack or MonadIO.LiftIO has not been implemented in the trait "   +
@@ -110,7 +110,7 @@ public static class Errors
         "To resolve this, implement `MonadIO.LiftIO`.";
 
     /// <summary>
-    /// IO monad not in transformer stack code
+    /// IO monad not in transformer stack error code
     /// </summary>
     public const int LiftIONotSupportedCode = -2000000007;
 
@@ -120,7 +120,7 @@ public static class Errors
     public static readonly Error LiftIONotSupported = (LiftIONotSupportedCode, LiftIONotSupportedText);
 
     /// <summary>
-    /// Transformer stack has no unliftIO support text
+    /// Transformer stack has no unliftIO support error text
     /// </summary>
     public const string UnliftIONotSupportedText =
         "The IO monad is not in the monad-transformer stack or MonadIO.ToIO has not been implemented in the trait " +
@@ -128,7 +128,7 @@ public static class Errors
         "functionality. To resolve this, implement `MonadIO.ToIO` and/or `MonadIO,MapIO`.";
 
     /// <summary>
-    /// Transformer stack has no unliftIO support code
+    /// Transformer stack has no unliftIO support error code
     /// </summary>
     public const int UnliftIONotSupportedCode = -2000000008;
 
@@ -138,13 +138,13 @@ public static class Errors
     public static readonly Error UnliftIONotSupported = (UnliftIONotSupportedCode, UnliftIONotSupportedText);
 
     /// <summary>
-    /// End-of-stream text
+    /// End-of-stream error text
     /// </summary>
     public const string EndOfStreamText = 
         "end of stream";
 
     /// <summary>
-    /// End-of-stream code
+    /// End-of-stream error code
     /// </summary>
     public const int EndOfStreamCode = -2000000009;
 
@@ -154,13 +154,13 @@ public static class Errors
     public static readonly Error EndOfStream = (EndOfStreamCode, EndOfStreamText);
 
     /// <summary>
-    /// Validation failed text
+    /// Validation failed error text
     /// </summary>
     public const string ValidationFailedText = 
         "validation failed";
 
     /// <summary>
-    /// Validation failed code
+    /// Validation failed error code
     /// </summary>
     public const int ValidationFailedCode = -2000000010;
 
@@ -170,13 +170,13 @@ public static class Errors
     public static readonly Error ValidationFailed = (ValidationFailedCode, ValidationFailedText);
 
     /// <summary>
-    /// Source completed text
+    /// Source completed error text
     /// </summary>
     public const string SourceCompletedText =
         "source completed";
     
     /// <summary>
-    /// Source completed code
+    /// Source completed error code
     /// </summary>
     public const int SourceCompletedCode = -2000000011;
 
@@ -184,4 +184,21 @@ public static class Errors
     /// Source completed error
     /// </summary>
     public static readonly Error SourceCompleted = (SourceCompletedCode, SourceCompletedText);
+
+    /// <summary>
+    /// IO DSL extension error text
+    /// </summary>
+    public const string IODSLExtensionText =
+        "If you are trying to extend the `IO` type then you must use: `InvokeAsync`, `InvokeSync`, `InvokeAsyncIO`, "+
+        "`InvokeSyncIO`, or `IOCatch` as the base-type, not `IO`";
+    
+    /// <summary>
+    /// IO DSL extension error code
+    /// </summary>
+    public const int IODSLExtensionCode = -2000000012;
+
+    /// <summary>
+    /// IO DSL extension error
+    /// </summary>
+    public static readonly Error IODSLExtension = new Exceptional(IODSLExtensionText, IODSLExtensionCode);
 }

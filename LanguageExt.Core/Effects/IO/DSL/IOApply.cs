@@ -16,17 +16,25 @@ record IOApply<A, B, C>(K<IO, Func<A, B>> Ff, K<IO, A> Fa, Func<B, K<IO, C>> Nex
     {
         var tf = Ff.RunAsync(envIO);
         var ta = Fa.RunAsync(envIO);
-        return new IOApplyFunction<A, B, C>(tf, ta, Next);
+
+        switch (tf.IsCompleted, ta.IsCompleted)
+        {
+            case (true, true):
+                return Next(tf.Result(ta.Result)).As();
+                
+            default:
+                return new IOApplyFunctionAsync<A, B, C>(tf, ta, Next);
+        }        
     }
 }
 
-record IOApplyFunction<A, B, C>(ValueTask<Func<A, B>> Ff, ValueTask<A> Fa, Func<B, K<IO, C>> Next) : InvokeAsyncIO<C>
+record IOApplyFunctionAsync<A, B, C>(ValueTask<Func<A, B>> Ff, ValueTask<A> Fa, Func<B, K<IO, C>> Next) : InvokeAsyncIO<C>
 {
     public override IO<D> Map<D>(Func<C, D> f) => 
-        new IOApplyFunction<A, B, D>(Ff, Fa, x => Next(x).As().Map(f));
+        new IOApplyFunctionAsync<A, B, D>(Ff, Fa, x => Next(x).As().Map(f));
 
     public override IO<D> Bind<D>(Func<C, K<IO, D>> f) => 
-        new IOApplyFunction<A, B, D>(Ff, Fa, x => Next(x).As().Bind(f));
+        new IOApplyFunctionAsync<A, B, D>(Ff, Fa, x => Next(x).As().Bind(f));
 
     public override async ValueTask<IO<C>> Invoke(EnvIO envIO)
     {
