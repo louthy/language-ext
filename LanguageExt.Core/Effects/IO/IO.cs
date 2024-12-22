@@ -935,7 +935,7 @@ public abstract record IO<A> :
         var envRequiresDisposal = envIO is null;
         envIO ??= EnvIO.New();
         var ma      = this;
-        var catches = Seq<Func<Exception, IO<A>>>(); 
+        var catches = Seq<Func<Exception, IO<A>>>();
 
         try
         {

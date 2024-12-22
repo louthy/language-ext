@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using LanguageExt.DSL;
 using LanguageExt.Traits;
 
-namespace LanguageExt;
+namespace LanguageExt.DSL;
 
 record IOFold<S, A, B>(
     IO<A> Operation,
