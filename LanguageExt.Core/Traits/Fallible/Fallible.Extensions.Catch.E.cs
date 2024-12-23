@@ -47,7 +47,7 @@ public static partial class FallibleExtensionsE
     public static K<M, A> Catch<E, M, A>(
         this K<M, A> ma,
         Func<E, bool> Predicate,
-        Func<E, K<IO, A>> Fail) 
+        Func<E, IO<A>> Fail) 
         where M : Fallible<E, M>, Monad<M> =>
         M.Catch(ma, Predicate, e => M.LiftIO(Fail(e)));
     
@@ -122,7 +122,7 @@ public static partial class FallibleExtensionsE
     public static K<M, A> Catch<E, M, A>(
         this K<M, A> ma,
         E Match,
-        Func<E, K<IO, A>> Fail) 
+        Func<E, IO<A>> Fail) 
         where M : Fallible<E, M>, Monad<M> =>
         M.Catch(ma, e => Match?.Equals(e) ?? false, e => M.LiftIO(Fail(e)));
     
@@ -195,7 +195,7 @@ public static partial class FallibleExtensionsE
     /// predicate returns true for the failure value</returns>
     public static K<M, A> Catch<E, M, A>(
         this K<M, A> ma,
-        Func<E, K<IO, A>> Fail) 
+        Func<E, IO<A>> Fail) 
         where M : Fallible<E, M>, Monad<M> =>
         M.Catch(ma, _ => true, e => M.LiftIO(Fail(e)));
     

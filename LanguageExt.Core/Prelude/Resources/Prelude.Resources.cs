@@ -2,6 +2,7 @@
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.Common;
+using LanguageExt.DSL;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -11,7 +12,7 @@ public static partial class Prelude
     /// <summary>
     /// Acquire a resource and have it tracked by the IO environment.  The resource
     /// can be released manually using `release` or from wrapping a section of IO
-    /// code with `@using`.
+    /// code with `bracketIO`.
     /// </summary>
     /// <param name="acquire">Computation that acquires the resource</param>
     /// <param name="release">Action to release the resource</param>
@@ -21,13 +22,16 @@ public static partial class Prelude
     [MethodImpl(Opt.Default)]
     public static K<M, A> use<M, A>(K<M, A> acquire, Action<A> release)
         where M : Monad<M> =>
-        use(acquire,
-            x => IO.lift(
-                () =>
-                {
-                    release(x);
-                    return unit;
-                }));
+        acquire.MapIO(
+            acq => new IOUse<A, A>(
+                acq,
+                x => IO.lift(
+                    () =>
+                    {
+                        release(x);
+                        return unit;
+                    }),
+                IO.pure));
 
     /// <summary>
     /// Acquire a resource and have it tracked by the IO environment.  The resource
@@ -70,13 +74,7 @@ public static partial class Prelude
     [MethodImpl(Opt.Default)]
     public static K<M, A> use<M, A>(K<M, A> acquire, Func<A, IO<Unit>> release)
         where M : Monad<M> =>
-        acquire.Bind(
-            val => IO.lift(
-                env =>
-                {
-                    env.Resources.Acquire(val, release);
-                    return val;
-                }));
+        acquire.MapIO(acq => new IOUse<A, A>(acq, release, IO.pure));
 
     /// <summary>
     /// Acquire a resource and have it tracked by the IO environment.  The resource
@@ -133,12 +131,7 @@ public static partial class Prelude
     public static K<M, A> use<M, A>(K<M, A> acquire)
         where M : Monad<M>
         where A : IDisposable =>
-        acquire.Bind(
-            val => IO.lift(env =>
-                           {
-                               env.Resources.Acquire(val);
-                               return val;
-                           }));
+        acquire.MapIO(acq => new IOUseDisposable<A, A>(acq, IO.pure));
 
     /// <summary>
     /// Acquire a resource and have it tracked by the IO environment.  The resource
@@ -153,12 +146,7 @@ public static partial class Prelude
     public static K<M, A> useAsync<M, A>(K<M, A> acquire)
         where M : Monad<M>
         where A : IAsyncDisposable =>
-        acquire.Bind(
-            val => IO.lift(env =>
-                           {
-                               env.Resources.AcquireAsync(val);
-                               return val;
-                           }));
+        acquire.MapIO(acq => new IOUseAsyncDisposable<A, A>(acq, IO.pure));
 
     /// <summary>
     /// Release the resource from the tracked IO environment

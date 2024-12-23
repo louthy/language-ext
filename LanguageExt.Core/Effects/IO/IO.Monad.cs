@@ -7,6 +7,7 @@ namespace LanguageExt;
 
 public partial class IO : 
     Monad<IO>, 
+    Final<IO>,
     Fallible<IO>,
     Alternative<IO>
 {
@@ -29,10 +30,10 @@ public partial class IO :
         K<IO, A> fa, 
         Func<Error, bool> Predicate,
         Func<Error, K<IO, A>> Fail) =>
-        new IOCatch<A, A>(fa, Predicate, Fail, pure);
+        new IOCatch<A, A>(fa, Predicate, Fail, null, pure);
 
     static K<IO, A> Choice<IO>.Choose<A>(K<IO, A> fa, K<IO, A> fb) => 
-        new IOCatch<A, A>(fa, _ => true, _ => fb, pure);
+        new IOCatch<A, A>(fa, _ => true, _ => fb, null, pure);
 
     static K<IO, A> MonoidK<IO>.Empty<A>() =>
         fail<A>(Errors.None);
@@ -45,4 +46,7 @@ public partial class IO :
 
     static K<IO, B> MonadIO<IO>.MapIO<A, B>(K<IO, A> ma, Func<IO<A>, IO<B>> f) =>
         f(ma.As());
+
+    static K<IO, A> Final<IO>.Finally<X, A>(K<IO, A> fa, K<IO, X> @finally) =>
+        new IOFinal<X, A, A>(fa, @finally, pure);
 }

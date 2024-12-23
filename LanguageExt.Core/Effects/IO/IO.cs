@@ -281,8 +281,6 @@ public abstract record IO<A> :
                       IOTail<B> => throw new NotSupportedException("Tail calls can't transform in the `select`"),
                       var mb => mb.Map(y => project(x, y))
                   });
-        
-        //Bind(x => bind(x).Map(y => project(x, y)));
 
     public IO<C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
@@ -404,11 +402,7 @@ public abstract record IO<A> :
     [Pure]
     [MethodImpl(Opt.Default)]
     public IO<A> Bracket() =>
-        LiftVAsync(async env =>
-                  {
-                      using var lenv = env.LocalResources;
-                      return await RunAsync(lenv);
-                  });
+        WithEnv(env => env.LocalResources);
 
     /// <summary>
     /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
@@ -418,7 +412,7 @@ public abstract record IO<A> :
     /// <param name="Use">Function to use the acquired resource</param>
     /// <param name="Fin">Function to invoke to release the resource</param>
     public IO<C> Bracket<B, C>(Func<A, IO<C>> Use, Func<A, IO<B>> Fin) =>
-        Bracket(Use, IO<C>.Fail, Fin);
+        Bind(x => Use(x).Finally(Fin(x)));
 
     /// <summary>
     /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
@@ -429,22 +423,7 @@ public abstract record IO<A> :
     /// <param name="Catch">Function to run to handle any exceptions</param>
     /// <param name="Fin">Function to invoke to release the resource</param>
     public IO<C> Bracket<B, C>(Func<A, IO<C>> Use, Func<Error, IO<C>> Catch, Func<A, IO<B>> Fin) =>
-        IO<C>.LiftVAsync(async env =>
-                        {
-                            var x = await RunAsync(env);
-                            try
-                            {
-                                return await Use(x).RunAsync(env);
-                            }
-                            catch (Exception e)
-                            {
-                                return await Catch(e).RunAsync(env);
-                            }
-                            finally
-                            {
-                                (await Fin(x).RunAsync(env))?.Ignore();
-                            }
-                        });    
+        Bind(x => Use(x).Catch(Catch).Finally(Fin(x)));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -483,23 +462,19 @@ public abstract record IO<A> :
         Fork(timeout).Await().As();
 
     /// <summary>
+    /// Map the `EnvIO` value that is threaded through computation and run this `IO` operation in the newly
+    /// mapped environment.    
+    /// </summary>
+    /// <param name="f"></param>
+    /// <returns></returns>
+    IO<A> WithEnv(Func<EnvIO, EnvIO> f) =>
+        new IOLocal<A, A>(f, this, IO.pure);
+
+    /// <summary>
     /// Create a local cancellation environment
     /// </summary>
     public IO<A> Local() =>
-        LiftAsync(async env =>
-                  {
-                      if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-
-                      // Create a new local token-source with its own cancellation token
-                      using var tsrc = new CancellationTokenSource();
-                      var       tok  = tsrc.Token;
-
-                      // If the parent cancels, we should too
-                      await using var reg = env.Token.Register(() => tsrc.Cancel());
-
-                      var env1 = EnvIO.New(env.Resources, tok, tsrc, env.SyncContext);
-                      return await RunAsync(env1);
-                  });    
+        WithEnv(env => EnvIO.New(env.Resources, env.Token, null, env.SyncContext));
     
     /// <summary>
     /// Queues the specified work to run on the thread pool  
@@ -770,7 +745,7 @@ public abstract record IO<A> :
     public IO<A> RetryWhile(
         Schedule schedule,
         Func<Error, bool> predicate) =>
-        RetryUntil(schedule, Prelude.not(predicate));
+        RetryUntil(schedule, not(predicate));
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -883,8 +858,16 @@ public abstract record IO<A> :
     /// <param name="Predicate">Predicate</param>
     /// <param name="Fail">Fail functions</param>
     public IO<A> Catch(Func<Error, bool> Predicate, Func<Error, K<IO, A>> Fail) =>
-        new IOCatch<A, A>(this, Predicate, Fail, IO.pure);
+        new IOCatch<A, A>(this, Predicate, Fail, null, IO.pure);
 
+    /// <summary>
+    /// Run a `finally` operation after the `this` operation regardless of whether `this` succeeds or not.
+    /// </summary>
+    /// <param name="finally">Finally operation</param>
+    /// <returns>Result of primary operation</returns>
+    public IO<A> Finally<X>(K<IO, X> @finally) =>
+        new IOFinal<X, A, A>(this, @finally, IO.pure);
+    
     /// <summary>
     /// Monoid combine
     /// </summary>
@@ -945,9 +928,11 @@ public abstract record IO<A> :
         if (envIO?.Token.IsCancellationRequested ?? false) return ValueTask.FromCanceled<A>(envIO?.Token ?? default);
         var envRequiresDisposal = envIO is null;
         envIO ??= EnvIO.New();
-        var ma      = this;
-        var catches = Seq<Func<Exception, IO<A>>>();
-
+        var ma     = this;
+        var locals = Seq(envIO);
+        var stack  = Seq(new StackItem(ex => ex.Rethrow<IO<A>>(), locals)); // we want at least one item in the stack
+                                                                            // so that we benefit from the auto-clean-up   
+                                                                            // of resources.
         try
         {
             while (!envIO.Token.IsCancellationRequested)
@@ -955,10 +940,10 @@ public abstract record IO<A> :
                 switch (ma)
                 {
                     case InvokeAsync<A>:
-                        return ma.RunAsyncInternal(catches, envIO);
+                        return ma.RunAsyncInternal(stack, locals);
 
-                    case InvokeAsyncIO<A> op:
-                        return ma.RunAsyncInternal(catches, envIO);
+                    case InvokeAsyncIO<A>:
+                        return ma.RunAsyncInternal(stack, locals);
 
                     case InvokeSync<A> op:
                         try
@@ -967,7 +952,7 @@ public abstract record IO<A> :
                         }
                         catch (Exception e)
                         {
-                            if (catches.IsEmpty) throw;
+                            if (stack.IsEmpty) throw;
                             ma = RunCatchHandler(e);
                             break;
                         }
@@ -979,24 +964,34 @@ public abstract record IO<A> :
                         }
                         catch (Exception e)
                         {
-                            if (catches.IsEmpty) throw;
+                            if (stack.IsEmpty) throw;
                             ma = RunCatchHandler(e);
                         }
 
                         break;
 
-                    case IOCatch<A> @catch:
-                    {
-                        var handler = @catch.MakeHandler();
-                        catches = handler.Cons(catches);
-                        ma = @catch.MakeOperation();
+                    case IOCatch<A> c:
+                        var @catch = c.MakeHandler();
+                        stack = new StackItem(@catch, locals).Cons(stack);
+                        ma = c.MakeOperation();
                         break;
-                    }
 
                     case IOCatchPop<A> pop:
-                        catches = catches.Tail;
+                        stack = stack.Tail;
                         ma = pop.Next;
                         break;
+                    
+                    case IOLocal<A> local:
+                        locals = local.MapEnvIO(envIO).Cons(locals);
+                        envIO = locals[0]; 
+                        ma = local.MakeOperation();
+                        break;
+                
+                    case IOLocalRestore<A> restore:
+                        locals = locals.Tail;
+                        envIO = locals[0];
+                        ma = restore.Next.As();
+                        break;                    
 
                     case IOTail<A> tail:
                         ma = tail.Tail;
@@ -1016,9 +1011,21 @@ public abstract record IO<A> :
 
         IO<A> RunCatchHandler(Exception e)
         {
-            var handler = catches[0];
-            catches = catches.Tail;
-            return handler(e);
+            var oldLocals = locals;
+            var top       = stack[0];
+            var @catch    = top.Catch;
+            locals = top.EnvIO;
+            stack = stack.Tail;
+
+            // Unwind any local environments
+            for (var i = oldLocals.Count - 1; i >= locals.Count; i--)
+            {
+                oldLocals[i].Dispose();
+            }
+
+            // This must be the last thing because the `@catch` may rethrow,
+            // so we have to have cleaned everything up.
+            return @catch(e);
         }
     }
 
@@ -1026,9 +1033,10 @@ public abstract record IO<A> :
     /// This version of `RunAsync` uses the async/await machinery.  It is kept separate from the `RunAsync` version
     /// so that we can avoid creating the async/await state-machine if all operations are synchronous.
     /// </summary>
-    async ValueTask<A> RunAsyncInternal(Seq<Func<Exception, IO<A>>> catches, EnvIO envIO)
+    async ValueTask<A> RunAsyncInternal(Seq<StackItem> stack, Seq<EnvIO> locals)
     {
         var ma = this;
+        var envIO = locals[0];
         while (!envIO.Token.IsCancellationRequested)
         {
             switch (ma)
@@ -1040,7 +1048,7 @@ public abstract record IO<A> :
                     }
                     catch (Exception e)
                     {
-                        if (catches.IsEmpty) throw;
+                        if (stack.IsEmpty) throw;
                         ma = RunCatchHandler(e);
                         break;
                     }
@@ -1052,7 +1060,7 @@ public abstract record IO<A> :
                     }
                     catch (Exception e)
                     {
-                        if (catches.IsEmpty) throw;
+                        if (stack.IsEmpty) throw;
                         ma = RunCatchHandler(e);
                         break;
                     }
@@ -1064,7 +1072,7 @@ public abstract record IO<A> :
                     }
                     catch (Exception e)
                     {
-                        if (catches.IsEmpty) throw;
+                        if (stack.IsEmpty) throw;
                         ma = RunCatchHandler(e);
                     }
                     break;
@@ -1076,24 +1084,34 @@ public abstract record IO<A> :
                     }
                     catch (Exception e)
                     {
-                        if (catches.IsEmpty) throw;
+                        if (stack.IsEmpty) throw;
                         ma = RunCatchHandler(e);
                     }
                     break;
 
-                case IOCatch<A> @catch:
-                {
-                    var handler = @catch.MakeHandler();
-                    catches = handler.Cons(catches);
-                    ma = @catch.MakeOperation();
+                case IOCatch<A> c:
+                    var @catch = c.MakeHandler();
+                    stack = new StackItem(@catch, locals).Cons(stack);
+                    ma = c.MakeOperation();
                     break;
-                }
 
                 case IOCatchPop<A> pop:
-                    catches = catches.Tail;
+                    stack = stack.Tail;
                     ma = pop.Next;
                     break;
 
+                case IOLocal<A> local:
+                    locals = local.MapEnvIO(envIO).Cons(locals);
+                    envIO = locals[0]; 
+                    ma = local.MakeOperation();
+                    break;
+                
+                case IOLocalRestore<A> restore:
+                    locals = locals.Tail;
+                    envIO = locals[0];
+                    ma = restore.Next.As();
+                    break;
+                
                 case IOTail<A> tail:
                     ma = tail.Tail;
                     break;
@@ -1107,12 +1125,24 @@ public abstract record IO<A> :
 
         IO<A> RunCatchHandler(Exception e)
         {
-            var handler = catches[0];
-            catches = catches.Tail;
-            return handler(e);
+            var oldLocals = locals;
+            var top       = stack[0];
+            var @catch    = top.Catch;
+            locals = top.EnvIO;
+            stack = stack.Tail;
+
+            // Unwind any local environments
+            for (var i = oldLocals.Count - 1; i >= locals.Count; i--)
+            {
+                oldLocals[i].Dispose();
+            }
+
+            // This must be the last thing because the `@catch` may rethrow,
+            // so we have to have cleaned everything up.
+            return @catch(e);
         }
-    }       
-    
+    }
+
     public override string ToString() => 
         "IO";
     
@@ -1142,4 +1172,6 @@ public abstract record IO<A> :
             }
         }
     }
+    
+    readonly record struct StackItem(Func<Exception, IO<A>> Catch, Seq<EnvIO> EnvIO); 
 }
