@@ -117,90 +117,90 @@ public abstract record IO<A> :
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder) =>
-        FoldUntil(schedule, initialState, folder, predicate: _ => false);
+        new IOFold<S, A, S>(this, schedule, initialState, folder, IO.pure);
 
     public IO<S> Fold<S>(
         S initialState,
         Func<S, A, S> folder) =>
-        FoldUntil(Schedule.Forever, initialState, folder, predicate: _ => false);
+        new IOFold<S, A, S>(this, Schedule.Forever, initialState, folder, IO.pure);
 
     public IO<S> FoldWhile<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        FoldUntil(schedule, initialState, folder, not(stateIs));
+        new IOFoldWhile<S, A, S>(this, schedule, initialState, folder, s => stateIs(s.State), IO.pure);
 
     public IO<S> FoldWhile<S>(
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        FoldUntil(Schedule.Forever, initialState, folder, not(stateIs));
+        new IOFoldWhile<S, A, S>(this, Schedule.Forever, initialState, folder, s => stateIs(s.State), IO.pure);
     
     public IO<S> FoldWhile<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        FoldUntil(schedule, initialState, folder, not(valueIs));
+        new IOFoldWhile<S, A, S>(this, schedule, initialState, folder, s => valueIs(s.Value), IO.pure);
 
     public IO<S> FoldWhile<S>(
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        FoldUntil(Schedule.Forever, initialState, folder, not(valueIs));
+        new IOFoldWhile<S, A, S>(this, Schedule.Forever, initialState, folder, s => valueIs(s.Value), IO.pure);
     
     public IO<S> FoldWhile<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        FoldUntil(schedule, initialState, folder, not(predicate));
+        new IOFoldWhile<S, A, S>(this, schedule, initialState, folder, predicate, IO.pure);
 
     public IO<S> FoldWhile<S>(
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        FoldUntil(Schedule.Forever, initialState, folder, not(predicate));
-    
+        new IOFoldWhile<S, A, S>(this, Schedule.Forever, initialState, folder, predicate, IO.pure);
+
     public IO<S> FoldUntil<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        FoldUntil(schedule, initialState, folder, p => stateIs(p.State));
+        new IOFoldUntil<S, A, S>(this, schedule, initialState, folder, p => stateIs(p.State), IO.pure);
     
     public IO<S> FoldUntil<S>(
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        FoldUntil(Schedule.Forever, initialState, folder, p => stateIs(p.State));
+        new IOFoldUntil<S, A, S>(this, Schedule.Forever, initialState, folder, p => stateIs(p.State), IO.pure);
     
     public IO<S> FoldUntil<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        FoldUntil(schedule, initialState, folder, p => valueIs(p.Value));
+        new IOFoldUntil<S, A, S>(this, schedule, initialState, folder, p => valueIs(p.Value), IO.pure);
     
     public IO<S> FoldUntil<S>(
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        FoldUntil(Schedule.Forever, initialState, folder, p => valueIs(p.Value));
+        new IOFoldUntil<S, A, S>(this, Schedule.Forever, initialState, folder, p => valueIs(p.Value), IO.pure);
     
     public IO<S> FoldUntil<S>(
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        FoldUntil(Schedule.Forever, initialState, folder, predicate);
+        new IOFoldUntil<S, A, S>(this, Schedule.Forever, initialState, folder, predicate, IO.pure);
 
     public IO<S> FoldUntil<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        new IOFold<S, A, S>(this, schedule, initialState, folder, predicate, IO.pure);
+        new IOFoldUntil<S, A, S>(this, schedule, initialState, folder, predicate, IO.pure);
     
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -583,7 +583,7 @@ public abstract record IO<A> :
     /// <param name="predicate">Keep repeating while this predicate returns `true` for each computed value</param>
     /// <returns>The result of the last invocation</returns>
     public IO<A> RepeatWhile(Func<A, bool> predicate) => 
-        RepeatUntil(Prelude.not(predicate));
+        RepeatUntil(not(predicate));
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns false, or an error occurs
@@ -598,7 +598,7 @@ public abstract record IO<A> :
     public IO<A> RepeatWhile(
         Schedule schedule,
         Func<A, bool> predicate) =>
-        RepeatUntil(schedule, Prelude.not(predicate));
+        RepeatUntil(schedule, not(predicate));
 
     /// <summary>
     /// Keeps repeating the computation until the predicate returns true, or an error occurs
@@ -897,13 +897,12 @@ public abstract record IO<A> :
         // RunAsync can run completely synchronously and without the creation of a async/await state-machine, so calling
         // it for operations that are completely synchronous has no additional overhead for us.  Therefore, calling it
         // directly here and then unpacking the `ValueTask` makes sense to reduce code duplication.
-        
+
         var task = RunAsync(envIO);
-        if(task.IsCompleted) return task.Result;
-        
+        if (task.IsCompleted) return task.Result;
+
         // If RunAsync really had to do some asynchronous work, then make sure we use the awaiter and get its result
-        
-        return task.GetAwaiter().GetResult(); 
+        return task.GetAwaiter().GetResult();
     }
 
     /// <summary>
