@@ -59,7 +59,7 @@ public class IO_RepeatTests
 
         // Assert
         Assert.Equal(4, result); // The final value when the condition `value < 5` is no longer true
-        Assert.Equal(4, callCount); // Make sure the IO executed 5 times
+        Assert.Equal(4, callCount); // Make sure the IO executed 4 times
     }
 
     [Fact]
