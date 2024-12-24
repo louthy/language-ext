@@ -7,20 +7,19 @@ namespace IOExamples;
 class Program
 {
     static void Main(string[] args) =>
-        infiniteLoop(0).Run();
+        infiniteIterator();
+        //infiniteLoop(0).Run();
 
     static void infiniteIterator()
     {
         // NOTE: This should be run in Release mode, otherwise you might get a space leak
         
-        var iter = Naturals.GetIterator();
-        while (!iter.IsEmpty)
+        for(var iter = Naturals.GetIterator(); !iter.IsEmpty; iter = iter.Tail)
         {
             if (iter.Head % 10000 == 0)
             {
                 Console.WriteLine(iter.Head);
             }
-            iter = iter.Tail;
         }
     }
     
