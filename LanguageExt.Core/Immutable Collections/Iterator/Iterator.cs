@@ -56,7 +56,7 @@ public abstract class Iterator<A> :
     ///
     /// The end of the sequence.
     /// </summary>
-    public class Nil : Iterator<A>
+    public sealed class Nil : Iterator<A>
     {
         public static readonly Iterator<A> Default = new Nil();
         
@@ -93,7 +93,7 @@ public abstract class Iterator<A> :
         }
     }
     
-    class ConsValue : Cons
+    sealed class ConsValue : Cons
     {
         IEnumerator<A>? enumerator;
         int tailAcquired;
@@ -160,7 +160,7 @@ public abstract class Iterator<A> :
             false;
     }
     
-    internal class ConsFirst : Cons
+    internal sealed class ConsFirst : Cons
     {
         IEnumerator<A>? enumerator;
         int firstAcquired;

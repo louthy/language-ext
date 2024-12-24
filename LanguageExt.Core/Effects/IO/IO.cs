@@ -637,30 +637,9 @@ public abstract record IO<A> :
     /// <param name="predicate">Keep repeating until this predicate returns `true` for each computed value</param>
     /// <returns>The result of the last invocation</returns>
     public IO<A> RepeatUntil(Func<A, bool> predicate) =>
-        LiftAsync(async env =>
-                  {
-                      if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-                      var lenv = env.LocalResources;
-                      try
-                      {
-                          while (!env.Token.IsCancellationRequested)
-                          {
-                              var result = await RunAsync(lenv);
-
-                              // free any resources acquired during a repeat
-                              await lenv.Resources.ReleaseAll().RunAsync(env);
-
-                              if (predicate(result)) return result;
-                          }
-
-                          throw new TaskCanceledException();
-                      }
-                      finally
-                      {
-                          // free any resources acquired during a repeat
-                          await lenv.Resources.ReleaseAll().RunAsync(env);
-                      }
-                  });
+        Bracket().Bind(v => predicate(v) 
+                                ? IO.pure(v) 
+                                : RepeatUntil(predicate));
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns true, or an error occurs
@@ -674,40 +653,24 @@ public abstract record IO<A> :
     /// <returns>The result of the last invocation</returns>
     public IO<A> RepeatUntil(
         Schedule schedule,
-        Func<A, bool> predicate) =>
-        LiftAsync(async env =>
-                  {
-                      if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-                      var token = env.Token;
-                      var lenv  = env.LocalResources;
-                      try
-                      {
-                          var result = await RunAsync(lenv);
+        Func<A, bool> predicate)
+    {
+        return go(schedule.PrependZero.Run().GetIterator(), default);
 
-                          // free any resources acquired during a repeat
-                          await lenv.Resources.ReleaseAll().RunAsync(env);
+        IO<A> go(Iterator<Duration> iter, A? value) =>
+            iter switch
+            {
+                Iterator<Duration>.Nil =>
+                    IO.pure<A>(value!),
 
-                          if (predicate(result)) return result;
-
-                          foreach (var delay in schedule.Run())
-                          {
-                              await Task.Delay((TimeSpan)delay, token);
-                              result = await RunAsync(lenv);
-
-                              // free any resources acquired during a repeat
-                              await lenv.Resources.ReleaseAll().RunAsync(env);
-
-                              if (predicate(result)) return result;
-                          }
-
-                          return result;
-                      }
-                      finally
-                      {
-                          // free any resources acquired during a repeat
-                          await lenv.Resources.ReleaseAll().RunAsync(env);
-                      }
-                  });      
+                Iterator<Duration>.Cons(var head, var tail) =>
+                    IO.yieldFor(head)
+                      .Bind(_ => Bracket()
+                               .Bind(v => predicate(v) 
+                                              ? IO.pure(v) 
+                                              : go(tail, v)))
+            };
+    }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

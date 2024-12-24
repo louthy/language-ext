@@ -4,7 +4,7 @@ using Xunit;
 
 namespace LanguageExt.Tests.IOTests;
 
-public class RetryTests
+public class IO_RetryTests
 {
     [Fact]
     public void Retry_SuccessOnFirstAttempt_ShouldReturnResultImmediately()
