@@ -349,6 +349,9 @@ public abstract record IO<A> :
     public static IO<A> operator |(IO<A> lhs, A rhs) =>
         lhs.Choose(IO.pure(rhs)).As();
 
+    public static IO<A> operator |(IO<A> lhs, Finally<IO> rhs) =>
+        lhs.Finally(rhs.Operation);
+
     /// <summary>
     /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
     /// as the semicolon) in C#.
@@ -447,7 +450,7 @@ public abstract record IO<A> :
 
     public static implicit operator IO<A>(Lift<A> ma) =>
         Lift(ma.Function);
-
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Parallel
