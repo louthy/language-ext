@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Threading;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt;
 
@@ -28,23 +30,27 @@ namespace LanguageExt;
 /// previous `Iterator` values as you walk the sequence. 
 /// </remarks>
 /// <typeparam name="A">Item value type</typeparam>
-public abstract class Iterator<A>
+public abstract class Iterator<A> : 
+    IEquatable<Iterator<A>>
 {
     /// <summary>
     /// Head element
     /// </summary>
+    [Pure]
     public abstract A Head { get; }
 
     /// <summary>
     /// Tail of the sequence
     /// </summary>
+    [Pure]
     public abstract Iterator<A> Tail { get; }
     
     /// <summary>
     /// Return true if there are no elements in the sequence.
     /// </summary>
+    [Pure]
     public abstract bool IsEmpty  { get; }
-
+    
     /// <summary>
     /// Nil iterator case
     ///
@@ -89,7 +95,7 @@ public abstract class Iterator<A>
     
     class ConsValue : Cons
     {
-        readonly IEnumerator<A> enumerator;
+        IEnumerator<A>? enumerator;
         int tailAcquired;
         Iterator<A>? tailValue;
 
@@ -124,7 +130,7 @@ public abstract class Iterator<A>
                 {
                     if (Interlocked.CompareExchange(ref tailAcquired, 1, 0) == 0)
                     {
-                        if (enumerator.MoveNext())
+                        if (enumerator!.MoveNext())
                         {
                             tailValue = new ConsValue(enumerator.Current, enumerator);
                         }
@@ -134,6 +140,7 @@ public abstract class Iterator<A>
                             tailValue = Nil.Default;
                         }
 
+                        enumerator = null;
                         tailAcquired = 2;
                     }
                     else
@@ -155,7 +162,7 @@ public abstract class Iterator<A>
     
     internal class ConsFirst : Cons
     {
-        readonly IEnumerator<A> enumerator;
+        IEnumerator<A>? enumerator;
         int firstAcquired;
         Iterator<A>? firstValue;
 
@@ -168,7 +175,7 @@ public abstract class Iterator<A>
         public override Iterator<A> Tail => 
             First.Tail;
 
-        public void Deconstruct(out A head, out Iterator<A> tail)
+        public new void Deconstruct(out A head, out Iterator<A> tail)
         {
             head = Head;
             tail = Tail;
@@ -184,7 +191,7 @@ public abstract class Iterator<A>
                 {
                     if (Interlocked.CompareExchange(ref firstAcquired, 1, 0) == 0)
                     {
-                        if (enumerator.MoveNext())
+                        if (enumerator!.MoveNext())
                         {
                             firstValue = new ConsValue(enumerator.Current, enumerator);
                         }
@@ -193,6 +200,7 @@ public abstract class Iterator<A>
                             enumerator.Dispose();
                             firstValue = Nil.Default;
                         }
+                        enumerator = null;
                         firstAcquired = 2;
                     }
                     else
@@ -210,4 +218,72 @@ public abstract class Iterator<A>
         public override bool IsEmpty =>
             First.IsEmpty;
     }
+
+    /// <summary>
+    /// Equality test
+    /// </summary>
+    /// <param name="obj">Other iterator to compare against</param>
+    /// <returns>True if equal</returns>
+    [Pure]
+    public override bool Equals(object? obj) =>
+        obj is Iterator<A> other && Equals(other);
+
+    /// <summary>
+    /// Equality test
+    /// </summary>
+    /// <param name="other">Other iterator to compare against</param>
+    /// <returns>True if equal</returns>
+    [Pure]
+    public bool Equals(Iterator<A>? rhs)
+    {
+        if (rhs is null) return false;
+        var iterA = this;
+        var iterB = this;
+        while (true)
+        {
+            if(iterA.IsEmpty && iterB.IsEmpty) return true; 
+            if(iterA.IsEmpty || iterB.IsEmpty) return false;
+            if(!EqDefault<A>.Equals(iterA.Head, iterB.Head)) return false;
+            iterA = iterA.Tail;
+            iterB = iterB.Tail;
+        }
+    }
+
+    [Pure]
+    public override int GetHashCode()
+    {
+        if(IsEmpty) return 0;
+        var iter = this;
+        var hash = OffsetBasis;
+        while(!iter.IsEmpty)
+        {
+            var itemHash = iter.Head?.GetHashCode() ?? 0;
+            unchecked
+            {
+                hash = (hash ^ itemHash) * Prime;
+            }
+            iter = iter.Tail;
+        }
+        return hash;
+    }
+
+    [Pure]
+    public override string ToString() =>
+        CollectionFormat.ToShortArrayString(this.AsEnumerable());
+    /// <summary>
+    /// Format the collection as `a, b, c, ...`
+    /// </summary>
+    [Pure]
+    public string ToFullString(string separator = ", ") =>
+        CollectionFormat.ToFullString(this.AsEnumerable(), separator);
+
+    /// <summary>
+    /// Format the collection as `[a, b, c, ...]`
+    /// </summary>
+    [Pure]
+    public string ToFullArrayString(string separator = ", ") =>
+        CollectionFormat.ToFullArrayString(this.AsEnumerable(), separator);
+
+    const int OffsetBasis = -2128831035;
+    const int Prime = 16777619;
 }

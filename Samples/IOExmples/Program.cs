@@ -6,9 +6,24 @@ namespace IOExamples;
 
 class Program
 {
-    static void Main(string[] args) => 
+    static void Main(string[] args) =>
         infiniteLoop(0).Run();
 
+    static void infiniteIterator()
+    {
+        // NOTE: This should be run in Release mode, otherwise you might get a space leak
+        
+        var iter = Naturals.GetIterator();
+        while (!iter.IsEmpty)
+        {
+            if (iter.Head % 10000 == 0)
+            {
+                Console.WriteLine(iter.Head);
+            }
+            iter = iter.Tail;
+        }
+    }
+    
     static IO<Unit> infiniteLoop(int value) =>
         from _ in value % 10000 == 0
                     ? writeLine($"{value}")
