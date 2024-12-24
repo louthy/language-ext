@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -408,6 +409,20 @@ public abstract record IO<A> :
         WithEnv(env => env.LocalResources);
 
     /// <summary>
+    /// The IO monad tracks resources automatically, this creates a local resource environment
+    /// to run this computation in.  If the computation errors then the resources are automatically
+    /// released.  
+    /// </summary>
+    /// <remarks>
+    /// This differs from `Bracket` in that `Bracket` will also free resources once the computation
+    /// is successfully complete.  `BracketFail` only frees resources on failure.
+    /// </remarks>
+    [Pure]
+    [MethodImpl(Opt.Default)]
+    public IO<A> BracketFail() =>
+        WithEnvFail(env => env.LocalResources);
+
+    /// <summary>
     /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
     /// the acquisition and releasing, taking a function of the acquired value that specifies an action to be performed
     /// in between.
@@ -466,12 +481,21 @@ public abstract record IO<A> :
 
     /// <summary>
     /// Map the `EnvIO` value that is threaded through computation and run this `IO` operation in the newly
-    /// mapped environment.    
+    /// mapped environment.       
     /// </summary>
-    /// <param name="f"></param>
-    /// <returns></returns>
     IO<A> WithEnv(Func<EnvIO, EnvIO> f) =>
         new IOLocal<A, A>(f, this, IO.pure);
+
+    /// <summary>
+    /// Map the `EnvIO` value that is threaded through computation and run this `IO` operation in the newly
+    /// mapped environment.    
+    /// </summary>
+    /// <remarks>
+    /// Note, this only resets the environment upon error.  Successful operations will propagate the mapped
+    /// environment.
+    /// </remarks>
+    IO<A> WithEnvFail(Func<EnvIO, EnvIO> f) =>
+        new IOLocalOnFailOnly<A, A>(f, this, IO.pure);
 
     /// <summary>
     /// Create a local cancellation environment
@@ -731,7 +755,7 @@ public abstract record IO<A> :
     /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
     public IO<A> RetryWhile(Func<Error, bool> predicate) => 
-        RetryUntil(Prelude.not(predicate));
+        RetryUntil(not(predicate));
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -763,33 +787,10 @@ public abstract record IO<A> :
     /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
     public IO<A> RetryUntil(Func<Error, bool> predicate) =>
-        LiftAsync(async env =>
-                  {
-                      if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-                      var lenv = env.LocalResources;
-
-                      while (!env.Token.IsCancellationRequested)
-                      {
-                          try
-                          {
-                              var r = await RunAsync(lenv);
-
-                              // Any resources that were acquired should be propagated through to the `env`
-                              env.Resources.Merge(lenv.Resources);
-
-                              return r;
-                          }
-                          catch (Exception e)
-                          {
-                              // Any resources created whilst trying should be removed for the retry
-                              await lenv.Resources.ReleaseAll().RunAsync(env);
-
-                              if (predicate(Error.New(e))) throw;
-                          }
-                      }
-
-                      throw new TaskCanceledException();
-                  });
+        BracketFail()
+           .Catch(e => predicate(e)
+                           ? IO.fail<A>(e)
+                           : RetryUntil(predicate)).As();
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -803,55 +804,24 @@ public abstract record IO<A> :
     /// So, successive retries will not grow the acquired resources on each retry iteration.  Any successful operation that
     /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
-    public IO<A> RetryUntil(Schedule schedule, Func<Error, bool> predicate) =>
-        LiftAsync(async env =>
-                  {
-                      if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
-                      var        token = env.Token;
-                      Exception? lastError;
-                      var        lenv = env.LocalResources;
-                      try
-                      {
-                          var r = await RunAsync(lenv);
+    public IO<A> RetryUntil(Schedule schedule, Func<Error, bool> predicate)
+    {
+        return go(schedule.PrependZero.Run().GetIterator(), Errors.None);
 
-                          // Any resources that were acquired should be propagated through to the `env`
-                          env.Resources.Merge(lenv.Resources);
+        IO<A> go(Iterator<Duration> iter, Error error) =>
+            iter switch
+            {
+                Iterator<Duration>.Nil =>
+                    IO.fail<A>(error),
 
-                          return r;
-                      }
-                      catch (Exception e)
-                      {
-                          // Any resources created whilst trying should be removed for the retry
-                          await lenv.Resources.ReleaseAll().RunAsync(env);
-
-                          if (predicate(Error.New(e))) throw;
-                          lastError = e;
-                      }
-
-                      foreach (var delay in schedule.Run())
-                      {
-                          await Task.Delay((TimeSpan)delay, token);
-                          try
-                          {
-                              var r = await RunAsync(lenv);
-
-                              // Any resources that were acquired should be propagated through to the `env`
-                              env.Resources.Merge(lenv.Resources);
-
-                              return r;
-                          }
-                          catch (Exception e)
-                          {
-                              // Any resources created whilst trying should be removed for the retry
-                              await lenv.Resources.ReleaseAll().RunAsync(env);
-
-                              if (predicate(Error.New(e))) throw;
-                              lastError = e;
-                          }
-                      }
-
-                      return lastError.Rethrow<A>();
-                  });        
+                Iterator<Duration>.Cons(var head, var tail) =>
+                    IO.yieldFor(head)
+                      .Bind(_ => BracketFail()
+                                   .Catch(e => predicate(e)
+                                                   ? IO.fail<A>(e)
+                                                   : go(tail, e)))
+            };
+    }
 
     /// <summary>
     /// Catches any error thrown by invoking this IO computation, passes it through a predicate,

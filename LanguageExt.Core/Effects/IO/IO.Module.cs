@@ -197,7 +197,9 @@ public partial class IO
     [Pure]
     [MethodImpl(Opt.Default)]
     public static IO<Unit> yieldFor(Duration duration) =>
-        IO<Unit>.LiftAsync(env => yieldFor(duration, env.Token));
+        Math.Abs(duration.Milliseconds) < 0.00000001
+            ? unitIO
+            : IO<Unit>.LiftAsync(env => yieldFor(duration, env.Token));
 
     /// <summary>
     /// Yield the thread for the specified duration or until cancelled.
@@ -207,7 +209,9 @@ public partial class IO
     [Pure]
     [MethodImpl(Opt.Default)]
     public static IO<Unit> yieldFor(TimeSpan timeSpan) =>
-        IO<Unit>.LiftAsync(env => yieldFor(timeSpan, env.Token));
+        Math.Abs(timeSpan.TotalMilliseconds) < 0.00000001
+            ? unitIO
+            : IO<Unit>.LiftAsync(env => yieldFor(timeSpan, env.Token));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

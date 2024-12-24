@@ -142,6 +142,15 @@ public abstract partial record Schedule : Semigroup<Schedule>
         new SchCons(value, this);
 
     /// <summary>
+    /// Prepend a zero duration in-front of the rest of the scheduled durations
+    /// </summary>
+    /// <param name="value">Duration to prepend</param>
+    /// <returns>Schedule with the duration prepended</returns>
+    [Pure]
+    public Schedule PrependZero =>
+        Prepend(Duration.Zero);
+
+    /// <summary>
     /// Functor map operation for Schedule
     /// </summary>
     /// <param name="f">Mapping function</param>
