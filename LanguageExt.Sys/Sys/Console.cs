@@ -50,8 +50,8 @@ public static class Console<M, RT>
     public static K<M, int> read =>
         from t in consoleIO
         from k in t.Read()
-        from r in k.Match(Some: IO<int>.Pure,
-                          None: Errors.EndOfStream)
+        from r in k.Match(Some: M.Pure,
+                          None: M.Fail<int>(Errors.EndOfStream))
         select r;                                         
 
     /// <summary>
@@ -68,8 +68,8 @@ public static class Console<M, RT>
     public static K<M, string> readLine =>
         from t in consoleIO
         from k in t.ReadLine()
-        from r in k.Match(Some: IO<string>.Pure,
-                          None: Errors.EndOfStream)
+        from r in k.Match(Some: M.Pure,
+                          None: M.Fail<string>(Errors.EndOfStream))
         select r;                                         
 
     /// <summary>

@@ -46,7 +46,7 @@ public static partial class Prelude
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, (RT Runtime, EnvIO EnvIO)> getState<RT>() =>
         new(LanguageExt.Eff<RT>.getState);
-    
+
     /// <summary>
     /// Create a new cancellation context and run the provided Aff in that context
     /// </summary>
@@ -55,14 +55,7 @@ public static partial class Prelude
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>An asynchronous effect that captures the operation running in context</returns>
     public static Eff<RT, A> localCancel<RT, A>(Eff<RT, A> ma) =>
-        from s in getState<RT>()
-        from r in liftEff<RT, A>(
-            rt =>
-            {
-                using var lenvIO = s.EnvIO.LocalCancel;
-                return ma.Run(rt, lenvIO);
-            })
-        select r;
+        ma.LocalIO().As();
 
     /// <summary>
     /// Create a new local context for the environment by mapping the outer environment and then
