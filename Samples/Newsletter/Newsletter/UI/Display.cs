@@ -6,7 +6,8 @@ public static class Display<M, RT>
     where RT : 
         Has<M, ConsoleIO>
     where M :
-        Monad<M>
+        Monad<M>,
+        Fallible<M>
 {
     public static K<M, Unit> emptyLine =>
         Console<M, RT>.writeEmptyLine;

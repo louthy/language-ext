@@ -1,9 +1,8 @@
 using System.Collections.Generic;
-using System.Threading;
 
 namespace LanguageExt;
 
-public static class Iterator
+public partial class Iterator
 {
     /// <summary>
     /// Create an iterator from an `IEnumerable`
@@ -13,4 +12,22 @@ public static class Iterator
     /// <returns></returns>
     public static Iterator<A> from<A>(IEnumerable<A> enumerable) =>
         new Iterator<A>.ConsFirst(enumerable.GetEnumerator());
+
+    /// <summary>
+    /// Construct a sequence from a head item and a tail sequence
+    /// </summary>
+    /// <param name="head">Head item</param>
+    /// <param name="tail">Tail sequences</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Iterator</returns>
+    public static Iterator<A> Cons<A>(A head, Iterator<A> tail) =>
+        new Iterator<A>.ConsValue(head, tail);
+
+    /// <summary>
+    /// Empty sequence
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Iterator</returns>
+    public static Iterator<A> Nil<A>() =>
+        Iterator<A>.Nil.Default;
 }

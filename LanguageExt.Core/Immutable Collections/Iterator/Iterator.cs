@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Threading;
 using LanguageExt.ClassInstances;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -31,8 +32,14 @@ namespace LanguageExt;
 /// </remarks>
 /// <typeparam name="A">Item value type</typeparam>
 public abstract class Iterator<A> : 
-    IEquatable<Iterator<A>>
+    IEquatable<Iterator<A>>,
+    K<Iterator, A>
 {
+    /// <summary>
+    /// Empty iterator
+    /// </summary>
+    public static readonly Iterator<A> Empty = new Nil();
+    
     /// <summary>
     /// Head element
     /// </summary>
@@ -93,19 +100,44 @@ public abstract class Iterator<A> :
         }
     }
     
-    sealed class ConsValue : Cons
+    internal sealed class ConsValue(A Head, Iterator<A> Tail) : Cons
+    {
+        public new void Deconstruct(out A head, out Iterator<A> tail)
+        {
+            head = Head;
+            tail = Tail;
+        }
+
+        /// <summary>
+        /// Head element
+        /// </summary>
+        public override A Head { get; } = Head;
+
+        /// <summary>
+        /// Tail of the sequence
+        /// </summary>
+        public override Iterator<A> Tail { get; } = Tail;
+
+        /// <summary>
+        /// Return true if there are no elements in the sequence.
+        /// </summary>
+        public override bool IsEmpty =>
+            false;
+    }
+
+    internal sealed class ConsValueEnum : Cons
     {
         IEnumerator<A>? enumerator;
         int tailAcquired;
         Iterator<A>? tailValue;
 
-        internal ConsValue(A head, IEnumerator<A> enumerator)
+        internal ConsValueEnum(A head, IEnumerator<A> enumerator)
         {
             Head = head;
             this.enumerator = enumerator;
         }
 
-        public void Deconstruct(out A head, out Iterator<A> tail)
+        public new void Deconstruct(out A head, out Iterator<A> tail)
         {
             head = Head;
             tail = Tail;
@@ -132,7 +164,7 @@ public abstract class Iterator<A> :
                     {
                         if (enumerator!.MoveNext())
                         {
-                            tailValue = new ConsValue(enumerator.Current, enumerator);
+                            tailValue = new ConsValueEnum(enumerator.Current, enumerator);
                         }
                         else
                         {
@@ -193,7 +225,7 @@ public abstract class Iterator<A> :
                     {
                         if (enumerator!.MoveNext())
                         {
-                            firstValue = new ConsValue(enumerator.Current, enumerator);
+                            firstValue = new ConsValueEnum(enumerator.Current, enumerator);
                         }
                         else
                         {
