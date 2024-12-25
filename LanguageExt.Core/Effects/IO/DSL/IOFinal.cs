@@ -33,6 +33,9 @@ record IOFinal<X, A, B>(K<IO, A> Fa, K<IO, X> Final, Func<A, K<IO, B>> Next) : I
             if(finalShouldRun) Final.As().Run(envIO);
         }
     }
+    
+    public override string ToString() => 
+        "IO final";
 }
 
 record IOFinalAsync<X, A, B>(ValueTask<A> Fa, K<IO, X> Final, Func<A, K<IO, B>> Next) : InvokeAsyncIO<B>
@@ -56,4 +59,7 @@ record IOFinalAsync<X, A, B>(ValueTask<A> Fa, K<IO, X> Final, Func<A, K<IO, B>> 
             await Final.RunAsync(envIO);
         }
     }
+    
+    public override string ToString() => 
+        "IO final async";
 }

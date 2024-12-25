@@ -9,4 +9,7 @@ namespace LanguageExt.DSL;
 public abstract record InvokeAsync<A> : IO<A>
 {
     public abstract ValueTask<A> Invoke(EnvIO envIO);
+    
+    public override string ToString() => 
+        "IO invoke async";
 }

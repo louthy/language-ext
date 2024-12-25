@@ -10,4 +10,7 @@ record IOCatchPop<A>(IO<A> Next) : IO<A>
 
     public override IO<B> Bind<B>(Func<A, K<IO, B>> f) =>
         new IOCatchPop<B>(Next.Bind(f));
+    
+    public override string ToString() => 
+        "IO catch pop";
 }

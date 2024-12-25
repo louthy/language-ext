@@ -23,6 +23,9 @@ public abstract record IOCatch<A> : IO<A>
     /// </summary>
     /// <returns>Function to handle exceptions that returns an `IO`</returns>
     public abstract Func<Exception, IO<A>> MakeHandler();
+    
+    public override string ToString() => 
+        "IO catch";
 }
 
 record IOCatch<X, A>(
@@ -49,4 +52,7 @@ record IOCatch<X, A>(
 
     public override IO<A> MakeOperation() =>
         Operation.Bind(x => new IOCatchPop<X>(IO.pure(x))).Bind(Next).As();
+    
+    public override string ToString() => 
+        "IO catch";
 }

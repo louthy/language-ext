@@ -12,11 +12,12 @@ namespace LanguageExt.Sys;
 /// </summary>
 public static class Console<M, RT>
     where M : 
-        Monad<M>
+        Monad<M>, 
+        Fallible<Error, M>
     where RT : 
         Has<M, ConsoleIO>
 {
-    static readonly K<M, ConsoleIO> consoleIO =
+    static K<M, ConsoleIO> consoleIO =>
         Has<M, RT, ConsoleIO>.ask;
 
     /// <summary>
@@ -25,8 +26,8 @@ public static class Console<M, RT>
     public static K<M, ConsoleKeyInfo> readKey =>
         from t in consoleIO
         from k in t.ReadKey()
-        from r in k.Match(Some: IO<ConsoleKeyInfo>.Pure,
-                          None: Error.New("end of stream"))
+        from r in k.Match(Some: M.Pure,
+                          None: M.Fail<ConsoleKeyInfo>(Errors.EndOfStream))
         select r;                                         
 
     /// <summary>

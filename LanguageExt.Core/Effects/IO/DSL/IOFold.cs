@@ -37,6 +37,9 @@ record IOFold<S, A, B>(
                 Schedule.Run().GetEnumerator(), InitialState, Folder, Next);
         }
     }
+    
+    public override string ToString() => 
+        "IO fold";
 }
 
 record IOFoldingInitialAsync<S, A, B>(
@@ -71,6 +74,9 @@ record IOFoldingInitialAsync<S, A, B>(
             return Next(State).As();
         }
     }
+    
+    public override string ToString() => 
+        "IO folding initial async";
 }
 
 record IOFoldingAsync<S, A, B>(
@@ -101,6 +107,9 @@ record IOFoldingAsync<S, A, B>(
             return Next(State).As();
         }
     }
+    
+    public override string ToString() => 
+        "IO folding async";
 }
 
 record IOFoldingSync<S, A, B>(
@@ -131,4 +140,7 @@ record IOFoldingSync<S, A, B>(
             return Next(State).As();
         }
     }
+    
+    public override string ToString() => 
+        "IO folding sync";
 }

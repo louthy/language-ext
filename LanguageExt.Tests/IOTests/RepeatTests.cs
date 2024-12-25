@@ -1,7 +1,5 @@
 namespace LanguageExt.Tests.IOTests;
 
-using System;
-using System.Threading.Tasks;
 using Xunit;
 using LanguageExt;
 

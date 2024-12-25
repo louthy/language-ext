@@ -25,6 +25,9 @@ record IOUse<X, A>(IO<X> Acquire, Func<X, IO<Unit>> Release, Func<X, IO<A>> Next
             return new IOAcquireAsync<X, A>(task, Release, Next);
         }
     }
+    
+    public override string ToString() => 
+        "IO use";
 }
 
 record IOUseDisposable<X, A>(IO<X> Acquire, Func<X, IO<A>> Next) : InvokeSyncIO<A>
@@ -49,6 +52,9 @@ record IOUseDisposable<X, A>(IO<X> Acquire, Func<X, IO<A>> Next) : InvokeSyncIO<
             return new IOAcquireDisposableAsync<X, A>(task, Next);
         }
     }
+    
+    public override string ToString() => 
+        "IO use disposable";
 }
 
 record IOUseAsyncDisposable<X, A>(IO<X> Acquire, Func<X, IO<A>> Next) : InvokeSyncIO<A>
@@ -73,6 +79,9 @@ record IOUseAsyncDisposable<X, A>(IO<X> Acquire, Func<X, IO<A>> Next) : InvokeSy
             return new IOAcquireAsyncDisposableAsync<X, A>(task, Next);
         }
     }
+    
+    public override string ToString() => 
+        "IO pure async disposable";
 }
 
 record IOAcquireAsync<X, A>(ValueTask<X> Value, Func<X, IO<Unit>> Release, Func<X, IO<A>> Next) : InvokeAsyncIO<A>
@@ -89,6 +98,9 @@ record IOAcquireAsync<X, A>(ValueTask<X> Value, Func<X, IO<Unit>> Release, Func<
         envIO.Resources.Acquire(value, Release);
         return Next(value);
     }
+    
+    public override string ToString() => 
+        "IO acquire async";
 }
 
 record IOAcquireDisposableAsync<X, A>(ValueTask<X> Value, Func<X, IO<A>> Next) : InvokeAsyncIO<A>
@@ -106,6 +118,9 @@ record IOAcquireDisposableAsync<X, A>(ValueTask<X> Value, Func<X, IO<A>> Next) :
         envIO.Resources.Acquire(value);
         return Next(value);
     }
+    
+    public override string ToString() => 
+        "IO acquire disposable async";
 }
 
 record IOAcquireAsyncDisposableAsync<X, A>(ValueTask<X> Value, Func<X, IO<A>> Next) : InvokeAsyncIO<A>
@@ -123,4 +138,7 @@ record IOAcquireAsyncDisposableAsync<X, A>(ValueTask<X> Value, Func<X, IO<A>> Ne
         envIO.Resources.AcquireAsync(value);
         return Next(value);
     }
+    
+    public override string ToString() => 
+        "IO acquire async disposable async";
 }

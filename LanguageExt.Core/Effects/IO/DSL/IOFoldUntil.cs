@@ -40,6 +40,9 @@ record IOFoldUntil<S, A, B>(
                 Schedule.Run().GetEnumerator(), InitialState, Folder, Predicate, Next);
         }
     }
+    
+    public override string ToString() => 
+        "IO fold until";
 }
 
 record IOFoldingUntilInitialAsync<S, A, B>(
@@ -81,6 +84,9 @@ record IOFoldingUntilInitialAsync<S, A, B>(
             return Next(State).As();
         }
     }
+    
+    public override string ToString() => 
+        "IO fold until initial async";
 }
 
 record IOFoldingUntilAsync<S, A, B>(
@@ -114,6 +120,9 @@ record IOFoldingUntilAsync<S, A, B>(
             return Next(State).As();
         }
     }
+    
+    public override string ToString() => 
+        "IO fold until async";
 }
 
 record IOFoldingUntilSync<S, A, B>(
@@ -147,4 +156,7 @@ record IOFoldingUntilSync<S, A, B>(
             return Next(State).As();
         }
     }
+    
+    public override string ToString() => 
+        "IO fold until sync";
 }

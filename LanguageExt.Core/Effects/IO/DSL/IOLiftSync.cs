@@ -13,4 +13,7 @@ record IOLiftSync<A, B>(Func<EnvIO, A> F, Func<A, K<IO, B>> Next) : InvokeSyncIO
 
     public override IO<B> Invoke(EnvIO envIO) =>
         Next(F(envIO)).As();
+    
+    public override string ToString() => 
+        "IO lift sync";
 }

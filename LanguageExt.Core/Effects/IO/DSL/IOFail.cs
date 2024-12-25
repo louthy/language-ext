@@ -14,4 +14,7 @@ record IOFail<A>(Error Value) : InvokeSync<A>
 
     public override A Invoke(EnvIO envIO) => 
         Value.Throw<A>();
+    
+    public override string ToString() => 
+        $"fail({Value})";
 }

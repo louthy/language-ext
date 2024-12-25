@@ -14,4 +14,7 @@ record IOPureAsync<A>(Task<A> Value) : InvokeAsync<A>
 
     public override async ValueTask<A> Invoke(EnvIO envIO) => 
         await Value;
+    
+    public override string ToString() => 
+        "IO pure async";
 }

@@ -26,6 +26,9 @@ record IOApply<A, B, C>(K<IO, Func<A, B>> Ff, K<IO, A> Fa, Func<B, K<IO, C>> Nex
                 return new IOApplyFunctionAsync<A, B, C>(tf, ta, Next);
         }        
     }
+    
+    public override string ToString() => 
+        "IO apply";
 }
 
 record IOApplyFunctionAsync<A, B, C>(ValueTask<Func<A, B>> Ff, ValueTask<A> Fa, Func<B, K<IO, C>> Next) : InvokeAsyncIO<C>
@@ -56,4 +59,7 @@ record IOApplyFunctionAsync<A, B, C>(ValueTask<Func<A, B>> Ff, ValueTask<A> Fa, 
                 return Next(Ff.Result(Fa.Result)).As();
         }
     }
+    
+    public override string ToString() => 
+        "IO apply";
 }

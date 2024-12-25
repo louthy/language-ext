@@ -13,4 +13,7 @@ record IOPure<A>(A Value) : InvokeSync<A>
 
     public override A Invoke(EnvIO envIO) => 
         Value;
+    
+    public override string ToString() => 
+        $"pure({Value})";
 }

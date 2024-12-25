@@ -13,6 +13,9 @@ record IOBindMap<A, B, C>(A Value, Func<A, K<IO, B>> Ff, Func<B, C> Fg) : Invoke
 
     public override IO<C> Invoke(EnvIO envIO) =>
         Ff(Value).As().Map(Fg);
+    
+    public override string ToString() => 
+        "IO bind map";
 }
 
 record IOBindBind<A, B, C>(A Value, Func<A, K<IO, B>> Ff, Func<B, K<IO, C>> Fg) : InvokeSyncIO<C>
@@ -25,6 +28,9 @@ record IOBindBind<A, B, C>(A Value, Func<A, K<IO, B>> Ff, Func<B, K<IO, C>> Fg) 
 
     public override IO<C> Invoke(EnvIO envIO) =>
         Ff(Value).As().Bind(Fg);
+    
+    public override string ToString() => 
+        "IO bind bind";
 }
 
 record IOBindBindMap<A, B, C, D>(A Value, Func<A, K<IO, B>> Ff, Func<B, K<IO, C>> Fg, Func<C, D> Fh) : InvokeSyncIO<D>
@@ -37,6 +43,9 @@ record IOBindBindMap<A, B, C, D>(A Value, Func<A, K<IO, B>> Ff, Func<B, K<IO, C>
 
     public override IO<D> Invoke(EnvIO envIO) =>
         Ff(Value).As().Bind(Fg).Map(Fh);
+    
+    public override string ToString() => 
+        "IO bind bind map";
 }
 
 record IOBindBindMapBind<A, B, C, D, E>(A Value, Func<A, K<IO, B>> Ff, Func<B, K<IO, C>> Fg, Func<C, D> Fh, Func<D, K<IO, E>> Fi) : InvokeSyncIO<E>
@@ -49,6 +58,9 @@ record IOBindBindMapBind<A, B, C, D, E>(A Value, Func<A, K<IO, B>> Ff, Func<B, K
 
     public override IO<E> Invoke(EnvIO envIO) =>
         Ff(Value).As().Bind(Fg).Map(Fh).Bind(Fi);
+    
+    public override string ToString() => 
+        "IO bind map bind";
 }
 
 record IOBindMap<A, B, C, D>(A Value, Func<A, K<IO, B>> Ff, Func<B, C> Fg, Func<C, D> Fh) : InvokeSyncIO<D>
@@ -61,6 +73,9 @@ record IOBindMap<A, B, C, D>(A Value, Func<A, K<IO, B>> Ff, Func<B, C> Fg, Func<
 
     public override IO<D> Invoke(EnvIO envIO) =>
         Ff(Value).As().Map(Fg).Map(Fh);
+    
+    public override string ToString() => 
+        "IO bind map";
 }
 
 record IOBindMap2<A, B, C, D>(A Value, Func<A, K<IO, B>> Ff, Func<B, C> Fg, Func<C, K<IO, D>> Fh) : InvokeSyncIO<D>
@@ -73,4 +88,7 @@ record IOBindMap2<A, B, C, D>(A Value, Func<A, K<IO, B>> Ff, Func<B, C> Fg, Func
 
     public override IO<D> Invoke(EnvIO envIO) =>
         Ff(Value).As().Map(Fg).Bind(Fh);
+    
+    public override string ToString() => 
+        "IO bind map";
 }

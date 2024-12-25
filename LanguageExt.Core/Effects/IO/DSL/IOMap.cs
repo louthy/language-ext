@@ -19,6 +19,9 @@ record IOMap<A, B, C>(Func<A, B> Ff, IO<A> Fa, Func<B, K<IO, C>> Next) : InvokeS
                    ? Next(Ff(task.Result)).As()
                    : new IOPureMapAsync<A, B, C>(Ff, task.AsTask(), Next);
     }
+    
+    public override string ToString() => 
+        "IO map";
 }
 
 record IOPureMap<A, B, C>(Func<A, B> Ff, A Fa, Func<B, K<IO, C>> Next) : InvokeSyncIO<C>
@@ -31,6 +34,9 @@ record IOPureMap<A, B, C>(Func<A, B> Ff, A Fa, Func<B, K<IO, C>> Next) : InvokeS
 
     public override IO<C> Invoke(EnvIO envIO) =>
         Next(Ff(Fa)).As();
+    
+    public override string ToString() => 
+        "IO pure map";
 }
 
 record IOPureMapAsync<A, B, C>(Func<A, B> Ff, Task<A> Fa, Func<B, K<IO, C>> Next) : InvokeAsyncIO<C>
@@ -43,4 +49,7 @@ record IOPureMapAsync<A, B, C>(Func<A, B> Ff, Task<A> Fa, Func<B, K<IO, C>> Next
 
     public override async ValueTask<IO<C>> Invoke(EnvIO envIO) =>
         Next(Ff(await Fa)).As();
+    
+    public override string ToString() => 
+        "IO pure map async";
 }

@@ -6,6 +6,9 @@ namespace LanguageExt.DSL;
 abstract record IOLocal<A>(Func<EnvIO, EnvIO> MapEnvIO) : IO<A>
 {
     public abstract IO<A> MakeOperation();
+    
+    public override string ToString() => 
+        "IO local";
 }
 
 record IOLocal<X, A>(Func<EnvIO, EnvIO> MapEnvIO, K<IO, X> Operation, Func<X, K<IO, A>> Next) : IOLocal<A>(MapEnvIO) 
@@ -18,6 +21,9 @@ record IOLocal<X, A>(Func<EnvIO, EnvIO> MapEnvIO, K<IO, X> Operation, Func<X, K<
 
     public override IO<A> MakeOperation() =>
         Operation.As().Bind(x => new IOLocalRestore<A>(Next(x)));
+    
+    public override string ToString() => 
+        "IO local";
 }
 
 record IOLocalOnFailOnly<X, A>(Func<EnvIO, EnvIO> MapEnvIO, K<IO, X> Operation, Func<X, K<IO, A>> Next) : IOLocal<A>(MapEnvIO) 
@@ -30,6 +36,9 @@ record IOLocalOnFailOnly<X, A>(Func<EnvIO, EnvIO> MapEnvIO, K<IO, X> Operation, 
 
     public override IO<A> MakeOperation() =>
         Operation.As().Bind(Next);
+    
+    public override string ToString() => 
+        "IO local on fail only";
 }
 
 record IOLocalRestore<A>(K<IO, A> Next) : IO<A> 
@@ -39,4 +48,7 @@ record IOLocalRestore<A>(K<IO, A> Next) : IO<A>
 
     public override IO<B> Bind<B>(Func<A, K<IO, B>> f) => 
         new IOLocalRestore<B>(Next.Bind(f));
+    
+    public override string ToString() => 
+        "IO local restore";
 } 

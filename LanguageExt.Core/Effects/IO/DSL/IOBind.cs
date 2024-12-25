@@ -13,4 +13,7 @@ record IOBind<A, B>(A Value, Func<A, K<IO, B>> F) : InvokeSyncIO<B>
 
     public override IO<B> Invoke(EnvIO envIO) =>
         F(Value).As();
+    
+    public override string ToString() => 
+        "IO bind";
 }
