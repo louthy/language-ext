@@ -11,7 +11,7 @@ public partial class Iterator
     /// <typeparam name="A"></typeparam>
     /// <returns></returns>
     public static Iterator<A> from<A>(IEnumerable<A> enumerable) =>
-        new Iterator<A>.ConsFirst(enumerable.GetEnumerator());
+        new Iterator<A>.ConsFirst(enumerable);
 
     /// <summary>
     /// Construct a sequence from a head item and a tail sequence

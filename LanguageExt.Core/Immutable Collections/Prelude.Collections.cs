@@ -106,6 +106,18 @@ public static partial class Prelude
     /// <param name="tail">Tail of the sequence</param>
     /// <returns></returns>
     [Pure]
+    public static Iterator<A> Cons<A>(this A head, Iterator<A> tail) =>
+        Iterator.Cons(head, tail);
+
+    /// <summary>
+    /// Construct a list from head and tail; head becomes the first item in 
+    /// the list.  
+    /// </summary>
+    /// <typeparam name="A">Type of the items in the sequence</typeparam>
+    /// <param name="head">Head item in the sequence</param>
+    /// <param name="tail">Tail of the sequence</param>
+    /// <returns></returns>
+    [Pure]
     public static Lst<A> Cons<A>(this A head, Lst<A> tail) =>
         tail.Insert(0, head);
 

@@ -1,31 +1,21 @@
 using System.Collections.Generic;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
 public static class IteratorExtensions
 {
     /// <summary>
+    /// Downcast operator
+    /// </summary>
+    public static Iterator<A> As<A>(this K<Iterator, A> ma) =>
+        (Iterator<A>)ma;
+    
+    /// <summary>
     /// Get an iterator for any `IEnumerable` 
     /// </summary>
     public static Iterator<A> GetIterator<A>(this IEnumerable<A> enumerable) =>
         Iterator.from(enumerable);
 
-    /// <summary>
-    /// Create an `IEnumerable` from an `Iterator`
-    /// </summary>
-    public static IEnumerable<A> AsEnumerable<A>(this Iterator<A> self)
-    {
-        while (!self.IsEmpty)
-        {
-            yield return self.Head;
-            self = self.Tail;
-        }
-    }
-
-    /// <summary>
-    /// Create an `Iterable` from an `Iterator`
-    /// </summary>
-    public static Iterable<A> AsIterable<A>(this Iterator<A> self) =>
-        Iterable.createRange(self.AsEnumerable());
 }
 
