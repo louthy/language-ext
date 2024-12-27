@@ -1,6 +1,7 @@
 `Iterator<A>` is a functional-wrapper for `IEnumerator<A>`.  The abstraction leaks a little, so it's worth 
-understanding how it works by reading the details below.  On the whole it's fine, but there's some footguns that
-can be avoided with care.
+understanding how it works by reading the details below.  On the whole it behaves like an immutable stream 
+that caches values as it goes, but there's some footguns that you should be aware of so that they can be 
+avoided.
 
 ## Problem: `IEnumerator<A>`
 
@@ -11,7 +12,7 @@ of the sequence due to race conditions.
 * Enumerators start before the first item and use a complicated mechanism for accessing and testing the validity of
 the element value.
 
-Nobody in their right mind would invent an interface like that today.
+_Nobody in their right mind would invent an interface like `IEnumerator<A>` today._
 
 ## Solution: `Iterator<A>`
 
@@ -24,9 +25,45 @@ processing to achieve this with an `IEnumerator<A>` reference.
 > `yield break`.  So, we don't get to ignore those types, and instead we need to make them play nice.
 
 `IEnumerable<A>` has a method called `GetEnumerator()` which is used to access an `IEnumerator<A>`.  A new extension
-method is available called `GetIterator()`, this will yield an `Iterator<A>`.  
+method is available called `GetIterator()`, this will yield an `Iterator<A>`.
 
-`Iterator<A>` is `abstract`, so the first type returned will be a `Iterator<A>.ConsFirst`, this type implements 
+You can pattern-match an `Iterator<A>` like a functional 'cons' linked-list type:
+
+```c#
+static A Sum<A>(Iterator<A> iter) where A : INumber =>
+    iter switch
+    {
+        Iterator<A>.Nil                 => A.Zero,
+        Iterator<A>.Cons(var x, var xs) => x + Sum(xs),
+    }
+```
+Or, use `IsEmpty` and `Head`:
+```c#
+static A Sum<A>(Iterator<A> iter) where A : INumber =>
+    iter.IsEmpty
+        ? A.Zero
+        : iter.Head + Sum(iter.Tail);
+```
+Or, use built-in operators:
+```c#
+static A Sum<A>(Iterator<A> iter) where A : INumber =>
+    iter.Fold(A.Zero, (s, x) => s + x);
+```
+Or, take an imperative approach:
+```c#
+static A Sum<A>(Iterator<A> iter) where A : INumber
+{
+    var total = A.Zero;
+    while(!iter.IsEmpty)
+    {
+        total += iter.Head;
+        iter = iter.Tail;
+    }
+    return total;
+}
+```
+
+`Iterator<A>` is `abstract` and the first type returned from `GetIterator()` will be a `Iterator<A>.ConsFirst`, this type implements 
 `Iterator<A>`.  The internal fields that `ConsFirst` contains are these:
 ```c#
 IEnumerable<A> enumerable;
