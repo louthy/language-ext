@@ -405,7 +405,80 @@ public abstract class Iterator<A> :
             if (predicate((state, x))) return state;
         }
         return state;
-    }    
+    }
+
+    /// <summary>
+    /// Interleave two iterator sequences together
+    /// </summary>
+    /// <remarks>
+    /// Whilst there are items in both sequences, each is yielded after the other.  Once one sequence
+    /// runs out of items, the remaining items of the other sequence is yielded alone.
+    /// </remarks>
+    [Pure]
+    public Iterator<A> Merge(Iterator<A> other)
+    {
+        return Go(this, other).GetIterator();        
+        static IEnumerable<A> Go(Iterator<A> ma, Iterator<A> mb)
+        {
+            var a = ma.Clone();
+            var b = mb.Clone();
+
+            while (!a.IsEmpty && !b.IsEmpty)
+            {
+                yield return a.Head;
+                yield return b.Head;
+                a = a.Tail;
+                b = b.Tail;
+            }
+
+            if (a.IsEmpty)
+            {
+                while (!b.IsEmpty)
+                {
+                    yield return b.Head;
+                    b = b.Tail;
+                }
+            }
+            else
+            {
+                while (!a.IsEmpty)
+                {
+                    yield return a.Head;
+                    a = a.Tail;
+                }
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Zips the items of two sequences together
+    /// </summary>
+    /// <remarks>
+    /// The output sequence will be as long as the shortest input sequence.
+    /// </remarks>
+    [Pure]
+    public Iterator<(A First , A Second)> Zip(Iterator<A> other)
+    {
+        return Go(this, other).GetIterator();        
+        static IEnumerable<(A First , A Second)> Go(Iterator<A> ma, Iterator<A> mb)
+        {
+            var a = ma.Clone();
+            var b = mb.Clone();
+
+            while (!a.IsEmpty && !b.IsEmpty)
+            {
+                yield return (a.Head, b.Head);
+                a = a.Tail;
+                b = b.Tail;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Combine two sequences
+    /// </summary>
+    public static Iterator<A> operator +(Iterator<A> ma, Iterator<A> mb) =>
+        ma.Concat(mb);
 
     /// <summary>
     /// Dispose

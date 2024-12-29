@@ -14,6 +14,15 @@ public partial class Iterator
         new Iterator<A>.ConsFirst(enumerable);
 
     /// <summary>
+    /// Construct a singleton sequence 
+    /// </summary>
+    /// <param name="head">Head item</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Iterator</returns>
+    public static Iterator<A> singleton<A>(A head) =>
+        new Iterator<A>.ConsValue(head, Iterator<A>.Nil.Default);
+
+    /// <summary>
     /// Construct a sequence from a head item and a tail sequence
     /// </summary>
     /// <param name="head">Head item</param>
