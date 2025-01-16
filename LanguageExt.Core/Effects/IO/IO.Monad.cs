@@ -21,6 +21,9 @@ public partial class IO :
     static K<IO, A> Applicative<IO>.Actions<A>(IEnumerable<K<IO, A>> fas) => 
         new IOActions<A, A>(fas.GetIterator(), pure);
 
+    static K<IO, A> Applicative<IO>.Actions<A>(IAsyncEnumerable<K<IO, A>> fas) => 
+        new IOAsyncActions<A, A>(fas.GetIteratorAsync(), pure);
+
     static K<IO, B> Monad<IO>.Bind<A, B>(K<IO, A> ma, Func<A, K<IO, B>> f) =>
         ma.As().Bind(f);
 

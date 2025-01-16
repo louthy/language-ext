@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LanguageExt.Async.Linq;
 using LanguageExt.Common;
 using LanguageExt.Effects;
 using LanguageExt.Traits;
@@ -29,6 +30,9 @@ public class Eff :
         new Eff<B>(ma.As().effect.Action(mb.As().effect));
 
     static K<Eff, A> Applicative<Eff>.Actions<A>(IEnumerable<K<Eff, A>> fas) => 
+        new Eff<A>(fas.Select(fa => fa.As().effect).Actions().As()); 
+
+    static K<Eff, A> Applicative<Eff>.Actions<A>(IAsyncEnumerable<K<Eff, A>> fas) => 
         new Eff<A>(fas.Select(fa => fa.As().effect).Actions().As()); 
 
     static K<Eff, A> MonoidK<Eff>.Empty<A>() => 

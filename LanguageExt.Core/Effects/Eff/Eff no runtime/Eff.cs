@@ -5,6 +5,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using LanguageExt.Async.Linq;
 using LanguageExt.Effects;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
@@ -693,6 +694,11 @@ public record Eff<A>(Eff<MinRT, A> effect) :
         new Eff<A, U>(ma.As().effect.Action(mb.As().effect).As());
 
     static K<Eff<A>, T> Applicative<Eff<A>>.Actions<T>(IEnumerable<K<Eff<A>, T>> fas) =>
+        new Eff<A, T>(
+            new ReaderT<A, IO, T>(
+                rt => fas.Select(fa => fa.RunIO(rt)).Actions())); 
+
+    static K<Eff<A>, T> Applicative<Eff<A>>.Actions<T>(IAsyncEnumerable<K<Eff<A>, T>> fas) =>
         new Eff<A, T>(
             new ReaderT<A, IO, T>(
                 rt => fas.Select(fa => fa.RunIO(rt)).Actions())); 
