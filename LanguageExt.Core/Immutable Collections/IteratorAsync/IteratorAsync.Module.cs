@@ -3,25 +3,25 @@ using System.Collections.Generic;
 
 namespace LanguageExt;
 
-public partial class Iterator
+public partial class IteratorAsync
 {
     /// <summary>
-    /// Create an iterator from an `IEnumerable`
+    /// Create an iterator from an `IAsyncEnumerable`
     /// </summary>
     /// <param name="enumerable"></param>
     /// <typeparam name="A"></typeparam>
     /// <returns></returns>
-    public static Iterator<A> from<A>(IEnumerable<A> enumerable) =>
-        new Iterator<A>.ConsFirst(enumerable);
+    public static IteratorAsync<A> from<A>(IAsyncEnumerable<A> enumerable) =>
+        new IteratorAsync<A>.ConsFirst(enumerable);
 
     /// <summary>
     /// Construct a singleton sequence 
     /// </summary>
     /// <param name="head">Head item</param>
     /// <typeparam name="A">Bound value type</typeparam>
-    /// <returns>Iterator</returns>
-    public static Iterator<A> singleton<A>(A head) =>
-        new Iterator<A>.ConsValue(head, Iterator<A>.Nil.Default);
+    /// <returns>IteratorAsync</returns>
+    public static IteratorAsync<A> singleton<A>(A head) =>
+        new IteratorAsync<A>.ConsValue(head, IteratorAsync<A>.Nil.Default);
 
     /// <summary>
     /// Construct a sequence from a head item and a tail sequence
@@ -29,9 +29,9 @@ public partial class Iterator
     /// <param name="head">Head item</param>
     /// <param name="tail">Tail sequences</param>
     /// <typeparam name="A">Bound value type</typeparam>
-    /// <returns>Iterator</returns>
-    public static Iterator<A> Cons<A>(A head, Iterator<A> tail) =>
-        new Iterator<A>.ConsValue(head, tail);
+    /// <returns>IteratorAsync</returns>
+    public static IteratorAsync<A> Cons<A>(A head, IteratorAsync<A> tail) =>
+        new IteratorAsync<A>.ConsValue(head, tail);
 
     /// <summary>
     /// Construct a sequence from a head item and a tail sequence
@@ -39,15 +39,15 @@ public partial class Iterator
     /// <param name="head">Head item</param>
     /// <param name="tail">Tail sequences</param>
     /// <typeparam name="A">Bound value type</typeparam>
-    /// <returns>Iterator</returns>
-    public static Iterator<A> Cons<A>(A head, Func<Iterator<A>> tail) =>
-        new Iterator<A>.ConsValueLazy(head, tail);
+    /// <returns>IteratorAsync</returns>
+    public static IteratorAsync<A> Cons<A>(A head, Func<IteratorAsync<A>> tail) =>
+        new IteratorAsync<A>.ConsValueLazy(new(head), tail);
 
     /// <summary>
     /// Empty sequence
     /// </summary>
     /// <typeparam name="A">Bound value type</typeparam>
-    /// <returns>Iterator</returns>
-    public static Iterator<A> Nil<A>() =>
-        Iterator<A>.Nil.Default;
+    /// <returns>IteratorAsync</returns>
+    public static IteratorAsync<A> Nil<A>() =>
+        IteratorAsync<A>.Nil.Default;
 }

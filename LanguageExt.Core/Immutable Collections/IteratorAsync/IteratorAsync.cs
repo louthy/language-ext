@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.Traits;
@@ -31,37 +33,36 @@ namespace LanguageExt;
 ///
 /// That may well be valuable for circumstances where re-evaluation would be expensive.  However,
 /// for infinite-streams this would be extremely problematic.  So, make sure you discard any
-/// previous `Iterator` values as you walk the sequence. 
+/// previous `IteratorAsync` values as you walk the sequence. 
 /// </remarks>
 /// <typeparam name="A">Item value type</typeparam>
-public abstract class Iterator<A> : 
-    IEnumerable<A>,
-    IEquatable<Iterator<A>>,
-    IDisposable,
-    K<Iterator, A>
+public abstract class IteratorAsync<A> : 
+    IAsyncEnumerable<A>,
+    IAsyncDisposable,
+    K<IteratorAsync, A>
 {
     /// <summary>
     /// Empty iterator
     /// </summary>
-    public static readonly Iterator<A> Empty = new Nil();
+    public static readonly IteratorAsync<A> Empty = new Nil();
     
     /// <summary>
     /// Head element
     /// </summary>
     [Pure]
-    public abstract A Head { get; }
+    public abstract ValueTask<A> Head { get; }
 
     /// <summary>
     /// Tail of the sequence
     /// </summary>
     [Pure]
-    public abstract Iterator<A> Tail { get; }
+    public abstract ValueTask<IteratorAsync<A>> Tail { get; }
     
     /// <summary>
     /// Return true if there are no elements in the sequence.
     /// </summary>
     [Pure]
-    public abstract bool IsEmpty  { get; }
+    public abstract ValueTask<bool> IsEmpty  { get; }
     
     /// <summary>
     /// Return the number of items in the sequence.
@@ -70,14 +71,14 @@ public abstract class Iterator<A> :
     /// Requires all items to be evaluated, this will happen only once however.
     /// </remarks>
     [Pure]
-    public abstract long Count  { get; }
+    public abstract ValueTask<long> Count  { get; }
 
     /// <summary>
     /// Clone the iterator so that we can consume it without having the head item referenced.
     /// This will stop any GC pressure when processing large or infinite sequences.
     /// </summary>
     [Pure]
-    public abstract Iterator<A> Clone();
+    public abstract IteratorAsync<A> Clone();
 
     /// <summary>
     /// When iterating a sequence, it is possible (before evaluation of the `Tail`) to Terminate the current
@@ -90,46 +91,40 @@ public abstract class Iterator<A> :
     /// previous and subsequent iterators here. 
     /// </remarks>
     /// <returns>New iterator that starts from the current iterator position.</returns>
-    public abstract Iterator<A> Split();
+    public abstract IteratorAsync<A> Split();
 
     /// <summary>
     /// Create an `IEnumerable` from an `Iterator`
     /// </summary>
     [Pure]
-    public IEnumerable<A> AsEnumerable()
+    public async IAsyncEnumerable<A> AsEnumerable([EnumeratorCancellation] CancellationToken token)
     {
-        for (var ma = Clone(); !ma.IsEmpty; ma = ma.Tail)
+        for (var ma = Clone(); !await ma.IsEmpty; ma = await ma.Tail)
         {
-            yield return  ma.Head;
+            if (token.IsCancellationRequested) throw new TaskCanceledException();
+            yield return await ma.Head;
         }
     }
-
-    /// <summary>
-    /// Create an `Iterable` from an `Iterator`
-    /// </summary>
-    [Pure]
-    public Iterable<A> AsIterable() =>
-        Iterable.createRange(AsEnumerable());
 
     /// <summary>
     /// Functor map
     /// </summary>
     [Pure]
-    public Iterator<B> Select<B>(Func<A, B> f) =>
+    public IteratorAsync<B> Select<B>(Func<A, B> f) =>
         Map(f);
 
     /// <summary>
     /// Functor map
     /// </summary>
     [Pure]
-    public Iterator<B> Map<B>(Func<A, B> f)
+    public IteratorAsync<B> Map<B>(Func<A, B> f)
     {
-        return Go(this, f).GetIterator();
-        static IEnumerable<B> Go(Iterator<A> ma, Func<A, B> f)
+        return Go(this, f).GetIteratorAsync();
+        static async IAsyncEnumerable<B> Go(IteratorAsync<A> ma, Func<A, B> f)
         {
-            for (var a = ma.Clone(); !a.IsEmpty; a = a.Tail)
+            for (var a = ma.Clone(); !await a.IsEmpty; a = await a.Tail)
             {
-                yield return f(a.Head);
+                yield return f(await a.Head);
             }
         }
     }
@@ -138,16 +133,16 @@ public abstract class Iterator<A> :
     /// Monad bind
     /// </summary>
     [Pure]
-    public Iterator<B> Bind<B>(Func<A, Iterator<B>> f)
+    public IteratorAsync<B> Bind<B>(Func<A, IteratorAsync<B>> f)
     {
-        return Go(this, f).GetIterator();
-        static IEnumerable<B> Go(Iterator<A> ma, Func<A, Iterator<B>> f)
+        return Go(this, f).GetIteratorAsync();
+        static async IAsyncEnumerable<B> Go(IteratorAsync<A> ma, Func<A, IteratorAsync<B>> f)
         {
-            for (var a = ma.Clone(); !a.IsEmpty; a = a.Tail)
+            for (var a = ma.Clone(); !await a.IsEmpty; a = await a.Tail)
             {
-                for (var b = f(a.Head); !b.IsEmpty; b = b.Tail)
+                for (var b = f(await a.Head); !await b.IsEmpty; b = await b.Tail)
                 {
-                    yield return b.Head;
+                    yield return await b.Head;
                 }
             }
         }
@@ -157,16 +152,16 @@ public abstract class Iterator<A> :
     /// Monad bind
     /// </summary>
     [Pure]
-    public Iterator<C> SelectMany<B, C>(Func<A, Iterator<B>> bind, Func<A, B, C> project)
+    public IteratorAsync<C> SelectMany<B, C>(Func<A, IteratorAsync<B>> bind, Func<A, B, C> project)
     {
-        return Go(this, bind, project).GetIterator();
-        static IEnumerable<C> Go(Iterator<A> ma, Func<A, Iterator<B>> bind, Func<A, B, C> project)
+        return Go(this, bind, project).GetIteratorAsync();
+        static async IAsyncEnumerable<C> Go(IteratorAsync<A> ma, Func<A, IteratorAsync<B>> bind, Func<A, B, C> project)
         {
-            for (var a = ma.Clone(); !a.IsEmpty; a = a.Tail)
+            for (var a = ma.Clone(); !await a.IsEmpty; a = await a.Tail)
             {
-                for (var b = bind(a.Head); !b.IsEmpty; b = b.Tail)
+                for (var b = bind(await a.Head); !await b.IsEmpty; b = await b.Tail)
                 {
-                    yield return project(a.Head, b.Head);
+                    yield return project(await a.Head, await b.Head);
                 }
             }
         }
@@ -176,16 +171,16 @@ public abstract class Iterator<A> :
     /// Applicative apply
     /// </summary>
     [Pure]
-    public Iterator<B> Apply<B>(Iterator<Func<A, B>> ff, Iterator<A> fa)
+    public IteratorAsync<B> Apply<B>(IteratorAsync<Func<A, B>> ff, IteratorAsync<A> fa)
     {
-        return Go(ff, fa).GetIterator();
-        static IEnumerable<B> Go(Iterator<Func<A, B>> ff, Iterator<A> fa)
+        return Go(ff, fa).GetIteratorAsync();
+        static async IAsyncEnumerable<B> Go(IteratorAsync<Func<A, B>> ff, IteratorAsync<A> fa)
         {
-            for (var f = ff.Clone(); !f.IsEmpty; f = f.Tail)
+            for (var f = ff.Clone(); !await f.IsEmpty; f = await f.Tail)
             {
-                for (var a = fa.Clone(); !a.IsEmpty; a = a.Tail)
+                for (var a = fa.Clone(); !await a.IsEmpty; a = await a.Tail)
                 {
-                    yield return f.Head(a.Head);
+                    yield return (await f.Head)(await a.Head);
                 }
             }
         }
@@ -195,18 +190,18 @@ public abstract class Iterator<A> :
     /// Concatenate two iterators
     /// </summary>
     [Pure]
-    public Iterator<A> Concat(Iterator<A> other)
+    public IteratorAsync<A> Concat(IteratorAsync<A> other)
     {
-        return Go(this, other).GetIterator();
-        static IEnumerable<A> Go(Iterator<A> ma, Iterator<A> mb)
+        return Go(this, other).GetIteratorAsync();
+        static async IAsyncEnumerable<A> Go(IteratorAsync<A> ma, IteratorAsync<A> mb)
         {
-            for (var a = ma.Clone(); !a.IsEmpty; a = a.Tail)
+            for (var a = ma.Clone(); !await a.IsEmpty; a = await a.Tail)
             {
-                yield return ma.Head;
+                yield return await ma.Head;
             }
-            for (var b = mb.Clone(); !b.IsEmpty; b = b.Tail)
+            for (var b = mb.Clone(); !await b.IsEmpty; b = await b.Tail)
             {
-                yield return mb.Head;
+                yield return await mb.Head;
             }
         }
     }
@@ -215,13 +210,13 @@ public abstract class Iterator<A> :
     /// Fold the sequence while there are more items remaining
     /// </summary>
     [Pure]
-    public S Fold<S>(
+    public async ValueTask<S> Fold<S>(
         S state,
         Func<A, Func<S, S>> f)
     {
-        for(var xs = Clone(); !xs.IsEmpty; xs = xs.Tail)
+        for(var xs = Clone(); !await xs.IsEmpty; xs = await xs.Tail)
         {
-            state = f(xs.Head)(state);
+            state = f(await xs.Head)(state);
         }
         return state;
     }
@@ -230,43 +225,13 @@ public abstract class Iterator<A> :
     /// Fold the sequence while there are more items remaining
     /// </summary>
     [Pure]
-    public S Fold<S>(        
+    public async ValueTask<S> Fold<S>(        
         S state,
         Func<S, A, S> f)
     {
-        for(var xs = Clone(); !xs.IsEmpty; xs = xs.Tail)
+        for(var xs = Clone(); !await xs.IsEmpty; xs = await xs.Tail)
         {
-            state = f(state, xs.Head);
-        }
-        return state;
-    }
-
-    /// <summary>
-    /// Fold the sequence in reverse while there are more items remaining
-    /// </summary>
-    [Pure]
-    public S FoldBack<S>(
-        S state,
-        Func<A, Func<S, S>> f)
-    {
-        foreach(var x in Clone().AsEnumerable().Reverse())
-        {
-            state = f(x)(state);
-        }
-        return state;
-    }
-
-    /// <summary>
-    /// Fold the sequence in reverse while there are more items remaining
-    /// </summary>
-    [Pure]
-    public S FoldBack<S>(        
-        S state,
-        Func<S, A, S> f)
-    {
-        foreach(var x in Clone().AsEnumerable().Reverse())
-        {
-            state = f(state, x);
+            state = f(state, await xs.Head);
         }
         return state;
     }
@@ -275,15 +240,15 @@ public abstract class Iterator<A> :
     /// Fold the sequence while the predicate returns `true` and there are more items remaining
     /// </summary>
     [Pure]
-    public S FoldWhile<S>(
+    public async ValueTask<S> FoldWhile<S>(
         S state,
         Func<A, Func<S, S>> f,
         Func<(S State, A Value), bool> predicate)
     {
-        for(var xs = Clone(); !xs.IsEmpty; xs = xs.Tail)
+        for(var xs = Clone(); !await xs.IsEmpty; xs = await xs.Tail)
         {
-            if (!predicate((state, xs.Head))) return state;
-            state = f(xs.Head)(state);
+            if (!predicate((state, await xs.Head))) return state;
+            state = f(await xs.Head)(state);
         }
         return state;
     }
@@ -292,49 +257,15 @@ public abstract class Iterator<A> :
     /// Fold the sequence while the predicate returns `true` and there are more items remaining
     /// </summary>
     [Pure]
-    public S FoldWhile<S>(
+    public async ValueTask<S> FoldWhile<S>(
         S state,
         Func<S, A, S> f,
         Func<(S State, A Value), bool> predicate)
     {
-        for(var xs = Clone(); !xs.IsEmpty; xs = xs.Tail)
+        for(var xs = Clone(); !await xs.IsEmpty; xs = await xs.Tail)
         {
-            if (!predicate((state, xs.Head))) return state;
-            state = f(state, xs.Head);
-        }
-        return state;
-    }
-    
-    /// <summary>
-    /// Fold the sequence in reverse while the predicate returns `true` and there are more items remaining
-    /// </summary>
-    [Pure]
-    public S FoldBackWhile<S>(
-        S state,
-        Func<S, Func<A, S>> f, 
-        Func<(S State, A Value), bool> predicate) 
-    {
-        foreach(var x in Clone().AsEnumerable().Reverse())
-        {
-            if (!predicate((state, x))) return state;
-            state = f(state)(x);
-        }
-        return state;
-    }
-    
-    /// <summary>
-    /// Fold the sequence in reverse while the predicate returns `true` and there are more items remaining
-    /// </summary>
-    [Pure]
-    public S FoldBackWhile<S>(
-        S state,
-        Func<S, A, S> f, 
-        Func<(S State, A Value), bool> predicate)
-    {
-        foreach(var x in Clone().AsEnumerable().Reverse())
-        {
-            if (!predicate((state, x))) return state;
-            state = f(state, x);
+            if (!predicate((state, await xs.Head))) return state;
+            state = f(state, await xs.Head);
         }
         return state;
     }
@@ -343,15 +274,15 @@ public abstract class Iterator<A> :
     /// Fold the sequence until the predicate returns `true` or the sequence ends
     /// </summary>
     [Pure]
-    public S FoldUntil<S>(
+    public async ValueTask<S> FoldUntil<S>(
         S state,
         Func<A, Func<S, S>> f,
         Func<(S State, A Value), bool> predicate)
     {
-        for(var xs = Clone(); !xs.IsEmpty; xs = xs.Tail)
+        for(var xs = Clone(); !await xs.IsEmpty; xs = await xs.Tail)
         {
-            state = f(xs.Head)(state);
-            if (predicate((state, xs.Head))) return state;
+            state = f(await xs.Head)(state);
+            if (predicate((state, await xs.Head))) return state;
         }
         return state;
     }
@@ -360,49 +291,15 @@ public abstract class Iterator<A> :
     /// Fold the sequence until the predicate returns `true` or the sequence ends
     /// </summary>
     [Pure]
-    public S FoldUntil<S>(
+    public async ValueTask<S> FoldUntil<S>(
         S state,
         Func<S, A, S> f,
         Func<(S State, A Value), bool> predicate)
     {
-        for(var xs = Clone(); !xs.IsEmpty; xs = xs.Tail)
+        for(var xs = Clone(); !await xs.IsEmpty; xs = await xs.Tail)
         {
-            state = f(state, xs.Head);
-            if (predicate((state, xs.Head))) return state;
-        }
-        return state;
-    }
-    
-    /// <summary>
-    /// Fold the sequence in reverse until the predicate returns `true` or the sequence ends
-    /// </summary>
-    [Pure]
-    public S FoldBackUntil<S>(
-        S state,
-        Func<S, Func<A, S>> f, 
-        Func<(S State, A Value), bool> predicate) 
-    {
-        foreach(var x in Clone().AsEnumerable().Reverse())
-        {
-            state = f(state)(x);
-            if (predicate((state, x))) return state;
-        }
-        return state;
-    }
-    
-    /// <summary>
-    /// Fold the sequence in reverse until the predicate returns `true` or the sequence ends
-    /// </summary>
-    [Pure]
-    public S FoldBackUntil<S>(
-        S state,
-        Func<S, A, S> f, 
-        Func<(S State, A Value), bool> predicate)
-    {
-        foreach(var x in Clone().AsEnumerable().Reverse())
-        {
-            state = f(state, x);
-            if (predicate((state, x))) return state;
+            state = f(state, await xs.Head);
+            if (predicate((state, await xs.Head))) return state;
         }
         return state;
     }
@@ -415,36 +312,36 @@ public abstract class Iterator<A> :
     /// runs out of items, the remaining items of the other sequence is yielded alone.
     /// </remarks>
     [Pure]
-    public Iterator<A> Merge(Iterator<A> other)
+    public IteratorAsync<A> Merge(IteratorAsync<A> other)
     {
-        return Go(this, other).GetIterator();        
-        static IEnumerable<A> Go(Iterator<A> ma, Iterator<A> mb)
+        return Go(this, other).GetIteratorAsync();        
+        static async IAsyncEnumerable<A> Go(IteratorAsync<A> ma, IteratorAsync<A> mb)
         {
             var a = ma.Clone();
             var b = mb.Clone();
 
-            while (!a.IsEmpty && !b.IsEmpty)
+            while (!await a.IsEmpty && !await b.IsEmpty)
             {
-                yield return a.Head;
-                yield return b.Head;
-                a = a.Tail;
-                b = b.Tail;
+                yield return await a.Head;
+                yield return await b.Head;
+                a = await a.Tail;
+                b = await b.Tail;
             }
 
-            if (a.IsEmpty)
+            if (await a.IsEmpty)
             {
-                while (!b.IsEmpty)
+                while (!await b.IsEmpty)
                 {
-                    yield return b.Head;
-                    b = b.Tail;
+                    yield return await b.Head;
+                    b = await b.Tail;
                 }
             }
             else
             {
-                while (!a.IsEmpty)
+                while (!await a.IsEmpty)
                 {
-                    yield return a.Head;
-                    a = a.Tail;
+                    yield return await a.Head;
+                    a = await a.Tail;
                 }
             }
         }
@@ -457,19 +354,19 @@ public abstract class Iterator<A> :
     /// The output sequence will be as long as the shortest input sequence.
     /// </remarks>
     [Pure]
-    public Iterator<(A First , A Second)> Zip(Iterator<A> other)
+    public IteratorAsync<(A First , A Second)> Zip(IteratorAsync<A> other)
     {
-        return Go(this, other).GetIterator();        
-        static IEnumerable<(A First , A Second)> Go(Iterator<A> ma, Iterator<A> mb)
+        return Go(this, other).GetIteratorAsync();        
+        static async IAsyncEnumerable<(A First , A Second)> Go(IteratorAsync<A> ma, IteratorAsync<A> mb)
         {
             var a = ma.Clone();
             var b = mb.Clone();
 
-            while (!a.IsEmpty && !b.IsEmpty)
+            while (!await a.IsEmpty && !await b.IsEmpty)
             {
-                yield return (a.Head, b.Head);
-                a = a.Tail;
-                b = b.Tail;
+                yield return (await a.Head, await b.Head);
+                a = await a.Tail;
+                b = await b.Tail;
             }
         }
     }
@@ -477,46 +374,46 @@ public abstract class Iterator<A> :
     /// <summary>
     /// Combine two sequences
     /// </summary>
-    public static Iterator<A> operator +(Iterator<A> ma, Iterator<A> mb) =>
+    public static IteratorAsync<A> operator +(IteratorAsync<A> ma, IteratorAsync<A> mb) =>
         ma.Concat(mb);
 
     /// <summary>
     /// Dispose
     /// </summary>
-    public abstract void Dispose();
+    public abstract ValueTask DisposeAsync();
 
     /// <summary>
     /// Nil iterator case
     ///
     /// The end of the sequence.
     /// </summary>
-    public sealed class Nil : Iterator<A>
+    public sealed class Nil : IteratorAsync<A>
     {
-        public static readonly Iterator<A> Default = new Nil();
+        public static readonly IteratorAsync<A> Default = new Nil();
 
         /// <summary>
         /// Head element
         /// </summary>
-        public override A Head =>
+        public override ValueTask<A> Head =>
             throw new InvalidOperationException("Nil iterator has no head");
 
         /// <summary>
         /// Tail of the sequence
         /// </summary>
-        public override Iterator<A> Tail =>
-            this;
+        public override ValueTask<IteratorAsync<A>> Tail =>
+            new (this);
 
         /// <summary>
         /// Return true if there are no elements in the sequence.
         /// </summary>
-        public override bool IsEmpty =>
-            true;
+        public override ValueTask<bool> IsEmpty =>
+            new(true);
 
         /// <summary>
         /// Clone the iterator so that we can consume it without having the head item referenced.
         /// This will stop any GC pressure.
         /// </summary>
-        public override Iterator<A> Clone() =>
+        public override IteratorAsync<A> Clone() =>
             this;
 
         /// <summary>
@@ -526,7 +423,7 @@ public abstract class Iterator<A> :
         /// can't be garbage collected. 
         /// </summary>
         /// <returns>New iterator that starts from the current iterator position</returns>
-        public override Iterator<A> Split() =>
+        public override IteratorAsync<A> Split() =>
             this;
 
         /// <summary>
@@ -536,12 +433,11 @@ public abstract class Iterator<A> :
         /// Requires all items to be evaluated, this will happen only once however.
         /// </remarks>
         [Pure]
-        public override long Count =>
-            0;
+        public override ValueTask<long> Count =>
+            new(0);
 
-        public override void Dispose()
-        {
-        }
+        public override ValueTask DisposeAsync() =>
+            ValueTask.CompletedTask;
     }
 
     /// <summary>
@@ -549,9 +445,9 @@ public abstract class Iterator<A> :
     ///
     /// Contains a head value and a tail that represents the rest of the sequence.
     /// </summary>
-    public abstract class Cons : Iterator<A>
+    public abstract class Cons : IteratorAsync<A>
     {
-        public void Deconstruct(out A head, out Iterator<A> tail)
+        public void Deconstruct(out ValueTask<A> head, out ValueTask<IteratorAsync<A>> tail)
         {
             head = Head;
             tail = Tail;
@@ -560,45 +456,43 @@ public abstract class Iterator<A> :
     
     internal sealed class ConsValue : Cons
     {
-        long count;
-        A head;
-        Iterator<A> tail;
+        readonly A head;
+        readonly IteratorAsync<A> tail;
 
-        public ConsValue(A head, Iterator<A> tail)
+        public ConsValue(A head, IteratorAsync<A> tail)
         {
             this.head = head;
             this.tail = tail;
-            count = -1;
         }
         
-        public new void Deconstruct(out A head, out Iterator<A> tail)
+        public new void Deconstruct(out ValueTask<A> h, out ValueTask<IteratorAsync<A>> t)
         {
-            head = Head;
-            tail = Tail;
+            h = Head;
+            t = Tail;
         }
 
         /// <summary>
         /// Head element
         /// </summary>
-        public override A Head => head;
+        public override ValueTask<A> Head => new(head);
 
         /// <summary>
         /// Tail of the sequence
         /// </summary>
-        public override Iterator<A> Tail => tail;
+        public override ValueTask<IteratorAsync<A>> Tail => new(tail);
 
         /// <summary>
         /// Return true if there are no elements in the sequence.
         /// </summary>
-        public override bool IsEmpty =>
-            false;
+        public override ValueTask<bool> IsEmpty =>
+            new(false);
 
         /// <summary>
         /// Clone the iterator so that we can consume it without having the head item referenced.
         /// This will stop any GC pressure.
         /// </summary>
-        public override Iterator<A> Clone() =>
-            new ConsValue(Head, Tail.Clone());
+        public override IteratorAsync<A> Clone() =>
+            new ConsValue(head, tail.Clone());
 
         /// <summary>
         /// When iterating a sequence, it is possible (before evaluation of the `Tail`) to Terminate the current
@@ -607,9 +501,9 @@ public abstract class Iterator<A> :
         /// can't be garbage collected. 
         /// </summary>
         /// <returns>New iterator that starts from the current iterator position</returns>
-        public override Iterator<A> Split()
+        public override IteratorAsync<A> Split()
         {
-            throw new InvalidOperationException("Can't split an Iterator when the the Tail has already been consumed");
+            throw new InvalidOperationException("Can't split an IteratorAsync when the the Tail has already been consumed");
         }
 
         /// <summary>
@@ -619,40 +513,29 @@ public abstract class Iterator<A> :
         /// Requires all items to be evaluated, this will happen only once however.
         /// </remarks>
         [Pure]
-        public override long Count
-        {
-            get
-            {
-                if (count == -1)
-                {
-                    count = 1 + Tail.Count;
-                }
-                return count;
-            }
-        }
+        public override ValueTask<long> Count =>
+            Tail.Bind(t => t.Count.Map(c => c + 1));
         
-        public override void Dispose() =>
-            Tail.Dispose();
+        public override async ValueTask DisposeAsync() =>
+            await (await Tail).DisposeAsync();
     }
     
     internal sealed class ConsValueLazy : Cons
     {
-        long count;
-        A head;
+        ValueTask<A> head;
         Exception? error;
-        Iterator<A>? tail;
-        Func<Iterator<A>>? tailF;
+        IteratorAsync<A>? tail;
+        Func<IteratorAsync<A>>? tailF;
         int tailAcquired;
 
-        public ConsValueLazy(A head, Func<Iterator<A>> tailF)
+        public ConsValueLazy(ValueTask<A> head, Func<IteratorAsync<A>> tailF)
         {
             this.head = head;
             this.tailF = tailF;
             tail = null;
-            count = -1;
         }
         
-        public new void Deconstruct(out A h, out Iterator<A> t)
+        public new void Deconstruct(out ValueTask<A> h, out ValueTask<IteratorAsync<A>> t)
         {
             h = Head;
             t = Tail;
@@ -661,18 +544,23 @@ public abstract class Iterator<A> :
         /// <summary>
         /// Head element
         /// </summary>
-        public override A Head => head;
+        public override ValueTask<A> Head => head;
 
         /// <summary>
         /// Tail of the sequence
         /// </summary>
-        public override Iterator<A> Tail => TailLazy();
-
-        Iterator<A> TailLazy()
+        public override ValueTask<IteratorAsync<A>> Tail
         {
-            if (tailAcquired == 2) return tail!;
-            if (tailAcquired == 3) error!.Rethrow();
+            get
+            {
+                if (tailAcquired == 2) return new(tail!);
+                if (tailAcquired == 3) error!.Rethrow();
+                return TailLazy();
+            }
+        }
 
+        ValueTask<IteratorAsync<A>> TailLazy()
+        {
             SpinWait sw = default;
             while (tailAcquired < 2)
             {
@@ -698,20 +586,20 @@ public abstract class Iterator<A> :
                 }
             }
 
-            return tail!;
+            return new(tail!);
         }
 
         /// <summary>
         /// Return true if there are no elements in the sequence.
         /// </summary>
-        public override bool IsEmpty =>
-            false;
+        public override ValueTask<bool> IsEmpty =>
+            new(false);
 
         /// <summary>
         /// Clone the iterator so that we can consume it without having the head item referenced.
         /// This will stop any GC pressure.
         /// </summary>
-        public override Iterator<A> Clone() =>
+        public override IteratorAsync<A> Clone() =>
             this;
 
         /// <summary>
@@ -721,7 +609,7 @@ public abstract class Iterator<A> :
         /// can't be garbage collected. 
         /// </summary>
         /// <returns>New iterator that starts from the current iterator position</returns>
-        public override Iterator<A> Split()
+        public override IteratorAsync<A> Split()
         {
             var h = head;
             var t = tailF;
@@ -737,42 +625,32 @@ public abstract class Iterator<A> :
         /// Requires all items to be evaluated, this will happen only once however.
         /// </remarks>
         [Pure]
-        public override long Count
-        {
-            get
-            {
-                if (count == -1)
-                {
-                    count = 1 + Tail.Count;
-                }
-                return count;
-            }
-        }
+        public override ValueTask<long> Count =>
+            Tail.Bind(static t => t.Count.Map(static c => c + 1));
 
-        public override void Dispose()
+        public override async ValueTask DisposeAsync()
         {
             if (tailAcquired == 2)
             {
-                Tail.Dispose();
+                await (await Tail).DisposeAsync();
             }
         }
-    }
+    }    
 
     internal sealed class ConsValueEnum : Cons
     {
         Exception? exception;
-        IEnumerator<A>? enumerator;
+        IAsyncEnumerator<A>? enumerator;
         int tailAcquired;
-        Iterator<A>? tailValue;
-        long count = -1;
+        IteratorAsync<A>? tailValue;
 
-        internal ConsValueEnum(A head, IEnumerator<A> enumerator)
+        internal ConsValueEnum(ValueTask<A> head, IAsyncEnumerator<A> enumerator)
         {
             Head = head;
             this.enumerator = enumerator;
         }
 
-        public new void Deconstruct(out A head, out Iterator<A> tail)
+        public new void Deconstruct(out ValueTask<A> head, out ValueTask<IteratorAsync<A>> tail)
         {
             head = Head;
             tail = Tail;
@@ -781,67 +659,75 @@ public abstract class Iterator<A> :
         /// <summary>
         /// Head element
         /// </summary>
-        public override A Head { get; }
+        public override ValueTask<A> Head { get; }
 
         /// <summary>
         /// Tail of the sequence
         /// </summary>
-        public override Iterator<A> Tail
+        public override ValueTask<IteratorAsync<A>> Tail
         {
             get
             {
-                if(tailAcquired == 2) return tailValue!;
+                if(tailAcquired == 2) return new(tailValue!);
                 if(tailAcquired == 3) exception!.Rethrow();
-
-                SpinWait sw = default;
-                while (tailAcquired < 2)
+                return TailAsync();
+            }
+        }
+        
+        /// <summary>
+        /// Tail of the sequence
+        /// </summary>
+        async ValueTask<IteratorAsync<A>> TailAsync()
+        {
+            SpinWait sw = default;
+            while (tailAcquired < 2)
+            {
+                if (Interlocked.CompareExchange(ref tailAcquired, 1, 0) == 0)
                 {
-                    if (Interlocked.CompareExchange(ref tailAcquired, 1, 0) == 0)
+                    try
                     {
-                        try
+                        if (await enumerator!.MoveNextAsync())
                         {
-                            if (enumerator!.MoveNext())
-                            {
-                                tailValue = new ConsValueEnum(enumerator.Current, enumerator);
-                            }
-                            else
-                            {
-                                enumerator?.Dispose();
-                                enumerator = null;
-                                tailValue = Nil.Default;
-                            }
+                            tailValue = new ConsValueEnum(new(enumerator.Current), enumerator);
+                        }
+                        else
+                        {
+                            var e = enumerator;
+                            if(e != null) await e.DisposeAsync();
+                            enumerator = null;
+                            tailValue = Nil.Default;
+                        }
 
-                            tailAcquired = 2;
-                        }
-                        catch (Exception e)
-                        {
-                            exception = e;
-                            tailAcquired = 3;
-                            throw;
-                        }
+                        tailAcquired = 2;
                     }
-                    else
+                    catch (Exception e)
                     {
-                        sw.SpinOnce();
+                        exception = e;
+                        tailAcquired = 3;
+                        throw;
                     }
                 }
-
-                if(tailAcquired == 3) exception!.Rethrow();
-                return tailValue!;
+                else
+                {
+                    sw.SpinOnce();
+                }
             }
+
+            if(tailAcquired == 3) exception!.Rethrow();
+            return tailValue!;
         }
 
         /// <summary>
         /// Return true if there are no elements in the sequence.
         /// </summary>
-        public override bool IsEmpty =>
-            false;
+        public override ValueTask<bool> IsEmpty =>
+            new(false);
 
         /// <summary>
         /// Clone the iterator so that we can consume it without having the head item referenced.
         /// This will stop any GC pressure.
         /// </summary>
-        public override Iterator<A> Clone() =>
+        public override IteratorAsync<A> Clone() =>
             this;
 
         /// <summary>
@@ -851,7 +737,7 @@ public abstract class Iterator<A> :
         /// can't be garbage collected. 
         /// </summary>
         /// <returns>New iterator that starts from the current iterator position</returns>
-        public override Iterator<A> Split()
+        public override IteratorAsync<A> Split()
         {
             if (Interlocked.CompareExchange(ref tailAcquired, 1, 0) == 0)
             {
@@ -861,7 +747,7 @@ public abstract class Iterator<A> :
             }
             else
             {
-                throw new InvalidOperationException("Can't split an Iterator when the the Tail has already been consumed");
+                throw new InvalidOperationException("Can't split an IteratorAsync when the the Tail has already been consumed");
             }
         }
         
@@ -872,98 +758,87 @@ public abstract class Iterator<A> :
         /// Requires all items to be evaluated, this will happen only once however.
         /// </remarks>
         [Pure]
-        public override long Count
+        public override ValueTask<long> Count =>
+            Tail.Bind(t => t.Count.Map(c => c + 1));
+        
+        public override async ValueTask DisposeAsync()
         {
-            get
-            {
-                if (count == -1)
-                {
-                    count = 1 + Tail.Count;
-                }
-                return count;
-            }
-        }
-
-        public override void Dispose()
-        {
-            enumerator?.Dispose();
+            var e = enumerator;
+            if(e != null) await e.DisposeAsync();
             enumerator = null;
         }
     }
 
     internal sealed class ConsFirst : Cons
     {
-        IEnumerable<A> enumerable;
+        IAsyncEnumerable<A> enumerable;
         int firstAcquired;
-        Iterator<A>? firstValue;
+        IteratorAsync<A>? firstValue;
 
-        internal ConsFirst(IEnumerable<A> enumerable) =>
+        internal ConsFirst(IAsyncEnumerable<A> enumerable) =>
             this.enumerable = enumerable;
 
-        public override A Head =>
-            First.Head;
+        public override ValueTask<A> Head =>
+            First().Bind(f => f.Head);
 
-        public override Iterator<A> Tail =>
-            First.Tail;
+        public override ValueTask<IteratorAsync<A>> Tail =>
+            First().Bind(f => f.Tail);
 
-        public new void Deconstruct(out A head, out Iterator<A> tail)
+        public new void Deconstruct(out ValueTask<A> head, out ValueTask<IteratorAsync<A>> tail)
         {
             head = Head;
             tail = Tail;
         }
 
-        Iterator<A> First
+        async ValueTask<IteratorAsync<A>> First()
         {
-            get
+            if (firstAcquired == 2) return firstValue!;
+            
+            SpinWait sw = default;
+            while (firstAcquired < 2)
             {
-                if (firstAcquired == 2) return firstValue!;
-                
-                SpinWait sw = default;
-                while (firstAcquired < 2)
+                if (Interlocked.CompareExchange(ref firstAcquired, 1, 0) == 0)
                 {
-                    if (Interlocked.CompareExchange(ref firstAcquired, 1, 0) == 0)
+                    try
                     {
-                        try
+                        var enumerator = enumerable.GetAsyncEnumerator();
+                        if (await enumerator.MoveNextAsync())
                         {
-                            var enumerator = enumerable.GetEnumerator();
-                            if (enumerator.MoveNext())
-                            {
-                                firstValue = new ConsValueEnum(enumerator.Current, enumerator);
-                            }
-                            else
-                            {
-                                enumerator.Dispose();
-                                firstValue = Nil.Default;
-                            }
+                            firstValue = new ConsValueEnum(new(enumerator.Current), enumerator);
+                        }
+                        else
+                        {
+                            await enumerator.DisposeAsync();
+                            firstValue = Nil.Default;
+                        }
 
-                            firstAcquired = 2;
-                        }
-                        catch (Exception)
-                        {
-                            firstAcquired = 0;
-                            throw;
-                        }
+                        firstAcquired = 2;
                     }
-                    else
+                    catch (Exception)
                     {
-                        sw.SpinOnce();
+                        firstAcquired = 0;
+                        throw;
                     }
                 }
-                return firstValue!;
+                else
+                {
+                    sw.SpinOnce();
+                }
             }
+            return firstValue!;
         }
 
         /// <summary>
         /// Return true if there are no elements in the sequence.
         /// </summary>
-        public override bool IsEmpty =>
-            First.IsEmpty;
+        public override ValueTask<bool> IsEmpty =>
+            First().Bind(f => f.IsEmpty);
 
         /// <summary>
         /// Clone the iterator so that we can consume it without having the head item referenced.
         /// This will stop any GC pressure.
         /// </summary>
-        public override Iterator<A> Clone() =>
+        public override IteratorAsync<A> Clone() =>
             new ConsFirst(enumerable);
 
         /// <summary>
@@ -973,7 +848,7 @@ public abstract class Iterator<A> :
         /// can't be garbage collected. 
         /// </summary>
         /// <returns>New iterator that starts from the current iterator position</returns>
-        public override Iterator<A> Split() =>
+        public override IteratorAsync<A> Split() =>
             Clone();
 
         /// <summary>
@@ -983,14 +858,15 @@ public abstract class Iterator<A> :
         /// Requires all items to be evaluated, this will happen only once however.
         /// </remarks>
         [Pure]
-        public override long Count =>
-            First.Count;
+        public override ValueTask<long> Count =>
+            First().Bind(f => f.Count);
 
-        public override void Dispose()
+        public override async ValueTask DisposeAsync()
         {
             if (Interlocked.CompareExchange(ref firstAcquired, 1, 2) == 2)
             {
-                firstValue?.Dispose();
+                var fv = firstValue;
+                if(fv != null) await fv.DisposeAsync();
                 firstValue = null;
                 firstAcquired = 0;
             }
@@ -998,83 +874,14 @@ public abstract class Iterator<A> :
     }
 
     /// <summary>
-    /// Equality test
-    /// </summary>
-    /// <param name="obj">Other iterator to compare against</param>
-    /// <returns>True if equal</returns>
-    [Pure]
-    public override bool Equals(object? obj) =>
-        obj is Iterator<A> other && Equals(other);
-
-    /// <summary>
-    /// Equality test
-    /// </summary>
-    /// <param name="other">Other iterator to compare against</param>
-    /// <returns>True if equal</returns>
-    [Pure]
-    public bool Equals(Iterator<A>? rhs)
-    {
-        if (rhs is null) return false;
-        var iterA = Clone();
-        var iterB = rhs.Clone();
-        while (true)
-        {
-            if(iterA.IsEmpty && iterB.IsEmpty) return true; 
-            if(iterA.IsEmpty || iterB.IsEmpty) return false;
-            if(!EqDefault<A>.Equals(iterA.Head, iterB.Head)) return false;
-            iterA = iterA.Tail;
-            iterB = iterB.Tail;
-        }
-    }
-
-    [Pure]
-    public override int GetHashCode()
-    {
-        if(IsEmpty) return 0;
-        var iter = Clone();
-        var hash = OffsetBasis;
-        while(!iter.IsEmpty)
-        {
-            var itemHash = iter.Head?.GetHashCode() ?? 0;
-            unchecked
-            {
-                hash = (hash ^ itemHash) * Prime;
-            }
-            iter = iter.Tail;
-        }
-        return hash;
-    }
-
-    /// <summary>
     /// Get enumerator
     /// </summary>
     /// <returns></returns>
     [Pure]
-    public IEnumerator<A> GetEnumerator() => 
-        AsEnumerable().GetEnumerator();
-
-    [Pure]
-    IEnumerator IEnumerable.GetEnumerator() => 
-        GetEnumerator();
+    public IAsyncEnumerator<A> GetAsyncEnumerator(CancellationToken token) => 
+        AsEnumerable(token).GetAsyncEnumerator(token);
 
     [Pure]
     public override string ToString() =>
-        CollectionFormat.ToShortArrayString(this.AsEnumerable());
-
-    /// <summary>
-    /// Format the collection as `a, b, c, ...`
-    /// </summary>
-    [Pure]
-    public string ToFullString(string separator = ", ") =>
-        CollectionFormat.ToFullString(this.AsEnumerable(), separator);
-
-    /// <summary>
-    /// Format the collection as `[a, b, c, ...]`
-    /// </summary>
-    [Pure]
-    public string ToFullArrayString(string separator = ", ") =>
-        CollectionFormat.ToFullArrayString(this.AsEnumerable(), separator);
-
-    const int OffsetBasis = -2128831035;
-    const int Prime = 16777619;
+        "async iterator";
 }
