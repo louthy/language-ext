@@ -30,12 +30,11 @@ public static partial class Proxy
     public static Producer<A, Unit> yield<A>(A value) =>
         PureProxy.ProducerYield(value);
 
-    // TODO: Decide whether I want to put these back or not
     /// <summary>
     /// Create a queue
     /// </summary>
     /// <remarks>A `Queue` is a `Producer` with an `Enqueue`, and a `Done` to cancel the operation</remarks>
-    // [Pure, MethodImpl(mops)]
+    [Pure, MethodImpl(mops)]
     public static Queue<A, M, Unit> Queue<M, A>() 
         where M : Monad<M>
     {
@@ -75,7 +74,9 @@ public static partial class Proxy
     /// <returns>`Producer`</returns>
     [Pure, MethodImpl(mops)]
     public static Producer<X, Unit> yieldAll<X>(IObservable<X> xs) =>
-        yieldAll(xs.ToAsyncEnumerable(new CancellationToken()));
+        from t in PureProxy.ProducerLiftIO<X, CancellationToken>(IO.token)
+        from r in yieldAll(xs.ToAsyncEnumerable(t))
+        select r;
 
     // TODO: IMPLEMENT TAIL CALLS
     [Pure, MethodImpl(mops)]

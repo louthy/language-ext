@@ -294,12 +294,13 @@ public static class Producer
             return unit;
         }
 
-        K<M, Unit> runEffect(Producer<OUT, M, Unit> p) =>
+        K<M, ForkIO<Unit>> runEffect(Producer<OUT, M, Unit> p) =>
             (from _1 in p | receive()
              let _2 = countDown()
              select unit)
             .ToEffect()
-            .RunEffect();    
+            .RunEffect()
+            .ForkIO();    
     }
     
     /// <summary>

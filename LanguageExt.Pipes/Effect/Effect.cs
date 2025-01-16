@@ -3,6 +3,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using static LanguageExt.Pipes.Proxy;
 using System.Runtime.CompilerServices;
+using LanguageExt.Async.Linq;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
@@ -38,14 +39,23 @@ public static class Effect
                 ProxyM<Void, Unit, Unit, Void, M, R> (var mx)    => M.Bind(mx, Go),
                 Pure<Void, Unit, Unit, Void, M, R> (var r)       => M.Pure(r),
                 Iterator<Void, Unit, Unit, Void, M, R> iter      => runIterator(iter, Go),
+                IteratorAsync<Void, Unit, Unit, Void, M, R> iter => runAsyncIterator(iter, Go),
                 Request<Void, Unit, Unit, Void, M, R> (var v, _) => closed<K<M, R>>(v),
                 Respond<Void, Unit, Unit, Void, M, R> (var v, _) => closed<K<M, R>>(v),
                 _                                                => throw new NotSupportedException()
             };
     }
 
-    internal static K<M, R> runIterator<M, R>(
+    static K<M, R> runIterator<M, R>(
         Iterator<Void, Unit, Unit, Void, M, R> iter,
+        Func<Proxy<Void, Unit, Unit, Void, M, R>, K<M, R>> go)
+        where M : Monad<M> =>
+        from _ in iter.Run().Select(e => e.RunEffect()).Actions()
+        from r in go(iter.Next())
+        select r;
+
+    static K<M, R> runAsyncIterator<M, R>(
+        IteratorAsync<Void, Unit, Unit, Void, M, R> iter,
         Func<Proxy<Void, Unit, Unit, Void, M, R>, K<M, R>> go)
         where M : Monad<M> =>
         from _ in iter.Run().Select(e => e.RunEffect()).Actions()

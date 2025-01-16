@@ -347,7 +347,7 @@ public static partial class FoldableExtensions
     /// <remarks>
     /// Note that to produce the outermost application of the operator the
     /// entire input list must be traversed.  Like all left-associative folds,
-    /// `FoldBack' will diverge if given an infinite list.
+    /// `FoldBack` will diverge if given an infinite list.
     /// </remarks>
     public static S FoldBack<T, A, S>(this K<T, A> ta, S initialState, Func<S, Func<A, S>> f) 
         where T : Foldable<T> =>
@@ -366,7 +366,7 @@ public static partial class FoldableExtensions
     /// <remarks>
     /// Note that to produce the outermost application of the operator the
     /// entire input list must be traversed.  Like all left-associative folds,
-    /// `FoldBack' will diverge if given an infinite list.
+    /// `FoldBack` will diverge if given an infinite list.
     /// </remarks>
     public static S FoldBack<T, A, S>(this K<T, A> ta, S initialState, Func<S, A, S> f) 
         where T : Foldable<T> =>
@@ -385,7 +385,7 @@ public static partial class FoldableExtensions
     /// <remarks>
     /// Note that to produce the outermost application of the operator the
     /// entire input list must be traversed.  Like all left-associative folds,
-    /// `FoldBack' will diverge if given an infinite list.
+    /// `FoldBack` will diverge if given an infinite list.
     /// </remarks>
     public static K<M, S> FoldBackM<T, A, M, S>(
         this K<T, A> ta, 
@@ -408,7 +408,7 @@ public static partial class FoldableExtensions
     /// <remarks>
     /// Note that to produce the outermost application of the operator the
     /// entire input list must be traversed.  Like all left-associative folds,
-    /// `FoldBack' will diverge if given an infinite list.
+    /// `FoldBack` will diverge if given an infinite list.
     /// </remarks>
     public static K<M, S> FoldBackM<T, A, M, S>(
         this K<T, A> ta, 
@@ -422,7 +422,7 @@ public static partial class FoldableExtensions
     /// Given a structure with elements whose type is a `Monoid`, combine them
     /// via the monoid's `Append` operator.  This fold is right-associative and
     /// lazy in the accumulator.  When you need a strict left-associative fold,
-    /// use 'foldMap'' instead, with 'id' as the map.
+    /// use `FoldMap` instead, with `identity` as the map.
     /// </summary>
     public static A Fold<T, A>(this K<T, A> tm) 
         where T : Foldable<T>
@@ -433,7 +433,7 @@ public static partial class FoldableExtensions
     /// Given a structure with elements whose type is a `Monoid`, combine them
     /// via the monoid's `Append` operator.  This fold is right-associative and
     /// lazy in the accumulator.  When you need a strict left-associative fold,
-    /// use 'foldMap'' instead, with 'id' as the map.
+    /// use `FoldMap` instead, with `identity` as the map.
     /// </summary>
     public static A FoldWhile<T, A>(this K<T, A> tm, Func<(A State, A Value), bool> predicate) 
         where T : Foldable<T>
@@ -444,7 +444,7 @@ public static partial class FoldableExtensions
     /// Given a structure with elements whose type is a `Monoid`, combine them
     /// via the monoid's `Append` operator.  This fold is right-associative and
     /// lazy in the accumulator.  When you need a strict left-associative fold,
-    /// use 'foldMap'' instead, with 'id' as the map.
+    /// use `FoldMap` instead, with `identity` as the map.
     /// </summary>
     public static A FoldUntil<T, A>(this K<T, A> tm, Func<(A State, A Value), bool> predicate) 
         where T : Foldable<T>

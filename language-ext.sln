@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreditCardValidation", "Sam
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Pipes", "LanguageExt.Pipes\LanguageExt.Pipes.csproj", "{6661A967-81D7-4236-99BC-AD42F71B6C1F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipesExamples", "Samples\PipesExamples\PipesExamples.csproj", "{8CE4D269-B685-438C-AA1B-48D3E73C60DB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -307,6 +309,18 @@ Global
 		{6661A967-81D7-4236-99BC-AD42F71B6C1F}.Release|x64.Build.0 = Release|Any CPU
 		{6661A967-81D7-4236-99BC-AD42F71B6C1F}.Release|x86.ActiveCfg = Release|Any CPU
 		{6661A967-81D7-4236-99BC-AD42F71B6C1F}.Release|x86.Build.0 = Release|Any CPU
+		{8CE4D269-B685-438C-AA1B-48D3E73C60DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CE4D269-B685-438C-AA1B-48D3E73C60DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CE4D269-B685-438C-AA1B-48D3E73C60DB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8CE4D269-B685-438C-AA1B-48D3E73C60DB}.Debug|x64.Build.0 = Debug|Any CPU
+		{8CE4D269-B685-438C-AA1B-48D3E73C60DB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8CE4D269-B685-438C-AA1B-48D3E73C60DB}.Debug|x86.Build.0 = Debug|Any CPU
+		{8CE4D269-B685-438C-AA1B-48D3E73C60DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CE4D269-B685-438C-AA1B-48D3E73C60DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CE4D269-B685-438C-AA1B-48D3E73C60DB}.Release|x64.ActiveCfg = Release|Any CPU
+		{8CE4D269-B685-438C-AA1B-48D3E73C60DB}.Release|x64.Build.0 = Release|Any CPU
+		{8CE4D269-B685-438C-AA1B-48D3E73C60DB}.Release|x86.ActiveCfg = Release|Any CPU
+		{8CE4D269-B685-438C-AA1B-48D3E73C60DB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -324,6 +338,7 @@ Global
 		{F6CB0C45-09D5-4178-AEA6-F113E24FEEC5} = {1ABB8B79-9BF2-4C51-A920-9C17BF11273F}
 		{72F07BEF-4379-4FD9-8CBA-CFB01D004718} = {1ABB8B79-9BF2-4C51-A920-9C17BF11273F}
 		{AF8ED740-D77D-4080-9952-59232C57767C} = {1ABB8B79-9BF2-4C51-A920-9C17BF11273F}
+		{8CE4D269-B685-438C-AA1B-48D3E73C60DB} = {1ABB8B79-9BF2-4C51-A920-9C17BF11273F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {ACEEC9A9-FE4F-43DD-918D-443A19399CE1}

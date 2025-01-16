@@ -16,6 +16,14 @@ public abstract record Iterator<UOut, UIn, DIn, DOut, M, A>(
     public abstract IEnumerable<Proxy<UOut, UIn, DIn, DOut, M, Unit>> Run();
 }
 
+public abstract record IteratorAsync<UOut, UIn, DIn, DOut, M, A>(
+    Func<Proxy<UOut, UIn, DIn, DOut, M, A>> Next) 
+    : Proxy<UOut, UIn, DIn, DOut, M, A>
+    where M : Monad<M>
+{
+    public abstract IAsyncEnumerable<Proxy<UOut, UIn, DIn, DOut, M, Unit>> Run();
+}
+
 public record IteratorFoldable<UOut, UIn, DIn, DOut, F, X, M, A>(
     K<F, X> Items,
     Func<X, Proxy<UOut, UIn, DIn, DOut, M, Unit>> Yield,
@@ -122,16 +130,16 @@ public record IteratorAsyncEnumerable<UOut, UIn, DIn, DOut, F, X, M, A>(
     IAsyncEnumerable<X> Items,
     Func<X, Proxy<UOut, UIn, DIn, DOut, M, Unit>> Yield,
     Func<Proxy<UOut, UIn, DIn, DOut, M, A>> Next) 
-    : Iterator<UOut, UIn, DIn, DOut, M, A>(Next)
+    : IteratorAsync<UOut, UIn, DIn, DOut, M, A>(Next)
     where M : Monad<M>
     where F : Foldable<F>
 {
     public override Proxy<UOut, UIn, DIn, DOut, M, A> ToProxy() =>
         this;
 
-    public override IEnumerable<Proxy<UOut, UIn, DIn, DOut, M, Unit>> Run()
+    public override async IAsyncEnumerable<Proxy<UOut, UIn, DIn, DOut, M, Unit>> Run()
     {
-        foreach (var item in Items.ToBlockingEnumerable())
+        await foreach (var item in Items)
         {
             yield return Yield(item);
         }
