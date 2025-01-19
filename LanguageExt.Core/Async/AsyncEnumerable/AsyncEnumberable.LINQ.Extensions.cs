@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Async.Linq;
@@ -11,6 +12,14 @@ public static class AsyncEnumerableExtensions
         await foreach (var a in ma)
         {
             yield return f(a);
+        }
+    }
+    
+    public static async IAsyncEnumerable<B> Select<A, B>(this IAsyncEnumerable<A> ma, Func<A, ValueTask<B>> f)
+    {
+        await foreach (var a in ma)
+        {
+            yield return await f(a);
         }
     }
     

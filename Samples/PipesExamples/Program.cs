@@ -21,6 +21,7 @@ Console.WriteLine();
 
 var p = from _1 in ProducerT.liftM<int, IO, Unit>(writeLine("pre-yield"))
         from _2 in ProducerT.yieldAll<IO, int>([100, 200, 300])
+        from _x in ProducerT.pure<int, IO, string>("Hello")
         from _3 in writeLine("post-yield")
         select unit;
         
@@ -29,9 +30,11 @@ var c = from _1 in ConsumerT.liftM<int, IO, Unit>(writeLine("pre-await"))
         from _2 in ConsumerT.liftM<int, IO, Unit>(writeLine($"post-await: {x}"))
         select unit;
 
-var e = p.Compose(c);
+var e = p | c;
 
 var r = e.Run().Run();
+
+Console.WriteLine("Done");
 
 static IO<Unit> writeLine(object? value) =>
     IO.lift(() => Console.WriteLine(value));

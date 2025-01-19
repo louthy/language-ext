@@ -1,0 +1,130 @@
+using LanguageExt.Common;
+using LanguageExt.Traits;
+
+namespace LanguageExt.Pipes2;
+
+/// <summary>
+/// `ProducerT` streaming producer monad-transformer
+/// </summary>
+public static class ProducerT
+{
+    /// <summary>
+    /// Create a producer that simply returns a bound value without yielding anything
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, A> pure<OUT, M, A>(A value)
+        where M : Monad<M> =>
+        ProxyT.pure<Unit, OUT, M, A>(value);
+    
+    /// <summary>
+    /// Create a producer that always fails
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="E">Failure type</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, A> fail<OUT, E, M, A>(E value) 
+        where M : Monad<M>, Fallible<E, M> =>
+        ProxyT.fail<Unit, OUT, E, M, A>(value);
+    
+    /// <summary>
+    /// Create a producer that always fails
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, A> error<OUT, M, A>(Error value) 
+        where M : Monad<M>, Fallible<M> =>
+        ProxyT.error<Unit, OUT, M, A>(value);
+    
+    /// <summary>
+    /// Create a producer that yields nothing at all
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, A> empty<OUT, M, A>() 
+        where M : Monad<M>, MonoidK<M> =>
+        ProxyT.empty<Unit, OUT, M, A>();
+    
+    /// <summary>
+    /// Create a producer that lazily returns a bound value without yielding anything
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, A> lift<OUT, M, A>(Func<A> f) 
+        where M : Monad<M> =>
+        ProxyT.lift<Unit, OUT, M, A>(f);
+    
+    /// <summary>
+    /// Create a producer that simply returns the bound value of the lifted monad without yielding anything
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, A> liftM<OUT, M, A>(K<M, A> ma) 
+        where M : Monad<M> =>
+        ProxyT.liftM<Unit, OUT, M, A>(ma);
+        
+    /// <summary>
+    /// Create a lazy proxy 
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, A> liftT<OUT, M, A>(Func<ProducerT<OUT, M, A>> f) 
+        where M : Monad<M> =>
+        ProxyT.liftT(() => f().Proxy);
+    
+    /// <summary>
+    /// Create an asynchronous lazy proxy 
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, A> liftT<OUT, M, A>(Func<ValueTask<ProducerT<OUT, M, A>>> f) 
+        where M : Monad<M> =>
+        ProxyT.liftT(() => f().Map(p => p.Proxy));
+    
+    /// <summary>
+    /// Create an asynchronous proxy 
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, A> liftT<OUT, M, A>(ValueTask<ProducerT<OUT, M, A>> f) 
+        where M : Monad<M> =>
+        ProxyT.liftT(f.Map(p => p.Proxy));
+
+    /// <summary>
+    /// Yield a value downstream
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, Unit> yield<M, OUT>(OUT value) 
+        where M : Monad<M> =>
+        ProxyT.yield<Unit, OUT, M>(value);
+
+    /// <summary>
+    /// Yield all values downstream
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, Unit> yieldAll<M, OUT>(IEnumerable<OUT> values)
+        where M : Monad<M>, Alternative<M> =>
+        ProxyT.yieldAll<Unit, OUT, M>(values);
+}

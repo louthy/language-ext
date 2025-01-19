@@ -112,6 +112,15 @@ public abstract class Iterator<A> :
         Iterable.createRange(AsEnumerable());
 
     /// <summary>
+    /// Deconstructor
+    /// </summary>
+    public new void Deconstruct(out A head, out Iterator<A> tail)
+    {
+        head = Head;
+        tail = Tail;
+    }
+    
+    /// <summary>
     /// Functor map
     /// </summary>
     [Pure]
