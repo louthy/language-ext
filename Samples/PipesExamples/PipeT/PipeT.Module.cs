@@ -7,7 +7,7 @@ namespace LanguageExt.Pipes2;
 /// <summary>
 /// `PipeT` streaming producer monad-transformer
 /// </summary>
-public static class ProxyT
+public static class PipeT
 {
     /// <summary>
     /// Create a pipe that simply returns a bound value without yielding anything
@@ -66,9 +66,9 @@ public static class ProxyT
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
-    public static PipeT<IN, OUT, M, A> lift<IN, OUT, M, A>(Func<A> value) 
+    public static PipeT<IN, OUT, M, A> lift<IN, OUT, M, A>(Func<A> f) 
         where M : Monad<M> =>
-        new PipeTLift<IN, OUT, A, M, A>(value, pure<IN, OUT, M, A>);
+        new PipeTLift<IN, OUT, A, M, A>(f, pure<IN, OUT, M, A>);
     
     /// <summary>
     /// Create a lazy pipe 
@@ -114,9 +114,21 @@ public static class ProxyT
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
-    public static PipeT<IN, OUT, M, A> liftM<IN, OUT, M, A>(K<M, A> value) 
+    public static PipeT<IN, OUT, M, A> liftM<IN, OUT, M, A>(K<M, A> ma) 
         where M : Monad<M> =>
-        new PipeTLiftM<IN, OUT, M, A>(value.Map(pure<IN, OUT, M, A>));
+        new PipeTLiftM<IN, OUT, M, A>(ma.Map(pure<IN, OUT, M, A>));
+    
+    /// <summary>
+    /// Create a pipe that simply returns the bound value of the lifted monad without yielding anything
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static PipeT<IN, OUT, M, A> liftIO<IN, OUT, M, A>(IO<A> ma) 
+        where M : Monad<M> =>
+        liftM<IN, OUT, M, A>(M.LiftIO(ma));
     
     /// <summary>
     /// Yield a value downstream

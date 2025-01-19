@@ -24,16 +24,16 @@ record PipeTEmpty<IN, OUT, M, A> : PipeT<IN, OUT, M, A>
         PipeTEmpty<IN, OUT, M, B>.Default;
 
     internal override PipeT<IN1, OUT, M, A> ReplaceAwait<IN1>(Func<PipeT<IN1, OUT, M, IN>> request) => 
-        ProxyT.empty<IN1, OUT, M, A>();
+        PipeT.empty<IN1, OUT, M, A>();
 
     internal override PipeT<IN, OUT1, M, A> ReplaceYield<OUT1>(Func<OUT, PipeT<IN, OUT1, M, Unit>> response) => 
-        ProxyT.empty<IN, OUT1, M, A>();
+        PipeT.empty<IN, OUT1, M, A>();
     
     internal override PipeT<IN1, OUT, M, A> PairEachAwaitWithYield<IN1>(Func<Unit, PipeT<IN1, IN, M, A>> request) => 
-        ProxyT.empty<IN1, OUT, M, A>();
+        PipeT.empty<IN1, OUT, M, A>();
 
     internal override PipeT<IN, OUT1, M, A> PairEachYieldWithAwait<OUT1>(Func<OUT, PipeT<OUT, OUT1, M, A>> response) =>
-        ProxyT.empty<IN, OUT1, M, A>();
+        PipeT.empty<IN, OUT1, M, A>();
     
     internal override K<M, A> Run() =>
         M.Empty<A>();
@@ -43,10 +43,10 @@ record PipeTPure<IN, OUT, M, A>(A Value) : PipeT<IN, OUT, M, A>
     where M : Monad<M>
 {
     public override PipeT<IN, OUT, M, B> Map<B>(Func<A, B> f) =>
-        ProxyT.pure<IN, OUT, M, B>(f(Value));
+        PipeT.pure<IN, OUT, M, B>(f(Value));
 
     public override PipeT<IN, OUT, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
-        ProxyT.liftM<IN, OUT, M, B>(f(M.Pure(Value)));
+        PipeT.liftM<IN, OUT, M, B>(f(M.Pure(Value)));
     
     public override PipeT<IN, OUT, M, B> ApplyBack<B>(PipeT<IN, OUT, M, Func<A, B>> ff) =>
         ff.Map(f => f(Value));
@@ -58,16 +58,16 @@ record PipeTPure<IN, OUT, M, A>(A Value) : PipeT<IN, OUT, M, A>
         f(Value);
 
     internal override PipeT<IN1, OUT, M, A> ReplaceAwait<IN1>(Func<PipeT<IN1, OUT, M, IN>> request) => 
-        ProxyT.pure<IN1, OUT, M, A>(Value);
+        PipeT.pure<IN1, OUT, M, A>(Value);
 
     internal override PipeT<IN, OUT1, M, A> ReplaceYield<OUT1>(Func<OUT, PipeT<IN, OUT1, M, Unit>> response) => 
-        ProxyT.pure<IN, OUT1, M, A>(Value);
+        PipeT.pure<IN, OUT1, M, A>(Value);
     
     internal override PipeT<IN1, OUT, M, A> PairEachAwaitWithYield<IN1>(Func<Unit, PipeT<IN1, IN, M, A>> request) => 
-        ProxyT.pure<IN1, OUT, M, A>(Value);
+        PipeT.pure<IN1, OUT, M, A>(Value);
 
     internal override PipeT<IN, OUT1, M, A> PairEachYieldWithAwait<OUT1>(Func<OUT, PipeT<OUT, OUT1, M, A>> response) =>
-        ProxyT.pure<IN, OUT1, M, A>(Value);
+        PipeT.pure<IN, OUT1, M, A>(Value);
 
     internal override K<M, A> Run() =>
         M.Pure(Value);
@@ -77,31 +77,31 @@ record PipeTFail<IN, OUT, E, M, A>(E Value) : PipeT<IN, OUT, M, A>
     where M : Monad<M>, Fallible<E, M>
 {
     public override PipeT<IN, OUT, M, B> Map<B>(Func<A, B> f) =>
-        ProxyT.fail<IN, OUT, E, M, B>(Value);
+        PipeT.fail<IN, OUT, E, M, B>(Value);
 
     public override PipeT<IN, OUT, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
-        ProxyT.fail<IN, OUT, E, M, B>(Value);
+        PipeT.fail<IN, OUT, E, M, B>(Value);
     
     public override PipeT<IN, OUT, M, B> ApplyBack<B>(PipeT<IN, OUT, M, Func<A, B>> ff) =>
-        ProxyT.fail<IN, OUT, E, M, B>(Value);
+        PipeT.fail<IN, OUT, E, M, B>(Value);
     
     public override PipeT<IN, OUT, M, B> Action<B>(PipeT<IN, OUT, M, B> fb) =>
-        ProxyT.fail<IN, OUT, E, M, B>(Value);
+        PipeT.fail<IN, OUT, E, M, B>(Value);
 
     public override PipeT<IN, OUT, M, B> Bind<B>(Func<A, PipeT<IN, OUT, M, B>> f) =>
-        ProxyT.fail<IN, OUT, E, M, B>(Value);
+        PipeT.fail<IN, OUT, E, M, B>(Value);
 
     internal override PipeT<IN1, OUT, M, A> ReplaceAwait<IN1>(Func<PipeT<IN1, OUT, M, IN>> request) => 
-        ProxyT.fail<IN1, OUT, E, M, A>(Value);
+        PipeT.fail<IN1, OUT, E, M, A>(Value);
 
     internal override PipeT<IN, OUT1, M, A> ReplaceYield<OUT1>(Func<OUT, PipeT<IN, OUT1, M, Unit>> response) => 
-        ProxyT.fail<IN, OUT1, E, M, A>(Value);
+        PipeT.fail<IN, OUT1, E, M, A>(Value);
     
     internal override PipeT<IN1, OUT, M, A> PairEachAwaitWithYield<IN1>(Func<Unit, PipeT<IN1, IN, M, A>> request) => 
-        ProxyT.fail<IN1, OUT, E, M, A>(Value);
+        PipeT.fail<IN1, OUT, E, M, A>(Value);
 
     internal override PipeT<IN, OUT1, M, A> PairEachYieldWithAwait<OUT1>(Func<OUT, PipeT<OUT, OUT1, M, A>> response) =>
-        ProxyT.fail<IN, OUT1, E, M, A>(Value);
+        PipeT.fail<IN, OUT1, E, M, A>(Value);
 
     internal override K<M, A> Run() =>
         M.Fail<A>(Value);

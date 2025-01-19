@@ -1,3 +1,5 @@
+using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes2;
@@ -8,36 +10,71 @@ namespace LanguageExt.Pipes2;
 public readonly record struct ConsumerT<IN, M, A>(PipeT<IN, Void, M, A> Proxy)
     where M : Monad<M>
 {
+    [Pure]
     public ConsumerT<IN, M, B> Map<B>(Func<A, B> f) =>
-        new (Proxy.Map(f));
+        Proxy.Map(f);
     
+    [Pure]
     public ConsumerT<IN, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
-        new (Proxy.MapM(f));
+        Proxy.MapM(f);
 
+    [Pure]
     public ConsumerT<IN, M, B> ApplyBack<B>(ConsumerT<IN, M, Func<A, B>> ff) =>
-        new (Proxy.ApplyBack(ff.Proxy));
+        Proxy.ApplyBack(ff.Proxy);
     
+    [Pure]
     public ConsumerT<IN, M, B> Action<B>(ConsumerT<IN, M, B> fb) =>
-        new (Proxy.Action(fb.Proxy));
+        Proxy.Action(fb.Proxy);
     
+    [Pure]
     public ConsumerT<IN, M, B> Bind<B>(Func<A, ConsumerT<IN, M, B>> f) =>
-        new (Proxy.Bind(x => f(x).Proxy));
+        Proxy.Bind(x => f(x).Proxy);
+    
+    [Pure]
+    public ConsumerT<IN, M, B> Bind<B>(Func<A, IO<B>> f) =>
+        Proxy.Bind(f);
 
+    [Pure]
+    public ConsumerT<IN, M, B> Bind<B>(Func<A, K<M, B>> f) =>
+        Proxy.Bind(f);
+   
+    [Pure]
+    public ConsumerT<IN, M, B> Bind<B>(Func<A, Pure<B>> f) =>
+        Proxy.Bind(f);
+   
+    [Pure]
+    public ConsumerT<IN, M, B> Bind<B>(Func<A, Lift<B>> f) =>
+        Proxy.Bind(f);
+
+    [Pure]
     internal K<M, A> Run() =>
         Proxy.Run();
     
-    public ConsumerT<IN, M, B> Bind<B>(Func<A, K<M, B>> f) => 
-        Bind(x => ConsumerT.liftM<IN, M, B>(f(x))); 
-    
+    [Pure]
     public ConsumerT<IN, M, B> Select<B>(Func<A, B> f) =>
-        Map(f);
+        Proxy.Map(f);
    
+    [Pure]
     public ConsumerT<IN, M, C> SelectMany<B, C>(Func<A, ConsumerT<IN, M, B>> f, Func<A, B, C> g) =>
-        Bind(x => f(x).Map(y => g(x, y)));
+        Proxy.SelectMany(x => f(x).Proxy, g);
    
+    [Pure]
     public ConsumerT<IN, M, C> SelectMany<B, C>(Func<A, K<M, B>> f, Func<A, B, C> g) =>
-        Bind(x => f(x).Map(y => g(x, y)));
+        Proxy.SelectMany(f, g);
+   
+    [Pure]
+    public ConsumerT<IN, M, C> SelectMany<B, C>(Func<A, IO<B>> f, Func<A, B, C> g) =>
+        Proxy.SelectMany(f, g);
+   
+    [Pure]
+    public ConsumerT<IN, M, C> SelectMany<B, C>(Func<A, Pure<B>> f, Func<A, B, C> g) =>
+        Proxy.SelectMany(f, g);
+   
+    [Pure]
+    public ConsumerT<IN, M, C> SelectMany<B, C>(Func<A, Lift<B>> f, Func<A, B, C> g) =>
+        Proxy.SelectMany(f, g);
 
+    [Pure]
     public static implicit operator ConsumerT<IN, M, A>(PipeT<IN, Void, M, A> pipe) =>
         pipe.ToConsumer();
 }

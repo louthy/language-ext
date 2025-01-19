@@ -3,6 +3,7 @@ using LanguageExt.Pipes;
 using LanguageExt.Pipes2;
 using static LanguageExt.Prelude;
 
+/*
 var op = from _1 in Producer.lift<int, IO, Unit>(writeLine("pre-yield"))
          from _2 in Producer.yieldAll<IO, int>([100, 200, 300])
          from _3 in writeLine("post-yield")
@@ -15,7 +16,7 @@ var oc = from _1 in Consumer.lift<int, IO, Unit>(writeLine("pre-await"))
 
 var oe = op | oc;
 
-var or = oe.RunEffect().Run();
+var or = oe.RunEffect().Run();*/
 
 Console.WriteLine();
 
