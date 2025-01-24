@@ -6,30 +6,20 @@ namespace LanguageExt.Pipes2;
 /// <summary>
 /// `ProducerT` streaming producer monad-transformer instance
 /// </summary>
-public readonly record struct ProducerT<OUT, M, A>(PipeT<Unit, OUT, M, A> Proxy)
+public readonly record struct ProducerT<OUT, M, A>(PipeT<Unit, OUT, M, A> Proxy) : K<ProducerT<OUT, M, A>, A>
     where M : Monad<M>
 {
     [Pure]
-    public ProducerT<OUT1, M, A> Compose<OUT1>(PipeT<OUT, OUT1, M, A> rhs)
-    {
-        var p = Proxy;
-        return rhs.PairEachAwaitWithYield(_ => p);
-    }
+    public ProducerT<OUT1, M, A> Compose<OUT1>(PipeT<OUT, OUT1, M, A> rhs) =>
+        Proxy.Compose(rhs).ToProducer();
 
     [Pure]
-    public EffectT<M, A> Compose(ConsumerT<OUT, M, A> rhs)
-    {
-        var p = Proxy;
-        return rhs.Proxy.PairEachAwaitWithYield(_ => p);
-    }
-
-    [Pure]
-    public static ProducerT<OUT, M, A> operator | (ProducerT<OUT, M, A> lhs, PipeT<OUT, OUT, M, A> rhs) =>
-        lhs.Compose(rhs);
+    public EffectT<M, A> Compose(ConsumerT<OUT, M, A> rhs) =>
+        Proxy.Compose(rhs.Proxy).ToEffect();
 
     [Pure]
     public static EffectT<M, A> operator | (ProducerT<OUT, M, A> lhs, ConsumerT<OUT, M, A> rhs) =>
-        lhs.Compose(rhs);
+        lhs.Proxy.Compose(rhs.Proxy).ToEffect();
     
     [Pure]
     public ProducerT<OUT, M, B> Map<B>(Func<A, B> f) =>

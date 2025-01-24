@@ -68,7 +68,7 @@ public static class PipeT
     /// <returns></returns>
     public static PipeT<IN, OUT, M, A> lift<IN, OUT, M, A>(Func<A> f) 
         where M : Monad<M> =>
-        new PipeTLift<IN, OUT, A, M, A>(f, pure<IN, OUT, M, A>);
+        new PipeTLazy<IN, OUT, M, A>(() => pure<IN, OUT, M, A>(f()));
     
     /// <summary>
     /// Create a lazy pipe 
@@ -93,7 +93,7 @@ public static class PipeT
     public static PipeT<IN, OUT, M, A> liftT<IN, OUT, M, A>(Func<ValueTask<PipeT<IN, OUT, M, A>>> f) 
         where M : Monad<M> =>
         new PipeTLazyAsync<IN, OUT, M, A>(f);
-    
+
     /// <summary>
     /// Create an asynchronous pipe 
     /// </summary>
@@ -102,9 +102,9 @@ public static class PipeT
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
-    public static PipeT<IN, OUT, M, A> liftT<IN, OUT, M, A>(ValueTask<PipeT<IN, OUT, M, A>> f) 
+    public static PipeT<IN, OUT, M, A> liftT<IN, OUT, M, A>(ValueTask<PipeT<IN, OUT, M, A>> task)
         where M : Monad<M> =>
-        new PipeTAsync<IN, OUT, M, A>(f);
+        new PipeTLazyAsync<IN, OUT, M, A>(() => task);
     
     /// <summary>
     /// Create a pipe that simply returns the bound value of the lifted monad without yielding anything
@@ -137,7 +137,7 @@ public static class PipeT
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
-    public static PipeT<IN, OUT, M, Unit> yield<IN, OUT, M>(OUT value) 
+    public static PipeT<IN, OUT, M, Unit> yield<M, IN, OUT>(OUT value) 
         where M : Monad<M> =>
         new PipeTYield<IN, OUT, M, Unit>(value, _ => pure<IN, OUT, M, Unit>(default));
 
@@ -148,7 +148,7 @@ public static class PipeT
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
-    public static PipeT<IN, OUT, M, Unit> yieldAll<IN, OUT, M>(IEnumerable<OUT> values)
+    public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(IEnumerable<OUT> values)
         where M : Monad<M>, Alternative<M> =>
         new PipeTYieldAll<IN, OUT, M, Unit>(
             values.Select(v => new PipeTYield<IN, OUT, M, Unit>(v, _ => pure<IN, OUT, M, Unit>(default))));
@@ -160,7 +160,7 @@ public static class PipeT
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
-    public static PipeT<IN, OUT, M, Unit> yieldAll<IN, OUT, M>(IAsyncEnumerable<OUT> values) 
+    public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(IAsyncEnumerable<OUT> values) 
         where M : Monad<M>, Alternative<M> =>
         new PipeTYieldAllAsync<IN, OUT, M, Unit>(
             values.Select(v => new PipeTYield<IN, OUT, M, Unit>(v, _ => pure<IN, OUT, M, Unit>(default))));
@@ -172,7 +172,7 @@ public static class PipeT
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
-    public static PipeT<IN, OUT, M, IN> awaiting<IN, OUT, M>() 
+    public static PipeT<IN, OUT, M, IN> awaiting<M, IN, OUT>() 
         where M : Monad<M> =>
         new PipeTAwait<IN, OUT, M, IN>(pure<IN, OUT, M, IN>);
 }

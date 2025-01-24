@@ -29,6 +29,14 @@ public partial class Try
     public static Try<A> lift<A>(Func<A> f) => 
         Try<A>.Lift(f);
 
+    public static Try<Unit> lift(Action f) =>
+        Try<Unit>.Lift(
+            () =>
+            {
+                f();
+                return default;
+            });
+
     public static Fin<B> match<A, B>(Try<A> ma, Func<A, B> Succ, Func<Error, B> Fail) => 
         ma.Match(Succ, Fail);
 }

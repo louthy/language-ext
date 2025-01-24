@@ -6,7 +6,8 @@ using static LanguageExt.Prelude;
 namespace LanguageExt;
 
 /// <summary>
-/// `TryT` monad transformer, which allows for an optional result. 
+/// `TryT` monad transformer, which allows for an  optional `Error` result and catches exceptions,
+/// converting them to `Error`. 
 /// </summary>
 /// <param name="runEither">Transducer that represents the transformer operation</param>
 /// <typeparam name="M">Given monad trait</typeparam>

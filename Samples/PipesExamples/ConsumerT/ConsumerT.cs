@@ -7,7 +7,7 @@ namespace LanguageExt.Pipes2;
 /// <summary>
 /// `ConsumerT` streaming consumer monad-transformer instance
 /// </summary>
-public readonly record struct ConsumerT<IN, M, A>(PipeT<IN, Void, M, A> Proxy)
+public readonly record struct ConsumerT<IN, M, A>(PipeT<IN, Void, M, A> Proxy) : K<ConsumerT<IN, M, A>, A>
     where M : Monad<M>
 {
     [Pure]

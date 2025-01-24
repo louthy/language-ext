@@ -46,7 +46,7 @@ public record Pure<UOut, UIn, DIn, DOut, M, A>(A Value) : Proxy<UOut, UIn, DIn, 
     [Pure]
     public override Proxy<UOut, UIn, DIn, DOut, M, B> Map<B>(Func<A, B> f) =>
         new Pure<UOut, UIn, DIn, DOut, M, B>(f(Value));
-
+            
     /// <summary>
     /// Map the lifted monad
     /// </summary>

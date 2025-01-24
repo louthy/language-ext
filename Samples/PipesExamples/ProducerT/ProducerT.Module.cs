@@ -127,7 +127,7 @@ public static class ProducerT
     /// <returns></returns>
     public static ProducerT<OUT, M, Unit> yield<M, OUT>(OUT value) 
         where M : Monad<M> =>
-        PipeT.yield<Unit, OUT, M>(value);
+        PipeT.yield<M, Unit, OUT>(value);
 
     /// <summary>
     /// Yield all values downstream
@@ -137,5 +137,5 @@ public static class ProducerT
     /// <returns></returns>
     public static ProducerT<OUT, M, Unit> yieldAll<M, OUT>(IEnumerable<OUT> values)
         where M : Monad<M>, Alternative<M> =>
-        PipeT.yieldAll<Unit, OUT, M>(values);
+        PipeT.yieldAll<M, Unit, OUT>(values);
 }

@@ -15,12 +15,16 @@ namespace LanguageExt.Pipes2;
 /// <typeparam name="OUT">Type of values to be produced</typeparam>
 /// <typeparam name="M">Lifted monad type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public abstract record PipeT<IN, OUT, M, A>
+public abstract record PipeT<IN, OUT, M, A> : K<PipeT<IN, OUT, M>, A>
     where M : Monad<M>
 {
     [Pure]
     public PipeT<IN, OUT1, M, A> Compose<OUT1>(PipeT<OUT, OUT1, M, A> rhs) =>
         rhs.PairEachAwaitWithYield(_ => this);
+
+    [Pure]
+    public ConsumerT<IN, M, A> Compose(ConsumerT<OUT, M, A> rhs) =>
+        rhs.Proxy.PairEachAwaitWithYield(_ => this);
 
     [Pure]
     public static PipeT<IN, OUT, M, A> operator | (PipeT<IN, OUT, M, A> lhs, PipeT<OUT, OUT, M, A> rhs) =>
@@ -94,16 +98,16 @@ public abstract record PipeT<IN, OUT, M, A>
         Map(x => g(x, f(x).Function()));
     
     [Pure]
-    internal abstract PipeT<IN1, OUT, M, A> ReplaceAwait<IN1>(Func<PipeT<IN1, OUT, M, IN>> request);
+    internal abstract PipeT<IN1, OUT, M, A> ReplaceAwait<IN1>(Func<PipeT<IN1, OUT, M, IN>> producer);
     
     [Pure]
-    internal abstract PipeT<IN, OUT1, M, A> ReplaceYield<OUT1>(Func<OUT, PipeT<IN, OUT1, M, Unit>> response);
+    internal abstract PipeT<IN, OUT1, M, A> ReplaceYield<OUT1>(Func<OUT, PipeT<IN, OUT1, M, Unit>> consumer);
     
     [Pure]
-    internal abstract PipeT<IN1, OUT, M, A> PairEachAwaitWithYield<IN1>(Func<Unit, PipeT<IN1, IN, M, A>> request);
+    internal abstract PipeT<IN1, OUT, M, A> PairEachAwaitWithYield<IN1>(Func<Unit, PipeT<IN1, IN, M, A>> producer);
     
     [Pure]
-    internal abstract PipeT<IN, OUT1, M, A> PairEachYieldWithAwait<OUT1>(Func<OUT, PipeT<OUT, OUT1, M, A>> response);
+    internal abstract PipeT<IN, OUT1, M, A> PairEachYieldWithAwait<OUT1>(Func<OUT, PipeT<OUT, OUT1, M, A>> consumer);
     
     [Pure]
     internal abstract K<M, A> Run();

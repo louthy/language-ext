@@ -6,7 +6,7 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 /// <summary>
-/// Either monad extensions
+/// `TryT` monad extensions
 /// </summary>
 public static partial class TryTExtensions
 {

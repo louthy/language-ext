@@ -7,9 +7,8 @@ using static LanguageExt.Prelude;
 namespace LanguageExt;
 
 /// <summary>
-/// `TryT` monad transformer, which allows for an optional result. 
+/// `Try` monad which allows for an optional `Error` result and catches exceptions, converting them to `Error`. 
 /// </summary>
-/// <param name="runEither">Transducer that represents the transformer operation</param>
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record Try<A>(Func<Fin<A>> runTry) : 

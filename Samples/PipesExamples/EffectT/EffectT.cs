@@ -3,7 +3,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes2;
 
-public readonly record struct EffectT<M, A>(PipeT<Unit, Void, M, A> Proxy)
+public readonly record struct EffectT<M, A>(PipeT<Unit, Void, M, A> Proxy) : K<EffectT<M, A>, A>
     where M : Monad<M>
 {
     [Pure]
