@@ -221,10 +221,18 @@ public static partial class Prelude
     /// <summary>
     /// Awaits all 
     /// </summary>
-    /// <param name="ms">IO operations to await</param>
+    /// <param name="forks">IO operations to await</param>
     /// <returns>Sequence of results</returns>
-    public static IO<Seq<A>> awaitAll<A>(params IO<ForkIO<A>>[] mfs) =>
-        awaitAll(mfs.ToSeqUnsafe());
+    public static IO<Seq<A>> awaitAll<A>(params IO<ForkIO<A>>[] forks) =>
+        awaitAll(forks.ToSeqUnsafe());
+
+    /// <summary>
+    /// Awaits all 
+    /// </summary>
+    /// <param name="forks">IO operations to await</param>
+    /// <returns>Sequence of results</returns>
+    public static IO<Seq<A>> awaitAll<A>(params ForkIO<A>[] forks) =>
+        awaitAll(forks.ToSeqUnsafe());
     
     /// <summary>
     /// Awaits all operations
@@ -268,28 +276,40 @@ public static partial class Prelude
     /// <summary>
     /// Awaits all 
     /// </summary>
-    /// <param name="ms">IO operations to await</param>
+    /// <param name="forks">IO operations to await</param>
     /// <returns>Sequence of results</returns>
-    public static IO<Seq<A>> awaitAll<A>(Seq<IO<ForkIO<A>>> mfs) =>
+    public static IO<Seq<A>> awaitAll<A>(Seq<IO<ForkIO<A>>> forks) =>
         IO.liftAsync(async eio =>
                      {
-                         var forks  = mfs.Map(mf => mf.Run(eio));
+                         var forks1 = forks.Map(mf => mf.Run(eio));
+                         var result = await Task.WhenAll(forks1.Map(f => f.Await.RunAsync(eio).AsTask()));
+                         return result.ToSeqUnsafe();
+                     });
+
+    /// <summary>
+    /// Awaits all 
+    /// </summary>
+    /// <param name="forks">IO operations to await</param>
+    /// <returns>Sequence of results</returns>
+    public static IO<Seq<A>> awaitAll<A>(Seq<ForkIO<A>> forks) =>
+        IO.liftAsync(async eio =>
+                     {
                          var result = await Task.WhenAll(forks.Map(f => f.Await.RunAsync(eio).AsTask()));
                          return result.ToSeqUnsafe();
                      });
 
     /// <summary>
-    /// Awaits for any forks to complete
+    /// Awaits for any operation to complete
     /// </summary>
-    /// <param name="forks">Forks to await</param>
+    /// <param name="ms">Operations to await</param>
     /// <returns>
     /// If we get one success, then we'll return straight away and cancel the others.
     /// If we get any errors, we'll collect them in the hope that at least one works.
     /// If we have collected as many errors as we have forks, then we'll return them all.
     /// </returns>
-    public static K<M, A> awaitAny<M, A>(params K<M, A>[] forks)
+    public static K<M, A> awaitAny<M, A>(params K<M, A>[] ms)
         where M : Monad<M> =>
-        awaitAny(forks.ToSeqUnsafe());
+        awaitAny(ms.ToSeqUnsafe());
 
     /// <summary>
     /// Awaits for any IO to complete
@@ -349,6 +369,19 @@ public static partial class Prelude
     /// If we get any errors, we'll collect them in the hope that at least one works.
     /// If we have collected as many errors as we have forks, then we'll return them all.
     /// </returns>
+    public static IO<A> awaitAny<M, A>(params ForkIO<A>[] forks)
+        where M : Monad<M> =>
+        awaitAny(forks.ToSeqUnsafe());
+
+    /// <summary>
+    /// Awaits for any forks to complete
+    /// </summary>
+    /// <param name="forks">Forks to await</param>
+    /// <returns>
+    /// If we get one success, then we'll return straight away and cancel the others.
+    /// If we get any errors, we'll collect them in the hope that at least one works.
+    /// If we have collected as many errors as we have forks, then we'll return them all.
+    /// </returns>
     public static K<M, A> awaitAny<M, A>(Seq<K<M, ForkIO<A>>> forks)
         where M : Monad<M> =>
         forks.Traverse(f => f.ToIO())
@@ -390,11 +423,7 @@ public static partial class Prelude
     /// If we have collected as many errors as we have forks, then we'll return them all.
     /// </returns>
     public static IO<A> awaitAny<A>(Seq<IO<A>> ms) =>
-        IO.liftAsync(async eio => 
-                     {
-                         var result = await await Task.WhenAny(ms.Map(io => io.RunAsync(eio).AsTask()));
-                         return result;
-                     });
+        IO.liftAsync(async eio => await await Task.WhenAny(ms.Map(io => io.RunAsync(eio).AsTask())));
 
     /// <summary>
     /// Awaits for any forks to complete
@@ -405,11 +434,23 @@ public static partial class Prelude
     /// If we get any errors, we'll collect them in the hope that at least one works.
     /// If we have collected as many errors as we have forks, then we'll return them all.
     /// </returns>
-    public static IO<A> awaitAny<A>(Seq<IO<ForkIO<A>>> mfs) =>
+    public static IO<A> awaitAny<A>(Seq<ForkIO<A>> forks) =>
+        IO.liftAsync(async eio => await await Task.WhenAny(forks.Map(f => f.Await.RunAsync(eio).AsTask())));
+
+    /// <summary>
+    /// Awaits for any forks to complete
+    /// </summary>
+    /// <param name="forks">Forks to await</param>
+    /// <returns>
+    /// If we get one success, then we'll return straight away and cancel the others.
+    /// If we get any errors, we'll collect them in the hope that at least one works.
+    /// If we have collected as many errors as we have forks, then we'll return them all.
+    /// </returns>
+    public static IO<A> awaitAny<A>(Seq<IO<ForkIO<A>>> forks) =>
         IO.liftAsync(async eio =>
                      {
-                         var forks  = mfs.Map(mf => mf.Run(eio));
-                         var result = await await Task.WhenAny(forks.Map(f => f.Await.RunAsync(eio).AsTask()));
+                         var forks1 = forks.Map(mf => mf.Run(eio));
+                         var result = await await Task.WhenAny(forks1.Map(f => f.Await.RunAsync(eio).AsTask()));
                          return result;
                      });
 
