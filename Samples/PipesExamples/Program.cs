@@ -23,8 +23,7 @@ Console.WriteLine();*/
 var w1 = ProducerT.liftM<int, Try, Unit>(writeLine("post yield"));
 var p1 = ProducerT.yield<Try, int>(100).Bind(_ => w1);
 var c1 = ConsumerT.awaitIgnore<Try, int>();
-//var e1 = p1 | c1;
-var e1 = c1.Proxy.PairEachAwaitWithYield(_ => p1.Proxy);
+var e1 = p1 | c1;
 var r1 = e1.Run().Run();
 
 

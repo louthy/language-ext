@@ -62,9 +62,9 @@ record PipeTPure<IN, OUT, M, A>(A Value) : PipeT<IN, OUT, M, A>
 
     internal override PipeT<IN, OUT1, M, A> ReplaceYield<OUT1>(Func<OUT, PipeT<IN, OUT1, M, Unit>> consumer) => 
         PipeT.pure<IN, OUT1, M, A>(Value);
-    
+
     internal override PipeT<IN1, OUT, M, A> PairEachAwaitWithYield<IN1>(Func<Unit, PipeT<IN1, IN, M, A>> producer) =>
-        PipeT.pure<IN1, OUT, M, A>(Value);
+        producer(default).PairEachYieldWithAwait(_ => PipeT.pure<IN, OUT, M, A>(Value));
     
     internal override PipeT<IN, OUT1, M, A> PairEachYieldWithAwait<OUT1>(Func<OUT, PipeT<OUT, OUT1, M, A>> consumer) =>
         PipeT.pure<IN, OUT1, M, A>(Value);
@@ -247,13 +247,7 @@ record PipeTYield<IN, OUT, M, A>(OUT Value, Func<Unit, PipeT<IN, OUT, M, A>> Nex
                                               });
 
     internal override PipeT<IN, OUT1, M, A> PairEachYieldWithAwait<OUT1>(Func<OUT, PipeT<OUT, OUT1, M, A>> consumer) =>
-        // NOTE: THE PROBLEM STARTS HERE.
-        // response(Value) returns Pure, which doesn't invoke the Next give to PairEachAwaitWithYield
-        consumer(Value).PairEachAwaitWithYield(_ =>
-                                               {
-                                                   Console.WriteLine("PairEachYieldWithAwait");
-                                                   return Next(default);
-                                               });
+        consumer(Value).PairEachAwaitWithYield(_ => Next(default));
 
     internal override K<M, A> Run() => 
         throw new InvalidOperationException("closed");
