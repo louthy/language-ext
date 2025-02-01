@@ -7,9 +7,16 @@ public static class ProducerTExtensions
     /// <summary>
     /// Transformation from `PipeT` to `ProducerT`.
     /// </summary>
-    public static ProducerT<OUT, M, A> ToProducer<OUT, M, A>(this PipeT<Unit, OUT, M, A> pipe)
+    public static ProducerT<OUT, M, A> ToProducer<OUT, M, A>(this K<PipeT<Unit, OUT, M>, A> pipe)
         where M : Monad<M> =>
-        new(pipe);
+        new(pipe.As());
+    
+    /// <summary>
+    /// Downcast
+    /// </summary>
+    public static ProducerT<OUT, M, A> As<OUT, M, A>(this K<ProducerT<OUT, M>, A> ma)
+        where M : Monad<M> =>
+        (ProducerT<OUT, M, A>)ma;
 
     /// <summary>
     /// Monad bind

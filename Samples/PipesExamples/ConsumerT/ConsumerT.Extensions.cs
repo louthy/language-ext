@@ -7,9 +7,16 @@ public static class ConsumerTExtensions
     /// <summary>
     /// Transformation from `PipeT` to `ConsumerT`.
     /// </summary>
-    public static ConsumerT<IN, M, A> ToConsumer<IN, M, A>(this PipeT<IN, Void, M, A> pipe)
+    public static ConsumerT<IN, M, A> ToConsumer<IN, M, A>(this K<PipeT<IN, Void, M>, A> pipe)
         where M : Monad<M> =>
-        new(pipe);
+        new(pipe.As());
+
+    /// <summary>
+    /// Downcast
+    /// </summary>
+    public static ConsumerT<IN, M, A> As<IN, M, A>(this K<ConsumerT<IN, M>, A> ma)
+        where M : Monad<M> =>
+        (ConsumerT<IN, M, A>)ma;
 
     /// <summary>
     /// Monad bind

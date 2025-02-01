@@ -74,6 +74,10 @@ public abstract record PipeT<IN, OUT, M, A> : K<PipeT<IN, OUT, M>, A>
         Bind(x => PipeT.liftT(f(x)));
     
     [Pure]
+    public PipeT<IN, OUT, M, B> MapIO<B>(Func<IO<A>, IO<B>> f) =>
+        MapM(ma => ma.MapIO(f));
+
+    [Pure]
     public PipeT<IN, OUT, M, B> Select<B>(Func<A, B> f) =>
         Map(f);
    

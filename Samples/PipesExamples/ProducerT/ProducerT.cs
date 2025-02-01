@@ -6,7 +6,7 @@ namespace LanguageExt.Pipes2;
 /// <summary>
 /// `ProducerT` streaming producer monad-transformer instance
 /// </summary>
-public readonly record struct ProducerT<OUT, M, A>(PipeT<Unit, OUT, M, A> Proxy) : K<ProducerT<OUT, M, A>, A>
+public readonly record struct ProducerT<OUT, M, A>(PipeT<Unit, OUT, M, A> Proxy) : K<ProducerT<OUT, M>, A>
     where M : Monad<M>
 {
     [Pure]
@@ -28,6 +28,10 @@ public readonly record struct ProducerT<OUT, M, A>(PipeT<Unit, OUT, M, A> Proxy)
     [Pure]
     public ProducerT<OUT, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
         Proxy.MapM(f);
+
+    [Pure]
+    public ProducerT<OUT, M, B> MapIO<B>(Func<IO<A>, IO<B>> f) =>
+        Proxy.MapIO(f);
 
     [Pure]
     public ProducerT<OUT, M, B> ApplyBack<B>(ProducerT<OUT, M, Func<A, B>> ff) =>

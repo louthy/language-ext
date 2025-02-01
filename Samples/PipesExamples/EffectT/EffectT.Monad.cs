@@ -6,23 +6,26 @@ public class EffectT<M> : MonadT<EffectT<M>, M>
     where M : Monad<M>
 {
     static K<EffectT<M>, B> Monad<EffectT<M>>.Bind<A, B>(K<EffectT<M>, A> ma, Func<A, K<EffectT<M>, B>> f) => 
-        throw new NotImplementedException();
+        ma.As().Bind(f);
 
     static K<EffectT<M>, B> Functor<EffectT<M>>.Map<A, B>(Func<A, B> f, K<EffectT<M>, A> ma) => 
-        throw new NotImplementedException();
+        ma.As().Map(f);
 
     static K<EffectT<M>, A> Applicative<EffectT<M>>.Pure<A>(A value) => 
-        throw new NotImplementedException();
+        EffectT.pure<M, A>(value);
 
     static K<EffectT<M>, B> Applicative<EffectT<M>>.Apply<A, B>(K<EffectT<M>, Func<A, B>> mf, K<EffectT<M>, A> ma) => 
-        throw new NotImplementedException();
+        mf.As().Apply(ma.As());
 
-    static K<EffectT<M>, A> MonadT<EffectT<M>, M>.Lift<A>(K<M, A> ma) => 
-        throw new NotImplementedException();
+    static K<EffectT<M>, A> MonadT<EffectT<M>, M>.Lift<A>(K<M, A> ma) =>
+        EffectT.liftM(ma);
 
     static K<EffectT<M>, A> MonadIO<EffectT<M>>.LiftIO<A>(IO<A> ma) => 
-        throw new NotImplementedException();
+        EffectT.liftIO<M, A>(ma);
 
-    static K<EffectT<M>, IO<A>> MonadIO<EffectT<M>>.ToIO<A>(K<EffectT<M>, A> ma) => 
-        throw new NotImplementedException();
+    static K<EffectT<M>, B> MonadIO<EffectT<M>>.MapIO<A, B>(K<EffectT<M>, A> ma, Func<IO<A>, IO<B>> f) => 
+        ma.As().MapIO(f);
+
+    static K<EffectT<M>, IO<A>> MonadIO<EffectT<M>>.ToIO<A>(K<EffectT<M>, A> ma) =>
+        ma.MapIO(IO.pure);
 }

@@ -5,6 +5,13 @@ namespace LanguageExt.Pipes2;
 public static class PipeTExtensions
 {
     /// <summary>
+    /// Downcast
+    /// </summary>
+    public static PipeT<IN, OUT, M, A> As<IN, OUT, M, A>(this K<PipeT<IN, OUT, M>, A> ma)
+        where M : Monad<M> =>
+        (PipeT<IN, OUT, M, A>)ma;
+    
+    /// <summary>
     /// Monad bind
     /// </summary>
     public static PipeT<IN, OUT, M, C> SelectMany<IN, OUT, M, A, B, C>(

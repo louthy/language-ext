@@ -8,27 +8,30 @@ public class ProducerT<OUT, M> : MonadT<ProducerT<OUT, M>, M>
     static K<ProducerT<OUT, M>, B> Monad<ProducerT<OUT, M>>.Bind<A, B>(
         K<ProducerT<OUT, M>, A> ma, 
         Func<A, K<ProducerT<OUT, M>, B>> f) => 
-        throw new NotImplementedException();
+        ma.As().Bind(f);
 
     static K<ProducerT<OUT, M>, B> Functor<ProducerT<OUT, M>>.Map<A, B>(
         Func<A, B> f, 
         K<ProducerT<OUT, M>, A> ma) => 
-        throw new NotImplementedException();
+        ma.As().Map(f);
 
     static K<ProducerT<OUT, M>, A> Applicative<ProducerT<OUT, M>>.Pure<A>(A value) => 
-        throw new NotImplementedException();
+        ProducerT.pure<OUT, M, A>(value);
 
     static K<ProducerT<OUT, M>, B> Applicative<ProducerT<OUT, M>>.Apply<A, B>(
-        K<ProducerT<OUT, M>, Func<A, B>> mf, 
-        K<ProducerT<OUT, M>, A> ma) => 
-        throw new NotImplementedException();
+        K<ProducerT<OUT, M>, Func<A, B>> mf,
+        K<ProducerT<OUT, M>, A> ma) =>
+        mf.As().Apply(ma.As());
 
     static K<ProducerT<OUT, M>, A> MonadT<ProducerT<OUT, M>, M>.Lift<A>(K<M, A> ma) => 
-        throw new NotImplementedException();
+        ProducerT.liftM<OUT, M, A>(ma);
 
     static K<ProducerT<OUT, M>, A> MonadIO<ProducerT<OUT, M>>.LiftIO<A>(IO<A> ma) => 
-        throw new NotImplementedException();
+        ProducerT.liftIO<OUT, M, A>(ma);
+
+    static K<ProducerT<OUT, M>, B> MonadIO<ProducerT<OUT, M>>.MapIO<A, B>(K<ProducerT<OUT, M>, A> ma, Func<IO<A>, IO<B>> f) => 
+        ma.As().MapIO(f);
 
     static K<ProducerT<OUT, M>, IO<A>> MonadIO<ProducerT<OUT, M>>.ToIO<A>(K<ProducerT<OUT, M>, A> ma) => 
-        throw new NotImplementedException();
+        ma.MapIO(IO.pure);
 }

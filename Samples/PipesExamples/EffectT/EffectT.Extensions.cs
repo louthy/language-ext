@@ -7,9 +7,16 @@ public static class EffectTExtensions
     /// <summary>
     /// Transformation from `PipeT` to `EffectT`.
     /// </summary>
-    public static EffectT<M, A> ToEffect<M, A>(this PipeT<Unit, Void, M, A> pipe)
+    public static EffectT<M, A> ToEffect<M, A>(this K<PipeT<Unit, Void, M>, A> pipe)
         where M : Monad<M> =>
-        new(pipe);
+        new(pipe.As());
+
+    /// <summary>
+    /// Downcast
+    /// </summary>
+    public static EffectT<M, A> As<M, A>(this K<EffectT<M>, A> ma)
+        where M : Monad<M> =>
+        (EffectT<M, A>)ma;
 
     /// <summary>
     /// Monad bind

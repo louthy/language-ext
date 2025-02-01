@@ -7,7 +7,7 @@ namespace LanguageExt.Pipes2;
 /// <summary>
 /// `ConsumerT` streaming consumer monad-transformer instance
 /// </summary>
-public readonly record struct ConsumerT<IN, M, A>(PipeT<IN, Void, M, A> Proxy) : K<ConsumerT<IN, M, A>, A>
+public readonly record struct ConsumerT<IN, M, A>(PipeT<IN, Void, M, A> Proxy) : K<ConsumerT<IN, M>, A>
     where M : Monad<M>
 {
     [Pure]
@@ -17,6 +17,10 @@ public readonly record struct ConsumerT<IN, M, A>(PipeT<IN, Void, M, A> Proxy) :
     [Pure]
     public ConsumerT<IN, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
         Proxy.MapM(f);
+
+    [Pure]
+    public ConsumerT<IN, M, B> MapIO<B>(Func<IO<A>, IO<B>> f) =>
+        Proxy.MapIO(f);
 
     [Pure]
     public ConsumerT<IN, M, B> ApplyBack<B>(ConsumerT<IN, M, Func<A, B>> ff) =>
