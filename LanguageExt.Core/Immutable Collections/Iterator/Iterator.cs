@@ -114,7 +114,7 @@ public abstract class Iterator<A> :
     /// <summary>
     /// Deconstructor
     /// </summary>
-    public new void Deconstruct(out A head, out Iterator<A> tail)
+    public void Deconstruct(out A head, out Iterator<A> tail)
     {
         head = Head;
         tail = Tail;
@@ -560,7 +560,7 @@ public abstract class Iterator<A> :
     /// </summary>
     public abstract class Cons : Iterator<A>
     {
-        public void Deconstruct(out A head, out Iterator<A> tail)
+        public new void Deconstruct(out A head, out Iterator<A> tail)
         {
             head = Head;
             tail = Tail;
