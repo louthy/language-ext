@@ -43,11 +43,12 @@ public partial class Arr :
         var size = ff.Count * fa.Count;
         var bs   = new B[size];
         var ix   = 0;
-        for (var i = 0; i < ff.Count; i++)
+        foreach (var f in ff)
         {
-            for (var j = 0; j < fa.Count; j++)
+            foreach (var a in fa)
             {
-                bs[ix] = ff[i](fa[j]);
+                bs[ix] = f(a);
+                ix++;
             }
         }
         return new Arr<B>(bs);
@@ -74,9 +75,8 @@ public partial class Arr :
     static S Foldable<Arr>.FoldWhile<A, S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate, S state, K<Arr, A> ta)
     {
         var arr = ta.As().Value;
-        for (var i = 0; i < arr.Length; i++)
+        foreach (var x in arr)
         {
-            var x = arr[i];
             if (!predicate((state, x))) return state;
             state = f(x)(state);
         }
