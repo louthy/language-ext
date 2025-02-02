@@ -9,6 +9,36 @@ namespace LanguageExt.Pipes2;
 public static class ProducerT
 {
     /// <summary>
+    /// Yield a value downstream
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, Unit> yield<M, OUT>(OUT value) 
+        where M : Monad<M> =>
+        PipeT.yield<M, Unit, OUT>(value);
+
+    /// <summary>
+    /// Yield all values downstream
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, Unit> yieldAll<M, OUT>(IEnumerable<OUT> values)
+        where M : Monad<M> =>
+        PipeT.yieldAll<M, Unit, OUT>(values);
+
+    /// <summary>
+    /// Yield all values downstream
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, Unit> yieldAll<M, OUT>(IAsyncEnumerable<OUT> values)
+        where M : Monad<M> =>
+        PipeT.yieldAll<M, Unit, OUT>(values);
+    
+    /// <summary>
     /// Create a producer that simply returns a bound value without yielding anything
     /// </summary>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
@@ -118,24 +148,4 @@ public static class ProducerT
     public static ProducerT<OUT, M, A> liftT<OUT, M, A>(ValueTask<ProducerT<OUT, M, A>> f) 
         where M : Monad<M> =>
         PipeT.liftT(f.Map(p => p.Proxy));
-
-    /// <summary>
-    /// Yield a value downstream
-    /// </summary>
-    /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
-    /// <returns></returns>
-    public static ProducerT<OUT, M, Unit> yield<M, OUT>(OUT value) 
-        where M : Monad<M> =>
-        PipeT.yield<M, Unit, OUT>(value);
-
-    /// <summary>
-    /// Yield all values downstream
-    /// </summary>
-    /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
-    /// <returns></returns>
-    public static ProducerT<OUT, M, Unit> yieldAll<M, OUT>(IEnumerable<OUT> values)
-        where M : Monad<M>, Alternative<M> =>
-        PipeT.yieldAll<M, Unit, OUT>(values);
 }

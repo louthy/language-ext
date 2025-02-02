@@ -9,6 +9,26 @@ namespace LanguageExt.Pipes2;
 public static class ConsumerT
 {
     /// <summary>
+    /// Await a value from upstream
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static ConsumerT<IN, M, IN> awaiting<M, IN>()
+        where M : Monad<M> =>
+        PipeT.awaiting<M, IN, Void>();
+
+    /// <summary>
+    /// Await a value from upstream and then ignore it
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static ConsumerT<IN, M, Unit> awaitIgnore<M, IN>()
+        where M : Monad<M> =>
+        new PipeTAwait<IN, Void, M, Unit>(_ => PipeT.pure<IN, Void, M, Unit>(default));    
+    
+    /// <summary>
     /// Create a consumer that simply returns a bound value without awaiting anything
     /// </summary>
     /// <typeparam name="IN">Stream value to await</typeparam>
@@ -118,24 +138,4 @@ public static class ConsumerT
     public static ConsumerT<IN, M, A> liftIO<IN, M, A>(IO<A> ma) 
         where M : Monad<M> =>
         PipeT.liftIO<IN, Void, M, A>(ma);
-
-    /// <summary>
-    /// Await a value from upstream
-    /// </summary>
-    /// <typeparam name="IN">Stream value to consume</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
-    /// <returns></returns>
-    public static ConsumerT<IN, M, IN> awaiting<M, IN>()
-        where M : Monad<M> =>
-        PipeT.awaiting<M, IN, Void>();
-
-    /// <summary>
-    /// Await a value from upstream and then ignore it
-    /// </summary>
-    /// <typeparam name="IN">Stream value to consume</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
-    /// <returns></returns>
-    public static ConsumerT<IN, M, Unit> awaitIgnore<M, IN>()
-        where M : Monad<M> =>
-        new PipeTAwait<IN, Void, M, Unit>(_ => PipeT.pure<IN, Void, M, Unit>(default));    
 }

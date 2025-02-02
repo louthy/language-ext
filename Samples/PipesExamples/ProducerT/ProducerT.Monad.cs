@@ -1,3 +1,4 @@
+using LanguageExt.Async.Linq;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes2;
@@ -34,4 +35,21 @@ public class ProducerT<OUT, M> : MonadT<ProducerT<OUT, M>, M>
 
     static K<ProducerT<OUT, M>, IO<A>> MonadIO<ProducerT<OUT, M>>.ToIO<A>(K<ProducerT<OUT, M>, A> ma) => 
         ma.MapIO(IO.pure);
+
+    static K<ProducerT<OUT, M>, B> Applicative<ProducerT<OUT, M>>.Action<A, B>(
+        K<ProducerT<OUT, M>, A> ma, 
+        K<ProducerT<OUT, M>, B> mb) =>
+        ProducerT.liftM<OUT, M, B>(ma.As().Run().Action(mb.As().Run()));
+
+    static K<ProducerT<OUT, M>, A> Applicative<ProducerT<OUT, M>>.Actions<A>(
+        IEnumerable<K<ProducerT<OUT, M>, A>> fas) =>
+        fas.Select(fa => fa.As().Proxy)
+           .Actions()
+           .ToProducer();
+
+    static K<ProducerT<OUT, M>, A> Applicative<ProducerT<OUT, M>>.Actions<A>(
+        IAsyncEnumerable<K<ProducerT<OUT, M>, A>> fas) =>
+        fas.Select(fa => fa.As().Proxy)
+           .Actions()
+           .ToProducer();
 }

@@ -1,3 +1,4 @@
+using LanguageExt.Async.Linq;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes2;
@@ -28,4 +29,21 @@ public class EffectT<M> : MonadT<EffectT<M>, M>
 
     static K<EffectT<M>, IO<A>> MonadIO<EffectT<M>>.ToIO<A>(K<EffectT<M>, A> ma) =>
         ma.MapIO(IO.pure);
+
+    static K<EffectT<M>, B> Applicative<EffectT<M>>.Action<A, B>(
+        K<EffectT<M>, A> ma, 
+        K<EffectT<M>, B> mb) =>
+        EffectT.liftM(ma.As().Run().Action(mb.As().Run()));
+
+    static K<EffectT<M>, A> Applicative<EffectT<M>>.Actions<A>(
+        IEnumerable<K<EffectT<M>, A>> fas) =>
+        fas.Select(fa => fa.As().Proxy)
+           .Actions()
+           .ToEffect();
+
+    static K<EffectT<M>, A> Applicative<EffectT<M>>.Actions<A>(
+        IAsyncEnumerable<K<EffectT<M>, A>> fas) =>
+        fas.Select(fa => fa.As().Proxy)
+           .Actions()
+           .ToEffect();
 }

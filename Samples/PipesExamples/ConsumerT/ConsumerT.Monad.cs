@@ -1,3 +1,4 @@
+using LanguageExt.Async.Linq;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes2;
@@ -34,4 +35,21 @@ public class ConsumerT<IN, M> : MonadT<ConsumerT<IN, M>, M>
 
     static K<ConsumerT<IN, M>, IO<A>> MonadIO<ConsumerT<IN, M>>.ToIO<A>(K<ConsumerT<IN, M>, A> ma) => 
         ma.MapIO(IO.pure);
+
+    static K<ConsumerT<IN, M>, B> Applicative<ConsumerT<IN, M>>.Action<A, B>(
+        K<ConsumerT<IN, M>, A> ma, 
+        K<ConsumerT<IN, M>, B> mb) =>
+        ConsumerT.liftM<IN, M, B>(ma.As().Run().Action(mb.As().Run()));
+
+    static K<ConsumerT<IN, M>, A> Applicative<ConsumerT<IN, M>>.Actions<A>(
+        IEnumerable<K<ConsumerT<IN, M>, A>> fas) =>
+        fas.Select(fa => fa.As().Proxy)
+           .Actions()
+           .ToConsumer();
+
+    static K<ConsumerT<IN, M>, A> Applicative<ConsumerT<IN, M>>.Actions<A>(
+        IAsyncEnumerable<K<ConsumerT<IN, M>, A>> fas) =>
+        fas.Select(fa => fa.As().Proxy)
+           .Actions()
+           .ToConsumer();
 }
