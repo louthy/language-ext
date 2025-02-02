@@ -240,11 +240,7 @@ record PipeTYield<IN, OUT, M, A>(OUT Value, Func<Unit, PipeT<IN, OUT, M, A>> Nex
         consumer(Value).Bind(_ => Next(default).ReplaceYield(consumer));
 
     internal override PipeT<IN1, OUT, M, A> PairEachAwaitWithYield<IN1>(Func<Unit, PipeT<IN1, IN, M, A>> producer) =>
-        new PipeTYield<IN1, OUT, M, A>(Value, _ =>
-                                              {
-                                                  Console.WriteLine("PairEachAwaitWithYield");
-                                                  return Next(default).PairEachAwaitWithYield(producer);
-                                              });
+        new PipeTYield<IN1, OUT, M, A>(Value, _ => Next(default).PairEachAwaitWithYield(producer));
 
     internal override PipeT<IN, OUT1, M, A> PairEachYieldWithAwait<OUT1>(Func<OUT, PipeT<OUT, OUT1, M, A>> consumer) =>
         consumer(Value).PairEachAwaitWithYield(_ => Next(default));
@@ -287,38 +283,50 @@ record PipeTAwait<IN, OUT, M, A>(Func<IN, PipeT<IN, OUT, M, A>> Await) : PipeT<I
         throw new InvalidOperationException("closed");
 }
 
-record PipeTYieldAll<IN, OUT, M, A>(IEnumerable<PipeT<IN, OUT, M, A>> Yields) : PipeT<IN, OUT, M, A>
-    where M : Monad<M>, Alternative<M>
+record PipeTYieldAll<IN, OUT, M, X, A>(IEnumerable<PipeT<IN, OUT, M, Unit>> Yields, Func<Unit, PipeT<IN, OUT, M, A>> Next) : PipeT<IN, OUT, M, A>
+    where M : Monad<M>
 {
     public override PipeT<IN, OUT, M, B> Map<B>(Func<A, B> f) => 
-        new PipeTYieldAll<IN, OUT, M, B>(Yields.Select(p => p.Map(f)));
+        new PipeTYieldAll<IN, OUT, M, X, B>(Yields, x => Next(x).Map(f));
 
     public override PipeT<IN, OUT, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) => 
-        new PipeTYieldAll<IN, OUT, M, B>(Yields.Select(p => p.MapM(f)));
+        new PipeTYieldAll<IN, OUT, M, X, B>(Yields, x => Next(x).MapM(f));
 
     public override PipeT<IN, OUT, M, B> ApplyBack<B>(PipeT<IN, OUT, M, Func<A, B>> ff) => 
-        new PipeTYieldAll<IN, OUT, M, B>(Yields.Select(p => p.ApplyBack(ff)));
+        new PipeTYieldAll<IN, OUT, M, X, B>(Yields, x => Next(x).ApplyBack(ff));
 
     public override PipeT<IN, OUT, M, B> Action<B>(PipeT<IN, OUT, M, B> fb) => 
-        new PipeTYieldAll<IN, OUT, M, B>(Yields.Select(p => p.Action(fb)));
+        new PipeTYieldAll<IN, OUT, M, X, B>(Yields, x => Next(x).Action(fb));
 
     public override PipeT<IN, OUT, M, B> Bind<B>(Func<A, PipeT<IN, OUT, M, B>> f) => 
-        new PipeTYieldAll<IN, OUT, M, B>(Yields.Select(p => p.Bind(f)));
+        new PipeTYieldAll<IN, OUT, M, X, B>(Yields, x => Next(x).Bind(f));
 
     internal override PipeT<IN1, OUT, M, A> ReplaceAwait<IN1>(Func<PipeT<IN1, OUT, M, IN>> producer) =>
-        new PipeTYieldAll<IN1, OUT, M, A>(Yields.Select(p => p.ReplaceAwait(producer)));
+        new PipeTYieldAll<IN1, OUT, M, X, A>(Yields.Select(x => x.ReplaceAwait(producer)), x => Next(x).ReplaceAwait(producer));
     
     internal override PipeT<IN, OUT1, M, A> ReplaceYield<OUT1>(Func<OUT, PipeT<IN, OUT1, M, Unit>> consumer) =>
-        new PipeTYieldAll<IN, OUT1, M, A>(Yields.Select(p => p.ReplaceYield(consumer)));
-    
-    internal override PipeT<IN1, OUT, M, A> PairEachAwaitWithYield<IN1>(Func<Unit, PipeT<IN1, IN, M, A>> producer) => 
-        new PipeTYieldAll<IN1, OUT, M, A>(Yields.Select(p => p.PairEachAwaitWithYield(producer)));
+        new PipeTYieldAll<IN, OUT1, M, X, A>(Yields.Select(x => x.ReplaceYield(consumer)), x => Next(x).ReplaceYield(consumer));
+
+    internal override PipeT<IN1, OUT, M, A> PairEachAwaitWithYield<IN1>(Func<Unit, PipeT<IN1, IN, M, A>> producer) =>
+        new PipeTYieldAll<IN1, OUT, M, X, A>(
+            Yields.Select(x => x.PairEachAwaitWithYield(_ => producer(default).Map(_ => Unit.Default))),
+            x => Next(x).PairEachAwaitWithYield(producer));
 
     internal override PipeT<IN, OUT1, M, A> PairEachYieldWithAwait<OUT1>(Func<OUT, PipeT<OUT, OUT1, M, A>> consumer) =>
-        new PipeTYieldAll<IN, OUT1, M, A>(Yields.Select(p => p.PairEachYieldWithAwait(consumer)));
+        new PipeTYieldAll<IN, OUT1, M, X, A>(
+            Yields.Select(x => x.PairEachYieldWithAwait(o => consumer(o).Map(_ => Unit.Default))), 
+            x => Next(x).PairEachYieldWithAwait(consumer));
 
     internal override K<M, A> Run() =>
-        Yields.Select(p => p.Run()).Actions().Choose(M.Empty<A>());
+        Yields.Actions()
+              .Bind(_ => Next(default))
+              .As()
+              .Run();
+    
+        /*Yields.Select(PipeT.yield<M, IN, X>)
+              .Select(p => p.Run())
+              .Actions()
+              .Bind(_ => Next(default).Run());*/
 }
 
 record PipeTYieldAllAsync<IN, OUT, M, A>(IAsyncEnumerable<PipeT<IN, OUT, M, A>> Yields) : PipeT<IN, OUT, M, A>

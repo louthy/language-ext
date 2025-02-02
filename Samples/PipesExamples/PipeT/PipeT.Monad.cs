@@ -1,3 +1,4 @@
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes2;
@@ -8,7 +9,7 @@ public class PipeT<IN, OUT, M> : MonadT<PipeT<IN, OUT, M>, M>
     static K<PipeT<IN, OUT, M>, B> Monad<PipeT<IN, OUT, M>>.Bind<A, B>(
         K<PipeT<IN, OUT, M>, A> ma, 
         Func<A, K<PipeT<IN, OUT, M>, B>> f) => 
-        ma.As().Bind(f);
+        ma.As().Bind(x => f(x).As());
 
     static K<PipeT<IN, OUT, M>, B> Functor<PipeT<IN, OUT, M>>.Map<A, B>(
         Func<A, B> f, 
@@ -21,7 +22,28 @@ public class PipeT<IN, OUT, M> : MonadT<PipeT<IN, OUT, M>, M>
     static K<PipeT<IN, OUT, M>, B> Applicative<PipeT<IN, OUT, M>>.Apply<A, B>(
         K<PipeT<IN, OUT, M>, Func<A, B>> mf,
         K<PipeT<IN, OUT, M>, A> ma) =>
-        mf.As().Apply(ma.As());
+        ma.As().ApplyBack(mf.As());
+
+    public static K<PipeT<IN, OUT, M>, A> Actions<A>(IEnumerable<K<PipeT<IN, OUT, M>, A>> fas)
+    {
+        K<M, A>? ma = null;
+        foreach (var fa in fas)
+        {
+            switch (ma)
+            {
+                case null:
+                    ma = fa.As().Run();
+                    break;
+                
+                default:
+                    ma = ma.Action(fa.As().Run());
+                    break;
+            }
+        }
+        return ma is null
+            ? throw Errors.SequenceEmpty
+            : PipeT.liftM<IN, OUT, M, A>(ma);
+    }
 
     static K<PipeT<IN, OUT, M>, A> MonadT<PipeT<IN, OUT, M>, M>.Lift<A>(K<M, A> ma) => 
         PipeT.liftM<IN, OUT, M, A>(ma);

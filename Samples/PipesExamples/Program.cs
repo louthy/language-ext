@@ -20,28 +20,30 @@ var or = oe.RunEffect().Run();
 
 Console.WriteLine();*/
 
+/*
 var w1 = ProducerT.liftM<int, Try, Unit>(writeLine("post yield"));
 var p1 = ProducerT.yield<Try, int>(100).Bind(_ => w1);
 var c1 = ConsumerT.awaitIgnore<Try, int>();
 var e1 = p1 | c1;
 var r1 = e1.Run().Run();
+*/
 
 
 var p = from _1 in writeLine("pre-yield")
-      //from _2 in ProducerT.yieldAll<IO, int>([100, 200, 300])
-        from _2 in ProducerT.yield<Try, int>(100)
+        from _2 in ProducerT.yieldAll<IO, int>([100, 200, 300])
+      //from _2 in ProducerT.yield<Try, int>(100)
         from _3 in writeLine("post-yield")
         select unit;
 
 var o = from _1 in writeLine("pre-pipe")
-        from x  in PipeT.awaiting<Try, int, int>()
+        from x  in PipeT.awaiting<IO, int, int>()
         from _2 in writeLine($"piped-value: {x}")
-        from _3 in PipeT.yield<Try, int, int>(x * 2)
+        from _3 in PipeT.yield<IO, int, int>(x * 2)
         from _4 in writeLine("post-pipe")
         select unit;
 
 var c = from _1 in writeLine("pre-await")
-        from x  in ConsumerT.awaiting<Try, int>()
+        from x  in ConsumerT.awaiting<IO, int>()
         from _2 in writeLine($"post-await: {x}")
         select unit;
 
@@ -51,5 +53,5 @@ var r = e.Run().Run();
 
 Console.WriteLine("Done");
 
-static Try<Unit> writeLine(object? value) =>
-    Try.lift(() => Console.WriteLine(value));
+static IO<Unit> writeLine(object? value) =>
+    IO.lift(() => Console.WriteLine(value));

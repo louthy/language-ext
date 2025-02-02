@@ -6,7 +6,7 @@ public class EffectT<M> : MonadT<EffectT<M>, M>
     where M : Monad<M>
 {
     static K<EffectT<M>, B> Monad<EffectT<M>>.Bind<A, B>(K<EffectT<M>, A> ma, Func<A, K<EffectT<M>, B>> f) => 
-        ma.As().Bind(f);
+        ma.As().Bind(x => f(x).As());
 
     static K<EffectT<M>, B> Functor<EffectT<M>>.Map<A, B>(Func<A, B> f, K<EffectT<M>, A> ma) => 
         ma.As().Map(f);
@@ -15,7 +15,7 @@ public class EffectT<M> : MonadT<EffectT<M>, M>
         EffectT.pure<M, A>(value);
 
     static K<EffectT<M>, B> Applicative<EffectT<M>>.Apply<A, B>(K<EffectT<M>, Func<A, B>> mf, K<EffectT<M>, A> ma) => 
-        mf.As().Apply(ma.As());
+        ma.As().ApplyBack(mf.As());
 
     static K<EffectT<M>, A> MonadT<EffectT<M>, M>.Lift<A>(K<M, A> ma) =>
         EffectT.liftM(ma);

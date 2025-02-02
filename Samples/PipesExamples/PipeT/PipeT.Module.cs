@@ -150,8 +150,7 @@ public static class PipeT
     /// <returns></returns>
     public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(IEnumerable<OUT> values)
         where M : Monad<M>, Alternative<M> =>
-        new PipeTYieldAll<IN, OUT, M, Unit>(
-            values.Select(v => new PipeTYield<IN, OUT, M, Unit>(v, _ => pure<IN, OUT, M, Unit>(default))));
+        new PipeTYieldAll<IN, OUT, M, OUT, Unit>(values.Select(yield<M, IN, OUT>), pure<IN, OUT, M, Unit>);
     
     /// <summary>
     /// Yield all values downstream

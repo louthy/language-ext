@@ -8,7 +8,7 @@ public class ConsumerT<IN, M> : MonadT<ConsumerT<IN, M>, M>
     static K<ConsumerT<IN, M>, B> Monad<ConsumerT<IN, M>>.Bind<A, B>(
         K<ConsumerT<IN, M>, A> ma, 
         Func<A, K<ConsumerT<IN, M>, B>> f) => 
-        ma.As().Bind(f);
+        ma.As().Bind(x => f(x).As());
 
     static K<ConsumerT<IN, M>, B> Functor<ConsumerT<IN, M>>.Map<A, B>(
         Func<A, B> f, 
@@ -21,7 +21,7 @@ public class ConsumerT<IN, M> : MonadT<ConsumerT<IN, M>, M>
     static K<ConsumerT<IN, M>, B> Applicative<ConsumerT<IN, M>>.Apply<A, B>(
         K<ConsumerT<IN, M>, Func<A, B>> mf,
         K<ConsumerT<IN, M>, A> ma) =>
-        mf.As().Apply(ma.As());
+        ma.As().ApplyBack(mf.As());
 
     static K<ConsumerT<IN, M>, A> MonadT<ConsumerT<IN, M>, M>.Lift<A>(K<M, A> ma) =>
         ConsumerT.liftM<IN, M, A>(ma);
