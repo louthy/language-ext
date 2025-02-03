@@ -2,6 +2,9 @@ using System.Diagnostics;
 using LanguageExt;
 using LanguageExt.Pipes;
 using LanguageExt.Pipes2;
+using static LanguageExt.Pipes2.ProducerT;
+using static LanguageExt.Pipes2.PipeT;
+using static LanguageExt.Pipes2.ConsumerT;
 using static LanguageExt.Prelude;
 
 /*var op = from _1 in Producer.lift<int, IO, Unit>(writeLine("pre-yield"))
@@ -30,24 +33,23 @@ var r1 = e1.Run().Run();
 
 
 var p = from _1 in writeLine("pre-yield")
-        from _2 in ProducerT.yieldAll<IO, int>([100, 200, 300])
-      //from _2 in ProducerT.yield<Try, int>(100)
+        from _2 in yieldAll<IO, int>([100, 200, 300])
         from _3 in writeLine("post-yield")
         select unit;
 
 var o = from _1 in writeLine("pre-pipe")
-        from x  in PipeT.awaiting<IO, int, int>()
+        from x  in awaiting<IO, int, int>()
         from _2 in writeLine($"piped-value: {x}")
-        from _3 in PipeT.yield<IO, int, int>(x * 2)
+        from _3 in yield<IO, int, int>(x * 2)
         from _4 in writeLine("post-pipe")
         select unit;
 
 var c = from _1 in writeLine("pre-await")
-        from x  in ConsumerT.awaiting<IO, int>()
+        from x  in awaiting<IO, int>()
         from _2 in writeLine($"post-await: {x}")
         select unit;
 
-var e = p | o | c;
+var e = repeat(p) | o | c;
 
 var r = e.Run().Run();
 

@@ -148,4 +148,48 @@ public static class ProducerT
     public static ProducerT<OUT, M, A> liftT<OUT, M, A>(ValueTask<ProducerT<OUT, M, A>> f) 
         where M : Monad<M> =>
         PipeT.liftT(f.Map(p => p.Proxy));
+
+    /// <summary>
+    /// Continually repeat the provided operation
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, A> repeat<OUT, M, A>(ProducerT<OUT, M, A> ma)
+        where M : Monad<M> =>
+        PipeT.repeat(ma.Proxy).ToProducer();
+    
+    /// <summary>
+    /// Repeat the provided operation based on the schedule provided
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, A> repeat<OUT, M, A>(Schedule schedule, ProducerT<OUT, M, A> ma)
+        where M : Monad<M> =>
+        PipeT.repeat(schedule, ma.Proxy).ToProducer();
+
+    /// <summary>
+    /// Continually lift & repeat the provided operation
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, A> repeatM<OUT, M, A>(K<M, A> ma)
+        where M : Monad<M> =>
+        PipeT.repeatM<Unit, OUT, M, A>(ma).ToProducer();
+
+    /// <summary>
+    /// Repeat the provided operation based on the schedule provided
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, A> repeatM<OUT, M, A>(Schedule schedule, K<M, A> ma)
+        where M : Monad<M> =>
+        PipeT.repeatM<Unit, OUT, M, A>(schedule, ma).ToProducer();
 }

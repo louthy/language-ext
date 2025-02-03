@@ -116,11 +116,15 @@ public abstract record PipeT<IN, OUT, M, A> : K<PipeT<IN, OUT, M>, A>
     
     [Pure]
     internal abstract PipeT<IN, OUT1, M, A> PairEachYieldWithAwait<OUT1>(Func<OUT, PipeT<OUT, OUT1, M, A>> consumer);
-    
+
     [Pure]
-    internal abstract K<M, A> Run();
-    
+    internal virtual K<M, A> Run()
+    {
+        var t = RunAsync();
+        if(t.IsCompleted) return t.Result;
+        return t.GetAwaiter().GetResult();
+    }
+
     [Pure]
-    internal virtual ValueTask<K<M, A>> RunAsync() =>
-        new (Run());
+    internal abstract ValueTask<K<M, A>> RunAsync();
 }

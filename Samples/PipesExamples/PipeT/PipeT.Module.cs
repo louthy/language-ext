@@ -1,6 +1,7 @@
 using LanguageExt.Async.Linq;
 using LanguageExt.Common;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Pipes2;
 
@@ -185,4 +186,63 @@ public static class PipeT
     public static PipeT<IN, OUT, M, A> liftIO<IN, OUT, M, A>(IO<A> ma) 
         where M : Monad<M> =>
         liftM<IN, OUT, M, A>(M.LiftIO(ma));
+
+    /// <summary>
+    /// Continually repeat the provided operation
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static PipeT<IN, OUT, M, A> repeat<IN, OUT, M, A>(PipeT<IN, OUT, M, A> ma)
+        where M : Monad<M> =>
+        ma.Bind(_ => repeat(ma));
+
+    /// <summary>
+    /// Repeat the provided operation based on the schedule provided
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static PipeT<IN, OUT, M, A> repeat<IN, OUT, M, A>(Schedule schedule, PipeT<IN, OUT, M, A> ma)
+        where M : Monad<M>
+    {
+        return from s in pure<IN, OUT, M, Iterator<Duration>>(schedule.Run().GetIterator())
+               from r in ma
+               from t in go(s, ma, r)
+               select t;
+
+        static PipeT<IN, OUT, M, A> go(Iterator<Duration> schedule, PipeT<IN, OUT, M, A> ma, A latest) =>
+            schedule.IsEmpty
+                ? pure<IN, OUT, M, A>(latest)
+                : liftIO<IN, OUT, M, Unit>(IO.yieldFor(schedule.Head))
+                   .Bind(_ => ma.Bind(x => go(schedule.Tail, ma, x))); 
+    }
+
+    /// <summary>
+    /// Continually lift & repeat the provided operation
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static PipeT<IN, OUT, M, A> repeatM<IN, OUT, M, A>(K<M, A> ma)
+        where M : Monad<M> =>
+        repeat(liftM<IN, OUT, M, A>(ma));
+
+    /// <summary>
+    /// Repeat the provided operation based on the schedule provided
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static PipeT<IN, OUT, M, A> repeatM<IN, OUT, M, A>(Schedule schedule, K<M, A> ma)
+        where M : Monad<M> =>
+        repeat(schedule, liftM<IN, OUT, M, A>(ma));
 }

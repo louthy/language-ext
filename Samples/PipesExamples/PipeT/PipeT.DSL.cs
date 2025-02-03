@@ -37,6 +37,9 @@ record PipeTEmpty<IN, OUT, M, A> : PipeT<IN, OUT, M, A>
     
     internal override K<M, A> Run() =>
         M.Empty<A>();
+
+    internal override ValueTask<K<M, A>> RunAsync() =>
+        new(M.Empty<A>());
 }
 
 record PipeTPure<IN, OUT, M, A>(A Value) : PipeT<IN, OUT, M, A>
@@ -71,6 +74,9 @@ record PipeTPure<IN, OUT, M, A>(A Value) : PipeT<IN, OUT, M, A>
 
     internal override K<M, A> Run() =>
         M.Pure(Value);
+
+    internal override ValueTask<K<M, A>> RunAsync() =>
+        new(M.Pure(Value));
 }
 
 record PipeTFail<IN, OUT, E, M, A>(E Value) : PipeT<IN, OUT, M, A>
@@ -105,6 +111,9 @@ record PipeTFail<IN, OUT, E, M, A>(E Value) : PipeT<IN, OUT, M, A>
 
     internal override K<M, A> Run() =>
         M.Fail<A>(Value);
+
+    internal override ValueTask<K<M, A>> RunAsync() =>
+        new(M.Fail<A>(Value));
 }
 
 record PipeTLazy<IN, OUT, M, A>(Func<PipeT<IN, OUT, M, A>> Acquire) : PipeT<IN, OUT, M, A>
@@ -137,8 +146,8 @@ record PipeTLazy<IN, OUT, M, A>(Func<PipeT<IN, OUT, M, A>> Acquire) : PipeT<IN, 
     internal override PipeT<IN, OUT1, M, A> PairEachYieldWithAwait<OUT1>(Func<OUT, PipeT<OUT, OUT1, M, A>> consumer) =>
         new PipeTLazy<IN, OUT1, M, A>(() => Acquire().PairEachYieldWithAwait(consumer));
 
-    internal override K<M, A> Run() =>
-        Acquire().Run();
+    internal override ValueTask<K<M, A>> RunAsync() =>
+        Acquire().RunAsync();
 }
 
 record PipeTLazyAsync<IN, OUT, M, A>(Func<ValueTask<PipeT<IN, OUT, M, A>>> Acquire) : PipeT<IN, OUT, M, A>
@@ -171,13 +180,12 @@ record PipeTLazyAsync<IN, OUT, M, A>(Func<ValueTask<PipeT<IN, OUT, M, A>>> Acqui
     internal override PipeT<IN, OUT1, M, A> PairEachYieldWithAwait<OUT1>(Func<OUT, PipeT<OUT, OUT1, M, A>> consumer) =>
         new PipeTLazyAsync<IN, OUT1, M, A>(() => Acquire().Map(t => t.PairEachYieldWithAwait(consumer)));
 
-    internal override K<M, A> Run() =>
-        Acquire().GetAwaiter().GetResult().Run();
-
-    internal override async ValueTask<K<M, A>> RunAsync()
+    internal override ValueTask<K<M, A>> RunAsync()
     {
-        var proxy = await Acquire();
-        return await proxy.RunAsync();
+        var proxyT = Acquire();
+        return proxyT.IsCompleted
+                   ? proxyT.Result.RunAsync()
+                   : proxyT.Bind(proxy => proxy.RunAsync());  
     }
 }
 
@@ -213,6 +221,9 @@ record PipeTLiftM<IN, OUT, M, A>(K<M, PipeT<IN, OUT, M, A>> Value) : PipeT<IN, O
 
     internal override K<M, A> Run() =>
         Value.Bind(p => p.Run());
+
+    internal override ValueTask<K<M, A>> RunAsync() =>
+        new(Value.Bind(p => p.Run()));  
 }
 
 record PipeTYield<IN, OUT, M, A>(OUT Value, Func<Unit, PipeT<IN, OUT, M, A>> Next) : PipeT<IN, OUT, M, A>
@@ -247,6 +258,9 @@ record PipeTYield<IN, OUT, M, A>(OUT Value, Func<Unit, PipeT<IN, OUT, M, A>> Nex
 
     internal override K<M, A> Run() => 
         throw new InvalidOperationException("closed");
+
+    internal override ValueTask<K<M, A>> RunAsync() => 
+        throw new InvalidOperationException("closed");
 }
 
 record PipeTAwait<IN, OUT, M, A>(Func<IN, PipeT<IN, OUT, M, A>> Await) : PipeT<IN, OUT, M, A>
@@ -280,6 +294,9 @@ record PipeTAwait<IN, OUT, M, A>(Func<IN, PipeT<IN, OUT, M, A>> Await) : PipeT<I
         new PipeTAwait<IN, OUT1, M, A>(x => Await(x).PairEachYieldWithAwait(consumer));
 
     internal override K<M, A> Run() => 
+        throw new InvalidOperationException("closed");
+
+    internal override ValueTask<K<M, A>> RunAsync() => 
         throw new InvalidOperationException("closed");
 }
 
@@ -318,11 +335,10 @@ record PipeTYieldAll<IN, OUT, M, A>(IEnumerable<PipeT<IN, OUT, M, Unit>> Yields,
             Yields.Select(x => x.PairEachYieldWithAwait(o => consumer(o).Map(_ => Unit.Default))), 
             x => Next(x).PairEachYieldWithAwait(consumer));
 
-    internal override K<M, A> Run() =>
-        Yields.Actions()
+    internal override ValueTask<K<M, A>> RunAsync() => 
+        Yields.Actions().As()
               .Bind(_ => Next(default))
-              .As()
-              .Run();
+              .RunAsync();
 }
 
 record PipeTYieldAllAsync<IN, OUT, M, A>(IAsyncEnumerable<PipeT<IN, OUT, M, Unit>> Yields, Func<Unit, PipeT<IN, OUT, M, A>> Next) 
@@ -360,9 +376,9 @@ record PipeTYieldAllAsync<IN, OUT, M, A>(IAsyncEnumerable<PipeT<IN, OUT, M, Unit
             Yields.Select(x => x.PairEachYieldWithAwait(o => consumer(o).Map(_ => Unit.Default))), 
             x => Next(x).PairEachYieldWithAwait(consumer));
 
-    internal override K<M, A> Run() =>
+    internal override ValueTask<K<M, A>> RunAsync() => 
         Yields.Actions()
               .Bind(_ => Next(default))
               .As()
-              .Run();
+              .RunAsync();
 }

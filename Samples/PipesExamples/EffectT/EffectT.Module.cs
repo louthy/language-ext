@@ -108,4 +108,45 @@ public static class EffectT
     public static EffectT<M, A> liftT<M, A>(ValueTask<EffectT<M, A>> f) 
         where M : Monad<M> =>
         PipeT.liftT(f.Map(p => p.Proxy));
+
+    /// <summary>
+    /// Continually repeat the provided operation
+    /// </summary>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static EffectT<M, A> repeat<M, A>(EffectT<M, A> ma)
+        where M : Monad<M> =>
+        PipeT.repeat(ma.Proxy).ToEffect();
+    
+    /// <summary>
+    /// Repeat the provided operation based on the schedule provided
+    /// </summary>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static EffectT<M, A> repeat<M, A>(Schedule schedule, EffectT<M, A> ma)
+        where M : Monad<M> =>
+        PipeT.repeat(schedule, ma.Proxy).ToEffect();
+
+    /// <summary>
+    /// Continually lift & repeat the provided operation
+    /// </summary>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static EffectT<M, A> repeatM<M, A>(K<M, A> ma)
+        where M : Monad<M> =>
+        PipeT.repeatM<Unit, Void, M, A>(ma).ToEffect();
+
+    /// <summary>
+    /// Repeat the provided operation based on the schedule provided
+    /// </summary>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static EffectT<M, A> repeatM<M, A>(Schedule schedule, K<M, A> ma)
+        where M : Monad<M> =>
+        PipeT.repeatM<Unit, Void, M, A>(schedule, ma).ToEffect();
+    
 }
