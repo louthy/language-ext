@@ -57,5 +57,4 @@ public static class ProducerTExtensions
         Func<A, B, C> g)
         where M : Monad<M> =>
         ProducerT.lift<OUT, M, A>(ff.Function).SelectMany(f, g);
-    
 }

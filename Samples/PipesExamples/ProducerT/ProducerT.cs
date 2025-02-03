@@ -84,7 +84,96 @@ public readonly record struct ProducerT<OUT, M, A>(PipeT<Unit, OUT, M, A> Proxy)
     [Pure]
     public ProducerT<OUT, M, C> SelectMany<B, C>(Func<A, Lift<B>> f, Func<A, B, C> g) =>
         Proxy.SelectMany(f, g);
+                
+    /// <summary>
+    /// Fold the given pipe until the `Schedule` completes.
+    /// Once complete, the pipe yields the aggregated value downstream.
+    /// </summary>
+    /// <param name="Time">Schedule to run each item</param>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public ProducerT<OUT, M, Unit> Fold(
+        Schedule Time,
+        Func<OUT, A, OUT> Fold, 
+        OUT Init) =>
+        PipeT.fold(Time, Fold, Init, Proxy);
 
+    /// <summary>
+    /// Fold the given pipe until the predicate is `true`.  Once `true` the pipe yields the
+    /// aggregated value downstream.
+    /// </summary>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public ProducerT<OUT, M, Unit> FoldUntil(
+        Func<OUT, A, OUT> Fold, 
+        Func<(OUT State, A Value), bool> Pred, 
+        OUT Init) =>
+        PipeT.foldUntil(Fold, Pred, Init, Proxy);
+        
+    /// <summary>
+    /// Fold the given pipe until the predicate is `true` or the `Schedule` completes.
+    /// Once `true`, or completed, the pipe yields the aggregated value downstream.
+    /// </summary>
+    /// <param name="Time">Schedule to run each item</param>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public ProducerT<OUT, M, Unit> FoldUntil(
+        Schedule Time,
+        Func<OUT, A, OUT> Fold, 
+        Func<(OUT State, A Value), bool> Pred, 
+        OUT Init) =>
+        PipeT.foldUntil(Time, Fold, Pred, Init, Proxy);
+        
+    /// <summary>
+    /// Fold the given pipe while the predicate is `true`.  Once `false` the pipe yields the
+    /// aggregated value downstream.
+    /// </summary>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public ProducerT<OUT, M, Unit> FoldWhile(
+        Func<OUT, A, OUT> Fold, 
+        Func<(OUT State, A Value), bool> Pred, 
+        OUT Init) =>
+        PipeT.foldWhile(Fold, Pred, Init, Proxy);
+        
+    /// <summary>
+    /// Fold the given pipe while the predicate is `true` or the `Schedule` completes.
+    /// Once `false`, or completed, the pipe yields the aggregated value downstream.
+    /// </summary>
+    /// <param name="Time">Schedule to run each item</param>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public ProducerT<OUT, M, Unit> FoldWhile(
+        Schedule Time,
+        Func<OUT, A, OUT> Fold, 
+        Func<(OUT State, A Value), bool> Pred, 
+        OUT Init) =>
+        PipeT.foldWhile(Time, Fold, Pred, Init, Proxy);   
+    
     [Pure]
     public static implicit operator ProducerT<OUT, M, A>(PipeT<Unit, OUT, M, A> pipe) =>
         pipe.ToProducer();

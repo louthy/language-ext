@@ -192,4 +192,108 @@ public static class ProducerT
     public static ProducerT<OUT, M, A> repeatM<OUT, M, A>(Schedule schedule, K<M, A> ma)
         where M : Monad<M> =>
         PipeT.repeatM<Unit, OUT, M, A>(schedule, ma).ToProducer();
+                
+    /// <summary>
+    /// Fold the given pipe until the `Schedule` completes.
+    /// Once complete, the pipe yields the aggregated value downstream.
+    /// </summary>
+    /// <param name="Time">Schedule to run each item</param>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Init">Initial state</param>
+    /// <param name="Item">Pipe to fold</param>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, Unit> fold<OUT, M, A>(
+        Schedule Time,
+        Func<OUT, A, OUT> Fold, 
+        OUT Init,
+        ProducerT<OUT, M, A> Item)
+        where M : Monad<M> =>
+        PipeT.fold(Time, Fold, Init, Item.Proxy);
+
+    /// <summary>
+    /// Fold the given pipe until the predicate is `true`.  Once `true` the pipe yields the
+    /// aggregated value downstream.
+    /// </summary>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <param name="Item">Pipe to fold</param>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, Unit> foldUntil<OUT, M, A>(
+        Func<OUT, A, OUT> Fold, 
+        Func<(OUT State, A Value), bool> Pred, 
+        OUT Init,
+        ProducerT<OUT, M, A> Item)
+        where M : Monad<M> =>
+        PipeT.foldUntil(Fold, Pred, Init, Item.Proxy);
+        
+    /// <summary>
+    /// Fold the given pipe until the predicate is `true` or the `Schedule` completes.
+    /// Once `true`, or completed, the pipe yields the aggregated value downstream.
+    /// </summary>
+    /// <param name="Time">Schedule to run each item</param>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <param name="Item">Pipe to fold</param>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, Unit> foldUntil<OUT, M, A>(
+        Schedule Time,
+        Func<OUT, A, OUT> Fold, 
+        Func<(OUT State, A Value), bool> Pred, 
+        OUT Init,
+        ProducerT<OUT, M, A> Item)
+        where M : Monad<M> =>
+        PipeT.foldUntil(Time, Fold, Pred, Init, Item.Proxy);
+        
+    /// <summary>
+    /// Fold the given pipe while the predicate is `true`.  Once `false` the pipe yields the
+    /// aggregated value downstream.
+    /// </summary>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <param name="Item">Pipe to fold</param>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, Unit> foldWhile<OUT, M, A>(
+        Func<OUT, A, OUT> Fold, 
+        Func<(OUT State, A Value), bool> Pred, 
+        OUT Init,
+        ProducerT<OUT, M, A> Item)
+        where M : Monad<M> =>
+        PipeT.foldWhile(Fold, Pred, Init, Item.Proxy);
+        
+    /// <summary>
+    /// Fold the given pipe while the predicate is `true` or the `Schedule` completes.
+    /// Once `false`, or completed, the pipe yields the aggregated value downstream.
+    /// </summary>
+    /// <param name="Time">Schedule to run each item</param>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <param name="Item">Pipe to fold</param>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, Unit> foldWhile<OUT, M, A>(
+        Schedule Time,
+        Func<OUT, A, OUT> Fold, 
+        Func<(OUT State, A Value), bool> Pred, 
+        OUT Init,
+        ProducerT<OUT, M, A> Item)
+        where M : Monad<M> =>
+        PipeT.foldWhile(Time, Fold, Pred, Init, Item.Proxy);    
 }

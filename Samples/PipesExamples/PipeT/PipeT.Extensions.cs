@@ -50,5 +50,6 @@ public static class PipeTExtensions
         Func<A, B, C> g)
         where M : Monad<M> =>
         PipeT.lift<IN, OUT, M, A>(ff.Function).SelectMany(f, g);
+
 }
     

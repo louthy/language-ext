@@ -120,7 +120,101 @@ public abstract record PipeT<IN, OUT, M, A> : K<PipeT<IN, OUT, M>, A>
     
     [Pure]
     internal abstract PipeT<IN, OUT1, M, A> PairEachYieldWithAwait<OUT1>(Func<OUT, PipeT<OUT, OUT1, M, A>> consumer);
+                
+    /// <summary>
+    /// Fold the given pipe until the `Schedule` completes.
+    /// Once complete, the pipe yields the aggregated value downstream.
+    /// </summary>
+    /// <param name="Time">Schedule to run each item</param>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public PipeT<IN, OUT, M, Unit> Fold(
+        Schedule Time,
+        Func<OUT, A, OUT> Fold, 
+        OUT Init) =>
+        PipeT.fold(Time, Fold, Init, this);
 
+    /// <summary>
+    /// Fold the given pipe until the predicate is `true`.  Once `true` the pipe yields the
+    /// aggregated value downstream.
+    /// </summary>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public PipeT<IN, OUT, M, Unit> FoldUntil(
+        Func<OUT, A, OUT> Fold, 
+        Func<(OUT State, A Value), bool> Pred, 
+        OUT Init) =>
+        PipeT.foldUntil(Fold, Pred, Init, this);
+        
+    /// <summary>
+    /// Fold the given pipe until the predicate is `true` or the `Schedule` completes.
+    /// Once `true`, or completed, the pipe yields the aggregated value downstream.
+    /// </summary>
+    /// <param name="Time">Schedule to run each item</param>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public PipeT<IN, OUT, M, Unit> FoldUntil(
+        Schedule Time,
+        Func<OUT, A, OUT> Fold, 
+        Func<(OUT State, A Value), bool> Pred, 
+        OUT Init) =>
+        PipeT.foldUntil(Time, Fold, Pred, Init, this);
+        
+    /// <summary>
+    /// Fold the given pipe while the predicate is `true`.  Once `false` the pipe yields the
+    /// aggregated value downstream.
+    /// </summary>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public PipeT<IN, OUT, M, Unit> FoldWhile(
+        Func<OUT, A, OUT> Fold, 
+        Func<(OUT State, A Value), bool> Pred, 
+        OUT Init) =>
+        PipeT.foldWhile(Fold, Pred, Init, this);
+        
+    /// <summary>
+    /// Fold the given pipe while the predicate is `true` or the `Schedule` completes.
+    /// Once `false`, or completed, the pipe yields the aggregated value downstream.
+    /// </summary>
+    /// <param name="Time">Schedule to run each item</param>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public PipeT<IN, OUT, M, Unit> FoldWhile(
+        Schedule Time,
+        Func<OUT, A, OUT> Fold, 
+        Func<(OUT State, A Value), bool> Pred, 
+        OUT Init) =>
+        PipeT.foldWhile(Time, Fold, Pred, Init, this);
+    
     [Pure]
     internal virtual K<M, A> Run()
     {
