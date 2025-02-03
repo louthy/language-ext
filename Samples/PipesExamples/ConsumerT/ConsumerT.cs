@@ -80,4 +80,9 @@ public readonly record struct ConsumerT<IN, M, A>(PipeT<IN, Void, M, A> Proxy) :
     [Pure]
     public static implicit operator ConsumerT<IN, M, A>(PipeT<IN, Void, M, A> pipe) =>
         pipe.ToConsumer();
+    
+    [Pure]
+    public static implicit operator ConsumerT<IN, M, A>(Pure<A> rhs) =>
+        ConsumerT.pure<IN, M, A>(rhs.Value);
+    
 }

@@ -1,3 +1,4 @@
+using LanguageExt.Async.Linq;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 
@@ -29,51 +30,11 @@ public class PipeT<IN, OUT, M> : MonadT<PipeT<IN, OUT, M>, M>
         K<PipeT<IN, OUT, M>, B> mb) =>
         PipeT.liftM<IN, OUT, M, B>(ma.As().Run().Action(mb.As().Run()));
 
-    static K<PipeT<IN, OUT, M>, A> Applicative<PipeT<IN, OUT, M>>.Actions<A>(IEnumerable<K<PipeT<IN, OUT, M>, A>> fas)
-    {
-        K<M, A>? ma = null;
-        foreach (var fa in fas)
-        {
-            switch (ma)
-            {
-                case null:
-                    ma = fa.As().Run();
-                    break;
-                
-                default:
-                    ma = ma.Action(fa.As().Run());
-                    break;
-            }
-        }
-        return ma is null
-            ? throw Errors.SequenceEmpty
-            : PipeT.liftM<IN, OUT, M, A>(ma);
-    }
+    static K<PipeT<IN, OUT, M>, A> Applicative<PipeT<IN, OUT, M>>.Actions<A>(IEnumerable<K<PipeT<IN, OUT, M>, A>> fas) =>
+        PipeT.liftM<IN, OUT, M, A>(fas.Select(fa => fa.As().Run()).Actions());
 
-    static K<PipeT<IN, OUT, M>, A> Applicative<PipeT<IN, OUT, M>>.Actions<A>(IAsyncEnumerable<K<PipeT<IN, OUT, M>, A>> fas)
-    {
-        return PipeT.liftM<IN, OUT, M, A>(go(fas));
-            
-        static async ValueTask<K<M, A>> go(IAsyncEnumerable<K<PipeT<IN, OUT, M>, A>> fas)
-        {
-            K<M, A>? ma = null;
-
-            await foreach (var fa in fas)
-            {
-                switch (ma)
-                {
-                    case null:
-                        ma = await fa.As().RunAsync();
-                        break;
-
-                    default:
-                        ma = ma.Action(await fa.As().RunAsync());
-                        break;
-                }
-            }
-            return ma ?? throw Errors.SequenceEmpty;
-        }
-    }
+    static K<PipeT<IN, OUT, M>, A> Applicative<PipeT<IN, OUT, M>>.Actions<A>(IAsyncEnumerable<K<PipeT<IN, OUT, M>, A>> fas) =>
+        PipeT.liftM<IN, OUT, M, A>(fas.Select(fa => fa.As().Run()).Actions());
 
     static K<PipeT<IN, OUT, M>, A> MonadT<PipeT<IN, OUT, M>, M>.Lift<A>(K<M, A> ma) => 
         PipeT.liftM<IN, OUT, M, A>(ma);

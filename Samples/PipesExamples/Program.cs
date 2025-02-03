@@ -32,24 +32,19 @@ var r1 = e1.Run().Run();
 */
 
 
-var p = from _1 in writeLine("pre-yield")
-        from _2 in yieldAll<IO, int>([100, 200, 300])
-        from _3 in writeLine("post-yield")
+var p = yieldAll<IO, int>(Range(1, 10000000));
+
+var o = foldUntil(Time: Schedule.spaced(1.Milliseconds()) | Schedule.recurs(50), 
+                  Fold: (s, v) => s + v,
+                  Pred: v => v.Value % 10000 == 0,
+                  Init: 0,
+                  Item: awaiting<IO, int, int>());
+
+var c = from x in awaiting<IO, int>()
+        from _ in writeLine($"{x}")
         select unit;
 
-var o = from _1 in writeLine("pre-pipe")
-        from x  in awaiting<IO, int, int>()
-        from _2 in writeLine($"piped-value: {x}")
-        from _3 in yield<IO, int, int>(x * 2)
-        from _4 in writeLine("post-pipe")
-        select unit;
-
-var c = from _1 in writeLine("pre-await")
-        from x  in awaiting<IO, int>()
-        from _2 in writeLine($"post-await: {x}")
-        select unit;
-
-var e = repeat(p) | o | c;
+var e = p | o | c;
 
 var r = e.Run().Run();
 

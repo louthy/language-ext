@@ -81,4 +81,9 @@ public readonly record struct EffectT<M, A>(PipeT<Unit, Void, M, A> Proxy) : K<E
     [Pure]
     public static implicit operator EffectT<M, A>(PipeT<Unit, Void, M, A> pipe) =>
         pipe.ToEffect();
+    
+    [Pure]
+    public static implicit operator EffectT<M, A>(Pure<A> rhs) =>
+        EffectT.pure<M, A>(rhs.Value);
+    
 }

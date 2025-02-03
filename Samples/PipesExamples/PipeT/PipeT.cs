@@ -43,6 +43,10 @@ public abstract record PipeT<IN, OUT, M, A> : K<PipeT<IN, OUT, M>, A>
         lhs.Compose(rhs.Proxy);
     
     [Pure]
+    public static implicit operator PipeT<IN, OUT, M, A>(Pure<A> rhs) =>
+        PipeT.pure<IN, OUT, M, A>(rhs.Value);
+    
+    [Pure]
     public abstract PipeT<IN, OUT, M, B> Map<B>(Func<A, B> f);
     
     [Pure]

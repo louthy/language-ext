@@ -503,6 +503,9 @@ public abstract class Iterator<A> :
     {
         public static readonly Iterator<A> Default = new Nil();
 
+        public override string ToString() => 
+            "Nil";
+
         /// <summary>
         /// Head element
         /// </summary>
@@ -572,6 +575,9 @@ public abstract class Iterator<A> :
         long count;
         A head;
         Iterator<A> tail;
+
+        public override string ToString() => 
+            "Iterator";
 
         public ConsValue(A head, Iterator<A> tail)
         {
@@ -652,6 +658,9 @@ public abstract class Iterator<A> :
         Iterator<A>? tail;
         Func<Iterator<A>>? tailF;
         int tailAcquired;
+
+        public override string ToString() => 
+            "Iterator";
 
         public ConsValueLazy(A head, Func<Iterator<A>> tailF)
         {
@@ -774,6 +783,9 @@ public abstract class Iterator<A> :
         int tailAcquired;
         Iterator<A>? tailValue;
         long count = -1;
+
+        public override string ToString() => 
+            "Iterator";
 
         internal ConsValueEnum(A head, IEnumerator<A> enumerator)
         {
@@ -905,6 +917,9 @@ public abstract class Iterator<A> :
         IEnumerable<A> enumerable;
         int firstAcquired;
         Iterator<A>? firstValue;
+
+        public override string ToString() => 
+            "Iterator";
 
         internal ConsFirst(IEnumerable<A> enumerable) =>
             this.enumerable = enumerable;
@@ -1068,14 +1083,14 @@ public abstract class Iterator<A> :
 
     [Pure]
     public override string ToString() =>
-        CollectionFormat.ToShortArrayString(this.AsEnumerable());
+        CollectionFormat.ToShortArrayString(AsEnumerable());
 
     /// <summary>
     /// Format the collection as `a, b, c, ...`
     /// </summary>
     [Pure]
     public string ToFullString(string separator = ", ") =>
-        CollectionFormat.ToFullString(this.AsEnumerable(), separator);
+        CollectionFormat.ToFullString(AsEnumerable(), separator);
 
     /// <summary>
     /// Format the collection as `[a, b, c, ...]`

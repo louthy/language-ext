@@ -25,11 +25,11 @@ record IOActions<A, B>(Iterator<K<IO, A>> Fas, Func<A, IO<B>> Next) : InvokeSync
             var task = head.RunAsync(envIO);
             if (task.IsCompleted)
             {
-                return new IOActionsSync<A, B>(task.Result, Fas.Tail, Next);
+                return new IOActionsSync<A, B>(task.Result, Fas.Tail.Split(), Next);
             }
             else
             {
-                return new IOActionsAsync<A, B>(task, Fas.Tail, Next);
+                return new IOActionsAsync<A, B>(task, Fas.Tail.Split(), Next);
             }
         }
     }
@@ -51,7 +51,7 @@ record IOActionsSync<A, B>(A Value, Iterator<K<IO, A>> Fas, Func<A, IO<B>> Next)
         }
         else
         {
-            return new IOActions<A, B>(Fas, Next);
+            return new IOActions<A, B>(Fas.Clone(), Next);
         }
     }
 }
@@ -74,7 +74,7 @@ record IOActionsAsync<A, B>(ValueTask<A> Value, Iterator<K<IO, A>> Fas, Func<A, 
         }
         else
         {
-            return new IOActions<A, B>(Fas, Next);
+            return new IOActions<A, B>(Fas.Clone(), Next);
         }
     }
 }

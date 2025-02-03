@@ -88,6 +88,10 @@ public readonly record struct ProducerT<OUT, M, A>(PipeT<Unit, OUT, M, A> Proxy)
     [Pure]
     public static implicit operator ProducerT<OUT, M, A>(PipeT<Unit, OUT, M, A> pipe) =>
         pipe.ToProducer();
+    
+    [Pure]
+    public static implicit operator ProducerT<OUT, M, A>(Pure<A> rhs) =>
+        ProducerT.pure<OUT, M, A>(rhs.Value);
 
     [Pure]
     internal K<M, A> Run() =>
