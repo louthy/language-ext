@@ -95,7 +95,7 @@ public class File<RT>
     /// Open a text file
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
-    public static Producer<TextReader, Eff<RT>, Unit> openText(string path) => 
+    public static ProducerT<TextReader, Eff<RT>, Unit> openText(string path) => 
         File<Eff<RT>, RT>.openText(path);
 
     /// <summary>
@@ -115,27 +115,27 @@ public class File<RT>
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    public static Producer<Stream, Eff<RT>, Unit> openRead(string path) =>
+    public static ProducerT<Stream, Eff<RT>, Unit> openRead(string path) =>
         File<Eff<RT>, RT>.openRead(path);
 
     /// <summary>
     /// Open a file-stream
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
-    public static Producer<Stream, Eff<RT>, Unit> open(string path, FileMode mode) =>
+    public static ProducerT<Stream, Eff<RT>, Unit> open(string path, FileMode mode) =>
         File<Eff<RT>, RT>.open(path, mode);
         
     /// <summary>
     /// Open a file-stream
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
-    public static Producer<Stream, Eff<RT>, Unit> open(string path, FileMode mode, FileAccess access) =>
+    public static ProducerT<Stream, Eff<RT>, Unit> open(string path, FileMode mode, FileAccess access) =>
         File<Eff<RT>, RT>.open(path, mode, access);
         
     /// <summary>
     /// Open a file-stream
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
-    public static Producer<Stream, Eff<RT>, Unit> openWrite(string path) =>
+    public static ProducerT<Stream, Eff<RT>, Unit> openWrite(string path) =>
         File<Eff<RT>, RT>.openWrite(path);
 }

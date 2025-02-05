@@ -6,7 +6,6 @@ using LanguageExt.Common;
 using LanguageExt.Sys.Traits;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
-using static LanguageExt.Pipes.Proxy;
 
 namespace EffectsExamples
 {

@@ -134,9 +134,9 @@ public class File<M, RT>
     /// Open a text file
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
-    public static Producer<TextReader, M, Unit> openText(string path) => 
+    public static ProducerT<TextReader, M, Unit> openText(string path) => 
         from t in openTextInternal(path)
-        from _ in Proxy.yield(t)
+        from _ in ProducerT.yield<M, TextReader>(t)
         select unit;
 
     /// <summary>
@@ -156,36 +156,36 @@ public class File<M, RT>
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    public static Producer<Stream, M, Unit> openRead(string path) =>
+    public static ProducerT<Stream, M, Unit> openRead(string path) =>
         from s in openReadInternal(path)
-        from _ in Proxy.yield(s)
+        from _ in ProducerT.yield<M, Stream>(s)
         select unit;
 
     /// <summary>
     /// Open a file-stream
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
-    public static Producer<Stream, M, Unit> open(string path, FileMode mode) =>
+    public static ProducerT<Stream, M, Unit> open(string path, FileMode mode) =>
         from s in openInternal(path, mode)
-        from _ in Proxy.yield(s)
+        from _ in ProducerT.yield<M, Stream>(s)
         select unit;
         
     /// <summary>
     /// Open a file-stream
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
-    public static Producer<Stream, M, Unit> open(string path, FileMode mode, FileAccess access) =>
+    public static ProducerT<Stream, M, Unit> open(string path, FileMode mode, FileAccess access) =>
         from s in openInternal(path, mode, access)
-        from _ in Proxy.yield(s)
+        from _ in ProducerT.yield<M, Stream>(s)
         select unit;
         
     /// <summary>
     /// Open a file-stream
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
-    public static Producer<Stream, M, Unit> openWrite(string path) =>
+    public static ProducerT<Stream, M, Unit> openWrite(string path) =>
         from s in openWriteInternal(path)
-        from _ in Proxy.yield(s)
+        from _ in ProducerT.yield<M, Stream>(s)
         select unit;
 
     // -- Internal ------------------------------------------------------------------------------------------------- 

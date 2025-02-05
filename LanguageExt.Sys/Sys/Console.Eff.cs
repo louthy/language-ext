@@ -21,7 +21,7 @@ public static class Console<RT>
     /// <summary>
     /// Read keys from the console and push them downstream 
     /// </summary>
-    public static Producer<ConsoleKeyInfo, Eff<RT>, Unit> readKeys =>
+    public static ProducerT<ConsoleKeyInfo, Eff<RT>, Unit> readKeys =>
         Console<Eff<RT>, RT>.readKeys;
 
     /// <summary>
@@ -39,7 +39,7 @@ public static class Console<RT>
     /// <summary>
     /// Read chars from the console and push them downstream 
     /// </summary>
-    public static Producer<int, Eff<RT>, Unit> reads =>
+    public static ProducerT<int, Eff<RT>, Unit> reads =>
         Console<Eff<RT>, RT>.reads;
 
     /// <summary>
@@ -51,7 +51,7 @@ public static class Console<RT>
     /// <summary>
     /// Read lines from the console and push them downstream 
     /// </summary>
-    public static Producer<string, Eff<RT>, Unit> readLines =>
+    public static ProducerT<string, Eff<RT>, Unit> readLines =>
         Console<Eff<RT>, RT>.readLines;
 
     /// <summary>

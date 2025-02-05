@@ -33,9 +33,9 @@ public static class Console<M, RT>
     /// <summary>
     /// Read keys from the console and push them downstream 
     /// </summary>
-    public static Producer<ConsoleKeyInfo, M, Unit> readKeys =>
+    public static ProducerT<ConsoleKeyInfo, M, Unit> readKeys =>
         from ln in readKey
-        from __ in Proxy.yield(ln)
+        from __ in ProducerT.yield<M, ConsoleKeyInfo>(ln)
         select unit;
 
     /// <summary>
@@ -57,9 +57,9 @@ public static class Console<M, RT>
     /// <summary>
     /// Read chars from the console and push them downstream 
     /// </summary>
-    public static Producer<int, M, Unit> reads =>
+    public static ProducerT<int, M, Unit> reads =>
         from ln in read
-        from __ in Proxy.yield(ln)
+        from __ in ProducerT.yield<M, int>(ln)
         select unit;
 
     /// <summary>
@@ -75,9 +75,9 @@ public static class Console<M, RT>
     /// <summary>
     /// Read lines from the console and push them downstream 
     /// </summary>
-    public static Producer<string, M, Unit> readLines =>
+    public static ProducerT<string, M, Unit> readLines =>
         from ln in readLine
-        from _  in Proxy.yield(ln)
+        from _  in ProducerT.yield<M, string>(ln)
         select unit;
 
     /// <summary>
@@ -110,11 +110,11 @@ public static class Console<M, RT>
     public static K<M, Unit> write(char line) =>
         consoleIO.Bind(e => e.Write(line.ToString()));
 
-    public static K<M, Unit> setBgColour(ConsoleColor colour) =>
-        consoleIO.Bind(e => e.SetBgColor(colour));
+    public static K<M, Unit> setBgColour(ConsoleColor col) =>
+        consoleIO.Bind(e => e.SetBgColor(col));
 
-    public static K<M, Unit> setColour(ConsoleColor colour) =>
-        consoleIO.Bind(e => e.SetColor(colour));
+    public static K<M, Unit> setColour(ConsoleColor col) =>
+        consoleIO.Bind(e => e.SetColor(col));
 
     public static K<M, Unit> resetColour() =>
         consoleIO.Bind(e => e.ResetColor());

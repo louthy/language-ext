@@ -15,35 +15,35 @@ public static class TextRead<RT>
     /// Open a text file and streams the lines through the pipe
     /// </summary>
     [Pure]
-    public static Pipe<TextReader, string, Eff<RT>, Unit> readLine =>
+    public static PipeT<TextReader, string, Eff<RT>, Unit> readLine =>
         TextRead<Eff<RT>, RT>.readLine;
         
     /// <summary>
     /// Open a text file and streams the chars through the pipe
     /// </summary>
     [Pure]
-    public static Pipe<TextReader, char, Eff<RT>, Unit> readChar =>
+    public static PipeT<TextReader, char, Eff<RT>, Unit> readChar =>
         TextRead<Eff<RT>, RT>.readChar;
         
     /// <summary>
     /// Read the rest of the text in the stream
     /// </summary>
     [Pure]
-    public static Pipe<TextReader, string, Eff<RT>, Unit> readToEnd =>
+    public static PipeT<TextReader, string, Eff<RT>, Unit> readToEnd =>
         TextRead<Eff<RT>, RT>.readToEnd;
 
     /// <summary>
     /// Repeatedly read a number of chars from the stream
     /// </summary>
     [Pure]
-    public static Pipe<TextReader, SeqLoan<char>, Eff<RT>, Unit> readChars(int charCount) =>
+    public static PipeT<TextReader, SeqLoan<char>, Eff<RT>, Unit> readChars(int charCount) =>
         TextRead<Eff<RT>, RT>.readChars(charCount).As();
 
     /// <summary>
     /// Read a number of chars from the stream
     /// </summary>
     [Pure]
-    public static Pipe<TextReader, string, Eff<RT>, Unit> read(int charCount) =>
+    public static PipeT<TextReader, string, Eff<RT>, Unit> read(int charCount) =>
         TextRead<Eff<RT>, RT>.read(charCount).As();
 
     /// <summary>
