@@ -2,11 +2,10 @@ using System.Diagnostics;
 using LanguageExt;
 using LanguageExt.Common;
 using LanguageExt.Pipes;
-using LanguageExt.Pipes2;
 using LanguageExt.Traits;
-using static LanguageExt.Pipes2.ProducerT;
-using static LanguageExt.Pipes2.PipeT;
-using static LanguageExt.Pipes2.ConsumerT;
+using static LanguageExt.Pipes.ProducerT;
+using static LanguageExt.Pipes.PipeT;
+using static LanguageExt.Pipes.ConsumerT;
 using static LanguageExt.Prelude;
 
 /*var op = from _1 in Producer.lift<int, IO, Unit>(writeLine("pre-yield"))
