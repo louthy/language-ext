@@ -493,4 +493,99 @@ public static class PipeT
                 }
             });
     }
+    
+    /// <summary>
+    /// Fold the given pipe until the `Schedule` completes.
+    /// Once complete, the pipe yields the aggregated value downstream.
+    /// </summary>
+    /// <param name="Time">Schedule to run each item</param>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static PipeT<IN, OUT, M, Unit> fold<IN, OUT, M>(
+        Schedule Time,
+        Func<OUT, IN, OUT> Fold, 
+        OUT Init)
+        where M : Monad<M> =>
+        awaiting<M, IN, OUT>().Fold(Time, Fold, Init);
+    
+    /// <summary>
+    /// Fold the given pipe until the predicate is `true`.  Once `true` the pipe yields the
+    /// aggregated value downstream.
+    /// </summary>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static PipeT<IN, OUT, M, Unit> foldUntil<IN, OUT, M>(
+        Func<OUT, IN, OUT> Fold, 
+        Func<(OUT State, IN Value), bool> Pred, 
+        OUT Init)
+        where M : Monad<M> =>
+        awaiting<M, IN, OUT>().FoldUntil(Fold, Pred, Init);
+        
+    /// <summary>
+    /// Fold the given pipe until the predicate is `true` or the `Schedule` completes.
+    /// Once `true`, or completed, the pipe yields the aggregated value downstream.
+    /// </summary>
+    /// <param name="Time">Schedule to run each item</param>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static PipeT<IN, OUT, M, Unit> foldUntil<IN, OUT, M>(
+        Schedule Time,
+        Func<OUT, IN, OUT> Fold, 
+        Func<(OUT State, IN Value), bool> Pred, 
+        OUT Init)
+        where M : Monad<M> =>
+        awaiting<M, IN, OUT>().FoldUntil(Time, Fold, Pred, Init);
+
+    /// <summary>
+    /// Fold the given pipe while the predicate is `true`.  Once `false` the pipe yields the
+    /// aggregated value downstream.
+    /// </summary>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static PipeT<IN, OUT, M, Unit> foldWhile<IN, OUT, M>(
+        Func<OUT, IN, OUT> Fold,
+        Func<(OUT State, IN Value), bool> Pred,
+        OUT Init)
+        where M : Monad<M> =>
+        awaiting<M, IN, OUT>().FoldWhile(Fold, Pred, Init);
+
+    /// <summary>
+    /// Fold the given pipe while the predicate is `true` or the `Schedule` completes.
+    /// Once `false`, or completed, the pipe yields the aggregated value downstream.
+    /// </summary>
+    /// <param name="Time">Schedule to run each item</param>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static PipeT<IN, OUT, M, Unit> foldWhile<IN, OUT, M>(
+        Schedule Time,
+        Func<OUT, IN, OUT> Fold, 
+        Func<(OUT State, IN Value), bool> Pred, 
+        OUT Init)
+        where M : Monad<M> =>
+        awaiting<M, IN, OUT>().FoldWhile(Time, Fold, Pred, Init);
+    
 }

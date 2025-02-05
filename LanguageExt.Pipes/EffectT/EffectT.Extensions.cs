@@ -18,6 +18,12 @@ public static class EffectTExtensions
     public static EffectT<M, A> As<M, A>(this K<EffectT<M>, A> ma)
         where M : Monad<M> =>
         (EffectT<M, A>)ma;
+    
+    /// <summary>
+    /// Convert to the `Eff` version of `Effect`
+    /// </summary>
+    public static Effect<RT, A> ToEff<RT, A>(this K<EffectT<Eff<RT>>, A> ma) =>
+        ma.As();
 
     /// <summary>
     /// Monad bind

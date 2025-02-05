@@ -81,6 +81,10 @@ public readonly record struct Consumer<RT, IN, A>(PipeT<IN, Void, Eff<RT>, A> Pr
         Proxy.SelectMany(f, g);
 
     [Pure]
+    public static implicit operator Consumer<RT, IN, A>(ConsumerT<IN, Eff<RT>, A> consumer) =>
+        consumer.Proxy;
+
+    [Pure]
     public static implicit operator Consumer<RT, IN, A>(PipeT<IN, Void, Eff<RT>, A> pipe) =>
         pipe.ToConsumer();
 
@@ -91,5 +95,4 @@ public readonly record struct Consumer<RT, IN, A>(PipeT<IN, Void, Eff<RT>, A> Pr
     [Pure]
     public static implicit operator Consumer<RT, IN, A>(Pure<A> rhs) =>
         Consumer.pure<RT, IN, A>(rhs.Value);
-
 }

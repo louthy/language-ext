@@ -314,4 +314,88 @@ public static class Pipe
         OUT Init,
         Pipe<RT, IN, OUT, A> Item) =>
         Item.Proxy.FoldWhile(Time, Fold, Pred, Init);
+    
+    /// <summary>
+    /// Fold the given pipe until the `Schedule` completes.
+    /// Once complete, the pipe yields the aggregated value downstream.
+    /// </summary>
+    /// <param name="Time">Schedule to run each item</param>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <returns></returns>
+    public static Pipe<RT, IN, OUT, Unit> fold<RT, IN, OUT>(
+        Schedule Time,
+        Func<OUT, IN, OUT> Fold, 
+        OUT Init) =>
+        PipeT.awaiting<Eff<RT>, IN, OUT>().Fold(Time, Fold, Init);
+    
+    /// <summary>
+    /// Fold the given pipe until the predicate is `true`.  Once `true` the pipe yields the
+    /// aggregated value downstream.
+    /// </summary>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <returns></returns>
+    public static Pipe<RT, IN, OUT, Unit> foldUntil<RT, IN, OUT>(
+        Func<OUT, IN, OUT> Fold, 
+        Func<(OUT State, IN Value), bool> Pred, 
+        OUT Init)  =>
+        PipeT.awaiting<Eff<RT>, IN, OUT>().FoldUntil(Fold, Pred, Init);
+        
+    /// <summary>
+    /// Fold the given pipe until the predicate is `true` or the `Schedule` completes.
+    /// Once `true`, or completed, the pipe yields the aggregated value downstream.
+    /// </summary>
+    /// <param name="Time">Schedule to run each item</param>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <returns></returns>
+    public static Pipe<RT, IN, OUT, Unit> foldUntil<RT, IN, OUT>(
+        Schedule Time,
+        Func<OUT, IN, OUT> Fold, 
+        Func<(OUT State, IN Value), bool> Pred, 
+        OUT Init) =>
+        PipeT.awaiting<Eff<RT>, IN, OUT>().FoldUntil(Time, Fold, Pred, Init);
+
+    /// <summary>
+    /// Fold the given pipe while the predicate is `true`.  Once `false` the pipe yields the
+    /// aggregated value downstream.
+    /// </summary>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <returns></returns>
+    public static Pipe<RT, IN, OUT, Unit> foldWhile<RT, IN, OUT>(
+        Func<OUT, IN, OUT> Fold,
+        Func<(OUT State, IN Value), bool> Pred,
+        OUT Init) =>
+        PipeT.awaiting<Eff<RT>, IN, OUT>().FoldWhile(Fold, Pred, Init);
+
+    /// <summary>
+    /// Fold the given pipe while the predicate is `true` or the `Schedule` completes.
+    /// Once `false`, or completed, the pipe yields the aggregated value downstream.
+    /// </summary>
+    /// <param name="Time">Schedule to run each item</param>
+    /// <param name="Fold">Fold function</param>
+    /// <param name="Pred">Until predicate</param>
+    /// <param name="Init">Initial state</param>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <returns></returns>
+    public static Pipe<RT, IN, OUT, Unit> foldWhile<RT, IN, OUT>(
+        Schedule Time,
+        Func<OUT, IN, OUT> Fold, 
+        Func<(OUT State, IN Value), bool> Pred, 
+        OUT Init) =>
+        PipeT.awaiting<Eff<RT>, IN, OUT>().FoldWhile(Time, Fold, Pred, Init);
 }

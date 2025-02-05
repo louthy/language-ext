@@ -13,6 +13,12 @@ public static class PipeTExtensions
         (PipeT<IN, OUT, M, A>)ma;
     
     /// <summary>
+    /// Convert to the `Eff` version of `Pipe`
+    /// </summary>
+    public static Pipe<RT, IN, OUT, A> ToEff<RT, IN, OUT, A>(this K<PipeT<IN, OUT, Eff<RT>>, A> ma) =>
+        ma.As();
+    
+    /// <summary>
     /// Monad bind
     /// </summary>
     public static PipeT<IN, OUT, M, C> SelectMany<IN, OUT, M, A, B, C>(

@@ -18,6 +18,12 @@ public static class ProducerTExtensions
     public static ProducerT<OUT, M, A> As<OUT, M, A>(this K<ProducerT<OUT, M>, A> ma)
         where M : Monad<M> =>
         (ProducerT<OUT, M, A>)ma;
+    
+    /// <summary>
+    /// Convert to the `Eff` version of `Producer`
+    /// </summary>
+    public static Producer<RT, OUT, A> ToEff<RT, OUT, A>(this K<ProducerT<OUT, Eff<RT>>, A> ma) =>
+        ma.As();
 
     /// <summary>
     /// Monad bind

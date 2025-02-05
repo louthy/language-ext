@@ -81,9 +81,16 @@ public abstract record Inbox<A> :
     /// </summary>
     /// <typeparam name="M">Monad to lift (must support `IO`)</typeparam>
     /// <returns>`ConsumerT`</returns>
-    public ConsumerT<A, M, Unit> ToConsumer<M>()
+    public ConsumerT<A, M, Unit> ToConsumerT<M>()
         where M : Monad<M> =>
         ConsumerT.awaiting<M, A>()
                  .Bind(Post)
-                 .Bind(_ => ToConsumer<M>());
+                 .Bind(_ => ToConsumerT<M>());
+
+    /// <summary>
+    /// Convert the `Inbox` to a `Consumer` pipe component
+    /// </summary>
+    /// <returns>`Consumer`</returns>
+    public Consumer<RT, A, Unit> ToConsumer<RT>() =>
+        ToConsumerT<Eff<RT>>();
 }

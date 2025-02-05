@@ -78,10 +78,17 @@ public abstract record Outbox<A> :
     /// </summary>
     /// <typeparam name="M">Monad to lift (must support `IO`)</typeparam>
     /// <returns>`ProducerT`</returns>
-    public ProducerT<A, M, Unit> ToProducer<M>()
+    public ProducerT<A, M, Unit> ToProducerT<M>()
         where M : Monad<M> =>
         Read().Bind(ProducerT.yield<M, A>)
-              .Bind(_ => ToProducer<M>());
+              .Bind(_ => ToProducerT<M>());
+
+    /// <summary>
+    /// Convert `Outbox` to a `Producer` pipe component
+    /// </summary>
+    /// <returns>`Producer`</returns>
+    public Producer<RT, A, Unit> ToProducer<RT>() =>
+        ToProducerT<Eff<RT>>();
     
     /// <summary>
     /// Combine two outboxes into a single outbox.  The value streams are both

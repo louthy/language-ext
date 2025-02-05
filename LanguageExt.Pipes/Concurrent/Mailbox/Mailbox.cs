@@ -96,18 +96,32 @@ public record Mailbox<A, B>(Inbox<A> Inbox, Outbox<B> Outbox)
     /// </summary>
     /// <typeparam name="M">Monad to lift (must support `IO`)</typeparam>
     /// <returns>`ConsumerT`</returns>
-    public ConsumerT<A, M, Unit> ToConsumer<M>()
+    public ConsumerT<A, M, Unit> ToConsumerT<M>()
         where M : Monad<M> =>
-        Inbox.ToConsumer<M>();
+        Inbox.ToConsumerT<M>();
+
+    /// <summary>
+    /// Convert the `Inbox` to a `Consumer` pipe component
+    /// </summary>
+    /// <returns>`Consumer`</returns>
+    public Consumer<RT, A, Unit> ToConsumer<RT>() =>
+        Inbox.ToConsumer<RT>();
 
     /// <summary>
     /// Convert `Outbox` to a `ProducerT` pipe component
     /// </summary>
     /// <typeparam name="M">Monad to lift (must support `IO`)</typeparam>
     /// <returns>`ProducerT`</returns>
-    public ProducerT<B, M, Unit> ToProducer<M>()
+    public ProducerT<B, M, Unit> ToProducerT<M>()
         where M : Monad<M> =>
-        Outbox.ToProducer<M>();
+        Outbox.ToProducerT<M>();
+
+    /// <summary>
+    /// Convert `Outbox` to a `Producer` pipe component
+    /// </summary>
+    /// <returns>`Producer`</returns>
+    public Producer<RT, B, Unit> ToProducer<RT>() =>
+        Outbox.ToProducer<RT>();
     
     /// <summary>
     /// Combine two Inboxes: `lhs` and `rhs` into a single inbox that takes incoming

@@ -2,10 +2,10 @@ using LanguageExt;
 using LanguageExt.Sys;
 using LanguageExt.Pipes;
 using LanguageExt.Common;
+using LanguageExt.Pipes.Concurrent;
 using LanguageExt.Sys.Traits;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
-using static LanguageExt.Pipes.Proxy;
 
 namespace EffectsExamples;
 
@@ -29,11 +29,12 @@ public static class QueueExample<RT>
     public static Eff<RT, Unit> main()
     {
         // Create two queues.  Queues are Producers that have an Enqueue function
-        var queue1 = Queue<Eff<RT>, string>();
-        var queue2 = Queue<Eff<RT>, string>();
+        var queue1 = Mailbox.spawn<string>();
+        var queue2 = Mailbox.spawn<string>();
 
         // Compose the queues with a pipe that prepends some text to what they produce
-        var queues = Seq(queue1 | prepend("Queue 1: "), queue2 | prepend("Queue 2: "));
+        var queues = Seq(queue1.ToProducer<RT>() | prepend("Queue 1: "), 
+                         queue2.ToProducer<RT>() | prepend("Queue 2: "));
 
         // Run the queues in a forked task
         // Repeatedly read from the console and write to one of the two queues depending on
@@ -43,37 +44,37 @@ public static class QueueExample<RT>
                      from _ in f.Cancel // cancels the forked task
                      select unit;
 
-        return effect.RunEffect().As();
+        return effect.As().Run();
     }
 
     // Consumer of the console.  It enqueues the item to queue1 or queue2 depending
     // on the first char of the string it awaits
-    static Consumer<string, Eff<RT>, Unit> writeToQueue(
-        Queue<string, Eff<RT>, Unit> queue1, 
-        Queue<string, Eff<RT>, Unit> queue2) =>
-        from x in awaiting<string>()
+    static Consumer<RT, string, Unit> writeToQueue(
+        Mailbox<string, string> queue1, 
+        Mailbox<string, string> queue2) =>
+       (from x in Consumer.awaiting<RT, string>()
         from u in guard(x.Length > 0, Error.New("exiting"))
         from _ in x[0] switch
                   {
-                      '1' => queue1.EnqueueM(x.Substring(1)).As(),
-                      '2' => queue2.EnqueueM(x.Substring(1)).As(),
+                      '1' => queue1.Post(x.Substring(1)).As(),
+                      '2' => queue2.Post(x.Substring(1)).As(),
                       _   => Fail(Errors.Cancelled)
                   }
-        select unit;
+        select unit).As();
         
     /// <summary>
     /// Pipe that prepends the text provided to the awaited value and then yields it
     /// </summary>
-    static Pipe<string, string, Eff<RT>, Unit> prepend(string x) =>
-        from l in awaiting<string>()         
-        from _ in yield($"{x}{l}")
+    static Pipe<RT, string, string, Unit> prepend(string x) =>
+        from l in Pipe.awaiting<RT, string, string>()         
+        from _ in Pipe.yield<RT, string, string>($"{x}{l}")
         select unit;
         
     /// <summary>
     /// Consumer that simply writes to the console
     /// </summary>
-    static Consumer<string, Eff<RT>, Unit> writeLine =>
-        from l in awaiting<string>()
+    static Consumer<RT, string, Unit> writeLine =>
+        from l in Consumer.awaiting<RT, string>()
         from _ in Console<RT>.writeLine(l)
         select unit;
 }

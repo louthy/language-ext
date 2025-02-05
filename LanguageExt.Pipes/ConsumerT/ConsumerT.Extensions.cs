@@ -18,6 +18,12 @@ public static class ConsumerTExtensions
     public static ConsumerT<IN, M, A> As<IN, M, A>(this K<ConsumerT<IN, M>, A> ma)
         where M : Monad<M> =>
         (ConsumerT<IN, M, A>)ma;
+    
+    /// <summary>
+    /// Convert to the `Eff` version of `Consumer`
+    /// </summary>
+    public static Consumer<RT, IN, A> ToEff<RT, IN, A>(this K<ConsumerT<IN, Eff<RT>>, A> ma) =>
+        ma.As();
 
     /// <summary>
     /// Monad bind

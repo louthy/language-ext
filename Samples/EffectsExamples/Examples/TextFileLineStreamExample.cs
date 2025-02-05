@@ -5,7 +5,6 @@ using LanguageExt.Sys.IO;
 using LanguageExt.Sys.Traits;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
-using static LanguageExt.Pipes.Proxy;
 
 namespace EffectsExamples;
 
@@ -25,16 +24,16 @@ public class TextFileLineStreamExample<RT>
     public static Eff<RT, Unit> main =>
         from _ in Console<RT>.writeLine("Please type in a path to a text file and press enter")
         from p in Console<RT>.readLine
-        from e in mainEffect(p).RunEffect()
+        from e in mainEffect(p).Run()
         select unit;
         
-    static Effect<Eff<RT>, Unit> mainEffect(string path) =>
+    static Effect<RT, Unit> mainEffect(string path) =>
         File<RT>.openText(path) 
             | TextRead<RT>.readLine 
             | writeLine;
 
-    static Consumer<string, Eff<RT>, Unit> writeLine =>
-        from l in awaiting<string>()
+    static Consumer<RT, string, Unit> writeLine =>
+        from l in Consumer.awaiting<RT, string>()
         from _ in Console<RT>.writeLine(l)
         select unit;
 }

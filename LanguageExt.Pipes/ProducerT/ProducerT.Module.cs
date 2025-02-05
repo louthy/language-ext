@@ -321,8 +321,8 @@ public static class ProducerT
         if (producers.Count == 0) return pure<OUT, M, Unit>(default);
 
         return from mailbox in Pure(Mailbox.spawn(settings ?? Buffer<OUT>.Unbounded))
-               from forks   in producers.Traverse(p => (p | mailbox.ToConsumer<M>()).ForkIO()).As().Run()
-               from _       in mailbox.ToProducer<M>()
+               from forks   in producers.Traverse(p => (p | mailbox.ToConsumerT<M>()).ForkIO()).As().Run()
+               from _       in mailbox.ToProducerT<M>()
                from x       in forks.Traverse(f => f.Cancel).As()
                select unit;
     }
