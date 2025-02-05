@@ -46,13 +46,48 @@ public static class PipeT
     /// <summary>
     /// Await a value from upstream
     /// </summary>
+    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
-    /// <returns></returns>
+    /// <returns>Pipe</returns>
     public static PipeT<IN, OUT, M, IN> awaiting<M, IN, OUT>() 
         where M : Monad<M> =>
         new PipeTAwait<IN, OUT, M, IN>(pure<IN, OUT, M, IN>);
+
+    /// <summary>
+    /// Create a pipe that filters out values that return `false` when applied to a predicate function
+    /// </summary>
+    /// <param name="f">Predicate function</param>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Stream value to consume and produce</typeparam>
+    /// <returns>Pipe</returns>
+    public static PipeT<A, A, M, Unit> filter<M, A>(Func<A, bool> f)
+        where M : Monad<M> =>
+        awaiting<M, A, A>().Bind(x => f(x) ? yield<M, A, A>(x) : pure<A, A, M, Unit>(default));
+
+    /// <summary>
+    /// Create a pipe from a mapping function
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <returns>Pipe</returns>
+    public static PipeT<IN, OUT, M, Unit> map<M, IN, OUT>(Func<IN, OUT> f)
+        where M : Monad<M> =>
+        awaiting<M, IN, OUT>().Bind(x => yield<M, IN, OUT>(f(x)));
+
+    /// <summary>
+    /// Create a pipe from a mapping function
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <returns>Pipe</returns>
+    public static PipeT<IN, OUT, M, Unit> mapM<M, IN, OUT>(Func<IN, K<M, OUT>> f)
+        where M : Monad<M> =>
+        awaiting<M, IN, OUT>().Bind(x => liftM<IN, OUT, M, OUT>(f(x)).Bind(yield<M, IN, OUT>));
     
     /// <summary>
     /// Create a pipe that simply returns a bound value without yielding anything
