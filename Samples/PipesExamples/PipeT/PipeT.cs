@@ -35,10 +35,6 @@ public abstract record PipeT<IN, OUT, M, A> : K<PipeT<IN, OUT, M>, A>
         lhs.Compose(rhs);
 
     [Pure]
-    public static ProducerT<OUT, M, A> operator | (QueueT<IN, M, A> lhs, PipeT<IN, OUT, M, A> rhs) =>
-        lhs.Compose(rhs);
-
-    [Pure]
     public static ConsumerT<IN, M, A> operator | (PipeT<IN, OUT, M, A> lhs, ConsumerT<OUT, M, A> rhs) =>
         lhs.Compose(rhs.Proxy);
     

@@ -410,7 +410,7 @@ public static partial class Prelude
     ///   the successful `f` function. 
     /// </returns>
     public static A swap<A>(Atom<A> ma, Func<A, Option<A>> f) =>
-        ma.Swap(f);
+        ma.SwapMaybe(f);
     
     /// <summary>
     /// Atomically updates the value by passing the old value to `f` and updating

@@ -320,6 +320,9 @@ public abstract class IteratorAsync<A> :
             var a = ma.Clone();
             var b = mb.Clone();
 
+            // TODO: Replace this with a WaitAny tasks for each side, replacing the 
+            //       task as each one yields.
+            
             while (!await a.IsEmpty && !await b.IsEmpty)
             {
                 yield return await a.Head;

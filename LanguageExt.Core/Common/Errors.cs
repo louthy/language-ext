@@ -201,4 +201,36 @@ public static class Errors
     /// IO DSL extension error
     /// </summary>
     public static readonly Error IODSLExtension = new Exceptional(IODSLExtensionText, IODSLExtensionCode);
+
+    /// <summary>
+    /// Inbox no space available error message
+    /// </summary>
+    public const string NoSpaceInInboxText =
+        "No inbox space available";
+    
+    /// <summary>
+    /// Inbox no space available error code
+    /// </summary>
+    public const int NoSpaceInInboxCode = -2000000013;
+
+    /// <summary>
+    /// Inbox no space available error
+    /// </summary>
+    public static readonly Error NoSpaceInInbox = new Expected(NoSpaceInInboxText, NoSpaceInInboxCode);
+
+    /// <summary>
+    /// Outbox channel has been closed
+    /// </summary>
+    public const string OutboxChannelClosedText =
+        "Outbox channel has been closed";
+    
+    /// <summary>
+    /// Outbox channel has been closed code
+    /// </summary>
+    public const int OutboxChannelClosedCode = -2000000014;
+
+    /// <summary>
+    /// Outbox channel has been closed error
+    /// </summary>
+    public static readonly Error OutboxChannelClosed = new Expected(OutboxChannelClosedText, OutboxChannelClosedCode);
 }

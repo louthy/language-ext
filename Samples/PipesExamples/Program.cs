@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using LanguageExt;
+using LanguageExt.Common;
 using LanguageExt.Pipes;
 using LanguageExt.Pipes2;
+using LanguageExt.Traits;
 using static LanguageExt.Pipes2.ProducerT;
 using static LanguageExt.Pipes2.PipeT;
 using static LanguageExt.Pipes2.ConsumerT;
@@ -34,7 +36,7 @@ var r1 = e1.Run().Run();
 
 var p = yieldAll<IO, int>(Range(1, 10000000));
 
-var o = foldUntil(Time: Schedule.spaced(1.Milliseconds()) | Schedule.recurs(50), 
+var o = foldUntil(Time: Schedule.recurs(50), 
                   Fold: (s, v) => s + v,
                   Pred: v => v.Value % 10000 == 0,
                   Init: 0,
@@ -52,3 +54,57 @@ Console.WriteLine("Done");
 
 static IO<Unit> writeLine(object? value) =>
     IO.lift(() => Console.WriteLine(value));
+
+public record DbEnv;
+public record Db<A>(ReaderT<DbEnv, IO, A> RunDb) : K<Db, A>
+{
+    public Db<B> Select<B>(Func<A, B> m) => this.Kind().Select(m).As();
+    public Db<C> SelectMany<B, C>(Func<A, K<Db, B>> b, Func<A, B, C> p) => this.Kind().SelectMany(b, p).As();
+    public Db<C> SelectMany<B, C>(Func<A, K<IO, B>> b, Func<A, B, C> p) => this.Kind().SelectMany(b, p).As();
+}
+
+public static class DbExtensions
+{
+    public static Db<A> As<A>(this K<Db, A> ma) =>
+        (Db<A>)ma;
+}
+public class Db : Monad<Db>, Fallible<Db>, Readable<Db, DbEnv>
+{
+    public static K<Db, B> Bind<A, B>(K<Db, A> ma, Func<A, K<Db, B>> f) =>
+        new Db<B>(ma.As().RunDb.Bind(x => f(x).As().RunDb));
+
+    public static K<Db, B> Map<A, B>(Func<A, B> f, K<Db, A> ma) => 
+        new Db<B>(ma.As().RunDb.Map(f));
+
+    public static K<Db, A> Pure<A>(A value) => 
+        new Db<A>(ReaderT.pure<DbEnv, IO, A>(value));
+
+    public static K<Db, B> Apply<A, B>(K<Db, Func<A, B>> mf, K<Db, A> ma) => 
+        new Db<B>(mf.As().RunDb.Apply(ma.As().RunDb));
+
+    public static K<Db, A> Fail<A>(Error error) => 
+        new Db<A>(ReaderT.liftIO<DbEnv, IO, A>(error));
+
+    public static K<Db, A> Catch<A>(K<Db, A> fa, Func<Error, bool> Predicate, Func<Error, K<Db, A>> Fail) =>
+        from env in Readable.ask<Db, DbEnv>()
+        from res in fa.As()
+                      .RunDb
+                      .runReader(env)
+                      .Catch(Predicate, x => Fail(x).As().RunDb.runReader(env)) 
+        select res;
+
+    public static K<Db, A> Asks<A>(Func<DbEnv, A> f) => 
+        new Db<A>(ReaderT.asks<IO, A, DbEnv>(f));
+
+    public static K<Db, A> Local<A>(Func<DbEnv, DbEnv> f, K<Db, A> ma) => 
+        new Db<A>(ReaderT.local(f, ma.As().RunDb));
+
+    public static K<Db, A> LiftIO<A>(IO<A> ma) => 
+        new Db<A>(ReaderT.liftIO<DbEnv, IO, A>(ma));
+
+    public static K<Db, B> MapIO<A, B>(K<Db, A> ma, Func<IO<A>, IO<B>> f) => 
+        new Db<B>(ma.As().RunDb.MapIO(f).As());
+
+    public static K<Db, IO<A>> ToIO<A>(K<Db, A> ma) =>
+        ma.MapIO(IO.pure);
+}

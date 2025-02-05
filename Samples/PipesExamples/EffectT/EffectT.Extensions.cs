@@ -57,5 +57,40 @@ public static class EffectTExtensions
         Func<A, B, C> g)
         where M : Monad<M> =>
         EffectT.lift<M, A>(ff.Function).SelectMany(f, g);    
-    
+
+    /// <summary>
+    /// Monad bind
+    /// </summary>
+    public static EffectT<M, B> Bind<M, A, B>(
+        this K<M, A> ma, 
+        Func<A, EffectT<M, B>> f)
+        where M : Monad<M> =>
+        EffectT.liftM(ma).Bind(f);
+
+    /// <summary>
+    /// Monad bind
+    /// </summary>
+    public static EffectT<M, B> Bind<M, A, B>(
+        this IO<A> ma, 
+        Func<A, EffectT<M, B>> f)
+        where M : Monad<M> =>
+        EffectT.liftIO<M, A>(ma).Bind(f);
+
+    /// <summary>
+    /// Monad bind
+    /// </summary>
+    public static EffectT<M, B> Bind<M, A, B>(
+        this Pure<A> ma, 
+        Func<A, EffectT<M, B>> f)
+        where M : Monad<M> =>
+        EffectT.pure<M, A>(ma.Value).Bind(f);
+
+    /// <summary>
+    /// Monad bind
+    /// </summary>
+    public static EffectT<M, B> Bind<M, A, B>(
+        this Lift<A> ff, 
+        Func<A, EffectT<M, B>> f)
+        where M : Monad<M> =>
+        EffectT.lift<M, A>(ff.Function).Bind(f);    
 }

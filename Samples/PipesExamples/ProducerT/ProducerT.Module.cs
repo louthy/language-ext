@@ -1,5 +1,9 @@
+using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using LanguageExt.Common;
+using LanguageExt.Pipes;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Pipes2;
 
@@ -295,5 +299,74 @@ public static class ProducerT
         OUT Init,
         ProducerT<OUT, M, A> Item)
         where M : Monad<M> =>
-        PipeT.foldWhile(Time, Fold, Pred, Init, Item.Proxy);    
+        PipeT.foldWhile(Time, Fold, Pred, Init, Item.Proxy);
+    
+    /*
+    /// <summary>
+    /// Merge multiple producers
+    /// </summary>
+    /// <param name="producers"></param>
+    /// <typeparam name="OUT"></typeparam>
+    /// <typeparam name="M"></typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, Unit> merge<OUT, M>(Seq<ProducerT<OUT, M, Unit>> producers)
+        where M : Monad<M>
+    {
+        if (producers.Count == 0) return pure<OUT, M, Unit>(default);
+        var complete = new CountdownEvent(producers.Count);
+        var wait     = new AutoResetEvent(false);
+        var queue    = new ConcurrentQueue<OUT>();
+        var effects  = producers.Traverse(runEffect);
+
+        return from t in liftIO<OUT, M, CancellationToken>(cancelToken)
+               from _ in effects
+               from r in yieldAll<M, OUT>(dequeue(t))
+               select unit;
+        
+        async IAsyncEnumerable<OUT> dequeue([EnumeratorCancellation] CancellationToken token)
+        {
+            try
+            {
+                while (true)
+                {
+                    await wait.WaitOneAsync(50, token).ConfigureAwait(false);
+                    if (complete.IsSet) yield break;
+                    if (token.IsCancellationRequested) yield break;
+                    while (queue.TryDequeue(out var item))
+                    {
+                        yield return item;
+                    }
+                }
+            }
+            finally
+            {
+                wait.Dispose();
+                complete.Dispose();
+            }
+        }
+        
+        Unit enqueue(OUT value)
+        {
+            queue?.Enqueue(value);
+            wait?.Set();
+            return default;
+        }
+        
+        ConsumerT<OUT, M, Unit> receive() =>
+            ConsumerT.awaiting<M, OUT>()
+                     .Map(enqueue);
+
+        Unit countDown()
+        {
+            complete.Signal();
+            return default;
+        }
+
+        K<M, ForkIO<Unit>> runEffect(ProducerT<OUT, M, Unit> p) =>
+            (from _1 in p | receive()
+             let _2 = countDown()
+             select Unit.Default)
+           .Run()
+           .ForkIO();    
+    }    */
 }

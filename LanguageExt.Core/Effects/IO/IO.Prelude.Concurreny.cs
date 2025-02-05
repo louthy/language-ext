@@ -435,7 +435,7 @@ public static partial class Prelude
     ///   the successful `f` function. 
     /// </returns>
     public static IO<A> swapIO<A>(Atom<A> ma, Func<A, Option<A>> f) =>
-        ma.SwapIO(f);
+        ma.SwapMaybeIO(f);
         
     /// <summary>
     /// Atomically updates the value by passing the old value to `f` and updating

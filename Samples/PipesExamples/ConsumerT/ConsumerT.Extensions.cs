@@ -58,4 +58,43 @@ public static class ConsumerTExtensions
         where M : Monad<M> =>
         ConsumerT.lift<IN, M, A>(ff.Function).SelectMany(f, g);
     
+    /// <summary>
+    /// Monad bind
+    /// </summary>
+    public static ConsumerT<IN, M, B> Bind<IN, M, A, B>(
+        this K<M, A> ma, 
+        Func<A, ConsumerT<IN, M, B>> f,
+        Func<A, B> g)
+        where M : Monad<M> =>
+        ConsumerT.liftM<IN, M, A>(ma).Bind(f);
+
+    /// <summary>
+    /// Monad bind
+    /// </summary>
+    public static ConsumerT<IN, M, B> Bind<IN, M, A, B>(
+        this IO<A> ma, 
+        Func<A, ConsumerT<IN, M, B>> f,
+        Func<A, B> g)
+        where M : Monad<M> =>
+        ConsumerT.liftIO<IN, M, A>(ma).Bind(f);
+
+    /// <summary>
+    /// Monad bind
+    /// </summary>
+    public static ConsumerT<IN, M, B> Bind<IN, M, A, B>(
+        this Pure<A> ma, 
+        Func<A, ConsumerT<IN, M, B>> f,
+        Func<A, B> g)
+        where M : Monad<M> =>
+        ConsumerT.pure<IN, M, A>(ma.Value).Bind(f);
+
+    /// <summary>
+    /// Monad bind
+    /// </summary>
+    public static ConsumerT<IN, M, B> Bind<IN, M, A, B>(
+        this Lift<A> ff, 
+        Func<A, ConsumerT<IN, M, B>> f,
+        Func<A, B> g)
+        where M : Monad<M> =>
+        ConsumerT.lift<IN, M, A>(ff.Function).Bind(f);
 }

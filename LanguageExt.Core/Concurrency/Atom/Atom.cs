@@ -119,7 +119,7 @@ public sealed class Atom<A>
     /// * If there is no validator for the Atom then the return value is always the snapshot of
     ///   the successful `f` function. 
     /// </returns>
-    public A Swap(Func<A, Option<A>> f)
+    public A SwapMaybe(Func<A, Option<A>> f)
     {
         f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -176,8 +176,8 @@ public sealed class Atom<A>
     /// * If there is no validator for the Atom then the return value is always the snapshot of
     ///   the successful `f` function. 
     /// </returns>
-    public IO<A> SwapIO(Func<A, Option<A>> f) =>
-        IO.lift(_ => Swap(f));
+    public IO<A> SwapMaybeIO(Func<A, Option<A>> f) =>
+        IO.lift(_ => SwapMaybe(f));
 
     /// <summary>
     /// Value accessor (read and write)

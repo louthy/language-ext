@@ -1,9 +1,7 @@
 using System;
 using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
 using LanguageExt.Pipes;
 using LanguageExt.Traits;
-using Void = LanguageExt.Pipes.Void;
 
 namespace LanguageExt;
 

@@ -334,7 +334,7 @@ public static partial class StreamTExtensions
     /// <returns>Stream of values</returns>
     public static StreamT<M, A> Somes<M, A>(this IAsyncEnumerable<OptionT<M, A>> stream)
         where M : Monad<M> =>
-        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Map(mx => mx.ToStream()))
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.MapAsync(mx => mx.ToStream()))
         from x in xs
         select x;
 
@@ -347,7 +347,7 @@ public static partial class StreamTExtensions
     /// <returns>Stream of values</returns>
     public static StreamT<M, A> SomesStream<M, A>(this IAsyncEnumerable<Option<A>> stream)
         where M : Monad<M> =>
-        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Map(mx => mx.ToStream<M>()))
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.MapAsync(mx => mx.ToStream<M>()))
         from x in xs
         select x;
 
@@ -386,7 +386,7 @@ public static partial class StreamTExtensions
     /// <returns>Stream of values</returns>
     public static StreamT<M, A> Rights<M, L, A>(this IAsyncEnumerable<EitherT<L, M, A>> stream)
         where M : Monad<M> =>
-        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Map(mx => mx.ToStream()))
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.MapAsync(mx => mx.ToStream()))
         from x in xs
         select x;
 
@@ -399,7 +399,7 @@ public static partial class StreamTExtensions
     /// <returns>Stream of values</returns>
     public static StreamT<M, A> RightsStream<M, L, A>(this IAsyncEnumerable<Either<L, A>> stream)
         where M : Monad<M> =>
-        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Map(mx => mx.ToStream<M>()))
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.MapAsync(mx => mx.ToStream<M>()))
         from x in xs
         select x;
 
@@ -438,7 +438,7 @@ public static partial class StreamTExtensions
     /// <returns>Stream of values</returns>
     public static StreamT<M, L> Lefts<M, L, A>(this IAsyncEnumerable<EitherT<L, M, A>> stream)
         where M : Monad<M> =>
-        from xs in StreamT<M, StreamT<M, L>>.Lift(stream.Map(mx => mx.LeftToStream()))
+        from xs in StreamT<M, StreamT<M, L>>.Lift(stream.MapAsync(mx => mx.LeftToStream()))
         from x in xs
         select x;
 
@@ -451,7 +451,7 @@ public static partial class StreamTExtensions
     /// <returns>Stream of values</returns>
     public static StreamT<M, L> LeftsStream<M, L, A>(this IAsyncEnumerable<Either<L, A>> stream)
         where M : Monad<M> =>
-        from xs in StreamT<M, StreamT<M, L>>.Lift(stream.Map(mx => mx.LeftToStream<M>()))
+        from xs in StreamT<M, StreamT<M, L>>.Lift(stream.MapAsync(mx => mx.LeftToStream<M>()))
         from x in xs
         select x;
 
@@ -490,7 +490,7 @@ public static partial class StreamTExtensions
     /// <returns>Stream of values</returns>
     public static StreamT<M, A> Succs<M, A>(this IAsyncEnumerable<FinT<M, A>> stream)
         where M : Monad<M> =>
-        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Map(mx => mx.ToStream()))
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.MapAsync(mx => mx.ToStream()))
         from x in xs
         select x;
 
@@ -503,7 +503,7 @@ public static partial class StreamTExtensions
     /// <returns>Stream of values</returns>
     public static StreamT<M, A> SuccsStream<M, A>(this IAsyncEnumerable<Fin<A>> stream)
         where M : Monad<M> =>
-        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Map(mx => mx.ToStream<M>()))
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.MapAsync(mx => mx.ToStream<M>()))
         from x in xs
         select x;
 
@@ -542,7 +542,7 @@ public static partial class StreamTExtensions
     /// <returns>Stream of values</returns>
     public static StreamT<M, Error> Fails<M, A>(this IAsyncEnumerable<FinT<M, A>> stream)
         where M : Monad<M> =>
-        from xs in StreamT<M, StreamT<M, Error>>.Lift(stream.Map(mx => mx.FailToStream()))
+        from xs in StreamT<M, StreamT<M, Error>>.Lift(stream.MapAsync(mx => mx.FailToStream()))
         from x in xs
         select x;
 
@@ -555,7 +555,7 @@ public static partial class StreamTExtensions
     /// <returns>Stream of values</returns>
     public static StreamT<M, Error> FailsStream<M, A>(this IAsyncEnumerable<Fin<A>> stream)
         where M : Monad<M> =>
-        from xs in StreamT<M, StreamT<M, Error>>.Lift(stream.Map(mx => mx.FailToStream<M>()))
+        from xs in StreamT<M, StreamT<M, Error>>.Lift(stream.MapAsync(mx => mx.FailToStream<M>()))
         from x in xs
         select x;
 
@@ -595,7 +595,7 @@ public static partial class StreamTExtensions
     public static StreamT<M, A> Succs<M, L, A>(this IAsyncEnumerable<ValidationT<L, M, A>> stream)
         where L : Monoid<L> 
         where M : Monad<M> =>
-        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Map(mx => mx.ToStream()))
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.MapAsync(mx => mx.ToStream()))
         from x in xs
         select x;
 
@@ -609,7 +609,7 @@ public static partial class StreamTExtensions
     public static StreamT<M, A> SuccsStream<M, L, A>(this IAsyncEnumerable<Validation<L, A>> stream)
         where L : Monoid<L> 
         where M : Monad<M> =>
-        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.Map(mx => mx.ToStream<M>()))
+        from xs in StreamT<M, StreamT<M, A>>.Lift(stream.MapAsync(mx => mx.ToStream<M>()))
         from x in xs
         select x;
 
@@ -651,7 +651,7 @@ public static partial class StreamTExtensions
     public static StreamT<M, L> Fails<M, L, A>(this IAsyncEnumerable<ValidationT<L, M, A>> stream)
         where L : Monoid<L> 
         where M : Monad<M> =>
-        from xs in StreamT<M, StreamT<M, L>>.Lift(stream.Map(mx => mx.FailToStream()))
+        from xs in StreamT<M, StreamT<M, L>>.Lift(stream.MapAsync(mx => mx.FailToStream()))
         from x in xs
         select x;
 
@@ -665,7 +665,7 @@ public static partial class StreamTExtensions
     public static StreamT<M, L> FailsStream<M, L, A>(this IAsyncEnumerable<Validation<L, A>> stream)
         where L : Monoid<L> 
         where M : Monad<M> =>
-        from xs in StreamT<M, StreamT<M, L>>.Lift(stream.Map(mx => mx.FailToStream<M>()))
+        from xs in StreamT<M, StreamT<M, L>>.Lift(stream.MapAsync(mx => mx.FailToStream<M>()))
         from x in xs
         select x;
 

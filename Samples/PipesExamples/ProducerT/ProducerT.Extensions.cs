@@ -57,4 +57,40 @@ public static class ProducerTExtensions
         Func<A, B, C> g)
         where M : Monad<M> =>
         ProducerT.lift<OUT, M, A>(ff.Function).SelectMany(f, g);
+
+    /// <summary>
+    /// Monad bind
+    /// </summary>
+    public static ProducerT<OUT, M, B> Bind<OUT, M, A, B>(
+        this K<M, A> ma, 
+        Func<A, ProducerT<OUT, M, B>> f)
+        where M : Monad<M> =>
+        ProducerT.liftM<OUT, M, A>(ma).Bind(f);
+
+    /// <summary>
+    /// Monad bind
+    /// </summary>
+    public static ProducerT<OUT, M, B> Bind<OUT, M, A, B>(
+        this IO<A> ma, 
+        Func<A, ProducerT<OUT, M, B>> f)
+        where M : Monad<M> =>
+        ProducerT.liftIO<OUT, M, A>(ma).Bind(f);
+
+    /// <summary>
+    /// Monad bind
+    /// </summary>
+    public static ProducerT<OUT, M, B> Bind<OUT, M, A, B>(
+        this Pure<A> ma, 
+        Func<A, ProducerT<OUT, M, B>> f)
+        where M : Monad<M> =>
+        ProducerT.pure<OUT, M, A>(ma.Value).Bind(f);
+
+    /// <summary>
+    /// Monad bind
+    /// </summary>
+    public static ProducerT<OUT, M, B> Bind<OUT, M, A, B>(
+        this Lift<A> ff, 
+        Func<A, ProducerT<OUT, M, B>> f)
+        where M : Monad<M> =>
+        ProducerT.lift<OUT, M, A>(ff.Function).Bind(f);    
 }

@@ -3,7 +3,6 @@ using LanguageExt.Pipes;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
-using Void = LanguageExt.Pipes.Void;
 
 namespace LanguageExt;
 
