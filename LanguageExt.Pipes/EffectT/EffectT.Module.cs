@@ -150,5 +150,4 @@ public static class EffectT
     public static EffectT<M, A> repeatM<M, A>(Schedule schedule, K<M, A> ma)
         where M : Monad<M> =>
         PipeT.repeatM<Unit, Void, M, A>(schedule, ma).ToEffect();
-    
 }

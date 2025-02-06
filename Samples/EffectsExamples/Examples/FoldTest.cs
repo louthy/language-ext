@@ -6,6 +6,7 @@ using LanguageExt.Common;
 using LanguageExt.Sys.Traits;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
+using static LanguageExt.Pipes.Effect;
 using static LanguageExt.Pipes.Producer;
 using static LanguageExt.Pipes.Pipe;
 using static LanguageExt.Pipes.Consumer;
@@ -25,14 +26,15 @@ namespace EffectsExamples
     {
         public static Eff<RT, Unit> main =>
             mainEffect.Run().As();
-        
+
         static Effect<RT, Unit> mainEffect =>
-            repeat(Console<RT>.readKeys)
-                | exitIfEscape
-                | keyChar
-                | words
-                | filterEmpty
-                | writeLine;
+            Console<RT>.readKeys
+              | exitIfEscape
+              | keyChar
+              | words
+              | filterEmpty
+              | writeLine
+              | Schedule.Forever;
 
         static Pipe<RT, ConsoleKeyInfo, ConsoleKeyInfo, Unit> exitIfEscape =>
            (from k in awaiting<RT, ConsoleKeyInfo, ConsoleKeyInfo>()

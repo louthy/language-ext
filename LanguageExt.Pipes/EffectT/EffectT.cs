@@ -88,4 +88,15 @@ public readonly record struct EffectT<M, A>(PipeT<Unit, Void, M, A> Proxy) : K<E
     public static implicit operator EffectT<M, A>(Pure<A> rhs) =>
         EffectT.pure<M, A>(rhs.Value);
     
+    [Pure]
+    public static EffectT<M, A> operator |(Schedule lhs, EffectT<M, A> rhs) =>
+        ReferenceEquals(lhs, Schedule.Forever)
+            ? EffectT.repeat(rhs)
+            : EffectT.repeat(lhs, rhs);
+    
+    [Pure]
+    public static EffectT<M, A> operator |(EffectT<M, A> lhs, Schedule rhs) =>
+        ReferenceEquals(rhs, Schedule.Forever)
+            ? EffectT.repeat(lhs)
+            : EffectT.repeat(rhs, lhs);    
 }
