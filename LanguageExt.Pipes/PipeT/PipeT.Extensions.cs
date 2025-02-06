@@ -1,4 +1,5 @@
 using System;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
@@ -92,6 +93,34 @@ public static class PipeTExtensions
         this Lift<A> ff, 
         Func<A, PipeT<IN, OUT, M, B>> f)
         where M : Monad<M> =>
-        PipeT.lift<IN, OUT, M, A>(ff.Function).Bind(f);    
+        PipeT.lift<IN, OUT, M, A>(ff.Function).Bind(f);
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    public static PipeT<IN, OUT, M, C> SelectMany<IN, OUT, E, M, A, C>(
+        this K<PipeT<IN, OUT, M>, A> ma,
+        Func<A, Guard<E, Unit>> bind,
+        Func<A, Unit, C> project)
+        where M : Monad<M>, Fallible<E, M> =>
+        ma.Bind(a => bind(a) switch
+                     {
+                         { Flag: true } => PipeT.pure<IN, OUT, M, C>(project(a, default)),
+                         var guard      => PipeT.fail<IN, OUT, E, M, C>(guard.OnFalse())
+                     }).As();
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    public static PipeT<IN, OUT, M, C> SelectMany<IN, OUT, E, M, B, C>(
+        this Guard<E, Unit> ma,
+        Func<Unit, K<PipeT<IN, OUT, M>, B>> bind,
+        Func<Unit, B, C> project)
+        where M : Monad<M>, Fallible<E, M> =>
+        ma switch
+        {
+            { Flag: true } => bind(default).Map(b => project(default, b)).As(),
+            var guard      => PipeT.fail<IN, OUT, E, M, C>(guard.OnFalse())
+        };    
 }
     

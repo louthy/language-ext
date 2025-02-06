@@ -1,4 +1,5 @@
 using System;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
@@ -89,5 +90,32 @@ public static class ProducerExtensions
     public static Producer<RT, OUT, B> Bind<RT, OUT, A, B>(
         this Lift<A> ff, 
         Func<A, Producer<RT, OUT, B>> f) =>
-        Producer.lift<RT, OUT, A>(ff.Function).Bind(f);    
+        Producer.lift<RT, OUT, A>(ff.Function).Bind(f);
+    
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, C>(
+        this K<Producer<RT, OUT>, A> ma,
+        Func<A, Guard<Error, Unit>> bind,
+        Func<A, Unit, C> project) =>
+        ma.Bind(a => bind(a) switch
+                     {
+                         { Flag: true } => Producer.pure<RT, OUT, C>(project(a, default)),
+                         var guard      => Producer.error<RT, OUT, C>(guard.OnFalse())
+                     }).As();
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    public static Producer<RT, OUT, C> SelectMany<RT, OUT, B, C>(
+        this Guard<Error, Unit> ma,
+        Func<Unit, K<Producer<RT, OUT>, B>> bind,
+        Func<Unit, B, C> project) =>
+        ma switch
+        {
+            { Flag: true } => bind(default).Map(b => project(default, b)).As(),
+            var guard      => Producer.error<RT, OUT, C>(guard.OnFalse())
+        };    
 }

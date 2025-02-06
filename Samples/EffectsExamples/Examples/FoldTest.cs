@@ -37,11 +37,10 @@ namespace EffectsExamples
               | Schedule.Forever;
 
         static Pipe<RT, ConsoleKeyInfo, ConsoleKeyInfo, Unit> exitIfEscape =>
-           (from k in awaiting<RT, ConsoleKeyInfo, ConsoleKeyInfo>()
+            from k in awaiting<RT, ConsoleKeyInfo, ConsoleKeyInfo>()
             from x in guard(k.Key != ConsoleKey.Escape, Errors.Cancelled)
             from _ in yield<RT, ConsoleKeyInfo, ConsoleKeyInfo>(k)
-            select unit)
-          .As();
+            select unit;
         
         static Pipe<RT, ConsoleKeyInfo, char, Unit> keyChar =>
             map<RT, ConsoleKeyInfo, char>(k => k.KeyChar);

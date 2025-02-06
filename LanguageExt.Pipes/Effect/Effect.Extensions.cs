@@ -1,4 +1,5 @@
 using System;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
@@ -83,5 +84,31 @@ public static class EffectExtensions
     public static Effect<RT, B> Bind<RT, A, B>(
         this Lift<A> ff, 
         Func<A, Effect<RT, B>> f) =>
-        Effect.lift<RT, A>(ff.Function).Bind(f);    
+        Effect.lift<RT, A>(ff.Function).Bind(f);
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    public static Effect<RT, C> SelectMany<RT, A, C>(
+        this K<Effect<RT>, A> ma,
+        Func<A, Guard<Error, Unit>> bind,
+        Func<A, Unit, C> project) =>
+        ma.Bind(a => bind(a) switch
+                     {
+                         { Flag: true } => Effect.pure<RT, C>(project(a, default)),
+                         var guard      => Effect.error<RT, C>(guard.OnFalse())
+                     }).As();
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    public static Effect<RT, C> SelectMany<RT, B, C>(
+        this Guard<Error, Unit> ma,
+        Func<Unit, K<Effect<RT>, B>> bind,
+        Func<Unit, B, C> project) =>
+        ma switch
+        {
+            { Flag: true } => bind(default).Map(b => project(default, b)).As(),
+            var guard      => Effect.error<RT, C>(guard.OnFalse())
+        };    
 }

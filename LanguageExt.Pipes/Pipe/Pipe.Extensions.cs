@@ -1,4 +1,5 @@
 using System;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
@@ -77,6 +78,32 @@ public static class PipeExtensions
     public static Pipe<RT, IN, OUT, B> Bind<RT, IN, OUT, A, B>(
         this Lift<A> ff, 
         Func<A, Pipe<RT, IN, OUT, B>> f) =>
-        Pipe.lift<RT, IN, OUT, A>(ff.Function).Bind(f);    
+        Pipe.lift<RT, IN, OUT, A>(ff.Function).Bind(f);
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, C>(
+        this K<Pipe<RT, IN, OUT>, A> ma,
+        Func<A, Guard<Error, Unit>> bind,
+        Func<A, Unit, C> project) =>
+        ma.Bind(a => bind(a) switch
+                     {
+                         { Flag: true } => Pipe.pure<RT, IN, OUT, C>(project(a, default)),
+                         var guard      => Pipe.error<RT, IN, OUT, C>(guard.OnFalse())
+                     }).As();
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, B, C>(
+        this Guard<Error, Unit> ma,
+        Func<Unit, K<Pipe<RT, IN, OUT>, B>> bind,
+        Func<Unit, B, C> project) =>
+        ma switch
+        {
+            { Flag: true } => bind(default).Map(b => project(default, b)).As(),
+            var guard      => Pipe.error<RT, IN, OUT, C>(guard.OnFalse())
+        };     
 }
     

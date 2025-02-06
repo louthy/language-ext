@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -95,6 +96,46 @@ public static partial class MonadExtensions
         where M : Monad<M> =>
         M.Bind(ma, a => M.LiftIO(bind(a).As().Map(b => project(a, b))));
 
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="M">Monad trait</typeparam>
+    /// <typeparam name="A">Initial bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>M〈C〉</returns>
+    public static K<M, C> SelectMany<E, M, A, C>(
+        this K<M, A> ma,
+        Func<A, Guard<E, Unit>> bind,
+        Func<A, Unit, C> project)
+        where M : Monad<M>, Fallible<E, M> =>
+        M.Bind(ma, a => bind(a) switch
+                        {
+                            { Flag: true } => M.Pure(project(a, default)),
+                            var guard      => M.Fail<C>(guard.OnFalse())
+                        });
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="M">Monad trait</typeparam>
+    /// <typeparam name="A">Initial bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>M〈C〉</returns>
+    public static K<M, C> SelectMany<E, M, A, C>(
+        this K<M, A> ma,
+        Func<A, Guard<Fail<E>, Unit>> bind,
+        Func<A, Unit, C> project)
+        where M : Monad<M>, Fallible<E, M> =>
+        M.Bind(ma, a => bind(a) switch
+                        {
+                            { Flag: true } => M.Pure(project(a, default)),
+                            var guard      => M.Fail<C>(guard.OnFalse().Value)
+                        });
+    
     /// <summary>
     /// Monadic join operation
     /// </summary>

@@ -1,4 +1,5 @@
 using System;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
@@ -94,4 +95,30 @@ public static class ConsumerExtensions
         Func<A, Consumer<RT, IN, B>> f,
         Func<A, B> g) =>
         Consumer.lift<RT, IN, A>(ff.Function).Bind(f);
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    public static Consumer<RT, IN, C> SelectMany<RT, IN, A, C>(
+        this K<Consumer<RT, IN>, A> ma,
+        Func<A, Guard<Error, Unit>> bind,
+        Func<A, Unit, C> project) =>
+        ma.Bind(a => bind(a) switch
+                     {
+                         { Flag: true } => Consumer.pure<RT, IN, C>(project(a, default)),
+                         var guard      => Consumer.error<RT, IN, C>(guard.OnFalse())
+                     }).As();
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    public static Consumer<RT, IN, C> SelectMany<RT, IN, B, C>(
+        this Guard<Error, Unit> ma,
+        Func<Unit, K<Consumer<RT, IN>, B>> bind,
+        Func<Unit, B, C> project) =>
+        ma switch
+        {
+            { Flag: true } => bind(default).Map(b => project(default, b)).As(),
+            var guard      => Consumer.error<RT, IN, C>(guard.OnFalse())
+        };    
 }

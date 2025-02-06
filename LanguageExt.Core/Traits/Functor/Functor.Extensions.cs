@@ -17,46 +17,6 @@ public static partial class FunctorExtensions
     public static K<F, Unit> IgnoreF<F, A>(this K<F, A> fa)
         where F : Functor<F> =>
         fa.Map(_ => default(Unit));
-    
-    /// <summary>
-    /// Monad bind operation
-    /// </summary>
-    /// <param name="bind">Monadic bind function</param>
-    /// <param name="project">Projection function</param>
-    /// <typeparam name="F">Functor trait</typeparam>
-    /// <typeparam name="A">Initial bound value type</typeparam>
-    /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>M〈C〉</returns>
-    public static K<F, C> SelectMany<F, A, C>(
-        this K<F, A> ma,
-        Func<A, Guard<Error, Unit>> bind,
-        Func<A, Unit, C> project)
-        where F : Functor<F> =>
-        F.Map(a => bind(a) switch
-                   {
-                       { Flag: true } => project(a, default),
-                       var guard      => guard.OnFalse().Throw<C>()
-                   }, ma);
-    
-    /// <summary>
-    /// Monad bind operation
-    /// </summary>
-    /// <param name="bind">Monadic bind function</param>
-    /// <param name="project">Projection function</param>
-    /// <typeparam name="F">Functor trait</typeparam>
-    /// <typeparam name="A">Initial bound value type</typeparam>
-    /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>M〈C〉</returns>
-    public static K<F, C> SelectMany<F, A, C>(
-        this K<F, A> ma,
-        Func<A, Guard<Fail<Error>, Unit>> bind,
-        Func<A, Unit, C> project)
-        where F : Functor<F> =>
-        F.Map(a => bind(a) switch
-                   {
-                       { Flag: true } => project(a, default),
-                       var guard      => guard.OnFalse().Value.Throw<C>()
-                   }, ma);
 
     /// <summary>
     /// Monad bind operation
@@ -67,15 +27,15 @@ public static partial class FunctorExtensions
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>M〈C〉</returns>
-    public static K<F, C> SelectMany<F, B, C>(
-        this Guard<Error, Unit> ma,
+    public static K<F, C> SelectMany<E, F, B, C>(
+        this Guard<E, Unit> ma,
         Func<Unit, K<F, B>> bind,
         Func<Unit, B, C> project)
-        where F : Functor<F> =>
+        where F : Functor<F>, Fallible<E, F> =>
         ma switch
         {
             { Flag: true } => F.Map(b => project(default, b), bind(default)),
-            var guard      => guard.OnFalse().Throw<K<F, C>>()
+            var guard      => F.Fail<C>(guard.OnFalse())
         };
 
     /// <summary>
@@ -87,15 +47,15 @@ public static partial class FunctorExtensions
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>M〈C〉</returns>
-    public static K<F, C> SelectMany<F, B, C>(
-        this Guard<Fail<Error>, Unit> ma,
+    public static K<F, C> SelectMany<E, F, B, C>(
+        this Guard<Fail<E>, Unit> ma,
         Func<Unit, K<F, B>> bind,
         Func<Unit, B, C> project)
-        where F : Functor<F> =>
+        where F : Functor<F>, Fallible<E, F> =>
         ma switch
         {
             { Flag: true } => F.Map(b => project(default, b), bind(default)),
-            var guard      => guard.OnFalse().Value.Throw<K<F, C>>()
+            var guard      => F.Fail<C>(guard.OnFalse().Value)
         };
     
     /// <summary>

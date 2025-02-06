@@ -99,5 +99,33 @@ public static class EffectTExtensions
         this Lift<A> ff, 
         Func<A, EffectT<M, B>> f)
         where M : Monad<M> =>
-        EffectT.lift<M, A>(ff.Function).Bind(f);    
+        EffectT.lift<M, A>(ff.Function).Bind(f);
+    
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    public static EffectT<M, C> SelectMany<E, M, A, C>(
+        this K<EffectT<M>, A> ma,
+        Func<A, Guard<E, Unit>> bind,
+        Func<A, Unit, C> project)
+        where M : Monad<M>, Fallible<E, M> =>
+        ma.Bind(a => bind(a) switch
+                     {
+                         { Flag: true } => EffectT.pure<M, C>(project(a, default)),
+                         var guard      => EffectT.fail<E, M, C>(guard.OnFalse())
+                     }).As();
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    public static EffectT<M, C> SelectMany<E, M, B, C>(
+        this Guard<E, Unit> ma,
+        Func<Unit, K<EffectT<M>, B>> bind,
+        Func<Unit, B, C> project)
+        where M : Monad<M>, Fallible<E, M> =>
+        ma switch
+        {
+            { Flag: true } => bind(default).Map(b => project(default, b)).As(),
+            var guard      => EffectT.fail<E, M, C>(guard.OnFalse())
+        };      
 }

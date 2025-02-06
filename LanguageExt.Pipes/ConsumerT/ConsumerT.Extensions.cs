@@ -104,4 +104,32 @@ public static class ConsumerTExtensions
         Func<A, B> g)
         where M : Monad<M> =>
         ConsumerT.lift<IN, M, A>(ff.Function).Bind(f);
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    public static ConsumerT<IN, M, C> SelectMany<IN, E, M, A, C>(
+        this K<ConsumerT<IN, M>, A> ma,
+        Func<A, Guard<E, Unit>> bind,
+        Func<A, Unit, C> project)
+        where M : Monad<M>, Fallible<E, M> =>
+        ma.Bind(a => bind(a) switch
+                     {
+                         { Flag: true } => ConsumerT.pure<IN, M, C>(project(a, default)),
+                         var guard      => ConsumerT.fail<IN, E, M, C>(guard.OnFalse())
+                     }).As();
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    public static ConsumerT<IN, M, C> SelectMany<IN, E, M, B, C>(
+        this Guard<E, Unit> ma,
+        Func<Unit, K<ConsumerT<IN, M>, B>> bind,
+        Func<Unit, B, C> project)
+        where M : Monad<M>, Fallible<E, M> =>
+        ma switch
+        {
+            { Flag: true } => bind(default).Map(b => project(default, b)).As(),
+            var guard      => ConsumerT.fail<IN, E, M, C>(guard.OnFalse())
+        };     
 }
