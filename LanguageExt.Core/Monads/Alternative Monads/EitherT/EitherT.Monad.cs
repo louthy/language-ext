@@ -10,7 +10,8 @@ namespace LanguageExt;
 public partial class EitherT<L, M> : 
     MonadT<EitherT<L, M>, M>, 
     Fallible<L, EitherT<L, M>>,
-    Choice<EitherT<L, M>>
+    Choice<EitherT<L, M>>,
+    Natural<EitherT<L, M>, OptionT<M>>
     where M : Monad<M>
 {
     static K<EitherT<L, M>, B> Monad<EitherT<L, M>>.Bind<A, B>(K<EitherT<L, M>, A> ma, Func<A, K<EitherT<L, M>, B>> f) => 
@@ -51,4 +52,7 @@ public partial class EitherT<L, M> :
         K<EitherT<L, M>, A> fa, Func<L, bool> Predicate,
         Func<L, K<EitherT<L, M>, A>> Fail) =>
         fa.As().BindLeft(l => Predicate(l) ? Fail(l).As() : Left<A>(l));
+
+    static K<OptionT<M>, A> Natural<EitherT<L, M>, OptionT<M>>.Transform<A>(K<EitherT<L, M>, A> fa) => 
+        new OptionT<M, A>(fa.As().runEither.Map(Natural.transform<Either<L>, Option, A>).Map(ma => ma.As()));
 }

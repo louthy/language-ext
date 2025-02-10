@@ -8,7 +8,12 @@ public partial class Fin :
     Monad<Fin>, 
     Fallible<Fin>,
     Traversable<Fin>, 
-    Alternative<Fin>
+    Alternative<Fin>,
+    Natural<Fin, Either<Error>>,
+    Natural<Fin, Option>,
+    Natural<Fin, Eff>,
+    Natural<Fin, Try>,
+    Natural<Fin, IO>
 {
     static K<Fin, B> Monad<Fin>.Bind<A, B>(K<Fin, A> ma, Func<A, K<Fin, B>> f) =>
         ma switch
@@ -113,4 +118,44 @@ public partial class Fin :
         K<Fin, A> fa, Func<Error, bool> Predicate,
         Func<Error, K<Fin, A>> Fail) =>
         fa.As().BindFail(e => Predicate(e) ? Fail(e).As() : Fin<A>.Fail(e));
+
+    static K<Either<Error>, A> Natural<Fin, Either<Error>>.Transform<A>(K<Fin, A> fa) =>
+        fa switch
+        {
+            Succ<A> (var x) => Either<Error, A>.Right(x),
+            Fail<A> (var e) => Either<Error, A>.Left(e),
+            _               => throw new NotSupportedException()
+        };
+
+    static K<Option, A> Natural<Fin, Option>.Transform<A>(K<Fin, A> fa) =>
+        fa switch
+        {
+            Succ<A> (var x) => Option<A>.Some(x),
+            Fail<A>         => Option<A>.None,
+            _               => throw new NotSupportedException()
+        };
+
+    static K<Try, A> Natural<Fin, Try>.Transform<A>(K<Fin, A> fa) => 
+        fa switch
+        {
+            Succ<A> (var x) => Try<A>.Succ(x),
+            Fail<A> (var e) => Try<A>.Fail(e),
+            _               => throw new NotSupportedException()
+        };
+
+    static K<Eff, A> Natural<Fin, Eff>.Transform<A>(K<Fin, A> fa) => 
+        fa switch
+        {
+            Succ<A> (var x) => Eff<A>.Pure(x),
+            Fail<A> (var e) => Eff<A>.Fail(e),
+            _               => throw new NotSupportedException()
+        };    
+
+    static K<IO, A> Natural<Fin, IO>.Transform<A>(K<Fin, A> fa) => 
+        fa switch
+        {
+            Succ<A> (var x) => IO<A>.Pure(x),
+            Fail<A> (var e) => IO<A>.Fail(e),
+            _               => throw new NotSupportedException()
+        };    
 }
