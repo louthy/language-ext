@@ -1,20 +1,23 @@
 namespace LanguageExt.Traits;
 
 /// <summary>
-/// Natural transformation
+/// Natural transformation source functor
 /// </summary>
 /// <typeparam name="F">From functor</typeparam>
-/// <typeparam name="G">To functor</typeparam>
-public interface Natural<out F, in G>
+public interface Natural<F>
 {
-    public static abstract K<G, A> Transform<A>(K<F, A> fa);
-}
-
-public static class NaturalTest
-{
-    public static void Foo()
+    /// <summary>
+    /// Natural transformation target functor
+    /// </summary>
+    /// <typeparam name="G">To functor</typeparam>
+    public interface Transform<G>
     {
-        var fa = Free.pure<Option, int>(100);
-        var ga = Free.hoist<Option, Seq, int>(fa);
+        /// <summary>
+        /// Perform a natural transformation from `F A -> G A`
+        /// </summary>
+        /// <param name="fa">Functor to transform</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>Transformed functor</returns>
+        public static abstract K<G, A> To<A>(K<F, A> fa);
     }
 }

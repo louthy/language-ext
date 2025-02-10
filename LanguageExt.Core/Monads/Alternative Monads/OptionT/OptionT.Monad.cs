@@ -23,7 +23,7 @@ public partial class OptionT<M> :
         OptionT<M, A>.Some(value);
 
     static K<OptionT<M>, B> Applicative<OptionT<M>>.Apply<A, B>(K<OptionT<M>, Func<A, B>> mf, K<OptionT<M>, A> ma) => 
-        mf.As().Bind(ma.As().Map);
+        mf.As().Bind(x => ma.As().Map(x));
 
     static K<OptionT<M>, B> Applicative<OptionT<M>>.Action<A, B>(K<OptionT<M>, A> ma, K<OptionT<M>, B> mb) =>
         ma.As().Bind(_ => mb);

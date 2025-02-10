@@ -26,7 +26,7 @@ public class Identity :
         ma.As().Map(f);
 
     public static Identity<B> apply<A, B>(Identity<Func<A, B>> mf, Identity<A> ma) =>
-        mf.Bind(ma.Map);
+        mf.Bind(x => ma.Map(x));
 
     public static Identity<B> action<A, B>(Identity<A> ma, Identity<B> mb) =>
         ma.Bind(_ => mb);

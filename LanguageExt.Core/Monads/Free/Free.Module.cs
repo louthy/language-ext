@@ -46,12 +46,12 @@ public static class Free
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Free monad in G</returns>
     public static Free<G, A> hoist<F, G, A>(Free<F, A> fb)
-        where F : Natural<F, G>, Functor<F>
-        where G : Functor<G> =>
+        where F : Functor<F>
+        where G : Natural<F>.Transform<G>, Functor<G> =>
         fb switch
         {
             Pure<F, A>(var x)  => pure<G, A>(x),
-            Bind<F, A>(var xs) => bind(F.Transform(xs).Map(hoist<F, G, A>)),
+            Bind<F, A>(var xs) => bind(G.To(xs).Map(hoist<F, G, A>)),
             _                  => throw new NotSupportedException()
         };
 }

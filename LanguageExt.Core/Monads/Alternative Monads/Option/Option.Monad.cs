@@ -8,13 +8,13 @@ public class Option :
     Fallible<Unit, Option>,
     Traversable<Option>, 
     Alternative<Option>,
-    Natural<Option, Arr>,
-    Natural<Option, Lst>,
-    Natural<Option, Seq>,
-    Natural<Option, Iterable>,
-    Natural<Option, Eff>,
-    Natural<Option, OptionT<IO>>,
-    Natural<Option, Fin>
+    Natural<Option>.Transform<Arr>,
+    Natural<Option>.Transform<Lst>,
+    Natural<Option>.Transform<Seq>,
+    Natural<Option>.Transform<Iterable>,
+    Natural<Option>.Transform<Eff>,
+    Natural<Option>.Transform<OptionT<IO>>,
+    Natural<Option>.Transform<Fin>
 {
     static K<Option, B> Monad<Option>.Bind<A, B>(K<Option, A> ma, Func<A, K<Option, B>> f) =>
         ma.As().Bind(f);
@@ -26,7 +26,7 @@ public class Option :
         Option<A>.Some(value);
 
     static K<Option, B> Applicative<Option>.Apply<A, B>(K<Option, Func<A, B>> mf, K<Option, A> ma) =>
-        mf.As().Bind(ma.As().Map);
+        mf.As().Bind(x => ma.As().Map(x));
 
     static K<Option, B> Applicative<Option>.Action<A, B>(K<Option, A> ma, K<Option, B> mb) =>
         mb;
@@ -77,24 +77,24 @@ public class Option :
         fa.As().Match(Some: Option<A>.Some, 
                       None: () => Predicate(default) ? Fail(default).As() : Option<A>.None);
 
-    static K<Arr, A> Natural<Option, Arr>.Transform<A>(K<Option, A> fa) => 
+    static K<Arr, A> Natural<Option>.Transform<Arr>.To<A>(K<Option, A> fa) => 
         fa.As().ToArr();
 
-    static K<Lst, A> Natural<Option, Lst>.Transform<A>(K<Option, A> fa) => 
+    static K<Lst, A> Natural<Option>.Transform<Lst>.To<A>(K<Option, A> fa) => 
         fa.As().ToLst();
 
-    static K<Seq, A> Natural<Option, Seq>.Transform<A>(K<Option, A> fa) => 
+    static K<Seq, A> Natural<Option>.Transform<Seq>.To<A>(K<Option, A> fa) => 
         fa.As().ToSeq();
 
-    static K<Iterable, A> Natural<Option, Iterable>.Transform<A>(K<Option, A> fa) => 
+    static K<Iterable, A> Natural<Option>.Transform<Iterable>.To<A>(K<Option, A> fa) => 
         fa.As().ToIterable();
 
-    static K<Eff, A> Natural<Option, Eff>.Transform<A>(K<Option, A> fa) => 
+    static K<Eff, A> Natural<Option>.Transform<Eff>.To<A>(K<Option, A> fa) => 
         fa.As().ToEff();
 
-    static K<OptionT<IO>, A> Natural<Option, OptionT<IO>>.Transform<A>(K<Option, A> fa) => 
+    static K<OptionT<IO>, A> Natural<Option>.Transform<OptionT<IO>>.To<A>(K<Option, A> fa) => 
         fa.As().ToIO();
 
-    static K<Fin, A> Natural<Option, Fin>.Transform<A>(K<Option, A> fa) => 
+    static K<Fin, A> Natural<Option>.Transform<Fin>.To<A>(K<Option, A> fa) => 
         fa.As().ToFin();
 }

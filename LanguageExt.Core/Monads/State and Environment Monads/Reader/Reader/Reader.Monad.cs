@@ -22,7 +22,7 @@ public partial class Reader<Env> :
         Reader<Env, A>.Pure(value);
 
     static K<Reader<Env>, B> Applicative<Reader<Env>>.Apply<A, B>(K<Reader<Env>, Func<A, B>> mf, K<Reader<Env>, A> ma) => 
-        mf.As().Bind(ma.As().Map);
+        mf.As().Bind(x => ma.As().Map(x));
 
     static K<Reader<Env>, B> Applicative<Reader<Env>>.Action<A, B>(K<Reader<Env>, A> ma, K<Reader<Env>, B> mb) =>
         ma.As().Bind(_ => mb);

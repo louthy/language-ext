@@ -23,7 +23,7 @@ public partial class EitherT<L, M> :
         EitherT<L, M, A>.Right(value);
 
     static K<EitherT<L, M>, B> Applicative<EitherT<L, M>>.Apply<A, B>(K<EitherT<L, M>, Func<A, B>> mf, K<EitherT<L, M>, A> ma) =>
-        mf.As().Bind(ma.As().Map);
+        mf.As().Bind(x => ma.As().Map(x));
 
     static K<EitherT<L, M>, B> Applicative<EitherT<L, M>>.Action<A, B>(K<EitherT<L, M>, A> ma, K<EitherT<L, M>, B> mb) =>
         ma.As().Bind(_ => mb);
