@@ -20,6 +20,6 @@ public static class Natural
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Transformed functor</returns>
     public static K<G, A> transform<F, G, A>(K<F, A> fa)
-        where G : Natural<F>.Transform<G> =>
-        G.To(fa);
+        where F : Natural<F, G> =>
+        F.Transform(fa);
 }
