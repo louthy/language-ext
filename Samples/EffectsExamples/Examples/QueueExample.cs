@@ -52,7 +52,7 @@ public static class QueueExample<RT>
     static Consumer<RT, string, Unit> writeToQueue(
         Mailbox<string, string> queue1, 
         Mailbox<string, string> queue2) =>
-       (from x in Consumer.awaiting<RT, string>()
+        from x in Consumer.awaiting<RT, string>()
         from u in guard(x.Length > 0, Error.New("exiting"))
         from _ in x[0] switch
                   {
@@ -60,7 +60,7 @@ public static class QueueExample<RT>
                       '2' => queue2.Post(x.Substring(1)).As(),
                       _   => Fail(Errors.Cancelled)
                   }
-        select unit).As();
+        select unit;
         
     /// <summary>
     /// Pipe that prepends the text provided to the awaited value and then yields it
