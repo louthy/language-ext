@@ -26,7 +26,7 @@ public class Option :
         Option<A>.Some(value);
 
     static K<Option, B> Applicative<Option>.Apply<A, B>(K<Option, Func<A, B>> mf, K<Option, A> ma) =>
-        mf.As().Bind(ma.As().Map);
+        mf.As().Bind(x => ma.As().Map(x));
 
     static K<Option, B> Applicative<Option>.Action<A, B>(K<Option, A> ma, K<Option, B> mb) =>
         mb;

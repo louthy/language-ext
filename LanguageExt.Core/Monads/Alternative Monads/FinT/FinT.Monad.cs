@@ -11,7 +11,10 @@ namespace LanguageExt;
 public partial class FinT<M> : 
     MonadT<FinT<M>, M>, 
     Fallible<FinT<M>>,
-    Alternative<FinT<M>>
+    Alternative<FinT<M>>,
+    Natural<FinT<M>, EitherT<Error, M>>,
+    Natural<FinT<M>, OptionT<M>>,
+    Natural<FinT<M>, TryT<M>>
     where M : Monad<M>
 {
     static K<FinT<M>, B> Monad<FinT<M>>.Bind<A, B>(K<FinT<M>, A> ma, Func<A, K<FinT<M>, B>> f) => 
@@ -70,4 +73,13 @@ public partial class FinT<M> :
         K<FinT<M>, A> fa, Func<Error, bool> Predicate,
         Func<Error, K<FinT<M>, A>> Fail) =>
         fa.As().BindFail(l => Predicate(l) ? Fail(l).As() : Fail<A>(l));
+
+    static K<EitherT<Error, M>, A> Natural<FinT<M>, EitherT<Error, M>>.Transform<A>(K<FinT<M>, A> fa) => 
+        new EitherT<Error, M, A>(fa.As().runFin.Map(Natural.transform<Fin, Either<Error>, A>).Map(ma => ma.As()));
+
+    static K<OptionT<M>, A> Natural<FinT<M>, OptionT<M>>.Transform<A>(K<FinT<M>, A> fa) => 
+        new OptionT<M, A>(fa.As().runFin.Map(Natural.transform<Fin, Option, A>).Map(ma => ma.As()));
+
+    static K<TryT<M>, A> Natural<FinT<M>, TryT<M>>.Transform<A>(K<FinT<M>, A> fa) => 
+        new TryT<M, A>(fa.As().runFin.Map(Natural.transform<Fin, Try, A>).Map(ma => ma.As()));
 }

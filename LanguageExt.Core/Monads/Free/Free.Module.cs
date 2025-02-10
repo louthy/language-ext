@@ -46,7 +46,7 @@ public static class Free
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Free monad in G</returns>
     public static Free<G, A> hoist<F, G, A>(Free<F, A> fb)
-        where F : Natural<F, G>, Functor<F>
+        where F : Functor<F>, Natural<F, G>
         where G : Functor<G> =>
         fb switch
         {
