@@ -10,7 +10,7 @@ public interface Natural<F>
     /// Natural transformation target functor
     /// </summary>
     /// <typeparam name="G">To functor</typeparam>
-    public interface Transform<G>
+    public interface Transform<in G>
     {
         /// <summary>
         /// Perform a natural transformation from `F A -> G A`
