@@ -28,7 +28,8 @@ public partial class Either :
 public class Either<L> : Either,
     Monad<Either<L>>, 
     Fallible<L, Either<L>>,
-    Traversable<Either<L>>, 
+    Traversable<Either<L>>,
+    Natural<Either<L>, Option>,
     Choice<Either<L>>
 {
     static K<Either<L>, B> Applicative<Either<L>>.Apply<A, B>(
@@ -112,4 +113,11 @@ public class Either<L> : Either,
         K<Either<L>, A> fa, Func<L, bool> Predicate,
         Func<L, K<Either<L>, A>> Fail) =>
         fa.As().BindLeft(l => Predicate(l) ? Fail(l).As() : Either<L, A>.Left(l));
+
+    static K<Option, A> Natural<Either<L>, Option>.Transform<A>(K<Either<L>, A> fa) =>
+        fa switch
+        {
+            Right<L, A> (var r) => Option<A>.Some(r),
+            _                   => Option<A>.None
+        };
 }
