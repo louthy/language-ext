@@ -163,7 +163,7 @@ public static partial class EffExtensions
         this (K<Eff, A> First, K<Eff, B> Second) self,
         Func<(A First, B Second), K<Eff, C>> bind,
         Func<(A First, B Second), C, D> project) =>
-        self.ZipIO().Bind(ab => bind(ab).Map(c => project(ab, c))).As();
+        self.Zip().Bind(ab => bind(ab).Map(c => project(ab, c))).As();
 
     /// <summary>
     /// Monadic bind and project with paired IO monads
@@ -172,7 +172,7 @@ public static partial class EffExtensions
         this K<Eff, A> self,
         Func<A, (K<Eff, B> First, K<Eff, C> Second)> bind,
         Func<A, (B First, C Second), D> project) =>
-        self.As().Bind(a => bind(a).ZipIO().Map(cd => project(a, cd)));
+        self.As().Bind(a => bind(a).Zip().Map(cd => project(a, cd)));
 
     /// <summary>
     /// Monadic bind and project with paired IO monads
@@ -181,7 +181,7 @@ public static partial class EffExtensions
         this (K<Eff, A> First, K<Eff, B> Second, K<Eff, C> Third) self,
         Func<(A First, B Second, C Third), K<Eff, D>> bind,
         Func<(A First, B Second, C Third), D, E> project) =>
-        self.ZipIO().Bind(ab => bind(ab).Map(c => project(ab, c))).As();
+        self.Zip().Bind(ab => bind(ab).Map(c => project(ab, c))).As();
 
     /// <summary>
     /// Monadic bind and project with paired IO monads
@@ -190,5 +190,5 @@ public static partial class EffExtensions
         this K<Eff, A> self,
         Func<A, (K<Eff, B> First, K<Eff, C> Second, K<Eff, D> Third)> bind,
         Func<A, (B First, C Second, D Third), E> project) =>
-        self.As().Bind(a => bind(a).ZipIO().Map(cd => project(a, cd)));
+        self.As().Bind(a => bind(a).Zip().Map(cd => project(a, cd)));
 }

@@ -29,8 +29,8 @@ public static class QueueExample<RT>
     public static Eff<RT, Unit> main()
     {
         // Create two queues.  Queues are Producers that have an Enqueue function
-        var queue1 = Mailbox.spawn<string>();
-        var queue2 = Mailbox.spawn<string>();
+        var queue1 = Mailbox.spawn<string>("mailbox-1");
+        var queue2 = Mailbox.spawn<string>("mailbox-2");
 
         // Compose the queues with a pipe that prepends some text to what they produce
         var queues = Seq(queue1.ToProducer<RT>() | prepend("Queue 1: "), 
@@ -39,8 +39,8 @@ public static class QueueExample<RT>
         // Run the queues in a forked task
         // Repeatedly read from the console and write to one of the two queues depending on
         // whether the first char is 1 or 2
-        var effect = from f in fork(Producer.merge(queues) | writeLine)
-                     from x in repeat(Console<RT>.readLines | writeToQueue(queue1, queue2))
+        var effect = from f in fork(Producer.merge(queues) | Consumer.repeat(writeLine))
+                     from x in Console<RT>.readLines | writeToQueue(queue1, queue2) | Schedule.Forever
                      from _ in f.Cancel // cancels the forked task
                      select unit;
 
@@ -66,7 +66,8 @@ public static class QueueExample<RT>
     /// Pipe that prepends the text provided to the awaited value and then yields it
     /// </summary>
     static Pipe<RT, string, string, Unit> prepend(string x) =>
-        from l in Pipe.awaiting<RT, string, string>()         
+        from l in Pipe.awaiting<RT, string, string>()
+        from TO_REMOVE in Console<RT>.writeLine($"PREPENDING: {x}")
         from _ in Pipe.yield<RT, string, string>($"{x}{l}")
         select unit;
         

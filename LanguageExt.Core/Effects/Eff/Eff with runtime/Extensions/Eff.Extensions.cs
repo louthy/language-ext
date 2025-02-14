@@ -1,11 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using LanguageExt.Common;
 using LanguageExt.Traits;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -185,7 +182,7 @@ public static partial class EffExtensions
         this (K<Eff<RT>, A> First, K<Eff<RT>, B> Second) self,
         Func<(A First, B Second), K<Eff<RT>, C>> bind,
         Func<(A First, B Second), C, D> project) =>
-        self.ZipIO().Bind(ab => bind(ab).Map(c => project(ab, c))).As();
+        self.Zip().Bind(ab => bind(ab).Map(c => project(ab, c))).As();
 
     /// <summary>
     /// Monadic bind and project with paired IO monads
@@ -194,7 +191,7 @@ public static partial class EffExtensions
         this K<Eff<RT>, A> self,
         Func<A, (K<Eff<RT>, B> First, K<Eff<RT>, C> Second)> bind,
         Func<A, (B First, C Second), D> project) =>
-        self.As().Bind(a => bind(a).ZipIO().Map(cd => project(a, cd)));
+        self.As().Bind(a => bind(a).Zip().Map(cd => project(a, cd)));
 
     /// <summary>
     /// Monadic bind and project with paired IO monads
@@ -203,7 +200,7 @@ public static partial class EffExtensions
         this (K<Eff<RT>, A> First, K<Eff<RT>, B> Second, K<Eff<RT>, C> Third) self,
         Func<(A First, B Second, C Third), K<Eff<RT>, D>> bind,
         Func<(A First, B Second, C Third), D, E> project) =>
-        self.ZipIO().Bind(ab => bind(ab).Map(c => project(ab, c))).As();
+        self.Zip().Bind(ab => bind(ab).Map(c => project(ab, c))).As();
 
     /// <summary>
     /// Monadic bind and project with paired IO monads
@@ -212,5 +209,5 @@ public static partial class EffExtensions
         this K<Eff<RT>, A> self,
         Func<A, (K<Eff<RT>, B> First, K<Eff<RT>, C> Second, K<Eff<RT>, D> Third)> bind,
         Func<A, (B First, C Second, D Third), E> project) =>
-        self.As().Bind(a => bind(a).ZipIO().Map(cd => project(a, cd)));
+        self.As().Bind(a => bind(a).Zip().Map(cd => project(a, cd)));
 }

@@ -83,9 +83,7 @@ public abstract record Inbox<A> :
     /// <returns>`ConsumerT`</returns>
     public ConsumerT<A, M, Unit> ToConsumerT<M>()
         where M : Monad<M> =>
-        ConsumerT.awaiting<M, A>()
-                 .Bind(Post)
-                 .Bind(_ => ToConsumerT<M>());
+        ConsumerT.repeat(ConsumerT.awaiting<M, A>().Bind(Post));
 
     /// <summary>
     /// Convert the `Inbox` to a `Consumer` pipe component

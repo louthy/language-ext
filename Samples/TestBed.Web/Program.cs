@@ -1,4 +1,5 @@
-﻿using static LanguageExt.Prelude;
+﻿using LanguageExt;
+using static LanguageExt.Prelude;
 var builder = WebApplication.CreateBuilder(args);
 var app     = builder.Build();
 

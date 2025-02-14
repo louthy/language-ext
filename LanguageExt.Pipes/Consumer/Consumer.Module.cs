@@ -13,8 +13,8 @@ public static class Consumer
     /// <summary>
     /// Await a value from upstream
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
     public static Consumer<RT, IN, IN> awaiting<RT, IN>() =>
         PipeT.awaiting<Eff<RT>, IN, Void>().ToConsumer();
@@ -22,8 +22,8 @@ public static class Consumer
     /// <summary>
     /// Await a value from upstream and then ignore it
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
     public static Consumer<RT, IN, Unit> awaitIgnore<RT, IN>() =>
         new PipeTAwait<IN, Void, Eff<RT>, Unit>(_ => PipeT.pure<IN, Void, Eff<RT>, Unit>(default)).ToConsumer();
@@ -31,8 +31,8 @@ public static class Consumer
     /// <summary>
     /// Create a consumer that simply returns a bound value without awaiting anything
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to await</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Consumer<RT, IN, A> pure<RT, IN, A>(A value) =>
@@ -41,8 +41,8 @@ public static class Consumer
     /// <summary>
     /// Create a consumer that always fails
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to await</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Consumer<RT, IN, A> error<RT, IN, A>(Error value) =>
@@ -51,8 +51,8 @@ public static class Consumer
     /// <summary>
     /// Create a consumer that yields nothing at all
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Consumer<RT, IN, A> empty<RT, IN, A>() =>
@@ -61,8 +61,8 @@ public static class Consumer
     /// <summary>
     /// Create a consumer that simply returns a bound value without yielding anything
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Consumer<RT, IN, A> lift<RT, IN, A>(Func<A> f) =>
@@ -71,8 +71,8 @@ public static class Consumer
     /// <summary>
     /// Create a lazy consumer 
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Consumer<RT, IN, A> liftT<RT, IN, A>(Func<Consumer<RT, IN, A>> f) =>
@@ -81,8 +81,8 @@ public static class Consumer
     /// <summary>
     /// Create an asynchronous lazy consumer 
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Consumer<RT, IN, A> liftT<RT, IN, A>(Func<ValueTask<Consumer<RT, IN, A>>> f) =>
@@ -91,8 +91,8 @@ public static class Consumer
     /// <summary>
     /// Create an asynchronous consumer 
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Consumer<RT, IN, A> liftT<RT, IN, A>(ValueTask<Consumer<RT, IN, A>> f) =>
@@ -101,8 +101,8 @@ public static class Consumer
     /// <summary>
     /// Create a consumer that simply returns the bound value of the lifted monad without yielding anything
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Consumer<RT, IN, A> liftM<RT, IN, A>(K<Eff<RT>, A> ma) =>
@@ -111,8 +111,8 @@ public static class Consumer
     /// <summary>
     /// Create a consumer that simply returns the bound value of the lifted monad without yielding anything
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Consumer<RT, IN, A> liftIO<RT, IN, A>(IO<A> ma) =>
@@ -121,8 +121,8 @@ public static class Consumer
     /// <summary>
     /// Continually repeat the provided operation
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Consumer<RT, IN, A> repeat<RT, IN, A>(Consumer<RT, IN, A> ma) =>
@@ -131,8 +131,8 @@ public static class Consumer
     /// <summary>
     /// Repeat the provided operation based on the schedule provided
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Consumer<RT, IN, A> repeat<RT, IN, A>(Schedule schedule, Consumer<RT, IN, A> ma) =>
@@ -141,8 +141,8 @@ public static class Consumer
     /// <summary>
     /// Continually lift & repeat the provided operation
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Consumer<RT, IN, A> repeatM<RT, IN, A>(K<Eff<RT>, A> ma) =>
@@ -151,8 +151,8 @@ public static class Consumer
     /// <summary>
     /// Repeat the provided operation based on the schedule provided
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Consumer<RT, IN, A> repeatM<RT, IN, A>(Schedule schedule, K<Eff<RT>, A> ma) =>

@@ -72,29 +72,7 @@ public static partial class Prelude
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static K<M, A> postIO<M, A>(K<M, A> ma)
         where M : Monad<M> =>
-        ma.PostIO();        
-    
-    /// <summary>
-    /// Make this IO computation run on the `SynchronizationContext` that was captured at the start
-    /// of the IO chain (i.e. the one embedded within the `EnvIO` environment that is passed through
-    /// all IO computations)
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static K<IO, A> post<A>(K<IO, A> ma) =>
-        ma.As().PostIO();        
-
-    /// <summary>
-    /// Queue this IO operation to run on the thread-pool. 
-    /// </summary>
-    /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
-    /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
-    /// the forked IO operation or to await the result of it.
-    /// </returns>
-    [Pure]
-    [MethodImpl(Opt.Default)]
-    public static IO<ForkIO<A>> fork<A>(K<IO, A> ma, Option<TimeSpan> timeout = default) =>
-        ma.ForkIO(timeout).As();
+        M.PostIO(ma);        
 
     /// <summary>
     /// Queue this IO operation to run on the thread-pool. 
@@ -107,7 +85,7 @@ public static partial class Prelude
     [MethodImpl(Opt.Default)]
     public static K<M, ForkIO<A>> fork<M, A>(K<M, A> ma, Option<TimeSpan> timeout = default)
         where M : Monad<M> =>
-        ma.ForkIO(timeout);
+        M.ForkIO(ma, timeout);
 
     /// <summary>
     /// Queue this IO operation to run on the thread-pool. 
@@ -150,19 +128,7 @@ public static partial class Prelude
     [MethodImpl(Opt.Default)]
     public static K<M, A> awaitIO<M, A>(K<M, ForkIO<A>> ma)
         where M : Monad<M> =>
-        ma.Await();
-
-    /// <summary>
-    /// Queue this IO operation to run on the thread-pool. 
-    /// </summary>
-    /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
-    /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
-    /// the forked IO operation or to await the result of it.
-    /// </returns>
-    [Pure]
-    [MethodImpl(Opt.Default)]
-    public static IO<A> awaitIO<A>(K<IO, ForkIO<A>> ma) =>
-        ma.Await().As();
+        M.Await(ma);
 
     /// <summary>
     /// Yield the thread for the specified duration or until cancelled.
@@ -194,36 +160,12 @@ public static partial class Prelude
         awaitAll(ms.ToSeqUnsafe());
     
     /// <summary>
-    /// Awaits all operations
-    /// </summary>
-    /// <param name="ms">Operations to await</param>
-    /// <returns>Sequence of results</returns>
-    public static IO<Seq<A>> awaitAll<A>(params K<IO, A>[] ms) =>
-        awaitAll(ms.ToSeqUnsafe());
-    
-    /// <summary>
-    /// Awaits all operations
-    /// </summary>
-    /// <param name="ms">Operations to await</param>
-    /// <returns>Sequence of results</returns>
-    public static IO<Seq<A>> awaitAll<A>(params IO<A>[] ms) =>
-        awaitAll(ms.ToSeqUnsafe());
-    
-    /// <summary>
     /// Awaits all forks
     /// </summary>
     /// <param name="forks">Forks to await</param>
     /// <returns>Sequence of results</returns>
     public static K<M, Seq<A>> awaitAll<M, A>(params K<M, ForkIO<A>>[] forks)
         where M : Monad<M> =>
-        awaitAll(forks.ToSeqUnsafe());
-
-    /// <summary>
-    /// Awaits all 
-    /// </summary>
-    /// <param name="forks">IO operations to await</param>
-    /// <returns>Sequence of results</returns>
-    public static IO<Seq<A>> awaitAll<A>(params IO<ForkIO<A>>[] forks) =>
         awaitAll(forks.ToSeqUnsafe());
 
     /// <summary>
@@ -243,14 +185,6 @@ public static partial class Prelude
         where M : Monad<M> =>
         ms.Traverse(f => f.ToIO())
           .Bind(awaitAll);
-    
-    /// <summary>
-    /// Awaits all operations
-    /// </summary>
-    /// <param name="ms">Operations to await</param>
-    /// <returns>Sequence of results</returns>
-    public static IO<Seq<A>> awaitAll<A>(Seq<K<IO, A>> ms) =>
-        awaitAll(ms.Map(f => f.As()));
 
     /// <summary>
     /// Awaits all operations

@@ -7,71 +7,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using LanguageExt;
-using System.Text;
-using LanguageExt.Sys;
-using LanguageExt.Pipes;
-using LanguageExt.Sys.IO;
-using System.Reactive.Linq;
-using System.Threading;
-using LanguageExt.Sys.Live;
 using System.Threading.Tasks;
-using LanguageExt.Common;
-using LanguageExt.Traits;
 using TestBed;
 using static LanguageExt.Prelude;
-using static LanguageExt.Pipes.Proxy;
 
-public interface IAsyncQueue<A>
-{
-    Task<A> DequeueAsync();
-}
-
-public static class Ext
-{
-    static Producer<A, Eff<RT>, Unit> ToProducer<RT, A>(this IAsyncQueue<A> q) 
-    {
-        return yieldAll(go());
-
-        async IAsyncEnumerable<A> go()
-        {
-            while (true)
-            {
-                yield return await q.DequeueAsync();
-            }
-        }
-    }
-
-    public static Producer<A, Eff<RT>, Unit> ToProducer<RT, A>(this IAsyncQueue<A>[] qs) =>
-        Producer.merge(qs.AsIterable().Map(q => q.ToProducer<RT, A>()).ToSeq());
-}
-
-public static class YourPrelude
-{
-    public static Eff<A> OptionalAff<A>(this Func<Task<A?>> task) =>
-        OptionalEff(task, Errors.None);
-    
-    public static Eff<A> OptionalEff<A>(this Func<Task<A?>> task, Error fail) =>
-        liftEff(async () => 
-            await task() switch
-            {
-                null => fail,
-                var x => FinSucc(x)
-            });
-    
-    public static Eff<A> OptionalAff<A>(this Func<ValueTask<A?>> task) =>
-        OptionalAff(task, Errors.None);
-    
-    public static Eff<A> OptionalAff<A>(this Func<ValueTask<A?>> task, Error fail) =>
-        liftEff(async () => 
-            await task() switch
-            {
-                null => fail,
-                var x => FinSucc(x)
-            });
-}
 
 public class Program
 {
@@ -168,6 +108,7 @@ public class Program
         var mr = my.Run("Paul").Run().Run();
     }
 
+    /*
     public static void PipesTest()
     {
         // Create two queues.  Queues are Producers that have an Enqueue function
@@ -356,6 +297,7 @@ public class Program
         from a in Console<Eff<Runtime>, Runtime>.writeLine(l)
         from n in writeLine2
         select unit;
+        */
 
 
     /*static Server<Runtime, int, int, Unit> incrementer(int question) =>
@@ -372,6 +314,7 @@ public class Program
         select unit;*/
 
 
+    /*
     static Pipe<string, string, Eff<Runtime>, Unit> pipeMap =>
-        Pipe.map((string x) => $"Hello {x}");
+        Pipe.map((string x) => $"Hello {x}");*/
 }

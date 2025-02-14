@@ -26,6 +26,12 @@ public static class EffectTExtensions
         ma.As();
 
     /// <summary>
+    /// Convert to the `Eff` version of `Effect`
+    /// </summary>
+    public static EffectT<Eff<RT>, A> FromEff<RT, A>(this K<Effect<RT>, A> ma) =>
+        new(ma.As().Proxy);
+
+    /// <summary>
     /// Monad bind
     /// </summary>
     public static EffectT<M, C> SelectMany<M, A, B, C>(

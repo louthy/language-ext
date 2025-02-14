@@ -7,19 +7,21 @@ public static class Mailbox
     /// <summary>
     /// Create a new unbounded mailbox 
     /// </summary>
+    /// <param name="label">Label for debugging purposes</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Constructed mailbox with an `Inbox` and an `Outbox`</returns>
-    public static Mailbox<A, A> spawn<A>() =>
-        spawn(Buffer<A>.Unbounded);
+    public static Mailbox<A, A> spawn<A>(string label = "[unlabeled]") =>
+        spawn(Buffer<A>.Unbounded, label);
 
     /// <summary>
     /// Create a new mailbox with the buffer settings provided 
     /// </summary>
     /// <param name="buffer">Buffer settings</param>
+    /// <param name="label">Label for debugging purposes</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Constructed mailbox with an `Inbox` and an `Outbox`</returns>
     /// <exception cref="NotSupportedException">Thrown for invalid buffer settings</exception>
-    public static Mailbox<A, A> spawn<A>(Buffer<A> buffer)
+    public static Mailbox<A, A> spawn<A>(Buffer<A> buffer, string label = "[unlabeled]")
     {
         Ch.Channel<A> channel;
         switch (buffer)
@@ -68,6 +70,6 @@ public static class Mailbox
                 throw new NotSupportedException();
         }
 
-        return new Mailbox<A, A>(new InboxWriter<A>(channel.Writer), new OutboxReader<A>(channel.Reader));
+        return new Mailbox<A, A>(new InboxWriter<A>(channel.Writer, label), new OutboxReader<A>(channel.Reader, label));
     }
 }

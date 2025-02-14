@@ -193,6 +193,22 @@ public static partial class Prelude
         xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).ToArray();
 
     /// <summary>
+    /// Forever sequence of units
+    /// </summary>
+    [Pure]
+    public static Iterable<Unit> Units
+    {
+        get
+        {
+            return Go().AsIterable();
+            IEnumerable<Unit> Go()
+            {
+                while (true) yield return default;
+            }
+        }
+    }
+
+    /// <summary>
     /// Lazy sequence of natural numbers up to Int32.MaxValue
     /// </summary>
     [Pure]

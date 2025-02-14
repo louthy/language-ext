@@ -47,6 +47,28 @@ public static class ProducerT
         PipeT.yieldAll<M, Unit, OUT>(values);
     
     /// <summary>
+    /// Evaluate the `M` monad repeatedly, yielding its bound values downstream
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, Unit> yieldRepeat<M, OUT>(K<M, OUT> ma)
+        where M : Monad<M> =>
+        PipeT.yieldRepeat<M, Unit, OUT>(ma);
+
+    /// <summary>
+    /// Evaluate the `IO` monad repeatedly, yielding its bound values downstream
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, Unit> yieldRepeatIO<M, OUT>(IO<OUT> ma)
+        where M : Monad<M> =>
+        PipeT.yieldRepeatIO<M, Unit, OUT>(ma);
+    
+    /// <summary>
     /// Create a producer that simply returns a bound value without yielding anything
     /// </summary>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
@@ -304,6 +326,19 @@ public static class ProducerT
         ProducerT<OUT, M, A> Item)
         where M : Monad<M> =>
         PipeT.foldWhile(Time, Fold, Pred, Init, Item.Proxy);
+
+    /// <summary>
+    /// Merge multiple producers
+    /// </summary>
+    /// <param name="producers">Producers to merge</param>
+    /// <param name="settings">Buffer settings</param>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns>Merged producer</returns>
+    public static ProducerT<OUT, M, Unit> merge<OUT, M>(
+        params ProducerT<OUT, M, Unit>[] producers)
+        where M : Monad<M> =>
+        merge(toSeq(producers));
     
     /// <summary>
     /// Merge multiple producers
@@ -320,10 +355,17 @@ public static class ProducerT
     {
         if (producers.Count == 0) return pure<OUT, M, Unit>(default);
 
-        return from mailbox in Pure(Mailbox.spawn(settings ?? Buffer<OUT>.Unbounded))
-               from forks   in producers.Traverse(p => (p | mailbox.ToConsumerT<M>()).ForkIO()).As().Run()
+        return from mailbox in Pure(Mailbox.spawn(settings ?? Buffer<OUT>.Unbounded, "merge"))
+               from forks   in forkEffects(producers, mailbox)
                from _       in mailbox.ToProducerT<M>()
                from x       in forks.Traverse(f => f.Cancel).As()
                select unit;
     }
+
+    static K<M, Seq<ForkIO<Unit>>> forkEffects<M, OUT>(
+        Seq<ProducerT<OUT, M, Unit>> producers,
+        Mailbox<OUT, OUT> mailbox)
+        where M : Monad<M> =>
+        producers.Map(p => (p | mailbox.ToConsumerT<M>()).Run())
+                 .Traverse(ma => ma.ForkIO());
 }

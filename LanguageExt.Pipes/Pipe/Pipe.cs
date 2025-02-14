@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
+using LanguageExt.Pipes.Concurrent;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
@@ -36,7 +37,7 @@ public record Pipe<RT, IN, OUT, A>(PipeT<IN, OUT, Eff<RT>, A> Proxy) : K<Pipe<RT
     [Pure]
     public Consumer<RT, IN, A> Compose(ConsumerT<OUT, Eff<RT>, A> rhs) =>
         Proxy.Compose(rhs.Proxy);
-
+    
     [Pure]
     public static Pipe<RT, IN, OUT, A> operator | (Pipe<RT, IN, OUT, A> lhs, Pipe<RT, OUT, OUT, A> rhs) =>
         lhs.Compose(rhs);

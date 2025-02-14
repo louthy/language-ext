@@ -50,7 +50,7 @@ public class Exceptions
     /// <summary>
     /// Transformer stack has no unliftIO support error
     /// </summary>
-    public static readonly ExceptionalException UnliftIONotSupported = new (Errors.UnliftIONotSupportedText, Errors.UnliftIONotSupportedCode);
+    public static readonly ExceptionalException UnliftIONotSupported = new (Errors.ToIONotSupportedText, Errors.ToIONotSupportedCode);
 
     /// <summary>
     /// End-of-stream error

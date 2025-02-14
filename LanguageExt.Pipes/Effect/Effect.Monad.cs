@@ -48,4 +48,9 @@ public class Effect<RT> : MonadT<Effect<RT>, Eff<RT>>
         fas.Select(fa => fa.As().Proxy)
            .Actions()
            .ToEffect();
+
+    static K<Effect<RT>, ForkIO<A>> MonadIO<Effect<RT>>.ForkIO<A>(
+        K<Effect<RT>, A> ma,
+        Option<TimeSpan> timeout) =>
+        Effect.liftM(ma.As().Run().ForkIO(timeout));
 }

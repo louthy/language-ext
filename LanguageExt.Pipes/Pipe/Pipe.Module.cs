@@ -14,6 +14,7 @@ public static class Pipe
     /// <summary>
     /// Yield a value downstream
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <returns></returns>
@@ -23,6 +24,7 @@ public static class Pipe
     /// <summary>
     /// Yield all values downstream
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <returns></returns>
@@ -32,6 +34,7 @@ public static class Pipe
     /// <summary>
     /// Yield all values downstream
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <returns></returns>
@@ -39,8 +42,29 @@ public static class Pipe
         PipeT.yieldAll<Eff<RT>, IN, OUT>(values);
     
     /// <summary>
+    /// Evaluate the `M` monad repeatedly, yielding its bound values downstream
+    /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <returns></returns>
+    public static Pipe<RT, IN, OUT, Unit> yieldRepeat<RT, IN, OUT>(K<Eff<RT>, OUT> ma) =>
+        PipeT.yieldRepeat<Eff<RT>, IN, OUT>(ma);
+
+    /// <summary>
+    /// Evaluate the `IO` monad repeatedly, yielding its bound values downstream
+    /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <returns></returns>
+    public static Pipe<RT, IN, OUT, Unit> yieldRepeatIO<RT, IN, OUT>(IO<OUT> ma) =>
+        PipeT.yieldRepeatIO<Eff<RT>, IN, OUT>(ma);
+    
+    /// <summary>
     /// Await a value from upstream
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <returns>Pipe</returns>
@@ -51,6 +75,7 @@ public static class Pipe
     /// Create a pipe that filters out values that return `false` when applied to a predicate function
     /// </summary>
     /// <param name="f">Predicate function</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="A">Stream value to consume and produce</typeparam>
     /// <returns>Pipe</returns>
     public static Pipe<RT, A, A, Unit> filter<RT, A>(Func<A, bool> f) =>
@@ -60,6 +85,7 @@ public static class Pipe
     /// Create a pipe from a mapping function
     /// </summary>
     /// <param name="f">Mapping function</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <returns>Pipe</returns>
@@ -70,6 +96,7 @@ public static class Pipe
     /// Create a pipe from a mapping function
     /// </summary>
     /// <param name="f">Mapping function</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <returns>Pipe</returns>
@@ -79,6 +106,7 @@ public static class Pipe
     /// <summary>
     /// Create a pipe that simply returns a bound value without yielding anything
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
@@ -89,6 +117,7 @@ public static class Pipe
     /// <summary>
     /// Create a pipe that always fails
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
@@ -99,6 +128,7 @@ public static class Pipe
     /// <summary>
     /// Create a pipe that yields nothing at all
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
@@ -109,6 +139,7 @@ public static class Pipe
     /// <summary>
     /// Create a pipe that simply returns a bound value without yielding anything
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
@@ -119,6 +150,7 @@ public static class Pipe
     /// <summary>
     /// Create a lazy pipe 
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
@@ -129,6 +161,7 @@ public static class Pipe
     /// <summary>
     /// Create an asynchronous lazy pipe 
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
@@ -139,6 +172,7 @@ public static class Pipe
     /// <summary>
     /// Create an asynchronous pipe 
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
@@ -149,6 +183,7 @@ public static class Pipe
     /// <summary>
     /// Create a pipe that simply returns the bound value of the lifted monad without yielding anything
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
@@ -159,6 +194,7 @@ public static class Pipe
     /// <summary>
     /// Create a pipe that simply returns the bound value of the lifted monad without yielding anything
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
@@ -169,6 +205,7 @@ public static class Pipe
     /// <summary>
     /// Create a pipe that simply returns the bound value of the lifted monad without yielding anything
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
@@ -179,6 +216,7 @@ public static class Pipe
     /// <summary>
     /// Continually repeat the provided operation
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
@@ -189,6 +227,7 @@ public static class Pipe
     /// <summary>
     /// Repeat the provided operation based on the schedule provided
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
@@ -199,6 +238,7 @@ public static class Pipe
     /// <summary>
     /// Continually lift & repeat the provided operation
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
@@ -209,6 +249,7 @@ public static class Pipe
     /// <summary>
     /// Repeat the provided operation based on the schedule provided
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
@@ -224,6 +265,7 @@ public static class Pipe
     /// <param name="Fold">Fold function</param>
     /// <param name="Init">Initial state</param>
     /// <param name="Item">Pipe to fold</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
@@ -243,6 +285,7 @@ public static class Pipe
     /// <param name="Pred">Until predicate</param>
     /// <param name="Init">Initial state</param>
     /// <param name="Item">Pipe to fold</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
@@ -263,6 +306,7 @@ public static class Pipe
     /// <param name="Pred">Until predicate</param>
     /// <param name="Init">Initial state</param>
     /// <param name="Item">Pipe to fold</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
@@ -283,6 +327,7 @@ public static class Pipe
     /// <param name="Pred">Until predicate</param>
     /// <param name="Init">Initial state</param>
     /// <param name="Item">Pipe to fold</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
@@ -303,6 +348,7 @@ public static class Pipe
     /// <param name="Pred">Until predicate</param>
     /// <param name="Init">Initial state</param>
     /// <param name="Item">Pipe to fold</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
@@ -322,6 +368,7 @@ public static class Pipe
     /// <param name="Time">Schedule to run each item</param>
     /// <param name="Fold">Fold function</param>
     /// <param name="Init">Initial state</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <returns></returns>
@@ -338,6 +385,7 @@ public static class Pipe
     /// <param name="Fold">Fold function</param>
     /// <param name="Pred">Until predicate</param>
     /// <param name="Init">Initial state</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <returns></returns>
@@ -355,6 +403,7 @@ public static class Pipe
     /// <param name="Fold">Fold function</param>
     /// <param name="Pred">Until predicate</param>
     /// <param name="Init">Initial state</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <returns></returns>
@@ -372,6 +421,7 @@ public static class Pipe
     /// <param name="Fold">Fold function</param>
     /// <param name="Pred">Until predicate</param>
     /// <param name="Init">Initial state</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <returns></returns>
@@ -389,6 +439,7 @@ public static class Pipe
     /// <param name="Fold">Fold function</param>
     /// <param name="Pred">Until predicate</param>
     /// <param name="Init">Initial state</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <returns></returns>

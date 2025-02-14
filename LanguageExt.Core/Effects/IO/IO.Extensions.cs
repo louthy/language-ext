@@ -83,7 +83,7 @@ public static partial class IOExtensions
     /// <returns>Result of the computation</returns>
     public static K<M, A> LocalIO<M, A>(this K<M, A> ma) 
         where M : Monad<M> =>
-        ma.MapIO(io => io.Local());
+        M.LocalIO(ma);
 
     /// <summary>
     /// Make this IO computation run on the `SynchronizationContext` that was captured at the start
@@ -94,7 +94,7 @@ public static partial class IOExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static K<M, A> PostIO<M, A>(this K<M, A> ma)
         where M : Monad<M> =>
-        ma.MapIO(io => io.Post());        
+        M.PostIO(ma);
 
     /// <summary>
     /// Await a forked operation
@@ -103,7 +103,7 @@ public static partial class IOExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static K<M, A> Await<M, A>(this K<M, ForkIO<A>> ma)
         where M : Monad<M> =>
-        ma.MapIO(io => io.Bind(f => f.Await));
+        M.Await(ma);
 
     /// <summary>
     /// Queue this IO operation to run on the thread-pool. 
@@ -116,8 +116,7 @@ public static partial class IOExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static K<M, ForkIO<A>> ForkIO<M, A>(this K<M, A> ma, Option<TimeSpan> timeout = default)
         where M : Monad<M> =>
-        ma.MapIO(io => io.Fork(timeout));
-    
+        M.ForkIO(ma, timeout);
 
     /// <summary>
     /// Queue this IO operation to run on the thread-pool. 
@@ -133,7 +132,6 @@ public static partial class IOExtensions
         ma.Run()
           .Map(oht => oht.Map(ht => ht.Item1))
           .ForkIO(timeout);
-    
 
     /// <summary>
     /// Timeout operation if it takes too long
@@ -142,7 +140,7 @@ public static partial class IOExtensions
     [MethodImpl(Opt.Default)]
     public static K<M, A> TimeoutIO<M, A>(this K<M, A> ma, TimeSpan timeout)
         where M : Monad<M>, MonadIO<M> =>
-        ma.MapIO(io => io.Timeout(timeout));
+        M.TimeoutIO(ma, timeout);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -156,9 +154,9 @@ public static partial class IOExtensions
     /// </summary>
     [Pure]
     [MethodImpl(Opt.Default)]
-    public static K<M, A> BracketIO<M, A>(this K<M, A> ma)         
+    public static K<M, A> BracketIO<M, A>(this K<M, A> ma)
         where M : Monad<M> =>
-        ma.MapIO(io => io.Bracket());
+        M.BracketIO(ma);
 
     /// <summary>
     /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
@@ -173,7 +171,7 @@ public static partial class IOExtensions
         Func<A, IO<C>> Use, 
         Func<A, IO<B>> Fin) 
         where M : Monad<M> =>
-        acq.MapIO(io => io.Bracket(Use, Fin));
+        M.BracketIO(acq, Use, Fin);
 
     /// <summary>
     /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
@@ -190,7 +188,7 @@ public static partial class IOExtensions
         Func<Error, IO<C>> Catch,
         Func<A, IO<B>> Fin)
         where M : Monad<M> =>
-        acq.MapIO(io => io.Bracket(Use, Catch, Fin));
+        M.BracketIO(acq, Use, Catch, Fin);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -207,7 +205,7 @@ public static partial class IOExtensions
     /// <returns>The result of the last invocation</returns>
     public static K<M, A> RepeatIO<M, A>(this K<M, A> ma)
         where M : Monad<M> =>
-        ma.MapIO(io => io.Repeat());
+        M.RepeatIO(ma);
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or an error occurs  
@@ -222,7 +220,7 @@ public static partial class IOExtensions
         this K<M, A> ma, 
         Schedule schedule)
         where M : Monad<M> =>
-        ma.MapIO(io => io.Repeat(schedule));
+        M.RepeatIO(ma, schedule);
 
     /// <summary>
     /// Keeps repeating the computation until the predicate returns false, or an error occurs 
@@ -237,7 +235,7 @@ public static partial class IOExtensions
         this K<M, A> ma, 
         Func<A, bool> predicate) 
         where M : Monad<M> =>
-        ma.MapIO(io => io.RepeatWhile(predicate));
+        M.RepeatWhileIO(ma, predicate);
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns false, or an error occurs
@@ -254,7 +252,7 @@ public static partial class IOExtensions
         Schedule schedule,
         Func<A, bool> predicate)
         where M : Monad<M> =>
-        ma.MapIO(io => io.RepeatWhile(schedule, predicate));
+        M.RepeatWhileIO(ma, schedule, predicate);
 
     /// <summary>
     /// Keeps repeating the computation until the predicate returns true, or an error occurs
@@ -269,7 +267,7 @@ public static partial class IOExtensions
         this K<M, A> ma, 
         Func<A, bool> predicate)
         where M : Monad<M> =>
-        ma.MapIO(io => io.RepeatUntil(predicate));
+        M.RepeatUntilIO(ma, predicate);
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns true, or an error occurs
@@ -286,7 +284,7 @@ public static partial class IOExtensions
         Schedule schedule,
         Func<A, bool> predicate)
         where M : Monad<M> =>
-        ma.MapIO(io => io.RepeatUntil(schedule, predicate));
+        M.RepeatUntilIO(ma, schedule, predicate);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -306,7 +304,7 @@ public static partial class IOExtensions
     /// </remarks>
     public static K<M, A> RetryIO<M, A>(this K<M, A> ma) 
         where M : Monad<M> =>
-        ma.MapIO(io => io.Retry());
+        M.RetryIO(ma);
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -323,7 +321,7 @@ public static partial class IOExtensions
         this K<M, A> ma,
         Schedule schedule) 
         where M : Monad<M> =>
-        ma.MapIO(io => io.Retry(schedule));
+        M.RetryIO(ma, schedule);
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -341,7 +339,7 @@ public static partial class IOExtensions
         this K<M, A> ma,
         Func<Error, bool> predicate)  
         where M : Monad<M> =>
-        ma.MapIO(io => io.RetryWhile(predicate));
+        M.RetryWhileIO(ma, predicate);
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -360,7 +358,7 @@ public static partial class IOExtensions
         Schedule schedule,
         Func<Error, bool> predicate) 
         where M : Monad<M> =>
-        ma.MapIO(io => io.RetryWhile(schedule, predicate));
+        M.RetryWhileIO(ma, schedule, predicate);
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -378,7 +376,7 @@ public static partial class IOExtensions
         this K<M, A> ma,
         Func<Error, bool> predicate)
         where M : Monad<M> =>
-        ma.MapIO(io => io.RetryUntil(predicate));
+        M.RetryUntilIO(ma, predicate);
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -397,7 +395,7 @@ public static partial class IOExtensions
         Schedule schedule,
         Func<Error, bool> predicate) 
         where M : Monad<M> =>
-        ma.MapIO(io => io.RetryUntil(schedule, predicate));
+        M.RetryUntilIO(ma, schedule, predicate);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 
@@ -410,14 +408,14 @@ public static partial class IOExtensions
         S initialState,
         Func<S, A, S> folder)
         where M : Monad<M> =>
-        ma.MapIO(io => io.Fold(schedule, initialState, folder));
+        M.FoldIO(ma, schedule, initialState, folder);
 
     public static K<M, S> FoldIO<S, M, A>(
         this K<M, A> ma,
         S initialState,
         Func<S, A, S> folder)
         where M : Monad<M> =>
-        ma.MapIO(io => io.Fold(initialState, folder));
+        M.FoldIO(ma, initialState, folder);
 
     public static K<M, S> FoldWhileIO<S, M, A>(
         this K<M, A> ma,
@@ -426,7 +424,7 @@ public static partial class IOExtensions
         Func<S, A, S> folder,
         Func<S, bool> stateIs)
         where M : Monad<M> =>
-        ma.MapIO(io => io.FoldWhile(schedule, initialState, folder, stateIs));
+        M.FoldWhileIO(ma, schedule, initialState, folder, stateIs);
 
     public static K<M, S> FoldWhileIO<S, M, A>(
         this K<M, A> ma,
@@ -434,7 +432,7 @@ public static partial class IOExtensions
         Func<S, A, S> folder,
         Func<S, bool> stateIs)
         where M : Monad<M> =>
-        ma.MapIO(io => io.FoldWhile(initialState, folder, stateIs));
+        M.FoldWhileIO(ma, initialState, folder, stateIs);
 
     public static K<M, S> FoldWhileIO<S, M, A>(
         this K<M, A> ma,
@@ -443,7 +441,7 @@ public static partial class IOExtensions
         Func<S, A, S> folder,
         Func<A, bool> valueIs)
         where M : Monad<M> =>
-        ma.MapIO(io => io.FoldWhile(schedule, initialState, folder, valueIs));
+        M.FoldWhileIO(ma, schedule, initialState, folder, valueIs);
 
     public static K<M, S> FoldWhileIO<S, M, A>(
         this K<M, A> ma,
@@ -451,7 +449,7 @@ public static partial class IOExtensions
         Func<S, A, S> folder,
         Func<A, bool> valueIs)
         where M : Monad<M> =>
-        ma.MapIO(io => io.FoldWhile(initialState, folder, valueIs));
+        M.FoldWhileIO(ma, initialState, folder, valueIs);
     
     public static K<M, S> FoldWhileIO<S, M, A>(
         this K<M, A> ma,
@@ -460,7 +458,7 @@ public static partial class IOExtensions
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate)
         where M : Monad<M> =>
-        ma.MapIO(io => io.FoldWhile(schedule, initialState, folder, predicate));
+        M.FoldWhileIO(ma, schedule, initialState, folder, predicate);
 
     public static K<M, S> FoldWhileIO<S, M, A>(
         this K<M, A> ma,
@@ -468,7 +466,7 @@ public static partial class IOExtensions
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate)
         where M : Monad<M> =>
-        ma.MapIO(io => io.FoldWhile(initialState, folder, predicate));
+        M.FoldWhileIO(ma, initialState, folder, predicate);
     
     public static K<M, S> FoldUntilIO<S, M, A>(
         this K<M, A> ma,
@@ -477,7 +475,7 @@ public static partial class IOExtensions
         Func<S, A, S> folder,
         Func<S, bool> stateIs)
         where M : Monad<M> =>
-        ma.MapIO(io => io.FoldUntil(schedule, initialState, folder, stateIs));
+        M.FoldUntilIO(ma, schedule, initialState, folder, stateIs);
     
     public static K<M, S> FoldUntilIO<S, M, A>(
         this K<M, A> ma,
@@ -485,7 +483,7 @@ public static partial class IOExtensions
         Func<S, A, S> folder,
         Func<S, bool> stateIs)
         where M : Monad<M> =>
-        ma.MapIO(io => io.FoldUntil(initialState, folder, stateIs));
+        M.FoldUntilIO(ma, initialState, folder, stateIs);
     
     public static K<M, S> FoldUntilIO<S, M, A>(
         this K<M, A> ma,
@@ -494,7 +492,7 @@ public static partial class IOExtensions
         Func<S, A, S> folder,
         Func<A, bool> valueIs)
         where M : Monad<M> =>
-        ma.MapIO(io => io.FoldUntil(schedule, initialState, folder, valueIs));
+        M.FoldUntilIO(ma, schedule, initialState, folder, valueIs);
     
     public static K<M, S> FoldUntilIO<S, M, A>(
         this K<M, A> ma,
@@ -502,7 +500,7 @@ public static partial class IOExtensions
         Func<S, A, S> folder,
         Func<A, bool> valueIs)
         where M : Monad<M> =>
-        ma.MapIO(io => io.FoldUntil(initialState, folder, valueIs));
+        M.FoldUntilIO(ma, initialState, folder, valueIs);
     
     public static K<M, S> FoldUntilIO<S, M, A>(
         this K<M, A> ma,
@@ -510,7 +508,7 @@ public static partial class IOExtensions
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate)
         where M : Monad<M> =>
-        ma.MapIO(io => io.FoldUntil(initialState, folder, predicate));
+        M.FoldUntilIO(ma, initialState, folder, predicate);
 
     public static K<M, S> FoldUntilIO<S, M, A>(
         this K<M, A> ma,
@@ -519,129 +517,5 @@ public static partial class IOExtensions
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate)
         where M : Monad<M> =>
-        ma.MapIO(io => io.FoldUntil(schedule, initialState, folder, predicate));
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Zipping
-    //
-
-    /// <summary>
-    /// Takes two IO monads and zips their result
-    /// </summary>
-    /// <remarks>
-    /// Asynchronous operations will run concurrently
-    /// </remarks>
-    /// <param name="tuple">Tuple of IO monads to run</param>
-    /// <typeparam name="M">Monad trait type</typeparam>
-    /// <typeparam name="A">First IO monad bound value type</typeparam>
-    /// <typeparam name="B">Second IO monad bound value type</typeparam>
-    /// <returns>IO monad</returns>
-    public static K<M, (A First, B Second)> ZipIO<M, A, B>(
-        this (K<M, A> First, K<M, B> Second) tuple)
-        where M : Monad<M> =>
-        fun((A a, B b) => (a, b))
-           .Map(tuple.First)
-           .Apply(tuple.Second);
-
-    /// <summary>
-    /// Takes two IO monads and zips their result
-    /// </summary>
-    /// <remarks>
-    /// Asynchronous operations will run concurrently
-    /// </remarks>
-    /// <param name="tuple">Tuple of IO monads to run</param>
-    /// <typeparam name="M">Monad trait type</typeparam>
-    /// <typeparam name="A">First IO monad bound value type</typeparam>
-    /// <typeparam name="B">Second IO monad bound value type</typeparam>
-    /// <typeparam name="C">Third IO monad bound value type</typeparam>
-    /// <returns>IO monad</returns>
-    public static K<M, (A First, B Second, C Third)> ZipIO<M, A, B, C>(
-        this (K<M, A> First,
-            K<M, B> Second,
-            K<M, C> Third) tuple)
-        where M : Monad<M> =>
-        fun((A a, B b, C c) => (a, b, c))
-           .Map(tuple.First)
-           .Apply(tuple.Second)
-           .Apply(tuple.Third);
-
-    /// <summary>
-    /// Takes two IO monads and zips their result
-    /// </summary>
-    /// <remarks>
-    /// Asynchronous operations will run concurrently
-    /// </remarks>
-    /// <param name="tuple">Tuple of IO monads to run</param>
-    /// <typeparam name="M">Monad trait type</typeparam>
-    /// <typeparam name="A">First IO monad bound value type</typeparam>
-    /// <typeparam name="B">Second IO monad bound value type</typeparam>
-    /// <typeparam name="C">Third IO monad bound value type</typeparam>
-    /// <typeparam name="D">Fourth IO monad bound value type</typeparam>
-    /// <returns>IO monad</returns>
-    public static K<M, (A First, B Second, C Third, D Fourth)> ZipIO<M, A, B, C, D>(
-        this (K<M, A> First, 
-              K<M, B> Second, 
-              K<M, C> Third, 
-              K<M, D> Fourth) tuple) 
-        where M : Monad<M> =>
-        fun((A a, B b, C c, D d) => (a, b, c, d))
-           .Map(tuple.First)
-           .Apply(tuple.Second)
-           .Apply(tuple.Third)
-           .Apply(tuple.Fourth);
-    
-    /// <summary>
-    /// Takes two IO monads and zips their result
-    /// </summary>
-    /// <remarks>
-    /// Asynchronous operations will run concurrently
-    /// </remarks>
-    /// <typeparam name="M">Monad trait type</typeparam>
-    /// <typeparam name="A">First IO monad bound value type</typeparam>
-    /// <typeparam name="B">Second IO monad bound value type</typeparam>
-    /// <returns>IO monad</returns>
-    public static K<M, (A First, B Second)> ZipIO<M, A, B>(
-        this K<M, A> First,
-        K<M, B> Second) 
-        where M : Monad<M> =>
-        (First, Second).ZipIO();
-
-    /// <summary>
-    /// Takes two IO monads and zips their result
-    /// </summary>
-    /// <remarks>
-    /// Asynchronous operations will run concurrently
-    /// </remarks>
-    /// <typeparam name="M">Monad trait type</typeparam>
-    /// <typeparam name="A">First IO monad bound value type</typeparam>
-    /// <typeparam name="B">Second IO monad bound value type</typeparam>
-    /// <typeparam name="C">Third IO monad bound value type</typeparam>
-    /// <returns>IO monad</returns>
-    public static K<M, (A First, B Second, C Third)> ZipIO<M, A, B, C>(
-        this K<M, A> First, 
-        K<M, B> Second, 
-        K<M, C> Third) 
-        where M : Monad<M> =>
-        (First, Second, Third).ZipIO();
-    
-    /// <summary>
-    /// Takes two IO monads and zips their result
-    /// </summary>
-    /// <remarks>
-    /// Asynchronous operations will run concurrently
-    /// </remarks>
-    /// <typeparam name="M">Monad trait type</typeparam>
-    /// <typeparam name="A">First IO monad bound value type</typeparam>
-    /// <typeparam name="B">Second IO monad bound value type</typeparam>
-    /// <typeparam name="C">Third IO monad bound value type</typeparam>
-    /// <typeparam name="D">Fourth IO monad bound value type</typeparam>
-    /// <returns>IO monad</returns>
-    public static K<M, (A First, B Second, C Third, D Fourth)> ZipIO<M, A, B, C, D>(
-        this K<M, A> First, 
-        K<M, B> Second, 
-        K<M, C> Third, 
-        K<M, D> Fourth) 
-        where M : Monad<M> =>
-        (First, Second, Third, Fourth).ZipIO();    
+        M.FoldUntilIO(ma, schedule, initialState, folder, predicate);
 }

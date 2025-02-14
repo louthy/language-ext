@@ -80,8 +80,7 @@ public abstract record Outbox<A> :
     /// <returns>`ProducerT`</returns>
     public ProducerT<A, M, Unit> ToProducerT<M>()
         where M : Monad<M> =>
-        Read().Bind(ProducerT.yield<M, A>)
-              .Bind(_ => ToProducerT<M>());
+        PipeT.yieldRepeatIO<M, Unit, A>(Read());
 
     /// <summary>
     /// Convert `Outbox` to a `Producer` pipe component

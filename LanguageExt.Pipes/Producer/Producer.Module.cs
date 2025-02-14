@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using LanguageExt.Common;
-using LanguageExt.Pipes;
 using LanguageExt.Pipes.Concurrent;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
@@ -19,8 +16,8 @@ public static class Producer
     /// <summary>
     /// Yield a value downstream
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, Unit> yield<RT, OUT>(OUT value) =>
         PipeT.yield<Eff<RT>, Unit, OUT>(value);
@@ -28,8 +25,8 @@ public static class Producer
     /// <summary>
     /// Yield all values downstream
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, Unit> yieldAll<RT, OUT>(IEnumerable<OUT> values) =>
         PipeT.yieldAll<Eff<RT>, Unit, OUT>(values);
@@ -37,17 +34,37 @@ public static class Producer
     /// <summary>
     /// Yield all values downstream
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, Unit> yieldAll<RT, OUT>(IAsyncEnumerable<OUT> values) =>
         PipeT.yieldAll<Eff<RT>, Unit, OUT>(values);
     
     /// <summary>
+    /// Evaluate the `M` monad repeatedly, yielding its bound values downstream
+    /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <returns></returns>
+    public static Producer<RT, OUT, Unit> yieldRepeat<RT, OUT>(K<Eff<RT>, OUT> ma) =>
+        PipeT.yieldRepeat<Eff<RT>, Unit, OUT>(ma);
+
+    /// <summary>
+    /// Evaluate the `IO` monad repeatedly, yielding its bound values downstream
+    /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <returns></returns>
+    public static Producer<RT, OUT, Unit> yieldRepeatIO<RT, OUT>(IO<OUT> ma) =>
+        PipeT.yieldRepeatIO<Eff<RT>, Unit, OUT>(ma);
+    
+    /// <summary>
     /// Create a producer that simply returns a bound value without yielding anything
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, A> pure<RT, OUT, A>(A value) =>
@@ -56,8 +73,8 @@ public static class Producer
     /// <summary>
     /// Create a producer that always fails
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, A> error<RT, OUT, A>(Error value) =>
@@ -66,8 +83,8 @@ public static class Producer
     /// <summary>
     /// Create a producer that yields nothing at all
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, A> empty<RT, OUT, A>() =>
@@ -76,8 +93,8 @@ public static class Producer
     /// <summary>
     /// Create a producer that lazily returns a bound value without yielding anything
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, A> lift<RT, OUT, A>(Func<A> f)  =>
@@ -86,8 +103,8 @@ public static class Producer
     /// <summary>
     /// Create a producer that simply returns the bound value of the lifted monad without yielding anything
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, A> liftM<RT, OUT, A>(K<Eff<RT>, A> ma) =>
@@ -96,8 +113,8 @@ public static class Producer
     /// <summary>
     /// Create a producer that simply returns the bound value of the lifted monad without yielding anything
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, A> liftIO<RT, OUT, A>(IO<A> ma) =>
@@ -107,7 +124,6 @@ public static class Producer
     /// Create a lazy proxy 
     /// </summary>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, A> liftT<RT, OUT, A>(Func<Producer<RT, OUT, A>> f) =>
@@ -116,8 +132,8 @@ public static class Producer
     /// <summary>
     /// Create an asynchronous lazy proxy 
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, A> liftT<RT, OUT, A>(Func<ValueTask<Producer<RT, OUT, A>>> f) =>
@@ -126,8 +142,8 @@ public static class Producer
     /// <summary>
     /// Create an asynchronous proxy 
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, A> liftT<RT, OUT, A>(ValueTask<Producer<RT, OUT, A>> f) =>
@@ -136,8 +152,8 @@ public static class Producer
     /// <summary>
     /// Continually repeat the provided operation
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, A> repeat<RT, OUT, A>(Producer<RT, OUT, A> ma) =>
@@ -146,8 +162,8 @@ public static class Producer
     /// <summary>
     /// Repeat the provided operation based on the schedule provided
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, A> repeat<RT, OUT, A>(Schedule schedule, Producer<RT, OUT, A> ma) =>
@@ -157,7 +173,6 @@ public static class Producer
     /// Continually lift & repeat the provided operation
     /// </summary>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, A> repeatM<RT, OUT, A>(K<Eff<RT>, A> ma) =>
@@ -166,8 +181,8 @@ public static class Producer
     /// <summary>
     /// Repeat the provided operation based on the schedule provided
     /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, A> repeatM<RT, OUT, A>(Schedule schedule, K<Eff<RT>, A> ma) =>
@@ -181,8 +196,8 @@ public static class Producer
     /// <param name="Fold">Fold function</param>
     /// <param name="Init">Initial state</param>
     /// <param name="Item">Pipe to fold</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, Unit> fold<RT, OUT, A>(
@@ -200,8 +215,8 @@ public static class Producer
     /// <param name="Pred">Until predicate</param>
     /// <param name="Init">Initial state</param>
     /// <param name="Item">Pipe to fold</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, Unit> foldUntil<RT, OUT, A>(
@@ -220,8 +235,8 @@ public static class Producer
     /// <param name="Pred">Until predicate</param>
     /// <param name="Init">Initial state</param>
     /// <param name="Item">Pipe to fold</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, Unit> foldUntil<RT, OUT, A>(
@@ -240,8 +255,8 @@ public static class Producer
     /// <param name="Pred">Until predicate</param>
     /// <param name="Init">Initial state</param>
     /// <param name="Item">Pipe to fold</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, Unit> foldWhile<RT, OUT, M, A>(
@@ -260,8 +275,8 @@ public static class Producer
     /// <param name="Pred">Until predicate</param>
     /// <param name="Init">Initial state</param>
     /// <param name="Item">Pipe to fold</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static Producer<RT, OUT, Unit> foldWhile<RT, OUT, A>(
@@ -271,14 +286,26 @@ public static class Producer
         OUT Init,
         Producer<RT, OUT, A> Item) =>
         PipeT.foldWhile(Time, Fold, Pred, Init, Item.Proxy);
+
+    /// <summary>
+    /// Merge multiple producers
+    /// </summary>
+    /// <param name="producers">Producers to merge</param>
+    /// <param name="settings">Buffer settings</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <returns>Merged producer</returns>
+    public static Producer<RT, OUT, Unit> merge<RT, OUT>(
+        params Producer<RT, OUT, Unit>[] producers) =>
+        merge(toSeq(producers));
     
     /// <summary>
     /// Merge multiple producers
     /// </summary>
     /// <param name="producers">Producers to merge</param>
     /// <param name="settings">Buffer settings</param>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns>Merged producer</returns>
     public static Producer<RT, OUT, Unit> merge<RT, OUT>(
         Seq<Producer<RT, OUT, Unit>> producers, 

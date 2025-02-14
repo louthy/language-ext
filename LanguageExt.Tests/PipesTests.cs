@@ -1,7 +1,7 @@
-﻿using LanguageExt.Pipes;
-using LanguageExt.Sys.Test;
+﻿using LanguageExt.Sys.Test;
 using Xunit;
-using static LanguageExt.Pipes.Proxy;
+using static LanguageExt.Pipes.Producer;
+using static LanguageExt.Pipes.Consumer;
 
 namespace LanguageExt.Tests;
 
@@ -11,12 +11,11 @@ public class PipesTests
     public void MergeSynchronousProducersSucceeds()
     {
         using var rt = Runtime.New();
-        compose(Producer.merge<int, Eff<Runtime>>(
-                    yield(1),
-                    yield(1)),
-                awaiting<int>().Map(ignore))
-              .RunEffect().As()
-              .Run(rt, EnvIO.New())
-              .Ignore();
+        
+        (merge(yield<Runtime, int>(1), yield<Runtime, int>(1))
+       | awaiting<Runtime, int>().Map(ignore))
+           .Run().As()
+           .Run(rt, EnvIO.New())
+           .Ignore();
     }
 }

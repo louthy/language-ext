@@ -46,6 +46,28 @@ public static class PipeT
     public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(IAsyncEnumerable<OUT> values) 
         where M : Monad<M> =>
         new PipeTYieldAllAsync<IN, OUT, M, Unit>(values.Select(yield<M, IN, OUT>), pure<IN, OUT, M, Unit>);
+
+    /// <summary>
+    /// Evaluate the `M` monad repeatedly, yielding its bound values downstream
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static PipeT<IN, OUT, M, Unit> yieldRepeat<M, IN, OUT>(K<M, OUT> ma)
+        where M : Monad<M> =>
+        new PipeTYieldAll<IN, OUT, M, Unit>(Units.Select(_ => ma.Bind(yield<M, IN, OUT>)), pure<IN, OUT, M, Unit>);
+
+    /// <summary>
+    /// Evaluate the `IO` monad repeatedly, yielding its bound values downstream
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static PipeT<IN, OUT, M, Unit> yieldRepeatIO<M, IN, OUT>(IO<OUT> ma)
+        where M : Monad<M> =>
+        new PipeTYieldAll<IN, OUT, M, Unit>(Units.Select(_ => ma.Bind(yield<M, IN, OUT>)), pure<IN, OUT, M, Unit>);
     
     /// <summary>
     /// Await a value from upstream

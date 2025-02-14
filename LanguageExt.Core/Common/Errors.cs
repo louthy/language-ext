@@ -120,22 +120,22 @@ public static class Errors
     public static readonly Error LiftIONotSupported = (LiftIONotSupportedCode, LiftIONotSupportedText);
 
     /// <summary>
-    /// Transformer stack has no unliftIO support error text
+    /// Transformer stack has no `ToIO` support error text
     /// </summary>
-    public const string UnliftIONotSupportedText =
+    public const string ToIONotSupportedText =
         "The IO monad is not in the monad-transformer stack or MonadIO.ToIO has not been implemented in the trait " +
         "implementation for your monad-type.  Therefore it's not possible to leverage `MonadIO` unlifting trait "   +
         "functionality. To resolve this, implement `MonadIO.ToIO` and/or `MonadIO,MapIO`.";
 
     /// <summary>
-    /// Transformer stack has no unliftIO support error code
+    /// Transformer stack has no `ToIO` support error code
     /// </summary>
-    public const int UnliftIONotSupportedCode = -2000000008;
+    public const int ToIONotSupportedCode = -2000000008;
 
     /// <summary>
-    /// Transformer stack has no unliftIO support error
+    /// Transformer stack has no `ToIO` support error
     /// </summary>
-    public static readonly Error UnliftIONotSupported = (UnliftIONotSupportedCode, UnliftIONotSupportedText);
+    public static readonly Error ToIONotSupported = (ToIONotSupportedCode, ToIONotSupportedText);
 
     /// <summary>
     /// End-of-stream error text
