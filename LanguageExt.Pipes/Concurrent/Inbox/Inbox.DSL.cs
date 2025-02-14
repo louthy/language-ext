@@ -11,20 +11,8 @@ record InboxWriter<A>(ChannelWriter<A> Writer, string Label) : Inbox<A>
         new InboxContraMap<A, B>(f, this);
 
     public override IO<Unit> Post(A value) =>
-        from f in IO.liftVAsync(async e =>
-                                {
-                                    Console.WriteLine($"Post({value}) to {Label} - Pre: WaitToWriteAsync");
-                                    var r = await Writer.WaitToWriteAsync(e.Token);
-                                    Console.WriteLine($"Post({value}) '{r}' to {Label} - Post: WaitToWriteAsync");
-                                    return r;
-                                })
-        from r in f ? IO.liftVAsync(async () =>
-                                    {
-                                        Console.WriteLine($"Post({value}) to {Label} - Pre: WriteAsync");
-                                        var r = await Writer.WriteAsync(value).ToUnit();
-                                        Console.WriteLine($"Post({value}) to {Label} - Post: WriteAsync");
-                                        return r;
-                                    }) 
+        from f in IO.liftVAsync(e => Writer.WaitToWriteAsync(e.Token))
+        from r in f ? IO.liftVAsync(() => Writer.WriteAsync(value).ToUnit())
                     : IO.fail<Unit>(Errors.NoSpaceInInbox)
         select r;
 

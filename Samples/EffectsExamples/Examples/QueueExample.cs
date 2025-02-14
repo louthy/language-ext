@@ -67,7 +67,6 @@ public static class QueueExample<RT>
     /// </summary>
     static Pipe<RT, string, string, Unit> prepend(string x) =>
         from l in Pipe.awaiting<RT, string, string>()
-        from TO_REMOVE in Console<RT>.writeLine($"PREPENDING: {x}")
         from _ in Pipe.yield<RT, string, string>($"{x}{l}")
         select unit;
         

@@ -56,20 +56,8 @@ record OutboxReader<A>(ChannelReader<A> Reader, string Label) : Outbox<A>
         new OutboxApply<A, B>(this, ff);
 
     public override IO<A> Read() =>
-        IO.liftVAsync(async e =>
-                      {
-                          Console.WriteLine($"Read from {Label} - Pre: WaitToReadAsync");
-                          var r = await Reader.WaitToReadAsync(e.Token);
-                          Console.WriteLine($"Read '{r}' from {Label} - Post: WaitToReadAsync");
-                          return r;
-                      })
-          .Bind(f => f ? IO.liftVAsync(async e =>
-                                       {
-                                           Console.WriteLine($"Read from {Label} - Pre: ReadAsync");
-                                           var r = await Reader.ReadAsync(e.Token);
-                                           Console.WriteLine($"Read '{r}' from {Label} - Post: ReadAsync");
-                                           return r;
-                                       })
+        IO.liftVAsync(e => Reader.WaitToReadAsync(e.Token))
+          .Bind(f => f ? IO.liftVAsync(e => Reader.ReadAsync(e.Token))
                        : IO.fail<A>(Errors.OutboxChannelClosed));
     
     internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
