@@ -39,7 +39,7 @@ public static class QueueExample<RT>
         // Run the queues in a forked task
         // Repeatedly read from the console and write to one of the two queues depending on
         // whether the first char is 1 or 2
-        var effect = from f in fork(Producer.merge(queues) | Consumer.repeat(writeLine))
+        var effect = from f in fork(Producer.merge(queues) | writeLine)
                      from x in Console<RT>.readLines | writeToQueue(queue1, queue2) | Schedule.Forever
                      from _ in f.Cancel // cancels the forked task
                      select unit;
