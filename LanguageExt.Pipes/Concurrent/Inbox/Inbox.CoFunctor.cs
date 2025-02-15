@@ -5,7 +5,7 @@ namespace LanguageExt.Pipes.Concurrent;
 
 public class Inbox : Decidable<Inbox>
 {
-    public static K<Inbox, B> Contramap<A, B>(K<Inbox, B> fb, Func<A, B> f) =>
+    public static K<Inbox, A> Contramap<A, B>(K<Inbox, B> fb, Func<A, B> f) =>
         fb.As().Contramap(f);
 
     public static K<Inbox, A> Divide<A, B, C>(Func<A, (B Left, C Right)> f, K<Inbox, B> fb, K<Inbox, C> fc) =>

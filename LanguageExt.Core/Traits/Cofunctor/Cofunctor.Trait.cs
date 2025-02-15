@@ -13,5 +13,5 @@ namespace LanguageExt.Traits;
 /// <typeparam name="F">Self referring type</typeparam>
 public interface Cofunctor<F>
 {
-    public static abstract K<F, B> Contramap<A, B>(K<F, B> fb, Func<A, B> f);
+    public static abstract K<F, A> Contramap<A, B>(K<F, B> fb, Func<A, B> f);
 }

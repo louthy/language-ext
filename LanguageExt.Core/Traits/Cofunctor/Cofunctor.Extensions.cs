@@ -12,7 +12,7 @@ public static class CofunctorExtensions
     /// Contravariant functors are referred to colloquially as Cofunctor, even though the dual of a `Functor` is just
     /// a `Functor`. 
     /// </summary>
-    public static K<F, B> Contramap<F, A, B>(this K<F, B> fb, Func<A, B> f) 
+    public static K<F, A> Contramap<F, A, B>(this K<F, B> fb, Func<A, B> f) 
         where F : Cofunctor<F> =>
         F.Contramap(fb, f);
 }

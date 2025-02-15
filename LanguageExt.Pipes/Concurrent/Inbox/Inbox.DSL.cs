@@ -7,7 +7,7 @@ namespace LanguageExt.Pipes.Concurrent;
 
 record InboxWriter<A>(ChannelWriter<A> Writer, string Label) : Inbox<A>
 {
-    public override Inbox<B> ContraMap<B>(Func<B, A> f) => 
+    public override Inbox<B> Contramap<B>(Func<B, A> f) => 
         new InboxContraMap<A, B>(f, this);
 
     public override IO<Unit> Post(A value) =>
@@ -25,7 +25,7 @@ record InboxWriter<A>(ChannelWriter<A> Writer, string Label) : Inbox<A>
 
 record InboxContraMap<A, B>(Func<B, A> F, Inbox<A> Inbox) : Inbox<B>
 {
-    public override Inbox<C> ContraMap<C>(Func<C, B> f) =>
+    public override Inbox<C> Contramap<C>(Func<C, B> f) =>
         new InboxContraMap<A, C>(x => F(f(x)), Inbox);
 
     public override IO<Unit> Post(B value) => 
@@ -42,7 +42,7 @@ record InboxEmpty<A> : Inbox<A>
 {
     public static readonly Inbox<A> Default = new InboxEmpty<A>();
     
-    public override Inbox<B> ContraMap<B>(Func<B, A> f) => 
+    public override Inbox<B> Contramap<B>(Func<B, A> f) => 
         new InboxEmpty<B>();
 
     public override IO<Unit> Post(A value) =>
@@ -59,7 +59,7 @@ record InboxVoid<A> : Inbox<A>
 {
     public static readonly Inbox<A> Default = new InboxVoid<A>();
     
-    public override Inbox<B> ContraMap<B>(Func<B, A> f) => 
+    public override Inbox<B> Contramap<B>(Func<B, A> f) => 
         new InboxVoid<B>();
 
     public override IO<Unit> Post(A value) =>
@@ -76,7 +76,7 @@ record InboxCombine<A, B, C>(Func<A, (B Left, C Right)> F, Inbox<B> Left, Inbox<
 {
     public static readonly Inbox<A> Default = new InboxEmpty<A>();
 
-    public override Inbox<D> ContraMap<D>(Func<D, A> f) =>
+    public override Inbox<D> Contramap<D>(Func<D, A> f) =>
         new InboxContraMap<A, D>(f, this);
 
     public override IO<Unit> Post(A value) =>
@@ -104,7 +104,7 @@ record InboxChoose<A, B, C>(Func<A, Either<B, C>> F, Inbox<B> Left, Inbox<C> Rig
 {
     public static readonly Inbox<A> Default = new InboxEmpty<A>();
 
-    public override Inbox<D> ContraMap<D>(Func<D, A> f) =>
+    public override Inbox<D> Contramap<D>(Func<D, A> f) =>
         new InboxContraMap<A, D>(f, this);
 
     public override IO<Unit> Post(A value) =>

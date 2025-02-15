@@ -88,8 +88,8 @@ public record Mailbox<A, B>(Inbox<A> Inbox, Outbox<B> Outbox)
     /// <summary>
     /// Contravariant functor map
     /// </summary>
-    public Mailbox<C, B> ContraMap<C>(Func<C, A> f) =>
-        new (Inbox.ContraMap(f), Outbox);
+    public Mailbox<X, B> Contramap<X>(Func<X, A> f) =>
+        new (Inbox.Contramap(f), Outbox);
 
     /// <summary>
     /// Convert the `Inbox` to a `ConsumerT` pipe component

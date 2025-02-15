@@ -37,7 +37,7 @@ public abstract record Inbox<A> :
     /// <summary>
     /// Contravariant functor map
     /// </summary>
-    public abstract Inbox<B> ContraMap<B>(Func<B, A> f);
+    public abstract Inbox<B> Contramap<B>(Func<B, A> f);
 
     /// <summary>
     /// Combine two Inboxes: `lhs` and `rhs` into a single inbox that takes incoming
