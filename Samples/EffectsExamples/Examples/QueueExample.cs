@@ -29,8 +29,8 @@ public static class QueueExample<RT>
     public static Eff<RT, Unit> main()
     {
         // Create two queues.  Queues are Producers that have an Enqueue function
-        var queue1 = Mailbox.spawn<string>("mailbox-1");
-        var queue2 = Mailbox.spawn<string>("mailbox-2");
+        var queue1 = Conduit.spawn<string>("Conduit-1");
+        var queue2 = Conduit.spawn<string>("Conduit-2");
 
         // Compose the queues with a pipe that prepends some text to what they produce
         var queues = Seq(queue1.ToProducer<RT>() | prepend("Queue 1: "), 
@@ -50,8 +50,8 @@ public static class QueueExample<RT>
     // Consumer of the console.  It enqueues the item to queue1 or queue2 depending
     // on the first char of the string it awaits
     static Consumer<RT, string, Unit> writeToQueue(
-        Mailbox<string, string> queue1, 
-        Mailbox<string, string> queue2) =>
+        Conduit<string, string> queue1, 
+        Conduit<string, string> queue2) =>
         from x in Consumer.awaiting<RT, string>()
         from u in guard(x.Length > 0, Error.New("exiting"))
         from _ in x[0] switch

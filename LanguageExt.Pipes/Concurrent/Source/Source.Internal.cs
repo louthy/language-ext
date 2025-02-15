@@ -4,11 +4,11 @@ using LanguageExt.Common;
 
 namespace LanguageExt.Pipes.Concurrent;
 
-internal class OutboxInternal
+internal class SourceInternal
 {
-    public static async ValueTask<bool> ReadyToRead<A>(Seq<Outbox<A>> sources, CancellationToken token)
+    public static async ValueTask<bool> ReadyToRead<A>(Seq<Source<A>> sources, CancellationToken token)
     {
-        if (sources.Count == 0) throw Errors.OutboxChannelClosed;
+        if (sources.Count == 0) throw Errors.SourceClosed;
 
         var             remaining  = sources.Count;
         using var       wait       = new CountdownEvent(remaining);
@@ -49,9 +49,9 @@ internal class OutboxInternal
         }
     }
     
-    public static async ValueTask<A> Read<A>(Seq<Outbox<A>> sources, EnvIO envIO)
+    public static async ValueTask<A> Read<A>(Seq<Source<A>> sources, EnvIO envIO)
     {
-        if (sources.Count == 0) throw Errors.OutboxChannelClosed;
+        if (sources.Count == 0) throw Errors.SourceClosed;
 
         var             remaining  = sources.Count;
         using var       wait       = new CountdownEvent(remaining);
@@ -59,7 +59,7 @@ internal class OutboxInternal
         await using var reg        = envIO.Token.Register(() => src.Cancel());
         var             childToken = src.Token;
         var             flag       = 0;
-        Outbox<A>?      source     = null;
+        Source<A>?      source     = null;
 
         try
         {
@@ -91,7 +91,7 @@ internal class OutboxInternal
             wait.Wait(envIO.Token);
             return flag == 2
                        ? await source!.Read().RunAsync(envIO)
-                       : throw Errors.OutboxChannelClosed;
+                       : throw Errors.SourceClosed;
         }
         finally
         {

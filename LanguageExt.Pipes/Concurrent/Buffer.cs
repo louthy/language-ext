@@ -1,28 +1,35 @@
 namespace LanguageExt.Pipes.Concurrent;
 
 /// <summary>
-/// Settings for `Mailbox` channels
+/// Settings for `Conduit` channels
 /// </summary>
 /// <typeparam name="A">Bound value type</typeparam>
 public abstract record Buffer<A>
 {
+    static Buffer()
+    {
+        Unbounded = new UnboundedBuffer<A>();
+        Single = new SingleBuffer<A>();
+        New = new NewBuffer<A>();
+    }
+    
     internal Buffer()
     { }
 
     /// <summary>
     /// Store an unbounded number of messages in a FIFO queue
     /// </summary>
-    public static readonly Buffer<A> Unbounded = new UnboundedBuffer<A>();
+    public static readonly Buffer<A> Unbounded;
     
     /// <summary>
     /// Bounded number of messages to `1`
     /// </summary>
-    public static readonly Buffer<A> Single = new SingleBuffer<A>();
+    public static readonly Buffer<A> Single;
     
     /// <summary>
     /// `Newest(1)`
     /// </summary>
-    public static readonly Buffer<A> New = new NewBuffer<A>();
+    public static readonly Buffer<A> New;
     
     /// <summary>
     /// Store a bounded number of messages, specified by the 'size' argument
@@ -39,7 +46,8 @@ public abstract record Buffer<A>
     /// <remarks>
     /// 'Latest' is never empty nor full.
     /// </remarks>
-    public static Buffer<A> Latest(A value) => new LatestBuffer<A>(value);
+    public static Buffer<A> Latest(A value) => 
+        new LatestBuffer<A>(value);
     
     /// <summary>
     /// Like `Bounded`, but `Post` never fails (the buffer is never full).

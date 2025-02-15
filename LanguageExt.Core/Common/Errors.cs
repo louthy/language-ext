@@ -203,34 +203,34 @@ public static class Errors
     public static readonly Error IODSLExtension = new Exceptional(IODSLExtensionText, IODSLExtensionCode);
 
     /// <summary>
-    /// Inbox no space available error message
+    /// Sink is full error message
     /// </summary>
-    public const string NoSpaceInInboxText =
+    public const string SinkFullText =
         "No inbox space available";
     
     /// <summary>
-    /// Inbox no space available error code
+    /// Sink is full error code
     /// </summary>
-    public const int NoSpaceInInboxCode = -2000000013;
+    public const int SinkFullCode = -2000000013;
 
     /// <summary>
-    /// Inbox no space available error
+    /// Sink is full error
     /// </summary>
-    public static readonly Error NoSpaceInInbox = new Expected(NoSpaceInInboxText, NoSpaceInInboxCode);
+    public static readonly Error SinkFull = new Expected(SinkFullText, SinkFullCode);
 
     /// <summary>
-    /// Outbox channel has been closed
+    /// Source is closed
     /// </summary>
-    public const string OutboxChannelClosedText =
-        "Outbox channel has been closed";
+    public const string SourceClosedText =
+        "Source is closed";
     
     /// <summary>
-    /// Outbox channel has been closed code
+    /// Source is closed code
     /// </summary>
-    public const int OutboxChannelClosedCode = -2000000014;
+    public const int SourceClosedCode = -2000000014;
 
     /// <summary>
-    /// Outbox channel has been closed error
+    /// Source is closed error
     /// </summary>
-    public static readonly Error OutboxChannelClosed = new Expected(OutboxChannelClosedText, OutboxChannelClosedCode);
+    public static readonly Error SourceClosed = new Expected(SourceClosedText, SourceClosedCode);
 }

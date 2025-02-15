@@ -355,17 +355,17 @@ public static class ProducerT
     {
         if (producers.Count == 0) return pure<OUT, M, Unit>(default);
 
-        return from mailbox in Pure(Mailbox.spawn(settings ?? Buffer<OUT>.Unbounded, "merge"))
-               from forks   in forkEffects(producers, mailbox)
-               from _       in mailbox.ToProducerT<M>()
+        return from Conduit in Pure(Conduit.spawn(settings ?? Buffer<OUT>.Unbounded, "merge"))
+               from forks   in forkEffects(producers, Conduit)
+               from _       in Conduit.ToProducerT<M>()
                from x       in forks.Traverse(f => f.Cancel).As()
                select unit;
     }
 
     static K<M, Seq<ForkIO<Unit>>> forkEffects<M, OUT>(
         Seq<ProducerT<OUT, M, Unit>> producers,
-        Mailbox<OUT, OUT> mailbox)
+        Conduit<OUT, OUT> Conduit)
         where M : Monad<M> =>
-        producers.Map(p => (p | mailbox.ToConsumerT<M>()).Run())
+        producers.Map(p => (p | Conduit.ToConsumerT<M>()).Run())
                  .Traverse(ma => ma.ForkIO());
 }

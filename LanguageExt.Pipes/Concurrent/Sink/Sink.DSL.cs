@@ -5,15 +5,15 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Pipes.Concurrent;
 
-record InboxWriter<A>(ChannelWriter<A> Writer, string Label) : Inbox<A>
+record SinkWriter<A>(ChannelWriter<A> Writer, string Label) : Sink<A>
 {
-    public override Inbox<B> Contramap<B>(Func<B, A> f) => 
-        new InboxContraMap<A, B>(f, this);
+    public override Sink<B> Contramap<B>(Func<B, A> f) => 
+        new SinkContraMap<A, B>(f, this);
 
     public override IO<Unit> Post(A value) =>
         from f in IO.liftVAsync(e => Writer.WaitToWriteAsync(e.Token))
         from r in f ? IO.liftVAsync(() => Writer.WriteAsync(value).ToUnit())
-                    : IO.fail<Unit>(Errors.NoSpaceInInbox)
+                    : IO.fail<Unit>(Errors.SinkFull)
         select r;
 
     public override IO<Unit> Complete() =>
@@ -23,30 +23,30 @@ record InboxWriter<A>(ChannelWriter<A> Writer, string Label) : Inbox<A>
         IO.lift(() => Writer.Complete(error.ToException()));    
 }
 
-record InboxContraMap<A, B>(Func<B, A> F, Inbox<A> Inbox) : Inbox<B>
+record SinkContraMap<A, B>(Func<B, A> F, Sink<A> Sink) : Sink<B>
 {
-    public override Inbox<C> Contramap<C>(Func<C, B> f) =>
-        new InboxContraMap<A, C>(x => F(f(x)), Inbox);
+    public override Sink<C> Contramap<C>(Func<C, B> f) =>
+        new SinkContraMap<A, C>(x => F(f(x)), Sink);
 
     public override IO<Unit> Post(B value) => 
-        Inbox.Post(F(value));
+        Sink.Post(F(value));
 
     public override IO<Unit> Complete() => 
-        Inbox.Complete();
+        Sink.Complete();
 
     public override IO<Unit> Fail(Error Error) => 
-        Inbox.Fail(Error);
+        Sink.Fail(Error);
 }
 
-record InboxEmpty<A> : Inbox<A>
+record SinkEmpty<A> : Sink<A>
 {
-    public static readonly Inbox<A> Default = new InboxEmpty<A>();
+    public static readonly Sink<A> Default = new SinkEmpty<A>();
     
-    public override Inbox<B> Contramap<B>(Func<B, A> f) => 
-        new InboxEmpty<B>();
+    public override Sink<B> Contramap<B>(Func<B, A> f) => 
+        new SinkEmpty<B>();
 
     public override IO<Unit> Post(A value) =>
-        IO.fail<Unit>(Errors.NoSpaceInInbox);
+        IO.fail<Unit>(Errors.SinkFull);
 
     public override IO<Unit> Complete() =>
         unitIO;
@@ -55,12 +55,12 @@ record InboxEmpty<A> : Inbox<A>
         unitIO;
 }
 
-record InboxVoid<A> : Inbox<A>
+record SinkVoid<A> : Sink<A>
 {
-    public static readonly Inbox<A> Default = new InboxVoid<A>();
+    public static readonly Sink<A> Default = new SinkVoid<A>();
     
-    public override Inbox<B> Contramap<B>(Func<B, A> f) => 
-        new InboxVoid<B>();
+    public override Sink<B> Contramap<B>(Func<B, A> f) => 
+        new SinkVoid<B>();
 
     public override IO<Unit> Post(A value) =>
         unitIO;
@@ -72,12 +72,12 @@ record InboxVoid<A> : Inbox<A>
         unitIO;
 }
 
-record InboxCombine<A, B, C>(Func<A, (B Left, C Right)> F, Inbox<B> Left, Inbox<C> Right) : Inbox<A>
+record SinkCombine<A, B, C>(Func<A, (B Left, C Right)> F, Sink<B> Left, Sink<C> Right) : Sink<A>
 {
-    public static readonly Inbox<A> Default = new InboxEmpty<A>();
+    public static readonly Sink<A> Default = new SinkEmpty<A>();
 
-    public override Inbox<D> Contramap<D>(Func<D, A> f) =>
-        new InboxContraMap<A, D>(f, this);
+    public override Sink<D> Contramap<D>(Func<D, A> f) =>
+        new SinkContraMap<A, D>(f, this);
 
     public override IO<Unit> Post(A value) =>
         F(value) switch
@@ -100,19 +100,19 @@ record InboxCombine<A, B, C>(Func<A, (B Left, C Right)> F, Inbox<B> Left, Inbox<
         Left.Fail(error).Bind(_ => Right.Fail(error));
 }
 
-record InboxChoose<A, B, C>(Func<A, Either<B, C>> F, Inbox<B> Left, Inbox<C> Right) : Inbox<A>
+record SinkChoose<A, B, C>(Func<A, Either<B, C>> F, Sink<B> Left, Sink<C> Right) : Sink<A>
 {
-    public static readonly Inbox<A> Default = new InboxEmpty<A>();
+    public static readonly Sink<A> Default = new SinkEmpty<A>();
 
-    public override Inbox<D> Contramap<D>(Func<D, A> f) =>
-        new InboxContraMap<A, D>(f, this);
+    public override Sink<D> Contramap<D>(Func<D, A> f) =>
+        new SinkContraMap<A, D>(f, this);
 
     public override IO<Unit> Post(A value) =>
         F(value) switch
         {
             Either.Left<B, C>(var left)   => Left.Post(left),
             Either.Right<B, C>(var right) => Right.Post(right),
-            _                             => IO.fail<Unit>(Errors.NoSpaceInInbox)
+            _                             => IO.fail<Unit>(Errors.SinkFull)
         };
 
     public override IO<Unit> Complete() =>

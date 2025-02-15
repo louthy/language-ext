@@ -2,26 +2,32 @@ using System;
 using Ch = System.Threading.Channels;
 namespace LanguageExt.Pipes.Concurrent;
 
-public static class Mailbox
+public static class Conduit
 {
     /// <summary>
-    /// Create a new unbounded mailbox 
+    /// Create a new unbounded Conduit 
     /// </summary>
     /// <param name="label">Label for debugging purposes</param>
     /// <typeparam name="A">Value type</typeparam>
-    /// <returns>Constructed mailbox with an `Inbox` and an `Outbox`</returns>
-    public static Mailbox<A, A> spawn<A>(string label = "[unlabeled]") =>
+    /// <returns>Constructed Conduit with an `Sink` and an `Source`</returns>
+    public static Conduit<A, A> spawn<A>(string label = "[unlabeled]") =>
         spawn(Buffer<A>.Unbounded, label);
 
     /// <summary>
-    /// Create a new mailbox with the buffer settings provided 
+    /// Create a new Conduit with the buffer settings provided 
     /// </summary>
     /// <param name="buffer">Buffer settings</param>
     /// <param name="label">Label for debugging purposes</param>
     /// <typeparam name="A">Value type</typeparam>
-    /// <returns>Constructed mailbox with an `Inbox` and an `Outbox`</returns>
+    /// <returns>Constructed Conduit with an `Sink` and an `Source`</returns>
     /// <exception cref="NotSupportedException">Thrown for invalid buffer settings</exception>
-    public static Mailbox<A, A> spawn<A>(Buffer<A> buffer, string label = "[unlabeled]")
+    public static Conduit<A, A> spawn<A>(Buffer<A> buffer, string label = "[unlabeled]")
+    {
+        var channel = MakeChannel(buffer);
+        return new Conduit<A, A>(new SinkWriter<A>(channel.Writer, label), new SourceReader<A>(channel.Reader, label));
+    }
+    
+    static Ch.Channel<A> MakeChannel<A>(Buffer<A> buffer)
     {
         Ch.Channel<A> channel;
         switch (buffer)
@@ -70,6 +76,6 @@ public static class Mailbox
                 throw new NotSupportedException();
         }
 
-        return new Mailbox<A, A>(new InboxWriter<A>(channel.Writer, label), new OutboxReader<A>(channel.Reader, label));
+        return channel;
     }
 }
