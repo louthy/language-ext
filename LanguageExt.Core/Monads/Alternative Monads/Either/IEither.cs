@@ -14,7 +14,7 @@ public interface IEither
         get;
     }
 
-    R MatchUntyped<R>(Func<object?, R> Right, Func<object?, R> Left);
+    R MatchUntyped<R>(Func<object?, R> Left, Func<object?, R> Right);
 
     Type GetUnderlyingRightType();
     Type GetUnderlyingLeftType();
