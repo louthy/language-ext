@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -504,3 +505,4 @@ public record StreamT<M, A>(Func<K<M, MList<A>>>  runListT) :
         }
     }
 }
+*/

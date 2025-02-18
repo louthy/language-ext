@@ -6,7 +6,7 @@ namespace LanguageExt.Pipes.Concurrent;
 
 internal class SourceInternal
 {
-    public static async ValueTask<bool> ReadyToRead<A>(Seq<Source<A>> sources, CancellationToken token)
+    public static async ValueTask<bool> ReadyToRead<A>(Seq<SourceIterator<A>> sources, CancellationToken token)
     {
         if (sources.Count == 0) throw Errors.SourceClosed;
 
@@ -49,17 +49,17 @@ internal class SourceInternal
         }
     }
     
-    public static async ValueTask<A> Read<A>(Seq<Source<A>> sources, EnvIO envIO)
+    public static async ValueTask<A> Read<A>(Seq<SourceIterator<A>> sources, CancellationToken token)
     {
         if (sources.Count == 0) throw Errors.SourceClosed;
 
-        var             remaining  = sources.Count;
-        using var       wait       = new CountdownEvent(remaining);
-        using var       src        = new CancellationTokenSource();
-        await using var reg        = envIO.Token.Register(() => src.Cancel());
-        var             childToken = src.Token;
-        var             flag       = 0;
-        Source<A>?      source     = null;
+        var                remaining  = sources.Count;
+        using var          wait       = new CountdownEvent(remaining);
+        using var          src        = new CancellationTokenSource();
+        await using var    reg        = token.Register(() => src.Cancel());
+        var                childToken = src.Token;
+        var                flag       = 0;
+        SourceIterator<A>? source     = null;
 
         try
         {
@@ -88,9 +88,9 @@ internal class SourceInternal
                                    }))
                    .Strict();
 
-            wait.Wait(envIO.Token);
+            wait.Wait(token);
             return flag == 2
-                       ? await source!.Read().RunAsync(envIO)
+                       ? await source!.ReadValue(token)
                        : throw Errors.SourceClosed;
         }
         finally

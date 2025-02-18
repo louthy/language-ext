@@ -53,14 +53,6 @@ public class Iterable<A> :
         [];
 
     /// <summary>
-    /// Stream as an enumerable
-    /// </summary>
-    [Pure]
-    public StreamT<M, A> AsStream<M>()
-        where M : Monad<M> =>
-        StreamT<M, A>.Lift(AsEnumerable());
-
-    /// <summary>
     /// Reverse the sequence
     /// </summary>
     [Pure]

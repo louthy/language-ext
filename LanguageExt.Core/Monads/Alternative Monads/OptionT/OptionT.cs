@@ -436,11 +436,13 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) :
     public EitherT<L, M, A> ToEither<L>() where L : Monoid<L> =>
         new(runOption.Map(ma => ma.ToEither<L>()));
 
+    /*
     public StreamT<M, A> ToStream() =>
         from seq in StreamT<M, Seq<A>>.Lift(runOption.Map(ma => ma.IsSome ? Seq((A)ma) : Seq<A>.Empty))
         from res in StreamT<M, A>.Lift(seq)
         select res;
     
+    */
     public static OptionT<M, A> operator |(OptionT<M, A> lhs, OptionT<M, A> rhs) =>
         lhs.Choose(rhs).As();
 

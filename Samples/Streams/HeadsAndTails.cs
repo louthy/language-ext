@@ -1,15 +1,17 @@
+/*
 #pragma warning disable LX_StreamT
 
 using LanguageExt;
-using static LanguageExt.Prelude;
+using LanguageExt.Pipes;
 using static Streams.Console;
+using static LanguageExt.Prelude;
 
 namespace Streams;
 
 public static class HeadsAndTails
 {
     static readonly StreamT<IO, int> collection = 
-        from item in Iterable(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).AsStream<IO>()
+        from item in Iterable(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).AsStream<IO, int>()
         from col  in colour >> 
                      red
         from _    in writeLine($"\tEvaluated item: {item}") >> 
@@ -18,7 +20,7 @@ public static class HeadsAndTails
 
     public static IO<Unit> run =>
         headExample >>
-        tailExample.Iter();
+        tailExample.Run();
 
     static IO<Unit> headExample =>
         from _ in writeLine("Head example")
@@ -34,3 +36,4 @@ public static class HeadsAndTails
         select unit;
     
 }
+*/

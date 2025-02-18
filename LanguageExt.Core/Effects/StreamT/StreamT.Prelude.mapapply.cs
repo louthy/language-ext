@@ -1,4 +1,5 @@
-﻿#pragma warning disable LX_StreamT
+﻿/*
+#pragma warning disable LX_StreamT
 
 using System;
 using LanguageExt.Traits;
@@ -42,3 +43,4 @@ public static partial class Prelude
         where M : Monad<M> =>
         Applicative.apply(mf, ma).As();
 }    
+*/

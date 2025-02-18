@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
-using Xunit;
-using static LanguageExt.Prelude;
 using static LanguageExt.Seq;
+using Xunit;
 
 namespace LanguageExt.Tests;
 
@@ -25,7 +23,7 @@ public class SeqTests
     {
         string x = null;
 
-        Assert.True(toSeq(x).Count() == 0);
+        Assert.Equal(0, toSeq(x).Count());
     }
 
     [Fact]

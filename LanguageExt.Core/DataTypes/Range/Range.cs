@@ -32,10 +32,12 @@ public record Range<A>(A From, A To, A Step, IEnumerable<A> runRange) :
     public Iterable<A> AsIterable() =>
         runRange.AsIterable();
 
+    /*
     [Pure]
     public StreamT<M, A> AsStream<M>() 
         where M : Monad<M> =>
         StreamT<M>.lift(runRange);
+        */
 
     [Pure]
     public IEnumerator<A> GetEnumerator() => 

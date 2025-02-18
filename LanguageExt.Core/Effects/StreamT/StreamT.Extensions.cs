@@ -1,3 +1,4 @@
+/*
 #pragma warning disable LX_StreamT
 
 using System;
@@ -698,3 +699,4 @@ public static partial class StreamTExtensions
         select x;
     
 }
+*/

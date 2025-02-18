@@ -76,6 +76,7 @@ public struct Arr<A> :
         this.value = value;
     }
 
+    /*
     /// <summary>
     /// Stream as an enumerable
     /// </summary>
@@ -83,6 +84,7 @@ public struct Arr<A> :
     public StreamT<M, A> AsStream<M>()
         where M : Monad<M> =>
         StreamT<M, A>.Lift(this);
+        */
     
     [Pure]
     public ReadOnlySpan<A> AsSpan() =>

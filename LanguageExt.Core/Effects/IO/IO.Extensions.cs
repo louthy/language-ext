@@ -118,6 +118,7 @@ public static partial class IOExtensions
         where M : Monad<M> =>
         M.ForkIO(ma, timeout);
 
+    /*
     /// <summary>
     /// Queue this IO operation to run on the thread-pool. 
     /// </summary>
@@ -132,6 +133,7 @@ public static partial class IOExtensions
         ma.Run()
           .Map(oht => oht.Map(ht => ht.Item1))
           .ForkIO(timeout);
+          */
 
     /// <summary>
     /// Timeout operation if it takes too long

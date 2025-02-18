@@ -1,3 +1,4 @@
+/*
 #pragma warning disable LX_StreamT
 
 using LanguageExt.Traits;
@@ -166,3 +167,4 @@ public static class StreamT
         where M : Monad<M> =>
         first.As().Zip(second, third, fourth);
 }
+*/

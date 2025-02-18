@@ -110,11 +110,11 @@ public static partial class Prelude
         self.MapAsync(map);
 
     [Pure]
-    public static ValueTask<A> plus<A>(this ValueTask<A> ma, ValueTask<A> mb) =>
+    public static ValueTask<A> plus<A>(ValueTask<A> ma, ValueTask<A> mb) =>
         ma.Plus(mb);
 
     [Pure]
-    public static ValueTask<A> plusFirst<A>(this ValueTask<A> ma, ValueTask<A> mb) =>
+    public static ValueTask<A> plusFirst<A>(ValueTask<A> ma, ValueTask<A> mb) =>
         ma.PlusFirst(mb);
 
     /// <summary>

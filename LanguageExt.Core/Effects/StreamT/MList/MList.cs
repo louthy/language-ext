@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -40,3 +41,4 @@ public record MCons<M, A>(A Head, Func<K<M, MList<A>>> Tail) : MList<A>
     public override MList<B> Map<B>(Func<A, B> f) => 
         new MCons<M, B>(f(Head), () => Tail().Map(l => l.Map(f)));
 }
+*/

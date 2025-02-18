@@ -610,7 +610,7 @@ public abstract class Fin<A> :
             ? Option<A>.Some(SuccValue)
             : Option<A>.None;
 
-    /// <summary>
+    /*/// <summary>
     /// Convert to a stream
     /// </summary>
     [Pure]
@@ -628,7 +628,7 @@ public abstract class Fin<A> :
         where M : Monad<M> =>
         IsFail
             ? StreamT<M, Error>.Pure(FailValue) 
-            : StreamT<M, Error>.Empty;
+            : StreamT<M, Error>.Empty;*/
 
     [Pure, MethodImpl(Opt.Default)]
     public Either<Error, A> ToEither() =>

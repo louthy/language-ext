@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using LanguageExt.Common;
 
 namespace LanguageExt.Traits;
@@ -447,5 +448,17 @@ public interface MonadIO<M>
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        ma.MapIO(io => io.FoldUntil(schedule, initialState, folder, predicate));    
+        ma.MapIO(io => io.FoldUntil(schedule, initialState, folder, predicate));
+    
+    public static virtual K<M, EnvIO> EnvIO() => 
+        M.LiftIO(IO.env);
+    
+    public static virtual K<M, CancellationToken> Token() => 
+        M.LiftIO(IO.token);
+
+    public static virtual K<M, CancellationTokenSource> TokenSource() =>
+        M.LiftIO(IO.source);
+
+    public static virtual K<M, Option<SynchronizationContext>> SyncContext() =>
+        M.LiftIO(IO.syncContext);
 }

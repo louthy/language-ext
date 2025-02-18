@@ -1,8 +1,9 @@
 #pragma warning disable LX_StreamT
 
 using LanguageExt;
-using static LanguageExt.Prelude;
+using LanguageExt.Pipes;
 using static Streams.Console;
+using static LanguageExt.Prelude;
 
 namespace Streams;
 
@@ -18,7 +19,7 @@ public static class Grouping
         runTestIO("test 2", test2);
 
     static IO<Unit> runTestIO(string name, StreamT<IO, int> test) =>
-        runTest(name, test1).Iter().As() >> emptyLine;
+        runTest(name, test1).RunAsync().As() >> emptyLine;
 
     static StreamT<IO, Unit> runTest(string name, StreamT<IO, int> test) =>
         from t in writeLine($"{name}")

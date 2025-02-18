@@ -7,7 +7,7 @@ namespace LanguageExt;
 
 public static partial class Prelude
 {
-    /// <summary>
+    /*/// <summary>
     /// Start a new source
     /// </summary>
     /// <returns>A source in an IO computation</returns>
@@ -44,5 +44,5 @@ public static partial class Prelude
     /// <param name="value">Value</param>
     /// <returns>IO effect</returns>
     public static Func<A, IO<Unit>> post<A>(Source<A> source) => 
-        source.Post;
+        source.Post;*/
 }

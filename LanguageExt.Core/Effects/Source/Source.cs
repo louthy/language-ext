@@ -1,3 +1,4 @@
+/*
 #pragma warning disable LX_StreamT
 
 using System;
@@ -130,10 +131,10 @@ public class Source<A> : IDisposable
                         }
                         completed = 2;
 
-                        try { cancelReg.Dispose(); } catch { /* ignore */ }
-                        try { envIO.Dispose(); } catch { /* ignore */ }
-                        try { wait.Dispose(); } catch { /* ignore */ }
-                        try { stream.Dispose(); } catch { /* ignore */ }
+                        try { cancelReg.Dispose(); } catch { /* ignore #1# }
+                        try { envIO.Dispose(); } catch { /* ignore #1# }
+                        try { wait.Dispose(); } catch { /* ignore #1# }
+                        try { stream.Dispose(); } catch { /* ignore #1# }
                     }
                     else
                     {
@@ -154,3 +155,4 @@ public class Source<A> : IDisposable
         public static Event Default = new CompleteEvent();
     }
 }
+*/

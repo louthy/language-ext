@@ -24,7 +24,7 @@ public static class Conduit
     public static Conduit<A, A> spawn<A>(Buffer<A> buffer, string label = "[unlabeled]")
     {
         var channel = MakeChannel(buffer);
-        return new Conduit<A, A>(new SinkWriter<A>(channel.Writer, label), new SourceReader<A>(channel.Reader, label));
+        return new Conduit<A, A>(new SinkWriter<A>(channel.Writer, label), new SourceReader<A>(channel, label));
     }
     
     static Ch.Channel<A> MakeChannel<A>(Buffer<A> buffer)

@@ -1,16 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <OutputType>Exe</OutputType>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>Streams</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\LanguageExt.Core\LanguageExt.Core.csproj" />
-      <ProjectReference Include="..\..\LanguageExt.Pipes\LanguageExt.Pipes.csproj" />
+      <None Update="README.nuget.md">
+        <Pack>true</Pack>
+        <PackagePath>/</PackagePath>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
     </ItemGroup>
 
 </Project>

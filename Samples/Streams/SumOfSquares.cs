@@ -2,6 +2,7 @@
 
 using LanguageExt;
 using LanguageExt.Common;
+using LanguageExt.Pipes;
 using LanguageExt.Traits;
 using static Streams.Console;
 using static LanguageExt.Prelude;
@@ -19,12 +20,12 @@ public static class SumOfSquares
         from _ in writeLine("Enter a number to find the sum of squares")
         from s in readLine
         from n in parseInt<IO>(s) | IO.fail<int>("expected a number!")
-        from x in example(n).Iter().As()
+        from x in example(n).RunAsync()
         select unit;
 
     static StreamT<M, long> squares<M>(int n)
-        where M : Monad<M> =>
-        StreamT<M>.lift(Range(0, (long)n).Select(v => v * v).Where(v => v <= n));
+        where M : Monad<M>, Alternative<M> =>
+        StreamT.lift<M, long>(Range(0, (long)n).Select(v => v * v).Where(v => v <= n));
 
     static StreamT<IO, (long X, long Y)> example(int n) =>
         from x in squares<IO>(n)

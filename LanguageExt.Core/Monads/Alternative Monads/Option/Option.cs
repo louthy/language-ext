@@ -614,6 +614,7 @@ public readonly struct Option<A> :
     public OptionT<IO, A> ToIO() =>
         OptionT<IO, A>.Lift(this);
 
+    /*
     /// <summary>
     /// Convert to a stream
     /// </summary>
@@ -623,6 +624,7 @@ public readonly struct Option<A> :
         isSome 
             ? StreamT<M, A>.Pure(Value!) 
             : StreamT<M, A>.Empty;
+            */
     
     /// <summary>
     /// Convert the structure to an `Eff`

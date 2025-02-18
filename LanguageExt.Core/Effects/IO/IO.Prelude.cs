@@ -87,7 +87,7 @@ public static partial class Prelude
         where M : Monad<M> =>
         M.ForkIO(ma, timeout);
 
-    /// <summary>
+    /*/// <summary>
     /// Queue this IO operation to run on the thread-pool. 
     /// </summary>
     /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
@@ -115,7 +115,7 @@ public static partial class Prelude
         ma.Run()
           .Map(oht => oht.Map(ht => ht.Item1))
           .ForkIO(timeout)
-          .As();
+          .As();*/
 
     /// <summary>
     /// Queue this IO operation to run on the thread-pool. 

@@ -1,3 +1,4 @@
+/*
 #pragma warning disable LX_StreamT
 
 using System;
@@ -106,3 +107,4 @@ class Sub<M, A> : Sub<A>
         wait.Dispose();
     }
 }
+*/

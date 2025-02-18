@@ -346,6 +346,7 @@ public abstract record Validation<F, A> :
             _                                => throw new NotSupportedException()
         };
 
+    /*
     /// <summary>
     /// Convert to a stream
     /// </summary>
@@ -366,6 +367,7 @@ public abstract record Validation<F, A> :
             ? StreamT<M, F>.Pure(FailValue) 
             : StreamT<M, F>.Empty;
 
+    */
     /// <summary>
     /// Action operator
     /// </summary>

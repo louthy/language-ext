@@ -49,11 +49,11 @@ public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
     /// Read value from the Source
     /// </summary>
     /// <remarks>
-    /// Raises a `Errors.SourceChannelClosed` if the channel is closed or empty
+    /// Raises a `Errors.SourceClosed` if the channel is closed or empty
     /// </remarks>
     /// <returns>First available value from the channel</returns>
-    public IO<B> Read() =>
-        Source.Read();
+    public SourceIterator<B> Read() =>
+        Source.GetIterator();
     
     /// <summary>
     /// Complete and close the Sink
@@ -152,7 +152,7 @@ public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
     /// </summary>
     /// <param name="rhs"></param>
     /// <returns>Value from this `Source` if there are any available, if not, from `rhs`.  If
-    /// `rhs` is also empty then `Errors.SourceChannelClosed` is raised</returns>
+    /// `rhs` is also empty then `Errors.SourceClosed` is raised</returns>
     public Conduit<A, B> Choose(Source<B> rhs) =>
         this with { Source = Source.Choose(rhs) };
     

@@ -1,3 +1,4 @@
+/*
 #pragma warning disable LX_StreamT
 
 using LanguageExt;
@@ -32,3 +33,4 @@ public class SourceStream
         where false
         select unit;
 }
+*/

@@ -1,6 +1,7 @@
 #pragma warning disable LX_StreamT
 
 using LanguageExt;
+using LanguageExt.Pipes;
 using static LanguageExt.Prelude;
 
 namespace Streams;
@@ -9,7 +10,7 @@ public static class OptionalItems
 {
     public static IO<Unit> run =>
         from _0 in Console.writeLine("starting")
-        from _1 in example(100).Iter()
+        from _1 in example(100).RunAsync().As()
         from _2 in Console.writeLine("done")
         select unit;
 
@@ -20,7 +21,7 @@ public static class OptionalItems
         select unit;    
 
     static StreamT<IO, Unit> example(int n) =>
-        from x in asyncStream(n).Somes()
+        from x in asyncStream(n).SomeStream()
         from _ in Console.write($"{x} ")
         where false
         select unit;

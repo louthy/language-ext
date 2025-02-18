@@ -2,7 +2,6 @@
 using System.IO;
 using System.Text;
 using LanguageExt.Sys;
-using FluentAssertions;
 using LanguageExt.Common;
 using LanguageExt.Sys.Test;
 using LanguageExt.Sys.Traits;
@@ -295,7 +294,7 @@ public static class EffTests1
 
         effect.Run(EnvIO.New()).Ignore();
 
-        buffer.Should().Equal("test\0", "test\0", "test\0", "cancelled");
+        Assert.True(toSeq(buffer) == Seq("test\0", "test\0", "test\0", "cancelled"));
     }
 
     [Fact(DisplayName = "Schedule Run against Aff<RT,T> should not capture state")]
@@ -321,6 +320,6 @@ public static class EffTests1
 
         effect.Run(runtime, EnvIO.New()).Ignore();
 
-        runtime.Env.Console.Should().Equal("test\0", "test\0", "test\0", "cancelled");
+        Assert.True(toSeq(runtime.Env.Console) == Seq("test\0", "test\0", "test\0", "cancelled"));
     }
 }

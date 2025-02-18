@@ -277,6 +277,7 @@ public abstract record Either<L, R> :
     public Option<R> ToOption() =>
         Match(Left: _ => None, Right: Some);
 
+    /*
     /// <summary>
     /// Convert to a stream
     /// </summary>
@@ -295,7 +296,7 @@ public abstract record Either<L, R> :
         where M : Monad<M> =>
         IsLeft
             ? StreamT<M, L>.Pure(LeftValue!) 
-            : StreamT<M, L>.Empty;
+            : StreamT<M, L>.Empty;*/
 
     /// <summary>
     /// Convert to an `Eff`

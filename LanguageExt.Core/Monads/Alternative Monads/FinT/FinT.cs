@@ -548,6 +548,7 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     public ValidationT<Error, M, A> ToValidation() =>
         new(runFin.Map(ma => ma.ToValidation()));
 
+    /*
     public StreamT<M, A> ToStream() =>
         from seq in StreamT<M, Seq<A>>.Lift(runFin.Map(ma => ma.IsSucc ? Seq((A)ma) : Seq<A>.Empty))
         from res in StreamT<M, A>.Lift(seq)
@@ -556,5 +557,5 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     public StreamT<M, Error> FailToStream() =>
         from seq in StreamT<M, Seq<Error>>.Lift(runFin.Map(ma => ma.IsFail ? Seq((Error)ma) : Seq<Error>.Empty))
         from res in StreamT<M,Error>.Lift(seq)
-        select res;
+        select res;*/
 }

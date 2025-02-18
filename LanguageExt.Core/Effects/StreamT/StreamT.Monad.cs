@@ -1,3 +1,4 @@
+/*
 #pragma warning disable LX_StreamT
 
 using System;
@@ -59,3 +60,4 @@ public class StreamT<M> :
     static K<StreamT<M>, A> MonadIO<StreamT<M>>.LiftIO<A>(IO<A> ma) =>
         StreamT<M, A>.LiftIO(ma);
 }
+*/
