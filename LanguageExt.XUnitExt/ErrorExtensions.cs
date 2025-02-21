@@ -1,10 +1,9 @@
 ﻿using LanguageExt.Common;
-using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.XUnitExt;
+namespace LanguageExt;
 
-public static class XAssert
+public static partial class AssertExt
 {
     /// <summary>
     /// Asserts that the action throws an `Error`

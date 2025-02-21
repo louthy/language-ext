@@ -15,6 +15,12 @@
 
     <ItemGroup>
       <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
+      <ProjectReference Include="..\LanguageExt.Pipes\LanguageExt.Pipes.csproj" />
+      <ProjectReference Include="..\LanguageExt.Sys\LanguageExt.Sys.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="xunit" Version="2.7.0" />
     </ItemGroup>
 
 </Project>
