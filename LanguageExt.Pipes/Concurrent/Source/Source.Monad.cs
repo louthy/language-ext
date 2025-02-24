@@ -5,7 +5,8 @@ namespace LanguageExt.Pipes.Concurrent;
 
 public partial class Source : 
     Monad<Source>, 
-    Alternative<Source>
+    Alternative<Source>,
+    Transducable<Source>
 {
     static K<Source, B> Monad<Source>.Bind<A, B>(K<Source, A> ma, Func<A, K<Source, B>> f) => 
         ma.As().Bind(f);
@@ -14,7 +15,7 @@ public partial class Source :
         ma.As().Map(f);
 
     static K<Source, A> Applicative<Source>.Pure<A>(A value) =>
-        new SourcePure<A>(value);
+        new PureSource<A>(value);
 
     static K<Source, B> Applicative<Source>.Apply<A, B>(K<Source, Func<A, B>> mf, K<Source, A> ma) => 
         ma.As().ApplyBack(mf.As());
@@ -26,5 +27,11 @@ public partial class Source :
         fa.As().Choose(fb.As());
 
     static K<Source, A> MonoidK<Source>.Empty<A>() =>
-        SourceEmpty<A>.Default;
+        EmptySource<A>.Default;
+
+    static K<Source, B> Transducable<Source>.Transform<A, B>(K<Source, A> ma, K<Transducer<A>, B> tb) => 
+        new TransformSource<A, B>(ma.As(), tb.As());
+
+    static S Transducable<Source>.Reduce<S, A>(K<Source, A> ma, S initial, Reducer<S, A> reducer) => 
+        ma.As().Reduce(initial, reducer);
 }

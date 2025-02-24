@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Threading.Channels;
 using static LanguageExt.Prelude;
 namespace LanguageExt.Pipes.Concurrent;
 
@@ -10,7 +12,7 @@ public partial class Source
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Singleton source</returns>
     public static Source<A> pure<A>(A value) =>
-        new SourcePure<A>(value);
+        new PureSource<A>(value);
 
     /// <summary>
     /// Empty source
@@ -18,7 +20,37 @@ public partial class Source
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Uninhabited source</returns>
     public static Source<A> empty<A>() =>
-        SourceEmpty<A>.Default;
+        EmptySource<A>.Default;
+
+    /// <summary>
+    /// Make a `System.Threading.Channels.Channel` into a source of values
+    /// </summary>
+    /// <param name="channel">Channel to lift</param>
+    /// <param name="label">Label to help debugging</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
+    public static Source<A> lift<A>(Channel<A> channel, string label = "[unlabelled]") =>
+        new ReaderSource<A>(channel, label);
+
+    /// <summary>
+    /// Make an `IEnumerable` into a source of values
+    /// </summary>
+    /// <param name="items">Enumerable to lift</param>
+    /// <param name="label">Label to help debugging</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
+    public static Source<A> lift<A>(IEnumerable<A> items) =>
+        new IteratorSyncSource<A>(items);
+
+    /// <summary>
+    /// Make an `IEnumerable` into a source of values
+    /// </summary>
+    /// <param name="items">Enumerable to lift</param>
+    /// <param name="label">Label to help debugging</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
+    public static Source<A> lift<A>(IAsyncEnumerable<A> items) =>
+        new IteratorAsyncSource<A>(items);
     
     /// <summary>
     /// Merge sources into a single source
@@ -45,7 +77,7 @@ public partial class Source
     /// <typeparam name="B">Bound value type of the stream to zip with this one</typeparam>
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     public Source<(A First, B Second)> zip<A, B>(Source<A> first, Source<B> second) =>
-        new SourceZip2<A, B>(first, second);
+        new Zip2Source<A, B>(first, second);
 
     /// <summary>
     /// Zip three sources into one
@@ -55,7 +87,7 @@ public partial class Source
     /// <typeparam name="B">Bound value type of the stream to zip with this one</typeparam>
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     public Source<(A First, B Second, C Third)> zip<A, B, C>(Source<A> first, Source<B> second, Source<C> third) =>
-        new SourceZip3<A, B, C>(first, second, third);
+        new Zip3Source<A, B, C>(first, second, third);
 
     /// <summary>
     /// Zip three sources into one
@@ -66,5 +98,5 @@ public partial class Source
     /// <typeparam name="B">Bound value type of the stream to zip with this one</typeparam>
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     public Source<(A First, B Second, C Third, D Fourth)> zip<A, B, C, D>(Source<A> first, Source<B> second, Source<C> third, Source<D> fourth) =>
-        new SourceZip4<A, B, C, D>(first, second, third, fourth);
+        new Zip4Source<A, B, C, D>(first, second, third, fourth);
 }

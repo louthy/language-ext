@@ -102,7 +102,7 @@ public static class StreamT
     /// <returns>Stream transformer</returns>
     public static StreamT<M, A> liftM<M, A>(IAsyncEnumerable<K<M, A>> items)
         where M : Monad<M>, Alternative<M> =>
-        new (new SourceIteratorAsync<K<M, A>>(items));
+        new (new IteratorAsyncSource<K<M, A>>(items));
 
     /// <summary>
     /// Lift an async-enumerable into the stream
@@ -113,7 +113,7 @@ public static class StreamT
     /// <returns>Stream transformer</returns>
     public static StreamT<M, A> liftM<M, A>(IEnumerable<K<M, A>> items)
         where M : Monad<M>, Alternative<M> =>
-        new (new SourceIteratorSync<K<M, A>>(items));
+        new (new IteratorSyncSource<K<M, A>>(items));
     
     /// <summary>
     /// Lift an async-enumerable into the stream
@@ -124,7 +124,7 @@ public static class StreamT
     /// <returns>Stream transformer</returns>
     public static StreamT<M, A> liftM<M, A>(Seq<K<M, A>> items)
         where M : Monad<M>, Alternative<M> =>
-        new (new SourceIteratorSync<K<M, A>>(items));
+        new (new IteratorSyncSource<K<M, A>>(items));
 
     /// <summary>
     /// Merge many streams into one

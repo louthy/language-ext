@@ -1,7 +1,8 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Xunit;
 using LanguageExt.Common;
 using LanguageExt.Pipes.Concurrent;
-using LanguageExt.XUnitExt;
-using Xunit;
 
 namespace LanguageExt.Tests.Streaming;
 
@@ -15,7 +16,7 @@ public class SourceTests
         var iter   = source.GetIterator();
 
         // Act and Assert 
-        XAssert.Throws(Errors.SourceClosed, () => iter.Read().Run());
+        AssertExt.SourceIsClosed(iter);
     }
 
     [Fact]
@@ -26,11 +27,9 @@ public class SourceTests
         var source = Source.pure(value);
         var iter   = source.GetIterator();
 
-        // Act
-        var result = iter.Read().Run();
-
-        // Assert
-        Assert.Equal(42, result);
+        // Act and Assert
+        iter.Read().AssertSucc(42);
+        AssertExt.SourceIsClosed(iter);
     }
 
     [Fact]
@@ -40,11 +39,8 @@ public class SourceTests
         var source = Source.pure(42).Map(x => x * 2);
         var iter   = source.GetIterator();
 
-        // Act
-        var result = iter.Read().Run();
-
-        // Assert
-        Assert.Equal(84, result);
+        // Act and Assert
+        iter.Read().AssertSucc(84);
     }
 
     [Fact]
@@ -55,33 +51,33 @@ public class SourceTests
         var iter   = source.GetIterator();
 
         // Act and Assert
-        XAssert.Throws(Errors.SourceClosed, () => iter.Read().Run());
+        AssertExt.Throws(Errors.SourceClosed, () => iter.Read().Run());
     }
 
-    /*
     [Fact]
-    public async Task Merge_Should_Combine_Sources()
+    public void Merge_Should_Combine_Sources()
     {
         // Arrange
         var source1 = Source.pure(1);
         var source2 = Source.pure(2);
 
         // Act
-        var merged = Source.merge(source1, source2);
+        var merged  = source1 + source2;
+        var iter    = merged.GetIterator();
         var results = new List<int>();
 
-        var result1 = await merged.Read().Run();
-        result1.IfSome(v => results.Add(v));
+        var x1 = iter.Read().Run();
+        results.Add(x1);
 
-        var result2 = await merged.Read().Run();
-        result2.IfSome(v => results.Add(v));
+        var x2 = iter.Read().Run();
+        results.Add(x2);
 
         // Assert
         Assert.Equal(2, results.Count);
         Assert.Contains(1, results);
         Assert.Contains(2, results);
     }
-
+/*
     [Fact]
     public async Task Zip_Should_Combine_Two_Sources()
     {

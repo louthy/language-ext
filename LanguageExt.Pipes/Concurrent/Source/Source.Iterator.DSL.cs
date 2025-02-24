@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using LanguageExt.Common;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Pipes.Concurrent;
 
@@ -13,6 +14,39 @@ public abstract record SourceIterator<A>
     
     internal abstract ValueTask<A> ReadValue(CancellationToken token);
     internal abstract ValueTask<bool> ReadyToRead(CancellationToken token);
+}
+
+record TransformSourceIterator<A, B>(SourceIterator<A> Source, Transducer<A, B> Transducer) 
+    : SourceIterator<B>
+{
+    internal override ValueTask<B> ReadValue(CancellationToken token)
+    {
+        var tvalue = Source.ReadValue(token);
+        if (tvalue.IsCompleted)
+        {
+            var b = Transducer.Reduce<Option<B>>(reduce)(None, tvalue.Result);
+            return b.IsNone
+                       ? ValueTask.FromException<B>(Errors.SourceClosed)
+                       : new ValueTask<B>((B)b);
+        }
+        else
+        {
+            return ReadValueAsync(tvalue);
+        }
+        
+        static Option<B> reduce(Option<B> _, B x) => x;
+    }
+    
+    async ValueTask<B> ReadValueAsync(ValueTask<A> tvalue)
+    {
+        var a = await tvalue; 
+        var b = Transducer.Reduce<Option<B>>(reduce)(None, a);
+        return b.IsNone ? throw Errors.SourceClosed : (B)b;
+        static Option<B> reduce(Option<B> _, B x) => x;
+    }
+
+    internal override ValueTask<bool> ReadyToRead(CancellationToken token) => 
+        Source.ReadyToRead(token);
 }
 
 record SingletonSourceIterator<A>(A Value) : SourceIterator<A>
@@ -76,6 +110,7 @@ record ReaderSourceIterator<A>(ChannelReader<A> Reader, string Label) : SourceIt
         Reader.WaitToReadAsync(token);
 }
 
+/*
 record MapSourceIterator<A, B>(SourceIterator<A> Source, Func<A, B> F) : SourceIterator<B>
 {
     internal override ValueTask<B> ReadValue(CancellationToken token)
@@ -130,7 +165,7 @@ record BindSourceIterator<A, B>(SourceIterator<A> Source, Func<A, SourceIterator
 
     internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
         Source.ReadyToRead(token);
-}
+}*/
 
 record CombineSourceIterator<A>(Seq<SourceIterator<A>> Sources) : SourceIterator<A>
 {

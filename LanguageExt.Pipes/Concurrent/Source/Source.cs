@@ -3,6 +3,10 @@ using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes.Concurrent;
 
+/// <summary>
+/// A source / stream of values
+/// </summary>
+/// <typeparam name="A">Bound value type</typeparam>
 public abstract record Source<A> : 
     K<Source, A>, 
     Monoid<Source<A>>
@@ -11,25 +15,35 @@ public abstract record Source<A> :
     /// A source that never yields a value
     /// </summary>
     public static Source<A> Empty =>
-        SourceEmpty<A>.Default;
+        EmptySource<A>.Default;
 
     /// <summary>
     /// Get an iterator of source values
     /// </summary>
     /// <returns>Source iterator</returns>
     public abstract SourceIterator<A> GetIterator();
+
+    /// <summary>
+    /// Reduce the stream to a single value
+    /// </summary>
+    /// <param name="ma"></param>
+    /// <param name="initial"></param>
+    /// <param name="reducer"></param>
+    /// <typeparam name="S"></typeparam>
+    /// <returns></returns>
+    public abstract S Reduce<S>(K<Source, A> ma, S initial, Reducer<S, A> reducer);
     
     /// <summary>
     /// Functor map
     /// </summary>
     public virtual Source<B> Map<B>(Func<A, B> f) =>
-        new SourceMap<A, B>(this, f);
+        new TransformSource<A, B>(this, Transducer.map(f));
     
     /// <summary>
     /// Monad bind
     /// </summary>
     public virtual Source<B> Bind<B>(Func<A, Source<B>> f) =>
-        new SourceBind<A, B>(this, f);
+        new BindSource<A, B>(this, f);
     
     /// <summary>
     /// Monad bind
@@ -43,7 +57,7 @@ public abstract record Source<A> :
     /// <param name="f">Filter function</param>
     /// <returns>Source where the only values yield are those that pass the predicate</returns>
     public Source<A> Where(Func<A, bool> f) =>
-        new SourceFilter<A>(this, f);
+        new TransformSource<A, A>(this, Transducer.filter(f));
     
     /// <summary>
     /// Filter values.  Yielding downstream when `true`
@@ -51,13 +65,13 @@ public abstract record Source<A> :
     /// <param name="f">Filter function</param>
     /// <returns>Source where the only values yield are those that pass the predicate</returns>
     public Source<A> Filter(Func<A, bool> f) =>
-        new SourceFilter<A>(this, f);
+        new TransformSource<A, A>(this, Transducer.filter(f));
     
     /// <summary>
     /// Applicative apply
     /// </summary>
     public virtual Source<B> ApplyBack<B>(Source<Func<A, B>> ff) =>
-        new SourceApply<A, B>(this, ff);
+        new ApplySource<A, B>(this, ff);
 
     /// <summary>
     /// Combine two sources into a single source.  The value streams are both
@@ -68,13 +82,13 @@ public abstract record Source<A> :
     public Source<A> Combine(Source<A> rhs) =>
         (this, rhs) switch
         {
-            (SourceEmpty<A>, SourceEmpty<A>)         => SourceEmpty<A>.Default,
-            (var l, SourceEmpty<A>)                  => l,
-            (SourceEmpty<A>, var r)                  => r,
-            (SourceCombine<A> l, SourceCombine<A> r) => new SourceCombine<A>(l.Sources + r.Sources),
-            (SourceCombine<A> l, var r)              => new SourceCombine<A>(l.Sources.Add(r)),
-            (var l, SourceCombine<A> r)              => new SourceCombine<A>(l.Cons(r.Sources)),
-            _                                        => new SourceCombine<A>([this, rhs])
+            (EmptySource<A>, EmptySource<A>)         => EmptySource<A>.Default,
+            (var l, EmptySource<A>)                  => l,
+            (EmptySource<A>, var r)                  => r,
+            (CombineSource<A> l, CombineSource<A> r) => new CombineSource<A>(l.Sources + r.Sources),
+            (CombineSource<A> l, var r)              => new CombineSource<A>(l.Sources.Add(r)),
+            (var l, CombineSource<A> r)              => new CombineSource<A>(l.Cons(r.Sources)),
+            _                                        => new CombineSource<A>([this, rhs])
         };
     
     /// <summary>
@@ -93,7 +107,7 @@ public abstract record Source<A> :
     /// <typeparam name="B">Bound value type of the stream to zip with this one</typeparam>
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     public Source<(A First, B Second)> Zip<B>(Source<B> second) =>
-        new SourceZip2<A, B>(this, second);
+        new Zip2Source<A, B>(this, second);
 
     /// <summary>
     /// Zip three sources into one
@@ -103,7 +117,7 @@ public abstract record Source<A> :
     /// <typeparam name="B">Bound value type of the stream to zip with this one</typeparam>
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     public Source<(A First, B Second, C Third)> Zip<B, C>(Source<B> second, Source<C> third) =>
-        new SourceZip3<A, B, C>(this, second, third);
+        new Zip3Source<A, B, C>(this, second, third);
 
     /// <summary>
     /// Zip three sources into one
@@ -114,7 +128,7 @@ public abstract record Source<A> :
     /// <typeparam name="B">Bound value type of the stream to zip with this one</typeparam>
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     public Source<(A First, B Second, C Third, D Fourth)> Zip<B, C, D>(Source<B> second, Source<C> third, Source<D> fourth) =>
-        new SourceZip4<A, B, C, D>(this, second, third, fourth);
+        new Zip4Source<A, B, C, D>(this, second, third, fourth);
 
     /// <summary>
     /// Fold the values flowing through.  A value is only yielded downstream upon completion of the stream.
@@ -124,7 +138,7 @@ public abstract record Source<A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate state</returns>
     public Source<S> Fold<S>(Func<S, A, S> Fold, S Init) =>
-        new SourceFoldWhile<S, A>(Schedule.Forever, Fold, _ => true, Init, this);
+        new FoldWhileSource<S, A>(Schedule.Forever, Fold, _ => true, Init, this);
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the schedule expires, or the
@@ -136,7 +150,7 @@ public abstract record Source<A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate states</returns>
     public Source<S> Fold<S>(Schedule Time, Func<S, A, S> Fold, S Init) =>
-        new SourceFoldWhile<S, A>(Time, Fold, _ => true, Init, this);
+        new FoldWhileSource<S, A>(Time, Fold, _ => true, Init, this);
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the predicate returns
@@ -148,7 +162,7 @@ public abstract record Source<A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate states</returns>
     public Source<S> FoldWhile<S>(Func<S, A, S> Fold, Func<(S State, A Value), bool> Pred, S Init) =>
-        new SourceFoldWhile<S, A>(Schedule.Forever, Fold, Pred, Init, this);
+        new FoldWhileSource<S, A>(Schedule.Forever, Fold, Pred, Init, this);
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the predicate returns
@@ -160,7 +174,7 @@ public abstract record Source<A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate states</returns>
     public Source<S> FoldUntil<S>(Func<S, A, S> Fold, Func<(S State, A Value), bool> Pred, S Init) =>
-        new SourceFoldUntil<S, A>(Schedule.Forever, Fold, Pred, Init, this);
+        new FoldUntilSource<S, A>(Schedule.Forever, Fold, Pred, Init, this);
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the schedule expires, the
@@ -177,7 +191,7 @@ public abstract record Source<A> :
         Func<S, A, S> Fold, 
         Func<(S State, A Value), bool> Pred, 
         S Init) =>
-        new SourceFoldWhile<S, A>(Time, Fold, Pred, Init, this);
+        new FoldWhileSource<S, A>(Time, Fold, Pred, Init, this);
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the schedule expires, the
@@ -194,7 +208,7 @@ public abstract record Source<A> :
         Func<S, A, S> Fold, 
         Func<(S State, A Value), bool> Pred, 
         S Init) =>
-        new SourceFoldUntil<S, A>(Time, Fold, Pred, Init, this);
+        new FoldUntilSource<S, A>(Time, Fold, Pred, Init, this);
 
     /// <summary>
     /// Convert `Source` to a `ProducerT` pipe component
