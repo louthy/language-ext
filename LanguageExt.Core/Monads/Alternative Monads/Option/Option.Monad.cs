@@ -60,6 +60,9 @@ public class Option :
             { IsSome: true } => ma,
             _                => mb
         };
+    
+    static K<Option, A> SemigroupK<Option>.Combine<A>(K<Option, A> lhs, K<Option, A> rhs) =>
+        lhs.Choose(rhs);
 
     static K<Option, X> Some<X>(X value) =>
         Option<X>.Some(value);

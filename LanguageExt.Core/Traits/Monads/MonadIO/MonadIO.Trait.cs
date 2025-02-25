@@ -52,6 +52,9 @@ public interface MonadIO<M>
     /// <summary>
     /// Extract the IO monad from within the M monad (usually as part of a monad-transformer stack).
     /// </summary>
+    /// <exception cref="ExceptionalException">If this method isn't overloaded in
+    /// the inner monad or any monad in the stack on the way to the inner monad
+    /// then it will throw an exception.</exception>
     public static virtual K<M, IO<A>> ToIO<A>(K<M, A> ma) =>
         throw new ExceptionalException(Errors.ToIONotSupported);
 

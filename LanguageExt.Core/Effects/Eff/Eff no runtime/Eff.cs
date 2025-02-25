@@ -18,11 +18,13 @@ namespace LanguageExt;
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record Eff<A>(Eff<MinRT, A> effect) :
-    Readable<Eff<A>, A>,
-    Monad<Eff<A>>,
     Fallible<Eff<A>>,
     Fallible<Eff<A>, Eff, Error, A>,
-    Alternative<Eff<A>>
+    Alternative<Eff<A>>,
+    Deriving<Eff<A>, ReaderT<A, IO>>,
+    Deriving.Choice<Eff<A>, ReaderT<A, IO>>,
+    Deriving.Readable<Eff<A>, A, ReaderT<A, IO>>,
+    Deriving.Monad<Eff<A>, ReaderT<A, IO>>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -678,18 +680,6 @@ public record Eff<A>(Eff<MinRT, A> effect) :
             new ReaderT<A, IO, T>(
                 env => ma.As().RunIO(env).Catch(pred, e => f(e).As().effect.Run(env))));
 
-    static K<Eff<A>, U> Monad<Eff<A>>.Bind<T, U>(K<Eff<A>, T> ma, Func<T, K<Eff<A>, U>> f) =>
-        new Eff<A, U>(ma.As().effect.Bind(a => f(a).As().effect));
-
-    static K<Eff<A>, U> Functor<Eff<A>>.Map<T, U>(Func<T, U> f, K<Eff<A>, T> ma) =>
-        new Eff<A, U>(ma.As().effect.Map(f));
-
-    static K<Eff<A>, T> Applicative<Eff<A>>.Pure<T>(T value) =>
-        Eff<A, T>.Pure(value);
-
-    static K<Eff<A>, U> Applicative<Eff<A>>.Apply<T, U>(K<Eff<A>, Func<T, U>> mf, K<Eff<A>, T> ma) =>
-        new Eff<A, U>(mf.As().effect.Apply(ma.As().effect).As());
-
     static K<Eff<A>, U> Applicative<Eff<A>>.Action<T, U>(K<Eff<A>, T> ma, K<Eff<A>, U> mb) =>
         new Eff<A, U>(ma.As().effect.Action(mb.As().effect).As());
 
@@ -706,24 +696,12 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     static K<Eff<A>, T> MonoidK<Eff<A>>.Empty<T>() =>
         Eff<A, T>.Fail(Errors.None);
 
-    static K<Eff<A>, T> Choice<Eff<A>>.Choose<T>(K<Eff<A>, T> ma, K<Eff<A>, T> mb) => 
-        new Eff<A, T>(ma.As().effect.Choose(mb.As().effect).As());
+    static K<ReaderT<A, IO>, A1> Natural<Eff<A>, ReaderT<A, IO>>.Transform<A1>(K<Eff<A>, A1> fa) =>
+        fa.As().effect;
 
-    static K<Eff<A>, T> Readable<Eff<A>, A>.Asks<T>(Func<A, T> f) =>
-        new Eff<A, T>(ReaderT.asks<IO, T, A>(f));
-
-    static K<Eff<A>, T> Readable<Eff<A>, A>.Local<T>(Func<A, A> f, K<Eff<A>, T> ma) =>
-        new Eff<A, T>(ReaderT.local(f, ma.As().effect));
-
-    static K<Eff<A>, T> MonadIO<Eff<A>>.LiftIO<T>(IO<T> ma) =>
-        new Eff<A, T>(ReaderT.liftIO<A, IO, T>(ma));
-
-    static K<Eff<A>, IO<T>> MonadIO<Eff<A>>.ToIO<T>(K<Eff<A>, T> ma) =>
-        new Eff<A, IO<T>>(ma.As().effect.ToIO().As());
-
-    static K<Eff<A>, U> MonadIO<Eff<A>>.MapIO<T, U>(K<Eff<A>, T> ma, Func<IO<T>, IO<U>> f) =>
-        new Eff<A, U>(ma.As().effect.MapIO(f).As());
-
+    static K<Eff<A>, T> CoNatural<Eff<A>, ReaderT<A, IO>>.CoTransform<T>(K<ReaderT<A, IO>, T> fa) => 
+        new Eff<A, T>(fa.As());
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Transformer helpers

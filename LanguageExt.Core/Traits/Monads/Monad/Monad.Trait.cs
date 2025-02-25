@@ -26,7 +26,4 @@ public interface Monad<M> :
     
     public static virtual K<M, A> Flatten<A>(K<M, K<M, A>> mma) =>
         M.Bind(mma, identity);
-    
-    public new static virtual K<M, B> Map<A, B>(Func<A, B> f, K<M, A> ma) =>
-        M.Bind(ma, x => M.Pure(f(x)));
 }

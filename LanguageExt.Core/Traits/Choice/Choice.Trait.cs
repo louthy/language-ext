@@ -18,7 +18,4 @@ public interface Choice<F> : Applicative<F>, SemigroupK<F>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>First argument to succeed</returns>
     static abstract K<F, A> Choose<A>(K<F, A> fa, K<F, A> fb);
-    
-    static K<F, A> SemigroupK<F>.Combine<A>(K<F, A> fa, K<F, A> fb) => 
-        F.Choose(fa, fb);
 }

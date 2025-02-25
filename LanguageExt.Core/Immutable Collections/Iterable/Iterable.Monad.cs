@@ -1,6 +1,5 @@
 using System;
 using LanguageExt.Traits;
-using G = System.Collections.Generic;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -25,7 +24,7 @@ public partial class Iterable :
         singleton(value);
 
     static K<Iterable, B> Applicative<Iterable>.Apply<A, B>(K<Iterable, Func<A, B>> mf, K<Iterable, A> ma) =>
-        mf.Bind(f => ma.Map(f));   
+        mf.Bind(ma.Map);   
 
     static K<Iterable, B> Applicative<Iterable>.Action<A, B>(K<Iterable, A> ma, K<Iterable, B> mb)
     {
