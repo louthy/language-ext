@@ -4,11 +4,14 @@ namespace CardGame;
 
 public partial class Game
 {
+    public static Game<A> Pure<A>(A value) =>
+        Prelude.Pure(value);
+    
     /// <summary>
     /// Cached unit returning Game monad
     /// </summary>
     public static readonly Game<Unit> unitM = 
-        Pure(unit).As();
+        Pure(unit);
 
     /// <summary>
     /// Use this to cancel the game
