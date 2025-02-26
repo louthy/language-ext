@@ -23,27 +23,33 @@ public static partial class Deriving
             Supertype.CoTransform(Subtype.Pure(value));
 
         static K<Supertype, B> Applicative<Supertype>.Action<A, B>(K<Supertype, A> ma, K<Supertype, B> mb) => 
-            Supertype.CoTransform(Supertype.Transform(ma).Action(Supertype.Transform(mb)));
+            Supertype.CoTransform(Subtype.Action(Supertype.Transform(ma), Supertype.Transform(mb)));
 
         static K<Supertype, B> Applicative<Supertype>.Apply<A, B>(K<Supertype, Func<A, B>> mf, K<Supertype, A> ma) =>
-            Supertype.CoTransform(Supertype.Transform(mf).Apply(Supertype.Transform(ma)));
+            Supertype.CoTransform(Subtype.Apply(Supertype.Transform(mf), Supertype.Transform(ma)));
+
+        static K<Supertype, C> Applicative<Supertype>.Apply<A, B, C>(K<Supertype, Func<A, B, C>> mf, K<Supertype, A> ma, K<Supertype, B> mb) =>
+            Supertype.CoTransform(Subtype.Apply(Supertype.Transform(mf), Supertype.Transform(ma), Supertype.Transform(mb)));
+
+        static K<Supertype, C> Applicative<Supertype>.Apply<A, B, C>(K<Supertype, Func<A, Func<B, C>>> mf, K<Supertype, A> ma, K<Supertype, B> mb) => 
+            Supertype.CoTransform(Subtype.Apply(Supertype.Transform(mf), Supertype.Transform(ma), Supertype.Transform(mb)));
 
         static K<Supertype, Func<B, C>> Applicative<Supertype>.Apply<A, B, C>(K<Supertype, Func<A, B, C>> mf, K<Supertype, A> ma) =>
-            Supertype.CoTransform(Supertype.Transform(mf).Apply(Supertype.Transform(ma)));
+            Supertype.CoTransform(Subtype.Apply(Supertype.Transform(mf), Supertype.Transform(ma)));
 
         static K<Supertype, B> Applicative<Supertype>.ApplyLazy<A, B>(K<Supertype, Func<A, B>> mf, Func<K<Supertype, A>> ma) => 
-            Supertype.CoTransform(Supertype.Transform(mf).Apply(() => Supertype.Transform(ma())));
+            Supertype.CoTransform(Subtype.ApplyLazy(Supertype.Transform(mf), () => Supertype.Transform(ma())));
 
         static K<Supertype, A> Applicative<Supertype>.Actions<A>(params K<Supertype, A>[] fas) =>
             Supertype.CoTransform(fas.AsIterable().Map(Supertype.Transform).Actions());
 
         static K<Supertype, A> Applicative<Supertype>.Actions<A>(Seq<K<Supertype, A>> fas) => 
-            Supertype.CoTransform(fas.Map(Supertype.Transform).Actions());
+            Supertype.CoTransform(Subtype.Actions(fas.Map(Supertype.Transform)));
 
         static K<Supertype, A> Applicative<Supertype>.Actions<A>(IEnumerable<K<Supertype, A>> fas) => 
-            Supertype.CoTransform(fas.Select(Supertype.Transform).Actions());
+            Supertype.CoTransform(Subtype.Actions(fas.Select(Supertype.Transform)));
 
         static K<Supertype, A> Applicative<Supertype>.Actions<A>(IAsyncEnumerable<K<Supertype, A>> fas) => 
-            Supertype.CoTransform(fas.Select(Supertype.Transform).Actions());
+            Supertype.CoTransform(Subtype.Actions(fas.Select(Supertype.Transform)));
     }
 }

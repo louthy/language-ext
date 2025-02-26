@@ -24,6 +24,6 @@ public static partial class Deriving
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>First argument to succeed</returns>
         static K<Supertype, A> Choice<Supertype>.Choose<A>(K<Supertype, A> fa, K<Supertype, A> fb) =>
-            Supertype.CoTransform(Supertype.Transform(fa).Choose(Supertype.Transform(fb)));
+            Supertype.CoTransform(Subtype.Choose(Supertype.Transform(fa), Supertype.Transform(fb)));
     }
 }

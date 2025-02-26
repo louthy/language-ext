@@ -26,6 +26,9 @@ public static partial class Deriving
         /// <typeparam name="B">Output bound value type</typeparam>
         /// <returns>Composed chained monad operation</returns>
         static K<Supertype, B> Monad<Supertype>.Bind<A, B>(K<Supertype, A> ma, Func<A, K<Supertype, B>> f) => 
-            Supertype.CoTransform(Supertype.Transform(ma).Bind(x => Supertype.Transform(f(x))));
+            Supertype.CoTransform(Subtype.Bind(Supertype.Transform(ma), x => Supertype.Transform(f(x))));
+
+        static K<Supertype, A> Monad<Supertype>.Flatten<A>(K<Supertype, K<Supertype, A>> mma) => 
+            Supertype.CoTransform(Subtype.Flatten(Supertype.Transform(mma.Map(Supertype.Transform))));
     }
 }

@@ -26,6 +26,6 @@ public static partial class Deriving
         /// <typeparam name="B">Output bound value type</typeparam>
         /// <returns>Mapped functor</returns>
         static K<Supertype, B> Functor<Supertype>.Map<A, B>(Func<A, B> f, K<Supertype, A> ma) =>
-            Supertype.CoTransform(Supertype.Transform(ma).Map(f));
+            Supertype.CoTransform(Subtype.Map(f, Supertype.Transform(ma)));
     }
 }

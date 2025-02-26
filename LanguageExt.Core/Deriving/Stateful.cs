@@ -20,5 +20,8 @@ public static partial class Deriving
 
         static K<Supertype, A> Stateful<Supertype, S>.Gets<A>(Func<S, A> f) =>
             Supertype.CoTransform(Subtype.Gets(f));
+
+        static K<Supertype, S> Stateful<Supertype, S>.Get => 
+            Supertype.CoTransform(Subtype.Get);
     }
 }

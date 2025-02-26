@@ -42,7 +42,7 @@ public static partial class Deriving
             K<Supertype, A> fa,
             Func<E, bool> Predicate,
             Func<E, K<Supertype, A>> Fail) =>
-            Supertype.CoTransform(Supertype.Transform(fa).Catch(Predicate, e => Supertype.Transform(Fail(e))));
+            Supertype.CoTransform(Subtype.Catch(Supertype.Transform(fa), Predicate, e => Supertype.Transform(Fail(e))));
     }
 
     /// <summary>
