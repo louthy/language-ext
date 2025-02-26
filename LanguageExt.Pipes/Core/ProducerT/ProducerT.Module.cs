@@ -202,7 +202,7 @@ public static class ProducerT
         PipeT.repeat(schedule, ma.Proxy).ToProducer();
 
     /// <summary>
-    /// Continually lift & repeat the provided operation
+    /// Continually lift and repeat the provided operation
     /// </summary>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="M">Lifted monad type</typeparam>

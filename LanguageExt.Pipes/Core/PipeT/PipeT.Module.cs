@@ -284,7 +284,7 @@ public static class PipeT
     }
 
     /// <summary>
-    /// Continually lift & repeat the provided operation
+    /// Continually lift and repeat the provided operation
     /// </summary>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>

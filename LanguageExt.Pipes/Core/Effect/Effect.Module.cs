@@ -110,7 +110,7 @@ public static class Effect
         PipeT.repeat(schedule, ma.Proxy).ToEffect();
 
     /// <summary>
-    /// Continually lift & repeat the provided operation
+    /// Continually lift and repeat the provided operation
     /// </summary>
     /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
