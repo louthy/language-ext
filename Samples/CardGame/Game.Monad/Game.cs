@@ -1,9 +1,22 @@
 using LanguageExt;
 using LanguageExt.Traits;
+
 namespace CardGame;
 
 public record Game<A>(StateT<GameState, OptionT<IO>, A> runGame) : K<Game, A>
 {
+    public static Game<A> Pure(A x) =>
+        new(StateT<GameState, OptionT<IO>, A>.Pure(x));
+    
+    public static Game<A> None =>
+        new(StateT<GameState, OptionT<IO>, A>.Lift(OptionT<IO>.None<A>()));
+    
+    public static Game<A> Lift(Option<A> mx) =>
+        new(StateT<GameState, OptionT<IO>, A>.Lift(OptionT.lift<IO, A>(mx)));
+    
+    public static Game<A> LiftIO(IO<A> mx) =>
+        new(StateT<GameState, OptionT<IO>, A>.LiftIO(mx));
+    
     public Game<B> Map<B>(Func<A, B> f) =>
         this.Kind().Map(f).As();
     
@@ -29,7 +42,7 @@ public record Game<A>(StateT<GameState, OptionT<IO>, A> runGame) : K<Game, A>
         Map(a => project(a, bind(a).Value));
 
     public static implicit operator Game<A>(Pure<A> ma) =>
-        Game.Pure(ma.Value).As();
+        Pure(ma.Value);
 
     public static implicit operator Game<A>(IO<A> ma) =>
         Game.liftIO(ma);
