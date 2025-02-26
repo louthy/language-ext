@@ -8,11 +8,11 @@ public partial class Iterable :
     Monad<Iterable>, 
     Alternative<Iterable>, 
     Traversable<Iterable>,
-    Natural<Iterable, Arr>,
-    Natural<Iterable, Seq>,
-    Natural<Iterable, Lst>,
-    Natural<Iterable, Set>,
-    Natural<Iterable, HashSet>
+    NaturalMono<Iterable, Arr>,
+    NaturalMono<Iterable, Seq>,
+    NaturalMono<Iterable, Lst>,
+    NaturalMono<Iterable, Set>,
+    NaturalMono<Iterable, HashSet>
 {
     static K<Iterable, B> Monad<Iterable>.Bind<A, B>(K<Iterable, A> ma, Func<A, K<Iterable, B>> f) =>
         ma.As().Bind(f);
@@ -102,4 +102,5 @@ public partial class Iterable :
         toSet(fa.As());
 
     static K<HashSet, A> Natural<Iterable, HashSet>.Transform<A>(K<Iterable, A> fa) => 
-        toHashSet(fa.As());}
+        toHashSet(fa.As());
+}

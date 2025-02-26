@@ -1,5 +1,3 @@
-using System;
-
 namespace LanguageExt.Traits;
 
 public static class CoNatural
