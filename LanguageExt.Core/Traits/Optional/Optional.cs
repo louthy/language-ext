@@ -1,50 +1,57 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Diagnostics.Contracts;
-using LanguageExt.Attributes;
 
 namespace LanguageExt.Traits;
 
-[Trait("Opt*")]
-public interface Optional<OA, A> : Trait
+public interface Optional<F> : Applicative<F>
+    where F : Applicative<F>, Optional<F>
 {
     /// <summary>
-    /// Is the option in a Some state
+    /// Is the optional in `Some` state
     /// </summary>
     [Pure]
-    public static abstract bool IsSome(OA opt);
+    public static virtual bool IsSome<A>(K<F, A> fa) =>
+        F.Match(fa, Some: true, None: false);
 
     /// <summary>
-    /// Is the option in a None state
+    /// Is the optional in `None` state
     /// </summary>
     [Pure]
-    public static abstract bool IsNone(OA opt);
+    public static virtual bool IsNone<A>(K<F, A> fa) =>
+        F.Match(fa, Some: false, None: true);
+
+    /// <summary>
+    /// Match the two states of the optional and return a non-null B.
+    /// </summary>
+    [Pure]
+    public static abstract B Match<A, B>(K<F, A> fa, Func<A, B> Some, Func<B> None);
 
     /// <summary>
     /// Match the two states of the Option and return a non-null B.
     /// </summary>
     [Pure]
-    public static abstract B Match<B>(OA opt, Func<A, B> Some, Func<B> None);
+    public static virtual B Match<A, B>(K<F, A> fa, Func<A, B> Some, B None) =>
+        F.Match(fa, Some, () => None);
 
     /// <summary>
     /// Match the two states of the Option and return a non-null B.
     /// </summary>
     [Pure]
-    public static abstract B Match<B>(OA opt, Func<A, B> Some, B None);
+    public static virtual B Match<A, B>(K<F, A> fa, B Some, B None) =>
+        F.Match(fa, _ => Some, () => None);
 
     /// <summary>
     /// Match the two states of the Option A
     /// </summary>
     /// <param name="Some">Some match operation</param>
     /// <param name="None">None match operation</param>
-    public static abstract Unit Match(OA opt, Action<A> Some, Action None);
+    public static virtual Unit Match<A>(K<F, A> fa, Action<A> Some, Action None) =>
+        F.Match<A, Unit>(fa, Some: x => { Some(x); return default; }, None: () => { None(); return default; });
+
+    [Pure] 
+    public static abstract K<F, A> None<A>();
 
     [Pure]
-    public static abstract OA None { get; }
-
-    [Pure]
-    public static abstract OA Some(A value);
-
-    [Pure]
-    public static abstract OA MkOptional(A value);
+    public static virtual K<F, A> Some<A>(A value) =>
+        F.Pure(value);
 }

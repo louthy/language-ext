@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
@@ -11,45 +12,43 @@ public static partial class Optional
     internal static readonly Func<Unit> noneIgnoreF = () => unit;
 
     /// <summary>
-    /// Invokes the f action if Option is in the Some state, otherwise nothing happens.
+    /// Invokes the `f` action if the optional is in a `Some` state, otherwise nothing happens.
     /// </summary>
-    public static Unit ifSome<OPT, OA, A>(OA opt, Action<A> f)
-        where OPT : Optional<OA, A> =>
-        OPT.Match(opt, f, noneIgnore);
+    public static Unit ifSome<F, A>(K<F, A> fa, Action<A> f)
+        where F : Optional<F> =>
+        F.Match(fa, f, noneIgnore);
 
     /// <summary>
-    /// Invokes the f function if Option is in the Some state, otherwise nothing
+    /// Invokes the `f` function if the optional is in the `Some` state, otherwise nothing
     /// happens.
     /// </summary>
-    public static Unit ifSome<OPT, OA, A>(OA opt, Func<A, Unit> f)
-        where OPT : Optional<OA, A> =>
-        OPT.Match(opt, f, noneIgnoreF);
+    public static Unit ifSome<F, A>(K<F, A> fa, Func<A, Unit> f)
+        where F : Optional<F> =>
+        F.Match(fa, f, noneIgnoreF);
 
     /// <summary>
-    /// Returns the result of invoking the None() operation if the optional 
-    /// is in a None state, otherwise the bound Some(x) value is returned.
+    /// Returns the result of invoking the `None` operation if the optional 
+    /// is in a `None` state, otherwise the bound `Some(x)` value is returned.
     /// </summary>
-    /// <remarks>Will not accept a null return value from the None operation</remarks>
     /// <param name="None">Operation to invoke if the structure is in a None state</param>
-    /// <returns>Tesult of invoking the None() operation if the optional 
+    /// <returns>Result of invoking the None() operation if the optional 
     /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
     [Pure]
-    public static A ifNone<OPT, OA, A>(OA opt, Func<A> None)
-        where OPT : Optional<OA, A> =>
-        OPT.Match(opt, identity, None);
+    public static A ifNone<F, A>(K<F, A> fa, Func<A> None)
+        where F : Optional<F> =>
+        F.Match(fa, identity, None);
 
     /// <summary>
-    /// Returns the noneValue if the optional is in a None state, otherwise
-    /// the bound Some(x) value is returned.
+    /// Returns the `noneValue` if the optional is in a `None` state, otherwise
+    /// the bound `Some(x)` value is returned.
     /// </summary>
-    /// <remarks>Will not accept a null noneValue</remarks>
     /// <param name="noneValue">Value to return if in a None state</param>
     /// <returns>noneValue if the optional is in a None state, otherwise
     /// the bound Some(x) value is returned</returns>
     [Pure]
-    public static A ifNone<OPT, OA, A>(OA opt, A noneValue)
-        where OPT : Optional<OA, A> =>
-        OPT.Match(opt, identity, () => noneValue);
+    public static A ifNone<F, A>(K<F, A> fa, A noneValue)
+        where F : Optional<F> =>
+        F.Match(fa, identity, () => noneValue);
 
     /// <summary>
     /// Match operation with an untyped value for Some. This can be
@@ -60,72 +59,72 @@ public static partial class Optional
     /// <param name="None">Operation to perform if the option is in a None state</param>
     /// <returns>The result of the match operation</returns>
     [Pure]
-    public static R matchUntyped<OPT, OA, A, R>(OA ma, Func<object?, R> Some, Func<R> None)
-        where OPT : Optional<OA, A> =>
-        OPT.Match(ma,
-                  Some: x => Some(x),
-                  None: None);
+    public static R matchUntyped<F, A, R>(K<F, A> fa, Func<object?, R> Some, Func<R> None)
+        where F : Optional<F> =>
+        F.Match(fa, Some: x => Some(x), None: None);
 
     /// <summary>
-    /// Convert the Option to an enumerable of zero or one items
+    /// Convert the optional to an `Arr` of zero or one items
     /// </summary>
-    /// <param name="ma">Option</param>
-    /// <returns>An enumerable of zero or one items</returns>
+    /// <param name="fa">Option</param>
+    /// <returns>An `Arr` of zero or one items</returns>
     [Pure]
-    public static Arr<A> toArray<OPT, OA, A>(OA ma)
-        where OPT : Optional<OA, A> =>
-        OPT.Match(ma,
-                  Some: x => [x],
-                  None: System.Array.Empty<A>);
+    public static Arr<A> toArray<F, A>(K<F, A> fa)
+        where F : Optional<F> =>
+        F.Match(fa,
+                Some: x => [x],
+                None: Arr<A>.Empty);
 
     /// <summary>
-    /// Convert the Option to an immutable list of zero or one items
+    /// Convert the optional to an immutable list of zero or one items
     /// </summary>
     /// <param name="ma">Option</param>
     /// <returns>An immutable list of zero or one items</returns>
     [Pure]
-    public static Lst<A> toList<OPT, OA, A>(OA ma)
-        where OPT : Optional<OA, A> =>
-        toList<A>(toArray<OPT, OA, A>(ma));
+    public static Lst<A> toLst<F, A>(K<F, A> fa)
+        where F : Optional<F> =>
+        F.Match(fa,
+                Some: x => [x],
+                None: Lst<A>.Empty);
 
     /// <summary>
-    /// Convert the Option to an enumerable of zero or one items
+    /// Convert the optional to an enumerable of zero or one items
     /// </summary>
     /// <typeparam name="A">Bound value type</typeparam>
-    /// <param name="ma">Option</param>
+    /// <param name="ma">optional</param>
     /// <returns>An enumerable of zero or one items</returns>
     [Pure]
-    public static Seq<A> asEnumerable<OPT, OA, A>(OA ma)
-        where OPT : Optional<OA, A> =>
-        toSeq(toArray<OPT, OA, A>(ma));
+    public static IEnumerable<A> asEnumerable<F, A>(K<F, A> fa)
+        where F : Optional<F> =>
+        toArray(fa);
 
     /// <summary>
-    /// Convert the structure to an Either
+    /// Convert the structure to an `Either`
     /// </summary>
     [Pure]
-    public static Either<L, A> toEither<OPT, OA, L, A>(OA ma, L defaultLeftValue)
-        where OPT : Optional<OA, A> =>
-        OPT.Match(ma,
-                  Some: r => Right<L, A>(r),
-                  None: () => Left<L, A>(defaultLeftValue));
+    public static Either<L, A> toEither<F, L, A>(K<F, A> fa, L defaultLeftValue)
+        where F : Optional<F> =>
+        F.Match(fa,
+                Some: Right<L, A>,
+                None: () => Left<L, A>(defaultLeftValue));
 
     /// <summary>
-    /// Convert the structure to an Either
+    /// Convert the structure to an `Either`
     /// </summary>
     [Pure]
-    public static Either<L, A> toEither<OPT, OA, L, A>(OA ma, Func<L> Left)
-        where OPT : Optional<OA, A> =>
-        OPT.Match(ma,
-                  Some: r => Right<L, A>(r),
-                  None: () => Left<L, A>(Left()));
+    public static Either<L, A> toEither<F, L, A>(K<F, A> ma, Func<L> Left)
+        where F : Optional<F> =>
+        F.Match(ma,
+                Some: Right<L, A>,
+                None: () => Left<L, A>(Left()));
 
     /// <summary>
-    /// Convert the structure to a Option
+    /// Convert the structure to an `Option`
     /// </summary>
     [Pure]
-    public static Option<A> toOption<OPT, OA, A>(OA ma)
-        where OPT : Optional<OA, A> =>
-        OPT.Match(ma,
-                  Some: Some,
-                  None: () => Option<A>.None);
+    public static Option<A> toOption<F, A>(K<F, A> ma)
+        where F : Optional<F> =>
+        F.Match(ma,
+                Some: Some,
+                None: () => Option<A>.None);
 }
