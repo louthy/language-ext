@@ -48,11 +48,11 @@ public class Option :
                       None: initialState);
 
     static K<F, K<Option, B>> Traversable<Option>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Option, A> ta) =>
-        ta.As().Match(Some: a => F.Map(Some, f(a)),
-                      None: () => F.Pure(None<B>()));
+        ta.As().Match(Some: a => F.Map(Prelude.pure<Option, B>, f(a)),
+                      None: F.Pure(MonoidK.empty<Option, B>()));
 
     static K<Option, A> MonoidK<Option>.Empty<A>() =>
-        None<A>();
+        Option<A>.None;
 
     static K<Option, A> Choice<Option>.Choose<A>(K<Option, A> ma, K<Option, A> mb) =>
         ma.As() switch
@@ -64,11 +64,8 @@ public class Option :
     static K<Option, A> SemigroupK<Option>.Combine<A>(K<Option, A> lhs, K<Option, A> rhs) =>
         lhs.Choose(rhs);
 
-    static K<Option, X> Some<X>(X value) =>
-        Option<X>.Some(value);
-
-    static K<Option, X> None<X>() =>
-        Option<X>.None;
+    public static B Match<A, B>(K<Option, A> fa, Func<A, B> Some, Func<B> None) =>
+        fa.As().Match(Some, None);
 
     static K<Option, A> Fallible<Unit, Option>.Fail<A>(Unit _) =>
         Option<A>.None;
