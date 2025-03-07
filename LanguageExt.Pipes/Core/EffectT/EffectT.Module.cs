@@ -132,7 +132,7 @@ public static class EffectT
         PipeT.repeat(schedule, ma.Proxy).ToEffect();
 
     /// <summary>
-    /// Continually lift & repeat the provided operation
+    /// Continually lift and repeat the provided operation
     /// </summary>
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>

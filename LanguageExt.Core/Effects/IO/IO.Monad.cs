@@ -45,6 +45,9 @@ public partial class IO :
     static K<IO, A> Choice<IO>.Choose<A>(K<IO, A> fa, K<IO, A> fb) => 
         new IOCatch<A, A>(fa, _ => true, _ => fb, null, pure);
 
+    static K<IO, A> SemigroupK<IO>.Combine<A>(K<IO, A> lhs, K<IO, A> rhs) => 
+        lhs.Choose(rhs);
+    
     static K<IO, A> MonoidK<IO>.Empty<A>() =>
         fail<A>(Errors.None);
 

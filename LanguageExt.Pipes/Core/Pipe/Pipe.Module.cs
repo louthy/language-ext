@@ -236,7 +236,7 @@ public static class Pipe
         PipeT.repeat(schedule, ma.Proxy);
 
     /// <summary>
-    /// Continually lift & repeat the provided operation
+    /// Continually lift and repeat the provided operation
     /// </summary>
     /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>

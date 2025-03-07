@@ -164,7 +164,7 @@ public static class ConsumerT
         PipeT.repeat(schedule, ma.Proxy).ToConsumer();
 
     /// <summary>
-    /// Continually lift & repeat the provided operation
+    /// Continually lift and repeat the provided operation
     /// </summary>
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="M">Lifted monad type</typeparam>

@@ -63,4 +63,7 @@ public class Eff :
         K<Eff, A> fa, Func<Error, bool> Predicate,
         Func<Error, K<Eff, A>> Fail) =>
         new Eff<A>(fa.As().effect.Catch(Predicate, e => Fail(e).As().effect).As());
+
+    static K<Eff, A> SemigroupK<Eff>.Combine<A>(K<Eff, A> lhs, K<Eff, A> rhs) => 
+        lhs.Choose(rhs);
 }

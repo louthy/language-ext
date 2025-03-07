@@ -43,6 +43,9 @@ public partial class OptionT<M> :
                    ea => ea.IsSome
                              ? M.Pure(ea)
                              : mb.As().runOption));
+    
+    static K<OptionT<M>, A> SemigroupK<OptionT<M>>.Combine<A>(K<OptionT<M>, A> lhs, K<OptionT<M>, A> rhs) =>
+        lhs.Choose(rhs);
 
     static K<OptionT<M>, A> Fallible<Unit, OptionT<M>>.Fail<A>(Unit error) =>
         None<A>();

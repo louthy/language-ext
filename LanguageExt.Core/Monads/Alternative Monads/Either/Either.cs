@@ -706,6 +706,9 @@ public abstract record Either<L, R> :
         where EqL : Eq<L> 
         where EqR : Eq<R>;
 
+    [Pure]
+    public abstract override int GetHashCode();
+
     /// <summary>
     /// Equality override
     /// </summary>

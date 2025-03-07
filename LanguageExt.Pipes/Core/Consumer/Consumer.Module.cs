@@ -139,7 +139,7 @@ public static class Consumer
         PipeT.repeat(schedule, ma.Proxy).ToConsumer();
 
     /// <summary>
-    /// Continually lift & repeat the provided operation
+    /// Continually lift and repeat the provided operation
     /// </summary>
     /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="IN">Stream value to consume</typeparam>

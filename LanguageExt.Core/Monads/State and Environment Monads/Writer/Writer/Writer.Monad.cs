@@ -47,4 +47,7 @@ public partial class Writer<W> :
 
     static K<Writer<W>, A> Choice<Writer<W>>.Choose<A>(K<Writer<W>, A> fa, K<Writer<W>, A> fb) =>
         fa;
+    
+    static K<Writer<W>, A> SemigroupK<Writer<W>>.Combine<A>(K<Writer<W>, A> lhs, K<Writer<W>, A> rhs) =>
+        lhs.Choose(rhs);
 }

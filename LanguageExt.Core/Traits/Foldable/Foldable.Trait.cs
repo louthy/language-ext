@@ -220,7 +220,7 @@ public interface Foldable<out T> where T : Foldable<T>
     /// <remarks>
     /// Note that to produce the outermost application of the operator the
     /// entire input list must be traversed.  Like all left-associative folds,
-    /// `FoldBack' will diverge if given an infinite list.
+    /// `FoldBack` will diverge if given an infinite list.
     /// </remarks>
     public static virtual S FoldBack<A, S>(Func<S, Func<A, S>> f, S initialState, K<T, A> ta) =>
         T.FoldBackWhile(f, _ => true, initialState, ta);
@@ -238,7 +238,7 @@ public interface Foldable<out T> where T : Foldable<T>
     /// <remarks>
     /// Note that to produce the outermost application of the operator the
     /// entire input list must be traversed.  Like all left-associative folds,
-    /// `FoldBack' will diverge if given an infinite list.
+    /// `FoldBack` will diverge if given an infinite list.
     /// </remarks>
     public static virtual K<M, S> FoldBackM<A, M, S>(
         Func<S, Func<A, K<M, S>>> f, 
@@ -421,13 +421,13 @@ public interface Foldable<out T> where T : Foldable<T>
         T.FoldBackWhile(s => a => predicate(a) ? Some(a) : s, s => s.State.IsNone, Option<A>.None, ta);
 
     /// <summary>
-    /// Find the the elements that match the predicate
+    /// Find the elements that match the predicate
     /// </summary>
     public static virtual Seq<A> FindAll<A>(Func<A, bool> predicate, K<T, A> ta) =>
         T.Fold(a => s => predicate(a) ? s.Add(a) : s, Seq<A>.Empty, ta);
 
     /// <summary>
-    /// Find the the elements that match the predicate
+    /// Find the elements that match the predicate
     /// </summary>
     public static virtual Seq<A> FindAllBack<A>(Func<A, bool> predicate, K<T, A> ta) =>
         T.FoldBack(s => a => predicate(a) ? s.Add(a) : s, Seq<A>.Empty, ta);

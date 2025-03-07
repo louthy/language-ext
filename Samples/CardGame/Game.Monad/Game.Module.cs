@@ -4,11 +4,14 @@ namespace CardGame;
 
 public partial class Game
 {
+    public static Game<A> Pure<A>(A value) =>
+        Game<A>.Pure(value);
+    
     /// <summary>
     /// Cached unit returning Game monad
     /// </summary>
     public static readonly Game<Unit> unitM = 
-        Pure(unit).As();
+        Game<Unit>.Pure(unit);
 
     /// <summary>
     /// Use this to cancel the game
@@ -124,21 +127,14 @@ public partial class Game
     /// <summary>
     /// Lift an option into the Game - None will cancel the game
     /// </summary>
-    public static Game<A> lift<A>(Option<A> ma) => 
-        new (StateT<GameState>.lift(OptionT<IO>.lift(ma)));
+    public static Game<A> lift<A>(Option<A> ma) =>
+        Game<A>.Lift(ma);
     
     /// <summary>
     /// Lift an IO operation into the Game
     /// </summary>
     public static Game<A> liftIO<A>(IO<A> ma) => 
-        new (StateT.liftIO<GameState, OptionT<IO>, A>(ma));
-    
-    /// <summary>
-    /// Represents a None state in the embedded OptionT transformer
-    /// </summary>
-    /// <remarks>Use this to cancel a Game computation</remarks>
-    public static Game<A> lift<A>(StateT<GameState, OptionT<IO>, A> ma) => 
-        new (ma);
+        Game<A>.LiftIO(ma);
 
     /// <summary>
     /// Map the game state to a new value

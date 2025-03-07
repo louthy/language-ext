@@ -52,7 +52,7 @@ namespace System.Threading.Tasks
             /// <remarks>
             /// Protected for reads and writes by a lock on <see cref="_ready"/>.
             /// </remarks>
-            private Action _onCompleted;
+            private Action? _onCompleted;
 
             /// <summary>
             /// Creates a when any task around the specified tasks.
@@ -127,7 +127,7 @@ namespace System.Threading.Tasks
             /// <param name="index">The index of the completed task in <see cref="_tasks"/>.</param>
             private void OnReady(int index)
             {
-                Action onCompleted = null;
+                Action? onCompleted = null;
 
                 lock (_ready)
                 {
