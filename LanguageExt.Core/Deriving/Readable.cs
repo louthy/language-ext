@@ -13,8 +13,8 @@ public static partial class Deriving
     /// <typeparam name="Subtype">The subtype that the supertype type 'wraps'</typeparam>
     public interface Readable<Supertype, Env, Subtype> : 
         Readable<Supertype, Env>,
-        Natural<Supertype, Subtype>,
-        CoNatural<Supertype, Subtype>
+        Traits.Natural<Supertype, Subtype>,
+        Traits.CoNatural<Supertype, Subtype>
         where Supertype : Readable<Supertype, Env, Subtype>, Readable<Supertype, Env>
         where Subtype : Readable<Subtype, Env>
     {

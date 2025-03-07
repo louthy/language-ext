@@ -9,8 +9,8 @@ public static partial class Deriving
     /// </summary>
     public interface Final<Supertype, Subtype> : 
         Final<Supertype>,
-        Natural<Supertype, Subtype>,
-        CoNatural<Supertype, Subtype>
+        Traits.Natural<Supertype, Subtype>,
+        Traits.CoNatural<Supertype, Subtype>
         where Supertype : Final<Supertype>, Final<Supertype, Subtype>
         where Subtype : Final<Subtype>
     {

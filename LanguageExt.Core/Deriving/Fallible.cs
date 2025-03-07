@@ -14,8 +14,8 @@ public static partial class Deriving
         where Supertype :
             Fallible<E, Supertype, Subtype>, 
             Traits.Fallible<E, Supertype>,
-            Natural<Supertype, Subtype>,
-            CoNatural<Supertype, Subtype>
+            Traits.Natural<Supertype, Subtype>,
+            Traits.CoNatural<Supertype, Subtype>
         where Subtype : Traits.Fallible<E, Subtype>
     {
         /// <summary>
@@ -52,7 +52,7 @@ public static partial class Deriving
         Fallible<Error, Supertype, Subtype> 
         where Supertype : 
             Fallible<Error, Supertype, Subtype>, 
-            Natural<Supertype, Subtype>, 
-            CoNatural<Supertype, Subtype>
+            Traits.Natural<Supertype, Subtype>, 
+            Traits.CoNatural<Supertype, Subtype>
         where Subtype : Traits.Fallible<Error, Subtype>;
 }

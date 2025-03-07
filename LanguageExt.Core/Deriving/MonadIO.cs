@@ -13,8 +13,8 @@ public static partial class Deriving
     /// <typeparam name="Subtype">The subtype that the supertype type 'wraps'</typeparam>
     public interface MonadIO<Supertype, Subtype> :
         MonadIO<Supertype>,
-        Natural<Supertype, Subtype>,
-        CoNatural<Supertype, Subtype>
+        Traits.Natural<Supertype, Subtype>,
+        Traits.CoNatural<Supertype, Subtype>
         where Subtype : MonadIO<Subtype>, Monad<Subtype>
         where Supertype : MonadIO<Supertype, Subtype>, Monad<Supertype>
     {

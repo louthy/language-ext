@@ -12,8 +12,8 @@ public static partial class Deriving
     /// <typeparam name="Subtype">The subtype that the supertype type 'wraps'</typeparam>
     public interface Functor<Supertype, Subtype> : 
         Functor<Supertype>, 
-        Natural<Supertype, Subtype>,
-        CoNatural<Supertype, Subtype>
+        Traits.Natural<Supertype, Subtype>,
+        Traits.CoNatural<Supertype, Subtype>
         where Subtype : Functor<Subtype>
         where Supertype : Functor<Supertype, Subtype>
     {

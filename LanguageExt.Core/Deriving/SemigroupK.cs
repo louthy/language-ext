@@ -9,8 +9,8 @@ public static partial class Deriving
     /// </summary>
     public interface SemigroupK<Supertype, Subtype> :
         SemigroupK<Supertype>,
-        Natural<Supertype, Subtype>,
-        CoNatural<Supertype, Subtype>
+        Traits.Natural<Supertype, Subtype>,
+        Traits.CoNatural<Supertype, Subtype>
         where Supertype : SemigroupK<Supertype, Subtype>
         where Subtype : SemigroupK<Subtype>
     {

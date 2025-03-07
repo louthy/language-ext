@@ -7,8 +7,8 @@ public static partial class Deriving
 {
     public interface Stateful<Supertype, Subtype, S> :
         Stateful<Supertype, S>,
-        Natural<Supertype, Subtype>,
-        CoNatural<Supertype, Subtype>
+        Traits.Natural<Supertype, Subtype>,
+        Traits.CoNatural<Supertype, Subtype>
         where Supertype : Stateful<Supertype, Subtype, S>, Stateful<Supertype, S>
         where Subtype : Stateful<Subtype, S>
     {
