@@ -46,7 +46,7 @@ public static class StreamTExtensions
         {
             if (st.ReadyToRead(env.Token).GetAwaiter().GetResult())
             {
-                var ma = st.Read().Run(env);
+                var ma = st.ReadValue(env.Token).GetAwaiter().GetResult();
                 yield return ma;
             }
             else
@@ -64,7 +64,7 @@ public static class StreamTExtensions
         {
             if (await st.ReadyToRead(env.Token))
             {
-                var ma = await st.Read().RunAsync(env);
+                var ma = await st.ReadValue(env.Token);
                 yield return ma;
             }
             else

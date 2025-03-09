@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Xunit;
 using LanguageExt.Common;
 using LanguageExt.Pipes.Concurrent;
@@ -28,7 +27,7 @@ public class SourceTests
         var iter   = source.GetIterator();
 
         // Act and Assert
-        iter.CheckReadyAndRead().AssertSucc(42);
+        iter.Read().AssertSucc(42);
         AssertExt.SourceIsClosed(iter);
     }
 
@@ -40,7 +39,7 @@ public class SourceTests
         var iter   = source.GetIterator();
 
         // Act and Assert
-        iter.CheckReadyAndRead().AssertSucc(84);
+        iter.Read().AssertSucc(84);
     }
 
     [Fact]
@@ -51,7 +50,7 @@ public class SourceTests
         var iter   = source.GetIterator();
 
         // Act and Assert
-        AssertExt.Throws(Errors.SourceClosed, () => iter.CheckReadyAndRead().Run());
+        AssertExt.Throws(Errors.SourceClosed, () => iter.Read().Run());
     }
 
     [Fact]
@@ -66,10 +65,10 @@ public class SourceTests
         var iter    = merged.GetIterator();
         var results = new List<int>();
 
-        var x1 = iter.CheckReadyAndRead().Run();
+        var x1 = iter.Read().Run();
         results.Add(x1);
 
-        var x2 = iter.CheckReadyAndRead().Run();
+        var x2 = iter.Read().Run();
         results.Add(x2);
 
         // Assert

@@ -257,7 +257,7 @@ public abstract record Source<A> :
     public ProducerT<A, M, Unit> ToProducerT<M>()
         where M : Monad<M> =>
         PipeT.lift<Unit, A, M, SourceIterator<A>>(GetIterator)
-             .Bind(iter => PipeT.yieldRepeatIO<M, Unit, A>(iter.CheckReadyAndRead()));
+             .Bind(iter => PipeT.yieldRepeatIO<M, Unit, A>(iter.Read()));
 
     /// <summary>
     /// Convert `Source` to a `Producer` pipe component
