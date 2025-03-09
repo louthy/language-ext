@@ -28,7 +28,7 @@ public class SourceTests
         var iter   = source.GetIterator();
 
         // Act and Assert
-        iter.Read().AssertSucc(42);
+        iter.CheckReadyAndRead().AssertSucc(42);
         AssertExt.SourceIsClosed(iter);
     }
 
@@ -40,7 +40,7 @@ public class SourceTests
         var iter   = source.GetIterator();
 
         // Act and Assert
-        iter.Read().AssertSucc(84);
+        iter.CheckReadyAndRead().AssertSucc(84);
     }
 
     [Fact]
@@ -51,7 +51,7 @@ public class SourceTests
         var iter   = source.GetIterator();
 
         // Act and Assert
-        AssertExt.Throws(Errors.SourceClosed, () => iter.Read().Run());
+        AssertExt.Throws(Errors.SourceClosed, () => iter.CheckReadyAndRead().Run());
     }
 
     [Fact]
@@ -66,10 +66,10 @@ public class SourceTests
         var iter    = merged.GetIterator();
         var results = new List<int>();
 
-        var x1 = iter.Read().Run();
+        var x1 = iter.CheckReadyAndRead().Run();
         results.Add(x1);
 
-        var x2 = iter.Read().Run();
+        var x2 = iter.CheckReadyAndRead().Run();
         results.Add(x2);
 
         // Assert
@@ -87,7 +87,7 @@ public class SourceTests
 
         // Act
         var zipped = source1.Zip(source2);
-        var result = await zipped.Read().Run();
+        var result = await zipped.CheckReadyAndRead().Run();
 
         // Assert
         Assert.True(result.IsSome);
@@ -106,7 +106,7 @@ public class SourceTests
 
         // Act
         var transformed = source.Select(x => x.ToString());
-        var result = await transformed.Read().Run();
+        var result = await transformed.CheckReadyAndRead().Run();
 
         // Assert
         Assert.True(result.IsSome);
@@ -120,7 +120,7 @@ public class SourceTests
         var source = Source.pure(42);
 
         // Act
-        var ready = await source.ReadyToRead(CancellationToken.None);
+        var ready = await source.CheckReadyAndReadyToRead(CancellationToken.None);
 
         // Assert
         Assert.True(ready);
@@ -133,7 +133,7 @@ public class SourceTests
         var source = Source.pure(42);
 
         // Act
-        var value = await source.ReadValue(CancellationToken.None);
+        var value = await source.CheckReadyAndReadValue(CancellationToken.None);
 
         // Assert
         Assert.Equal(42, value);

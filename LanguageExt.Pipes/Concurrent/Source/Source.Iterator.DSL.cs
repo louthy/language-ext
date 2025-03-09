@@ -12,7 +12,7 @@ public abstract record SourceIterator<A>
     public IO<A> Read() => 
         IO.liftVAsync(e => ReadValue(e.Token));
 
-    internal IO<A> ReadyRead() =>
+    internal IO<A> CheckReadyAndRead() =>
         IO.liftVAsync(
             async e =>
             {
