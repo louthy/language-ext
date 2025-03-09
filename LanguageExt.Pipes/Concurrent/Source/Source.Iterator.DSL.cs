@@ -84,7 +84,7 @@ record EmptySourceIterator<A> : SourceIterator<A>
         new(false);
 }
 
-record ReaderSourceIterator<A>(ChannelReader<A> Reader, string Label) : SourceIterator<A>
+record ReaderSourceIterator<A>(ChannelReader<A> Reader) : SourceIterator<A>
 {
     internal override ValueTask<A> ReadValue(CancellationToken token)
     {

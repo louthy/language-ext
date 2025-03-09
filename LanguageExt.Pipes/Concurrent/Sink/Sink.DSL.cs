@@ -5,7 +5,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Pipes.Concurrent;
 
-record SinkWriter<A>(ChannelWriter<A> Writer, string Label) : Sink<A>
+record SinkWriter<A>(ChannelWriter<A> Writer) : Sink<A>
 {
     public override Sink<B> Contramap<B>(Func<B, A> f) => 
         new SinkContraMap<A, B>(f, this);

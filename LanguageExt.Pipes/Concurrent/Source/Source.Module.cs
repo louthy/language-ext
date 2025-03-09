@@ -29,7 +29,7 @@ public partial class Source
         new PureSource<A>(value);
     
     /// <summary>
-    /// Lift a pure value into the source
+    /// Lift a pure value into the source and yield it for infinity
     /// </summary>
     /// <remarks>
     /// This is an infinite source, it repeatedly yields a value. 
@@ -47,8 +47,8 @@ public partial class Source
     /// <param name="label">Label to help debugging</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
-    public static Source<A> lift<A>(Channel<A> channel, string label = "[unlabelled]") =>
-        new ReaderSource<A>(channel, label);
+    public static Source<A> lift<A>(Channel<A> channel) =>
+        new ReaderSource<A>(channel);
 
     /// <summary>
     /// Make an `IEnumerable` into a source of values

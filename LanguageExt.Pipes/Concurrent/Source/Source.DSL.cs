@@ -60,10 +60,10 @@ record EmptySource<A> : Source<A>
         Reduced.DoneAsync(state);
 }
 
-record ReaderSource<A>(Channel<A> Channel, string Label) : Source<A>
+record ReaderSource<A>(Channel<A> Channel) : Source<A>
 {
     internal override SourceIterator<A> GetIterator() =>
-        new ReaderSourceIterator<A>(Channel, Label);
+        new ReaderSourceIterator<A>(Channel);
     
     internal override ValueTask<Reduced<S>> ReduceAsync<S>(S state, Reducer<A, S> reducer, CancellationToken token)
     {

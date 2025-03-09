@@ -29,8 +29,8 @@ public static class QueueExample<RT>
     public static Eff<RT, Unit> main()
     {
         // Create two queues.  Queues are Producers that have an Enqueue function
-        var queue1 = Conduit.spawn<string>("Conduit-1");
-        var queue2 = Conduit.spawn<string>("Conduit-2");
+        var queue1 = Conduit.spawn<string>();
+        var queue2 = Conduit.spawn<string>();
 
         // Compose the queues with a pipe that prepends some text to what they produce
         var queues = Seq(queue1.ToProducer<RT>() | prepend("Queue 1: "), 

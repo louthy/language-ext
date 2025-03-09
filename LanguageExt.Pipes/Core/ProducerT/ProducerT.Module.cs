@@ -355,7 +355,7 @@ public static class ProducerT
     {
         if (producers.Count == 0) return pure<OUT, M, Unit>(default);
 
-        return from Conduit in Pure(Conduit.spawn(settings ?? Buffer<OUT>.Unbounded, "merge"))
+        return from Conduit in Pure(Conduit.spawn(settings ?? Buffer<OUT>.Unbounded))
                from forks   in forkEffects(producers, Conduit)
                from _       in Conduit.ToProducerT<M>()
                from x       in forks.Traverse(f => f.Cancel).As()
