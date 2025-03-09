@@ -11,7 +11,15 @@ public abstract record SourceIterator<A>
 {
     public IO<A> Read() => 
         IO.liftVAsync(e => ReadValue(e.Token));
-    
+
+    internal IO<A> ReadyRead() =>
+        IO.liftVAsync(
+            async e =>
+            {
+                if (!await ReadyToRead(e.Token)) throw Errors.SourceClosed;
+                return await ReadValue(e.Token);
+            });
+
     internal abstract ValueTask<A> ReadValue(CancellationToken token);
     internal abstract ValueTask<bool> ReadyToRead(CancellationToken token);
 }

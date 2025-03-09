@@ -27,13 +27,25 @@ public abstract record Source<A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Reduced state</returns>
     public IO<S> Reduce<S>(S state, Reducer<A, S> reducer) =>
-        IO.liftVAsync(e =>
+        IO.liftVAsync(async e =>
                       {
-                          var result = ReduceAsync(state, reducer, e.Token);
-                          if(result.IsCompleted) return new ValueTask<S>(result.Result.Value);
-                          return result.Map(static r => r.Value);
+                          var iter = GetIterator();
+                          while (await iter.ReadyToRead(e.Token))
+                          {
+                              if(e.Token.IsCancellationRequested) throw new TaskCanceledException();
+                              var value = await iter.ReadValue(e.Token);
+                              switch (await reducer(state, value))
+                              {
+                                  case { Continue: true, Value: var nstate }:
+                                      state = nstate;
+                                      break;
+                                  
+                                  case { Value: var nstate }:
+                                      return nstate;
+                              }
+                          }
+                          return state;
                       });
-    
 
     /// <summary>
     /// Transform with a transducer
@@ -245,7 +257,7 @@ public abstract record Source<A> :
     public ProducerT<A, M, Unit> ToProducerT<M>()
         where M : Monad<M> =>
         PipeT.lift<Unit, A, M, SourceIterator<A>>(GetIterator)
-             .Bind(iter => PipeT.yieldRepeatIO<M, Unit, A>(iter.Read()));
+             .Bind(iter => PipeT.yieldRepeatIO<M, Unit, A>(iter.ReadyRead()));
 
     /// <summary>
     /// Convert `Source` to a `Producer` pipe component
