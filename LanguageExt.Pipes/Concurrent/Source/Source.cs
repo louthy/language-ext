@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes.Concurrent;
@@ -18,26 +20,35 @@ public abstract record Source<A> :
         EmptySource<A>.Default;
 
     /// <summary>
-    /// Get an iterator of source values
-    /// </summary>
-    /// <returns>Source iterator</returns>
-    public abstract SourceIterator<A> GetIterator();
-
-    /// <summary>
     /// Reduce the stream to a single value
     /// </summary>
-    /// <param name="ma"></param>
-    /// <param name="initial"></param>
-    /// <param name="reducer"></param>
-    /// <typeparam name="S"></typeparam>
-    /// <returns></returns>
-    public abstract S Reduce<S>(K<Source, A> ma, S initial, Reducer<S, A> reducer);
+    /// <param name="state">State to reduce</param>
+    /// <param name="reducer">Reducer</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Reduced state</returns>
+    public IO<S> Reduce<S>(S state, Reducer<A, S> reducer) =>
+        IO.liftVAsync(e =>
+                      {
+                          var result = ReduceAsync(state, reducer, e.Token);
+                          if(result.IsCompleted) return new ValueTask<S>(result.Result.Value);
+                          return result.Map(static r => r.Value);
+                      });
+    
+
+    /// <summary>
+    /// Transform with a transducer
+    /// </summary>
+    /// <param name="transducer">Transducer to use to transform</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>Transformed source</returns>
+    public Source<B> Transform<B>(Transducer<A, B> transducer) =>
+        new TransformSource<A,B>(this, transducer);
     
     /// <summary>
     /// Functor map
     /// </summary>
     public virtual Source<B> Map<B>(Func<A, B> f) =>
-        new TransformSource<A, B>(this, Transducer.map(f));
+        Transform(Transducer.map(f));
     
     /// <summary>
     /// Monad bind
@@ -57,7 +68,7 @@ public abstract record Source<A> :
     /// <param name="f">Filter function</param>
     /// <returns>Source where the only values yield are those that pass the predicate</returns>
     public Source<A> Where(Func<A, bool> f) =>
-        new TransformSource<A, A>(this, Transducer.filter(f));
+        Transform(Transducer.filter(f));
     
     /// <summary>
     /// Filter values.  Yielding downstream when `true`
@@ -65,13 +76,13 @@ public abstract record Source<A> :
     /// <param name="f">Filter function</param>
     /// <returns>Source where the only values yield are those that pass the predicate</returns>
     public Source<A> Filter(Func<A, bool> f) =>
-        new TransformSource<A, A>(this, Transducer.filter(f));
+        Transform(Transducer.filter(f));
     
     /// <summary>
     /// Applicative apply
     /// </summary>
     public virtual Source<B> ApplyBack<B>(Source<Func<A, B>> ff) =>
-        new ApplySource<A, B>(this, ff);
+        new ApplySource<A, B>(ff, this);
 
     /// <summary>
     /// Combine two sources into a single source.  The value streams are both
@@ -98,7 +109,7 @@ public abstract record Source<A> :
     /// <returns>Value from this `Source` if there are any available, if not, from `rhs`.  If
     /// `rhs` is also empty then `Errors.SourceClosed` is raised</returns>
     public Source<A> Choose(Source<A> rhs) =>
-        new SourceChoose<A>(this, rhs);
+        new ChooseSource<A>(this, rhs);
 
     /// <summary>
     /// Zip two sources into one
@@ -131,6 +142,22 @@ public abstract record Source<A> :
         new Zip4Source<A, B, C, D>(this, second, third, fourth);
 
     /// <summary>
+    /// Skip items in the source
+    /// </summary>
+    /// <param name="amount">Amount to skip</param>
+    /// <returns>Transformed source</returns>
+    public Source<A> Skip(int amount) =>
+        Transform(Transducer.skip<A>(amount)); 
+
+    /// <summary>
+    /// Limit the number of items processed 
+    /// </summary>
+    /// <param name="amount">Amount to take</param>
+    /// <returns>Transformed source</returns>
+    public Source<A> Take(int amount) =>
+        Transform(Transducer.take<A>(amount)); 
+
+    /// <summary>
     /// Fold the values flowing through.  A value is only yielded downstream upon completion of the stream.
     /// </summary>
     /// <param name="Fold">Binary operator</param>
@@ -138,7 +165,7 @@ public abstract record Source<A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate state</returns>
     public Source<S> Fold<S>(Func<S, A, S> Fold, S Init) =>
-        new FoldWhileSource<S, A>(Schedule.Forever, Fold, _ => true, Init, this);
+        Transform(Transducer.foldWhile(Fold, _ => true, Init));
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the schedule expires, or the
@@ -150,7 +177,7 @@ public abstract record Source<A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate states</returns>
     public Source<S> Fold<S>(Schedule Time, Func<S, A, S> Fold, S Init) =>
-        new FoldWhileSource<S, A>(Time, Fold, _ => true, Init, this);
+        Transform(Transducer.foldWhile(Time, Fold, _ => true, Init));
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the predicate returns
@@ -162,7 +189,7 @@ public abstract record Source<A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate states</returns>
     public Source<S> FoldWhile<S>(Func<S, A, S> Fold, Func<(S State, A Value), bool> Pred, S Init) =>
-        new FoldWhileSource<S, A>(Schedule.Forever, Fold, Pred, Init, this);
+        Transform(Transducer.foldWhile(Fold, Pred, Init));
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the predicate returns
@@ -174,7 +201,7 @@ public abstract record Source<A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate states</returns>
     public Source<S> FoldUntil<S>(Func<S, A, S> Fold, Func<(S State, A Value), bool> Pred, S Init) =>
-        new FoldUntilSource<S, A>(Schedule.Forever, Fold, Pred, Init, this);
+        Transform(Transducer.foldUntil(Fold, Pred, Init));
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the schedule expires, the
@@ -191,7 +218,7 @@ public abstract record Source<A> :
         Func<S, A, S> Fold, 
         Func<(S State, A Value), bool> Pred, 
         S Init) =>
-        new FoldWhileSource<S, A>(Time, Fold, Pred, Init, this);
+        Transform(Transducer.foldWhile(Time, Fold, Pred, Init));
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the schedule expires, the
@@ -208,7 +235,7 @@ public abstract record Source<A> :
         Func<S, A, S> Fold, 
         Func<(S State, A Value), bool> Pred, 
         S Init) =>
-        new FoldUntilSource<S, A>(Time, Fold, Pred, Init, this);
+        Transform(Transducer.foldUntil(Time, Fold, Pred, Init));
 
     /// <summary>
     /// Convert `Source` to a `ProducerT` pipe component
@@ -258,4 +285,12 @@ public abstract record Source<A> :
     /// </summary>
     public Source<C> SelectMany<B, C>(Func<A, Source<B>> bind, Func<A, B, C> project) =>
         Bind(a => bind(a).Map(b => project(a, b)));
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Internal
+    //
+    
+    internal abstract ValueTask<Reduced<S>> ReduceAsync<S>(S state, Reducer<A, S> reducer, CancellationToken token);
+    internal abstract SourceIterator<A> GetIterator();
 }

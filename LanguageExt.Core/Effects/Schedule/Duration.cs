@@ -30,6 +30,12 @@ public readonly struct Duration :
     /// </summary>
     public static Duration Zero =
         new(0);
+    
+    /// <summary>
+    /// Return true if the time duration is zero
+    /// </summary>
+    public bool IsZero =>
+        Milliseconds < 0.00000000001;
 
     /// <summary>
     /// Random duration between the provided min and max durations. 

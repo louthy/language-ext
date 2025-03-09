@@ -19,34 +19,31 @@ public abstract record SourceIterator<A>
 record TransformSourceIterator<A, B>(SourceIterator<A> Source, Transducer<A, B> Transducer) 
     : SourceIterator<B>
 {
-    internal override ValueTask<B> ReadValue(CancellationToken token)
-    {
-        var tvalue = Source.ReadValue(token);
-        if (tvalue.IsCompleted)
-        {
-            var b = Transducer.Reduce<Option<B>>(reduce)(None, tvalue.Result);
-            return b.IsNone
-                       ? ValueTask.FromException<B>(Errors.SourceClosed)
-                       : new ValueTask<B>((B)b);
-        }
-        else
-        {
-            return ReadValueAsync(tvalue);
-        }
-        
-        static Option<B> reduce(Option<B> _, B x) => x;
-    }
-    
-    async ValueTask<B> ReadValueAsync(ValueTask<A> tvalue)
-    {
-        var a = await tvalue; 
-        var b = Transducer.Reduce<Option<B>>(reduce)(None, a);
-        return b.IsNone ? throw Errors.SourceClosed : (B)b;
-        static Option<B> reduce(Option<B> _, B x) => x;
-    }
+    SourceIterator<A>? src;
+    B? Value;
 
-    internal override ValueTask<bool> ReadyToRead(CancellationToken token) => 
-        Source.ReadyToRead(token);
+    internal override ValueTask<B> ReadValue(CancellationToken token) => 
+        Value is null
+            ? ValueTask.FromException<B>(Errors.SourceClosed)
+            : new(Value);
+
+    internal override async ValueTask<bool> ReadyToRead(CancellationToken token)
+    {
+        src = src ?? Source;
+        while (true)
+        {
+            if (!await src.ReadyToRead(token)) return false;
+            var value  = await Source.ReadValue(token);
+            var result = await Transducer.Reduce<Option<B>>(reduce)(None, value);
+            if (!result.Continue) src = EmptySourceIterator<A>.Default;
+            if (result.Value.IsNone) continue;
+            Value = (B)result.Value;
+            return true;
+        }
+
+        static ValueTask<Reduced<Option<B>>> reduce(Option<B> _, B x) => 
+            Reduced.ContinueAsync(Optional(x));
+    }
 }
 
 record SingletonSourceIterator<A>(A Value) : SourceIterator<A>
@@ -60,6 +57,15 @@ record SingletonSourceIterator<A>(A Value) : SourceIterator<A>
 
     internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
         new(read == 0);
+}
+
+record ForeverSourceIterator<A>(A Value) : SourceIterator<A>
+{
+    internal override ValueTask<A> ReadValue(CancellationToken token) =>
+        new (Value);
+
+    internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
+        new(true);
 }
 
 record EmptySourceIterator<A> : SourceIterator<A>
@@ -110,27 +116,12 @@ record ReaderSourceIterator<A>(ChannelReader<A> Reader, string Label) : SourceIt
         Reader.WaitToReadAsync(token);
 }
 
-/*
-record MapSourceIterator<A, B>(SourceIterator<A> Source, Func<A, B> F) : SourceIterator<B>
+record ApplySourceIterator<A, B>(SourceIterator<Func<A, B>> FF, SourceIterator<A> FA) : SourceIterator<B>
 {
     internal override ValueTask<B> ReadValue(CancellationToken token)
     {
         if(token.IsCancellationRequested) return ValueTask.FromException<B>(Errors.Cancelled);
-        var ts = Source.ReadValue(token);
-        if(ts.IsCompleted) return new (F(ts.Result));
-        return ts.Map(F);
-    }
-    
-    internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
-        Source.ReadyToRead(token);
-}
-
-record ApplySourceIterator<A, B>(SourceIterator<A> Source, SourceIterator<Func<A, B>> FF) : SourceIterator<B>
-{
-    internal override ValueTask<B> ReadValue(CancellationToken token)
-    {
-        if(token.IsCancellationRequested) return ValueTask.FromException<B>(Errors.Cancelled);
-        var ta = Source.ReadValue(token);
+        var ta = FA.ReadValue(token);
         var tf = FF.ReadValue(token);
         if(ta.IsCompleted && tf.IsCompleted) return new (tf.Result(ta.Result));
         return ReadValue(tf.AsTask(), ta.AsTask());
@@ -142,31 +133,63 @@ record ApplySourceIterator<A, B>(SourceIterator<A> Source, SourceIterator<Func<A
         return tf.Result(ta.Result);
     }
 
-    internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
-        Source.ReadyToRead(token);
+    internal override async ValueTask<bool> ReadyToRead(CancellationToken token) =>
+        await FA.ReadyToRead(token) && await FF.ReadyToRead(token);
 }
 
 record BindSourceIterator<A, B>(SourceIterator<A> Source, Func<A, SourceIterator<B>> F) : SourceIterator<B>
 {
-    internal override ValueTask<B> ReadValue(CancellationToken token)
+    SourceIterator<B>? Current = null;
+    
+    internal override async ValueTask<B> ReadValue(CancellationToken token)
     {
-        if(token.IsCancellationRequested) return ValueTask.FromException<B>(Errors.Cancelled);
-        var ta = Source.ReadValue(token);
-        if (ta.IsCompleted)
+        if(token.IsCancellationRequested) Errors.Cancelled.Throw();
+        if (Current is null)
         {
-            var mb = F(ta.Result);
-            return mb.ReadValue(token);;
+            if (await ReadyToRead(token))
+            {
+                return await Current!.ReadValue(token);
+            }
+            else
+            {
+                throw new InvalidOperationException("Call `ReadyToRead` before `ReadValue`");
+            }
         }
-        return ReadValue(ta.AsTask(), token);
+        else
+        {
+            return await Current.ReadValue(token);
+        }
     }
 
-    async ValueTask<B> ReadValue(Task<A> ta, CancellationToken token) =>
-        await F(await ta).ReadValue(token);
-
-    internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
-        Source.ReadyToRead(token);
-}*/
-
+    internal override async ValueTask<bool> ReadyToRead(CancellationToken token)
+    {
+        if (Current is null)
+        {
+            while (true)
+            {
+                if (await Source.ReadyToRead(token))
+                {
+                    Current = F(await Source.ReadValue(token));
+                    if (await Current.ReadyToRead(token))
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    Current = null;
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            var res = await Current.ReadyToRead(token);
+            Current = res ? Current : null;
+            return res;
+        }
+    }
+}
 record CombineSourceIterator<A>(Seq<SourceIterator<A>> Sources) : SourceIterator<A>
 {
     internal override ValueTask<bool> ReadyToRead(CancellationToken token)
@@ -185,7 +208,7 @@ record CombineSourceIterator<A>(Seq<SourceIterator<A>> Sources) : SourceIterator
     }
 }
 
-record ChooseSource<A>(SourceIterator<A> Left, SourceIterator<A> Right) : SourceIterator<A>
+record ChooseSourceIterator<A>(SourceIterator<A> Left, SourceIterator<A> Right) : SourceIterator<A>
 {
     internal override ValueTask<A> ReadValue(CancellationToken token)
     {
@@ -201,7 +224,7 @@ record ChooseSource<A>(SourceIterator<A> Left, SourceIterator<A> Right) : Source
             return ReadValueAsync(tl.AsTask(), token);
         }
     }
-    
+
     async ValueTask<A> ReadValueAsync(Task<A> left, CancellationToken token)
     {
         try
@@ -218,17 +241,17 @@ record ChooseSource<A>(SourceIterator<A> Left, SourceIterator<A> Right) : Source
         SourceInternal.ReadyToRead([Left, Right], token);
 }
 
-record Zip2SourceIterator<A, B>(SourceIterator<A> SourceA, SourceIterator<B> SourceB) 
+record Zip2SourceIterator<A, B>(SourceIterator<A> SourceA, SourceIterator<B> SourceB)
     : SourceIterator<(A First, B Second)>
 {
     internal override ValueTask<bool> ReadyToRead(CancellationToken token)
     {
         var ta = SourceA.ReadyToRead(token);
         var tb = SourceB.ReadyToRead(token);
-        
-        if (ta.IsCompleted && tb.IsCompleted) 
+
+        if (ta.IsCompleted && tb.IsCompleted)
             return new(ta.Result && tb.Result);
-        
+
         return ReadyToReadAsync(ta.AsTask(), tb.AsTask());
     }
 
@@ -243,21 +266,21 @@ record Zip2SourceIterator<A, B>(SourceIterator<A> SourceA, SourceIterator<B> Sou
         if(token.IsCancellationRequested) return ValueTask.FromException<(A First, B Second)>(Errors.Cancelled);
         var ta = SourceA.ReadValue(token);
         var tb = SourceB.ReadValue(token);
-        
-        if (ta.IsCompleted && tb.IsCompleted) 
+
+        if (ta.IsCompleted && tb.IsCompleted)
             return new ValueTask<(A First, B Second)>((ta.Result, tb.Result));
-        
+
         return ReadValueAsync(ta.AsTask(), tb.AsTask());
     }
-    
+
     async ValueTask<(A First, B Second)> ReadValueAsync(Task<A> ta, Task<B> tb)
     {
         await Task.WhenAll(ta, tb);
         return (ta.Result, tb.Result);
-    }   
+    }
 }
 
-record Zip3SourceIterator<A, B, C>(SourceIterator<A> SourceA, SourceIterator<B> SourceB, SourceIterator<C> SourceC) : 
+record Zip3SourceIterator<A, B, C>(SourceIterator<A> SourceA, SourceIterator<B> SourceB, SourceIterator<C> SourceC) :
     SourceIterator<(A First, B Second, C Third)>
 {
     internal override ValueTask<bool> ReadyToRead(CancellationToken token)
@@ -265,10 +288,10 @@ record Zip3SourceIterator<A, B, C>(SourceIterator<A> SourceA, SourceIterator<B> 
         var ta = SourceA.ReadyToRead(token);
         var tb = SourceB.ReadyToRead(token);
         var tc = SourceC.ReadyToRead(token);
-        
-        if (ta.IsCompleted && tb.IsCompleted && tc.IsCompleted) 
+
+        if (ta.IsCompleted && tb.IsCompleted && tc.IsCompleted)
             return new(ta.Result && tb.Result && tc.Result);
-        
+
         return ReadyToReadAsync(ta.AsTask(), tb.AsTask(), tc.AsTask());
     }
 
@@ -284,13 +307,13 @@ record Zip3SourceIterator<A, B, C>(SourceIterator<A> SourceA, SourceIterator<B> 
         var ta = SourceA.ReadValue(token);
         var tb = SourceB.ReadValue(token);
         var tc = SourceC.ReadValue(token);
-        
-        if (ta.IsCompleted && tb.IsCompleted && tc.IsCompleted) 
+
+        if (ta.IsCompleted && tb.IsCompleted && tc.IsCompleted)
             return new ValueTask<(A First, B Second, C Third)>((ta.Result, tb.Result, tc.Result));
-        
+
         return ReadValueAsync(ta.AsTask(), tb.AsTask(), tc.AsTask());
     }
-    
+
     async ValueTask<(A First, B Second, C Third)> ReadValueAsync(Task<A> ta, Task<B> tb, Task<C> tc)
     {
         await Task.WhenAll(ta, tb, tc);
@@ -298,7 +321,7 @@ record Zip3SourceIterator<A, B, C>(SourceIterator<A> SourceA, SourceIterator<B> 
     }
 }
 
-record Zip4SourceIterator<A, B, C, D>(SourceIterator<A> SourceA, SourceIterator<B> SourceB, SourceIterator<C> SourceC, SourceIterator<D> SourceD) 
+record Zip4SourceIterator<A, B, C, D>(SourceIterator<A> SourceA, SourceIterator<B> SourceB, SourceIterator<C> SourceC, SourceIterator<D> SourceD)
     : SourceIterator<(A First, B Second, C Third, D Fourth)>
 {
     internal override ValueTask<bool> ReadyToRead(CancellationToken token)
@@ -307,10 +330,10 @@ record Zip4SourceIterator<A, B, C, D>(SourceIterator<A> SourceA, SourceIterator<
         var tb = SourceB.ReadyToRead(token);
         var tc = SourceC.ReadyToRead(token);
         var td = SourceD.ReadyToRead(token);
-        
-        if (ta.IsCompleted && tb.IsCompleted && tc.IsCompleted && td.IsCompleted) 
+
+        if (ta.IsCompleted && tb.IsCompleted && tc.IsCompleted && td.IsCompleted)
             return new(ta.Result && tb.Result && tc.Result && td.Result);
-        
+
         return ReadyToReadAsync(ta.AsTask(), tb.AsTask(), tc.AsTask(), td.AsTask());
     }
 
@@ -327,13 +350,13 @@ record Zip4SourceIterator<A, B, C, D>(SourceIterator<A> SourceA, SourceIterator<
         var tb = SourceB.ReadValue(token);
         var tc = SourceC.ReadValue(token);
         var td = SourceD.ReadValue(token);
-        
-        if (ta.IsCompleted && tb.IsCompleted && tc.IsCompleted && td.IsCompleted) 
+
+        if (ta.IsCompleted && tb.IsCompleted && tc.IsCompleted && td.IsCompleted)
             return new ValueTask<(A First, B Second, C Third, D Fourth)>((ta.Result, tb.Result, tc.Result, td.Result));
-        
+
         return ReadValueAsync(ta.AsTask(), tb.AsTask(), tc.AsTask(), td.AsTask());
     }
-    
+
     async ValueTask<(A First, B Second, C Third, D Fourth)> ReadValueAsync(Task<A> ta, Task<B> tb, Task<C> tc, Task<D> td)
     {
         await Task.WhenAll(ta, tb, tc, td);
@@ -353,7 +376,7 @@ record IteratorSyncSourceIterator<A> : SourceIterator<A>
         Src = state.Tail.Split();
         return new(state.Head);
     }
-    
+
     internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
         new (!Src.IsEmpty);
 }
@@ -373,144 +396,4 @@ record IteratorAsyncSourceIterator<A> : SourceIterator<A>
 
     internal override async ValueTask<bool> ReadyToRead(CancellationToken token) =>
         !await Src.IsEmpty;
-}
-
-record FoldWhileSourceIterator<S, A>(
-    Schedule Schedule, 
-    Func<S, A, S> Folder, 
-    Func<(S State, A Value), bool> Pred, 
-    S State, 
-    SourceIterator<A> Src)
-    : SourceIterator<S>
-{
-    internal override ValueTask<bool> ReadyToRead(CancellationToken token) => 
-        Src.ReadyToRead(token);
-
-    internal override async ValueTask<S> ReadValue(CancellationToken token)
-    {
-        var state = State;
-        var src   = Src;
-
-        // Run once before the schedule
-        if (!await ReadyToRead(token)) return state;
-        var value = await src.ReadValue(token);
-        if (!Pred((state, value))) return state;
-        state = Folder(state, value);
-
-        var sch = Schedule.Run();
-        foreach (var delay in sch)
-        {
-            if (!await ReadyToRead(token)) return state;
-            value = await src.ReadValue(token);
-            if (!Pred((state, value))) return state;
-            state = Folder(state, value);
-            await Task.Delay((TimeSpan)delay, token);
-        }
-        return state;
-    }
-}
-
-record FoldUntilSourceIterator<S, A>(
-    Schedule Schedule, 
-    Func<S, A, S> Folder, 
-    Func<(S State, A Value), bool> Pred, 
-    S State, 
-    SourceIterator<A> Src)
-    : SourceIterator<S>
-{
-    internal override ValueTask<bool> ReadyToRead(CancellationToken token) => 
-        Src.ReadyToRead(token);
-
-    internal override async ValueTask<S> ReadValue(CancellationToken token)
-    {
-        var state = State;
-        var src   = Src;
-        
-        if (!await ReadyToRead(token)) return state;
-        var value = await src.ReadValue(token);
-        state = Folder(state, value);
-        if (Pred((state, value))) return state;
-        
-        var sch   = Schedule.Run();
-        foreach (var delay in sch)
-        {
-            if (!await ReadyToRead(token)) return state;
-            value = await src.ReadValue(token);
-            state = Folder(state, value);
-            if (Pred((state, value))) return state;
-            await Task.Delay((TimeSpan)delay, token);
-        }
-        return state;
-    }
-}
-
-record FilterSourceIterator<A>(SourceIterator<A> Source, Func<A, bool> Pred) : SourceIterator<A>
-{
-    internal override ValueTask<A> ReadValue(CancellationToken token)
-    {
-        while (true)
-        {
-            var rtr = Source.ReadyToRead(token);
-            if (rtr.IsCompleted)
-            {
-                if (rtr.Result)
-                {
-                    var tv = Source.ReadValue(token);
-                    if (tv.IsCompleted)
-                    {
-                        if (Pred(tv.Result)) return new(tv.Result);
-                    }
-                    else
-                    {
-                        return ReadValueAsync(tv, token);
-                    }
-                }
-                else
-                {
-                    return ValueTask.FromException<A>(Errors.SourceClosed);   
-                }
-            }
-            else
-            {
-                return ReadValueAsync(rtr, token);
-            }
-        }
-    }
-
-    async ValueTask<A> ReadValueAsync(ValueTask<bool> initial, CancellationToken token)
-    {
-        var init = await initial;
-        if (init)
-        {
-            var value = await Source.ReadValue(token);
-            if (Pred(value)) return value;
-        }
-        else
-        {
-            throw Errors.SourceClosed;
-        }
-        while (await Source.ReadyToRead(token))
-        {
-            var value = await Source.ReadValue(token);
-            if (Pred(value)) return value;
-        }
-
-        throw Errors.SourceClosed;
-    }
-
-    async ValueTask<A> ReadValueAsync(ValueTask<A> initial, CancellationToken token)
-    {
-        var value = await initial;
-        if (Pred(value)) return value;
-        while (await Source.ReadyToRead(token))
-        {
-            value = await Source.ReadValue(token);
-            if (Pred(value)) return value;
-        }
-
-        throw Errors.SourceClosed;
-    }
-
-    internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
-        Source.ReadyToRead(token);
 }

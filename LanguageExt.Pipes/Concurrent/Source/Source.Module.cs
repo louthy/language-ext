@@ -6,21 +6,39 @@ namespace LanguageExt.Pipes.Concurrent;
 public partial class Source
 {
     /// <summary>
+    /// Empty source
+    /// </summary>
+    /// <remarks>
+    /// This is a 'void' source, it yields zero values. 
+    /// </remarks>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Uninhabited source</returns>
+    public static Source<A> empty<A>() =>
+        EmptySource<A>.Default;
+    
+    /// <summary>
     /// Lift a pure value into the source
     /// </summary>
+    /// <remarks>
+    /// This is a singleton/unit source, it yields exactly one value. 
+    /// </remarks>
     /// <param name="value">Value to lift</param>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Singleton source</returns>
     public static Source<A> pure<A>(A value) =>
         new PureSource<A>(value);
-
+    
     /// <summary>
-    /// Empty source
+    /// Lift a pure value into the source
     /// </summary>
+    /// <remarks>
+    /// This is an infinite source, it repeatedly yields a value. 
+    /// </remarks>
+    /// <param name="value">Value to lift</param>
     /// <typeparam name="A">Bound value type</typeparam>
-    /// <returns>Uninhabited source</returns>
-    public static Source<A> empty<A>() =>
-        EmptySource<A>.Default;
+    /// <returns>Infinite source</returns>
+    public static Source<A> forever<A>(A value) =>
+        new ForeverSource<A>(value);
 
     /// <summary>
     /// Make a `System.Threading.Channels.Channel` into a source of values
