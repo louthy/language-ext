@@ -10,7 +10,7 @@ namespace Streams;
 public static class Merging
 {
     public static IO<Unit> run =>
-        example(20).RunAsync().As() >>
+        example(20).Iter().As() >>
         emptyLine;
 
     static StreamT<IO, Unit> example(int n) =>

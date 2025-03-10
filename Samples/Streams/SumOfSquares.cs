@@ -20,7 +20,7 @@ public static class SumOfSquares
         from _ in writeLine("Enter a number to find the sum of squares")
         from s in readLine
         from n in parseInt<IO>(s) | IO.fail<int>("expected a number!")
-        from x in example(n).RunAsync()
+        from x in example(n).Iter()
         select unit;
 
     static StreamT<M, long> squares<M>(int n)

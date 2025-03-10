@@ -10,7 +10,7 @@ namespace Streams;
 public static class Folding
 {
     public static IO<Unit> run =>
-        example(100).RunAsync().As();
+        example(100).Iter().As();
 
     static StreamT<IO, int> naturals(int n) =>
         Range(0, n).AsStream<IO, int>();

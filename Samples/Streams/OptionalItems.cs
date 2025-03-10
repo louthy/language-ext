@@ -10,7 +10,7 @@ public static class OptionalItems
 {
     public static IO<Unit> run =>
         from _0 in Console.writeLine("starting")
-        from _1 in example(100).RunAsync().As()
+        from _1 in example(100).Iter()
         from _2 in Console.writeLine("done")
         select unit;
 

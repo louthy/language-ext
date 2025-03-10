@@ -82,7 +82,7 @@ public abstract record IO<A> :
 
     public abstract IO<B> Map<B>(Func<A, B> f);
 
-    public IO<B> ApplyBack<B>(K<IO, Func<A, B>> f) =>
+    public virtual IO<B> ApplyBack<B>(K<IO, Func<A, B>> f) =>
         new IOApply<A, B, B>(f, this, IO.pure);
     
     public IO<B> Map<B>(B value) =>
@@ -90,7 +90,7 @@ public abstract record IO<A> :
 
     public IO<A> MapFail(Func<Error, Error> f) => 
         this.Catch(f).As();
-
+    
     public IO<B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail) =>
         Map(Succ).Catch(Fail).As();
 
@@ -114,89 +114,89 @@ public abstract record IO<A> :
     //  Folding
     //
 
-    public IO<S> Fold<S>(
+    public virtual IO<S> Fold<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder) =>
         new IOFold<S, A, S>(this, schedule, initialState, folder, IO.pure);
 
-    public IO<S> Fold<S>(
+    public virtual IO<S> Fold<S>(
         S initialState,
         Func<S, A, S> folder) =>
         new IOFold<S, A, S>(this, Schedule.Forever, initialState, folder, IO.pure);
 
-    public IO<S> FoldWhile<S>(
+    public virtual IO<S> FoldWhile<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
         new IOFoldWhile<S, A, S>(this, schedule, initialState, folder, s => stateIs(s.State), IO.pure);
 
-    public IO<S> FoldWhile<S>(
+    public virtual IO<S> FoldWhile<S>(
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
         new IOFoldWhile<S, A, S>(this, Schedule.Forever, initialState, folder, s => stateIs(s.State), IO.pure);
     
-    public IO<S> FoldWhile<S>(
+    public virtual IO<S> FoldWhile<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
         new IOFoldWhile<S, A, S>(this, schedule, initialState, folder, s => valueIs(s.Value), IO.pure);
 
-    public IO<S> FoldWhile<S>(
+    public virtual IO<S> FoldWhile<S>(
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
         new IOFoldWhile<S, A, S>(this, Schedule.Forever, initialState, folder, s => valueIs(s.Value), IO.pure);
     
-    public IO<S> FoldWhile<S>(
+    public virtual IO<S> FoldWhile<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
         new IOFoldWhile<S, A, S>(this, schedule, initialState, folder, predicate, IO.pure);
 
-    public IO<S> FoldWhile<S>(
+    public virtual IO<S> FoldWhile<S>(
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
         new IOFoldWhile<S, A, S>(this, Schedule.Forever, initialState, folder, predicate, IO.pure);
 
-    public IO<S> FoldUntil<S>(
+    public virtual IO<S> FoldUntil<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
         new IOFoldUntil<S, A, S>(this, schedule, initialState, folder, p => stateIs(p.State), IO.pure);
     
-    public IO<S> FoldUntil<S>(
+    public virtual IO<S> FoldUntil<S>(
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
         new IOFoldUntil<S, A, S>(this, Schedule.Forever, initialState, folder, p => stateIs(p.State), IO.pure);
     
-    public IO<S> FoldUntil<S>(
+    public virtual IO<S> FoldUntil<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
         new IOFoldUntil<S, A, S>(this, schedule, initialState, folder, p => valueIs(p.Value), IO.pure);
     
-    public IO<S> FoldUntil<S>(
+    public virtual IO<S> FoldUntil<S>(
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
         new IOFoldUntil<S, A, S>(this, Schedule.Forever, initialState, folder, p => valueIs(p.Value), IO.pure);
     
-    public IO<S> FoldUntil<S>(
+    public virtual IO<S> FoldUntil<S>(
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
         new IOFoldUntil<S, A, S>(this, Schedule.Forever, initialState, folder, predicate, IO.pure);
 
-    public IO<S> FoldUntil<S>(
+    public virtual IO<S> FoldUntil<S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
@@ -213,7 +213,7 @@ public abstract record IO<A> :
     /// of the IO chain (i.e. the one embedded within the `EnvIO` environment that is passed through
     /// all IO computations)
     /// </summary>
-    public IO<A> Post() =>
+    public virtual IO<A> Post() =>
         LiftAsync(async env =>
                        {
                            if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
@@ -483,7 +483,7 @@ public abstract record IO<A> :
     /// Map the `EnvIO` value that is threaded through computation and run this `IO` operation in the newly
     /// mapped environment.       
     /// </summary>
-    IO<A> WithEnv(Func<EnvIO, EnvIO> f) =>
+    protected virtual IO<A> WithEnv(Func<EnvIO, EnvIO> f) =>
         new IOLocal<A, A>(f, this, IO.pure);
 
     /// <summary>
@@ -494,7 +494,7 @@ public abstract record IO<A> :
     /// Note, this only resets the environment upon error.  Successful operations will propagate the mapped
     /// environment.
     /// </remarks>
-    IO<A> WithEnvFail(Func<EnvIO, EnvIO> f) =>
+    protected virtual IO<A> WithEnvFail(Func<EnvIO, EnvIO> f) =>
         new IOLocalOnFailOnly<A, A>(f, this, IO.pure);
 
     /// <summary>
@@ -514,7 +514,7 @@ public abstract record IO<A> :
     /// </remarks>
     /// <param name="timeout">Optional timeout</param>
     /// <returns>`Fork` record that contains members for cancellation and optional awaiting</returns>
-    public IO<ForkIO<A>> Fork(Option<TimeSpan> timeout = default) =>
+    public virtual IO<ForkIO<A>> Fork(Option<TimeSpan> timeout = default) =>
         IO<ForkIO<A>>.Lift(
             env =>
             {
@@ -651,7 +651,7 @@ public abstract record IO<A> :
     /// <param name="schedule">Scheduler strategy for repeating</param>
     /// <param name="predicate">Keep repeating until this predicate returns `true` for each computed value</param>
     /// <returns>The result of the last invocation</returns>
-    public IO<A> RepeatUntil(
+    public virtual IO<A> RepeatUntil(
         Schedule schedule,
         Func<A, bool> predicate)
     {
@@ -767,7 +767,7 @@ public abstract record IO<A> :
     /// So, successive retries will not grow the acquired resources on each retry iteration.  Any successful operation that
     /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
-    public IO<A> RetryUntil(Schedule schedule, Func<Error, bool> predicate)
+    public virtual IO<A> RetryUntil(Schedule schedule, Func<Error, bool> predicate)
     {
         return go(schedule.PrependZero.Run().GetIterator(), Errors.None);
 
@@ -793,7 +793,7 @@ public abstract record IO<A> :
     /// </summary>
     /// <param name="Predicate">Predicate</param>
     /// <param name="Fail">Fail functions</param>
-    public IO<A> Catch(Func<Error, bool> Predicate, Func<Error, K<IO, A>> Fail) =>
+    public virtual IO<A> Catch(Func<Error, bool> Predicate, Func<Error, K<IO, A>> Fail) =>
         new IOCatch<A, A>(this, Predicate, Fail, null, IO.pure);
 
     /// <summary>
@@ -801,7 +801,7 @@ public abstract record IO<A> :
     /// </summary>
     /// <param name="finally">Finally operation</param>
     /// <returns>Result of primary operation</returns>
-    public IO<A> Finally<X>(K<IO, X> @finally) =>
+    public virtual IO<A> Finally<X>(K<IO, X> @finally) =>
         new IOFinal<X, A, A>(this, @finally, IO.pure);
     
     /// <summary>

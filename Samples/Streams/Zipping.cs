@@ -10,8 +10,7 @@ namespace Streams;
 public static class Zipping
 {
     public static IO<Unit> run =>
-        from x in example(10).RunAsync().As()
-        select unit;
+        example(10).Iter().As();
 
     static StreamT<IO, Unit> example(int n) =>
         from v in evens(n).Zip(odds(n))

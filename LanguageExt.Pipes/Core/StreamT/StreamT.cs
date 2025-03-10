@@ -1,4 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 using LanguageExt.Pipes.Concurrent;
@@ -109,15 +113,75 @@ public record StreamT<M, A>(Source<K<M, A>> runStreamT) : K<StreamT<M>, A>
     
     public StreamT<M, B> Select<B>(Func<A, B> f) =>
         new(runStreamT.Map(ma => ma.Map(f)));
-    
+
     public StreamT<M, A> Where(Func<A, bool> f) =>
         Bind(a => f(a) ? StreamT.pure<M, A>(a) : StreamT.empty<M, A>());
     
     public StreamT<M, A> Filter(Func<A, bool> f) =>
         Bind(a => f(a) ? StreamT.pure<M, A>(a) : StreamT.empty<M, A>());
 
-    public StreamT<M, B> Bind<B>(Func<A, K<StreamT<M>, B>> f) =>
-        new(runStreamT.Bind(ma => Source.pure(ma.Bind(x => f(x).RunAsync()))));
+    public StreamT<M, B> Bind<B>(Func<A, K<StreamT<M>, B>> f)
+    {
+        return StreamT.liftM(M.LiftIO(IO.token).Bind(t => go2(go(this, f, t), t).Actions()));
+
+        static async IAsyncEnumerable<K<M, K<StreamT<M>, B>>> go(
+            K<StreamT<M>, A> stream,
+            Func<A, K<StreamT<M>, B>> f,
+            [EnumeratorCancellation] CancellationToken token)
+        {
+            var iter = stream.As().runStreamT.GetIterator();
+            while (await iter.ReadyToRead(token))
+            {
+                if(token.IsCancellationRequested) throw new TaskCanceledException();
+                var ma = await iter.ReadValue(token);
+                var mb = ma.Map(f);
+                yield return mb;
+            }
+        }
+        
+        async IAsyncEnumerable<K<M, B>> go2(
+            IAsyncEnumerable<K<M, K<StreamT<M>, B>>> streams, 
+            [EnumeratorCancellation] CancellationToken token)
+        {
+            await foreach (var stream in streams)
+            {
+                if(token.IsCancellationRequested) throw new TaskCanceledException();
+                yield return stream.Bind(ms => go3(ms, token).Actions());
+            }
+        }
+        
+        async IAsyncEnumerable<K<M, B>> go3(
+            K<StreamT<M>, B> stream, 
+            CancellationToken token)
+        {
+            var iter = stream.As().runStreamT.GetIterator();
+            while (iter.ReadyToRead(token).GetAwaiter().GetResult())
+            {
+                if(token.IsCancellationRequested) throw new TaskCanceledException();
+                yield return await iter.ReadValue(token);
+            }
+        }
+        
+        
+        /*
+        var m1 = runStreamT.Reduce1(
+            M.Pure(Option<B>.None),
+            (mb, ma) =>
+                mb.Bind(
+                    b => ma.Bind(
+                        a => f(a).Reduce1(b, (mb1, mb2) => mb1.Bind(_ => mb2.Map(Some))))));
+
+        var m2 = M.LiftIO(m1).Flatten();
+
+        var m3 = m2.Bind(
+            ox =>
+                ox.IsSome
+                    ? StreamT.pure<M, B>((B)ox)
+                    : StreamT.empty<M, B>());
+
+        return m3;
+    */
+    }
 
     public StreamT<M, B> Bind<B>(Func<A, IO<B>> f) =>
         Bind(x => StreamT.liftIO<M, B>(f(x)));

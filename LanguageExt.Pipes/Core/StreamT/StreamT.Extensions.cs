@@ -1,8 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using LanguageExt.Common;
 using LanguageExt.Traits;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.Pipes;
 
@@ -19,9 +20,15 @@ public static class StreamTExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Operation that represents an `Applicative.Actions` on every item in the stream.</returns>
     [Pure]
-    public static K<M, A> Run<M, A>(this K<StreamT<M>, A> stream)
+    public static K<M, Option<A>> Run<M, A>(this K<StreamT<M>, A> stream)
         where M : Monad<M>, Alternative<M> =>
-        M.EnvIO().Bind(e => RunMany(stream, e).Actions());
+        Reduce(
+            stream,
+            Option<A>.None,
+            (ms, ma) =>
+                ValueTask.FromResult(
+                    Reduced.Continue(
+                        ms.Bind(_ => ma.Map(Option<A>.Some)))));
 
     /// <summary>
     /// Run the stream
@@ -34,45 +41,53 @@ public static class StreamTExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Operation that represents an `Applicative.Actions` on every item in the stream.</returns>
     [Pure]
-    public static K<M, A> RunAsync<M, A>(this K<StreamT<M>, A> stream)
+    public static K<M, A> RunUnsafe<M, A>(this K<StreamT<M>, A> stream)
         where M : Monad<M>, Alternative<M> =>
-        M.EnvIO().Bind(e => RunManyAsync(stream, e).Actions());
+        stream.Run().Map(mx => mx.IfNone(() => Errors.SequenceEmpty.Throw<A>()));
 
-    static IEnumerable<K<M, A>> RunMany<M, A>(this K<StreamT<M>, A> stream, EnvIO env)
-        where M : Monad<M>, Alternative<M> 
-    {
-        var st = stream.As().runStreamT.GetIterator();
-        while (true)
-        {
-            if (st.ReadyToRead(env.Token).GetAwaiter().GetResult())
-            {
-                var ma = st.ReadValue(env.Token).GetAwaiter().GetResult();
-                yield return ma;
-            }
-            else
-            {
-                yield break;
-            }
-        }
-    }
+    /// <summary>
+    /// Run the stream
+    /// </summary>
+    /// <remarks>
+    /// The `M` trait must support `LiftIO`.
+    /// </remarks>
+    /// <param name="stream">Stream to run</param>
+    /// <typeparam name="M">`Monad` and `Alternative` trait</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Operation that represents an `Applicative.Actions` on every item in the stream.</returns>
+    [Pure]
+    public static K<M, Unit> Iter<M, A>(this K<StreamT<M>, A> stream)
+        where M : Monad<M>, Alternative<M> =>
+        stream.Run().Map(Prelude.unit);
 
-    static async IAsyncEnumerable<K<M, A>> RunManyAsync<M, A>(this K<StreamT<M>, A> stream, EnvIO env)
-        where M : Monad<M>, Alternative<M> 
-    {
-        var st = stream.As().runStreamT.GetIterator();
-        while (true)
-        {
-            if (await st.ReadyToRead(env.Token))
-            {
-                var ma = await st.ReadValue(env.Token);
-                yield return ma;
-            }
-            else
-            {
-                yield break;
-            }
-        }
-    }
+    /// <summary>
+    /// Run the stream
+    /// </summary>
+    /// <remarks>
+    /// The `M` trait must support `LiftIO`.
+    /// </remarks>
+    /// <param name="stream">Stream to run</param>
+    /// <typeparam name="M">`Monad` and `Alternative` trait</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Operation that represents an `Applicative.Actions` on every item in the stream.</returns>
+    [Pure]
+    static StreamT<M, A> Actions<M, A>(this K<StreamT<M>, A> stream)
+        where M : Monad<M>, Alternative<M> =>
+        from ox in StreamT.liftM(Run(stream))
+        from rs in ox.IsSome ? StreamT.pure<M, A>((A)ox) : StreamT.empty<M, A>()
+        select rs;
+    
+    public static K<M, S> Reduce<M, A, S>(this K<StreamT<M>, A> stream, S state, Reducer<K<M, A>, K<M, S>> reducer)
+        where M : Monad<M>, Alternative<M> =>
+        M.LiftIO(stream.As().runStreamT.Reduce(M.Pure(state), reducer)).Flatten();
+    
+    internal static K<M, S> Reduce1<M, A, S>(this K<StreamT<M>, A> stream, S state, Func<K<M, S>, K<M, A>, K<M, S>> reducer)
+        where M : Monad<M>, Alternative<M> =>
+        Reduce(stream, state, (s, a) => new ValueTask<Reduced<K<M, S>>>(Reduced.Continue(reducer(s, a))));
+    
+    internal static K<M, S> Reduce2<M, A, S>(this K<StreamT<M>, A> stream, S state, Func<K<M, S>, K<M, A>, Reduced<K<M, S>>> reducer)
+        where M : Monad<M>, Alternative<M> =>
+        Reduce(stream, state, (s, a) => new ValueTask<Reduced<K<M, S>>>(reducer(s, a)));
 
     public static StreamT<M, A> As<M, A>(this K<StreamT<M>, A> ma)
         where M : Monad<M>, Alternative<M> =>

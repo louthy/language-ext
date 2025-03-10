@@ -39,17 +39,5 @@ public static partial class Deriving
 
         static K<Supertype, B> Applicative<Supertype>.ApplyLazy<A, B>(K<Supertype, Func<A, B>> mf, Func<K<Supertype, A>> ma) => 
             Supertype.CoTransform(Subtype.ApplyLazy(Supertype.Transform(mf), () => Supertype.Transform(ma())));
-
-        static K<Supertype, A> Applicative<Supertype>.Actions<A>(params K<Supertype, A>[] fas) =>
-            Supertype.CoTransform(fas.AsIterable().Map(Supertype.Transform).Actions());
-
-        static K<Supertype, A> Applicative<Supertype>.Actions<A>(Seq<K<Supertype, A>> fas) => 
-            Supertype.CoTransform(Subtype.Actions(fas.Map(Supertype.Transform)));
-
-        static K<Supertype, A> Applicative<Supertype>.Actions<A>(IEnumerable<K<Supertype, A>> fas) => 
-            Supertype.CoTransform(Subtype.Actions(fas.Select(Supertype.Transform)));
-
-        static K<Supertype, A> Applicative<Supertype>.Actions<A>(IAsyncEnumerable<K<Supertype, A>> fas) => 
-            Supertype.CoTransform(Subtype.Actions(fas.Select(Supertype.Transform)));
     }
 }

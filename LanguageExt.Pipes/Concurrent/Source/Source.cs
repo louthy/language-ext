@@ -46,6 +46,12 @@ public abstract record Source<A> :
                           }
                           return state;
                       });
+    
+    internal IO<S> Reduce1<S>(S state, Func<S, A, S> reducer) =>
+        Reduce(state, (s, a) => new ValueTask<Reduced<S>>(Reduced.Continue(reducer(s, a))));
+    
+    internal IO<S> Reduce2<S>(S state, Func<S, A, Reduced<S>> reducer) =>
+        Reduce(state, (s, a) => new ValueTask<Reduced<S>>(reducer(s, a)));
 
     /// <summary>
     /// Transform with a transducer

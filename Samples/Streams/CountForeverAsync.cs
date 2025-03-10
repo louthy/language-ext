@@ -10,7 +10,7 @@ namespace Streams;
 public static class CountForeverAsync
 {
     public static IO<Unit> run =>
-        from f in fork(example.RunAsync())
+        from f in fork(example.Iter())
         from k in readKey
         from r in f.Cancel 
         select unit;
