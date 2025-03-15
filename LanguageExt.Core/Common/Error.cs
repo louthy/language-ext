@@ -395,7 +395,7 @@ public abstract record Error : Monoid<Error>
     /// <summary>
     /// Throw the error as an exception
     /// </summary>
-    public R Throw<R>()
+    public virtual R Throw<R>()
     {
         ExceptionDispatchInfo.Capture(ToException()).Throw();
         return default;
@@ -470,6 +470,9 @@ public record Expected(string Message, int Code, Option<Error> Inner = default) 
     [Pure]
     public override ErrorException ToErrorException() => 
         new WrappedErrorExpectedException(this);
+
+    public override R Throw<R>() => 
+        throw ToErrorException();
 
     /// <summary>
     /// Returns false because this type isn't exceptional
@@ -566,6 +569,11 @@ public record Exceptional(string Message, int Code) : Error
             ? new WrappedErrorExceptionalException(this)
             : new ExceptionalException(Value);
 
+    public override R Throw<R>() =>
+        Value is null
+            ? throw ToErrorException()
+            : Value.Rethrow<R>();
+
     /// <summary>
     /// Return true if the exceptional error is of type E
     /// </summary>
@@ -630,6 +638,9 @@ public sealed record BottomError() : Exceptional(BottomException.Default)
     /// <returns></returns>
     public override ErrorException ToErrorException() => 
         BottomException.Default;
+
+    public override R Throw<R>() =>
+        throw new BottomException();
 
     /// <summary>
     /// Return true if the exceptional error is of type E
@@ -697,6 +708,9 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     public override ErrorException ToErrorException() =>
         new ManyExceptions(Errors.Map(static e => e.ToErrorException()));
 
+    public override R Throw<R>() =>
+        throw ToErrorException();
+    
     /// <summary>
     /// Return true if an exception of type E is contained within 
     /// </summary>

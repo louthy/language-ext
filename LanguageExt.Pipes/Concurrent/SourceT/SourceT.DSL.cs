@@ -455,7 +455,9 @@ record IteratorSyncSourceT<M, A>(IEnumerable<K<M, A>> Items) : SourceT<M, A>
         K<M, S> go(S state, Iterator<K<M, A>> iter) =>
             iter.IsEmpty
                 ? M.Pure(state)
-                : iter.Head.Bind(a => reducer(state, a).Bind(s => go(s, iter.Tail.Split())));    
+                : iter.Head
+                      .Bind(a => reducer(state, a)
+                                    .Bind(s => go(s, iter.Tail.Split())));    
     }
 }
 
@@ -497,5 +499,25 @@ record TransformSourceT<M, A, B>(SourceT<M, A> SourceT, Transducer<A, B> Transdu
                                    .Bind(x => Transducer.ReduceM(reducer)(state, x))
                                    .Bind(ns => read(ns, iter))
                              : M.Pure(state));
+    }
+}
+
+record FilterSourceT<M, A>(SourceT<M, A> Source, Func<A, bool> Predicate) : SourceT<M, A>
+    where M : Monad<M>, Alternative<M>
+{
+    internal override SourceTIterator<M, A> GetIterator() =>
+        new FilterSourceTIterator<M, A>(Source.GetIterator(), Predicate);
+
+    public override K<M, S> Reduce<S>(S state, ReducerM<M, A, S> reducer)
+    {
+        return read(state, Source.GetIterator());
+
+        K<M, S> read(S state, SourceTIterator<M, A> iter) =>
+            IO.liftVAsync(e => iter.ReadyToRead(e.Token))
+              .Bind(f => f ? iter.Read()
+                                 .Bind(x => Predicate(x) 
+                                                ? reducer(state, x).Bind(ns => read(ns, iter)) 
+                                                : M.Pure(state).Bind(ns => read(ns, iter)))
+                           : M.Pure(state));
     }
 }

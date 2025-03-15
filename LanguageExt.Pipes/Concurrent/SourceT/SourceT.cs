@@ -56,7 +56,7 @@ public abstract record SourceT<M, A> :
     /// <param name="f">Filter function</param>
     /// <returns>SourceT where the only values yield are those that pass the predicate</returns>
     public SourceT<M, A> Where(Func<A, bool> f) =>
-        Transform(Transducer.filter(f));
+        new FilterSourceT<M, A>(this, f);
     
     /// <summary>
     /// Filter values.  Yielding downstream when `true`
@@ -64,7 +64,7 @@ public abstract record SourceT<M, A> :
     /// <param name="f">Filter function</param>
     /// <returns>SourceT where the only values yield are those that pass the predicate</returns>
     public SourceT<M, A> Filter(Func<A, bool> f) =>
-        Transform(Transducer.filter(f));
+        new FilterSourceT<M, A>(this, f);
     
     /// <summary>
     /// Applicative apply

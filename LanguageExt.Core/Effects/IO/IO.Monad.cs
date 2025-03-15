@@ -71,9 +71,9 @@ public partial class IO :
 
     static K<IO, A> SemigroupK<IO>.Combine<A>(K<IO, A> lhs, K<IO, A> rhs) =>
         lhs.Choose(rhs);
-    
+
     static K<IO, A> MonoidK<IO>.Empty<A>() =>
-        fail<A>(Errors.None);
+        empty<A>();
 
     static K<IO, A> MonadIO<IO>.LiftIO<A>(IO<A> ma) => 
         ma;

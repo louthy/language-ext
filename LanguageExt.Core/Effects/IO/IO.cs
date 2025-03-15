@@ -49,8 +49,8 @@ public abstract record IO<A> :
     //  General
     //
     
-    public static IO<A> Empty { get; } =
-        new IOFail<A>(Errors.None);
+    public static IO<A> Empty =>
+        IOEmpty<A>.Default;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
