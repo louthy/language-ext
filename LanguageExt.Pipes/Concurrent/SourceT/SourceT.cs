@@ -157,7 +157,7 @@ public abstract record SourceT<M, A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate state</returns>
     public SourceT<M, S> Fold<S>(Func<S, A, S> Fold, S Init) =>
-        Transform(Transducer.foldWhile(Fold, (_, _) => true, Init));
+        new FoldWhileSourceT<M, A, S>(this, Schedule.Forever, Fold, (_, _) => true, Init);
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the schedule expires, or the
@@ -169,7 +169,7 @@ public abstract record SourceT<M, A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate states</returns>
     public SourceT<M, S> Fold<S>(Schedule Time, Func<S, A, S> Fold, S Init) =>
-        Transform(Transducer.foldWhile(Time, Fold, (_, _) => true, Init));
+        new FoldWhileSourceT<M, A, S>(this, Time, Fold, (_, _) => true, Init);
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the predicate returns
@@ -181,7 +181,7 @@ public abstract record SourceT<M, A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate states</returns>
     public SourceT<M, S> FoldWhile<S>(Func<S, A, S> Fold, Func<S, A, bool> Pred, S Init) =>
-        Transform(Transducer.foldWhile(Fold, Pred, Init));
+        new FoldWhileSourceT<M, A, S>(this, Schedule.Forever, Fold, Pred, Init);
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the predicate returns
@@ -193,7 +193,7 @@ public abstract record SourceT<M, A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate states</returns>
     public SourceT<M, S> FoldUntil<S>(Func<S, A, S> Fold, Func<S, A, bool> Pred, S Init) =>
-        Transform(Transducer.foldUntil(Fold, Pred, Init));
+        new FoldUntilSourceT<M, A, S>(this, Schedule.Forever, Fold, Pred, Init);
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the schedule expires, the
@@ -207,10 +207,10 @@ public abstract record SourceT<M, A> :
     /// <returns>Stream of aggregate states</returns>
     public SourceT<M, S> FoldWhile<S>(
         Schedule Time,
-        Func<S, A, S> Fold, 
-        Func<S, A, bool> Pred, 
+        Func<S, A, S> Fold,
+        Func<S, A, bool> Pred,
         S Init) =>
-        Transform(Transducer.foldWhile(Time, Fold, Pred, Init));
+        new FoldWhileSourceT<M, A, S>(this, Time, Fold, Pred, Init);
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the schedule expires, the
@@ -227,7 +227,7 @@ public abstract record SourceT<M, A> :
         Func<S, A, S> Fold, 
         Func<S, A, bool> Pred, 
         S Init) =>
-        Transform(Transducer.foldUntil(Time, Fold, Pred, Init));
+        new FoldUntilSourceT<M, A, S>(this, Time, Fold, Pred, Init);
 
     /// <summary>
     /// Convert `SourceT` to a `ProducerT` pipe component

@@ -18,7 +18,7 @@ public static class Folding
     
     static SourceT<IO, Unit> example(int n) =>
         from v in naturals(n).FoldUntil((s, x) => s + x, (_, x) => x % 10 == 0, 0)
-        from _ in writeLine(v.ToString())
+        from _ in writeLine(v)
         where false
         select unit;
 }

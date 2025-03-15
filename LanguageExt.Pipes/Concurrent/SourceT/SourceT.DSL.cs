@@ -521,3 +521,76 @@ record FilterSourceT<M, A>(SourceT<M, A> Source, Func<A, bool> Predicate) : Sour
                            : M.Pure(state));
     }
 }
+
+record FoldWhileSourceT<M, A, S>(
+    SourceT<M, A> Source,
+    Schedule Schedule,
+    Func<S, A, S> Folder,
+    Func<S, A, bool> Pred,
+    S State) : SourceT<M, S>
+    where M : Monad<M>, Alternative<M>
+{
+    // TODO: Support Schedule
+    
+    public override K<M, S1> Reduce<S1>(S1 state, ReducerM<M, S, S1> reducer)
+    {
+        return go(state, State, Source.GetIterator());
+
+        K<M, S1> go(S1 state, S foldState, SourceTIterator<M, A> iter) =>
+            IO.liftVAsync(e => iter.ReadyToRead(e.Token))
+              .Bind(flag => flag ? iter.Read()
+                                       .Bind(x =>
+                                             {
+                                                 if (Pred(foldState, x))
+                                                 {
+                                                     return go(state, Folder(foldState, x), iter);
+                                                 }
+                                                 else
+                                                 {
+                                                     return reducer(state, foldState).Bind(s => go(s, State, iter));
+                                                 }
+                                             })
+                                : M.Pure(state));
+    }
+
+
+    internal override SourceTIterator<M, S> GetIterator() => 
+        new FoldWhileSourceTIterator<M, A, S>(Source.GetIterator(), Schedule, Folder, Pred, State);
+}
+
+record FoldUntilSourceT<M, A, S>(
+    SourceT<M, A> Source,
+    Schedule Schedule,
+    Func<S, A, S> Folder,
+    Func<S, A, bool> Pred,
+    S State) : SourceT<M, S>
+    where M : Monad<M>, Alternative<M>
+{
+    // TODO: Support Schedule
+    
+    public override K<M, S1> Reduce<S1>(S1 state, ReducerM<M, S, S1> reducer)
+    {
+        return go(state, State, Source.GetIterator());
+
+        K<M, S1> go(S1 state, S foldState, SourceTIterator<M, A> iter) =>
+            IO.liftVAsync(e => iter.ReadyToRead(e.Token))
+              .Bind(flag => flag ? iter.Read()
+                                       .Bind(x =>
+                                             {
+                                                 var nfs = Folder(foldState, x);
+                                                 if (Pred(nfs, x))
+                                                 {
+                                                     var ns = reducer(state, nfs);
+                                                     return ns.Bind(s => go(s, nfs, iter));
+                                                 }
+                                                 else
+                                                 {
+                                                     return go(state, foldState, iter);
+                                                 }
+                                             })
+                                : M.Pure(state));
+    }
+
+    internal override SourceTIterator<M, S> GetIterator() => 
+        new FoldUntilSourceTIterator<M, A, S>(Source.GetIterator(), Schedule, Folder, Pred, State);
+}
