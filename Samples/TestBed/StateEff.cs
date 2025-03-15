@@ -99,6 +99,18 @@ public class StateEff<S, E> :
                         fb.As().runStateEff(eio, state)
                 });
 
+    static K<StateEff<S, E>, A> Choice<StateEff<S, E>>.Choose<A>(K<StateEff<S, E>, A> fa, Func<K<StateEff<S, E>, A>> fb) => 
+        new StateEff<S, E, A>(
+            (eio, state) =>
+                fa.As().runStateEff(eio, state) switch
+                {
+                    Either.Right<E, (S State, A Value)> succ =>
+                        succ,
+
+                    Either.Left<E, (S State, A Value)> =>
+                        fb().As().runStateEff(eio, state)
+                });
+
     static K<StateEff<S, E>, IO<A>> MonadIO<StateEff<S, E>>.ToIO<A>(K<StateEff<S, E>, A> ma) =>
         new StateEff<S, E, IO<A>>(
             (eio, state) =>

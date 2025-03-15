@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Traits;
@@ -68,6 +69,19 @@ public static partial class IOExtensions
     public static IO<C> SelectMany<A, B, C>(this K<IO, A> ma, Func<A, K<IO, B>> bind, Func<A, B, C> project) =>
         ma.As().SelectMany(bind, project);
 
+    /// <summary>
+    /// Wait for a signal
+    /// </summary>
+    public static IO<bool> WaitOneIO(this AutoResetEvent wait) =>
+        IO.liftAsync(e => wait.WaitOneAsync(e.Token));
+
+    /// <summary>
+    /// Wait for a signal
+    /// </summary>
+    public static K<M, bool> WaitOneIO<M>(this AutoResetEvent wait)
+        where M : Monad<M> =>
+        M.LiftIO(wait.WaitOneIO());
+    
     /// <summary>
     /// Creates a local cancellation environment
     /// </summary>

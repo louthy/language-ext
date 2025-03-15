@@ -116,6 +116,16 @@ static K<Validation<FAIL>, B> Applicative<Validation<FAIL>>.Apply<A, B>(
             _                                => ma
         };
 
+    static K<Validation<FAIL>, A> Choice<Validation<FAIL>>.Choose<A>(
+        K<Validation<FAIL>, A> ma, 
+        Func<K<Validation<FAIL>, A>> mb) => 
+        (ma, mb) switch
+        {
+            (Validation.Success<FAIL, A>, _) => ma,
+            (_, Validation.Success<FAIL, A>) => mb(),
+            _                                => ma
+        };
+
     static S Foldable<Validation<FAIL>>.FoldWhile<A, S>(
         Func<A, Func<S, S>> f, 
         Func<(S State, A Value), bool> predicate, 

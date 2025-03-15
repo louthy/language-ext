@@ -67,6 +67,9 @@ public partial class Seq :
     static K<Seq, A> Choice<Seq>.Choose<A>(K<Seq, A> ma, K<Seq, A> mb) => 
         ma.As().IsEmpty ? mb : ma;
 
+    static K<Seq, A> Choice<Seq>.Choose<A>(K<Seq, A> ma, Func<K<Seq, A>> mb) => 
+        ma.As().IsEmpty ? mb() : ma;
+
     static K<Seq, A> SemigroupK<Seq>.Combine<A>(K<Seq, A> ma, K<Seq, A> mb) =>
         ma.As() + mb.As();
 

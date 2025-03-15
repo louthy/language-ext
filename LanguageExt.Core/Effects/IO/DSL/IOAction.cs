@@ -11,7 +11,10 @@ record IOAction<A, B, C>(K<IO, A> Fa, K<IO, B> Fb, Func<B, IO<C>> Next) : Invoke
 
     public override IO<D> Bind<D>(Func<C, K<IO, D>> f) => 
         new IOAction<A, B, D>(Fa, Fb, b => Next(b).Bind(f));
-
+    
+    public override IO<D> BindAsync<D>(Func<C, ValueTask<K<IO, D>>> f) => 
+        new IOAction<A, B, D>(Fa, Fb, b => Next(b).BindAsync(f));
+    
     public override IO<C> Invoke(EnvIO envIO)
     {
         var taskA = Fa.As().RunAsync(envIO);
@@ -33,6 +36,9 @@ record IOActionAsync<A, B, C>(ValueTask<A> Fa, K<IO, B> Fb, Func<B, IO<C>> Next)
 
     public override IO<D> Bind<D>(Func<C, K<IO, D>> f) => 
         new IOActionAsync<A, B, D>(Fa, Fb, b => Next(b).Bind(f));
+
+    public override IO<D> BindAsync<D>(Func<C, ValueTask<K<IO, D>>> f) => 
+        new IOActionAsync<A, B, D>(Fa, Fb, b => Next(b).BindAsync(f));
 
     public override async ValueTask<IO<C>> Invoke(EnvIO envIO)
     {

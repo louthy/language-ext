@@ -12,6 +12,9 @@ record IOFinal<X, A, B>(K<IO, A> Fa, K<IO, X> Final, Func<A, K<IO, B>> Next) : I
     public override IO<C> Bind<C>(Func<B, K<IO, C>> f) => 
         new IOFinal<X,A,C>(Fa, Final, x => Next(x).Bind(f));
 
+    public override IO<C> BindAsync<C>(Func<B, ValueTask<K<IO, C>>> f) =>
+        new IOFinal<X, A, C>(Fa, Final, x => Next(x).As().BindAsync(f));
+
     public override IO<B> Invoke(EnvIO envIO)
     {
         var finalShouldRun = true;
@@ -45,6 +48,9 @@ record IOFinalAsync<X, A, B>(ValueTask<A> Fa, K<IO, X> Final, Func<A, K<IO, B>> 
 
     public override IO<C> Bind<C>(Func<B, K<IO, C>> f) => 
         new IOFinalAsync<X, A, C>(Fa, Final, x => Next(x).Bind(f));
+
+    public override IO<C> BindAsync<C>(Func<B, ValueTask<K<IO, C>>> f) => 
+        new IOFinalAsync<X, A, C>(Fa, Final, x => Next(x).As().BindAsync(f));
 
     public override async ValueTask<IO<B>> Invoke(EnvIO envIO)
     {

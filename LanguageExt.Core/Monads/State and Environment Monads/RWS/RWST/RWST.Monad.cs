@@ -58,6 +58,11 @@ public class RWST<R, W, S, M> :
         K<RWST<R, W, S, M>, A> rhs) => 
         new RWST<R, W, S, M, A>(input => lhs.As().runRWST(input).Choose(rhs.As().runRWST(input)));
 
+    static K<RWST<R, W, S, M>, A> Choice<RWST<R, W, S, M>>.Choose<A>(
+        K<RWST<R, W, S, M>, A> lhs, 
+        Func<K<RWST<R, W, S, M>, A>> rhs) => 
+        new RWST<R, W, S, M, A>(input => lhs.As().runRWST(input).Choose(rhs().As().runRWST(input)));
+
     static K<RWST<R, W, S, M>, A> Readable<RWST<R, W, S, M>, R>.Asks<A>(Func<R, A> f) => 
         new RWST<R, W, S, M, A>(input => M.Pure((f(input.Env), input.Output, input.State)));
 

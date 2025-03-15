@@ -1,3 +1,4 @@
+using System;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -21,6 +22,20 @@ public static class ChoiceExtensions
         where F : Choice<F> =>
         F.Choose(fa, fb);
 
+    /// <summary>
+    /// Where `F` defines some notion of failure or choice, this function picks the
+    /// first argument that succeeds.  So, if `fa` succeeds, then `fa` is returned;
+    /// if it fails, then `fb` is returned.
+    /// </summary>
+    /// <param name="fa">First structure to test</param>
+    /// <param name="fb">Second structure to return if the first one fails</param>
+    /// <typeparam name="F">Alternative structure type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>First argument to succeed</returns>
+    public static K<F, A> Choose<F, A>(this K<F, A> fa, Func<K<F, A>> fb)
+        where F : Choice<F> =>
+        F.Choose(fa, fb);
+    
     /// <summary>
     /// One or more...
     /// </summary>

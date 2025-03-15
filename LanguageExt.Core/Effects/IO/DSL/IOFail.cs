@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 
@@ -14,7 +15,10 @@ record IOFail<A>(Error Value) : InvokeSync<A>
 
     public override IO<B> Bind<B>(Func<A, K<IO, B>> f) => 
         new IOFail<B>(Value);
-    
+
+    public override IO<B> BindAsync<B>(Func<A, ValueTask<K<IO, B>>> f) => 
+        new IOFail<B>(Value);
+
     public override IO<S> Fold<S>(
         Schedule schedule,
         S initialState,

@@ -14,6 +14,9 @@ record IOAsyncActions<A, B>(IteratorAsync<K<IO, A>> Fas, Func<A, IO<B>> Next) : 
     public override IO<C> Bind<C>(Func<B, K<IO, C>> f) => 
         new IOAsyncActions<A, C>(Fas, x => Next(x).Bind(f));
 
+    public override IO<C> BindAsync<C>(Func<B, ValueTask<K<IO, C>>> f) => 
+        new IOAsyncActions<A, C>(Fas, x => Next(x).BindAsync(f));
+
     public override async ValueTask<IO<B>> Invoke(EnvIO envIO)
     {
         if (await Fas.IsEmpty)

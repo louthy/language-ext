@@ -2,6 +2,7 @@
 
 using LanguageExt;
 using LanguageExt.Pipes;
+using LanguageExt.Pipes.Concurrent;
 using static LanguageExt.Prelude;
 using static Streams.Console;
 
@@ -15,10 +16,10 @@ public static class CountForever
         from r in f.Cancel 
         select unit;
 
-    static StreamT<IO, long> naturals =>
-        StreamT.lift<IO, long>(Range(0, long.MaxValue));
+    static SourceT<IO, long> naturals =>
+        SourceT.lift<IO, long>(Range(0, long.MaxValue));
     
-    static StreamT<IO, Unit> example =>
+    static SourceT<IO, Unit> example =>
         from v in naturals
         where v % 10000 == 0
         from _ in writeLine($"{v:N0}")

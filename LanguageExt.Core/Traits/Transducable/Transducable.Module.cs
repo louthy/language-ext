@@ -22,10 +22,10 @@ public static class Transducable
     /// <param name="initial">Initial state</param>
     /// <param name="reducer">Reducer function</param>
     /// <typeparam name="F">Structure to reduce</typeparam>
-    /// <typeparam name="S">State value type to reduce to</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
+    /// <typeparam name="S">State value type to reduce to</typeparam>
     /// <returns>Reduced value</returns>
-    public static S reduce<F, S, A>(K<F, A> ma, S initial, Reducer<S, A> reducer)
+    public static S reduce<F, A, S>(K<F, A> ma, S initial, Reducer<A, S> reducer)
         where F : Transducable<F> =>
         F.Reduce(ma, initial, reducer);
 }

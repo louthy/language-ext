@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using LanguageExt.Traits;
 using LanguageExt.Common;
 
@@ -40,6 +41,9 @@ record IOCatch<X, A>(
 
     public override IO<B> Bind<B>(Func<A, K<IO, B>> f) =>
         new IOCatch<X, B>(Operation, Predicate, Failure, Final, x => Next(x).Bind(f));
+
+    public override IO<B> BindAsync<B>(Func<A, ValueTask<K<IO, B>>> f) => 
+        new IOCatch<X, B>(Operation, Predicate, Failure, Final, x => Next(x).As().BindAsync(f));
 
     public override Func<Exception, IO<A>> MakeHandler() =>
         e =>

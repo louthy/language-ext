@@ -19,8 +19,8 @@ public interface Transducable<F>
     /// <param name="ma">Structure to reduce</param>
     /// <param name="initial">Initial state</param>
     /// <param name="reducer">Reducer function</param>
-    /// <typeparam name="S">State value type to reduce to</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
+    /// <typeparam name="S">State value type to reduce to</typeparam>
     /// <returns>Reduced value</returns>
-    public static abstract S Reduce<S, A>(K<F, A> ma, S initial, Reducer<S, A> reducer);
+    public static abstract S Reduce<S, A>(K<F, A> ma, S initial, Reducer<A, S> reducer);
 }

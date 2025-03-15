@@ -28,6 +28,15 @@ public partial class IO
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>IO in a success state.  Always yields the lifted value.</returns>
     internal static IO<A> pureAsync<A>(Task<A> value) =>
+        new IOPureAsync<A>(new ValueTask<A>(value));
+    
+    /// <summary>
+    /// Lift a pure value into an IO computation
+    /// </summary>
+    /// <param name="value">value</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>IO in a success state.  Always yields the lifted value.</returns>
+    internal static IO<A> pureVAsync<A>(ValueTask<A> value) =>
         new IOPureAsync<A>(value);
     
     /// <summary>

@@ -60,7 +60,14 @@ public class Option :
             { IsSome: true } => ma,
             _                => mb
         };
-    
+
+    static K<Option, A> Choice<Option>.Choose<A>(K<Option, A> ma, Func<K<Option, A>> mb) => 
+        ma.As() switch
+        {
+            { IsSome: true } => ma,
+            _                => mb()
+        };
+
     static K<Option, A> SemigroupK<Option>.Combine<A>(K<Option, A> lhs, K<Option, A> rhs) =>
         lhs.Choose(rhs);
 

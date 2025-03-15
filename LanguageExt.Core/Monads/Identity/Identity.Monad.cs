@@ -98,9 +98,12 @@ public class Identity :
     //  Alternative
     //
 
-    static K<Identity, A> Choice<Identity>.Choose<A>(K<Identity, A> fa, K<Identity, A> fb) => 
-        fa;
-    
+    static K<Identity, A> Choice<Identity>.Choose<A>(K<Identity, A> lhs, K<Identity, A> rhs) => 
+        lhs;
+
+    static K<Identity, A> Choice<Identity>.Choose<A>(K<Identity, A> lhs, Func<K<Identity, A>> rhs) => 
+        lhs;
+
     static K<Identity, A> SemigroupK<Identity>.Combine<A>(K<Identity, A> lhs, K<Identity, A> rhs) =>
         lhs.Choose(rhs);
 }

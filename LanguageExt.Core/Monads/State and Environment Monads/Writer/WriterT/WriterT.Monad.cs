@@ -43,6 +43,9 @@ public partial class WriterT<W, M> :
     static K<WriterT<W, M>, A> Choice<WriterT<W, M>>.Choose<A>(K<WriterT<W, M>, A> ma, K<WriterT<W, M>, A> mb) => 
         new WriterT<W, M, A>(w => M.Choose(ma.As().runWriter(w), mb.As().runWriter(w)));
 
+    static K<WriterT<W, M>, A> Choice<WriterT<W, M>>.Choose<A>(K<WriterT<W, M>, A> ma, Func<K<WriterT<W, M>, A>> mb) => 
+        new WriterT<W, M, A>(w => M.Choose(ma.As().runWriter(w), mb().As().runWriter(w)));
+
     static K<WriterT<W, M>, Unit> Writable<WriterT<W, M>, W>.Tell(W item) =>
         new WriterT<W, M, Unit>(w => M.Pure((unit, w + item)));
 

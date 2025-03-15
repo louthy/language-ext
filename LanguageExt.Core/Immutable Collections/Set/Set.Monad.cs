@@ -64,6 +64,9 @@ public partial class Set : Monad<Set>, Alternative<Set>, Traversable<Set>
     static K<Set, A> Choice<Set>.Choose<A>(K<Set, A> ma, K<Set, A> mb) => 
         ma.IsEmpty() ? mb : ma;
 
+    static K<Set, A> Choice<Set>.Choose<A>(K<Set, A> ma, Func<K<Set, A>> mb) => 
+        ma.IsEmpty() ? mb() : ma;
+
     static bool Foldable<Set>.Contains<EqA, A>(A value, K<Set, A> ta) =>
         ta.As().Contains(value);
 

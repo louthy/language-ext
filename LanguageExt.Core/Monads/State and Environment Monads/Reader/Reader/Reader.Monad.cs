@@ -38,7 +38,10 @@ public partial class Reader<Env> :
 
     static K<Reader<Env>, A> Choice<Reader<Env>>.Choose<A>(K<Reader<Env>, A> ma, K<Reader<Env>, A> mb) =>
         ma;
-    
+
+    static K<Reader<Env>, A> Choice<Reader<Env>>.Choose<A>(K<Reader<Env>, A> ma, Func<K<Reader<Env>, A>> mb) => 
+        ma;
+
     static K<Reader<Env>, A> SemigroupK<Reader<Env>>.Combine<A>(K<Reader<Env>, A> lhs, K<Reader<Env>, A> rhs) =>
         lhs.Choose(rhs);
 }

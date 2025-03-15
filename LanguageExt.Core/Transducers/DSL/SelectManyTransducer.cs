@@ -10,6 +10,12 @@ record SelectManyTransducer1<Env, A, B, C>(Transducer<Env, A> First, Func<A, K<T
         (s, env) => First.Reduce<S>(
             (s1, x) =>
                 F(x).As().Reduce<S>((s2, y) => reducer(s2, G(x, y)))(s1, env))(s, env);
+
+    public override ReducerM<M, Env, S> ReduceM<M, S>(ReducerM<M, C, S> reducer) => 
+        (s, env) => First.ReduceM<M, S>(
+            (s1, x) =>
+                F(x).As().ReduceM<M, S>((s2, y) => reducer(s2, G(x, y)))(s1, env))(s, env);
+
 }
 
 record SelectManyTransducer2<Env, A, B, C>(Transducer<Env, A> First, Func<A, Transducer<Env, B>> F, Func<A, B, C> G) : 
@@ -19,4 +25,10 @@ record SelectManyTransducer2<Env, A, B, C>(Transducer<Env, A> First, Func<A, Tra
         (s, env) => First.Reduce<S>(
             (s1, x) =>
                 F(x).Reduce<S>((s2, y) => reducer(s2, G(x, y)))(s1, env))(s, env);
+
+    public override ReducerM<M, Env, S> ReduceM<M, S>(ReducerM<M, C, S> reducer) => 
+        (s, env) => First.ReduceM<M, S>(
+            (s1, x) =>
+                F(x).ReduceM<M, S>((s2, y) => reducer(s2, G(x, y)))(s1, env))(s, env);
+
 }

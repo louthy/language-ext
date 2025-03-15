@@ -67,6 +67,9 @@ public partial class HashSet :
     static K<HashSet, A> Choice<HashSet>.Choose<A>(K<HashSet, A> ma, K<HashSet, A> mb) => 
         ma.IsEmpty() ? mb : ma;
     
+    static K<HashSet, A> Choice<HashSet>.Choose<A>(K<HashSet, A> ma, Func<K<HashSet, A>> mb) => 
+        ma.IsEmpty() ? mb() : ma;
+    
     static bool Foldable<HashSet>.Contains<EqA, A>(A value, K<HashSet, A> ta) =>
         ta.As().Contains(value);
 

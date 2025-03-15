@@ -62,4 +62,7 @@ public class IdentityT<M> :
 
     static K<IdentityT<M>, A> Choice<IdentityT<M>>.Choose<A>(K<IdentityT<M>, A> ma, K<IdentityT<M>, A> mb) =>
         new IdentityT<M, A>(M.Combine(ma.As().Value, mb.As().Value));
+
+    static K<IdentityT<M>, A> Choice<IdentityT<M>>.Choose<A>(K<IdentityT<M>, A> ma, Func<K<IdentityT<M>, A>> mb) => 
+        new IdentityT<M, A>(M.Combine(ma.As().Value, mb().As().Value));
 }

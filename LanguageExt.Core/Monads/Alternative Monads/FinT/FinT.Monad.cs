@@ -66,6 +66,16 @@ public partial class FinT<M> :
                              _           => M.Pure(ea)
                          }));
 
+    static K<FinT<M>, A> Choice<FinT<M>>.Choose<A>(K<FinT<M>, A> ma, Func<K<FinT<M>, A>> mb) => 
+        new FinT<M, A>(
+            M.Bind(ma.As().runFin,
+                   ea => ea switch
+                         {
+                             Fin.Succ<A> => M.Pure(ea),
+                             Fin.Fail<A> => mb().As().runFin,
+                             _           => M.Pure(ea)
+                         }));
+
     static K<FinT<M>, A> Fallible<Error, FinT<M>>.Fail<A>(Error error) =>
         Fail<A>(error);
 

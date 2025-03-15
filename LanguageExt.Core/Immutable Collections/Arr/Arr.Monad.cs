@@ -65,7 +65,10 @@ public partial class Arr :
     
     static K<Arr, A> Choice<Arr>.Choose<A>(K<Arr, A> ma, K<Arr, A> mb) => 
         ma.IsEmpty() ? mb : ma;
-    
+
+    public static K<Arr, A> Choose<A>(K<Arr, A> ma, Func<K<Arr, A>> mb) => 
+        ma.IsEmpty() ? mb() : ma;
+
     static int Foldable<Arr>.Count<A>(K<Arr, A> ta) =>
         ta.As().Count;
 

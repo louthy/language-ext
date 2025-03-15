@@ -20,6 +20,9 @@ record IOFold<S, A, B>(
     public override IO<C> Bind<C>(Func<B, K<IO, C>> f) => 
         new IOFold<S, A, C>(Operation, Schedule, InitialState, Folder, x => Next(x).Bind(f));
 
+    public override IO<C> BindAsync<C>(Func<B, ValueTask<K<IO, C>>> f) => 
+        new IOFold<S, A, C>(Operation, Schedule, InitialState, Folder, x => Next(x).As().BindAsync(f));
+
     public override IO<B> Invoke(EnvIO envIO)
     {
         var task = Operation.RunAsync(envIO);
@@ -57,6 +60,9 @@ record IOFoldingInitialAsync<S, A, B>(
     public override IO<C> Bind<C>(Func<B, K<IO, C>> f) => 
         new IOFoldingInitialAsync<S, A, C>(First, Operation, Schedule, State, Folder, x => Next(x).Bind(f));
 
+    public override IO<C> BindAsync<C>(Func<B, ValueTask<K<IO, C>>> f) => 
+        new IOFoldingInitialAsync<S, A, C>(First, Operation, Schedule, State, Folder, x => Next(x).As().BindAsync(f));
+
     public override async ValueTask<IO<B>> Invoke(EnvIO envIO) 
     {
         var value = await First;
@@ -93,6 +99,9 @@ record IOFoldingAsync<S, A, B>(
     public override IO<C> Bind<C>(Func<B, K<IO, C>> f) => 
         new IOFoldingAsync<S, A, C>(Operation, Schedule, State, Folder, x => Next(x).Bind(f));
 
+    public override IO<C> BindAsync<C>(Func<B, ValueTask<K<IO, C>>> f) => 
+        new IOFoldingAsync<S, A, C>(Operation, Schedule, State, Folder, x => Next(x).As().BindAsync(f));
+
     public override async ValueTask<IO<B>> Invoke(EnvIO envIO) 
     {
         if (Schedule.MoveNext())
@@ -125,6 +134,9 @@ record IOFoldingSync<S, A, B>(
 
     public override IO<C> Bind<C>(Func<B, K<IO, C>> f) => 
         new IOFoldingSync<S, A, C>(Operation, Schedule, State, Folder, x => Next(x).Bind(f));
+
+    public override IO<C> BindAsync<C>(Func<B, ValueTask<K<IO, C>>> f) => 
+        new IOFoldingSync<S, A, C>(Operation, Schedule, State, Folder, x => Next(x).As().BindAsync(f));
 
     public override IO<B> Invoke(EnvIO envIO) 
     {

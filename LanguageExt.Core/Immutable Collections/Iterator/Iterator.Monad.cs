@@ -43,6 +43,9 @@ public partial class Iterator :
     static K<Iterator, A> Choice<Iterator>.Choose<A>(K<Iterator, A> ma, K<Iterator, A> mb) => 
         ma.IsEmpty() ? mb : ma;
     
+    static K<Iterator, A> Choice<Iterator>.Choose<A>(K<Iterator, A> ma, Func<K<Iterator, A>> mb) => 
+        ma.IsEmpty() ? mb() : ma;
+    
     static K<F, K<Iterator, B>> Traversable<Iterator>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Iterator, A> ta)
     {
         return Foldable.foldBack(add, F.Pure(Iterator<B>.Empty), ta)

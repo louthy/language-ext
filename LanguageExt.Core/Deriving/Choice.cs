@@ -1,3 +1,4 @@
+using System;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -25,5 +26,17 @@ public static partial class Deriving
         /// <returns>First argument to succeed</returns>
         static K<Supertype, A> Choice<Supertype>.Choose<A>(K<Supertype, A> fa, K<Supertype, A> fb) =>
             Supertype.CoTransform(Subtype.Choose(Supertype.Transform(fa), Supertype.Transform(fb)));
+        
+        /// <summary>
+        /// Where `Supertype` defines some notion of failure or choice, this function picks
+        /// the first argument that succeeds.  So, if `fa` succeeds, then `fa` is returned;
+        /// if it fails, then `fb` is returned.
+        /// </summary>
+        /// <param name="fa">First structure to test</param>
+        /// <param name="fb">Second structure to return if the first one fails</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>First argument to succeed</returns>
+        static K<Supertype, A> Choice<Supertype>.Choose<A>(K<Supertype, A> fa, Func<K<Supertype, A>> fb) =>
+            Supertype.CoTransform(Subtype.Choose(Supertype.Transform(fa), () => Supertype.Transform(fb())));
     }
 }

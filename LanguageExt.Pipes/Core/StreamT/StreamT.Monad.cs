@@ -26,6 +26,9 @@ public class StreamT<M> :
     static K<StreamT<M>, A> Choice<StreamT<M>>.Choose<A>(K<StreamT<M>, A> fa, K<StreamT<M>, A> fb) => 
         throw new NotImplementedException();
 
+    static K<StreamT<M>, A> Choice<StreamT<M>>.Choose<A>(K<StreamT<M>, A> fa, Func<K<StreamT<M>, A>> fb) => 
+        throw new NotImplementedException();
+
     static K<StreamT<M>, A> SemigroupK<StreamT<M>>.Combine<A>(K<StreamT<M>, A> lhs, K<StreamT<M>, A> rhs) => 
         throw new NotImplementedException();
 

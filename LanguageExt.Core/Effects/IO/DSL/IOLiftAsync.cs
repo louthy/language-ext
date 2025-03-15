@@ -12,6 +12,9 @@ record IOLiftAsync<A, B>(Func<EnvIO, Task<A>> F, Func<A, K<IO, B>> Next) : Invok
     public override IO<C> Bind<C>(Func<B, K<IO, C>> f) => 
         new IOLiftAsync<A, C>(F, x => Next(x).Bind(f));
 
+    public override IO<C> BindAsync<C>(Func<B, ValueTask<K<IO, C>>> f) => 
+        new IOLiftAsync<A, C>(F, x => Next(x).As().BindAsync(f));
+
     public override async ValueTask<IO<B>> Invoke(EnvIO envIO) =>
         Next(await F(envIO)).As();
     
@@ -26,6 +29,9 @@ record IOLiftVAsync<A, B>(Func<EnvIO, ValueTask<A>> F, Func<A, K<IO, B>> Next) :
 
     public override IO<C> Bind<C>(Func<B, K<IO, C>> f) => 
         new IOLiftVAsync<A, C>(F, x => Next(x).Bind(f));
+
+    public override IO<C> BindAsync<C>(Func<B, ValueTask<K<IO, C>>> f) => 
+        new IOLiftVAsync<A, C>(F, x => Next(x).As().BindAsync(f));
 
     public override async ValueTask<IO<B>> Invoke(EnvIO envIO) =>
         Next(await F(envIO)).As();

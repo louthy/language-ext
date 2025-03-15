@@ -8,4 +8,9 @@ record FilterTransducer<A>(Func<A, bool> Predicate) : Transducer<A, A>
         (s, x) => Predicate(x)
                       ? reducer(s, x)
                       : Reduced.ContinueAsync(s);
+
+    public override ReducerM<M, A, S> ReduceM<M, S>(ReducerM<M, A, S> reducer) => 
+        (s, x) => Predicate(x)
+                      ? reducer(s, x)
+                      : M.Pure(s);
 }

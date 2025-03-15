@@ -19,6 +19,9 @@ record IOEmpty<A> : InvokeSync<A>
     public override IO<B> Bind<B>(Func<A, K<IO, B>> f) => 
         IOEmpty<B>.Default;
 
+    public override IO<B> BindAsync<B>(Func<A, ValueTask<K<IO, B>>> f) => 
+        IOEmpty<B>.Default;
+
     public override IO<B> ApplyBack<B>(K<IO, Func<A, B>> f)=>
         new IOEmptyAsync<Func<A, B>, B>(f);
     
@@ -148,6 +151,9 @@ record IOEmptyAsync<X, A>(K<IO, X> RunFirst) : InvokeAsync<A>
         IOEmpty<B>.Default;
 
     public override IO<B> Bind<B>(Func<A, K<IO, B>> f) => 
+        IOEmpty<B>.Default;
+
+    public override IO<B> BindAsync<B>(Func<A, ValueTask<K<IO, B>>> f) => 
         IOEmpty<B>.Default;
 
     public override IO<B> ApplyBack<B>(K<IO, Func<A, B>> f)=>

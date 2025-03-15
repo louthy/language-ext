@@ -41,6 +41,9 @@ public class Eff :
     static K<Eff, A> Choice<Eff>.Choose<A>(K<Eff, A> ma, K<Eff, A> mb) => 
         new Eff<A>(ma.As().effect.Choose(mb.As().effect).As());
 
+    static K<Eff, A> Choice<Eff>.Choose<A>(K<Eff, A> ma, Func<K<Eff, A>> mb) => 
+        new Eff<A>(ma.As().effect.Choose(mb().As().effect).As());
+
     static K<Eff, A> Readable<Eff, MinRT>.Asks<A>(Func<MinRT, A> f) => 
         new Eff<A>(Readable.asks<Eff<MinRT>, MinRT, A>(f).As());
 

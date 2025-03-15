@@ -67,6 +67,15 @@ public partial class TryT<M> :
                                       _                   => throw new NotSupportedException()
                                   }));
 
+    static K<TryT<M>, A> Choice<TryT<M>>.Choose<A>(K<TryT<M>, A> ma, Func<K<TryT<M>, A>> mb) => 
+        new TryT<M, A>(ma.Run().Bind(
+                           lhs => lhs switch
+                                  {
+                                      Fin.Succ<A> (var x) => M.Pure(Try.Succ(x)),
+                                      Fin.Fail<A>         => mb().As().runTry,
+                                      _                   => throw new NotSupportedException()
+                                  }));
+
     static K<TryT<M>, A> Fallible<Error, TryT<M>>.Fail<A>(Error error) =>
         Fail<A>(error);
 

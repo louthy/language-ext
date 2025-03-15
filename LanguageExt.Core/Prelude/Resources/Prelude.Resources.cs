@@ -102,7 +102,7 @@ public static partial class Prelude
     [MethodImpl(Opt.Default)]
     public static IO<A> use<A>(Func<A> acquire)
         where A : IDisposable =>
-        use(IO.lift(acquire)).As();
+        new IOUseDisposable<A, A>(IO.lift(acquire), IO.pure);
 
     /// <summary>
     /// Acquire a resource and have it tracked by the IO environment.  The resource
@@ -116,7 +116,7 @@ public static partial class Prelude
     [MethodImpl(Opt.Default)]
     public static IO<A> useAsync<A>(Func<A> acquire)
         where A : IAsyncDisposable =>
-        useAsync(IO.lift(acquire)).As();
+        new IOUseAsyncDisposable<A, A>(IO.lift(acquire), IO.pure);
 
     /// <summary>
     /// Acquire a resource and have it tracked by the IO environment.  The resource

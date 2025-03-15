@@ -45,6 +45,16 @@ public partial class EitherT<L, M> :
                              _                  => M.Pure(ea)
                          }));
 
+    static K<EitherT<L, M>, A> Choice<EitherT<L, M>>.Choose<A>(K<EitherT<L, M>, A> ma, Func<K<EitherT<L, M>, A>> mb) => 
+        new EitherT<L, M, A>( 
+            M.Bind(ma.As().runEither, 
+                   ea => ea switch
+                         {
+                             Either.Right<L, A> => M.Pure(ea),
+                             Either.Left<L, A>  => mb().As().runEither,
+                             _                  => M.Pure(ea)
+                         }));
+
     static K<EitherT<L, M>, A> SemigroupK<EitherT<L, M>>.Combine<A>(K<EitherT<L, M>, A> lhs, K<EitherT<L, M>, A> rhs) =>
         lhs.Choose(rhs);
 

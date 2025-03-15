@@ -12,14 +12,17 @@ record IOFoldUntil<S, A, B>(
     S InitialState,
     Func<S, A, S> Folder,
     Func<(S State, A Value), bool> Predicate,
-    Func<S, K<IO, B>> Next)
-    : InvokeSyncIO<B>
+    Func<S, K<IO, B>> Next) : 
+    InvokeSyncIO<B>
 {
     public override IO<C> Map<C>(Func<B, C> f) =>
         new IOFoldUntil<S, A, C>(Operation, Schedule, InitialState, Folder, Predicate, x => Next(x).Map(f));
 
     public override IO<C> Bind<C>(Func<B, K<IO, C>> f) => 
         new IOFoldUntil<S, A, C>(Operation, Schedule, InitialState, Folder, Predicate, x => Next(x).Bind(f));
+
+    public override IO<C> BindAsync<C>(Func<B, ValueTask<K<IO, C>>> f) => 
+        new IOFoldUntil<S, A, C>(Operation, Schedule, InitialState, Folder, Predicate, x => Next(x).As().BindAsync(f));
 
     public override IO<B> Invoke(EnvIO envIO)
     {
@@ -52,14 +55,17 @@ record IOFoldingUntilInitialAsync<S, A, B>(
     S State,
     Func<S, A, S> Folder,
     Func<(S State, A Value), bool> Predicate,
-    Func<S, K<IO, B>> Next)
-    : InvokeAsyncIO<B>
+    Func<S, K<IO, B>> Next) : 
+    InvokeAsyncIO<B>
 {
     public override IO<C> Map<C>(Func<B, C> f) =>
         new IOFoldingUntilInitialAsync<S, A, C>(First, Operation, Schedule, State, Folder, Predicate, x => Next(x).Map(f));
 
     public override IO<C> Bind<C>(Func<B, K<IO, C>> f) => 
         new IOFoldingUntilInitialAsync<S, A, C>(First, Operation, Schedule, State, Folder, Predicate, x => Next(x).Bind(f));
+
+    public override IO<C> BindAsync<C>(Func<B, ValueTask<K<IO, C>>> f) => 
+        new IOFoldingUntilInitialAsync<S, A, C>(First, Operation, Schedule, State, Folder, Predicate, x => Next(x).As().BindAsync(f));
 
     public override async ValueTask<IO<B>> Invoke(EnvIO envIO) 
     {
@@ -95,14 +101,17 @@ record IOFoldingUntilAsync<S, A, B>(
     S State,
     Func<S, A, S> Folder,
     Func<(S State, A Value), bool> Predicate,
-    Func<S, K<IO, B>> Next)
-    : InvokeAsyncIO<B>
+    Func<S, K<IO, B>> Next) : 
+    InvokeAsyncIO<B>
 {
     public override IO<C> Map<C>(Func<B, C> f) => 
         new IOFoldingUntilAsync<S, A, C>(Operation, Schedule, State, Folder, Predicate, x => Next(x).Map(f));
 
     public override IO<C> Bind<C>(Func<B, K<IO, C>> f) => 
         new IOFoldingUntilAsync<S, A, C>(Operation, Schedule, State, Folder, Predicate, x => Next(x).Bind(f));
+
+    public override IO<C> BindAsync<C>(Func<B, ValueTask<K<IO, C>>> f) => 
+        new IOFoldingUntilAsync<S, A, C>(Operation, Schedule, State, Folder, Predicate, x => Next(x).As().BindAsync(f));
 
     public override async ValueTask<IO<B>> Invoke(EnvIO envIO) 
     {
@@ -131,14 +140,17 @@ record IOFoldingUntilSync<S, A, B>(
     S State,
     Func<S, A, S> Folder,
     Func<(S State, A Value), bool> Predicate,
-    Func<S, K<IO, B>> Next)
-    : InvokeSyncIO<B>
+    Func<S, K<IO, B>> Next) : 
+    InvokeSyncIO<B>
 {
     public override IO<C> Map<C>(Func<B, C> f) => 
         new IOFoldingUntilSync<S, A, C>(Operation, Schedule, State, Folder, Predicate, x => Next(x).Map(f));
 
     public override IO<C> Bind<C>(Func<B, K<IO, C>> f) => 
         new IOFoldingUntilSync<S, A, C>(Operation, Schedule, State, Folder, Predicate, x => Next(x).Bind(f));
+
+    public override IO<C> BindAsync<C>(Func<B, ValueTask<K<IO, C>>> f) => 
+        new IOFoldingUntilSync<S, A, C>(Operation, Schedule, State, Folder, Predicate, x => Next(x).As().BindAsync(f));
 
     public override IO<B> Invoke(EnvIO envIO) 
     {

@@ -6,6 +6,8 @@ namespace LanguageExt;
 public abstract record Transducer<A, B> : K<Transducer<A>, B>
 {
     public abstract Reducer<A, S> Reduce<S>(Reducer<B, S> reducer);
+    public abstract ReducerM<M, A, S> ReduceM<M, S>(ReducerM<M, B, S> reducer)
+        where M : Applicative<M>, Alternative<M>;
 
     public virtual Transducer<A, C> Compose<C>(
         Transducer<B, C> tg) =>

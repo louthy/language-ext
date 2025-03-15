@@ -12,6 +12,9 @@ record IOApply<A, B, C>(K<IO, Func<A, B>> Ff, K<IO, A> Fa, Func<B, K<IO, C>> Nex
     public override IO<D> Bind<D>(Func<C, K<IO, D>> f) => 
         new IOApply<A, B, D>(Ff, Fa, x => Next(x).As().Bind(f));
 
+    public override IO<D> BindAsync<D>(Func<C, ValueTask<K<IO, D>>> f) => 
+        new IOApply<A, B, D>(Ff, Fa, x => Next(x).As().BindAsync(f));
+
     public override IO<C> Invoke(EnvIO envIO)
     {
         var tf = Ff.RunAsync(envIO);
@@ -38,6 +41,9 @@ record IOApplyFunctionAsync<A, B, C>(ValueTask<Func<A, B>> Ff, ValueTask<A> Fa, 
 
     public override IO<D> Bind<D>(Func<C, K<IO, D>> f) => 
         new IOApplyFunctionAsync<A, B, D>(Ff, Fa, x => Next(x).As().Bind(f));
+
+    public override IO<D> BindAsync<D>(Func<C, ValueTask<K<IO, D>>> f) => 
+        new IOApplyFunctionAsync<A, B, D>(Ff, Fa, x => Next(x).As().BindAsync(f));
 
     public override async ValueTask<IO<C>> Invoke(EnvIO envIO)
     {

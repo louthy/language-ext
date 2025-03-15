@@ -49,5 +49,7 @@ public partial class StateT<S, M> :
     
     static K<StateT<S, M>, A> Choice<StateT<S, M>>.Choose<A>(K<StateT<S, M>, A> ma, K<StateT<S, M>, A> mb) => 
         new StateT<S, M, A>(state => M.Choose(ma.As().runState(state), mb.As().runState(state)));
-    
+
+    static K<StateT<S, M>, A> Choice<StateT<S, M>>.Choose<A>(K<StateT<S, M>, A> ma, Func<K<StateT<S, M>, A>> mb) => 
+        new StateT<S, M, A>(state => M.Choose(ma.As().runState(state), mb().As().runState(state)));
 }

@@ -67,7 +67,7 @@ public static class PipeT
     /// <returns></returns>
     public static PipeT<IN, OUT, M, Unit> yieldRepeatIO<M, IN, OUT>(IO<OUT> ma)
         where M : Monad<M> =>
-        new PipeTYieldAll<IN, OUT, M, Unit>(Units.Select(_ => ma.Bind(yield<M, IN, OUT>)), pure<IN, OUT, M, Unit>);
+        new PipeTYieldAll<IN, OUT, M, Unit>(Units.Select(_ => ma.Bind(yield<M, IN, OUT>).As()), pure<IN, OUT, M, Unit>);
     
     /// <summary>
     /// Await a value from upstream

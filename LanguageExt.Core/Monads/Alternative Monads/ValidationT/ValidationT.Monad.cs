@@ -69,6 +69,14 @@ public partial class ValidationT<F, M> :
                                                 ? M.Pure(ea)
                                                 : mb.Run()));
 
+    static K<ValidationT<F, M>, A> Choice<ValidationT<F, M>>.Choose<A>(
+        K<ValidationT<F, M>, A> ma, 
+        Func<K<ValidationT<F, M>, A>> mb) => 
+        new ValidationT<F, M, A>(M.Bind(ma.Run(), 
+                                        ea => ea.IsSuccess
+                                                  ? M.Pure(ea)
+                                                  : mb().Run()));
+
     static K<ValidationT<F, M>, A> Fallible<F, ValidationT<F, M>>.Fail<A>(F error) => 
         ValidationT<F, M, A>.Fail(error);
 

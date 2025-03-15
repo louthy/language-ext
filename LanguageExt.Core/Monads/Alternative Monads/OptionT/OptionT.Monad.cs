@@ -43,7 +43,14 @@ public partial class OptionT<M> :
                    ea => ea.IsSome
                              ? M.Pure(ea)
                              : mb.As().runOption));
-    
+
+    static K<OptionT<M>, A> Choice<OptionT<M>>.Choose<A>(K<OptionT<M>, A> ma, Func<K<OptionT<M>, A>> mb) => 
+        new OptionT<M, A>(
+            M.Bind(ma.As().runOption,
+                   ea => ea.IsSome
+                             ? M.Pure(ea)
+                             : mb().As().runOption));
+
     static K<OptionT<M>, A> SemigroupK<OptionT<M>>.Combine<A>(K<OptionT<M>, A> lhs, K<OptionT<M>, A> rhs) =>
         lhs.Choose(rhs);
 

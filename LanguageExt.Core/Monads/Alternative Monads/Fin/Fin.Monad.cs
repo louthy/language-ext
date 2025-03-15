@@ -104,7 +104,14 @@ public partial class Fin :
             Succ<A> => ma,
             _       => mb
         };
-    
+
+    static K<Fin, A> Choice<Fin>.Choose<A>(K<Fin, A> ma, Func<K<Fin, A>> mb) => 
+        ma switch
+        {
+            Succ<A> => ma,
+            _       => mb()
+        };
+
     static K<Fin, A> ConsSucc<A>(A value) =>
         Fin<A>.Succ(value);
 

@@ -67,6 +67,9 @@ public class Lst :
     static K<Lst, A> Choice<Lst>.Choose<A>(K<Lst, A> ma, K<Lst, A> mb) => 
         ma.IsEmpty() ? mb : ma;
 
+    static K<Lst, A> Choice<Lst>.Choose<A>(K<Lst, A> ma, Func<K<Lst, A>> mb) => 
+        ma.IsEmpty() ? mb() : ma;
+
     static K<F, K<Lst, B>> Traversable<Lst>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Lst, A> ta)
     {
         return Foldable.fold(add, F.Pure(Lst<B>.Empty), ta)

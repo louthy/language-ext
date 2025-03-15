@@ -56,4 +56,7 @@ public partial class ReaderT<Env, M> :
     static K<ReaderT<Env, M>, A> Choice<ReaderT<Env, M>>.Choose<A>(
         K<ReaderT<Env, M>, A> ma, K<ReaderT<Env, M>, A> mb) =>
         new ReaderT<Env, M, A>(env => M.Choose(ma.As().runReader(env), mb.As().runReader(env)));
+
+    public static K<ReaderT<Env, M>, A> Choose<A>(K<ReaderT<Env, M>, A> ma, Func<K<ReaderT<Env, M>, A>> mb) => 
+        new ReaderT<Env, M, A>(env => M.Choose(ma.As().runReader(env), mb().As().runReader(env)));
 }
