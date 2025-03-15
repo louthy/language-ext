@@ -93,7 +93,7 @@ public static class Transducer
     /// <returns>Aggregating binary folding transducer</returns>
     public static Transducer<A, S> foldWhile<A, S>(
         Func<S, A, S> Folder,
-        Func<(S State, A Value), bool> Pred,
+        Func<S, A, bool> Pred,
         S State) =>
         new FoldWhileTransducer<A, S>(Folder, Pred, State);
     
@@ -111,7 +111,7 @@ public static class Transducer
     public static Transducer<A, S> foldWhile<A, S>(
         Schedule Schedule,
         Func<S, A, S> Folder,
-        Func<(S State, A Value), bool> Pred,
+        Func<S, A, bool> Pred,
         S State) =>
         new FoldWhileTransducer2<A, S>(Schedule, Folder, Pred, State);
     
@@ -128,7 +128,7 @@ public static class Transducer
     /// <returns>Aggregating binary folding transducer</returns>
     public static Transducer<A, S> foldUntil<A, S>(
         Func<S, A, S> Folder,
-        Func<(S State, A Value), bool> Pred,
+        Func<S, A, bool> Pred,
         S State) =>
         new FoldUntilTransducer<A, S>(Folder, Pred, State);
     
@@ -146,7 +146,7 @@ public static class Transducer
     public static Transducer<A, S> foldUntil<A, S>(
         Schedule Schedule,
         Func<S, A, S> Folder,
-        Func<(S State, A Value), bool> Pred,
+        Func<S, A, bool> Pred,
         S State) =>
         new FoldUntilTransducer2<A, S>(Schedule, Folder, Pred, State);    
 }

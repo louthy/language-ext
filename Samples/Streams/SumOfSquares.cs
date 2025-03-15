@@ -3,6 +3,7 @@
 using LanguageExt;
 using LanguageExt.Common;
 using LanguageExt.Pipes;
+using LanguageExt.Pipes.Concurrent;
 using LanguageExt.Traits;
 using static Streams.Console;
 using static LanguageExt.Prelude;
@@ -23,11 +24,11 @@ public static class SumOfSquares
         from x in example(n).Iter()
         select unit;
 
-    static StreamT<M, long> squares<M>(int n)
+    static SourceT<M, long> squares<M>(int n)
         where M : Monad<M>, Alternative<M> =>
-        StreamT.lift<M, long>(Range(0, (long)n).Select(v => v * v).Where(v => v <= n));
+        SourceT.lift<M, long>(Range(0, (long)n).Select(v => v * v).Where(v => v <= n));
 
-    static StreamT<IO, (long X, long Y)> example(int n) =>
+    static SourceT<IO, (long X, long Y)> example(int n) =>
         from x in squares<IO>(n)
         from y in squares<IO>(n)
         from _1 in writeLine((x, y))

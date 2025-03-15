@@ -5,7 +5,7 @@ namespace LanguageExt;
 
 record FoldUntilTransducer<A, S>(
     Func<S, A, S> Folder, 
-    Func<(S State, A Value), bool> Pred, 
+    Func<S, A, bool> Pred, 
     S State) : 
     Transducer<A, S>
 {
@@ -15,7 +15,7 @@ record FoldUntilTransducer<A, S>(
         return async (s1, x) =>
                {
                    state = Folder(state, x);
-                   if (Pred((state, x)))
+                   if (Pred(state, x))
                    {
                        switch (await reducer(s1, state))
                        {
@@ -40,7 +40,7 @@ record FoldUntilTransducer<A, S>(
         return (s1, x) =>
                {
                    state = Folder(state, x);
-                   if (Pred((state, x)))
+                   if (Pred(state, x))
                    {
                        return reducer(s1, state);
                    }
@@ -55,7 +55,7 @@ record FoldUntilTransducer<A, S>(
 record FoldUntilTransducer2<A, S>(
     Schedule Schedule,
     Func<S, A, S> Folder,
-    Func<(S State, A Value), bool> Pred,
+    Func<S, A, bool> Pred,
     S State) :
     Transducer<A, S>
 {
@@ -66,7 +66,7 @@ record FoldUntilTransducer2<A, S>(
         return async (s1, x) =>
                {
                    state = Folder(state, x);
-                   if (Pred((state, x)))
+                   if (Pred(state, x))
                    {
                        // Schedule
                        if (sch.MoveNext())
@@ -102,7 +102,7 @@ record FoldUntilTransducer2<A, S>(
         return (s1, x) =>
                {
                    state = Folder(state, x);
-                   if (Pred((state, x)))
+                   if (Pred(state, x))
                    {
                        // Schedule
                        if (sch.MoveNext())

@@ -2,6 +2,7 @@
 
 using LanguageExt;
 using LanguageExt.Pipes;
+using LanguageExt.Pipes.Concurrent;
 using static Streams.Console;
 using static LanguageExt.Prelude;
 
@@ -18,27 +19,27 @@ public static class Grouping
         runTestIO("test 1", test1) >>
         runTestIO("test 2", test2);
 
-    static IO<Unit> runTestIO(string name, StreamT<IO, int> test) =>
+    static IO<Unit> runTestIO(string name, SourceT<IO, int> test) =>
         runTest(name, test1).Iter().As() >> emptyLine;
 
-    static StreamT<IO, Unit> runTest(string name, StreamT<IO, int> test) =>
+    static SourceT<IO, Unit> runTest(string name, SourceT<IO, int> test) =>
         from t in writeLine($"{name}")
         from r in test
         from _ in write($"{r} ")
         where false
         select unit;
 
-    static StreamT<IO, int> test1 =
+    static SourceT<IO, int> test1 =
         from r in atomIO(0)
         from n in next(r) + next(r) >> (next(r) + next(r) >> next(r) + next(r))
         select n;
 
-    static StreamT<IO, int> test2 =
+    static SourceT<IO, int> test2 =
         from r in atomIO(0)
         from n in (next(r) + next(r) >> next(r) + next(r)) >> next(r) + next(r)
         select n;
 
-    static StreamT<IO, int> next(Atom<int> atom) =>
+    static SourceT<IO, int> next(Atom<int> atom) =>
         from x in valueIO(atom)
         from _ in writeIO(atom, x + 1)
         select x;

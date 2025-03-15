@@ -2,6 +2,7 @@
 
 using LanguageExt;
 using LanguageExt.Pipes;
+using LanguageExt.Pipes.Concurrent;
 using static LanguageExt.Prelude;
 using static Streams.Console;
 
@@ -15,10 +16,10 @@ public static class CountForeverAsync
         from r in f.Cancel 
         select unit;
 
-    static StreamT<IO, long> naturals =>
-        StreamT.lift<IO, long>(naturalsEnum());
+    static SourceT<IO, long> naturals =>
+        SourceT.lift<IO, long>(naturalsEnum());
     
-    static StreamT<IO, Unit> example =>
+    static SourceT<IO, Unit> example =>
         from v in naturals
         from _ in writeLine($"{v:N0}")
         where false

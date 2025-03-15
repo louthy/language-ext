@@ -32,7 +32,8 @@ namespace LanguageExt.Pipes.Concurrent;
 /// <param name="Source">Source</param>
 /// <typeparam name="A">Input value type</typeparam>
 /// <typeparam name="B">Output value type</typeparam>
-public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
+public record ConduitT<M, A, B>(Sink<A> Sink, SourceT<M, B> Source)
+    where M : Monad<M>, Alternative<M> 
 {
     /// <summary>
     /// Post a value to the Sink
@@ -52,7 +53,7 @@ public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
     /// Raises a `Errors.SourceClosed` if the channel is closed or empty
     /// </remarks>
     /// <returns>First available value from the channel</returns>
-    public SourceIterator<B> Read() =>
+    public SourceTIterator<M, B> Read() =>
         Source.GetIterator();
     
     /// <summary>
@@ -70,25 +71,25 @@ public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
     /// <summary>
     /// Functor map
     /// </summary>
-    public Conduit<A, C> Map<C>(Func<B, C> f) =>
+    public ConduitT<M, A, C> Map<C>(Func<B, C> f) =>
         new (Sink, Source.Map(f));
     
     /// <summary>
     /// Monad bind
     /// </summary>
-    public Conduit<A, C> Bind<C>(Func<B, Source<C>> f) =>
+    public ConduitT<M, A, C> Bind<C>(Func<B, SourceT<M, C>> f) =>
         new (Sink, Source.Bind(f));
     
     /// <summary>
     /// Applicative apply
     /// </summary>
-    public Conduit<A, C> ApplyBack<C>(Source<Func<B, C>> ff) =>
+    public ConduitT<M, A, C> ApplyBack<C>(SourceT<M, Func<B, C>> ff) =>
         new (Sink, Source.ApplyBack(ff));
     
     /// <summary>
     /// Contravariant functor map
     /// </summary>
-    public Conduit<X, B> Contramap<X>(Func<X, A> f) =>
+    public ConduitT<M, X, B> Contramap<X>(Func<X, A> f) =>
         new (Sink.Contramap(f), Source);
 
     /// <summary>
@@ -96,38 +97,22 @@ public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
     /// </summary>
     /// <typeparam name="M">Monad to lift (must support `IO`)</typeparam>
     /// <returns>`ConsumerT`</returns>
-    public ConsumerT<A, M, Unit> ToConsumerT<M>()
-        where M : Monad<M> =>
+    public ConsumerT<A, M, Unit> ToConsumer() =>
         Sink.ToConsumerT<M>();
-
-    /// <summary>
-    /// Convert the `Sink` to a `Consumer` pipe component
-    /// </summary>
-    /// <returns>`Consumer`</returns>
-    public Consumer<RT, A, Unit> ToConsumer<RT>() =>
-        Sink.ToConsumer<RT>();
 
     /// <summary>
     /// Convert `Source` to a `ProducerT` pipe component
     /// </summary>
     /// <typeparam name="M">Monad to lift (must support `IO`)</typeparam>
     /// <returns>`ProducerT`</returns>
-    public ProducerT<B, M, Unit> ToProducerT<M>()
-        where M : Monad<M> =>
-        Source.ToProducerT<M>();
-
-    /// <summary>
-    /// Convert `Source` to a `Producer` pipe component
-    /// </summary>
-    /// <returns>`Producer`</returns>
-    public Producer<RT, B, Unit> ToProducer<RT>() =>
-        Source.ToProducer<RT>();
+    public ProducerT<B, M, Unit> ToProducer() =>
+        Source.ToProducerT();
     
     /// <summary>
     /// Combine two Sinkes: `lhs` and `rhs` into a single Sink that takes incoming
     /// values and then posts the to the `lhs` and `rhs` Sinkes. 
     /// </summary>
-    public Conduit<A, B> Combine(Sink<A> rhs) =>
+    public ConduitT<M, A, B> Combine(Sink<A> rhs) =>
         this with { Sink = Sink.Combine(rhs) };
     
     /// <summary>
@@ -135,7 +120,7 @@ public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
     /// values, maps them to an `(A, B)` tuple, and the posts the first and second
     /// elements to the `lhs` and `rhs` Sinkes. 
     /// </summary>
-    public Conduit<X, B> Combine<X, C>(Func<X, (A Left, C Right)> f, Sink<C> rhs) =>
+    public ConduitT<M, X, B> Combine<X, C>(Func<X, (A Left, C Right)> f, Sink<C> rhs) =>
         new (Sink.Combine(f, rhs), Source);
 
     /// <summary>
@@ -144,7 +129,7 @@ public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
     /// </summary>
     /// <param name="rhs">Right hand side</param>
     /// <returns>Merged stream of values</returns>
-    public Conduit<A, B> Combine(Source<B> rhs) =>
+    public ConduitT<M, A, B> Combine(SourceT<M, B> rhs) =>
         this with { Source = Source.Combine(rhs) };
     
     /// <summary>
@@ -153,7 +138,7 @@ public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
     /// <param name="rhs"></param>
     /// <returns>Value from this `Source` if there are any available, if not, from `rhs`.  If
     /// `rhs` is also empty then `Errors.SourceClosed` is raised</returns>
-    public Conduit<A, B> Choose(Source<B> rhs) =>
+    public ConduitT<M, A, B> Choose(SourceT<M, B> rhs) =>
         this with { Source = Source.Choose(rhs) };
     
     /// <summary>
@@ -163,7 +148,7 @@ public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
     /// <param name="lhs">Left hand side</param>
     /// <param name="rhs">Right hand side</param>
     /// <returns>Merged stream of values</returns>
-    public static Conduit<A, B> operator +(Sink<A> lhs, Conduit<A, B> rhs) =>
+    public static ConduitT<M, A, B> operator +(Sink<A> lhs, ConduitT<M, A, B> rhs) =>
         rhs with { Sink = lhs.Combine(rhs.Sink) };
     
     /// <summary>
@@ -173,7 +158,7 @@ public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
     /// <param name="lhs">Left hand side</param>
     /// <param name="rhs">Right hand side</param>
     /// <returns>Merged stream of values</returns>
-    public static Conduit<A, B> operator +(Conduit<A, B> lhs, Source<B> rhs) =>
+    public static ConduitT<M, A, B> operator +(ConduitT<M, A, B> lhs, SourceT<M, B> rhs) =>
         lhs.Combine(rhs);
 
     /// <summary>
@@ -183,6 +168,6 @@ public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
     /// <param name="rhs">Right hand side</param>
     /// <returns>Value from the `lhs` `Source` if there are any available, if not, from `rhs`.  If
     /// `rhs` is also empty then `Errors.SourceChannelClosed` is raised</returns>
-    public static Conduit<A, B> operator |(Conduit<A, B> lhs, Source<B> rhs) =>
+    public static ConduitT<M, A, B> operator |(ConduitT<M, A, B> lhs, SourceT<M, B> rhs) =>
         lhs.Choose(rhs);
 }

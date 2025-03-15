@@ -1,36 +1,35 @@
-/*
 #pragma warning disable LX_StreamT
 
+using System.Threading.Channels;
 using LanguageExt;
-using LanguageExt.Common;
 using static Streams.Console;
 using static LanguageExt.Prelude;
+using LanguageExt.Pipes.Concurrent;
 
 namespace Streams;
 
 public class SourceStream
 {
     public static IO<Unit> run =>
-        from s in Source<string>()
-        from f in fork(subscribe(s))
+        from c in IO.pure(ConduitT.spawn<IO, string>())
+        from f in fork(subscribe(c.Source).Iter())
         from _ in writeLine("Type something and press enter (empty-line ends the demo)") >>
-                  interaction(s)
+                  interaction(c.Sink)
         select unit;
 
-    static IO<Unit> interaction(Source<string> source) =>
+    static IO<Unit> interaction(Sink<string> sink) =>
         repeat(from l in readLine
-               from _ in deliver(source, l)
+               from _ in deliver(sink, l)
                select unit) 
       | @catch(unitIO);
 
-    static IO<Unit> deliver(Source<string> source, string line) =>
+    static IO<Unit> deliver(Sink<string> sink, string line) =>
         guardIO(line != "") >>
-        post(source, line);
+        sink.Post(line);
 
-    static StreamT<IO, Unit> subscribe(Source<string> source) =>
-        from v in await<IO, string>(source)
+    static SourceT<IO, Unit> subscribe(SourceT<IO, string> source) =>
+        from v in source
         from _ in writeLine(v)
         where false
         select unit;
 }
-*/

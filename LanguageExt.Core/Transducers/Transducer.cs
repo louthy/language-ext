@@ -42,27 +42,27 @@ public abstract record Transducer<A, B> : K<Transducer<A>, B>
     
     public Transducer<A, S> FoldWhile<S>(
         Func<S, B, S> Folder, 
-        Func<(S State, B Value), bool> Pred, 
+        Func<S, B, bool> Pred, 
         S State) =>
         Compose(Transducer.foldWhile(Folder, Pred, State));
     
     public Transducer<A, S> FoldWhile<S>(
         Schedule Schedule, 
         Func<S, B, S> Folder, 
-        Func<(S State, B Value), bool> Pred, 
+        Func<S, B, bool> Pred, 
         S State) =>
         Compose(Transducer.foldWhile(Schedule, Folder, Pred, State));
     
     public Transducer<A, S> FoldUntil<S>(
         Func<S, B, S> Folder, 
-        Func<(S State, B Value), bool> Pred, 
+        Func<S, B, bool> Pred, 
         S State) =>
         Compose(Transducer.foldUntil(Folder, Pred, State));
     
     public Transducer<A, S> FoldUntil<S>(
         Schedule Schedule, 
         Func<S, B, S> Folder, 
-        Func<(S State, B Value), bool> Pred, 
+        Func<S, B, bool> Pred, 
         S State) =>
         Compose(Transducer.foldUntil(Schedule, Folder, Pred, State));    
 }

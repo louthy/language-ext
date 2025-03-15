@@ -5,7 +5,7 @@ namespace LanguageExt;
 
 record FoldWhileTransducer<A, S>(
     Func<S, A, S> Folder, 
-    Func<(S State, A Value), bool> Pred, 
+    Func<S, A, bool> Pred, 
     S State) : 
     Transducer<A, S>
 {
@@ -14,7 +14,7 @@ record FoldWhileTransducer<A, S>(
         var state = State;
         return async (s1, x) =>
                {
-                   if (Pred((state, x)))
+                   if (Pred(state, x))
                    {
                        state = Folder(state, x);
                        return Reduced.Continue(s1);
@@ -39,7 +39,7 @@ record FoldWhileTransducer<A, S>(
         var state = State;
         return (s1, x) =>
                {
-                   if (Pred((state, x)))
+                   if (Pred(state, x))
                    {
                        state = Folder(state, x);
                        return M.Pure(s1);
@@ -60,7 +60,7 @@ record FoldWhileTransducer<A, S>(
 record FoldWhileTransducer2<A, S>(
     Schedule Schedule, 
     Func<S, A, S> Folder, 
-    Func<(S State, A Value), bool> Pred, 
+    Func<S, A, bool> Pred, 
     S State) : 
     Transducer<A, S>
 {
@@ -70,7 +70,7 @@ record FoldWhileTransducer2<A, S>(
         var sch = Duration.Zero.Cons(Schedule.Run()).GetEnumerator();
         return async (s1, x) =>
                {
-                   if (Pred((state, x)))
+                   if (Pred(state, x))
                    {
                        state = Folder(state, x);
                        return Reduced.Continue(s1);
@@ -106,7 +106,7 @@ record FoldWhileTransducer2<A, S>(
         var sch   = Duration.Zero.Cons(Schedule.Run()).GetEnumerator();
         return (s1, x) =>
                {
-                   if (Pred((state, x)))
+                   if (Pred(state, x))
                    {
                        state = Folder(state, x);
                        return M.Pure(s1);

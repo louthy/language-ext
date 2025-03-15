@@ -2,6 +2,7 @@
 
 using LanguageExt;
 using LanguageExt.Pipes;
+using LanguageExt.Pipes.Concurrent;
 using static LanguageExt.Prelude;
 
 namespace Streams;
@@ -14,14 +15,14 @@ public static class OptionalItems
         from _2 in Console.writeLine("done")
         select unit;
 
-    static StreamT<OptionT<IO>, Unit> example1(int n) =>
-        from x in StreamT.liftM(asyncStream(n))
+    static SourceT<OptionT<IO>, Unit> example1(int n) =>
+        from x in SourceT.liftM(asyncStream(n))
         from _ in Console.write($"{x} ")
         where false
         select unit;    
 
-    static StreamT<IO, Unit> example(int n) =>
-        from x in asyncStream(n).SomeStream()
+    static SourceT<IO, Unit> example(int n) =>
+        from x in asyncStream(n).SomeSource()
         from _ in Console.write($"{x} ")
         where false
         select unit;

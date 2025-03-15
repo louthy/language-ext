@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes.Concurrent;
@@ -183,7 +184,7 @@ public abstract record Source<A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate state</returns>
     public Source<S> Fold<S>(Func<S, A, S> Fold, S Init) =>
-        Transform(Transducer.foldWhile(Fold, _ => true, Init));
+        Transform(Transducer.foldWhile(Fold, (_, _) => true, Init));
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the schedule expires, or the
@@ -195,7 +196,7 @@ public abstract record Source<A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate states</returns>
     public Source<S> Fold<S>(Schedule Time, Func<S, A, S> Fold, S Init) =>
-        Transform(Transducer.foldWhile(Time, Fold, _ => true, Init));
+        Transform(Transducer.foldWhile(Time, Fold, (_, _) => true, Init));
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the predicate returns
@@ -206,7 +207,7 @@ public abstract record Source<A> :
     /// <param name="Init">Initial state</param>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate states</returns>
-    public Source<S> FoldWhile<S>(Func<S, A, S> Fold, Func<(S State, A Value), bool> Pred, S Init) =>
+    public Source<S> FoldWhile<S>(Func<S, A, S> Fold, Func<S, A, bool> Pred, S Init) =>
         Transform(Transducer.foldWhile(Fold, Pred, Init));
 
     /// <summary>
@@ -218,7 +219,7 @@ public abstract record Source<A> :
     /// <param name="Init">Initial state</param>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate states</returns>
-    public Source<S> FoldUntil<S>(Func<S, A, S> Fold, Func<(S State, A Value), bool> Pred, S Init) =>
+    public Source<S> FoldUntil<S>(Func<S, A, S> Fold, Func<S, A, bool> Pred, S Init) =>
         Transform(Transducer.foldUntil(Fold, Pred, Init));
 
     /// <summary>
@@ -234,7 +235,7 @@ public abstract record Source<A> :
     public Source<S> FoldWhile<S>(
         Schedule Time,
         Func<S, A, S> Fold, 
-        Func<(S State, A Value), bool> Pred, 
+        Func<S, A, bool> Pred, 
         S Init) =>
         Transform(Transducer.foldWhile(Time, Fold, Pred, Init));
 
@@ -251,7 +252,7 @@ public abstract record Source<A> :
     public Source<S> FoldUntil<S>(
         Schedule Time,
         Func<S, A, S> Fold, 
-        Func<(S State, A Value), bool> Pred, 
+        Func<S, A, bool> Pred, 
         S Init) =>
         Transform(Transducer.foldUntil(Time, Fold, Pred, Init));
 
@@ -291,6 +292,46 @@ public abstract record Source<A> :
     /// `rhs` is also empty then `Errors.SourceClosed` is raised</returns>
     public static Source<A> operator |(Source<A> lhs, Source<A> rhs) =>
         lhs.Choose(rhs);
+
+    /// <summary>
+    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
+    /// as the semicolon) in C#.
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the second action</returns>
+    public static Source<A> operator >> (Source<A> lhs, Source<A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
+    /// <summary>
+    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
+    /// as the semicolon) in C#.
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the second action</returns>
+    public static Source<A> operator >> (Source<A> lhs, K<Source, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
+    /// <summary>
+    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// first action is propagated. 
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the first action</returns>
+    public static Source<A> operator >> (Source<A> lhs, Source<Unit> rhs) =>
+        lhs.Bind(x => rhs.Map(_ => x));
+    
+    /// <summary>
+    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// first action is propagated. 
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the first action</returns>
+    public static Source<A> operator >> (Source<A> lhs, K<Source, Unit> rhs) =>
+        lhs.Bind(x => rhs.Map(_ => x));
 
     /// <summary>
     /// Functor map

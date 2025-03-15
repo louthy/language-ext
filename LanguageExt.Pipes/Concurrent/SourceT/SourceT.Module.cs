@@ -103,7 +103,7 @@ public partial class SourceT
     /// <param name="label">Label to help debugging</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
-    public static SourceT<M, A> lift<M, A>(Channel<K<M, A>> channel) 
+    public static SourceT<M, A> liftM<M, A>(Channel<K<M, A>> channel) 
         where M : Monad<M>, Alternative<M> =>
         new ReaderSourceT<M, A>(channel);
 
@@ -125,7 +125,7 @@ public partial class SourceT
     /// <param name="label">Label to help debugging</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
-    public static SourceT<M, A> lift<M, A>(IEnumerable<K<M, A>> items) 
+    public static SourceT<M, A> liftM<M, A>(IEnumerable<K<M, A>> items) 
         where M : Monad<M>, Alternative<M> =>
         new IteratorSyncSourceT<M, A>(items);
 
@@ -147,7 +147,7 @@ public partial class SourceT
     /// <param name="label">Label to help debugging</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
-    public static SourceT<M, A> lift<M, A>(IAsyncEnumerable<K<M, A>> items) 
+    public static SourceT<M, A> liftM<M, A>(IAsyncEnumerable<K<M, A>> items) 
         where M : Monad<M>, Alternative<M> =>
         new IteratorAsyncSourceT<M, A>(items);
     

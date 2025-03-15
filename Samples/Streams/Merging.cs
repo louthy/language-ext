@@ -2,6 +2,7 @@
 
 using LanguageExt;
 using LanguageExt.Pipes;
+using LanguageExt.Pipes.Concurrent;
 using static Streams.Console;
 using static LanguageExt.Prelude;
 
@@ -13,19 +14,19 @@ public static class Merging
         example(20).Iter().As() >>
         emptyLine;
 
-    static StreamT<IO, Unit> example(int n) =>
+    static SourceT<IO, Unit> example(int n) =>
         from v in evens(n) + odds(n)
         where false
         select unit;
     
-    static StreamT<IO, int> evens(int n) =>
-        from x in Range(0, n).AsStream<IO, int>()
+    static SourceT<IO, int> evens(int n) =>
+        from x in Range(0, n).AsSourceT<IO, int>()
         where isEven(x)
         from _ in magenta >> write($"{x} ")
         select x;
 
-    static StreamT<IO, int> odds(int n) =>
-        from x in Range(0, n).AsStream<IO, int>()
+    static SourceT<IO, int> odds(int n) =>
+        from x in Range(0, n).AsSourceT<IO, int>()
         where isOdd(x)
         from _ in yellow >> write($"{x} ")
         select x;
