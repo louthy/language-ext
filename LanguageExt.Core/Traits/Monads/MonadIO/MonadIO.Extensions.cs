@@ -422,7 +422,7 @@ public static class MonadIOExtensions
     public static K<M, B> Bind<M, A, B>(
         this K<M, A> ma,
         Func<A, IO<B>> f)
-        where M : Monad<M> =>
+        where M : Maybe.MonadIO<M>, Monad<M> =>
         M.Bind(ma, x => M.LiftIO(f(x)));
     
     /// <summary>
@@ -431,21 +431,21 @@ public static class MonadIOExtensions
     public static K<M, B> Bind<M, A, B>(
         this IO<A> ma,
         Func<A, K<M, B>> f)
-        where M : Monad<M> =>
+        where M : Maybe.MonadIO<M>, Monad<M> =>
         M.Bind(M.LiftIO(ma), f);
     
     /// <summary>
     /// Monad bind operation
     /// </summary>
     public static K<M, C> SelectMany<M, A, B, C>(this K<M, A> ma, Func<A, IO<B>> bind, Func<A, B, C> project) 
-        where M : MonadIO<M> =>
-        M.SelectMany(ma, bind, project);
+        where M : Maybe.MonadIO<M>, Monad<M> =>
+        M.SelectMany(ma, x => M.LiftIO(bind(x)), project);
 
     /// <summary>
     /// Monad bind operation
     /// </summary>
     public static K<M, C> SelectMany<M, A, B, C>(this IO<A> ma, Func<A, K<M, B>> bind, Func<A, B, C> project) 
-        where M : MonadIO<M> =>
-        M.SelectMany(ma, bind, project);
+        where M : Maybe.MonadIO<M>, Monad<M> =>
+        M.SelectMany(M.LiftIO(ma), bind, project);
     
 }
