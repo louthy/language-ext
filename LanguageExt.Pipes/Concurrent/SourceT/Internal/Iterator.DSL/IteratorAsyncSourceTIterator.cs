@@ -15,7 +15,6 @@ record IteratorAsyncSourceTIterator<M, A> : SourceTIterator<M, A>
         return IO.token.BindAsync(go);
         async ValueTask<K<M, A>> go(CancellationToken token)
         {
-            if (token.IsCancellationRequested) throw Errors.Cancelled;
             if (await Src.IsEmpty) return M.Empty<A>();
             var head = await Src.Head;
             Src = (await Src.Tail).Split();

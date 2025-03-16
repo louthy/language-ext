@@ -19,7 +19,6 @@ record BindSourceTIterator<M, A, B>(SourceTIterator<M, A> SourceT, Func<A, Sourc
         
         async ValueTask<K<M, B>> go(CancellationToken token)
         {
-            if (token.IsCancellationRequested) throw new TaskCanceledException();
             if (Current is null)
             {
                 var ta = SourceT.Read();
