@@ -17,7 +17,7 @@ public static class Send<M, RT>
         Has<M, Config>,
         Has<M, HttpClient>
     where M :
-        Monad<M>,
+        MonadIO<M>,
         Fallible<M>
 {
     public static K<M, Unit> newsletter =>

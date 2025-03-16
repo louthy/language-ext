@@ -48,8 +48,8 @@ public static partial class Prelude
     /// <returns>Unit monad</returns>
     [Pure]
     public static K<M, Unit> when<M>(K<M, bool> Pred, K<IO, Unit> Then)
-        where M : Monad<M> =>
-        Pred.Bind(f => Applicative.when(f, Then));
+        where M : MonadIO<M> =>
+        Pred.Bind(f => Applicative.when(f, Then).As());
 
     /// <summary>
     /// When the predicate evaluates to `true`, compute `Then`

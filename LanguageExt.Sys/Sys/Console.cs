@@ -12,7 +12,7 @@ namespace LanguageExt.Sys;
 /// </summary>
 public static class Console<M, RT>
     where M : 
-        Monad<M>, 
+        MonadIO<M>, 
         Fallible<Error, M>
     where RT : 
         Has<M, ConsoleIO>

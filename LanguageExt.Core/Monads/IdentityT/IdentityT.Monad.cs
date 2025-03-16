@@ -51,10 +51,10 @@ public class IdentityT<M> :
     static K<IdentityT<M>, A> MonadT<IdentityT<M>, M>.Lift<A>(K<M, A> ma) =>
         IdentityT<M, A>.Lift(ma);
 
-    static K<IdentityT<M>, A> MonadIO<IdentityT<M>>.LiftIO<A>(IO<A> ma) => 
+    static K<IdentityT<M>, A> Maybe.MonadIO<IdentityT<M>>.LiftIO<A>(IO<A> ma) => 
         IdentityT<M, A>.Lift(M.LiftIO(ma));
 
-    static K<IdentityT<M>, IO<A>> MonadIO<IdentityT<M>>.ToIO<A>(K<IdentityT<M>, A> ma) =>
+    static K<IdentityT<M>, IO<A>> Maybe.MonadIO<IdentityT<M>>.ToIO<A>(K<IdentityT<M>, A> ma) =>
         new IdentityT<M, IO<A>>(ma.As().Value.ToIO()); 
 
     static K<IdentityT<M>, A> SemigroupK<IdentityT<M>>.Combine<A>(K<IdentityT<M>, A> ma, K<IdentityT<M>, A> mb) =>

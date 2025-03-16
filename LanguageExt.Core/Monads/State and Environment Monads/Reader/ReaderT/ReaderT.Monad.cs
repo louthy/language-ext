@@ -43,10 +43,10 @@ public partial class ReaderT<Env, M> :
     static K<ReaderT<Env, M>, A> Readable<ReaderT<Env, M>, Env>.Local<A>(Func<Env, Env> f, K<ReaderT<Env, M>, A> ma) =>
         new ReaderT<Env, M, A>(env => ma.As().runReader(f(env)));
 
-    static K<ReaderT<Env, M>, A> MonadIO<ReaderT<Env, M>>.LiftIO<A>(IO<A> ma) =>
+    static K<ReaderT<Env, M>, A> Maybe.MonadIO<ReaderT<Env, M>>.LiftIO<A>(IO<A> ma) =>
         new ReaderT<Env, M, A>(_ => M.LiftIO(ma));
 
-    static K<ReaderT<Env, M>, IO<A>> MonadIO<ReaderT<Env, M>>.ToIO<A>(K<ReaderT<Env, M>, A> ma) =>
+    static K<ReaderT<Env, M>, IO<A>> Maybe.MonadIO<ReaderT<Env, M>>.ToIO<A>(K<ReaderT<Env, M>, A> ma) =>
         new ReaderT<Env, M, IO<A>>(env => ma.As().runReader(env).ToIO());
 
     static K<ReaderT<Env, M>, A> SemigroupK<ReaderT<Env, M>>.Combine<A>(

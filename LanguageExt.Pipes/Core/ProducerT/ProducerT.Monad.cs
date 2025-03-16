@@ -30,13 +30,13 @@ public class ProducerT<OUT, M> : MonadT<ProducerT<OUT, M>, M>
     static K<ProducerT<OUT, M>, A> MonadT<ProducerT<OUT, M>, M>.Lift<A>(K<M, A> ma) => 
         ProducerT.liftM<OUT, M, A>(ma);
 
-    static K<ProducerT<OUT, M>, A> MonadIO<ProducerT<OUT, M>>.LiftIO<A>(IO<A> ma) => 
+    static K<ProducerT<OUT, M>, A> Maybe.MonadIO<ProducerT<OUT, M>>.LiftIO<A>(IO<A> ma) => 
         ProducerT.liftIO<OUT, M, A>(ma);
 
-    static K<ProducerT<OUT, M>, B> MonadIO<ProducerT<OUT, M>>.MapIO<A, B>(K<ProducerT<OUT, M>, A> ma, Func<IO<A>, IO<B>> f) => 
+    static K<ProducerT<OUT, M>, B> Maybe.MonadIO<ProducerT<OUT, M>>.MapIO<A, B>(K<ProducerT<OUT, M>, A> ma, Func<IO<A>, IO<B>> f) => 
         ma.As().MapIO(f);
 
-    static K<ProducerT<OUT, M>, IO<A>> MonadIO<ProducerT<OUT, M>>.ToIO<A>(K<ProducerT<OUT, M>, A> ma) => 
+    static K<ProducerT<OUT, M>, IO<A>> Maybe.MonadIO<ProducerT<OUT, M>>.ToIO<A>(K<ProducerT<OUT, M>, A> ma) => 
         ma.MapIO(IO.pure);
 
     static K<ProducerT<OUT, M>, B> Applicative<ProducerT<OUT, M>>.Action<A, B>(

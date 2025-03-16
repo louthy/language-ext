@@ -12,7 +12,7 @@ public static class Email<M, RT>
         Has<M, ConsoleIO>,
         Has<M, Config>
     where M :
-        Monad<M>,
+        MonadIO<M>,
         Fallible<M>
 {
     public static K<M, Unit> sendToAll(Seq<Member> members, Letter letter) =>

@@ -11,10 +11,9 @@ public static partial class Deriving
     /// </summary>
     /// <typeparam name="Supertype">Super-type wrapper around the subtype</typeparam>
     /// <typeparam name="Subtype">The subtype that the supertype type 'wraps'</typeparam>
-    public interface MonadIO<Supertype, Subtype> :
-        MonadIO<Supertype>,
-        Traits.Natural<Supertype, Subtype>,
-        Traits.CoNatural<Supertype, Subtype>
+    public interface MonadIO<Supertype, Subtype> : 
+        Monad<Supertype, Subtype>,
+        MonadIO<Supertype>
         where Subtype : MonadIO<Subtype>, Monad<Subtype>
         where Supertype : MonadIO<Supertype, Subtype>, Monad<Supertype>
     {
@@ -27,7 +26,7 @@ public static partial class Deriving
         /// <exception cref="ExceptionalException">If this method isn't overloaded in
         /// the inner monad or any monad in the stack on the way to the inner monad
         /// then it will throw an exception.</exception>
-        static K<Supertype, A> MonadIO<Supertype>.LiftIO<A>(K<IO, A> ma) =>
+        static K<Supertype, A> Traits.Maybe.MonadIO<Supertype>.LiftIO<A>(K<IO, A> ma) =>
             Supertype.CoTransform(Subtype.LiftIO(ma));
 
         /// <summary>
@@ -39,7 +38,7 @@ public static partial class Deriving
         /// <exception cref="ExceptionalException">If this method isn't overloaded in
         /// the inner monad or any monad in the stack on the way to the inner monad
         /// then it will throw an exception.</exception>
-        static K<Supertype, A> MonadIO<Supertype>.LiftIO<A>(IO<A> ma) =>
+        static K<Supertype, A> Traits.Maybe.MonadIO<Supertype>.LiftIO<A>(IO<A> ma) =>
             Supertype.CoTransform(Subtype.LiftIO(ma));
 
         /// <summary>
@@ -48,7 +47,7 @@ public static partial class Deriving
         /// <param name="ma">`Self` structure to extract the `IO` monad from</param>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>`Self` structure with the `IO` structure as the bound value</returns>
-        static K<Supertype, IO<A>> MonadIO<Supertype>.ToIO<A>(K<Supertype, A> ma) =>
+        static K<Supertype, IO<A>> Traits.Maybe.MonadIO<Supertype>.ToIO<A>(K<Supertype, A> ma) =>
             Supertype.CoTransform(Subtype.ToIO(Supertype.Transform(ma)));
 
         /// <summary>
@@ -62,9 +61,8 @@ public static partial class Deriving
         /// <exception cref="ExceptionalException">If this method isn't overloaded in
         /// the inner monad or any monad in the stack on the way to the inner monad
         /// then it will throw an exception.</exception>
-        static K<Supertype, B> MonadIO<Supertype>.MapIO<A, B>(K<Supertype, A> ma, Func<IO<A>, IO<B>> f) =>
+        static K<Supertype, B> Traits.Maybe.MonadIO<Supertype>.MapIO<A, B>(K<Supertype, A> ma, Func<IO<A>, IO<B>> f) =>
             Supertype.CoTransform(Subtype.MapIO(Supertype.Transform(ma), f));
-
 
         /// <summary>
         /// Creates a local cancellation environment
@@ -80,7 +78,7 @@ public static partial class Deriving
         /// <typeparam name="A">Bound value</typeparam>
         /// <returns>Result of the computation</returns>
         static K<Supertype, A> MonadIO<Supertype>.LocalIO<A>(K<Supertype, A> ma) =>
-            ma.MapIO(io => io.Local());
+            Supertype.CoTransform(Subtype.LocalIO(Supertype.Transform(ma)));
 
         /// <summary>
         /// Make this IO computation run on the `SynchronizationContext` that was captured at the start
@@ -88,13 +86,13 @@ public static partial class Deriving
         /// all IO computations)
         /// </summary>
         static K<Supertype, A> MonadIO<Supertype>.PostIO<A>(K<Supertype, A> ma) =>
-            ma.MapIO(io => io.Post());
+            Supertype.CoTransform(Subtype.PostIO(Supertype.Transform(ma)));
 
         /// <summary>
         /// Await a forked operation
         /// </summary>
         static K<Supertype, A> MonadIO<Supertype>.Await<A>(K<Supertype, ForkIO<A>> ma) =>
-            ma.MapIO(io => io.Bind(f => f.Await));
+            Supertype.CoTransform(Subtype.Await(Supertype.Transform(ma)));
 
         /// <summary>
         /// Queue this IO operation to run on the thread-pool. 
@@ -103,7 +101,7 @@ public static partial class Deriving
         /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
         /// the forked IO operation or to await the result of it.
         /// </returns>
-        static K<Supertype, ForkIO<A>> MonadIO<Supertype>.ForkIO<A>(
+        static K<Supertype, ForkIO<A>> Traits.Maybe.MonadIO<Supertype>.ForkIO<A>(
             K<Supertype, A> ma,
             Option<TimeSpan> timeout) =>
             Supertype.CoTransform(Subtype.ForkIO(Supertype.Transform(ma), timeout));

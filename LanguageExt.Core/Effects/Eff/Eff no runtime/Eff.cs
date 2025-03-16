@@ -24,7 +24,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     Deriving<Eff<A>, ReaderT<A, IO>>,
     Deriving.Choice<Eff<A>, ReaderT<A, IO>>,
     Deriving.Readable<Eff<A>, A, ReaderT<A, IO>>,
-    Deriving.Monad<Eff<A>, ReaderT<A, IO>>
+    Deriving.Maybe.MonadIO<Eff<A>, ReaderT<A, IO>>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

@@ -11,7 +11,7 @@ public static class Email<M, RT>
         Has<M, EmailIO>,
         Has<M, Config>
     where M :
-        Monad<M>,
+        MonadIO<M>,
         Fallible<M>
 {
     static K<M, EmailIO> trait =>

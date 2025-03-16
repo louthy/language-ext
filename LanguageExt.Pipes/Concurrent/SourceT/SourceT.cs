@@ -19,10 +19,11 @@ public abstract record SourceT<M, A> :
         return go(state, reducer, GetIterator());
 
         K<M, S> go(S state, ReducerM<M, A, S> reducer, SourceTIterator<M, A> iter) =>
-            IO.token.BindAsync(
-                async t => await iter.ReadyToRead(t)
-                               ? iter.Read().Bind(a => reducer(state, a).Bind(s => go(s, reducer, iter)))
-                               : M.Pure(state));
+            M.LiftIO(IO.liftAsync<K<M, S>>(
+                         async e => await iter.ReadyToRead(e.Token)
+                                        ? iter.Read().Bind(a => reducer(state, a).Bind(s => go(s, reducer, iter)))
+                                        : M.Pure(state)))
+             .Bind(static x => x);
     }
     
     /// <summary>

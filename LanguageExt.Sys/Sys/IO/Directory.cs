@@ -7,7 +7,7 @@ namespace LanguageExt.Sys.IO;
 
 public class Directory<M, RT>
     where M : 
-        Monad<M>
+        MonadIO<M>  
     where RT : 
         Has<M, DirectoryIO>
 {

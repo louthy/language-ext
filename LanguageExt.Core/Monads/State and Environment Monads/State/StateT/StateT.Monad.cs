@@ -41,7 +41,7 @@ public partial class StateT<S, M> :
     static K<StateT<S, M>, Unit> Stateful<StateT<S, M>, S>.Put(S value) => 
         StateT<S, M, S>.Put(value);
 
-    static K<StateT<S, M>, A> MonadIO<StateT<S, M>>.LiftIO<A>(IO<A> ma) =>
+    static K<StateT<S, M>, A> Maybe.MonadIO<StateT<S, M>>.LiftIO<A>(IO<A> ma) =>
         StateT<S, M, A>.Lift(M.LiftIO(ma));
 
     static K<StateT<S, M>, A> SemigroupK<StateT<S, M>>.Combine<A>(K<StateT<S, M>, A> ma, K<StateT<S, M>, A> mb) => 

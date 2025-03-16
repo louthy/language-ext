@@ -8,7 +8,7 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 public partial class IO : 
-    Monad<IO>, 
+    MonadIO<IO>, 
     Final<IO>,
     Fallible<IO>,
     Alternative<IO>
@@ -75,13 +75,13 @@ public partial class IO :
     static K<IO, A> MonoidK<IO>.Empty<A>() =>
         empty<A>();
 
-    static K<IO, A> MonadIO<IO>.LiftIO<A>(IO<A> ma) => 
+    static K<IO, A> Maybe.MonadIO<IO>.LiftIO<A>(IO<A> ma) => 
         ma;
 
-    static K<IO, IO<A>> MonadIO<IO>.ToIO<A>(K<IO, A> ma) => 
+    static K<IO, IO<A>> Maybe.MonadIO<IO>.ToIO<A>(K<IO, A> ma) => 
         pure(ma.As());
 
-    static K<IO, B> MonadIO<IO>.MapIO<A, B>(K<IO, A> ma, Func<IO<A>, IO<B>> f) =>
+    static K<IO, B> Maybe.MonadIO<IO>.MapIO<A, B>(K<IO, A> ma, Func<IO<A>, IO<B>> f) =>
         ma is IOEmpty<A>
             ? IOEmpty<B>.Default
             : f(ma.As());
@@ -134,7 +134,7 @@ public partial class IO :
     /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
     /// the forked IO operation or to await the result of it.
     /// </returns>
-    static K<IO, ForkIO<A>> MonadIO<IO>.ForkIO<A>(K<IO, A> ma, Option<TimeSpan> timeout) =>
+    static K<IO, ForkIO<A>> Maybe.MonadIO<IO>.ForkIO<A>(K<IO, A> ma, Option<TimeSpan> timeout) =>
         ma is IOEmpty<A>
             ? IOEmpty<ForkIO<A>>.Default
             : ma.As().Fork(timeout);

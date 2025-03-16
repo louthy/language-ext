@@ -15,7 +15,7 @@ public static class Posts<M, RT>
         Has<M, Config>,
         Has<M, HttpClient>
     where M :
-        Monad<M>,
+        MonadIO<M>,
         Fallible<M>
 {
     /// <summary>

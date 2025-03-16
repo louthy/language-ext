@@ -16,7 +16,7 @@ public static class Members<M, RT>
         Has<M, DirectoryIO>,
         Has<M, Config>
     where M :
-        Monad<M>,
+        MonadIO<M>,
         Fallible<M>
 {
     public static K<M, Seq<Member>> readAll =>

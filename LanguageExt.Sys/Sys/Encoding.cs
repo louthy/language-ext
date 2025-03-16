@@ -5,7 +5,7 @@ namespace LanguageExt.Sys;
 
 public static class Enc<M, RT>
     where M : 
-        Monad<M>
+        MonadIO<M>
     where RT : 
         Has<M, EncodingIO>
 {

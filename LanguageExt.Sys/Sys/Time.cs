@@ -11,7 +11,7 @@ namespace LanguageExt.Sys;
 /// </summary>
 public static class Time<M, RT>
     where M : 
-        Monad<M>
+        MonadIO<M>
     where RT : 
         Has<M, TimeIO>
 {

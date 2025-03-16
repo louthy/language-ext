@@ -49,18 +49,6 @@ public static partial class Monad
     /// <typeparam name="M">Monad</typeparam>
     /// <returns>Unit monad</returns>
     [Pure]
-    public static K<M, Unit> when<M>(K<M, bool> Pred, K<IO, Unit> Then)
-        where M : Monad<M> =>
-        Pred.Bind(f => Applicative.when(f, Then));
-
-    /// <summary>
-    /// When the predicate evaluates to `true`, compute `Then`
-    /// </summary>
-    /// <param name="Pred">Predicate</param>
-    /// <param name="Then">Computation</param>
-    /// <typeparam name="M">Monad</typeparam>
-    /// <returns>Unit monad</returns>
-    [Pure]
     public static K<M, Unit> when<M>(K<M, bool> Pred, Pure<Unit> Then)
         where M : Monad<M> =>
         Pred.Bind(f => Applicative.when(f, M.Pure(Prelude.unit)));
@@ -74,18 +62,6 @@ public static partial class Monad
     /// <returns>Unit monad</returns>
     [Pure]
     public static K<M, Unit> unless<M>(K<M, bool> Pred, K<M, Unit> Then)
-        where M : Monad<M> =>
-        Pred.Bind(f => Applicative.unless(f, Then));
-
-    /// <summary>
-    /// When the predicate evaluates to `false`, compute `Then`
-    /// </summary>
-    /// <param name="Pred">Predicate</param>
-    /// <param name="Then">Computation</param>
-    /// <typeparam name="M">Monad</typeparam>
-    /// <returns>Unit monad</returns>
-    [Pure]
-    public static K<M, Unit> unless<M>(K<M, bool> Pred, K<IO, Unit> Then)
         where M : Monad<M> =>
         Pred.Bind(f => Applicative.unless(f, Then));
 

@@ -11,7 +11,6 @@ public static partial class Deriving
     /// <typeparam name="Supertype">Super-type wrapper around the subtype</typeparam>
     /// <typeparam name="Subtype">The subtype that the supertype type 'wraps'</typeparam>
     public interface Monad<Supertype, Subtype> :
-        MonadIO<Supertype, Subtype>,
         Applicative<Supertype, Subtype>,
         Monad<Supertype>
         where Subtype : Monad<Subtype>

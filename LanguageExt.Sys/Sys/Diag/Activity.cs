@@ -17,7 +17,7 @@ namespace LanguageExt.Sys.Diag;
 /// <typeparam name="RT">Runtime</typeparam>
 public class Activity<M, RT>
     where M : 
-        Monad<M>
+        MonadIO<M>
     where RT :
         Has<M, ActivitySourceIO>,
         Local<M, ActivityEnv>

@@ -14,7 +14,7 @@ namespace LanguageExt.Sys.IO;
 /// </summary>
 public class File<M, RT>
     where M : 
-        Monad<M>
+        MonadIO<M>
     where RT : 
         Has<M, FileIO>, 
         Has<M, EncodingIO>

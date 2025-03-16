@@ -11,7 +11,7 @@ public static class Web<M, RT>
         Has<M, EncodingIO>,
         Has<M, HttpClient>
     where M :
-        Monad<M>
+        MonadIO<M>
 {
     static K<M, WebIO> trait =>
         Has<M, RT, WebIO>.ask;

@@ -29,13 +29,13 @@ public class Consumer<RT, IN> : MonadT<Consumer<RT, IN>, Eff<RT>>
     static K<Consumer<RT, IN>, A> MonadT<Consumer<RT, IN>, Eff<RT>>.Lift<A>(K<Eff<RT>, A> ma) =>
         Consumer.liftM<RT, IN, A>(ma);
 
-    static K<Consumer<RT, IN>, A> MonadIO<Consumer<RT, IN>>.LiftIO<A>(IO<A> ma) => 
+    static K<Consumer<RT, IN>, A> Maybe.MonadIO<Consumer<RT, IN>>.LiftIO<A>(IO<A> ma) => 
         Consumer.liftIO<RT, IN, A>(ma); 
 
-    static K<Consumer<RT, IN>, B> MonadIO<Consumer<RT, IN>>.MapIO<A, B>(K<Consumer<RT, IN>, A> ma, Func<IO<A>, IO<B>> f) => 
+    static K<Consumer<RT, IN>, B> Maybe.MonadIO<Consumer<RT, IN>>.MapIO<A, B>(K<Consumer<RT, IN>, A> ma, Func<IO<A>, IO<B>> f) => 
         ma.As().MapIO(f);
 
-    static K<Consumer<RT, IN>, IO<A>> MonadIO<Consumer<RT, IN>>.ToIO<A>(K<Consumer<RT, IN>, A> ma) => 
+    static K<Consumer<RT, IN>, IO<A>> Maybe.MonadIO<Consumer<RT, IN>>.ToIO<A>(K<Consumer<RT, IN>, A> ma) => 
         ma.MapIO(IO.pure);
 
     static K<Consumer<RT, IN>, B> Applicative<Consumer<RT, IN>>.Action<A, B>(

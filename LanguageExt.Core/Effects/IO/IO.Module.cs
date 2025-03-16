@@ -82,7 +82,7 @@ public partial class IO
     /// <typeparam name="A">Bound value</typeparam>
     /// <returns>Result of the computation</returns>
     public static K<M, A> local<M, A>(K<M, A> ma) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         M.LocalIO(ma);
 
     /// <summary>
@@ -170,7 +170,7 @@ public partial class IO
     [Pure]
     [MethodImpl(Opt.Default)]
     public static K<M, B> mapIO<M, A, B>(K<M, A> ma, Func<IO<A>, IO<B>> f)
-        where M : Monad<M> =>
+        where M : Maybe.MonadIO<M>, Monad<M> =>
         M.MapIO(ma, f);    
 
     /// <summary>
@@ -183,7 +183,7 @@ public partial class IO
     [Pure]
     [MethodImpl(Opt.Default)]
     public static K<M, ForkIO<A>> fork<M, A>(K<M, A> ma, Option<TimeSpan> timeout = default)
-        where M : Monad<M> =>
+        where M : Maybe.MonadIO<M>, Monad<M> =>
         M.ForkIO(ma, timeout);
 
     /// <summary>

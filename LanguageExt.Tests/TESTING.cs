@@ -316,24 +316,48 @@ public static class MaybeExt
 //
 
 // Domain monad
-public record App<A>(Func<AppConfig, K<Either<Error>, A>> runReader)
-    : ReaderT<AppConfig, Either<Error>, A>(runReader);
+public record App<A>(ReaderT<AppConfig, Either<Error>, A> runReader) : K<App, A>;
 
 // Application environment
 public record AppConfig(string ConnectionString, string RootFolder);
 
-public static class App
+public static class AppExtensions
+{
+    public static App<A> As<A>(this K<App, A> ma) =>
+        (App<A>)ma;
+    
+    public static Either<Error, A> Run<A>(this K<App, A> ma, AppConfig config) =>
+        ma.As().runReader.Run(config).As();
+}
+
+public class App :
+    Fallible<App>,
+    Deriving.MonadT<App, ReaderT<AppConfig, Either<Error>>, Either<Error>>,
+    Deriving.Maybe.MonadIO<App, ReaderT<AppConfig, Either<Error>>>,
+    Deriving.Readable<App, AppConfig, ReaderT<AppConfig, Either<Error>>>
 {
     public static App<A> Pure<A>(A value) =>
-        (App<A>)App<A>.Pure(value);
+        Applicative.pure<App, A>(value).As();
 
     public static App<A> Fail<A>(Error error) =>
-        (App<A>)App<A>.Lift(Left<Error, A>(error));
+        Fallible.error<App, A>(error).As();
+
+    public static K<App, A> Catch<A>(K<App, A> fa, Func<Error, bool> Predicate, Func<Error, K<App, A>> Fail) => 
+        throw new NotImplementedException();
 
     public static App<string> connectionString =>
-        (App<string>)App<string>.Asks(env => env.ConnectionString);
+        Readable.asks<App, AppConfig, string>(env => env.ConnectionString).As();
 
     public static App<string> rootFolder =>
-        (App<string>)App<string>.Asks(env => env.RootFolder);    
+        Readable.asks<App, AppConfig, string>(env => env.RootFolder).As();
+
+    public static K<ReaderT<AppConfig, Either<Error>>, A> Transform<A>(K<App, A> fa) => 
+        fa.As().runReader;
+
+    public static K<App, A> CoTransform<A>(K<ReaderT<AppConfig, Either<Error>>, A> fa) => 
+        new App<A>(fa.As());
+
+    static K<App, A> Fallible<Error, App>.Fail<A>(Error error) =>
+        new App<A>(ReaderT.lift<AppConfig, Either<Error>, A>(Left<Error, A>(error).As()));
 }
 

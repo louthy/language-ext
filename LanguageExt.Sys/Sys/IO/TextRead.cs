@@ -16,7 +16,7 @@ public static class TextRead<M, RT>
     where RT : 
         Has<M, TextReadIO>
     where M : 
-        Monad<M>
+        MonadIO<M>
 {
     static K<M, TextReadIO> textReadIO => 
         Has<M, RT, TextReadIO>.ask;

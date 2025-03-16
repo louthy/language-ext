@@ -71,7 +71,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static K<M, A> postIO<M, A>(K<M, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         M.PostIO(ma);        
 
     /// <summary>
@@ -84,38 +84,8 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(Opt.Default)]
     public static K<M, ForkIO<A>> fork<M, A>(K<M, A> ma, Option<TimeSpan> timeout = default)
-        where M : Monad<M> =>
+        where M : Maybe.MonadIO<M>, Monad<M> =>
         M.ForkIO(ma, timeout);
-
-    /*/// <summary>
-    /// Queue this IO operation to run on the thread-pool. 
-    /// </summary>
-    /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
-    /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
-    /// the forked IO operation or to await the result of it.
-    /// </returns>
-    [Pure]
-    [MethodImpl(Opt.Default)]
-    public static K<M, ForkIO<Option<A>>> fork<M, A>(StreamT<M, A> ma, Option<TimeSpan> timeout = default)
-        where M : Monad<M> =>
-        ma.Run()
-          .Map(oht => oht.Map(ht => ht.Item1))
-          .ForkIO(timeout);
-
-    /// <summary>
-    /// Queue this IO operation to run on the thread-pool. 
-    /// </summary>
-    /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
-    /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
-    /// the forked IO operation or to await the result of it.
-    /// </returns>
-    [Pure]
-    [MethodImpl(Opt.Default)]
-    public static IO<ForkIO<Option<A>>> fork<A>(StreamT<IO, A> ma, Option<TimeSpan> timeout = default) =>
-        ma.Run()
-          .Map(oht => oht.Map(ht => ht.Item1))
-          .ForkIO(timeout)
-          .As();*/
 
     /// <summary>
     /// Queue this IO operation to run on the thread-pool. 
@@ -127,7 +97,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(Opt.Default)]
     public static K<M, A> awaitIO<M, A>(K<M, ForkIO<A>> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         M.Await(ma);
 
     /// <summary>
@@ -165,7 +135,7 @@ public static partial class Prelude
     /// <param name="forks">Forks to await</param>
     /// <returns>Sequence of results</returns>
     public static K<M, Seq<A>> awaitAll<M, A>(params K<M, ForkIO<A>>[] forks)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         awaitAll(forks.ToSeqUnsafe());
 
     /// <summary>
@@ -204,7 +174,7 @@ public static partial class Prelude
     /// <param name="forks">Forks to await</param>
     /// <returns>Sequence of results</returns>
     public static K<M, Seq<A>> awaitAll<M, A>(Seq<K<M, ForkIO<A>>> forks)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         forks.TraverseM(f => f.Await());
 
     /// <summary>
@@ -394,7 +364,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(Opt.Default)]
     public static K<M, A> timeout<M, A>(TimeSpan timeout, K<M, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ma.TimeoutIO(timeout);
     
     /// <summary>
@@ -412,7 +382,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static K<M, A> repeat<M, A>(K<M, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ma.RepeatIO();
     
     /// <summary>
@@ -432,7 +402,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static K<M, A> repeat<M, A>(Schedule schedule, K<M, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ma.RepeatIO(schedule);
 
     /// <summary>
@@ -452,7 +422,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static K<M, A> repeatWhile<M, A>(K<M, A> ma, Func<A, bool> predicate) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ma.RepeatWhileIO(predicate);
 
     /// <summary>
@@ -475,7 +445,7 @@ public static partial class Prelude
         Schedule schedule,
         K<M, A> ma,
         Func<A, bool> predicate) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ma.RepeatWhileIO(schedule, predicate);
 
     /// <summary>
@@ -500,7 +470,7 @@ public static partial class Prelude
     public static K<M, A> repeatUntil<M, A>(
         K<M, A> ma,
         Func<A, bool> predicate)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ma.RepeatUntilIO(predicate);
 
     /// <summary>
@@ -525,7 +495,7 @@ public static partial class Prelude
         Schedule schedule,
         K<M, A> ma,
         Func<A, bool> predicate) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ma.RepeatUntilIO(schedule, predicate);
 
     /// <summary>
@@ -548,7 +518,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
     public static K<M, A> retry<M, A>(K<M, A> ma) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ma.RetryIO();
 
     /// <summary>
@@ -568,7 +538,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
     public static K<M, A> retry<M, A>(Schedule schedule, K<M, A> ma) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ma.RetryIO(schedule);
 
     /// <summary>
@@ -590,7 +560,7 @@ public static partial class Prelude
     public static K<M, A> retryWhile<M, A>(
         K<M, A> ma,
         Func<Error, bool> predicate) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ma.RetryWhileIO(predicate);
 
     /// <summary>
@@ -615,7 +585,7 @@ public static partial class Prelude
         Schedule schedule,
         K<M, A> ma,
         Func<Error, bool> predicate) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ma.RetryWhileIO(schedule, predicate);
 
     /// <summary>
@@ -640,7 +610,7 @@ public static partial class Prelude
     public static K<M, A> retryUntil<M, A>(
         K<M, A> ma,
         Func<Error, bool> predicate) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ma.RetryUntilIO(predicate);
 
     /// <summary>
@@ -665,7 +635,7 @@ public static partial class Prelude
         Schedule schedule,
         K<M, A> ma,
         Func<Error, bool> predicate) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ma.RetryUntilIO(schedule, predicate);
 
     /// <summary>

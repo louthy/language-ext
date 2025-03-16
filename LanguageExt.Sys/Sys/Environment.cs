@@ -9,7 +9,7 @@ namespace LanguageExt.Sys;
 /// </summary>
 public static class Environment<M, RT>
     where M : 
-        Monad<M>
+        MonadIO<M>
     where RT : 
         Has<M, EnvironmentIO>
 {

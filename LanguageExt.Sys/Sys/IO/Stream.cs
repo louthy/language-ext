@@ -8,7 +8,7 @@ using LanguageExt.UnsafeValueAccess;
 
 namespace LanguageExt.Sys.IO;
 
-public static class Stream<M> where M : Monad<M>
+public static class Stream<M> where M : MonadIO<M>
 {
     /// <summary>
     /// Get a pipe of chunks from a Stream

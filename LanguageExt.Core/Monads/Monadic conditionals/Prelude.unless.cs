@@ -50,8 +50,8 @@ public static partial class Prelude
     /// <returns>Unit monad</returns>
     [Pure]
     public static K<M, Unit> unless<M>(K<M, bool> Pred, K<IO, Unit> Then)
-        where M : Monad<M> =>
-        Pred.Bind(f => Applicative.unless(f, Then));
+        where M : MonadIO<M> =>
+        Pred.Bind(f => Applicative.unless(f, Then).As());
 
     /// <summary>
     /// When the predicate evaluates to `false`, compute `Then`
@@ -63,6 +63,6 @@ public static partial class Prelude
     [Pure]
     public static K<M, Unit> unless<M>(K<M, bool> Pred, Pure<Unit> Then)
         where M : Monad<M> =>
-        Pred.Bind(f => Applicative.unless(f, M.Pure(Prelude.unit)));
+        Pred.Bind(f => Applicative.unless(f, M.Pure(unit)));
     
 }

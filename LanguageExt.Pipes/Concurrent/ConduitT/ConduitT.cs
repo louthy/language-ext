@@ -33,7 +33,7 @@ namespace LanguageExt.Pipes.Concurrent;
 /// <typeparam name="A">Input value type</typeparam>
 /// <typeparam name="B">Output value type</typeparam>
 public record ConduitT<M, A, B>(Sink<A> Sink, SourceT<M, B> Source)
-    where M : Monad<M>, Alternative<M> 
+    where M : Maybe.MonadIO<M>, Monad<M>, Alternative<M> 
 {
     /// <summary>
     /// Post a value to the Sink

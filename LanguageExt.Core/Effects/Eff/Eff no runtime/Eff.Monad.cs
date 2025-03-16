@@ -9,7 +9,7 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 public class Eff : 
-    Monad<Eff>,
+    MonadIO<Eff>,
     Fallible<Eff>,
     Readable<Eff, MinRT>,
     Alternative<Eff>
@@ -50,13 +50,13 @@ public class Eff :
     static K<Eff, A> Readable<Eff, MinRT>.Local<A>(Func<MinRT, MinRT> f, K<Eff, A> ma) => 
         new Eff<A>(Readable.local(f, ma.As().effect).As());
 
-    static K<Eff, A> MonadIO<Eff>.LiftIO<A>(IO<A> ma) =>
+    static K<Eff, A> Maybe.MonadIO<Eff>.LiftIO<A>(IO<A> ma) =>
         Eff<A>.LiftIO(ma);
 
-    static K<Eff, IO<A>> MonadIO<Eff>.ToIO<A>(K<Eff, A> ma) =>
+    static K<Eff, IO<A>> Maybe.MonadIO<Eff>.ToIO<A>(K<Eff, A> ma) =>
         new Eff<IO<A>>(ma.As().effect.ToIO().As());
 
-    static K<Eff, B> MonadIO<Eff>.MapIO<A, B>(K<Eff, A> ma, Func<IO<A>, IO<B>> f) =>
+    static K<Eff, B> Maybe.MonadIO<Eff>.MapIO<A, B>(K<Eff, A> ma, Func<IO<A>, IO<B>> f) =>
         new Eff<B>(ma.As().effect.MapIO(f).As());
     
     static K<Eff, A> Fallible<Error, Eff>.Fail<A>(Error error) =>

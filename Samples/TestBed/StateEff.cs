@@ -111,7 +111,7 @@ public class StateEff<S, E> :
                         fb().As().runStateEff(eio, state)
                 });
 
-    static K<StateEff<S, E>, IO<A>> MonadIO<StateEff<S, E>>.ToIO<A>(K<StateEff<S, E>, A> ma) =>
+    static K<StateEff<S, E>, IO<A>> Maybe.MonadIO<StateEff<S, E>>.ToIO<A>(K<StateEff<S, E>, A> ma) =>
         new StateEff<S, E, IO<A>>(
             (eio, state) =>
                 ma.As().runStateEff(eio, state) switch
@@ -123,7 +123,7 @@ public class StateEff<S, E> :
                         Left(e)
                 });
 
-    static K<StateEff<S, E>, A> MonadIO<StateEff<S, E>>.LiftIO<A>(K<IO, A> ma) => 
+    static K<StateEff<S, E>, A> Maybe.MonadIO<StateEff<S, E>>.LiftIO<A>(K<IO, A> ma) => 
         new StateEff<S, E, A>(
             (eio, state) => 
             {

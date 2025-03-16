@@ -7,9 +7,9 @@ namespace LanguageExt.Traits;
 /// Monad trait
 /// </summary>
 /// <typeparam name="M">Self referring trait</typeparam>
-public interface Monad<M> : 
+public interface Monad<M> :
     Applicative<M>, 
-    MonadIO<M> 
+    Maybe.MonadIO<M> 
     where M : Monad<M>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -24,10 +24,10 @@ public interface Monad<M> :
     //  Default implementations
     //
 
-    public static virtual K<M, B> SelectMany<A, B>(K<M, A> ma, Func<A, K<M, B>> bind, Func<A, B, B> project) =>
+    public static virtual K<M, C> SelectMany<A, B, C>(K<M, A> ma, Func<A, K<M, B>> bind, Func<A, B, C> project) =>
         ma.Bind(x => bind(x).Map(y => project(x, y)));
 
-    public static virtual K<M, B> SelectMany<A, B>(K<M, A> ma, Func<A, Pure<B>> bind, Func<A, B, B> project) =>
+    public static virtual K<M, C> SelectMany<A, B, C>(K<M, A> ma, Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         M.Map(x => project(x, bind(x).Value), ma);
 
     public static virtual K<M, A> Flatten<A>(K<M, K<M, A>> mma) =>
