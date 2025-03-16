@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Traits;
@@ -15,7 +14,20 @@ public abstract record SourceT<M, A> :
     Monoid<SourceT<M, A>>
     where M : Monad<M>, Alternative<M>
 {
-    public abstract K<M, S> Reduce<S>(S state, ReducerM<M, A, S> reducer);
+    public K<M, S> Reduce<S>(S state, ReducerM<M, A, S> reducer)
+    {
+        return go(state, reducer, GetIterator());
+
+        K<M, S> go(S state, ReducerM<M, A, S> reducer, SourceTIterator<M, A> iter) =>
+            IO.token.BindAsync(
+                async t => t.IsCancellationRequested
+                               ? throw new TaskCanceledException()
+                               : await iter.ReadyToRead(t)
+                                   ? iter.Read().Bind(a => reducer(state, a).Bind(s => go(s, reducer, iter)))
+                                   : M.Pure(state));
+    }
+    
+    internal abstract K<M, S> ReduceInternal<S>(S state, ReducerM<M, A, S> reducer);
    // TODO: public abstract K<M, S> Reduce<S>(K<M, S> state, ReducerM<M, A, S> reducer);
     
     /// <summary>

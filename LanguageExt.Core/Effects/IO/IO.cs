@@ -1,12 +1,11 @@
 using System;
-using System.Collections.Generic;
+using LanguageExt.DSL;
+using System.Threading;
+using LanguageExt.Common;
+using LanguageExt.Traits;
+using System.Threading.Tasks;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using LanguageExt.Common;
-using LanguageExt.DSL;
-using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -268,7 +267,7 @@ public abstract record IO<A> :
         BindAsync(async x => (await f(x)).Kind());
 
     public K<M, B> BindAsync<M, B>(Func<A, ValueTask<K<M, B>>> f)
-        where M : Monad<M> =>
+        where M : Monad<M> => 
         Bind(x => M.LiftIO(new IOPureAsync<K<M, B>>(f(x)))).Flatten();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

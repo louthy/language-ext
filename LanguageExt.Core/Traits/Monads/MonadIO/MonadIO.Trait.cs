@@ -11,7 +11,6 @@ namespace LanguageExt.Traits;
 public interface MonadIO<M>
     where M : MonadIO<M>, Monad<M>
 {
-
     /// <summary>
     /// Lifts the IO monad into a monad transformer stack.  
     /// </summary>
@@ -464,4 +463,10 @@ public interface MonadIO<M>
 
     public static virtual K<M, Option<SynchronizationContext>> SyncContext() =>
         M.LiftIO(IO.syncContext);
+
+    public static virtual K<M, B> SelectMany<A, B>(K<M, A> ma, Func<A, IO<B>> bind, Func<A, B, B> project) =>
+        M.SelectMany(ma, x => M.LiftIO(bind(x)), project);
+
+    public static virtual K<M, B> SelectMany<A, B>(IO<A> ma, Func<A, K<M, B>> bind, Func<A, B, B> project) =>
+        M.SelectMany(M.LiftIO(ma), bind, project);
 }

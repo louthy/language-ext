@@ -13,7 +13,7 @@ record IOBindMap<A, B, C>(A Value, Func<A, K<IO, B>> Ff, Func<B, C> Fg) : Invoke
         new IOBindMap2<A, B, C, D>(Value, Ff, Fg, f);
 
     public override IO<D> BindAsync<D>(Func<C, ValueTask<K<IO, D>>> f) =>
-        new IOBindMap2<A, B, C, D>(Value, Ff, Fg, x => IO.pureVAsync(f(x)).Flatten());
+        new IOBindMap2<A, B, C, D>(Value, Ff, Fg, x => IO.pureVAsync(f(x)).Bind(v => v));
 
     public override IO<C> Invoke(EnvIO envIO) =>
         Ff(Value).As().Map(Fg);
@@ -49,7 +49,7 @@ record IOBindBindMap<A, B, C, D>(A Value, Func<A, K<IO, B>> Ff, Func<B, K<IO, C>
         new IOBindBindMapBind<A, B, C, D, E>(Value, Ff, Fg, Fh, f);
 
     public override IO<E> BindAsync<E>(Func<D, ValueTask<K<IO, E>>> f) => 
-        new IOBindBindMapBind<A, B, C, D, E>(Value, Ff, Fg, Fh, x => IO.pureVAsync(f(x)).Flatten());
+        new IOBindBindMapBind<A, B, C, D, E>(Value, Ff, Fg, Fh, x => IO.pureVAsync(f(x)).Bind(v => v));
 
     public override IO<D> Invoke(EnvIO envIO) =>
         Ff(Value).As().Bind(Fg).Map(Fh);
@@ -85,7 +85,7 @@ record IOBindMap<A, B, C, D>(A Value, Func<A, K<IO, B>> Ff, Func<B, C> Fg, Func<
         new IOBindMap2<A, B, C, E>(Value, Ff, Fg, x => f(Fh(x)));
 
     public override IO<E> BindAsync<E>(Func<D, ValueTask<K<IO, E>>> f) => 
-        new IOBindMap2<A, B, C, E>(Value, Ff, Fg, x => IO.pureVAsync(f(Fh(x))).Flatten());
+        new IOBindMap2<A, B, C, E>(Value, Ff, Fg, x => IO.pureVAsync(f(Fh(x))).Bind(v => v));
 
     public override IO<D> Invoke(EnvIO envIO) =>
         Ff(Value).As().Map(Fg).Map(Fh);

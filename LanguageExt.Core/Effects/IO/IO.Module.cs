@@ -146,7 +146,7 @@ public partial class IO
         lift(e => e);
     
     public static readonly IO<CancellationToken> token = 
-        lift(e => e.Token);
+        new IOToken<CancellationToken>(pure);
     
     public static readonly IO<CancellationTokenSource> source = 
         lift(e => e.Source);

@@ -23,7 +23,13 @@ public interface Monad<M> :
     //
     //  Default implementations
     //
-    
+
+    public static virtual K<M, B> SelectMany<A, B>(K<M, A> ma, Func<A, K<M, B>> bind, Func<A, B, B> project) =>
+        ma.Bind(x => bind(x).Map(y => project(x, y)));
+
+    public static virtual K<M, B> SelectMany<A, B>(K<M, A> ma, Func<A, Pure<B>> bind, Func<A, B, B> project) =>
+        M.Map(x => project(x, bind(x).Value), ma);
+
     public static virtual K<M, A> Flatten<A>(K<M, K<M, A>> mma) =>
         M.Bind(mma, identity);
 }
