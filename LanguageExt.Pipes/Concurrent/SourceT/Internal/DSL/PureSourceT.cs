@@ -7,7 +7,4 @@ record PureSourceT<M, A>(A Value) : SourceT<M, A>
 {
     internal override SourceTIterator<M, A> GetIterator() =>
         new SingletonSourceTIterator<M, A>(Value);
-
-    internal override K<M, S> ReduceInternal<S>(S state, ReducerM<M, A, S> reducer) =>
-        reducer(state, Value);
 }

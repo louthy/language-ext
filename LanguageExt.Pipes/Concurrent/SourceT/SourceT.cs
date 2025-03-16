@@ -27,9 +27,6 @@ public abstract record SourceT<M, A> :
                                    : M.Pure(state));
     }
     
-    internal abstract K<M, S> ReduceInternal<S>(S state, ReducerM<M, A, S> reducer);
-   // TODO: public abstract K<M, S> Reduce<S>(K<M, S> state, ReducerM<M, A, S> reducer);
-    
     /// <summary>
     /// A source that never yields a value
     /// </summary>

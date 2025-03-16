@@ -11,30 +11,6 @@ record FoldUntilSourceT<M, A, S>(
     S State) : SourceT<M, S>
     where M : Monad<M>, Alternative<M>
 {
-    // TODO: Support Schedule
-
-    internal override K<M, S1> ReduceInternal<S1>(S1 state, ReducerM<M, S, S1> reducer)
-    {
-        return go(state, State, Source.GetIterator());
-
-        K<M, S1> go(S1 state, S foldState, SourceTIterator<M, A> iter) =>
-            IO.liftVAsync(e => iter.ReadyToRead(e.Token))
-              .Bind(flag => flag ? iter.Read()
-                                       .Bind(x =>
-                                             {
-                                                 var nfs = Folder(foldState, x);
-                                                 if (Pred(nfs, x))
-                                                 {
-                                                     return reducer(state, nfs).Bind(s => go(s, nfs, iter));
-                                                 }
-                                                 else
-                                                 {
-                                                     return go(state, nfs, iter);
-                                                 }
-                                             })
-                                : M.Pure(state));
-    }
-
     internal override SourceTIterator<M, S> GetIterator() => 
         new FoldUntilSourceTIterator<M, A, S>(Source.GetIterator(), Schedule, Folder, Pred, State);
 }
