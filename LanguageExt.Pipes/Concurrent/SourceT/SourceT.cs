@@ -6,7 +6,7 @@ using LanguageExt.Traits;
 namespace LanguageExt.Pipes.Concurrent;
 
 /// <summary>
-/// A source / stream of values
+/// A source / stream of lifted values
 /// </summary>
 /// <typeparam name="A">Bound value type</typeparam>
 public abstract record SourceT<M, A> : 
@@ -20,11 +20,9 @@ public abstract record SourceT<M, A> :
 
         K<M, S> go(S state, ReducerM<M, A, S> reducer, SourceTIterator<M, A> iter) =>
             IO.token.BindAsync(
-                async t => t.IsCancellationRequested
-                               ? throw new TaskCanceledException()
-                               : await iter.ReadyToRead(t)
-                                   ? iter.Read().Bind(a => reducer(state, a).Bind(s => go(s, reducer, iter)))
-                                   : M.Pure(state));
+                async t => await iter.ReadyToRead(t)
+                               ? iter.Read().Bind(a => reducer(state, a).Bind(s => go(s, reducer, iter)))
+                               : M.Pure(state));
     }
     
     /// <summary>

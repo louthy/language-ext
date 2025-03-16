@@ -13,6 +13,7 @@ record Zip3SourceTIterator<M, A, B, C>(
 {
     internal override async ValueTask<bool> ReadyToRead(CancellationToken token)
     {
+        if(token.IsCancellationRequested) return false;
         var a = await SourceTA.ReadyToRead(token);
         var b = await SourceTB.ReadyToRead(token);
         var c = await SourceTC.ReadyToRead(token);

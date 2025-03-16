@@ -47,6 +47,6 @@ record FoldWhileSourceTIterator<M, A, S>(
                     });
     }
 
-    internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
-        Source.ReadyToRead(token);
+    internal override async ValueTask<bool> ReadyToRead(CancellationToken token) =>
+        !token.IsCancellationRequested && await Source.ReadyToRead(token);
 }

@@ -20,6 +20,6 @@ record TransformSourceTIterator<M, A, B>(SourceTIterator<M, A> SourceT, Transduc
             M.Pure(Optional(x));
     }
     
-    internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
-        SourceT.ReadyToRead(token);
+    internal override async ValueTask<bool> ReadyToRead(CancellationToken token) =>
+        !token.IsCancellationRequested && await SourceT.ReadyToRead(token);
 }

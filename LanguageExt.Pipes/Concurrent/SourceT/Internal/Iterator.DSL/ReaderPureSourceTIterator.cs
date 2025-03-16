@@ -25,6 +25,6 @@ record ReaderPureSourceTIterator<M, A>(ChannelReader<A> Reader) : SourceTIterato
         }
     }
 
-    internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
-        Reader.WaitToReadAsync(token);
+    internal override async ValueTask<bool> ReadyToRead(CancellationToken token) =>
+        !token.IsCancellationRequested && await Reader.WaitToReadAsync(token);
 }

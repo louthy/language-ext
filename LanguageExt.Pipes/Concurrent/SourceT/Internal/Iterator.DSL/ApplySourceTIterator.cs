@@ -12,5 +12,7 @@ record ApplySourceTIterator<M, A, B>(SourceTIterator<M, Func<A, B>> FF, SourceTI
         FF.Read().Apply(FA.Read());
 
     internal override async ValueTask<bool> ReadyToRead(CancellationToken token) =>
-        await FA.ReadyToRead(token) && await FF.ReadyToRead(token);
+        !token.IsCancellationRequested && 
+        await FA.ReadyToRead(token) && 
+        await FF.ReadyToRead(token);
 }

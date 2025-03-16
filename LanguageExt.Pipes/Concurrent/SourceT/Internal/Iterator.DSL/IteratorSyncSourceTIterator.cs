@@ -19,5 +19,5 @@ record IteratorSyncSourceTIterator<M, A> : SourceTIterator<M, A>
     }
 
     internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
-        new (!Src.IsEmpty);
+        new (!token.IsCancellationRequested && !Src.IsEmpty);
 }

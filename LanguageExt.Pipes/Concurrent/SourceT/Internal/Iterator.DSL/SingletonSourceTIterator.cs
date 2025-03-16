@@ -15,5 +15,5 @@ record SingletonSourceTIterator<M, A>(A Value) : SourceTIterator<M, A>
             : M.Empty<A>();
 
     internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
-        new(read == 0);
+        new(!token.IsCancellationRequested && read == 0);
 }

@@ -9,6 +9,7 @@ record CombineSourceTIterator<M, A>(Seq<SourceTIterator<M, A>> SourceTs) : Sourc
 {
     internal override ValueTask<bool> ReadyToRead(CancellationToken token)
     {
+        if(token.IsCancellationRequested) return new(false);
         if (SourceTs.Count == 0) return new(false);
         if (SourceTs.Count == 1) return SourceTs[0].ReadyToRead(token);
         return SourceTInternal.ReadyToRead(SourceTs, token);

@@ -10,6 +10,7 @@ record Zip2SourceTIterator<M, A, B>(SourceTIterator<M, A> SourceTA, SourceTItera
 {
     internal override async ValueTask<bool> ReadyToRead(CancellationToken token)
     {
+        if(token.IsCancellationRequested) return false;
         var a = await SourceTA.ReadyToRead(token);
         var b = await SourceTB.ReadyToRead(token);
         return a && b;

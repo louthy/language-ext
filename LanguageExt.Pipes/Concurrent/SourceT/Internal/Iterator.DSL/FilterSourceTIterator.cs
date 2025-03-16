@@ -25,6 +25,7 @@ record FilterSourceTIterator<M, A>(SourceTIterator<M, A> Source, Func<A, bool> P
 
     internal override async ValueTask<bool> ReadyToRead(CancellationToken token)
     {
+        if(token.IsCancellationRequested) return false;
         ready = await Source.ReadyToRead(token);
         return ready;
     }

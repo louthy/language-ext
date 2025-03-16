@@ -19,6 +19,6 @@ record ChooseSourceTIterator<M, A>(SourceTIterator<M, A> Left, SourceTIterator<M
         }
     }
 
-    internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
-        SourceTInternal.ReadyToRead([Left, Right], token);
+    internal override async ValueTask<bool> ReadyToRead(CancellationToken token) =>
+        !token.IsCancellationRequested && await SourceTInternal.ReadyToRead([Left, Right], token);
 }

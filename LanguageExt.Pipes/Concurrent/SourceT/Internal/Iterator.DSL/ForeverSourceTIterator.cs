@@ -11,5 +11,5 @@ record ForeverSourceTIterator<M, A>(K<M, A> Value) : SourceTIterator<M, A>
         Value;
 
     internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
-        new(true);
+        new(!token.IsCancellationRequested);
 }
