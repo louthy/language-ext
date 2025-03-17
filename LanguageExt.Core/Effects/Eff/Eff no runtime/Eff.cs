@@ -21,7 +21,6 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     Fallible<Eff<A>>,
     Fallible<Eff<A>, Eff, Error, A>,
     Alternative<Eff<A>>,
-    Deriving<Eff<A>, ReaderT<A, IO>>,
     Deriving.Choice<Eff<A>, ReaderT<A, IO>>,
     Deriving.Readable<Eff<A>, A, ReaderT<A, IO>>,
     Deriving.Maybe.MonadIO<Eff<A>, ReaderT<A, IO>>
