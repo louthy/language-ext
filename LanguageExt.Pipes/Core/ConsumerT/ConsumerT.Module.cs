@@ -17,7 +17,7 @@ public static class ConsumerT
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
     public static ConsumerT<IN, M, IN> awaiting<M, IN>()
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.awaiting<M, IN, Void>();
 
     /// <summary>
@@ -27,7 +27,7 @@ public static class ConsumerT
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
     public static ConsumerT<IN, M, Unit> awaitIgnore<M, IN>()
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         new PipeTAwait<IN, Void, M, Unit>(_ => PipeT.pure<IN, Void, M, Unit>(default));
 
     /// <summary>
@@ -38,7 +38,7 @@ public static class ConsumerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ConsumerT<IN, M, A> pure<IN, M, A>(A value)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.pure<IN, Void, M, A>(value);
 
     /// <summary>
@@ -50,7 +50,7 @@ public static class ConsumerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ConsumerT<IN, M, A> fail<IN, E, M, A>(E value)
-        where M : Monad<M>, Fallible<E, M> =>
+        where M : MonadIO<M>, Fallible<E, M> =>
         PipeT.fail<IN, Void, E, M, A>(value);
 
     /// <summary>
@@ -61,7 +61,7 @@ public static class ConsumerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ConsumerT<IN, M, A> error<IN, M, A>(Error value)
-        where M : Monad<M>, Fallible<M> =>
+        where M : MonadIO<M>, Fallible<M> =>
         PipeT.fail<IN, Void, Error, M, A>(value);
 
     /// <summary>
@@ -72,7 +72,7 @@ public static class ConsumerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ConsumerT<IN, M, A> empty<IN, M, A>()
-        where M : Monad<M>, MonoidK<M> =>
+        where M : MonadIO<M>, MonoidK<M> =>
         PipeT.empty<IN, Void, M, A>();
 
     /// <summary>
@@ -83,7 +83,7 @@ public static class ConsumerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ConsumerT<IN, M, A> lift<IN, M, A>(Func<A> f)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.lift<IN, Void, M, A>(f);
 
     /// <summary>
@@ -94,7 +94,7 @@ public static class ConsumerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ConsumerT<IN, M, A> liftT<IN, M, A>(Func<ConsumerT<IN, M, A>> f)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.liftT(() => f().Proxy);
 
     /// <summary>
@@ -105,7 +105,7 @@ public static class ConsumerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ConsumerT<IN, M, A> liftT<IN, M, A>(Func<ValueTask<ConsumerT<IN, M, A>>> f)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.liftT(() => f().Map(x => x.Proxy));
 
     /// <summary>
@@ -116,7 +116,7 @@ public static class ConsumerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ConsumerT<IN, M, A> liftT<IN, M, A>(ValueTask<ConsumerT<IN, M, A>> f)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.liftT(f.Map(x => x.Proxy));
 
     /// <summary>
@@ -127,7 +127,7 @@ public static class ConsumerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ConsumerT<IN, M, A> liftM<IN, M, A>(K<M, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.liftM<IN, Void, M, A>(ma);
 
     /// <summary>
@@ -138,7 +138,7 @@ public static class ConsumerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ConsumerT<IN, M, A> liftIO<IN, M, A>(IO<A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.liftIO<IN, Void, M, A>(ma);
 
     /// <summary>
@@ -149,7 +149,7 @@ public static class ConsumerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ConsumerT<IN, M, A> repeat<IN, M, A>(ConsumerT<IN, M, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.repeat(ma.Proxy).ToConsumer();
     
     /// <summary>
@@ -160,7 +160,7 @@ public static class ConsumerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ConsumerT<IN, M, A> repeat<IN, M, A>(Schedule schedule, ConsumerT<IN, M, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.repeat(schedule, ma.Proxy).ToConsumer();
 
     /// <summary>
@@ -171,7 +171,7 @@ public static class ConsumerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ConsumerT<IN, M, A> repeatM<IN, M, A>(K<M, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.repeatM<IN, Void, M, A>(ma).ToConsumer();
 
     /// <summary>
@@ -182,6 +182,6 @@ public static class ConsumerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ConsumerT<IN, M, A> repeatM<IN, M, A>(Schedule schedule, K<M, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.repeatM<IN, Void, M, A>(schedule, ma).ToConsumer();
 }

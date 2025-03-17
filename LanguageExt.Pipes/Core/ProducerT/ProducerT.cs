@@ -8,7 +8,7 @@ namespace LanguageExt.Pipes;
 /// `ProducerT` streaming producer monad-transformer instance
 /// </summary>
 public readonly record struct ProducerT<OUT, M, A>(PipeT<Unit, OUT, M, A> Proxy) : K<ProducerT<OUT, M>, A>
-    where M : Monad<M>
+    where M : MonadIO<M>
 {
     [Pure]
     public ProducerT<OUT1, M, A> Compose<OUT1>(PipeT<OUT, OUT1, M, A> rhs) =>

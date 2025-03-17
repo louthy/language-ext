@@ -16,7 +16,8 @@ public class RWST<R, W, S, M> :
     Choice<RWST<R, W, S, M>>,
     Readable<RWST<R, W, S, M>, R>,
     Writable<RWST<R, W, S, M>, W>,
-    Stateful<RWST<R, W, S, M>, S>
+    Stateful<RWST<R, W, S, M>, S>,
+    MonadIO<RWST<R, W, S, M>>
     where M : Monad<M>, Choice<M>
     where W : Monoid<W>
 {

@@ -8,7 +8,7 @@ namespace LanguageExt.Pipes;
 /// `ConsumerT` streaming consumer monad-transformer instance
 /// </summary>
 public readonly record struct ConsumerT<IN, M, A>(PipeT<IN, Void, M, A> Proxy) : K<ConsumerT<IN, M>, A>
-    where M : Monad<M>
+    where M : MonadIO<M>
 {
     [Pure]
     public ConsumerT<IN, M, B> Map<B>(Func<A, B> f) =>

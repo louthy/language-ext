@@ -10,7 +10,7 @@ public static class PipeTExtensions
     /// Downcast
     /// </summary>
     public static PipeT<IN, OUT, M, A> As<IN, OUT, M, A>(this K<PipeT<IN, OUT, M>, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         (PipeT<IN, OUT, M, A>)ma;
     
     /// <summary>
@@ -26,7 +26,7 @@ public static class PipeTExtensions
         this K<M, A> ma, 
         Func<A, PipeT<IN, OUT, M, B>> f,
         Func<A, B, C> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.liftM<IN, OUT, M, A>(ma).SelectMany(f, g);
 
     /// <summary>
@@ -36,7 +36,7 @@ public static class PipeTExtensions
         this IO<A> ma, 
         Func<A, PipeT<IN, OUT, M, B>> f,
         Func<A, B, C> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.liftIO<IN, OUT, M, A>(ma).SelectMany(f, g);
 
     /// <summary>
@@ -46,7 +46,7 @@ public static class PipeTExtensions
         this Pure<A> ma, 
         Func<A, PipeT<IN, OUT, M, B>> f,
         Func<A, B, C> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.pure<IN, OUT, M, A>(ma.Value).SelectMany(f, g);
 
     /// <summary>
@@ -56,7 +56,7 @@ public static class PipeTExtensions
         this Lift<A> ff, 
         Func<A, PipeT<IN, OUT, M, B>> f,
         Func<A, B, C> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.lift<IN, OUT, M, A>(ff.Function).SelectMany(f, g);
     
     /// <summary>
@@ -65,7 +65,7 @@ public static class PipeTExtensions
     public static PipeT<IN, OUT, M, B> Bind<IN, OUT, M, A, B>(
         this K<M, A> ma, 
         Func<A, PipeT<IN, OUT, M, B>> f)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.liftM<IN, OUT, M, A>(ma).Bind(f);
 
     /// <summary>
@@ -74,7 +74,7 @@ public static class PipeTExtensions
     public static PipeT<IN, OUT, M, B> Bind<IN, OUT, M, A, B>(
         this IO<A> ma, 
         Func<A, PipeT<IN, OUT, M, B>> f)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.liftIO<IN, OUT, M, A>(ma).Bind(f);
 
     /// <summary>
@@ -83,7 +83,7 @@ public static class PipeTExtensions
     public static PipeT<IN, OUT, M, B> Bind<IN, OUT, M, A, B>(
         this Pure<A> ma, 
         Func<A, PipeT<IN, OUT, M, B>> f)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.pure<IN, OUT, M, A>(ma.Value).Bind(f);
 
     /// <summary>
@@ -92,7 +92,7 @@ public static class PipeTExtensions
     public static PipeT<IN, OUT, M, B> Bind<IN, OUT, M, A, B>(
         this Lift<A> ff, 
         Func<A, PipeT<IN, OUT, M, B>> f)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.lift<IN, OUT, M, A>(ff.Function).Bind(f);
 
     /// <summary>
@@ -102,7 +102,7 @@ public static class PipeTExtensions
         this K<PipeT<IN, OUT, M>, A> ma,
         Func<A, Guard<E, Unit>> bind,
         Func<A, Unit, C> project)
-        where M : Monad<M>, Fallible<E, M> =>
+        where M : MonadIO<M>, Fallible<E, M> =>
         ma.Bind(a => bind(a) switch
                      {
                          { Flag: true } => PipeT.pure<IN, OUT, M, C>(project(a, default)),
@@ -116,7 +116,7 @@ public static class PipeTExtensions
         this Guard<E, Unit> ma,
         Func<Unit, K<PipeT<IN, OUT, M>, B>> bind,
         Func<Unit, B, C> project)
-        where M : Monad<M>, Fallible<E, M> =>
+        where M : MonadIO<M>, Fallible<E, M> =>
         ma switch
         {
             { Flag: true } => bind(default).Map(b => project(default, b)).As(),

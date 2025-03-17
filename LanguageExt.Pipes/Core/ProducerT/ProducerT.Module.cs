@@ -23,7 +23,7 @@ public static class ProducerT
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
     public static ProducerT<OUT, M, Unit> yield<M, OUT>(OUT value) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.yield<M, Unit, OUT>(value);
 
     /// <summary>
@@ -33,7 +33,7 @@ public static class ProducerT
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
     public static ProducerT<OUT, M, Unit> yieldAll<M, OUT>(IEnumerable<OUT> values)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.yieldAll<M, Unit, OUT>(values);
 
     /// <summary>
@@ -43,7 +43,7 @@ public static class ProducerT
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
     public static ProducerT<OUT, M, Unit> yieldAll<M, OUT>(IAsyncEnumerable<OUT> values)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.yieldAll<M, Unit, OUT>(values);
     
     /// <summary>
@@ -54,7 +54,7 @@ public static class ProducerT
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
     public static ProducerT<OUT, M, Unit> yieldRepeat<M, OUT>(K<M, OUT> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.yieldRepeat<M, Unit, OUT>(ma);
 
     /// <summary>
@@ -65,7 +65,7 @@ public static class ProducerT
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
     public static ProducerT<OUT, M, Unit> yieldRepeatIO<M, OUT>(IO<OUT> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.yieldRepeatIO<M, Unit, OUT>(ma);
     
     /// <summary>
@@ -76,7 +76,7 @@ public static class ProducerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ProducerT<OUT, M, A> pure<OUT, M, A>(A value)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.pure<Unit, OUT, M, A>(value);
     
     /// <summary>
@@ -88,7 +88,7 @@ public static class ProducerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ProducerT<OUT, M, A> fail<OUT, E, M, A>(E value) 
-        where M : Monad<M>, Fallible<E, M> =>
+        where M : MonadIO<M>, Fallible<E, M> =>
         PipeT.fail<Unit, OUT, E, M, A>(value);
     
     /// <summary>
@@ -99,7 +99,7 @@ public static class ProducerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ProducerT<OUT, M, A> error<OUT, M, A>(Error value) 
-        where M : Monad<M>, Fallible<M> =>
+        where M : MonadIO<M>, Fallible<M> =>
         PipeT.error<Unit, OUT, M, A>(value);
     
     /// <summary>
@@ -110,7 +110,7 @@ public static class ProducerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ProducerT<OUT, M, A> empty<OUT, M, A>() 
-        where M : Monad<M>, MonoidK<M> =>
+        where M : MonadIO<M>, MonoidK<M> =>
         PipeT.empty<Unit, OUT, M, A>();
     
     /// <summary>
@@ -121,7 +121,7 @@ public static class ProducerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ProducerT<OUT, M, A> lift<OUT, M, A>(Func<A> f) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.lift<Unit, OUT, M, A>(f);
     
     /// <summary>
@@ -132,7 +132,7 @@ public static class ProducerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ProducerT<OUT, M, A> liftM<OUT, M, A>(K<M, A> ma) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.liftM<Unit, OUT, M, A>(ma);
     
     /// <summary>
@@ -143,7 +143,7 @@ public static class ProducerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ProducerT<OUT, M, A> liftIO<OUT, M, A>(IO<A> ma) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.liftIO<Unit, OUT, M, A>(ma);
         
     /// <summary>
@@ -154,7 +154,7 @@ public static class ProducerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ProducerT<OUT, M, A> liftT<OUT, M, A>(Func<ProducerT<OUT, M, A>> f) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.liftT(() => f().Proxy);
     
     /// <summary>
@@ -165,7 +165,7 @@ public static class ProducerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ProducerT<OUT, M, A> liftT<OUT, M, A>(Func<ValueTask<ProducerT<OUT, M, A>>> f) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.liftT(() => f().Map(p => p.Proxy));
     
     /// <summary>
@@ -176,7 +176,7 @@ public static class ProducerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ProducerT<OUT, M, A> liftT<OUT, M, A>(ValueTask<ProducerT<OUT, M, A>> f) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.liftT(f.Map(p => p.Proxy));
 
     /// <summary>
@@ -187,7 +187,7 @@ public static class ProducerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ProducerT<OUT, M, A> repeat<OUT, M, A>(ProducerT<OUT, M, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.repeat(ma.Proxy).ToProducer();
     
     /// <summary>
@@ -198,7 +198,7 @@ public static class ProducerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ProducerT<OUT, M, A> repeat<OUT, M, A>(Schedule schedule, ProducerT<OUT, M, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.repeat(schedule, ma.Proxy).ToProducer();
 
     /// <summary>
@@ -209,7 +209,7 @@ public static class ProducerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ProducerT<OUT, M, A> repeatM<OUT, M, A>(K<M, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.repeatM<Unit, OUT, M, A>(ma).ToProducer();
 
     /// <summary>
@@ -220,7 +220,7 @@ public static class ProducerT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static ProducerT<OUT, M, A> repeatM<OUT, M, A>(Schedule schedule, K<M, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.repeatM<Unit, OUT, M, A>(schedule, ma).ToProducer();
                 
     /// <summary>
@@ -240,7 +240,7 @@ public static class ProducerT
         Func<OUT, A, OUT> Fold, 
         OUT Init,
         ProducerT<OUT, M, A> Item)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.fold(Time, Fold, Init, Item.Proxy);
 
     /// <summary>
@@ -260,7 +260,7 @@ public static class ProducerT
         Func<(OUT State, A Value), bool> Pred, 
         OUT Init,
         ProducerT<OUT, M, A> Item)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.foldUntil(Fold, Pred, Init, Item.Proxy);
         
     /// <summary>
@@ -282,7 +282,7 @@ public static class ProducerT
         Func<(OUT State, A Value), bool> Pred, 
         OUT Init,
         ProducerT<OUT, M, A> Item)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.foldUntil(Time, Fold, Pred, Init, Item.Proxy);
         
     /// <summary>
@@ -302,7 +302,7 @@ public static class ProducerT
         Func<(OUT State, A Value), bool> Pred, 
         OUT Init,
         ProducerT<OUT, M, A> Item)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.foldWhile(Fold, Pred, Init, Item.Proxy);
         
     /// <summary>
@@ -324,7 +324,7 @@ public static class ProducerT
         Func<(OUT State, A Value), bool> Pred, 
         OUT Init,
         ProducerT<OUT, M, A> Item)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.foldWhile(Time, Fold, Pred, Init, Item.Proxy);
 
     /// <summary>
@@ -337,7 +337,7 @@ public static class ProducerT
     /// <returns>Merged producer</returns>
     public static ProducerT<OUT, M, Unit> merge<OUT, M>(
         params ProducerT<OUT, M, Unit>[] producers)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         merge(toSeq(producers));
     
     /// <summary>
@@ -351,7 +351,7 @@ public static class ProducerT
     public static ProducerT<OUT, M, Unit> merge<OUT, M>(
         Seq<ProducerT<OUT, M, Unit>> producers, 
         Buffer<OUT>? settings = null)
-        where M : Monad<M>
+        where M : MonadIO<M>
     {
         if (producers.Count == 0) return pure<OUT, M, Unit>(default);
 
@@ -365,7 +365,7 @@ public static class ProducerT
     static K<M, Seq<ForkIO<Unit>>> forkEffects<M, OUT>(
         Seq<ProducerT<OUT, M, Unit>> producers,
         Conduit<OUT, OUT> Conduit)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         producers.Map(p => (p | Conduit.ToConsumerT<M>()).Run())
                  .Traverse(ma => ma.ForkIO());
 }

@@ -17,7 +17,7 @@ public partial class SourceT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Uninhabited source</returns>
     public static SourceT<M, A> empty<M, A>() 
-        where M : Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Alternative<M> =>
         EmptySourceT<M, A>.Default;
     
     /// <summary>
@@ -30,7 +30,7 @@ public partial class SourceT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Singleton source</returns>
     public static SourceT<M, A> pure<M, A>(A value) 
-        where M : Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Alternative<M> =>
         new PureSourceT<M, A>(value);
     
     /// <summary>
@@ -43,7 +43,7 @@ public partial class SourceT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Singleton source</returns>
     public static SourceT<M, A> liftM<M, A>(K<M, A> ma) 
-        where M : Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Alternative<M> =>
         new LiftSourceT<M, A>(ma);
     
     /// <summary>
@@ -56,7 +56,7 @@ public partial class SourceT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Singleton source</returns>
     public static SourceT<M, A> liftIO<M, A>(K<IO, A> ma) 
-        where M : Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Alternative<M> =>
         new LiftSourceT<M, A>(M.LiftIO(ma));
     
     /// <summary>
@@ -69,7 +69,7 @@ public partial class SourceT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Infinite source</returns>
     public static SourceT<M, A> forever<M, A>(A value) 
-        where M : Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Alternative<M> =>
         new ForeverSourceT<M, A>(M.Pure(value));
     
     /// <summary>
@@ -82,7 +82,7 @@ public partial class SourceT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Infinite source</returns>
     public static SourceT<M, A> foreverM<M, A>(K<M, A> ma) 
-        where M : Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Alternative<M> =>
         new ForeverSourceT<M, A>(ma);
 
     /// <summary>
@@ -93,7 +93,7 @@ public partial class SourceT
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static SourceT<M, A> lift<M, A>(Channel<A> channel) 
-        where M : Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Alternative<M> =>
         new ReaderPureSourceT<M, A>(channel);
 
     /// <summary>
@@ -104,7 +104,7 @@ public partial class SourceT
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static SourceT<M, A> liftM<M, A>(Channel<K<M, A>> channel) 
-        where M : Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Alternative<M> =>
         new ReaderSourceT<M, A>(channel);
 
     /// <summary>
@@ -115,7 +115,7 @@ public partial class SourceT
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static SourceT<M, A> lift<M, A>(IEnumerable<A> items) 
-        where M : Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Alternative<M> =>
         new IteratorSyncSourceT<M, A>(items.Select(M.Pure));
 
     /// <summary>
@@ -126,7 +126,7 @@ public partial class SourceT
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static SourceT<M, A> liftM<M, A>(IEnumerable<K<M, A>> items) 
-        where M : Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Alternative<M> =>
         new IteratorSyncSourceT<M, A>(items);
 
     /// <summary>
@@ -137,7 +137,7 @@ public partial class SourceT
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static SourceT<M, A> lift<M, A>(IAsyncEnumerable<A> items) 
-        where M : Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Alternative<M> =>
         new IteratorAsyncSourceT<M, A>(items.Select(M.Pure));
 
     /// <summary>
@@ -148,7 +148,7 @@ public partial class SourceT
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static SourceT<M, A> liftM<M, A>(IAsyncEnumerable<K<M, A>> items) 
-        where M : Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Alternative<M> =>
         new IteratorAsyncSourceT<M, A>(items);
     
     /// <summary>
@@ -158,7 +158,7 @@ public partial class SourceT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Source that is the combination of all provided sources</returns>
     public static SourceT<M, A> merge<M, A>(Seq<SourceT<M, A>> sources) 
-        where M : Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Alternative<M> =>
         sources.Fold(empty<M, A>(), (s, s2) => s.Combine(s2));
         
     /// <summary>
@@ -168,7 +168,7 @@ public partial class SourceT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Source that is the combination of all provided sources</returns>
     public static SourceT<M, A> merge<M, A>(params SourceT<M, A>[] sources) 
-        where M : Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Alternative<M> =>
         merge(toSeq(sources));
 
     /// <summary>
@@ -178,7 +178,7 @@ public partial class SourceT
     /// <typeparam name="B">Bound value type of the stream to zip with this one</typeparam>
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     public SourceT<M, (A First, B Second)> zip<M, A, B>(SourceT<M, A> first, SourceT<M, B> second) 
-        where M : Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Alternative<M> =>
         new Zip2SourceT<M, A, B>(first, second);
 
     /// <summary>
@@ -189,7 +189,7 @@ public partial class SourceT
     /// <typeparam name="B">Bound value type of the stream to zip with this one</typeparam>
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     public SourceT<M, (A First, B Second, C Third)> zip<M, A, B, C>(SourceT<M, A> first, SourceT<M, B> second, SourceT<M, C> third) 
-        where M : Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Alternative<M> =>
         new Zip3SourceT<M, A, B, C>(first, second, third);
 
     /// <summary>
@@ -201,6 +201,6 @@ public partial class SourceT
     /// <typeparam name="B">Bound value type of the stream to zip with this one</typeparam>
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     public SourceT<M, (A First, B Second, C Third, D Fourth)> zip<M, A, B, C, D>(SourceT<M, A> first, SourceT<M, B> second, SourceT<M, C> third, SourceT<M, D> fourth) 
-        where M : Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Alternative<M> =>
         new Zip4SourceT<M, A, B, C, D>(first, second, third, fourth);
 }

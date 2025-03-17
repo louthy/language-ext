@@ -6,7 +6,7 @@ using LanguageExt.Traits;
 namespace LanguageExt.Pipes;
 
 public readonly record struct EffectT<M, A>(PipeT<Unit, Void, M, A> Proxy) : K<EffectT<M>, A>
-    where M : Monad<M>
+    where M : MonadIO<M>
 {
     [Pure]
     public EffectT<M, B> Map<B>(Func<A, B> f) =>

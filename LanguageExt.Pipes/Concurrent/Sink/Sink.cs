@@ -82,7 +82,7 @@ public abstract record Sink<A> :
     /// <typeparam name="M">Monad to lift (must support `IO`)</typeparam>
     /// <returns>`ConsumerT`</returns>
     public ConsumerT<A, M, Unit> ToConsumerT<M>()
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ConsumerT.repeat(ConsumerT.awaiting<M, A>().Bind(Post));
 
     /// <summary>

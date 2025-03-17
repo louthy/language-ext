@@ -14,7 +14,8 @@ public partial class FinT<M> :
     Alternative<FinT<M>>,
     Natural<FinT<M>, EitherT<Error, M>>,
     Natural<FinT<M>, OptionT<M>>,
-    Natural<FinT<M>, TryT<M>>
+    Natural<FinT<M>, TryT<M>>,
+    MonadIO<FinT<M>>
     where M : Monad<M>
 {
     static K<FinT<M>, B> Monad<FinT<M>>.Bind<A, B>(K<FinT<M>, A> ma, Func<A, K<FinT<M>, B>> f) => 

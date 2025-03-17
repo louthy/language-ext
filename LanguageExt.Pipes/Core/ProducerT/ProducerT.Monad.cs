@@ -6,8 +6,10 @@ using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
-public class ProducerT<OUT, M> : MonadT<ProducerT<OUT, M>, M>
-    where M : Monad<M>
+public class ProducerT<OUT, M> : 
+    MonadT<ProducerT<OUT, M>, M>,
+    MonadIO<ProducerT<OUT, M>>
+    where M : MonadIO<M>
 {
     static K<ProducerT<OUT, M>, B> Monad<ProducerT<OUT, M>>.Bind<A, B>(
         K<ProducerT<OUT, M>, A> ma, 

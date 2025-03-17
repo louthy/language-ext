@@ -84,7 +84,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(Opt.Default)]
     public static K<M, ForkIO<A>> fork<M, A>(K<M, A> ma, Option<TimeSpan> timeout = default)
-        where M : Maybe.MonadIO<M>, Monad<M> =>
+        where M : MonadIO<M>, Monad<M> =>
         M.ForkIO(ma, timeout);
 
     /// <summary>

@@ -17,7 +17,7 @@ public static class EffectT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static EffectT<M, A> pure<M, A>(A value)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.pure<Unit, Void, M, A>(value);
     
     /// <summary>
@@ -28,7 +28,7 @@ public static class EffectT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static EffectT<M, A> fail<E, M, A>(E value) 
-        where M : Monad<M>, Fallible<E, M> =>
+        where M : MonadIO<M>, Fallible<E, M> =>
         PipeT.fail<Unit, Void, E, M, A>(value);
     
     /// <summary>
@@ -38,7 +38,7 @@ public static class EffectT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static EffectT<M, A> error<M, A>(Error value) 
-        where M : Monad<M>, Fallible<M> =>
+        where M : MonadIO<M>, Fallible<M> =>
         PipeT.error<Unit, Void, M, A>(value);
     
     /// <summary>
@@ -48,7 +48,7 @@ public static class EffectT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static EffectT<M, A> empty<M, A>() 
-        where M : Monad<M>, MonoidK<M> =>
+        where M : MonadIO<M>, MonoidK<M> =>
         PipeT.empty<Unit, Void, M, A>();
     
     /// <summary>
@@ -58,7 +58,7 @@ public static class EffectT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static EffectT<M, A> lift<M, A>(Func<A> f) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.lift<Unit, Void, M, A>(f);
     
     /// <summary>
@@ -68,7 +68,7 @@ public static class EffectT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static EffectT<M, A> liftM<M, A>(K<M, A> ma) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.liftM<Unit, Void, M, A>(ma);
     
     /// <summary>
@@ -78,7 +78,7 @@ public static class EffectT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static EffectT<M, A> liftIO<M, A>(IO<A> ma) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.liftIO<Unit, Void, M, A>(ma);
         
     /// <summary>
@@ -88,7 +88,7 @@ public static class EffectT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static EffectT<M, A> liftT<M, A>(Func<EffectT<M, A>> f) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.liftT(() => f().Proxy);
     
     /// <summary>
@@ -98,7 +98,7 @@ public static class EffectT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static EffectT<M, A> liftT<M, A>(Func<ValueTask<EffectT<M, A>>> f) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.liftT(() => f().Map(p => p.Proxy));
     
     /// <summary>
@@ -108,7 +108,7 @@ public static class EffectT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static EffectT<M, A> liftT<M, A>(ValueTask<EffectT<M, A>> f) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.liftT(f.Map(p => p.Proxy));
 
     /// <summary>
@@ -118,7 +118,7 @@ public static class EffectT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static EffectT<M, A> repeat<M, A>(EffectT<M, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.repeat(ma.Proxy).ToEffect();
     
     /// <summary>
@@ -128,7 +128,7 @@ public static class EffectT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static EffectT<M, A> repeat<M, A>(Schedule schedule, EffectT<M, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.repeat(schedule, ma.Proxy).ToEffect();
 
     /// <summary>
@@ -138,7 +138,7 @@ public static class EffectT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static EffectT<M, A> repeatM<M, A>(K<M, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.repeatM<Unit, Void, M, A>(ma).ToEffect();
 
     /// <summary>
@@ -148,6 +148,6 @@ public static class EffectT
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     public static EffectT<M, A> repeatM<M, A>(Schedule schedule, K<M, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.repeatM<Unit, Void, M, A>(schedule, ma).ToEffect();
 }

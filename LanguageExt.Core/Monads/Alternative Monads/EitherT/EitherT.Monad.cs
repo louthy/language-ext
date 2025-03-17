@@ -11,7 +11,8 @@ public partial class EitherT<L, M> :
     MonadT<EitherT<L, M>, M>, 
     Fallible<L, EitherT<L, M>>,
     Choice<EitherT<L, M>>,
-    Natural<EitherT<L, M>, OptionT<M>>
+    Natural<EitherT<L, M>, OptionT<M>>,
+    MonadIO<EitherT<L, M>>
     where M : Monad<M>
 {
     static K<EitherT<L, M>, B> Monad<EitherT<L, M>>.Bind<A, B>(K<EitherT<L, M>, A> ma, Func<A, K<EitherT<L, M>, B>> f) => 

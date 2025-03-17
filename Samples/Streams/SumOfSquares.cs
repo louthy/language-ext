@@ -25,7 +25,7 @@ public static class SumOfSquares
         select unit;
 
     static SourceT<M, long> squares<M>(int n)
-        where M : Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Alternative<M> =>
         SourceT.lift<M, long>(Range(0, (long)n).Select(v => v * v).Where(v => v <= n));
 
     static SourceT<IO, (long X, long Y)> example(int n) =>

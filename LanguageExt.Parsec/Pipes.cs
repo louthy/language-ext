@@ -13,14 +13,14 @@ public static class ParsecPipes
     /// Pipe a string to a PString
     /// </summary>
     public static PipeT<string, PString, M, Unit> toParserStringT<M>()
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.map<M, string, PString>(x => PString.Zero.SetValue(x));
 
     /// <summary>
     /// Pipe tokens to a PString
     /// </summary>
     public static PipeT<A[], PString<A>, M, Unit> toTokenStringT<M, A>(Func<A, Pos>? tokenPos) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.map<M, A[], PString<A>>(xs => new PString<A>(xs, 0, xs.Length, None, tokenPos ?? (_ => Pos.Zero)));
     
     /// <summary>
@@ -40,7 +40,7 @@ public static class ParsecPipes
     /// If the parser fails then the pipe fails
     /// </summary>
     public static PipeT<PString, OUT, M, Unit> ToPipeT<M, OUT>(this Parser<OUT> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         from t in PipeT.awaiting<M, PString, OUT>()
         from r in ma.Parse(t).ToEither() switch
                   {
@@ -56,7 +56,7 @@ public static class ParsecPipes
     /// The value is only forwarded if the parsing succeeds
     /// </summary>
     public static PipeT<PString<IN>, OUT, M, Unit> ToPipeT<M, IN, OUT>(this Parser<IN, OUT> ma) 
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         from t in PipeT.awaiting<M, PString<IN>, OUT>()
         from _ in ma.Parse(t).ToEither() switch
                   {

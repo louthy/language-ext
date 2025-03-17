@@ -6,8 +6,10 @@ using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
-public class ConsumerT<IN, M> : MonadT<ConsumerT<IN, M>, M>
-    where M : Monad<M>
+public class ConsumerT<IN, M> : 
+    MonadT<ConsumerT<IN, M>, M>,
+    MonadIO<ConsumerT<IN, M>>
+    where M : MonadIO<M>
 {
     static K<ConsumerT<IN, M>, B> Monad<ConsumerT<IN, M>>.Bind<A, B>(
         K<ConsumerT<IN, M>, A> ma, 

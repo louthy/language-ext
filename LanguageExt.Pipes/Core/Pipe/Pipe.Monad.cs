@@ -7,7 +7,9 @@ using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
-public class Pipe<RT, IN, OUT> : MonadT<Pipe<RT, IN, OUT>, Eff<RT>>
+public class Pipe<RT, IN, OUT> : 
+    MonadT<Pipe<RT, IN, OUT>, Eff<RT>>,
+    MonadIO<Pipe<RT, IN, OUT>>
 {
     static K<Pipe<RT, IN, OUT>, B> Monad<Pipe<RT, IN, OUT>>.Bind<A, B>(
         K<Pipe<RT, IN, OUT>, A> ma, 

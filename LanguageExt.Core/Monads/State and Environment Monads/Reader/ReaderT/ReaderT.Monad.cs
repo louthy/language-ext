@@ -11,7 +11,8 @@ namespace LanguageExt;
 public partial class ReaderT<Env, M> :
     MonadT<ReaderT<Env, M>, M>,
     Readable<ReaderT<Env, M>, Env>, 
-    Choice<ReaderT<Env, M>>
+    Choice<ReaderT<Env, M>>,
+    MonadIO<ReaderT<Env, M>>
     where M : Monad<M>, Choice<M>
 {
     static K<ReaderT<Env, M>, B> Monad<ReaderT<Env, M>>.Bind<A, B>(

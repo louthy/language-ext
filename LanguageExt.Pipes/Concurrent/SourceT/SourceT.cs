@@ -12,7 +12,7 @@ namespace LanguageExt.Pipes.Concurrent;
 public abstract record SourceT<M, A> : 
     K<SourceT<M>, A>, 
     Monoid<SourceT<M, A>>
-    where M : Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Alternative<M>
 {
     public K<M, S> Reduce<S>(S state, ReducerM<M, A, S> reducer)
     {

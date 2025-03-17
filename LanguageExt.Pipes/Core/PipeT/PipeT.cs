@@ -18,7 +18,7 @@ namespace LanguageExt.Pipes;
 /// <typeparam name="M">Lifted monad type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public abstract record PipeT<IN, OUT, M, A> : K<PipeT<IN, OUT, M>, A>
-    where M : Monad<M>
+    where M : MonadIO<M>
 {
     [Pure]
     public PipeT<IN, OUT1, M, A> Compose<OUT1>(PipeT<OUT, OUT1, M, A> rhs) =>

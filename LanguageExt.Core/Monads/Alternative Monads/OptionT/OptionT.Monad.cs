@@ -10,7 +10,8 @@ namespace LanguageExt;
 public partial class OptionT<M> : 
     MonadT<OptionT<M>, M>,
     Alternative<OptionT<M>>,
-    Fallible<Unit, OptionT<M>>
+    Fallible<Unit, OptionT<M>>,
+    MonadIO<OptionT<M>>
     where M : Monad<M>
 {
     static K<OptionT<M>, B> Monad<OptionT<M>>.Bind<A, B>(K<OptionT<M>, A> ma, Func<A, K<OptionT<M>, B>> f) => 

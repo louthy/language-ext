@@ -4,9 +4,9 @@ using LanguageExt.Traits;
 namespace LanguageExt.Pipes.Concurrent;
 
 public partial class SourceT<M> : 
-    Monad<SourceT<M>>, 
+    MonadIO<SourceT<M>>,
     Alternative<SourceT<M>>
-    where M : Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Alternative<M>
 {
     static K<SourceT<M>, B> Monad<SourceT<M>>.Bind<A, B>(K<SourceT<M>, A> ma, Func<A, K<SourceT<M>, B>> f) => 
         ma.As().Bind(f);
@@ -31,4 +31,13 @@ public partial class SourceT<M> :
 
     static K<SourceT<M>, A> MonoidK<SourceT<M>>.Empty<A>() =>
         EmptySourceT<M ,A>.Default;
+
+    static K<SourceT<M>, A> Maybe.MonadIO<SourceT<M>>.LiftIO<A>(IO<A> ma) =>
+        SourceT.liftIO<M, A>(ma);
+
+    static K<SourceT<M>, IO<A>> Maybe.MonadIO<SourceT<M>>.ToIO<A>(K<SourceT<M>, A> ma) => 
+        new ToIOSourceT<M, A>(ma.As());
+
+    public static K<SourceT<M>, B> MapIO<A, B>(K<SourceT<M>, A> ma, Func<IO<A>, IO<B>> f) =>
+        new MapIOSourceT<M, A, B>(ma.As(), f);
 }

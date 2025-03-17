@@ -134,7 +134,7 @@ public partial class IO :
     /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
     /// the forked IO operation or to await the result of it.
     /// </returns>
-    static K<IO, ForkIO<A>> Maybe.MonadIO<IO>.ForkIO<A>(K<IO, A> ma, Option<TimeSpan> timeout) =>
+    static K<IO, ForkIO<A>> MonadIO<IO>.ForkIO<A>(K<IO, A> ma, Option<TimeSpan> timeout) =>
         ma is IOEmpty<A>
             ? IOEmpty<ForkIO<A>>.Default
             : ma.As().Fork(timeout);

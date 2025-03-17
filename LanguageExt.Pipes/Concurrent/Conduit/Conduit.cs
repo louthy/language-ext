@@ -97,7 +97,7 @@ public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
     /// <typeparam name="M">Monad to lift (must support `IO`)</typeparam>
     /// <returns>`ConsumerT`</returns>
     public ConsumerT<A, M, Unit> ToConsumerT<M>()
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         Sink.ToConsumerT<M>();
 
     /// <summary>
@@ -113,7 +113,7 @@ public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
     /// <typeparam name="M">Monad to lift (must support `IO`)</typeparam>
     /// <returns>`ProducerT`</returns>
     public ProducerT<B, M, Unit> ToProducerT<M>()
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         Source.ToProducerT<M>();
 
     /// <summary>

@@ -12,7 +12,7 @@ public static class ConduitT
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Constructed Conduit with an `Sink` and an `Source`</returns>
     public static ConduitT<M, A, A> spawn<M, A>() 
-        where M : Maybe.MonadIO<M>, Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Alternative<M> =>
         spawn<M, A>(Buffer<A>.Unbounded);
 
     /// <summary>
@@ -24,7 +24,7 @@ public static class ConduitT
     /// <returns>Constructed Conduit with an `Sink` and an `Source`</returns>
     /// <exception cref="NotSupportedException">Thrown for invalid buffer settings</exception>
     public static ConduitT<M, A, A> spawn<M, A>(Buffer<A> buffer)
-        where M : Maybe.MonadIO<M>, Monad<M>, Alternative<M> 
+        where M : MonadIO<M>, Alternative<M> 
     {
         var channel = MakeChannel<M, A>(buffer);
         return new ConduitT<M, A, A>(new SinkWriter<K<M, A>>(channel.Writer).Contramap((A a) => M.Pure(a)), 

@@ -8,7 +8,7 @@ using LanguageExt.Traits;
 namespace LanguageExt.Pipes;
 
 record PipeTEmpty<IN, OUT, M, A> : PipeT<IN, OUT, M, A>
-    where M : Monad<M>, MonoidK<M>
+    where M : MonadIO<M>, MonoidK<M>
 {
     public static readonly PipeT<IN, OUT, M, A> Default = new PipeTEmpty<IN, OUT, M, A>();
     
@@ -47,7 +47,7 @@ record PipeTEmpty<IN, OUT, M, A> : PipeT<IN, OUT, M, A>
 }
 
 record PipeTPure<IN, OUT, M, A>(A Value) : PipeT<IN, OUT, M, A>
-    where M : Monad<M>
+    where M : MonadIO<M>
 {
     public override PipeT<IN, OUT, M, B> Map<B>(Func<A, B> f) =>
         PipeT.pure<IN, OUT, M, B>(f(Value));
@@ -84,7 +84,7 @@ record PipeTPure<IN, OUT, M, A>(A Value) : PipeT<IN, OUT, M, A>
 }
 
 record PipeTFail<IN, OUT, E, M, A>(E Value) : PipeT<IN, OUT, M, A>
-    where M : Monad<M>, Fallible<E, M>
+    where M : MonadIO<M>, Fallible<E, M>
 {
     public override PipeT<IN, OUT, M, B> Map<B>(Func<A, B> f) =>
         PipeT.fail<IN, OUT, E, M, B>(Value);
@@ -121,7 +121,7 @@ record PipeTFail<IN, OUT, E, M, A>(E Value) : PipeT<IN, OUT, M, A>
 }
 
 record PipeTLazy<IN, OUT, M, A>(Func<PipeT<IN, OUT, M, A>> Acquire) : PipeT<IN, OUT, M, A>
-    where M : Monad<M>
+    where M : MonadIO<M>
 {
     public override PipeT<IN, OUT, M, B> Map<B>(Func<A, B> f) =>
         new PipeTLazy<IN, OUT, M, B>(() => Acquire().Map(f));
@@ -155,7 +155,7 @@ record PipeTLazy<IN, OUT, M, A>(Func<PipeT<IN, OUT, M, A>> Acquire) : PipeT<IN, 
 }
 
 record PipeTLazyAsync<IN, OUT, M, A>(Func<ValueTask<PipeT<IN, OUT, M, A>>> Acquire) : PipeT<IN, OUT, M, A>
-    where M : Monad<M>
+    where M : MonadIO<M>
 {
     public override PipeT<IN, OUT, M, B> Map<B>(Func<A, B> f) =>
         new PipeTLazyAsync<IN, OUT, M, B>(() => Acquire().Map(t => t.Map(f)));
@@ -194,7 +194,7 @@ record PipeTLazyAsync<IN, OUT, M, A>(Func<ValueTask<PipeT<IN, OUT, M, A>>> Acqui
 }
 
 record PipeTLiftM<IN, OUT, M, A>(K<M, PipeT<IN, OUT, M, A>> Value) : PipeT<IN, OUT, M, A>
-    where M : Monad<M>
+    where M : MonadIO<M>
 {
     public override PipeT<IN, OUT, M, B> Map<B>(Func<A, B> f) =>
         new PipeTLiftM<IN, OUT, M, B>(Value.Map(px => px.Map(f)));
@@ -231,7 +231,7 @@ record PipeTLiftM<IN, OUT, M, A>(K<M, PipeT<IN, OUT, M, A>> Value) : PipeT<IN, O
 }
 
 record PipeTYield<IN, OUT, M, A>(OUT Value, Func<Unit, PipeT<IN, OUT, M, A>> Next) : PipeT<IN, OUT, M, A>
-    where M : Monad<M>
+    where M : MonadIO<M>
 {
     public override PipeT<IN, OUT, M, B> Map<B>(Func<A, B> f) => 
         new PipeTYield<IN, OUT, M, B>(Value, _ => Next(default).Map(f));
@@ -268,7 +268,7 @@ record PipeTYield<IN, OUT, M, A>(OUT Value, Func<Unit, PipeT<IN, OUT, M, A>> Nex
 }
 
 record PipeTAwait<IN, OUT, M, A>(Func<IN, PipeT<IN, OUT, M, A>> Await) : PipeT<IN, OUT, M, A>
-    where M : Monad<M>
+    where M : MonadIO<M>
 {
     public override PipeT<IN, OUT, M, B> Map<B>(Func<A, B> f) => 
         new PipeTAwait<IN, OUT, M, B>(x => Await(x).Map(f));
@@ -306,7 +306,7 @@ record PipeTAwait<IN, OUT, M, A>(Func<IN, PipeT<IN, OUT, M, A>> Await) : PipeT<I
 
 record PipeTYieldAll<IN, OUT, M, A>(IEnumerable<PipeT<IN, OUT, M, Unit>> Yields, Func<Unit, PipeT<IN, OUT, M, A>> Next) 
     : PipeT<IN, OUT, M, A>
-    where M : Monad<M>
+    where M : MonadIO<M>
 {
     public override PipeT<IN, OUT, M, B> Map<B>(Func<A, B> f) => 
         new PipeTYieldAll<IN, OUT, M, B>(Yields, x => Next(x).Map(f));
@@ -347,7 +347,7 @@ record PipeTYieldAll<IN, OUT, M, A>(IEnumerable<PipeT<IN, OUT, M, Unit>> Yields,
 
 record PipeTYieldAllAsync<IN, OUT, M, A>(IAsyncEnumerable<PipeT<IN, OUT, M, Unit>> Yields, Func<Unit, PipeT<IN, OUT, M, A>> Next) 
     : PipeT<IN, OUT, M, A>
-    where M : Monad<M>
+    where M : MonadIO<M>
 {
     public override PipeT<IN, OUT, M, B> Map<B>(Func<A, B> f) => 
         new PipeTYieldAllAsync<IN, OUT, M, B>(Yields, x => Next(x).Map(f));

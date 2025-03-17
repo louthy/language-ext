@@ -7,8 +7,8 @@ namespace LanguageExt;
 /// Free monad makes any functor into a monad 
 /// </summary>
 public class Free<F> : 
-    Monad<Free<F>>, 
-    Choice<Free<F>>
+    Choice<Free<F>>,
+    MonadIO<Free<F>>
     where F : Functor<F>
 {
     static K<Free<F>, B> Functor<Free<F>>.Map<A, B>(Func<A, B> f, K<Free<F>, A> ma)

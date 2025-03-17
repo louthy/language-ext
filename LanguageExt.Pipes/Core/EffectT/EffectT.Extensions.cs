@@ -9,14 +9,14 @@ public static class EffectTExtensions
     /// Transformation from `PipeT` to `EffectT`.
     /// </summary>
     public static EffectT<M, A> ToEffect<M, A>(this K<PipeT<Unit, Void, M>, A> pipe)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         new(pipe.As());
 
     /// <summary>
     /// Downcast
     /// </summary>
     public static EffectT<M, A> As<M, A>(this K<EffectT<M>, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         (EffectT<M, A>)ma;
     
     /// <summary>
@@ -38,7 +38,7 @@ public static class EffectTExtensions
         this K<M, A> ma, 
         Func<A, EffectT<M, B>> f,
         Func<A, B, C> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         EffectT.liftM(ma).SelectMany(f, g);
 
     /// <summary>
@@ -48,7 +48,7 @@ public static class EffectTExtensions
         this IO<A> ma, 
         Func<A, EffectT<M, B>> f,
         Func<A, B, C> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         EffectT.liftIO<M, A>(ma).SelectMany(f, g);
 
     /// <summary>
@@ -58,7 +58,7 @@ public static class EffectTExtensions
         this Pure<A> ma, 
         Func<A, EffectT<M, B>> f,
         Func<A, B, C> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         EffectT.pure<M, A>(ma.Value).SelectMany(f, g);
 
     /// <summary>
@@ -68,7 +68,7 @@ public static class EffectTExtensions
         this Lift<A> ff, 
         Func<A, EffectT<M, B>> f,
         Func<A, B, C> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         EffectT.lift<M, A>(ff.Function).SelectMany(f, g);    
 
     /// <summary>
@@ -77,7 +77,7 @@ public static class EffectTExtensions
     public static EffectT<M, B> Bind<M, A, B>(
         this K<M, A> ma, 
         Func<A, EffectT<M, B>> f)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         EffectT.liftM(ma).Bind(f);
 
     /// <summary>
@@ -86,7 +86,7 @@ public static class EffectTExtensions
     public static EffectT<M, B> Bind<M, A, B>(
         this IO<A> ma, 
         Func<A, EffectT<M, B>> f)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         EffectT.liftIO<M, A>(ma).Bind(f);
 
     /// <summary>
@@ -95,7 +95,7 @@ public static class EffectTExtensions
     public static EffectT<M, B> Bind<M, A, B>(
         this Pure<A> ma, 
         Func<A, EffectT<M, B>> f)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         EffectT.pure<M, A>(ma.Value).Bind(f);
 
     /// <summary>
@@ -104,7 +104,7 @@ public static class EffectTExtensions
     public static EffectT<M, B> Bind<M, A, B>(
         this Lift<A> ff, 
         Func<A, EffectT<M, B>> f)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         EffectT.lift<M, A>(ff.Function).Bind(f);
     
     /// <summary>
@@ -114,7 +114,7 @@ public static class EffectTExtensions
         this K<EffectT<M>, A> ma,
         Func<A, Guard<E, Unit>> bind,
         Func<A, Unit, C> project)
-        where M : Monad<M>, Fallible<E, M> =>
+        where M : MonadIO<M>, Fallible<E, M> =>
         ma.Bind(a => bind(a) switch
                      {
                          { Flag: true } => EffectT.pure<M, C>(project(a, default)),
@@ -128,7 +128,7 @@ public static class EffectTExtensions
         this Guard<E, Unit> ma,
         Func<Unit, K<EffectT<M>, B>> bind,
         Func<Unit, B, C> project)
-        where M : Monad<M>, Fallible<E, M> =>
+        where M : MonadIO<M>, Fallible<E, M> =>
         ma switch
         {
             { Flag: true } => bind(default).Map(b => project(default, b)).As(),

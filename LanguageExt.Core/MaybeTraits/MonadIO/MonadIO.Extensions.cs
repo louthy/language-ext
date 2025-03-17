@@ -34,6 +34,6 @@ public static class MaybeMonadIOExtensions
     /// the forked IO operation or to await the result of it.
     /// </returns>
     public static K<M, ForkIO<A>> ForkIO<M, A>(this K<M, A> ma, Option<TimeSpan> timeout = default) 
-        where M : Maybe.MonadIO<M>, Monad<M> =>
+        where M : MonadIO<M>, Monad<M> =>
         M.ForkIO(ma, timeout);
 }

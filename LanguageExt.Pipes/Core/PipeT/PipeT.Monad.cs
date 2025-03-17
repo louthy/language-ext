@@ -7,8 +7,10 @@ using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
-public class PipeT<IN, OUT, M> : MonadT<PipeT<IN, OUT, M>, M>
-    where M : Maybe.MonadIO<M>, Monad<M>
+public class PipeT<IN, OUT, M> : 
+    MonadT<PipeT<IN, OUT, M>, M>,
+    MonadIO<PipeT<IN, OUT, M>>
+    where M : MonadIO<M>, Monad<M>
 {
     static K<PipeT<IN, OUT, M>, B> Monad<PipeT<IN, OUT, M>>.Bind<A, B>(
         K<PipeT<IN, OUT, M>, A> ma, 
@@ -51,7 +53,7 @@ public class PipeT<IN, OUT, M> : MonadT<PipeT<IN, OUT, M>, M>
     static K<PipeT<IN, OUT, M>, IO<A>> Maybe.MonadIO<PipeT<IN, OUT, M>>.ToIO<A>(K<PipeT<IN, OUT, M>, A> ma) => 
         ma.MapIO(IO.pure);
     
-    static K<PipeT<IN, OUT, M>, ForkIO<A>> Maybe.MonadIO<PipeT<IN, OUT, M>>.ForkIO<A>(
+    static K<PipeT<IN, OUT, M>, ForkIO<A>> MonadIO<PipeT<IN, OUT, M>>.ForkIO<A>(
         K<PipeT<IN, OUT, M>, A> ma,
         Option<TimeSpan> timeout) =>
         MonadT.lift<PipeT<IN, OUT, M>, M, ForkIO<A>>(ma.As().Run().ForkIO(timeout));    

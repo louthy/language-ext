@@ -11,7 +11,8 @@ namespace LanguageExt;
 public partial class TryT<M> : 
     Fallible<TryT<M>>, 
     MonadT<TryT<M>, M>, 
-    Alternative<TryT<M>>
+    Alternative<TryT<M>>,
+    MonadIO<TryT<M>>
     where M : Monad<M>
 {
     static K<TryT<M>, B> Monad<TryT<M>>.Bind<A, B>(K<TryT<M>, A> ma, Func<A, K<TryT<M>, B>> f) => 

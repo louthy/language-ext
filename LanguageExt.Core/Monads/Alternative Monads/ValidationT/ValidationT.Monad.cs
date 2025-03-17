@@ -11,7 +11,8 @@ namespace LanguageExt;
 public partial class ValidationT<F, M> : 
     MonadT<ValidationT<F, M>, M>, 
     Fallible<F, ValidationT<F, M>>, 
-    Alternative<ValidationT<F, M>>
+    Alternative<ValidationT<F, M>>,
+    MonadIO<ValidationT<F, M>>
     where M : Monad<M>
     where F : Monoid<F>
 {

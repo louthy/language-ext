@@ -3,7 +3,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes.Concurrent;
 
-public class Sink : Decidable<Sink>
+public partial class Sink : Decidable<Sink>
 {
     static K<Sink, A> Cofunctor<Sink>.Contramap<A, B>(K<Sink, B> fb, Func<A, B> f) =>
         fb.As().Contramap(f);

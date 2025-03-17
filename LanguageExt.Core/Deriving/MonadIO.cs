@@ -101,7 +101,7 @@ public static partial class Deriving
         /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
         /// the forked IO operation or to await the result of it.
         /// </returns>
-        static K<Supertype, ForkIO<A>> Traits.Maybe.MonadIO<Supertype>.ForkIO<A>(
+        static K<Supertype, ForkIO<A>> MonadIO<Supertype>.ForkIO<A>(
             K<Supertype, A> ma,
             Option<TimeSpan> timeout) =>
             Supertype.CoTransform(Subtype.ForkIO(Supertype.Transform(ma), timeout));

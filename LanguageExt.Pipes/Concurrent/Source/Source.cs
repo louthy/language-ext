@@ -262,7 +262,7 @@ public abstract record Source<A> :
     /// <typeparam name="M">Monad to lift (must support `IO`)</typeparam>
     /// <returns>`ProducerT`</returns>
     public ProducerT<A, M, Unit> ToProducerT<M>()
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         PipeT.lift<Unit, A, M, SourceIterator<A>>(GetIterator)
              .Bind(iter => PipeT.yieldRepeatIO<M, Unit, A>(iter.Read()));
 

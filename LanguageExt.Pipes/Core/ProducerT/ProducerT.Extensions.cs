@@ -10,14 +10,14 @@ public static class ProducerTExtensions
     /// Transformation from `PipeT` to `ProducerT`.
     /// </summary>
     public static ProducerT<OUT, M, A> ToProducer<OUT, M, A>(this K<PipeT<Unit, OUT, M>, A> pipe)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         new(pipe.As());
     
     /// <summary>
     /// Downcast
     /// </summary>
     public static ProducerT<OUT, M, A> As<OUT, M, A>(this K<ProducerT<OUT, M>, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         (ProducerT<OUT, M, A>)ma;
     
     /// <summary>
@@ -33,7 +33,7 @@ public static class ProducerTExtensions
         this K<M, A> ma, 
         Func<A, ProducerT<OUT, M, B>> f,
         Func<A, B, C> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ProducerT.liftM<OUT, M, A>(ma).SelectMany(f, g);
 
     /// <summary>
@@ -43,7 +43,7 @@ public static class ProducerTExtensions
         this IO<A> ma, 
         Func<A, ProducerT<OUT, M, B>> f,
         Func<A, B, C> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ProducerT.liftIO<OUT, M, A>(ma).SelectMany(f, g);
 
     /// <summary>
@@ -53,7 +53,7 @@ public static class ProducerTExtensions
         this Pure<A> ma, 
         Func<A, ProducerT<OUT, M, B>> f,
         Func<A, B, C> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ProducerT.pure<OUT, M, A>(ma.Value).SelectMany(f, g);
 
     /// <summary>
@@ -63,7 +63,7 @@ public static class ProducerTExtensions
         this Lift<A> ff, 
         Func<A, ProducerT<OUT, M, B>> f,
         Func<A, B, C> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ProducerT.lift<OUT, M, A>(ff.Function).SelectMany(f, g);
 
     /// <summary>
@@ -72,7 +72,7 @@ public static class ProducerTExtensions
     public static ProducerT<OUT, M, B> Bind<OUT, M, A, B>(
         this K<M, A> ma, 
         Func<A, ProducerT<OUT, M, B>> f)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ProducerT.liftM<OUT, M, A>(ma).Bind(f);
 
     /// <summary>
@@ -81,7 +81,7 @@ public static class ProducerTExtensions
     public static ProducerT<OUT, M, B> Bind<OUT, M, A, B>(
         this IO<A> ma, 
         Func<A, ProducerT<OUT, M, B>> f)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ProducerT.liftIO<OUT, M, A>(ma).Bind(f);
 
     /// <summary>
@@ -90,7 +90,7 @@ public static class ProducerTExtensions
     public static ProducerT<OUT, M, B> Bind<OUT, M, A, B>(
         this Pure<A> ma, 
         Func<A, ProducerT<OUT, M, B>> f)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ProducerT.pure<OUT, M, A>(ma.Value).Bind(f);
 
     /// <summary>
@@ -99,7 +99,7 @@ public static class ProducerTExtensions
     public static ProducerT<OUT, M, B> Bind<OUT, M, A, B>(
         this Lift<A> ff, 
         Func<A, ProducerT<OUT, M, B>> f)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ProducerT.lift<OUT, M, A>(ff.Function).Bind(f);
 
     /// <summary>
@@ -109,7 +109,7 @@ public static class ProducerTExtensions
         this K<ProducerT<OUT, M>, A> ma,
         Func<A, Guard<E, Unit>> bind,
         Func<A, Unit, C> project)
-        where M : Monad<M>, Fallible<E, M> =>
+        where M : MonadIO<M>, Fallible<E, M> =>
         ma.Bind(a => bind(a) switch
                      {
                          { Flag: true } => ProducerT.pure<OUT, M, C>(project(a, default)),
@@ -123,7 +123,7 @@ public static class ProducerTExtensions
         this Guard<E, Unit> ma,
         Func<Unit, K<ProducerT<OUT, M>, B>> bind,
         Func<Unit, B, C> project)
-        where M : Monad<M>, Fallible<E, M> =>
+        where M : MonadIO<M>, Fallible<E, M> =>
         ma switch
         {
             { Flag: true } => bind(default).Map(b => project(default, b)).As(),

@@ -33,7 +33,7 @@ namespace LanguageExt.Pipes.Concurrent;
 /// <typeparam name="A">Input value type</typeparam>
 /// <typeparam name="B">Output value type</typeparam>
 public record ConduitT<M, A, B>(Sink<A> Sink, SourceT<M, B> Source)
-    where M : Maybe.MonadIO<M>, Monad<M>, Alternative<M> 
+    where M : MonadIO<M>, Monad<M>, Alternative<M> 
 {
     /// <summary>
     /// Post a value to the Sink
@@ -43,8 +43,8 @@ public record ConduitT<M, A, B>(Sink<A> Sink, SourceT<M, B> Source)
     /// </remarks>
     /// <param name="value">Value to post</param>
     /// <returns>IO computation that represents the posting</returns>
-    public IO<Unit> Post(A value) =>
-        Sink.Post(value);
+    public K<M, Unit> Post(A value) =>
+        M.LiftIO(Sink.Post(value));
 
     /// <summary>
     /// Read value from the Source
@@ -59,14 +59,14 @@ public record ConduitT<M, A, B>(Sink<A> Sink, SourceT<M, B> Source)
     /// <summary>
     /// Complete and close the Sink
     /// </summary>
-    public IO<Unit> Complete() =>
-        Sink.Complete();
+    public K<M, Unit> Complete() =>
+        M.LiftIO(Sink.Complete());
     
     /// <summary>
     /// Complete and close the Sink with an `Error`
     /// </summary>
-    public IO<Unit> Fail(Error Error) =>
-        Sink.Fail(Error);
+    public K<M, Unit> Fail(Error Error) =>
+        M.LiftIO(Sink.Fail(Error));
     
     /// <summary>
     /// Functor map

@@ -6,7 +6,9 @@ using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
-public class Effect<RT> : MonadT<Effect<RT>, Eff<RT>>
+public class Effect<RT> : 
+    MonadT<Effect<RT>, Eff<RT>>,
+    MonadIO<Effect<RT>>
 {
     static K<Effect<RT>, B> Monad<Effect<RT>>.Bind<A, B>(K<Effect<RT>, A> ma, Func<A, K<Effect<RT>, B>> f) => 
         ma.As().Bind(x => f(x).As());
@@ -49,7 +51,7 @@ public class Effect<RT> : MonadT<Effect<RT>, Eff<RT>>
            .Actions()
            .ToEffect();
 
-    static K<Effect<RT>, ForkIO<A>> Maybe.MonadIO<Effect<RT>>.ForkIO<A>(
+    static K<Effect<RT>, ForkIO<A>> MonadIO<Effect<RT>>.ForkIO<A>(
         K<Effect<RT>, A> ma,
         Option<TimeSpan> timeout) =>
         Effect.liftM(ma.As().Run().ForkIO(timeout));

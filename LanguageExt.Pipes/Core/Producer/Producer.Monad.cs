@@ -6,7 +6,9 @@ using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
-public class Producer<RT, OUT> : MonadT<Producer<RT, OUT>, Eff<RT>>
+public class Producer<RT, OUT> : 
+    MonadT<Producer<RT, OUT>, Eff<RT>>,
+    MonadIO<Producer<RT, OUT>>
 {
     static K<Producer<RT, OUT>, B> Monad<Producer<RT, OUT>>.Bind<A, B>(
         K<Producer<RT, OUT>, A> ma, 

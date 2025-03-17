@@ -9,14 +9,14 @@ public static class ConsumerTExtensions
     /// Transformation from `PipeT` to `ConsumerT`.
     /// </summary>
     public static ConsumerT<IN, M, A> ToConsumer<IN, M, A>(this K<PipeT<IN, Void, M>, A> pipe)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         new(pipe.As());
 
     /// <summary>
     /// Downcast
     /// </summary>
     public static ConsumerT<IN, M, A> As<IN, M, A>(this K<ConsumerT<IN, M>, A> ma)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         (ConsumerT<IN, M, A>)ma;
     
     /// <summary>
@@ -32,7 +32,7 @@ public static class ConsumerTExtensions
         this K<M, A> ma, 
         Func<A, ConsumerT<IN, M, B>> f,
         Func<A, B, C> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ConsumerT.liftM<IN, M, A>(ma).SelectMany(f, g);
 
     /// <summary>
@@ -42,7 +42,7 @@ public static class ConsumerTExtensions
         this IO<A> ma, 
         Func<A, ConsumerT<IN, M, B>> f,
         Func<A, B, C> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ConsumerT.liftIO<IN, M, A>(ma).SelectMany(f, g);
 
     /// <summary>
@@ -52,7 +52,7 @@ public static class ConsumerTExtensions
         this Pure<A> ma, 
         Func<A, ConsumerT<IN, M, B>> f,
         Func<A, B, C> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ConsumerT.pure<IN, M, A>(ma.Value).SelectMany(f, g);
 
     /// <summary>
@@ -62,7 +62,7 @@ public static class ConsumerTExtensions
         this Lift<A> ff, 
         Func<A, ConsumerT<IN, M, B>> f,
         Func<A, B, C> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ConsumerT.lift<IN, M, A>(ff.Function).SelectMany(f, g);
     
     /// <summary>
@@ -72,7 +72,7 @@ public static class ConsumerTExtensions
         this K<M, A> ma, 
         Func<A, ConsumerT<IN, M, B>> f,
         Func<A, B> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ConsumerT.liftM<IN, M, A>(ma).Bind(f);
 
     /// <summary>
@@ -82,7 +82,7 @@ public static class ConsumerTExtensions
         this IO<A> ma, 
         Func<A, ConsumerT<IN, M, B>> f,
         Func<A, B> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ConsumerT.liftIO<IN, M, A>(ma).Bind(f);
 
     /// <summary>
@@ -92,7 +92,7 @@ public static class ConsumerTExtensions
         this Pure<A> ma, 
         Func<A, ConsumerT<IN, M, B>> f,
         Func<A, B> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ConsumerT.pure<IN, M, A>(ma.Value).Bind(f);
 
     /// <summary>
@@ -102,7 +102,7 @@ public static class ConsumerTExtensions
         this Lift<A> ff, 
         Func<A, ConsumerT<IN, M, B>> f,
         Func<A, B> g)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ConsumerT.lift<IN, M, A>(ff.Function).Bind(f);
 
     /// <summary>
@@ -112,7 +112,7 @@ public static class ConsumerTExtensions
         this K<ConsumerT<IN, M>, A> ma,
         Func<A, Guard<E, Unit>> bind,
         Func<A, Unit, C> project)
-        where M : Monad<M>, Fallible<E, M> =>
+        where M : MonadIO<M>, Fallible<E, M> =>
         ma.Bind(a => bind(a) switch
                      {
                          { Flag: true } => ConsumerT.pure<IN, M, C>(project(a, default)),
@@ -126,7 +126,7 @@ public static class ConsumerTExtensions
         this Guard<E, Unit> ma,
         Func<Unit, K<ConsumerT<IN, M>, B>> bind,
         Func<Unit, B, C> project)
-        where M : Monad<M>, Fallible<E, M> =>
+        where M : MonadIO<M>, Fallible<E, M> =>
         ma switch
         {
             { Flag: true } => bind(default).Map(b => project(default, b)).As(),

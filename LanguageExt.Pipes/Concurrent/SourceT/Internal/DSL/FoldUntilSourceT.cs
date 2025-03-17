@@ -9,7 +9,7 @@ record FoldUntilSourceT<M, A, S>(
     Func<S, A, S> Folder,
     Func<S, A, bool> Pred,
     S State) : SourceT<M, S>
-    where M : Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Alternative<M>
 {
     internal override SourceTIterator<M, S> GetIterator() => 
         new FoldUntilSourceTIterator<M, A, S>(Source.GetIterator(), Schedule, Folder, Pred, State);
