@@ -21,7 +21,8 @@ public abstract record Source<A> :
         EmptySource<A>.Default;
 
     /// <summary>
-    /// Reduce the stream to a single value
+    /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
+    /// result value.   
     /// </summary>
     /// <param name="state">State to reduce</param>
     /// <param name="reducer">Reducer</param>
@@ -47,12 +48,6 @@ public abstract record Source<A> :
                           }
                           return state;
                       });
-    
-    internal IO<S> Reduce1<S>(S state, Func<S, A, S> reducer) =>
-        Reduce(state, (s, a) => new ValueTask<Reduced<S>>(Reduced.Continue(reducer(s, a))));
-    
-    internal IO<S> Reduce2<S>(S state, Func<S, A, Reduced<S>> reducer) =>
-        Reduce(state, (s, a) => new ValueTask<Reduced<S>>(reducer(s, a)));
 
     /// <summary>
     /// Transform with a transducer
@@ -350,6 +345,5 @@ public abstract record Source<A> :
     // Internal
     //
     
-    internal abstract ValueTask<Reduced<S>> ReduceAsync<S>(S state, Reducer<A, S> reducer, CancellationToken token);
     internal abstract SourceIterator<A> GetIterator();
 }

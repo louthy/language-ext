@@ -7,7 +7,4 @@ record TransformSource<A, B>(Source<A> Source, Transducer<A, B> Transducer) : So
 {
     internal override SourceIterator<B> GetIterator() =>
         new TransformSourceIterator<A, B>(Source.GetIterator(), Transducer);
-    
-    internal override ValueTask<Reduced<S>> ReduceAsync<S>(S state, Reducer<B, S> reducer, CancellationToken token) =>
-        Source.ReduceAsync(state, Transducer.Reduce(reducer), token);
 }
