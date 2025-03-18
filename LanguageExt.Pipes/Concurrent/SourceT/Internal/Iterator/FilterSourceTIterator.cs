@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes.Concurrent;
@@ -13,8 +14,16 @@ record FilterSourceTIterator<M, A>(SourceTIterator<M, A> Source, Func<A, bool> P
         IO.token
           .BindAsync(async t =>
                      {
-                         if(!ready && !await Source.ReadyToRead(t)) return M.Empty<A>();
-                         return Source.Read().Bind(v => Predicate(v) ? ClearReadyFlag(v) : Read());
+                         if (ready || await ReadyToRead(t))
+                         {
+                             return Source.Read().Bind(v => Predicate(v) 
+                                                                ? ClearReadyFlag(v) 
+                                                                : Read());    
+                         }
+                         else
+                         {
+                             return M.Empty<A>();
+                         }
                      });
 
     K<M, A> ClearReadyFlag(A ma)

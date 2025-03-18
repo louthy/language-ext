@@ -1,10 +1,7 @@
 using System;
 using System.Threading;
-using System.Threading.Channels;
 using System.Threading.Tasks;
-using LanguageExt.Common;
 using LanguageExt.Traits;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Pipes.Concurrent;
 
@@ -15,9 +12,9 @@ record BindSourceTIterator<M, A, B>(SourceTIterator<M, A> SourceT, Func<A, Sourc
 
     public override K<M, B> Read()
     {
-        return IO.token.BindAsync(go);
+        return IO.token.Bind(go);
         
-        async ValueTask<K<M, B>> go(CancellationToken token)
+        K<M, B> go(CancellationToken token)
         {
             if (Current is null)
             {

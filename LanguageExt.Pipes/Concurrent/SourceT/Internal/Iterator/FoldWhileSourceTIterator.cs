@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Pipes.Concurrent;
 
@@ -42,7 +43,7 @@ record FoldWhileSourceTIterator<M, A, S>(
                         }
                         else
                         {
-                            return M.Pure(state);
+                            return M.Empty<S>();
                         }
                     });
     }

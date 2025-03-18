@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Traits;
@@ -15,9 +16,12 @@ record IteratorSyncSourceTIterator<M, A> : SourceTIterator<M, A>
         Src = Src.Clone();
         var head = Src.Head;
         Src = Src.Tail.Split();
+
         return head;
     }
 
-    internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
-        new (!token.IsCancellationRequested && !Src.IsEmpty);
+    internal override ValueTask<bool> ReadyToRead(CancellationToken token)
+    {
+        return new(!token.IsCancellationRequested && !Src.IsEmpty);
+    }
 }

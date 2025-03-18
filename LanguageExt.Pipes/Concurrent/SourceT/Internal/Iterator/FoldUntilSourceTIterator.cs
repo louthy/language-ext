@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Pipes.Concurrent;
 
@@ -14,7 +15,7 @@ record FoldUntilSourceTIterator<M, A, S>(
     where M : Monad<M>, Alternative<M>
 {
     // TODO: Support Schedule
-
+    
     public override K<M, S> Read()
     {
         return go(State, Pred, this);
@@ -42,7 +43,8 @@ record FoldUntilSourceTIterator<M, A, S>(
                         }
                         else
                         {
-                            return M.Pure(state);
+                            return M.Empty<S>();
+                            //return M.Pure(state);
                         }
                     });
     }
