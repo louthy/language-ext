@@ -827,14 +827,13 @@ public abstract record IO<A> :
     /// <param name="env">IO environment</param>
     /// <returns>Result of the IO operation</returns>
     /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
-    /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
     public A Run(EnvIO? envIO = null)
     {
         // RunAsync can run completely synchronously and without the creation of a async/await state-machine, so calling
         // it for operations that are completely synchronous has no additional overhead for us.  Therefore, calling it
         // directly here and then unpacking the `ValueTask` makes sense to reduce code duplication.
 
-        var task = RunAsync(envIO);
+        var task = envIO is null ? RunAsync() : RunAsync(envIO);
         if (task.IsCompleted) return task.Result;
 
         // If RunAsync really had to do some asynchronous work, then make sure we use the awaiter and get its result
@@ -857,92 +856,134 @@ public abstract record IO<A> :
     /// </remarks>
     /// <returns>Result of the IO operation</returns>
     /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
-    /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
-    public ValueTask<A> RunAsync(EnvIO? envIO = null)
+    public ValueTask<A> RunAsync()
     {
-        if (envIO?.Token.IsCancellationRequested ?? false) return ValueTask.FromCanceled<A>(envIO?.Token ?? default);
-        var envRequiresDisposal = envIO is null;
-        envIO ??= EnvIO.New();
-        var ma     = this;
-        var locals = Seq(envIO);
-        var stack  = Seq(new StackItem(ex => ex.Rethrow<IO<A>>(), locals)); // we want at least one item in the stack
-                                                                            // so that we benefit from the auto-clean-up   
-                                                                            // of resources.
+        var envIO = EnvIO.New();
         try
         {
-            while (!envIO.Token.IsCancellationRequested)
+            var va = RunAsync(envIO);
+            if (va.IsCompleted)
             {
-                switch (ma)
-                {
-                    case InvokeAsync<A>:
-                        return ma.RunAsyncInternal(stack, locals);
-
-                    case InvokeAsyncIO<A>:
-                        return ma.RunAsyncInternal(stack, locals);
-
-                    case InvokeSync<A> op:
-                        try
-                        {
-                            return new ValueTask<A>(op.Invoke(envIO));
-                        }
-                        catch (Exception e)
-                        {
-                            if (stack.IsEmpty) throw;
-                            ma = RunCatchHandler(e);
-                            break;
-                        }
-
-                    case InvokeSyncIO<A> op:
-                        try
-                        {
-                            ma = op.Invoke(envIO);
-                        }
-                        catch (Exception e)
-                        {
-                            if (stack.IsEmpty) throw;
-                            ma = RunCatchHandler(e);
-                        }
-
-                        break;
-
-                    case IOCatch<A> c:
-                        var @catch = c.MakeHandler();
-                        stack = new StackItem(@catch, locals).Cons(stack);
-                        ma = c.MakeOperation();
-                        break;
-
-                    case IOCatchPop<A> pop:
-                        stack = stack.Tail;
-                        ma = pop.Next;
-                        break;
-                    
-                    case IOLocal<A> local:
-                        locals = local.MapEnvIO(envIO).Cons(locals);
-                        envIO = locals[0]; 
-                        ma = local.MakeOperation();
-                        break;
-                
-                    case IOLocalRestore<A> restore:
-                        locals = locals.Tail;
-                        envIO = locals[0];
-                        ma = restore.Next.As();
-                        break;                    
-
-                    case IOTail<A> tail:
-                        ma = tail.Tail;
-                        break;
-
-                    default:
-                        return ValueTask.FromException<A>(Errors.IODSLExtension);
-                }
+                envIO.Dispose();
+                return va;
             }
+            else
+            {
+                return SafeRunAsync(va, envIO);
+            }
+        }
+        catch (Exception)
+        {
+            envIO.Dispose();
+            throw;
+        }
+    }
 
-            return ValueTask.FromCanceled<A>(envIO.Token);
+    static async ValueTask<A> SafeRunAsync(ValueTask<A> va, EnvIO envIO)
+    {
+        try
+        {
+            return await va;
         }
         finally
         {
-            if (envRequiresDisposal) envIO.Dispose();
+            envIO.Dispose();
         }
+    }
+
+    /// <summary>
+    /// Run the `IO` monad to get its result
+    /// </summary>
+    /// <remarks>
+    /// This forks the operation to run on a new task that is then awaited.
+    /// 
+    /// Any lifted asynchronous operations will yield to the thread-scheduler, allowing other queued
+    /// operations to run concurrently.  So, even though this call isn't awaitable it still plays
+    /// nicely and doesn't block the thread.
+    /// </remarks>
+    /// <remarks>
+    /// NOTE: An exception will always be thrown if the IO operation fails.  Lift this monad into
+    /// other error handling monads to leverage more declarative error handling. 
+    /// </remarks>
+    /// <returns>Result of the IO operation</returns>
+    /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
+    public ValueTask<A> RunAsync(EnvIO envIO)
+    {
+        if (envIO.Token.IsCancellationRequested) return ValueTask.FromCanceled<A>(envIO.Token);
+        var ma     = this;
+        var locals = Seq(envIO);
+        var stack  = Seq(new StackItem(ex => ex.Rethrow<IO<A>>(), locals)); // we want at least one item in the stack
+                                                                              // so that we benefit from the auto-clean-up   
+                                                                              // of resources.
+                                                                              
+        while (!envIO.Token.IsCancellationRequested)
+        {
+            switch (ma)
+            {
+                case InvokeAsync<A>:
+                    return ma.RunAsyncInternal(stack, locals);
+
+                case InvokeAsyncIO<A>:
+                    return ma.RunAsyncInternal(stack, locals);
+
+                case InvokeSync<A> op:
+                    try
+                    {
+                        return new ValueTask<A>(op.Invoke(envIO));
+                    }
+                    catch (Exception e)
+                    {
+                        if (stack.IsEmpty) throw;
+                        ma = RunCatchHandler(e);
+                        break;
+                    }
+
+                case InvokeSyncIO<A> op:
+                    try
+                    {
+                        ma = op.Invoke(envIO);
+                    }
+                    catch (Exception e)
+                    {
+                        if (stack.IsEmpty) throw;
+                        ma = RunCatchHandler(e);
+                    }
+
+                    break;
+
+                case IOCatch<A> c:
+                    var @catch = c.MakeHandler();
+                    stack = new StackItem(@catch, locals).Cons(stack);
+                    ma = c.MakeOperation();
+                    break;
+
+                case IOCatchPop<A> pop:
+                    stack = stack.Tail;
+                    ma = pop.Next;
+                    break;
+                
+                case IOLocal<A> local:
+                    locals = local.MapEnvIO(envIO).Cons(locals);
+                    envIO = locals[0]; 
+                    ma = local.MakeOperation();
+                    break;
+            
+                case IOLocalRestore<A> restore:
+                    locals = locals.Tail;
+                    envIO = locals[0];
+                    ma = restore.Next.As();
+                    break;                    
+
+                case IOTail<A> tail:
+                    ma = tail.Tail;
+                    break;
+
+                default:
+                    return ValueTask.FromException<A>(Errors.IODSLExtension);
+            }
+        }
+
+        return ValueTask.FromCanceled<A>(envIO.Token);
 
         IO<A> RunCatchHandler(Exception e)
         {
