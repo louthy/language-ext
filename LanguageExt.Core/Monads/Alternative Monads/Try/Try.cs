@@ -142,7 +142,7 @@ public record Try<A>(Func<Fin<A>> runTry) :
     /// <param name="f">Mapping function</param>
     /// <returns>`TryT`</returns>
     public Try<A> MapFail(Func<Error, Error> f) =>
-        new(() => runTry().MapFail(f));
+        this.Catch(f).As();
     
     /// <summary>
     /// Maps the bound value
@@ -204,13 +204,7 @@ public record Try<A>(Func<Fin<A>> runTry) :
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`TryT`</returns>
     public Try<B> BiBind<B>(Func<A, Try<B>> Succ, Func<Error, Try<B>> Fail) =>
-        new(() =>
-            {
-                var r = runTry();
-                return r.IsFail
-                           ? Fail((Error)r).runTry()
-                           : Succ((A)r).runTry();
-            });
+        Bind(Succ).Catch(Fail).As();
 
     /// <summary>
     /// Monad bind operation
@@ -219,7 +213,7 @@ public record Try<A>(Func<Fin<A>> runTry) :
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`TryT`</returns>
     public Try<A> BindFail(Func<Error, Try<A>> Fail) =>
-        BiBind(Succ, Fail);
+        this.Catch(Fail).As();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

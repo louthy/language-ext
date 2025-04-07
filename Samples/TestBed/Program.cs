@@ -49,13 +49,10 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        var mx = IO.pure(100).Bind(x => IO.pure(x * 2));
-        var mr = mx.Run();
-        
-        Issue1426().GetAwaiter().GetResult();
-        return;
-        
-        SeqConstructTests.Test();
+        Issue1453.Test();
+        //UseTest.Main().GetAwaiter().GetResult();
+        //Issue1426().GetAwaiter().GetResult();
+        //SeqConstructTests.Test();
         //ResourcesDiscussion1366.Run();
         //StateTTest();
         //AtomHashMapTests.Test();
