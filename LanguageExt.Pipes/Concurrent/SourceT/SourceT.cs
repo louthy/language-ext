@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Traits;
@@ -27,24 +28,20 @@ public abstract record SourceT<M, A> :
     /// <returns>Lifted aggregate state</returns>
     public K<M, S> Reduce<S>(S state, ReducerM<M, A, S> reducer)
     {
-        return go(state, reducer, GetIterator());
+        return M.LiftIO(IO.lift<K<M, S>>(e => go2(state, reducer, GetIterator(), e.Token))).Flatten();
 
-        K<M, S> go(S state, ReducerM<M, A, S> reducer, SourceTIterator<M, A> iter) =>
-            M.LiftIO(IO.liftAsync<K<M, S>>(
-                         async e => await iter.ReadyToRead(e.Token)
-                                        ? iter.Read() switch
-                                          {
-                                              ReadM<M, A> (var ma) => 
-                                                  ma.Bind(a => reducer(state, a).Bind(s => go(s, reducer, iter)))
-                                                    .Choose(() => M.Pure(state)),
-                                              
-                                              ReadIter<M, A> (var miter) =>
-                                                  miter.Bind(i => go(state, reducer, i).Bind(s => go(s, reducer, iter)))
-                                                       .Choose(() => M.Pure(state))
-                                          }
-                                              
-                                        : M.Pure(state)))
-             .Bind(static x => x);
+        K<M, S> go2(S state, ReducerM<M, A, S> reducer, SourceTIterator<M, A> iter, CancellationToken token) =>
+            iter.ReadyToRead(token).GetAwaiter().GetResult()
+                ? iter.Read() switch
+                  {
+                      ReadM<M, A> (var ma) =>
+                          ma.Bind(a => reducer(state, a).Bind(s => go2(s, reducer, iter, token)))
+                            .Choose(() => M.Pure(state)),
+
+                      ReadIter<M, A> (var miter) =>
+                          miter.Bind(i => go2(state, reducer, i, token).Bind(s => go2(s, reducer, iter, token)))
+                  }
+                : M.Pure(state);
     }
     
     /// <summary>
@@ -66,7 +63,7 @@ public abstract record SourceT<M, A> :
     /// Functor map
     /// </summary>
     public virtual SourceT<M, B> Map<B>(Func<A, B> f) =>
-        Transform(Transducer.map(f));
+        new MapSourceT<M,A,B>(this, f);
     
     /// <summary>
     /// Monad bind
