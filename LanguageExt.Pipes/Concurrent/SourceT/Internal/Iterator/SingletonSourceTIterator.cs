@@ -9,10 +9,10 @@ record SingletonSourceTIterator<M, A>(A Value) : SourceTIterator<M, A>
 {
     volatile int read;
 
-    public override K<M, A> Read() =>
+    public override ReadResult<M, A> Read() =>
         Interlocked.CompareExchange(ref read, 1, 0) == 0
-            ? M.Pure(Value)
-            : M.Empty<A>();
+            ? ReadResult<M>.Value(M.Pure(Value))
+            : ReadResult<M>.empty<A>();
 
     internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
         new(!token.IsCancellationRequested && read == 0);

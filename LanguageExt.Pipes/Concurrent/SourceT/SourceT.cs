@@ -32,9 +32,17 @@ public abstract record SourceT<M, A> :
         K<M, S> go(S state, ReducerM<M, A, S> reducer, SourceTIterator<M, A> iter) =>
             M.LiftIO(IO.liftAsync<K<M, S>>(
                          async e => await iter.ReadyToRead(e.Token)
-                                        ? iter.Read()
-                                              .Bind(a => reducer(state, a).Bind(s => go(s, reducer, iter)))
-                                              .Choose(() => M.Pure(state))
+                                        ? iter.Read() switch
+                                          {
+                                              ReadM<M, A> (var ma) => 
+                                                  ma.Bind(a => reducer(state, a).Bind(s => go(s, reducer, iter)))
+                                                    .Choose(() => M.Pure(state)),
+                                              
+                                              ReadIter<M, A> (var miter) =>
+                                                  miter.Bind(i => go(state, reducer, i).Bind(s => go(s, reducer, iter)))
+                                                       .Choose(() => M.Pure(state))
+                                          }
+                                              
                                         : M.Pure(state)))
              .Bind(static x => x);
     }
@@ -71,6 +79,12 @@ public abstract record SourceT<M, A> :
     /// </summary>
     public SourceT<M, B> Bind<B>(Func<A, K<SourceT<M>, B>> f) =>
         Bind(x => f(x).As());
+    
+    /// <summary>
+    /// Monad bind
+    /// </summary>
+    public virtual SourceT<M, B> Bind<B>(Func<A, IO<B>> f) =>
+        new BindSourceT<M, A, B>(this, x => SourceT.liftIO<M, B>(f(x)));
     
     /// <summary>
     /// Filter values.  Yielding downstream when `true`
@@ -256,8 +270,11 @@ public abstract record SourceT<M, A> :
     /// <typeparam name="M">Monad to lift (must support `IO`)</typeparam>
     /// <returns>`ProducerT`</returns>
     public ProducerT<A, M, Unit> ToProducerT() =>
+        throw new NotImplementedException("TODO");
+        /*
         PipeT.lift<Unit, A, M, SourceTIterator<M, A>>(GetIterator)
              .Bind(iter => PipeT.yieldRepeat<M, Unit, A>(iter.Read()));
+             */
     
     /// <summary>
     /// Combine two sources into a single source.  The value streams are both

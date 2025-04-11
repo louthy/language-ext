@@ -10,27 +10,18 @@ record FilterSourceTIterator<M, A>(SourceTIterator<M, A> Source, Func<A, bool> P
     where M : Monad<M>, Alternative<M>
 {
     bool ready;
-    public override K<M, A> Read() =>
-        IO.token
-          .BindAsync(async t =>
-                     {
-                         if (ready || await ReadyToRead(t))
-                         {
-                             return Source.Read().Bind(v => Predicate(v) 
-                                                                ? ClearReadyFlag(v) 
-                                                                : Read());    
-                         }
-                         else
-                         {
-                             return M.Empty<A>();
-                         }
-                     });
 
-    K<M, A> ClearReadyFlag(A ma)
-    {
-        ready = false;
-        return M.Pure(ma);
-    }
+    public override ReadResult<M, A> Read() =>
+        Source.Read() switch
+        {
+            ReadM<M, A> (var ma) =>
+                ReadResult<M>.Iter(ma.Map(x => Predicate(x)
+                                                   ? new SingletonSourceTIterator<M, A>(x)
+                                                   : EmptySourceTIterator<M, A>.Default)),
+            
+            ReadIter<M, A> (var miter) =>
+                ReadResult<M>.Iter(miter.Map(iter => (SourceTIterator<M, A>)new FilterSourceTIterator<M, A>(iter, Predicate)))
+        };
 
     internal override async ValueTask<bool> ReadyToRead(CancellationToken token)
     {

@@ -8,9 +8,9 @@ namespace LanguageExt.Pipes.Concurrent;
 record ReaderPureSourceTIterator<M, A>(ChannelReader<A> Reader) : SourceTIterator<M, A>
     where M : Monad<M>, Alternative<M>
 {
-    public override K<M, A> Read()
+    public override ReadResult<M, A> Read()
     {
-        return IO.token.BindAsync(go);
+        return ReadResult<M>.Value(IO.token.BindAsync(go));
         
         async ValueTask<K<M, A>> go(CancellationToken token)
         {

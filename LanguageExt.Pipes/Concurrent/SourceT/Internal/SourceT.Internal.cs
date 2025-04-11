@@ -51,22 +51,22 @@ internal class SourceTInternal
         }
     }
     
-    public static async ValueTask<K<M, A>> Read<M, A>(Seq<SourceTIterator<M, A>> sources, CancellationToken token)
+    public static ReadResult<M, A> Read<M, A>(Seq<SourceTIterator<M, A>> sources)
         where M : Monad<M>, Alternative<M>
     {
         if (sources.Count == 0) throw Errors.SourceClosed;
 
-        var                remaining  = sources.Count;
-        using var          wait       = new CountdownEvent(remaining);
-        using var          src        = new CancellationTokenSource();
-        await using var    reg        = token.Register(() => src.Cancel());
-        var                childToken = src.Token;
-        var                flag       = 0;
+        var                    remaining  = sources.Count;
+        using var              wait       = new CountdownEvent(remaining);
+      //using var              src        = new CancellationTokenSource();
+      //using var              reg        = token.Register(() => src.Cancel());
+      //var                    childToken = src.Token;
+        var                    flag       = 0;
         SourceTIterator<M, A>? source     = null;
 
-        try
-        {
-            sources.Map(s => s.ReadyToRead(childToken)
+      //try
+      //{
+            sources.Map(s => s.ReadyToRead(default)
                               .Map(f =>
                                    {
                                        if (f && Interlocked.CompareExchange(ref flag, 1, 0) == 0)
@@ -91,14 +91,14 @@ internal class SourceTInternal
                                    }))
                    .Strict();
 
-            wait.Wait(token);
+            wait.Wait();
             return flag == 2
                        ? source!.Read()
                        : throw Errors.SourceClosed;
-        }
-        finally
-        {
-            await src.CancelAsync();
-        }
+      //}
+      //finally
+      //{
+      //    src.Cancel();
+      //}
     }
 }

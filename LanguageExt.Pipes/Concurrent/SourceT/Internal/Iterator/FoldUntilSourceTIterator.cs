@@ -15,39 +15,32 @@ record FoldUntilSourceTIterator<M, A, S>(
     where M : Monad<M>, Alternative<M>
 {
     // TODO: Support Schedule
-    
-    public override K<M, S> Read()
-    {
-        return go(State, Pred, this);
 
-        static K<M, S> go(S state, Func<S, A, bool> pred, FoldUntilSourceTIterator<M, A, S> self) =>
-            IO.liftVAsync(e => self.ReadyToRead(e.Token))
-              .Bind(flag =>
-                    {
-                        if (flag)
-                        {
-                            var mx = self.Source.Read();
-                            return mx.Bind(
-                                x =>
-                                {
-                                    state = self.Folder(state, x);
-                                    if (pred(state, x))
-                                    {
-                                        return M.Pure(state);
-                                    }
-                                    else
-                                    {
-                                        return go(state, pred, self);
-                                    }
-                                });
-                        }
-                        else
-                        {
-                            return M.Empty<S>();
-                            //return M.Pure(state);
-                        }
-                    });
-    }
+    S CurrentState { get; set; } = State;
+    
+    public override ReadResult<M, S> Read() =>
+        Source.Read() switch
+        {
+            ReadM<M, A> (var ma) =>
+                ReadResult<M>.Iter(ma.Map(x =>
+                                          {
+                                              var ns = Folder(CurrentState, x);
+                                              CurrentState = ns;
+                                              return Pred(ns, x)
+                                                        ? new SingletonSourceTIterator<M, S>(ns) 
+                                                        : EmptySourceTIterator<M, S>.Default;
+                                          })),
+            
+            ReadIter<M, A> (var miter) =>
+                ReadResult<M>.Iter(
+                    miter.Map(
+                        iter => (SourceTIterator<M, S>)new FoldUntilSourceTIterator<M, A, S>(
+                            iter, 
+                            Schedule,
+                            Folder,
+                            Pred,
+                            CurrentState)))
+        };
 
     internal override async ValueTask<bool> ReadyToRead(CancellationToken token) =>
         !token.IsCancellationRequested && await Source.ReadyToRead(token);

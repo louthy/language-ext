@@ -10,18 +10,15 @@ record IteratorSyncSourceTIterator<M, A> : SourceTIterator<M, A>
 {
     internal required Iterator<K<M, A>> Src;
 
-    public override K<M, A> Read()
+    public override ReadResult<M, A> Read()
     {
-        if (Src.IsEmpty) return M.Empty<A>();
-        Src = Src.Clone();
+        if (Src.IsEmpty) return ReadResult<M>.empty<A>();
         var head = Src.Head;
         Src = Src.Tail.Split();
 
-        return head;
+        return ReadResult<M>.Value(head);
     }
 
-    internal override ValueTask<bool> ReadyToRead(CancellationToken token)
-    {
-        return new(!token.IsCancellationRequested && !Src.IsEmpty);
-    }
+    internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
+        new(!token.IsCancellationRequested && !Src.IsEmpty);
 }

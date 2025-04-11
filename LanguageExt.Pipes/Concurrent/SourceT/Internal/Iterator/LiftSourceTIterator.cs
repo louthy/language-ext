@@ -9,10 +9,10 @@ record LiftSourceTIterator<M, A>(K<M, A> Value) : SourceTIterator<M, A>
 {
     volatile int read;
 
-    public override K<M, A> Read() =>
+    public override ReadResult<M, A> Read() =>
         Interlocked.CompareExchange(ref read, 1, 0) == 0
-            ? Value
-            : M.Empty<A>();
+            ? ReadResult<M>.Value(Value)
+            : ReadResult<M>.empty<A>();
 
     internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
         new(!token.IsCancellationRequested && read == 0);

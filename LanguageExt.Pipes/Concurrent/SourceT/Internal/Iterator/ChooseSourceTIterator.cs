@@ -7,7 +7,7 @@ namespace LanguageExt.Pipes.Concurrent;
 record ChooseSourceTIterator<M, A>(SourceTIterator<M, A> Left, SourceTIterator<M, A> Right) : SourceTIterator<M, A>
     where M : Monad<M>, Alternative<M>
 {
-    public override K<M, A> Read()
+    public override ReadResult<M, A> Read()
     {
         try
         {

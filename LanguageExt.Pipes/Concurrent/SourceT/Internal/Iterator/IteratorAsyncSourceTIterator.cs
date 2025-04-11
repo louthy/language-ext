@@ -10,9 +10,9 @@ record IteratorAsyncSourceTIterator<M, A> : SourceTIterator<M, A>
 {
     internal required IteratorAsync<K<M, A>> Src;
 
-    public override K<M, A> Read()
+    public override ReadResult<M, A> Read()
     {
-        return IO.token.BindAsync(go);
+        return ReadResult<M>.Value(IO.token.BindAsync(go));
         async ValueTask<K<M, A>> go(CancellationToken token)
         {
             if (await Src.IsEmpty) return M.Empty<A>();

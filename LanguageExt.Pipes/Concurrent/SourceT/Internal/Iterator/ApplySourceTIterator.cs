@@ -8,8 +8,8 @@ namespace LanguageExt.Pipes.Concurrent;
 record ApplySourceTIterator<M, A, B>(SourceTIterator<M, Func<A, B>> FF, SourceTIterator<M, A> FA) : SourceTIterator<M, B>
     where M : Monad<M>, Alternative<M>
 {
-    public override K<M, B> Read() =>
-        FF.Read().Apply(FA.Read());
+    public override ReadResult<M, B> Read() =>
+        FA.Read().ApplyBack(FF.Read());
 
     internal override async ValueTask<bool> ReadyToRead(CancellationToken token) =>
         !token.IsCancellationRequested && 

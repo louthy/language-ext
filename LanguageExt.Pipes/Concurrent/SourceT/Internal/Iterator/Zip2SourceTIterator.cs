@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Traits;
@@ -16,6 +17,7 @@ record Zip2SourceTIterator<M, A, B>(SourceTIterator<M, A> SourceTA, SourceTItera
         return a && b;
     }
 
-    public override K<M, (A First, B Second)> Read() =>
-        SourceTA.Read().Zip(SourceTB.Read());
+    public override ReadResult<M, (A First, B Second)> Read() =>
+        throw new NotImplementedException("TODO");
+        //SourceTA.Read().Zip(SourceTB.Read());
 }

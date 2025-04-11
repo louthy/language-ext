@@ -9,8 +9,8 @@ record EmptySourceTIterator<M, A> : SourceTIterator<M, A>
 {
     public static readonly SourceTIterator<M, A> Default = new EmptySourceTIterator<M, A>();
 
-    public override K<M, A> Read() => 
-        M.Empty<A>();
+    public override ReadResult<M, A> Read() => 
+        ReadResult<M>.empty<A>();
 
     internal override ValueTask<bool> ReadyToRead(CancellationToken token) =>
         new(false);
