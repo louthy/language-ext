@@ -5,7 +5,7 @@ using LanguageExt.Traits;
 namespace LanguageExt.Pipes.Concurrent;
 
 record SingletonSourceTIterator<M, A>(A Value) : SourceTIterator<M, A>
-    where M : Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Alternative<M>
 {
     volatile int read;
 

@@ -5,7 +5,7 @@ using LanguageExt.Traits;
 namespace LanguageExt.Pipes.Concurrent;
 
 record ToIOSourceTIterator<M, A>(SourceTIterator<M, A> Source) : SourceTIterator<M, IO<A>>
-    where M : Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Alternative<M>
 {
     public override ReadResult<M, IO<A>> Read() =>
         Source.Read() switch

@@ -15,7 +15,7 @@ public static class Merging
         emptyLine;
 
     static SourceT<IO, Unit> example(int n) =>
-        from v in evens(n) + odds(n)
+        from v in evens(n) | odds(n)
         where false
         select unit;
     

@@ -8,7 +8,7 @@ namespace LanguageExt.Pipes.Concurrent;
 
 record TransformSourceTIterator<M, A, B>(SourceTIterator<M, A> Source, Transducer<A, B> Transducer) 
     : SourceTIterator<M, B>
-    where M : Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Alternative<M>
 {
     public override ReadResult<M, B> Read()
     {

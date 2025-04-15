@@ -5,20 +5,27 @@ using LanguageExt.Traits;
 namespace LanguageExt.Pipes.Concurrent;
 
 record CombineSourceTIterator<M, A>(Seq<SourceTIterator<M, A>> Sources) : SourceTIterator<M, A>
-    where M : Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Alternative<M>
 {
-    internal override ValueTask<bool> ReadyToRead(CancellationToken token)
+    volatile int SourceIndex;
+    
+    internal override async ValueTask<bool> ReadyToRead(CancellationToken token)
     {
-        if(token.IsCancellationRequested) return new(false);
-        if (Sources.Count == 0) return new(false);
-        if (Sources.Count == 1) return Sources[0].ReadyToRead(token);
-        return SourceTInternal.ReadyToRead(Sources, token);
+        if(SourceIndex >= Sources.Count) return false;
+        if(token.IsCancellationRequested) return false;
+        if (Sources.Count == 0) return false;
+        if (Sources.Count == 1) return await Sources[0].ReadyToRead(token);
+        var source = Sources[SourceIndex];
+        var ready = await source.ReadyToRead(token);
+        if (ready) return true;
+        Interlocked.Increment(ref SourceIndex);
+        return await ReadyToRead(token);
     }
 
     public override ReadResult<M, A> Read()
     {
+        if (SourceIndex   >= Sources.Count) return ReadResult<M>.empty<A>();
         if (Sources.Count == 0) return ReadResult<M>.empty<A>();
-        if (Sources.Count == 1) return Sources[0].Read();
-        return SourceTInternal.Read(Sources);
+        return Sources[SourceIndex].Read();
     }
 }

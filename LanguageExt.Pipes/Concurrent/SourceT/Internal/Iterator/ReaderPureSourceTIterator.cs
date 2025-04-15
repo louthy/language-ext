@@ -6,7 +6,7 @@ using LanguageExt.Traits;
 namespace LanguageExt.Pipes.Concurrent;
 
 record ReaderPureSourceTIterator<M, A>(ChannelReader<A> Reader) : SourceTIterator<M, A>
-    where M : Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Alternative<M>
 {
     public override ReadResult<M, A> Read()
     {

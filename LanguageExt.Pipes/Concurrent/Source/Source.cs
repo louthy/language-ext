@@ -99,11 +99,11 @@ public abstract record Source<A> :
         new ApplySource<A, B>(ff, this);
 
     /// <summary>
-    /// Combine two sources into a single source.  The value streams are both
-    /// merged into a new stream.  Values are yielded as they become available.
+    /// Concatenate two sources into a single source.  
     /// </summary>
+    /// <param name="lhs">Left hand side</param>
     /// <param name="rhs">Right hand side</param>
-    /// <returns>Merged stream of values</returns>
+    /// <returns>Concatenated stream of values</returns>
     public Source<A> Combine(Source<A> rhs) =>
         (this, rhs) switch
         {
@@ -117,13 +117,23 @@ public abstract record Source<A> :
         };
     
     /// <summary>
-    /// Choose a value from the first `Source` to successfully yield 
+    /// The value streams are both merged into a new stream.  Values are yielded
+    /// as they become available. 
     /// </summary>
-    /// <param name="rhs"></param>
-    /// <returns>Value from this `Source` if there are any available, if not, from `rhs`.  If
-    /// `rhs` is also empty then `Errors.SourceClosed` is raised</returns>
+    /// <param name="this">Left hand side</param>
+    /// <param name="rhs">Right hand side</param>
+    /// <returns>Merged stream</returns>
     public Source<A> Choose(Source<A> rhs) =>
-        new ChooseSource<A>(this, rhs);
+        (this, rhs) switch
+        {
+            (EmptySource<A>, EmptySource<A>)       => EmptySource<A>.Default,
+            (var l, EmptySource<A>)                => l,
+            (EmptySource<A>, var r)                => r,
+            (ChooseSource<A> l, ChooseSource<A> r) => new ChooseSource<A>(l.Sources + r.Sources),
+            (ChooseSource<A> l, var r)             => new ChooseSource<A>(l.Sources.Add(r)),
+            (var l, ChooseSource<A> r)             => new ChooseSource<A>(l.Cons(r.Sources)),
+            _                                      => new ChooseSource<A>([this, rhs])
+        };        
 
     /// <summary>
     /// Zip two sources into one
@@ -269,22 +279,21 @@ public abstract record Source<A> :
         ToProducerT<Eff<RT>>();
     
     /// <summary>
-    /// Combine two sources into a single source.  The value streams are both
-    /// merged into a new stream.  Values are yielded as they become available.
+    /// Concatenate two sources into a single source.  
     /// </summary>
     /// <param name="lhs">Left hand side</param>
     /// <param name="rhs">Right hand side</param>
-    /// <returns>Merged stream of values</returns>
+    /// <returns>Concatenated stream of values</returns>
     public static Source<A> operator +(Source<A> lhs, Source<A> rhs) =>
         lhs.Combine(rhs);
 
     /// <summary>
-    /// Choose a value from the first `Source` to successfully yield 
+    /// The value streams are both merged into a new stream.  Values are yielded
+    /// as they become available. 
     /// </summary>
     /// <param name="lhs">Left hand side</param>
     /// <param name="rhs">Right hand side</param>
-    /// <returns>Value from the `lhs` `Source` if there are any available, if not, from `rhs`.  If
-    /// `rhs` is also empty then `Errors.SourceClosed` is raised</returns>
+    /// <returns>Marged stream</returns>
     public static Source<A> operator |(Source<A> lhs, Source<A> rhs) =>
         lhs.Choose(rhs);
 

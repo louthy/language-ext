@@ -315,3 +315,15 @@ public class Program
     static Pipe<string, string, Eff<Runtime>, Unit> pipeMap =>
         Pipe.map((string x) => $"Hello {x}");*/
 }
+
+public static class Issue1453erwr
+{
+    public static Eff<bool> isEmpty<E>(IteratorAsync<E> iter) =>
+        liftEff(async _ => await iter.IsEmpty);
+
+    public static Eff<E> head<E>(IteratorAsync<E> iter) =>
+        liftEff(async _ => await iter.Head);
+
+    public static Eff<IteratorAsync<E>> tail<E>(IteratorAsync<E> iter) =>
+        liftEff(async _ => await iter.Split().Tail);
+}

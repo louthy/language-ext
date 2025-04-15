@@ -7,7 +7,7 @@ using LanguageExt.Traits;
 namespace LanguageExt.Pipes.Concurrent;
 
 record FilterSourceTIterator<M, A>(SourceTIterator<M, A> Source, Func<A, bool> Predicate) : SourceTIterator<M, A>
-    where M : Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Alternative<M>
 {
     bool ready;
 

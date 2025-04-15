@@ -5,7 +5,7 @@ using LanguageExt.Traits;
 namespace LanguageExt.Pipes.Concurrent;
 
 record ForeverSourceTIterator<M, A>(K<M, A> Value) : SourceTIterator<M, A>
-    where M : Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Alternative<M>
 {
     public override ReadResult<M, A> Read() =>
         ReadResult<M>.Value(Value);

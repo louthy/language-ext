@@ -6,7 +6,7 @@ using LanguageExt.Traits;
 namespace LanguageExt.Pipes.Concurrent;
 
 record MapSourceTIterator<M, A, B>(SourceTIterator<M, A> Source, Func<A, B> F) : SourceTIterator<M, B>
-    where M : Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Alternative<M>
 {
     public override ReadResult<M, B> Read() => 
         Source.Read().Map(F);

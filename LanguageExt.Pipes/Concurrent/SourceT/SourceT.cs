@@ -1,6 +1,5 @@
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 
@@ -37,6 +36,24 @@ public abstract record SourceT<M, A> :
                       ReadM<M, A> (var ma) =>
                           ma.Bind(a => reducer(state, a).Bind(s => go2(s, reducer, iter, token)))
                             .Choose(() => M.Pure(state)),
+
+                      ReadIter<M, A> (var miter) =>
+                          miter.Bind(i => go2(state, reducer, i, token).Bind(s => go2(s, reducer, iter, token)))
+                  }
+                : M.Pure(state);
+    }
+
+    public K<M, S> ReduceM<S>(S state, ReducerM<M, K<M, A>, S> reducer)
+    {
+        return M.LiftIO(IO.lift<K<M, S>>(e => go2(state, reducer, GetIterator(), e.Token))).Flatten();
+
+        K<M, S> go2(S state, ReducerM<M, K<M, A>, S> reducer, SourceTIterator<M, A> iter, CancellationToken token) =>
+            iter.ReadyToRead(token).GetAwaiter().GetResult()
+                ? iter.Read() switch
+                  {
+                      ReadM<M, A> (var ma) =>
+                          reducer(state, ma).Bind(s => go2(s, reducer, iter, token))
+                                            .Choose(() => M.Pure(state)),
 
                       ReadIter<M, A> (var miter) =>
                           miter.Bind(i => go2(state, reducer, i, token).Bind(s => go2(s, reducer, iter, token)))
@@ -106,31 +123,49 @@ public abstract record SourceT<M, A> :
         new ApplySourceT<M, A, B>(ff, this);
 
     /// <summary>
-    /// Combine two sources into a single source.  The value streams are both
-    /// merged into a new stream.  Values are yielded as they become available.
+    /// Concatenate streams 
     /// </summary>
+    /// <param name="this">Left hand side</param>
     /// <param name="rhs">Right hand side</param>
-    /// <returns>Merged stream of values</returns>
+    /// <returns>A stream that concatenates the inputs streams</returns>
     public SourceT<M, A> Combine(SourceT<M, A> rhs) =>
         (this, rhs) switch
         {
             (EmptySourceT<M, A>, EmptySourceT<M, A>)         => EmptySourceT<M, A>.Default,
             (var l, EmptySourceT<M, A>)                      => l,
             (EmptySourceT<M, A>, var r)                      => r,
-            (CombineSourceT<M, A> l, CombineSourceT<M, A> r) => new CombineSourceT<M, A>(l.SourceTs + r.SourceTs),
-            (CombineSourceT<M, A> l, var r)                  => new CombineSourceT<M, A>(l.SourceTs.Add(r)),
-            (var l, CombineSourceT<M, A> r)                  => new CombineSourceT<M, A>(l.Cons(r.SourceTs)),
+            (CombineSourceT<M, A> l, CombineSourceT<M, A> r) => new CombineSourceT<M, A>(l.Sources + r.Sources),
+            (CombineSourceT<M, A> l, var r)                  => new CombineSourceT<M, A>(l.Sources.Add(r)),
+            (var l, CombineSourceT<M, A> r)                  => new CombineSourceT<M, A>(l.Cons(r.Sources)),
             _                                                => new CombineSourceT<M, A>([this, rhs])
+        };
+
+    /// <summary>
+    /// Combine two sources into a single source.  The value streams are both
+    /// merged into a new stream.  Values are yielded as they become available
+    /// regardless of which stream yields it.
+    /// </summary>
+    /// <param name="this">Left hand side</param>
+    /// <param name="rhs">Right hand side</param>
+    /// <returns>Merged stream of values</returns>
+    public SourceT<M, A> Choose(SourceT<M, A> rhs) =>
+        (this, rhs) switch
+        {
+            (EmptySourceT<M, A>, EmptySourceT<M, A>)       => EmptySourceT<M, A>.Default,
+            (var l, EmptySourceT<M, A>)                    => l,
+            (EmptySourceT<M, A>, var r)                    => r,
+            (ChooseSourceT<M, A> l, ChooseSourceT<M, A> r) => new ChooseSourceT<M, A>(l.Sources + r.Sources),
+            (ChooseSourceT<M, A> l, var r)                 => new ChooseSourceT<M, A>(l.Sources.Add(r)),
+            (var l, ChooseSourceT<M, A> r)                 => new ChooseSourceT<M, A>(l.Cons(r.Sources)),
+            _                                              => new ChooseSourceT<M, A>([this, rhs])
         };
     
     /// <summary>
-    /// Choose a value from the first `SourceT` to successfully yield 
+    /// Fork the source so it runs on its own thread
     /// </summary>
-    /// <param name="rhs"></param>
-    /// <returns>Value from this `SourceT` if there are any available, if not, from `rhs`.  If
-    /// `rhs` is also empty then `Errors.SourceTClosed` is raised</returns>
-    public SourceT<M, A> Choose(SourceT<M, A> rhs) =>
-        new ChooseSourceT<M, A>(this, rhs);
+    /// <returns></returns>
+    public SourceT<M, ForkIO<A>> Fork() =>
+        new ForkSourceT<M, A>(this);
 
     /// <summary>
     /// Zip two sources into one
@@ -274,22 +309,22 @@ public abstract record SourceT<M, A> :
              */
     
     /// <summary>
-    /// Combine two sources into a single source.  The value streams are both
-    /// merged into a new stream.  Values are yielded as they become available.
+    /// Concatenate streams 
     /// </summary>
     /// <param name="lhs">Left hand side</param>
     /// <param name="rhs">Right hand side</param>
-    /// <returns>Merged stream of values</returns>
+    /// <returns>A stream that concatenates the inputs streams</returns>
     public static SourceT<M, A> operator +(SourceT<M, A> lhs, SourceT<M, A> rhs) =>
         lhs.Combine(rhs);
 
     /// <summary>
-    /// Choose a value from the first `SourceT` to successfully yield 
+    /// Combine two sources into a single source.  The value streams are both
+    /// merged into a new stream.  Values are yielded as they become available
+    /// regardless of which stream yields it.
     /// </summary>
     /// <param name="lhs">Left hand side</param>
     /// <param name="rhs">Right hand side</param>
-    /// <returns>Value from the `lhs` `SourceT` if there are any available, if not, from `rhs`.  If
-    /// `rhs` is also empty then `Errors.SourceTClosed` is raised</returns>
+    /// <returns>Merged stream of values</returns>
     public static SourceT<M, A> operator |(SourceT<M, A> lhs, SourceT<M, A> rhs) =>
         lhs.Choose(rhs);
 

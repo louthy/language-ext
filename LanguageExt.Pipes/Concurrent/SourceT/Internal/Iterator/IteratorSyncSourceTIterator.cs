@@ -6,7 +6,7 @@ using LanguageExt.Traits;
 namespace LanguageExt.Pipes.Concurrent;
 
 record IteratorSyncSourceTIterator<M, A> : SourceTIterator<M, A>
-    where M : Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Alternative<M>
 {
     internal required Iterator<K<M, A>> Src;
 

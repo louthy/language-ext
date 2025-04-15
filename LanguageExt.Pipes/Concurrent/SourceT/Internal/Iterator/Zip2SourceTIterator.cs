@@ -7,7 +7,7 @@ namespace LanguageExt.Pipes.Concurrent;
 
 record Zip2SourceTIterator<M, A, B>(SourceTIterator<M, A> SourceTA, SourceTIterator<M, B> SourceTB)
     : SourceTIterator<M, (A First, B Second)>
-    where M : Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Alternative<M>
 {
     internal override async ValueTask<bool> ReadyToRead(CancellationToken token)
     {

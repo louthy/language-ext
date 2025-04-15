@@ -5,7 +5,7 @@ using LanguageExt.Traits;
 namespace LanguageExt.Pipes.Concurrent;
 
 public static class ReadResult<M>
-    where M : Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Alternative<M>
 {
     public static readonly ReadResult<M, CancellationToken> token =
         Value(M.LiftIO(IO.token));
@@ -28,7 +28,7 @@ public abstract record ReadResult<M, A>
 }
 
 record ReadM<M, A>(K<M, A> Value) : ReadResult<M, A>
-    where M : Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Alternative<M>
 {
     public override ReadResult<M, B> Map<B>(Func<A, B> f) => 
         new ReadM<M, B>(Value.Map(f));
@@ -55,7 +55,7 @@ record ReadM<M, A>(K<M, A> Value) : ReadResult<M, A>
 }
 
 record ReadIter<M, A>(K<M, SourceTIterator<M, A>> Iter) : ReadResult<M, A>
-    where M : Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Alternative<M>
 {
     public override ReadResult<M, B> Map<B>(Func<A, B> f) => 
         new ReadIter<M, B>(Iter.Map(iter => iter.Map(f)));

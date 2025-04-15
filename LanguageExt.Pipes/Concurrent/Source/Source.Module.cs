@@ -77,7 +77,7 @@ public partial class Source
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Source that is the combination of all provided sources</returns>
     public static Source<A> merge<A>(Seq<Source<A>> sources) =>
-        sources.Fold(empty<A>(), (s, s2) => s.Combine(s2));
+        sources.Fold(empty<A>(), (s, s2) => s.Choose(s2));
         
     /// <summary>
     /// Merge sources into a single source

@@ -10,7 +10,7 @@ record Zip3SourceTIterator<M, A, B, C>(
     SourceTIterator<M, B> SourceTB, 
     SourceTIterator<M, C> SourceTC) :
     SourceTIterator<M, (A First, B Second, C Third)>
-    where M : Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Alternative<M>
 {
     internal override async ValueTask<bool> ReadyToRead(CancellationToken token)
     {

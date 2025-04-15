@@ -12,7 +12,7 @@ record FoldWhileSourceTIterator<M, A, S>(
     Func<S, A, S> Folder,
     Func<S, A, bool> Pred,
     S State) : SourceTIterator<M, S>
-    where M : Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Alternative<M>
 {
     // TODO: Support Schedule
 
