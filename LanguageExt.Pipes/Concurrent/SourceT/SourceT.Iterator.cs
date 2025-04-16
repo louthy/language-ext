@@ -23,6 +23,20 @@ public abstract record SourceTIterator<M, A>
     public SourceTIterator<M, A> Choose(SourceTIterator<M, A> rhs) =>
         ChooseSourceT.makeIterator([this, rhs]);
     
+    public SourceTIterator<M, (A First, B Second)> Zip<B>(SourceTIterator<M, B> second) =>
+        new Zip2SourceTIterator<M, A, B>(this, second);
+    
+    public SourceTIterator<M, (A First, B Second, C Third)> Zip<B, C>(
+        SourceTIterator<M, B> second, 
+        SourceTIterator<M, C> third) =>
+        new Zip3SourceTIterator<M, A, B, C>(this, second, third);
+    
+    public SourceTIterator<M, (A First, B Second, C Third, D Fourth)> Zip<B, C, D>(
+        SourceTIterator<M, B> second, 
+        SourceTIterator<M, C> third, 
+        SourceTIterator<M, D> fourth) =>
+        new Zip4SourceTIterator<M, A, B, C, D>(this, second, third, fourth);
+    
     /// <summary>
     /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
     /// result value.  This is returned lifted. 

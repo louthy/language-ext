@@ -1,6 +1,4 @@
-﻿#pragma warning disable LX_StreamT
-
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;

@@ -1,7 +1,4 @@
-#pragma warning disable LX_StreamT
-
 using LanguageExt;
-using LanguageExt.Pipes;
 using LanguageExt.Pipes.Concurrent;
 using static LanguageExt.Prelude;
 using static Streams.Console;

@@ -11,18 +11,8 @@ record ReaderSourceTIterator<M, A>(ChannelReader<K<M, A>> Reader) : SourceTItera
     public override ReadResult<M, A> Read()
     {
         return ReadResult<M>.Value(IO.token.BindAsync(go));
-        
-        async ValueTask<K<M, A>> go(CancellationToken token)
-        {
-            if(await Reader.WaitToReadAsync(token))
-            {
-                return await Reader.ReadAsync(token);
-            }
-            else
-            {
-                return M.Empty<A>();
-            }
-        }
+        async ValueTask<K<M, A>> go(CancellationToken token) =>
+            await Reader.ReadAsync(token);
     }
 
     internal override async ValueTask<bool> ReadyToRead(CancellationToken token) =>

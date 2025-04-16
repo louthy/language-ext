@@ -504,10 +504,8 @@ public abstract class IteratorAsync<A> :
         /// can't be garbage collected. 
         /// </summary>
         /// <returns>New iterator that starts from the current iterator position</returns>
-        public override IteratorAsync<A> Split()
-        {
-            throw new InvalidOperationException("Can't split an IteratorAsync when the the Tail has already been consumed");
-        }
+        public override IteratorAsync<A> Split() =>
+            this;
 
         /// <summary>
         /// Return the number of items in the sequence.
@@ -618,7 +616,7 @@ public abstract class IteratorAsync<A> :
             var t = tailF;
             return tailAcquired == 0
                        ? new ConsValueLazy(h, t!)
-                       : throw new InvalidOperationException("Can't split an Iterator when the the Tail has already been consumed");
+                       : this;
         }
 
         /// <summary>
@@ -750,7 +748,7 @@ public abstract class IteratorAsync<A> :
             }
             else
             {
-                throw new InvalidOperationException("Can't split an IteratorAsync when the the Tail has already been consumed");
+                return this;
             }
         }
         

@@ -27,7 +27,7 @@ static class ChooseSourceT
         // For each stream, reduce it (which writes to the merged stream), fork it, and return
         // This gives us K<M, A> that we can't run directly, so we must bind it...
         var forks = from signal in Signal.countdown<M>(sources.Count)
-                    let trigger = trigger<M, A>(signal, channel)
+                    let trigger = trigger<M, A>(signal, writer)
                     from result in sources.Map(s => s.ReduceM(unit, (_, ma) => writeAsync<M, K<M, A>>(writer, ma))
                                                      .Bind(_ => trigger)
                                                      .Choose(trigger))

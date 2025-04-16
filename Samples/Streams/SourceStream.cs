@@ -1,6 +1,3 @@
-#pragma warning disable LX_StreamT
-
-using System.Threading.Channels;
 using LanguageExt;
 using static Streams.Console;
 using static LanguageExt.Prelude;

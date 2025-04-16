@@ -1,6 +1,4 @@
-﻿#pragma warning disable LX_StreamT
-
-using System;
+﻿using System;
 using System.Diagnostics.Contracts;
 using LanguageExt.Common;
 using LanguageExt.Traits;

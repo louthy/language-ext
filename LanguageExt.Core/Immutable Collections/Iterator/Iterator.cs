@@ -622,10 +622,8 @@ public abstract class Iterator<A> :
         /// can't be garbage collected. 
         /// </summary>
         /// <returns>New iterator that starts from the current iterator position</returns>
-        public override Iterator<A> Split()
-        {
-            throw new InvalidOperationException("Can't split an Iterator when the the Tail has already been consumed");
-        }
+        public override Iterator<A> Split() =>
+            this;
 
         /// <summary>
         /// Return the number of items in the sequence.
@@ -745,7 +743,7 @@ public abstract class Iterator<A> :
             var t = tailF;
             return tailAcquired == 0
                        ? new ConsValueLazy(h, t!)
-                       : throw new InvalidOperationException("Can't split an Iterator when the the Tail has already been consumed");
+                       : this;
         }
 
         /// <summary>
@@ -882,7 +880,7 @@ public abstract class Iterator<A> :
             }
             else
             {
-                throw new InvalidOperationException("Can't split an Iterator when the the Tail has already been consumed");
+                return this;
             }
         }
         

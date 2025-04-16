@@ -24,7 +24,18 @@ public abstract record ReadResult<M, A>
 {
     public abstract ReadResult<M, B> Map<B>(Func<A, B> f);
     public abstract ReadResult<M, B> ApplyBack<B>(ReadResult<M, Func<A, B>> ff);
-    public abstract ReadResult<M, A> Choose(Func<ReadResult<M, A>> rhs);
+    public abstract ReadResult<M, (A First, B Second)> Zip<B>(ReadResult<M, B> second);
+    
+    public ReadResult<M, (A First, B Second, C Third)> Zip<B, C>(ReadResult<M, B> second, ReadResult<M, C> third) =>
+        Zip(second).Zip(third).Map<(A First, B Second, C Third)>(
+            pp => (First: pp.First.First, Second: pp.First.Second, Third: pp.Second));
+    
+    public ReadResult<M, (A First, B Second, C Third, D Fourth)> Zip<B, C, D>(
+        ReadResult<M, B> second, 
+        ReadResult<M, C> third, 
+        ReadResult<M, D> fourth) =>
+        Zip(second).Zip(third.Zip(fourth)).Map<(A First, B Second, C Third, D Fourth)>(
+            pp => (pp.First.First, pp.First.Second, pp.Second.First, pp.Second.Second));
 }
 
 record ReadM<M, A>(K<M, A> Value) : ReadResult<M, A>
@@ -43,41 +54,41 @@ record ReadM<M, A>(K<M, A> Value) : ReadResult<M, A>
                 ReadResult<M>.Iter(mf.Map(f => new LiftSourceTIterator<M, A>(Value).ApplyBack(f)))
         };
     
-    public override ReadResult<M, A> Choose(Func<ReadResult<M, A>> rhs) =>
-        rhs switch
+    public override ReadResult<M, (A First, B Second)> Zip<B>(ReadResult<M, B> second) =>
+        second switch
         {
-            ReadM<M, A> (var mr) =>
-                ReadResult<M>.Value(Value.Choose(mr)),
+            ReadM<M, B> (var m2) =>
+                ReadResult<M>.Value(Value.Zip(m2)),
             
-            ReadIter<M, A> (var mr) => 
-                ReadResult<M>.Iter(mr.Map(r => new LiftSourceTIterator<M, A>(Value).Choose(r)))
+            ReadIter<M, B> (var mr) => 
+                ReadResult<M>.Iter(mr.Map(r => new LiftSourceTIterator<M, A>(Value).Zip(r)))
         };
 }
 
 record ReadIter<M, A>(K<M, SourceTIterator<M, A>> Iter) : ReadResult<M, A>
     where M : MonadIO<M>, Alternative<M>
 {
-    public override ReadResult<M, B> Map<B>(Func<A, B> f) => 
+    public override ReadResult<M, B> Map<B>(Func<A, B> f) =>
         new ReadIter<M, B>(Iter.Map(iter => iter.Map(f)));
 
     public override ReadResult<M, B> ApplyBack<B>(ReadResult<M, Func<A, B>> ff) =>
         ff switch
         {
-            ReadM<M, Func<A, B>> (var f) => 
-                ReadResult<M>.Iter(Iter.Map(i => i.ApplyBack(new LiftSourceTIterator<M, Func<A, B>>(f)))),
-            
-            ReadIter<M, Func<A, B>> (var mf) => 
-                ReadResult<M>.Iter(Iter.Bind(i => mf.Map(i.ApplyBack)))
-        };    
-    
-    public override ReadResult<M, A> Choose(Func<ReadResult<M, A>> rhs) =>
-        rhs switch
+            ReadM<M, Func<A, B>> (var mf) =>
+                ReadResult<M>.Iter(Iter.Map(mx => mx.ApplyBack(new LiftSourceTIterator<M, Func<A, B>>(mf)))),
+
+            ReadIter<M, Func<A, B>> (var mf) =>
+                ReadResult<M>.Iter(Iter.Bind(mx => mf.Map(mx.ApplyBack)))
+        };
+
+    public override ReadResult<M, (A First, B Second)> Zip<B>(ReadResult<M, B> second) =>
+        second switch
         {
-            ReadM<M, A> (var mr) =>
-                ReadResult<M>.Iter(Iter.Map(l => l.Choose(new LiftSourceTIterator<M, A>(mr)))),
-            
-            ReadIter<M, A> (var mr) => 
-                ReadResult<M>.Iter(Iter.Bind(l => mr.Map(l.Choose)))
+            ReadM<M, B> (var my) =>
+                ReadResult<M>.Iter(Iter.Map(mx => mx.Zip(new LiftSourceTIterator<M, B>(my)))),
+
+            ReadIter<M, B> (var my) =>
+                ReadResult<M>.Iter(Iter.Bind(mx => my.Map(mx.Zip)))
         };
 }
 

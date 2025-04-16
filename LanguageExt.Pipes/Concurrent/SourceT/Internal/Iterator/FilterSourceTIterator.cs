@@ -9,8 +9,6 @@ namespace LanguageExt.Pipes.Concurrent;
 record FilterSourceTIterator<M, A>(SourceTIterator<M, A> Source, Func<A, bool> Predicate) : SourceTIterator<M, A>
     where M : MonadIO<M>, Alternative<M>
 {
-    bool ready;
-
     public override ReadResult<M, A> Read() =>
         Source.Read() switch
         {
@@ -26,7 +24,6 @@ record FilterSourceTIterator<M, A>(SourceTIterator<M, A> Source, Func<A, bool> P
     internal override async ValueTask<bool> ReadyToRead(CancellationToken token)
     {
         if(token.IsCancellationRequested) return false;
-        ready = await Source.ReadyToRead(token);
-        return ready;
+        return await Source.ReadyToRead(token);
     }
 }

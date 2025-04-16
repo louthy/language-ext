@@ -1,5 +1,3 @@
-#pragma warning disable LX_StreamT
-
 using LanguageExt;
 using LanguageExt.Pipes;
 using LanguageExt.Pipes.Concurrent;
@@ -16,7 +14,6 @@ public static class Zipping
     static SourceT<IO, Unit> example(int n) =>
         from v in evens(n).Zip(odds(n))
         from _ in writeLine(v)
-        where false
         select unit;
 
     static SourceT<IO, int> evens(int n) =>
