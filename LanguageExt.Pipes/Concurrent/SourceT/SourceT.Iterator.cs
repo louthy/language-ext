@@ -21,7 +21,7 @@ public abstract record SourceTIterator<M, A>
         new ApplySourceTIterator<M, A, B>(ff, this);
 
     public SourceTIterator<M, A> Choose(SourceTIterator<M, A> rhs) =>
-        ChooseSourceT.MakeIterator([this, rhs]);
+        ChooseSourceT.makeIterator([this, rhs]);
     
     /// <summary>
     /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
