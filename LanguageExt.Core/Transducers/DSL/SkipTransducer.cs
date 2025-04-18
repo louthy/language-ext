@@ -2,7 +2,7 @@ namespace LanguageExt;
 
 record SkipTransducer<A>(int Amount) : Transducer<A, A> 
 {
-    public override Reducer<A, S> Reduce<S>(Reducer<A, S> reducer)
+    public override ReducerAsync<A, S> Reduce<S>(ReducerAsync<A, S> reducer)
     {
         var amount = Amount;
         return (s, x) =>

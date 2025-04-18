@@ -12,23 +12,20 @@ public class SourceTests
     {
         // Arrange
         var source = Source.empty<int>();
-        var iter   = source.GetIterator();
-
-        // Act and Assert 
-        AssertExt.SourceIsClosed(iter);
+        var value  = source.Reduce(0, (s, _) => s + 1).Run();
+        Assert.Equal(0, value);
     }
-
+    
     [Fact]
     public void Pure_Source_Should_Produce_Single_Value()
     {
         // Arrange
         var value  = 42;
         var source = Source.pure(value);
-        var iter   = source.GetIterator();
+        var output = source.Collect().Run();
 
         // Act and Assert
-        iter.Read().AssertSucc(42);
-        AssertExt.SourceIsClosed(iter);
+        Assert.True(output == [42]);
     }
 
     [Fact]
@@ -36,49 +33,41 @@ public class SourceTests
     {
         // Arrange
         var source = Source.pure(42).Map(x => x * 2);
-        var iter   = source.GetIterator();
+        var output = source.Collect().Run();
 
         // Act and Assert
-        iter.Read().AssertSucc(84);
+        Assert.True(output == [84]);
     }
-
+    
     [Fact]
     public void Where_Should_Filter_Values()
     {
         // Arrange
         var source = Source.pure(42).Where(x => x > 50);
-        var iter   = source.GetIterator();
+        var output = source.Collect().Run();
 
         // Act and Assert
-        AssertExt.Throws(Errors.SourceClosed, () => iter.Read().Run());
+        Assert.True(output == []);
     }
 
     [Fact]
-    public void Merge_Should_Combine_Sources()
+    public void Add_Should_Concatenate_Sources()
     {
         // Arrange
         var source1 = Source.pure(1);
         var source2 = Source.pure(2);
 
         // Act
-        var merged  = source1 + source2;
-        var iter    = merged.GetIterator();
-        var results = new List<int>();
-
-        var x1 = iter.Read().Run();
-        results.Add(x1);
-
-        var x2 = iter.Read().Run();
-        results.Add(x2);
+        var concat = source1 + source2;
+        var output = concat.Collect().Run();
 
         // Assert
-        Assert.Equal(2, results.Count);
-        Assert.Contains(1, results);
-        Assert.Contains(2, results);
+        Assert.Equal(2, output.Count);
+        Assert.True(output == [1, 2]);
     }
-/*
+    
     [Fact]
-    public async Task Zip_Should_Combine_Two_Sources()
+    public void Zip_Should_Combine_Two_Sources()
     {
         // Arrange
         var source1 = Source.pure(1);
@@ -86,56 +75,54 @@ public class SourceTests
 
         // Act
         var zipped = source1.Zip(source2);
-        var result = await zipped.CheckReadyAndRead().Run();
+        var output = zipped.Collect().Run();
 
         // Assert
-        Assert.True(result.IsSome);
-        result.IfSome(v =>
+        Assert.True(output == [(1, "A")]);
+    }
+    
+    
+    /*
+
+        [Fact]
+        public async Task Select_Should_Transform_Values()
         {
-            Assert.Equal(1, v.First);
-            Assert.Equal("A", v.Second);
-        });
-    }
+            // Arrange
+            var source = Source.pure(42);
 
-    [Fact]
-    public async Task Select_Should_Transform_Values()
-    {
-        // Arrange
-        var source = Source.pure(42);
+            // Act
+            var transformed = source.Select(x => x.ToString());
+            var result = await transformed.CheckReadyAndRead().Run();
 
-        // Act
-        var transformed = source.Select(x => x.ToString());
-        var result = await transformed.CheckReadyAndRead().Run();
+            // Assert
+            Assert.True(result.IsSome);
+            result.IfSome(v => Assert.Equal("42", v));
+        }
 
-        // Assert
-        Assert.True(result.IsSome);
-        result.IfSome(v => Assert.Equal("42", v));
-    }
+        [Fact]
+        public async Task ReadyToRead_Should_Return_True_For_NonEmpty_Source()
+        {
+            // Arrange
+            var source = Source.pure(42);
 
-    [Fact]
-    public async Task ReadyToRead_Should_Return_True_For_NonEmpty_Source()
-    {
-        // Arrange
-        var source = Source.pure(42);
+            // Act
+            var ready = await source.CheckReadyAndReadyToRead(CancellationToken.None);
 
-        // Act
-        var ready = await source.CheckReadyAndReadyToRead(CancellationToken.None);
+            // Assert
+            Assert.True(ready);
+        }
 
-        // Assert
-        Assert.True(ready);
-    }
+        [Fact]
+        public async Task ReadValue_Should_Return_Value_For_NonEmpty_Source()
+        {
+            // Arrange
+            var source = Source.pure(42);
 
-    [Fact]
-    public async Task ReadValue_Should_Return_Value_For_NonEmpty_Source()
-    {
-        // Arrange
-        var source = Source.pure(42);
+            // Act
+            var value = await source.CheckReadyAndReadValue(CancellationToken.None);
 
-        // Act
-        var value = await source.CheckReadyAndReadValue(CancellationToken.None);
-
-        // Assert
-        Assert.Equal(42, value);
-    }*/
+            // Assert
+            Assert.Equal(42, value);
+        }*/
 
 }

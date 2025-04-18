@@ -52,6 +52,16 @@ public static class ProducerT
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
+    public static ProducerT<OUT, M, Unit> yieldAll<M, OUT>(Source<OUT> values)
+        where M : MonadIO<M> =>
+        PipeT.yieldAll<M, Unit, OUT>(values);
+
+    /// <summary>
+    /// Yield all values downstream
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
     public static ProducerT<OUT, M, Unit> yieldAll<M, OUT>(SourceT<M, OUT> values)
         where M : MonadIO<M>, Alternative<M> =>
         PipeT.yieldAll<M, Unit, OUT>(values);

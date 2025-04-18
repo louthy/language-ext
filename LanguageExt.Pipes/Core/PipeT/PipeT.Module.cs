@@ -55,6 +55,17 @@ public static class PipeT
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
+    public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(Source<OUT> values) 
+        where M : MonadIO<M> =>
+        new PipeTYieldAllSource<IN, OUT, M, OUT, Unit>(values, yield<M, IN, OUT>, pure<IN, OUT, M, Unit>);
+    
+    /// <summary>
+    /// Yield all values downstream
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
     public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(SourceT<M, OUT> values) 
         where M : MonadIO<M>, Alternative<M> =>
         new PipeTYieldAllSourceT<IN, OUT, M, OUT, Unit>(values, yield<M, IN, OUT>, pure<IN, OUT, M, Unit>);

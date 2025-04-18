@@ -2,7 +2,7 @@ namespace LanguageExt;
 
 record TakeTransducer<A>(int Amount) : Transducer<A, A> 
 {
-    public override Reducer<A, S> Reduce<S>(Reducer<A, S> reducer)
+    public override ReducerAsync<A, S> Reduce<S>(ReducerAsync<A, S> reducer)
     {
         var taken = 0;
         return (s, x) =>

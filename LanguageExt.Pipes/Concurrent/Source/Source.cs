@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes.Concurrent;
@@ -28,26 +27,45 @@ public abstract record Source<A> :
     /// <param name="reducer">Reducer</param>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Reduced state</returns>
+    public IO<S> Reduce<S>(S state, Func<S, A, S> reducer) =>
+        IO.liftVAsync(e => ReduceAsync(state, (s, x) => Reduced.ContinueAsync(reducer(s, x)), e.Token))
+          .Map(r => r.Value);
+
+    /// <summary>
+    /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
+    /// result value.   
+    /// </summary>
+    /// <param name="state">State to reduce</param>
+    /// <param name="reducer">Reducer</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Reduced state</returns>
     public IO<S> Reduce<S>(S state, Reducer<A, S> reducer) =>
-        IO.liftVAsync(async e =>
-                      {
-                          var iter = GetIterator();
-                          while (await iter.ReadyToRead(e.Token))
-                          {
-                              if(e.Token.IsCancellationRequested) throw new TaskCanceledException();
-                              var value = await iter.ReadValue(e.Token);
-                              switch (await reducer(state, value))
-                              {
-                                  case { Continue: true, Value: var nstate }:
-                                      state = nstate;
-                                      break;
-                                  
-                                  case { Value: var nstate }:
-                                      return nstate;
-                              }
-                          }
-                          return state;
-                      });
+        IO.liftVAsync(e => ReduceAsync(state, (s, x) => new(reducer(s, x)), e.Token))
+          .Map(r => r.Value);
+
+    /// <summary>
+    /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
+    /// result value.   
+    /// </summary>
+    /// <param name="state">State to reduce</param>
+    /// <param name="reducer">Reducer</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Reduced state</returns>
+    public IO<S> ReduceAsync<S>(S state, ReducerAsync<A, S> reducer) =>
+        IO.liftVAsync(e => ReduceAsync(state, reducer, e.Token))
+          .Map(r => r.Value);
+    
+    /// <summary>
+    /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
+    /// result value.   
+    /// </summary>
+    /// <param name="state">State to reduce</param>
+    /// <param name="reducer">Reducer</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Reduced state</returns>
+    public K<M, S> ReduceAsync<M, S>(S state, ReducerAsync<A, S> reducer) 
+        where M : MonadIO<M> =>
+        M.LiftIO(ReduceAsync(state, reducer));
 
     /// <summary>
     /// Transform with a transducer
@@ -57,25 +75,25 @@ public abstract record Source<A> :
     /// <returns>Transformed source</returns>
     public Source<B> Transform<B>(Transducer<A, B> transducer) =>
         new TransformSource<A,B>(this, transducer);
-    
+
     /// <summary>
     /// Functor map
     /// </summary>
     public virtual Source<B> Map<B>(Func<A, B> f) =>
         Transform(Transducer.map(f));
-    
+
     /// <summary>
     /// Monad bind
     /// </summary>
     public virtual Source<B> Bind<B>(Func<A, Source<B>> f) =>
         new BindSource<A, B>(this, f);
-    
+
     /// <summary>
     /// Monad bind
     /// </summary>
     public Source<B> Bind<B>(Func<A, K<Source, B>> f) =>
         Bind(x => f(x).As());
-    
+
     /// <summary>
     /// Filter values.  Yielding downstream when `true`
     /// </summary>
@@ -83,7 +101,7 @@ public abstract record Source<A> :
     /// <returns>Source where the only values yield are those that pass the predicate</returns>
     public Source<A> Where(Func<A, bool> f) =>
         Transform(Transducer.filter(f));
-    
+
     /// <summary>
     /// Filter values.  Yielding downstream when `true`
     /// </summary>
@@ -91,7 +109,7 @@ public abstract record Source<A> :
     /// <returns>Source where the only values yield are those that pass the predicate</returns>
     public Source<A> Filter(Func<A, bool> f) =>
         Transform(Transducer.filter(f));
-    
+
     /// <summary>
     /// Applicative apply
     /// </summary>
@@ -99,7 +117,7 @@ public abstract record Source<A> :
         new ApplySource<A, B>(ff, this);
 
     /// <summary>
-    /// Concatenate two sources into a single source.  
+    /// Concatenate two sources into a single source.
     /// </summary>
     /// <param name="lhs">Left hand side</param>
     /// <param name="rhs">Right hand side</param>
@@ -115,10 +133,10 @@ public abstract record Source<A> :
             (var l, CombineSource<A> r)              => new CombineSource<A>(l.Cons(r.Sources)),
             _                                        => new CombineSource<A>([this, rhs])
         };
-    
+
     /// <summary>
     /// The value streams are both merged into a new stream.  Values are yielded
-    /// as they become available. 
+    /// as they become available.
     /// </summary>
     /// <param name="this">Left hand side</param>
     /// <param name="rhs">Right hand side</param>
@@ -133,7 +151,7 @@ public abstract record Source<A> :
             (ChooseSource<A> l, var r)             => new ChooseSource<A>(l.Sources.Add(r)),
             (var l, ChooseSource<A> r)             => new ChooseSource<A>(l.Cons(r.Sources)),
             _                                      => new ChooseSource<A>([this, rhs])
-        };        
+        };
 
     /// <summary>
     /// Zip two sources into one
@@ -171,15 +189,15 @@ public abstract record Source<A> :
     /// <param name="amount">Amount to skip</param>
     /// <returns>Transformed source</returns>
     public Source<A> Skip(int amount) =>
-        Transform(Transducer.skip<A>(amount)); 
+        Transform(Transducer.skip<A>(amount));
 
     /// <summary>
-    /// Limit the number of items processed 
+    /// Limit the number of items processed
     /// </summary>
     /// <param name="amount">Amount to take</param>
     /// <returns>Transformed source</returns>
     public Source<A> Take(int amount) =>
-        Transform(Transducer.take<A>(amount)); 
+        Transform(Transducer.take<A>(amount));
 
     /// <summary>
     /// Fold the values flowing through.  A value is only yielded downstream upon completion of the stream.
@@ -193,7 +211,7 @@ public abstract record Source<A> :
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the schedule expires, or the
-    /// source completes. 
+    /// source completes.
     /// </summary>
     /// <param name="Time">Schedule to control the rate of processing</param>
     /// <param name="Fold">Binary operator</param>
@@ -205,7 +223,7 @@ public abstract record Source<A> :
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the predicate returns
-    /// `false`, or the source completes. 
+    /// `false`, or the source completes.
     /// </summary>
     /// <param name="Fold">Binary operator</param>
     /// <param name="Pred">Predicate</param>
@@ -217,7 +235,7 @@ public abstract record Source<A> :
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the predicate returns
-    /// `true`, or the source completes. 
+    /// `true`, or the source completes.
     /// </summary>
     /// <param name="Fold">Binary operator</param>
     /// <param name="Pred">Predicate</param>
@@ -229,7 +247,7 @@ public abstract record Source<A> :
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the schedule expires, the
-    /// predicate returns `false`, or the source completes. 
+    /// predicate returns `false`, or the source completes.
     /// </summary>
     /// <param name="Time">Schedule to control the rate of processing</param>
     /// <param name="Fold">Binary operator</param>
@@ -239,14 +257,14 @@ public abstract record Source<A> :
     /// <returns>Stream of aggregate states</returns>
     public Source<S> FoldWhile<S>(
         Schedule Time,
-        Func<S, A, S> Fold, 
-        Func<S, A, bool> Pred, 
+        Func<S, A, S> Fold,
+        Func<S, A, bool> Pred,
         S Init) =>
         Transform(Transducer.foldWhile(Time, Fold, Pred, Init));
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the schedule expires, the
-    /// predicate returns `true`, or the source completes. 
+    /// predicate returns `true`, or the source completes.
     /// </summary>
     /// <param name="Time">Schedule to control the rate of processing</param>
     /// <param name="Fold">Binary operator</param>
@@ -256,8 +274,8 @@ public abstract record Source<A> :
     /// <returns>Stream of aggregate states</returns>
     public Source<S> FoldUntil<S>(
         Schedule Time,
-        Func<S, A, S> Fold, 
-        Func<S, A, bool> Pred, 
+        Func<S, A, S> Fold,
+        Func<S, A, bool> Pred,
         S Init) =>
         Transform(Transducer.foldUntil(Time, Fold, Pred, Init));
 
@@ -268,8 +286,7 @@ public abstract record Source<A> :
     /// <returns>`ProducerT`</returns>
     public ProducerT<A, M, Unit> ToProducerT<M>()
         where M : MonadIO<M> =>
-        PipeT.lift<Unit, A, M, SourceIterator<A>>(GetIterator)
-             .Bind(iter => PipeT.yieldRepeatIO<M, Unit, A>(iter.Read()));
+        ProducerT.yieldAll<M, A>(this);
 
     /// <summary>
     /// Convert `Source` to a `Producer` pipe component
@@ -277,9 +294,9 @@ public abstract record Source<A> :
     /// <returns>`Producer`</returns>
     public Producer<RT, A, Unit> ToProducer<RT>() =>
         ToProducerT<Eff<RT>>();
-    
+
     /// <summary>
-    /// Concatenate two sources into a single source.  
+    /// Concatenate two sources into a single source.
     /// </summary>
     /// <param name="lhs">Left hand side</param>
     /// <param name="rhs">Right hand side</param>
@@ -289,7 +306,7 @@ public abstract record Source<A> :
 
     /// <summary>
     /// The value streams are both merged into a new stream.  Values are yielded
-    /// as they become available. 
+    /// as they become available.
     /// </summary>
     /// <param name="lhs">Left hand side</param>
     /// <param name="rhs">Right hand side</param>
@@ -306,7 +323,7 @@ public abstract record Source<A> :
     /// <returns>Result of the second action</returns>
     public static Source<A> operator >> (Source<A> lhs, Source<A> rhs) =>
         lhs.Bind(_ => rhs);
-    
+
     /// <summary>
     /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
     /// as the semicolon) in C#.
@@ -316,20 +333,20 @@ public abstract record Source<A> :
     /// <returns>Result of the second action</returns>
     public static Source<A> operator >> (Source<A> lhs, K<Source, A> rhs) =>
         lhs.Bind(_ => rhs);
-    
+
     /// <summary>
     /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
-    /// first action is propagated. 
+    /// first action is propagated.
     /// </summary>
     /// <param name="lhs">First action to run</param>
     /// <param name="rhs">Second action to run</param>
     /// <returns>Result of the first action</returns>
     public static Source<A> operator >> (Source<A> lhs, Source<Unit> rhs) =>
         lhs.Bind(x => rhs.Map(_ => x));
-    
+
     /// <summary>
     /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
-    /// first action is propagated. 
+    /// first action is propagated.
     /// </summary>
     /// <param name="lhs">First action to run</param>
     /// <param name="rhs">Second action to run</param>
@@ -342,7 +359,7 @@ public abstract record Source<A> :
     /// </summary>
     public Source<B> Select<B>(Func<A, B> f) =>
         Map(f);
-    
+
     /// <summary>
     /// Monad bind
     /// </summary>
@@ -353,6 +370,9 @@ public abstract record Source<A> :
     //
     // Internal
     //
-    
-    internal abstract SourceIterator<A> GetIterator();
+
+    internal abstract ValueTask<Reduced<S>> ReduceAsync<S>(
+        S state, 
+        ReducerAsync<A, S> reducer, 
+        CancellationToken token);
 }

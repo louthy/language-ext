@@ -25,7 +25,7 @@ public static class TransducableExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <typeparam name="S">State value type to reduce to</typeparam>
     /// <returns>Reduced value</returns>
-    public static S Reduce<F, A, S>(this K<F, A> ma, S initial, Reducer<A, S> reducer)
+    public static S Reduce<F, A, S>(this K<F, A> ma, S initial, ReducerAsync<A, S> reducer)
         where F : Transducable<F> =>
         F.Reduce(ma, initial, reducer);
 }

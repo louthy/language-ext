@@ -9,7 +9,7 @@ record FoldWhileTransducer<A, S>(
     S State) : 
     Transducer<A, S>
 {
-    public override Reducer<A, S1> Reduce<S1>(Reducer<S, S1> reducer)
+    public override ReducerAsync<A, S1> Reduce<S1>(ReducerAsync<S, S1> reducer)
     {
         var state = State;
         return async (s1, x) =>
@@ -64,7 +64,7 @@ record FoldWhileTransducer2<A, S>(
     S State) : 
     Transducer<A, S>
 {
-    public override Reducer<A, S1> Reduce<S1>(Reducer<S, S1> reducer)
+    public override ReducerAsync<A, S1> Reduce<S1>(ReducerAsync<S, S1> reducer)
     {
         var state = State;
         var sch = Duration.Zero.Cons(Schedule.Run()).GetEnumerator();

@@ -8,11 +8,12 @@ record EmptySource<A> : Source<A>
 {
     public static readonly Source<A> Default = new EmptySource<A>();
     
-    internal override SourceIterator<A> GetIterator() =>
-        EmptySourceIterator<A>.Default;
+    internal override ValueTask<Reduced<S>> ReduceAsync<S>(S state, ReducerAsync<A, S> reducer, CancellationToken token) =>
+        Reduced.ContinueAsync(state);
 
     public override Source<B> Map<B>(Func<A, B> f) =>
         EmptySource<B>.Default;
+    
     public override Source<B> Bind<B>(Func<A, Source<B>> f) => 
         EmptySource<B>.Default;
 

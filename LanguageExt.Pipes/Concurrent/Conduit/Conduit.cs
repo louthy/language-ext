@@ -46,14 +46,27 @@ public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
         Sink.Post(value);
 
     /// <summary>
-    /// Read value from the Source
+    /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
+    /// result value.   
     /// </summary>
-    /// <remarks>
-    /// Raises a `Errors.SourceClosed` if the channel is closed or empty
-    /// </remarks>
-    /// <returns>First available value from the channel</returns>
-    public SourceIterator<B> Read() =>
-        Source.GetIterator();
+    /// <param name="state">State to reduce</param>
+    /// <param name="reducer">Reducer</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Reduced state</returns>
+    public IO<S> Reduce<S>(S state, ReducerAsync<B, S> reducer) =>
+        Source.ReduceAsync(state, reducer);
+    
+    /// <summary>
+    /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
+    /// result value.   
+    /// </summary>
+    /// <param name="state">State to reduce</param>
+    /// <param name="reducer">Reducer</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Reduced state</returns>
+    public K<M, S> Reduce<M, S>(S state, ReducerAsync<B, S> reducer) 
+        where M : MonadIO<M> =>
+        Source.ReduceAsync<M, S>(state, reducer);
     
     /// <summary>
     /// Complete and close the Sink
