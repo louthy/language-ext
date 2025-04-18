@@ -80,49 +80,4 @@ public class SourceTests
         // Assert
         Assert.True(output == [(1, "A")]);
     }
-    
-    
-    /*
-
-        [Fact]
-        public async Task Select_Should_Transform_Values()
-        {
-            // Arrange
-            var source = Source.pure(42);
-
-            // Act
-            var transformed = source.Select(x => x.ToString());
-            var result = await transformed.CheckReadyAndRead().Run();
-
-            // Assert
-            Assert.True(result.IsSome);
-            result.IfSome(v => Assert.Equal("42", v));
-        }
-
-        [Fact]
-        public async Task ReadyToRead_Should_Return_True_For_NonEmpty_Source()
-        {
-            // Arrange
-            var source = Source.pure(42);
-
-            // Act
-            var ready = await source.CheckReadyAndReadyToRead(CancellationToken.None);
-
-            // Assert
-            Assert.True(ready);
-        }
-
-        [Fact]
-        public async Task ReadValue_Should_Return_Value_For_NonEmpty_Source()
-        {
-            // Arrange
-            var source = Source.pure(42);
-
-            // Act
-            var value = await source.CheckReadyAndReadValue(CancellationToken.None);
-
-            // Assert
-            Assert.Equal(42, value);
-        }*/
-
 }
