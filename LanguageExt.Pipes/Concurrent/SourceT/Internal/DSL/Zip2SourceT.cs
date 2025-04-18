@@ -7,40 +7,37 @@ namespace LanguageExt.Pipes.Concurrent;
 record Zip2SourceT<M, A, B>(SourceT<M, A> SourceA, SourceT<M, B> SourceB) : SourceT<M, (A First, B Second)>
     where M : MonadIO<M>, Alternative<M>
 {
-    internal override SourceTIterator<M, (A First, B Second)> GetIterator()
-    {
-        var channelA = Channel.CreateUnbounded<K<M, A>>();
-        var channelB = Channel.CreateUnbounded<K<M, B>>();
+    public override K<M, S> ReduceM<S>(S state, ReducerM<M, K<M, (A First, B Second)>, S> reducer) =>
         
-        var writerA = channelA.Writer;
-        var writerB = channelB.Writer;
+        // Create channels that receive the values yielded by the two sources
+        from channelA in M.Pure(Channel.CreateUnbounded<K<M, A>>())
+        from channelB in M.Pure(Channel.CreateUnbounded<K<M, B>>())
+        let writerA = channelA.Writer
+        let writerB = channelB.Writer
 
-        var forks = from signal in M.Pure(unit)
-                    
-                    let triggerA = trigger<A>(writerA)
-                    let triggerB = trigger<B>(writerB)
-                    
-                    from resultA in SourceA.ReduceM(unit, (_, ma) => writeAsync(writerA, ma))
-                                           .Bind(_ => triggerA)
-                                           .Choose(triggerA)
-                                           .ForkIO()
-                    
-                    from resultB in SourceB.ReduceM(unit, (_, ma) => writeAsync(writerB, ma))
-                                           .Bind(_ => triggerB)
-                                           .Choose(triggerB)
-                                           .ForkIO()
+        // Triggers which signal when a channel has completed
+        let triggerA = trigger<A>(writerA)
+        let triggerB = trigger<B>(writerB)
 
-                    select unit;
+        // Create a forked first channel                        
+        from forkA in SourceA.ReduceM(unit, (_, ma) => writeAsync(writerA, ma))
+                             .Bind(_ => triggerA)
+                             .Choose(triggerA)
+                             .ForkIO()
 
-        // First, create a singleton source that will run the forks
-        var single = new LiftSourceT<M, Unit>(forks);
+        // Create a forked second channel                        
+        from forkB in SourceB.ReduceM(unit, (_, ma) => writeAsync(writerB, ma))
+                             .Bind(_ => triggerB)
+                             .Choose(triggerB)
+                             .ForkIO()
 
         // Then create a reader iterator that will yield the merged values 
-        var reader = new Reader2SourceTIterator<M, A, B>(channelA.Reader, channelB.Reader);
+        from result in new Reader2SourceT<M, A, B>(channelA, channelB).ReduceM(state, reducer)
+        
+        // Make sure the forks are shutdown
+        from _      in M.LiftIO(Seq(forkA, forkB).Traverse(f => f.Cancel))
 
-        // Then bind them together so the forks launch, then the reader reads
-        return new BindSourceTIterator<M, Unit, (A, B)>(single.GetIterator(), _ => reader);
-    }
+        select result;
 
     static K<M, Unit> trigger<X>(ChannelWriter<K<M, X>> writer) =>
         M.LiftIO(IO.lift(() => writer.TryComplete().Ignore()));

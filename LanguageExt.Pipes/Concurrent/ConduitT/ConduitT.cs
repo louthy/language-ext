@@ -45,16 +45,34 @@ public record ConduitT<M, A, B>(Sink<A> Sink, SourceT<M, B> Source)
     /// <returns>IO computation that represents the posting</returns>
     public K<M, Unit> Post(A value) =>
         M.LiftIO(Sink.Post(value));
+    
+    /// <summary>
+    /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
+    /// result value.  This is returned lifted. 
+    /// </summary>
+    /// <remarks>Note, this is recursive, so `M` needs to be able to support recursion without
+    /// blowing the stack.  If you have the `IO` monad in your stack then this will automatically
+    /// be the case.</remarks>
+    /// <param name="state">Initial state</param>
+    /// <param name="reducer">Reducer</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Lifted aggregate state</returns>
+    public K<M, S> Reduce<S>(S state, ReducerM<M, B, S> reducer) =>
+        Source.Reduce(state, reducer);
 
     /// <summary>
-    /// Read value from the Source
+    /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
+    /// result value.  This is returned lifted. 
     /// </summary>
-    /// <remarks>
-    /// Raises a `Errors.SourceClosed` if the channel is closed or empty
-    /// </remarks>
-    /// <returns>First available value from the channel</returns>
-    public SourceTIterator<M, B> Read() =>
-        Source.GetIterator();
+    /// <remarks>Note, this is recursive, so `M` needs to be able to support recursion without
+    /// blowing the stack.  If you have the `IO` monad in your stack then this will automatically
+    /// be the case.</remarks>
+    /// <param name="state">Initial state</param>
+    /// <param name="reducer">Reducer</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Lifted aggregate state</returns>
+    public K<M, S> ReduceM<S>(S state, ReducerM<M, K<M, B>, S> reducer) =>
+        Source.ReduceM(state, reducer);
     
     /// <summary>
     /// Complete and close the Sink

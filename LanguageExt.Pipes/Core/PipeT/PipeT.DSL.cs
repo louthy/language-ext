@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt.Async.Linq;
+using LanguageExt.Pipes.Concurrent;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Pipes;
 
@@ -385,4 +387,51 @@ record PipeTYieldAllAsync<IN, OUT, M, A>(IAsyncEnumerable<PipeT<IN, OUT, M, Unit
               .Bind(_ => Next(default))
               .As()
               .RunAsync();
+}
+
+record PipeTYieldAllSourceT<IN, OUT, M, X, A>(SourceT<M, X> Yields, Func<X, PipeT<IN, OUT, M, Unit>> F, Func<Unit, PipeT<IN, OUT, M, A>> Next) 
+    : PipeT<IN, OUT, M, A>
+    where M : MonadIO<M>, Alternative<M>
+{
+    public override PipeT<IN, OUT, M, B> Map<B>(Func<A, B> f) => 
+        new PipeTYieldAllSourceT<IN, OUT, M, X, B>(Yields, F, x => Next(x).Map(f));
+
+    public override PipeT<IN, OUT, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) => 
+        new PipeTYieldAllSourceT<IN, OUT, M, X, B>(Yields, F, x => Next(x).MapM(f));
+
+    public override PipeT<IN, OUT, M, B> ApplyBack<B>(PipeT<IN, OUT, M, Func<A, B>> ff) => 
+        new PipeTYieldAllSourceT<IN, OUT, M, X, B>(Yields, F, x => Next(x).ApplyBack(ff));
+
+    public override PipeT<IN, OUT, M, B> Action<B>(PipeT<IN, OUT, M, B> fb) => 
+        new PipeTYieldAllSourceT<IN, OUT, M, X, B>(Yields, F, x => Next(x).Action(fb));
+
+    public override PipeT<IN, OUT, M, B> Bind<B>(Func<A, PipeT<IN, OUT, M, B>> f) => 
+        new PipeTYieldAllSourceT<IN, OUT, M, X, B>(Yields, F, x => Next(x).Bind(f));
+
+    internal override PipeT<IN1, OUT, M, A> ReplaceAwait<IN1>(Func<PipeT<IN1, OUT, M, IN>> producer) =>
+        new PipeTYieldAllSourceT<IN1, OUT, M, X, A>(Yields, x => F(x).ReplaceAwait(producer), x => Next(x).ReplaceAwait(producer));
+    
+    internal override PipeT<IN, OUT1, M, A> ReplaceYield<OUT1>(Func<OUT, PipeT<IN, OUT1, M, Unit>> consumer) =>
+        new PipeTYieldAllSourceT<IN, OUT1, M, X, A>(Yields, x => F(x).ReplaceYield(consumer), x => Next(x).ReplaceYield(consumer));
+
+    internal override PipeT<IN1, OUT, M, A> PairEachAwaitWithYield<IN1>(Func<Unit, PipeT<IN1, IN, M, A>> producer) =>
+        new PipeTYieldAllSourceT<IN1, OUT, M, X, A>(
+            Yields,
+            x => F(x).PairEachAwaitWithYield(_ => producer(default).Map(_ => Unit.Default)),
+            x => Next(x).PairEachAwaitWithYield(producer));
+
+    internal override PipeT<IN, OUT1, M, A> PairEachYieldWithAwait<OUT1>(Func<OUT, PipeT<OUT, OUT1, M, A>> consumer) =>
+        new PipeTYieldAllSourceT<IN, OUT1, M, X, A>(
+            Yields,
+            x => F(x).PairEachYieldWithAwait(o => consumer(o).Map(_ => Unit.Default)), 
+            x => Next(x).PairEachYieldWithAwait(consumer));
+
+    internal override ValueTask<K<M, A>> RunAsync()
+    {
+        var comp = Yields.ReduceM(PipeT.pure<IN, OUT, M, Unit>(unit),
+                                  (ms, mx) => M.Pure(ms.Action(PipeT.liftM<IN, OUT, M, X>(mx).Bind(F))))
+                         .Bind(pipe => pipe.Bind(x => Next(x)));
+
+        return comp.RunAsync();
+    }
 }

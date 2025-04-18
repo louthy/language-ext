@@ -45,6 +45,16 @@ public static class ProducerT
     public static ProducerT<OUT, M, Unit> yieldAll<M, OUT>(IAsyncEnumerable<OUT> values)
         where M : MonadIO<M> =>
         PipeT.yieldAll<M, Unit, OUT>(values);
+
+    /// <summary>
+    /// Yield all values downstream
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, Unit> yieldAll<M, OUT>(SourceT<M, OUT> values)
+        where M : MonadIO<M>, Alternative<M> =>
+        PipeT.yieldAll<M, Unit, OUT>(values);
     
     /// <summary>
     /// Evaluate the `M` monad repeatedly, yielding its bound values downstream

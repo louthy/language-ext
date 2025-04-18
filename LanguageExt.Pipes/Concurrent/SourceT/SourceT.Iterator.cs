@@ -1,86 +1,30 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+/*
+using System.Threading.Channels;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Pipes.Concurrent;
 
-public abstract record SourceTIterator<M, A>
+public record SourceTIterator<M, A>(SourceT<M, A> Source) 
     where M : MonadIO<M>, Alternative<M>
 {
-    public abstract ReadResult<M, A> Read();
-    internal abstract ValueTask<bool> ReadyToRead(CancellationToken token);
-
-    public SourceTIterator<M, B> Map<B>(Func<A, B> f) =>
-        new MapSourceTIterator<M, A, B>(this, f);
-
-    public SourceTIterator<M, B> Bind<B>(Func<A, SourceTIterator<M, B>> f) =>
-        new BindSourceTIterator<M, A, B>(this, f);
-
-    public SourceTIterator<M, B> ApplyBack<B>(SourceTIterator<M, Func<A, B>> ff) =>
-        new ApplySourceTIterator<M, A, B>(ff, this);
-
-    public SourceTIterator<M, A> Choose(SourceTIterator<M, A> rhs) =>
-        ChooseSourceT.makeIterator([this, rhs]);
-    
-    public SourceTIterator<M, (A First, B Second)> Zip<B>(SourceTIterator<M, B> second) =>
-        new Zip2SourceTIterator<M, A, B>(this, second);
-    
-    public SourceTIterator<M, (A First, B Second, C Third)> Zip<B, C>(
-        SourceTIterator<M, B> second, 
-        SourceTIterator<M, C> third) =>
-        new Zip3SourceTIterator<M, A, B, C>(this, second, third);
-    
-    public SourceTIterator<M, (A First, B Second, C Third, D Fourth)> Zip<B, C, D>(
-        SourceTIterator<M, B> second, 
-        SourceTIterator<M, C> third, 
-        SourceTIterator<M, D> fourth) =>
-        new Zip4SourceTIterator<M, A, B, C, D>(this, second, third, fourth);
-    
-    /// <summary>
-    /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
-    /// result value.  This is returned lifted. 
-    /// </summary>
-    /// <remarks>Note, this is recursive, so `M` needs to be able to support recursion without
-    /// blowing the stack.  If you have the `IO` monad in your stack then this will automatically
-    /// be the case.</remarks>
-    /// <param name="state">Initial state</param>
-    /// <param name="reducer">Reducer</param>
-    /// <typeparam name="S">State type</typeparam>
-    /// <returns>Lifted aggregate state</returns>
-    public K<M, S> Reduce<S>(S state, ReducerM<M, A, S> reducer)
+    internal static SourceTIterator<M, A> Create(SourceT<M, A> source)
     {
-        return M.LiftIO(IO.lift<K<M, S>>(e => go2(state, reducer, this, e.Token))).Flatten();
+        var channel = Channel.CreateUnbounded<K<M, A>>();
+        var ms = source.ReduceM(unit, (_, ma) => M.LiftIO(IO.liftVAsync(e => channel.Writer.WaitToWriteAsync(e.Token)))
+                                                  .Map(f => f ? channel.Writer.TryWrite(ma).Ignore()
+                                                              : channel.Writer.TryComplete().Ignore()));
 
-        K<M, S> go2(S state, ReducerM<M, A, S> reducer, SourceTIterator<M, A> iter, CancellationToken token) =>
-            iter.ReadyToRead(token).GetAwaiter().GetResult()
-                ? iter.Read() switch
-                  {
-                      ReadM<M, A> (var ma) =>
-                          ma.Bind(a => reducer(state, a).Bind(s => go2(s, reducer, iter, token)))
-                            .Choose(() => M.Pure(state)),
-
-                      ReadIter<M, A> (var miter) =>
-                          miter.Bind(i => go2(state, reducer, i, token).Bind(s => go2(s, reducer, iter, token)))
-                  }
-                : M.Pure(state);
     }
 
-    public K<M, S> ReduceM<S>(S state, ReducerM<M, K<M, A>, S> reducer)
+    public void Run()
     {
-        return M.LiftIO(IO.lift<K<M, S>>(e => go2(state, reducer, this, e.Token))).Flatten();
-
-        K<M, S> go2(S state, ReducerM<M, K<M, A>, S> reducer, SourceTIterator<M, A> iter, CancellationToken token) =>
-            iter.ReadyToRead(token).GetAwaiter().GetResult()
-                ? iter.Read() switch
-                  {
-                      ReadM<M, A> (var ma) =>
-                          reducer(state, ma).Bind(s => go2(s, reducer, iter, token))
-                                            .Choose(() => M.Pure(state)),
-
-                      ReadIter<M, A> (var miter) =>
-                          miter.Bind(i => go2(state, reducer, i, token).Bind(s => go2(s, reducer, iter, token)))
-                  }
-                : M.Pure(state);
+        var channel = Channel.CreateUnbounded<K<M, A>>();
+        var ms = Source.ReduceM(unit, (_, ma) => M.LiftIO(IO.liftVAsync(e => channel.Writer.WaitToWriteAsync(e.Token)))
+                                                  .Map(f => f ? channel.Writer.TryWrite(ma).Ignore()
+                                                              : channel.Writer.TryComplete().Ignore()));
+        
+        
     }
 }
+*/

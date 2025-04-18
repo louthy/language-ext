@@ -25,41 +25,21 @@ public abstract record SourceT<M, A> :
     /// <param name="reducer">Reducer</param>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Lifted aggregate state</returns>
-    public K<M, S> Reduce<S>(S state, ReducerM<M, A, S> reducer)
-    {
-        return M.LiftIO(IO.lift<K<M, S>>(e => go2(state, reducer, GetIterator(), e.Token))).Flatten();
+    public K<M, S> Reduce<S>(S state, ReducerM<M, A, S> reducer) =>
+        ReduceM(state, (s, mx) => mx.Bind(x => reducer(s, x)));
 
-        K<M, S> go2(S state, ReducerM<M, A, S> reducer, SourceTIterator<M, A> iter, CancellationToken token) =>
-            iter.ReadyToRead(token).GetAwaiter().GetResult()
-                ? iter.Read() switch
-                  {
-                      ReadM<M, A> (var ma) =>
-                          ma.Bind(a => reducer(state, a).Bind(s => go2(s, reducer, iter, token)))
-                            .Choose(() => M.Pure(state)),
-
-                      ReadIter<M, A> (var miter) =>
-                          miter.Bind(i => go2(state, reducer, i, token).Bind(s => go2(s, reducer, iter, token)))
-                  }
-                : M.Pure(state);
-    }
-
-    public K<M, S> ReduceM<S>(S state, ReducerM<M, K<M, A>, S> reducer)
-    {
-        return M.LiftIO(IO.lift<K<M, S>>(e => go2(state, reducer, GetIterator(), e.Token))).Flatten();
-
-        K<M, S> go2(S state, ReducerM<M, K<M, A>, S> reducer, SourceTIterator<M, A> iter, CancellationToken token) =>
-            iter.ReadyToRead(token).GetAwaiter().GetResult()
-                ? iter.Read() switch
-                  {
-                      ReadM<M, A> (var ma) =>
-                          reducer(state, ma).Bind(s => go2(s, reducer, iter, token))
-                                            .Choose(() => M.Pure(state)),
-
-                      ReadIter<M, A> (var miter) =>
-                          miter.Bind(i => go2(state, reducer, i, token).Bind(s => go2(s, reducer, iter, token)))
-                  }
-                : M.Pure(state);
-    }
+    /// <summary>
+    /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
+    /// result value.  This is returned lifted. 
+    /// </summary>
+    /// <remarks>Note, this is recursive, so `M` needs to be able to support recursion without
+    /// blowing the stack.  If you have the `IO` monad in your stack then this will automatically
+    /// be the case.</remarks>
+    /// <param name="state">Initial state</param>
+    /// <param name="reducer">Reducer</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Lifted aggregate state</returns>
+    public abstract K<M, S> ReduceM<S>(S state, ReducerM<M, K<M, A>, S> reducer);
     
     /// <summary>
     /// A source that never yields a value
@@ -73,7 +53,7 @@ public abstract record SourceT<M, A> :
     /// <param name="transducer">Transducer to use to transform</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>Transformed source</returns>
-    public SourceT<M, B> Transform<B>(Transducer<A, B> transducer) =>
+    public SourceT<M, B> TransformM<B>(Transducer<K<M, A>, K<M, B>> transducer) =>
         new TransformSourceT<M, A, B>(this, transducer);
     
     /// <summary>
@@ -159,13 +139,6 @@ public abstract record SourceT<M, A> :
             (var l, ChooseSourceT<M, A> r)                 => new ChooseSourceT<M, A>(l.Cons(r.Sources)),
             _                                              => new ChooseSourceT<M, A>([this, rhs])
         };
-    
-    /// <summary>
-    /// Fork the source so it runs on its own thread
-    /// </summary>
-    /// <returns></returns>
-    public SourceT<M, ForkIO<A>> Fork() =>
-        new ForkSourceT<M, A>(this);
 
     /// <summary>
     /// Zip two sources into one
@@ -206,7 +179,7 @@ public abstract record SourceT<M, A> :
     /// <param name="amount">Amount to skip</param>
     /// <returns>Transformed source</returns>
     public SourceT<M, A> Skip(int amount) =>
-        Transform(Transducer.skip<A>(amount)); 
+        TransformM(Transducer.skip<K<M, A>>(amount)); 
 
     /// <summary>
     /// Limit the number of items processed 
@@ -214,7 +187,7 @@ public abstract record SourceT<M, A> :
     /// <param name="amount">Amount to take</param>
     /// <returns>Transformed source</returns>
     public SourceT<M, A> Take(int amount) =>
-        Transform(Transducer.take<A>(amount)); 
+        TransformM(Transducer.take<K<M, A>>(amount)); 
 
     /// <summary>
     /// Fold the values flowing through.  A value is only yielded downstream upon completion of the stream.
@@ -302,11 +275,7 @@ public abstract record SourceT<M, A> :
     /// <typeparam name="M">Monad to lift (must support `IO`)</typeparam>
     /// <returns>`ProducerT`</returns>
     public ProducerT<A, M, Unit> ToProducerT() =>
-        throw new NotImplementedException("TODO");
-        /*
-        PipeT.lift<Unit, A, M, SourceTIterator<M, A>>(GetIterator)
-             .Bind(iter => PipeT.yieldRepeat<M, Unit, A>(iter.Read()));
-             */
+        ProducerT.yieldAll(this);
     
     /// <summary>
     /// Concatenate streams 
@@ -406,11 +375,4 @@ public abstract record SourceT<M, A> :
     /// </summary>
     public SourceT<M, C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         Map(a => project(a, bind(a).Value));
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Internal
-    //
-    
-    internal abstract SourceTIterator<M, A> GetIterator();
 }

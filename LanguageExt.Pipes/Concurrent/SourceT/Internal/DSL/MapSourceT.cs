@@ -3,9 +3,9 @@ using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes.Concurrent;
 
-record MapSourceT<M, A, B>(SourceT<M, A> SourceT, Func<A, B> F) : SourceT<M, B>
+record MapSourceT<M, A, B>(SourceT<M, A> Source, Func<A, B> F) : SourceT<M, B>
     where M : MonadIO<M>, Alternative<M>
 {
-    internal override SourceTIterator<M, B> GetIterator() =>
-        new MapSourceTIterator<M, A, B>(SourceT.GetIterator(), F);
+    public override K<M, S> ReduceM<S>(S state, ReducerM<M, K<M, B>, S> reducer) => 
+        Source.ReduceM(state, (s, mx) => reducer(s, mx.Map(F)));
 }

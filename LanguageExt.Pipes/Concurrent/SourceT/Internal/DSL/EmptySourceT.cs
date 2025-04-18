@@ -7,6 +7,6 @@ record EmptySourceT<M, A> : SourceT<M, A>
 {
     public static readonly SourceT<M, A> Default = new EmptySourceT<M, A>();
 
-    internal override SourceTIterator<M, A> GetIterator() =>
-        EmptySourceTIterator<M, A>.Default;
+    public override K<M, S> ReduceM<S>(S state, ReducerM<M, K<M, A>, S> reducer) => 
+        M.Pure(state);
 }

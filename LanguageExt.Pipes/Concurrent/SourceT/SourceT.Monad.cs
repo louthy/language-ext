@@ -40,9 +40,4 @@ public partial class SourceT<M> :
 
     static K<SourceT<M>, B> Maybe.MonadIO<SourceT<M>>.MapIO<A, B>(K<SourceT<M>, A> ma, Func<IO<A>, IO<B>> f) =>
         new MapIOSourceT<M, A, B>(ma.As(), f);
-
-    static K<SourceT<M>, ForkIO<A>> MonadIO<SourceT<M>>.ForkIO<A>(
-        K<SourceT<M>, A> ma, 
-        Option<TimeSpan> timeout) => 
-        ma.As().Fork();
 }

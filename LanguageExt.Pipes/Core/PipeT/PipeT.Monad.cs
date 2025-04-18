@@ -56,5 +56,5 @@ public class PipeT<IN, OUT, M> :
     static K<PipeT<IN, OUT, M>, ForkIO<A>> MonadIO<PipeT<IN, OUT, M>>.ForkIO<A>(
         K<PipeT<IN, OUT, M>, A> ma,
         Option<TimeSpan> timeout) =>
-        MonadT.lift<PipeT<IN, OUT, M>, M, ForkIO<A>>(ma.As().Run().ForkIO(timeout));    
+        MonadT.lift<PipeT<IN, OUT, M>, M, ForkIO<A>>(ma.As().Run().ForkIO(timeout));
 }

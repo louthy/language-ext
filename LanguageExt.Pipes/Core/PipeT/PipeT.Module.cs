@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt.Async.Linq;
 using LanguageExt.Common;
+using LanguageExt.Pipes.Concurrent;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -46,6 +47,17 @@ public static class PipeT
     public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(IAsyncEnumerable<OUT> values) 
         where M : MonadIO<M> =>
         new PipeTYieldAllAsync<IN, OUT, M, Unit>(values.Select(yield<M, IN, OUT>), pure<IN, OUT, M, Unit>);
+    
+    /// <summary>
+    /// Yield all values downstream
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(SourceT<M, OUT> values) 
+        where M : MonadIO<M>, Alternative<M> =>
+        new PipeTYieldAllSourceT<IN, OUT, M, OUT, Unit>(values, yield<M, IN, OUT>, pure<IN, OUT, M, Unit>);
 
     /// <summary>
     /// Evaluate the `M` monad repeatedly, yielding its bound values downstream

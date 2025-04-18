@@ -5,6 +5,6 @@ namespace LanguageExt.Pipes.Concurrent;
 record ToIOSourceT<M, A>(SourceT<M, A> Source) : SourceT<M, IO<A>>
     where M : MonadIO<M>, Alternative<M>
 {
-    internal override SourceTIterator<M, IO<A>> GetIterator() =>
-        new ToIOSourceTIterator<M, A>(Source.GetIterator());
+    public override K<M, S> ReduceM<S>(S state, ReducerM<M, K<M, IO<A>>, S> reducer) => 
+        Source.ReduceM(state, (s, mx) => reducer(s, mx.ToIO()));
 }
