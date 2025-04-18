@@ -6,7 +6,7 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 /// <summary>
-/// Entry point to a channel.  Sinkes receive values and propagate them through the
+/// Entry point to a channel.  Sinks receive values and propagate them through the
 /// channel they're attached to.  The behaviour depends on the `Buffer` type they
 /// were created with.
 /// </summary>
@@ -41,22 +41,22 @@ public abstract record Sink<A> :
     public abstract Sink<B> Contramap<B>(Func<B, A> f);
 
     /// <summary>
-    /// Combine two Sinkes: `lhs` and `rhs` into a single Sink that takes incoming
-    /// values and then posts the to the `lhs` and `rhs` Sinkes. 
+    /// Combine two Sinks: `lhs` and `rhs` into a single Sink that takes incoming
+    /// values and then posts the to the `lhs` and `rhs` Sinks. 
     /// </summary>
     public Sink<A> Combine(Sink<A> rhs) =>
         new SinkCombine<A, A, A>(x => (x, x), this, rhs);
 
     /// <summary>
-    /// Combine two Sinkes: `lhs` and `rhs` into a single Sink that takes incoming
+    /// Combine two Sinks: `lhs` and `rhs` into a single Sink that takes incoming
     /// values, maps them to an `(A, B)` tuple, and the posts the first and second
-    /// elements to the `lhs` and `rhs` Sinkes. 
+    /// elements to the `lhs` and `rhs` Sinks. 
     /// </summary>
     public Sink<X> Combine<X, B>(Func<X, (A Left, B Right)> f, Sink<B> rhs) =>
         new SinkCombine<X, A, B>(f, this, rhs);
     
     /// <summary>
-    /// Combine two Sinkes into a single Source.  The values are both
+    /// Combine two Sinks into a single Source.  The values are both
     /// merged into a new Sink.  
     /// </summary>
     /// <param name="lhs">Left hand side</param>
