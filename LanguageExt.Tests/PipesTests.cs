@@ -13,9 +13,9 @@ public class PipesTests
         using var rt = Runtime.New();
         
         (merge(yield<Runtime, int>(1), yield<Runtime, int>(1))
-       | awaiting<Runtime, int>().Map(ignore))
-           .Run().As()
-           .Run(rt, EnvIO.New())
-           .Ignore();
+           | awaiting<Runtime, int>().Map(ignore))
+               .Run().As()
+               .Run(rt, EnvIO.New())
+               .Ignore();
     }
 }

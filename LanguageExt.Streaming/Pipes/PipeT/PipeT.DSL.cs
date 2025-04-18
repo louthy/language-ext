@@ -430,7 +430,7 @@ record PipeTYieldAllSource<IN, OUT, M, X, A>(Source<X> Yields, Func<X, PipeT<IN,
     {
         var comp = await Yields.ReduceAsync(
                               PipeT.pure<IN, OUT, M, Unit>(unit),
-                              (ms, x) => Reduced.ContinueAsync(ms.Action(PipeT.pure<IN, OUT, M, X>(x).Bind(F))),
+                              (ms, x) => Reduced.ContinueAsync(ms.Bind(_ => F(x))),
                               CancellationToken.None);
 
         return await comp.Value.Bind(Next).RunAsync();
@@ -477,7 +477,7 @@ record PipeTYieldAllSourceT<IN, OUT, M, X, A>(SourceT<M, X> Yields, Func<X, Pipe
     internal override ValueTask<K<M, A>> RunAsync()
     {
         var comp = Yields.ReduceM(PipeT.pure<IN, OUT, M, Unit>(unit),
-                                  (ms, mx) => M.Pure(ms.Action(PipeT.liftM<IN, OUT, M, X>(mx).Bind(F))))
+                                  (ms, mx) => M.Pure(ms.Bind(_ => mx.Bind(F))))
                          .Bind(pipe => pipe.Bind(x => Next(x)));
 
         return comp.RunAsync();

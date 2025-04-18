@@ -369,17 +369,26 @@ public static class ProducerT
     {
         if (producers.Count == 0) return pure<OUT, M, Unit>(default);
 
-        return from Conduit in Pure(Conduit.spawn(settings ?? Buffer<OUT>.Unbounded))
-               from forks   in forkEffects(producers, Conduit)
-               from _       in Conduit.ToProducerT<M>()
+        return from conduit in Pure(Conduit.spawn(settings ?? Buffer<OUT>.Unbounded))
+               from signal  in Signal.countdown<M>(producers.Count)
+               from forks   in forkEffects(producers, signal, conduit)
+               from _       in conduit.ToProducerT<M>()
                from x       in forks.Traverse(f => f.Cancel).As()
                select unit;
     }
 
     static K<M, Seq<ForkIO<Unit>>> forkEffects<M, OUT>(
         Seq<ProducerT<OUT, M, Unit>> producers,
-        Conduit<OUT, OUT> Conduit)
+        CountdownSignal<M> signal,
+        Conduit<OUT, OUT> conduit)
         where M : MonadIO<M> =>
-        producers.Map(p => (p | Conduit.ToConsumerT<M>()).Run())
-                 .Traverse(ma => ma.ForkIO());
+        producers.Map(p => (p | conduit.ToConsumerT<M>()).Run())
+                 .Traverse(ma => ma.Bind(_ => trigger(signal, conduit))
+                                   .ForkIO());
+
+    static K<M, Unit> trigger<M, OUT>(CountdownSignal<M> signal, Conduit<OUT, OUT> conduit)
+        where M : MonadIO<M> =>
+        from f in signal.Trigger()
+        from _ in M.LiftIO(when(f, conduit.Complete()))
+        select unit;
 }
