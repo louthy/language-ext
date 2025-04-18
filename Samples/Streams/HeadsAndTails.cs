@@ -1,6 +1,6 @@
 /*
 using LanguageExt;
-using LanguageExt.Pipes;
+using LanguageExt.Streaming;
 using static Streams.Console;
 using static LanguageExt.Prelude;
 

@@ -1,7 +1,4 @@
-using System.Collections.Generic;
 using Xunit;
-using LanguageExt.Common;
-using LanguageExt.Pipes.Concurrent;
 
 namespace LanguageExt.Tests.Streaming;
 

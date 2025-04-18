@@ -43,7 +43,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainTypesExamples", "Samp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreditCardValidation", "Samples\CreditCardValidation\CreditCardValidation.csproj", "{AF8ED740-D77D-4080-9952-59232C57767C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Pipes", "LanguageExt.Pipes\LanguageExt.Pipes.csproj", "{6661A967-81D7-4236-99BC-AD42F71B6C1F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Streaming", "LanguageExt.Streaming\LanguageExt.Streaming.csproj", "{6661A967-81D7-4236-99BC-AD42F71B6C1F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipesExamples", "Samples\PipesExamples\PipesExamples.csproj", "{8CE4D269-B685-438C-AA1B-48D3E73C60DB}"
 EndProject

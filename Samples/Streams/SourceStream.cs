@@ -1,7 +1,6 @@
 using LanguageExt;
 using static Streams.Console;
 using static LanguageExt.Prelude;
-using LanguageExt.Pipes.Concurrent;
 
 namespace Streams;
 

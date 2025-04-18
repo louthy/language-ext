@@ -1,7 +1,4 @@
 using LanguageExt;
-using LanguageExt.Common;
-using LanguageExt.Pipes;
-using LanguageExt.Pipes.Concurrent;
 using LanguageExt.Traits;
 using static Streams.Console;
 using static LanguageExt.Prelude;

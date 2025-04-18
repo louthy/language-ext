@@ -2,7 +2,6 @@ using LanguageExt;
 using LanguageExt.Sys;
 using LanguageExt.Pipes;
 using LanguageExt.Common;
-using LanguageExt.Pipes.Concurrent;
 using LanguageExt.Sys.Traits;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
