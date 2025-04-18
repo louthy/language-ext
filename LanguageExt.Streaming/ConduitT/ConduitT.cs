@@ -20,11 +20,11 @@ namespace LanguageExt;
 /// usual way to map values on their way out.  They manipulate values as they
 /// leave the channel. 
 ///
-/// `Source` values can be both merged (using `+` or `Combine) and
-/// 'chosen' using `|` or `Choose`.
+/// `Source` values can be both merged (using `|` or `Choose`) and
+/// concatenated using `+` or `Combine`.
 ///
 /// Incoming `Sink` values can be split and passed to multiple `Sink`
-/// channels using (using `+` or `Combine)
+/// channels using (using `+` or `Combine`)
 ///
 /// `ToProducer` and `ToConsumer` allows the `Conduit` components to be used
 /// in composed pipe effects.
