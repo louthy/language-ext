@@ -3,9 +3,9 @@ functionality: **closed-streams** and **open-streams**...
 
 ## Closed streams
 
-Closed streams are facilitated by the [`Pipes`](Pipes) system.  The types in the `Pipes` system are compositional 
-monad-transformers that 'fuse' together to produce an [`EffectT<M, A>`](Pipes/EffectT).  This effect is a _closed system_, 
-meaning that there is no way (from the API) to directly interact with the effect from the outside: it can be executed 
+Closed streams are facilitated by the [`Pipes`](Pipes) system.  The types in the `Pipes` system are compositional
+monad-transformers that 'fuse' together to produce an [`EffectT<M, A>`](Pipes/EffectT).  This effect is a _closed system_,
+meaning that there is no way (from the API) to directly interact with the effect from the outside: it can be executed
 and will return a result if it terminates.
 
 The pipeline components are:
@@ -14,8 +14,8 @@ The pipeline components are:
 * [`PipeT<IN, OUT, M, A>`](Pipes/PipeT)
 * [`ConsumerT<IN, M, A>`](Pipes/ConsumerT)
 
-These are the components that fuse together (using the `|` operator) to make an [`EffectT<M, A>`](Pipes/EffectT).  The 
-types are _monad-transformers_ that support the `MonadIO` trait only (which constrains `M`).  This makes sense, otherwise 
+These are the components that fuse together (using the `|` operator) to make an [`EffectT<M, A>`](Pipes/EffectT).  The
+types are _monad-transformers_ that support the `MonadIO` trait only (which constrains `M`).  This makes sense, otherwise
 the closed-system would have no effect other than heating up the CPU.
 
 There are also more specialised versions of the above that only support the lifting of the `Eff<RT, A>` effect monad:
@@ -26,7 +26,7 @@ There are also more specialised versions of the above that only support the lift
 
 They all fuse together into an [`Effect<RT, A>`](Pipes/Effect).
 
-Pipes are especially useful if you want to build reusable streaming components that you can glue together ad infinitum. 
+Pipes are especially useful if you want to build reusable streaming components that you can glue together ad infinitum.
 Pipes are, arguably, less useful for day-to-day stream processing, like handling events, but your mileage may vary.
 
 _More details on the [`Pipes page`](Pipes)._
@@ -40,7 +40,7 @@ They yield values and (under certain circumstances) accept inputs.
 * [`Sink`](Sink) receives values and propagates them through the channel they're attached to.
 * [`Conduit`](Conduit) and [`ConduitT`](ConduitT) composes a `Sink` and `Source` or `SourceT` (so `Sink -> Source` or `Sink -> SourceT`), providing inputs to the stream which yields the received values.
 
-> I'm calling these 'open streams' because we can `Post` values to a `Sink` and we can `Reduce` values yielded by 
+> I'm calling these 'open streams' because we can `Post` values to a `Sink` and we can `Reduce` values yielded by
 > `Source` and `SourceT`.  So, they are 'open' for public manipulation, unlike `Pipes` which fuses the public access away.
 
 ### [`Source`](Source)
@@ -49,7 +49,7 @@ They yield values and (under certain circumstances) accept inputs.
 `IEnumerable<A>`, `IAsyncEnumerable<A>`, or singleton values.  To process a stream, you need to use one of the `Reduce`
 or `ReduceAsync` variants.  These take `Reducer` delegates as arguments.  They are essentially a fold over the stream of
 values, which results in an aggregated state once the stream has completed.  These reducers can be seen to play a similar
-role to `Subscribe` in `IObservable` streams, but are more principled because they return a value (which we can leverage 
+role to `Subscribe` in `IObservable` streams, but are more principled because they return a value (which we can leverage
 to carry state for the duration of the stream).
 
 `Source` also supports some built-in reducers:
@@ -88,4 +88,4 @@ like `ProducerT` and `ConsumerT`.
 
 This allows for the ultimate flexibility in your choice of streaming effect. It also allows for efficient concurrency in
 the more abstract and compositional world of the pipes. In fact `ProducerT.merge`, which merges many streams into one,
-uses `ConduitT` internally to collect  
+uses `ConduitT` internally to collect the values and to merge them into a single `ProducerT`.

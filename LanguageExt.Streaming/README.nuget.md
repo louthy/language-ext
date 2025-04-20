@@ -1,162 +1,91 @@
-# LanguageExt.Pipes
+The `Streaming` library of language-ext is all about compositional streams.  There are two key types of streaming
+functionality: **closed-streams** and **open-streams**...
 
-> If you find this feature confusing at first, and it wouldn't be surprising as
-it's quite a complex idea, there are some examples in the [EffectsExample sample in the repo](https://github.com/louthy/language-ext/blob/main/Samples/EffectsExamples/Examples/TextFileChunkStreamExample.cs)
+## Closed streams
 
-Conventional stream programming forces you to choose only two of the
-following three features:
+Closed streams are facilitated by the [`Pipes`](Pipes) system.  The types in the `Pipes` system are compositional
+monad-transformers that 'fuse' together to produce an [`EffectT<M, A>`](Pipes/EffectT).  This effect is a _closed system_,
+meaning that there is no way (from the API) to directly interact with the effect from the outside: it can be executed
+and will return a result if it terminates.
 
-1. **Effects**
-2. **Streaming**
-3. **Composability**
+The pipeline components are:
 
-If you sacrifice _Effects_ you get `IEnumerable`, which you
-can transform using composable functions in constant space, but without
-interleaving effects (other than of the _imperative kind_).
+* [`ProducerT<OUT, M, A>`](Pipes/ProducerT)
+* [`PipeT<IN, OUT, M, A>`](Pipes/PipeT)
+* [`ConsumerT<IN, M, A>`](Pipes/ConsumerT)
 
-If you sacrifice _Streaming_ you get `Traverse` and `Sequence`, which are
-composable and effectful, but do not return a single result until the whole
-list has first been processed and loaded into memory.
+These are the components that fuse together (using the `|` operator) to make an [`EffectT<M, A>`](Pipes/EffectT).  The
+types are _monad-transformers_ that support the `MonadIO` trait only (which constrains `M`).  This makes sense, otherwise
+the closed-system would have no effect other than heating up the CPU.
 
-If you sacrifice _Composability_ you write a tightly coupled for loops,
-and fire off imperative side-effects like they're going out of style.  Which
-is streaming and effectful, but is not modular or separable.
+There are also more specialised versions of the above that only support the lifting of the `Eff<RT, A>` effect monad:
 
-`Pipes` gives you all three features: effectful, streaming, and composable
-programming.  `Pipes` also provides a wide variety of stream programming
-abstractions which are all subsets of a single unified machinery:
+* [`Producer<RT, OUT, A>`](Pipes/Producer)
+* [`Pipe<RT, IN, OUT, A>`](Pipes/Pipe)
+* [`Consumer<RT, IN, A>`](Pipes/Consumer)
 
-* Effectful [`Producer`](Producer) and [`ProducerT`](ProducerT),
-* Effectful [`Consumer`](Consumer) and [`ConsumerT`](ConsumerT),
-* Effectful [`Pipe`](Pipe) and [`PipeT`](PipeT) (like Unix pipes)
-* Effectful [`Effect`](Effect) and [`EffectT`](EffectT)
+They all fuse together into an [`Effect<RT, A>`](Pipes/Effect).
 
-> The `T` suffix types (`ProducerT`, `ConsumerT`, `PipeT`, and `EffectT`) are the
-> more generalist monad-transformers.  They can lift any monad `M` you like into them,
-> supplementing the behaviour of `Pipes` with the behaviour of `M`.  The non-`T`
-> suffix types (`Producer`, `Consumer`, `Pipe`, and `Effect`) only support the lifting
-> of the `Eff<RT, A>` type.  They're slightly easier to use, just less flexible.
+Pipes are especially useful if you want to build reusable streaming components that you can glue together ad infinitum.
+Pipes are, arguably, less useful for day-to-day stream processing, like handling events, but your mileage may vary.
 
-All of these are connectable and you can combine them together in clever and
-unexpected ways because they all share the same underlying type: [`PipeT`](PipeT).
+_More details on the [`Pipes page`](Pipes)._
 
-The pipes ecosystem decouples stream processing stages from each other so
-that you can mix and match diverse stages to produce useful streaming
-programs.  If you are a library writer, pipes lets you package up streaming
-components into a reusable interface.  If you are an application writer,
-pipes lets you connect pre-made streaming components with minimal effort to
-produce a highly-efficient program that streams data in constant memory.
+## Open streams
 
-To enforce loose coupling, components can only communicate using two commands:
+Open streams are closer to what most C# devs have used classically.  They are like events or `IObservable` streams.
+They yield values and (under certain circumstances) accept inputs.
 
-* `yield`: Send output data
-* `awaiting`: Receive input data
+* [`Source`](Source) and [`SourceT`](SourceT) yield values synchronously or asynchronously depending on their construction.
+* [`Sink`](Sink) receives values and propagates them through the channel they're attached to.
+* [`Conduit`](Conduit) and [`ConduitT`](ConduitT) composes a `Sink` and `Source` or `SourceT` (so `Sink -> Source` or `Sink -> SourceT`), providing inputs to the stream which yields the received values.
 
-Pipes has four types of components built around these two commands:
+> I'm calling these 'open streams' because we can `Post` values to a `Sink` and we can `Reduce` values yielded by
+> `Source` and `SourceT`.  So, they are 'open' for public manipulation, unlike `Pipes` which fuses the public access away.
 
-* [`Producer`](Producer) and [`ProducerT`](ProducerT) yield values downstream and can only do so using: `Producer.yield` and `ProducerT.yield`.
-* [`Consumer`](Consumer) and [`ConsumerT`](ConsumerT) await values from upstream and can only do so using: `Consumer.awaiting` and `ConsumerT.awaiting`.
-* [`Pipe`](Pipe) and [`PipeT`](PipeT) can both await and yield, using: `Pipe.awaiting`, `PipeT.awaiting`, `Pipe.yield`, and `PipeT.yield`.
-* [`Effect`](Effect) and [`EffectT`](EffectT) can neither yield nor await and they model non-streaming components.
+### [`Source`](Source)
 
-Pipes uses parametric polymorphism (i.e. generics) to overload all operations. The operator `|` connects `Producer`, `Consumer`, and `Pipe` by 'fusing'
-them together.  Eventually they will 'fuse' together into an `Effect` or `EffectT`.  This final state can be `.Run()`, you must fuse to an `Effect` or
-`EffectT` to be able to invoke any of the pipelines.
+[`Source<A>`](Source) is the 'classic stream': you can lift any of the following types into it: `System.Threading.Channels.Channel<A>`,
+`IEnumerable<A>`, `IAsyncEnumerable<A>`, or singleton values.  To process a stream, you need to use one of the `Reduce`
+or `ReduceAsync` variants.  These take `Reducer` delegates as arguments.  They are essentially a fold over the stream of
+values, which results in an aggregated state once the stream has completed.  These reducers can be seen to play a similar
+role to `Subscribe` in `IObservable` streams, but are more principled because they return a value (which we can leverage
+to carry state for the duration of the stream).
 
-`Producer`, `ProducerT`, `Consumer`, `ConsumerT`, `Pipe`, `Effect`, and `EffectT` are all special cases of a
-single underlying type: [`PipeT`](PipeT).
+`Source` also supports some built-in reducers:
 
-You can think of it as having the following shape:
+* `Last` - aggregates no state, simply returns the last item yielded
+* `Iter` - this forces evaluation of the stream, aggregating no state, and ignoring all yielded values.
+* `Collect` - adds all yielded values to a `Seq<A>`, which is then returned upon stream completion.
 
-    PipeT<IN, OUT, M, A>
+### [`SourceT`](SourceT)
 
-          Upstream | Downstream
-              +---------+
-              |         |
-         IN --►         --► OUT  -- Information flowing downstream
-              |    |    |
-              +----|----+
-                   |
-                   A
+[`SourceT<M, A>`](SourceT) is the classic-stream _embellished_ - it turns the stream into a monad-transformer that can
+lift any `MonadIO`-enabled monad (`M`), allowing side effects to be embedded into the stream in a principled way.
 
-Pipes uses type synonyms to hide unused inputs or outputs and clean up
-type signatures.  These type synonyms come in two flavors:
+So, for example, to use the `IO<A>` monad with `SourceT`, simply use: `SourceT<IO, A>`.  Then you can use one of the
+following `static` methods on the `SourceT` type to lift `IO<A>` effects into a stream:
 
-* Concrete type synonyms that explicitly close unused inputs and outputs of
-  the `Proxy` type.
+* `SourceT.liftM(IO<A> effect)` creates a singleton-stream
+* `SourceT.foreverM(IO<A> effect)` creates an infinite stream, repeating the same effect over and over
+* `SourceT.liftM(Channel<IO<A>> channel)` lifts a `System.Threading.Channels.Channel` of effects
+* `SourceT.liftM(IEnumerable<IO<A>> effects)` lifts an `IEnumerable` of effects
+* `SourceT.liftM(IAsyncEnumerable<IO<A>> effects)` lifts an `IAsyncEnumerable` of effects
 
-* Polymorphic type synonyms that don't explicitly close unused inputs or
-  outputs.
+> Obviously, when lifting non-`IO` monads, the types above change.
 
-The concrete type synonyms use `Unit` to close unused inputs and `Void` (the
-uninhabited type) to close unused outputs:
+`SourceT` also supports the same built-in convenience reducers as `Source` (`Last`, `Iter`, `Collect`).
 
-* `EffectT`: explicitly closes both ends, forbidding `awaiting` and `yield`:
+## Open to closed streams
 
-       EffectT<M, A> = PipeT<Unit, Void, M, A>
-        
-                Upstream | Downstream
+Clearly, even for 'closed systems' like the [`Pipes`](Pipes) system, it would be beneficial to be able to post values
+into the streams from the outside.  And so, the _open-stream components_ can all be converted into `Pipes` components
+like `ProducerT` and `ConsumerT`.
 
-                    +---------+
-                    |         |
-             Unit --►         --► Void
-                    |    |    |
-                    +----|----+
-                         |
-                         A
+* `Conduit` and `ConduitT` support `ToProducer`, `ToProducerT`, `ToConsumer`, and `ToConsumerT`.
+* `Sink` supports `ToConsumer`, and `ToConsumerT`.
+* `Source` and `SourceT` supports `ToProducer`, and `ToProducerT`.
 
-* `ProducerT`: explicitly closes the upstream end, forbidding `awaiting`:
-
-       ProducerT<OUT, M, A> = PipeT<Unit, OUT, M, A>
-        
-                Upstream | Downstream
-
-                    +---------+
-                    |         |
-             Unit --►         --► OUT
-                    |    |    |
-                    +----|----+
-                         |
-                         A
-
-* `ConsumerT`: explicitly closes the downstream end, forbidding `yield`:
-
-        ConsumerT<IN, M, A> = PipeT<IN, Void, M, A>
-       
-                Upstream | Downstream
-
-                    +---------+
-                    |         |
-               IN --►         --► Void
-                    |    |    |
-                    +----|----+
-                         |
-                         A
-
-When you compose `PipeT` using `|` all you are doing is placing them
-side by side and fusing them laterally.  For example, when you compose a
-`ProducerT`, `PipeT`, and a `ConsumerT`, you can think of information flowing
-like this:
-
-                ProducerT                     PipeT                  ConsumerT
-             +-------------+             +------------+           +-------------+
-             |             |             |            |           |             |
-      Unit --►  readLine   --►  string --►  parseInt  --►  int  --►  writeLine  --► Void
-             |      |      |             |      |     |           |      |      |
-             +------|------+             +------|-----+           +------|------+
-                    |                           |                        |  
-                    A                           A                        A
-
-Composition fuses away the intermediate interfaces, leaving behind an `EffectT`:
-
-                            EffectT
-            +-------------------------------------+
-            |                                     |
-     Unit --►   readLine | parseInt | writeLine   --► Void
-            |                                     |
-            +------------------|------------------+
-                               |
-                               A
-
-This `EffectT` can be `Run()` which will return the composed underlying `M` type.  Or,
-if it's an `Effect` will return the composed underlying `Eff<RT, A>`.
+This allows for the ultimate flexibility in your choice of streaming effect. It also allows for efficient concurrency in
+the more abstract and compositional world of the pipes. In fact `ProducerT.merge`, which merges many streams into one,
+uses `ConduitT` internally to collect the values and to merge them into a single `ProducerT`.
