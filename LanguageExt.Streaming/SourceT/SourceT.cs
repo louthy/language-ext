@@ -281,9 +281,9 @@ public abstract record SourceT<M, A> :
     /// <summary>
     /// Concatenate streams 
     /// </summary>
-    /// <param name="lhs">Left hand side</param>
-    /// <param name="rhs">Right hand side</param>
-    /// <returns>A stream that concatenates the inputs streams</returns>
+    /// <param name="lhs">Left-hand side</param>
+    /// <param name="rhs">Right-hand side</param>
+    /// <returns>A stream that concatenates the input streams</returns>
     public static SourceT<M, A> operator +(SourceT<M, A> lhs, SourceT<M, A> rhs) =>
         lhs.Combine(rhs);
 
@@ -292,8 +292,8 @@ public abstract record SourceT<M, A> :
     /// merged into a new stream.  Values are yielded as they become available
     /// regardless of which stream yields it.
     /// </summary>
-    /// <param name="lhs">Left hand side</param>
-    /// <param name="rhs">Right hand side</param>
+    /// <param name="lhs">Left-hand side</param>
+    /// <param name="rhs">Right-hand side</param>
     /// <returns>Merged stream of values</returns>
     public static SourceT<M, A> operator |(SourceT<M, A> lhs, SourceT<M, A> rhs) =>
         lhs.Choose(rhs);

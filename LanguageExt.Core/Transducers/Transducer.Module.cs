@@ -16,7 +16,7 @@ public static class Transducer
     /// <summary>
     /// Skip `amount` items in the sequence before yielding
     /// </summary>
-    /// <param name="amount">Amount of items to skip</param>
+    /// <param name="amount">Number of items to skip</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Transducer that skips values</returns>
     public static Transducer<A, A> skip<A>(int amount) =>
@@ -25,7 +25,7 @@ public static class Transducer
     /// <summary>
     /// Take `amount` items in the sequence before terminating
     /// </summary>
-    /// <param name="amount">Amount of items to take</param>
+    /// <param name="amount">Number of items to take</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Transducer that takes `amount` values only</returns>
     public static Transducer<A, A> take<A>(int amount) =>

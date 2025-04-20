@@ -42,14 +42,14 @@ public abstract record Sink<A> :
 
     /// <summary>
     /// Combine two Sinks: `lhs` and `rhs` into a single Sink that takes incoming
-    /// values and then posts the to the `lhs` and `rhs` Sinks. 
+    /// values and then posts to the `lhs` and `rhs` Sinks. 
     /// </summary>
     public Sink<A> Combine(Sink<A> rhs) =>
         new SinkCombine<A, A, A>(x => (x, x), this, rhs);
 
     /// <summary>
     /// Combine two Sinks: `lhs` and `rhs` into a single Sink that takes incoming
-    /// values, maps them to an `(A, B)` tuple, and the posts the first and second
+    /// values, maps them to an `(A, B)` tuple, and then posts the first and second
     /// elements to the `lhs` and `rhs` Sinks. 
     /// </summary>
     public Sink<X> Combine<X, B>(Func<X, (A Left, B Right)> f, Sink<B> rhs) =>
@@ -59,8 +59,8 @@ public abstract record Sink<A> :
     /// Combine two Sinks into a single Source.  The values are both
     /// merged into a new Sink.  
     /// </summary>
-    /// <param name="lhs">Left hand side</param>
-    /// <param name="rhs">Right hand side</param>
+    /// <param name="lhs">Left-hand side</param>
+    /// <param name="rhs">Right-hand side</param>
     /// <returns>Merged stream of values</returns>
     public static Sink<A> operator +(Sink<A> lhs, Sink<A> rhs) =>
         lhs.Combine(rhs);

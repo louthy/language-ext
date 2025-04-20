@@ -10,8 +10,8 @@ public static class Conduit
     /// <param name="label">Label for debugging purposes</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Constructed Conduit with an `Sink` and an `Source`</returns>
-    public static Conduit<A, A> spawn<A>() =>
-        spawn(Buffer<A>.Unbounded);
+    public static Conduit<A, A> make<A>() =>
+        make(Buffer<A>.Unbounded);
 
     /// <summary>
     /// Create a new Conduit with the buffer settings provided 
@@ -21,7 +21,7 @@ public static class Conduit
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Constructed Conduit with an `Sink` and an `Source`</returns>
     /// <exception cref="NotSupportedException">Thrown for invalid buffer settings</exception>
-    public static Conduit<A, A> spawn<A>(Buffer<A> buffer)
+    public static Conduit<A, A> make<A>(Buffer<A> buffer)
     {
         var channel = MakeChannel(buffer);
         return new Conduit<A, A>(new SinkWriter<A>(channel.Writer), new ReaderSource<A>(channel));

@@ -52,7 +52,7 @@ public record ConduitT<M, A, B>(Sink<A> Sink, SourceT<M, B> Source)
     /// result value.  This is returned lifted. 
     /// </summary>
     /// <remarks>Note, this is recursive, so `M` needs to be able to support recursion without
-    /// blowing the stack.  If you have the `IO` monad in your stack then this will automatically
+    /// blowing the stack.  If you have the `IO` monad in your stack, then this will automatically
     /// be the case.</remarks>
     /// <param name="state">Initial state</param>
     /// <param name="reducer">Reducer</param>
@@ -66,7 +66,7 @@ public record ConduitT<M, A, B>(Sink<A> Sink, SourceT<M, B> Source)
     /// result value.  This is returned lifted. 
     /// </summary>
     /// <remarks>Note, this is recursive, so `M` needs to be able to support recursion without
-    /// blowing the stack.  If you have the `IO` monad in your stack then this will automatically
+    /// blowing the stack.  If you have the `IO` monad in your stack, then this will automatically
     /// be the case.</remarks>
     /// <param name="state">Initial state</param>
     /// <param name="reducer">Reducer</param>
@@ -112,41 +112,39 @@ public record ConduitT<M, A, B>(Sink<A> Sink, SourceT<M, B> Source)
         new (Sink.Contramap(f), Source);
 
     /// <summary>
-    /// Convert the `Sink` to a `ConsumerT` pipe component
+    /// Convert the conduit's `Sink` to a `ConsumerT` pipe component
     /// </summary>
-    /// <typeparam name="M">Monad to lift (must support `IO`)</typeparam>
     /// <returns>`ConsumerT`</returns>
-    public ConsumerT<A, M, Unit> ToConsumer() =>
+    public ConsumerT<A, M, Unit> ToConsumerT() =>
         Sink.ToConsumerT<M>();
 
     /// <summary>
-    /// Convert `Source` to a `ProducerT` pipe component
+    /// Convert the conduit's `Source` to a `ProducerT` pipe component
     /// </summary>
-    /// <typeparam name="M">Monad to lift (must support `IO`)</typeparam>
     /// <returns>`ProducerT`</returns>
-    public ProducerT<B, M, Unit> ToProducer() =>
+    public ProducerT<B, M, Unit> ToProducerT() =>
         Source.ToProducerT();
     
     /// <summary>
-    /// Combine two Sinkes: `lhs` and `rhs` into a single Sink that takes incoming
-    /// values and then posts the to the `lhs` and `rhs` Sinkes. 
+    /// Combine two Sinks: `lhs` and `rhs` into a single Sink that takes incoming
+    /// values and then posts to the `lhs` and `rhs` Sinks. 
     /// </summary>
     public ConduitT<M, A, B> Combine(Sink<A> rhs) =>
         this with { Sink = Sink.Combine(rhs) };
     
     /// <summary>
-    /// Combine two Sinkes: `lhs` and `rhs` into a single Sink that takes incoming
-    /// values, maps them to an `(A, B)` tuple, and the posts the first and second
-    /// elements to the `lhs` and `rhs` Sinkes. 
+    /// Combine two Sinks: `lhs` and `rhs` into a single Sink that takes incoming
+    /// values, maps them to an `(A, B)` tuple, and then posts the first and second
+    /// elements to the `lhs` and `rhs` Sinks. 
     /// </summary>
     public ConduitT<M, X, B> Combine<X, C>(Func<X, (A Left, C Right)> f, Sink<C> rhs) =>
         new (Sink.Combine(f, rhs), Source);
 
     /// <summary>
-    /// Combine two Sourcees into a single Source.  The value streams are both
+    /// Combine two Sources into a single Source.  The value streams are both
     /// merged into a new stream.  Values are yielded as they become available.
     /// </summary>
-    /// <param name="rhs">Right hand side</param>
+    /// <param name="rhs">Right-hand side</param>
     /// <returns>Merged stream of values</returns>
     public ConduitT<M, A, B> Combine(SourceT<M, B> rhs) =>
         this with { Source = Source.Combine(rhs) };
@@ -156,37 +154,35 @@ public record ConduitT<M, A, B>(Sink<A> Sink, SourceT<M, B> Source)
     /// </summary>
     /// <param name="rhs"></param>
     /// <returns>Value from this `Source` if there are any available, if not, from `rhs`.  If
-    /// `rhs` is also empty then `Errors.SourceClosed` is raised</returns>
+    /// `rhs` is also empty, then `Errors.SourceClosed` is raised</returns>
     public ConduitT<M, A, B> Choose(SourceT<M, B> rhs) =>
         this with { Source = Source.Choose(rhs) };
     
     /// <summary>
-    /// Combine two Sinkes into a single Source.  The values are both
-    /// merged into a new Sink.  
+    /// Combine two sinks into a single sink.  The values coming into both sinks are merged into a new sink.  
     /// </summary>
-    /// <param name="lhs">Left hand side</param>
-    /// <param name="rhs">Right hand side</param>
+    /// <param name="lhs">Left-hand side</param>
+    /// <param name="rhs">Right-hand side</param>
     /// <returns>Merged stream of values</returns>
     public static ConduitT<M, A, B> operator +(Sink<A> lhs, ConduitT<M, A, B> rhs) =>
         rhs with { Sink = lhs.Combine(rhs.Sink) };
     
     /// <summary>
-    /// Combine two Sourcees into a single Source.  The value streams are both
-    /// merged into a new stream.  Values are yielded as they become available.
+    /// Combine two sources into a single source.  The values of the two sources are concatenated into a new source. 
     /// </summary>
-    /// <param name="lhs">Left hand side</param>
-    /// <param name="rhs">Right hand side</param>
-    /// <returns>Merged stream of values</returns>
+    /// <param name="lhs">Left-hand side</param>
+    /// <param name="rhs">Right-hand side</param>
+    /// <returns>Conduit with a new Source which is a concatenation of its existing Source and the `rhs` source</returns>
     public static ConduitT<M, A, B> operator +(ConduitT<M, A, B> lhs, SourceT<M, B> rhs) =>
         lhs.Combine(rhs);
 
     /// <summary>
-    /// Choose a value from the first `Source` to successfully yield 
+    /// Combine two sources into a single source.  The value streams are both merged into a new stream, where values are
+    /// yielded as they become available on either stream. 
     /// </summary>
-    /// <param name="lhs">Left hand side</param>
-    /// <param name="rhs">Right hand side</param>
-    /// <returns>Value from the `lhs` `Source` if there are any available, if not, from `rhs`.  If
-    /// `rhs` is also empty then `Errors.SourceChannelClosed` is raised</returns>
+    /// <param name="lhs">Left-hand side</param>
+    /// <param name="rhs">Right-hand side</param>
+    /// <returns>Conduit with a new Source which is a composition of its existing Source and the `rhs` source</returns>
     public static ConduitT<M, A, B> operator |(ConduitT<M, A, B> lhs, SourceT<M, B> rhs) =>
         lhs.Choose(rhs);
 }

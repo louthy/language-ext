@@ -369,7 +369,7 @@ public static class ProducerT
     {
         if (producers.Count == 0) return pure<OUT, M, Unit>(default);
 
-        return from conduit in Pure(Conduit.spawn(settings ?? Buffer<OUT>.Unbounded))
+        return from conduit in Pure(Conduit.make(settings ?? Buffer<OUT>.Unbounded))
                from signal  in Signal.countdown<M>(producers.Count)
                from forks   in forkEffects(producers, signal, conduit)
                from _       in conduit.ToProducerT<M>()
@@ -388,6 +388,5 @@ public static class ProducerT
 
     static K<M, Unit> trigger<M, OUT>(CountdownSignal<M> signal, Conduit<OUT, OUT> conduit)
         where M : MonadIO<M> =>
-        signal.Trigger()
-              .Bind(f => when(f, conduit.Complete()).As());
+        signal.Trigger().Bind(f => when(f, conduit.Complete()).As());
 }

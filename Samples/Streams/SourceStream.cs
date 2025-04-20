@@ -7,7 +7,7 @@ namespace Streams;
 public class SourceStream
 {
     public static IO<Unit> run =>
-        from c in IO.pure(ConduitT.spawn<IO, string>())
+        from c in IO.pure(ConduitT.make<IO, string>())
         from f in fork(subscribe(c.Source).Iter())
         from _ in writeLine("Type something and press enter (empty-line ends the demo)") >>
                   interaction(c.Sink)

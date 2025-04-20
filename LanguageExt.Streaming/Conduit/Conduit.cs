@@ -138,25 +138,25 @@ public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
         Source.ToProducer<RT>();
     
     /// <summary>
-    /// Combine two Sinkes: `lhs` and `rhs` into a single Sink that takes incoming
-    /// values and then posts the to the `lhs` and `rhs` Sinkes. 
+    /// Combine two Sinks: `lhs` and `rhs` into a single Sink that takes incoming
+    /// values and then posts to the `lhs` and `rhs` Sinks. 
     /// </summary>
     public Conduit<A, B> Combine(Sink<A> rhs) =>
         this with { Sink = Sink.Combine(rhs) };
     
     /// <summary>
-    /// Combine two Sinkes: `lhs` and `rhs` into a single Sink that takes incoming
-    /// values, maps them to an `(A, B)` tuple, and the posts the first and second
-    /// elements to the `lhs` and `rhs` Sinkes. 
+    /// Combine two Sinks: `lhs` and `rhs` into a single Sink that takes incoming
+    /// values, maps them to an `(A, B)` tuple, and then posts the first and second
+    /// elements to the `lhs` and `rhs` Sinks. 
     /// </summary>
     public Conduit<X, B> Combine<X, C>(Func<X, (A Left, C Right)> f, Sink<C> rhs) =>
         new (Sink.Combine(f, rhs), Source);
 
     /// <summary>
-    /// Combine two Sourcees into a single Source.  The value streams are both
+    /// Combine two Sources into a single Source.  The value streams are both
     /// merged into a new stream.  Values are yielded as they become available.
     /// </summary>
-    /// <param name="rhs">Right hand side</param>
+    /// <param name="rhs">Right-hand side</param>
     /// <returns>Merged stream of values</returns>
     public Conduit<A, B> Combine(Source<B> rhs) =>
         this with { Source = Source.Combine(rhs) };
@@ -166,26 +166,26 @@ public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
     /// </summary>
     /// <param name="rhs"></param>
     /// <returns>Value from this `Source` if there are any available, if not, from `rhs`.  If
-    /// `rhs` is also empty then `Errors.SourceClosed` is raised</returns>
+    /// `rhs` is also empty, then `Errors.SourceClosed` is raised</returns>
     public Conduit<A, B> Choose(Source<B> rhs) =>
         this with { Source = Source.Choose(rhs) };
     
     /// <summary>
-    /// Combine two Sinkes into a single Source.  The values are both
+    /// Combine two Sinks into a single Source.  The values are both
     /// merged into a new Sink.  
     /// </summary>
-    /// <param name="lhs">Left hand side</param>
-    /// <param name="rhs">Right hand side</param>
+    /// <param name="lhs">Left-hand side</param>
+    /// <param name="rhs">Right-hand side</param>
     /// <returns>Merged stream of values</returns>
     public static Conduit<A, B> operator +(Sink<A> lhs, Conduit<A, B> rhs) =>
         rhs with { Sink = lhs.Combine(rhs.Sink) };
     
     /// <summary>
-    /// Combine two Sourcees into a single Source.  The value streams are both
+    /// Combine two Sources into a single Source.  The value streams are both
     /// merged into a new stream.  Values are yielded as they become available.
     /// </summary>
-    /// <param name="lhs">Left hand side</param>
-    /// <param name="rhs">Right hand side</param>
+    /// <param name="lhs">Left-hand side</param>
+    /// <param name="rhs">Right-hand side</param>
     /// <returns>Merged stream of values</returns>
     public static Conduit<A, B> operator +(Conduit<A, B> lhs, Source<B> rhs) =>
         lhs.Combine(rhs);
@@ -193,10 +193,10 @@ public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
     /// <summary>
     /// Choose a value from the first `Source` to successfully yield 
     /// </summary>
-    /// <param name="lhs">Left hand side</param>
-    /// <param name="rhs">Right hand side</param>
+    /// <param name="lhs">Left-hand side</param>
+    /// <param name="rhs">Right-hand side</param>
     /// <returns>Value from the `lhs` `Source` if there are any available, if not, from `rhs`.  If
-    /// `rhs` is also empty then `Errors.SourceChannelClosed` is raised</returns>
+    /// `rhs` is also empty, then `Errors.SourceChannelClosed` is raised</returns>
     public static Conduit<A, B> operator |(Conduit<A, B> lhs, Source<B> rhs) =>
         lhs.Choose(rhs);
 }

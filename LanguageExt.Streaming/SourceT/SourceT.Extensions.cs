@@ -52,7 +52,7 @@ public static class SourceTExtensions
     /// Force iteration of the stream, yielding a unit `M` structure.
     /// </summary>
     /// <remarks>
-    /// The expectation is that the stream uses `IO` for side effects, so this makes them to happen.
+    /// The expectation is that the stream uses `IO` for side effects, so this makes them happen.
     /// </remarks>
     [Pure]
     public static K<M, Unit> Iter<M, A>(this K<SourceT<M>, A> ma)

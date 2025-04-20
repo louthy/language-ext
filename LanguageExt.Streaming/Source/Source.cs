@@ -299,8 +299,8 @@ public abstract record Source<A> :
     /// <summary>
     /// Concatenate two sources into a single source.
     /// </summary>
-    /// <param name="lhs">Left hand side</param>
-    /// <param name="rhs">Right hand side</param>
+    /// <param name="lhs">Left-hand side</param>
+    /// <param name="rhs">Right-hand side</param>
     /// <returns>Concatenated stream of values</returns>
     public static Source<A> operator +(Source<A> lhs, Source<A> rhs) =>
         lhs.Combine(rhs);
@@ -309,9 +309,9 @@ public abstract record Source<A> :
     /// The value streams are both merged into a new stream.  Values are yielded
     /// as they become available.
     /// </summary>
-    /// <param name="lhs">Left hand side</param>
-    /// <param name="rhs">Right hand side</param>
-    /// <returns>Marged stream</returns>
+    /// <param name="lhs">Left-hand side</param>
+    /// <param name="rhs">Right-hand side</param>
+    /// <returns>Merged stream</returns>
     public static Source<A> operator |(Source<A> lhs, Source<A> rhs) =>
         lhs.Choose(rhs);
 
@@ -336,7 +336,7 @@ public abstract record Source<A> :
         lhs.Bind(_ => rhs);
 
     /// <summary>
-    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// Sequentially compose two actions.  The second action is a unit-returning action, so the result of the
     /// first action is propagated.
     /// </summary>
     /// <param name="lhs">First action to run</param>
@@ -346,7 +346,7 @@ public abstract record Source<A> :
         lhs.Bind(x => rhs.Map(_ => x));
 
     /// <summary>
-    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// Sequentially compose two actions.  The second action is a unit-returning action, so the result of the
     /// first action is propagated.
     /// </summary>
     /// <param name="lhs">First action to run</param>

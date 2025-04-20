@@ -11,9 +11,9 @@ public static class ConduitT
     /// <param name="label">Label for debugging purposes</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Constructed Conduit with an `Sink` and an `Source`</returns>
-    public static ConduitT<M, A, A> spawn<M, A>() 
+    public static ConduitT<M, A, A> make<M, A>() 
         where M : MonadIO<M>, Alternative<M> =>
-        spawn<M, A>(Buffer<A>.Unbounded);
+        make<M, A>(Buffer<A>.Unbounded);
 
     /// <summary>
     /// Create a new Conduit with the buffer settings provided 
@@ -23,7 +23,7 @@ public static class ConduitT
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Constructed Conduit with an `Sink` and an `Source`</returns>
     /// <exception cref="NotSupportedException">Thrown for invalid buffer settings</exception>
-    public static ConduitT<M, A, A> spawn<M, A>(Buffer<A> buffer)
+    public static ConduitT<M, A, A> make<M, A>(Buffer<A> buffer)
         where M : MonadIO<M>, Alternative<M> 
     {
         var channel = MakeChannel<M, A>(buffer);
