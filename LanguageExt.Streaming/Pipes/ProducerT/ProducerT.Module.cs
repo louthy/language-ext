@@ -388,7 +388,6 @@ public static class ProducerT
 
     static K<M, Unit> trigger<M, OUT>(CountdownSignal<M> signal, Conduit<OUT, OUT> conduit)
         where M : MonadIO<M> =>
-        from f in signal.Trigger()
-        from _ in M.LiftIO(when(f, conduit.Complete()))
-        select unit;
+        signal.Trigger()
+              .Bind(f => when(f, conduit.Complete()).As());
 }
