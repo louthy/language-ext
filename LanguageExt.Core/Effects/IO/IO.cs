@@ -838,13 +838,41 @@ public abstract record IO<A> :
     /// <param name="env">IO environment</param>
     /// <returns>Result of the IO operation</returns>
     /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
-    public A Run(EnvIO? envIO = null)
+    public A Run()
     {
-        // RunAsync can run completely synchronously and without the creation of a async/await state-machine, so calling
+        // RunAsync can run completely synchronously and without the creation of an async/await state-machine, so calling
         // it for operations that are completely synchronous has no additional overhead for us.  Therefore, calling it
         // directly here and then unpacking the `ValueTask` makes sense to reduce code duplication.
 
-        var task = envIO is null ? RunAsync() : RunAsync(envIO);
+        var task = RunAsync();
+        if (task.IsCompleted) return task.Result;
+
+        // If RunAsync really had to do some asynchronous work, then make sure we use the awaiter and get its result
+        return task.GetAwaiter().GetResult();
+    }
+
+    /// <summary>
+    /// Run the `IO` monad to get its result
+    /// </summary>
+    /// <remarks>
+    /// Any lifted asynchronous operations will yield to the thread-scheduler, allowing other queued
+    /// operations to run concurrently.  So, even though this call isn't awaitable it still plays
+    /// nicely and doesn't block the thread.
+    /// </remarks>
+    /// <remarks>
+    /// NOTE: An exception will always be thrown if the IO operation fails.  Lift this monad into
+    /// other error handling monads to leverage more declarative error handling. 
+    /// </remarks>
+    /// <param name="env">IO environment</param>
+    /// <returns>Result of the IO operation</returns>
+    /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
+    public A Run(EnvIO envIO)
+    {
+        // RunAsync can run completely synchronously and without the creation of an async/await state-machine, so calling
+        // it for operations that are completely synchronous has no additional overhead for us.  Therefore, calling it
+        // directly here and then unpacking the `ValueTask` makes sense to reduce code duplication.
+
+        var task = RunAsync(envIO);
         if (task.IsCompleted) return task.Result;
 
         // If RunAsync really had to do some asynchronous work, then make sure we use the awaiter and get its result

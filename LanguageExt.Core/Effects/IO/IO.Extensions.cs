@@ -26,22 +26,42 @@ public static partial class IOExtensions
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static A Run<A>(this K<IO, A> ma, EnvIO? envIO = null) =>
+    public static A Run<A>(this K<IO, A> ma) =>
+        ma.As().Run();
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static A Run<A>(this K<IO, A> ma, EnvIO envIO) =>
         ma.As().Run(envIO);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Fin<A> RunSafe<A>(this K<IO, A> ma, EnvIO? envIO = null) =>
+    public static Fin<A> RunSafe<A>(this K<IO, A> ma) =>
+        ma.As().Try().Run().Run();
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Fin<A> RunSafe<A>(this K<IO, A> ma, EnvIO envIO) =>
         ma.As().Try().Run().Run(envIO);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ValueTask<A> RunAsync<A>(this K<IO, A> ma, EnvIO? envIO = null) =>
+    public static ValueTask<A> RunAsync<A>(this K<IO, A> ma) =>
+        ma.As().RunAsync();
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ValueTask<A> RunAsync<A>(this K<IO, A> ma, EnvIO envIO) =>
         ma.As().RunAsync(envIO);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ValueTask<Fin<A>> RunSafeAsync<A>(this K<IO, A> ma, EnvIO? envIO = null) =>
+    public static ValueTask<Fin<A>> RunSafeAsync<A>(this K<IO, A> ma) =>
+        ma.As().Try().Run().RunAsync();
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ValueTask<Fin<A>> RunSafeAsync<A>(this K<IO, A> ma, EnvIO envIO) =>
         ma.As().Try().Run().RunAsync(envIO);
     
     /// <summary>
