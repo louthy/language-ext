@@ -20,7 +20,7 @@ public abstract record SourceT<M, A> :
     /// result value.  This is returned lifted. 
     /// </summary>
     /// <remarks>Note, this is recursive, so `M` needs to be able to support recursion without
-    /// blowing the stack.  If you have the `IO` monad in your stack then this will automatically
+    /// blowing the stack.  If you have the `IO` monad in your stack, then this will automatically
     /// be the case.</remarks>
     /// <param name="state">Initial state</param>
     /// <param name="reducer">Reducer</param>
@@ -34,7 +34,7 @@ public abstract record SourceT<M, A> :
     /// result value.  This is returned lifted. 
     /// </summary>
     /// <remarks>Note, this is recursive, so `M` needs to be able to support recursion without
-    /// blowing the stack.  If you have the `IO` monad in your stack then this will automatically
+    /// blowing the stack.  If you have the `IO` monad in your stack, then this will automatically
     /// be the case.</remarks>
     /// <param name="state">Initial state</param>
     /// <param name="reducer">Reducer</param>
@@ -106,9 +106,9 @@ public abstract record SourceT<M, A> :
     /// <summary>
     /// Concatenate streams 
     /// </summary>
-    /// <param name="this">Left hand side</param>
-    /// <param name="rhs">Right hand side</param>
-    /// <returns>A stream that concatenates the inputs streams</returns>
+    /// <param name="this">Left-hand side</param>
+    /// <param name="rhs">Right-hand side</param>
+    /// <returns>A stream that concatenates the input streams</returns>
     public SourceT<M, A> Combine(SourceT<M, A> rhs) =>
         (this, rhs) switch
         {
@@ -126,8 +126,8 @@ public abstract record SourceT<M, A> :
     /// merged into a new stream.  Values are yielded as they become available
     /// regardless of which stream yields it.
     /// </summary>
-    /// <param name="this">Left hand side</param>
-    /// <param name="rhs">Right hand side</param>
+    /// <param name="this">Left-hand side</param>
+    /// <param name="rhs">Right-hand side</param>
     /// <returns>Merged stream of values</returns>
     public SourceT<M, A> Choose(SourceT<M, A> rhs) =>
         (this, rhs) switch
@@ -145,7 +145,7 @@ public abstract record SourceT<M, A> :
     /// Zip two sources into one
     /// </summary>
     /// <param name="second">Stream to zip with this one</param>
-    /// <typeparam name="B">Bound value type of the stream to zip with this one</typeparam>
+    /// <typeparam name="B">Bound value-type of the stream to zip with this one</typeparam>
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     public SourceT<M, (A First, B Second)> Zip<B>(SourceT<M, B> second) =>
         new Zip2SourceT<M, A, B>(this, second);
@@ -155,7 +155,7 @@ public abstract record SourceT<M, A> :
     /// </summary>
     /// <param name="second">Stream to zip with this one</param>
     /// <param name="third">Stream to zip with this one</param>
-    /// <typeparam name="B">Bound value type of the stream to zip with this one</typeparam>
+    /// <typeparam name="B">Bound value-type of the stream to zip with this one</typeparam>
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     public SourceT<M, (A First, B Second, C Third)> Zip<B, C>(SourceT<M, B> second, SourceT<M, C> third) =>
         new Zip3SourceT<M, A, B, C>(this, second, third);
@@ -166,7 +166,7 @@ public abstract record SourceT<M, A> :
     /// <param name="second">Stream to zip with this one</param>
     /// <param name="third">Stream to zip with this one</param>
     /// <param name="fourth">Stream to zip with this one</param>
-    /// <typeparam name="B">Bound value type of the stream to zip with this one</typeparam>
+    /// <typeparam name="B">Bound value-type of the stream to zip with this one</typeparam>
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     public SourceT<M, (A First, B Second, C Third, D Fourth)> Zip<B, C, D>(
         SourceT<M, B> second, 

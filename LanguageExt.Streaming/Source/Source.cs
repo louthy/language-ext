@@ -120,8 +120,8 @@ public abstract record Source<A> :
     /// <summary>
     /// Concatenate two sources into a single source.
     /// </summary>
-    /// <param name="lhs">Left hand side</param>
-    /// <param name="rhs">Right hand side</param>
+    /// <param name="lhs">Left-hand side</param>
+    /// <param name="rhs">Right-hand side</param>
     /// <returns>Concatenated stream of values</returns>
     public Source<A> Combine(Source<A> rhs) =>
         (this, rhs) switch
@@ -139,8 +139,8 @@ public abstract record Source<A> :
     /// The value streams are both merged into a new stream.  Values are yielded
     /// as they become available.
     /// </summary>
-    /// <param name="this">Left hand side</param>
-    /// <param name="rhs">Right hand side</param>
+    /// <param name="this">Left-hand side</param>
+    /// <param name="rhs">Right-hand side</param>
     /// <returns>Merged stream</returns>
     public Source<A> Choose(Source<A> rhs) =>
         (this, rhs) switch
@@ -158,7 +158,7 @@ public abstract record Source<A> :
     /// Zip two sources into one
     /// </summary>
     /// <param name="second">Stream to zip with this one</param>
-    /// <typeparam name="B">Bound value type of the stream to zip with this one</typeparam>
+    /// <typeparam name="B">Bound value-type of the stream to zip with this one</typeparam>
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     public Source<(A First, B Second)> Zip<B>(Source<B> second) =>
         new Zip2Source<A, B>(this, second);
@@ -168,7 +168,7 @@ public abstract record Source<A> :
     /// </summary>
     /// <param name="second">Stream to zip with this one</param>
     /// <param name="third">Stream to zip with this one</param>
-    /// <typeparam name="B">Bound value type of the stream to zip with this one</typeparam>
+    /// <typeparam name="B">Bound value-type of the stream to zip with this one</typeparam>
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     public Source<(A First, B Second, C Third)> Zip<B, C>(Source<B> second, Source<C> third) =>
         new Zip3Source<A, B, C>(this, second, third);
@@ -179,7 +179,7 @@ public abstract record Source<A> :
     /// <param name="second">Stream to zip with this one</param>
     /// <param name="third">Stream to zip with this one</param>
     /// <param name="fourth">Stream to zip with this one</param>
-    /// <typeparam name="B">Bound value type of the stream to zip with this one</typeparam>
+    /// <typeparam name="B">Bound value-type of the stream to zip with this one</typeparam>
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     public Source<(A First, B Second, C Third, D Fourth)> Zip<B, C, D>(Source<B> second, Source<C> third, Source<D> fourth) =>
         new Zip4Source<A, B, C, D>(this, second, third, fourth);
