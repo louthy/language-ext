@@ -6,28 +6,33 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 /// <summary>
-/// Represents a channel.  A channel has:
-///
-///   * A `Sink`: a queue of values that are its input.
-///   * A `Source`:  a stream of values that are its output.
-///
-/// Both sides of the Conduit can be manipulated:
-///
-/// The `Sink` is a `Cofunctor` and can be mapped using `Comap`, this
-/// transforms values before they get to the channel.
-/// 
-/// The `Source` is a `Monad`, so you can `Map`, `Bind`, `Apply`, in the
-/// usual way to map values on their way out.  They manipulate values as they
-/// leave the channel. 
-///
-/// `Source` values can be both merged (using `|` or `Choose`) and
-/// concatenated using `+` or `Combine`.
-///
-/// Incoming `Sink` values can be split and passed to multiple `Sink`
-/// channels using (using `+` or `Combine`)
-///
-/// `ToProducer` and `ToConsumer` allows the `Conduit` components to be used
-/// in composed pipe effects.
+/// <para>
+/// Represents a channel with an internal queue.  A channel has:
+/// </para>
+/// <para>
+///   * A `Sink`: an input DSL that manipulates values before being placed into the internal queue.
+///   * An internal queue: usually a `System.Threading.Channels.Channel`.
+///   * A `Source`:  an output DSL that manipulates values after being taken from the internal queue.
+/// </para>
+/// <para>
+/// Both sides of the `ConduitT` can be manipulated:
+/// </para>
+/// <para>
+/// The `Sink` is a `Cofunctor` and can be mapped using `Comap`, this  transforms values _before_ they get to the
+/// channel.
+/// </para>
+/// <para>
+/// The `Source` is a monad-transformer, so you can `Map`, `Bind`, `Apply`, in the usual way to map values on their way
+/// out.  They manipulate values as they leave the channel through the `Source`.
+/// </para>
+/// <para>
+/// Control of the internal queue is provided by passing a `Buffer` value to `ConduitT.make`.  This allows you to set
+/// various parameters for the internal queue, such as the maximum number of items to hold in the queue, and what
+/// strategy to use when the queue is full.  The default is `Buffer.Unbounded`.
+/// </para>
+/// <para>
+/// `ToProducer` and `ToConsumer` enable the `ConduitT` components to be used in composed pipe effects.
+/// </para>
 /// </summary>
 /// <param name="Sink">Sink</param>
 /// <param name="Source">Source</param>

@@ -6,28 +6,26 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 /// <summary>
-/// Represents a channel.  A channel has:
+/// Represents a channel with an internal queue.  A channel has:
 ///
-///   * A `Sink`: a queue of values that are its input.
-///   * A `Source`:  a stream of values that are its output.
+///   * A `Sink`: an input DSL that manipulates values before being placed into the internal queue.
+///   * An internal queue: usually a `System.Threading.Channels.Channel`.
+///   * A `Source`:  an output DSL that manipulates values after being taken from the internal queue.
 ///
-/// Both sides of the Conduit can be manipulated:
+/// Both sides of the `Conduit` can be manipulated:
 ///
-/// The `Sink` is a `Cofunctor` and can be mapped using `Comap`, this
-/// transforms values before they get to the channel.
+/// The `Sink` is a `Cofunctor` and can be mapped using `Comap`, this  transforms values _before_ they get to the
+/// channel.
 /// 
 /// The `Source` is a `Monad`, so you can `Map`, `Bind`, `Apply`, in the
 /// usual way to map values on their way out.  They manipulate values as they
-/// leave the channel. 
+/// leave the channel through the `Source`.
 ///
-/// `Source` values can be both merged (using `|` or `Choose`) and
-/// concatenated using `+` or `Combine`.
+/// Control of the internal queue is provided by passing a `Buffer` value to `Conduit.make`.  This allows you to set
+/// various parameters for the internal queue, such as the maximum number of items to hold in the queue, and what
+/// strategy to use when the queue is full.  The default is `Buffer.Unbounded`.
 ///
-/// Incoming `Sink` values can be split and passed to multiple `Sink`
-/// channels using (using `+` or `Combine`)
-///
-/// `ToProducer` and `ToConsumer` allows the `Conduit` components to be used
-/// in composed pipe effects.
+/// `ToProducer` and `ToConsumer` enable the `Conduit` components to be used in composed pipe effects.
 /// </summary>
 /// <param name="Sink">Sink</param>
 /// <param name="Source">Source</param>
@@ -36,15 +34,27 @@ namespace LanguageExt;
 public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
 {
     /// <summary>
-    /// Post a value to the Sink
+    /// Post a value to the `Sink`
     /// </summary>
     /// <remarks>
-    /// Raises `Errors.NoSpaceInSink` if the Sink is full or closed.
+    /// Raises `Errors.SinkFull` if the `Sink` is full or closed.
     /// </remarks>
     /// <param name="value">Value to post</param>
     /// <returns>IO computation that represents the posting</returns>
     public IO<Unit> Post(A value) =>
         Sink.Post(value);
+    
+    /// <summary>
+    /// Complete and close the Sink
+    /// </summary>
+    public IO<Unit> Complete() =>
+        Sink.Complete();
+    
+    /// <summary>
+    /// Complete and close the Sink with an `Error`
+    /// </summary>
+    public IO<Unit> Fail(Error Error) =>
+        Sink.Fail(Error);
 
     /// <summary>
     /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
@@ -68,18 +78,6 @@ public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
     public K<M, S> Reduce<M, S>(S state, ReducerAsync<B, S> reducer) 
         where M : MonadIO<M> =>
         Source.ReduceAsync<M, S>(state, reducer);
-    
-    /// <summary>
-    /// Complete and close the Sink
-    /// </summary>
-    public IO<Unit> Complete() =>
-        Sink.Complete();
-    
-    /// <summary>
-    /// Complete and close the Sink with an `Error`
-    /// </summary>
-    public IO<Unit> Fail(Error Error) =>
-        Sink.Fail(Error);
     
     /// <summary>
     /// Functor map
