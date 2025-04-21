@@ -41,6 +41,12 @@ public abstract record Sink<A> :
     public abstract Sink<B> Comap<B>(Func<B, A> f);
 
     /// <summary>
+    /// Contravariant functor map
+    /// </summary>
+    public virtual Sink<B> Comap<B>(Transducer<B, A> f) =>
+        new SinkContraMapT<A, B>(f, this);
+
+    /// <summary>
     /// Combine two Sinks: `lhs` and `rhs` into a single Sink that takes incoming
     /// values and then posts to the `lhs` and `rhs` Sinks. 
     /// </summary>

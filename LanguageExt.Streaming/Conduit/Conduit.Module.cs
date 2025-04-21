@@ -24,7 +24,7 @@ public static class Conduit
     public static Conduit<A, A> make<A>(Buffer<A> buffer)
     {
         var channel = MakeChannel(buffer);
-        return new Conduit<A, A>(new SinkWriter<A>(channel), new ReaderSource<A>(channel));
+        return new Conduit<A, A, A>(Transducer.identity<A>(), channel, Transducer.identity<A>());
     }
     
     static Ch.Channel<A> MakeChannel<A>(Buffer<A> buffer)
