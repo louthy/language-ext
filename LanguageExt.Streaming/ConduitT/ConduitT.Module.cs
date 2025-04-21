@@ -27,7 +27,7 @@ public static class ConduitT
         where M : MonadIO<M>, Alternative<M> 
     {
         var channel = MakeChannel<M, A>(buffer);
-        return new ConduitT<M, A, A>(new SinkWriter<K<M, A>>(channel.Writer).Comap((A a) => M.Pure(a)), 
+        return new ConduitT<M, A, A>(new SinkWriter<K<M, A>>(channel).Comap((A a) => M.Pure(a)), 
                                      new ReaderSourceT<M, A>(channel));
     }
     

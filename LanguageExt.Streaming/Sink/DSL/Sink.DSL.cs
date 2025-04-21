@@ -5,22 +5,22 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-record SinkWriter<A>(ChannelWriter<A> Writer) : Sink<A>
+record SinkWriter<A>(Channel<A> Channel) : Sink<A>
 {
     public override Sink<B> Comap<B>(Func<B, A> f) => 
         new SinkContraMap<A, B>(f, this);
 
     public override IO<Unit> Post(A value) =>
-        from f in IO.liftVAsync(e => Writer.WaitToWriteAsync(e.Token))
-        from r in f ? IO.liftVAsync(() => Writer.WriteAsync(value).ToUnit())
+        from f in IO.liftVAsync(e => Channel.Writer.WaitToWriteAsync(e.Token))
+        from r in f ? IO.liftVAsync(() => Channel.Writer.WriteAsync(value).ToUnit())
                     : IO.fail<Unit>(Errors.SinkFull)
         select r;
 
     public override IO<Unit> Complete() =>
-        IO.lift(() => Writer.Complete());    
+        IO.lift(() => Channel.Writer.Complete());    
 
     public override IO<Unit> Fail(Error error) =>
-        IO.lift(() => Writer.Complete(error.ToException()));    
+        IO.lift(() => Channel.Writer.Complete(error.ToException()));    
 }
 
 record SinkContraMap<A, B>(Func<B, A> F, Sink<A> Sink) : Sink<B>
