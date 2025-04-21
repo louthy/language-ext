@@ -13,7 +13,7 @@ namespace LanguageExt;
 ///
 /// Both sides of the Conduit can be manipulated:
 ///
-/// The `Sink` is a `Cofunctor` and can be mapped using `Contramap`, this
+/// The `Sink` is a `Cofunctor` and can be mapped using `Comap`, this
 /// transforms values before they get to the channel.
 /// 
 /// The `Source` is a `Monad`, so you can `Map`, `Bind`, `Apply`, in the
@@ -114,8 +114,8 @@ public record Conduit<A, B>(Sink<A> Sink, Source<B> Source)
     /// <summary>
     /// Contravariant functor map
     /// </summary>
-    public Conduit<X, B> Contramap<X>(Func<X, A> f) =>
-        new (Sink.Contramap(f), Source);
+    public Conduit<X, B> Comap<X>(Func<X, A> f) =>
+        new (Sink.Comap(f), Source);
 
     /// <summary>
     /// Convert the `Sink` to a `ConsumerT` pipe component

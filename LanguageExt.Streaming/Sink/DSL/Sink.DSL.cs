@@ -7,7 +7,7 @@ namespace LanguageExt;
 
 record SinkWriter<A>(ChannelWriter<A> Writer) : Sink<A>
 {
-    public override Sink<B> Contramap<B>(Func<B, A> f) => 
+    public override Sink<B> Comap<B>(Func<B, A> f) => 
         new SinkContraMap<A, B>(f, this);
 
     public override IO<Unit> Post(A value) =>
@@ -25,7 +25,7 @@ record SinkWriter<A>(ChannelWriter<A> Writer) : Sink<A>
 
 record SinkContraMap<A, B>(Func<B, A> F, Sink<A> Sink) : Sink<B>
 {
-    public override Sink<C> Contramap<C>(Func<C, B> f) =>
+    public override Sink<C> Comap<C>(Func<C, B> f) =>
         new SinkContraMap<A, C>(x => F(f(x)), Sink);
 
     public override IO<Unit> Post(B value) => 
@@ -42,7 +42,7 @@ record SinkEmpty<A> : Sink<A>
 {
     public static readonly Sink<A> Default = new SinkEmpty<A>();
     
-    public override Sink<B> Contramap<B>(Func<B, A> f) => 
+    public override Sink<B> Comap<B>(Func<B, A> f) => 
         new SinkEmpty<B>();
 
     public override IO<Unit> Post(A value) =>
@@ -59,7 +59,7 @@ record SinkVoid<A> : Sink<A>
 {
     public static readonly Sink<A> Default = new SinkVoid<A>();
     
-    public override Sink<B> Contramap<B>(Func<B, A> f) => 
+    public override Sink<B> Comap<B>(Func<B, A> f) => 
         new SinkVoid<B>();
 
     public override IO<Unit> Post(A value) =>
@@ -76,7 +76,7 @@ record SinkCombine<A, B, C>(Func<A, (B Left, C Right)> F, Sink<B> Left, Sink<C> 
 {
     public static readonly Sink<A> Default = new SinkEmpty<A>();
 
-    public override Sink<D> Contramap<D>(Func<D, A> f) =>
+    public override Sink<D> Comap<D>(Func<D, A> f) =>
         new SinkContraMap<A, D>(f, this);
 
     public override IO<Unit> Post(A value) =>
@@ -104,7 +104,7 @@ record SinkChoose<A, B, C>(Func<A, Either<B, C>> F, Sink<B> Left, Sink<C> Right)
 {
     public static readonly Sink<A> Default = new SinkEmpty<A>();
 
-    public override Sink<D> Contramap<D>(Func<D, A> f) =>
+    public override Sink<D> Comap<D>(Func<D, A> f) =>
         new SinkContraMap<A, D>(f, this);
 
     public override IO<Unit> Post(A value) =>

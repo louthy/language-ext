@@ -5,8 +5,8 @@ namespace LanguageExt;
 
 public partial class Sink : Decidable<Sink>
 {
-    static K<Sink, A> Cofunctor<Sink>.Contramap<A, B>(K<Sink, B> fb, Func<A, B> f) =>
-        fb.As().Contramap(f);
+    static K<Sink, A> Cofunctor<Sink>.Comap<A, B>(Func<A, B> f, K<Sink, B> fb) =>
+        fb.As().Comap(f);
 
     static K<Sink, A> Divisible<Sink>.Divide<A, B, C>(Func<A, (B Left, C Right)> f, K<Sink, B> fb, K<Sink, C> fc) =>
         new SinkCombine<A, B, C>(f, fb.As(), fc.As());

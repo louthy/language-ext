@@ -10,8 +10,8 @@ namespace LanguageExt.Traits;
 /// Contravariant functors are referred to colloquially as Cofunctor, even though the dual of a `Functor` is just
 /// a `Functor`. 
 /// </summary>
-/// <typeparam name="F">Self referring type</typeparam>
+/// <typeparam name="F">Self-referring type</typeparam>
 public interface Cofunctor<F>
 {
-    public static abstract K<F, A> Contramap<A, B>(K<F, B> fb, Func<A, B> f);
+    public static abstract K<F, A> Comap<A, B>(Func<A, B> f, K<F, B> fb);
 }

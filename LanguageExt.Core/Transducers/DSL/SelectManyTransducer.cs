@@ -3,7 +3,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-record SelectManyTransducer1<Env, A, B, C>(Transducer<Env, A> First, Func<A, K<Transducer<Env>, B>> F, Func<A, B, C> G) : 
+record SelectManyTransducer1<Env, A, B, C>(Transducer<Env, A> First, Func<A, K<TransduceFrom<Env>, B>> F, Func<A, B, C> G) : 
     Transducer<Env, C> 
 {
     public override ReducerAsync<Env, S> Reduce<S>(ReducerAsync<C, S> reducer) =>

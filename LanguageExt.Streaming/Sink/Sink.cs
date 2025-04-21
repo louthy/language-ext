@@ -38,7 +38,7 @@ public abstract record Sink<A> :
     /// <summary>
     /// Contravariant functor map
     /// </summary>
-    public abstract Sink<B> Contramap<B>(Func<B, A> f);
+    public abstract Sink<B> Comap<B>(Func<B, A> f);
 
     /// <summary>
     /// Combine two Sinks: `lhs` and `rhs` into a single Sink that takes incoming

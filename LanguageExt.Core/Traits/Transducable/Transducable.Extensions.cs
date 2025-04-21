@@ -11,7 +11,7 @@ public static class TransducableExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <typeparam name="B">Resulting bound value type</typeparam>
     /// <returns>Transformed structure</returns>
-    public static K<F, B> Transform<F, A, B>(this K<F, A> ma, K<Transducer<A>, B> tb) 
+    public static K<F, B> Transform<F, A, B>(this K<F, A> ma, K<TransduceFrom<A>, B> tb) 
         where F : Transducable<F> =>
         F.Transform(ma, tb);
 

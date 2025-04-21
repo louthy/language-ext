@@ -14,6 +14,89 @@ public static class Transducer
         IdentityTransducer<A>.Default;
 
     /// <summary>
+    /// Constant transducer.  Ignores all incoming values and yields the constant value. 
+    /// </summary>
+    /// <typeparam name="B">Constant value type</typeparam>
+    /// <returns>Constant transducer</returns>
+    public static Transducer<A, B> constant<A, B>(B value) => 
+        new ConstTransducer<A, B>(value);
+
+    /// <summary>
+    /// Compose transducers together.  The output of each transducer is fed into the next transducer.
+    /// </summary>
+    /// <param name="ta">First transducer</param>
+    /// <param name="tb">Second transducer</param>
+    /// <returns>Composed transducer</returns>
+    public static Transducer<A, C> compose<A, B, C>(
+        Transducer<A, B> ta, 
+        Transducer<B, C> tb) =>
+        new ComposeTransducer<A, B, C>(ta, tb);
+
+    /// <summary>
+    /// Compose transducers together.  The output of each transducer is fed into the next transducer.
+    /// </summary>
+    /// <param name="ta">First transducer</param>
+    /// <param name="tb">Second transducer</param>
+    /// <param name="tc">Third transducer</param>
+    /// <returns>Composed transducer</returns>
+    public static Transducer<A, D> compose<A, B, C, D>(
+        Transducer<A, B> ta, 
+        Transducer<B, C> tb, 
+        Transducer<C, D> tc) =>
+        new ComposeTransducer<A, B, C, D>(ta, tb, tc);
+
+    /// <summary>
+    /// Compose transducers together.  The output of each transducer is fed into the next transducer.
+    /// </summary>
+    /// <param name="ta">First transducer</param>
+    /// <param name="tb">Second transducer</param>
+    /// <param name="tc">Third transducer</param>
+    /// <param name="td">Fourth transducer</param>
+    /// <returns>Composed transducer</returns>
+    public static Transducer<A, E> compose<A, B, C, D, E>(
+        Transducer<A, B> ta, 
+        Transducer<B, C> tb, 
+        Transducer<C, D> tc, 
+        Transducer<D, E> td) =>
+        new ComposeTransducer<A, B, C, D, E>(ta, tb, tc, td);
+
+    /// <summary>
+    /// Compose transducers together.  The output of each transducer is fed into the next transducer.
+    /// </summary>
+    /// <param name="ta">First transducer</param>
+    /// <param name="tb">Second transducer</param>
+    /// <param name="tc">Third transducer</param>
+    /// <param name="td">Fourth transducer</param>
+    /// <param name="te">Fifth transducer</param>
+    /// <returns>Composed transducer</returns>
+    public static Transducer<A, F> compose<A, B, C, D, E, F>(
+        Transducer<A, B> ta, 
+        Transducer<B, C> tb, 
+        Transducer<C, D> tc, 
+        Transducer<D, E> td, 
+        Transducer<E, F> te) =>
+        new ComposeTransducer<A, B, C, D, E, F>(ta, tb, tc, td, te);
+
+    /// <summary>
+    /// Compose transducers together.  The output of each transducer is fed into the next transducer.
+    /// </summary>
+    /// <param name="ta">First transducer</param>
+    /// <param name="tb">Second transducer</param>
+    /// <param name="tc">Third transducer</param>
+    /// <param name="td">Fourth transducer</param>
+    /// <param name="te">Fifth transducer</param>
+    /// <param name="tf">Sixth transducer</param>
+    /// <returns>Composed transducer</returns>
+    public static Transducer<A, G> compose<A, B, C, D, E, F, G>(
+        Transducer<A, B> ta, 
+        Transducer<B, C> tb, 
+        Transducer<C, D> tc, 
+        Transducer<D, E> td, 
+        Transducer<E, F> te, 
+        Transducer<F, G> tf) =>
+        new ComposeTransducer<A, B, C, D, E, F, G>(ta, tb, tc, td, te, tf);
+    
+    /// <summary>
     /// Skip `amount` items in the sequence before yielding
     /// </summary>
     /// <param name="amount">Number of items to skip</param>
@@ -44,7 +127,7 @@ public static class Transducer
     /// <summary>
     /// Applicative filter transducer 
     /// </summary>
-    /// <param name="predicate">Filters each value flowing through the transducer.  If `true` the value flow downstream;
+    /// <param name="predicate">Filters each value flowing through the transducer.  If `true` the value flows downstream;
     /// if `false`, the value is dropped</param>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Filtering transducer</returns>
@@ -60,10 +143,10 @@ public static class Transducer
     /// <param name="ta">Initial transducer to run</param>
     /// <param name="f">Chaining function to run with the result of `ta` that will produce a new `Transducer`</param>
     /// <typeparam name="Env">Input value type</typeparam>
-    /// <typeparam name="A">Result value type of first transducer</typeparam>
+    /// <typeparam name="A">Result value type of the first transducer</typeparam>
     /// <typeparam name="B">Result value type of returned transducer</typeparam>
     /// <returns>A monadic bind transducer operation</returns>
-    public static Transducer<Env, B> bind<Env, A, B>(Transducer<Env, A> ta, Func<A, K<Transducer<Env>, B>> f) =>
+    public static Transducer<Env, B> bind<Env, A, B>(Transducer<Env, A> ta, Func<A, K<TransduceFrom<Env>, B>> f) =>
         new BindTransducer1<Env, A, B>(ta, f);    
 
     /// <summary>
@@ -75,7 +158,7 @@ public static class Transducer
     /// <param name="ta">Initial transducer to run</param>
     /// <param name="f">Chaining function to run with the result of `ta` that will produce a new `Transducer`</param>
     /// <typeparam name="Env">Input value type</typeparam>
-    /// <typeparam name="A">Result value type of first transducer</typeparam>
+    /// <typeparam name="A">Result value type of the first transducer</typeparam>
     /// <typeparam name="B">Result value type of returned transducer</typeparam>
     /// <returns>A monadic bind transducer operation</returns>
     public static Transducer<Env, B> bind<Env, A, B>(Transducer<Env, A> ta, Func<A, Transducer<Env, B>> f) =>

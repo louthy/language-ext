@@ -23,7 +23,7 @@ public static partial class Deriving
         where Subtype : Cofunctor<Subtype>
         where Supertype : Cofunctor<Supertype, Subtype>
     {
-        static K<Supertype, A> Cofunctor<Supertype>.Contramap<A, B>(K<Supertype, B> fb, Func<A, B> f) =>
-            Supertype.CoTransform(Subtype.Contramap(Supertype.Transform(fb), f));
+        static K<Supertype, A> Cofunctor<Supertype>.Comap<A, B>(K<Supertype, B> fb, Func<A, B> f) =>
+            Supertype.CoTransform(Subtype.Comap(Supertype.Transform(fb), f));
     }
 }

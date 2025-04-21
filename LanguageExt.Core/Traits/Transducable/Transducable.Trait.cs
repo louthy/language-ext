@@ -11,7 +11,7 @@ public interface Transducable<F>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <typeparam name="B">Resulting bound value type</typeparam>
     /// <returns>Transformed structure</returns>
-    public static abstract K<F, B> Transform<A, B>(K<F, A> ma, K<Transducer<A>, B> tb);
+    public static abstract K<F, B> Transform<A, B>(K<F, A> ma, K<TransduceFrom<A>, B> tb);
 
     /// <summary>
     /// Run a reducer on the values in the `F` structure

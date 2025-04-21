@@ -3,7 +3,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-record BindTransducer1<Env, A, B>(Transducer<Env, A> First, Func<A, K<Transducer<Env>, B>> F) : 
+record BindTransducer1<Env, A, B>(Transducer<Env, A> First, Func<A, K<TransduceFrom<Env>, B>> F) : 
     Transducer<Env, B> 
 {
     public override ReducerAsync<Env, S> Reduce<S>(ReducerAsync<B, S> reducer) =>

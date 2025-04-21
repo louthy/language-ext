@@ -8,7 +8,7 @@ namespace LanguageExt.Traits;
 /// Noting the superclass constraint that `f` must also be `Divisible`, a `Decidable` functor has the ability to
 /// "fan out" input, under the intuition that contravariant functors consume input.
 /// </summary>
-/// <typeparam name="F">Self referring type</typeparam>
+/// <typeparam name="F">Self-referring type</typeparam>
 public interface Decidable<F> : Divisible<F>
 {
     /// <summary>
