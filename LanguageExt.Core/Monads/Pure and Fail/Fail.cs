@@ -32,11 +32,6 @@ public readonly record struct Fail<E>(E Value)
     public Either<E, A> ToEither<A>() =>
         Either<E, A>.Left(Value);
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Transducer
-    //
-
     public override string ToString() =>
         $"Fail({Value})";
 

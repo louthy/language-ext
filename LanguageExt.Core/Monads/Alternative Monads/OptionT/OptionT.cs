@@ -10,7 +10,6 @@ namespace LanguageExt;
 /// <summary>
 /// `OptionT` monad transformer, which allows for an optional result. 
 /// </summary>
-/// <param name="runOption">Transducer that represents the transformer operation</param>
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record OptionT<M, A>(K<M, Option<A>> runOption) : 

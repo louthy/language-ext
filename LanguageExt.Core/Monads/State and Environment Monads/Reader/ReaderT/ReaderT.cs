@@ -6,7 +6,6 @@ namespace LanguageExt;
 /// <summary>
 /// `ReaderT` monad transformer, which adds a static environment to a given monad. 
 /// </summary>
-/// <param name="runReader">Transducer that represents the transformer operation</param>
 /// <typeparam name="Env">Reader environment type</typeparam>
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>

@@ -9,7 +9,6 @@ namespace LanguageExt;
 /// <summary>
 /// `FinT` monad transformer, which allows for either an `Error` or `R` result value to be carried. 
 /// </summary>
-/// <param name="runFin">Transducer that represents the transformer operation</param>
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record FinT<M, A>(K<M, Fin<A>> runFin) : 

@@ -9,7 +9,6 @@ namespace LanguageExt;
 /// <summary>
 /// `ValidationT` monad transformer, which allows for an optional result. 
 /// </summary>
-/// <param name="runValidation">Transducer that represents the transformer operation</param>
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="F">Left value type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>

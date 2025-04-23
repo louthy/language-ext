@@ -9,7 +9,6 @@ namespace LanguageExt;
 /// `TryT` monad transformer, which allows for an  optional `Error` result and catches exceptions,
 /// converting them to `Error`. 
 /// </summary>
-/// <param name="runEither">Transducer that represents the transformer operation</param>
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record TryT<M, A>(K<M, Try<A>> runTry) : 
