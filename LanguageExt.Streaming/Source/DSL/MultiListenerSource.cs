@@ -15,13 +15,14 @@ record MultiListenerSource<A>(Channel<A> Source) : Source<A>
 
     internal override async ValueTask<Reduced<S>> ReduceAsync<S>(S state, ReducerAsync<A, S> reducer, CancellationToken token)
     {
+        var channel = Channel.CreateUnbounded<A>();
+        listeners.TryAdd(channel, unit);
+        
         if (Interlocked.Increment(ref count) == 1)
         {
             _ = Startup();
         }
 
-        var channel = Channel.CreateUnbounded<A>();
-        listeners.TryAdd(channel, unit);
         try
         {
             var rdr = channel.Reader;
@@ -64,7 +65,10 @@ record MultiListenerSource<A>(Channel<A> Source) : Source<A>
                 var x = await Source.Reader.ReadAsync(token);
                 foreach (var listener in listeners.Keys)
                 {
-                    listener.Writer.TryWrite(x);
+                    if (await listener.Writer.WaitToWriteAsync(token))
+                    {
+                        await listener.Writer.WriteAsync(x, token);
+                    }
                 }
             }
         }
