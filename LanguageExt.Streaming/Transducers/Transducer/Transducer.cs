@@ -14,17 +14,6 @@ public abstract record Transducer<A, B> :
     /// <typeparam name="S">State</typeparam>
     /// <returns></returns>
     public abstract ReducerAsync<A, S> Reduce<S>(ReducerAsync<B, S> reducer);
-    
-    /*
-    /// <summary>
-    /// Fold the input stream using the supplied reducer.  
-    /// </summary>
-    /// <param name="reducer">Reducer that folds the stream of values flowing through the transducer</param>
-    /// <typeparam name="S">State</typeparam>
-    /// <returns></returns>
-    public abstract ReducerM<M, A, S> ReduceM<M, S>(ReducerM<M, B, S> reducer)
-        where M : Applicative<M>, Alternative<M>;
-        */
 
     /// <summary>
     /// Compose two transducers together.  The output of the first transducer is the input to the second.
