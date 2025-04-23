@@ -266,7 +266,7 @@ record IOEmptyAsync<X, A>(K<IO, X> RunFirst) : InvokeAsync<A>
     public override IO<A> RetryUntil(Schedule schedule, Func<Error, bool> predicate) => 
         IOEmpty<A>.Default;
 
-    public override IO<A> Finally<X>(K<IO, X> @finally) => 
+    public override IO<A> Finally<F>(K<IO, F> @finally) => 
         IOEmpty<A>.Default;
 
     public override IO<A> Catch(Func<Error, bool> Predicate, Func<Error, K<IO, A>> Fail) =>

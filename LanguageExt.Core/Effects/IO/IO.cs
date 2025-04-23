@@ -679,7 +679,9 @@ public abstract record IO<A> :
                       .Bind(_ => Bracket()
                                .Bind(v => predicate(v) 
                                               ? IO.pure(v) 
-                                              : go(tail, v)))
+                                              : go(tail, v))),
+                
+                _ => throw new InvalidOperationException("Invalid iterator")
             };
     }
     
@@ -793,7 +795,9 @@ public abstract record IO<A> :
                       .Bind(_ => BracketFail()
                                    .Catch(e => predicate(e)
                                                    ? IO.fail<A>(e)
-                                                   : go(tail, e)))
+                                                   : go(tail, e))),
+                     
+                _ => throw new InvalidOperationException("Invalid iterator")
             };
     }
 
