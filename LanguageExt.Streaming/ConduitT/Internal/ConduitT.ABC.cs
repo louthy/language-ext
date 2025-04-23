@@ -21,6 +21,7 @@ class ConduitT<M, A, B, C> : ConduitT<M, A, C>
         this.sink = sink;
         this.channel = channel;
         this.source = source;
+        Source = SourceT.liftM(channel).Transform(source);
     }
 
     /// <summary>
@@ -109,8 +110,7 @@ class ConduitT<M, A, B, C> : ConduitT<M, A, C>
     /// Access the underlying `Source` for more direct manipulation.  
     /// </summary>
     /// <returns></returns>
-    public override SourceT<M, C> Source => 
-        SourceT.liftM(channel).Transform(source);
+    public override SourceT<M, C> Source { get; }
 
     /// <summary>
     /// Convert the `Sink` to a `ConsumerT` pipe component

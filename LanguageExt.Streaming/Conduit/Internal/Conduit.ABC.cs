@@ -43,6 +43,7 @@ internal class Conduit<A, B, C> : Conduit<A, C>
         this.sink = sink;
         this.channel = channel;
         this.source = source;
+        Source = LanguageExt.Source.lift(channel).Transform(source);
     }
 
     /// <summary>
@@ -156,8 +157,7 @@ internal class Conduit<A, B, C> : Conduit<A, C>
     /// Access the underlying `Source` for more direct manipulation.  
     /// </summary>
     /// <returns></returns>
-    public override Source<C> Source => 
-        LanguageExt.Source.lift(channel).Transform(source);
+    public override Source<C> Source { get; }
 
     /// <summary>
     /// Convert the `Sink` to a `ConsumerT` pipe component

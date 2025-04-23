@@ -44,7 +44,6 @@ public partial class Source
     /// Make a `System.Threading.Channels.Channel` into a source of values
     /// </summary>
     /// <param name="channel">Channel to lift</param>
-    /// <param name="label">Label to help debugging</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static Source<A> lift<A>(Channel<A> channel) =>
@@ -54,7 +53,6 @@ public partial class Source
     /// Make an `IEnumerable` into a source of values
     /// </summary>
     /// <param name="items">Enumerable to lift</param>
-    /// <param name="label">Label to help debugging</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static Source<A> lift<A>(IEnumerable<A> items) =>
@@ -64,7 +62,6 @@ public partial class Source
     /// Make an `IEnumerable` into a source of values
     /// </summary>
     /// <param name="items">Enumerable to lift</param>
-    /// <param name="label">Label to help debugging</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static Source<A> lift<A>(IAsyncEnumerable<A> items) =>

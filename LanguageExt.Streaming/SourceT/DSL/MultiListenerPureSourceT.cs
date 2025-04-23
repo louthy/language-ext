@@ -8,7 +8,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-record MultiListenerSourceT<M, A>(Channel<K<M, A>> Source) : SourceT<M, A>
+record MultiListenerPureSourceT<M, A>(Channel<A> Source) : SourceT<M, A>
     where M : MonadIO<M>, Alternative<M>
 {
     volatile int count;
@@ -66,7 +66,7 @@ record MultiListenerSourceT<M, A>(Channel<K<M, A>> Source) : SourceT<M, A>
                 {
                     if (await listener.Writer.WaitToWriteAsync(token))
                     {
-                        await listener.Writer.WriteAsync(x, token);
+                        await listener.Writer.WriteAsync(M.Pure(x), token);
                     }
                 }
             }

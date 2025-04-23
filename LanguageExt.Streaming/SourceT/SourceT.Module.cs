@@ -94,24 +94,22 @@ public partial class SourceT
     /// <returns>Source of values</returns>
     public static SourceT<M, A> lift<M, A>(Channel<A> channel) 
         where M : MonadIO<M>, Alternative<M> =>
-        new ReaderPureSourceT<M, A>(channel);
+        new MultiListenerPureSourceT<M, A>(channel);
 
     /// <summary>
     /// Make a `System.Threading.Channels.Channel` into a source of values
     /// </summary>
     /// <param name="channel">Channel to lift</param>
-    /// <param name="label">Label to help debugging</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static SourceT<M, A> liftM<M, A>(Channel<K<M, A>> channel) 
         where M : MonadIO<M>, Alternative<M> =>
-        new ReaderSourceT<M, A>(channel);
+        new MultiListenerSourceT<M, A>(channel);
 
     /// <summary>
     /// Make a `Source` into a `SourceT`
     /// </summary>
     /// <param name="channel">Channel to lift</param>
-    /// <param name="label">Label to help debugging</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static SourceT<M, A> liftM<M, A>(Source<K<M, A>> channel) 
@@ -122,7 +120,6 @@ public partial class SourceT
     /// Make an `IEnumerable` into a source of values
     /// </summary>
     /// <param name="items">Enumerable to lift</param>
-    /// <param name="label">Label to help debugging</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static SourceT<M, A> lift<M, A>(IEnumerable<A> items) 
@@ -133,7 +130,6 @@ public partial class SourceT
     /// Make an `IEnumerable` into a source of values
     /// </summary>
     /// <param name="items">Enumerable to lift</param>
-    /// <param name="label">Label to help debugging</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static SourceT<M, A> liftM<M, A>(IEnumerable<K<M, A>> items) 
@@ -144,7 +140,6 @@ public partial class SourceT
     /// Make an `IEnumerable` into a source of values
     /// </summary>
     /// <param name="items">Enumerable to lift</param>
-    /// <param name="label">Label to help debugging</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static SourceT<M, A> lift<M, A>(IAsyncEnumerable<A> items) 
@@ -155,7 +150,6 @@ public partial class SourceT
     /// Make an `IEnumerable` into a source of values
     /// </summary>
     /// <param name="items">Enumerable to lift</param>
-    /// <param name="label">Label to help debugging</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static SourceT<M, A> liftM<M, A>(IAsyncEnumerable<K<M, A>> items) 
@@ -186,7 +180,7 @@ public partial class SourceT
     /// Zip two sources into one
     /// </summary>
     /// <param name="second">Stream to zip with this one</param>
-    /// <typeparam name="B">Bound value type of the stream to zip with this one</typeparam>
+    /// <typeparam name="B">Bound value-type of the stream to zip with this one</typeparam>
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     public SourceT<M, (A First, B Second)> zip<M, A, B>(SourceT<M, A> first, SourceT<M, B> second) 
         where M : MonadIO<M>, Alternative<M> =>
@@ -197,7 +191,7 @@ public partial class SourceT
     /// </summary>
     /// <param name="second">Stream to zip with this one</param>
     /// <param name="third">Stream to zip with this one</param>
-    /// <typeparam name="B">Bound value type of the stream to zip with this one</typeparam>
+    /// <typeparam name="B">Bound value-type of the stream to zip with this one</typeparam>
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     public SourceT<M, (A First, B Second, C Third)> zip<M, A, B, C>(SourceT<M, A> first, SourceT<M, B> second, SourceT<M, C> third) 
         where M : MonadIO<M>, Alternative<M> =>
@@ -209,7 +203,7 @@ public partial class SourceT
     /// <param name="second">Stream to zip with this one</param>
     /// <param name="third">Stream to zip with this one</param>
     /// <param name="fourth">Stream to zip with this one</param>
-    /// <typeparam name="B">Bound value type of the stream to zip with this one</typeparam>
+    /// <typeparam name="B">Bound value-type of the stream to zip with this one</typeparam>
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     public SourceT<M, (A First, B Second, C Third, D Fourth)> zip<M, A, B, C, D>(SourceT<M, A> first, SourceT<M, B> second, SourceT<M, C> third, SourceT<M, D> fourth) 
         where M : MonadIO<M>, Alternative<M> =>
