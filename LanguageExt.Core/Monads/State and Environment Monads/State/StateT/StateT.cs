@@ -7,7 +7,7 @@ namespace LanguageExt;
 /// <summary>
 /// `StateT` monad transformer, which adds a modifiable state to a given monad. 
 /// </summary>
-/// <param name="runState">Transducer that represents the transformer operation</param>
+/// <param name="runState">Function that represents the transformer operation</param>
 /// <typeparam name="S">State type</typeparam>
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>

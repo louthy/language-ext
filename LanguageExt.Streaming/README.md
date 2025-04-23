@@ -125,22 +125,22 @@ So the input and output transducers allow for pre and post-processing of values 
 
 ### [`ConduitT`](Conduit)
 
-`Conduit<A, B>` can be pictured as so:
+`ConduitT<M, A, B>` can be pictured as so:
 
-    +----------------------------------------------------------------+
-    |                                                                |
-    |  A --> Transducer --> X --> Buffer --> X --> Transducer --> B  |
-    |                                                                |
-    +----------------------------------------------------------------+
+    +------------------------------------------------------------------------------------------+
+    |                                                                                          |
+    |  K<M, A> --> TransducerM --> K<M, X> --> Buffer --> K<M, X> --> TransducerM --> K<M, B>  |
+    |                                                                                          |
+    +------------------------------------------------------------------------------------------+
 
-* A value of `A` is posted to the `Conduit` (via `Post`)
-* It flows through an input `Transducer`, mapping the `A` value to `X` (an internal type you can't see)
-* The `X` value is then stored in the conduit's internal buffer (a `System.Threading.Channels.Channel`)
+* A value of `K<M, A>` is posted to the `Conduit` (via `Post`)
+* It flows through an input `TransducerM`, mapping the `K<M, A>` value to `K<M, X>` (an internal type you can't see)
+* The `K<M, X>` value is then stored in the conduit's internal buffer (a `System.Threading.Channels.Channel`)
 * Any invocation of `Reduce` will force the consumption of the values in the buffer
-* Flowing each value `X` through the output `Transducer`
+* Flowing each value `K<M, A>` through the output `TransducerM`
 
 So the input and output transducers allow for pre and post-processing of values as they flow through the conduit.  
-`Conduit` is a `CoFunctor`, call `Comap` to manipulate the pre-processing transducer. `Conduit` is also a `Functor`, call
+`ConduitT` is a `CoFunctor`, call `Comap` to manipulate the pre-processing transducer. `Conduit` is also a `Functor`, call
 `Map` to manipulate the post-processing transducer.  There are other non-trait, but common behaviours, like `FoldWhile`,
 `Filter`, `Skip`, `Take`, etc.
 

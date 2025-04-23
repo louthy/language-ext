@@ -13,7 +13,7 @@ using static LanguageExt.Prelude;
 namespace LanguageExt;
 
 /// <summary>
-/// Transducer based effect/`Eff` monad
+/// This is the monad that is used to encapsulate side effects and exception capture 
 /// </summary>
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>

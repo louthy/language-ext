@@ -9,7 +9,6 @@ namespace LanguageExt;
 /// <summary>
 /// `EitherT` monad transformer, which allows for either an `L` or `R` result value to be carried. 
 /// </summary>
-/// <param name="runEither">Transducer that represents the transformer operation</param>
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="L">Left value type</typeparam>
 /// <typeparam name="R">Bound value type</typeparam>
