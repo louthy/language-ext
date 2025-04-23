@@ -3,8 +3,8 @@ functionality: **closed-streams** and **open-streams**...
 
 ## Closed streams
 
-Closed streams are facilitated by the [`Pipes`](Pipes) system.  The types in the `Pipes` system are compositional
-monad-transformers that 'fuse' together to produce an [`EffectT<M, A>`](Pipes/EffectT).  This effect is a _closed system_,
+Closed streams are facilitated by the [`Pipes`](Pipes) system.  The types in the `Pipes` system are _compositional
+monad-transformers_ that 'fuse' together to produce an [`EffectT<M, A>`](Pipes/EffectT).  This effect is a _closed system_,
 meaning that there is no way (from the API) to directly interact with the effect from the outside: it can be executed
 and will return a result if it terminates.
 
@@ -15,10 +15,10 @@ The pipeline components are:
 * [`ConsumerT<IN, M, A>`](Pipes/ConsumerT)
 
 These are the components that fuse together (using the `|` operator) to make an [`EffectT<M, A>`](Pipes/EffectT).  The
-types are _monad-transformers_ that support the `MonadIO` trait only (which constrains `M`).  This makes sense, otherwise
-the closed-system would have no effect other than heating up the CPU.
+types are _monad-transformers_ that support lifting monads with the `MonadIO` trait only (which constrains `M`).  This
+makes sense, otherwise the closed-system would have no effect other than heating up the CPU.
 
-There are also more specialised versions of the above that only support the lifting of the `Eff<RT, A>` effect monad:
+There are also more specialised versions of the above that only support the lifting of the `Eff<RT, A>` effect-monad:
 
 * [`Producer<RT, OUT, A>`](Pipes/Producer)
 * [`Pipe<RT, IN, OUT, A>`](Pipes/Pipe)
@@ -37,11 +37,11 @@ Open streams are closer to what most C# devs have used classically.  They are li
 They yield values and (under certain circumstances) accept inputs.
 
 * [`Source`](Source) and [`SourceT`](SourceT) yield values synchronously or asynchronously depending on their construction.
-* [`Sink`](Sink) receives values and propagates them through the channel they're attached to.
-* [`Conduit`](Conduit) and [`ConduitT`](ConduitT) composes a `Sink` and `Source` or `SourceT` (so `Sink -> Source` or `Sink -> SourceT`), providing inputs to the stream which yields the received values.
+* [`Sink`](Sink) and [`SinkT`](SinkT) receives values and propagates them through the channel they're attached to.
+* [`Conduit`](Conduit) and [`ConduitT`](ConduitT) provides and input transducer (acts like a `Sink`), an internal buffer, and an output transducer (acts like a `Source`).
 
-> I'm calling these 'open streams' because we can `Post` values to a `Sink` and we can `Reduce` values yielded by
-> `Source` and `SourceT`.  So, they are 'open' for public manipulation, unlike `Pipes` which fuses the public access away.
+> I'm calling these 'open streams' because we can `Post` values to a `Sink`/`SinkT` and we can `Reduce` values yielded by
+> `Source`/`SourceT`.  So, they are 'open' for public manipulation, unlike `Pipes` which fuse the public access away.
 
 ### [`Source`](Source)
 
@@ -76,6 +76,76 @@ following `static` methods on the `SourceT` type to lift `IO<A>` effects into a 
 
 `SourceT` also supports the same built-in convenience reducers as `Source` (`Last`, `Iter`, `Collect`).
 
+### [`Sink`](Sink)
+
+[`Sink<A>`](Sink) provides a way to accept many input values.  The values are buffered until consumed.  The sink can be
+thought of as a `System.Threading.Channels.Channel` (which is the buffer that collects the values) that happens to
+manipulate the values being posted to the buffer just before they are stored.
+
+> This manipulation is possible because the `Sink` is a `CoFunctor` (contravariant functor).  This is the dual of `Functor`:
+we can think of `Functor.Map` as converting a value from `A -> B`.  Whereas `CoFunctor.Comap` converts from `B -> A`.
+
+So, to manipulate values coming into the `Sink`, use `Comap`.  It will give you a new `Sink` with the manipulation 'built-in'.
+
+### [`SinkT`](SinkT)
+
+[`SinkT<M, A>`](SinkT) provides a way to accept many input values.  The values are buffered until consumed.  The sink can
+be thought of as a `System.Threading.Channels.Channel` (which is the buffer that collects the values) that happens to
+manipulate the values being posted to the buffer just before they are stored.
+
+> This manipulation is possible because the `SinkT` is a `CoFunctor` (contravariant functor).  This is the dual of `Functor`:
+we can think of `Functor.Map` as converting a value from `A -> B`.  Whereas `CoFunctor.Comap` converts from `B -> A`.
+
+So, to manipulate values coming into the `SinkT`, use `Comap`.  It will give you a new `SinkT` with the manipulation 'built-in'.
+
+`SinkT` is also a transformer that lifts types of `K<M, A>`.
+
+### [`Conduit`](Conduit)
+
+`Conduit<A, B>` can be pictured as so:
+
+    +----------------------------------------------------------------+
+    |                                                                |
+    |  A --> Transducer --> X --> Buffer --> X --> Transducer --> B  |
+    |                                                                |
+    +----------------------------------------------------------------+
+
+* A value of `A` is posted to the `Conduit` (via `Post`)
+* It flows through an input `Transducer`, mapping the `A` value to `X` (an internal type you can't see)
+* The `X` value is then stored in the conduit's internal buffer (a `System.Threading.Channels.Channel`)
+* Any invocation of `Reduce` will force the consumption of the values in the buffer
+* Flowing each value `X` through the output `Transducer`
+
+So the input and output transducers allow for pre and post-processing of values as they flow through the conduit.  
+`Conduit` is a `CoFunctor`, call `Comap` to manipulate the pre-processing transducer. `Conduit` is also a `Functor`, call
+`Map` to manipulate the post-processing transducer.  There are other non-trait, but common behaviours, like `FoldWhile`,
+`Filter`, `Skip`, `Take`, etc.
+
+> `Conduit` supports access to a `Sink` and a `Source` for more advanced processing.
+
+### [`ConduitT`](Conduit)
+
+`ConduitT<M, A, B>` can be pictured as so:
+
+    +------------------------------------------------------------------------------------------+
+    |                                                                                          |
+    |  K<M, A> --> TransducerM --> K<M, X> --> Buffer --> K<M, X> --> TransducerM --> K<M, B>  |
+    |                                                                                          |
+    +------------------------------------------------------------------------------------------+
+
+* A value of `K<M, A>` is posted to the `Conduit` (via `Post`)
+* It flows through an input `TransducerM`, mapping the `K<M, A>` value to `K<M, X>` (an internal type you can't see)
+* The `K<M, X>` value is then stored in the conduit's internal buffer (a `System.Threading.Channels.Channel`)
+* Any invocation of `Reduce` will force the consumption of the values in the buffer
+* Flowing each value `K<M, A>` through the output `TransducerM`
+
+So the input and output transducers allow for pre and post-processing of values as they flow through the conduit.  
+`ConduitT` is a `CoFunctor`, call `Comap` to manipulate the pre-processing transducer. `Conduit` is also a `Functor`, call
+`Map` to manipulate the post-processing transducer.  There are other non-trait, but common behaviours, like `FoldWhile`,
+`Filter`, `Skip`, `Take`, etc.
+
+> `ConduitT` supports access to a `SinkT` and a `SourceT` for more advanced processing.
+
 ## Open to closed streams
 
 Clearly, even for 'closed systems' like the [`Pipes`](Pipes) system, it would be beneficial to be able to post values
@@ -83,7 +153,7 @@ into the streams from the outside.  And so, the _open-stream components_ can all
 like `ProducerT` and `ConsumerT`.
 
 * `Conduit` and `ConduitT` support `ToProducer`, `ToProducerT`, `ToConsumer`, and `ToConsumerT`.
-* `Sink` supports `ToConsumer`, and `ToConsumerT`.
+* `Sink` and `SinkT` supports `ToConsumer`, and `ToConsumerT`.
 * `Source` and `SourceT` supports `ToProducer`, and `ToProducerT`.
 
 This allows for the ultimate flexibility in your choice of streaming effect. It also allows for efficient concurrency in
