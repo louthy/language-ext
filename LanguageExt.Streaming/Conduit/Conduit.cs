@@ -28,7 +28,7 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="A">Input value type</typeparam>
 /// <typeparam name="B">Output value type</typeparam>
-public abstract class Conduit<A, B>
+public abstract class Conduit<A, B> : K<Conduit<A>, B>
 {
     /// <summary>
     /// Access the underlying `Sink` for more direct manipulation.  
@@ -91,7 +91,7 @@ public abstract class Conduit<A, B>
     /// <summary>
     /// Functor map
     /// </summary>
-    public Conduit<A, C> Select<C>(Func<B, C> f) =>
+public Conduit<A, C> Select<C>(Func<B, C> f) =>
         Map(f);
     
     /// <summary>

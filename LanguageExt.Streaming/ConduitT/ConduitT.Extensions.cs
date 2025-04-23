@@ -1,9 +1,14 @@
 using LanguageExt.Pipes;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
 public static class ConduitTExtensions
 {
+    public static ConduitT<M, A, B> As<M, A, B>(this K<ConduitT<M, A>, B> ma) 
+        where M : MonadIO<M>, Monad<M>, Alternative<M> =>
+        (ConduitT<M, A, B>)ma;
+    
     /// <summary>
     /// Convert the conduit's `Sink` to a `Consumer` pipe component
     /// </summary>

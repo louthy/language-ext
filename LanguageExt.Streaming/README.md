@@ -78,9 +78,9 @@ following `static` methods on the `SourceT` type to lift `IO<A>` effects into a 
 
 ### [`Sink`](Sink)
 
-[`Sink<A>`](Sink) provides a way to accept many input values that are buffered.  The sink can be thought of as a 
-`System.Threading.Channels.Channel` (which is the buffer that collects the values) that happens to manipulate the values 
-being posted to the before just before they are posted.  
+[`Sink<A>`](Sink) provides a way to accept many input values.  The values are buffered until consumed.  The sink can be 
+thought of as a `System.Threading.Channels.Channel` (which is the buffer that collects the values) that happens to 
+manipulate the values being posted to the buffer just before they are stored.  
 
 > This manipulation is possible because the `Sink` is a `CoFunctor` (contravariant functor).  This is the dual of `Functor`: 
 we can think of `Functor.Map` as converting a value from `A -> B`.  Whereas `CoFunctor.Comap` converts from `B -> A`.  
@@ -89,9 +89,9 @@ So, to manipulate values coming into the `Sink`, use `Comap`.  It will give you 
 
 ### [`SinkT`](SinkT)
 
-[`SinkT<M, A>`](SinkT) provides a way to accept many input values that are buffered.  The sink can be thought of as a
-`System.Threading.Channels.Channel` (which is the buffer that collects the values) that happens to manipulate the values
-being posted to the before just before they are posted.
+[`SinkT<M, A>`](SinkT) provides a way to accept many input values.  The values are buffered until consumed.  The sink can 
+be thought of as a `System.Threading.Channels.Channel` (which is the buffer that collects the values) that happens to 
+manipulate the values being posted to the buffer just before they are stored.
 
 > This manipulation is possible because the `SinkT` is a `CoFunctor` (contravariant functor).  This is the dual of `Functor`:
 we can think of `Functor.Map` as converting a value from `A -> B`.  Whereas `CoFunctor.Comap` converts from `B -> A`.
@@ -115,6 +115,36 @@ So, to manipulate values coming into the `SinkT`, use `Comap`.  It will give you
 * The `X` value is then stored in the conduit's internal buffer (a `System.Threading.Channels.Channel`)
 * Any invocation of `Reduce` will force the consumption of the values in the buffer
 * Flowing each value `X` through the output `Transducer`
+
+So the input and output transducers allow for pre and post-processing of values as they flow through the conduit.  
+`Conduit` is a `CoFunctor`, call `Comap` to manipulate the pre-processing transducer. `Conduit` is also a `Functor`, call
+`Map` to manipulate the post-processing transducer.  There are other non-trait, but common behaviours, like `FoldWhile`,
+`Filter`, `Skip`, `Take`, etc.
+
+> `Conduit` supports access to a `Sink` and a `Source` for more advanced processing.
+
+### [`ConduitT`](Conduit)
+
+`Conduit<A, B>` can be pictured as so:
+
+    +----------------------------------------------------------------+
+    |                                                                |
+    |  A --> Transducer --> X --> Buffer --> X --> Transducer --> B  |
+    |                                                                |
+    +----------------------------------------------------------------+
+
+* A value of `A` is posted to the `Conduit` (via `Post`)
+* It flows through an input `Transducer`, mapping the `A` value to `X` (an internal type you can't see)
+* The `X` value is then stored in the conduit's internal buffer (a `System.Threading.Channels.Channel`)
+* Any invocation of `Reduce` will force the consumption of the values in the buffer
+* Flowing each value `X` through the output `Transducer`
+
+So the input and output transducers allow for pre and post-processing of values as they flow through the conduit.  
+`Conduit` is a `CoFunctor`, call `Comap` to manipulate the pre-processing transducer. `Conduit` is also a `Functor`, call
+`Map` to manipulate the post-processing transducer.  There are other non-trait, but common behaviours, like `FoldWhile`,
+`Filter`, `Skip`, `Take`, etc.
+
+> `ConduitT` supports access to a `SinkT` and a `SourceT` for more advanced processing.
 
 ## Open to closed streams
 

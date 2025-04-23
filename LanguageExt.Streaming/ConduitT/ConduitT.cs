@@ -38,7 +38,7 @@ namespace LanguageExt;
 /// <param name="Source">Source</param>
 /// <typeparam name="A">Input value type</typeparam>
 /// <typeparam name="B">Output value type</typeparam>
-public abstract class ConduitT<M, A, B>
+public abstract class ConduitT<M, A, B> : K<ConduitT<M, A>, B>
     where M : MonadIO<M>, Monad<M>, Alternative<M>
 {
     /// <summary>
