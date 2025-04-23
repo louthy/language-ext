@@ -3,7 +3,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public partial class Sink
+public partial class SinkT
 {
     /// <summary>
     /// Create a sink from a `System.Threading.Channels.Channel`.
@@ -11,6 +11,7 @@ public partial class Sink
     /// <param name="channel">Channel to lift</param>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Constructed sink</returns>
-    public static Sink<A> lift<A>(Channel<A> channel) =>
-        new SinkWriter<A>(channel);
+    public static SinkT<M, A> lift<M, A>(Channel<K<M, A>> channel) 
+        where M : MonadIO<M> =>
+        new SinkTWriter<M, A>(channel);
 }

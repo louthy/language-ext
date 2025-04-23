@@ -108,6 +108,17 @@ public partial class SourceT
         new ReaderSourceT<M, A>(channel);
 
     /// <summary>
+    /// Make a `Source` into a `SourceT`
+    /// </summary>
+    /// <param name="channel">Channel to lift</param>
+    /// <param name="label">Label to help debugging</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
+    public static SourceT<M, A> liftM<M, A>(Source<K<M, A>> channel) 
+        where M : MonadIO<M>, Alternative<M> =>
+        new SourceSourceT<M, A>(channel);
+
+    /// <summary>
     /// Make an `IEnumerable` into a source of values
     /// </summary>
     /// <param name="items">Enumerable to lift</param>

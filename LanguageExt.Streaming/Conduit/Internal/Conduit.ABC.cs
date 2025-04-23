@@ -53,11 +53,11 @@ internal class Conduit<A, B, C> : Conduit<A, C>
     /// <param name="value">Value to post</param>
     /// <returns>IO computation that represents the posting</returns>
     public override IO<Unit> Post(A value) =>
-        IO.liftVAsync(async e => (await sink.Reduce<Unit>(async (_, value) =>
+        IO.liftVAsync(async e => (await sink.Reduce<Unit>(async (_, x) =>
                                                           {
                                                               if (await channel.Writer.WaitToWriteAsync(e.Token))
                                                               {
-                                                                  await channel.Writer.WriteAsync(value);
+                                                                  await channel.Writer.WriteAsync(x);
                                                                   return Reduced.Unit;
                                                               }
                                                               else
@@ -293,7 +293,7 @@ internal class Conduit<A, B, C> : Conduit<A, C>
     /// <param name="src">Source to use</param>
     /// <typeparam name="Src">Source bound-value type</typeparam>
     /// <returns>Transformed conduit</returns>
-    Conduit<A, B, Src> With<Src>(Transducer<B, Src> src) =>
+    internal Conduit<A, B, Src> With<Src>(Transducer<B, Src> src) =>
         new (sink, channel, src);
     
     /// <summary>
@@ -302,6 +302,6 @@ internal class Conduit<A, B, C> : Conduit<A, C>
     /// <param name="sink">Sink to use</param>
     /// <typeparam name="Src">Source bound-value type</typeparam>
     /// <returns>Transformed conduit</returns>
-    Conduit<Snk, B, C> With<Snk>(Transducer<Snk, B> sink) =>
+    internal Conduit<Snk, B, C> With<Snk>(Transducer<Snk, B> sink) =>
         new (sink, channel, source);
 }

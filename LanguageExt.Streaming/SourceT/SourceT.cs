@@ -54,7 +54,7 @@ public abstract record SourceT<M, A> :
     /// <param name="transducer">Transducer to use to transform</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>Transformed source</returns>
-    public SourceT<M, B> TransformM<B>(Transducer<K<M, A>, K<M, B>> transducer) =>
+    public SourceT<M, B> Transform<B>(TransducerM<M, A, B> transducer) =>
         new TransformSourceT<M, A, B>(this, transducer);
     
     /// <summary>
@@ -180,7 +180,7 @@ public abstract record SourceT<M, A> :
     /// <param name="amount">Amount to skip</param>
     /// <returns>Transformed source</returns>
     public SourceT<M, A> Skip(int amount) =>
-        TransformM(Transducer.skip<K<M, A>>(amount)); 
+        Transform(TransducerM.skip<M, A>(amount)); 
 
     /// <summary>
     /// Limit the number of items processed 
@@ -188,7 +188,7 @@ public abstract record SourceT<M, A> :
     /// <param name="amount">Amount to take</param>
     /// <returns>Transformed source</returns>
     public SourceT<M, A> Take(int amount) =>
-        TransformM(Transducer.take<K<M, A>>(amount)); 
+        Transform(TransducerM.take<M, A>(amount)); 
 
     /// <summary>
     /// Fold the values flowing through.  A value is only yielded downstream upon completion of the stream.
