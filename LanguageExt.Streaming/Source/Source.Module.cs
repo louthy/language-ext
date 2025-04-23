@@ -48,7 +48,7 @@ public partial class Source
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static Source<A> lift<A>(Channel<A> channel) =>
-        new ReaderSource<A>(channel);
+        new MultiListenerSource<A>(channel);
 
     /// <summary>
     /// Make an `IEnumerable` into a source of values

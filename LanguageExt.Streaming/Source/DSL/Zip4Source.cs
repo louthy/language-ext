@@ -103,7 +103,6 @@ record Zip4Source<A, B, C, D>(Source<A> SourceA, Source<B> SourceB, Source<C> So
                                     writerD.TryComplete();
                                     return r;
                                 });
-            
 
         return await new Reader4Source<A, B, C, D>(channelA, channelB, channelC, channelD).ReduceAsync(state, reducer, token);
     }

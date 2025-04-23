@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Threading.Channels;
 using LanguageExt.Common;
 using LanguageExt.Pipes;
@@ -36,7 +37,7 @@ internal class Conduit<A, B, C> : Conduit<A, C>
     readonly Transducer<A, B> sink;
     readonly Channel<B> channel;
     readonly Transducer<B, C> source;
-    
+
     internal Conduit(Transducer<A, B> sink, Channel<B> channel, Transducer<B, C> source)
     {
         this.sink = sink;
@@ -104,7 +105,7 @@ internal class Conduit<A, B, C> : Conduit<A, C>
                           }
                           return state;
                       });
-
+    
     /// <summary>
     /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
     /// result value.   
@@ -299,9 +300,9 @@ internal class Conduit<A, B, C> : Conduit<A, C>
     /// <summary>
     /// New conduit with all the same properties except the Sink, which is provided as the argument.
     /// </summary>
-    /// <param name="sink">Sink to use</param>
+    /// <param name="snk">Sink to use</param>
     /// <typeparam name="Src">Source bound-value type</typeparam>
     /// <returns>Transformed conduit</returns>
-    internal Conduit<Snk, B, C> With<Snk>(Transducer<Snk, B> sink) =>
-        new (sink, channel, source);
+    internal Conduit<Snk, B, C> With<Snk>(Transducer<Snk, B> snk) =>
+        new (snk, channel, source);
 }
