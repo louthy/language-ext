@@ -3,7 +3,6 @@ using LanguageExt.Traits;
 namespace CardGame;
 
 public partial class Game :
-    Deriving<Game, StateT<GameState, OptionT<IO>>>,
     Deriving.Monad<Game, StateT<GameState, OptionT<IO>>>,
     Deriving.SemigroupK<Game, StateT<GameState, OptionT<IO>>>,
     Deriving.Stateful<Game, StateT<GameState, OptionT<IO>>, GameState>
