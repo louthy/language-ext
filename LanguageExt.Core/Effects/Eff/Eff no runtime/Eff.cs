@@ -13,9 +13,9 @@ using static LanguageExt.Prelude;
 namespace LanguageExt;
 
 /// <summary>
-/// This is the monad that is used to encapsulate side effects and exception capture 
+/// This monad is used to encapsulate side effects and exception capture 
 /// </summary>
-/// <typeparam name="RT">Runtime struct</typeparam>
+/// <typeparam name="RT">Runtime type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record Eff<A>(Eff<MinRT, A> effect) :
     Fallible<Eff<A>>,

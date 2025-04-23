@@ -9,9 +9,9 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 /// <summary>
-/// Transducer based effect/`Eff` monad
+/// This monad is used to encapsulate side effects, exception capture, and dependency-injection via the `RT` runtime. 
 /// </summary>
-/// <typeparam name="RT">Runtime struct</typeparam>
+/// <typeparam name="RT">Runtime type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record Eff<RT, A>(ReaderT<RT, IO, A> effect) : 
     Fallible<Eff<RT, A>, Eff<RT>, Error, A>
