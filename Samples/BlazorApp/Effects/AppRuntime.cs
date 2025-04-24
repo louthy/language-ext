@@ -1,6 +1,6 @@
 namespace BlazorApp.Effects;
 
-public static class AppRuntime<RT>
+public static class AppRuntime
 {
     /// <summary>
     /// This will always point to the same runtime in this example, but it should be relatively
@@ -11,5 +11,5 @@ public static class AppRuntime<RT>
     /// I have zero experience with Razer/Blazor, so I haven't figured it out yet.  If you know,
     /// please let me know in the repo Discussions.  Thanks! 
     /// </summary>
-    public static RT? Current;
+    public static Runtime? Current;
 }

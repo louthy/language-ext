@@ -3,7 +3,7 @@ using BlazorApp.Effects;
 using BlazorApp.Effects.Impl;
 
 // Set a default runtime for the app
-AppRuntime<Runtime>.Current = new Runtime(
+AppRuntime.Current = new Runtime(
     LanguageExt.Sys.Live.Implementations.TimeIO.Default,
     RndImpl.Default
     );  

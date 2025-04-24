@@ -5,45 +5,45 @@ using static LanguageExt.Prelude;
 
 namespace BlazorApp.Components.Pages;
 
-public class Page<RT> : ComponentBase
+public class Page : ComponentBase
 {
     protected override async Task OnInitializedAsync() =>
-        (await OnInitialized().RunAsync(AppRuntime<RT>.Current!)).SafeError();
+        (await OnInitialized().RunAsync(AppRuntime.Current!)).SafeError();
 
     protected override async Task OnAfterRenderAsync(bool firstRender) => 
-        (await OnAfterRender(firstRender).RunAsync(AppRuntime<RT>.Current!)).SafeError();
+        (await OnAfterRender(firstRender).RunAsync(AppRuntime.Current!)).SafeError();
 
     protected override async Task OnParametersSetAsync() => 
-        (await OnParametersSet().RunAsync(AppRuntime<RT>.Current!)).SafeError();
+        (await OnParametersSet().RunAsync(AppRuntime.Current!)).SafeError();
 
     public override async Task SetParametersAsync(ParameterView parameters) => 
-        (await SetParameters(parameters).RunAsync(AppRuntime<RT>.Current!)).SafeError();
+        (await SetParameters(parameters).RunAsync(AppRuntime.Current!)).SafeError();
     
-    protected new virtual Eff<RT, Unit> OnInitialized() =>
-        liftEff<RT, Unit>(async _ =>
-                          {
-                              await base.OnInitializedAsync();
-                              return unit;
-                          });
+    protected new virtual Eff<Runtime, Unit> OnInitialized() =>
+        liftEff<Runtime, Unit>(async _ =>
+                               {
+                                   await base.OnInitializedAsync();
+                                   return unit;
+                               });
     
-    protected new virtual Eff<RT, Unit> OnAfterRender(bool firstRender) =>
-        liftEff<RT, Unit>(async _ =>
-                          {
-                              await base.OnAfterRenderAsync(firstRender);
-                              return unit;
-                          });
+    protected new virtual Eff<Runtime, Unit> OnAfterRender(bool firstRender) =>
+        liftEff<Runtime, Unit>(async _ =>
+                               {
+                                   await base.OnAfterRenderAsync(firstRender);
+                                   return unit;
+                               });
 
-    protected new virtual Eff<RT, Unit> OnParametersSet() =>
-        liftEff<RT, Unit>(async _ =>
-                          {
-                              await base.OnParametersSetAsync();
-                              return unit;
-                          });
+    protected new virtual Eff<Runtime, Unit> OnParametersSet() =>
+        liftEff<Runtime, Unit>(async _ =>
+                               {
+                                   await base.OnParametersSetAsync();
+                                   return unit;
+                               });
     
-    protected new virtual Eff<RT, Unit> SetParameters(ParameterView parameters) =>
-        liftEff<RT, Unit>(async _ =>
-                          {
-                              await base.SetParametersAsync(parameters);
-                              return unit;
-                          });
+    protected new virtual Eff<Runtime, Unit> SetParameters(ParameterView parameters) =>
+        liftEff<Runtime, Unit>(async _ =>
+                               {
+                                   await base.SetParametersAsync(parameters);
+                                   return unit;
+                               });
 }
