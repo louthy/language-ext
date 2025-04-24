@@ -7,8 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
-      <ProjectReference Include="..\LanguageExt.Sys\LanguageExt.Sys.csproj" />
+      <ProjectReference Include="..\..\LanguageExt.Core\LanguageExt.Core.csproj" />
+      <ProjectReference Include="..\..\LanguageExt.Sys\LanguageExt.Sys.csproj" />
     </ItemGroup>
 
 </Project>
