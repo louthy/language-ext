@@ -28,6 +28,15 @@ public readonly struct Temperature :
 
         if (this < AbsoluteZero) throw new ArgumentOutOfRangeException(nameof(value), $"{value} [{type}]", "Less than absolute zero");
     }
+    
+    public static Temperature FromCelcius(double value) =>
+        new (UnitType.C, value);
+    
+    public static Temperature FromFahrenheit(double value) =>
+        new (UnitType.F, value);
+    
+    public static Temperature FromKelvin(double value) =>
+        new (UnitType.K, value);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static double CtoK(double x) => x + 273.15;
@@ -190,6 +199,9 @@ public readonly struct Temperature :
             _ => throw new NotSupportedException(Type.ToString())
         }; 
 
+    public Temperature Add(double rhs) =>
+        new (Type, Value + rhs);
+    
     public Temperature Subtract(Temperature rhs) =>
         Type switch
         {
@@ -217,6 +229,9 @@ public readonly struct Temperature :
             _ => throw new NotSupportedException(Type.ToString())
         };
 
+    public Temperature Subtract(double rhs) =>
+        new (Type, Value + rhs);
+
     public Temperature Multiply(double rhs) =>
         new (Type, Value * rhs);
 
@@ -232,7 +247,13 @@ public readonly struct Temperature :
     public static Temperature operator +(Temperature lhs, Temperature rhs) =>
         lhs.Add(rhs);
 
+    public static Temperature operator +(Temperature lhs, double rhs) =>
+        lhs.Add(rhs);
+
     public static Temperature operator -(Temperature lhs, Temperature rhs) =>
+        lhs.Subtract(rhs);
+
+    public static Temperature operator -(Temperature lhs, double rhs) =>
         lhs.Subtract(rhs);
 
     public static Temperature operator /(Temperature lhs, double rhs) =>

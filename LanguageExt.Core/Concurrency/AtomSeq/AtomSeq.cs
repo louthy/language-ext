@@ -100,6 +100,17 @@ public class AtomSeq<A> :
     /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
     /// to update this data structure.  Therefore the functions must spend as little time performing the injected
     /// behaviours as possible to avoid repeated attempts</remarks>
+    public IO<Unit> SwapIO(Func<Seq<A>, Seq<A>> swap) =>
+        IO.lift(_ => Swap(swap));
+        
+    /// <summary>
+    /// Atomically swap the underlying Seq.  Allows for multiple operations on the Seq in an entirely
+    /// transactional and atomic way.
+    /// </summary>
+    /// <param name="swap">Swap function, maps the current state of the AtomSeq to a new state</param>
+    /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
+    /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+    /// behaviours as possible to avoid repeated attempts</remarks>
     public Unit Swap(Func<Seq<A>, Seq<A>> swap)
     {
         SpinWait sw = default;
