@@ -7,8 +7,7 @@ namespace RecordsNetCore
     /// <summary>
     /// Maybe discriminated union example
     /// </summary>
-    public interface Maybe<A>
-    { }
+    public interface Maybe<A>;
 
     /// <summary>
     /// Just case
@@ -24,9 +23,7 @@ namespace RecordsNetCore
     /// Nothing case
     /// </summary>
     /// <typeparam name="A"></typeparam>
-    public sealed class Nothing<A> : Record<Nothing<A>>, Maybe<A>
-    {
-    }
+    public sealed class Nothing<A> : Record<Nothing<A>>, Maybe<A>;
 
     /// <summary>
     /// Extensions and construction
