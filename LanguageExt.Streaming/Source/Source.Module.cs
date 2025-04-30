@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Channels;
 using static LanguageExt.Prelude;
@@ -52,20 +53,29 @@ public partial class Source
     /// <summary>
     /// Make an `IEnumerable` into a source of values
     /// </summary>
-    /// <param name="items">Enumerable to lift</param>
+    /// <param name="items">`IEnumerable` to lift</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static Source<A> lift<A>(IEnumerable<A> items) =>
         new IteratorSyncSource<A>(items);
 
     /// <summary>
-    /// Make an `IEnumerable` into a source of values
+    /// Make an `IAsyncEnumerable` into a source of values
     /// </summary>
-    /// <param name="items">Enumerable to lift</param>
+    /// <param name="items">`IAsyncEnumerable` to lift</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static Source<A> lift<A>(IAsyncEnumerable<A> items) =>
         new IteratorAsyncSource<A>(items);
+
+    /// <summary>
+    /// Make an `IObservable` into a source of values
+    /// </summary>
+    /// <param name="items">`IObservable` to lift</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
+    public static Source<A> lift<A>(IObservable<A> items) =>
+        new ObservableSource<A>(items);
     
     /// <summary>
     /// Merge sources into a single source
@@ -89,7 +99,7 @@ public partial class Source
     /// Zip two sources into one
     /// </summary>
     /// <param name="second">Stream to zip with this one</param>
-    /// <typeparam name="B">Bound value type of the stream to zip with this one</typeparam>
+    /// <typeparam name="B">Bound value-type of the stream to zip with this one</typeparam>
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     public Source<(A First, B Second)> zip<A, B>(Source<A> first, Source<B> second) =>
         new Zip2Source<A, B>(first, second);

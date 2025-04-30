@@ -24,7 +24,17 @@ public static class SourceTExtensions
         SourceT.lift<M, A>(items);
     
     [Pure]
-    public static SourceT<M, A> AsSourceT<M, A>(this Channel<K<M, A>> items)
+    public static SourceT<M, A> AsSourceM<M, A>(this Channel<K<M, A>> items)
+        where M : MonadIO<M>, Alternative<M> =>
+        SourceT.liftM(items);
+    
+    [Pure]
+    public static SourceT<M, A> AsSourceT<M, A>(this Source<A> items)
+        where M : MonadIO<M>, Alternative<M> =>
+        SourceT.lift<M, A>(items);
+    
+    [Pure]
+    public static SourceT<M, A> AsSourceM<M, A>(this Source<K<M, A>> items)
         where M : MonadIO<M>, Alternative<M> =>
         SourceT.liftM(items);
     
@@ -34,7 +44,17 @@ public static class SourceTExtensions
         SourceT.lift<M, A>(items);
     
     [Pure]
-    public static SourceT<M, A> AsSourceT<M, A>(this IEnumerable<K<M, A>> items)
+    public static SourceT<M, A> AsSourceM<M, A>(this IEnumerable<K<M, A>> items)
+        where M : MonadIO<M>, Alternative<M> =>
+        SourceT.liftM(items);
+    
+    [Pure]
+    public static SourceT<M, A> AsSourceT<M, A>(this IObservable<A> items)
+        where M : MonadIO<M>, Alternative<M> =>
+        SourceT.lift<M, A>(items);
+    
+    [Pure]
+    public static SourceT<M, A> AsSourceM<M, A>(this IObservable<K<M, A>> items)
         where M : MonadIO<M>, Alternative<M> =>
         SourceT.liftM(items);
     
@@ -44,7 +64,7 @@ public static class SourceTExtensions
         SourceT.lift<M, A>(items);
     
     [Pure]
-    public static SourceT<M, A> AsSourceT<M, A>(this IAsyncEnumerable<K<M, A>> items)
+    public static SourceT<M, A> AsSourceM<M, A>(this IAsyncEnumerable<K<M, A>> items)
         where M : MonadIO<M>, Alternative<M> =>
         SourceT.liftM(items);
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Channels;
@@ -112,6 +113,16 @@ public partial class SourceT
     /// <param name="channel">Channel to lift</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
+    public static SourceT<M, A> lift<M, A>(Source<A> channel) 
+        where M : MonadIO<M>, Alternative<M> =>
+        new SourcePureSourceT<M, A>(channel);
+
+    /// <summary>
+    /// Make a `Source` into a `SourceT`
+    /// </summary>
+    /// <param name="channel">Channel to lift</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
     public static SourceT<M, A> liftM<M, A>(Source<K<M, A>> channel) 
         where M : MonadIO<M>, Alternative<M> =>
         new SourceSourceT<M, A>(channel);
@@ -137,9 +148,29 @@ public partial class SourceT
         new IteratorSyncSourceT<M, A>(items);
 
     /// <summary>
-    /// Make an `IEnumerable` into a source of values
+    /// Make an `IObservable` into a source of values
     /// </summary>
-    /// <param name="items">Enumerable to lift</param>
+    /// <param name="items">`IObservable` to lift</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
+    public static SourceT<M, A> lift<M, A>(IObservable<A> items) 
+        where M : MonadIO<M>, Alternative<M> =>
+        new ObservablePureSourceT<M, A>(items);
+
+    /// <summary>
+    /// Make an `IObservable` into a source of values
+    /// </summary>
+    /// <param name="items">`IObservable` to lift</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
+    public static SourceT<M, A> liftM<M, A>(IObservable<K<M, A>> items) 
+        where M : MonadIO<M>, Alternative<M> =>
+        new ObservableSourceT<M, A>(items);
+
+    /// <summary>
+    /// Make an `IAsyncEnumerable` into a source of values
+    /// </summary>
+    /// <param name="items">`IAsyncEnumerable` to lift</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static SourceT<M, A> lift<M, A>(IAsyncEnumerable<A> items) 
@@ -147,9 +178,9 @@ public partial class SourceT
         new IteratorAsyncSourceT<M, A>(items.Select(M.Pure));
 
     /// <summary>
-    /// Make an `IEnumerable` into a source of values
+    /// Make an `IAsyncEnumerable` into a source of values
     /// </summary>
-    /// <param name="items">Enumerable to lift</param>
+    /// <param name="items">`IAsyncEnumerable` to lift</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     public static SourceT<M, A> liftM<M, A>(IAsyncEnumerable<K<M, A>> items) 

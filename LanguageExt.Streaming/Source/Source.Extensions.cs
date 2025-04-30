@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Threading.Channels;
@@ -24,6 +25,10 @@ public static class SourceExtensions
     
     [Pure]
     public static Source<A> AsSource<A>(this IAsyncEnumerable<A> items) =>
+        Source.lift(items);
+    
+    [Pure]
+    public static Source<A> AsSource<A>(this IObservable<A> items) =>
         Source.lift(items);
     
     /// <summary>
