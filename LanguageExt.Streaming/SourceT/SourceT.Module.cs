@@ -33,6 +33,32 @@ public partial class SourceT
     public static SourceT<M, A> pure<M, A>(A value) 
         where M : MonadIO<M>, Alternative<M> =>
         new PureSourceT<M, A>(value);
+
+    /// <summary>
+    /// Lift a foldable of pure values into a `SourceT`
+    /// </summary>
+    /// <param name="fa">Foldable of pure values</param>
+    /// <typeparam name="F">Foldable trait type</typeparam>
+    /// <typeparam name="M">Monad trait type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>`SourceT`</returns>
+    public static SourceT<M, A> liftFoldable<F, M, A>(K<F, A> fa)
+        where M : MonadIO<M>, Alternative<M>
+        where F : Foldable<F> =>
+        new FoldablePureSourceT<F, M, A>(fa);
+
+    /// <summary>
+    /// Lift a foldable of monadic values into a `SourceT`
+    /// </summary>
+    /// <param name="fma">Foldable of monadic values</param>
+    /// <typeparam name="F">Foldable trait type</typeparam>
+    /// <typeparam name="M">Monad trait type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>`SourceT`</returns>
+    public static SourceT<M, A> liftFoldableM<F, M, A>(K<F, K<M, A>> fma)
+        where M : MonadIO<M>, Alternative<M>
+        where F : Foldable<F> =>
+        new FoldableSourceT<F, M, A>(fma);
     
     /// <summary>
     /// Lift a structure into the source
