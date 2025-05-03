@@ -8,7 +8,7 @@ public static partial class Maybe
     /// <summary>
     /// Monad that is either the IO monad or a transformer with the IO monad in its stack
     /// </summary>
-    /// <typeparam name="M">Self referring trait</typeparam>
+    /// <typeparam name="M">Self-referring trait</typeparam>
     public interface MonadIO<M>
         where M : MonadIO<M>, Monad<M>
     {
@@ -64,17 +64,5 @@ public static partial class Maybe
         /// </summary>
         public static virtual K<M, B> MapIO<A, B>(K<M, A> ma, Func<IO<A>, IO<B>> f) =>
             M.ToIO(ma).Bind(io => M.LiftIO(f(io)));
-
-        /*
-        /// <summary>
-        /// Queue this IO operation to run on the thread-pool. 
-        /// </summary>
-        /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
-        /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
-        /// the forked IO operation or to await the result of it.
-        /// </returns>
-        public static virtual K<M, ForkIO<A>> ForkIO<A>(K<M, A> ma, Option<TimeSpan> timeout = default) =>
-            ma.MapIO(io => io.Fork(timeout));
-    */
     }
 }
