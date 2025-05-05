@@ -52,4 +52,19 @@ public static partial class Stateful
         from r in operation
         from u in M.Put(s)
         select r;
+
+    /// <summary>
+    /// Runs the `stateSetter` to update the state-monad's inner state.  Then runs the
+    /// `operation`.  And finally, resets the state to how it was before running `stateSetter`.
+    /// </summary>
+    /// <returns>
+    /// The result of `operation`
+    /// </returns>
+    public static K<M, A> local<M, S, A>(Func<S, S> stateSetter, K<M, A> operation)
+        where M : Stateful<M, S>, Monad<M> =>
+        from s in M.Get
+        from _ in M.Put(stateSetter(s))
+        from r in operation
+        from u in M.Put(s)
+        select r;    
 }
