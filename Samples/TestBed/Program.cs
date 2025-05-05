@@ -49,7 +49,8 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        Issue1453.Test();
+        TestBed.StateStuff.StateForkIO.forkTest.Run(4).Run().Ignore();
+        //Issue1453.Test();
         //UseTest.Main().GetAwaiter().GetResult();
         //Issue1426().GetAwaiter().GetResult();
         //SeqConstructTests.Test();

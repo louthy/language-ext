@@ -3,7 +3,7 @@ using LanguageExt.Traits;
 namespace CardGame;
 
 public partial class Game :
-    Deriving.Monad<Game, StateT<GameState, OptionT<IO>>>,
+    Deriving.MonadIO<Game, StateT<GameState, OptionT<IO>>>,
     Deriving.Choice<Game, StateT<GameState, OptionT<IO>>>,
     Deriving.Stateful<Game, StateT<GameState, OptionT<IO>>, GameState>
 {

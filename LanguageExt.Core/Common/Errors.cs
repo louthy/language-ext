@@ -125,7 +125,7 @@ public static class Errors
     public const string ToIONotSupportedText =
         "The IO monad is not in the monad-transformer stack or MonadIO.ToIO has not been implemented in the trait " +
         "implementation for your monad-type.  Therefore it's not possible to leverage `MonadIO` unlifting trait "   +
-        "functionality. To resolve this, implement `MonadIO.ToIO` and/or `MonadIO,MapIO`.";
+        "functionality. To resolve this, implement `MonadIO.ToIO` and/or `MonadIO.MapIO`.";
 
     /// <summary>
     /// Transformer stack has no `ToIO` support error code

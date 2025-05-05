@@ -52,8 +52,8 @@ public static class Display
     public static Game<Unit> everyoneIsBust =>
         Console.writeLine("Everyone's bust!");
     
-    public static Game<Unit> askStickOrTwist(Player player) =>
-        Console.writeLine($"{player.Name}, stick or twist? (S/T)");
+    public static readonly Game<Unit> askStickOrTwist =
+        Player.current.Bind(player => Console.writeLine($"{player.Name}, stick or twist? (S/T)"));
     
     public static readonly Game<Unit> stickOrTwistBerate =
         Console.writeLine("'S' key for stick, 'T' for twist!");

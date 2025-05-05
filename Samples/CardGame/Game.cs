@@ -92,8 +92,7 @@ public partial class Game
     /// </summary>
     static Game<Unit> stickOrTwist =>
         when(isGameActive,
-             from player in Player.current
-             from _      in Display.askStickOrTwist(player) >>
+             from _      in Display.askStickOrTwist >>
                             Player.showCards
              from key    in Console.readKey
              from __     in key.Key switch
