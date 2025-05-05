@@ -50,7 +50,7 @@ public partial class Game
         dealHands >>
         playRound >>
         gameOver  >>
-        Deck.cardsRemaining.Bind(Display.cardsRemaining);
+        Display.cardsRemaining;
 
     /// <summary>
     /// Deal the initial cards to the players
@@ -77,7 +77,7 @@ public partial class Game
         select unit;
     
     /// <summary>
-    /// For each active player check if they want to stick or twist
+    /// For each active player, check if they want to stick or twist
     /// Keep looping until the game ends
     /// </summary>
     static Game<Unit> playRound =>

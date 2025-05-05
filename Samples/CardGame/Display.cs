@@ -20,8 +20,8 @@ public static class Display
     public static readonly Game<Unit> deckFinished =
         Console.writeLine("The deck is out of cards");
     
-    public static Game<Unit> cardsRemaining(int remain) =>
-        Console.writeLine($"{remain} cards remaining in the deck");
+    public static readonly Game<Unit> cardsRemaining =
+        Deck.cardsRemaining.Bind(remain => Console.writeLine($"{remain} cards remaining in the deck"));
 
     public static readonly Game<Unit> bust =
         Console.writeLine("\tBust!");
