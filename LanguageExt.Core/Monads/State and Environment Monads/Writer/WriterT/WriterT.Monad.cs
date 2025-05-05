@@ -12,8 +12,7 @@ namespace LanguageExt;
 public partial class WriterT<W, M> : 
     MonadT<WriterT<W, M>, M>, 
     Choice<WriterT<W, M>>,
-    Writable<WriterT<W, M>, W>,
-    MonadIO<WriterT<W, M>>
+    Writable<WriterT<W, M>, W>
     where M : Monad<M>, Choice<M>
     where W : Monoid<W>
 {

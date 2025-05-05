@@ -16,8 +16,7 @@ public class RWST<R, W, S, M> :
     Choice<RWST<R, W, S, M>>,
     Readable<RWST<R, W, S, M>, R>,
     Writable<RWST<R, W, S, M>, W>,
-    Stateful<RWST<R, W, S, M>, S>,
-    MonadIO<RWST<R, W, S, M>>
+    Stateful<RWST<R, W, S, M>, S>
     where M : Monad<M>, Choice<M>
     where W : Monoid<W>
 {
@@ -102,9 +101,9 @@ public class RWST<R, W, S, M> :
     static K<RWST<R, W, S, M>, A> Stateful<RWST<R, W, S, M>, S>.Gets<A>(Func<S, A> f) => 
         new RWST<R, W, S, M, A>(input => M.Pure((f(input.State), input.Output, input.State)));
 
-    public static K<RWST<R, W, S, M>, A> LiftIO<A>(K<IO, A> ma) => 
+    static K<RWST<R, W, S, M>, A> Maybe.MonadIO<RWST<R, W, S, M>>.LiftIO<A>(K<IO, A> ma) => 
         new RWST<R, W, S, M, A>(input => M.LiftIO(ma).Map(a => (a, input.Output, input.State)));
 
-    public static K<RWST<R, W, S, M>, A> LiftIO<A>(IO<A> ma) => 
+    static K<RWST<R, W, S, M>, A> Maybe.MonadIO<RWST<R, W, S, M>>.LiftIO<A>(IO<A> ma) => 
         new RWST<R, W, S, M, A>(input => M.LiftIO(ma).Map(a => (a, input.Output, input.State)));
 }

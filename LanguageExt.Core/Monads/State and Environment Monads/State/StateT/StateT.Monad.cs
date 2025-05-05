@@ -11,8 +11,7 @@ namespace LanguageExt;
 public partial class StateT<S, M> : 
     MonadT<StateT<S, M>, M>, 
     Choice<StateT<S, M>>,
-    Stateful<StateT<S, M>, S>,
-    MonadIO<StateT<S, M>>
+    Stateful<StateT<S, M>, S>
     where M : Monad<M>, Choice<M>
 {
     static K<StateT<S, M>, B> Monad<StateT<S, M>>.Bind<A, B>(K<StateT<S, M>, A> ma, Func<A, K<StateT<S, M>, B>> f) => 
@@ -44,32 +43,6 @@ public partial class StateT<S, M> :
 
     static K<StateT<S, M>, A> Maybe.MonadIO<StateT<S, M>>.LiftIO<A>(IO<A> ma) =>
         StateT<S, M, A>.Lift(M.LiftIO(ma));
-
-    static K<StateT<S, M>, B> Maybe.MonadIO<StateT<S, M>>.MapIO<A, B>(K<StateT<S, M>, A> ma, Func<IO<A>, IO<B>> f) =>
-        // This is a compromised implementation but will work for most use-cases
-        from s in StateT.get<M, S>()
-        let a = Prelude.Atom(s)
-        from r in StateT.lift<S, M, B>(
-            ma.As().runState(s).Map(p =>
-                                    {
-                                        a.Swap(_ => p.State);
-                                        return p.Value;
-                                    }).MapIO(f))
-        from _ in StateT.put<M, S>(s)
-        select r;
-
-    static K<StateT<S, M>, IO<A>> Maybe.MonadIO<StateT<S, M>>.ToIO<A>(K<StateT<S, M>, A> ma) => 
-        // This is a compromised implementation but will work for most use-cases
-        from s in StateT.get<M, S>()
-        let a = Prelude.Atom(s)
-        from r in StateT.lift<S, M, IO<A>>(
-            ma.As().runState(s).Map(p =>
-                                    {
-                                        a.Swap(_ => p.State);
-                                        return p.Value;
-                                    }).ToIO())
-        from _ in StateT.put<M, S>(s)
-        select r;
 
     static K<StateT<S, M>, A> SemigroupK<StateT<S, M>>.Combine<A>(K<StateT<S, M>, A> ma, K<StateT<S, M>, A> mb) => 
         new StateT<S, M, A>(state => M.Combine(ma.As().runState(state), mb.As().runState(state)));
