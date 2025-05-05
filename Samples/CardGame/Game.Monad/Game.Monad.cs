@@ -4,7 +4,7 @@ namespace CardGame;
 
 public partial class Game :
     Deriving.Monad<Game, StateT<GameState, OptionT<IO>>>,
-    Deriving.SemigroupK<Game, StateT<GameState, OptionT<IO>>>,
+    Deriving.Choice<Game, StateT<GameState, OptionT<IO>>>,
     Deriving.Stateful<Game, StateT<GameState, OptionT<IO>>, GameState>
 {
     public static K<StateT<GameState, OptionT<IO>>, A> Transform<A>(K<Game, A> fa) =>
