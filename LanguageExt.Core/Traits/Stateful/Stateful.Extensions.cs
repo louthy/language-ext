@@ -11,7 +11,7 @@ public static partial class StatefulExtensions
     /// <returns>
     /// The result of `operation`
     /// </returns>
-    public static K<M, A> Bracket<M, S, A>(this K<M, Unit> stateSetter, K<M, A> operation)
+    public static K<M, A> Local<M, S, A>(this K<M, Unit> stateSetter, K<M, A> operation)
         where M : Stateful<M, S>, Monad<M> =>
         from s in M.Get
         from _ in stateSetter

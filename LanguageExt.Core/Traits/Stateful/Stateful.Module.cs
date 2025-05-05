@@ -45,7 +45,7 @@ public static partial class Stateful
     /// <returns>
     /// The result of `operation`
     /// </returns>
-    public static K<M, A> bracket<M, S, A>(K<M, Unit> stateSetter, K<M, A> operation)
+    public static K<M, A> local<M, S, A>(K<M, Unit> stateSetter, K<M, A> operation)
         where M : Stateful<M, S>, Monad<M> =>
         from s in M.Get
         from _ in stateSetter
