@@ -23,13 +23,13 @@ record Zip2SourceT<M, A, B>(SourceT<M, A> SourceA, SourceT<M, B> SourceB) : Sour
         from forkA in SourceA.ReduceM(unit, (_, ma) => writeAsync(writerA, ma))
                              .Bind(_ => triggerA)
                              .Choose(triggerA)
-                             .ForkIO()
+                             .ForkIOMaybe()
 
         // Create a forked second channel                        
         from forkB in SourceB.ReduceM(unit, (_, ma) => writeAsync(writerB, ma))
                              .Bind(_ => triggerB)
                              .Choose(triggerB)
-                             .ForkIO()
+                             .ForkIOMaybe()
 
         // Then create a reader iterator that will yield the merged values 
         from result in new Reader2SourceT<M, A, B>(channelA, channelB).ReduceM(state, reducer)

@@ -9,7 +9,7 @@ record Zip3SourceT<M, A, B, C>(
     SourceT<M, B> SourceB, 
     SourceT<M, C> SourceC) : 
     SourceT<M, (A First, B Second, C Third)>
-    where M : MonadIO<M>, Alternative<M>
+    where M : MonadUnliftIO<M>, Alternative<M>
 {
     public override K<M, S> ReduceM<S>(S state, ReducerM<M, K<M, (A First, B Second, C Third)>, S> reducer) =>
         

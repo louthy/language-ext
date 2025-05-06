@@ -351,7 +351,7 @@ public static class ProducerT
     /// <returns>Merged producer</returns>
     public static ProducerT<OUT, M, Unit> merge<OUT, M>(
         params ProducerT<OUT, M, Unit>[] producers)
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         merge(toSeq(producers));
     
     /// <summary>
@@ -365,7 +365,7 @@ public static class ProducerT
     public static ProducerT<OUT, M, Unit> merge<OUT, M>(
         Seq<ProducerT<OUT, M, Unit>> producers, 
         Buffer<OUT>? settings = null)
-        where M : MonadIO<M>
+        where M : MonadUnliftIO<M>
     {
         if (producers.Count == 0) return pure<OUT, M, Unit>(default);
 
@@ -381,7 +381,7 @@ public static class ProducerT
         Seq<ProducerT<OUT, M, Unit>> producers,
         CountdownSignal<M> signal,
         Conduit<OUT, OUT> conduit)
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         producers.Map(p => (p | conduit.ToConsumerT<M>()).Run())
                  .Traverse(ma => ma.Bind(_ => trigger(signal, conduit))
                                    .ForkIO());

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.Contracts;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
@@ -132,4 +133,9 @@ public static class ConsumerTExtensions
             { Flag: true } => bind(default).Map(b => project(default, b)).As(),
             var guard      => ConsumerT.fail<IN, E, M, C>(guard.OnFalse())
         };     
+
+    [Pure]
+    public static ConsumerT<IN, M, B> MapIO<IN, M, A, B>(this ConsumerT<IN, M, A> ma, Func<IO<A>, IO<B>> f) 
+        where M : MonadUnliftIO<M> =>
+        ma.Proxy.MapIO(f);
 }

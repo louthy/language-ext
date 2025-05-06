@@ -149,6 +149,49 @@ public static class SourceTExtensions
         where M : MonadIO<M>, Alternative<M> =>
         bind(ma.Value).Map(y => project(ma.Value, y));
     
+
+    /// <summary>
+    /// Zip two sources into one
+    /// </summary>
+    /// <param name="first">Stream to zip</param>
+    /// <param name="second">Stream to zip</param>
+    /// <returns>Stream of values where the items from two streams are paired together</returns>
+    public static SourceT<M, (A First, B Second)> Zip<M, A, B>(
+        this K<SourceT<M>, A> first, 
+        K<SourceT<M>, B> second) 
+        where M : MonadUnliftIO<M>, Alternative<M> =>
+        new Zip2SourceT<M, A, B>(first.As(), second.As());
+
+    /// <summary>
+    /// Zip three sources into one
+    /// </summary>
+    /// <param name="first">Stream to zip</param>
+    /// <param name="second">Stream to zip</param>
+    /// <param name="third">Stream to zip</param>
+    /// <returns>Stream of values where the items from two streams are paired together</returns>
+    public static SourceT<M, (A First, B Second, C Third)> Zip<M, A, B, C>(
+        this K<SourceT<M>, A> first, 
+        K<SourceT<M>, B> second, 
+        K<SourceT<M>, C> third) 
+        where M : MonadUnliftIO<M>, Alternative<M> =>
+        new Zip3SourceT<M, A, B, C>(first.As(), second.As(), third.As());
+
+    /// <summary>
+    /// Zip three sources into one
+    /// </summary>
+    /// <param name="first">Stream to zip</param>
+    /// <param name="second">Stream to zip</param>
+    /// <param name="third">Stream to zip</param>
+    /// <param name="fourth">Stream to zip</param>
+    /// <returns>Stream of values where the items from two streams are paired together</returns>
+    public static SourceT<M, (A First, B Second, C Third, D Fourth)> Zip<M, A, B, C, D>(
+        this K<SourceT<M>, A> first, 
+        K<SourceT<M>, B> second, 
+        K<SourceT<M>, C> third, 
+        K<SourceT<M>, D> fourth) 
+        where M : MonadUnliftIO<M>, Alternative<M> =>
+        new Zip4SourceT<M, A, B, C, D>(first.As(), second.As(), third.As(), fourth.As());    
+    
     /// <summary>
     /// Access the `Some` values from the asynchronous stream
     /// </summary>

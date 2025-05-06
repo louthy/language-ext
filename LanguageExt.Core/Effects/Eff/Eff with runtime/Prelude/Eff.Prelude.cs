@@ -9,7 +9,7 @@ namespace LanguageExt;
 public static partial class Prelude
 {
     /// <summary>
-    /// Construct an successful effect with a pure value
+    /// Construct a successful effect with a pure value
     /// </summary>
     /// <param name="value">Pure value to construct the monad with</param>
     /// <typeparam name="A">Bound value type</typeparam>

@@ -19,10 +19,6 @@ public readonly record struct ConsumerT<IN, M, A>(PipeT<IN, Void, M, A> Proxy) :
         Proxy.MapM(f);
 
     [Pure]
-    public ConsumerT<IN, M, B> MapIO<B>(Func<IO<A>, IO<B>> f) =>
-        Proxy.MapIO(f);
-
-    [Pure]
     public ConsumerT<IN, M, B> ApplyBack<B>(ConsumerT<IN, M, Func<A, B>> ff) =>
         Proxy.ApplyBack(ff.Proxy);
     

@@ -1,3 +1,4 @@
+using System;
 using LanguageExt.Pipes;
 using LanguageExt.Traits;
 
@@ -17,5 +18,5 @@ public static class SinkTExtensions
     /// </summary>
     /// <returns>`Consumer`</returns>
     public static Consumer<RT, A, Unit> ToConsumer<RT, A>(this SinkT<Eff<RT>, A> ma) =>
-        ma.ToConsumerT();    
+        ma.ToConsumerT();
 }

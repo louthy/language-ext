@@ -31,7 +31,7 @@ public static class MonadIO
     /// <returns>Unit monad</returns>
     [Pure]
     public static K<M, Unit> unless<M>(K<M, bool> Pred, K<IO, Unit> Then)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         Pred.Bind(f => Applicative.unless(f, Then).As());
     
     /// <summary>
@@ -52,25 +52,6 @@ public static class MonadIO
         where M : Maybe.MonadIO<M>, Monad<M> =>
         M.LiftIO(ma);
 
-    /// <summary>
-    /// Get the `IO` monad from within the `M` monad
-    /// </summary>
-    /// <remarks>
-    /// This only works if the `M` trait implements `MonadIO.ToIO`.
-    /// </remarks>
-    [Pure]
-    public static K<M, IO<A>> toIO<M, A>(K<M, A> ma)
-        where M : Maybe.MonadIO<M>, Monad<M> =>
-        M.ToIO(ma);
-    
-    /// <summary>
-    /// Map the underlying IO monad
-    /// </summary>
-    [Pure]
-    public static K<M, B> mapIO<M, A, B>(Func<IO<A>, IO<B>> f, K<M, A> ma)
-        where M : Maybe.MonadIO<M>, Monad<M> =>
-        M.MapIO(ma, f);
-        
     /// <summary>
     /// Get the environment value threaded through the IO computation
     /// </summary>

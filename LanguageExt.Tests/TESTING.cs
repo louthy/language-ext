@@ -333,7 +333,7 @@ public static class AppExtensions
 public class App :
     Fallible<App>,
     Deriving.MonadT<App, ReaderT<AppConfig, Either<Error>>, Either<Error>>,
-    Deriving.Maybe.MonadIO<App, ReaderT<AppConfig, Either<Error>>>,
+    Deriving.MonadIO<App, ReaderT<AppConfig, Either<Error>>>,
     Deriving.Readable<App, AppConfig, ReaderT<AppConfig, Either<Error>>>
 {
     public static App<A> Pure<A>(A value) =>

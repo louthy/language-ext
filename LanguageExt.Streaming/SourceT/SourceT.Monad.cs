@@ -4,7 +4,7 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 public partial class SourceT<M> : 
-    MonadIO<SourceT<M>>,
+    MonadUnliftIO<SourceT<M>>,
     Alternative<SourceT<M>>
     where M : MonadIO<M>, Alternative<M>
 {
@@ -35,9 +35,9 @@ public partial class SourceT<M> :
     static K<SourceT<M>, A> Maybe.MonadIO<SourceT<M>>.LiftIO<A>(IO<A> ma) =>
         SourceT.liftIO<M, A>(ma);
 
-    static K<SourceT<M>, IO<A>> Maybe.MonadIO<SourceT<M>>.ToIO<A>(K<SourceT<M>, A> ma) => 
+    static K<SourceT<M>, IO<A>> Maybe.MonadUnliftIO<SourceT<M>>.ToIO<A>(K<SourceT<M>, A> ma) => 
         new ToIOSourceT<M, A>(ma.As());
 
-    static K<SourceT<M>, B> Maybe.MonadIO<SourceT<M>>.MapIO<A, B>(K<SourceT<M>, A> ma, Func<IO<A>, IO<B>> f) =>
+    static K<SourceT<M>, B> Maybe.MonadUnliftIO<SourceT<M>>.MapIO<A, B>(K<SourceT<M>, A> ma, Func<IO<A>, IO<B>> f) =>
         new MapIOSourceT<M, A, B>(ma.As(), f);
 }

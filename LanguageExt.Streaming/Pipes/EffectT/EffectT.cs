@@ -15,10 +15,6 @@ public readonly record struct EffectT<M, A>(PipeT<Unit, Void, M, A> Proxy) : K<E
     [Pure]
     public EffectT<M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
         Proxy.MapM(f);
-
-    [Pure]
-    public EffectT<M, B> MapIO<B>(Func<IO<A>, IO<B>> f) =>
-        Proxy.MapIO(f);
     
     [Pure]
     public EffectT<M, B> ApplyBack<B>(EffectT<M, Func<A, B>> ff) =>

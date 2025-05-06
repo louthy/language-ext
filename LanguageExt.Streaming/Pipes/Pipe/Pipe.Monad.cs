@@ -9,7 +9,7 @@ namespace LanguageExt.Pipes;
 
 public class Pipe<RT, IN, OUT> : 
     MonadT<Pipe<RT, IN, OUT>, Eff<RT>>,
-    MonadIO<Pipe<RT, IN, OUT>>
+    MonadUnliftIO<Pipe<RT, IN, OUT>>
 {
     static K<Pipe<RT, IN, OUT>, B> Monad<Pipe<RT, IN, OUT>>.Bind<A, B>(
         K<Pipe<RT, IN, OUT>, A> ma, 
@@ -46,9 +46,9 @@ public class Pipe<RT, IN, OUT> :
     static K<Pipe<RT, IN, OUT>, A> Maybe.MonadIO<Pipe<RT, IN, OUT>>.LiftIO<A>(IO<A> ma) => 
         Pipe.liftIO<RT, IN, OUT, A>(ma);
 
-    static K<Pipe<RT, IN, OUT>, B> Maybe.MonadIO<Pipe<RT, IN, OUT>>.MapIO<A, B>(K<Pipe<RT, IN, OUT>, A> ma, Func<IO<A>, IO<B>> f) => 
+    static K<Pipe<RT, IN, OUT>, B> Maybe.MonadUnliftIO<Pipe<RT, IN, OUT>>.MapIO<A, B>(K<Pipe<RT, IN, OUT>, A> ma, Func<IO<A>, IO<B>> f) => 
         ma.As().MapIO(f);
 
-    static K<Pipe<RT, IN, OUT>, IO<A>> Maybe.MonadIO<Pipe<RT, IN, OUT>>.ToIO<A>(K<Pipe<RT, IN, OUT>, A> ma) => 
+    static K<Pipe<RT, IN, OUT>, IO<A>> Maybe.MonadUnliftIO<Pipe<RT, IN, OUT>>.ToIO<A>(K<Pipe<RT, IN, OUT>, A> ma) => 
         ma.MapIO(IO.pure);
 }

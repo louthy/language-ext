@@ -1,92 +1,29 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using LanguageExt.Common;
-using LanguageExt.DSL;
-using LanguageExt.Traits;
 
-namespace LanguageExt;
+namespace LanguageExt.Traits;
 
-public partial class IO : 
-    MonadUnliftIO<IO>,
-    Final<IO>,
-    Fallible<IO>,
-    Alternative<IO>
+/// <summary>
+/// Monad that is either the IO monad or a transformer with the IO monad in its stack.
+///
+/// 'Unlifting' allows us to get at the nested `IO` monad and work on it, then to repackage it
+/// wherever it is in the transformer stack.  This allows all IO functionality to work on any
+/// type that encapsulates the `IO` monad.
+///
+/// This opens up a ton of default functionality for monads that are able to support unlifting.
+/// It must be stated that not all monads are capable of supporting unlifting.  It's usually the
+/// case that if they have a complex return type (like a union) then they can't support unlifting
+/// without compromising the integrity of the monad.
+/// </summary>
+/// <typeparam name="M">Self-referring trait</typeparam>
+public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
+    where M : MonadUnliftIO<M>
 {
-    static K<IO, B> Applicative<IO>.Apply<A, B>(K<IO, Func<A, B>> mf, K<IO, A> ma) =>
-        (mf, ma) switch
-        {
-            (_, IOEmpty<A>)          => IOEmpty<B>.Default,
-            (IOEmpty<Func<A, B>>, _) => IOEmpty<B>.Default,
-            _                        => ma.As().ApplyBack(mf.As()),
-        };
-
-    static K<IO, B> Applicative<IO>.Action<A, B>(K<IO, A> ma, K<IO, B> mb) =>
-        (ma, mb) switch
-        {
-            (IOEmpty<A>, IOEmpty<B>) => IOEmpty<B>.Default,
-            (IOEmpty<B>, var my)     => my,
-            _                        => new IOAction<A, B, B>(ma, mb, pure),
-        };
-
-    static K<IO, A> Applicative<IO>.Actions<A>(IEnumerable<K<IO, A>> fas) =>
-        new IOActions<A, A>(fas.Where(fa => fa is not IOEmpty<A>).GetIterator(), pure);
-
-    static K<IO, A> Applicative<IO>.Actions<A>(IAsyncEnumerable<K<IO, A>> fas) => 
-        new IOAsyncActions<A, A>(fas.FilterAsync(fa => fa is not IOEmpty<A>).GetIteratorAsync(), pure);
-
-    static K<IO, B> Monad<IO>.Bind<A, B>(K<IO, A> ma, Func<A, K<IO, B>> f) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<B>.Default
-            : ma.As().Bind(f);
-
-    static K<IO, B> Functor<IO>.Map<A, B>(Func<A, B> f, K<IO, A> ma) => 
-        ma is IOEmpty<A>
-            ? IOEmpty<B>.Default
-            : ma.As().Map(f);
-
-    static K<IO, A> Applicative<IO>.Pure<A>(A value) =>
-        new IOPure<A>(value);
-
-    static K<IO, A> Fallible<Error, IO>.Fail<A>(Error error) => 
-        IO<A>.Fail(error);
-
-    static K<IO, A> Fallible<Error, IO>.Catch<A>(
-        K<IO, A> fa, 
-        Func<Error, bool> Predicate,
-        Func<Error, K<IO, A>> Fail) =>
-        fa is IOEmpty<A>
-            ? fa
-            : new IOCatch<A, A>(fa, Predicate, Fail, null, pure);
-
-    static K<IO, A> Choice<IO>.Choose<A>(K<IO, A> fa, K<IO, A> fb) =>
-        fa is IOEmpty<A>
-            ? fb
-            : new IOCatch<A, A>(fa, _ => true, _ => fb, null, pure);
-
-    static K<IO, A> Choice<IO>.Choose<A>(K<IO, A> fa, Func<K<IO, A>> fb) => 
-        fa is IOEmpty<A>
-            ? fb()
-            : new IOCatch<A, A>(fa, _ => true, _ => fb(), null, pure);
-
-    static K<IO, A> SemigroupK<IO>.Combine<A>(K<IO, A> lhs, K<IO, A> rhs) =>
-        lhs.Choose(rhs);
-
-    static K<IO, A> MonoidK<IO>.Empty<A>() =>
-        empty<A>();
-
-    static K<IO, A> Maybe.MonadIO<IO>.LiftIO<A>(IO<A> ma) => 
-        ma;
-
-    static K<IO, B> Maybe.MonadUnliftIO<IO>.MapIO<A, B>(K<IO, A> ma, Func<IO<A>, IO<B>> f) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<B>.Default
-            : f(ma.As());
-
-    static K<IO, A> Final<IO>.Finally<X, A>(K<IO, A> fa, K<IO, X> @finally) =>
-        fa is IOEmpty<A>
-            ? fa
-            : new IOFinal<X, A, A>(fa, @finally, pure);
+    /// <summary>
+    /// Await a forked operation
+    /// </summary>
+    public static virtual K<M, A> Await<A>(K<M, ForkIO<A>> ma) =>
+        ma.MapIO(io => io.Bind(f => f.Await));    
     
     /// <summary>
     /// Creates a local cancellation environment
@@ -101,58 +38,30 @@ public partial class IO :
     /// <param name="ma">Computation to run within the local context</param>
     /// <typeparam name="A">Bound value</typeparam>
     /// <returns>Result of the computation</returns>
-    static K<IO, A> MonadUnliftIO<IO>.LocalIO<A>(K<IO, A> ma) =>
-        ma is IOEmpty<A>
-            ? ma
-            : ma.As().Local();
+    public static virtual K<M, A> LocalIO<A>(K<M, A> ma) =>
+        ma.MapIO(io => io.Local());
 
     /// <summary>
     /// Make this IO computation run on the `SynchronizationContext` that was captured at the start
     /// of the IO chain (i.e. the one embedded within the `EnvIO` environment that is passed through
     /// all IO computations)
     /// </summary>
-    static K<IO, A> MonadUnliftIO<IO>.PostIO<A>(K<IO, A> ma) =>
-        ma is IOEmpty<A>
-            ? ma
-            : ma.As().Post();        
-
-    /// <summary>
-    /// Await a forked operation
-    /// </summary>
-    static K<IO, A> MonadUnliftIO<IO>.Await<A>(K<IO, ForkIO<A>> ma) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<A>.Default
-            : ma.As().Bind(f => f.Await);    
-
-    /// <summary>
-    /// Queue this IO operation to run on the thread-pool. 
-    /// </summary>
-    /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
-    /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
-    /// the forked IO operation or to await the result of it.
-    /// </returns>
-    static K<IO, ForkIO<A>> Maybe.MonadUnliftIO<IO>.ForkIO<A>(K<IO, A> ma, Option<TimeSpan> timeout) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<ForkIO<A>>.Default
-            : ma.As().Fork(timeout);
+    public static virtual K<M, A> PostIO<A>(K<M, A> ma) =>
+        ma.MapIO(io => io.Post());        
 
     /// <summary>
     /// Timeout operation if it takes too long
     /// </summary>
-    static K<IO, A> MonadUnliftIO<IO>.TimeoutIO<A>(K<IO, A> ma, TimeSpan timeout) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<A>.Default
-            : ma.As().Timeout(timeout);
+    public static virtual K<M, A> TimeoutIO<A>(K<M, A> ma, TimeSpan timeout) =>
+        ma.MapIO(io => io.Timeout(timeout));
 
     /// <summary>
-    /// The IO monad tracks resources automatically, this creates a local resource environment
-    /// to run this computation in.  Once the computation has completed any resources acquired
+    /// The IO monad tracks resources automatically; this creates a local resource environment
+    /// to run this computation in.  Once the computation is completed, any resources acquired
     /// are automatically released.  Imagine this as the ultimate `using` statement.
     /// </summary>
-    static K<IO, A> MonadUnliftIO<IO>.BracketIO<A>(K<IO, A> ma) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<A>.Default
-            : ma.As().Bracket();
+    public static virtual K<M, A> BracketIO<A>(K<M, A> ma) =>
+        ma.MapIO(io => io.Bracket());
 
     /// <summary>
     /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
@@ -162,13 +71,11 @@ public partial class IO :
     /// <param name="Acq">Resource acquisition</param>
     /// <param name="Use">Function to use the acquired resource</param>
     /// <param name="Fin">Function to invoke to release the resource</param>
-    static K<IO, C> MonadUnliftIO<IO>.BracketIO<A, B, C>(
-        K<IO, A> Acq,
+    public static virtual K<M, C> BracketIO<A, B, C>(
+        K<M, A> Acq,
         Func<A, IO<C>> Use,
         Func<A, IO<B>> Fin) =>
-        Acq is IOEmpty<A>
-            ? IOEmpty<C>.Default
-            : Acq.As().Bracket(Use, Fin);
+        Acq.MapIO(io => io.Bracket(Use, Fin));
 
     /// <summary>
     /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
@@ -179,15 +86,23 @@ public partial class IO :
     /// <param name="Use">Function to use the acquired resource</param>
     /// <param name="Catch">Function to run to handle any exceptions</param>
     /// <param name="Fin">Function to invoke to release the resource</param>
-    static K<IO, C> MonadUnliftIO<IO>.BracketIO<A, B, C>(
-        K<IO, A> Acq,
+    public static virtual K<M, C> BracketIO<A, B, C>(
+        K<M, A> Acq,
         Func<A, IO<C>> Use,
         Func<Error, IO<C>> Catch,
         Func<A, IO<B>> Fin) =>
-        Acq is IOEmpty<A>
-            ? IOEmpty<C>.Default
-            : Acq.As().Bracket(Use, Catch, Fin);
+        Acq.MapIO(io => io.Bracket(Use, Catch, Fin));
 
+    /// <summary>
+    /// Queue this IO operation to run on the thread-pool. 
+    /// </summary>
+    /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
+    /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
+    /// the forked IO operation or to await the result of it.
+    /// </returns>
+    //static K<M, ForkIO<A>> MonadIO<M>.ForkIO<A>(K<M, A> ma, Option<TimeSpan> timeout) =>
+        //ma.MapIO(io => io.Fork(timeout));
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Repeating the effect
@@ -201,10 +116,8 @@ public partial class IO :
     /// acquire resources and return them from within a repeated computation.
     /// </remarks>
     /// <returns>The result of the last invocation</returns>
-    static K<IO, A> MonadUnliftIO<IO>.RepeatIO<A>(K<IO, A> ma) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<A>.Default
-            : ma.As().Repeat();
+    public static virtual K<M, A> RepeatIO<A>(K<M, A> ma) =>
+        ma.MapIO(io => io.Repeat());
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or an error occurs  
@@ -215,12 +128,10 @@ public partial class IO :
     /// </remarks>
     /// <param name="schedule">Scheduler strategy for repeating</param>
     /// <returns>The result of the last invocation</returns>
-    static K<IO, A> MonadUnliftIO<IO>.RepeatIO<A>(
-        K<IO, A> ma,
+    public static virtual K<M, A> RepeatIO<A>(
+        K<M, A> ma,
         Schedule schedule) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<A>.Default
-            : ma.As().Repeat(schedule);
+        ma.MapIO(io => io.Repeat(schedule));
 
     /// <summary>
     /// Keeps repeating the computation until the predicate returns false, or an error occurs 
@@ -231,12 +142,10 @@ public partial class IO :
     /// </remarks>
     /// <param name="predicate">Keep repeating while this predicate returns `true` for each computed value</param>
     /// <returns>The result of the last invocation</returns>
-    static K<IO, A> MonadUnliftIO<IO>.RepeatWhileIO<A>(
-        K<IO, A> ma,
+    public static virtual K<M, A> RepeatWhileIO<A>(
+        K<M, A> ma,
         Func<A, bool> predicate) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<A>.Default
-            : ma.As().RepeatWhile(predicate);
+        ma.MapIO(io => io.RepeatWhile(predicate));
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns false, or an error occurs
@@ -248,13 +157,11 @@ public partial class IO :
     /// <param name="schedule">Scheduler strategy for repeating</param>
     /// <param name="predicate">Keep repeating while this predicate returns `true` for each computed value</param>
     /// <returns>The result of the last invocation</returns>
-    static K<IO, A> MonadUnliftIO<IO>.RepeatWhileIO<A>(
-        K<IO, A> ma,
+    public static virtual K<M, A> RepeatWhileIO<A>(
+        K<M, A> ma,
         Schedule schedule,
         Func<A, bool> predicate) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<A>.Default
-            : ma.As().RepeatWhile(schedule, predicate);
+        ma.MapIO(io => io.RepeatWhile(schedule, predicate));
 
     /// <summary>
     /// Keeps repeating the computation until the predicate returns true, or an error occurs
@@ -265,12 +172,10 @@ public partial class IO :
     /// </remarks>
     /// <param name="predicate">Keep repeating until this predicate returns `true` for each computed value</param>
     /// <returns>The result of the last invocation</returns>
-    static K<IO, A> MonadUnliftIO<IO>.RepeatUntilIO<A>(
-        K<IO, A> ma,
+    public static virtual K<M, A> RepeatUntilIO<A>(
+        K<M, A> ma,
         Func<A, bool> predicate) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<A>.Default
-            : ma.As().RepeatUntil(predicate);
+        ma.MapIO(io => io.RepeatUntil(predicate));
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns true, or an error occurs
@@ -282,13 +187,11 @@ public partial class IO :
     /// <param name="schedule">Scheduler strategy for repeating</param>
     /// <param name="predicate">Keep repeating until this predicate returns `true` for each computed value</param>
     /// <returns>The result of the last invocation</returns>
-    static K<IO, A> MonadUnliftIO<IO>.RepeatUntilIO<A>(
-        K<IO, A> ma,
+    public static virtual K<M, A> RepeatUntilIO<A>(
+        K<M, A> ma,
         Schedule schedule,
         Func<A, bool> predicate) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<A>.Default
-            : ma.As().RepeatUntil(schedule, predicate);
+        ma.MapIO(io => io.RepeatUntil(schedule, predicate));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -306,10 +209,8 @@ public partial class IO :
     /// So, successive retries will not grow the acquired resources on each retry iteration.  Any successful operation that
     /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
-    static K<IO, A> MonadUnliftIO<IO>.RetryIO<A>(K<IO, A> ma) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<A>.Default
-            : ma.As().Retry();
+    public static virtual K<M, A> RetryIO<A>(K<M, A> ma) =>
+        ma.MapIO(io => io.Retry());
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -322,12 +223,10 @@ public partial class IO :
     /// So, successive retries will not grow the acquired resources on each retry iteration.  Any successful operation that
     /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
-    static K<IO, A> MonadUnliftIO<IO>.RetryIO<A>(
-        K<IO, A> ma,
+    public static virtual K<M, A> RetryIO<A>(
+        K<M, A> ma,
         Schedule schedule) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<A>.Default
-            : ma.As().Retry(schedule);
+        ma.MapIO(io => io.Retry(schedule));
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -341,12 +240,10 @@ public partial class IO :
     /// So, successive retries will not grow the acquired resources on each retry iteration.  Any successful operation that
     /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
-    static K<IO, A> MonadUnliftIO<IO>.RetryWhileIO<A>(
-        K<IO, A> ma,
+    public static virtual K<M, A> RetryWhileIO<A>(
+        K<M, A> ma,
         Func<Error, bool> predicate) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<A>.Default
-            : ma.As().RetryWhile(predicate);
+        ma.MapIO(io => io.RetryWhile(predicate));
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -360,13 +257,11 @@ public partial class IO :
     /// So, successive retries will not grow the acquired resources on each retry iteration.  Any successful operation that
     /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
-    static K<IO, A> MonadUnliftIO<IO>.RetryWhileIO<A>(
-        K<IO, A> ma,
+    public static virtual K<M, A> RetryWhileIO<A>(
+        K<M, A> ma,
         Schedule schedule,
         Func<Error, bool> predicate) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<A>.Default
-            : ma.As().RetryWhile(schedule, predicate);
+        ma.MapIO(io => io.RetryWhile(schedule, predicate));
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -380,12 +275,10 @@ public partial class IO :
     /// So, successive retries will not grow the acquired resources on each retry iteration.  Any successful operation that
     /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
-    static K<IO, A> MonadUnliftIO<IO>.RetryUntilIO<A>(
-        K<IO, A> ma,
+    public static virtual K<M, A> RetryUntilIO<A>(
+        K<M, A> ma,
         Func<Error, bool> predicate) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<A>.Default
-            : ma.As().RetryUntil(predicate);
+        ma.MapIO(io => io.RetryUntil(predicate));
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -399,147 +292,117 @@ public partial class IO :
     /// So, successive retries will not grow the acquired resources on each retry iteration.  Any successful operation that
     /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
-    static K<IO, A> MonadUnliftIO<IO>.RetryUntilIO<A>(
-        K<IO, A> ma,
+    public static virtual K<M, A> RetryUntilIO<A>(
+        K<M, A> ma,
         Schedule schedule,
         Func<Error, bool> predicate) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<A>.Default
-            : ma.As().RetryUntil(schedule, predicate);
+        ma.MapIO(io => io.RetryUntil(schedule, predicate));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 
     //  Folding
     //
 
-    static K<IO, S> MonadUnliftIO<IO>.FoldIO<S, A>(
-        K<IO, A> ma,
+    public static virtual K<M, S> FoldIO<S, A>(
+        K<M, A> ma,
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<S>.Default
-            : ma.As().Fold(schedule, initialState, folder);
+        ma.MapIO(io => io.Fold(schedule, initialState, folder));
 
-    static K<IO, S> MonadUnliftIO<IO>.FoldIO<S, A>(
-        K<IO, A> ma,
+    public static virtual K<M, S> FoldIO<S, A>(
+        K<M, A> ma,
         S initialState,
         Func<S, A, S> folder) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<S>.Default
-            : ma.As().Fold(initialState, folder);
+        ma.MapIO(io => io.Fold(initialState, folder));
 
-    static K<IO, S> MonadUnliftIO<IO>.FoldWhileIO<S, A>(
-        K<IO, A> ma,
+    public static virtual K<M, S> FoldWhileIO<S, A>(
+        K<M, A> ma,
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<S>.Default
-            : ma.As().FoldWhile(schedule, initialState, folder, stateIs);
+        ma.MapIO(io => io.FoldWhile(schedule, initialState, folder, stateIs));
 
-    static K<IO, S> MonadUnliftIO<IO>.FoldWhileIO<S, A>(
-        K<IO, A> ma,
+    public static virtual K<M, S> FoldWhileIO<S, A>(
+        K<M, A> ma,
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<S>.Default
-            : ma.As().FoldWhile(initialState, folder, stateIs);
+        ma.MapIO(io => io.FoldWhile(initialState, folder, stateIs));
 
-    static K<IO, S> MonadUnliftIO<IO>.FoldWhileIO<S, A>(
-        K<IO, A> ma,
+    public static virtual K<M, S> FoldWhileIO<S, A>(
+        K<M, A> ma,
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<S>.Default
-            : ma.As().FoldWhile(schedule, initialState, folder, valueIs);
+        ma.MapIO(io => io.FoldWhile(schedule, initialState, folder, valueIs));
 
-    static K<IO, S> MonadUnliftIO<IO>.FoldWhileIO<S, A>(
-        K<IO, A> ma,
+    public static virtual K<M, S> FoldWhileIO<S, A>(
+        K<M, A> ma,
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<S>.Default
-            : ma.As().FoldWhile(initialState, folder, valueIs);
+        ma.MapIO(io => io.FoldWhile(initialState, folder, valueIs));
     
-    static K<IO, S> MonadUnliftIO<IO>.FoldWhileIO<S, A>(
-        K<IO, A> ma,
+    public static virtual K<M, S> FoldWhileIO<S, A>(
+        K<M, A> ma,
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<S>.Default
-            : ma.As().FoldWhile(schedule, initialState, folder, predicate);
+        ma.MapIO(io => io.FoldWhile(schedule, initialState, folder, predicate));
 
-    static K<IO, S> MonadUnliftIO<IO>.FoldWhileIO<S, A>(
-        K<IO, A> ma,
+    public static virtual K<M, S> FoldWhileIO<S, A>(
+        K<M, A> ma,
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<S>.Default
-            : ma.As().FoldWhile(initialState, folder, predicate);
+        ma.MapIO(io => io.FoldWhile(initialState, folder, predicate));
     
-    static K<IO, S> MonadUnliftIO<IO>.FoldUntilIO<S, A>(
-        K<IO, A> ma,
+    public static virtual K<M, S> FoldUntilIO<S, A>(
+        K<M, A> ma,
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<S>.Default
-            : ma.As().FoldUntil(schedule, initialState, folder, stateIs);
+        ma.MapIO(io => io.FoldUntil(schedule, initialState, folder, stateIs));
     
-    static K<IO, S> MonadUnliftIO<IO>.FoldUntilIO<S, A>(
-        K<IO, A> ma,
+    public static virtual K<M, S> FoldUntilIO<S, A>(
+        K<M, A> ma,
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<S>.Default
-            : ma.As().FoldUntil(initialState, folder, stateIs);
+        ma.MapIO(io => io.FoldUntil(initialState, folder, stateIs));
     
-    static K<IO, S> MonadUnliftIO<IO>.FoldUntilIO<S, A>(
-        K<IO, A> ma,
+    public static virtual K<M, S> FoldUntilIO<S, A>(
+        K<M, A> ma,
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<S>.Default
-            : ma.As().FoldUntil(schedule, initialState, folder, valueIs);
+        ma.MapIO(io => io.FoldUntil(schedule, initialState, folder, valueIs));
     
-    static K<IO, S> MonadUnliftIO<IO>.FoldUntilIO<S, A>(
-        K<IO, A> ma,
+    public static virtual K<M, S> FoldUntilIO<S, A>(
+        K<M, A> ma,
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<S>.Default
-            : ma.As().FoldUntil(initialState, folder, valueIs);
+        ma.MapIO(io => io.FoldUntil(initialState, folder, valueIs));
     
-    static K<IO, S> MonadUnliftIO<IO>.FoldUntilIO<S, A>(
-        K<IO, A> ma,
+    public static virtual K<M, S> FoldUntilIO<S, A>(
+        K<M, A> ma,
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<S>.Default
-            : ma.As().FoldUntil(initialState, folder, predicate);
+        ma.MapIO(io => io.FoldUntil(initialState, folder, predicate));
 
-    static K<IO, S> MonadUnliftIO<IO>.FoldUntilIO<S, A>(
-        K<IO, A> ma,
+    public static virtual K<M, S> FoldUntilIO<S, A>(
+        K<M, A> ma,
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<S>.Default
-            : ma.As().FoldUntil(schedule, initialState, folder, predicate);       
+        ma.MapIO(io => io.FoldUntil(schedule, initialState, folder, predicate));    
 }

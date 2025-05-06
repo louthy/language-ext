@@ -6,10 +6,10 @@ namespace LanguageExt.Traits;
 /// <summary>
 /// Monad trait
 /// </summary>
-/// <typeparam name="M">Self referring trait</typeparam>
+/// <typeparam name="M">Self-referring trait</typeparam>
 public interface Monad<M> :
     Applicative<M>, 
-    Maybe.MonadIO<M> 
+    Maybe.MonadUnliftIO<M> 
     where M : Monad<M>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

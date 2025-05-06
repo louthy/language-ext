@@ -142,39 +142,6 @@ public abstract record SourceT<M, A> :
         };
 
     /// <summary>
-    /// Zip two sources into one
-    /// </summary>
-    /// <param name="second">Stream to zip with this one</param>
-    /// <typeparam name="B">Bound value-type of the stream to zip with this one</typeparam>
-    /// <returns>Stream of values where the items from two streams are paired together</returns>
-    public SourceT<M, (A First, B Second)> Zip<B>(SourceT<M, B> second) =>
-        new Zip2SourceT<M, A, B>(this, second);
-
-    /// <summary>
-    /// Zip three sources into one
-    /// </summary>
-    /// <param name="second">Stream to zip with this one</param>
-    /// <param name="third">Stream to zip with this one</param>
-    /// <typeparam name="B">Bound value-type of the stream to zip with this one</typeparam>
-    /// <returns>Stream of values where the items from two streams are paired together</returns>
-    public SourceT<M, (A First, B Second, C Third)> Zip<B, C>(SourceT<M, B> second, SourceT<M, C> third) =>
-        new Zip3SourceT<M, A, B, C>(this, second, third);
-
-    /// <summary>
-    /// Zip three sources into one
-    /// </summary>
-    /// <param name="second">Stream to zip with this one</param>
-    /// <param name="third">Stream to zip with this one</param>
-    /// <param name="fourth">Stream to zip with this one</param>
-    /// <typeparam name="B">Bound value-type of the stream to zip with this one</typeparam>
-    /// <returns>Stream of values where the items from two streams are paired together</returns>
-    public SourceT<M, (A First, B Second, C Third, D Fourth)> Zip<B, C, D>(
-        SourceT<M, B> second, 
-        SourceT<M, C> third, 
-        SourceT<M, D> fourth) =>
-        new Zip4SourceT<M, A, B, C, D>(this, second, third, fourth);
-
-    /// <summary>
     /// Skip items in the source
     /// </summary>
     /// <param name="amount">Amount to skip</param>

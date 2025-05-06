@@ -75,14 +75,14 @@ public partial class IO
     /// A local cancellation environment stops other IO computations, that rely on the same
     /// environmental cancellation token, from being taken down by a regional cancellation.
     ///
-    /// If a `IO.cancel` is invoked locally then it will still create an exception that
+    /// If an `IO.cancel` is invoked locally, then it will still create an exception that
     /// propagates upwards and so catching cancellations is still important. 
     /// </remarks>
     /// <param name="ma">Computation to run within the local context</param>
     /// <typeparam name="A">Bound value</typeparam>
     /// <returns>Result of the computation</returns>
     public static K<M, A> local<M, A>(K<M, A> ma) 
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         M.LocalIO(ma);
 
     /// <summary>
@@ -92,7 +92,7 @@ public partial class IO
     /// A local cancellation environment stops other IO computations, that rely on the same
     /// environmental cancellation token, from being taken down by a regional cancellation.
     ///
-    /// If a `IO.cancel` is invoked locally then it will still create an exception that
+    /// If an `IO.cancel` is invoked locally, then it will still create an exception that
     /// propagates upwards and so catching cancellations is still important. 
     /// </remarks>
     /// <param name="ma">Computation to run within the local context</param>
@@ -170,7 +170,7 @@ public partial class IO
     [Pure]
     [MethodImpl(Opt.Default)]
     public static K<M, B> mapIO<M, A, B>(K<M, A> ma, Func<IO<A>, IO<B>> f)
-        where M : Maybe.MonadIO<M>, Monad<M> =>
+        where M : MonadUnliftIO<M>, Monad<M> =>
         M.MapIO(ma, f);    
 
     /// <summary>
@@ -183,7 +183,7 @@ public partial class IO
     [Pure]
     [MethodImpl(Opt.Default)]
     public static K<M, ForkIO<A>> fork<M, A>(K<M, A> ma, Option<TimeSpan> timeout = default)
-        where M : MonadIO<M>, Monad<M> =>
+        where M : MonadUnliftIO<M> =>
         M.ForkIO(ma, timeout);
 
     /// <summary>

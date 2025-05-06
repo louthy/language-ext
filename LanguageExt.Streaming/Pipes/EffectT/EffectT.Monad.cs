@@ -8,7 +8,7 @@ namespace LanguageExt.Pipes;
 
 public class EffectT<M> :
     MonadT<EffectT<M>, M>,
-    MonadIO<EffectT<M>>
+    MonadUnliftIO<EffectT<M>>
     where M : MonadIO<M>
 {
     static K<EffectT<M>, B> Monad<EffectT<M>>.Bind<A, B>(K<EffectT<M>, A> ma, Func<A, K<EffectT<M>, B>> f) =>
@@ -29,12 +29,17 @@ public class EffectT<M> :
     static K<EffectT<M>, A> Maybe.MonadIO<EffectT<M>>.LiftIO<A>(IO<A> ma) =>
         EffectT.liftIO<M, A>(ma);
 
-    static K<EffectT<M>, B> Maybe.MonadIO<EffectT<M>>.MapIO<A, B>(K<EffectT<M>, A> ma, Func<IO<A>, IO<B>> f) =>
-        ma.As().MapIO(f);
+    static K<EffectT<M>, B> Maybe.MonadUnliftIO<EffectT<M>>.MapIO<A, B>(K<EffectT<M>, A> ma, Func<IO<A>, IO<B>> f) =>
+        ma.As().MapM(m => M.MapIO(m, f));
 
-    static K<EffectT<M>, IO<A>> Maybe.MonadIO<EffectT<M>>.ToIO<A>(K<EffectT<M>, A> ma) =>
-        ma.MapIO(IO.pure);
+    static K<EffectT<M>, IO<A>> Maybe.MonadUnliftIO<EffectT<M>>.ToIO<A>(K<EffectT<M>, A> ma) =>
+        ma.As().MapM(M.ToIO);
 
+    static K<EffectT<M>, ForkIO<A>> Maybe.MonadUnliftIO<EffectT<M>>.ForkIO<A>(
+        K<EffectT<M>, A> ma,
+        Option<TimeSpan> timeout) =>
+        MonadT.lift<EffectT<M>, M, ForkIO<A>>(ma.As().Run().ForkIOMaybe(timeout));
+    
     static K<EffectT<M>, B> Applicative<EffectT<M>>.Action<A, B>(
         K<EffectT<M>, A> ma,
         K<EffectT<M>, B> mb) =>
@@ -52,8 +57,4 @@ public class EffectT<M> :
            .Actions()
            .ToEffect();
 
-    static K<EffectT<M>, ForkIO<A>> MonadIO<EffectT<M>>.ForkIO<A>(
-        K<EffectT<M>, A> ma,
-        Option<TimeSpan> timeout) =>
-        MonadT.lift<EffectT<M>, M, ForkIO<A>>(ma.As().Run().ForkIO(timeout));
 }

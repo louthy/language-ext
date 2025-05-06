@@ -8,7 +8,7 @@ namespace LanguageExt.Pipes;
 
 public class Producer<RT, OUT> : 
     MonadT<Producer<RT, OUT>, Eff<RT>>,
-    MonadIO<Producer<RT, OUT>>
+    MonadUnliftIO<Producer<RT, OUT>>
 {
     static K<Producer<RT, OUT>, B> Monad<Producer<RT, OUT>>.Bind<A, B>(
         K<Producer<RT, OUT>, A> ma, 
@@ -34,10 +34,10 @@ public class Producer<RT, OUT> :
     static K<Producer<RT, OUT>, A> Maybe.MonadIO<Producer<RT, OUT>>.LiftIO<A>(IO<A> ma) => 
         Producer.liftIO<RT, OUT, A>(ma);
 
-    static K<Producer<RT, OUT>, B> Maybe.MonadIO<Producer<RT, OUT>>.MapIO<A, B>(K<Producer<RT, OUT>, A> ma, Func<IO<A>, IO<B>> f) => 
+    static K<Producer<RT, OUT>, B> Maybe.MonadUnliftIO<Producer<RT, OUT>>.MapIO<A, B>(K<Producer<RT, OUT>, A> ma, Func<IO<A>, IO<B>> f) => 
         ma.As().MapIO(f);
 
-    static K<Producer<RT, OUT>, IO<A>> Maybe.MonadIO<Producer<RT, OUT>>.ToIO<A>(K<Producer<RT, OUT>, A> ma) => 
+    static K<Producer<RT, OUT>, IO<A>> Maybe.MonadUnliftIO<Producer<RT, OUT>>.ToIO<A>(K<Producer<RT, OUT>, A> ma) => 
         ma.MapIO(IO.pure);
 
     static K<Producer<RT, OUT>, B> Applicative<Producer<RT, OUT>>.Action<A, B>(

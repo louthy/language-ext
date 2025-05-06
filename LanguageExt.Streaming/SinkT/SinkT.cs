@@ -71,7 +71,7 @@ public abstract record SinkT<M, A> :
     /// values, maps them to an `(A, B)` tuple, and then posts the first and second
     /// elements to the `lhs` and `rhs` Sinks. 
     /// </summary>
-    public SinkT<M, X> Combine<X, B>(Func<X, (A Left, B Right)> f, SinkT<M, B> rhs) =>
+    public SinkT<M, X> Combine<X, B>(SinkT<M, B> rhs, Func<X, (A Left, B Right)> f) =>
         new SinkTCombine<M, X, A, B>(f, this, rhs);
     
     /// <summary>

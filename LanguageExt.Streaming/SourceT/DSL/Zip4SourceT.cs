@@ -6,7 +6,7 @@ namespace LanguageExt;
 
 record Zip4SourceT<M, A, B, C, D>(SourceT<M, A> SourceA, SourceT<M, B> SourceB, SourceT<M, C> SourceC, SourceT<M, D> SourceD) 
     : SourceT<M, (A First, B Second, C Third, D Fourth)>
-    where M : MonadIO<M>, Alternative<M>
+    where M : MonadUnliftIO<M>, Alternative<M>
 {
     public override K<M, S> ReduceM<S>(S state, ReducerM<M, K<M, (A First, B Second, C Third, D Fourth)>, S> reducer) => 
                 

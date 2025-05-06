@@ -19,7 +19,7 @@ record ChooseSourceT<M, A>(Seq<SourceT<M, A>> Sources) : SourceT<M, A>
         from forks  in Sources.Map(s => s.ReduceM(unit, (_, ma) => writeAsync(writer, ma))
                                          .Bind(_ => trigger)
                                          .Choose(trigger))
-                              .Traverse(ms => ms.ForkIO())
+                              .Traverse(ms => M.ForkIO(ms))
 
         // Reduce the merged stream
         from result in SourceT.liftM<M, A>(channel).ReduceM(state, reducer)

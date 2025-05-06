@@ -10,7 +10,7 @@ public static partial class Maybe
     /// </summary>
     /// <typeparam name="M">Self-referring trait</typeparam>
     public interface MonadIO<M>
-        where M : MonadIO<M>, Monad<M>
+        where M : MonadIO<M>
     {
         /// <summary>
         /// Lifts the IO monad into a monad transformer stack.  
@@ -26,43 +26,19 @@ public static partial class Maybe
         /// </summary>
         /// <remarks>
         /// IMPLEMENTATION REQUIRED: If this method isn't overloaded in this monad
-        /// or any monad in the stack on the way to the inner monad then it will throw
+        /// or any monad in the stack on the way to the inner-monad, then it will throw
         /// an exception.
         ///
-        /// This isn't ideal - however it appears to be the only way to achieve this
+        /// This isn't ideal, it appears to be the only way to achieve this
         /// kind of functionality in C# without resorting to magic. 
         /// </remarks>
         /// <param name="ma">IO computation to lift</param>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The outer monad with the IO monad lifted into it</returns>
         /// <exception cref="ExceptionalException">If this method isn't overloaded in
-        /// the inner monad or any monad in the stack on the way to the inner monad
+        /// the inner monad or any monad in the stack on the way to the inner-monad,
         /// then it will throw an exception.</exception>
         public static virtual K<M, A> LiftIO<A>(IO<A> ma) =>
             throw new ExceptionalException(Errors.LiftIONotSupported);
-
-        /// <summary>
-        /// Extract the IO monad from within the M monad (usually as part of a monad-transformer stack).
-        /// </summary>
-        /// <remarks>
-        /// IMPLEMENTATION REQUIRED: If this method isn't overloaded in this monad
-        /// or any monad in the stack on the way to the inner monad then it will throw
-        /// an exception.
-        ///
-        /// This isn't ideal - however it appears to be the only way to achieve this
-        /// kind of functionality in C# without resorting to magic. 
-        /// </remarks>
-        /// <exception cref="ExceptionalException">If this method isn't overloaded in
-        /// the inner monad or any monad in the stack on the way to the inner monad
-        /// then it will throw an exception.</exception>
-        public static virtual K<M, IO<A>> ToIO<A>(K<M, A> ma) =>
-            throw new ExceptionalException(Errors.ToIONotSupported);
-
-        /// <summary>
-        /// Extract the IO monad from within the `M` monad (usually as part of a monad-transformer stack).  Then perform
-        /// a mapping operation on the IO action before lifting the IO back into the `M` monad.
-        /// </summary>
-        public static virtual K<M, B> MapIO<A, B>(K<M, A> ma, Func<IO<A>, IO<B>> f) =>
-            M.ToIO(ma).Bind(io => M.LiftIO(f(io)));
     }
 }

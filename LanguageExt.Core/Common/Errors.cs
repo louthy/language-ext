@@ -18,7 +18,7 @@ public static class Errors
     /// <summary>
     /// Bottom error code
     /// </summary>
-    public const int BottomCode = -2000000001;
+    public const int BottomCode = -2000000000;
         
     /// <summary>
     /// An error that indicates a value from an operation couldn't be evaluated.  This is a hard
@@ -34,7 +34,7 @@ public static class Errors
     /// <summary>
     /// Cancelled error code
     /// </summary>
-    public const int CancelledCode = -2000000000;
+    public const int CancelledCode = -2000000001;
 
     /// <summary>
     /// Cancelled error
@@ -136,6 +136,24 @@ public static class Errors
     /// Transformer stack has no `ToIO` support error
     /// </summary>
     public static readonly Error ToIONotSupported = (ToIONotSupportedCode, ToIONotSupportedText);
+
+    /// <summary>
+    /// Transformer stack has no `ForkIO` support error text
+    /// </summary>
+    public const string ForkIONotSupportedText =
+        "The IO monad is not in the monad-transformer stack or MonadIO.ForkIO has not been implemented in the trait " +
+        "implementation for your monad-type.  Consider using `MonadUnliftIO` instead.  This type automatically "      +
+        "implements `MonadIO.ForkIO` for you, but you will need to provide `MapIO` and `ToIO` implementations.";
+
+    /// <summary>
+    /// Transformer stack has no `ForkIO` support error code
+    /// </summary>
+    public const int ForkIONotSupportedCode = -2000000008;
+
+    /// <summary>
+    /// Transformer stack has no `ForkIO` support error
+    /// </summary>
+    public static readonly Error ForkIONotSupported = (ForkIONotSupportedCode, ForkIONotSupportedText);
 
     /// <summary>
     /// End-of-stream error text

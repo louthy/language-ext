@@ -12,7 +12,7 @@ public partial class ReaderT<Env, M> :
     MonadT<ReaderT<Env, M>, M>,
     Readable<ReaderT<Env, M>, Env>, 
     Choice<ReaderT<Env, M>>,
-    MonadIO<ReaderT<Env, M>>
+    MonadUnliftIO<ReaderT<Env, M>>
     where M : Monad<M>, Choice<M>
 {
     static K<ReaderT<Env, M>, B> Monad<ReaderT<Env, M>>.Bind<A, B>(
@@ -47,8 +47,11 @@ public partial class ReaderT<Env, M> :
     static K<ReaderT<Env, M>, A> Maybe.MonadIO<ReaderT<Env, M>>.LiftIO<A>(IO<A> ma) =>
         new ReaderT<Env, M, A>(_ => M.LiftIO(ma));
 
-    static K<ReaderT<Env, M>, IO<A>> Maybe.MonadIO<ReaderT<Env, M>>.ToIO<A>(K<ReaderT<Env, M>, A> ma) =>
-        new ReaderT<Env, M, IO<A>>(env => ma.As().runReader(env).ToIO());
+    static K<ReaderT<Env, M>, IO<A>> Maybe.MonadUnliftIO<ReaderT<Env, M>>.ToIO<A>(K<ReaderT<Env, M>, A> ma) =>
+        new ReaderT<Env, M, IO<A>>(env => M.ToIO(ma.As().runReader(env)));
+
+    static K<ReaderT<Env, M>, B> Maybe.MonadUnliftIO<ReaderT<Env, M>>.MapIO<A, B>(K<ReaderT<Env, M>, A> ma, Func<IO<A>, IO<B>> f) => 
+        new ReaderT<Env, M, B>(env => M.MapIO(ma.As().runReader(env), f));
 
     static K<ReaderT<Env, M>, A> SemigroupK<ReaderT<Env, M>>.Combine<A>(
         K<ReaderT<Env, M>, A> ma, K<ReaderT<Env, M>, A> mb) =>

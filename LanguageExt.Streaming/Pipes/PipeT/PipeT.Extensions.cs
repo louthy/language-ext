@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.Contracts;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 
@@ -9,6 +10,7 @@ public static class PipeTExtensions
     /// <summary>
     /// Downcast
     /// </summary>
+    [Pure]
     public static PipeT<IN, OUT, M, A> As<IN, OUT, M, A>(this K<PipeT<IN, OUT, M>, A> ma)
         where M : MonadIO<M> =>
         (PipeT<IN, OUT, M, A>)ma;
@@ -16,12 +18,14 @@ public static class PipeTExtensions
     /// <summary>
     /// Convert to the `Eff` version of `Pipe`
     /// </summary>
+    [Pure]
     public static Pipe<RT, IN, OUT, A> ToEff<RT, IN, OUT, A>(this K<PipeT<IN, OUT, Eff<RT>>, A> ma) =>
         ma.As();
     
     /// <summary>
     /// Monad bind
     /// </summary>
+    [Pure]
     public static PipeT<IN, OUT, M, C> SelectMany<IN, OUT, M, A, B, C>(
         this K<M, A> ma, 
         Func<A, PipeT<IN, OUT, M, B>> f,
@@ -32,6 +36,7 @@ public static class PipeTExtensions
     /// <summary>
     /// Monad bind
     /// </summary>
+    [Pure]
     public static PipeT<IN, OUT, M, C> SelectMany<IN, OUT, M, A, B, C>(
         this IO<A> ma, 
         Func<A, PipeT<IN, OUT, M, B>> f,
@@ -42,6 +47,7 @@ public static class PipeTExtensions
     /// <summary>
     /// Monad bind
     /// </summary>
+    [Pure]
     public static PipeT<IN, OUT, M, C> SelectMany<IN, OUT, M, A, B, C>(
         this Pure<A> ma, 
         Func<A, PipeT<IN, OUT, M, B>> f,
@@ -52,6 +58,7 @@ public static class PipeTExtensions
     /// <summary>
     /// Monad bind
     /// </summary>
+    [Pure]
     public static PipeT<IN, OUT, M, C> SelectMany<IN, OUT, M, A, B, C>(
         this Lift<A> ff, 
         Func<A, PipeT<IN, OUT, M, B>> f,
@@ -62,6 +69,7 @@ public static class PipeTExtensions
     /// <summary>
     /// Monad bind
     /// </summary>
+    [Pure]
     public static PipeT<IN, OUT, M, B> Bind<IN, OUT, M, A, B>(
         this K<M, A> ma, 
         Func<A, PipeT<IN, OUT, M, B>> f)
@@ -71,6 +79,7 @@ public static class PipeTExtensions
     /// <summary>
     /// Monad bind
     /// </summary>
+    [Pure]
     public static PipeT<IN, OUT, M, B> Bind<IN, OUT, M, A, B>(
         this IO<A> ma, 
         Func<A, PipeT<IN, OUT, M, B>> f)
@@ -80,6 +89,7 @@ public static class PipeTExtensions
     /// <summary>
     /// Monad bind
     /// </summary>
+    [Pure]
     public static PipeT<IN, OUT, M, B> Bind<IN, OUT, M, A, B>(
         this Pure<A> ma, 
         Func<A, PipeT<IN, OUT, M, B>> f)
@@ -89,6 +99,7 @@ public static class PipeTExtensions
     /// <summary>
     /// Monad bind
     /// </summary>
+    [Pure]
     public static PipeT<IN, OUT, M, B> Bind<IN, OUT, M, A, B>(
         this Lift<A> ff, 
         Func<A, PipeT<IN, OUT, M, B>> f)
@@ -98,6 +109,7 @@ public static class PipeTExtensions
     /// <summary>
     /// Monad bind operation
     /// </summary>
+    [Pure]
     public static PipeT<IN, OUT, M, C> SelectMany<IN, OUT, E, M, A, C>(
         this K<PipeT<IN, OUT, M>, A> ma,
         Func<A, Guard<E, Unit>> bind,
@@ -112,6 +124,7 @@ public static class PipeTExtensions
     /// <summary>
     /// Monad bind operation
     /// </summary>
+    [Pure]
     public static PipeT<IN, OUT, M, C> SelectMany<IN, OUT, E, M, B, C>(
         this Guard<E, Unit> ma,
         Func<Unit, K<PipeT<IN, OUT, M>, B>> bind,
@@ -122,5 +135,12 @@ public static class PipeTExtensions
             { Flag: true } => bind(default).Map(b => project(default, b)).As(),
             var guard      => PipeT.fail<IN, OUT, E, M, C>(guard.OnFalse())
         };    
+        
+    [Pure]
+    public static PipeT<IN, OUT, M, B> MapIO<IN, OUT, M, A, B>(
+        this K<PipeT<IN, OUT, M>, A> ma,
+        Func<IO<A>, IO<B>> f) 
+        where M : MonadUnliftIO<M> =>
+        ma.As().MapM(ma => M.MapIO(ma, f));
 }
     

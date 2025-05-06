@@ -58,7 +58,7 @@ public static partial class Prelude
     /// <typeparam name="A"></typeparam>
     /// <returns></returns>
     public static K<M, A> tailIO<M, A>(K<M, A> ma) 
-        where M : Monad<M> =>
+        where M : MonadUnliftIO<M> =>
         ma.MapIO(tail);
     
     /// <summary>
@@ -69,7 +69,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static K<M, A> postIO<M, A>(K<M, A> ma)
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         M.PostIO(ma);        
 
     /// <summary>
@@ -82,7 +82,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(Opt.Default)]
     public static K<M, ForkIO<A>> fork<M, A>(K<M, A> ma, Option<TimeSpan> timeout = default)
-        where M : MonadIO<M>, Monad<M> =>
+        where M : MonadUnliftIO<M>, Monad<M> =>
         M.ForkIO(ma, timeout);
 
     /// <summary>
@@ -95,7 +95,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(Opt.Default)]
     public static K<M, A> awaitIO<M, A>(K<M, ForkIO<A>> ma)
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         M.Await(ma);
 
     /// <summary>
@@ -124,7 +124,7 @@ public static partial class Prelude
     /// <param name="ms">Operations to await</param>
     /// <returns>Sequence of results</returns>
     public static K<M, Seq<A>> awaitAll<M, A>(params K<M, A>[] ms)
-        where M : Monad<M> =>
+        where M : MonadUnliftIO<M> =>
         awaitAll(ms.ToSeqUnsafe());
     
     /// <summary>
@@ -133,7 +133,7 @@ public static partial class Prelude
     /// <param name="forks">Forks to await</param>
     /// <returns>Sequence of results</returns>
     public static K<M, Seq<A>> awaitAll<M, A>(params K<M, ForkIO<A>>[] forks)
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         awaitAll(forks.ToSeqUnsafe());
 
     /// <summary>
@@ -150,7 +150,7 @@ public static partial class Prelude
     /// <param name="ms">Operations to await</param>
     /// <returns>Sequence of results</returns>
     public static K<M, Seq<A>> awaitAll<M, A>(Seq<K<M, A>> ms)
-        where M : Monad<M> =>
+        where M : MonadUnliftIO<M> =>
         ms.Traverse(f => f.ToIO())
           .Bind(awaitAll);
 
@@ -172,7 +172,7 @@ public static partial class Prelude
     /// <param name="forks">Forks to await</param>
     /// <returns>Sequence of results</returns>
     public static K<M, Seq<A>> awaitAll<M, A>(Seq<K<M, ForkIO<A>>> forks)
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         forks.TraverseM(f => f.Await());
 
     /// <summary>
@@ -210,7 +210,7 @@ public static partial class Prelude
     /// If we have collected as many errors as we have forks, then we'll return them all.
     /// </returns>
     public static K<M, A> awaitAny<M, A>(params K<M, A>[] ms)
-        where M : Monad<M> =>
+        where M : MonadUnliftIO<M> =>
         awaitAny(ms.ToSeqUnsafe());
 
     /// <summary>
@@ -247,7 +247,7 @@ public static partial class Prelude
     /// If we have collected as many errors as we have forks, then we'll return them all.
     /// </returns>
     public static K<M, A> awaitAny<M, A>(params K<M, ForkIO<A>>[] forks)
-        where M : Monad<M> =>
+        where M : MonadUnliftIO<M> =>
         awaitAny(forks.ToSeqUnsafe());
 
     /// <summary>
@@ -271,8 +271,7 @@ public static partial class Prelude
     /// If we get any errors, we'll collect them in the hope that at least one works.
     /// If we have collected as many errors as we have forks, then we'll return them all.
     /// </returns>
-    public static IO<A> awaitAny<M, A>(params ForkIO<A>[] forks)
-        where M : Monad<M> =>
+    public static IO<A> awaitAny<A>(params ForkIO<A>[] forks) =>
         awaitAny(forks.ToSeqUnsafe());
 
     /// <summary>
@@ -285,7 +284,7 @@ public static partial class Prelude
     /// If we have collected as many errors as we have forks, then we'll return them all.
     /// </returns>
     public static K<M, A> awaitAny<M, A>(Seq<K<M, ForkIO<A>>> forks)
-        where M : Monad<M> =>
+        where M : MonadUnliftIO<M> =>
         forks.Traverse(f => f.ToIO())
              .Bind(awaitAny);
 
@@ -299,7 +298,7 @@ public static partial class Prelude
     /// If we have collected as many errors as we have forks, then we'll return them all.
     /// </returns>
     public static K<M, A> awaitAny<M, A>(Seq<K<M, A>> forks)
-        where M : Monad<M> =>
+        where M : MonadUnliftIO<M> =>
         forks.Traverse(f => f.ToIO())
              .Bind(awaitAny);
 
@@ -362,7 +361,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(Opt.Default)]
     public static K<M, A> timeout<M, A>(TimeSpan timeout, K<M, A> ma)
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         ma.TimeoutIO(timeout);
     
     /// <summary>
@@ -380,7 +379,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static K<M, A> repeat<M, A>(K<M, A> ma)
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         ma.RepeatIO();
     
     /// <summary>
@@ -400,11 +399,11 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static K<M, A> repeat<M, A>(Schedule schedule, K<M, A> ma)
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         ma.RepeatIO(schedule);
 
     /// <summary>
-    /// Keeps repeating the computation, until the scheduler expires  
+    /// Keeps repeating the computation until the scheduler expires  
     /// </summary>
     /// <param name="schedule">Scheduler strategy for repeating</param>
     /// <param name="ma">Computation to repeat</param>
@@ -420,7 +419,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static K<M, A> repeatWhile<M, A>(K<M, A> ma, Func<A, bool> predicate) 
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         ma.RepeatWhileIO(predicate);
 
     /// <summary>
@@ -433,7 +432,7 @@ public static partial class Prelude
         ma.As().RepeatWhile(predicate);
 
     /// <summary>
-    /// Keeps repeating the computation, until the scheduler expires, or the predicate returns false
+    /// Keeps repeating the computation until the scheduler expires, or the predicate returns false
     /// </summary>
     /// <param name="schedule">Scheduler strategy for repeating</param>
     /// <param name="ma">Computation to repeat</param>
@@ -443,11 +442,11 @@ public static partial class Prelude
         Schedule schedule,
         K<M, A> ma,
         Func<A, bool> predicate) 
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         ma.RepeatWhileIO(schedule, predicate);
 
     /// <summary>
-    /// Keeps repeating the computation, until the scheduler expires, or the predicate returns false
+    /// Keeps repeating the computation until the scheduler expires, or the predicate returns false
     /// </summary>
     /// <param name="schedule">Scheduler strategy for repeating</param>
     /// <param name="ma">Computation to repeat</param>
@@ -468,7 +467,7 @@ public static partial class Prelude
     public static K<M, A> repeatUntil<M, A>(
         K<M, A> ma,
         Func<A, bool> predicate)
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         ma.RepeatUntilIO(predicate);
 
     /// <summary>
@@ -483,7 +482,7 @@ public static partial class Prelude
         ma.As().RepeatUntil(predicate);
 
     /// <summary>
-    /// Keeps repeating the computation, until the scheduler expires, or the predicate returns true
+    /// Keeps repeating the computation until the scheduler expires, or the predicate returns true
     /// </summary>
     /// <param name="schedule">Scheduler strategy for repeating</param>
     /// <param name="ma">Computation to repeat</param>
@@ -493,11 +492,11 @@ public static partial class Prelude
         Schedule schedule,
         K<M, A> ma,
         Func<A, bool> predicate) 
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         ma.RepeatUntilIO(schedule, predicate);
 
     /// <summary>
-    /// Keeps repeating the computation, until the scheduler expires, or the predicate returns true
+    /// Keeps repeating the computation until the scheduler expires, or the predicate returns true
     /// </summary>
     /// <param name="schedule">Scheduler strategy for repeating</param>
     /// <param name="ma">Computation to repeat</param>
@@ -516,7 +515,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
     public static K<M, A> retry<M, A>(K<M, A> ma) 
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         ma.RetryIO();
 
     /// <summary>
@@ -529,18 +528,18 @@ public static partial class Prelude
         ma.As().Retry();
 
     /// <summary>
-    /// Keeps retrying the computation, until the scheduler expires  
+    /// Keeps retrying the computation until the scheduler expires  
     /// </summary>
     /// <param name="schedule">Scheduler strategy for retrying</param>
     /// <param name="ma">Computation to retry</param>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
     public static K<M, A> retry<M, A>(Schedule schedule, K<M, A> ma) 
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         ma.RetryIO(schedule);
 
     /// <summary>
-    /// Keeps retrying the computation, until the scheduler expires  
+    /// Keeps retrying the computation until the scheduler expires  
     /// </summary>
     /// <param name="schedule">Scheduler strategy for retrying</param>
     /// <param name="ma">Computation to retry</param>
@@ -558,7 +557,7 @@ public static partial class Prelude
     public static K<M, A> retryWhile<M, A>(
         K<M, A> ma,
         Func<Error, bool> predicate) 
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         ma.RetryWhileIO(predicate);
 
     /// <summary>
@@ -573,7 +572,7 @@ public static partial class Prelude
         ma.As().RetryWhile(predicate);
 
     /// <summary>
-    /// Keeps retrying the computation, until the scheduler expires, or the predicate returns false
+    /// Keeps retrying the computation until the scheduler expires, or the predicate returns false
     /// </summary>
     /// <param name="schedule">Scheduler strategy for retrying</param>
     /// <param name="ma">Computation to retry</param>
@@ -583,11 +582,11 @@ public static partial class Prelude
         Schedule schedule,
         K<M, A> ma,
         Func<Error, bool> predicate) 
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         ma.RetryWhileIO(schedule, predicate);
 
     /// <summary>
-    /// Keeps retrying the computation, until the scheduler expires, or the predicate returns false
+    /// Keeps retrying the computation until the scheduler expires, or the predicate returns false
     /// </summary>
     /// <param name="schedule">Scheduler strategy for retrying</param>
     /// <param name="ma">Computation to retry</param>
@@ -608,7 +607,7 @@ public static partial class Prelude
     public static K<M, A> retryUntil<M, A>(
         K<M, A> ma,
         Func<Error, bool> predicate) 
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         ma.RetryUntilIO(predicate);
 
     /// <summary>
@@ -623,7 +622,7 @@ public static partial class Prelude
         ma.As().RetryUntil(predicate);
 
     /// <summary>
-    /// Keeps retrying the computation, until the scheduler expires, or the predicate returns true
+    /// Keeps retrying the computation until the scheduler expires, or the predicate returns true
     /// </summary>
     /// <param name="schedule">Scheduler strategy for retrying</param>
     /// <param name="ma">Computation to retry</param>
@@ -633,11 +632,11 @@ public static partial class Prelude
         Schedule schedule,
         K<M, A> ma,
         Func<Error, bool> predicate) 
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         ma.RetryUntilIO(schedule, predicate);
 
     /// <summary>
-    /// Keeps retrying the computation, until the scheduler expires, or the predicate returns true
+    /// Keeps retrying the computation until the scheduler expires, or the predicate returns true
     /// </summary>
     /// <param name="schedule">Scheduler strategy for retrying</param>
     /// <param name="ma">Computation to retry</param>

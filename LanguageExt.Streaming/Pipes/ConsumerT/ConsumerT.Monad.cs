@@ -8,7 +8,7 @@ namespace LanguageExt.Pipes;
 
 public class ConsumerT<IN, M> : 
     MonadT<ConsumerT<IN, M>, M>,
-    MonadIO<ConsumerT<IN, M>>
+    MonadUnliftIO<ConsumerT<IN, M>>
     where M : MonadIO<M>
 {
     static K<ConsumerT<IN, M>, B> Monad<ConsumerT<IN, M>>.Bind<A, B>(
@@ -35,11 +35,11 @@ public class ConsumerT<IN, M> :
     static K<ConsumerT<IN, M>, A> Maybe.MonadIO<ConsumerT<IN, M>>.LiftIO<A>(IO<A> ma) => 
         ConsumerT.liftIO<IN, M, A>(ma); 
 
-    static K<ConsumerT<IN, M>, B> Maybe.MonadIO<ConsumerT<IN, M>>.MapIO<A, B>(K<ConsumerT<IN, M>, A> ma, Func<IO<A>, IO<B>> f) => 
-        ma.As().MapIO(f);
+    static K<ConsumerT<IN, M>, B> Maybe.MonadUnliftIO<ConsumerT<IN, M>>.MapIO<A, B>(K<ConsumerT<IN, M>, A> ma, Func<IO<A>, IO<B>> f) => 
+        ma.As().MapM(m => M.MapIO(m, f));
 
-    static K<ConsumerT<IN, M>, IO<A>> Maybe.MonadIO<ConsumerT<IN, M>>.ToIO<A>(K<ConsumerT<IN, M>, A> ma) => 
-        ma.MapIO(IO.pure);
+    static K<ConsumerT<IN, M>, IO<A>> Maybe.MonadUnliftIO<ConsumerT<IN, M>>.ToIO<A>(K<ConsumerT<IN, M>, A> ma) => 
+        ma.As().MapM(M.ToIO);
 
     static K<ConsumerT<IN, M>, B> Applicative<ConsumerT<IN, M>>.Action<A, B>(
         K<ConsumerT<IN, M>, A> ma, 

@@ -21,7 +21,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(Opt.Default)]
     public static K<M, A> use<M, A>(K<M, A> acquire, Action<A> release)
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         acquire.MapIO(
             acq => new IOUse<A, A>(
                 acq,
@@ -95,7 +95,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(Opt.Default)]
     public static K<M, A> use<M, A>(K<M, A> acquire, Func<A, IO<Unit>> release)
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         acquire.MapIO(acq => new IOUse<A, A>(acq, release, IO.pure));
 
     /// <summary>
@@ -165,7 +165,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(Opt.Default)]
     public static K<M, A> use<M, A>(K<M, A> acquire)
-        where M : MonadIO<M>
+        where M : MonadUnliftIO<M>
         where A : IDisposable =>
         acquire.MapIO(acq => new IOUseDisposable<A, A>(acq, IO.pure));
 
@@ -194,7 +194,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(Opt.Default)]
     public static K<M, A> useAsync<M, A>(K<M, A> acquire)
-        where M : MonadIO<M>
+        where M : MonadUnliftIO<M>
         where A : IAsyncDisposable =>
         acquire.MapIO(acq => new IOUseAsyncDisposable<A, A>(acq, IO.pure));
 
@@ -224,8 +224,8 @@ public static partial class Prelude
         IO.lift(env => env.Resources.Release(value).Run(env));
 
     /// <summary>
-    /// The IO monad tracks resources automatically, this creates a local resource environment
-    /// to run the `computation` in.  Once the computation has completed any resources acquired
+    /// The IO monad tracks resources automatically; this creates a local resource environment
+    /// to run the `computation` in.  Once the computation is completed, any resources acquired
     /// are automatically released.  Imagine this as the ultimate `using` statement.
     /// </summary>
     /// <param name="computation">Computation to run in a local scope</param>
@@ -234,12 +234,12 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(Opt.Default)]
     public static K<M, A> bracketIO<M, A>(K<M, A> computation)
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         computation.BracketIO();
 
     /// <summary>
-    /// The IO monad tracks resources automatically, this creates a local resource environment
-    /// to run the `computation` in.  Once the computation has completed any resources acquired
+    /// The IO monad tracks resources automatically; this creates a local resource environment
+    /// to run the `computation` in.  Once the computation is completed, any resources acquired
     /// are automatically released.  Imagine this as the ultimate `using` statement.
     /// </summary>
     /// <param name="computation">Computation to run in a local scope</param>
@@ -248,7 +248,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(Opt.Default)]
     public static IO<A> bracketIO<M, A>(IO<A> computation)
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         computation.Bracket();
     
     /// <summary>
@@ -266,7 +266,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(Opt.Default)]
     public static K<M, C> bracketIO<M, A, B, C>(K<M, A> Acq, Func<A, IO<C>> Use, Func<A, IO<B>> Fin)
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         Acq.BracketIO(Use, Fin);
     
     /// <summary>
@@ -284,7 +284,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(Opt.Default)]
     public static IO<C> bracketIO<M, A, B, C>(IO<A> Acq, Func<A, IO<C>> Use, Func<A, IO<B>> Fin)
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         Acq.Bracket(Use, Fin);
     
     /// <summary>
@@ -303,7 +303,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(Opt.Default)]
     public static K<M, C> bracketIO<M, A, B, C>(K<M, A> Acq, Func<A, IO<C>> Use, Func<Error, IO<C>> Catch, Func<A, IO<B>> Fin)
-        where M : MonadIO<M> =>
+        where M : MonadUnliftIO<M> =>
         Acq.BracketIO(Use, Catch, Fin);
     
     /// <summary>

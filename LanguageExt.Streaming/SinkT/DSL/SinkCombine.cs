@@ -25,6 +25,11 @@ record SinkTCombine<M, A, B, C>(Func<A, (B Left, C Right)> F, SinkT<M, B> Left, 
                                            })
                     });
 
+    static K<M, Seq<X>> awaitAll<X>(params K<M, X>[] ms) =>
+        toSeq(ms)
+           .Traverse(M.ToIO)
+           .Bind(Prelude.awaitAll);
+    
     public override K<M, Unit> Complete() =>
         Left.Complete().Bind(_ => Right.Complete());
 

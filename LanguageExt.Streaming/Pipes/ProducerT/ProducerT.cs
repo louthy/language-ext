@@ -31,10 +31,6 @@ public readonly record struct ProducerT<OUT, M, A>(PipeT<Unit, OUT, M, A> Proxy)
         Proxy.MapM(f);
 
     [Pure]
-    public ProducerT<OUT, M, B> MapIO<B>(Func<IO<A>, IO<B>> f) =>
-        Proxy.MapIO(f);
-
-    [Pure]
     public ProducerT<OUT, M, B> ApplyBack<B>(ProducerT<OUT, M, Func<A, B>> ff) =>
         Proxy.ApplyBack(ff.Proxy);
     
