@@ -84,7 +84,7 @@ public class StateIO<S> :
     static K<StateIO<S>, A> CoNatural<StateIO<S>, StateT<S, IO>>.CoTransform<A>(K<StateT<S, IO>, A> fa) => 
         new StateIO<S, A>(fa.As());
 
-    static K<StateIO<S>, B> Maybe.MonadUnliftIO<StateIO<S>>.MapIO<A, B>(K<StateIO<S>, A> ma, Func<IO<A>, IO<B>> f) =>
+    static K<StateIO<S>, B> MonadUnliftIO<StateIO<S>>.MapIO<A, B>(K<StateIO<S>, A> ma, Func<IO<A>, IO<B>> f) =>
         from s in Stateful.get<StateIO<S>, S>()
         let a = Atom(s)
         from r in CoNatural.transform<StateIO<S>, StateT<S, IO>, B>(
@@ -97,7 +97,7 @@ public class StateIO<S> :
         from _ in Stateful.put<StateIO<S>, S>(a.Value)
         select r;
 
-    static K<StateIO<S>, IO<A>> Maybe.MonadUnliftIO<StateIO<S>>.ToIO<A>(K<StateIO<S>, A> ma) => 
+    static K<StateIO<S>, IO<A>> MonadUnliftIO<StateIO<S>>.ToIO<A>(K<StateIO<S>, A> ma) => 
         from s in Stateful.get<StateIO<S>, S>()
         let a = Atom(s)
         from r in CoNatural.transform<StateIO<S>, StateT<S, IO>, IO<A>>(
@@ -110,6 +110,6 @@ public class StateIO<S> :
         from _ in Stateful.put<StateIO<S>, S>(a.Value)
         select r;
 
-    static K<StateIO<S>, A> Maybe.MonadIO<StateIO<S>>.LiftIO<A>(IO<A> ma) => 
+    static K<StateIO<S>, A> MonadIO<StateIO<S>>.LiftIO<A>(IO<A> ma) => 
         new StateIO<S, A>(StateT.lift<S, IO, A>(ma));
 }

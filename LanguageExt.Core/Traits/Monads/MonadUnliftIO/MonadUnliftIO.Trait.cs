@@ -16,14 +16,71 @@ namespace LanguageExt.Traits;
 /// without compromising the integrity of the monad.
 /// </summary>
 /// <typeparam name="M">Self-referring trait</typeparam>
-public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
+public interface MonadUnliftIO<M> : MonadIO<M>
     where M : MonadUnliftIO<M>
 {
+    /// <summary>
+    /// Extract the IO monad from within the M monad (usually as part of a monad-transformer stack).
+    /// </summary>
+    /// <remarks>
+    /// IMPLEMENTATION REQUIRED: If this method isn't overloaded in this monad
+    /// or any monad in the stack on the way to the inner-monad, then it will throw
+    /// an exception.
+    ///
+    /// This isn't ideal, it appears to be the only way to achieve this
+    /// kind of functionality in C# without resorting to magic. 
+    /// </remarks>
+    /// <exception cref="ExceptionalException">If this method isn't overloaded in
+    /// the inner monad or any monad in the stack on the way to the inner-monad,
+    /// then it will throw an exception.</exception>
+    public static abstract K<M, IO<A>> ToIO<A>(K<M, A> ma);
+
+    /// <summary>
+    /// Extract the IO monad from within the `M` monad (usually as part of a monad-transformer stack).  Then perform
+    /// a mapping operation on the IO action before lifting the IO back into the `M` monad.
+    /// </summary>
+    public static virtual K<M, B> MapIO<A, B>(K<M, A> ma, Func<IO<A>, IO<B>> f) =>
+        M.ToIO(ma).Bind(io => M.LiftIO(f(io)));
+
+    /// <summary>
+    /// Extract the IO monad from within the `M` monad (usually as part of a monad-transformer stack).  Then perform
+    /// a mapping operation on the IO action before lifting the IO back into the `M` monad.
+    /// </summary>
+    static K<M, B> Maybe.MonadUnliftIO<M>.MapIOMaybe<A, B>(K<M, A> ma, Func<IO<A>, IO<B>> f) =>
+        M.MapIO(ma, f);
+
+    /// <summary>
+    /// Extract the IO monad from within the M monad (usually as part of a monad-transformer stack).
+    /// </summary>
+    /// <remarks>
+    /// IMPLEMENTATION REQUIRED: If this method isn't overloaded in this monad
+    /// or any monad in the stack on the way to the inner-monad, then it will throw
+    /// an exception.
+    ///
+    /// This isn't ideal, it appears to be the only way to achieve this
+    /// kind of functionality in C# without resorting to magic. 
+    /// </remarks>
+    /// <exception cref="ExceptionalException">If this method isn't overloaded in
+    /// the inner monad or any monad in the stack on the way to the inner-monad,
+    /// then it will throw an exception.</exception>
+    static K<M, IO<A>> Maybe.MonadUnliftIO<M>.ToIOMaybe<A>(K<M, A> ma) => 
+        M.ToIO(ma);
+
+    /// <summary>
+    /// Queue this IO operation to run on the thread-pool. 
+    /// </summary>
+    /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
+    /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
+    /// the forked IO operation or to await the result of it.
+    /// </returns>
+    public static virtual K<M, ForkIO<A>> ForkIO<A>(K<M, A> ma, Option<TimeSpan> timeout) =>
+        M.MapIO(ma, io => io.Fork(timeout));
+
     /// <summary>
     /// Await a forked operation
     /// </summary>
     public static virtual K<M, A> Await<A>(K<M, ForkIO<A>> ma) =>
-        ma.MapIO(io => io.Bind(f => f.Await));    
+        M.MapIO(ma, io => io.Bind(f => f.Await));    
     
     /// <summary>
     /// Creates a local cancellation environment
@@ -39,7 +96,7 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
     /// <typeparam name="A">Bound value</typeparam>
     /// <returns>Result of the computation</returns>
     public static virtual K<M, A> LocalIO<A>(K<M, A> ma) =>
-        ma.MapIO(io => io.Local());
+        M.MapIO(ma, io => io.Local());
 
     /// <summary>
     /// Make this IO computation run on the `SynchronizationContext` that was captured at the start
@@ -47,13 +104,13 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
     /// all IO computations)
     /// </summary>
     public static virtual K<M, A> PostIO<A>(K<M, A> ma) =>
-        ma.MapIO(io => io.Post());        
+        M.MapIO(ma, io => io.Post());        
 
     /// <summary>
     /// Timeout operation if it takes too long
     /// </summary>
     public static virtual K<M, A> TimeoutIO<A>(K<M, A> ma, TimeSpan timeout) =>
-        ma.MapIO(io => io.Timeout(timeout));
+        M.MapIO(ma, io => io.Timeout(timeout));
 
     /// <summary>
     /// The IO monad tracks resources automatically; this creates a local resource environment
@@ -61,7 +118,7 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
     /// are automatically released.  Imagine this as the ultimate `using` statement.
     /// </summary>
     public static virtual K<M, A> BracketIO<A>(K<M, A> ma) =>
-        ma.MapIO(io => io.Bracket());
+        M.MapIO(ma, io => io.Bracket());
 
     /// <summary>
     /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
@@ -75,7 +132,7 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
         K<M, A> Acq,
         Func<A, IO<C>> Use,
         Func<A, IO<B>> Fin) =>
-        Acq.MapIO(io => io.Bracket(Use, Fin));
+        M.MapIO(Acq, io => io.Bracket(Use, Fin));
 
     /// <summary>
     /// When acquiring, using, and releasing various resources, it can be quite convenient to write a function to manage
@@ -91,17 +148,7 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
         Func<A, IO<C>> Use,
         Func<Error, IO<C>> Catch,
         Func<A, IO<B>> Fin) =>
-        Acq.MapIO(io => io.Bracket(Use, Catch, Fin));
-
-    /// <summary>
-    /// Queue this IO operation to run on the thread-pool. 
-    /// </summary>
-    /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
-    /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
-    /// the forked IO operation or to await the result of it.
-    /// </returns>
-    //static K<M, ForkIO<A>> MonadIO<M>.ForkIO<A>(K<M, A> ma, Option<TimeSpan> timeout) =>
-        //ma.MapIO(io => io.Fork(timeout));
+        M.MapIO(Acq, io => io.Bracket(Use, Catch, Fin));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -117,10 +164,10 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
     /// </remarks>
     /// <returns>The result of the last invocation</returns>
     public static virtual K<M, A> RepeatIO<A>(K<M, A> ma) =>
-        ma.MapIO(io => io.Repeat());
+        M.MapIO(ma, io => io.Repeat());
 
     /// <summary>
-    /// Keeps repeating the computation, until the scheduler expires, or an error occurs  
+    /// Keeps repeating the computation until the scheduler expires, or an error occurs  
     /// </summary>
     /// <remarks>
     /// Any resources acquired within a repeated IO computation will automatically be released.  This also means you can't
@@ -131,7 +178,7 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
     public static virtual K<M, A> RepeatIO<A>(
         K<M, A> ma,
         Schedule schedule) =>
-        ma.MapIO(io => io.Repeat(schedule));
+        M.MapIO(ma, io => io.Repeat(schedule));
 
     /// <summary>
     /// Keeps repeating the computation until the predicate returns false, or an error occurs 
@@ -145,10 +192,10 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
     public static virtual K<M, A> RepeatWhileIO<A>(
         K<M, A> ma,
         Func<A, bool> predicate) =>
-        ma.MapIO(io => io.RepeatWhile(predicate));
+        M.MapIO(ma, io => io.RepeatWhile(predicate));
 
     /// <summary>
-    /// Keeps repeating the computation, until the scheduler expires, or the predicate returns false, or an error occurs
+    /// Keeps repeating the computation until the scheduler expires, or the predicate returns false, or an error occurs
     /// </summary>
     /// <remarks>
     /// Any resources acquired within a repeated IO computation will automatically be released.  This also means you can't
@@ -161,7 +208,7 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
         K<M, A> ma,
         Schedule schedule,
         Func<A, bool> predicate) =>
-        ma.MapIO(io => io.RepeatWhile(schedule, predicate));
+        M.MapIO(ma, io => io.RepeatWhile(schedule, predicate));
 
     /// <summary>
     /// Keeps repeating the computation until the predicate returns true, or an error occurs
@@ -175,10 +222,10 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
     public static virtual K<M, A> RepeatUntilIO<A>(
         K<M, A> ma,
         Func<A, bool> predicate) =>
-        ma.MapIO(io => io.RepeatUntil(predicate));
+        M.MapIO(ma, io => io.RepeatUntil(predicate));
 
     /// <summary>
-    /// Keeps repeating the computation, until the scheduler expires, or the predicate returns true, or an error occurs
+    /// Keeps repeating the computation until the scheduler expires, or the predicate returns true, or an error occurs
     /// </summary>
     /// <remarks>
     /// Any resources acquired within a repeated IO computation will automatically be released.  This also means you can't
@@ -191,7 +238,7 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
         K<M, A> ma,
         Schedule schedule,
         Func<A, bool> predicate) =>
-        ma.MapIO(io => io.RepeatUntil(schedule, predicate));
+        M.MapIO(ma, io => io.RepeatUntil(schedule, predicate));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -210,7 +257,7 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
     /// acquires resources will have them tracked in the usual way. 
     /// </remarks>
     public static virtual K<M, A> RetryIO<A>(K<M, A> ma) =>
-        ma.MapIO(io => io.Retry());
+        M.MapIO(ma, io => io.Retry());
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -226,7 +273,7 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
     public static virtual K<M, A> RetryIO<A>(
         K<M, A> ma,
         Schedule schedule) =>
-        ma.MapIO(io => io.Retry(schedule));
+        M.MapIO(ma, io => io.Retry(schedule));
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -243,7 +290,7 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
     public static virtual K<M, A> RetryWhileIO<A>(
         K<M, A> ma,
         Func<Error, bool> predicate) =>
-        ma.MapIO(io => io.RetryWhile(predicate));
+        M.MapIO(ma, io => io.RetryWhile(predicate));
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -261,7 +308,7 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
         K<M, A> ma,
         Schedule schedule,
         Func<Error, bool> predicate) =>
-        ma.MapIO(io => io.RetryWhile(schedule, predicate));
+        M.MapIO(ma, io => io.RetryWhile(schedule, predicate));
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -278,7 +325,7 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
     public static virtual K<M, A> RetryUntilIO<A>(
         K<M, A> ma,
         Func<Error, bool> predicate) =>
-        ma.MapIO(io => io.RetryUntil(predicate));
+        M.MapIO(ma, io => io.RetryUntil(predicate));
 
     /// <summary>
     /// Retry if the IO computation fails 
@@ -296,7 +343,7 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
         K<M, A> ma,
         Schedule schedule,
         Func<Error, bool> predicate) =>
-        ma.MapIO(io => io.RetryUntil(schedule, predicate));
+        M.MapIO(ma, io => io.RetryUntil(schedule, predicate));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 
@@ -308,13 +355,13 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder) =>
-        ma.MapIO(io => io.Fold(schedule, initialState, folder));
+        M.MapIO(ma, io => io.Fold(schedule, initialState, folder));
 
     public static virtual K<M, S> FoldIO<S, A>(
         K<M, A> ma,
         S initialState,
         Func<S, A, S> folder) =>
-        ma.MapIO(io => io.Fold(initialState, folder));
+        M.MapIO(ma, io => io.Fold(initialState, folder));
 
     public static virtual K<M, S> FoldWhileIO<S, A>(
         K<M, A> ma,
@@ -322,14 +369,14 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        ma.MapIO(io => io.FoldWhile(schedule, initialState, folder, stateIs));
+        M.MapIO(ma, io => io.FoldWhile(schedule, initialState, folder, stateIs));
 
     public static virtual K<M, S> FoldWhileIO<S, A>(
         K<M, A> ma,
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        ma.MapIO(io => io.FoldWhile(initialState, folder, stateIs));
+        M.MapIO(ma, io => io.FoldWhile(initialState, folder, stateIs));
 
     public static virtual K<M, S> FoldWhileIO<S, A>(
         K<M, A> ma,
@@ -337,14 +384,14 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        ma.MapIO(io => io.FoldWhile(schedule, initialState, folder, valueIs));
+        M.MapIO(ma, io => io.FoldWhile(schedule, initialState, folder, valueIs));
 
     public static virtual K<M, S> FoldWhileIO<S, A>(
         K<M, A> ma,
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        ma.MapIO(io => io.FoldWhile(initialState, folder, valueIs));
+        M.MapIO(ma, io => io.FoldWhile(initialState, folder, valueIs));
     
     public static virtual K<M, S> FoldWhileIO<S, A>(
         K<M, A> ma,
@@ -352,14 +399,14 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        ma.MapIO(io => io.FoldWhile(schedule, initialState, folder, predicate));
+        M.MapIO(ma, io => io.FoldWhile(schedule, initialState, folder, predicate));
 
     public static virtual K<M, S> FoldWhileIO<S, A>(
         K<M, A> ma,
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        ma.MapIO(io => io.FoldWhile(initialState, folder, predicate));
+        M.MapIO(ma, io => io.FoldWhile(initialState, folder, predicate));
     
     public static virtual K<M, S> FoldUntilIO<S, A>(
         K<M, A> ma,
@@ -367,14 +414,14 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        ma.MapIO(io => io.FoldUntil(schedule, initialState, folder, stateIs));
+        M.MapIO(ma, io => io.FoldUntil(schedule, initialState, folder, stateIs));
     
     public static virtual K<M, S> FoldUntilIO<S, A>(
         K<M, A> ma,
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        ma.MapIO(io => io.FoldUntil(initialState, folder, stateIs));
+        M.MapIO(ma, io => io.FoldUntil(initialState, folder, stateIs));
     
     public static virtual K<M, S> FoldUntilIO<S, A>(
         K<M, A> ma,
@@ -382,21 +429,21 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        ma.MapIO(io => io.FoldUntil(schedule, initialState, folder, valueIs));
+        M.MapIO(ma, io => io.FoldUntil(schedule, initialState, folder, valueIs));
     
     public static virtual K<M, S> FoldUntilIO<S, A>(
         K<M, A> ma,
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        ma.MapIO(io => io.FoldUntil(initialState, folder, valueIs));
+        M.MapIO(ma, io => io.FoldUntil(initialState, folder, valueIs));
     
     public static virtual K<M, S> FoldUntilIO<S, A>(
         K<M, A> ma,
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        ma.MapIO(io => io.FoldUntil(initialState, folder, predicate));
+        M.MapIO(ma, io => io.FoldUntil(initialState, folder, predicate));
 
     public static virtual K<M, S> FoldUntilIO<S, A>(
         K<M, A> ma,
@@ -404,5 +451,5 @@ public interface MonadUnliftIO<M> : Maybe.MonadUnliftIO<M>, MonadIO<M>
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        ma.MapIO(io => io.FoldUntil(schedule, initialState, folder, predicate));    
+        M.MapIO(ma, io => io.FoldUntil(schedule, initialState, folder, predicate));    
 }

@@ -43,12 +43,12 @@ public class Pipe<RT, IN, OUT> :
     static K<Pipe<RT, IN, OUT>, A> MonadT<Pipe<RT, IN, OUT>, Eff<RT>>.Lift<A>(K<Eff<RT>, A> ma) => 
         Pipe.liftM<RT, IN, OUT, A>(ma);
 
-    static K<Pipe<RT, IN, OUT>, A> Maybe.MonadIO<Pipe<RT, IN, OUT>>.LiftIO<A>(IO<A> ma) => 
+    static K<Pipe<RT, IN, OUT>, A> MonadIO<Pipe<RT, IN, OUT>>.LiftIO<A>(IO<A> ma) => 
         Pipe.liftIO<RT, IN, OUT, A>(ma);
 
-    static K<Pipe<RT, IN, OUT>, B> Maybe.MonadUnliftIO<Pipe<RT, IN, OUT>>.MapIO<A, B>(K<Pipe<RT, IN, OUT>, A> ma, Func<IO<A>, IO<B>> f) => 
+    static K<Pipe<RT, IN, OUT>, B> MonadUnliftIO<Pipe<RT, IN, OUT>>.MapIO<A, B>(K<Pipe<RT, IN, OUT>, A> ma, Func<IO<A>, IO<B>> f) => 
         ma.As().MapIO(f);
 
-    static K<Pipe<RT, IN, OUT>, IO<A>> Maybe.MonadUnliftIO<Pipe<RT, IN, OUT>>.ToIO<A>(K<Pipe<RT, IN, OUT>, A> ma) => 
+    static K<Pipe<RT, IN, OUT>, IO<A>> MonadUnliftIO<Pipe<RT, IN, OUT>>.ToIO<A>(K<Pipe<RT, IN, OUT>, A> ma) => 
         ma.MapIO(IO.pure);
 }

@@ -32,14 +32,14 @@ public class ProducerT<OUT, M> :
     static K<ProducerT<OUT, M>, A> MonadT<ProducerT<OUT, M>, M>.Lift<A>(K<M, A> ma) => 
         ProducerT.liftM<OUT, M, A>(ma);
 
-    static K<ProducerT<OUT, M>, A> Maybe.MonadIO<ProducerT<OUT, M>>.LiftIO<A>(IO<A> ma) => 
+    static K<ProducerT<OUT, M>, A> MonadIO<ProducerT<OUT, M>>.LiftIO<A>(IO<A> ma) => 
         ProducerT.liftIO<OUT, M, A>(ma);
 
-    static K<ProducerT<OUT, M>, B> Maybe.MonadUnliftIO<ProducerT<OUT, M>>.MapIO<A, B>(K<ProducerT<OUT, M>, A> ma, Func<IO<A>, IO<B>> f) => 
-        ma.As().MapM(m => M.MapIO(m, f));
+    static K<ProducerT<OUT, M>, B> MonadUnliftIO<ProducerT<OUT, M>>.MapIO<A, B>(K<ProducerT<OUT, M>, A> ma, Func<IO<A>, IO<B>> f) => 
+        ma.As().MapM(m => M.MapIOMaybe(m, f));
 
-    static K<ProducerT<OUT, M>, IO<A>> Maybe.MonadUnliftIO<ProducerT<OUT, M>>.ToIO<A>(K<ProducerT<OUT, M>, A> ma) => 
-        ma.As().MapM(M.ToIO);
+    static K<ProducerT<OUT, M>, IO<A>> MonadUnliftIO<ProducerT<OUT, M>>.ToIO<A>(K<ProducerT<OUT, M>, A> ma) => 
+        ma.As().MapM(M.ToIOMaybe);
 
     static K<ProducerT<OUT, M>, B> Applicative<ProducerT<OUT, M>>.Action<A, B>(
         K<ProducerT<OUT, M>, A> ma, 

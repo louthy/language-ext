@@ -171,7 +171,7 @@ public partial class IO
     [MethodImpl(Opt.Default)]
     public static K<M, B> mapIO<M, A, B>(K<M, A> ma, Func<IO<A>, IO<B>> f)
         where M : MonadUnliftIO<M>, Monad<M> =>
-        M.MapIO(ma, f);    
+        M.MapIOMaybe(ma, f);    
 
     /// <summary>
     /// Queue this IO operation to run on the thread-pool. 
@@ -184,7 +184,7 @@ public partial class IO
     [MethodImpl(Opt.Default)]
     public static K<M, ForkIO<A>> fork<M, A>(K<M, A> ma, Option<TimeSpan> timeout = default)
         where M : MonadUnliftIO<M> =>
-        M.ForkIO(ma, timeout);
+        M.ForkIOMaybe(ma, timeout);
 
     /// <summary>
     /// Yield the thread for the specified duration or until cancelled.

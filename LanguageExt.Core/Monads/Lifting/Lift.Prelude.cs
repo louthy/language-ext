@@ -135,5 +135,5 @@ public static partial class Prelude
     public static K<T, A> liftIO<T, M, A>(IO<A> ma)
         where T : MonadT<T, M>
         where M : Monad<M> => 
-        T.Lift(M.LiftIO(ma));
+        T.Lift(M.LiftIOMaybe(ma));
 }

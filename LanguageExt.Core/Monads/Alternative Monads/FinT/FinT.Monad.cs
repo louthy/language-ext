@@ -41,8 +41,8 @@ public partial class FinT<M> :
     static K<FinT<M>, A> MonadT<FinT<M>, M>.Lift<A>(K<M, A> ma) => 
         FinT<M, A>.Lift(ma);
         
-    static K<FinT<M>, A> Maybe.MonadIO<FinT<M>>.LiftIO<A>(IO<A> ma) => 
-        FinT<M, A>.Lift(M.LiftIO(ma));
+    static K<FinT<M>, A> MonadIO<FinT<M>>.LiftIO<A>(IO<A> ma) => 
+        FinT<M, A>.Lift(M.LiftIOMaybe(ma));
 
     static K<FinT<M>, A> MonoidK<FinT<M>>.Empty<A>() =>
         FinT.Fail<M, A>(Error.Empty);

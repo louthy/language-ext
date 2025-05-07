@@ -28,7 +28,7 @@ public partial class TryT<M>
         TryT<M, A>.Lift(ma);
 
     public static TryT<M, A> liftIO<A>(IO<A> ma) =>  
-        TryT<M, A>.Lift(M.LiftIO(ma));
+        TryT<M, A>.Lift(M.LiftIOMaybe(ma));
 }
 
 public class TryT
@@ -67,7 +67,7 @@ public class TryT
 
     public static TryT<M, A> liftIO<M, A>(IO<A> ma)  
         where M : Monad<M> =>
-        TryT<M, A>.Lift(M.LiftIO(ma));
+        TryT<M, A>.Lift(M.LiftIOMaybe(ma));
     
     public static K<M, B> match<M, A, B>(TryT<M, A> ma, Func<A, B> Succ, Func<Error, B> Fail) 
         where M : Monad<M> =>

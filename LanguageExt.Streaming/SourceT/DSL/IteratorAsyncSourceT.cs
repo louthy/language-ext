@@ -10,7 +10,7 @@ record IteratorAsyncSourceT<M, A>(IAsyncEnumerable<K<M, A>> Items) : SourceT<M, 
 {
     public override K<M, S> ReduceM<S>(S state, ReducerM<M, K<M, A>, S> reducer) 
     {
-        return M.LiftIO(IO.liftVAsync(e => go(state, Items.GetIteratorAsync(), e.Token))).Flatten();
+        return M.LiftIOMaybe(IO.liftVAsync(e => go(state, Items.GetIteratorAsync(), e.Token))).Flatten();
         async ValueTask<K<M, S>> go(S state, IteratorAsync<K<M, A>> iter, CancellationToken token)
         {
             if(token.IsCancellationRequested) return M.Pure(state);

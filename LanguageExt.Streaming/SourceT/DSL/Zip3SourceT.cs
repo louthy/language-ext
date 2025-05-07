@@ -48,13 +48,13 @@ record Zip3SourceT<M, A, B, C>(
         from result in new Reader3SourceT<M, A, B, C>(channelA, channelB, channelC).ReduceM(state, reducer)
 
         // Make sure the forks are shutdown
-        from _      in M.LiftIO(Seq(forkA, forkB, forkC).Traverse(f => f.Cancel))
+        from _      in M.LiftIOMaybe(Seq(forkA, forkB, forkC).Traverse(f => f.Cancel))
 
         select result;
     
     static K<M, Unit> trigger<X>(ChannelWriter<K<M, X>> writer) =>
-        M.LiftIO(IO.lift(() => writer.TryComplete().Ignore()));
+        M.LiftIOMaybe(IO.lift(() => writer.TryComplete().Ignore()));
 
     static K<M, Unit> writeAsync<X>(ChannelWriter<X> writer, X value) =>
-        M.LiftIO(IO.liftVAsync(e => writer.WriteAsync(value, e.Token).ToUnit()));    
+        M.LiftIOMaybe(IO.liftVAsync(e => writer.WriteAsync(value, e.Token).ToUnit()));    
 }

@@ -75,13 +75,16 @@ public partial class IO :
     static K<IO, A> MonoidK<IO>.Empty<A>() =>
         empty<A>();
 
-    static K<IO, A> Maybe.MonadIO<IO>.LiftIO<A>(IO<A> ma) => 
+    static K<IO, A> MonadIO<IO>.LiftIO<A>(IO<A> ma) => 
         ma;
 
-    static K<IO, B> Maybe.MonadUnliftIO<IO>.MapIO<A, B>(K<IO, A> ma, Func<IO<A>, IO<B>> f) =>
+    static K<IO, B> MonadUnliftIO<IO>.MapIO<A, B>(K<IO, A> ma, Func<IO<A>, IO<B>> f) =>
         ma is IOEmpty<A>
             ? IOEmpty<B>.Default
             : f(ma.As());
+
+    static K<IO, IO<A>> MonadUnliftIO<IO>.ToIO<A>(K<IO, A> ma) =>
+        pure(ma.As());
 
     static K<IO, A> Final<IO>.Finally<X, A>(K<IO, A> fa, K<IO, X> @finally) =>
         fa is IOEmpty<A>
@@ -131,7 +134,7 @@ public partial class IO :
     /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
     /// the forked IO operation or to await the result of it.
     /// </returns>
-    static K<IO, ForkIO<A>> Maybe.MonadUnliftIO<IO>.ForkIO<A>(K<IO, A> ma, Option<TimeSpan> timeout) =>
+    static K<IO, ForkIO<A>> MonadUnliftIO<IO>.ForkIO<A>(K<IO, A> ma, Option<TimeSpan> timeout) =>
         ma is IOEmpty<A>
             ? IOEmpty<ForkIO<A>>.Default
             : ma.As().Fork(timeout);

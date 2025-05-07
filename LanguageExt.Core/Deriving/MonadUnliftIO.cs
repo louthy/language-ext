@@ -23,7 +23,7 @@ public static partial class Deriving
         /// <param name="ma">`Self` structure to extract the `IO` monad from</param>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>`Self` structure with the `IO` structure as the bound value</returns>
-        static K<Supertype, IO<A>> Traits.Maybe.MonadUnliftIO<Supertype>.ToIO<A>(K<Supertype, A> ma) =>
+        static K<Supertype, IO<A>> Traits.MonadUnliftIO<Supertype>.ToIO<A>(K<Supertype, A> ma) =>
             Supertype.CoTransform(Subtype.ToIO(Supertype.Transform(ma)));
 
         /// <summary>
@@ -37,7 +37,7 @@ public static partial class Deriving
         /// <exception cref="ExceptionalException">If this method isn't overloaded in
         /// the inner monad or any monad in the stack on the way to the inner-monad
         /// then it will throw an exception.</exception>
-        static K<Supertype, B> Traits.Maybe.MonadUnliftIO<Supertype>.MapIO<A, B>(K<Supertype, A> ma, Func<IO<A>, IO<B>> f) =>
+        static K<Supertype, B> Traits.MonadUnliftIO<Supertype>.MapIO<A, B>(K<Supertype, A> ma, Func<IO<A>, IO<B>> f) =>
             Supertype.CoTransform(Subtype.MapIO(Supertype.Transform(ma), f));        
         
         /// <summary>
@@ -47,7 +47,7 @@ public static partial class Deriving
         /// A local cancellation environment stops other IO computations, that rely on the same
         /// environmental cancellation token, from being taken down by a regional cancellation.
         ///
-        /// If an `IO.cancel` is invoked locally, then it will still create an exception that
+        /// If an `IO.cancel` is invoked locally then it will still create an exception that
         /// propagates upwards and so catching cancellations is still important. 
         /// </remarks>
         /// <param name="ma">Computation to run within the local context</param>
@@ -125,7 +125,7 @@ public static partial class Deriving
             Supertype.CoTransform(Subtype.RepeatIO(Supertype.Transform(ma)));
 
         /// <summary>
-        /// Keeps repeating the computation, until the scheduler expires, or an error occurs  
+        /// Keeps repeating the computation until the scheduler expires, or an error occurs  
         /// </summary>
         /// <remarks>
         /// Any resources acquired within a repeated IO computation will automatically be released.  This also means you can't
@@ -183,7 +183,7 @@ public static partial class Deriving
             Supertype.CoTransform(Subtype.RepeatUntilIO(Supertype.Transform(ma), predicate));
 
         /// <summary>
-        /// Keeps repeating the computation, until the scheduler expires, or the predicate returns true, or an error occurs
+        /// Keeps repeating the computation until the scheduler expires, or the predicate returns true, or an error occurs
         /// </summary>
         /// <remarks>
         /// Any resources acquired within a repeated IO computation will automatically be released.  This also means you can't

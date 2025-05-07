@@ -46,7 +46,7 @@ public record IdentityT<M, A>(K<M, A> Value) : K<IdentityT<M>, A>
 
     [Pure]
     public IdentityT<M, B> Bind<B>(Func<A, IO<B>> f) =>
-        new(M.Bind(Value, x => M.LiftIO(f(x))));
+        new(M.Bind(Value, x => M.LiftIOMaybe(f(x))));
 
     [Pure]
     public IdentityT<M, C> SelectMany<B, C>(Func<A, IdentityT<M, B>> bind, Func<A, B, C> project) =>

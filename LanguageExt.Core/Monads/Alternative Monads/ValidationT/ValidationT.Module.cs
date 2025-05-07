@@ -21,7 +21,7 @@ public partial class ValidationT<F, M>
         ValidationT<F, M, A>.Lift(ma);
 
     public static ValidationT<F, M, A> liftIO<A>(IO<A> ma) =>  
-        ValidationT<F, M, A>.Lift(M.LiftIO(ma));
+        ValidationT<F, M, A>.Lift(M.LiftIOMaybe(ma));
 }
 
 public partial class ValidationT
@@ -59,7 +59,7 @@ public partial class ValidationT
     public static ValidationT<L, M, A> liftIO<L, M, A>(IO<A> ma)  
         where L : Monoid<L>
         where M : Monad<M> =>
-        ValidationT<L, M, A>.Lift(M.LiftIO(ma));
+        ValidationT<L, M, A>.Lift(M.LiftIOMaybe(ma));
     
     public static K<M, B> match<L, M, A, B>(ValidationT<L, M, A> ma, Func<A, B> Succ, Func<L, B> Fail) 
         where L : Monoid<L>

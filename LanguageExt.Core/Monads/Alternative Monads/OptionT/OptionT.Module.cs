@@ -21,7 +21,7 @@ public partial class OptionT<M>
         OptionT<M, A>.Lift(ma);
 
     public static OptionT<M, A> liftIO<A>(IO<A> ma) =>  
-        OptionT<M, A>.Lift(M.LiftIO(ma));
+        OptionT<M, A>.Lift(M.LiftIOMaybe(ma));
 }
 
 public partial class OptionT
@@ -60,7 +60,7 @@ public partial class OptionT
 
     public static OptionT<M, A> liftIO<M, A>(IO<A> ma)  
         where M : Monad<M> =>
-        OptionT<M, A>.Lift(M.LiftIO(ma));
+        OptionT<M, A>.Lift(M.LiftIOMaybe(ma));
     
     public static K<M, B> match<M, A, B>(OptionT<M, A> ma, Func<A, B> Some, Func<B> None) 
         where M : Monad<M> =>

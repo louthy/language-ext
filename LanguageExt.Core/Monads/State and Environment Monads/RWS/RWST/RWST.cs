@@ -27,7 +27,7 @@ public record RWST<R, W, S, M, A>(Func<(R Env, W Output, S State), K<M, (A Value
         new (input => M.Pure((ma.Value, input.Output, input.State)));
     
     public static RWST<R, W, S, M, A> LiftIO(K<IO, A> ma) =>
-        new (input => M.LiftIO(ma).Map(a => (a, input.Output, input.State)));
+        new (input => M.LiftIOMaybe(ma).Map(a => (a, input.Output, input.State)));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

@@ -48,7 +48,7 @@ public static class SourceExtensions
     /// </remarks>
     public static K<M, Unit> Iter<M, A>(this K<Source, A> ma) 
         where M : MonadIO<M> =>
-        M.LiftIO(ma.Iter());
+        M.LiftIOMaybe(ma.Iter());
 
     /// <summary>
     /// Force iteration of the stream, yielding the last structure processed
@@ -67,7 +67,7 @@ public static class SourceExtensions
     /// </summary>
     public static K<M, A> Last<M, A>(this K<Source, A> ma)
         where M : MonadIO<M> =>
-        M.LiftIO(ma.Last());
+        M.LiftIOMaybe(ma.Last());
 
     /// <summary>
     /// Force iteration of the stream and collect all the values into a `Seq`.
@@ -80,5 +80,5 @@ public static class SourceExtensions
     /// </summary>
     public static K<M, Seq<A>> Collect<M, A>(this K<Source, A> ma)
         where M : MonadIO<M> =>
-        M.LiftIO(ma.Collect());    
+        M.LiftIOMaybe(ma.Collect());    
 }

@@ -97,7 +97,7 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     /// <param name="monad">Monad to lift</param>
     /// <returns>`FinT`</returns>
     public static FinT<M, A> LiftIO(IO<A> monad) =>
-        Lift(M.LiftIO(monad));
+        Lift(M.LiftIOMaybe(monad));
 
     /// <summary>
     /// Lifts a given monad into the transformer
@@ -105,7 +105,7 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     /// <param name="monad">Monad to lift</param>
     /// <returns>`FinT`</returns>
     public static FinT<M, A> LiftIO(IO<Fin<A>> monad) =>
-        Lift(M.LiftIO(monad));
+        Lift(M.LiftIOMaybe(monad));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -417,7 +417,7 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`FinT`</returns>
     public FinT<M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => M.LiftIO(bind(x)), project);
+        SelectMany(x => M.LiftIOMaybe(bind(x)), project);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

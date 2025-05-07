@@ -14,7 +14,7 @@ record SinkTEmpty<M, A> : SinkT<M, A>
         SinkTEmpty<M, B>.Default;
 
     public override K<M, Unit> PostM(K<M, A> ma) =>
-        M.LiftIO(IO.fail<Unit>(Errors.SinkFull));
+        M.LiftIOMaybe(IO.fail<Unit>(Errors.SinkFull));
 
     public override K<M, Unit> Complete() =>
         M.Pure(unit);

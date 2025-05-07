@@ -101,7 +101,7 @@ public static partial class Monad
     [Pure]
     public static K<M, A> iff<M, A>(K<M, bool> Pred, K<M, A> Then, K<IO, A> Else)
         where M : Monad<M> =>
-        Pred.Bind(f => f ? Then : M.LiftIO(Else));
+        Pred.Bind(f => f ? Then : M.LiftIOMaybe(Else));
 
     /// <summary>
     /// Compute the predicate and depending on its state compute `Then` or `Else`
@@ -114,7 +114,7 @@ public static partial class Monad
     [Pure]
     public static K<M, A> iff<M, A>(K<M, bool> Pred, K<IO, A> Then, K<M, A> Else)
         where M : Monad<M> =>
-        Pred.Bind(f => f ? M.LiftIO(Then) : Else);
+        Pred.Bind(f => f ? M.LiftIOMaybe(Then) : Else);
 
     /// <summary>
     /// Compute the predicate and depending on its state compute `Then` or `Else`
@@ -127,7 +127,7 @@ public static partial class Monad
     [Pure]
     public static K<M, A> iff<M, A>(K<M, bool> Pred, K<IO, A> Then, K<IO, A> Else)
         where M : Monad<M> =>
-        Pred.Bind(f => f ? M.LiftIO(Then) : M.LiftIO(Else));
+        Pred.Bind(f => f ? M.LiftIOMaybe(Then) : M.LiftIOMaybe(Else));
 
     /// <summary>
     /// Compute the predicate and depending on its state compute `Then` or `Else`
@@ -179,7 +179,7 @@ public static partial class Monad
     [Pure]
     public static K<M, A> iff<M, A>(K<M, bool> Pred, Pure<A> Then, K<IO, A> Else)
         where M : Monad<M> =>
-        Pred.Bind(f => f ? M.Pure(Then.Value) : M.LiftIO(Else));
+        Pred.Bind(f => f ? M.Pure(Then.Value) : M.LiftIOMaybe(Else));
 
     /// <summary>
     /// Compute the predicate and depending on its state compute `Then` or `Else`
@@ -192,5 +192,5 @@ public static partial class Monad
     [Pure]
     public static K<M, A> iff<M, A>(K<M, bool> Pred, K<IO, A> Then, Pure<A> Else)
         where M : Monad<M> =>
-        Pred.Bind(f => f ? M.LiftIO(Then) : M.Pure(Else.Value));
+        Pred.Bind(f => f ? M.LiftIOMaybe(Then) : M.Pure(Else.Value));
 }

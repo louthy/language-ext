@@ -32,14 +32,14 @@ public class ConsumerT<IN, M> :
     static K<ConsumerT<IN, M>, A> MonadT<ConsumerT<IN, M>, M>.Lift<A>(K<M, A> ma) =>
         ConsumerT.liftM<IN, M, A>(ma);
 
-    static K<ConsumerT<IN, M>, A> Maybe.MonadIO<ConsumerT<IN, M>>.LiftIO<A>(IO<A> ma) => 
+    static K<ConsumerT<IN, M>, A> MonadIO<ConsumerT<IN, M>>.LiftIO<A>(IO<A> ma) => 
         ConsumerT.liftIO<IN, M, A>(ma); 
 
-    static K<ConsumerT<IN, M>, B> Maybe.MonadUnliftIO<ConsumerT<IN, M>>.MapIO<A, B>(K<ConsumerT<IN, M>, A> ma, Func<IO<A>, IO<B>> f) => 
-        ma.As().MapM(m => M.MapIO(m, f));
+    static K<ConsumerT<IN, M>, B> MonadUnliftIO<ConsumerT<IN, M>>.MapIO<A, B>(K<ConsumerT<IN, M>, A> ma, Func<IO<A>, IO<B>> f) => 
+        ma.As().MapM(m => M.MapIOMaybe(m, f));
 
-    static K<ConsumerT<IN, M>, IO<A>> Maybe.MonadUnliftIO<ConsumerT<IN, M>>.ToIO<A>(K<ConsumerT<IN, M>, A> ma) => 
-        ma.As().MapM(M.ToIO);
+    static K<ConsumerT<IN, M>, IO<A>> MonadUnliftIO<ConsumerT<IN, M>>.ToIO<A>(K<ConsumerT<IN, M>, A> ma) => 
+        ma.As().MapM(M.ToIOMaybe);
 
     static K<ConsumerT<IN, M>, B> Applicative<ConsumerT<IN, M>>.Action<A, B>(
         K<ConsumerT<IN, M>, A> ma, 

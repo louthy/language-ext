@@ -96,5 +96,5 @@ public static partial class IOExtensions
     /// </summary>
     public static K<M, bool> WaitOneIO<M>(this AutoResetEvent wait)
         where M : Monad<M> =>
-        M.LiftIO(wait.WaitOneIO());
+        M.LiftIOMaybe(wait.WaitOneIO());
 }

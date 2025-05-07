@@ -66,7 +66,7 @@ public record ReaderT<Env, M, A>(Func<Env, K<M, A>> runReader) : K<ReaderT<Env, 
     /// <param name="f">Function to lift</param>
     /// <returns>`ReaderT`</returns>
     public static ReaderT<Env, M, A> LiftIO(IO<A> ma) =>
-        new (_ => M.LiftIO(ma));
+        new (_ => M.LiftIOMaybe(ma));
 
     /// <summary>
     /// Maps the Reader's environment value

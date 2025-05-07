@@ -149,5 +149,5 @@ public static class ProducerTExtensions
         this K<ProducerT<OUT, M>, A> ma,
         Func<IO<A>, IO<B>> f) 
         where M : MonadUnliftIO<M> =>
-        ma.As().MapM(m => M.MapIO(m, f));
+        ma.As().MapM(m => M.MapIOMaybe(m, f));
 }

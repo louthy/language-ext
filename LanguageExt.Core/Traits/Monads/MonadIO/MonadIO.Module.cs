@@ -41,7 +41,7 @@ public static class MonadIO
     [Pure]
     public static K<M, A> liftIO<M, A>(IO<A> ma) 
         where M : Maybe.MonadIO<M>, Monad<M> =>
-        M.LiftIO(ma);
+        M.LiftIOMaybe(ma);
     
     /// <summary>
     /// Embeds the `IO` monad into the `M〈A〉` monad.  NOTE: This will fail if the monad transformer
@@ -50,7 +50,7 @@ public static class MonadIO
     [Pure]
     public static K<M, A> liftIO<M, A>(K<IO, A> ma) 
         where M : Maybe.MonadIO<M>, Monad<M> =>
-        M.LiftIO(ma);
+        M.LiftIOMaybe(ma);
 
     /// <summary>
     /// Get the environment value threaded through the IO computation

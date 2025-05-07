@@ -66,7 +66,7 @@ public abstract record Source<A> :
     /// <returns>Reduced state</returns>
     public K<M, S> ReduceAsync<M, S>(S state, ReducerAsync<A, S> reducer) 
         where M : MonadIO<M> =>
-        M.LiftIO(ReduceAsync(state, reducer));
+        M.LiftIOMaybe(ReduceAsync(state, reducer));
     
     /// <summary>
     /// Transform with a transducer

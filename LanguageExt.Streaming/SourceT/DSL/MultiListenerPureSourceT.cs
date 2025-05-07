@@ -89,7 +89,7 @@ record MultiListenerPureSourceT<M, A>(Channel<A> Source) : SourceT<M, A>
 
     K<M, S> readAll<S>(Channel<K<M, A>> channel, ReducerM<M, K<M, A>, S> reducer, S state)
     {
-        return M.LiftIO(IO.liftVAsync(async e => await go(state, reducer, e.Token))).Flatten();
+        return M.LiftIOMaybe(IO.liftVAsync(async e => await go(state, reducer, e.Token))).Flatten();
         
         async ValueTask<K<M, S>> go(S state, ReducerM<M, K<M, A>, S> reducer, CancellationToken token)
         {
@@ -101,7 +101,7 @@ record MultiListenerPureSourceT<M, A>(Channel<A> Source) : SourceT<M, A>
     }
 
     K<M, Unit> final(Channel<K<M, A>> channel) =>
-        M.LiftIO(
+        M.LiftIOMaybe(
             IO.liftVAsync(async e =>
                           {
                               listeners.TryRemove(channel, out _);

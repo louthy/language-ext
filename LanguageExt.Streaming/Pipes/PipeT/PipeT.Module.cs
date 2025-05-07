@@ -268,7 +268,7 @@ public static class PipeT
     /// <returns></returns>
     public static PipeT<IN, OUT, M, A> liftIO<IN, OUT, M, A>(IO<A> ma) 
         where M : MonadIO<M> =>
-        liftM<IN, OUT, M, A>(M.LiftIO(ma));
+        liftM<IN, OUT, M, A>(M.LiftIOMaybe(ma));
 
     /// <summary>
     /// Continually repeat the provided operation

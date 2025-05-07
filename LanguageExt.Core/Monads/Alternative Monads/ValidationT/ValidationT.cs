@@ -71,7 +71,7 @@ public record ValidationT<F, M, A>(K<M, Validation<F, A>> runValidation) :
     /// <param name="monad">Monad to lift</param>
     /// <returns>`ValidationT`</returns>
     public static ValidationT<F, M, A> LiftIO(IO<A> monad) =>
-        Lift(M.LiftIO(monad));
+        Lift(M.LiftIOMaybe(monad));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -280,7 +280,7 @@ public record ValidationT<F, M, A>(K<M, Validation<F, A>> runValidation) :
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
     public ValidationT<F, M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => M.LiftIO(bind(x)), project);
+        SelectMany(x => M.LiftIOMaybe(bind(x)), project);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

@@ -33,8 +33,8 @@ public partial class OptionT<M> :
     static K<OptionT<M>, A> MonadT<OptionT<M>, M>.Lift<A>(K<M, A> ma) => 
         OptionT<M, A>.Lift(ma);
         
-    static K<OptionT<M>, A> Maybe.MonadIO<OptionT<M>>.LiftIO<A>(IO<A> ma) => 
-        OptionT<M, A>.Lift(M.LiftIO(ma));
+    static K<OptionT<M>, A> MonadIO<OptionT<M>>.LiftIO<A>(IO<A> ma) => 
+        OptionT<M, A>.Lift(M.LiftIOMaybe(ma));
 
     static K<OptionT<M>, A> MonoidK<OptionT<M>>.Empty<A>() =>
         OptionT<M, A>.None;

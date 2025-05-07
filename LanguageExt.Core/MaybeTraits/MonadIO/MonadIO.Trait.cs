@@ -18,8 +18,8 @@ public static partial class Maybe
         /// <param name="ma">IO computation to lift</param>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The outer monad with the IO monad lifted into it</returns>
-        public static virtual K<M, A> LiftIO<A>(K<IO, A> ma) =>
-            M.LiftIO(ma.As());
+        public static virtual K<M, A> LiftIOMaybe<A>(K<IO, A> ma) =>
+            M.LiftIOMaybe(ma.As());
 
         /// <summary>
         /// Lifts the IO monad into a monad transformer stack.  
@@ -38,7 +38,7 @@ public static partial class Maybe
         /// <exception cref="ExceptionalException">If this method isn't overloaded in
         /// the inner monad or any monad in the stack on the way to the inner-monad,
         /// then it will throw an exception.</exception>
-        public static virtual K<M, A> LiftIO<A>(IO<A> ma) =>
+        public static virtual K<M, A> LiftIOMaybe<A>(IO<A> ma) =>
             throw new ExceptionalException(Errors.LiftIONotSupported);
     }
 }

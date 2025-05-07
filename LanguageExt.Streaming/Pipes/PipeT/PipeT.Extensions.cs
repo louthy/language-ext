@@ -141,6 +141,6 @@ public static class PipeTExtensions
         this K<PipeT<IN, OUT, M>, A> ma,
         Func<IO<A>, IO<B>> f) 
         where M : MonadUnliftIO<M> =>
-        ma.As().MapM(ma => M.MapIO(ma, f));
+        ma.As().MapM(ma => M.MapIOMaybe(ma, f));
 }
     

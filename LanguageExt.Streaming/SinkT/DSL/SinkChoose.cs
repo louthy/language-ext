@@ -16,7 +16,7 @@ record SinkTChoose<M, A, B, C>(Func<A, Either<B, C>> F, SinkT<M, B> Left, SinkT<
             {
                 Either.Left<B, C>(var left)   => Left.PostM(M.Pure(left)),
                 Either.Right<B, C>(var right) => Right.PostM(M.Pure(right)),
-                _                             => M.LiftIO(IO.fail<Unit>(Errors.SinkFull))
+                _                             => M.LiftIOMaybe(IO.fail<Unit>(Errors.SinkFull))
             });
 
     public override K<M, Unit> Complete() =>

@@ -93,7 +93,7 @@ public record WriterT<W, M, A>(Func<W, K<M, (A Value, W Output)>> runWriter) : K
     /// <param name="ma">IO monad to lift</param>
     /// <returns>`WriterT`</returns>
     public static WriterT<W, M, A> LiftIO(IO<A> ma) =>
-        Lift(M.LiftIO(ma));
+        Lift(M.LiftIOMaybe(ma));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

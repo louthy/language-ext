@@ -21,20 +21,20 @@ public class CountdownSignal<M>(CountdownEvent handle) : IDisposable
     /// The current value of the counter
     /// </summary>
     public K<M, int> Count =>
-        M.LiftIO(IO.lift(() => handle.CurrentCount));
+        M.LiftIOMaybe(IO.lift(() => handle.CurrentCount));
 
     /// <summary>
     /// True if the counter has complete its countdown
     /// </summary>
     public K<M, bool> Complete =>
-        M.LiftIO(IO.lift(() => handle.IsSet));
+        M.LiftIOMaybe(IO.lift(() => handle.IsSet));
 
     /// <summary>
     /// Triggers a single countdown of the counter in the signal
     /// </summary>
     /// <returns>True if the counter reached zero.</returns>
     public K<M, bool> Trigger() =>
-        M.LiftIO(IO.lift(handle.Signal));
+        M.LiftIOMaybe(IO.lift(handle.Signal));
 
     /// <summary>
     /// Triggers a single countdown of the counter in the signal
@@ -51,7 +51,7 @@ public class CountdownSignal<M>(CountdownEvent handle) : IDisposable
     /// </remarks>
     /// <returns>True if the counter reached zero.</returns>
     public K<M, bool> Trigger(int count) =>
-        M.LiftIO(IO.lift(handle.Signal));
+        M.LiftIOMaybe(IO.lift(handle.Signal));
 
     /// <summary>
     /// Triggers `n` signals to the counter in the signal
@@ -68,7 +68,7 @@ public class CountdownSignal<M>(CountdownEvent handle) : IDisposable
     /// </summary>
     /// <returns>Monad `M` with the `Wait` operation lifted into it via `liftIO`</returns>
     public K<M, Unit> Wait() =>
-        M.LiftIO(IO.lift(e =>
+        M.LiftIOMaybe(IO.lift(e =>
                          {
                              handle.Wait(e.Token);
                              return unit;

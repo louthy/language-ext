@@ -116,7 +116,7 @@ internal class Conduit<A, B, C> : Conduit<A, C>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Reduced state</returns>
     public override K<M, S> Reduce<M, S>(S state, ReducerAsync<C, S> reducer) =>
-        M.LiftIO(IO.liftVAsync(async e =>
+        M.LiftIOMaybe(IO.liftVAsync(async e =>
                                {
                                    while (await channel.Reader.WaitToReadAsync(e.Token))
                                    {

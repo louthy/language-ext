@@ -78,7 +78,7 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) :
     /// <param name="monad">Monad to lift</param>
     /// <returns>`OptionT`</returns>
     public static OptionT<M, A> LiftIO(IO<A> monad) =>
-        Lift(M.LiftIO(monad));
+        Lift(M.LiftIOMaybe(monad));
 
     /// <summary>
     /// Lifts a given monad into the transformer
@@ -86,7 +86,7 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) :
     /// <param name="monad">Monad to lift</param>
     /// <returns>`OptionT`</returns>
     public static OptionT<M, A> LiftIO(IO<Option<A>> monad) =>
-        Lift(M.LiftIO(monad));
+        Lift(M.LiftIOMaybe(monad));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -353,7 +353,7 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) :
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`OptionT`</returns>
     public OptionT<M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => M.LiftIO(bind(x)), project);
+        SelectMany(x => M.LiftIOMaybe(bind(x)), project);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

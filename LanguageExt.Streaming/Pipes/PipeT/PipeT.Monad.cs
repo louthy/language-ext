@@ -43,16 +43,16 @@ public class PipeT<IN, OUT, M> :
     static K<PipeT<IN, OUT, M>, A> MonadT<PipeT<IN, OUT, M>, M>.Lift<A>(K<M, A> ma) => 
         PipeT.liftM<IN, OUT, M, A>(ma);
 
-    static K<PipeT<IN, OUT, M>, A> Maybe.MonadIO<PipeT<IN, OUT, M>>.LiftIO<A>(IO<A> ma) => 
+    static K<PipeT<IN, OUT, M>, A> MonadIO<PipeT<IN, OUT, M>>.LiftIO<A>(IO<A> ma) => 
         PipeT.liftIO<IN, OUT, M, A>(ma);
 
-    static K<PipeT<IN, OUT, M>, B> Maybe.MonadUnliftIO<PipeT<IN, OUT, M>>.MapIO<A, B>(K<PipeT<IN, OUT, M>, A> ma, Func<IO<A>, IO<B>> f) => 
-        ma.As().MapM(m => M.MapIO(m, f));
+    static K<PipeT<IN, OUT, M>, B> MonadUnliftIO<PipeT<IN, OUT, M>>.MapIO<A, B>(K<PipeT<IN, OUT, M>, A> ma, Func<IO<A>, IO<B>> f) => 
+        ma.As().MapM(m => M.MapIOMaybe(m, f));
 
-    static K<PipeT<IN, OUT, M>, IO<A>> Maybe.MonadUnliftIO<PipeT<IN, OUT, M>>.ToIO<A>(K<PipeT<IN, OUT, M>, A> ma) => 
-        ma.As().MapM(M.ToIO);
+    static K<PipeT<IN, OUT, M>, IO<A>> MonadUnliftIO<PipeT<IN, OUT, M>>.ToIO<A>(K<PipeT<IN, OUT, M>, A> ma) => 
+        ma.As().MapM(M.ToIOMaybe);
     
-    static K<PipeT<IN, OUT, M>, ForkIO<A>> Maybe.MonadUnliftIO<PipeT<IN, OUT, M>>.ForkIO<A>(
+    static K<PipeT<IN, OUT, M>, ForkIO<A>> MonadUnliftIO<PipeT<IN, OUT, M>>.ForkIO<A>(
         K<PipeT<IN, OUT, M>, A> ma,
         Option<TimeSpan> timeout) =>
         MonadT.lift<PipeT<IN, OUT, M>, M, ForkIO<A>>(ma.As().Run().ForkIOMaybe(timeout));

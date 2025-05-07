@@ -17,7 +17,7 @@ public static class MonadUnliftIO
     [Pure]
     public static K<M, IO<A>> toIO<M, A>(K<M, A> ma)
         where M : MonadUnliftIO<M> =>
-        M.ToIO(ma);
+        M.ToIOMaybe(ma);
     
     /// <summary>
     /// Map the underlying IO monad
@@ -25,5 +25,5 @@ public static class MonadUnliftIO
     [Pure]
     public static K<M, B> mapIO<M, A, B>(Func<IO<A>, IO<B>> f, K<M, A> ma)
         where M : MonadUnliftIO<M> =>
-        M.MapIO(ma, f);
+        M.MapIOMaybe(ma, f);
 }

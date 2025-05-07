@@ -22,7 +22,7 @@ public partial class FinT<M>
         FinT<M, A>.Lift(ma);
 
     public static FinT<M, A> liftIO<A>(IO<A> ma) =>  
-        FinT<M, A>.Lift(M.LiftIO(ma));
+        FinT<M, A>.Lift(M.LiftIOMaybe(ma));
 }
 
 public partial class FinT
@@ -65,7 +65,7 @@ public partial class FinT
 
     public static FinT<M, A> liftIO<M, A>(IO<A> ma)  
         where M : Monad<M> =>
-        new (M.LiftIO(ma.Try().runFin));
+        new (M.LiftIOMaybe(ma.Try().runFin));
     
     public static K<M, B> match<M, A, B>(FinT<M, A> ma, Func<A, B> Succ, Func<Error, B> Fail) 
         where M : Monad<M> =>

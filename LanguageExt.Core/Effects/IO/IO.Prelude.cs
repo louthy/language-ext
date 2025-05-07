@@ -83,7 +83,7 @@ public static partial class Prelude
     [MethodImpl(Opt.Default)]
     public static K<M, ForkIO<A>> fork<M, A>(K<M, A> ma, Option<TimeSpan> timeout = default)
         where M : MonadUnliftIO<M>, Monad<M> =>
-        M.ForkIO(ma, timeout);
+        M.ForkIOMaybe(ma, timeout);
 
     /// <summary>
     /// Queue this IO operation to run on the thread-pool. 

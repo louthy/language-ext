@@ -153,5 +153,5 @@ public static class EffectTExtensions
     [Pure]
     public static EffectT<M, B> MapIO<M, A, B>(this K<EffectT<M>, A> ma, Func<IO<A>, IO<B>> f)
         where M : MonadUnliftIO<M> =>
-        ma.As().MapM(m => M.MapIO(m, f));
+        ma.As().MapM(m => M.MapIOMaybe(m, f));
 }

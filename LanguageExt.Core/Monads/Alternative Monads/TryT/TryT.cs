@@ -74,7 +74,7 @@ public record TryT<M, A>(K<M, Try<A>> runTry) :
     /// <param name="monad">Monad to lift</param>
     /// <returns>`TryT`</returns>
     public static TryT<M, A> LiftIO(IO<A> monad) =>
-        new(M.LiftIO(monad.Try().Run()).Map(Try<A>.Lift));
+        new(M.LiftIOMaybe(monad.Try().Run()).Map(Try<A>.Lift));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -282,7 +282,7 @@ public record TryT<M, A>(K<M, Try<A>> runTry) :
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`TryT`</returns>
     public TryT<M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => M.LiftIO(bind(x)), project);
+        SelectMany(x => M.LiftIOMaybe(bind(x)), project);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

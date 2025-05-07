@@ -10,7 +10,7 @@ record Reader2SourceT<M, A, B>(Channel<K<M, A>> ChannelA, Channel<K<M, B>> Chann
 {
     public override K<M, S> ReduceM<S>(S state, ReducerM<M, K<M, (A First, B Second)>, S> reducer)
     {
-        return M.LiftIO(IO.liftVAsync(e => go(state, e.Token))).Flatten();
+        return M.LiftIOMaybe(IO.liftVAsync(e => go(state, e.Token))).Flatten();
         async ValueTask<K<M, S>> go(S state, CancellationToken token)
         {
             if(token.IsCancellationRequested) return M.Pure(state);

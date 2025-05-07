@@ -21,7 +21,7 @@ public partial class EitherT<L, M>
         EitherT<L, M, A>.Lift(ma);
 
     public static EitherT<L, M, A> liftIO<A>(IO<A> ma) =>  
-        EitherT<L, M, A>.Lift(M.LiftIO(ma));
+        EitherT<L, M, A>.Lift(M.LiftIOMaybe(ma));
 }
 
 public partial class EitherT
@@ -52,11 +52,11 @@ public partial class EitherT
 
     public static EitherT<L, M, A> liftIO<L, M, A>(K<IO, A> ma)  
         where M : Monad<M> =>
-        EitherT<L, M, A>.Lift(M.LiftIO(ma));
+        EitherT<L, M, A>.Lift(M.LiftIOMaybe(ma));
 
     public static EitherT<L, M, A> liftIO<L, M, A>(IO<Either<L, A>> ma)  
         where M : Monad<M> =>
-        EitherT<L, M, A>.Lift(M.LiftIO(ma));
+        EitherT<L, M, A>.Lift(M.LiftIOMaybe(ma));
     
     public static K<M, B> match<L, M, A, B>(EitherT<L, M, A> ma, Func<L, B> Left, Func<A, B> Right) 
         where M : Monad<M> =>

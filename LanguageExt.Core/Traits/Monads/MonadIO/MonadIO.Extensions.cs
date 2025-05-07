@@ -12,7 +12,7 @@ public static class MonadIOExtensions
         this K<M, A> ma,
         Func<A, IO<B>> f)
         where M : MonadIO<M>, Monad<M> =>
-        M.Bind(ma, x => M.LiftIO(f(x)));
+        M.Bind(ma, x => M.LiftIOMaybe(f(x)));
     
     /// <summary>
     /// Monad bind operation
@@ -21,21 +21,21 @@ public static class MonadIOExtensions
         this IO<A> ma,
         Func<A, K<M, B>> f)
         where M : MonadIO<M>, Monad<M> =>
-        M.Bind(M.LiftIO(ma), f);
+        M.Bind(M.LiftIOMaybe(ma), f);
     
     /// <summary>
     /// Monad bind operation
     /// </summary>
     public static K<M, C> SelectMany<M, A, B, C>(this K<M, A> ma, Func<A, IO<B>> bind, Func<A, B, C> project) 
         where M : MonadIO<M>, Monad<M> =>
-        M.SelectMany(ma, x => M.LiftIO(bind(x)), project);
+        M.SelectMany(ma, x => M.LiftIOMaybe(bind(x)), project);
 
     /// <summary>
     /// Monad bind operation
     /// </summary>
     public static K<M, C> SelectMany<M, A, B, C>(this IO<A> ma, Func<A, K<M, B>> bind, Func<A, B, C> project) 
         where M : MonadIO<M>, Monad<M> =>
-        M.SelectMany(M.LiftIO(ma), bind, project);
+        M.SelectMany(M.LiftIOMaybe(ma), bind, project);
     
     /// <summary>
     /// Queue this IO operation to run on the thread-pool. 
@@ -57,5 +57,5 @@ public static class MonadIOExtensions
     /// </returns>
     public static K<M, ForkIO<A>> ForkIOMaybe<M, A>(this K<M, A> ma, Option<TimeSpan> timeout = default) 
         where M : MonadIO<M> =>
-        M.ForkIO(ma, timeout);    
+        M.ForkIOMaybe(ma, timeout);    
 }

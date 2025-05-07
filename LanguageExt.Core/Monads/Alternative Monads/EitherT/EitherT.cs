@@ -90,7 +90,7 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
     /// <param name="monad">Monad to lift</param>
     /// <returns>`EitherT`</returns>
     public static EitherT<L, M, R> LiftIO(IO<R> monad) =>
-        Lift(M.LiftIO(monad));
+        Lift(M.LiftIOMaybe(monad));
 
     /// <summary>
     /// Lifts a given monad into the transformer
@@ -98,7 +98,7 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
     /// <param name="monad">Monad to lift</param>
     /// <returns>`EitherT`</returns>
     public static EitherT<L, M, R> LiftIO(IO<Either<L, R>> monad) =>
-        Lift(M.LiftIO(monad));
+        Lift(M.LiftIOMaybe(monad));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -410,7 +410,7 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
     public EitherT<L, M, C> SelectMany<B, C>(Func<R, IO<B>> bind, Func<R, B, C> project) =>
-        SelectMany(x => M.LiftIO(bind(x)), project);
+        SelectMany(x => M.LiftIOMaybe(bind(x)), project);
 
     /// <summary>
     /// Monad bind operation

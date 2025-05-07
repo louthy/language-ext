@@ -101,9 +101,9 @@ public class RWST<R, W, S, M> :
     static K<RWST<R, W, S, M>, A> Stateful<RWST<R, W, S, M>, S>.Gets<A>(Func<S, A> f) => 
         new RWST<R, W, S, M, A>(input => M.Pure((f(input.State), input.Output, input.State)));
 
-    static K<RWST<R, W, S, M>, A> Maybe.MonadIO<RWST<R, W, S, M>>.LiftIO<A>(K<IO, A> ma) => 
-        new RWST<R, W, S, M, A>(input => M.LiftIO(ma).Map(a => (a, input.Output, input.State)));
+    static K<RWST<R, W, S, M>, A> Maybe.MonadIO<RWST<R, W, S, M>>.LiftIOMaybe<A>(K<IO, A> ma) => 
+        new RWST<R, W, S, M, A>(input => M.LiftIOMaybe(ma).Map(a => (a, input.Output, input.State)));
 
-    static K<RWST<R, W, S, M>, A> Maybe.MonadIO<RWST<R, W, S, M>>.LiftIO<A>(IO<A> ma) => 
-        new RWST<R, W, S, M, A>(input => M.LiftIO(ma).Map(a => (a, input.Output, input.State)));
+    static K<RWST<R, W, S, M>, A> Maybe.MonadIO<RWST<R, W, S, M>>.LiftIOMaybe<A>(IO<A> ma) => 
+        new RWST<R, W, S, M, A>(input => M.LiftIOMaybe(ma).Map(a => (a, input.Output, input.State)));
 }

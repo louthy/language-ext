@@ -21,7 +21,7 @@ public static class Signal
     /// </param>
     public static K<M, Signal<M>> autoReset<M>(bool signaled = false)
         where M : Monad<M> =>
-        M.LiftIO(use(() => new Signal<M>(new AutoResetEvent(false))));
+        M.LiftIOMaybe(use(() => new Signal<M>(new AutoResetEvent(false))));
 
     /// <summary>Represents a thread synchronisation event that, when signaled, must be reset manually. </summary>
     /// <remarks>
@@ -34,7 +34,7 @@ public static class Signal
     /// </param>
     public static K<M, Signal<M>> manualReset<M>(bool signaled = false) 
         where M : Monad<M> =>
-        M.LiftIO(use(() => new Signal<M>(new ManualResetEvent(false))));
+        M.LiftIOMaybe(use(() => new Signal<M>(new ManualResetEvent(false))));
 
     /// <summary>Represents a synchronisation primitive that is signaled when its count reaches zero.</summary>
     /// <remarks>
@@ -43,5 +43,5 @@ public static class Signal
     /// </remarks>
     public static K<M, CountdownSignal<M>> countdown<M>(int count) 
         where M : Monad<M> =>
-        M.LiftIO(use(() => new CountdownSignal<M>(new CountdownEvent(count))));
+        M.LiftIOMaybe(use(() => new CountdownSignal<M>(new CountdownEvent(count))));
 }

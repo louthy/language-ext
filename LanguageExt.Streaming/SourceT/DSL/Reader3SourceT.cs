@@ -13,7 +13,7 @@ record Reader3SourceT<M, A, B, C>(
 {
     public override K<M, S> ReduceM<S>(S state, ReducerM<M, K<M, (A First, B Second, C Third)>, S> reducer)
     {
-        return M.LiftIO(IO.liftVAsync(e => go(state, e.Token))).Flatten();
+        return M.LiftIOMaybe(IO.liftVAsync(e => go(state, e.Token))).Flatten();
         async ValueTask<K<M, S>> go(S state, CancellationToken token)
         {
             if(token.IsCancellationRequested) return M.Pure(state);

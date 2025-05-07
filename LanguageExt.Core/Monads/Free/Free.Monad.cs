@@ -8,7 +8,7 @@ namespace LanguageExt;
 /// </summary>
 public class Free<F> : 
     Choice<Free<F>>,
-    MonadIO<Free<F>>
+    Monad<Free<F>>
     where F : Functor<F>
 {
     static K<Free<F>, B> Functor<Free<F>>.Map<A, B>(Func<A, B> f, K<Free<F>, A> ma)

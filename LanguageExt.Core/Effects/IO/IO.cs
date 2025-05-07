@@ -261,14 +261,14 @@ public abstract record IO<A> :
 
     public K<M, B> Bind<M, B>(Func<A, K<M, B>> f) 
         where M : Monad<M> =>
-        M.LiftIO(this).Bind(f);
+        M.LiftIOMaybe(this).Bind(f);
 
     public IO<B> BindAsync<B>(Func<A, ValueTask<IO<B>>> f) =>
         BindAsync(async x => (await f(x)).Kind());
 
     public K<M, B> BindAsync<M, B>(Func<A, ValueTask<K<M, B>>> f)
         where M : Monad<M> => 
-        Bind(x => M.LiftIO(new IOPureAsync<K<M, B>>(f(x)))).Flatten();
+        Bind(x => M.LiftIOMaybe(new IOPureAsync<K<M, B>>(f(x)))).Flatten();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

@@ -18,7 +18,7 @@ public class Signal<M>(EventWaitHandle handle) : IDisposable
     /// True if the operation succeeds
     /// </returns>
     public K<M, bool> Trigger() =>
-        M.LiftIO(IO.lift(_ => handle.Set()));
+        M.LiftIOMaybe(IO.lift(_ => handle.Set()));
     
     /// <summary>
     /// Set the signal
@@ -37,21 +37,21 @@ public class Signal<M>(EventWaitHandle handle) : IDisposable
     /// </summary>
     /// <returns></returns>
     public K<M, bool> Wait() =>
-        M.LiftIO(IO.liftAsync(e => handle.WaitOneAsync(e.Token)));
+        M.LiftIOMaybe(IO.liftAsync(e => handle.WaitOneAsync(e.Token)));
     
     /// <summary>
     /// Wait for signal to signal
     /// </summary>
     /// <returns></returns>
     public K<M, bool> Wait(TimeSpan timeout) =>
-        M.LiftIO(IO.liftAsync(e => handle.WaitOneAsync(timeout, e.Token)));
+        M.LiftIOMaybe(IO.liftAsync(e => handle.WaitOneAsync(timeout, e.Token)));
     
     /// <summary>
     /// Wait for signal to signal
     /// </summary>
     /// <returns></returns>
     public K<M, bool> Wait(int timeoutMilliseconds) =>
-        M.LiftIO(IO.liftAsync(e => handle.WaitOneAsync(timeoutMilliseconds, e.Token)));
+        M.LiftIOMaybe(IO.liftAsync(e => handle.WaitOneAsync(timeoutMilliseconds, e.Token)));
     
     public void Dispose() => 
         handle.Dispose();

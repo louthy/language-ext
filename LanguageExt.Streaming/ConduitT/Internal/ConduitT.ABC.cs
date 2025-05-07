@@ -50,13 +50,13 @@ class ConduitT<M, A, B, C> : ConduitT<M, A, C>
     /// Complete and close the Sink
     /// </summary>
     public override K<M, Unit> Complete() =>
-        M.LiftIO(IO.lift(_ => channel.Writer.TryComplete()).Map(unit));
+        M.LiftIOMaybe(IO.lift(_ => channel.Writer.TryComplete()).Map(unit));
 
     /// <summary>
     /// Complete and close the Sink with an `Error`
     /// </summary>
     public override K<M, Unit> Fail(Error Error) =>
-        M.LiftIO(IO.lift(_ => channel.Writer.TryComplete(Error)).Map(unit));
+        M.LiftIOMaybe(IO.lift(_ => channel.Writer.TryComplete(Error)).Map(unit));
 
     /// <summary>
     /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
@@ -68,7 +68,7 @@ class ConduitT<M, A, B, C> : ConduitT<M, A, C>
     /// <returns>Reduced state</returns>
     public override K<M, S> Reduce<S>(S state, ReducerM<M, C, S> reducer)
     {
-        return M.LiftIO(IO.lift(e => go(state, e.Token))).Flatten();
+        return M.LiftIOMaybe(IO.lift(e => go(state, e.Token))).Flatten();
         
         K<M, S> go(S s0, CancellationToken token)
         {
@@ -246,7 +246,7 @@ class ConduitT<M, A, B, C> : ConduitT<M, A, C>
 
     K<M, Unit> Write(K<M, B> value)
     {
-        return M.LiftIO(IO.liftVAsync(e => go(e, value, channel)));
+        return M.LiftIOMaybe(IO.liftVAsync(e => go(e, value, channel)));
         
         static async ValueTask<Unit> go(EnvIO e, K<M, B> mb, Channel<K<M, B>> ch)
         {

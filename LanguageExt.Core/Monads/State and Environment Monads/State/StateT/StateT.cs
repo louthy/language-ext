@@ -116,7 +116,7 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
     /// <param name="ma">IO monad to lift</param>
     /// <returns>`StateT`</returns>
     public static StateT<S, M, A> LiftIO(IO<A> ma) =>
-        Lift(M.LiftIO(ma));
+        Lift(M.LiftIOMaybe(ma));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

@@ -26,7 +26,7 @@ public static partial class Deriving
         /// <exception cref="ExceptionalException">If this method isn't overloaded in
         /// the inner monad or any monad in the stack on the way to the inner monad
         /// then it will throw an exception.</exception>
-        static K<Supertype, A> Traits.Maybe.MonadIO<Supertype>.LiftIO<A>(K<IO, A> ma) =>
+        static K<Supertype, A> Traits.MonadIO<Supertype>.LiftIO<A>(K<IO, A> ma) =>
             Supertype.CoTransform(Subtype.LiftIO(ma));
 
         /// <summary>
@@ -38,7 +38,7 @@ public static partial class Deriving
         /// <exception cref="ExceptionalException">If this method isn't overloaded in
         /// the inner monad or any monad in the stack on the way to the inner monad
         /// then it will throw an exception.</exception>
-        static K<Supertype, A> Traits.Maybe.MonadIO<Supertype>.LiftIO<A>(IO<A> ma) =>
+        static K<Supertype, A> Traits.MonadIO<Supertype>.LiftIO<A>(IO<A> ma) =>
             Supertype.CoTransform(Subtype.LiftIO(ma));
     }
 }

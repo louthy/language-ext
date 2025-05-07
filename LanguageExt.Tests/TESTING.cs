@@ -175,6 +175,8 @@ public static class Testing
                  from x in StateT.get<IO, string>()
                  from i in OptionT<StateT<string, IO>>.liftIO(IO.pure("Hello"))
                  from j in IO.pure("Hello").Fork()
+               //from k in m1.ForkIO()                          -- Can't work, because OptionT is not MonadUnliftIO
+                 from k in m1.Run().Run("state").As().Fork()    // But we can manually unpack 
                  from _ in StateT.put<IO, string>(x)
                  from r in envIO
                  from y in m2
@@ -226,7 +228,7 @@ public static class GeneralIO<M>
     where M : Monad<M>
 {
     public static K<M, string> readAllText(string path) =>
-        M.LiftIO(liftIO(async _ => await File.ReadAllTextAsync(path)));
+        M.LiftIOMaybe(liftIO(async _ => await File.ReadAllTextAsync(path)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -254,7 +256,7 @@ public class Maybe : Monad<Maybe>
     public static K<Maybe, B> Action<A, B>(K<Maybe, A> ma, K<Maybe, B> mb) =>
         ma.As().Bind(_ => mb);
 
-    public static K<Maybe, A> LiftIO<A>(IO<A> ma) => 
+    public static K<Maybe, A> LiftIOMaybe<A>(IO<A> ma) => 
         throw new NotImplementedException();
 }
 
