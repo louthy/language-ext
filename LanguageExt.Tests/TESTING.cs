@@ -43,7 +43,7 @@ public static class Testing
         var r2 = m4.As().Run("Hello").As();
     }
     
-    /*public static void Test2()
+    public static void Test2()
     {
         var m1 = Reader<string, int>.Pure(123);
         var m2 = Reader<string, int>.Pure(123);
@@ -58,7 +58,7 @@ public static class Testing
                  from e in ask<string>()
                  from z in Pure(234)
                  select $"{e}: {x + y}";
-    }*/
+    }
     
     public static void Test3()
     {
@@ -118,61 +118,52 @@ public static class Testing
         var value = m0.Run("Hello").As().Value.As().Run(EnvIO.New());
     }
    
-    /*
     public static void Test7()
     {
-        var m1 = ResourceT.lift(ReaderT<string>.lift(IO.Pure(123)));
-        var m2 = ResourceT.lift(ReaderT<string>.lift(IO.Pure(123)));
+        var m1 = ReaderT<string>.lift(IO.pure(123));
+        var m2 = ReaderT<string>.lift(IO.pure(123));
                 
         var m0 = from w in Pure(123)
                  from q in m1
-                 from f in ResourceT<ReaderT<string, IO>>.use(() => File.Open("c:\\test.txt", FileMode.Open))
+                 from f in use(() => File.Open("c:\\test.txt", FileMode.Open))
                  from p in ReaderT.ask<IO, string>()
-                 from x in IO.Pure("Hello")
-                 from i in ReaderT<string, IO>.liftIO(IO.Pure("Hello"))
-                 from j in IO.Pure("Hello").Fork()
+                 from x in IO.pure("Hello")
+                 from i in ReaderT<string, IO>.liftIO(IO.pure("Hello"))
+                 from j in IO.pure("Hello").Fork()
                  from r in envIO 
                  from y in m2
                  select $"{p} {y} {j}";
 
-        var value = m0.Run().As()
-                      .Run("Hello").As();
+        var value = m0.Run("Hello").As();
     }
    
     public static void Test8()
     {
-        var m1 = OptionT.lift(ReaderT<string>.lift(ResourceT.lift(IO.Pure(123))));
-        var m2 = OptionT.lift(ReaderT<string>.lift(ResourceT.lift(IO.Pure(123))));
+        var m1 = OptionT.lift(ReaderT<string>.lift(IO.pure(123)));
+        var m2 = OptionT.lift(ReaderT<string>.lift(IO.pure(123)));
 
         var m0 = from w in Pure(123)
                  from q in m1
                  from f in use(() => File.Open("c:\\test.txt", FileMode.Open))
                  from p in ask<string>()
-                 from i in liftIO(IO.Pure("Hello"))
-                 from j in IO.Pure("Hello").Fork()
-                 from r in envIO 
+                 from i in liftIO(IO.pure("Hello"))
+                 from j in IO.pure("Hello").Fork()
+                 from r in envIO
                  from _ in release(f)
                  from y in m2
                  select $"{w} {f} {i}";
 
-        var value = m0.Match(Some: v => $"foo {v}", 
+        var value = m0.Match(Some: v => $"foo {v}",
                              None: () => "bar").As()
                       .Run("Paul").As()
-                      .Run(); 
+                      .Run();
 
-        OptionT<ReaderT<Env, ResourceT<IO>>, Env> ask<Env>() =>
-            OptionT.lift(ReaderT.ask<ResourceT<IO>, Env>()); 
+        OptionT<ReaderT<Env, IO>, Env> ask<Env>() =>
+            OptionT.lift(ReaderT.ask<IO, Env>());
         
-        OptionT<ReaderT<string, ResourceT<IO>>, A> use<A>(Func<A> f) where A : IDisposable =>
-            OptionT.lift(ReaderT<string>.lift(ResourceT<IO>.use(f)));
-        
-        OptionT<ReaderT<string, ResourceT<IO>>, Unit> release<A>(A value) where A : IDisposable =>
-            OptionT.lift(ReaderT<string>.lift(ResourceT<IO>.release(value)));
-
-        OptionT<ReaderT<string, ResourceT<IO>>, A> liftIO<A>(IO<A> ma) =>
-            OptionT.lift(ReaderT<string>.lift(ResourceT<IO>.liftIO(ma)));
+        OptionT<ReaderT<string, IO>, A> liftIO<A>(IO<A> ma) =>
+            OptionT.liftIO<ReaderT<string, IO>, A>(ma);
     }
-    */
        
     public static void Test9()
     {
