@@ -43,30 +43,6 @@ public interface MonadUnliftIO<M> : MonadIO<M>
         M.ToIO(ma).Bind(io => M.LiftIO(f(io)));
 
     /// <summary>
-    /// Extract the IO monad from within the `M` monad (usually as part of a monad-transformer stack).  Then perform
-    /// a mapping operation on the IO action before lifting the IO back into the `M` monad.
-    /// </summary>
-    static K<M, B> Maybe.MonadUnliftIO<M>.MapIOMaybe<A, B>(K<M, A> ma, Func<IO<A>, IO<B>> f) =>
-        M.MapIO(ma, f);
-
-    /// <summary>
-    /// Extract the IO monad from within the M monad (usually as part of a monad-transformer stack).
-    /// </summary>
-    /// <remarks>
-    /// IMPLEMENTATION REQUIRED: If this method isn't overloaded in this monad
-    /// or any monad in the stack on the way to the inner-monad, then it will throw
-    /// an exception.
-    ///
-    /// This isn't ideal, it appears to be the only way to achieve this
-    /// kind of functionality in C# without resorting to magic. 
-    /// </remarks>
-    /// <exception cref="ExceptionalException">If this method isn't overloaded in
-    /// the inner monad or any monad in the stack on the way to the inner-monad,
-    /// then it will throw an exception.</exception>
-    static K<M, IO<A>> Maybe.MonadUnliftIO<M>.ToIOMaybe<A>(K<M, A> ma) => 
-        M.ToIO(ma);
-
-    /// <summary>
     /// Queue this IO operation to run on the thread-pool. 
     /// </summary>
     /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
@@ -80,8 +56,8 @@ public interface MonadUnliftIO<M> : MonadIO<M>
     /// Await a forked operation
     /// </summary>
     public static virtual K<M, A> Await<A>(K<M, ForkIO<A>> ma) =>
-        M.MapIO(ma, io => io.Bind(f => f.Await));    
-    
+        M.MapIO(ma, io => io.Bind(f => f.Await));
+
     /// <summary>
     /// Creates a local cancellation environment
     /// </summary>
@@ -104,7 +80,7 @@ public interface MonadUnliftIO<M> : MonadIO<M>
     /// all IO computations)
     /// </summary>
     public static virtual K<M, A> PostIO<A>(K<M, A> ma) =>
-        M.MapIO(ma, io => io.Post());        
+        M.MapIO(ma, io => io.Post());
 
     /// <summary>
     /// Timeout operation if it takes too long
@@ -149,7 +125,7 @@ public interface MonadUnliftIO<M> : MonadIO<M>
         Func<Error, IO<C>> Catch,
         Func<A, IO<B>> Fin) =>
         M.MapIO(Acq, io => io.Bracket(Use, Catch, Fin));
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Repeating the effect
@@ -344,7 +320,7 @@ public interface MonadUnliftIO<M> : MonadIO<M>
         Schedule schedule,
         Func<Error, bool> predicate) =>
         M.MapIO(ma, io => io.RetryUntil(schedule, predicate));
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 
     //  Folding
@@ -392,7 +368,7 @@ public interface MonadUnliftIO<M> : MonadIO<M>
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
         M.MapIO(ma, io => io.FoldWhile(initialState, folder, valueIs));
-    
+
     public static virtual K<M, S> FoldWhileIO<S, A>(
         K<M, A> ma,
         Schedule schedule,
@@ -407,7 +383,7 @@ public interface MonadUnliftIO<M> : MonadIO<M>
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
         M.MapIO(ma, io => io.FoldWhile(initialState, folder, predicate));
-    
+
     public static virtual K<M, S> FoldUntilIO<S, A>(
         K<M, A> ma,
         Schedule schedule,
@@ -415,14 +391,14 @@ public interface MonadUnliftIO<M> : MonadIO<M>
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
         M.MapIO(ma, io => io.FoldUntil(schedule, initialState, folder, stateIs));
-    
+
     public static virtual K<M, S> FoldUntilIO<S, A>(
         K<M, A> ma,
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
         M.MapIO(ma, io => io.FoldUntil(initialState, folder, stateIs));
-    
+
     public static virtual K<M, S> FoldUntilIO<S, A>(
         K<M, A> ma,
         Schedule schedule,
@@ -430,14 +406,14 @@ public interface MonadUnliftIO<M> : MonadIO<M>
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
         M.MapIO(ma, io => io.FoldUntil(schedule, initialState, folder, valueIs));
-    
+
     public static virtual K<M, S> FoldUntilIO<S, A>(
         K<M, A> ma,
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
         M.MapIO(ma, io => io.FoldUntil(initialState, folder, valueIs));
-    
+
     public static virtual K<M, S> FoldUntilIO<S, A>(
         K<M, A> ma,
         S initialState,
@@ -451,5 +427,206 @@ public interface MonadUnliftIO<M> : MonadIO<M>
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        M.MapIO(ma, io => io.FoldUntil(schedule, initialState, folder, predicate));    
+        M.MapIO(ma, io => io.FoldUntil(schedule, initialState, folder, predicate));
+
+
+    static K<M, B> Maybe.MonadUnliftIO<M>.MapIOMaybe<A, B>(K<M, A> ma, Func<IO<A>, IO<B>> f) =>
+        M.MapIO(ma, f);
+
+    static K<M, IO<A>> Maybe.MonadUnliftIO<M>.ToIOMaybe<A>(K<M, A> ma) =>
+        M.ToIO(ma);
+
+    static K<M, ForkIO<A>> Maybe.MonadUnliftIO<M>.ForkIOMaybe<A>(K<M, A> ma, Option<TimeSpan> timeout) =>
+        M.ForkIO(ma, timeout);
+
+    static K<M, A> Maybe.MonadUnliftIO<M>.AwaitMaybe<A>(K<M, ForkIO<A>> ma) =>
+        M.Await(ma);
+
+    static K<M, A> Maybe.MonadUnliftIO<M>.LocalIOMaybe<A>(K<M, A> ma) =>
+        M.LocalIO(ma);
+
+    static K<M, A> Maybe.MonadUnliftIO<M>.PostIOMaybe<A>(K<M, A> ma) =>
+        M.PostIO(ma);
+
+    static K<M, A> Maybe.MonadUnliftIO<M>.TimeoutIOMaybe<A>(K<M, A> ma, TimeSpan timeout) =>
+        M.TimeoutIO(ma, timeout);
+
+    static K<M, A> Maybe.MonadUnliftIO<M>.BracketIOMaybe<A>(K<M, A> ma) =>
+        M.BracketIO(ma);
+
+    static K<M, C> Maybe.MonadUnliftIO<M>.BracketIOMaybe<A, B, C>(
+        K<M, A> Acq,
+        Func<A, IO<C>> Use,
+        Func<A, IO<B>> Fin) =>
+        M.BracketIO(Acq, Use, Fin);
+
+    static K<M, C> Maybe.MonadUnliftIO<M>.BracketIOMaybe<A, B, C>(
+        K<M, A> Acq,
+        Func<A, IO<C>> Use,
+        Func<Error, IO<C>> Catch,
+        Func<A, IO<B>> Fin) =>
+        M.BracketIO(Acq, Use, Catch, Fin);
+
+    static K<M, A> Maybe.MonadUnliftIO<M>.RepeatIOMaybe<A>(K<M, A> ma) =>
+        M.RepeatIO(ma);
+
+    static K<M, A> Maybe.MonadUnliftIO<M>.RepeatIOMaybe<A>(
+        K<M, A> ma,
+        Schedule schedule) =>
+        M.RepeatIO(ma, schedule);   
+
+    static K<M, A> Maybe.MonadUnliftIO<M>.RepeatWhileIOMaybe<A>(
+        K<M, A> ma,
+        Func<A, bool> predicate) =>
+        M.RepeatWhileIO(ma, predicate);
+
+    static K<M, A> Maybe.MonadUnliftIO<M>.RepeatWhileIOMaybe<A>(
+        K<M, A> ma,
+        Schedule schedule,
+        Func<A, bool> predicate) =>
+        M.RepeatWhileIO(ma, schedule, predicate);
+
+    static K<M, A> Maybe.MonadUnliftIO<M>.RepeatUntilIOMaybe<A>(
+        K<M, A> ma,
+        Func<A, bool> predicate) =>
+        M.RepeatUntilIO(ma, predicate);
+
+    static K<M, A> Maybe.MonadUnliftIO<M>.RepeatUntilIOMaybe<A>(
+        K<M, A> ma,
+        Schedule schedule,
+        Func<A, bool> predicate) =>
+        M.RepeatUntilIO(ma, schedule, predicate);
+
+    static K<M, A> Maybe.MonadUnliftIO<M>.RetryIOMaybe<A>(K<M, A> ma) =>
+        M.RetryIO(ma);  
+
+    static K<M, A> Maybe.MonadUnliftIO<M>.RetryIOMaybe<A>(
+        K<M, A> ma,
+        Schedule schedule) =>
+        M.RetryIO(ma, schedule);   
+
+    static K<M, A> Maybe.MonadUnliftIO<M>.RetryWhileIOMaybe<A>(
+        K<M, A> ma,
+        Func<Error, bool> predicate) =>
+        M.RetryWhileIO(ma, predicate);
+
+    static K<M, A> Maybe.MonadUnliftIO<M>.RetryWhileIOMaybe<A>(
+        K<M, A> ma,
+        Schedule schedule,
+        Func<Error, bool> predicate) =>
+        M.RetryWhileIO(ma, schedule, predicate);
+
+    static K<M, A> Maybe.MonadUnliftIO<M>.RetryUntilIOMaybe<A>(
+        K<M, A> ma,
+        Func<Error, bool> predicate) =>
+        M.RetryUntilIO(ma, predicate);
+
+    static K<M, A> Maybe.MonadUnliftIO<M>.RetryUntilIOMaybe<A>(
+        K<M, A> ma,
+        Schedule schedule,
+        Func<Error, bool> predicate) =>
+        M.RetryUntilIO(ma, schedule, predicate);
+
+    static K<M, S> Maybe.MonadUnliftIO<M>.FoldIOMaybe<S, A>(
+        K<M, A> ma,
+        Schedule schedule,
+        S initialState,
+        Func<S, A, S> folder) =>
+        M.FoldIO(ma, schedule, initialState, folder);
+
+    static K<M, S> Maybe.MonadUnliftIO<M>.FoldIOMaybe<S, A>(
+        K<M, A> ma,
+        S initialState,
+        Func<S, A, S> folder) =>
+        M.FoldIO(ma, initialState, folder);   
+
+    static K<M, S> Maybe.MonadUnliftIO<M>.FoldWhileIOMaybe<S, A>(
+        K<M, A> ma,
+        Schedule schedule,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<S, bool> stateIs) =>
+        M.FoldWhileIO(ma, schedule, initialState, folder, stateIs);
+
+    static K<M, S> Maybe.MonadUnliftIO<M>.FoldWhileIOMaybe<S, A>(
+        K<M, A> ma,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<S, bool> stateIs) =>
+        M.FoldWhileIO(ma, initialState, folder, stateIs);
+
+    static K<M, S> Maybe.MonadUnliftIO<M>.FoldWhileIOMaybe<S, A>(
+        K<M, A> ma,
+        Schedule schedule,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<A, bool> valueIs) =>
+        M.FoldWhileIO(ma, schedule, initialState, folder, valueIs);
+
+    static K<M, S> Maybe.MonadUnliftIO<M>.FoldWhileIOMaybe<S, A>(
+        K<M, A> ma,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<A, bool> valueIs) =>
+        M.FoldWhileIO(ma, initialState, folder, valueIs);   
+
+    static K<M, S> Maybe.MonadUnliftIO<M>.FoldWhileIOMaybe<S, A>(
+        K<M, A> ma,
+        Schedule schedule,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<(S State, A Value), bool> predicate) =>
+        M.FoldWhileIO(ma, schedule, initialState, folder, predicate);
+
+    static K<M, S> Maybe.MonadUnliftIO<M>.FoldWhileIOMaybe<S, A>(
+        K<M, A> ma,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<(S State, A Value), bool> predicate) =>
+        M.FoldWhileIO(ma, initialState, folder, predicate);
+
+    static K<M, S> Maybe.MonadUnliftIO<M>.FoldUntilIOMaybe<S, A>(
+        K<M, A> ma,
+        Schedule schedule,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<S, bool> stateIs) =>
+        M.FoldUntilIO(ma, schedule, initialState, folder, stateIs);
+
+    static K<M, S> Maybe.MonadUnliftIO<M>.FoldUntilIOMaybe<S, A>(
+        K<M, A> ma,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<S, bool> stateIs) =>
+        M.FoldUntilIO(ma, initialState, folder, stateIs);
+
+    static K<M, S> Maybe.MonadUnliftIO<M>.FoldUntilIOMaybe<S, A>(
+        K<M, A> ma,
+        Schedule schedule,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<A, bool> valueIs) =>
+        M.FoldUntilIO(ma, schedule, initialState, folder, valueIs);
+
+    static K<M, S> Maybe.MonadUnliftIO<M>.FoldUntilIOMaybe<S, A>(
+        K<M, A> ma,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<A, bool> valueIs) =>
+        M.FoldUntilIO(ma, initialState, folder, valueIs);  
+
+    static K<M, S> Maybe.MonadUnliftIO<M>.FoldUntilIOMaybe<S, A>(
+        K<M, A> ma,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<(S State, A Value), bool> predicate) =>
+        M.FoldUntilIO(ma, initialState, folder, predicate); 
+
+    static K<M, S> Maybe.MonadUnliftIO<M>.FoldUntilIOMaybe<S, A>(
+        K<M, A> ma,
+        Schedule schedule,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<(S State, A Value), bool> predicate) =>
+        M.FoldUntilIO(ma, schedule, initialState, folder, predicate);
 }
