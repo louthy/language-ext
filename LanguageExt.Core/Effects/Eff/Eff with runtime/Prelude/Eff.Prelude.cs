@@ -38,10 +38,10 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, RT> runtime<RT>() =>
-        liftEff<RT, RT>(rt => rt);
+        liftEff<RT, RT>(identity);
 
     /// <summary>
-    /// Get all of the internal state of the Eff
+    /// Get all the internal state of the `Eff`
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, (RT Runtime, EnvIO EnvIO)> getState<RT>() =>
@@ -58,7 +58,6 @@ public static partial class Prelude
         ma.LocalIO().As();
 
     /// <summary>
-    /// Create a new local context for the environment by mapping the outer environment and then
     /// Create a new local context for the environment by mapping the outer environment and then
     /// using the result as a new context when running the IO monad provided
     /// </summary>
