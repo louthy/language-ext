@@ -6,7 +6,7 @@ C# Functional Programming Language Extensions
 This library uses and abuses the features of C# to provide a pure functional-programming framework that, if you squint, can look like 
 extensions to the language itself. The desire here is to make programming in C# much more robust by helping the engineer's inertia flow 
 in the direction of declarative and pure functional code rather than imperative.  Using these techniques for large code-bases can bring 
-tangible benefits to long-term maintenance by removing hidden complexity and by easing the engineer's cognitive load.
+tangible benefits to long-term maintenance by removing hidden complexity and by easing the engineer's and team's cognitive load.
 
 [![GitHub Discussions](https://raw.githubusercontent.com/louthy/language-ext/main/Images/discussions.svg)](https://github.com/louthy/language-ext/discussions)
 
