@@ -245,7 +245,7 @@ public static partial class Prelude
     /// <returns>True if the string is null, empty, or whitespace</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool isEmpty(string? value) =>
+    public static bool isEmpty([NotNullWhen(false)] string? value) =>
         string.IsNullOrWhiteSpace(value);
 
     [Pure]
