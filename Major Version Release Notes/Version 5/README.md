@@ -152,7 +152,7 @@ And we get a concrete `Seq<string>` - not a `Task<Seq<string>>`, but the operati
 
 ## Leverage modern C# features
 
-The library has been held back by the need to support .NET Framework.  As of now this library is .NET (formally known as .NET Core) only.  Instantly jumping to .NET 8.0 (which has Long Term Support).
+The library has been held back by the need to support .NET Framework.  As of now this library is .NET (formerly known as .NET Core) only.  Instantly jumping to .NET 8.0 (which has Long Term Support).
 
 This opens up: static interface members (which allows the trait/ad-hoc polymorphism support to get a power-up) and collection initialisers for all of the immutable collections - amongst others.
 
