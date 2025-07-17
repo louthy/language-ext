@@ -8,6 +8,38 @@ namespace LanguageExt;
 public static partial class FoldableExtensions
 {
     /// <summary>
+    /// Fold the structure: `ta` and pass each element that it yields to `f`, resulting in an `F` applicative-value.
+    /// The fold operator is applicative `Action`, which causes each applicative-value to be sequenced.      
+    /// </summary>
+    /// <param name="ta">Foldable structure</param>
+    /// <param name="f">Mapping operation</param>
+    /// <typeparam name="T">Foldable</typeparam>
+    /// <typeparam name="F">Applicative</typeparam>
+    /// <typeparam name="A">Input bound value</typeparam>
+    /// <typeparam name="B">Mapping bound value</typeparam>
+    /// <returns></returns>
+    public static K<F, Unit> ForM<T, F, A, B>(this Func<A, K<F, B>> f, K<T, A> ta)
+        where F : Applicative<F>
+        where T : Foldable<T> =>
+        ta.Fold(pure<F, Unit>(unit), x => f(x).Action);
+    
+    /// <summary>
+    /// Fold the structure: `ta` and pass each element that it yields to `f`, resulting in an `F` applicative-value.
+    /// The fold operator is applicative `Action`, which causes each applicative-value to be sequenced.      
+    /// </summary>
+    /// <param name="ta">Foldable structure</param>
+    /// <param name="f">Mapping operation</param>
+    /// <typeparam name="T">Foldable</typeparam>
+    /// <typeparam name="F">Applicative</typeparam>
+    /// <typeparam name="A">Input bound value</typeparam>
+    /// <typeparam name="B">Mapping bound value</typeparam>
+    /// <returns></returns>
+    public static K<F, Unit> ForM<T, F, A, B>(this K<T, A> ta, Func<A, K<F, B>> f)
+        where F : Applicative<F>
+        where T : Foldable<T> =>
+        ta.Fold(pure<F, Unit>(unit), x => f(x).Action);
+    
+    /// <summary>
     /// Fold until the `Option` returns `None`
     /// </summary>
     /// <param name="f">Fold function</param>

@@ -1,12 +1,27 @@
 using System;
 using System.Numerics;
-using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Traits;
 
 public static class Foldable
 {
+    /// <summary>
+    /// Fold the structure: `ta` and pass each element that it yields to `f`, resulting in an `F` applicative-value.
+    /// The fold operator is applicative `Action`, which causes each applicative-value to be sequenced.      
+    /// </summary>
+    /// <param name="ta">Foldable structure</param>
+    /// <param name="f">Mapping operation</param>
+    /// <typeparam name="T">Foldable</typeparam>
+    /// <typeparam name="F">Applicative</typeparam>
+    /// <typeparam name="A">Input bound value</typeparam>
+    /// <typeparam name="B">Mapping bound value</typeparam>
+    /// <returns></returns>
+    public static K<F, Unit> forM<T, F, A, B>(K<T, A> ta, Func<A, K<F, B>> f)
+        where F : Applicative<F>
+        where T : Foldable<T> =>
+        ta.Fold(pure<F, Unit>(unit), x => f(x).Action);
+    
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
