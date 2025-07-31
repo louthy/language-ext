@@ -84,5 +84,5 @@ public class WindowIO<RT> : Window
     /// Async delay
     /// </summary>
     protected static Eff<RT, Unit> waitFor(double ms) =>
-        yieldIO(ms);
+        IO.yieldFor(ms);
 }
