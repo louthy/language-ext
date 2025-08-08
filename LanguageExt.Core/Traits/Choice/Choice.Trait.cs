@@ -5,7 +5,7 @@ namespace LanguageExt.Traits;
 /// <summary>
 /// A semigroup on applicative functors
 /// </summary>
-/// <typeparam name="F"></typeparam>
+/// <typeparam name="F">Applicative functor</typeparam>
 public interface Choice<F> : Applicative<F>, SemigroupK<F>
     where F : Choice<F>
 {

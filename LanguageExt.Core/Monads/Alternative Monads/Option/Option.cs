@@ -18,15 +18,6 @@ namespace LanguageExt;
 ///     Some(a)
 ///     None
 ///     
-/// Trait instances available for this type:
-/// 
-///     BiFoldable  : MOption
-///     Eq          : EqOpt
-///     Foldable    : MOption
-///     Functor     : FOption
-///     MonadPlus   : MOption
-///     Optional    : MOption
-///     Ord         : OrdOpt
 /// </summary>
 /// <typeparam name="A">Bound value</typeparam>
 [Serializable]
@@ -326,7 +317,7 @@ public readonly struct Option<A> :
     
     [Pure, MethodImpl(Opt.Default)]
     public static Option<A> operator |(K<Option, A> lhs, Option<A> rhs) =>
-        lhs.As().Choose(rhs).As();
+        lhs.Choose(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static Option<A> operator |(Option<A> lhs, K<Option, A> rhs) =>

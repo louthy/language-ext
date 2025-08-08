@@ -25,7 +25,7 @@ public interface Fallible<E, F>
 
     /// <summary>
     /// Run the `Fallible` structure.  If in a failed state, test the failure value
-    /// against the predicate.  If, it returns `true`, run the `Fail` function with
+    /// against the predicate.  If it returns `true`, run the `Fail` function with
     /// the failure value.
     /// </summary>
     /// <param name="fa">`Fallible` structure</param>
@@ -41,8 +41,7 @@ public interface Fallible<E, F>
 }
 
 /// <summary>
-/// Trait for higher-kinded structures that have a failure state `E`
+/// Trait for higher-kinded structures that have a failure state `Error`
 /// </summary>
 /// <typeparam name="F">Higher-kinded structure</typeparam>
-/// <typeparam name="E">Failure type</typeparam>
 public interface Fallible<F> : Fallible<Error, F>;

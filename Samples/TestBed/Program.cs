@@ -49,7 +49,19 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        TestBed.StateStuff.StateForkIO.forkTest.Run(4).Run().Ignore();
+        var mx = Some(100);
+
+        var value = mx switch
+                    {
+                        { IsSome: true, Case: > 100 } => "Over 100",
+                        { IsSome: true, Case: > 50 }  => "Over 50",
+                        { IsSome: true, Case: > 10 }  => "Over 10",
+                        _                             => "Not set"
+                    };
+        
+        Console.WriteLine(value);
+        
+        //TestBed.StateStuff.StateForkIO.forkTest.Run(4).Run().Ignore();
         //Issue1453.Test();
         //UseTest.Main().GetAwaiter().GetResult();
         //Issue1426().GetAwaiter().GetResult();
