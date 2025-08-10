@@ -51,6 +51,8 @@ Nu-get package | Description
 [LanguageExt.Rx](https://www.nuget.org/packages/LanguageExt.Rx) | Reactive Extensions support for various types within the Core
 [LanguageExt.Sys](https://www.nuget.org/packages/LanguageExt.Sys) | Provides an effects wrapper around the .NET System namespace making common IO operations pure and unit-testable
 
+![lang-ext](https://raw.githubusercontent.com/louthy/language-ext/main/Images/lang-ext-warning.jpg)
+
 ## Getting started
 
 To use this library, simply include `LanguageExt.Core.dll` in your project or grab it from NuGet.  It is also worth setting up some `global using` for your project.  This is the full list that will cover the key functionality and bring it into scope:
