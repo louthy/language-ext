@@ -60,7 +60,7 @@ Language-ext is 10 years old this year, so please consider this my _once per dec
 	* [`Apply` extensions that use raw `Func` removed](#apply-extensions-that-use-raw-func-removed)
 	* [Manually written `Sequence` extension methods have been removed (#1)](#manually-written-sequence-extension-methods-have-been-removed-1)
 	* [Manually written `Sequence` extension methods have been removed (#2)](#manually-written-sequence-extension-methods-have-been-removed-2)
-	* [Manually written `Sequence` extension methods have been removed (#2)](#manually-written-traverse-extension-methods-have-been-removed-3)
+	* [Manually written `Sequence` extension methods have been removed (#3)](#manually-written-traverse-extension-methods-have-been-removed-3)
 	* [`ToComparer` doesn't exist on the `Ord<A>` trait any more](#tocomparer-doesnt-exist-on-the-orda-trait-any-more)
 	* [Renamed `LanguageExt.ClassInstances.Sum`](#renamed-languageextclassinstancessum)
 	* [`Guard<E>` has become `Guard<E, A>`](#guarde-has-become-guarde-a)
@@ -123,7 +123,7 @@ When you want an operation not to run concurrently, but in parallel instead (i.e
 ```c#
 var forkedOperation = from f in operation.Fork() // runs in parallel
                       from r in f.Await		     // use the ForkIO to await the result
-			          select r;
+                      select r;
 
 // This will yield the current thread to allow concurrency, whilst the forked
 // operation runs on another thread.
