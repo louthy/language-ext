@@ -207,6 +207,18 @@ public record ChronicleT<Ch, M, A>(K<M, These<Ch, A>> runChronicleT) : K<Chronic
                       });
     
     /// <summary>
+    /// Coalescing operation
+    /// </summary>
+    public ChronicleT<Ch, M, A> Choose(Func<K<ChronicleT<Ch, M>, A>> rhs) =>
+        Memento()
+           .Bind(x => x switch
+                      {
+                          Either.Left<Ch, A>         => rhs(),
+                          Either.Right<Ch, A>(var r) => Dictate(r),
+                          _                          => throw new NotSupportedException()
+                      });
+    
+    /// <summary>
     /// Fallible error catching operation
     /// </summary>
     /// <param name="Predicate"></param>
