@@ -77,7 +77,7 @@ public static class TheseExtensions
             _                                                          => throw new NotSupportedException()
         };
     
-    public static K<These<A>, C> Apply<A, B, C>(this K<These<A>, Func<B, C>> mf, K<These<A>, B> ma) 
+    public static These<A, C> Apply<A, B, C>(this K<These<A>, Func<B, C>> mf, K<These<A>, B> ma) 
         where A : Semigroup<A> =>
         (mf, ma) switch
         {
