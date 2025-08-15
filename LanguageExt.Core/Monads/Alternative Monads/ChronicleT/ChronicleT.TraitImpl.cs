@@ -6,7 +6,8 @@ namespace LanguageExt;
 public class ChronicleT<Ch, M> : 
     MonadT<ChronicleT<Ch, M>, M>,
     MonadIO<ChronicleT<Ch, M>>,
-    Fallible<Ch, ChronicleT<Ch, M>>
+    Fallible<Ch, ChronicleT<Ch, M>>,
+    Choice<ChronicleT<Ch, M>> 
     where M : Monad<M>
     where Ch : Semigroup<Ch>
 {
@@ -16,7 +17,7 @@ public class ChronicleT<Ch, M> :
         ma.As().Map(f);
 
     static K<ChronicleT<Ch, M>, A> Applicative<ChronicleT<Ch, M>>.Pure<A>(A value) =>
-        ChronicleT<Ch, M, A>.That(value);
+        ChronicleT<Ch, M, A>.Dictate(value);
 
     static K<ChronicleT<Ch, M>, B> Applicative<ChronicleT<Ch, M>>.Apply<A, B>(
         K<ChronicleT<Ch, M>, Func<A, B>> mf,
@@ -39,40 +40,20 @@ public class ChronicleT<Ch, M> :
         ChronicleT<Ch, M, A>.LiftIO(ma);
 
     static K<ChronicleT<Ch, M>, A> Fallible<Ch, ChronicleT<Ch, M>>.Fail<A>(Ch error) => 
-        ChronicleT.This<Ch, M, A>(error);
+        ChronicleT.confess<Ch, M, A>(error);
 
     static K<ChronicleT<Ch, M>, A> Fallible<Ch, ChronicleT<Ch, M>>.Catch<A>(
         K<ChronicleT<Ch, M>, A> fa,
         Func<Ch, bool> Predicate,
         Func<Ch, K<ChronicleT<Ch, M>, A>> Fail) =>
-        new ChronicleT<Ch, M, A>(
-            fa.Run().Bind(these => these switch
-                                   {
-                                       This<Ch, A> (var c) =>
-                                           Predicate(c)
-                                               ? Fail(c).Run()
-                                               : M.Pure(These.This<Ch, A>(c)),
+        fa.As().Catch(Predicate, Fail);
 
-                                       That<Ch, A> (var c) =>
-                                           M.Pure(These.That<Ch, A>(c)),
+    public static K<ChronicleT<Ch, M>, A> Combine<A>(K<ChronicleT<Ch, M>, A> lhs, K<ChronicleT<Ch, M>, A> rhs) => 
+        lhs.As().Choose(rhs);
 
-                                       Pair<Ch, A> (var c1, var a1) =>
-                                           Predicate(c1)
-                                               ? Fail(c1).Run() switch
-                                                 {
-                                                     This<Ch, A> (var c2) =>
-                                                         M.Pure(These.This<Ch, A>(c1 + c2)),
+    public static K<ChronicleT<Ch, M>, A> Choose<A>(K<ChronicleT<Ch, M>, A> lhs, K<ChronicleT<Ch, M>, A> rhs) => 
+        lhs.As().Choose(rhs);
 
-                                                     That<Ch, A> (var a2) =>
-                                                         M.Pure(These.That<Ch, A>(a2)),
-
-                                                     Pair<Ch, A> (var c2, var a2) =>
-                                                         M.Pure(These.Pair(c1 + c2, a2)),
-
-                                                     _ => throw new NotSupportedException()
-                                                 }
-                                               : M.Pure(These.Pair(c1, a1)),
-
-                                       _ => throw new NotSupportedException()
-                                   }));
+    public static K<ChronicleT<Ch, M>, A> Choose<A>(K<ChronicleT<Ch, M>, A> lhs, Func<K<ChronicleT<Ch, M>, A>> rhs) => 
+        lhs.As().Choose(rhs);
 }
