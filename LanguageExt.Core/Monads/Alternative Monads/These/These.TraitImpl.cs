@@ -5,8 +5,7 @@ namespace LanguageExt;
 
 public class These<A> : 
     Monad<These<A>>, 
-    Traversable<These<A>>, 
-    Foldable<These<A>>
+    Traversable<These<A>> 
     where A : Semigroup<A>
 {
     public static K<These<A>, C> Map<B, C>(Func<B, C> f, K<These<A>, B> ma) =>
@@ -28,8 +27,8 @@ public class These<A> :
             _                                                                => throw new NotSupportedException()
         };
 
-    public static K<These<A>, C> Bind<B, C>(K<These<A>, B> ma, Func<B, K<These<A>, C>> f) => 
-        throw new NotImplementedException();
+    public static K<These<A>, C> Bind<B, C>(K<These<A>, B> ma, Func<B, K<These<A>, C>> f) =>
+        ma.As().Bind(f);
 
     public static S FoldWhile<B, S>(
         Func<B, Func<S, S>> f,
@@ -66,5 +65,4 @@ public class These<A> :
             Pair<A, B> (var a, var b) => F.Map(x => These.Pair(a, x).Kind(), f(b)),
             _                         => throw new NotSupportedException()
         };
-
 }
