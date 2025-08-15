@@ -10,7 +10,7 @@ public static class ChronicleT
     /// <param name="value">Value to construct with</param>
     /// <returns>Chronicle structure</returns>
     public static ChronicleT<Ch, M, A> That<Ch, M, A>(A value) 
-        where Ch : Monoid<Ch>
+        where Ch : Semigroup<Ch>
         where M : Monad<M> =>
         new(M.Pure(These.That<Ch, A>(value)));
     
@@ -20,7 +20,7 @@ public static class ChronicleT
     /// <param name="value">Value to construct with</param>
     /// <returns>Chronicle structure</returns>
     public static ChronicleT<Ch, M, A> This<Ch, M, A>(Ch value) 
-        where Ch : Monoid<Ch>
+        where Ch : Semigroup<Ch>
         where M : Monad<M> =>
         new(M.Pure(These.This<Ch, A>(value)));
     
@@ -31,7 +31,7 @@ public static class ChronicleT
     /// <param name="that">Value to construct with</param>
     /// <returns>Chronicle structure</returns>
     public static ChronicleT<Ch, M, A> Pair<Ch, M, A>(Ch @this, A that) 
-        where Ch : Monoid<Ch>
+        where Ch : Semigroup<Ch>
         where M : Monad<M> =>
         new(M.Pure(These.Pair(@this, that)));
     
@@ -41,7 +41,7 @@ public static class ChronicleT
     /// <param name="ma">Monad to lift</param>
     /// <returns>Chronicle structure</returns>
     public static ChronicleT<Ch, M, A> lift<Ch, M, A>(K<M, A> ma) 
-        where Ch : Monoid<Ch>
+        where Ch : Semigroup<Ch>
         where M : Monad<M> =>
         new(ma.Map(These.That<Ch, A>));
     
@@ -51,7 +51,7 @@ public static class ChronicleT
     /// <param name="ma">Monad to lift</param>
     /// <returns>Chronicle structure</returns>
     public static ChronicleT<Ch, M, A> liftIO<Ch, M, A>(K<IO, A> ma)
-        where Ch : Monoid<Ch>
+        where Ch : Semigroup<Ch>
         where M : MonadIO<M> =>
         lift<Ch, M, A>(M.LiftIO(ma));
 }

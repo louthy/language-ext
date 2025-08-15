@@ -8,7 +8,7 @@ public static class ChronicleTExtensions
     /// Downcast operator
     /// </summary>
     public static ChronicleT<Ch, M, A> As<Ch, M, A>(this K<ChronicleT<Ch, M>, A> ma) 
-        where Ch : Monoid<Ch>
+        where Ch : Semigroup<Ch>
         where M : Monad<M> =>
         (ChronicleT<Ch, M, A>)ma;
     
@@ -16,7 +16,7 @@ public static class ChronicleTExtensions
     /// Run the chronicle to yield its inner monad
     /// </summary>
     public static K<M, These<Ch, A>> Run<Ch, M, A>(this K<ChronicleT<Ch, M>, A> ma) 
-        where Ch : Monoid<Ch>
+        where Ch : Semigroup<Ch>
         where M : Monad<M> =>
         ma.As().Run();
 }

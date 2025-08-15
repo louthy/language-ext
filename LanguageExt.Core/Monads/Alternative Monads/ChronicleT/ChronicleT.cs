@@ -15,7 +15,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Monad type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record ChronicleT<Ch, M, A>(K<M, These<Ch, A>> runChronicleT) : K<ChronicleT<Ch, M>, A>
-    where Ch : Monoid<Ch>
+    where Ch : Semigroup<Ch>
     where M : Monad<M>
 {
     /// <summary>

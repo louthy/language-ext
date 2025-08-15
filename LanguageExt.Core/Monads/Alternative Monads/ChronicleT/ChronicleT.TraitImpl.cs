@@ -8,7 +8,7 @@ public class ChronicleT<Ch, M> :
     MonadIO<ChronicleT<Ch, M>>,
     Fallible<Ch, ChronicleT<Ch, M>>
     where M : Monad<M>
-    where Ch : Monoid<Ch>
+    where Ch : Semigroup<Ch>
 {
     static K<ChronicleT<Ch, M>, B> Functor<ChronicleT<Ch, M>>.Map<A, B>(
         Func<A, B> f,
