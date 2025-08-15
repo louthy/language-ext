@@ -9,6 +9,11 @@ namespace LanguageExt;
 /// The `ChronicleT` monad transformer. 
 /// </summary>
 /// <remarks>
+/// Hybrid error/writer monad class that allows both accumulating outputs and aborting computation with a final output.
+/// 
+/// The expected use case is for computations with a notion of fatal vs. non-fatal errors.
+/// </remarks>
+/// <remarks>
 /// The 'pure' function produces a computation with no output, and `Bind` combines multiple
 /// outputs with semigroup combine.
 /// </remarks>
