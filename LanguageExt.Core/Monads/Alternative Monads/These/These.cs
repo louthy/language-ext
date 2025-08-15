@@ -5,7 +5,6 @@ using static LanguageExt.Prelude;
 namespace LanguageExt;
 
 public abstract record These<A, B> : K<These<A>, B>
-    where A : Semigroup<A>
 {
     /// <summary>
     /// Case analysis for the `These` type
@@ -41,12 +40,6 @@ public abstract record These<A, B> : K<These<A>, B>
     /// </summary>
     /// <param name="f">Mapping function</param>
     public abstract These<A, C> Map<C>(Func<B, C> f);
-    
-    /// <summary>
-    /// Monad bind operation
-    /// </summary>
-    /// <param name="f">Chaining function</param>
-    public abstract These<A, C> Bind<C>(Func<B, K<These<A>, C>> f);
 
     /// <summary>
     /// Traverse
@@ -69,7 +62,6 @@ public abstract record These<A, B> : K<These<A>, B>
 }
 
 public sealed record This<A, B>(A Value) : These<A, B>
-    where A : Semigroup<A>
 {
     public override C Match<C>(Func<A, C> This, Func<B, C> That, Func<A, B, C> Pair) =>
         This(Value);
@@ -82,13 +74,9 @@ public sealed record This<A, B>(A Value) : These<A, B>
 
     public override These<C, D> BiMap<C, D>(Func<A, C> This, Func<B, D> That) =>
         new This<C, D>(This(Value));   
-    
-    public override These<A, C> Bind<C>(Func<B, K<These<A>, C>> f) =>
-        new This<A, C>(Value);
 }
 
 public sealed record That<A, B>(B Value) : These<A, B>
-    where A : Semigroup<A>
 {
     public override C Match<C>(Func<A, C> This, Func<B, C> That, Func<A, B, C> Pair) =>
         That(Value);
@@ -101,13 +89,9 @@ public sealed record That<A, B>(B Value) : These<A, B>
     
     public override These<C, D> BiMap<C, D>(Func<A, C> This, Func<B, D> That) =>
         new That<C, D>(That(Value));  
-    
-    public override These<A, C> Bind<C>(Func<B, K<These<A>, C>> f) =>
-        f(Value).As();
 }
 
 public sealed record Pair<A, B>(A First, B Second) : These<A, B>
-    where A : Semigroup<A>
 {
     public override C Match<C>(Func<A, C> This, Func<B, C> That, Func<A, B, C> Pair) =>
         Pair(First, Second);   
@@ -120,13 +104,4 @@ public sealed record Pair<A, B>(A First, B Second) : These<A, B>
     
     public override These<C, D> BiMap<C, D>(Func<A, C> This, Func<B, D> That) =>
         new Pair<C, D>(This(First), That(Second));
-
-    public override These<A, C> Bind<C>(Func<B, K<These<A>, C>> f) =>
-        f(Second) switch
-        {
-            This<A, C> (var a)        => These.This<A, C>(First + a),
-            That<A, C> (var b)        => These.Pair(First, b),
-            Pair<A, C> (var a, var b) => These.Pair(First + a, b),
-            _                         => throw new NotSupportedException()
-        };
 }

@@ -10,8 +10,7 @@ public partial class These
     /// </summary>
     /// <param name="value">Value to set</param>
     /// <returns>Constructed `These` structure</returns>
-    public static These<A, B> This<A, B>(A value) 
-        where A : Semigroup<A> =>
+    public static These<A, B> This<A, B>(A value) =>
         new This<A, B>(value);
     
     /// <summary>
@@ -19,8 +18,7 @@ public partial class These
     /// </summary>
     /// <param name="value">Value to set</param>
     /// <returns>Constructed `These` structure</returns>
-    public static These<A, B> That<A, B>(B value) 
-        where A : Semigroup<A> =>
+    public static These<A, B> That<A, B>(B value) =>
         new That<A, B>(value);    
     
     /// <summary>
@@ -29,8 +27,7 @@ public partial class These
     /// <param name="first">First value to set</param>
     /// <param name="second">Second value to set</param>
     /// <returns>Constructed `These` structure</returns>
-    public static These<A, B> Pair<A, B>(A first, B second) 
-        where A : Semigroup<A> =>
+    public static These<A, B> Pair<A, B>(A first, B second) =>
         new Pair<A, B>(first, second);
     
     /// <summary>
@@ -38,8 +35,7 @@ public partial class These
     /// </summary>
     /// <param name="f">Coalesce operation</param>
     /// <returns>Coalesced value</returns>
-    public static A merge<A>(Func<A, A, A> f, These<A, A> these) 
-        where A : Semigroup<A> =>
+    public static A merge<A>(Func<A, A, A> f, These<A, A> these) =>
         these.Merge(f);
 
     /// <summary>
@@ -50,7 +46,6 @@ public partial class These
     /// <returns>Partitioned sequences</returns>
     public static (Seq<A> This, Seq<B> That, Seq<(A, B)> Pair) partition<F, A, B>(
         K<F, These<A, B>> theses)
-        where A : Semigroup<A>
         where F : Foldable<F> =>
         theses.Partition();
     
@@ -62,8 +57,6 @@ public partial class These
     /// <returns>Partitioned sequences</returns>
     public static (Seq<A> This, Seq<B> That) partition2<F, A, B>(
         K<F, These<A, B>> theses)
-        where A : Semigroup<A>
         where F : Foldable<F> =>
         theses.Partition2();
-
 }

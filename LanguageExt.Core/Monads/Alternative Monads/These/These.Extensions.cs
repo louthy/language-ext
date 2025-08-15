@@ -6,8 +6,7 @@ namespace LanguageExt;
 
 public static class TheseExtensions
 {
-    public static These<A, B> As<A, B>(this K<These<A>, B> ma) 
-        where A : Semigroup<A> =>
+    public static These<A, B> As<A, B>(this K<These<A>, B> ma) =>
         (These<A, B>)ma;
     
     /// <summary>
@@ -15,8 +14,7 @@ public static class TheseExtensions
     /// </summary>
     /// <param name="f">Coalesce operation</param>
     /// <returns>Coalesced value</returns>
-    public static A Merge<A>(this K<These<A>, A> these, Func<A, A, A> f) 
-        where A : Semigroup<A> =>
+    public static A Merge<A>(this K<These<A>, A> these, Func<A, A, A> f) =>
         these.As().Match(x => x, x => x, f);
     
     /// <summary>
@@ -27,8 +25,7 @@ public static class TheseExtensions
     /// <returns>Partitioned sequences</returns>
     public static (Seq<A> This, Seq<B> That, Seq<(A, B)> Pair) Partition<F, A, B>(
         this K<F, These<A, B>> theses)
-        where F : Foldable<F> 
-        where A : Semigroup<A> =>
+        where F : Foldable<F> =>
         theses.Fold((This: Seq<A>(), That: Seq<B>(), Pair: Seq<(A First, B Second)>()),
                     (state, these) => these switch
                                       {
@@ -47,8 +44,7 @@ public static class TheseExtensions
     /// <returns>Partitioned sequences</returns>
     public static (Seq<A> This, Seq<B> That) Partition2<F, A, B>(
         this K<F, These<A, B>> theses)
-        where F : Foldable<F> 
-        where A : Semigroup<A> =>
+        where F : Foldable<F> =>
         theses.Fold((This: Seq<A>(), That: Seq<B>()),
                     (state, these) => these switch
                                       {
@@ -80,4 +76,31 @@ public static class TheseExtensions
             (Pair<A, B> (var f1, var f2), Pair<A, B> (var s1, var s2)) => These.Pair(f1       + s1, f2 + s2),
             _                                                          => throw new NotSupportedException()
         };
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="f">Chaining function</param>
+    public static These<A, C> Bind<A, B, C>(this These<A, B> mb, Func<B, K<These<A>, C>> f) 
+        where A : Semigroup<A> =>
+        mb switch
+        {
+            This<A, B> (var v)        => new This<A, C>(v),
+            That<A, B> (var v)        => f(v).As(),
+            Pair<A, B> (var x, var y) => f(y) switch
+                                         {
+                                             This<A, C> (var a)        => These.This<A, C>(x + a),
+                                             That<A, C> (var b)        => These.Pair(x, b),
+                                             Pair<A, C> (var a, var b) => These.Pair(x + a, b),
+                                             _                         => throw new NotSupportedException()
+                                         },
+            _                         => throw new NotSupportedException()
+        };
+    
+    public static These<A, D> SelectMany<A, B, C, D>(
+        this These<A, B> mb, 
+        Func<B, K<These<A>, C>> bind, 
+        Func<B, C, D> project) 
+        where A : Semigroup<A> =>
+        mb.Bind(b => bind(b).Map(c => project(b, c)));
 }
