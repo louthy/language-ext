@@ -1,5 +1,6 @@
 using System;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -56,7 +57,7 @@ public static class ChronicleT
     public static ChronicleT<Ch, M, A> lift<Ch, M, A>(K<M, A> ma) 
         where Ch : Semigroup<Ch>
         where M : Monad<M> =>
-        new(ma.Map(These.That<Ch, A>));
+        new(ma.Map(That<Ch, A>));
     
     /// <summary>
     /// Lift an `IO` monad into the monad-transformer

@@ -7,14 +7,39 @@ namespace LanguageExt;
 public abstract record These<A, B> : K<These<A>, B>
 {
     /// <summary>
+    /// This constructor
+    /// </summary>
+    /// <param name="value">Value to set</param>
+    /// <returns>Constructed `These` structure</returns>
+    public static These<A, B> This(A value) =>
+        new These.This<A, B>(value);
+    
+    /// <summary>
+    /// That constructor
+    /// </summary>
+    /// <param name="value">Value to set</param>
+    /// <returns>Constructed `These` structure</returns>
+    public static These<A, B> That(B value) =>
+        new These.That<A, B>(value);    
+    
+    /// <summary>
+    /// Both constructor
+    /// </summary>
+    /// <param name="first">First value to set</param>
+    /// <param name="second">Second value to set</param>
+    /// <returns>Constructed `These` structure</returns>
+    public static These<A, B> Both(A first, B second) =>
+        new These.Both<A, B>(first, second);
+    
+    /// <summary>
     /// Case analysis for the `These` type
     /// </summary>
     /// <param name="This">Match for `This` state</param>
     /// <param name="That">Match for `That` state</param>
-    /// <param name="Pair">Match for `Pair` state</param>
+    /// <param name="Both">Match for `Both` state</param>
     /// <typeparam name="C">Result type</typeparam>
-    /// <returns>Result of running either `This`, `That`, or `Pair`</returns>
-    public abstract C Match<C>(Func<A, C> This, Func<B, C> That, Func<A, B, C> Pair);
+    /// <returns>Result of running either `This`, `That`, or `Both`</returns>
+    public abstract C Match<C>(Func<A, C> This, Func<B, C> That, Func<A, B, C> Both);
 
     /// <summary>
     /// Takes two default values and produces a tuple
@@ -53,55 +78,10 @@ public abstract record These<A, B> : K<These<A>, B>
     /// </summary>
     /// <param name="This">This mapping</param>
     /// <param name="That">That mapping</param>
-    /// <param name="Pair">Pair mapping</param>
+    /// <param name="Both">Both mapping</param>
     /// <typeparam name="C"></typeparam>
     /// <returns></returns>
-    public C Merge<C>(Func<A, C> This, Func<B, C> That, Func<C, C, C> Pair) 
+    public C Merge<C>(Func<A, C> This, Func<B, C> That, Func<C, C, C> Both) 
         where C : Semigroup<C> =>
-        BiMap(This, That).Merge(Pair);
-}
-
-public sealed record This<A, B>(A Value) : These<A, B>
-{
-    public override C Match<C>(Func<A, C> This, Func<B, C> That, Func<A, B, C> Pair) =>
-        This(Value);
-    
-    public override (A, B) ToTuple(A x, B y) =>
-        (Value, y);
-
-    public override These<A, C> Map<C>(Func<B, C> f) =>
-        new This<A, C>(Value);
-
-    public override These<C, D> BiMap<C, D>(Func<A, C> This, Func<B, D> That) =>
-        new This<C, D>(This(Value));   
-}
-
-public sealed record That<A, B>(B Value) : These<A, B>
-{
-    public override C Match<C>(Func<A, C> This, Func<B, C> That, Func<A, B, C> Pair) =>
-        That(Value);
-    
-    public override (A, B) ToTuple(A x, B y) =>
-        (x, Value);
-
-    public override These<A, C> Map<C>(Func<B, C> f) =>
-        new That<A, C>(f(Value));
-    
-    public override These<C, D> BiMap<C, D>(Func<A, C> This, Func<B, D> That) =>
-        new That<C, D>(That(Value));  
-}
-
-public sealed record Pair<A, B>(A First, B Second) : These<A, B>
-{
-    public override C Match<C>(Func<A, C> This, Func<B, C> That, Func<A, B, C> Pair) =>
-        Pair(First, Second);   
-    
-    public override (A, B) ToTuple(A x, B y) =>
-        (First, Second);    
-
-    public override These<A, C> Map<C>(Func<B, C> f) =>
-        new Pair<A, C>(First, f(Second));
-    
-    public override These<C, D> BiMap<C, D>(Func<A, C> This, Func<B, D> That) =>
-        new Pair<C, D>(This(First), That(Second));
+        BiMap(This, That).Merge(Both);
 }

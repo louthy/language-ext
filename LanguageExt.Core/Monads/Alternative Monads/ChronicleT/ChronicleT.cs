@@ -1,5 +1,7 @@
 using System;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
+using NSE = System.NotSupportedException;
 
 namespace LanguageExt;
 
@@ -31,7 +33,7 @@ public record ChronicleT<Ch, M, A>(K<M, These<Ch, A>> runChronicleT) : K<Chronic
     /// <param name="value">Value to construct with</param>
     /// <returns>Chronicle structure</returns>
     public static ChronicleT<Ch, M, A> Dictate(A value) =>
-        new(M.Pure(These.That<Ch, A>(value)));
+        new(M.Pure(That<Ch, A>(value)));
     
     /// <summary>
     /// `Confess` is an action that ends with a final output `value`.
@@ -40,7 +42,7 @@ public record ChronicleT<Ch, M, A>(K<M, These<Ch, A>> runChronicleT) : K<Chronic
     /// <param name="value">Value to construct with</param>
     /// <returns>Chronicle structure</returns>
     public static ChronicleT<Ch, M, A> Confess(Ch value) => 
-        new(M.Pure(These.This<Ch, A>(value)));
+        new(M.Pure(This<Ch, A>(value)));
     
     /// <summary>
     /// Construct a new chronicle with `this` and `that`.
@@ -49,7 +51,7 @@ public record ChronicleT<Ch, M, A>(K<M, These<Ch, A>> runChronicleT) : K<Chronic
     /// <param name="that">Value to construct with</param>
     /// <returns>Chronicle structure</returns>
     public static ChronicleT<Ch, M, A> Chronicle(Ch @this, A that) => 
-        new(M.Pure(These.Pair(@this, that)));
+        new(M.Pure(Both(@this, that)));
     
     /// <summary>
     /// Construct a new chronicle with `these`.
@@ -65,7 +67,7 @@ public record ChronicleT<Ch, M, A>(K<M, These<Ch, A>> runChronicleT) : K<Chronic
     /// <param name="ma">Monad to lift</param>
     /// <returns>Chronicle structure</returns>
     public static ChronicleT<Ch, M, A> Lift(K<M, A> ma) =>
-        new(ma.Map(These.That<Ch, A>));
+        new(ma.Map(That<Ch, A>));
     
     /// <summary>
     /// Lift an `IO` monad into the monad-transformer
@@ -102,23 +104,23 @@ public record ChronicleT<Ch, M, A>(K<M, These<Ch, A>> runChronicleT) : K<Chronic
     public ChronicleT<Ch, M, B> Bind<B>(Func<A, K<ChronicleT<Ch, M>, B>> f) =>
         new(Run().Bind(cx => cx switch
                              {
-                                 This<Ch, A> (var c) =>
-                                     M.Pure(These.This<Ch, B>(c)),
+                                 These.This<Ch, A> (var c) =>
+                                     M.Pure(This<Ch, B>(c)),
 
-                                 That<Ch, A> (var x) =>
+                                 These.That<Ch, A> (var x) =>
                                      f(x).Run(),
 
-                                 Pair<Ch, A> (var c1, var x) =>
+                                 These.Both<Ch, A> (var c1, var x) =>
                                      f(x).Run()
                                          .Map(cy => cy switch
                                                     {
-                                                        This<Ch, B> (var c2)        => These.This<Ch, B>(c1 + c2),
-                                                        That<Ch, B> (var b)         => These.Pair(c1, b),
-                                                        Pair<Ch, B> (var c2, var b) => These.Pair(c1 + c2, b),
-                                                        _                          => throw new NotSupportedException()
+                                                        These.This<Ch, B> (var c2)        => This<Ch, B>(c1 + c2),
+                                                        These.That<Ch, B> (var b)         => Both(c1, b),
+                                                        These.Both<Ch, B> (var c2, var b) => Both(c1 + c2, b),
+                                                        _                                 => throw new NSE()
                                                     }),
 
-                                 _ => throw new NotSupportedException()
+                                 _ => throw new NSE()
                              }));
 
     /// <summary>
@@ -141,12 +143,12 @@ public record ChronicleT<Ch, M, A>(K<M, These<Ch, A>> runChronicleT) : K<Chronic
     public ChronicleT<Ch, M, Either<Ch, A>> Memento() =>
         new(Run().Map(these => these switch
                                {
-                                   This<Ch, A> (var c)        => These.That<Ch, Either<Ch, A>>(Either<Ch, A>.Left(c)),
-                                   That<Ch, A> (var x)        => These.That<Ch, Either<Ch, A>>(Either<Ch, A>.Right(x)),
-                                   Pair<Ch, A> (var c, var x) => These.Pair(c, Either<Ch, A>.Right(x)),
-                                   _                          => throw new NotSupportedException()
+                                   These.This<Ch, A> (var c)        => That<Ch, Either<Ch, A>>(Either<Ch, A>.Left(c)),
+                                   These.That<Ch, A> (var x)        => That<Ch, Either<Ch, A>>(Either<Ch, A>.Right(x)),
+                                   These.Both<Ch, A> (var c, var x) => Both(c, Either<Ch, A>.Right(x)),
+                                   _                                => throw new NSE()
                                }));
-    
+
     /// <summary>
     /// `Absolve` is an action that executes this structure and discards any record it had.
     /// The `defaultValue` will be used if the action ended via `Confess`. 
@@ -155,10 +157,10 @@ public record ChronicleT<Ch, M, A>(K<M, These<Ch, A>> runChronicleT) : K<Chronic
     public ChronicleT<Ch, M, A> Absolve(A defaultValue) =>
         new(Run().Map(these => these switch
                                {
-                                   This<Ch, A>            => These.That<Ch, A>(defaultValue),
-                                   That<Ch, A> (var x)    => These.That<Ch, A>(x),
-                                   Pair<Ch, A> (_, var x) => These.That<Ch, A>(x),
-                                   _                      => throw new NotSupportedException()
+                                   These.This<Ch, A>            => That<Ch, A>(defaultValue),
+                                   These.That<Ch, A> (var x)    => That<Ch, A>(x),
+                                   These.Both<Ch, A> (_, var x) => That<Ch, A>(x),
+                                   _                            => throw new NSE()
                                }));
 
     /// <summary>
@@ -171,10 +173,10 @@ public record ChronicleT<Ch, M, A>(K<M, These<Ch, A>> runChronicleT) : K<Chronic
     public ChronicleT<Ch, M, A> Condemn() =>
         new(Run().Map(these => these switch
                                {
-                                   This<Ch, A> (var c)    => These.This<Ch, A>(c),
-                                   That<Ch, A> (var x)    => These.That<Ch, A>(x),
-                                   Pair<Ch, A> (var c, _) => These.This<Ch, A>(c),
-                                   _                      => throw new NotSupportedException()
+                                   These.This<Ch, A> (var c)    => This<Ch, A>(c),
+                                   These.That<Ch, A> (var x)    => That<Ch, A>(x),
+                                   These.Both<Ch, A> (var c, _) => This<Ch, A>(c),
+                                   _                            => throw new NSE()
                                }));
 
     /// <summary>
@@ -188,10 +190,10 @@ public record ChronicleT<Ch, M, A>(K<M, These<Ch, A>> runChronicleT) : K<Chronic
     public ChronicleT<Ch, M, A> Censor(Func<Ch, Ch> f) =>
         new(Run().Map(these => these switch
                                {
-                                   This<Ch, A> (var c)        => These.This<Ch, A>(f(c)),
-                                   That<Ch, A> (var x)        => These.That<Ch, A>(x),
-                                   Pair<Ch, A> (var c, var x) => These.Pair(f(c), x),
-                                   _                          => throw new NotSupportedException()
+                                   These.This<Ch, A> (var c)        => This<Ch, A>(f(c)),
+                                   These.That<Ch, A> (var x)        => That<Ch, A>(x),
+                                   These.Both<Ch, A> (var c, var x) => Both(f(c), x),
+                                   _                                => throw new NSE()
                                }));
     
     /// <summary>
@@ -203,7 +205,7 @@ public record ChronicleT<Ch, M, A>(K<M, These<Ch, A>> runChronicleT) : K<Chronic
                       {
                           Either.Left<Ch, A>         => rhs,
                           Either.Right<Ch, A>(var r) => Dictate(r),
-                          _                          => throw new NotSupportedException()
+                          _                          => throw new NSE()
                       });
     
     /// <summary>
@@ -215,7 +217,7 @@ public record ChronicleT<Ch, M, A>(K<M, These<Ch, A>> runChronicleT) : K<Chronic
                       {
                           Either.Left<Ch, A>         => rhs(),
                           Either.Right<Ch, A>(var r) => Dictate(r),
-                          _                          => throw new NotSupportedException()
+                          _                          => throw new NSE()
                       });
     
     /// <summary>
@@ -230,7 +232,7 @@ public record ChronicleT<Ch, M, A>(K<M, These<Ch, A>> runChronicleT) : K<Chronic
                       {
                           Either.Left<Ch, A> (var e) => Predicate(e) ? Fail(e) : Confess(e),
                           Either.Right<Ch, A>(var r) => Dictate(r),
-                          _                          => throw new NotSupportedException()
+                          _                          => throw new NSE()
                       });
 
     /// <summary>

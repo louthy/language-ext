@@ -1,6 +1,7 @@
 using System;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
+using NSE = System.NotSupportedException;
 
 namespace LanguageExt;
 
@@ -16,24 +17,24 @@ public static class TheseExtensions
     /// <returns>Coalesced value</returns>
     public static A Merge<A>(this K<These<A>, A> these, Func<A, A, A> f) =>
         these.As().Match(x => x, x => x, f);
-    
+
     /// <summary>
     /// Select each constructor and partition them into separate lists.
     /// </summary>
     /// <param name="theses">Selection</param>
     /// <typeparam name="F">Foldable structure</typeparam>
     /// <returns>Partitioned sequences</returns>
-    public static (Seq<A> This, Seq<B> That, Seq<(A, B)> Pair) Partition<F, A, B>(
+    public static (Seq<A> This, Seq<B> That, Seq<(A, B)> Both) Partition<F, A, B>(
         this K<F, These<A, B>> theses)
         where F : Foldable<F> =>
-        theses.Fold((This: Seq<A>(), That: Seq<B>(), Pair: Seq<(A First, B Second)>()),
-                    (state, these) => these switch
-                                      {
-                                          This<A, B> (var x)        => (state.This.Add(x), state.That, state.Pair),
-                                          That<A, B> (var y)        => (state.This, state.That.Add(y), state.Pair),
-                                          Pair<A, B> (var x, var y) => (state.This, state.That, state.Pair.Add((x, y))),
-                                          _                         => throw new NotSupportedException()
-                                      });
+        theses.Fold((This: Seq<A>(), That: Seq<B>(), Both: Seq<(A First, B Second)>()),
+                    (s, ts) => ts switch
+                               {
+                                   These.This<A, B> (var x)        => (s.This.Add(x), s.That, s.Both),
+                                   These.That<A, B> (var y)        => (s.This, s.That.Add(y), s.Both),
+                                   These.Both<A, B> (var x, var y) => (s.This, s.That, s.Both.Add((x, y))),
+                                   _                               => throw new NSE()
+                               });
 
 
     /// <summary>
@@ -48,10 +49,10 @@ public static class TheseExtensions
         theses.Fold((This: Seq<A>(), That: Seq<B>()),
                     (state, these) => these switch
                                       {
-                                          This<A, B> (var x)        => (state.This.Add(x), state.That),
-                                          That<A, B> (var y)        => (state.This, state.That.Add(y)),
-                                          Pair<A, B> (var x, var y) => (state.This.Add(x), state.That.Add(y)),
-                                          _                         => throw new NotSupportedException()
+                                          These.This<A, B> (var x)        => (state.This.Add(x), state.That),
+                                          These.That<A, B> (var y)        => (state.This, state.That.Add(y)),
+                                          These.Both<A, B> (var x, var y) => (state.This.Add(x), state.That.Add(y)),
+                                          _                               => throw new NSE()
                                       });
 
     /// <summary>
@@ -65,50 +66,50 @@ public static class TheseExtensions
         where B : Semigroup<B> =>
         (first, second) switch
         {
-            (This<A, B> (var fx), This<A, B> (var sx))                 => These.This<A, B>(fx + sx),
-            (This<A, B> (var fx), That<A, B> (var sx))                 => These.Pair(fx, sx),
-            (This<A, B> (var fx), Pair<A, B> (var s1, var s2))         => These.Pair(fx + s1, s2),
-            (That<A, B> (var fx), This<A, B> (var sx))                 => These.Pair(sx, fx),
-            (That<A, B> (var fx), That<A, B> (var sx))                 => These.That<A, B>(fx + sx),
-            (That<A, B> (var fx), Pair<A, B> (var s1, var s2))         => These.Pair(s1, fx   + s2),
-            (Pair<A, B> (var f1, var f2), This<A, B> (var sx))         => These.Pair(f1       + sx, f2),
-            (Pair<A, B> (var f1, var f2), That<A, B> (var sx))         => These.Pair(f1, f2   + sx),
-            (Pair<A, B> (var f1, var f2), Pair<A, B> (var s1, var s2)) => These.Pair(f1       + s1, f2 + s2),
-            _                                                          => throw new NotSupportedException()
+            (These.This<A, B> (var fx), These.This<A, B> (var sx))                 => This<A, B>(fx + sx),
+            (These.This<A, B> (var fx), These.That<A, B> (var sx))                 => Both(fx, sx),
+            (These.This<A, B> (var fx), These.Both<A, B> (var s1, var s2))         => Both(fx + s1, s2),
+            (These.That<A, B> (var fx), These.This<A, B> (var sx))                 => Both(sx, fx),
+            (These.That<A, B> (var fx), These.That<A, B> (var sx))                 => That<A, B>(fx + sx),
+            (These.That<A, B> (var fx), These.Both<A, B> (var s1, var s2))         => Both(s1, fx   + s2),
+            (These.Both<A, B> (var f1, var f2), These.This<A, B> (var sx))         => Both(f1       + sx, f2),
+            (These.Both<A, B> (var f1, var f2), These.That<A, B> (var sx))         => Both(f1, f2   + sx),
+            (These.Both<A, B> (var f1, var f2), These.Both<A, B> (var s1, var s2)) => Both(f1       + s1, f2 + s2),
+            _                                                                      => throw new NSE()
         };
-    
-    public static These<A, C> Apply<A, B, C>(this K<These<A>, Func<B, C>> mf, K<These<A>, B> ma) 
+
+    public static These<A, C> Apply<A, B, C>(this K<These<A>, Func<B, C>> mf, K<These<A>, B> ma)
         where A : Semigroup<A> =>
         (mf, ma) switch
         {
-            (This<A, Func<B, C>> (var a), _)                                 => These.This<A, C>(a),
-            (That<A, Func<B, C>>, This<A, B> (var a))                        => These.This<A, C>(a),
-            (That<A, Func<B, C>> (var f), That<A, B> (var b))                => These.That<A, C>(f(b)),
-            (That<A, Func<B, C>> (var f), Pair<A, B> (var a, var b))         => These.Pair(a, f(b)),
-            (Pair<A, Func<B, C>> (var a1, _), This<A, B> (var a2))           => These.This<A, C>(a1 + a2),
-            (Pair<A, Func<B, C>> (var a1, var f), That<A, B> (var b))        => These.Pair(a1, f(b)),
-            (Pair<A, Func<B, C>> (var a1, var f), Pair<A, B> (var a, var b)) => These.Pair(a1 + a, f(b)),
-            _                                                                => throw new NotSupportedException()
-        };    
+            (These.This<A, Func<B, C>> (var a), _)                                       => This<A, C>(a),
+            (These.That<A, Func<B, C>>, These.This<A, B> (var a))                        => This<A, C>(a),
+            (These.That<A, Func<B, C>> (var f), These.That<A, B> (var b))                => That<A, C>(f(b)),
+            (These.That<A, Func<B, C>> (var f), These.Both<A, B> (var a, var b))         => Both(a, f(b)),
+            (These.Both<A, Func<B, C>> (var a1, _), These.This<A, B> (var a2))           => This<A, C>(a1 + a2),
+            (These.Both<A, Func<B, C>> (var a1, var f), These.That<A, B> (var b))        => Both(a1, f(b)),
+            (These.Both<A, Func<B, C>> (var a1, var f), These.Both<A, B> (var a, var b)) => Both(a1 + a, f(b)),
+            _                                                                            => throw new NSE()
+        };
 
     /// <summary>
     /// Monad bind operation
     /// </summary>
     /// <param name="f">Chaining function</param>
-    public static These<A, C> Bind<A, B, C>(this K<These<A>, B> mb, Func<B, K<These<A>, C>> f) 
+    public static These<A, C> Bind<A, B, C>(this K<These<A>, B> mb, Func<B, K<These<A>, C>> f)
         where A : Semigroup<A> =>
         mb switch
         {
-            This<A, B> (var v)        => new This<A, C>(v),
-            That<A, B> (var v)        => f(v).As(),
-            Pair<A, B> (var x, var y) => f(y) switch
-                                         {
-                                             This<A, C> (var a)        => These.This<A, C>(x + a),
-                                             That<A, C> (var b)        => These.Pair(x, b),
-                                             Pair<A, C> (var a, var b) => These.Pair(x + a, b),
-                                             _                         => throw new NotSupportedException()
-                                         },
-            _                         => throw new NotSupportedException()
+            These.This<A, B> (var v) => This<A, C>(v),
+            These.That<A, B> (var v) => f(v).As(),
+            These.Both<A, B> (var x, var y) => f(y) switch
+                                               {
+                                                   These.This<A, C> (var a)        => This<A, C>(x + a),
+                                                   These.That<A, C> (var b)        => Both(x, b),
+                                                   These.Both<A, C> (var a, var b) => Both(x + a, b),
+                                                   _                               => throw new NSE()
+                                               },
+            _ => throw new NSE()
         };
     
     public static These<A, D> SelectMany<A, B, C, D>(

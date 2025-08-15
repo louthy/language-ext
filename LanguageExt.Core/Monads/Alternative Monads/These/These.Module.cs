@@ -6,31 +6,6 @@ namespace LanguageExt;
 public partial class These
 {
     /// <summary>
-    /// This constructor
-    /// </summary>
-    /// <param name="value">Value to set</param>
-    /// <returns>Constructed `These` structure</returns>
-    public static These<A, B> This<A, B>(A value) =>
-        new This<A, B>(value);
-    
-    /// <summary>
-    /// That constructor
-    /// </summary>
-    /// <param name="value">Value to set</param>
-    /// <returns>Constructed `These` structure</returns>
-    public static These<A, B> That<A, B>(B value) =>
-        new That<A, B>(value);    
-    
-    /// <summary>
-    /// Pair constructor
-    /// </summary>
-    /// <param name="first">First value to set</param>
-    /// <param name="second">Second value to set</param>
-    /// <returns>Constructed `These` structure</returns>
-    public static These<A, B> Pair<A, B>(A first, B second) =>
-        new Pair<A, B>(first, second);
-    
-    /// <summary>
     /// Coalesce with the provided operation
     /// </summary>
     /// <param name="f">Coalesce operation</param>
@@ -44,7 +19,7 @@ public partial class These
     /// <param name="theses">Selection</param>
     /// <typeparam name="F">Foldable structure</typeparam>
     /// <returns>Partitioned sequences</returns>
-    public static (Seq<A> This, Seq<B> That, Seq<(A, B)> Pair) partition<F, A, B>(
+    public static (Seq<A> This, Seq<B> That, Seq<(A, B)> Both) partition<F, A, B>(
         K<F, These<A, B>> theses)
         where F : Foldable<F> =>
         theses.Partition();
