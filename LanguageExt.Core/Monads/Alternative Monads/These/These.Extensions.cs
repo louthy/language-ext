@@ -76,12 +76,26 @@ public static class TheseExtensions
             (Pair<A, B> (var f1, var f2), Pair<A, B> (var s1, var s2)) => These.Pair(f1       + s1, f2 + s2),
             _                                                          => throw new NotSupportedException()
         };
+    
+    public static K<These<A>, C> Apply<A, B, C>(this K<These<A>, Func<B, C>> mf, K<These<A>, B> ma) 
+        where A : Semigroup<A> =>
+        (mf, ma) switch
+        {
+            (This<A, Func<B, C>> (var a), _)                                 => These.This<A, C>(a),
+            (That<A, Func<B, C>>, This<A, B> (var a))                        => These.This<A, C>(a),
+            (That<A, Func<B, C>> (var f), That<A, B> (var b))                => These.That<A, C>(f(b)),
+            (That<A, Func<B, C>> (var f), Pair<A, B> (var a, var b))         => These.Pair(a, f(b)),
+            (Pair<A, Func<B, C>> (var a1, _), This<A, B> (var a2))           => These.This<A, C>(a1 + a2),
+            (Pair<A, Func<B, C>> (var a1, var f), That<A, B> (var b))        => These.Pair(a1, f(b)),
+            (Pair<A, Func<B, C>> (var a1, var f), Pair<A, B> (var a, var b)) => These.Pair(a1 + a, f(b)),
+            _                                                                => throw new NotSupportedException()
+        };    
 
     /// <summary>
     /// Monad bind operation
     /// </summary>
     /// <param name="f">Chaining function</param>
-    public static These<A, C> Bind<A, B, C>(this These<A, B> mb, Func<B, K<These<A>, C>> f) 
+    public static These<A, C> Bind<A, B, C>(this K<These<A>, B> mb, Func<B, K<These<A>, C>> f) 
         where A : Semigroup<A> =>
         mb switch
         {
@@ -98,7 +112,7 @@ public static class TheseExtensions
         };
     
     public static These<A, D> SelectMany<A, B, C, D>(
-        this These<A, B> mb, 
+        this K<These<A>, B> mb, 
         Func<B, K<These<A>, C>> bind, 
         Func<B, C, D> project) 
         where A : Semigroup<A> =>
