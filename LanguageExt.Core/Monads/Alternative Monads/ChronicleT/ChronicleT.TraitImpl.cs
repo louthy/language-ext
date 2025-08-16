@@ -12,7 +12,8 @@ public class ChronicleT<Ch, M> :
     MonadT<ChronicleT<Ch, M>, M>,
     MonadIO<ChronicleT<Ch, M>>,
     Fallible<Ch, ChronicleT<Ch, M>>,
-    Choice<ChronicleT<Ch, M>> 
+    Choice<ChronicleT<Ch, M>>,
+    Chronicaler<ChronicleT<Ch, M>, Ch>
     where M : Monad<M>
     where Ch : Semigroup<Ch>
 {
@@ -61,4 +62,30 @@ public class ChronicleT<Ch, M> :
 
     public static K<ChronicleT<Ch, M>, A> Choose<A>(K<ChronicleT<Ch, M>, A> lhs, Func<K<ChronicleT<Ch, M>, A>> rhs) => 
         lhs.As().Choose(rhs);
+
+    static K<ChronicleT<Ch, M>, A> Chronicaler<ChronicleT<Ch, M>, Ch>.Dictate<A>(A value) => 
+        ChronicleT<Ch, M, A>.Dictate(value);
+
+    static K<ChronicleT<Ch, M>, A> Chronicaler<ChronicleT<Ch, M>, Ch>.Confess<A>(Ch c) => 
+        ChronicleT<Ch, M, A>.Confess(c);
+
+    static K<ChronicleT<Ch, M>, Either<Ch, A>> Chronicaler<ChronicleT<Ch, M>, Ch>.Memento<A>(
+        K<ChronicleT<Ch, M>, A> ma) =>
+        ma.As().Memento();
+
+    static K<ChronicleT<Ch, M>, A> Chronicaler<ChronicleT<Ch, M>, Ch>.Absolve<A>(
+        A defaultValue, 
+        K<ChronicleT<Ch, M>, A> ma) => 
+        ma.As().Absolve(defaultValue);
+
+    static K<ChronicleT<Ch, M>, A> Chronicaler<ChronicleT<Ch, M>, Ch>.Condemn<A>(K<ChronicleT<Ch, M>, A> ma) => 
+        ma.As().Condemn();
+
+    static K<ChronicleT<Ch, M>, A> Chronicaler<ChronicleT<Ch, M>, Ch>.Censor<A>(
+        Func<Ch, Ch> f,
+        K<ChronicleT<Ch, M>, A> ma) => 
+        ma.As().Censor(f);
+
+    static K<ChronicleT<Ch, M>, A> Chronicaler<ChronicleT<Ch, M>, Ch>.Chronicle<A>(These<Ch, A> ma) => 
+        ChronicleT<Ch, M, A>.Chronicle(ma);
 }
