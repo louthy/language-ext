@@ -7,6 +7,18 @@ namespace LanguageExt;
 public static class ChronicleT
 {
     /// <summary>
+    /// Monoid empty confession
+    /// </summary>
+    /// <typeparam name="Ch">Chronicle type (a monoid)</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static ChronicleT<Ch, M, A> empty<Ch, M, A>()
+        where Ch : Monoid<Ch>
+        where M : Monad<M> =>
+        confess<Ch, M, A>(Ch.Empty);
+    
+    /// <summary>
     /// `dictate` is an action that records the output `value`.
     /// Equivalent to `tell` for the `Writable` traits.
     /// </summary>

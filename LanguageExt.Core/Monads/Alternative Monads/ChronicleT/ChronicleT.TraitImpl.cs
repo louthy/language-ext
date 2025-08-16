@@ -3,6 +3,11 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
+/// <summary>
+/// `ChronicleT` trait implementations
+/// </summary>
+/// <typeparam name="Ch">Chronicle type (a semigroup)</typeparam>
+/// <typeparam name="M">Lifted monad type</typeparam>
 public class ChronicleT<Ch, M> : 
     MonadT<ChronicleT<Ch, M>, M>,
     MonadIO<ChronicleT<Ch, M>>,

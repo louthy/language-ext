@@ -961,10 +961,21 @@ public abstract record Either<L, R> :
     /// <summary>
     /// Monadic bind function
     /// </summary>
-    /// <returns>Bound Either</returns>
     [Pure]
     public Either<L, T> SelectMany<S, T>(Func<R, Either<L, S>> bind, Func<R, S, T> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
+    
+    /// <summary>
+    /// Monadic bind function
+    /// </summary>
+    public Either<L, Unit> SelectMany(Func<R, Guard<L, Unit>> f) =>
+        Bind(a => f(a).ToEither());
+
+    /// <summary>
+    /// Monadic bind function
+    /// </summary>
+    public Either<L, C> SelectMany<C>(Func<R, Guard<L, Unit>> bind, Func<R, Unit, C> project) =>
+        Bind(a => bind(a).ToEither().Map(_ => project(a, default)));    
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 

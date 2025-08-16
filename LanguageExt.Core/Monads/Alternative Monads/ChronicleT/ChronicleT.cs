@@ -138,6 +138,24 @@ public record ChronicleT<Ch, M, A>(K<M, These<Ch, A>> runChronicleT) : K<Chronic
         Bind(x => bind(x).Map(y => project(x, y)));
 
     /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="f">Chaining function</param>
+    /// <typeparam name="B">Resulting bound value type</typeparam>
+    /// <returns>Chained structure</returns>
+    public ChronicleT<Ch, M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
+        Bind(x => ChronicleT<Ch, M, B>.LiftIO(bind(x)).Map(y => project(x, y)));
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="f">Chaining function</param>
+    /// <typeparam name="B">Resulting bound value type</typeparam>
+    /// <returns>Chained structure</returns>
+    public ChronicleT<Ch, M, C> SelectMany<C>(Func<A, Guard<Ch, Unit>> bind, Func<A, Unit, C> project) =>
+        Bind(x => bind(x).ToChronicleT<Ch, M>().Map(y => project(x, y)));
+
+    /// <summary>
     /// `Memento` is an action that executes the action within this structure, returning either
     /// its record, if it ended with `Confess`, or its final value otherwise, with any record
     /// added to the current record.
@@ -245,4 +263,16 @@ public record ChronicleT<Ch, M, A>(K<M, These<Ch, A>> runChronicleT) : K<Chronic
     /// </summary>
     public static ChronicleT<Ch, M, A> operator |(ChronicleT<Ch, M, A> lhs, K<ChronicleT<Ch, M>, A> rhs) =>
         lhs.Choose(rhs);
+
+    /// <summary>
+    /// Coalescing operator
+    /// </summary>
+    public static ChronicleT<Ch, M, A> operator |(ChronicleT<Ch, M, A> lhs, Pure<A> rhs) =>
+        lhs.Choose(Dictate(rhs.Value));    
+
+    /// <summary>
+    /// Coalescing operator
+    /// </summary>
+    public static ChronicleT<Ch, M, A> operator |(ChronicleT<Ch, M, A> lhs, Fail<Ch> rhs) =>
+        lhs.Choose(Confess(rhs.Value));    
 }

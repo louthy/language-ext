@@ -282,6 +282,17 @@ public record ValidationT<F, M, A>(K<M, Validation<F, A>> runValidation) :
     public ValidationT<F, M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
         SelectMany(x => M.LiftIOMaybe(bind(x)), project);
 
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`ValidationT`</returns>
+    public ValidationT<F, M, C> SelectMany<C>(Func<A, Guard<F, Unit>> bind, Func<A, Unit, C> project) =>
+        Bind(x => bind(x).ToValidationT<F, M>().Map(_ => project(x, default)));
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Operators

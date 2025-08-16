@@ -591,6 +591,14 @@ public abstract class Fin<A> :
         Map(x => ignore(bind(x)));
 
     [Pure, MethodImpl(Opt.Default)]
+    public Fin<Unit> SelectMany(Func<A, Guard<Error, Unit>> f) =>
+        Bind(a => f(a).ToFin());
+
+    [Pure, MethodImpl(Opt.Default)]
+    public Fin<C> SelectMany<C>(Func<A, Guard<Error, Unit>> bind, Func<A, Unit, C> project) =>
+        Bind(a => bind(a).ToFin().Map(_ => project(a, default)));    
+    
+    [Pure, MethodImpl(Opt.Default)]
     public Lst<A> ToList() =>
         new(SuccSpan());
 
