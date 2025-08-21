@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.Contracts;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude; 
 
@@ -9,6 +10,7 @@ public static class ChronicleTExtensions
     /// <summary>
     /// Downcast operator
     /// </summary>
+    [Pure]
     public static ChronicleT<Ch, M, A> As<Ch, M, A>(this K<ChronicleT<Ch, M>, A> ma) 
         where Ch : Semigroup<Ch>
         where M : Monad<M> =>
@@ -17,10 +19,20 @@ public static class ChronicleTExtensions
     /// <summary>
     /// Run the chronicle to yield its inner monad
     /// </summary>
+    [Pure]
     public static K<M, These<Ch, A>> Run<Ch, M, A>(this K<ChronicleT<Ch, M>, A> ma) 
         where Ch : Semigroup<Ch>
         where M : Monad<M> =>
         ma.As().Run();
+    
+    /// <summary>
+    /// Monadic join
+    /// </summary>
+    [Pure]
+    public static ChronicleT<Ch, M, A> Flatten<Ch, M, A>(this ChronicleT<Ch, M, ChronicleT<Ch, M, A>> mma)
+        where Ch : Semigroup<Ch>
+        where M : Monad<M> =>
+        mma.Bind(identity);
 
     /// <summary>
     /// Filtering based on predicate.  
@@ -28,6 +40,7 @@ public static class ChronicleTExtensions
     /// <remarks>>
     /// If the predicate returns false, then `ChronicleT.empty()` is yielded and therefore `Ch` must be a monoid.  
     /// </remarks>
+    [Pure]
     public static ChronicleT<Ch, M, A> Where<Ch, M, A>(this K<ChronicleT<Ch, M>, A> ma, Func<A, bool> pred)
         where Ch : Monoid<Ch>
         where M : Monad<M> =>
@@ -39,8 +52,45 @@ public static class ChronicleTExtensions
     /// <remarks>>
     /// If the predicate returns false, then `ChronicleT.empty()` is yielded and therefore `Ch` must be a monoid.  
     /// </remarks>
+    [Pure]
     public static ChronicleT<Ch, M, A> Filter<Ch, M, A>(this K<ChronicleT<Ch, M>, A> ma, Func<A, bool> pred)
         where Ch : Monoid<Ch>
         where M : Monad<M> =>
-        ma.As().Bind(x => pred(x) ? ChronicleT<Ch, M, A>.Dictate(x) : ChronicleT.empty<Ch, M, A>());    
+        ma.As().Bind(x => pred(x) ? ChronicleT<Ch, M, A>.Dictate(x) : ChronicleT.empty<Ch, M, A>());
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="A">Source bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`EitherT`</returns>
+    [Pure]
+    public static ChronicleT<Ch, M, C> SelectMany<Ch, M, A, B, C>(
+        this K<M, A> ma, 
+        Func<A, K<ChronicleT<Ch, M>, B>> bind, 
+        Func<A, B, C> project)
+        where Ch : Monoid<Ch>
+        where M : Monad<M> =>
+        ChronicleT<Ch, M, A>.Lift(ma).SelectMany(bind, project);
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="A">Source bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`EitherT`</returns>
+    [Pure]
+    public static ChronicleT<Ch, M, C> SelectMany<Ch, M, A, B, C>(
+        this K<M, A> ma, 
+        Func<A, ChronicleT<Ch, M, B>> bind, 
+        Func<A, B, C> project)
+        where Ch : Monoid<Ch>
+        where M : Monad<M> =>
+        ChronicleT<Ch, M, A>.Lift(ma).SelectMany(bind, project);
 }

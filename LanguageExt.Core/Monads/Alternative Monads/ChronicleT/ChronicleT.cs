@@ -187,11 +187,11 @@ public record ChronicleT<Ch, M, A>(K<M, These<Ch, A>> runChronicleT) : K<Chronic
                                }));
 
     /// <summary>
+    /// This can be seen as converting non-fatal errors into fatal ones.
+    /// 
     /// `Condemn` is an action that executes the structure and keeps its value
     /// only if it had no record. Otherwise, the value (if any) will be discarded
     /// and only the record kept.
-    /// 
-    /// This can be seen as converting non-fatal errors into fatal ones.
     /// </summary>
     public ChronicleT<Ch, M, A> Condemn() =>
         new(Run().Map(these => these switch
