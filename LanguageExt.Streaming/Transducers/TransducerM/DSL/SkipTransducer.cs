@@ -5,9 +5,9 @@ namespace LanguageExt;
 record SkipTransducerM<M, A>(int Amount) : TransducerM<M, A, A>
     where M : Applicative<M>
 {
+    int amount = Amount;
     public override ReducerM<M, A, S> Reduce<S>(ReducerM<M, A, S> reducer)  
     {
-        var amount = Amount;
         return (s, x) =>
                {
                    if (amount > 0)
