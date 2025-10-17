@@ -24,6 +24,7 @@ __Author on...__
 * [Prologue](#prologue)
 * [**Features**](#features)
   * [Functional effects and IO](#functional-effects-and-io)
+  * [Functional streams](#functional-streams)
   * [Atomic concurrency, shared state, and collections](#atomic-concurrency-and-collections)
   * [Immutable collections](#immutable-collections)
   * [Optional and Alternative value monads](#optional-and-alternative-value-monads)
@@ -147,7 +148,7 @@ Even if you disagree with this non-idiomatic approach, all of the `camelCase` st
 | `Core`   | `Eff<A>`     | [A synchronous and asynchronous side-effect with error handling](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Eff/Eff%20no%20runtime/index.html)                                       |
 | `Core`   | `Eff<RT, A>` | [Same as `Eff<A>` but with an injectable runtime for dependency-injection: a unit testable IO monad](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Eff/Eff%20with%20runtime/index.html) |
 
-### [Functional streaming](https://louthy.github.io/language-ext/LanguageExt.Core/Streaming/index.html)
+### [Functional streams](https://louthy.github.io/language-ext/LanguageExt.Core/Streaming/index.html)
 
 | Location | Feature      | Description                                                                                                                                                                                              |
 |----------|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
