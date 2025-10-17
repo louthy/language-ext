@@ -24,9 +24,9 @@ __Author on...__
 * [Prologue](#prologue)
 * [**Features**](#features)
   * [Functional effects and IO](#functional-effects-and-io)
-  * [Functional streams](#functional-streams)
   * [Atomic concurrency, shared state, and collections](#atomic-concurrency-and-collections)
   * [Immutable collections](#immutable-collections)
+  * [Functional streams](#functional-streams)
   * [Optional and Alternative value monads](#optional-and-alternative-value-monads)
   * [State managing monads](#state-managing-monads)
   * [Parser combinators](#parser-combinators)
@@ -148,18 +148,6 @@ Even if you disagree with this non-idiomatic approach, all of the `camelCase` st
 | `Core`   | `Eff<A>`     | [A synchronous and asynchronous side-effect with error handling](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Eff/Eff%20no%20runtime/index.html)                                       |
 | `Core`   | `Eff<RT, A>` | [Same as `Eff<A>` but with an injectable runtime for dependency-injection: a unit testable IO monad](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Eff/Eff%20with%20runtime/index.html) |
 
-### [Functional streams](https://louthy.github.io/language-ext/LanguageExt.Streaming/index.html)
-
-| Location | Feature      | Description                                                                                                                                                                                              |
-|----------|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `Streaming` | Pipes        | [Lets you connect (pipe) reusable streaming components into a closed effect that can be run as a 'black box'](https://louthy.github.io/language-ext/LanguageExt.Streaming/Pipes/)           |
-| `Streaming` | `Sink` | [Entry point to a channel. Sinks receive values and propagate them through the channel they're attached to. The behaviour depends on the Buffer type they were created with.](https://louthy.github.io/language-ext/LanguageExt.Streaming/Sink/) |
-| `Streaming` | `SinkT` | [As above, but is a monad-transformer, so it allows effectful computations to be posted into the sink](https://louthy.github.io/language-ext/LanguageExt.Streaming/SinkT/) |
-| `Streaming` | `Source` | [Yield values synchronously or asynchronously depending on their construction.  The value flow downstream and are aggregated with a reducer.](https://louthy.github.io/language-ext/LanguageExt.Streaming/Source/) |
-| `Streaming` | `SourceT` | [As above, but is a monad-transformer, so it allows effectful computations to flow downstream and be invoked, yielding a result for a reducer to aggregate.](https://louthy.github.io/language-ext/LanguageExt.Streaming/SourceT/) |
-| `Streaming` | `Conduit` | [Represents a channel with an internal queue. The conduit has a `Sink` and a `Source` allowing items to be posted into the conduit, mapped, and consumed.](https://louthy.github.io/language-ext/LanguageExt.Streaming/Conduit) |
-| `Streaming` | `ConduitT` | [As above, but is a monad-transformer, allowing effects to be run as part of the conduit processing](https://louthy.github.io/language-ext/LanguageExt.Streaming/ConduitT) |
-
 ### [Atomic concurrency and collections](https://louthy.github.io/language-ext/LanguageExt.Core/Concurrency/index.html)
 
 | Location | Feature                            | Description                                                                                                                                            |
@@ -190,6 +178,18 @@ Even if you disagree with this non-idiomatic approach, all of the `camelCase` st
 | `Core`   | `HashSet<EqA, A>`    | [Immutable hash-set with Eq constraint on `A`](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/HashSet/index.html)                                                                       |
 | `Core`   | `Que<A>`             | [Immutable queue](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Queue/index.html)                                                                                                      |
 | `Core`   | `Stck<A>`            | [Immutable stack](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Stack/index.html)                                                                                                      |
+
+### [Functional streams](https://louthy.github.io/language-ext/LanguageExt.Streaming/index.html)
+
+| Location | Feature      | Description                                                                                                                                                                                              |
+|----------|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `Streaming` | Pipes        | [Connect reusable streaming components into a closed effect](https://louthy.github.io/language-ext/LanguageExt.Streaming/Pipes/)           |
+| `Streaming` | `Sink` | [Entry point to a channel. Sinks receive values and propagate them through a channel](https://louthy.github.io/language-ext/LanguageExt.Streaming/Sink/) |
+| `Streaming` | `SinkT` | [As above but with effects](https://louthy.github.io/language-ext/LanguageExt.Streaming/SinkT/) |
+| `Streaming` | `Source` | [Stream of synchronous or asynchronous values depending on the construction. Values flow downstream and are aggregated with a reducer.](https://louthy.github.io/language-ext/LanguageExt.Streaming/Source/) |
+| `Streaming` | `SourceT` | [As above but with effects](https://louthy.github.io/language-ext/LanguageExt.Streaming/SourceT/) |
+| `Streaming` | `Conduit` | [Represents a channel with an internal queue. The conduit has a `Sink` and a `Source` allowing items to be posted into the conduit, co-mapped, mapped, and consumed.](https://louthy.github.io/language-ext/LanguageExt.Streaming/Conduit) |
+| `Streaming` | `ConduitT` | [As above but with effects: the conduit has a `SinkT` and a `SourceT` allowing items to be posted into the conduit, co-mapped, mapped, and consumed.](https://louthy.github.io/language-ext/LanguageExt.Streaming/ConduitT) |
 
 ### [Optional and alternative value monads](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Monads/index.html)
 
