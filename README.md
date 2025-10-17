@@ -148,7 +148,7 @@ Even if you disagree with this non-idiomatic approach, all of the `camelCase` st
 | `Core`   | `Eff<A>`     | [A synchronous and asynchronous side-effect with error handling](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Eff/Eff%20no%20runtime/index.html)                                       |
 | `Core`   | `Eff<RT, A>` | [Same as `Eff<A>` but with an injectable runtime for dependency-injection: a unit testable IO monad](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Eff/Eff%20with%20runtime/index.html) |
 
-### [Functional streams](https://louthy.github.io/language-ext/LanguageExt.Core/Streaming/index.html)
+### [Functional streams](https://louthy.github.io/language-ext/LanguageExt.Streaming/index.html)
 
 | Location | Feature      | Description                                                                                                                                                                                              |
 |----------|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
