@@ -45,7 +45,8 @@ __Author on...__
 
 Nu-get package | Description
 ---------------|-------------
-[LanguageExt.Core](https://www.nuget.org/packages/LanguageExt.Core) | All of the core types and functional 'prelude'. __This is all that's needed to get started__.
+[LanguageExt.Parsec](https://www.nuget.org/packages/LanguageExt.Parsec) | Port of the [Haskell parsec library](https://hackage.haskell.org/package/parsec)
+[LanguageExt.Streaming](https://www.nuget.org/packages/LanguageExt.Streaming) | A set of compositional streaming types 
 [LanguageExt.FSharp](https://www.nuget.org/packages/LanguageExt.FSharp) | F# to C# interop package. Provides interop between the LanguageExt.Core types (like `Option`, `List` and `Map`) to the F# equivalents, as well as interop between core BCL types and F#
 [LanguageExt.Parsec](https://www.nuget.org/packages/LanguageExt.Parsec) | Port of the [Haskell parsec library](https://hackage.haskell.org/package/parsec)
 [LanguageExt.Rx](https://www.nuget.org/packages/LanguageExt.Rx) | Reactive Extensions support for various types within the Core
@@ -55,16 +56,16 @@ Nu-get package | Description
 
 ## Getting started
 
-To use this library, simply include `LanguageExt.Core.dll` in your project or grab it from NuGet.  It is also worth setting up some `global using` for your project.  This is the full list that will cover the key functionality and bring it into scope:
+To use this library, simply include `LanguageExt.Core.dll` in your project or grab it from NuGet.  It is also worth setting up some `global using` for your project.  This is the full list that will cover all functionality and bring it into scope:
 ```C#
 global using LanguageExt;
 global using LanguageExt.Common;
-global using static LanguageExt.Prelude;
 global using LanguageExt.Traits;
 global using LanguageExt.Effects;
-global using LanguageExt.Pipes;
+global using LanguageExt.Streaming;
 global using LanguageExt.Pretty;
 global using LanguageExt.Traits.Domain;
+global using static LanguageExt.Prelude;
 ```
 A minimum, might be:
 ```c#
@@ -145,8 +146,18 @@ Even if you disagree with this non-idiomatic approach, all of the `camelCase` st
 | `Core`   | `IO<A>`      | [A synchronous and asynchronous side-effect: an IO monad](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/IO/index.html)                                                                  |
 | `Core`   | `Eff<A>`     | [A synchronous and asynchronous side-effect with error handling](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Eff/Eff%20no%20runtime/index.html)                                       |
 | `Core`   | `Eff<RT, A>` | [Same as `Eff<A>` but with an injectable runtime for dependency-injection: a unit testable IO monad](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Eff/Eff%20with%20runtime/index.html) |
-| `Core`   | Pipes        | [A clean and powerful stream processing system that lets you build and connect reusable streaming components](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/Pipes/index.html)           |
-| `Core`   | StreamT      | [less powerful (than Pipes), but easier to use streaming effects transformer](https://louthy.github.io/language-ext/LanguageExt.Core/Effects/StreamT/index.html)                                         |
+
+### [Functional streaming](https://louthy.github.io/language-ext/LanguageExt.Core/Streaming/index.html)
+
+| Location | Feature      | Description                                                                                                                                                                                              |
+|----------|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `Streaming` | Pipes        | [Lets you connect (pipe) reusable streaming components into a closed effect that can be run as a 'black box'](https://louthy.github.io/language-ext/LanguageExt.Streaming/Pipes/)           |
+| `Streaming` | `Sink` | [Entry point to a channel. Sinks receive values and propagate them through the channel they're attached to. The behaviour depends on the Buffer type they were created with.](https://louthy.github.io/language-ext/LanguageExt.Streaming/Sink/) |
+| `Streaming` | `SinkT` | [As above, but is a monad-transformer, so it allows effectful computations to be posted into the sink](https://louthy.github.io/language-ext/LanguageExt.Streaming/SinkT/) |
+| `Streaming` | `Source` | [Yield values synchronously or asynchronously depending on their construction.  The value flow downstream and are aggregated with a reducer.](https://louthy.github.io/language-ext/LanguageExt.Streaming/Source/) |
+| `Streaming` | `SourceT` | [As above, but is a monad-transformer, so it allows effectful computations to flow downstream and be invoked, yielding a result for a reducer to aggregate.](https://louthy.github.io/language-ext/LanguageExt.Streaming/SourceT/) |
+| `Streaming` | `Conduit` | [Represents a channel with an internal queue. The conduit has a `Sink` and a `Source` allowing items to be posted into the conduit, mapped, and consumed.](https://louthy.github.io/language-ext/LanguageExt.Streaming/Conduit) |
+| `Streaming` | `ConduitT` | [As above, but is a monad-transformer, allowing effects to be run as part of the conduit processing](https://louthy.github.io/language-ext/LanguageExt.Streaming/ConduitT) |
 
 ### [Atomic concurrency and collections](https://louthy.github.io/language-ext/LanguageExt.Core/Concurrency/index.html)
 
