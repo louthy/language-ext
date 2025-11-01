@@ -1,6 +1,7 @@
 using System;
+using LanguageExt.Traits;
 
-namespace LanguageExt.Traits;
+namespace LanguageExt;
 
 public static class KExtensions
 {
@@ -9,6 +10,12 @@ public static class KExtensions
     /// </summary>
     public static K<F, A> Kind<F, A>(this K<F, A> fa) =>
         fa;
+    
+    /// <summary>
+    /// Get the base kind type.  Avoids casts mid-expression
+    /// </summary>
+    public static K<F, A, B> Kind2<F, A, B>(this K<F, A, B> fab) =>
+        fab;
     
     public static FA SafeCast<FA, F, A>(this K<F, A> fa)
         where FA : K<F, A>

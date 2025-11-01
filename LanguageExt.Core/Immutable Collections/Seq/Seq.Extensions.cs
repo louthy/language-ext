@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -22,7 +21,7 @@ public static partial class SeqExtensions
     [Pure]
     public static Seq<A> Flatten<A>(this Seq<Seq<A>> ma) =>
         ma.Bind(identity);
-
+    
     /// <summary>
     /// Applies the given function 'selector' to each element of the sequence. Returns the sequence 
     /// comprised of the results for each element where the function returns Some(f(x)).

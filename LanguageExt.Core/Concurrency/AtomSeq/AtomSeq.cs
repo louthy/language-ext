@@ -1456,8 +1456,8 @@ public static class AtomSeqExtensions
     {
         var xs = ma.ToSeq();
         return xs.IsEmpty
-                   ? Validation<F, A>.Fail(Fail)
-                   : Validation<F, A>.Success((A)xs.Last);
+                   ? Validation.Fail<F, A>(Fail)
+                   : Validation.Success<F, A>((A)xs.Last);
     }
 
     /// <summary>
@@ -1471,7 +1471,7 @@ public static class AtomSeqExtensions
     {
         var xs = ma.ToSeq();
         return xs.IsEmpty
-                   ? Validation<F, A>.Fail(Fail)
+                   ? Validation.Fail<F, A>(Fail)
                    : Pure((A)xs.Head);
     }
     
@@ -1485,7 +1485,7 @@ public static class AtomSeqExtensions
     {
         var xs = ma.ToSeq();
         return xs.IsEmpty
-                   ? Validation<F, A>.Fail(Fail())
+                   ? Validation.Fail<F, A>(Fail())
                    : Pure((A)xs.Last);
     }
 
@@ -1500,7 +1500,7 @@ public static class AtomSeqExtensions
     {
         var xs = ma.ToSeq();
         return xs.IsEmpty
-                   ? Validation<F, A>.Fail(Fail())
+                   ? Validation.Fail<F, A>(Fail())
                    : Pure((A)xs.Head);
     }
     

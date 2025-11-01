@@ -28,7 +28,7 @@ public static class Bifunctor
     /// <returns>Mapped bifunctor</returns>
     public static K<F, Q, A> first<F, P, A, Q>(Func<P, Q> first, K<F, P, A> fab) 
         where F : Bifunctor<F> =>
-        F.First(first, fab);
+        F.MapFirst(first, fab);
     
     /// <summary>
     /// Map covariantly over the second argument.
@@ -39,5 +39,5 @@ public static class Bifunctor
     /// <returns>Mapped bifunctor</returns>
     public static K<F, P, B> second<F, P, A, B>(Func<A, B> second, K<F, P, A> fab) 
         where F : Bifunctor<F> =>
-        F.Second(second, fab);
+        F.MapSecond(second, fab);
 }

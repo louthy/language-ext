@@ -25,9 +25,8 @@ public static class ChronicleT
     /// <param name="value">Value to construct with</param>
     /// <returns>Chronicle structure</returns>
     public static ChronicleT<Ch, M, A> dictate<Ch, M, A>(A value) 
-        where Ch : Semigroup<Ch>
         where M : Monad<M> =>
-        ChronicleT<Ch, M, A>.Dictate(value);
+        new(_ => M.Pure(That<Ch, A>(value)));
     
     /// <summary>
     /// `confess` is an action that ends with a final output `value`.
@@ -36,9 +35,8 @@ public static class ChronicleT
     /// <param name="value">Value to construct with</param>
     /// <returns>Chronicle structure</returns>
     public static ChronicleT<Ch, M, A> confess<Ch, M, A>(Ch value) 
-        where Ch : Semigroup<Ch>
         where M : Monad<M> =>
-        ChronicleT<Ch, M, A>.Confess(value);
+        new(_ => M.Pure(This<Ch, A>(value)));
     
     /// <summary>
     /// Construct a new chronicle with `this` and `that`.
@@ -47,9 +45,8 @@ public static class ChronicleT
     /// <param name="that">Value to construct with</param>
     /// <returns>Chronicle structure</returns>
     public static ChronicleT<Ch, M, A> chronicle<Ch, M, A>(Ch @this, A that) 
-        where Ch : Semigroup<Ch>
         where M : Monad<M> =>
-        ChronicleT<Ch, M, A>.Chronicle(@this, that);
+        new(_ => M.Pure(Both(@this, that)));
     
     /// <summary>
     /// Construct a new chronicle with `these`.
@@ -57,19 +54,17 @@ public static class ChronicleT
     /// <param name="these">What to chronicle</param>
     /// <returns>Chronicle structure</returns>
     public static ChronicleT<Ch, M, A> chronicle<Ch, M, A>(These<Ch, A> these) 
-        where Ch : Semigroup<Ch>
         where M : Monad<M> =>
-        ChronicleT<Ch, M, A>.Chronicle(these);
-        
+        new(_ => M.Pure(these));
+
     /// <summary>
     /// Lift a monad `M` into the monad-transformer
     /// </summary>
     /// <param name="ma">Monad to lift</param>
     /// <returns>Chronicle structure</returns>
-    public static ChronicleT<Ch, M, A> lift<Ch, M, A>(K<M, A> ma) 
-        where Ch : Semigroup<Ch>
+    public static ChronicleT<Ch, M, A> lift<Ch, M, A>(K<M, A> ma)
         where M : Monad<M> =>
-        new(ma.Map(That<Ch, A>));
+        new(_ =>ma.Map(That<Ch, A>));
     
     /// <summary>
     /// Lift an `IO` monad into the monad-transformer
@@ -77,9 +72,8 @@ public static class ChronicleT
     /// <param name="ma">Monad to lift</param>
     /// <returns>Chronicle structure</returns>
     public static ChronicleT<Ch, M, A> liftIO<Ch, M, A>(K<IO, A> ma)
-        where Ch : Semigroup<Ch>
-        where M : MonadIO<M> =>
-        lift<Ch, M, A>(M.LiftIO(ma));
+        where M : Monad<M> =>
+        lift<Ch, M, A>(M.LiftIOMaybe(ma));
 
     /// <summary>
     /// `Memento` is an action that executes the action within this structure, returning either
@@ -90,8 +84,7 @@ public static class ChronicleT
     /// are accumulated) vs. fatal errors (which are caught without accumulating).
     /// </summary>
     public static ChronicleT<Ch, M, Either<Ch, A>> memento<Ch, M, A>(K<ChronicleT<Ch, M>, A> ma)
-        where Ch : Semigroup<Ch>
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         ma.As().Memento();
     
     /// <summary>
@@ -100,8 +93,7 @@ public static class ChronicleT
     /// </summary>
     /// <param name="defaultValue"></param>
     public static ChronicleT<Ch, M, A> absolve<Ch, M, A>(A defaultValue, K<ChronicleT<Ch, M>, A> ma) 
-        where Ch : Semigroup<Ch>
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         ma.As().Absolve(defaultValue);
 
     /// <summary>
@@ -112,8 +104,7 @@ public static class ChronicleT
     /// This can be seen as converting non-fatal errors into fatal ones.
     /// </summary>
     public static ChronicleT<Ch, M, A> condemn<Ch, M, A>(K<ChronicleT<Ch, M>, A> ma) 
-        where Ch : Semigroup<Ch>
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         ma.As().Condemn();
     
     /// <summary>
@@ -125,7 +116,13 @@ public static class ChronicleT
     /// </remarks>
     /// <param name="f">Censoring function</param>
     public static ChronicleT<Ch, M, A> censor<Ch, M, A>(Func<Ch, Ch> f, K<ChronicleT<Ch, M>, A> ma) 
-        where Ch : Semigroup<Ch>
-        where M : MonadIO<M> =>
-        ma.As().Censor(f);    
+        where M : Monad<M> =>
+        ma.As().Censor(f);
+
+    /// <summary>
+    /// Access to the internal semigroup instance. 
+    /// </summary>
+    internal static ChronicleT<Ch, M, SemigroupInstance<Ch>> semigroup<Ch, M>()
+        where M : Monad<M> =>
+        ChronicleT<Ch, M>.semigroup;
 }

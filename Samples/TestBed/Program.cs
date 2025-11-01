@@ -7,8 +7,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using System;
+using System.Collections.Generic;
 using LanguageExt;
 using System.Threading.Tasks;
+using LanguageExt.Traits;
 using TestBed;
 using static LanguageExt.Prelude;
 
@@ -49,18 +51,36 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        var mx = Some(100);
+        Issue1497.AppPrelude.Test();
+        
+        var mx = Validation.Fail<StringM, int>("fail 1");
+        var my = Validation.Fail<StringM, int>("fail 2");
+        var mz = mx & my;
+        
+        Seq<K<Either, string, int>> m1 =
+        [
+            (Either<string, int>)Right(100), 
+            (Either<string, int>)Left("Hello"), 
+            (Either<string, int>)Left("World"),
+            (Either<string, int>)Right(200)
+        ];
+        IEnumerable<Either<string, int>> m2 =
+        [
+            (Either<string, int>)Right(100), 
+            (Either<string, int>)Left("Hello"), 
+            (Either<string, int>)Left("World"),
+            (Either<string, int>)Right(200)
+        ];
+        Iterable<Either<string, int>>     m3 = [Right(100), Left("Hello"), Left("World"), Right(200)];
+        Lst<Either<string, int>>          m4 = [Right(100), Left("Hello"), Left("World"), Right(200)];
+        Seq<ChronicleT<StringM, IO, int>> m5 = [];
+        
+        var r1 = m1.Partition();
+        var r2 = m2.PartitionSequence();
+        var r3 = m3.PartitionSequence();
+        var r4 = m4.PartitionSequence();
+        var r5 = m5.PartitionSequence();
 
-        var value = mx switch
-                    {
-                        { IsSome: true, Case: > 100 } => "Over 100",
-                        { IsSome: true, Case: > 50 }  => "Over 50",
-                        { IsSome: true, Case: > 10 }  => "Over 10",
-                        _                             => "Not set"
-                    };
-        
-        Console.WriteLine(value);
-        
         //TestBed.StateStuff.StateForkIO.forkTest.Run(4).Run().Ignore();
         //Issue1453.Test();
         //UseTest.Main().GetAwaiter().GetResult();

@@ -10,7 +10,6 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-
 /// <summary>
 /// Holds one of two values `Left` or `Right`.  Usually, `Left` is considered _wrong_ or _in-error_, and
 /// `Right` is, well, right - as in correct.  When the `Either` is in a `Left` state, it cancels
@@ -38,6 +37,7 @@ public abstract record Either<L, R> :
     IEquatable<Pure<R>>,
     IEquatable<R>,
     Fallible<Either<L, R>, Either<L>, L, R>,
+    K<Either<L>, R>,
     K<Either, L, R>
 {
     /// <summary>
@@ -53,7 +53,7 @@ public abstract record Either<L, R> :
     /// <summary>
     /// Explicit conversion operator from `Either` to `R`
     /// </summary>
-    /// <param name="value">Value, must not be null.</param>
+    /// <param name="value">Value</param>
     /// <exception cref="InvalidCastException">Value is not in a Right state</exception>
     [Pure]
     public static explicit operator R(Either<L, R> ma) =>
@@ -62,7 +62,7 @@ public abstract record Either<L, R> :
     /// <summary>
     /// Explicit conversion operator from `Either` to `L`
     /// </summary>
-    /// <param name="value">Value, must not be null.</param>
+    /// <param name="value">Value</param>
     /// <exception cref="InvalidCastException">Value is not in a Left state</exception>
     [Pure]
     public static explicit operator L(Either<L, R> ma) =>
@@ -71,7 +71,7 @@ public abstract record Either<L, R> :
     /// <summary>
     /// Implicit conversion operator from R to Either R L
     /// </summary>
-    /// <param name="value">Value, must not be null.</param>
+    /// <param name="value">Value</param>
     [Pure]
     public static implicit operator Either<L, R>(R value) =>
         Right(value);
@@ -79,7 +79,7 @@ public abstract record Either<L, R> :
     /// <summary>
     /// Implicit conversion operator from L to Either R L
     /// </summary>
-    /// <param name="value">Value, must not be null.</param>
+    /// <param name="value">Value</param>
     [Pure]
     public static implicit operator Either<L, R>(L value) =>
         Left(value);
@@ -943,8 +943,8 @@ public abstract record Either<L, R> :
     /// Bind left.  Binds the left path of the monad only
     /// </summary>
     [Pure]
-    public Either<B, R> BindLeft<B>(Func<L, Either<B, R>> f) =>
-        BiBind(f, x => x);
+    public Either<L2, R> BindLeft<L2>(Func<L, Either<L2, R>> f) =>
+        BiBind(f, Right<L2, R>);
 
     /// <summary>
     /// Maps the value in the Either if it's in a Right state
@@ -1077,7 +1077,7 @@ public readonly struct EitherContext<L, R, Ret>
     /// <returns>Result of the match</returns>
     [Pure]
     public Ret Left(Func<L, Ret> left) =>
-        match(either, left, rightHandler);
+        either.Match(left, rightHandler);
 }
 
 /// <summary>
@@ -1095,5 +1095,5 @@ public readonly struct EitherUnitContext<L, R>
     }
 
     public Unit Left(Action<L> leftHandler) =>
-        match(either, leftHandler, rightHandler);
+        either.Match(leftHandler, rightHandler);
 }

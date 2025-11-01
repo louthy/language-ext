@@ -15,9 +15,8 @@ public partial class Prelude
     /// <param name="value">Value to construct with</param>
     /// <returns>Chronicle structure</returns>
     public static ChronicleT<Ch, M, A> dictate<Ch, M, A>(A value) 
-        where Ch : Semigroup<Ch>
         where M : Monad<M> =>
-        ChronicleT<Ch, M, A>.Dictate(value);
+        ChronicleT.dictate<Ch, M, A>(value);
     
     /// <summary>
     /// `confess` is an action that ends with a final output `value`.
@@ -29,9 +28,8 @@ public partial class Prelude
     /// <param name="value">Value to construct with</param>
     /// <returns>Chronicle structure</returns>
     public static ChronicleT<Ch, M, A> confess<Ch, M, A>(Ch value) 
-        where Ch : Semigroup<Ch>
         where M : Monad<M> =>
-        ChronicleT<Ch, M, A>.Confess(value);
+        ChronicleT.confess<Ch, M, A>(value);
     
     /// <summary>
     /// Construct a new chronicle with `this` and `that`.
@@ -40,9 +38,8 @@ public partial class Prelude
     /// <param name="that">Value to construct with</param>
     /// <returns>Chronicle structure</returns>
     public static ChronicleT<Ch, M, A> chronicle<Ch, M, A>(Ch @this, A that) 
-        where Ch : Semigroup<Ch>
         where M : Monad<M> =>
-        ChronicleT<Ch, M, A>.Chronicle(@this, that);
+        ChronicleT.chronicle<Ch, M, A>(@this, that);
     
     /// <summary>
     /// Construct a new chronicle with `these`.
@@ -50,9 +47,8 @@ public partial class Prelude
     /// <param name="these">What to chronicle</param>
     /// <returns>Chronicle structure</returns>
     public static ChronicleT<Ch, M, A> chronicle<Ch, M, A>(These<Ch, A> these) 
-        where Ch : Semigroup<Ch>
         where M : Monad<M> =>
-        ChronicleT<Ch, M, A>.Chronicle(these);
+        ChronicleT.chronicle<Ch, M, A>(these);
     
     /// <summary>
     /// `Memento` is an action that executes the action within this structure, returning either
@@ -63,7 +59,6 @@ public partial class Prelude
     /// are accumulated) vs. fatal errors (which are caught without accumulating).
     /// </summary>
     public static ChronicleT<Ch, M, Either<Ch, A>> memento<Ch, M, A>(K<ChronicleT<Ch, M>, A> ma)
-        where Ch : Semigroup<Ch>
         where M : MonadIO<M> =>
         ma.As().Memento();
     
@@ -73,7 +68,6 @@ public partial class Prelude
     /// </summary>
     /// <param name="defaultValue"></param>
     public static ChronicleT<Ch, M, A> absolve<Ch, M, A>(A defaultValue, K<ChronicleT<Ch, M>, A> ma) 
-        where Ch : Semigroup<Ch>
         where M : MonadIO<M> =>
         ma.As().Absolve(defaultValue);
 
@@ -85,7 +79,6 @@ public partial class Prelude
     /// This can be seen as converting non-fatal errors into fatal ones.
     /// </summary>
     public static ChronicleT<Ch, M, A> condemn<Ch, M, A>(K<ChronicleT<Ch, M>, A> ma) 
-        where Ch : Semigroup<Ch>
         where M : MonadIO<M> =>
         ma.As().Condemn();
     
@@ -98,7 +91,6 @@ public partial class Prelude
     /// </remarks>
     /// <param name="f">Censoring function</param>
     public static ChronicleT<Ch, M, A> censor<Ch, M, A>(Func<Ch, Ch> f, K<ChronicleT<Ch, M>, A> ma) 
-        where Ch : Semigroup<Ch>
         where M : MonadIO<M> =>
         ma.As().Censor(f);
 }

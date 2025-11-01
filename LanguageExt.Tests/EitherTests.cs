@@ -22,11 +22,11 @@ public class EitherTests
     {
         var either = Right<string, int>(123);
 
-        match(either, Right: i => Assert.True(i == 123),
-              Left:  _ => Assert.Fail("Shouldn't get here") );
+        either.Match(Right: i => Assert.True(i == 123),
+                     Left: _ => Assert.Fail("Shouldn't get here"));
 
-        int c = match(either, Right: i => i + 1,
-                      Left:  _ => 0 );
+        var c = either.Match(Right: i => i + 1,
+                             Left: _ => 0);
 
         Assert.True(c == 124);
     }
@@ -48,11 +48,11 @@ public class EitherTests
     {
         var either = ItsLeft;
 
-        match(either, Right: r => Assert.Fail("Shouldn't get here"),
-              Left:  l => Assert.True(l == "Left") );
+        either.Match(Right: r => Assert.Fail("Shouldn't get here"),
+                     Left:  l => Assert.True(l == "Left") );
 
-        int c = match(either, Right: r => r + 1,
-                      Left:  l => 0 );
+        var c = either.Match(Right: r => r + 1,
+                             Left:  l => 0 );
 
         Assert.True(c == 0);
     }

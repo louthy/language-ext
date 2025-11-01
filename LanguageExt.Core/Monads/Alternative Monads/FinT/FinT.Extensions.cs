@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using static LanguageExt.Prelude;
+using NSE = System.NotSupportedException;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.Common;
@@ -8,9 +8,6 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-/// <summary>
-/// Either monad extensions
-/// </summary>
 public static partial class FinTExtensions
 {
     public static FinT<M, A> As<M, A>(this K<FinT<M>, A> ma)
@@ -23,9 +20,9 @@ public static partial class FinTExtensions
     public static K<M, Fin<A>> Run<M, A>(this K<FinT<M>, A> ma)
         where M : Monad<M> =>
         ma.As().runFin;
-
+    
     /// <summary>
-    /// Get the outer task and wrap it up in a new IO within the EitherT IO
+    /// Get the outer task and wrap it up in a new IO within the FinT IO
     /// </summary>
     public static FinT<IO, A> Flatten<A>(this Task<FinT<IO, A>> tma) =>
         FinT<IO, FinT<IO, A>>
@@ -54,7 +51,7 @@ public static partial class FinTExtensions
     /// <param name="project">Projection function</param>
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>`EitherT`</returns>
+    /// <returns>`FinT`</returns>
     [Pure]
     public static FinT<M, C> SelectMany<M, A, B, C>(
         this K<M, A> ma, 
@@ -70,7 +67,7 @@ public static partial class FinTExtensions
     /// <param name="project">Projection function</param>
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>`EitherT`</returns>
+    /// <returns>`FinT`</returns>
     [Pure]
     public static FinT<M, C> SelectMany<M, A, B, C>(
         this K<M, A> ma, 
@@ -80,169 +77,54 @@ public static partial class FinTExtensions
         FinT<M, A>.Lift(ma).SelectMany(bind, project);
 
     /// <summary>
-    /// Extracts from a sequence of 'Fin' transformers all the 'Fail' values.
-    /// The 'Fail' elements are extracted in order.
+    /// Partitions a foldable of `FinT` into two sequences.
+    /// 
+    /// All the `Fail` elements are extracted, in order, to the first component of the output.
+    /// Similarly, the `Succ` elements are extracted to the second component of the output.
     /// </summary>
-    /// <typeparam name="A">Success value type</typeparam>
-    /// <param name="self">Sequence of Fin transformers</param>
-    /// <returns>A sequence of errors</returns>
+    /// <returns>A pair containing the sequences of partitioned values</returns>
     [Pure]
-    public static K<M, Seq<Error>> Fails<M, A>(this IEnumerable<FinT<M, A>> self)
-        where M : Monad<M>
-    {
-        var result = M.Pure(Seq<Error>.Empty);
-
-        foreach (var either in self)
-        {
-            result = result.Bind(
-                acc => either.Run().Map(
-                    e => e switch
-                         {
-                             Fin.Succ<A>         => acc,
-                             Fin.Fail<A> (var l) => acc.Add(l),
-                             _                   => throw new NotSupportedException()
-                         }));
-        }
-        return result;
-    }
+    public static K<M, (Seq<Error> Fails, Seq<A> Succs)> Partition<F, M, A>(this K<F, FinT<M, A>> self)
+        where F : Foldable<F>
+        where M : Monad<M> =>
+        self.Fold(M.Pure((Fail: Seq<Error>.Empty, Succ: Seq<A>.Empty)),
+                  (ms, ma) =>
+                      ms.Bind(s => ma.Run().Map(a => a switch
+                                                     {
+                                                         Fin.Succ<A> (var r) => (s.Fail, s.Succ.Add(r)),
+                                                         Fin.Fail<A> (var l) => (s.Fail.Add(l), s.Succ),
+                                                         _                   => throw new NSE()
+                                                     })));
 
     /// <summary>
-    /// Extracts from a sequence of 'Fin' transformers all the 'Fail' values.
-    /// The 'Fail' elements are extracted in order.
+    /// Partitions a foldable of `FinT` into two lists and returns the `Fail` items only.
     /// </summary>
-    /// <typeparam name="A">Success value type</typeparam>
-    /// <param name="self">Sequence of Fin transformers</param>
-    /// <returns>A sequence of errors</returns>
+    /// <returns>A sequence of partitioned items</returns>
     [Pure]
-    public static K<M, Seq<Error>> Fails<M, R>(this Seq<FinT<M, R>> self)
-        where M : Monad<M>
-    {
-        var result = M.Pure(Seq<Error>.Empty);
-
-        foreach (var either in self)
-        {
-            result = result.Bind(
-                acc => either.Run().Map(
-                    e => e switch
-                         {
-                             Fin.Succ<R>         => acc,
-                             Fin.Fail<R> (var l) => acc.Add(l),
-                             _                   => throw new NotSupportedException()
-                         }));
-        }
-        return result;
-    }
-    
-    /// <summary>
-    /// Extracts from a sequence of 'Fin' transformers all the 'Succ' values.
-    /// The 'Succ' elements are extracted in order.
-    /// </summary>
-    /// <typeparam name="A">Success value type</typeparam>
-    /// <param name="self">Sequence of Fin transformers</param>
-    /// <returns>A sequence of success values</returns>
-    [Pure]
-    public static K<M, Seq<A>> Succs<M, A>(this IEnumerable<FinT<M, A>> self)
-        where M : Monad<M>
-    {
-        var result = M.Pure(Seq<A>.Empty);
-
-        foreach (var either in self)
-        {
-            result = result.Bind(
-                acc => either.Run().Map(
-                    e => e switch
-                         {
-                             Fin.Succ<A> (var r) => acc.Add(r),
-                             Fin.Fail<A>         => acc,
-                             _                   => throw new NotSupportedException()
-                         }));
-        }
-        return result;
-    }
+    public static K<M, Seq<Error>> Fails<F, M, A>(this K<F, FinT<M, A>> self)
+        where F : Foldable<F>
+        where M : Monad<M> =>
+        self.Fold(M.Pure(Seq<Error>.Empty),
+                  (ms, ma) =>
+                      ms.Bind(s => ma.Run().Map(a => a switch
+                                                     {
+                                                         Fin.Fail<A> (var l) => s.Add(l),
+                                                         _                   => throw new NSE()
+                                                     })));
 
     /// <summary>
-    /// Extracts from a sequence of 'Fin' transformers all the 'Succ' values.
-    /// The 'Succ' elements are extracted in order.
+    /// Partitions a foldable of `FinT` into two lists and returns the `Succ` items only.
     /// </summary>
-    /// <typeparam name="A">Success value type</typeparam>
-    /// <param name="self">Sequence of Fin transformers</param>
-    /// <returns>A sequence of success values</returns>
+    /// <returns>A sequence of partitioned items</returns>
     [Pure]
-    public static K<M, Seq<A>> Succs<M, A>(this Seq<FinT<M, A>> self)
-        where M : Monad<M>
-    {
-        var result = M.Pure(Seq<A>.Empty);
-
-        foreach (var either in self)
-        {
-            result = result.Bind(
-                acc => either.Run().Map(
-                    e => e switch
-                         {
-                             Fin.Succ<A> (var r) => acc.Add(r),
-                             Fin.Fail<A>         => acc,
-                             _                   => throw new NotSupportedException()
-                         }));
-        }
-        return result;
-    }
-
-    /// <summary>
-    /// Partitions a sequence of 'FinT' transformers into two sequences.
-    /// All the 'Fail' elements are extracted, in order, to the first
-    /// component of the output.  Similarly, the 'Succ' elements are extracted
-    /// to the second component of the output.
-    /// </summary>
-    /// <typeparam name="A">Success type</typeparam>
-    /// <param name="self">Sequence of Fin transformers</param>
-    /// <returns>A tuple containing a sequence of `Fail` and a sequence of `Succ`</returns>
-    [Pure]
-    public static K<M, (Seq<Error> Lefts, Seq<A> Rights)> Partition<M, A>(this Seq<FinT<M, A>> self)
-        where M : Monad<M>
-    {
-        var result = M.Pure((Left: Seq<Error>.Empty, Right: Seq<A>.Empty));
-        
-        foreach (var either in self)
-        {
-            result = result.Bind(
-                acc => either.Run().Map(
-                    e => e switch
-                         {
-                             Fin.Succ<A> (var r) => (acc.Left, acc.Right.Add(r)),
-                             Fin.Fail<A> (var l) => (acc.Left.Add(l), acc.Right),
-                             _                   => throw new NotSupportedException()
-                         }));
-        }
-        return result;
-    }
-
-    /// <summary>
-    /// Partitions a sequence of 'FinT' transformers into two sequences.
-    /// All the 'Fail' elements are extracted, in order, to the first
-    /// component of the output.  Similarly, the 'Succ' elements are extracted
-    /// to the second component of the output.
-    /// </summary>
-    /// <typeparam name="A">Success type</typeparam>
-    /// <param name="self">Sequence of Fin transformers</param>
-    /// <returns>A tuple containing a sequence of `Fail` and a sequence of `Succ`</returns>
-    [Pure]
-    public static K<M, (Seq<Error> Lefts, Seq<A> Rights)> Partition<M, A>(this IEnumerable<FinT<M, A>> self)
-        where M : Monad<M>
-    {
-        var result = M.Pure((Left: Seq<Error>.Empty, Right: Seq<A>.Empty));
-
-        foreach (var either in self)
-        {
-            result = result.Bind(
-                acc => either.Run().Map(
-                    e => e switch
-                         {
-                             Fin.Succ<A> (var r) => (acc.Left, acc.Right.Add(r)),
-                             Fin.Fail<A> (var l) => (acc.Left.Add(l), acc.Right),
-                             _                   => throw new NotSupportedException()
-                         }));
-        }
-
-        return result;
-    }
+    public static K<M, Seq<A>> Succs<F, M, A>(this K<F, FinT<M, A>> self)
+        where F : Foldable<F>
+        where M : Monad<M> =>
+        self.Fold(M.Pure(Seq<A>.Empty),
+                  (ms, ma) =>
+                      ms.Bind(s => ma.Run().Map(a => a switch
+                                                     {
+                                                         Fin.Succ<A> (var r) => s.Add(r),
+                                                         _                   => throw new NSE()
+                                                     })));
 }

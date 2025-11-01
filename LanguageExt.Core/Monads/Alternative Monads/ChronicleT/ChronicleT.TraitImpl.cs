@@ -8,14 +8,13 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="Ch">Chronicle type (a semigroup)</typeparam>
 /// <typeparam name="M">Lifted monad type</typeparam>
-public class ChronicleT<Ch, M> : 
+public partial class ChronicleT<Ch, M> : 
     MonadT<ChronicleT<Ch, M>, M>,
     MonadIO<ChronicleT<Ch, M>>,
     Fallible<Ch, ChronicleT<Ch, M>>,
     Choice<ChronicleT<Ch, M>>,
     Chronicaler<ChronicleT<Ch, M>, Ch>
     where M : Monad<M>
-    where Ch : Semigroup<Ch>
 {
     static K<ChronicleT<Ch, M>, B> Functor<ChronicleT<Ch, M>>.Map<A, B>(
         Func<A, B> f,
@@ -23,15 +22,16 @@ public class ChronicleT<Ch, M> :
         ma.As().Map(f);
 
     static K<ChronicleT<Ch, M>, A> Applicative<ChronicleT<Ch, M>>.Pure<A>(A value) =>
-        ChronicleT<Ch, M, A>.Dictate(value);
+        ChronicleT.dictate<Ch, M, A>(value);
 
     static K<ChronicleT<Ch, M>, B> Applicative<ChronicleT<Ch, M>>.Apply<A, B>(
         K<ChronicleT<Ch, M>, Func<A, B>> mf,
         K<ChronicleT<Ch, M>, A> ma)
     {
-        return new ChronicleT<Ch, M, B>(Applicative.lift(apply, mf.Run(), ma.Run()));
-        static These<Ch, B> apply(These<Ch, Func<A, B>> mf, These<Ch, A> mx) => 
-            mf.Apply(mx);
+        return new ChronicleT<Ch, M, B>(t => Applicative.lift(apply(t.Combine), mf.As().Run(t), ma.As().Run(t)));
+        static Func<These<Ch, Func<A, B>>, These<Ch, A>, These<Ch, B>> apply(Func<Ch, Ch, Ch> combine) =>
+            (mf, mx) =>
+                mf.Apply(mx, combine);
     }
 
     static K<ChronicleT<Ch, M>, B> Monad<ChronicleT<Ch, M>>.Bind<A, B>(
@@ -40,10 +40,10 @@ public class ChronicleT<Ch, M> :
         ma.As().Bind(f);
 
     static K<ChronicleT<Ch, M>, A> MonadT<ChronicleT<Ch, M>, M>.Lift<A>(K<M, A> ma) =>
-        ChronicleT<Ch, M, A>.Lift(ma);
+        ChronicleT.lift<Ch, M, A>(ma);
 
     static K<ChronicleT<Ch, M>, A> MonadIO<ChronicleT<Ch, M>>.LiftIO<A>(IO<A> ma) => 
-        ChronicleT<Ch, M, A>.LiftIO(ma);
+        ChronicleT.liftIO<Ch, M, A>(ma);
 
     static K<ChronicleT<Ch, M>, A> Fallible<Ch, ChronicleT<Ch, M>>.Fail<A>(Ch error) => 
         ChronicleT.confess<Ch, M, A>(error);
@@ -64,10 +64,10 @@ public class ChronicleT<Ch, M> :
         lhs.As().Choose(rhs);
 
     static K<ChronicleT<Ch, M>, A> Chronicaler<ChronicleT<Ch, M>, Ch>.Dictate<A>(A value) => 
-        ChronicleT<Ch, M, A>.Dictate(value);
+        ChronicleT.dictate<Ch, M, A>(value);
 
     static K<ChronicleT<Ch, M>, A> Chronicaler<ChronicleT<Ch, M>, Ch>.Confess<A>(Ch c) => 
-        ChronicleT<Ch, M, A>.Confess(c);
+        ChronicleT.confess<Ch, M, A>(c);
 
     static K<ChronicleT<Ch, M>, Either<Ch, A>> Chronicaler<ChronicleT<Ch, M>, Ch>.Memento<A>(
         K<ChronicleT<Ch, M>, A> ma) =>
@@ -87,5 +87,5 @@ public class ChronicleT<Ch, M> :
         ma.As().Censor(f);
 
     static K<ChronicleT<Ch, M>, A> Chronicaler<ChronicleT<Ch, M>, Ch>.Chronicle<A>(These<Ch, A> ma) => 
-        ChronicleT<Ch, M, A>.Chronicle(ma);
+        ChronicleT.chronicle<Ch, M, A>(ma);
 }

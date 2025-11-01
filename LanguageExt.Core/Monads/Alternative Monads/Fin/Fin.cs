@@ -616,26 +616,6 @@ public abstract class Fin<A> :
             ? Option<A>.Some(SuccValue)
             : Option<A>.None;
 
-    /*/// <summary>
-    /// Convert to a stream
-    /// </summary>
-    [Pure]
-    public StreamT<M, A> ToStream<M>() 
-        where M : Monad<M> =>
-        IsSucc 
-            ? StreamT<M, A>.Pure(SuccValue) 
-            : StreamT<M, A>.Empty;
-
-    /// <summary>
-    /// Convert to a stream
-    /// </summary>
-    [Pure]
-    public StreamT<M, Error> FailToStream<M>() 
-        where M : Monad<M> =>
-        IsFail
-            ? StreamT<M, Error>.Pure(FailValue) 
-            : StreamT<M, Error>.Empty;*/
-
     [Pure, MethodImpl(Opt.Default)]
     public Either<Error, A> ToEither() =>
         IsSucc
@@ -645,8 +625,8 @@ public abstract class Fin<A> :
     [Pure, MethodImpl(Opt.Default)]
     public Validation<Error, A> ToValidation() =>
         IsSucc
-            ? Validation<Error, A>.Success(SuccValue)
-            : Validation<Error, A>.Fail(FailValue);
+            ? Validation.Success<Error, A>(SuccValue)
+            : Validation.Fail<Error, A>(FailValue);
 
     [Pure, MethodImpl(Opt.Default)]
     public Eff<A> ToEff() =>

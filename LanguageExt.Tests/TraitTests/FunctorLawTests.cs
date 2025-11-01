@@ -191,10 +191,10 @@ public class FunctorLawTests
     }
     
     [Fact]
-    public void Validation()
+    public void Validation_()
     {
-        var fa = Validation<StringM, int>.Success(1);
-        var fx = Validation<StringM, int>.Fail("failed");
+        var fa = Validation.Success<StringM, int>(1);
+        var fx = Validation.Fail<StringM, int>("failed");
         FunctorLaw<Validation<StringM>>.assert(fa);
         FunctorLaw<Validation<StringM>>.assert(fx);
     }

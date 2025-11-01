@@ -66,9 +66,8 @@ public static class FSharp
     /// Convert a LanguageExt Either into an F# Result
     /// </summary>
     public static FSharpResult<R, L> fs<L, R>(Either<L, R> either) =>
-        match(either,
-              FSharpResult<R, L>.NewError,
-              FSharpResult<R, L>.NewOk);
+        either.Match(FSharpResult<R, L>.NewError,
+                     FSharpResult<R, L>.NewOk);
 
     /// <summary>
     /// Convert a LanguageExt Option into an F# Option 
@@ -96,7 +95,6 @@ public static class FSharp
     /// Convert a LanguageExt Either into an F# Result
     /// </summary>
     public static FSharpResult<R, L> ToFSharp<L, R>(this Either<L, R> either) =>
-        match(either,
-              FSharpResult<R, L>.NewError,
-              FSharpResult<R, L>.NewOk);
+        either.Match(FSharpResult<R, L>.NewError,
+                     FSharpResult<R, L>.NewOk);
 }

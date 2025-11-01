@@ -14,6 +14,14 @@ public static class ValidationTGuardExtensions
         guard.Flag
             ? ValidationT<F, M, Unit>.Success(default)
             : ValidationT<F, M, Unit>.Fail(guard.OnFalse());
+    /// <summary>
+    /// Natural transformation to `ValidationT`
+    /// </summary>
+    internal static ValidationT<F, M, Unit> ToValidationTI<F, M>(this Guard<F, Unit> guard)
+        where M : Monad<M> =>
+        guard.Flag
+            ? ValidationT<F, M, Unit>.Success(default)
+            : ValidationT<F, M, Unit>.Fail(guard.OnFalse());
  
     /// <summary>
     /// Monadic binding support for `ValidationT`

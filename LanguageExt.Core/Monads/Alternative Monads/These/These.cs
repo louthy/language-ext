@@ -4,33 +4,8 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public abstract record These<A, B> : K<These<A>, B>
+public abstract partial record These<A, B> : K<These<A>, B>
 {
-    /// <summary>
-    /// This constructor
-    /// </summary>
-    /// <param name="value">Value to set</param>
-    /// <returns>Constructed `These` structure</returns>
-    public static These<A, B> This(A value) =>
-        new These.This<A, B>(value);
-    
-    /// <summary>
-    /// That constructor
-    /// </summary>
-    /// <param name="value">Value to set</param>
-    /// <returns>Constructed `These` structure</returns>
-    public static These<A, B> That(B value) =>
-        new These.That<A, B>(value);    
-    
-    /// <summary>
-    /// Both constructor
-    /// </summary>
-    /// <param name="first">First value to set</param>
-    /// <param name="second">Second value to set</param>
-    /// <returns>Constructed `These` structure</returns>
-    public static These<A, B> Both(A first, B second) =>
-        new These.Both<A, B>(first, second);
-    
     /// <summary>
     /// Case analysis for the `These` type
     /// </summary>

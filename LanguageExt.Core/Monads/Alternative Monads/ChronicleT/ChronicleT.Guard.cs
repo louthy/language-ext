@@ -10,11 +10,10 @@ public static class ChronicleTGuardExtensions
     /// Natural transformation to `ChronicleT`
     /// </summary>
     public static ChronicleT<Ch, M, Unit> ToChronicleT<Ch, M>(this Guard<Ch, Unit> guard)
-        where M :  Monad<M>
-        where Ch : Semigroup<Ch> =>
+        where M :  Monad<M> =>
         guard.Flag
-            ? ChronicleT<Ch, M, Unit>.Dictate(default)
-            : ChronicleT<Ch, M, Unit>.Confess(guard.OnFalse());
+            ? ChronicleT.dictate<Ch, M, Unit>(default)
+            : ChronicleT.confess<Ch, M, Unit>(guard.OnFalse());
  
     /// <summary>
     /// Monadic binding support for `ChronicleT`
@@ -22,11 +21,10 @@ public static class ChronicleTGuardExtensions
     public static ChronicleT<Ch, M, B> Bind<Ch, M, B>(
         this Guard<Ch, Unit> guard,
         Func<Unit, ChronicleT<Ch, M, B>> f) 
-        where Ch : Semigroup<Ch>
         where M : Monad<M> =>
         guard.Flag
             ? f(default).As()
-            : ChronicleT<Ch, M, B>.Confess(guard.OnFalse());
+            : ChronicleT.confess<Ch, M, B>(guard.OnFalse());
        
     /// <summary>
     /// Monadic binding support for `ChronicleT`
@@ -35,9 +33,8 @@ public static class ChronicleTGuardExtensions
         this Guard<Ch, Unit> guard,
         Func<Unit, ChronicleT<Ch, M, B>> bind, 
         Func<Unit, B, C> project) 
-        where Ch : Semigroup<Ch>
         where M : Monad<M> =>
         guard.Flag
             ? bind(default).Map(b => project(default, b)).As()
-            : ChronicleT<Ch, M, C>.Confess(guard.OnFalse());    
+            : ChronicleT.confess<Ch, M, C>(guard.OnFalse());    
 }

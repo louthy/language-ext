@@ -11,7 +11,7 @@ public partial class Prelude
     /// <param name="value">Value to set</param>
     /// <returns>Constructed `These` structure</returns>
     public static These<A, B> This<A, B>(A value) =>
-        new These.This<A, B>(value);
+        new These<A, B>.This(value);
     
     /// <summary>
     /// That constructor
@@ -19,7 +19,7 @@ public partial class Prelude
     /// <param name="value">Value to set</param>
     /// <returns>Constructed `These` structure</returns>
     public static These<A, B> That<A, B>(B value) =>
-        new These.That<A, B>(value);    
+        new These<A, B>.That(value);    
     
     /// <summary>
     /// Both constructor
@@ -28,7 +28,7 @@ public partial class Prelude
     /// <param name="second">Second value to set</param>
     /// <returns>Constructed `These` structure</returns>
     public static These<A, B> Both<A, B>(A first, B second) =>
-        new These.Both<A, B>(first, second);
+        new These<A, B>.Both(first, second);
     
     /// <summary>
     /// Coalesce with the provided operation

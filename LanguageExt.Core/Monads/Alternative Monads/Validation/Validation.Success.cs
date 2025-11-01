@@ -1,14 +1,12 @@
 using System;
 using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
-using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public static partial class Validation
+public abstract partial record Validation<F, A>
 {
-    public sealed record Success<F, A>(A Value) : Validation<F, A>
-        where F : Monoid<F>
+    public sealed record Success(A Value) : Validation<F, A>
     {
         /// <summary>
         /// Is the Validation in a Success state?
@@ -33,8 +31,8 @@ public static partial class Validation
         /// <returns>The return value of the invoked function</returns>
         [Pure]
         public override B Match<B>(
-            Func<A, B> Succ,
-            Func<F, B> Fail) =>
+            Func<F, B> Fail,
+            Func<A, B> Succ) =>
             Succ(Value);
 
         /// <summary>
@@ -72,8 +70,8 @@ public static partial class Validation
         public override int CompareTo<OrdF, OrdA>(Validation<F, A> other) =>
             other switch
             {
-                Success<F, A> r => OrdA.Compare(Value, r.Value),
-                _             => 1
+                Success r => OrdA.Compare(Value, r.Value),
+                _         => 1
             };
 
         /// <summary>
@@ -83,8 +81,8 @@ public static partial class Validation
         public override bool Equals<EqF, EqA>(Validation<F, A> other) =>
             other switch
             {
-                Success<F, A> r => EqA.Equals(Value, r.Value),
-                _             => false
+                Success r => EqA.Equals(Value, r.Value),
+                _         => false
             };
 
         /// <summary>
@@ -111,7 +109,7 @@ public static partial class Validation
         /// <returns>Mapped Validation</returns>
         [Pure]
         public override Validation<F, B> Map<B>(Func<A, B> f) =>
-            new Success<F, B>(f(Value));
+            new Validation<F, B>.Success(f(Value));
 
         /// <summary>
         /// Bi-maps the value in the Validation if it's in a Success state
@@ -121,13 +119,13 @@ public static partial class Validation
         /// <typeparam name="L2">Left return</typeparam>
         /// <typeparam name="R2">Success return</typeparam>
         /// <param name="Success">Success map function</param>
-        /// <param name="Left">Left map function</param>
+        /// <param name="Fail">Left map function</param>
         /// <returns>Mapped Validation</returns>
         [Pure]
         public override Validation<L2, R2> BiMap<L2, R2>(
-            Func<A, R2> Succ, 
-            Func<F, L2> Left) =>
-            new Success<L2, R2>(Succ(Value));
+            Func<F, L2> Fail,
+            Func<A, R2> Succ) =>
+            new Validation<L2, R2>.Success(Succ(Value));
 
         /// <summary>
         /// Monadic bind
@@ -146,8 +144,8 @@ public static partial class Validation
         /// </summary>
         [Pure]
         public override Validation<L2, R2> BiBind<L2, R2>(
-            Func<A, Validation<L2, R2>> Succ,
-            Func<F, Validation<L2, R2>> Fail) =>
+            Func<F, Validation<L2, R2>> Fail,
+            Func<A, Validation<L2, R2>> Succ) =>
             Succ(Value);
     }
 }

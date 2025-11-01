@@ -13,7 +13,8 @@ namespace LanguageExt;
 /// <typeparam name="L">Left value type</typeparam>
 /// <typeparam name="R">Bound value type</typeparam>
 public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) : 
-    Fallible<EitherT<L, M, R>, EitherT<L, M>, L, R>
+    Fallible<EitherT<L, M, R>, EitherT<L, M>, L, R>,
+    K<EitherT<M>, L, R>
     where M : Monad<M>
 {
     /// <summary>
@@ -236,8 +237,17 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
     /// </summary>
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
-    /// <returns>`EitherT`</returns>
+    /// <returns>Mapped structure</returns>
     public EitherT<L, M, B> Map<B>(Func<R, B> f) =>
+        new(M.Map(mx => mx.Map(f), runEither));
+    
+    /// <summary>
+    /// Maps the bound value
+    /// </summary>
+    /// <param name="f">Mapping transducer</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>Mapped structure</returns>
+    public EitherT<L, M, B> Select<B>(Func<R, B> f) =>
         new(M.Map(mx => mx.Map(f), runEither));
     
     /// <summary>
@@ -245,18 +255,22 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
     /// </summary>
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
-    /// <returns>`EitherT`</returns>
+    /// <returns>Mapped structure</returns>
     public EitherT<B, M, R> MapLeft<B>(Func<L, B> f) =>
         new(M.Map(mx => mx.MapLeft(f), runEither));
-    
+
     /// <summary>
-    /// Maps the bound value
+    /// Bifunctor map operation
     /// </summary>
-    /// <param name="f">Mapping transducer</param>
-    /// <typeparam name="B">Target bound value type</typeparam>
-    /// <returns>`EitherT`</returns>
-    public EitherT<L, M, B> Select<B>(Func<R, B> f) =>
-        new(M.Map(mx => mx.Map(f), runEither));
+    /// <param name="Left">Left map function</param>
+    /// <param name="Right">Right map function</param>
+    /// <typeparam name="L1">Target left type</typeparam>
+    /// <typeparam name="R1">Target right type</typeparam>
+    /// <returns>Mapped structure</returns>
+    public EitherT<L1, M, R1> BiMap<L1, R1>(
+        Func<L, L1> Left, 
+        Func<R, R1> Right) => 
+        Bifunctor.bimap(Left, Right, this).As2();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -321,25 +335,22 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
         Bind(a => EitherT<L, M, B>.Lift(f(a).Value));
 
     /// <summary>
-    /// Monad bi-bind operation
+    /// Bimonad bind left
     /// </summary>
-    /// <param name="Left">Left state mapping function</param>
-    /// <param name="Right">Left state mapping function</param>
-    /// <typeparam name="B">Target bound value type</typeparam>
-    /// <returns>`EitherT`</returns>
-    public EitherT<L, M, B> BiBind<B>(Func<L, EitherT<L, M, B>> Left, Func<R, EitherT<L, M, B>> Right) =>
-        new(M.Bind(runEither, 
-                   ex => ex.Match(
-                       Right: x => Right(x).runEither,
-                       Left: e => Left(e).runEither)));
+    /// <param name="f"></param>
+    /// <typeparam name="L1"></typeparam>
+    /// <returns></returns>
+    public EitherT<L1, M, R> BindLeft<L1>(Func<L, K<EitherT<M>, L1, R>> f) =>
+        Bimonad.bindFirst(this, f).As2();
 
     /// <summary>
-    /// Monad bi-bind operation
+    /// Bimonad bind right
     /// </summary>
-    /// <param name="Left">Left state mapping function</param>
-    /// <returns>`EitherT`</returns>
-    public EitherT<L, M, R> BindLeft(Func<L, EitherT<L, M, R>> Left) =>
-        BiBind(Left, Right);
+    /// <param name="f"></param>
+    /// <typeparam name="L1"></typeparam>
+    /// <returns></returns>
+    public EitherT<L, M, R1> BindRight<R1>(Func<R, K<EitherT<M>, L, R1>> f) =>
+        Bimonad.bindSecond(this, f).As2();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

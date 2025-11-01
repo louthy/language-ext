@@ -234,7 +234,7 @@ public static class PureExtensions
 
     public static Validation<F, A> ToValidation<F, A>(this Pure<A> ma)
         where F : Monoid<F> =>
-        Validation<F, A>.Success(ma.Value);
+        Validation.Success<F, A>(ma.Value);
 
     public static Validation<F, C> SelectMany<F, A, B, C>(
         this Pure<A> ma,

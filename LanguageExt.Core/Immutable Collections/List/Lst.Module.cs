@@ -181,8 +181,8 @@ public static class List
     [Pure]
     public static Validation<Fail, Success> headOrInvalid<Fail, Success>(IEnumerable<Success> list, Fail fail) 
         where Fail : Monoid<Fail> =>
-        list.Select(Validation<Fail, Success>.Success)
-            .DefaultIfEmpty(Validation<Fail, Success>.Fail(fail))
+        list.Select(Validation.Success<Fail, Success>)
+            .DefaultIfEmpty(Validation.Fail<Fail, Success>(fail))
             .FirstOrDefault() ?? Fail.Empty;
 
     /// <summary>
@@ -193,8 +193,8 @@ public static class List
     [Pure]
     public static Validation<Fail, Success> headOrInvalid<Fail, Success>(IEnumerable<Success> list)
         where Fail : Monoid<Fail> =>
-        list.Select(Validation<Fail, Success>.Success)
-            .DefaultIfEmpty(Validation<Fail, Success>.Fail(Fail.Empty))
+        list.Select(Validation.Success<Fail, Success>)
+            .DefaultIfEmpty(Validation.Fail<Fail, Success>(Fail.Empty))
             .FirstOrDefault() ?? Fail.Empty;
 
     /// <summary>
@@ -236,8 +236,8 @@ public static class List
     [Pure]
     public static Validation<Fail, Success> lastOrInvalid<Fail, Success>(IEnumerable<Success> list, Fail fail)
         where Fail : Monoid<Fail> =>
-        list.Select(Validation<Fail, Success>.Success)
-            .DefaultIfEmpty(Validation<Fail, Success>.Fail(fail))
+        list.Select(Validation.Success<Fail, Success>)
+            .DefaultIfEmpty(Validation.Fail<Fail, Success>(fail))
             .LastOrDefault() ?? fail;
 
     /// <summary>
@@ -248,8 +248,8 @@ public static class List
     [Pure]
     public static Validation<Fail, Success> lastOrInvalid<Fail, Success>(IEnumerable<Success> list)
         where Fail : Monoid<Fail> =>
-        list.Select(Validation<Fail, Success>.Success)
-            .DefaultIfEmpty(Validation<Fail, Success>.Fail(Fail.Empty))
+        list.Select(Validation.Success<Fail, Success>)
+            .DefaultIfEmpty(Validation.Fail<Fail, Success>(Fail.Empty))
             .LastOrDefault() ?? Fail.Empty;
 
     /// <summary>
