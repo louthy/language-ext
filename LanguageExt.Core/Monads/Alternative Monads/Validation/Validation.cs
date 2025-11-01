@@ -1,41 +1,49 @@
 ﻿using System;
+using System.Collections;
+using LanguageExt.Traits;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
-using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
-using System.Collections;
-using System.ComponentModel;
+using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using LanguageExt.Traits;
 
 namespace LanguageExt;
 
 /// <summary>
-/// Like `Either` but collects the failed values
+/// Like `Either` but collects multiple failed values
 /// </summary>
-/// <typeparam name="MonoidFail"></typeparam>
-/// <typeparam name="F"></typeparam>
-/// <typeparam name="A"></typeparam>
+/// <exception cref="TypeLoadException">
+/// <para>
+/// Any `TypeLoadException` thrown is because the `F` type used does not derive from `Monoid〈F〉` or `Semigroup〈F〉`.
+/// This is a runtime error rather than a compile-time constraint error because we're resolving the `Monoid〈F〉` and
+/// `Semigroup〈F〉` traits ad-hoc.
+/// </para>
+/// <para>
+/// That means we delay finding out that the provided `F` type isn't compatible for `Validation〈F, A〉`.  That is
+/// annoying, we would prefer compile-time constraints, of course, but it enables much more freedom to implement the
+/// `Coproduct`, `Bifunctor`, and `Bimonad` traits which, in turn, give additional functionality for free (like
+/// `Partition`).
+/// </para>
+/// <para>
+/// Implementation of those traits would not be possible if we were to add compile-time constraints to `F`.  So, the
+/// resolution of any type-exception thrown is to only use `Monoid〈F〉` or `Semigroup〈F〉` deriving types for `F`,
+/// depending on the functionality required.
+/// </para> 
+/// </exception>
+/// <typeparam name="F">Failure value type: it is important that this implements `Monoid〈F〉`</typeparam>
+/// <typeparam name="A">Success value type</typeparam>
 [Serializable]
-public abstract record Validation<F, A> : 
+public abstract partial record Validation<F, A> :
     IEnumerable<A>,
     IComparable<Validation<F, A>>,
     IComparable<A>,
     IComparable,
     IEquatable<Pure<A>>,
     IComparable<Pure<A>>,
-    IEquatable<A>, 
-    Fallible<Validation<F, A>, Validation<F>, F, A>
-    where F : Monoid<F>
+    IEquatable<A>,
+    Fallible<Validation<F, A>, Validation<F>, F, A>,
+    K<Validation, F, A>
 {
-    [Pure]
-    public static Validation<F, A> Success(A value) =>
-        new Validation.Success<F, A>(value);
-
-    [Pure]
-    public static Validation<F, A> Fail(F value) =>
-        new Validation.Fail<F, A>(value);
-
     /// <summary>
     /// Is the Validation in a Success state?
     /// </summary>
@@ -56,7 +64,7 @@ public abstract record Validation<F, A> :
     /// <param name="Succ">Function to invoke if in a Success state</param>
     /// <returns>The return value of the invoked function</returns>
     [Pure]
-    public abstract B Match<B>(Func<A, B> Succ, Func<F, B> Fail);
+    public abstract B Match<B>(Func<F, B> Fail, Func<A, B> Succ);
 
     /// <summary>
     /// Empty span
@@ -120,8 +128,7 @@ public abstract record Validation<F, A> :
     /// <param name="Fail">Fail map function</param>
     /// <returns>Mapped Validation</returns>
     [Pure]
-    public abstract Validation<F1, A1> BiMap<F1, A1>(Func<A, A1> Succ, Func<F, F1> Fail)
-        where F1 : Monoid<F1>;
+    public abstract Validation<F1, A1> BiMap<F1, A1>(Func<F, F1> Fail, Func<A, A1> Succ);
 
     /// <summary>
     /// Monadic bind
@@ -139,30 +146,22 @@ public abstract record Validation<F, A> :
     /// </summary>
     [Pure]
     public abstract Validation<F1, A1> BiBind<F1, A1>(
-        Func<A, Validation<F1, A1>> Succ,
-        Func<F, Validation<F1, A1>> Fail)
-        where F1 : Monoid<F1>;
+        Func<F, Validation<F1, A1>> Fail,
+        Func<A, Validation<F1, A1>> Succ);
 
     /// <summary>
     /// Bind the failure
     /// </summary>
     [Pure]
     public Validation<F1, A> BindFail<F1>(
-        Func<F, Validation<F1, A>> Fail)
+        Func<F, Validation<F1, A>> Fail) 
         where F1 : Monoid<F1> =>
-        BiBind(Validation<F1, A>.Success, Fail);
-
-    /// <summary>
-    /// Monoid empty
-    /// </summary>
-    [Pure]
-    public static Validation<F, A> Empty { get; } = 
-        new Validation.Fail<F, A>(F.Empty);
+        BiBind(Fail, Validation.SuccessI<F1, A>);
 
     /// <summary>
     /// Explicit conversion operator from `` to `R`
     /// </summary>
-    /// <param name="value">Value, must not be null.</param>
+    /// <param name="value">Value</param>
     /// <exception cref="InvalidCastException">Value is not in a Right state</exception>
     [Pure]
     public static explicit operator A(Validation<F, A> ma) =>
@@ -171,7 +170,7 @@ public abstract record Validation<F, A> :
     /// <summary>
     /// Explicit conversion operator from `Validation` to `L`
     /// </summary>
-    /// <param name="value">Value, must not be null.</param>
+    /// <param name="value">Value</param>
     /// <exception cref="InvalidCastException">Value is not in a Fail state</exception>
     [Pure]
     public static explicit operator F(Validation<F, A> ma) =>
@@ -182,23 +181,23 @@ public abstract record Validation<F, A> :
     /// </summary>
     [Pure]
     public static implicit operator Validation<F, A>(A value) =>
-        new Validation.Success<F, A>(value);
+        new Success(value);
 
     /// <summary>
     /// Implicit conversion operator from `F` to `Validation〈F, A〉`
     /// </summary>
     [Pure]
     public static implicit operator Validation<F, A>(F value) =>
-        new Validation.Fail<F, A>(value);
+        new Fail(value);
 
     /// <summary>
     /// Invokes the `Succ` or `Fail` action depending on the state of the value
     /// </summary>
-    /// <param name="Succ">Action to invoke if in a Success state</param>
     /// <param name="Fail">Action to invoke if in a Fail state</param>
+    /// <param name="Succ">Action to invoke if in a Success state</param>
     /// <returns>Unit</returns>
-    public Unit Match(Action<A> Succ, Action<F> Fail) =>
-        Match(fun(Succ), fun(Fail));
+    public Unit Match(Action<F> Fail, Action<A> Succ) =>
+        Match(fun(Fail), fun(Succ));
 
     /// <summary>
     /// Executes the `Fail` function if the value is in a Fail state.
@@ -208,7 +207,7 @@ public abstract record Validation<F, A> :
     /// <returns>Returns an unwrapped value</returns>
     [Pure]
     public A IfFail(Func<A> Fail) =>
-        Match(identity, _ => Fail());
+        Match(_ => Fail(), identity);
 
     /// <summary>
     /// Executes the `failMap` function if the value is in a Fail state.
@@ -218,7 +217,7 @@ public abstract record Validation<F, A> :
     /// <returns>Returns an unwrapped value</returns>
     [Pure]
     public A IfFail(Func<F, A> failMap) =>
-        Match(identity, failMap);
+        Match(failMap, identity);
 
     /// <summary>
     /// Returns the `successValue` if in a Fail state.
@@ -228,15 +227,15 @@ public abstract record Validation<F, A> :
     /// <returns>Returns an unwrapped value</returns>
     [Pure]
     public A IfFail(A successValue) =>
-        Match(identity, _ => successValue);
+        Match(_ => successValue, identity);
 
     /// <summary>
     /// Executes the Fail action if in a Fail state.
     /// </summary>
     /// <param name="Fail">Function to generate a Success value if in the Fail state</param>
-    /// <returns>Returns unit</returns>
+    /// <returns>Unit</returns>
     public Unit IfFail(Action<F> Fail) =>
-        Match(_ => { }, Fail);
+        Match(Fail, _ => { });
 
     /// <summary>
     /// Invokes the `Success` action if in a Success state, otherwise does nothing
@@ -244,25 +243,7 @@ public abstract record Validation<F, A> :
     /// <param name="Success">Action to invoke</param>
     /// <returns>Unit</returns>
     public Unit IfRight(Action<A> Success) =>
-        Match(Success, _ => { });
-
-    /// <summary>
-    /// Match Success and return a context.  You must follow this with `.Fail(...)` to complete the match
-    /// </summary>
-    /// <param name="success">Action to invoke if in a Success state</param>
-    /// <returns>Context that must have `Fail()` called upon it.</returns>
-    [Pure]
-    public ValidationUnitContext<F, A> Success(Action<A> success) =>
-        new (this, success);
-
-    /// <summary>
-    /// Match Success and return a context.  You must follow this with `.Fail(...)` to complete the match
-    /// </summary>
-    /// <param name="success">Action to invoke if in a Success state</param>
-    /// <returns>Context that must have `Fail()` called upon it.</returns>
-    [Pure]
-    public ValidationContext<F, A, B> Success<B>(Func<A, B> success) =>
-        new (this, success);
+        Match(_ => { }, Success);
 
     IEnumerator IEnumerable.GetEnumerator() => 
         GetEnumerator();
@@ -326,9 +307,9 @@ public abstract record Validation<F, A> :
     public Either<F, A> ToEither() =>
         this switch
         {
-            Validation.Success<F, A> (var x) => new Either.Right<F, A>(x),
-            Validation.Fail<F, A> (var x)    => new Either.Left<F, A>(x),
-            _ => throw new NotSupportedException()
+            Success (var x) => new Either.Right<F, A>(x),
+            Fail (var x)    => new Either.Left<F, A>(x),
+            _               => throw new NotSupportedException()
         };
 
     /// <summary>
@@ -339,45 +320,23 @@ public abstract record Validation<F, A> :
     public Option<A> ToOption() =>
         this switch
         {
-            Validation.Success<F, A> (var x) => Option<A>.Some(x),
-            Validation.Fail<F, A>            => Option<A>.None,
-            _                                => throw new NotSupportedException()
+            Success (var x) => Option<A>.Some(x),
+            Fail            => Option<A>.None,
+            _               => throw new NotSupportedException()
         };
 
-    /*
-    /// <summary>
-    /// Convert to a stream
-    /// </summary>
-    [Pure]
-    public StreamT<M, A> ToStream<M>() 
-        where M : Monad<M> =>
-        IsSuccess
-            ? StreamT<M, A>.Pure(SuccessValue) 
-            : StreamT<M, A>.Empty;
-
-    /// <summary>
-    /// Convert to a stream
-    /// </summary>
-    [Pure]
-    public StreamT<M, F> FailToStream<M>() 
-        where M : Monad<M> =>
-        IsFail
-            ? StreamT<M, F>.Pure(FailValue) 
-            : StreamT<M, F>.Empty;
-
-    */
     /// <summary>
     /// Action operator
     /// </summary>
     [Pure]
     public static Validation<F, A> operator >>(Validation<F, A> lhs, Validation<F, A> rhs) =>
-        lhs.Action(rhs);
+        lhs.Action(rhs).As();
     
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs〈 rhs</returns>
     [Pure]
     public static bool operator <(Validation<F, A> lhs, Fail<F> rhs) =>
@@ -386,8 +345,8 @@ public abstract record Validation<F, A> :
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs〈= rhs</returns>
     [Pure]
     public static bool operator <=(Validation<F, A> lhs, Fail<F> rhs) =>
@@ -396,8 +355,8 @@ public abstract record Validation<F, A> :
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs 〉rhs</returns>
     [Pure]
     public static bool operator >(Validation<F, A> lhs, Fail<F> rhs) =>
@@ -406,8 +365,8 @@ public abstract record Validation<F, A> :
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs 〉= rhs</returns>
     [Pure]
     public static bool operator >=(Validation<F, A> lhs, Fail<F> rhs) =>
@@ -416,8 +375,8 @@ public abstract record Validation<F, A> :
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs〈 rhs</returns>
     [Pure]
     public static bool operator <(Validation<F, A> lhs, Pure<A> rhs) =>
@@ -426,8 +385,8 @@ public abstract record Validation<F, A> :
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs〈= rhs</returns>
     [Pure]
     public static bool operator <=(Validation<F, A> lhs, Pure<A> rhs) =>
@@ -436,8 +395,8 @@ public abstract record Validation<F, A> :
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs 〉rhs</returns>
     [Pure]
     public static bool operator >(Validation<F, A> lhs, Pure<A> rhs) =>
@@ -446,19 +405,18 @@ public abstract record Validation<F, A> :
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs 〉= rhs</returns>
     [Pure]
     public static bool operator >=(Validation<F, A> lhs, Pure<A> rhs) =>
         lhs.CompareTo(rhs) >= 0;
 
-
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs〈 rhs</returns>
     [Pure]
     public static bool operator <(Fail<F> lhs, Validation<F, A> rhs) =>
@@ -467,8 +425,8 @@ public abstract record Validation<F, A> :
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs〈= rhs</returns>
     [Pure]
     public static bool operator <=(Fail<F>  lhs, Validation<F, A> rhs) =>
@@ -477,8 +435,8 @@ public abstract record Validation<F, A> :
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs 〉rhs</returns>
     [Pure]
     public static bool operator >(Fail<F> lhs, Validation<F, A>rhs) =>
@@ -487,8 +445,8 @@ public abstract record Validation<F, A> :
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs 〉= rhs</returns>
     [Pure]
     public static bool operator >=(Fail<F> lhs, Validation<F, A>  rhs) =>
@@ -497,8 +455,8 @@ public abstract record Validation<F, A> :
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs〈 rhs</returns>
     [Pure]
     public static bool operator <(Pure<A> lhs, Validation<F, A>  rhs) =>
@@ -507,8 +465,8 @@ public abstract record Validation<F, A> :
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs〈= rhs</returns>
     [Pure]
     public static bool operator <=(Pure<A> lhs, Validation<F, A> rhs) =>
@@ -517,8 +475,8 @@ public abstract record Validation<F, A> :
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs 〉rhs</returns>
     [Pure]
     public static bool operator >(Pure<A> lhs, Validation<F, A> rhs) =>
@@ -527,8 +485,8 @@ public abstract record Validation<F, A> :
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs 〉= rhs</returns>
     [Pure]
     public static bool operator >=(Pure<A> lhs, Validation<F, A> rhs) =>
@@ -537,8 +495,8 @@ public abstract record Validation<F, A> :
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs〈 rhs</returns>
     [Pure]
     public static bool operator <(Validation<F, A> lhs, Validation<F, A> rhs) =>
@@ -547,8 +505,8 @@ public abstract record Validation<F, A> :
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs〈= rhs</returns>
     [Pure]
     public static bool operator <=(Validation<F, A> lhs, Validation<F, A> rhs) =>
@@ -557,8 +515,8 @@ public abstract record Validation<F, A> :
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs 〉rhs</returns>
     [Pure]
     public static bool operator >(Validation<F, A> lhs, Validation<F, A> rhs) =>
@@ -567,8 +525,8 @@ public abstract record Validation<F, A> :
     /// <summary>
     /// Comparison operator
     /// </summary>
-    /// <param name="lhs">The left hand side of the operation</param>
-    /// <param name="rhs">The right hand side of the operation</param>
+    /// <param name="lhs">The left-hand side of the operation</param>
+    /// <param name="rhs">The right-hand side of the operation</param>
     /// <returns>True if lhs 〉= rhs</returns>
     [Pure]
     public static bool operator >=(Validation<F, A> lhs, Validation<F, A> rhs) =>
@@ -656,28 +614,28 @@ public abstract record Validation<F, A> :
     /// Combine operator: uses the underlying `F.Combine` to collect failures
     /// </summary>
     public static Validation<F, A> operator +(Validation<F, A> lhs, A rhs) => 
-        lhs.Combine(Success(rhs)).As();
+        lhs.Combine(Validation.SuccessI<F, A>(rhs)).As();
 
     /// <summary>
     /// Combine operator: uses the underlying `F.Combine` to collect failures
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Validation<F, A> operator +(Validation<F, A> lhs, Pure<A> rhs) =>
-        lhs.Combine(Success(rhs.Value)).As();
+        lhs.Combine(Validation.SuccessI<F, A>(rhs.Value)).As();
 
     /// <summary>
     /// Combine operator: uses the underlying `F.Combine` to collect failures
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Validation<F, A> operator +(Validation<F, A> lhs, Fail<F> rhs) =>
-        lhs.Combine(Fail(rhs.Value)).As();
+        lhs.Combine(Validation.FailI<F, A>(rhs.Value)).As();
 
     /// <summary>
     /// Combine operator: uses the underlying `F.Combine` to collect failures
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Validation<F, A> operator +(Validation<F, A> lhs, F rhs) =>
-        lhs.Combine(Fail(rhs)).As();    
+        lhs.Combine(Validation.FailI<F, A>(rhs)).As();    
     
     /// <summary>
     /// Choice operator: returns the first argument to succeed.  If both fail, then the last failure is returned.
@@ -704,97 +662,109 @@ public abstract record Validation<F, A> :
     /// Choice operator: returns the first argument to succeed.  If both fail, then the last failure is returned.
     /// </summary>
     public static Validation<F, A> operator |(Validation<F, A> lhs, A rhs) => 
-        lhs.Choose(Success(rhs)).As();
+        lhs.Choose(Validation.SuccessI<F, A>(rhs)).As();
 
     /// <summary>
     /// Choice operator: returns the first argument to succeed.  If both fail, then the last failure is returned.
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Validation<F, A> operator |(Validation<F, A> lhs, Pure<A> rhs) =>
-        lhs.Choose(Success(rhs.Value)).As();
+        lhs.Choose(Validation.SuccessI<F, A>(rhs.Value)).As();
 
     /// <summary>
     /// Choice operator: returns the first argument to succeed.  If both fail, then the last failure is returned.
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Validation<F, A> operator |(Validation<F, A> lhs, Fail<F> rhs) =>
-        lhs.Choose(Fail(rhs.Value)).As();
+        lhs.Choose(Validation.FailI<F, A>(rhs.Value)).As();
 
     /// <summary>
     /// Choice operator: returns the first argument to succeed.  If both fail, then the last failure is returned.
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Validation<F, A> operator |(Validation<F, A> lhs, F rhs) =>
-        lhs.Choose(Fail(rhs)).As();
+        lhs.Choose(Validation.FailI<F, A>(rhs)).As();
 
     /// <summary>
     /// Catch operator: returns the first argument if it to succeeds. Otherwise, the `F` failure is mapped.
     /// </summary>
     public static Validation<F, A> operator |(Validation<F, A> lhs, CatchM<F, Validation<F>, A> rhs) =>
         lhs.Catch(rhs).As();
-    
+
     /// <summary>
-    /// If any items are Fail then the errors are collected and returned.  If they
-    /// all pass then the Success values are collected into a `Seq`.  
+    /// If any items are `Fail`, then the errors are collected and returned.  If they all pass, then the Success values
+    /// are collected into a `Seq`.  
     /// </summary>
+    /// <exception cref="TypeLoadException">
+    /// <para>
+    /// Any `TypeLoadException` thrown is because the `F` type used does not derive from `Semigroup〈F〉`.
+    /// This is a runtime error rather than a compile-time constraint error because we're resolving the `Semigroup〈F〉`
+    /// trait ad hoc.
+    /// </para>
+    /// <para>
+    /// That means we delay finding out that the provided `F` type isn't compatible for `Validation〈F, A〉`.  That is
+    /// annoying, we would prefer compile-time constraints, of course, but it enables much more freedom to implement the
+    /// `Coproduct`, `Bifunctor`, and `Bimonad` traits which, in turn, give additional functionality for free (like
+    /// `Partition`).
+    /// </para>
+    /// <para>
+    /// Implementation of those traits would not be possible if we were to add compile-time constraints to `F`.  So, the
+    /// resolution of any type-exception thrown is to only use `Semigroup〈F〉` deriving types for `F`.
+    /// </para> 
+    /// </exception>
     [Pure]
     public static Validation<F, Seq<A>> operator &(Validation<F, A> lhs, Validation<F, A> rhs) =>
-        (lhs, rhs) switch
-        {
-            ({ IsSuccess: true } , { IsSuccess: true }) => 
-                Validation<F, Seq<A>>.Success([lhs.SuccessValue, rhs.SuccessValue]),
-            
-            ({ IsFail: true } , {IsFail: true}) => 
-                lhs.FailValue.Combine(rhs.FailValue),
-            
-            ({ IsFail: true } , _) => 
-                lhs.FailValue,
-            
-            _ => 
-                rhs.FailValue
-        };
-    
+        lhs.CombineI(rhs, SemigroupInstance<F>.Instance);
+
     /// <summary>
-    /// If any items are Fail then the errors are collected and returned.  If they
-    /// all pass then the Success values are collected into a `Seq`.  
+    /// If any items are `Fail`, then the errors are collected and returned.  If they all pass, then the Success values
+    /// are collected into a `Seq`.  
     /// </summary>
+    /// <exception cref="TypeLoadException">
+    /// <para>
+    /// Any `TypeLoadException` thrown is because the `F` type used does not derive from `Semigroup〈F〉`.
+    /// This is a runtime error rather than a compile-time constraint error because we're resolving the `Semigroup〈F〉`
+    /// trait ad hoc.
+    /// </para>
+    /// <para>
+    /// That means we delay finding out that the provided `F` type isn't compatible for `Validation〈F, A〉`.  That is
+    /// annoying, we would prefer compile-time constraints, of course, but it enables much more freedom to implement the
+    /// `Coproduct`, `Bifunctor`, and `Bimonad` traits which, in turn, give additional functionality for free (like
+    /// `Partition`).
+    /// </para>
+    /// <para>
+    /// Implementation of those traits would not be possible if we were to add compile-time constraints to `F`.  So, the
+    /// resolution of any type-exception thrown is to only use `Semigroup〈F〉` deriving types for `F`.
+    /// </para> 
+    /// </exception>
     [Pure]
     public static Validation<F, Seq<A>> operator &(Validation<F, Seq<A>> lhs, Validation<F, A> rhs) =>
-        (lhs, rhs) switch
-        {
-            ({ IsSuccess: true } , { IsSuccess: true }) => 
-                Validation<F, Seq<A>>.Success(lhs.SuccessValue.Add(rhs.SuccessValue)),
-            
-            ({ IsFail: true } , {IsFail: true}) => 
-                lhs.FailValue.Combine(rhs.FailValue),
-            
-            ({ IsFail: true } , _) => 
-                lhs.FailValue,
-            
-            _ => 
-                rhs.FailValue
-        };
-    
+        lhs.CombineI(rhs, SemigroupInstance<F>.Instance);
+
     /// <summary>
-    /// If any items are Fail then the errors are collected and returned.  If they
-    /// all pass then the Success values are collected into a `Seq`.  
+    /// If any items are `Fail`, then the errors are collected and returned.  If they all pass, then the Success values
+    /// are collected into a `Seq`.  
     /// </summary>
+    /// <exception cref="TypeLoadException">
+    /// <para>
+    /// Any `TypeLoadException` thrown is because the `F` type used does not derive from `Semigroup〈F〉`.
+    /// This is a runtime error rather than a compile-time constraint error because we're resolving the `Semigroup〈F〉`
+    /// trait ad hoc.
+    /// </para>
+    /// <para>
+    /// That means we delay finding out that the provided `F` type isn't compatible for `Validation〈F, A〉`.  That is
+    /// annoying, we would prefer compile-time constraints, of course, but it enables much more freedom to implement the
+    /// `Coproduct`, `Bifunctor`, and `Bimonad` traits which, in turn, give additional functionality for free (like
+    /// `Partition`).
+    /// </para>
+    /// <para>
+    /// Implementation of those traits would not be possible if we were to add compile-time constraints to `F`.  So, the
+    /// resolution of any type-exception thrown is to only use `Semigroup〈F〉` deriving types for `F`.
+    /// </para> 
+    /// </exception>
     [Pure]
     public static Validation<F, Seq<A>> operator &(Validation<F, A> lhs, Validation<F, Seq<A>> rhs) =>
-        (lhs, rhs) switch
-        {
-            ({ IsSuccess: true } , { IsSuccess: true }) => 
-                Validation<F, Seq<A>>.Success(lhs.SuccessValue.Cons(rhs.SuccessValue)),
-            
-            ({ IsFail: true } , {IsFail: true}) => 
-                lhs.FailValue.Combine(rhs.FailValue),
-            
-            ({ IsFail: true } , _) => 
-                lhs.FailValue,
-            
-            _ => 
-                rhs.FailValue
-        };
+        lhs.CombineI(rhs, SemigroupInstance<F>.Instance);
 
     /// <summary>
     /// Override of the True operator to return True if the Either is Right
@@ -849,7 +819,7 @@ public abstract record Validation<F, A> :
         other switch
         {
             null => 1,
-            _    => CompareTo(Success(other))
+            _    => CompareTo(Validation.SuccessI<F, A>(other))
         };
 
     /// <summary>
@@ -868,7 +838,7 @@ public abstract record Validation<F, A> :
     /// </summary>
     [Pure]
     public bool Equals(A? other) =>
-        other is not null && Equals(Success(other));
+        other is not null && Equals(Validation.SuccessI<F, A>(other));
 
     /// <summary>
     /// Equality override
@@ -917,7 +887,7 @@ public abstract record Validation<F, A> :
     /// action is invoked if in the Success state
     /// </summary>
     public Unit Iter(Action<A> Succ) =>
-        Match(Succ, _ => { });
+        Match(_ => { }, Succ);
 
     /// <summary>
     /// Invokes a predicate on the success value if it's in the Success state
@@ -928,7 +898,7 @@ public abstract record Validation<F, A> :
     /// `False` otherwise.</returns>
     [Pure]
     public bool ForAll(Func<A, bool> Succ) =>
-        Match(Succ, _ => true);
+        Match(_ => true, Succ);
 
     /// <summary>
     /// Invokes a predicate on the values 
@@ -940,8 +910,8 @@ public abstract record Validation<F, A> :
     /// <param name="Fail">Predicate</param>
     /// <returns>True if either Predicate returns true</returns>
     [Pure]
-    public bool BiForAll(Func<A, bool> Succ, Func<F, bool> Fail) =>
-        Match(Succ, Fail);
+    public bool BiForAll(Func<F, bool> Fail, Func<A, bool> Succ) =>
+        Match(Fail, Succ);
 
     /// <summary>
     /// Validation types are like lists of 0 or 1 items and therefore follow the 
@@ -953,7 +923,7 @@ public abstract record Validation<F, A> :
     /// <returns>The aggregate state</returns>
     [Pure]
     public S Fold<S>(S state, Func<S, A, S> Succ) =>
-        Match(curry(Succ)(state), _ => state);
+        Match(_ => state, curry(Succ)(state));
 
     /// <summary>
     /// Either types are like lists of 0 or 1 items, and therefore follow the 
@@ -966,8 +936,8 @@ public abstract record Validation<F, A> :
     /// <param name="Fail">Folder function, applied if in a Fail state</param>
     /// <returns>The aggregate state</returns>
     [Pure]
-    public S BiFold<S>(S state, Func<S, A, S> Succ, Func<S, F, S> Fail) =>
-        Match(curry(Succ)(state), curry(Fail)(state));
+    public S BiFold<S>(S state, Func<S, F, S> Fail, Func<S, A, S> Succ) =>
+        Match(curry(Fail)(state), curry(Succ)(state));
 
     /// <summary>
     /// Invokes a predicate on the value if it's in the Success state
@@ -976,7 +946,7 @@ public abstract record Validation<F, A> :
     /// <returns>True if in a Success state and the predicate returns `True`.  `False` otherwise.</returns>
     [Pure]
     public bool Exists(Func<A, bool> pred) =>
-        Match(pred, _ => false);
+        Match(_ => false, pred);
 
     /// <summary>
     /// Impure iteration of the bound values in the structure
@@ -1009,9 +979,9 @@ public abstract record Validation<F, A> :
     /// <param name="f">Map function</param>
     /// <returns>Mapped Either</returns>
     [Pure]
-    public Validation<F1, A> MapFail<F1>(Func<F, F1> f)
+    public Validation<F1, A> MapFail<F1>(Func<F, F1> f) 
         where F1 : Monoid<F1> =>
-        Match(Validation<F1, A>.Success, e => Validation<F1, A>.Fail(f(e)));
+        Match(e => Validation.FailI<F1, A>(f(e)), Validation.SuccessI<F1, A>);
 
     /// <summary>
     /// Monadic bind
@@ -1024,29 +994,6 @@ public abstract record Validation<F, A> :
     [Pure]
     public Validation<F, B> Bind<B>(Func<A, K<Validation<F>, B>> f) =>
         Bind(x => (Validation<F, B>)f(x));
-
-    /// <summary>
-    /// Filter the Validation
-    /// </summary>
-    /// <remarks>
-    /// If the predicate returns `false` then the `Validation` goes into a failed state
-    /// using `Monoid.Empty` of `F` as its failure value.
-    /// </remarks>
-    [Pure]
-    public Validation<F, A> Filter(Func<A, bool> pred) =>
-        Bind(x => pred(x) ? Success(x) : Fail(F.Empty));
-
-    /// <summary>
-    /// Filter the Validation
-    /// </summary>
-    /// <remarks>
-    /// If the predicate returns `false` then the `Validation` goes into a failed state
-    /// using `Monoid.Empty` of `F` as its failure value.
-    /// </remarks>
-    [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public Validation<F, A> Where(Func<A, bool> pred) =>
-        Filter(pred);
 
     /// <summary>
     /// Maps the bound value 
@@ -1089,7 +1036,7 @@ public abstract record Validation<F, A> :
     /// <param name="f">Bind function</param>
     [Pure]
     public Validation<F, Unit> Bind(Func<A, Guard<F, Unit>> f)=>
-        Bind(a => f(a).ToValidation());
+        Bind(a => f(a).ToValidationI());
 
     /// <summary>
     /// Monadic bind and project
@@ -1107,7 +1054,7 @@ public abstract record Validation<F, A> :
     /// <param name="project">Project function</param>
     [Pure]
     public Validation<F, C> SelectMany<B, C>(Func<A, Fail<F>> bind, Func<A, B, C> _) =>
-        Bind(x => Validation<F, C>.Fail(bind(x).Value));
+        Bind(x => Validation.FailI<F, C>(bind(x).Value));
     
     /// <summary>
     /// Monadic bind and project
@@ -1118,27 +1065,24 @@ public abstract record Validation<F, A> :
     public Validation<F, C> SelectMany<C>(
         Func<A, Guard<F, Unit>> f,
         Func<A, Unit, C> project) =>
-        SelectMany(a => f(a).ToValidation(), project);
+        SelectMany(a => f(a).ToValidationI(), project);
     
     [Pure]
     public static implicit operator Validation<F, A>(Pure<A> mr) =>
-        Success(mr.Value);
+        Validation.SuccessI<F, A>(mr.Value);
 
     [Pure]
     public static implicit operator Validation<F, A>(Fail<F> mr) =>
-        Fail(mr.Value);
+        Validation.FailI<F, A>(mr.Value);
 
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(IsSuccess, IsFail, SuccessValue, FailValue);
-    }
+    public override int GetHashCode() => 
+        HashCode.Combine(IsSuccess, IsFail, SuccessValue, FailValue);
 }
 
 /// <summary>
 /// Context for the fluent Either matching
 /// </summary>
-public struct ValidationContext<F, A, B>
-    where F : Monoid<F>
+public readonly struct ValidationContext<F, A, B>
 {
     readonly Validation<F, A> validation;
     readonly Func<A, B> success;
@@ -1156,14 +1100,13 @@ public struct ValidationContext<F, A, B>
     /// <returns>Result of the match</returns>
     [Pure]
     public B Fail(Func<F, B> fail) =>
-        validation.Match(success, fail);
+        validation.Match(fail, success);
 }
 
 /// <summary>
 /// Context for the fluent Validation matching
 /// </summary>
-public struct ValidationUnitContext<F, A>
-    where F : Monoid<F>
+public readonly struct ValidationUnitContext<F, A>
 {
     readonly Validation<F, A> validation;
     readonly Action<A> success;
@@ -1175,5 +1118,5 @@ public struct ValidationUnitContext<F, A>
     }
 
     public Unit Left(Action<F> fail) =>
-        validation.Match(success, fail);
+        validation.Match(fail, success);
 }

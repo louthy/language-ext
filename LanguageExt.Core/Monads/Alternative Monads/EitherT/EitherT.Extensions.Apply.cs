@@ -3,44 +3,20 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public static partial class FinExtensions
+public static partial class EitherTExtensions
 {
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped functor</returns>
-    public static Fin<B> Map<A, B>(this Func<A, B> f, K<Fin, A> ma) =>
-        Functor.map(f, ma).As();
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped functor</returns>
-    public static Fin<B> Map<A, B>(this Func<A, B> f, Fin<A> ma) =>
-        Functor.map(f, ma).As();
-    
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
-    public static Fin<B> Action<A, B>(this Fin<A> ma, K<Fin, B> mb) =>
+    public static EitherT<L, M, B> Action<L, M, A, B>(this EitherT<L, M, A> ma, K<EitherT<L, M>, B> mb)
+        where M : Monad<M> =>
         Applicative.action(ma, mb).As();
     
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
-    public static Fin<B> Action<A, B>(this K<Fin, A> ma, K<Fin, B> mb) =>
+    public static EitherT<L, M, B> Action<L, M, A, B>(this K<EitherT<L, M>, A> ma, K<EitherT<L, M>, B> mb)
+        where M : Monad<M> =>
         Applicative.action(ma, mb).As();
 
     /// <summary>
@@ -53,7 +29,8 @@ public static partial class FinExtensions
     /// <param name="ma">Value(s) applicative functor</param>
     /// <param name="mf">Mapping function(s)</param>
     /// <returns>Mapped applicative functor</returns>
-    public static Fin<B> Apply<A, B>(this Fin<Func<A, B>> mf, K<Fin, A> ma) =>
+    public static EitherT<L, M, B> Apply<L, M, A, B>(this EitherT<L, M, Func<A, B>> mf, K<EitherT<L, M>, A> ma) 
+        where M : Monad<M> =>
         Applicative.apply(mf, ma).As();
 
     /// <summary>
@@ -66,6 +43,7 @@ public static partial class FinExtensions
     /// <param name="ma">Value(s) applicative functor</param>
     /// <param name="mf">Mapping function(s)</param>
     /// <returns>Mapped applicative functor</returns>
-    public static Fin<B> Apply<A, B>(this K<Fin, Func<A, B>> mf, K<Fin, A> ma) =>
+    public static EitherT<L, M, B> Apply<L, M, A, B>(this K<EitherT<L, M>, Func<A, B>> mf, K<EitherT<L, M>, A> ma) 
+        where M : Monad<M> =>
         Applicative.apply(mf, ma).As();
 }    

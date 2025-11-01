@@ -4,9 +4,33 @@ namespace LanguageExt;
 
 public static class EitherGuardExtensions
 {
-    public static Either<L, Unit> SelectMany<L, A>(this Either<L, A> ma, Func<A, Guard<L, Unit>> f) =>
-        ma.Bind(a => f(a).ToEither());
+    /// <summary>
+    /// Natural transformation to `Either`
+    /// </summary>
+    public static Either<L, Unit> ToEither<L>(this Guard<L, Unit> guard) =>
+        guard.Flag
+            ? Either<L, Unit>.Right(default)
+            : Either<L, Unit>.Left(guard.OnFalse());
+ 
+    /// <summary>
+    /// Monadic binding support for `Either`
+    /// </summary>
+    public static Either<L, B> Bind<L, B>(
+        this Guard<L, Unit> guard,
+        Func<Unit, Either<L, B>> f)  =>
+        guard.Flag
+            ? f(default).As()
+            : Either<L, B>.Left(guard.OnFalse());
+       
+    /// <summary>
+    /// Monadic binding support for `Either`
+    /// </summary>
+    public static Either<L, C> SelectMany<L, B, C>(
+        this Guard<L, Unit> guard,
+        Func<Unit, Either<L, B>> bind, 
+        Func<Unit, B, C> project) =>
+        guard.Flag
+            ? bind(default).As().Map(b => project(default, b))
+            : Either<L, C>.Left(guard.OnFalse());
 
-    public static Either<L, C> SelectMany<L, A, C>(this Either<L, A> ma, Func<A, Guard<L, Unit>> bind, Func<A, Unit, C> project) =>
-        ma.Bind(a => bind(a).ToEither().Map(_ => project(a, default)));
 }

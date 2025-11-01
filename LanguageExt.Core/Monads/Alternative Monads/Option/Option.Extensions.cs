@@ -21,8 +21,8 @@ public static partial class OptionExtensions
     public static Validation<F, A> ToValidation<F, A>(Option<A> ma, F defaultFailureValue)
         where F : Monoid<F>
         => ma.IsSome
-               ? Validation<F, A>.Success(ma.Value!)
-               : Validation<F, A>.Fail(defaultFailureValue);
+               ? Validation.Success<F, A>(ma.Value!)
+               : Validation.Fail<F, A>(defaultFailureValue);
     
     /// <summary>
     /// Monadic join

@@ -9,8 +9,8 @@ public static partial class SemigroupK
     /// <summary>
     /// An associative binary operation
     /// </summary>
-    /// <param name="mx">The left hand side of the operation</param>
-    /// <param name="my">The right hand side of the operation</param>
+    /// <param name="mx">The left-hand side of the operation</param>
+    /// <param name="my">The right-hand side of the operation</param>
     /// <returns>The result of the operation</returns>
     [Pure]
     public static K<M, A> combine<M, A>(K<M, A> mx, K<M, A> my)

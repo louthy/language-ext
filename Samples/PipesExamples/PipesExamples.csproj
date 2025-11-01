@@ -10,6 +10,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\LanguageExt.Core\LanguageExt.Core.csproj" />
       <ProjectReference Include="..\..\LanguageExt.Streaming\LanguageExt.Streaming.csproj" />
+      <ProjectReference Include="..\..\LanguageExt.Sys\LanguageExt.Sys.csproj" />
     </ItemGroup>
 
 </Project>

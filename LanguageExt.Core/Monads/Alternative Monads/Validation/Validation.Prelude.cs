@@ -14,7 +14,7 @@ public static partial class Prelude
     /// <returns>Validation applicative</returns>
     public static Validation<F, A> Success<F, A>(A value) 
         where F : Monoid<F> =>
-        Validation<F, A>.Success(value);
+        new Validation<F, A>.Success(value);
 
     /// <summary>
     /// Represents a failed operation
@@ -25,7 +25,7 @@ public static partial class Prelude
     /// <returns>Validation applicative</returns>
     public static Validation<F, A> Fail<F, A>(F value) 
         where F : Monoid<F> =>
-        Validation<F, A>.Fail(value);
+        new Validation<F, A>.Fail(value);
 
     /// <summary>
     /// Represents a failed operation
@@ -36,5 +36,5 @@ public static partial class Prelude
     /// <returns>Validation applicative</returns>
     public static Validation<F, A> Fail<F, A>(Seq<F> values)
         where F : Monoid<F> =>
-        Validation<F, A>.Fail(Monoid.combine(values));
+        new Validation<F, A>.Fail(Monoid.combine(values));
 }

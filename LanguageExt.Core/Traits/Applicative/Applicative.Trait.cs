@@ -126,11 +126,12 @@ public interface Applicative<F> : Functor<F>
         K<F, A>? ra = null;
         foreach (var fa in fas)
         {
-            ra = ra is null 
+            ra = ra is null
                      ? fa
                      : F.Action(ra, fa);
         }
-        if(ra is null) throw Exceptions.SequenceEmpty;
+
+        if (ra is null) throw Exceptions.SequenceEmpty;
         return ra;
     }
 

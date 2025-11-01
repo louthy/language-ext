@@ -147,7 +147,7 @@ public static partial class FunctorExtensions
     public static K<Fnctr, Func<B, C>> Map<Fnctr, A, B, C>(
         this Func<A, B, C> f, K<Fnctr, A> ma) 
         where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(x => curry(f)(x), ma);
+        Fnctr.Map(curry(f), ma);
     
     /// <summary>
     /// Functor map operation
@@ -172,7 +172,7 @@ public static partial class FunctorExtensions
     public static K<Fnctr, Func<B, Func<C, D>>> Map<Fnctr, A, B, C, D>(
         this Func<A, B, C, D> f, K<Fnctr, A> ma) 
         where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(x => curry(f)(x), ma);
+        Fnctr.Map(curry(f), ma);
     
     /// <summary>
     /// Functor map operation
@@ -197,7 +197,7 @@ public static partial class FunctorExtensions
     public static K<Fnctr, Func<B, Func<C, Func<D, E>>>> Map<Fnctr, A, B, C, D, E>(
         this Func<A, B, C, D, E> f, K<Fnctr, A> ma) 
         where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(x => curry(f)(x), ma);
+        Fnctr.Map(curry(f), ma);
     
     /// <summary>
     /// Functor map operation
@@ -222,7 +222,7 @@ public static partial class FunctorExtensions
     public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, F>>>>> Map<Fnctr, A, B, C, D, E, F>(
         this Func<A, B, C, D, E, F> f, K<Fnctr, A> ma) 
         where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(x => curry(f)(x), ma);
+        Fnctr.Map(curry(f), ma);
     
     /// <summary>
     /// Functor map operation
@@ -247,7 +247,7 @@ public static partial class FunctorExtensions
     public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> Map<Fnctr, A, B, C, D, E, F, G>(
         this Func<A, B, C, D, E, F, G> f, K<Fnctr, A> ma) 
         where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(x => curry(f)(x), ma);
+        Fnctr.Map(curry(f), ma);
     
     /// <summary>
     /// Functor map operation
@@ -272,7 +272,7 @@ public static partial class FunctorExtensions
     public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> Map<Fnctr, A, B, C, D, E, F, G, H>(
         this Func<A, B, C, D, E, F, G, H> f, K<Fnctr, A> ma) 
         where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(x => curry(f)(x), ma);
+        Fnctr.Map(curry(f), ma);
     
     /// <summary>
     /// Functor map operation
@@ -297,7 +297,7 @@ public static partial class FunctorExtensions
     public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> Map<Fnctr, A, B, C, D, E, F, G, H, I>(
         this Func<A, B, C, D, E, F, G, H, I> f, K<Fnctr, A> ma) 
         where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(x => curry(f)(x), ma);
+        Fnctr.Map(curry(f), ma);
     
     /// <summary>
     /// Functor map operation
@@ -322,7 +322,7 @@ public static partial class FunctorExtensions
     public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, J>>>>>>>>> Map<Fnctr, A, B, C, D, E, F, G, H, I, J>(
         this Func<A, B, C, D, E, F, G, H, I, J> f, K<Fnctr, A> ma) 
         where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(x => curry(f)(x), ma);
+        Fnctr.Map(curry(f), ma);
     
     /// <summary>
     /// Functor map operation
@@ -347,5 +347,5 @@ public static partial class FunctorExtensions
     public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, Func<J, K>>>>>>>>>> Map<Fnctr, A, B, C, D, E, F, G, H, I, J, K>(
         this Func<A, B, C, D, E, F, G, H, I, J, K> f, K<Fnctr, A> ma) 
         where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(x => curry(f)(x), ma);
+        Fnctr.Map(curry(f), ma);
 }

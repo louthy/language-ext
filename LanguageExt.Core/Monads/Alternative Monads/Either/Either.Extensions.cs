@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using NSE = System.NotSupportedException;
 using LanguageExt.Traits;
 using LanguageExt.Common;
 
@@ -13,6 +13,9 @@ namespace LanguageExt;
 public static partial class EitherExtensions
 {
     public static Either<L, R> As<L, R>(this K<Either<L>, R> ma) =>
+        (Either<L, R>)ma;
+ 
+    public static Either<L, R> As2<L, R>(this K<Either, L, R> ma) =>
         (Either<L, R>)ma;
  
     /// <summary>
@@ -30,109 +33,78 @@ public static partial class EitherExtensions
         ma.As().Bind(x => x);
 
     /// <summary>
-    /// Extracts from a list of 'Either' all the 'Left' elements.
-    /// All the 'Left' elements are extracted in order.
+    /// Filtering based on predicate.  
     /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <param name="self">Either list</param>
-    /// <returns>An enumerable of L</returns>
+    /// <remarks>>
+    /// If the predicate returns false, then `Left(L.Empty)` is yielded and therefore `L` must be a monoid.  
+    /// </remarks>
     [Pure]
-    public static IEnumerable<L> Lefts<L, R>(this IEnumerable<Either<L, R>> self)
-    {
-        foreach (var item in self)
-        {
-            if (item.IsLeft)
-            {
-                yield return item.LeftValue;
-            }
-        }
-    }
+    public static Either<L, A> Where<L, A>(this K<Either<L>, A> ma, Func<A, bool> pred)
+        where L : Monoid<L> =>
+        ma.Filter(pred);
 
     /// <summary>
-    /// Extracts from a list of 'Either' all the 'Left' elements.
-    /// All the 'Left' elements are extracted in order.
+    /// Filtering based on predicate.  
     /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <param name="self">Either list</param>
-    /// <returns>An enumerable of L</returns>
+    /// <remarks>>
+    /// If the predicate returns false, then `Left(L.Empty)` is yielded and therefore `L` must be a monoid.  
+    /// </remarks>
     [Pure]
-    public static Seq<L> Lefts<L, R>(this Seq<Either<L, R>> self) =>
-        Lefts(self.AsEnumerable()).AsIterable().ToSeq();
+    public static Either<L, A> Filter<L, A>(this K<Either<L>, A> ma, Func<A, bool> pred)
+        where L : Monoid<L> =>
+        ma.As().Bind(x => pred(x) ? Either<L, A>.Right(x) : Either<L, A>.Left(L.Empty));
+
+    /*
+    /// <summary>
+    /// Partitions a foldable of `Either` into two sequences.
+    /// 
+    /// All the `Left` elements are extracted, in order, to the first component of the output.
+    /// Similarly, the `Right` elements are extracted to the second component of the output.
+    /// </summary>
+    /// <returns>A pair containing the sequences of partitioned values</returns>
+    [Pure]
+    public static (Seq<L> Lefts, Seq<R> Rights) Partition<F, L, R>(this K<F, Either<L, R>> self)
+        where F : Foldable<F> =>
+        self.Fold((Left: Seq<L>.Empty, Right: Seq<R>.Empty),
+                  (s, ma) =>
+                      ma switch
+                      {
+                          Either.Right<L, R> (var r) => (s.Left, s.Right.Add(r)),
+                          Either.Left<L, R> (var l)  => (s.Left.Add(l), s.Right),
+                          _                          => throw new NSE()
+                      });
 
     /// <summary>
-    /// Extracts from a list of 'Either' all the 'Right' elements.
-    /// All the 'Right' elements are extracted in order.
+    /// Partitions a foldable of `Either` into two lists and returns the `Left` items only.
     /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <param name="self">Either list</param>
-    /// <returns>An enumerable of L</returns>
+    /// <returns>A sequence of partitioned items</returns>
     [Pure]
-    public static IEnumerable<R> Rights<L, R>(this IEnumerable<Either<L, R>> self)
-    {
-        foreach (var item in self)
-        {
-            if (item.IsRight)
-            {
-                yield return item.RightValue;
-            }
-        }
-    }
+    public static Seq<L> Lefts<F, L, R>(this K<F, Either<L, R>> self)
+        where F : Foldable<F> =>
+        self.Fold(Seq<L>.Empty,
+                  (s, ma) =>
+                      ma switch
+                      {
+                          Either.Left<L, R> (var l) => s.Add(l),
+                          _                         => throw new NSE()
+                      });
 
     /// <summary>
-    /// Extracts from a list of 'Either' all the 'Right' elements.
-    /// All the 'Right' elements are extracted in order.
+    /// Partitions a foldable of `Either` into two lists and returns the `Right` items only.
     /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <param name="self">Either list</param>
-    /// <returns>An enumerable of L</returns>
+    /// <returns>A sequence of partitioned items</returns>
     [Pure]
-    public static Seq<R> Rights<L, R>(this Seq<Either<L, R>> self) =>
-        Rights(self.AsEnumerable()).AsIterable().ToSeq();
-
-    /// <summary>
-    /// Partitions a list of 'Either' into two lists.
-    /// All the 'Left' elements are extracted, in order, to the first
-    /// component of the output.  Similarly the 'Right' elements are extracted
-    /// to the second component of the output.
-    /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <param name="self">Either list</param>
-    /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
-    [Pure]
-    public static (IEnumerable<L> Lefts, IEnumerable<R> Rights) Partition<L, R>(this IEnumerable<Either<L, R>> self)
-    {
-        var ls = new List<L>();
-        var rs = new List<R>();
-        foreach (var item in self)
-        {
-            if (item.IsRight) rs.Add(item.RightValue);
-            if (item.IsLeft) ls.Add(item.LeftValue);
-        }
-        return (ls, rs);
-    }
-
-    /// <summary>
-    /// Partitions a list of 'Either' into two lists.
-    /// All the 'Left' elements are extracted, in order, to the first
-    /// component of the output.  Similarly the 'Right' elements are extracted
-    /// to the second component of the output.
-    /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <param name="self">Either list</param>
-    /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
-    [Pure]
-    public static (Seq<L> Lefts, Seq<R> Rights) Partition<L, R>(this Seq<Either<L, R>> self)
-    {
-        var (l, r) =self.AsEnumerable().Partition();
-        return (l.AsIterable().ToSeq(), r.AsIterable().ToSeq());
-    }
-
+    public static Seq<R> Rights<F, L, R>(this K<F, Either<L, R>> self)
+        where F : Foldable<F> =>
+        self.Fold(Seq<R>.Empty,
+                  (s, ma) =>
+                      ma switch
+                      {
+                          Either.Right<L, R> (var r) => s.Add(r),
+                          _                          => throw new NSE()
+                      });
+                      */
+    
     [Pure]
     public static Validation<L, R> ToValidation<L, R>(this Either<L, R> ma)
         where L : Monoid<L> =>

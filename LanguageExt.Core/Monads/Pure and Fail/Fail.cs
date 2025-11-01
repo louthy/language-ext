@@ -54,7 +54,7 @@ public static class FailExtensions
     
     public static Validation<F, A> ToValidation<F, A>(this Fail<F> fail) 
         where F : Monoid<F> =>
-        Validation<F, A>.Fail(fail.Value);
+        Validation.Fail<F, A>(fail.Value);
     
     public static Eff<RT, A> ToEff<RT, A>(this Fail<Error> fail) =>
         Eff<RT, A>.Fail(fail.Value);

@@ -37,7 +37,7 @@ public class Activity<M, RT>
         HashMap<string, object> activityTags,
         Seq<ActivityLink> activityLinks,
         DateTimeOffset startTime,
-        ActivityContext? parentContext = default) =>
+        ActivityContext? parentContext = null) =>
         from src in activityIO
         from cur in currentActivity
         from act in use(src.StartActivity(

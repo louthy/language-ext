@@ -16,7 +16,8 @@ namespace LanguageExt.Traits;
 /// <typeparam name="F">Trait implementation, for example `Either〈L〉`</typeparam>
 /// <typeparam name="E">Failure type, for example `L`</typeparam>
 /// <typeparam name="A">Bound value type, for example `R`</typeparam>
-public interface Fallible<FA, F, E, A> : K<F, A>
+public interface Fallible<FA, F, E, A> : 
+    K<F, A>
     where FA : 
         Fallible<FA, F, E, A>
     where F :

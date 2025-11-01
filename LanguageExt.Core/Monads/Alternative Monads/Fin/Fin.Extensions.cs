@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using static LanguageExt.Prelude;
+﻿using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using LanguageExt.Traits;
 using LanguageExt.Common;
+using NSE = System.NotSupportedException;
 
 namespace LanguageExt;
 
@@ -90,104 +88,51 @@ public static partial class FinExtensions
         select NUM.Divide(a, b);
 
     /// <summary>
-    /// Extracts from a list of Fins all the Succ elements.
+    /// Partitions a foldable of `Fin` into two sequences.
+    /// 
+    /// All the `Fail` elements are extracted, in order, to the first component of the output.
+    /// Similarly, the `Succ` elements are extracted to the second component of the output.
     /// </summary>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <param name="xs">Sequence of Fins</param>
-    /// <returns>An enumerable of A</returns>
+    /// <returns>A pair containing the sequences of partitioned values</returns>
     [Pure]
-    public static IEnumerable<A> Succs<A>(this IEnumerable<Fin<A>> xs) =>
-        xs.Where(x => x.IsSucc).Select(x => x.SuccValue);
+    public static (Seq<Error> Fails, Seq<A> Succs) Partition<F, A>(this K<F, Fin<A>> self)
+        where F : Foldable<F> =>
+        self.Fold((Fail: Seq<Error>.Empty, Succ: Seq<A>.Empty),
+                  (s, ma) =>
+                      ma switch
+                      {
+                          Fin.Succ<A> (var r) => (s.Fail, s.Succ.Add(r)),
+                          Fin.Fail<A> (var l) => (s.Fail.Add(l), s.Succ),
+                          _                   => throw new NSE()
+                      });
 
     /// <summary>
-    /// Extracts from a list of Fins all the Succ elements.
+    /// Partitions a foldable of `Fin` into two lists and returns the `Fail` items only.
     /// </summary>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <param name="xs">Sequence of Fins</param>
-    /// <returns>An enumerable of A</returns>
+    /// <returns>A sequence of partitioned items</returns>
     [Pure]
-    public static Seq<A> Succs<A>(this Seq<Fin<A>> xs) =>
-        xs.Where(x => x.IsSucc).Select(x => x.SuccValue);
+    public static Seq<Error> Fails<F, A>(this K<F, Fin<A>> self)
+        where F : Foldable<F> =>
+        self.Fold(Seq<Error>.Empty,
+                  (s, ma) =>
+                      ma switch
+                      {
+                          Fin.Fail<A> (var l) => s.Add(l),
+                          _                   => throw new NSE()
+                      });
 
     /// <summary>
-    /// Extracts from a list of Fins all the Fail elements.
+    /// Partitions a foldable of `Fin` into two lists and returns the `Succ` items only.
     /// </summary>
-    /// <remarks>Bottom values are dropped</remarks>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <param name="xs">Sequence of Fins</param>
-    /// <returns>An enumerable of Errors</returns>
+    /// <returns>A sequence of partitioned items</returns>
     [Pure]
-    public static IEnumerable<Error> Fails<A>(this IEnumerable<Fin<A>> xs) =>
-        xs.Where(x => x.IsFail).Select(x => x.FailValue);
-
-    /// <summary>
-    /// Extracts from a list of Fins all the Fail elements.
-    /// </summary>
-    /// <remarks>Bottom values are dropped</remarks>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <param name="xs">Sequence of Fins</param>
-    /// <returns>An enumerable of Errors</returns>
-    [Pure]
-    public static Seq<Error> Fails<A>(this Seq<Fin<A>> xs) =>
-        xs.Filter(x => x.IsFail).Map(x => x.FailValue);
-
-    /// <summary>
-    /// Partitions a list of 'Fin' into two lists.
-    /// All the Fail elements are extracted, in order, to the first
-    /// component of the output.  Similarly, the `Succ` elements are extracted
-    /// to the second component of the output.
-    /// </summary>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <param name="xs">Fin list</param>
-    /// <returns>A tuple containing `Error` list and `Succ` list</returns>
-    [Pure]
-    public static (IEnumerable<Error> Fails, IEnumerable<A> Succs) Partition<A>(this IEnumerable<Fin<A>> xs)
-    {
-        var fs = new List<Error>();
-        var rs = new List<A>();
-        
-        foreach(var x in xs)
-        {
-            if (x.IsSucc)
-            {
-                rs.Add(x.SuccValue);
-            }
-            if (x.IsFail)
-            {
-                fs.Add(x.FailValue);
-            }
-        }
-
-        return (fs, rs);
-    }
-
-    /// <summary>
-    /// Partitions a list of 'Fin' into two lists.
-    /// All the Fail elements are extracted, in order, to the first
-    /// component of the output.  Similarly, the `Succ` elements are extracted
-    /// to the second component of the output.
-    /// </summary>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <param name="xs">Fin list</param>
-    /// <returns>A tuple containing `Error` list and `Succ` list</returns>
-    [Pure]
-    public static (Seq<Error> Fails, Seq<A> Succs) Partition<A>(this Seq<Fin<A>> xs)
-    {
-        var fs = Seq<Error>();
-        var rs = Seq<A>();
-        
-        foreach(var x in xs)
-        {
-            if (x.IsSucc)
-            {
-                rs = rs.Add(x.SuccValue);
-            }
-            if (x.IsFail)
-            {
-                fs = fs.Add(x.FailValue);
-            }
-        }
-
-        return (fs, rs);
-    }
+    public static Seq<A> Succs<F, A>(this K<F, Fin<A>> self)
+        where F : Foldable<F> =>
+        self.Fold(Seq<A>.Empty,
+                  (s, ma) =>
+                      ma switch
+                      {
+                          Fin.Succ<A> (var r) => s.Add(r),
+                          _                   => throw new NSE()
+                      });
 }

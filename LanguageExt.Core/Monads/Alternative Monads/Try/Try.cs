@@ -280,6 +280,18 @@ public record Try<A>(Func<Fin<A>> runTry) :
     
     public static implicit operator Try<A>(Fail<Exception> ma) =>
         Lift(Fin<A>.Fail(ma.Value));
+
+    public Option<A> ToOption() =>
+        this.Run().ToOption(); 
+
+    public Either<Error, A> ToEither() =>
+        this.Run().ToEither(); 
+
+    public Fin<A> ToFin() =>
+        this.Run();
+
+    public IO<A> ToIO() => 
+        IO.lift(runTry);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

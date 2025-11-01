@@ -123,11 +123,11 @@ public static partial class Prelude
         ValidationT<L, IO, A>.Lift(ma);
 
     /// <summary>
-    /// Lift an Validation into a `ValidationT IO` 
+    /// Lift a Validation into a `ValidationT IO` 
     /// </summary>
     public static ValidationT<L, IO, A> liftIO<L, A>(Task<Validation<L, A>> ma) 
         where L : Monoid<L> =>
-        new(IO.liftAsync(async () => await ma.ConfigureAwait(false)));
+        new(_ => IO.liftAsync(async () => await ma.ConfigureAwait(false)));
     
     /// <summary>
     /// Lift the IO monad into a transformer-stack with an IO as its innermost monad.

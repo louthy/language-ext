@@ -16,7 +16,7 @@ public static partial class FallibleExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="fma">Foldable of fallible monadic values</param>
     /// <returns>A tuple containing an `Error` sequence and a `Succ` sequence</returns>
-    public static K<M, (Seq<Error> Fails, Seq<A> Succs)> Partition<F, M, A>(
+    public static K<M, (Seq<Error> Fails, Seq<A> Succs)> PartitionFallible<F, M, A>(
         this K<F, K<M, A>> fma)
         where M : Monad<M>, Fallible<M>
         where F : Foldable<F> =>
@@ -35,10 +35,10 @@ public static partial class FallibleExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="fma">Collection of fallible monadic values</param>
     /// <returns>A tuple containing an `Error` sequence and a `Succ` sequence</returns>
-    public static K<M, (Seq<Error> Fails, Seq<A> Succs)> Partition<M, A>(
+    public static K<M, (Seq<Error> Fails, Seq<A> Succs)> PartitionFallible<M, A>(
         this Seq<K<M, A>> fma)
         where M : Monad<M>, Fallible<M> =>
-        fma.Kind().Partition();    
+        fma.Kind().PartitionFallible();    
     
     /// <summary>
     /// Partitions a collection of effects into two lists.
@@ -50,10 +50,10 @@ public static partial class FallibleExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="fma">Collection of fallible monadic values</param>
     /// <returns>A tuple containing an `Error` sequence and a `Succ` sequence</returns>
-    public static K<M, (Seq<Error> Fails, Seq<A> Succs)> Partition<M, A>(
+    public static K<M, (Seq<Error> Fails, Seq<A> Succs)> PartitionFallible<M, A>(
         this Iterable<K<M, A>> fma)
         where M : Monad<M>, Fallible<M> =>
-        fma.Kind().Partition();    
+        fma.Kind().PartitionFallible();    
     
     /// <summary>
     /// Partitions a collection of effects into two lists.
@@ -65,10 +65,10 @@ public static partial class FallibleExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="fma">Collection of fallible monadic values</param>
     /// <returns>A tuple containing an `Error` sequence and a `Succ` sequence</returns>
-    public static K<M, (Seq<Error> Fails, Seq<A> Succs)> Partition<M, A>(
+    public static K<M, (Seq<Error> Fails, Seq<A> Succs)> PartitionFallible<M, A>(
         this Lst<K<M, A>> fma)
         where M : Monad<M>, Fallible<M> =>
-        fma.Kind().Partition();
+        fma.Kind().PartitionFallible();
     
     /// <summary>
     /// Partitions a collection of effects into two lists.
@@ -80,10 +80,10 @@ public static partial class FallibleExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="fma">Collection of fallible monadic values</param>
     /// <returns>A tuple containing an `Error` sequence and a `Succ` sequence</returns>
-    public static K<M, (Seq<Error> Fails, Seq<A> Succs)> Partition<M, A>(
+    public static K<M, (Seq<Error> Fails, Seq<A> Succs)> PartitionFallible<M, A>(
         this IEnumerable<K<M, A>> fma)
         where M : Monad<M>, Fallible<M> =>
-        Iterable.createRange(fma).Partition();
+        Iterable.createRange(fma).PartitionFallible();
     
     /// <summary>
     /// Partitions a collection of effects into two lists.
@@ -95,10 +95,10 @@ public static partial class FallibleExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="fma">Collection of fallible monadic values</param>
     /// <returns>A tuple containing an `Error` sequence and a `Succ` sequence</returns>
-    public static K<M, (Seq<Error> Fails, Seq<A> Succs)> Partition<M, A>(
+    public static K<M, (Seq<Error> Fails, Seq<A> Succs)> PartitionFallible<M, A>(
         this HashSet<K<M, A>> fma)
         where M : Monad<M>, Fallible<M> =>
-        fma.Kind().Partition();
+        fma.Kind().PartitionFallible();
     
     /// <summary>
     /// Partitions a collection of effects into two lists.
@@ -110,8 +110,8 @@ public static partial class FallibleExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="fma">Collection of fallible monadic values</param>
     /// <returns>A tuple containing an `Error` sequence and a `Succ` sequence</returns>
-    public static K<M, (Seq<Error> Fails, Seq<A> Succs)> Partition<M, A>(
+    public static K<M, (Seq<Error> Fails, Seq<A> Succs)> PartitionFallible<M, A>(
         this Set<K<M, A>> fma)
         where M : Monad<M>, Fallible<M> =>
-        fma.Kind().Partition();    
+        fma.Kind().PartitionFallible();    
 }
