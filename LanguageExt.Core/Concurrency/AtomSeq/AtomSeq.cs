@@ -529,8 +529,8 @@ public class AtomSeq<A> :
     {
         var xs = items;
         return xs.IsEmpty
-                   ? Either<L, A>.Left(Left)
-                   : Either<L, A>.Right(xs.Last);
+                   ? Either.Left<L, A>(Left)
+                   : Either.Right<L, A>(xs.Last);
     }
 
     /// <summary>
@@ -542,8 +542,8 @@ public class AtomSeq<A> :
     {
         var xs = items;
         return xs.IsEmpty
-                   ? Either<L, A>.Left(Left())
-                   : Either<L, A>.Right(xs.Last);
+                   ? Either.Left<L, A>(Left())
+                   : Either.Right<L, A>(xs.Last);
     }
 
     /// <summary>

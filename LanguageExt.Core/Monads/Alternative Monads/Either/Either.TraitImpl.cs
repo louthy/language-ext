@@ -20,10 +20,10 @@ public class Either<L> :
         K<Either<L>, A> ma) =>
         (mf, ma) switch
         {
-            (Right<L, Func<A, B>> (var f), Right<L, A> (var a)) => Right(f(a)),
-            (Left<L, Func<A, B>> (var e1), _)                   => Left<B>(e1),
-            (_, Left<L, A> (var e2))                            => Left<B>(e2),
-            _                                                   => throw new NotSupportedException()
+            (Either<L, Func<A, B>>.Right (var f), Either<L, A>.Right (var a)) => Right(f(a)),
+            (Either<L, Func<A, B>>.Left (var e1), _)                          => Left<B>(e1),
+            (_, Either<L, A>.Left (var e2))                                   => Left<B>(e2),
+            _                                                                 => throw new NotSupportedException()
         };
 
     static K<Either<L>, B> Applicative<Either<L>>.Action<A, B>(
@@ -34,20 +34,20 @@ public class Either<L> :
     static K<Either<L>, B> Monad<Either<L>>.Bind<A, B>(K<Either<L>, A> ma, Func<A, K<Either<L>, B>> f) =>
         ma switch
         {
-            Right<L, A> (var r) => f(r),
-            Left<L, A> (var l)  => Left<B>(l),
-            _                   => throw new NotSupportedException()
+            Either<L, A>.Right (var r) => f(r),
+            Either<L, A>.Left (var l)  => Left<B>(l),
+            _                          => throw new NotSupportedException()
         };
 
     static K<Either<L>, A> Applicative<Either<L>>.Pure<A>(A value) => 
-        Either<L, A>.Right(value);
+        new Either<L, A>.Right(value);
 
     static K<F, K<Either<L>, B>> Traversable<Either<L>>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Either<L>, A> ta) =>
         ta switch
         {
-            Right<L, A> (var r) => F.Map(Right, f(r)),
-            Left<L, A> (var l)  => F.Pure(Left<B>(l)),
-            _                   => throw new NotSupportedException()
+            Either<L, A>.Right (var r) => F.Map(Right, f(r)),
+            Either<L, A>.Left (var l)  => F.Pure(Left<B>(l)),
+            _                          => throw new NotSupportedException()
         };
 
     static S Foldable<Either<L>>.FoldWhile<A, S>(
@@ -57,8 +57,8 @@ public class Either<L> :
         K<Either<L>, A> ta) =>
         ta switch
         {
-            Right<L, A> (var r) => predicate((state, r)) ? f(r)(state) : state,
-            _                   => state
+            Either<L, A>.Right (var r) => predicate((state, r)) ? f(r)(state) : state,
+            _                          => state
         };
 
     static S Foldable<Either<L>>.FoldBackWhile<A, S>(
@@ -68,45 +68,45 @@ public class Either<L> :
         K<Either<L>, A> ta) =>
         ta switch
         {
-            Right<L, A> (var r) => predicate((state, r)) ? f(state)(r) : state,
-            _                   => state
+            Either<L, A>.Right (var r) => predicate((state, r)) ? f(state)(r) : state,
+            _                          => state
         };
 
     static K<Either<L>, B> Functor<Either<L>>.Map<A, B>(Func<A, B> f, K<Either<L>, A> ma) =>
         ma switch
         {
-            Right<L, A> (var r) => Right(f(r)),
-            Left<L, A> (var l)  => Left<B>(l),
-            _                   => throw new NotSupportedException()
+            Either<L, A>.Right (var r) => Right(f(r)),
+            Either<L, A>.Left (var l)  => Left<B>(l),
+            _                          => throw new NotSupportedException()
         };
 
     static K<Either<L>, A> Right<A>(A value) =>
-        Either<L, A>.Right(value);
+        new Either<L, A>.Right(value);
 
     static K<Either<L>, A> Left<A>(L value) =>
-        Either<L, A>.Left(value);
+        new Either<L, A>.Left(value);
 
     static K<Either<L>, A> Choice<Either<L>>.Choose<A>(K<Either<L>, A> ma, K<Either<L>, A> mb) =>
-        ma is Right<L, A> ? ma : mb;
+        ma is Either<L, A>.Right ? ma : mb;
 
     static K<Either<L>, A> Choice<Either<L>>.Choose<A>(K<Either<L>, A> ma, Func<K<Either<L>, A>> mb) => 
-        ma is Right<L, A> ? ma : mb();
+        ma is Either<L, A>.Right ? ma : mb();
 
     static K<Either<L>, A> SemigroupK<Either<L>>.Combine<A>(K<Either<L>, A> lhs, K<Either<L>, A> rhs) =>
         lhs.Choose(rhs);
 
     static K<Either<L>, A> Fallible<L, Either<L>>.Fail<A>(L error) => 
-        Either<L, A>.Left(error);
+        new Either<L, A>.Left(error);
 
     static K<Either<L>, A> Fallible<L, Either<L>>.Catch<A>(
         K<Either<L>, A> fa, Func<L, bool> Predicate,
         Func<L, K<Either<L>, A>> Fail) =>
-        fa.As().BindLeft(l => Predicate(l) ? Fail(l).As() : Either<L, A>.Left(l));
+        fa.As().BindLeft(l => Predicate(l) ? Fail(l).As() : Either.Left<L, A>(l));
 
     static K<Option, A> Natural<Either<L>, Option>.Transform<A>(K<Either<L>, A> fa) =>
         fa switch
         {
-            Right<L, A> (var r) => Option<A>.Some(r),
-            _                   => Option<A>.None
+            Either<L, A>.Right (var r) => Option<A>.Some(r),
+            _                          => Option<A>.None
         };
 }

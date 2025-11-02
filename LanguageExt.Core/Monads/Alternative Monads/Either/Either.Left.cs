@@ -4,9 +4,9 @@ using LanguageExt.ClassInstances;
 
 namespace LanguageExt;
 
-public partial class Either
+public abstract partial record Either<L, R>
 {
-    public sealed record Left<L, R>(L Value) : Either<L, R>
+    public sealed record Left(L Value) : Either<L, R>
     {
         /// <summary>
         /// Is the Either in a Right state?
@@ -68,8 +68,8 @@ public partial class Either
         public override int CompareTo<OrdL, OrdR>(Either<L, R> other) =>
             other switch
             {
-                Left<L, R> l => OrdL.Compare(Value, l.Value),
-                _            => -1
+                Left l => OrdL.Compare(Value, l.Value),
+                _      => -1
             };
 
         /// <summary>
@@ -79,8 +79,8 @@ public partial class Either
         public override bool Equals<EqL, EqR>(Either<L, R> other) =>
             other switch
             {
-                Left<L, R> l => EqL.Equals(Value, l.Value),
-                _            => false
+                Left l => EqL.Equals(Value, l.Value),
+                _      => false
             };
 
         /// <summary>
@@ -107,7 +107,7 @@ public partial class Either
         /// <returns>Mapped Either</returns>
         [Pure]
         public override Either<L, B> Map<B>(Func<R, B> f) =>
-            new Left<L, B>(Value);
+            new Either<L, B>.Left(Value);
 
         /// <summary>
         /// Bi-maps the value in the Either if it's in a Right state
@@ -121,7 +121,7 @@ public partial class Either
         /// <returns>Mapped Either</returns>
         [Pure]
         public override Either<L2, R2> BiMap<L2, R2>(Func<L, L2> Left, Func<R, R2> Right) =>
-            new Left<L2, R2>(Left(Value));
+            new Either<L2, R2>.Left(Left(Value));
 
         /// <summary>
         /// Monadic bind
@@ -133,7 +133,7 @@ public partial class Either
         /// <returns>Bound Either</returns>
         [Pure]
         public override Either<L, B> Bind<B>(Func<R, Either<L, B>> f) =>
-            new Left<L, B>(Value);
+            new Either<L, B>.Left(Value);
 
         /// <summary>
         /// Bi-bind.  Allows mapping of both monad states

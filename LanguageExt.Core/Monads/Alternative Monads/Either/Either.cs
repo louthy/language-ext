@@ -28,7 +28,7 @@ namespace LanguageExt;
 /// </remarks>
 /// <typeparam name="L">Left</typeparam>
 /// <typeparam name="R">Right</typeparam>
-public abstract record Either<L, R> :
+public abstract partial record Either<L, R> :
     IEither,
     IEnumerable<R>,
     IComparable<R>,
@@ -74,7 +74,7 @@ public abstract record Either<L, R> :
     /// <param name="value">Value</param>
     [Pure]
     public static implicit operator Either<L, R>(R value) =>
-        Right(value);
+        new Right(value);
 
     /// <summary>
     /// Implicit conversion operator from L to Either R L
@@ -82,7 +82,7 @@ public abstract record Either<L, R> :
     /// <param name="value">Value</param>
     [Pure]
     public static implicit operator Either<L, R>(L value) =>
-        Left(value);
+        new Left(value);
 
     /// <summary>
     /// Invokes the Right or Left function depending on the state of the Either
@@ -179,24 +179,6 @@ public abstract record Either<L, R> :
     public L IfRight(Func<R, L> rightMap) =>
         Match(Left: identity, Right: rightMap);
 
-    /// <summary>
-    /// Match Right and return a context.  You must follow this with .Left(...) to complete the match
-    /// </summary>
-    /// <param name="right">Action to invoke if the Either is in a Right state</param>
-    /// <returns>Context that must have Left() called upon it.</returns>
-    [Pure]
-    public EitherUnitContext<L, R> Right(Action<R> right) =>
-        new (this, right);
-
-    /// <summary>
-    /// Match Right and return a context.  You must follow this with .Left(...) to complete the match
-    /// </summary>
-    /// <param name="right">Action to invoke if the Either is in a Right state</param>
-    /// <returns>Context that must have Left() called upon it.</returns>
-    [Pure]
-    public EitherContext<L, R, Ret> Right<Ret>(Func<R, Ret> right) =>
-        new (this, right);
-
     IEnumerator IEnumerable.GetEnumerator() => 
         GetEnumerator();
 
@@ -274,27 +256,6 @@ public abstract record Either<L, R> :
     [Pure]
     public Option<R> ToOption() =>
         Match(Left: _ => None, Right: Some);
-
-    /*
-    /// <summary>
-    /// Convert to a stream
-    /// </summary>
-    [Pure]
-    public StreamT<M, R> ToStream<M>() 
-        where M : Monad<M> =>
-        IsRight
-            ? StreamT<M, R>.Pure(RightValue!) 
-            : StreamT<M, R>.Empty;
-
-    /// <summary>
-    /// Convert to a stream
-    /// </summary>
-    [Pure]
-    public StreamT<M, L> LeftToStream<M>() 
-        where M : Monad<M> =>
-        IsLeft
-            ? StreamT<M, L>.Pure(LeftValue!) 
-            : StreamT<M, L>.Empty;*/
 
     /// <summary>
     /// Convert to an `Eff`
@@ -600,14 +561,14 @@ public abstract record Either<L, R> :
     /// </summary>
     [Pure]
     public static bool operator true(Either<L, R> value) =>
-        value is Either.Right<L, R>;
+        value is Right;
 
     /// <summary>
     /// Override of the False operator to return True if the Either is Left
     /// </summary>
     [Pure]
     public static bool operator false(Either<L, R> value) =>
-        value is Either.Left<L, R>;
+        value is Left;
 
     /// <summary>
     /// CompareTo override
@@ -742,14 +703,6 @@ public abstract record Either<L, R> :
     public Type GetUnderlyingLeftType() =>
         typeof(L);
 
-    [Pure]
-    public static Either<L, R> Right(R value) =>
-        new Either.Right<L, R>(value);
-
-    [Pure]
-    public static Either<L, R> Left(L value) =>
-        new Either.Left<L, R>(value);
-
     /// <summary>
     /// Unsafe access to the right-value 
     /// </summary>
@@ -772,7 +725,7 @@ public abstract record Either<L, R> :
     /// <returns>Either with the types swapped</returns>
     [Pure]
     public Either<R, L> Swap() =>
-        Match(Left: Either<R, L>.Right, Right: Either<R, L>.Left);
+        Match(Left: Either.Right<R, L>, Right: Either.Left<R, L>);
 
     /// <summary>
     /// Invokes a predicate on the value of the Either if it's in the Right state

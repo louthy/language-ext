@@ -16,16 +16,16 @@ public partial class Either :
         K<Either, L, R> fab) =>
         fab switch
         {
-            Right<L, R>(var value) => Either<L1, R1>.Right(second(value)),
-            Left<L, R>(var value)  => Either<L1, R1>.Left(first(value)),
-            _                      => throw new NotSupportedException()
+            Either<L, R>.Right(var value) => new Either<L1, R1>.Right(second(value)),
+            Either<L, R>.Left(var value)  => new Either<L1, R1>.Left(first(value)),
+            _                             => throw new NotSupportedException()
         };
 
     static K<Either, A, B> CoproductCons<Either>.Left<A, B>(A value) =>
-        Either<A, B>.Left(value);
+        new Either<A, B>.Left(value);
 
     static K<Either, A, B> CoproductCons<Either>.Right<A, B>(B value) =>
-        Either<A, B>.Right(value);
+        new Either<A, B>.Right(value);
 
     public static C Match<A, B, C>(
         Func<A, C> Left,
@@ -33,24 +33,24 @@ public partial class Either :
         K<Either, A, B> fab) =>
         fab switch
         {
-            Right<A, B>(var value) => Right(value),
-            Left<A, B>(var value)  => Left(value),
-            _                      => throw new NotSupportedException()
+            Either<A, B>.Right(var value) => Right(value),
+            Either<A, B>.Left(var value)  => Left(value),
+            _                             => throw new NotSupportedException()
         };
 
     public static K<Either, Y, A> BindFirst<X, Y, A>(K<Either, X, A> ma, Func<X, K<Either, Y, A>> f) =>
         ma switch
         {
-            Right<X, A> (var a) => Either<Y, A>.Right(a),
-            Left<X, A> (var l)  => f(l),
-            _                   => throw new NotSupportedException()
+            Either<X, A>.Right (var a) => new Either<Y, A>.Right(a),
+            Either<X, A>.Left (var l)  => f(l),
+            _                          => throw new NotSupportedException()
         };
 
     public static K<Either, X, B> BindSecond<X, A, B>(K<Either, X, A> ma, Func<A, K<Either, X, B>> f) =>
         ma switch
         {
-            Right<X, A> (var a) => f(a),
-            Left<X, A> (var l)  => Either<X, B>.Left(l),
-            _                   => throw new NotSupportedException()
+            Either<X, A>.Right (var a) => f(a),
+            Either<X, A>.Left (var l)  => new Either<X, B>.Left(l),
+            _                          => throw new NotSupportedException()
         };
 }

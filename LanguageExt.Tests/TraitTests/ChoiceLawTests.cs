@@ -99,6 +99,11 @@ public class ChoiceLawTests
         ChoiceLaw<Validation<StringM>>.assert(fail<StringM, Validation<StringM>, int>("error"));
 
     [Fact]
-    public void ValidationT() => 
-        ChoiceLaw<ValidationT<StringM, Identity>>.assert(fail<StringM, ValidationT<StringM, Identity>, int>("error"));
+    public void ValidationT()
+    {
+        bool eq(K<ValidationT<StringM, Identity>, int> vx, K<ValidationT<StringM, Identity>, int> vy) =>
+            vx.Run().As().Value.Equals(vy.Run().As().Value);
+        
+        ChoiceLaw<ValidationT<StringM, Identity>>.assert(fail<StringM, ValidationT<StringM, Identity>, int>("error"), eq);
+    }
 }

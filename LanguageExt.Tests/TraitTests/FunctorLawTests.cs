@@ -165,7 +165,7 @@ public class FunctorLawTests
         FunctorLaw<OptionT<Identity>>.assert(fa);
         FunctorLaw<OptionT<Identity>>.assert(fx);
     }
-    
+        
     [Fact]
     public void Try()
     {
@@ -202,10 +202,13 @@ public class FunctorLawTests
     [Fact]
     public void ValidationT()
     {
+        bool eq(K<ValidationT<StringM, Identity>, int> vx, K<ValidationT<StringM, Identity>, int> vy) =>
+            vx.Run().As().Value.Equals(vy.Run().As().Value);
+        
         var fa = ValidationT<StringM, Identity, int>.Success(1);
         var fx = ValidationT<StringM, Identity, int>.Fail("failed");
-        FunctorLaw<ValidationT<StringM, Identity>>.assert(fa);
-        FunctorLaw<ValidationT<StringM, Identity>>.assert(fx);
+        FunctorLaw<ValidationT<StringM, Identity>>.assert(fa, eq);
+        FunctorLaw<ValidationT<StringM, Identity>>.assert(fx, eq);
     }
     
     [Fact]

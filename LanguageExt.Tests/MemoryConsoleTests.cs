@@ -19,7 +19,7 @@ public class MemoryConsoleTests
         var       lines = unsplitLines.Split('\n').AsIterable();
         using var rt    = Runtime.New();
 
-        var xs = lines.Traverse(Either<Unit, string>.Right);
+        var xs = lines.Traverse(Either.Right<Unit, string>);
         
         var comp = lines.Traverse(Console.writeLine).As();
         comp.Run(rt, EnvIO.New()).ThrowIfFail();

@@ -4,9 +4,9 @@ using LanguageExt.ClassInstances;
 
 namespace LanguageExt;
 
-public partial class Either
+public abstract partial record Either<L, R>
 {
-    public sealed record Right<L, R>(R Value) : Either<L, R>
+    public sealed record Right(R Value) : Either<L, R>
     {
         /// <summary>
         /// Is the Either in a Right state?
@@ -68,8 +68,8 @@ public partial class Either
         public override int CompareTo<OrdL, OrdR>(Either<L, R> other) =>
             other switch
             {
-                Right<L, R> r => OrdR.Compare(Value, r.Value),
-                _             => 1
+                Right r => OrdR.Compare(Value, r.Value),
+                _       => 1
             };
 
         /// <summary>
@@ -79,8 +79,8 @@ public partial class Either
         public override bool Equals<EqL, EqR>(Either<L, R> other) =>
             other switch
             {
-                Right<L, R> r => EqR.Equals(Value, r.Value),
-                _             => false
+                Right r => EqR.Equals(Value, r.Value),
+                _       => false
             };
 
         /// <summary>
@@ -107,7 +107,7 @@ public partial class Either
         /// <returns>Mapped Either</returns>
         [Pure]
         public override Either<L, B> Map<B>(Func<R, B> f) =>
-            new Right<L, B>(f(Value));
+            new Either<L, B>.Right(f(Value));
 
         /// <summary>
         /// Bi-maps the value in the Either if it's in a Right state
@@ -121,7 +121,7 @@ public partial class Either
         /// <returns>Mapped Either</returns>
         [Pure]
         public override Either<L2, R2> BiMap<L2, R2>(Func<L, L2> Left, Func<R, R2> Right) =>
-            new Right<L2, R2>(Right(Value));
+            new Either<L2, R2>.Right(Right(Value));
 
         /// <summary>
         /// Monadic bind

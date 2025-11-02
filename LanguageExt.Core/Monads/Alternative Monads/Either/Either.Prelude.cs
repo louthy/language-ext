@@ -14,7 +14,7 @@ public static partial class Prelude
     /// <returns>A new Either instance</returns>
     [Pure]
     public static Either<L, R> Right<L, R>(R value) =>
-        new Either.Right<L, R>(value);
+        new Either<L, R>.Right(value);
 
     /// <summary>
     /// Constructs an EitherRight which can be implicitly cast to an 
@@ -37,7 +37,7 @@ public static partial class Prelude
     /// <returns>A new Either instance</returns>
     [Pure]
     public static Either<L, R> Left<L, R>(L value) =>
-        new Either.Left<L, R>(value);
+        new Either<L, R>.Left(value);
 
     /// <summary>
     /// Constructs an EitherLeft which can be implicitly cast to an 

@@ -17,6 +17,24 @@ public static partial class EitherExtensions
  
     public static Either<L, R> As2<L, R>(this K<Either, L, R> ma) =>
         (Either<L, R>)ma;
+
+    /// <summary>
+    /// Match Right and return a context.  You must follow this with .Left(...) to complete the match
+    /// </summary>
+    /// <param name="right">Action to invoke if the Either is in a Right state</param>
+    /// <returns>Context that must have Left() called upon it.</returns>
+    [Pure]
+    public static EitherUnitContext<L, R> Right<L, R>(this K<Either<L>, R> ma, Action<R> right) =>
+        new (ma.As(), right);
+
+    /// <summary>
+    /// Match Right and return a context.  You must follow this with .Left(...) to complete the match
+    /// </summary>
+    /// <param name="right">Action to invoke if the Either is in a Right state</param>
+    /// <returns>Context that must have Left() called upon it.</returns>
+    [Pure]
+    public static EitherContext<L, R, R2> Right<L, R, R2>(this K<Either<L>, R> ma, Func<R, R2> right) =>
+        new (ma.As(), right);
  
     /// <summary>
     /// Monadic join
@@ -52,7 +70,7 @@ public static partial class EitherExtensions
     [Pure]
     public static Either<L, A> Filter<L, A>(this K<Either<L>, A> ma, Func<A, bool> pred)
         where L : Monoid<L> =>
-        ma.As().Bind(x => pred(x) ? Either<L, A>.Right(x) : Either<L, A>.Left(L.Empty));
+        ma.As().Bind(x => pred(x) ? Either.Right<L, A>(x) : Either.Left<L, A>(L.Empty));
 
     /*
     /// <summary>
@@ -110,9 +128,9 @@ public static partial class EitherExtensions
         where L : Monoid<L> =>
         ma switch
         {
-            Either.Right<L, R>       => Pure(ma.RightValue),
-            Either.Left<L, R> => Fail(ma.LeftValue),
-            _                 => throw new BottomException()
+            Either<L, R>.Right => Pure(ma.RightValue),
+            Either<L, R>.Left  => Fail(ma.LeftValue),
+            _                  => throw new BottomException()
         };
 
     /// <summary>
@@ -123,8 +141,8 @@ public static partial class EitherExtensions
     public static Eff<R> ToEff<R>(this Either<Error, R> ma) =>
         ma switch
         {
-            Either.Right<Error, R> => Pure(ma.RightValue),
-            Either.Left<Error, R>  => Fail(ma.LeftValue),
+            Either<Error, R>.Right => Pure(ma.RightValue),
+            Either<Error, R>.Left  => Fail(ma.LeftValue),
             _                      => throw new BottomException()
         };
 
@@ -136,8 +154,8 @@ public static partial class EitherExtensions
     public static Eff<R> ToEff<R>(this Either<Exception, R> ma) =>
         ma switch
         {
-            Either.Right<Exception, R> => Pure(ma.RightValue),
-            Either.Left<Exception, R>  => Fail<Error>(ma.LeftValue),
+            Either<Exception, R>.Right => Pure(ma.RightValue),
+            Either<Exception, R>.Left  => Fail<Error>(ma.LeftValue),
             _                          => throw new BottomException()
         };
 
@@ -149,8 +167,8 @@ public static partial class EitherExtensions
     public static Eff<R> ToEff<R>(this Either<string, R> ma) =>
         ma switch
         {
-            Either.Right<string, R> => Pure(ma.RightValue),
-            Either.Left<string, R>  => Fail(Error.New(ma.LeftValue)),
+            Either<string, R>.Right => Pure(ma.RightValue),
+            Either<string, R>.Left  => Fail(Error.New(ma.LeftValue)),
             _                       => throw new BottomException()
         };
 }

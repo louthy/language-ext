@@ -9,8 +9,8 @@ public static class EitherGuardExtensions
     /// </summary>
     public static Either<L, Unit> ToEither<L>(this Guard<L, Unit> guard) =>
         guard.Flag
-            ? Either<L, Unit>.Right(default)
-            : Either<L, Unit>.Left(guard.OnFalse());
+            ? new Either<L, Unit>.Right(default)
+            : new Either<L, Unit>.Left(guard.OnFalse());
  
     /// <summary>
     /// Monadic binding support for `Either`
@@ -20,7 +20,7 @@ public static class EitherGuardExtensions
         Func<Unit, Either<L, B>> f)  =>
         guard.Flag
             ? f(default).As()
-            : Either<L, B>.Left(guard.OnFalse());
+            : new Either<L, B>.Left(guard.OnFalse());
        
     /// <summary>
     /// Monadic binding support for `Either`
@@ -31,6 +31,6 @@ public static class EitherGuardExtensions
         Func<Unit, B, C> project) =>
         guard.Flag
             ? bind(default).As().Map(b => project(default, b))
-            : Either<L, C>.Left(guard.OnFalse());
+            : new Either<L, C>.Left(guard.OnFalse());
 
 }

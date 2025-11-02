@@ -11,8 +11,8 @@ record SinkChoose<A, B, C>(Func<A, Either<B, C>> F, Sink<B> Left, Sink<C> Right)
     public override IO<Unit> Post(A value) =>
         F(value) switch
         {
-            Either.Left<B, C>(var left)   => Left.Post(left),
-            Either.Right<B, C>(var right) => Right.Post(right),
+            Either<B, C>.Left(var left)   => Left.Post(left),
+            Either<B, C>.Right(var right) => Right.Post(right),
             _                             => IO.fail<Unit>(Errors.SinkFull)
         };
 

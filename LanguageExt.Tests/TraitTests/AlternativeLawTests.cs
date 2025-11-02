@@ -1,4 +1,6 @@
 using Xunit;
+using LanguageExt;
+using LanguageExt.Common;
 
 namespace LanguageExt.Tests.TraitTests;
 
@@ -90,6 +92,11 @@ public class AlternativeLawTests
         AlternativeLaw<Validation<StringM>>.assert();
 
     [Fact]
-    public void ValidationT() => 
-        AlternativeLaw<ValidationT<StringM, Identity>>.assert();
+    public void ValidationT()
+    {
+        bool eq(K<ValidationT<StringM, Identity>, int> vx, K<ValidationT<StringM, Identity>, int> vy) =>
+            vx.Run().As().Value.Equals(vy.Run().As().Value);
+
+        AlternativeLaw<ValidationT<StringM, Identity>>.assert(eq);
+    }
 }

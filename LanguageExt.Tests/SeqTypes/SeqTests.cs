@@ -21,7 +21,7 @@ public class SeqTests
     [Fact]
     public void ObjectNull()
     {
-        string x = null;
+        string? x = null;
 
         Assert.Equal(0, toSeq(x).Count());
     }
@@ -654,7 +654,7 @@ public class SeqTests
         var res = from v in ma.Run().As()
                   select v switch
                          {
-                             Either.Right<string, Seq<int>> (var seq) => seq.SequenceEqual(input),
+                             Either<string, Seq<int>>.Right (var seq) => seq.SequenceEqual(input),
                              _                                        => false
                          };
 

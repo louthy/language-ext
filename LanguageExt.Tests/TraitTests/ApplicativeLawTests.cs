@@ -113,8 +113,13 @@ public class ApplicativeFunctorLawTests
         ApplicativeLaw<Validation<StringM>>.assert();
 
     [Fact]
-    public void ValidationT() => 
-        ApplicativeLaw<ValidationT<StringM, Identity>>.assert();
+    public void ValidationT()
+    {
+        bool eq(K<ValidationT<StringM, Identity>, int> vx, K<ValidationT<StringM, Identity>, int> vy) =>
+            vx.Run().As().Value.Equals(vy.Run().As().Value);
+
+        ApplicativeLaw<ValidationT<StringM, Identity>>.assert(eq);
+    }
 
     [Fact]
     public void Identity() => 
