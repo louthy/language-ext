@@ -33,8 +33,8 @@ public class EitherT<M> :
                                 .runEither
                                 .Bind(e => e switch
                                            {
-                                               Either.Right<L, A>(var r) => M.Pure(Either<L1, A>.Right(r)),
-                                               Either.Left<L, A>(var l)  => f(l).As2().runEither,
+                                               Either<L, A>.Right(var r) => M.Pure(Either.Right<L1, A>(r)),
+                                               Either<L, A>.Left(var l)  => f(l).As2().runEither,
                                                _                         => throw new NotSupportedException()
                                            }));
 
@@ -45,8 +45,8 @@ public class EitherT<M> :
                                .runEither
                                .Bind(e => e switch
                                           {
-                                              Either.Right<L, A>(var r) => f(r).As2().runEither,
-                                              Either.Left<L, A>(var l)  => M.Pure(Either<L, B>.Left(l)),
+                                              Either<L, A>.Right(var r) => f(r).As2().runEither,
+                                              Either<L, A>.Left(var l)  => M.Pure(Either.Left<L, B>(l)),
                                               _                         => throw new NotSupportedException()
                                           }));
 }

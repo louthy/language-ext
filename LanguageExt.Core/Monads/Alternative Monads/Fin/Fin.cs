@@ -177,8 +177,8 @@ public abstract class Fin<A> :
     public static implicit operator Fin<A>(Either<Error, A> either) =>
         either switch
         {
-            Either.Right<Error, A> (var r) => new Fin.Succ<A>(r),
-            Either.Left<Error, A> (var l)  => new Fin.Fail<A>(l),
+            Either<Error, A>.Right (var r) => new Fin.Succ<A>(r),
+            Either<Error, A>.Left (var l)  => new Fin.Fail<A>(l),
             _                              => throw new InvalidCastException()
         };
         
@@ -619,8 +619,8 @@ public abstract class Fin<A> :
     [Pure, MethodImpl(Opt.Default)]
     public Either<Error, A> ToEither() =>
         IsSucc
-            ? Either<Error, A>.Right(SuccValue)
-            : Either<Error, A>.Left(FailValue);
+            ? Either.Right<Error, A>(SuccValue)
+            : Either.Left<Error, A>(FailValue);
 
     [Pure, MethodImpl(Opt.Default)]
     public Validation<Error, A> ToValidation() =>

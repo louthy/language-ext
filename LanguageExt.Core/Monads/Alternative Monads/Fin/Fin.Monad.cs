@@ -129,8 +129,8 @@ public partial class Fin :
     static K<Either<Error>, A> Natural<Fin, Either<Error>>.Transform<A>(K<Fin, A> fa) =>
         fa switch
         {
-            Succ<A> (var x) => Either<Error, A>.Right(x),
-            Fail<A> (var e) => Either<Error, A>.Left(e),
+            Succ<A> (var x) => Either.Right<Error, A>(x),
+            Fail<A> (var e) => Either.Left<Error, A>(e),
             _               => throw new NotSupportedException()
         };
 

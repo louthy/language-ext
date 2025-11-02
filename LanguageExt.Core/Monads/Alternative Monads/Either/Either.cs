@@ -971,11 +971,11 @@ public abstract partial record Either<L, R> :
 
     [Pure]
     public static implicit operator Either<L, R>(Pure<R> mr) =>
-        Right(mr.Value);
+        new Right(mr.Value);
 
     [Pure]
     public static implicit operator Either<L, R>(Fail<L> mr) =>
-        Left(mr.Value);
+        new Left(mr.Value);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

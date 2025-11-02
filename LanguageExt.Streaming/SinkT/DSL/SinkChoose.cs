@@ -14,8 +14,8 @@ record SinkTChoose<M, A, B, C>(Func<A, Either<B, C>> F, SinkT<M, B> Left, SinkT<
         ma.Bind(value =>
             F(value) switch
             {
-                Either.Left<B, C>(var left)   => Left.PostM(M.Pure(left)),
-                Either.Right<B, C>(var right) => Right.PostM(M.Pure(right)),
+                Either<B, C>.Left(var left)   => Left.PostM(M.Pure(left)),
+                Either<B, C>.Right(var right) => Right.PostM(M.Pure(right)),
                 _                             => M.LiftIOMaybe(IO.fail<Unit>(Errors.SinkFull))
             });
 

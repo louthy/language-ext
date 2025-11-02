@@ -35,11 +35,11 @@ public abstract record Trampoline<A>
         {
             switch (f().Resume())
             {
-                case Either.Left<Func<Trampoline<A>>, A> (var nf):
+                case Either<Func<Trampoline<A>>, A>.Left (var nf):
                     f = nf;
                     break;
 
-                case Either.Right<Func<Trampoline<A>>, A> (var value):
+                case Either<Func<Trampoline<A>>, A>.Right (var value):
                     return value;
             }
         }
@@ -93,8 +93,8 @@ public abstract record Trampoline<A>
                 Trampoline<X>.BindStep bind =>
                     bind.Resume() switch
                     {
-                        Either.Right<Func<Trampoline<X>>, X> (var x) => Left(() => Next(x)),
-                        Either.Left<Func<Trampoline<X>>, X> (var f)  => Left(() => Trampoline.Bind(f(), Next)),
+                        Either<Func<Trampoline<X>>, X>.Right (var x) => Left(() => Next(x)),
+                        Either<Func<Trampoline<X>>, X>.Left (var f)  => Left(() => Trampoline.Bind(f(), Next)),
                         _                                            => throw new NotSupportedException()
                     },
 

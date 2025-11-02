@@ -128,7 +128,8 @@ public class EitherTests
     }
 
     [Fact]
-    public void EitherInfer1() => AddEithers(Right(10), Left("error"));
+    public void EitherInfer1() => 
+        AddEithers(Right(10), Left("error"));
 
     void EitherInfer2(bool v)
     {

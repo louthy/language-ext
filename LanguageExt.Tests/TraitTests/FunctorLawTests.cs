@@ -115,8 +115,8 @@ public class FunctorLawTests
     [Fact]
     public void Either()
     {
-        var fa = Either<string, int>.Right(1);
-        var fx = Either<string, int>.Left("failed");
+        var fa = Right<string, int>(1);
+        var fx = Left<string, int>("failed");
         FunctorLaw<Either<string>>.assert(fa);
         FunctorLaw<Either<string>>.assert(fx);
     }

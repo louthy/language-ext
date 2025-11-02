@@ -307,8 +307,8 @@ public abstract partial record Validation<F, A> :
     public Either<F, A> ToEither() =>
         this switch
         {
-            Success (var x) => new Either.Right<F, A>(x),
-            Fail (var x)    => new Either.Left<F, A>(x),
+            Success (var x) => new Either<F, A>.Right(x),
+            Fail (var x)    => new Either<F, A>.Left(x),
             _               => throw new NotSupportedException()
         };
 

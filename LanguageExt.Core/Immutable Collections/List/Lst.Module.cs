@@ -169,8 +169,8 @@ public static class List
     /// <returns>Either head item or left</returns>
     [Pure]
     public static Either<L, R> headOrLeft<L, R>(IEnumerable<R> list, L left) =>
-        list.Select(Either<L, R>.Right)
-            .DefaultIfEmpty(Either<L, R>.Left(left))
+        list.Select(Either.Right<L, R>)
+            .DefaultIfEmpty(Either.Left<L, R>(left))
             .FirstOrDefault() ?? left;
 
     /// <summary>
@@ -224,8 +224,8 @@ public static class List
     /// <returns>Last item</returns>
     [Pure]
     public static Either<L, R> lastOrLeft<L, R>(IEnumerable<R> list, L left) =>
-        list.Select(Either<L, R>.Right)
-            .DefaultIfEmpty(Either<L, R>.Left(left))
+        list.Select(Either.Right<L, R>)
+            .DefaultIfEmpty(Either.Left<L, R>(left))
             .LastOrDefault() ?? left;
 
     /// <summary>

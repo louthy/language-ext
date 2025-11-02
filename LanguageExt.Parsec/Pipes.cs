@@ -44,8 +44,8 @@ public static class ParsecPipes
         from t in PipeT.awaiting<M, PString, OUT>()
         from r in ma.Parse(t).ToEither() switch
                   {
-                      Either.Right<string, OUT> (var x) => IO.pure(x),
-                      Either.Left<string, OUT> (var e)  => IO.fail<OUT>(Errors.ParseError(e)),
+                      Either<string, OUT>.Right (var x) => IO.pure(x),
+                      Either<string, OUT>.Left (var e)  => IO.fail<OUT>(Errors.ParseError(e)),
                       _                                 => throw new NotSupportedException()
                   }
         from _ in PipeT.yield<M, PString, OUT>(r)
@@ -60,8 +60,8 @@ public static class ParsecPipes
         from t in PipeT.awaiting<M, PString<IN>, OUT>()
         from _ in ma.Parse(t).ToEither() switch
                   {
-                      Either.Right<string, OUT> (var x) => PipeT.yield<M, PString<IN>, OUT>(x),
-                      Either.Left<string, OUT>          => Pure<Unit>(default),
+                      Either<string, OUT>.Right (var x) => PipeT.yield<M, PString<IN>, OUT>(x),
+                      Either<string, OUT>.Left          => Pure<Unit>(default),
                       _                                 => throw new NotSupportedException()
                   }
         select unit;
@@ -75,8 +75,8 @@ public static class ParsecPipes
         from t in Pipe.awaiting<RT, PString, OUT>()
         from r in ma.Parse(t).ToEither() switch
                   {
-                      Either.Right<string, OUT> (var x) => IO.pure(x),
-                      Either.Left<string, OUT> (var e)  => IO.fail<OUT>(Errors.ParseError(e)),
+                      Either<string, OUT>.Right (var x) => IO.pure(x),
+                      Either<string, OUT>.Left (var e)  => IO.fail<OUT>(Errors.ParseError(e)),
                       _                                 => throw new NotSupportedException()
                   }
         from _ in Pipe.yield<RT, PString, OUT>(r)
@@ -90,8 +90,8 @@ public static class ParsecPipes
         from t in Pipe.awaiting<RT, PString<IN>, OUT>()
         from _ in ma.Parse(t).ToEither() switch
                   {
-                      Either.Right<string, OUT> (var x) => Pipe.yield<RT, PString<IN>, OUT>(x),
-                      Either.Left<string, OUT>          => Pure<Unit>(default),
+                      Either<string, OUT>.Right (var x) => Pipe.yield<RT, PString<IN>, OUT>(x),
+                      Either<string, OUT>.Left          => Pure<Unit>(default),
                       _                                 => throw new NotSupportedException()
                   }
         select unit;    

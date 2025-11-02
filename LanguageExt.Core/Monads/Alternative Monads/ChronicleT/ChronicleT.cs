@@ -148,9 +148,9 @@ public record ChronicleT<Ch, M, A>(Func<SemigroupInstance<Ch>, K<M, These<Ch, A>
         new(combine =>
             Run(combine).Map(these => these switch
                                       {
-                                          These<Ch, A>.This (var c)        => That<Ch, Either<Ch, A>>(Either<Ch, A>.Left(c)),
-                                          These<Ch, A>.That (var x)        => That<Ch, Either<Ch, A>>(Either<Ch, A>.Right(x)),
-                                          These<Ch, A>.Both (var c, var x) => Both(c, Either<Ch, A>.Right(x)),
+                                          These<Ch, A>.This (var c)        => That<Ch, Either<Ch, A>>(Either.Left<Ch, A>(c)),
+                                          These<Ch, A>.That (var x)        => That<Ch, Either<Ch, A>>(Either.Right<Ch, A>(x)),
+                                          These<Ch, A>.Both (var c, var x) => Both(c, Either.Right<Ch, A>(x)),
                                           _                                => throw new NSE()
                                       }));
 
@@ -200,7 +200,7 @@ public record ChronicleT<Ch, M, A>(Func<SemigroupInstance<Ch>, K<M, These<Ch, A>
                                                      These<Ch, A>.Both (var c, var x) => Both(f(c), x),
                                                      _                                => throw new NSE()
                                                  }));
-    
+
     /// <summary>
     /// Coalescing operation
     /// </summary>
@@ -208,11 +208,11 @@ public record ChronicleT<Ch, M, A>(Func<SemigroupInstance<Ch>, K<M, These<Ch, A>
         Memento()
            .Bind(x => x switch
                       {
-                          Either.Left<Ch, A>         => rhs,
-                          Either.Right<Ch, A>(var r) => dictate<Ch, M, A>(r),
+                          Either<Ch, A>.Left         => rhs,
+                          Either<Ch, A>.Right(var r) => dictate<Ch, M, A>(r),
                           _                          => throw new NSE()
                       });
-    
+
     /// <summary>
     /// Coalescing operation
     /// </summary>
@@ -220,8 +220,8 @@ public record ChronicleT<Ch, M, A>(Func<SemigroupInstance<Ch>, K<M, These<Ch, A>
         Memento()
            .Bind(x => x switch
                       {
-                          Either.Left<Ch, A>         => rhs(),
-                          Either.Right<Ch, A>(var r) => dictate<Ch, M, A>(r),
+                          Either<Ch, A>.Left         => rhs(),
+                          Either<Ch, A>.Right(var r) => dictate<Ch, M, A>(r),
                           _                          => throw new NSE()
                       });
     
@@ -235,8 +235,8 @@ public record ChronicleT<Ch, M, A>(Func<SemigroupInstance<Ch>, K<M, These<Ch, A>
         Memento()
            .Bind(x => x switch
                       {
-                          Either.Left<Ch, A> (var e) => Predicate(e) ? Fail(e) : confess<Ch, M, A>(e),
-                          Either.Right<Ch, A>(var r) => dictate<Ch, M, A>(r),
+                          Either<Ch, A>.Left (var e) => Predicate(e) ? Fail(e) : confess<Ch, M, A>(e),
+                          Either<Ch, A>.Right(var r) => dictate<Ch, M, A>(r),
                           _                          => throw new NSE()
                       });
 

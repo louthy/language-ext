@@ -100,7 +100,7 @@ public readonly record struct Pure<A>(A Value)
             : Option<A>.Some(Value);
     
     public Either<L, A> ToEither<L>() =>
-        Either<L, A>.Right(Value);
+        Either.Right<L, A>(Value);
     
     public Fin<A> ToFin() =>
         Fin<A>.Succ(Value);

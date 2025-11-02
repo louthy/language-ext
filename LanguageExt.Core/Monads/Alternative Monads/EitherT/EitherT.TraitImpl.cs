@@ -36,23 +36,23 @@ public partial class EitherT<L, M> :
     static K<EitherT<L, M>, A> MonadIO<EitherT<L, M>>.LiftIO<A>(IO<A> ma) => 
         EitherT<L, M, A>.Lift(M.LiftIOMaybe(ma));
 
-    static K<EitherT<L, M>, A> Choice<EitherT<L, M>>.Choose<A>(K<EitherT<L, M>, A> ma, K<EitherT<L, M>, A> mb) => 
-        new EitherT<L, M, A>( 
-            M.Bind(ma.As().runEither, 
+    static K<EitherT<L, M>, A> Choice<EitherT<L, M>>.Choose<A>(K<EitherT<L, M>, A> ma, K<EitherT<L, M>, A> mb) =>
+        new EitherT<L, M, A>(
+            M.Bind(ma.As().runEither,
                    ea => ea switch
                          {
-                             Either.Right<L, A> => M.Pure(ea),
-                             Either.Left<L, A>  => mb.As().runEither,
+                             Either<L, A>.Right => M.Pure(ea),
+                             Either<L, A>.Left  => mb.As().runEither,
                              _                  => M.Pure(ea)
                          }));
 
-    static K<EitherT<L, M>, A> Choice<EitherT<L, M>>.Choose<A>(K<EitherT<L, M>, A> ma, Func<K<EitherT<L, M>, A>> mb) => 
-        new EitherT<L, M, A>( 
-            M.Bind(ma.As().runEither, 
+    static K<EitherT<L, M>, A> Choice<EitherT<L, M>>.Choose<A>(K<EitherT<L, M>, A> ma, Func<K<EitherT<L, M>, A>> mb) =>
+        new EitherT<L, M, A>(
+            M.Bind(ma.As().runEither,
                    ea => ea switch
                          {
-                             Either.Right<L, A> => M.Pure(ea),
-                             Either.Left<L, A>  => mb().As().runEither,
+                             Either<L, A>.Right => M.Pure(ea),
+                             Either<L, A>.Left  => mb().As().runEither,
                              _                  => M.Pure(ea)
                          }));
 

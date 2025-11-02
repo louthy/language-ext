@@ -35,10 +35,10 @@ public class StateEff<S, E> :
             (eio, state) =>
                 ma.As().runStateEff(eio, state) switch
                 {
-                    Either.Right<E, (S State, A Value)>(var (s, v)) =>
+                    Either<E, (S State, A Value)>.Right(var (s, v)) =>
                         f(v).As().runStateEff(eio, s),
 
-                    Either.Left<E, (S State, A Value)>(var e) =>
+                    Either<E, (S State, A Value)>.Left(var e) =>
                         Left(e)
                 });
 
@@ -47,10 +47,10 @@ public class StateEff<S, E> :
             (eio, state) =>
                 ma.As().runStateEff(eio, state) switch
                 {
-                    Either.Right<E, (S State, A Value)>(var (s, v)) =>
+                    Either<E, (S State, A Value)>.Right(var (s, v)) =>
                         Right((s, f(v))),
 
-                    Either.Left<E, (S State, A Value)>(var e) =>
+                    Either<E, (S State, A Value)>.Left(var e) =>
                         Left(e)
                 });
 
@@ -64,17 +64,17 @@ public class StateEff<S, E> :
             (eio, state) =>
                 mf.As().runStateEff(eio, state) switch
                 {
-                    Either.Right<E, (S State, Func<A, B> Value)>(var (s1, f)) =>
+                    Either<E, (S State, Func<A, B> Value)>.Right(var (s1, f)) =>
                         ma.As().runStateEff(eio, s1) switch
                         {
-                            Either.Right<E, (S State, A Value)>(var (s2, x)) =>
+                            Either<E, (S State, A Value)>.Right(var (s2, x)) =>
                                 Right((s2, f(x))),
 
-                            Either.Left<E, (S State, A Value)>(var e) =>
+                            Either<E, (S State, A Value)>.Left(var e) =>
                                 Left(e)
                         },
 
-                    Either.Left<E, (S State, Func<A, B> Value)>(var e) =>
+                    Either<E, (S State, Func<A, B> Value)>.Left(var e) =>
                         Left(e)
                 });
 
@@ -92,10 +92,10 @@ public class StateEff<S, E> :
             (eio, state) =>
                 fa.As().runStateEff(eio, state) switch
                 {
-                    Either.Right<E, (S State, A Value)> succ =>
+                    Either<E, (S State, A Value)>.Right succ =>
                         succ,
 
-                    Either.Left<E, (S State, A Value)> =>
+                    Either<E, (S State, A Value)>.Left =>
                         fb.As().runStateEff(eio, state)
                 });
 
@@ -104,10 +104,10 @@ public class StateEff<S, E> :
             (eio, state) =>
                 fa.As().runStateEff(eio, state) switch
                 {
-                    Either.Right<E, (S State, A Value)> succ =>
+                    Either<E, (S State, A Value)>.Right succ =>
                         succ,
 
-                    Either.Left<E, (S State, A Value)> =>
+                    Either<E, (S State, A Value)>.Left =>
                         fb().As().runStateEff(eio, state)
                 });
 
@@ -116,10 +116,10 @@ public class StateEff<S, E> :
             (eio, state) =>
                 ma.As().runStateEff(eio, state) switch
                 {
-                    Either.Right<E, (S State, A Value)>(var (s, v)) =>
+                    Either<E, (S State, A Value)>.Right(var (s, v)) =>
                         Right((s, IO.pure(v))),
 
-                    Either.Left<E, (S State, A Value)>(var e) =>
+                    Either<E, (S State, A Value)>.Left(var e) =>
                         Left(e)
                 });
 

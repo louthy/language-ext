@@ -31,7 +31,7 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
     /// <param name="value">Value to lift</param>
     /// <returns>`EitherT`</returns>
     public static EitherT<L, M, R> Left(L value) =>
-        Lift(Either<L, R>.Left(value));
+        Lift(Either.Left<L, R>(value));
 
     /// <summary>
     /// Is the `EitherT` in a Right state?
@@ -67,7 +67,7 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
     /// <param name="fail">Monad to lift</param>
     /// <returns>`EitherT`</returns>
     public static EitherT<L, M, R> Lift(Fail<L> fail) =>
-        Lift(Either<L, R>.Left(fail.Value));
+        Lift(Either.Left<L, R>(fail.Value));
 
     /// <summary>
     /// Lifts a given monad into the transformer
@@ -75,7 +75,7 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
     /// <param name="monad">Monad to lift</param>
     /// <returns>`EitherT`</returns>
     public static EitherT<L, M, R> Lift(K<M, R> monad) =>
-        new(M.Map(Either<L, R>.Right, monad));
+        new(M.Map(Either.Right<L, R>, monad));
 
     /// <summary>
     /// Lifts a given monad into the transformer
@@ -227,8 +227,8 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
         new(runEither
                .Bind(fv => fv switch
                            {
-                               Either.Right<L, R> (var v) => f(M.Pure(v)).Map(Either<L, B>.Right),
-                               Either.Left<L, R> (var e)  => M.Pure<Either<L, B>>(e),
+                               Either<L, R>.Right (var v) => f(M.Pure(v)).Map(Either.Right<L, B>),
+                               Either<L, R>.Left (var e)  => M.Pure<Either<L, B>>(e),
                                _                          => throw new NotSupportedException()
                            }));
     
@@ -305,7 +305,7 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
         new(M.Bind(runEither, 
                    ex => ex.Match(
                        Right: x => f(x).runEither,
-                       Left: e => M.Pure(Either<L, B>.Left(e)))));
+                       Left: e => M.Pure(Either.Left<L, B>(e)))));
 
     /// <summary>
     /// Monad bind operation
@@ -486,10 +486,10 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
         Right(ma.Value);
     
     public static implicit operator EitherT<L, M, R>(Fail<L> ma) =>
-        Lift(Either<L, R>.Left(ma.Value));
+        Lift(Either.Left<L, R>(ma.Value));
 
     public static implicit operator EitherT<L, M, R>(L fail) => 
-        Lift(Either<L, R>.Left(fail));
+        Lift(Either.Left<L, R>(fail));
 
     public static implicit operator EitherT<L, M, R>(IO<R> ma) =>
         LiftIO(ma);

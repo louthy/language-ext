@@ -104,8 +104,8 @@ public partial class IO
     public static IO<A> lift<A>(Either<Error, A> ma) =>
         ma switch
         {
-            Either.Right<Error, A> (var r) => IO<A>.Pure(r),
-            Either.Left<Error, A> (var l)  => IO<A>.Fail(l),
+            Either<Error, A>.Right (var r) => IO<A>.Pure(r),
+            Either<Error, A>.Left (var l)  => IO<A>.Fail(l),
             _                              => IO<A>.Fail(Errors.Bottom)
         };
     

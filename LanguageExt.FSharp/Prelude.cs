@@ -59,8 +59,8 @@ public static class FSharp
     /// </summary>
     public static Either<TError, T> fs<T, TError>(FSharpResult<T, TError> result) =>
         result.IsOk
-            ? Either<TError, T>.Right(result.ResultValue)
-            : Either<TError, T>.Left(result.ErrorValue);
+            ? Either.Right<TError, T>(result.ResultValue)
+            : Either.Left<TError, T>(result.ErrorValue);
 
     /// <summary>
     /// Convert a LanguageExt Either into an F# Result

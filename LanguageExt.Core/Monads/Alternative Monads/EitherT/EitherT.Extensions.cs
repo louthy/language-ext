@@ -125,8 +125,8 @@ public static partial class EitherTExtensions
                   (ms, ma) =>
                       ms.Bind(s => ma.Run().Map(a => a switch
                                                      {
-                                                         Either.Right<L, R> (var r) => (s.Left, s.Right.Add(r)),
-                                                         Either.Left<L, R> (var l)  => (s.Left.Add(l), s.Right),
+                                                         Either<L, R>.Right (var r) => (s.Left, s.Right.Add(r)),
+                                                         Either<L, R>.Left (var l)  => (s.Left.Add(l), s.Right),
                                                          _                          => throw new NSE()
                                                      })));
 
@@ -142,7 +142,7 @@ public static partial class EitherTExtensions
                   (ms, ma) =>
                       ms.Bind(s => ma.Run().Map(a => a switch
                                                      {
-                                                         Either.Left<L, R> (var l)  => s.Add(l),
+                                                         Either<L, R>.Left (var l)  => s.Add(l),
                                                          _                          => throw new NSE()
                                                      })));
 
@@ -158,7 +158,7 @@ public static partial class EitherTExtensions
                   (ms, ma) =>
                       ms.Bind(s => ma.Run().Map(a => a switch
                                                      {
-                                                         Either.Right<L, R> (var r) => s.Add(r),
+                                                         Either<L, R>.Right (var r) => s.Add(r),
                                                          _                          => throw new NSE()
                                                      })));
 }
