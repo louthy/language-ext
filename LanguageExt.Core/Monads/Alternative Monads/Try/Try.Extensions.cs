@@ -24,7 +24,7 @@ public static partial class TryExtensions
         }
         catch (Exception e)
         {
-            return Fin<A>.Fail(e);
+            return Fin.Fail<A>(e);
         }
     }
 
@@ -36,8 +36,8 @@ public static partial class TryExtensions
         new(() =>
                 mma.As().Run() switch
                 {
-                    Fin.Succ<Try<A>> (var succ) => succ.Run(),
-                    Fin.Fail<Try<A>> (var fail) => FinFail<A>(fail),
+                    Fin<Try<A>>.Succ (var succ) => succ.Run(),
+                    Fin<Try<A>>.Fail (var fail) => Fin.Fail<A>(fail),
                     _                           => throw new NotSupportedException()
                 });
 
@@ -49,8 +49,8 @@ public static partial class TryExtensions
         new(() =>
                 mma.Run() switch
                 {
-                    Fin.Succ<K<Try, A>> (var succ) => succ.Run(),
-                    Fin.Fail<K<Try, A>> (var fail) => FinFail<A>(fail),
+                    Fin<K<Try, A>>.Succ (var succ) => succ.Run(),
+                    Fin<K<Try, A>>.Fail (var fail) => Fin.Fail<A>(fail),
                     _                              => throw new NotSupportedException()
                 });
 }

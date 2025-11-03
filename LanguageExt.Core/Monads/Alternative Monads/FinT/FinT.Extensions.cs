@@ -91,8 +91,8 @@ public static partial class FinTExtensions
                   (ms, ma) =>
                       ms.Bind(s => ma.Run().Map(a => a switch
                                                      {
-                                                         Fin.Succ<A> (var r) => (s.Fail, s.Succ.Add(r)),
-                                                         Fin.Fail<A> (var l) => (s.Fail.Add(l), s.Succ),
+                                                         Fin<A>.Succ (var r) => (s.Fail, s.Succ.Add(r)),
+                                                         Fin<A>.Fail (var l) => (s.Fail.Add(l), s.Succ),
                                                          _                   => throw new NSE()
                                                      })));
 
@@ -108,8 +108,8 @@ public static partial class FinTExtensions
                   (ms, ma) =>
                       ms.Bind(s => ma.Run().Map(a => a switch
                                                      {
-                                                         Fin.Fail<A> (var l) => s.Add(l),
-                                                         _                   => throw new NSE()
+                                                         Fin<A>.Fail(var l) => s.Add(l),
+                                                         _                  => throw new NSE()
                                                      })));
 
     /// <summary>
@@ -124,7 +124,7 @@ public static partial class FinTExtensions
                   (ms, ma) =>
                       ms.Bind(s => ma.Run().Map(a => a switch
                                                      {
-                                                         Fin.Succ<A> (var r) => s.Add(r),
+                                                         Fin<A>.Succ (var r) => s.Add(r),
                                                          _                   => throw new NSE()
                                                      })));
 }

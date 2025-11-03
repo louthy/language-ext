@@ -7,6 +7,11 @@ namespace LanguageExt;
 public abstract partial record These<A, B> : K<These<A>, B>
 {
     /// <summary>
+    /// Stop other types deriving from These
+    /// </summary>
+    private These() {}
+    
+    /// <summary>
     /// Case analysis for the `These` type
     /// </summary>
     /// <param name="This">Match for `This` state</param>

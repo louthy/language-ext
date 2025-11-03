@@ -4,9 +4,13 @@ using LanguageExt.Common;
 
 namespace LanguageExt;
 
-public partial class Fin
+public partial class Fin<A>
 {
-    public sealed class Succ<A>(A Value) : Fin<A>
+    /// <summary>
+    /// Success case for the `Fin` union-type
+    /// </summary>
+    /// <param name="Value"></param>
+    public sealed class Succ(A Value) : Fin<A>
     {
         /// <summary>
         /// Value accessor
@@ -72,8 +76,8 @@ public partial class Fin
         public override int CompareTo<OrdA>(Fin<A>? other) =>
             other switch
             {
-                Succ<A> r => OrdA.Compare(Value, r.Value),
-                _             => 1
+                Succ r => OrdA.Compare(Value, r.Value),
+                _      => 1
             };
 
         /// <summary>
@@ -83,8 +87,8 @@ public partial class Fin
         public override bool Equals<EqA>(Fin<A> other) =>
             other switch
             {
-                Succ<A> r => EqA.Equals(Value, r.Value),
-                _         => false
+                Succ r => EqA.Equals(Value, r.Value),
+                _      => false
             };
 
         /// <summary>
@@ -107,7 +111,7 @@ public partial class Fin
         /// <returns>Mapped structure</returns>
         [Pure]
         public override Fin<B> Map<B>(Func<A, B> Succ) =>
-            new Succ<B>(Succ(Value));
+            new Fin<B>.Succ(Succ(Value));
 
         /// <summary>
         /// Maps the value in the structure
@@ -124,7 +128,7 @@ public partial class Fin
         /// <returns>Mapped Either</returns>
         [Pure]
         public override Fin<B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail) =>
-            new Succ<B>(Succ(Value));
+            new Fin<B>.Succ(Succ(Value));
 
         /// <summary>
         /// Monadic bind

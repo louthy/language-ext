@@ -52,8 +52,8 @@ public partial class FinT<M> :
             M.Bind(ma.As().runFin,
                    ea => ea switch
                          {
-                             Fin.Succ<A> => M.Pure(ea),
-                             Fin.Fail<A> => mb.As().runFin.Map(fb => ea.Combine(fb).As()),
+                             Fin<A>.Succ => M.Pure(ea),
+                             Fin<A>.Fail => mb.As().runFin.Map(fb => ea.Combine(fb).As()),
                              _           => M.Pure(ea)
                          }));
 
@@ -62,8 +62,8 @@ public partial class FinT<M> :
             M.Bind(ma.As().runFin,
                    ea => ea switch
                          {
-                             Fin.Succ<A> => M.Pure(ea),
-                             Fin.Fail<A> => mb.As().runFin,
+                             Fin<A>.Succ => M.Pure(ea),
+                             Fin<A>.Fail => mb.As().runFin,
                              _           => M.Pure(ea)
                          }));
 
@@ -72,8 +72,8 @@ public partial class FinT<M> :
             M.Bind(ma.As().runFin,
                    ea => ea switch
                          {
-                             Fin.Succ<A> => M.Pure(ea),
-                             Fin.Fail<A> => mb().As().runFin,
+                             Fin<A>.Succ => M.Pure(ea),
+                             Fin<A>.Fail => mb().As().runFin,
                              _           => M.Pure(ea)
                          }));
 

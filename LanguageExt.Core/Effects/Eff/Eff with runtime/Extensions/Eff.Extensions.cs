@@ -44,7 +44,7 @@ public static partial class EffExtensions
         }
         catch(Exception e)
         {
-            return Fin<A>.Fail(e);
+            return Fin.Fail<A>(e);
         }
     }  
     
@@ -92,7 +92,7 @@ public static partial class EffExtensions
         }
         catch(Exception e)
         {
-            return Fin<A>.Fail(e);
+            return Fin.Fail<A>(e);
         }
     }  
 
@@ -111,7 +111,7 @@ public static partial class EffExtensions
         }
         catch(Exception e)
         {
-            return Fin<A>.Fail(e);
+            return Fin.Fail<A>(e);
         }
     }  
     

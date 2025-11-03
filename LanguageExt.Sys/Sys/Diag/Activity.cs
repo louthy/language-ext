@@ -48,7 +48,7 @@ public class Activity<M, RT>
                                 : parentContext ?? cur.Context,
                             activityTags,
                             activityLinks,
-                            startTime))
+                            startTime).Map(a => a ?? throw new NullReferenceException("Activity is null")))
         select act;
 
     /// <summary>

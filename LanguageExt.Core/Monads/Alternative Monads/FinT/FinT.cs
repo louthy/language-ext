@@ -29,7 +29,7 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     /// <param name="value">Value to lift</param>
     /// <returns>`FinT`</returns>
     public static FinT<M, A> Fail(Error value) =>
-        Lift(Fin<A>.Fail(value));
+        Lift(Fin.Fail<A>(value));
 
     /// <summary>
     /// Is the `FinT` in a `Succ` state?
@@ -65,7 +65,7 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     /// <param name="fail">Monad to lift</param>
     /// <returns>`FinT`</returns>
     public static FinT<M, A> Lift(Fail<Error> fail) =>
-        Lift(Fin<A>.Fail(fail.Value));
+        Lift(Fin.Fail<A>(fail.Value));
 
     /// <summary>
     /// Lifts a given monad into the transformer
@@ -73,7 +73,7 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     /// <param name="fail">Fail value</param>
     /// <returns>`FinT`</returns>
     public static FinT<M, A> Lift(Error fail) =>
-        Lift(Fin<A>.Fail(fail));
+        Lift(Fin.Fail<A>(fail));
 
     /// <summary>
     /// Lifts a given monad into the transformer
@@ -81,7 +81,7 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     /// <param name="monad">Monad to lift</param>
     /// <returns>`FinT`</returns>
     public static FinT<M, A> Lift(K<M, A> monad) =>
-        new(M.Map(Fin<A>.Succ, monad));
+        new(M.Map(Fin.Succ, monad));
 
     /// <summary>
     /// Lifts a given monad into the transformer
@@ -233,9 +233,9 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
         new(runFin
                .Bind(fv => fv switch
                            {
-                               Fin.Succ<A> (var v) => f(M.Pure(v)).Map(Fin<B>.Succ),
-                               Fin.Fail<A> (var e)  => M.Pure<Fin<B>>(e),
-                               _                    => throw new NotSupportedException()
+                               Fin<A>.Succ (var v) => f(M.Pure(v)).Map(Fin.Succ),
+                               Fin<A>.Fail (var e) => M.Pure<Fin<B>>(e),
+                               _                   => throw new NotSupportedException()
                            }));
     
     /// <summary>
@@ -298,7 +298,7 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
         new(M.Bind(runFin, 
                    ex => ex.Match(
                        Succ: x => f(x).runFin,
-                       Fail: e => M.Pure(Fin<B>.Fail(e)))));
+                       Fail: e => M.Pure(Fin.Fail<B>(e)))));
 
     /// <summary>
     /// Monad bind operation
@@ -471,10 +471,10 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
         Succ(ma.Value);
     
     public static implicit operator FinT<M, A>(Fail<Error> ma) =>
-        Lift(Fin<A>.Fail(ma.Value));
+        Lift(new Fin<A>.Fail(ma.Value));
     
     public static implicit operator FinT<M, A>(Error ma) =>
-        Lift(Fin<A>.Fail(ma));
+        Lift(new Fin<A>.Fail(ma));
     
     public static implicit operator FinT<M, A>(IO<A> ma) =>
         LiftIO(ma);

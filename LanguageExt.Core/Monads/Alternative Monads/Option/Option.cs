@@ -645,8 +645,8 @@ public readonly struct Option<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Fin<A> ToFin(Error Fail) =>
         isSome
-            ? FinSucc<A>(Value!)
-            : FinFail<A>(Fail);
+            ? Fin.Succ<A>(Value!)
+            : Fin.Fail<A>(Fail);
 
     /// <summary>
     /// Convert the structure to an Either

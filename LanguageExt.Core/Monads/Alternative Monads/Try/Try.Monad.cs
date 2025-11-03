@@ -15,8 +15,8 @@ public partial class Try :
     static K<Try, B> Monad<Try>.Bind<A, B>(K<Try, A> ma, Func<A, K<Try, B>> f) =>
         new Try<B>(() => ma.Run() switch
                          {
-                             Fin.Succ<A>(var x) => f(x).Run(),
-                             Fin.Fail<A>(var e) => Fin<B>.Fail(e),
+                             Fin<A>.Succ(var x) => f(x).Run(),
+                             Fin<A>.Fail(var e) => Fin.Fail<B>(e),
                              _                  => throw new NotSupportedException()
                          });
 
@@ -32,8 +32,8 @@ public partial class Try :
     static K<Try, B> Applicative<Try>.Action<A, B>(K<Try, A> ma, K<Try, B> mb) =>
         new Try<B>(() => ma.Run() switch
                          {
-                             Fin.Succ<A>        => mb.Run(),
-                             Fin.Fail<A>(var e) => Fin<B>.Fail(e),
+                             Fin<A>.Succ        => mb.Run(),
+                             Fin<A>.Fail(var e) => Fin.Fail<B>(e),
                              _                  => throw new NotSupportedException()
                          });
 
@@ -43,24 +43,24 @@ public partial class Try :
     static K<Try, A> SemigroupK<Try>.Combine<A>(K<Try, A> ma, K<Try, A> mb) =>
         new Try<A>(() => ma.Run() switch
                          {
-                             Fin.Succ<A>(var x) => Fin<A>.Succ(x),
-                             Fin.Fail<A> fa     => fa.Combine(mb.Run()).As(),
+                             Fin<A>.Succ(var x) => Fin.Succ<A>(x),
+                             Fin<A>.Fail fa     => fa.Combine(mb.Run()).As(),
                              _                  => throw new NotSupportedException()
                          });
 
     static K<Try, A> Choice<Try>.Choose<A>(K<Try, A> ma, K<Try, A> mb) =>
         new Try<A>(() => ma.Run() switch
                          {
-                             Fin.Succ<A>(var x) => Fin<A>.Succ(x),
-                             Fin.Fail<A>        => mb.Run(),
+                             Fin<A>.Succ(var x) => Fin.Succ<A>(x),
+                             Fin<A>.Fail        => mb.Run(),
                              _                  => throw new NotSupportedException()
                          });
 
     static K<Try, A> Choice<Try>.Choose<A>(K<Try, A> ma, Func<K<Try, A>> mb) => 
         new Try<A>(() => ma.Run() switch
                          {
-                             Fin.Succ<A>(var x) => Fin<A>.Succ(x),
-                             Fin.Fail<A>        => mb().Run(),
+                             Fin<A>.Succ(var x) => Fin.Succ(x),
+                             Fin<A>.Fail        => mb().Run(),
                              _                  => throw new NotSupportedException()
                          });
 
@@ -73,8 +73,8 @@ public partial class Try :
         Func<Error, K<Try, A>> Fail) =>
         new Try<A>(() => fa.Run() switch
                          {
-                             Fin.Succ<A> ma                       => ma,
-                             Fin.Fail<A>(var e) when Predicate(e) => Fail(e).Run(),
+                             Fin<A>.Succ ma                       => ma,
+                             Fin<A>.Fail(var e) when Predicate(e) => Fail(e).Run(),
                              var ma                               => ma
                          });
 }

@@ -60,12 +60,12 @@ public partial class EitherT<L, M> :
         lhs.Choose(rhs);
 
     static K<EitherT<L, M>, A> Fallible<L, EitherT<L, M>>.Fail<A>(L error) =>
-        Left<A>(error);
+        EitherT.Left<L, M, A>(error);
 
     static K<EitherT<L, M>, A> Fallible<L, EitherT<L, M>>.Catch<A>(
         K<EitherT<L, M>, A> fa, Func<L, bool> Predicate,
         Func<L, K<EitherT<L, M>, A>> Fail) =>
-        fa.As().BindLeft(l => Predicate(l) ? Fail(l).As() : Left<A>(l));
+        fa.As().BindLeft(l => Predicate(l) ? Fail(l).As() : EitherT.Left<L, M, A>(l));
 
     static K<OptionT<M>, A> Natural<EitherT<L, M>, OptionT<M>>.Transform<A>(K<EitherT<L, M>, A> fa) => 
         new OptionT<M, A>(fa.As().runEither.Map(Natural.transform<Either<L>, Option, A>).Map(ma => ma.As()));

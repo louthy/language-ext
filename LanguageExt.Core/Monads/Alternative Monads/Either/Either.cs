@@ -41,6 +41,11 @@ public abstract partial record Either<L, R> :
     K<Either, L, R>
 {
     /// <summary>
+    /// Stop other types deriving from Either
+    /// </summary>
+    private Either() {}
+    
+    /// <summary>
     /// Is the Either in a Right state?
     /// </summary>
     public abstract bool IsRight { get; }

@@ -33,8 +33,8 @@ public static partial class TryTExtensions
         new(mma.As().runTry.Bind(
                 ta => ta.Run() switch
                       {
-                          Fin.Succ<TryT<M, A>>(var ma) => ma.runTry,
-                          Fin.Fail<TryT<M, A>>(var e)  => M.Pure(Try.Fail<A>(e)),
+                          Fin<TryT<M, A>>.Succ(var ma) => ma.runTry,
+                          Fin<TryT<M, A>>.Fail(var e)  => M.Pure(Try.Fail<A>(e)),
                           _                            => throw new NotSupportedException()
                       }));
 
@@ -47,8 +47,8 @@ public static partial class TryTExtensions
         new(mma.As().runTry.Bind(
                 ta => ta.Run() switch
                       {
-                          Fin.Succ<K<TryT<M>, A>>(var ma) => ma.As().runTry,
-                          Fin.Fail<K<TryT<M>, A>>(var e)  => M.Pure(Try.Fail<A>(e)),
+                          Fin<K<TryT<M>, A>>.Succ(var ma) => ma.As().runTry,
+                          Fin<K<TryT<M>, A>>.Fail(var e)  => M.Pure(Try.Fail<A>(e)),
                           _                               => throw new NotSupportedException()
                       }));
 

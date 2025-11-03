@@ -138,8 +138,8 @@ public static partial class ValidationExtensions
     public static Fin<A> ToFin<A>(this Validation<Error, A> ma) =>
         ma switch
         {
-            Validation<Error, A>.Success (var x) => new Fin.Succ<A>(x),
-            Validation<Error, A>.Fail (var x)    => new Fin.Fail<A>(x),
+            Validation<Error, A>.Success (var x) => new Fin<A>.Succ(x),
+            Validation<Error, A>.Fail (var x)    => new Fin<A>.Fail(x),
             _                                    => throw new NotSupportedException()
         };
 

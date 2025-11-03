@@ -14,25 +14,18 @@ namespace LanguageExt;
 /// Equivalent of `Either〈Error, A〉`
 /// Called `Fin` because it is expected to be used as the concrete result of a computation
 /// </summary>
-public abstract class Fin<A> : 
+public abstract partial class Fin<A> : 
     IEnumerable<A>,
     IComparable<Fin<A>>, 
     IEquatable<Fin<A>>,
     IComparable, 
     Fallible<Fin<A>, Fin, Error, A>
 {
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> Succ(A value) => 
-        new Fin.Succ<A>(value);
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> Fail(Error error) => 
-        new Fin.Fail<A>(error);
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> Fail(string error) => 
-        new Fin.Fail<A>(Error.New(error));
-
+    /// <summary>
+    /// Stop other types deriving from Fin
+    /// </summary>
+    private Fin() {}
+    
     /// <summary>
     /// Is the structure in a Success state?
     /// </summary>
@@ -156,39 +149,39 @@ public abstract class Fin<A> :
     /// </summary>
     [Pure]
     public Fin<A> BindFail(Func<Error, Fin<A>> Fail) =>
-        BiBind(Succ, Fail);
+        BiBind(Fin.Succ, Fail);
 
     /// <summary>
     /// Monoid empty
     /// </summary>
     [Pure]
     public static Fin<A> Empty { get; } = 
-        new Fin.Fail<A>(Errors.None);
+        new Fail(Errors.None);
 
     [Pure, MethodImpl(Opt.Default)]
     public static implicit operator Fin<A>(A value) =>
-        new Fin.Succ<A>(value);
+        new Succ(value);
         
     [Pure, MethodImpl(Opt.Default)]
     public static implicit operator Fin<A>(Error error) =>
-        new Fin.Fail<A>(error);
+        new Fail(error);
 
     [Pure, MethodImpl(Opt.Default)]
     public static implicit operator Fin<A>(Either<Error, A> either) =>
         either switch
         {
-            Either<Error, A>.Right (var r) => new Fin.Succ<A>(r),
-            Either<Error, A>.Left (var l)  => new Fin.Fail<A>(l),
+            Either<Error, A>.Right (var r) => new Succ(r),
+            Either<Error, A>.Left (var l)  => new Fail(l),
             _                              => throw new InvalidCastException()
         };
         
     [Pure, MethodImpl(Opt.Default)]
     public static implicit operator Fin<A>(Pure<A> value) =>
-        new Fin.Succ<A>(value.Value);
+        new Succ(value.Value);
         
     [Pure, MethodImpl(Opt.Default)]
     public static implicit operator Fin<A>(Fail<Error> value) =>
-        new Fin.Fail<A>(value.Value);
+        new Fail(value.Value);
 
     [Pure, MethodImpl(Opt.Default)]
     public static explicit operator A(Fin<A> ma) =>
@@ -412,7 +405,7 @@ public abstract class Fin<A> :
     /// </summary>
     [Pure]
     public static bool operator ==(Error lhs, Fin<A> rhs) =>
-        FinFail<A>(lhs).Equals(rhs);
+        Fin.Fail<A>(lhs).Equals(rhs);
 
     /// <summary>
     /// Non-equality operator override
@@ -463,20 +456,14 @@ public abstract class Fin<A> :
     [Pure, MethodImpl(Opt.Default)]
     internal Fin<B> Cast<B>() =>
         Bind(x => convert<B>(x)
-                    .Map(Fin<B>.Succ)
-                    .IfNone(() => Fin<B>.Fail(Error.New($"Can't cast success value of `{nameof(A)}` to `{nameof(B)}` "))));
+                    .Map(Fin.Succ)
+                    .IfNone(() => Fin.Fail<B>(Error.New($"Can't cast success value of `{nameof(A)}` to `{nameof(B)}` "))));
 
     [Pure, MethodImpl(Opt.Default)]
     public int CompareTo(Fin<A>? other) =>
         other is null
             ? 1
             : CompareTo<OrdDefault<A>>(other);
-
-    /*
-    [Pure, MethodImpl(Opt.Default)]
-    public virtual bool Equals(Fin<A>? other) =>
-        other is not null && Equals<EqDefault<A>>(other);
-        */
 
     [Pure, MethodImpl(Opt.Default)]
     public IEnumerator<A> GetEnumerator()

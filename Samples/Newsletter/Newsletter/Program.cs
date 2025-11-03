@@ -19,11 +19,11 @@ var result = Send<Eff<Runtime>, Runtime>
 // Show results
 switch (result)
 {
-    case Fin.Succ<Unit>:
+    case Fin<Unit>.Succ:
         Console.WriteLine("Complete");
         break;
     
-    case Fin.Fail<Unit> (var error):
+    case Fin<Unit>.Fail (var error):
         Console.WriteLine(error);
         break;
 }

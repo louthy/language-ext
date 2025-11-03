@@ -581,7 +581,7 @@ public abstract record IO<A> :
     /// them into a `Fin〈A〉` result. 
     /// </summary>
     public FinT<IO, A> Try() =>
-        new (Map(Fin<A>.Succ).Catch(Fin<A>.Fail));
+        new (Map(Fin.Succ).Catch(Fin.Fail<A>));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

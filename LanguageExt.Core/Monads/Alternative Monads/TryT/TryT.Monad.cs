@@ -45,16 +45,16 @@ public partial class TryT<M> :
         new TryT<M, A>(ma.Run().Bind(
                            lhs => lhs switch
                                   {
-                                      Fin.Succ<A> (var x) =>
+                                      Fin<A>.Succ (var x) =>
                                           M.Pure(Try.Succ(x)),
 
-                                      Fin.Fail<A> (var e1) =>
+                                      Fin<A>.Fail (var e1) =>
                                           mb.Run().Bind(
                                               r => r switch
                                                    {
-                                                       Fin.Succ<A> (var x)  => M.Pure(Try.Succ(x)),
-                                                       Fin.Fail<A> (var e2) => M.Pure(Try.Fail<A>(e1 + e2)),
-                                                       _                    => throw new NotSupportedException()
+                                                       Fin<A>.Succ (var x)  => M.Pure(Try.Succ(x)),
+                                                       Fin<A>.Fail (var e2) => M.Pure(Try.Fail<A>(e1 + e2)),
+                                                       _                       => throw new NotSupportedException()
                                                    }),
                                       _ => throw new NotSupportedException()
                                   }));
@@ -63,18 +63,18 @@ public partial class TryT<M> :
         new TryT<M, A>(ma.Run().Bind(
                            lhs => lhs switch
                                   {
-                                      Fin.Succ<A> (var x) => M.Pure(Try.Succ(x)),
-                                      Fin.Fail<A>         => mb.As().runTry,
-                                      _                   => throw new NotSupportedException()
+                                      Fin<A>.Succ (var x) => M.Pure(Try.Succ(x)),
+                                      Fin<A>.Fail         => mb.As().runTry,
+                                      _                      => throw new NotSupportedException()
                                   }));
 
     static K<TryT<M>, A> Choice<TryT<M>>.Choose<A>(K<TryT<M>, A> ma, Func<K<TryT<M>, A>> mb) => 
         new TryT<M, A>(ma.Run().Bind(
                            lhs => lhs switch
                                   {
-                                      Fin.Succ<A> (var x) => M.Pure(Try.Succ(x)),
-                                      Fin.Fail<A>         => mb().As().runTry,
-                                      _                   => throw new NotSupportedException()
+                                      Fin<A>.Succ (var x) => M.Pure(Try.Succ(x)),
+                                      Fin<A>.Fail         => mb().As().runTry,
+                                      _                      => throw new NotSupportedException()
                                   }));
 
     static K<TryT<M>, A> Fallible<Error, TryT<M>>.Fail<A>(Error error) =>

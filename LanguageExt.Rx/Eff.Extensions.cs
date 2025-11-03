@@ -70,7 +70,7 @@ public static class EffRxExtensions
                     while (items.TryDequeue(out var item))
                     {
                         var res = next(item).Run();
-                        if (res.IsFail) return FinFail<Unit>((Error)res);
+                        if (res.IsFail) return Fin.Fail<Unit>((Error)res);
                     }
                 }
             })

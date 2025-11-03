@@ -18,7 +18,7 @@ public static partial class FinExtensions
     /// Natural transformation from `Either` to `Fin`
     /// </summary>
     public static Fin<A> ToFin<A>(this Either<Error, A> ma) =>
-        ma.Match(Right: FinSucc, Left: FinFail<A>);
+        ma.Match(Right: Fin.Succ, Left: Fin.Fail<A>);
     
     /// <summary>
     /// Monadic join
@@ -101,8 +101,8 @@ public static partial class FinExtensions
                   (s, ma) =>
                       ma switch
                       {
-                          Fin.Succ<A> (var r) => (s.Fail, s.Succ.Add(r)),
-                          Fin.Fail<A> (var l) => (s.Fail.Add(l), s.Succ),
+                          Fin<A>.Succ (var r) => (s.Fail, s.Succ.Add(r)),
+                          Fin<A>.Fail (var l) => (s.Fail.Add(l), s.Succ),
                           _                   => throw new NSE()
                       });
 
@@ -117,7 +117,7 @@ public static partial class FinExtensions
                   (s, ma) =>
                       ma switch
                       {
-                          Fin.Fail<A> (var l) => s.Add(l),
+                          Fin<A>.Fail (var l) => s.Add(l),
                           _                   => throw new NSE()
                       });
 
@@ -132,7 +132,7 @@ public static partial class FinExtensions
                   (s, ma) =>
                       ma switch
                       {
-                          Fin.Succ<A> (var r) => s.Add(r),
+                          Fin<A>.Succ (var r) => s.Add(r),
                           _                   => throw new NSE()
                       });
 }

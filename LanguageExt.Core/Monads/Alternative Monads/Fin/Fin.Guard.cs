@@ -11,8 +11,8 @@ public static class FinGuardExtensions
     /// </summary>
     public static Fin<Unit> ToFin(this Guard<Error, Unit> ma) =>
         ma.Flag
-            ? FinSucc(unit)
-            : FinFail<Unit>(ma.OnFalse());
+            ? Fin.Succ(unit)
+            : Fin.Fail<Unit>(ma.OnFalse());
     
     /// <summary>
     /// Monadic binding support for `Fin`
@@ -22,7 +22,7 @@ public static class FinGuardExtensions
         Func<Unit, Fin<B>> f)  =>
         guard.Flag
             ? f(default).As()
-            : Fin<B>.Fail(guard.OnFalse());
+            : Fin.Fail<B>(guard.OnFalse());
         
     /// <summary>
     /// Monadic binding support for `Fin`
@@ -30,7 +30,7 @@ public static class FinGuardExtensions
     public static Fin<B> SelectMany<B>(this Guard<Error, Unit> ma, Func<Unit, Fin<B>> f) =>
         ma.Flag
             ? f(default)
-            : FinFail<B>(ma.OnFalse());
+            : Fin.Fail<B>(ma.OnFalse());
 
     /// <summary>
     /// Monadic binding support for `Fin`
@@ -41,5 +41,5 @@ public static class FinGuardExtensions
         Func<Unit, B, C> project) =>
         ma.Flag
             ? bind(default).Map(b => project(default, b))
-            : FinFail<C>(ma.OnFalse());
+            : Fin.Fail<C>(ma.OnFalse());
 }

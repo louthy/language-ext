@@ -3,27 +3,6 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public partial class EitherT<L, M>
-{
-    public static EitherT<L, M, A> Right<A>(A value) => 
-        EitherT<L, M, A>.Right(value);
-
-    public static EitherT<L, M, A> Left<A>(L value) => 
-        EitherT<L, M, A>.Left(value);
-
-    public static EitherT<L, M, A> lift<A>(Either<L, A> ma) => 
-        EitherT<L, M, A>.Lift(ma);
-
-    public static EitherT<L, M, A> lift<A>(Pure<A> ma) => 
-        EitherT<L, M, A>.Lift(ma);
-
-    public static EitherT<L, M, A> lift<A>(Fail<L> ma) => 
-        EitherT<L, M, A>.Lift(ma);
-
-    public static EitherT<L, M, A> liftIO<A>(IO<A> ma) =>  
-        EitherT<L, M, A>.Lift(M.LiftIOMaybe(ma));
-}
-
 public partial class EitherT
 {
     public static EitherT<L, M, A> Right<L, M, A>(A value)  

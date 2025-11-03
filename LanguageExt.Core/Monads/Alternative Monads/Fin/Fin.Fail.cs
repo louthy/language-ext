@@ -4,9 +4,9 @@ using LanguageExt.Common;
 
 namespace LanguageExt;
 
-public partial class Fin
+public partial class Fin<A>
 {
-    public sealed class Fail<A>(Error Error) : Fin<A>
+    public sealed class Fail(Error Error) : Fin<A>
     {
         /// <summary>
         /// Value accessor
@@ -68,7 +68,7 @@ public partial class Fin
         /// </summary>
         [Pure]
         public override int CompareTo<OrdA>(Fin<A> other) =>
-            other is Fail<A>
+            other is Fail
                 ? 0
                 : -1;    
 
@@ -77,7 +77,7 @@ public partial class Fin
         /// </summary>
         [Pure]
         public override bool Equals<EqA>(Fin<A> other) =>
-            other is Fail<A>;
+            other is Fail;
 
         /// <summary>
         /// Unsafe access to the success value 
@@ -99,7 +99,7 @@ public partial class Fin
         /// <returns>Mapped structure</returns>
         [Pure]
         public override Fin<B> Map<B>(Func<A, B> f) =>
-            new Fail<B>(Error);
+            new Fin<B>.Fail(Error);
 
         /// <summary>
         /// Maps the value in the structure
@@ -108,7 +108,7 @@ public partial class Fin
         /// <returns>Mapped structure</returns>
         [Pure]
         public override Fin<A> MapFail(Func<Error, Error> f) =>
-            new Fail<A>(f(Error));
+            new Fail(f(Error));
 
         /// <summary>
         /// Bi-maps the structure
@@ -116,7 +116,7 @@ public partial class Fin
         /// <returns>Mapped Either</returns>
         [Pure]
         public override Fin<B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail) =>
-            new Fail<B>(Fail(Error));
+            new Fin<B>.Fail(Fail(Error));
 
         /// <summary>
         /// Monadic bind
@@ -126,7 +126,7 @@ public partial class Fin
         /// <returns>Bound structure</returns>
         [Pure]
         public override Fin<B> Bind<B>(Func<A, Fin<B>> f) =>
-            new Fail<B>(Error);
+            new Fin<B>.Fail(Error);
 
         /// <summary>
         /// Bi-bind.  Allows mapping of both monad states

@@ -50,7 +50,7 @@ public static class FailExtensions
     //
     
     public static Fin<A> ToFin<A>(this Fail<Error> fail) =>
-        Fin<A>.Fail(fail.Value);
+        Fin.Fail<A>(fail.Value);
     
     public static Validation<F, A> ToValidation<F, A>(this Fail<F> fail) 
         where F : Monoid<F> =>

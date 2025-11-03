@@ -103,7 +103,7 @@ public readonly record struct Pure<A>(A Value)
         Either.Right<L, A>(Value);
     
     public Fin<A> ToFin() =>
-        Fin<A>.Succ(Value);
+        Fin.Succ(Value);
     
     public IO<A> ToIO() =>
         IO<A>.Pure(Value);

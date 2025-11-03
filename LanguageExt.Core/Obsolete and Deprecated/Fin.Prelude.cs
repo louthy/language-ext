@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.Contracts;
+﻿using System;
+using System.Diagnostics.Contracts;
 using LanguageExt.Common;
 
 namespace LanguageExt;
@@ -13,8 +14,9 @@ public static partial class Prelude
     /// <param name="value">Success value</param>
     /// <returns>A new Fin instance</returns>
     [Pure]
+    [Obsolete("FinSucc has been deprecated in favour of `Fin.Succ` or `Prelude.Pure`")]
     public static Fin<A> FinSucc<A>(A value) =>
-        Fin<A>.Succ(value);
+        new Fin<A>.Succ(value);
 
     /// <summary>
     /// Fin constructor
@@ -24,6 +26,7 @@ public static partial class Prelude
     /// <param name="value">Failure value</param>
     /// <returns>A new Fin instance</returns>
     [Pure]
+    [Obsolete("FinFail has been deprecated in favour of `Fin.Fail` or `Prelude.Fail`")]
     public static Fin<A> FinFail<A>(Error value) =>
-        Fin<A>.Fail(value);
+        new Fin<A>.Fail(value);
 }

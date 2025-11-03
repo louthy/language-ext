@@ -29,7 +29,7 @@ public record TryT<M, A>(K<M, Try<A>> runTry) :
     /// <param name="value">Value to lift</param>
     /// <returns>`TryT`</returns>
     public static TryT<M, A> Fail(Error value) =>
-        Lift(Fin<A>.Fail(value));
+        Lift(Fin.Fail<A>(value));
 
     /// <summary>
     /// Lifts a given monad into the transformer
@@ -58,7 +58,7 @@ public record TryT<M, A>(K<M, Try<A>> runTry) :
     /// <param name="fail">Monad to lift</param>
     /// <returns>`TryT`</returns>
     public static TryT<M, A> Lift(Fail<Error> fail) =>
-        Lift(Fin<A>.Fail(fail.Value));
+        Lift(Fin.Fail<A>(fail.Value));
 
     /// <summary>
     /// Lifts a given monad into the transformer
@@ -333,13 +333,13 @@ public record TryT<M, A>(K<M, Try<A>> runTry) :
         Succ(ma.Value);
     
     public static implicit operator TryT<M, A>(Error ma) =>
-        Lift(Fin<A>.Fail(ma));
+        Lift(Fin.Fail<A>(ma));
     
     public static implicit operator TryT<M, A>(Fail<Error> ma) =>
-        Lift(Fin<A>.Fail(ma.Value));
+        Lift(Fin.Fail<A>(ma.Value));
     
     public static implicit operator TryT<M, A>(Fail<Exception> ma) =>
-        Lift(Fin<A>.Fail(ma.Value));
+        Lift(Fin.Fail<A>(ma.Value));
     
     public static implicit operator TryT<M, A>(IO<A> ma) =>
         LiftIO(ma);

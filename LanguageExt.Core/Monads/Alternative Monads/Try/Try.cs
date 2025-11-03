@@ -60,7 +60,7 @@ public record Try<A>(Func<Fin<A>> runTry) :
                 }
                 catch (Exception e)
                 {
-                    return FinFail<A>(e);
+                    return Fin.Fail<A>(e);
                 }
             });
 
@@ -78,7 +78,7 @@ public record Try<A>(Func<Fin<A>> runTry) :
                 }
                 catch (Exception e)
                 {
-                    return FinFail<A>(e);
+                    return Fin.Fail<A>(e);
                 }
             });
 
@@ -120,7 +120,7 @@ public record Try<A>(Func<Fin<A>> runTry) :
     /// <param name="Fail">Fail branch</param>
     /// <returns>Inner monad with the result of the `Succ` or `Fail` branches</returns>
     public Fin<A> IfFailM(Func<Error, Fin<A>> Fail) =>
-        Match(FinSucc, Fail);
+        Match(Fin.Succ, Fail);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -169,7 +169,7 @@ public record Try<A>(Func<Fin<A>> runTry) :
             {
                 var r = runTry();
                 return r.IsFail
-                           ? Fin<B>.Fail((Error)r)
+                           ? Fin.Fail<B>((Error)r)
                            : f((A)r).As().runTry();
             });
 
@@ -184,7 +184,7 @@ public record Try<A>(Func<Fin<A>> runTry) :
             {
                 var r = runTry();
                 return r.IsFail
-                           ? Fin<B>.Fail((Error)r)
+                           ? Fin.Fail<B>((Error)r)
                            : f((A)r).runTry();
             });
 
@@ -273,13 +273,13 @@ public record Try<A>(Func<Fin<A>> runTry) :
         Succ(ma.Value);
     
     public static implicit operator Try<A>(Error ma) =>
-        Lift(Fin<A>.Fail(ma));
+        Lift(Fin.Fail<A>(ma));
     
     public static implicit operator Try<A>(Fail<Error> ma) =>
-        Lift(Fin<A>.Fail(ma.Value));
+        Lift(Fin.Fail<A>(ma.Value));
     
     public static implicit operator Try<A>(Fail<Exception> ma) =>
-        Lift(Fin<A>.Fail(ma.Value));
+        Lift(Fin.Fail<A>(ma.Value));
 
     public Option<A> ToOption() =>
         this.Run().ToOption(); 
@@ -347,7 +347,7 @@ public record Try<A>(Func<Fin<A>> runTry) :
     public Try<A> Combine(Try<A> rhs) =>
         new(() => this.Run() switch
                   {
-                      Fin.Fail<A> fa => fa.Combine(rhs.Run()).As(),
+                      Fin<A>.Fail fa => fa.Combine(rhs.Run()).As(),
                       var fa         => fa
                   });
 }
