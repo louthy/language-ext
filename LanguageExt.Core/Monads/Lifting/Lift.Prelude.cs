@@ -120,7 +120,7 @@ public static partial class Prelude
     /// </summary>
     public static ValidationT<L, IO, A> liftIO<L, A>(Validation<L, A> ma) 
         where L : Monoid<L> =>
-        ValidationT<L, IO, A>.Lift(ma);
+        ValidationT.lift<L, IO, A>(ma);
 
     /// <summary>
     /// Lift a Validation into a `ValidationT IO` 

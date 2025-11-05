@@ -15,10 +15,10 @@ public partial class ValidationT<M> :
     where M : Monad<M>
 {
     static K<ValidationT<M>, F, A> CoproductCons<ValidationT<M>>.Left<F, A>(F value) => 
-        ValidationT<F, M, A>.Fail(value);
+        ValidationT.FailI<F, M, A>(value);
 
     static K<ValidationT<M>, F, A> CoproductCons<ValidationT<M>>.Right<F, A>(A value) => 
-        ValidationT<F, M, A>.Success(value);
+        ValidationT.SuccessI<F, M, A>(value);
 
     static K<ValidationT<M>, F, B> CoproductK<ValidationT<M>>.Match<F, A, B>(
         Func<F, B> Left, 

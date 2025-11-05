@@ -17,62 +17,6 @@ public record ValidationT<F, M, A>(Func<MonoidInstance<F>, K<M, Validation<F, A>
     K<ValidationT<M>, F, A>
     where M : Monad<M>
 {
-    /// <summary>
-    /// Lift a pure value into the monad-transformer
-    /// </summary>
-    /// <param name="value">Value to lift</param>
-    /// <returns>`ValidationT`</returns>
-    public static ValidationT<F, M, A> Success(A value) =>
-        Lift(M.Pure(value));
-    
-    /// <summary>
-    /// Lift a fail value into the monad-transformer
-    /// </summary>
-    /// <param name="value">Value to lift</param>
-    /// <returns>`ValidationT`</returns>
-    public static ValidationT<F, M, A> Fail(F value) =>
-        Lift(Validation.FailI<F, A>(value));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="pure">Monad to lift</param>
-    /// <returns>`ValidationT`</returns>
-    public static ValidationT<F, M, A> Lift(Pure<A> pure) =>
-        Success(pure.Value);
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="Validation">Monad to lift</param>
-    /// <returns>`ValidationT`</returns>
-    public static ValidationT<F, M, A> Lift(Validation<F, A> Validation) =>
-        new(_ => M.Pure(Validation));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="fail">Monad to lift</param>
-    /// <returns>`ValidationT`</returns>
-    public static ValidationT<F, M, A> Lift(Fail<F> fail) =>
-        Lift(Validation.FailI<F, A>(fail.Value));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="monad">Monad to lift</param>
-    /// <returns>`ValidationT`</returns>
-    public static ValidationT<F, M, A> Lift(K<M, A> monad) =>
-        new(_ => M.Map(Validation.SuccessI<F, A>, monad));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="monad">Monad to lift</param>
-    /// <returns>`ValidationT`</returns>
-    public static ValidationT<F, M, A> LiftIO(IO<A> monad) =>
-        Lift(M.LiftIOMaybe(monad));
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Match
@@ -183,7 +127,7 @@ public record ValidationT<F, M, A>(Func<MonoidInstance<F>, K<M, Validation<F, A>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
     public ValidationT<F, M, A> BindFail(Func<F, ValidationT<F, M, A>> Fail) =>
-        BiBind(Success, Fail);
+        BiBind(ValidationT.SuccessI<F, M, A>, Fail);
 
     /// <summary>
     /// Monad bind operation
@@ -192,7 +136,7 @@ public record ValidationT<F, M, A>(Func<MonoidInstance<F>, K<M, Validation<F, A>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
     public ValidationT<F, M, B> Bind<B>(Func<A, IO<B>> f) =>
-        Bind(a => ValidationT<F, M, B>.LiftIO(f(a)));
+        Bind(a => ValidationT.liftIOI<F, M, B>(f(a)));
 
     /// <summary>
     /// Monad bind operation
@@ -239,7 +183,7 @@ public record ValidationT<F, M, A>(Func<MonoidInstance<F>, K<M, Validation<F, A>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
     public ValidationT<F, M, C> SelectMany<B, C>(Func<A, K<M, B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => ValidationT<F, M, B>.Lift(bind(x)), project);
+        SelectMany(x => ValidationT.liftI<F, M, B>(bind(x)), project);
 
     /// <summary>
     /// Monad bind operation
@@ -250,7 +194,7 @@ public record ValidationT<F, M, A>(Func<MonoidInstance<F>, K<M, Validation<F, A>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
     public ValidationT<F, M, C> SelectMany<B, C>(Func<A, Validation<F, B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => ValidationT<F, M, B>.Lift(bind(x)), project);
+        SelectMany(x => ValidationT.liftI<F, M, B>(bind(x)), project);
 
     /// <summary>
     /// Monad bind operation
@@ -311,7 +255,7 @@ public record ValidationT<F, M, A>(Func<MonoidInstance<F>, K<M, Validation<F, A>
         lhs.Bind(_ => rhs);
 
     /// <summary>
-    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// Sequentially compose two actions.  The second action is a unit-returning action, so the result of the
     /// first action is propagated. 
     /// </summary>
     /// <param name="lhs">First action to run</param>
@@ -321,7 +265,7 @@ public record ValidationT<F, M, A>(Func<MonoidInstance<F>, K<M, Validation<F, A>
         lhs.Bind(x => rhs.Map(_ => x));
     
     /// <summary>
-    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// Sequentially compose two actions.  The second action is a unit-returning action, so the result of the
     /// first action is propagated. 
     /// </summary>
     /// <param name="lhs">First action to run</param>
@@ -331,16 +275,16 @@ public record ValidationT<F, M, A>(Func<MonoidInstance<F>, K<M, Validation<F, A>
         lhs.Bind(x => rhs.Map(_ => x));
 
     public static implicit operator ValidationT<F, M, A>(Pure<A> ma) =>
-        Success(ma.Value);
+        ValidationT.SuccessI<F, M, A>(ma.Value);
     
     public static implicit operator ValidationT<F, M, A>(Fail<F> ma) =>
-        Fail(ma.Value);
+        ValidationT.FailI<F, M, A>(ma.Value);
 
     public static implicit operator ValidationT<F, M, A>(F fail) => 
-        Fail(fail);
+        ValidationT.FailI<F, M, A>(fail);
 
     public static implicit operator ValidationT<F, M, A>(IO<A> ma) =>
-        LiftIO(ma);
+        ValidationT.liftIOI<F, M, A>(ma);
 
     [Pure, MethodImpl(Opt.Default)]
     public static ValidationT<F, M, A> operator +(ValidationT<F, M, A> lhs, ValidationT<F, M, A> rhs) =>
@@ -356,11 +300,11 @@ public record ValidationT<F, M, A>(Func<MonoidInstance<F>, K<M, Validation<F, A>
 
     [Pure, MethodImpl(Opt.Default)]
     public static ValidationT<F, M, A> operator +(ValidationT<F, M, A> lhs, Pure<A> rhs) =>
-        lhs.Combine(Success(rhs.Value)).As();
+        lhs.Combine(ValidationT.SuccessI<F, M, A>(rhs.Value)).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static ValidationT<F, M, A> operator +(ValidationT<F, M, A> lhs, Fail<F> rhs) =>
-        lhs.Combine(Fail(rhs.Value)).As();
+        lhs.Combine(ValidationT.FailI<F, M, A>(rhs.Value)).As();
     
     [Pure, MethodImpl(Opt.Default)]
     public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, ValidationT<F, M, A> rhs) =>
@@ -376,11 +320,11 @@ public record ValidationT<F, M, A>(Func<MonoidInstance<F>, K<M, Validation<F, A>
 
     [Pure, MethodImpl(Opt.Default)]
     public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, Pure<A> rhs) =>
-        lhs.Choose(Success(rhs.Value)).As();
+        lhs.Choose(ValidationT.SuccessI<F, M, A>(rhs.Value)).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, Fail<F> rhs) =>
-        lhs.Choose(Fail(rhs.Value)).As();
+        lhs.Choose(ValidationT.FailI<F, M, A>(rhs.Value)).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, CatchM<F, ValidationT<F, M>, A> rhs) =>

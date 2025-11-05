@@ -316,7 +316,7 @@ public abstract record IO<A> :
     public ValidationT<F, M, C> SelectMany<F, M, B, C>(Func<A, ValidationT<F, M, B>> bind, Func<A, B, C> project)
         where F : Monoid<F>
         where M : Monad<M>, Alternative<M> =>
-        ValidationT<F, M, A>.LiftIO(this).SelectMany(bind, project);
+        ValidationT.liftIO<F, M, A>(this).SelectMany(bind, project);
 
     public ReaderT<Env, M, C> SelectMany<Env, M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
         where M : Monad<M>, Alternative<M> =>

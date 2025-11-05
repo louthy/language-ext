@@ -12,16 +12,16 @@ public static class ValidationTGuardExtensions
         where M : Monad<M>
         where F : Monoid<F> =>
         guard.Flag
-            ? ValidationT<F, M, Unit>.Success(default)
-            : ValidationT<F, M, Unit>.Fail(guard.OnFalse());
+            ? ValidationT.Success<F, M, Unit>(default)
+            : ValidationT.Fail<F, M, Unit>(guard.OnFalse());
     /// <summary>
     /// Natural transformation to `ValidationT`
     /// </summary>
     internal static ValidationT<F, M, Unit> ToValidationTI<F, M>(this Guard<F, Unit> guard)
         where M : Monad<M> =>
         guard.Flag
-            ? ValidationT<F, M, Unit>.Success(default)
-            : ValidationT<F, M, Unit>.Fail(guard.OnFalse());
+            ? ValidationT.SuccessI<F, M, Unit>(default)
+            : ValidationT.FailI<F, M, Unit>(guard.OnFalse());
  
     /// <summary>
     /// Monadic binding support for `ValidationT`
@@ -33,7 +33,7 @@ public static class ValidationTGuardExtensions
         where F : Monoid<F> =>
         guard.Flag
             ? f(default).As()
-            : ValidationT<F, M, B>.Fail(guard.OnFalse());
+            : ValidationT.Fail<F, M, B>(guard.OnFalse());
        
     /// <summary>
     /// Monadic binding support for `Validation`
@@ -46,5 +46,5 @@ public static class ValidationTGuardExtensions
         where F : Monoid<F> =>
         guard.Flag
             ? bind(default).As().Map(b => project(default, b))
-            : ValidationT<F, M, C>.Fail(guard.OnFalse());
+            : ValidationT.Fail<F, M, C>(guard.OnFalse());
 }

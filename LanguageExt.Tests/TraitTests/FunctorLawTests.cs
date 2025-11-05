@@ -205,8 +205,8 @@ public class FunctorLawTests
         bool eq(K<ValidationT<StringM, Identity>, int> vx, K<ValidationT<StringM, Identity>, int> vy) =>
             vx.Run().As().Value.Equals(vy.Run().As().Value);
         
-        var fa = ValidationT<StringM, Identity, int>.Success(1);
-        var fx = ValidationT<StringM, Identity, int>.Fail("failed");
+        var fa = LanguageExt.ValidationT.Success<StringM, Identity, int>(1);
+        var fx = LanguageExt.ValidationT.Fail<StringM, Identity, int>("failed");
         FunctorLaw<ValidationT<StringM, Identity>>.assert(fa, eq);
         FunctorLaw<ValidationT<StringM, Identity>>.assert(fx, eq);
     }

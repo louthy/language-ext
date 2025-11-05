@@ -75,9 +75,7 @@ public static partial class Prelude
     /// <summary>
     /// 'No value' state of Option T.
     /// </summary>
-    [Pure]
-    public static Fail<Unit> None =>
-        default;
+    public static readonly Fail<Unit> None = new (default);
 
     /// <summary>
     /// Create a `Some` of `A`

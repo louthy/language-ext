@@ -26,7 +26,7 @@ public partial class ValidationT<F, M> :
         new ValidationT<F, M, B>(monoid => ma.As().Run(monoid).Map(fa => fa.Map(f)));
 
     static K<ValidationT<F, M>, A> Applicative<ValidationT<F, M>>.Pure<A>(A value) => 
-        ValidationT<F, M, A>.Success(value);
+        ValidationT.SuccessI<F, M, A>(value);
 
     static K<ValidationT<F, M>, B> Applicative<ValidationT<F, M>>.Apply<A, B>(
         K<ValidationT<F, M>, Func<A, B>> mf,
@@ -45,10 +45,10 @@ public partial class ValidationT<F, M> :
             select ff.Action(fa).As());
 
     static K<ValidationT<F, M>, A> MonadT<ValidationT<F, M>, M>.Lift<A>(K<M, A> ma) => 
-        ValidationT<F, M, A>.Lift(ma);
+        ValidationT.liftI<F, M, A>(ma);
             
     static K<ValidationT<F, M>, A> MonadIO<ValidationT<F, M>>.LiftIO<A>(IO<A> ma) => 
-        ValidationT<F, M, A>.Lift(M.LiftIOMaybe(ma));
+        ValidationT.liftIOI<F, M, A>(ma);
 
     static K<ValidationT<F, M>, A> MonoidK<ValidationT<F, M>>.Empty<A>() =>
         new ValidationT<F, M, A>(monoid => M.Pure(Validation.FailI<F, A>(monoid.Empty)));
@@ -79,11 +79,11 @@ public partial class ValidationT<F, M> :
                                                             : mb().As().Run(monoid)));
 
     static K<ValidationT<F, M>, A> Fallible<F, ValidationT<F, M>>.Fail<A>(F error) => 
-        ValidationT<F, M, A>.Fail(error);
+        ValidationT.FailI<F, M, A>(error);
 
     static K<ValidationT<F, M>, A> Fallible<F, ValidationT<F, M>>.Catch<A>(
         K<ValidationT<F, M>, A> fa,
         Func<F, bool> Predicate,
         Func<F, K<ValidationT<F, M>, A>> Fail) =>
-        fa.As().BindFail(e => Predicate(e) ? Fail(e).As() : ValidationT<F, M, A>.Fail(e));
+        fa.As().BindFail(e => Predicate(e) ? Fail(e).As() : ValidationT.FailI<F, M, A>(e));
 }

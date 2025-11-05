@@ -3,7 +3,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public class Option : 
+public partial class Option : 
     Monad<Option>, 
     Fallible<Unit, Option>,
     Traversable<Option>, 

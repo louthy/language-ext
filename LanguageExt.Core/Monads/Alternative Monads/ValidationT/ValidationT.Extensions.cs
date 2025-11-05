@@ -61,8 +61,8 @@ public static partial class ValidationTExtensions
     /// </summary>
     public static ValidationT<F, IO, A> Flatten<F, A>(this Task<ValidationT<F, IO, A>> tma)
         where F : Monoid<F> =>
-        ValidationT<F, IO, ValidationT<F, IO, A>>
-           .Lift(IO.liftAsync(async () => await tma.ConfigureAwait(false)))
+        ValidationT
+           .lift<F, IO, ValidationT<F, IO, A>>(IO.liftAsync(async () => await tma.ConfigureAwait(false)))
            .Flatten();
 
     /// <summary>
@@ -101,7 +101,7 @@ public static partial class ValidationTExtensions
         Func<A, B, C> project)
         where M : Monad<M>
         where L : Monoid<L> =>
-        ValidationT<L, M, A>.Lift(ma).SelectMany(bind, project);
+        ValidationT.lift<L, M, A>(ma).SelectMany(bind, project);
 
     /// <summary>
     /// Monad bind operation
@@ -118,5 +118,5 @@ public static partial class ValidationTExtensions
         Func<A, B, C> project)
         where M : Monad<M>
         where L : Monoid<L> =>
-        ValidationT<L, M, A>.Lift(ma).SelectMany(bind, project);
+        ValidationT.lift<L, M, A>(ma).SelectMany(bind, project);
 }
