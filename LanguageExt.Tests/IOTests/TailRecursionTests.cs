@@ -19,9 +19,12 @@ public class TailRecursionTests
     {
         var state = Atom(0);
 
+        IO<Unit> loopHelper(int remaining) => 
+            remaining > 0 ? innerLoop(remaining - 1) : unitIO;
+        
         IO<Unit> innerLoop(int remaining) =>
             from _1 in state.SwapIO(x => x + 1)
-            from _2 in when(remaining > 0, tail(innerLoop(remaining - 1)))
+            from _2 in tail(loopHelper(remaining))
             select unit;
 
         var fullApplication = (TestIO<int>)
@@ -29,7 +32,8 @@ public class TailRecursionTests
             from _2 in innerLoop(3)
             from _3 in state.SwapIO(x => x + 1)
             from _4 in innerLoop(3).Kind()
-            from _5 in new TestIO<Unit>(innerLoop(2))
+            from _5 in new TestIO<Unit>(unitIO)
+            from _6 in innerLoop(2)
             from result in state.SwapIO(x => x * 10)
             select result;
 
@@ -41,9 +45,12 @@ public class TailRecursionTests
     [Fact]
     public void TailRecursion_WhenUsedImproperly_ShouldThrow()
     {
-        IO<Unit> loop(int remaining) => (IO<Unit>)
+        IO<Unit> loopHelper(int remaining) =>
+            remaining > 0 ? loop(remaining - 1) : unitIO;
+        
+        IO<Unit> loop(int remaining) =>
             from _ in unitIO
-            from _1 in when(remaining > 0, tail(loop(remaining - 1)))
+            from _1 in tail(loopHelper(remaining))
             from _2 in unitIO
             select unit;
 
