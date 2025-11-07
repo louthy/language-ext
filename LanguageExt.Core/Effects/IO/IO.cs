@@ -281,7 +281,7 @@ public abstract record IO<A> :
     public IO<C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x) switch
                   {
-                      IOTail<B> tail when typeof(B) == typeof(C) => (IO<C>)(object)tail,
+                      IOTail<B> tail when typeof(B) == typeof(C) => (IO<C>)(object)tail.Tail,
                       IOTail<B> => throw new NotSupportedException("Tail calls can't transform in the `select`"),
                       var mb => mb.Map(y => project(x, y)).Kind()
                   });
@@ -289,7 +289,7 @@ public abstract record IO<A> :
     public IO<C> SelectMany<B, C>(Func<A, K<IO, B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x) switch
                   {
-                      IOTail<B> tail when typeof(B) == typeof(C) => (IO<C>)(object)tail,
+                      IOTail<B> tail when typeof(B) == typeof(C) => (IO<C>)(object)tail.Tail,
                       IOTail<B> => throw new NotSupportedException("Tail calls can't transform in the `select`"),
                       var mb => mb.Map(y => project(x, y))
                   });
