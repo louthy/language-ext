@@ -5,7 +5,10 @@ namespace LanguageExt.Tests.IOTests;
 
 public class TailRecursionTests
 {
-    private record TestIO<A>(IO<A> io) : K<TestIO, A>;
+    private record TestIO<A>(IO<A> io) : K<TestIO, A>
+    {
+        public A Run() => io.Run();
+    };
     
     private class TestIO : Deriving.MonadIO<TestIO, IO>
     {
@@ -34,18 +37,19 @@ public class TailRecursionTests
         
         TestIO<Unit> innerLoop3(int remaining) => (TestIO<Unit>)
             from _1 in new TestIO<Unit>(unitIO)
-            from _2 in tail(loopHelper(x => innerLoop3(x).io, remaining))
+            from _2 in state.SwapIO(x => x + 1)
+            from _3 in tail(loopHelper(x => innerLoop3(x).io, remaining))
             select unit;
 
         var fullApplication = (TestIO<Unit>)
             from _1 in state.SwapIO(_ => 0)
             from _2 in innerLoop1(2)
-            from _3 in innerLoop2(2)
+            from _3 in innerLoop2(2) 
             from _4 in innerLoop3(2)
             from _5 in state.SwapIO(x => x + 1)
             select unit;
-        
-        fullApplication.io.Run();
+
+        fullApplication.Run();
         Assert.Equal(10, state.Value);
     }
     
