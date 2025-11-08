@@ -17,59 +17,103 @@ public class TailRecursionTests
         public static K<TestIO, A> CoTransform<A>(K<IO, A> fa) => new TestIO<A>(fa.As());
     }
     
+    private readonly Atom<int> State = Atom(0);
+
     [Fact]
-    public void TailRecursion_WhenUsedInMiddleOfApplication_ShouldNotThrow()
+    public void TailRecursionInApplication_WhenPlainIO_ShouldNotThrow()
     {
-        var state = Atom(0);
-
-        IO<Unit> loopHelper(Func<int, IO<Unit>> recur, int remaining) =>
-            remaining > 0 ? recur(remaining - 1) : unitIO;
-        
-        IO<Unit> innerLoop1(int remaining) =>
-            from _1 in state.SwapIO(x => x + 1)
-            from _2 in tail(loopHelper(innerLoop1, remaining))
-            select unit;
-        
-        IO<Unit> innerLoop2(int remaining) =>
-            from _1 in state.SwapIO(x => x + 1)
-            from _2 in tail(loopHelper(innerLoop2, remaining)).Kind()
-            select unit;
-        
-        TestIO<Unit> innerLoop3(int remaining) => (TestIO<Unit>)
-            from _1 in new TestIO<Unit>(unitIO)
-            from _2 in state.SwapIO(x => x + 1)
-            from _3 in tail(loopHelper(x => innerLoop3(x).io, remaining))
+        IO<Unit> innerLoop(int remaining) =>
+            from _1 in increment()
+            from _2 in tail(when(remaining > 0, innerLoop(remaining - 1)).As())
             select unit;
 
-        var fullApplication = (TestIO<Unit>)
-            from _1 in state.SwapIO(_ => 0)
-            from _2 in innerLoop1(2)
-            from _3 in innerLoop2(2) 
-            from _4 in innerLoop3(2)
-            from _5 in state.SwapIO(x => x + 1)
+        var app =
+            from _1 in reset()
+            from _2 in innerLoop(3)
+            from result in multiply()
+            select result;
+        
+        var actual = app.Run();
+        Assert.Equal(40, actual);
+    }
+
+    private IO<int> reset() => State.SwapIO(_ => 0);
+
+    private IO<int> increment() => State.SwapIO(x => x + 1);
+    
+    private IO<int> multiply() => State.SwapIO(x => x * 10);
+
+
+    [Fact]
+    public void TailRecursionInApplication_WhenIOHKT_ShouldNotThrow()
+    {
+        IO<Unit> innerLoop(int remaining) =>
+            from _1 in increment()
+            from _2 in tail(when(remaining > 0, innerLoop(remaining - 1)).As()).Kind()
             select unit;
 
-        fullApplication.Run();
-        Assert.Equal(10, state.Value);
+        var app =
+            from _1 in reset()
+            from _2 in innerLoop(3)
+            from result in multiply()
+            select result;
+        
+        var actual = app.Run();
+        Assert.Equal(40, actual);
+    }
+    
+    [Fact]
+    public void TailRecursionInApplication_WhenLiftIO_ShouldNotThrow()
+    {
+        TestIO<Unit> innerLoop(int remaining) => (TestIO<Unit>)
+            from _1 in new TestIO<int>(increment())
+            from _2 in tail(when(remaining > 0, innerLoop(remaining - 1).io).As())
+            select unit;
+
+        var app = (TestIO<int>)
+            from _1 in reset()
+            from _2 in innerLoop(3)
+            from result in multiply()
+            select result;
+        
+        var actual = app.Run();
+        Assert.Equal(40, actual);
+    }
+        
+    [Fact]
+    public void TailRecursionUsedImproperly_WhenPlainIO_ShouldThrow()
+    {
+        IO<Unit> loop(int remaining) =>
+            from _ in unitIO
+            from _1 in tail(when(remaining > 0, loop(remaining - 1)).As())
+            from _2 in unitIO
+            select unit;
+
+        Assert.Throws<NotSupportedException>(() => loop(3).Run());
+    }
+    
+    [Fact]
+    public void TailRecursionUsedImproperly_WhenIOHKT_ShouldThrow()
+    {
+        IO<Unit> loop(int remaining) =>
+            from _ in unitIO
+            from _1 in tail(when(remaining > 0, loop(remaining - 1)).As()).Kind()
+            from _2 in unitIO
+            select unit;
+
+        Assert.Throws<NotSupportedException>(() => loop(3).Run());
     }
     
         
     [Fact]
-    public void TailRecursion_WhenUsedImproperly_ShouldThrow()
+    public void TailRecursionUsedImproperly_WhenLiftIO_ShouldThrow()
     {
-        IO<Unit> loop1(int remaining) =>
-            from _ in unitIO
-            from _1 in tail(when(remaining > 0, loop1(remaining - 1)).As())
-            from _2 in unitIO
-            select unit;
-        
-        IO<Unit> loop2(int remaining) =>
-            from _ in unitIO
-            from _1 in tail(when(remaining > 0, loop2(remaining - 1)).As()).Kind()
+        TestIO<Unit> loop(int remaining) => (TestIO<Unit>)
+            from _ in new TestIO<Unit>(unitIO)
+            from _1 in tail(when(remaining > 0, loop(remaining - 1).io).As())
             from _2 in unitIO
             select unit;
 
-        Assert.Throws<NotSupportedException>(() => loop1(3).Run());
-        Assert.Throws<NotSupportedException>(() => loop2(3).Run());
+        Assert.Throws<NotSupportedException>(() => loop(3).Run());
     }
 }
