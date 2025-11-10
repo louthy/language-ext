@@ -29,12 +29,7 @@ public static class MonadIOExtensions
     /// </summary>
     public static K<M, C> SelectMany<M, A, B, C>(this K<M, A> ma, Func<A, IO<B>> bind, Func<A, B, C> project) 
         where M : MonadIO<M> =>
-        ma.Bind(x => bind(x) switch
-                     {
-                         IOTail<B> tail when typeof(B) == typeof(C) => (IO<C>)(object)tail.Tail,
-                         IOTail<B> => throw new NotSupportedException("Tail calls can't transform in the `select`"),
-                         var mb => mb.Map(y => project(x, y))
-                     });
+        ma.Bind(x => IOTail<A>.resolve(x, bind(x), project));
 
     /// <summary>
     /// Monad bind operation
