@@ -600,7 +600,7 @@ public abstract partial class Fin<A> :
     [Pure, MethodImpl(Opt.Default)]
     public Option<A> ToOption() =>
         IsSucc
-            ? Option<A>.Some(SuccValue)
+            ? Option.Some(SuccValue)
             : Option<A>.None;
 
     [Pure, MethodImpl(Opt.Default)]

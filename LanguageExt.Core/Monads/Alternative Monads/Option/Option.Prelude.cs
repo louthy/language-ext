@@ -87,7 +87,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<A> Some<A>(A value) =>
-        Option<A>.Some(value);
+        Option.Some(value);
 
     /// <summary>
     /// Create a `Some` of `A` from a `Nullable〈A〉`

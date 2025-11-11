@@ -20,14 +20,23 @@ public static partial class FinTExtensions
     public static K<M, Fin<A>> Run<M, A>(this K<FinT<M>, A> ma)
         where M : Monad<M> =>
         ma.As().runFin;
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`FinT`</returns>
+    public static FinT<M, B> Bind<M, A, B>(this K<FinT<M>, A> ma, Func<A, IO<B>> f) 
+        where M : MonadIO<M> =>
+        ma.As().Bind(a => FinT.liftIO<M, B>(f(a)));
     
     /// <summary>
     /// Get the outer task and wrap it up in a new IO within the FinT IO
     /// </summary>
     public static FinT<IO, A> Flatten<A>(this Task<FinT<IO, A>> tma) =>
-        FinT<IO, FinT<IO, A>>
-           .Lift(IO.liftAsync(async () => await tma.ConfigureAwait(false)))
-           .Flatten();
+        FinT.lift(IO.liftAsync(async () => await tma.ConfigureAwait(false)))
+            .Flatten();
 
     /// <summary>
     /// Lift the task
@@ -58,7 +67,7 @@ public static partial class FinTExtensions
         Func<A, K<FinT<M>, B>> bind, 
         Func<A, B, C> project)
         where M : Monad<M> =>
-        FinT<M, A>.Lift(ma).SelectMany(bind, project);
+        FinT.lift(ma).SelectMany(bind, project);
 
     /// <summary>
     /// Monad bind operation
@@ -74,7 +83,19 @@ public static partial class FinTExtensions
         Func<A, FinT<M, B>> bind, 
         Func<A, B, C> project)
         where M : Monad<M> =>
-        FinT<M, A>.Lift(ma).SelectMany(bind, project);
+        FinT.lift(ma).SelectMany(bind, project);
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`FinT`</returns>
+    public static FinT<M, C> SelectMany<M, A, B, C>(this K<FinT<M>, A> ma, Func<A, IO<B>> bind, Func<A, B, C> project) 
+        where M : MonadIO<M> =>
+        ma.As().SelectMany(x => M.LiftIO(bind(x)), project);
 
     /// <summary>
     /// Partitions a foldable of `FinT` into two sequences.

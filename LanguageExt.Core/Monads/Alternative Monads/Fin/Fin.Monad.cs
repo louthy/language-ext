@@ -137,7 +137,7 @@ public partial class Fin :
     static K<Option, A> Natural<Fin, Option>.Transform<A>(K<Fin, A> fa) =>
         fa switch
         {
-            Fin<A>.Succ (var x) => Option<A>.Some(x),
+            Fin<A>.Succ (var x) => Option.Some(x),
             Fin<A>.Fail         => Option<A>.None,
             _                   => throw new NotSupportedException()
         };

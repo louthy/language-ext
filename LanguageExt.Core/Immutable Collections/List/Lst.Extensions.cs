@@ -391,7 +391,7 @@ public static partial class LstExtensions
     public static Option<A> ToOption<A>(this IEnumerable<A> self) =>
         self.Match(
             ()     => Option<A>.None,
-            (x, _) => Option<A>.Some(x));
+            (x, _) => Option.Some(x));
     
     /// <summary>
     /// Convert to a queryable 

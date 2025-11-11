@@ -237,7 +237,7 @@ namespace LanguageExt
         [Pure]
         public (StckInternal<A>, Option<A>) TryPop() =>
             Count > 0
-                ? (tail!, Option<A>.Some(value!))
+                ? (tail!, Option.Some(value!))
                 : (this, Option<A>.None);
 
         /// <summary>

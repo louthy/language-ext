@@ -89,7 +89,7 @@ public static partial class Prelude
     /// Lift an option into a `OptionT IO` 
     /// </summary>
     public static OptionT<IO, A> liftIO<A>(Option<A> ma) =>
-        OptionT<IO, A>.Lift(ma);
+        OptionT.lift<IO, A>(ma);
 
     /// <summary>
     /// Lift an Option into a `OptionT IO` 

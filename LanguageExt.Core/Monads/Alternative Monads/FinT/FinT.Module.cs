@@ -4,70 +4,104 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public partial class FinT<M>
-{
-    public static FinT<M, A> Succ<A>(A value) => 
-        FinT<M, A>.Succ(value);
-
-    public static FinT<M, A> Fail<A>(Error value) => 
-        FinT<M, A>.Fail(value);
-
-    public static FinT<M, A> lift<A>(Fin<A> ma) => 
-        FinT<M, A>.Lift(ma);
-
-    public static FinT<M, A> lift<A>(Pure<A> ma) => 
-        FinT<M, A>.Lift(ma);
-
-    public static FinT<M, A> lift<A>(Fail<Error> ma) => 
-        FinT<M, A>.Lift(ma);
-
-    public static FinT<M, A> liftIO<A>(IO<A> ma) =>  
-        FinT<M, A>.Lift(M.LiftIOMaybe(ma));
-}
-
 public partial class FinT
 {
-    public static FinT<M, B> bind<M, A, B>(FinT<M, A> ma, Func<A, FinT<M, B>> f) 
-        where M : Monad<M> =>
-        ma.As().Bind(f);
-
-    public static FinT<M, B> map<M, A, B>(Func<A, B> f, FinT<M, A> ma)  
-        where M : Monad<M> =>
-        ma.As().Map(f);
-
+    /// <summary>
+    /// Lift a pure value into the monad-transformer
+    /// </summary>
+    /// <param name="value">Value to lift</param>
+    /// <returns>`FinT`</returns>
     public static FinT<M, A> Succ<M, A>(A value)  
-        where M : Monad<M> =>
-        FinT<M, A>.Succ(value);
+        where M : Monad<M> =>  
+        lift(M.Pure(value));
 
+    /// <summary>
+    /// Lift a fail value into the monad-transformer
+    /// </summary>
+    /// <param name="value">Value to lift</param>
+    /// <returns>`FinT`</returns>
     public static FinT<M, A> Fail<M, A>(Error value)  
-        where M : Monad<M> =>
-        FinT<M, A>.Fail(value);
+        where M : Monad<M> =>  
+        lift<M, A>(Fin.Fail<A>(value));
 
+    /// <summary>
+    /// Lifts a given `Fin` value into the transformer 
+    /// </summary>
+    /// <param name="ma">`Fin` value</param>
+    /// <returns>`FinT`</returns>
     public static FinT<M, A> lift<M, A>(Fin<A> ma)  
-        where M : Monad<M> =>
-        FinT<M, A>.Lift(ma);
+        where M : Monad<M> =>  
+        new(M.Pure(ma));
 
-    public static FinT<M, A> lift<M, A>(Either<Error, A> ma)  
+    /// <summary>
+    /// Lifts a given pure value into the transformer
+    /// </summary>
+    /// <param name="ma">Value to lift</param>
+    /// <returns>`FinT`</returns>
+    public static FinT<M, A> lift<M, A>(Pure<A> value)  
         where M : Monad<M> =>
-        FinT<M, A>.Lift(ma);
+        lift<M, A>(Fin.Succ(value.Value));
 
-    public static FinT<M, A> lift<M, A>(K<M, A> ma)  
-        where M : Monad<M> =>
-        FinT<M, A>.Lift(ma);
+    /// <summary>
+    /// Lifts a given failure value into the transformer
+    /// </summary>
+    /// <param name="fail">Value to lift</param>
+    /// <returns>`FinT`</returns>
+    public static FinT<M, A> lift<M, A>(Fail<Error> value)  
+        where M : Monad<M> =>  
+        lift<M, A>(Fin.Fail<A>(value.Value));
 
-    public static FinT<M, A> lift<M, A>(Pure<A> ma)  
-        where M : Monad<M> =>
-        FinT<M, A>.Lift(ma);
+    /// <summary>
+    /// Lifts a given monad into the transformer
+    /// </summary>
+    /// <param name="monad">Monad to lift</param>
+    /// <returns>`FinT`</returns>
+    public static FinT<M, A> lift<M, A>(K<M, A> monad) 
+        where M : Monad<M> =>  
+        new(M.Map(Fin.Succ, monad));
 
-    public static FinT<M, A> lift<M, A>(Fail<Error> ma)  
-        where M : Monad<M> =>
-        FinT<M, A>.Lift(ma);
+    /// <summary>
+    /// Lifts a given monad into the transformer
+    /// </summary>
+    /// <param name="ma">Monad to lift</param>
+    /// <returns>`FinT`</returns>
+    public static FinT<M, A> lift<M, A>(K<M, Fin<A>> ma) 
+        where M : Monad<M> =>  
+        new(ma);
 
-    public static FinT<M, A> liftIO<M, A>(IO<A> ma)  
-        where M : Monad<M> =>
-        new (M.LiftIOMaybe(ma.Try().runFin));
-    
-    public static K<M, B> match<M, A, B>(FinT<M, A> ma, Func<A, B> Succ, Func<Error, B> Fail) 
-        where M : Monad<M> =>
-        ma.Match(Succ, Fail);
+    /// <summary>
+    /// Lifts a given `IO` monad into the transformer
+    /// </summary>
+    /// <param name="ma">Monad to lift</param>
+    /// <returns>`FinT`</returns>
+    public static FinT<M, A> liftIO<M, A>(IO<A> ma)
+        where M : MonadIO<M> =>  
+        lift(M.LiftIO(ma));
+
+    /// <summary>
+    /// Lifts a given `IO` monad into the transformer
+    /// </summary>
+    /// <param name="ma">Monad to lift</param>
+    /// <returns>`FinT`</returns>
+    public static FinT<M, A> liftIO<M, A>(IO<Fin<A>> ma)
+        where M : MonadIO<M> =>  
+        lift(M.LiftIO(ma));    
+
+    /// <summary>
+    /// Lifts a given `IO` monad into the transformer
+    /// </summary>
+    /// <param name="ma">Monad to lift</param>
+    /// <returns>`FinT`</returns>
+    internal static FinT<M, A> liftIOMaybe<M, A>(IO<A> ma)
+        where M : Monad<M> =>  
+        lift(M.LiftIOMaybe(ma));
+
+    /// <summary>
+    /// Lifts a given `IO` monad into the transformer
+    /// </summary>
+    /// <param name="ma">Monad to lift</param>
+    /// <returns>`FinT`</returns>
+    internal static FinT<M, A> liftIOMaybe<M, A>(IO<Fin<A>> ma)
+        where M : Monad<M> =>  
+        lift(M.LiftIOMaybe(ma));    
 }

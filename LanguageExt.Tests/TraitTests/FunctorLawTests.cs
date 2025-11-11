@@ -143,8 +143,8 @@ public class FunctorLawTests
     [Fact]
     public void FinT()
     {
-        var fa = FinT<Identity, int>.Succ(1);
-        var fx = FinT<Identity, int>.Fail(Errors.TimedOut);
+        var fa = LE.FinT.Succ<Identity, int>(1);
+        var fx = LE.FinT.Fail<Identity, int>(Errors.TimedOut);
         FunctorLaw<FinT<Identity>>.assert(fa);
         FunctorLaw<FinT<Identity>>.assert(fx);
     }
@@ -152,7 +152,7 @@ public class FunctorLawTests
     [Fact]
     public void Option()
     {
-        var fa = Option<int>.Some(1);
+        var fa = LE.Option.Some(1);
         var fx = Option<int>.None;
         FunctorLaw<Option>.assert(fa);
         FunctorLaw<Option>.assert(fx);
@@ -161,8 +161,8 @@ public class FunctorLawTests
     [Fact]
     public void OptionT()
     {
-        var fa = OptionT<Identity, int>.Some(1);
-        var fx = OptionT<Identity, int>.None;
+        var fa = LE.OptionT.Some<Identity, int>(1);
+        var fx = LE.OptionT.None<Identity, int>();
         FunctorLaw<OptionT<Identity>>.assert(fa);
         FunctorLaw<OptionT<Identity>>.assert(fx);
     }

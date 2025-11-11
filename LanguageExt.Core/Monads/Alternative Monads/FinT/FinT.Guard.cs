@@ -12,8 +12,8 @@ public static class FinTGuardExtensions
     public static FinT<M, Unit> ToFinT<M>(this Guard<Error, Unit> guard)
         where M : Monad<M> =>
         guard.Flag
-            ? FinT<M, Unit>.Succ(default)
-            : FinT<M, Unit>.Fail(guard.OnFalse());
+            ? FinT.Succ<M, Unit>(default)
+            : FinT.Fail<M, Unit>(guard.OnFalse());
  
     /// <summary>
     /// Monadic binding support for `FinT`
@@ -24,7 +24,7 @@ public static class FinTGuardExtensions
         where M : Monad<M> =>
         guard.Flag
             ? f(default).As()
-            : FinT<M, B>.Fail(guard.OnFalse());
+            : FinT.Fail<M, B>(guard.OnFalse());
        
     /// <summary>
     /// Monadic binding support for `FinT`
@@ -36,7 +36,7 @@ public static class FinTGuardExtensions
         where M : Monad<M> =>
         guard.Flag
             ? bind(default).As().Map(b => project(default, b))
-            : FinT<M, C>.Fail(guard.OnFalse());
+            : FinT.Fail<M, C>(guard.OnFalse());
 
     /// <summary>
     /// Monadic binding support for `FinT`

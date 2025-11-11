@@ -133,7 +133,7 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) :
     /// <param name="f">Mapping function</param>
     public OptionT<M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
         new(runOption.Bind(
-                fv => fv.Match(Some: v => f(M.Pure(v)).Map(Option<B>.Some),
+                fv => fv.Match(Some: v => f(M.Pure(v)).Map(Option.Some),
                                None: () => M.Pure(Option<B>.None))));
 
     /// <summary>

@@ -23,7 +23,7 @@ public partial class Option :
         ma.As().Map(f);
 
     static K<Option, A> Applicative<Option>.Pure<A>(A value) =>
-        Option<A>.Some(value);
+        Some(value);
 
     static K<Option, B> Applicative<Option>.Apply<A, B>(K<Option, Func<A, B>> mf, K<Option, A> ma) =>
         mf.As().Bind(x => ma.As().Map(x));
@@ -81,7 +81,7 @@ public partial class Option :
         K<Option, A> fa, 
         Func<Unit, bool> Predicate, 
         Func<Unit, K<Option, A>> Fail) => 
-        fa.As().Match(Some: Option<A>.Some, 
+        fa.As().Match(Some: Some, 
                       None: () => Predicate(default) ? Fail(default).As() : Option<A>.None);
 
     static K<Arr, A> Natural<Option, Arr>.Transform<A>(K<Option, A> fa) => 
