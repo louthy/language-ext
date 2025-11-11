@@ -16,22 +16,6 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     where M : Monad<M>
 {
     /// <summary>
-    /// Lift a pure value into the monad-transformer
-    /// </summary>
-    /// <param name="value">Value to lift</param>
-    /// <returns>`FinT`</returns>
-    public static FinT<M, A> Succ(A value) =>
-        Lift(M.Pure(value));
-    
-    /// <summary>
-    /// Lift a fail value into the monad-transformer
-    /// </summary>
-    /// <param name="value">Value to lift</param>
-    /// <returns>`FinT`</returns>
-    public static FinT<M, A> Fail(Error value) =>
-        Lift(Fin.Fail<A>(value));
-
-    /// <summary>
     /// Is the `FinT` in a `Succ` state?
     /// </summary>
     public K<M, bool> IsSucc =>
@@ -42,70 +26,6 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     /// </summary>
     public K<M, bool> IsFail =>
         runFin.Map(f => f.IsFail);
-    
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="pure">Monad to lift</param>
-    /// <returns>`FinT`</returns>
-    public static FinT<M, A> Lift(Pure<A> pure) =>
-        Succ(pure.Value);
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="ma">Monad to lift</param>
-    /// <returns>`FinT`</returns>
-    public static FinT<M, A> Lift(Fin<A> ma) =>
-        new(M.Pure(ma));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="fail">Monad to lift</param>
-    /// <returns>`FinT`</returns>
-    public static FinT<M, A> Lift(Fail<Error> fail) =>
-        Lift(Fin.Fail<A>(fail.Value));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="fail">Fail value</param>
-    /// <returns>`FinT`</returns>
-    public static FinT<M, A> Lift(Error fail) =>
-        Lift(Fin.Fail<A>(fail));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="monad">Monad to lift</param>
-    /// <returns>`FinT`</returns>
-    public static FinT<M, A> Lift(K<M, A> monad) =>
-        new(M.Map(Fin.Succ, monad));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="monad">Monad to lift</param>
-    /// <returns>`FinT`</returns>
-    public static FinT<M, A> Lift(K<M, Fin<A>> monad) =>
-        new(monad);
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="monad">Monad to lift</param>
-    /// <returns>`FinT`</returns>
-    public static FinT<M, A> LiftIO(IO<A> monad) =>
-        Lift(M.LiftIOMaybe(monad));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="monad">Monad to lift</param>
-    /// <returns>`FinT`</returns>
-    public static FinT<M, A> LiftIO(IO<Fin<A>> monad) =>
-        Lift(M.LiftIOMaybe(monad));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -286,7 +206,7 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`FinT`</returns>
     public FinT<M, B> Bind<B>(Func<A, Fin<B>> f) =>
-        Bind(x => FinT<M, B>.Lift(f(x)));
+        Bind(x => FinT.lift<M, B>(f(x)));
 
     /// <summary>
     /// Monad bind operation
@@ -306,15 +226,6 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`FinT`</returns>
-    public FinT<M, B> Bind<B>(Func<A, IO<B>> f) =>
-        Bind(a => FinT<M, B>.LiftIO(f(a)));
-
-    /// <summary>
-    /// Monad bind operation
-    /// </summary>
-    /// <param name="f">Mapping function</param>
-    /// <typeparam name="B">Target bound value type</typeparam>
-    /// <returns>`FinT`</returns>
     public FinT<M, B> Bind<B>(Func<A, Pure<B>> f) =>
         Map(a => f(a).Value);
 
@@ -325,7 +236,7 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`FinT`</returns>
     public FinT<M, B> Bind<B>(Func<A, Fail<Error>> f) =>
-        Bind(a => FinT<M, B>.Lift(f(a).Value));
+        Bind(a => FinT.lift<M, B>(f(a).Value));
 
     /// <summary>
     /// Monad bi-bind operation
@@ -346,7 +257,7 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     /// <param name="Fail">Fail state mapping function</param>
     /// <returns>`FinT`</returns>
     public FinT<M, A> BindFail(Func<Error, FinT<M, A>> Fail) =>
-        BiBind(Fail, Succ);
+        BiBind(Fail, FinT.Succ<M, A>);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -384,7 +295,7 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`FinT`</returns>
     public FinT<M, C> SelectMany<B, C>(Func<A, K<M, B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => FinT<M, B>.Lift(bind(x)), project);
+        SelectMany(x => FinT.lift(bind(x)), project);
 
     /// <summary>
     /// Monad bind operation
@@ -395,7 +306,7 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`FinT`</returns>
     public FinT<M, C> SelectMany<B, C>(Func<A, Fin<B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => FinT<M, B>.Lift(bind(x)), project);
+        SelectMany(x => FinT.lift<M, B>(bind(x)), project);
 
     /// <summary>
     /// Monad bind operation
@@ -407,17 +318,6 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     /// <returns>`FinT`</returns>
     public FinT<M, C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         Map(x => project(x, bind(x).Value));
-
-    /// <summary>
-    /// Monad bind operation
-    /// </summary>
-    /// <param name="bind">Monadic bind function</param>
-    /// <param name="project">Projection function</param>
-    /// <typeparam name="B">Intermediate bound value type</typeparam>
-    /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>`FinT`</returns>
-    public FinT<M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => M.LiftIOMaybe(bind(x)), project);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -465,28 +365,28 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
         lhs.Bind(x => rhs.Map(_ => x));
     
     public static implicit operator FinT<M, A>(Fin<A> ma) =>
-        Lift(ma);
+        FinT.lift<M, A>(ma);
     
     public static implicit operator FinT<M, A>(Pure<A> ma) =>
-        Succ(ma.Value);
+        FinT.Succ<M, A>(ma.Value);
     
     public static implicit operator FinT<M, A>(Fail<Error> ma) =>
-        Lift(new Fin<A>.Fail(ma.Value));
+        FinT.lift<M, A>(new Fin<A>.Fail(ma.Value));
     
     public static implicit operator FinT<M, A>(Error ma) =>
-        Lift(new Fin<A>.Fail(ma));
+        FinT.Fail<M, A>(ma);
     
     public static implicit operator FinT<M, A>(IO<A> ma) =>
-        LiftIO(ma);
+        FinT.liftIOMaybe<M, A>(ma);
     
     public static implicit operator FinT<M, A>(Lift<A> ma) =>
-        LiftIO(ma);
+        FinT.liftIOMaybe<M, A>(ma);
     
     public static implicit operator FinT<M, A>(Lift<EnvIO, A> ma) =>
-        LiftIO(ma);
+        FinT.liftIOMaybe<M, A>(ma);
     
     public static implicit operator FinT<M, A>(IO<Fin<A>> ma) =>
-        LiftIO(ma);
+        FinT.liftIOMaybe<M, A>(ma);
 
     public static FinT<M, A> operator +(FinT<M, A> lhs, FinT<M, A> rhs) =>
         lhs.Combine(rhs).As();

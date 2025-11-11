@@ -107,7 +107,7 @@ public static partial class IOExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static FinT<M, C> SelectMany<M, A, B, C>(this K<IO, A> ma, Func<A, FinT<M, B>> bind, Func<A, B, C> project)
         where M : MonadIO<M>, Alternative<M> =>
-        FinT<M, A>.LiftIO(ma.As()).SelectMany(bind, project);
+        FinT.liftIO<M, A>(ma.As()).SelectMany(bind, project);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

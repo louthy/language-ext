@@ -143,8 +143,8 @@ public class FunctorLawTests
     [Fact]
     public void FinT()
     {
-        var fa = FinT<Identity, int>.Succ(1);
-        var fx = FinT<Identity, int>.Fail(Errors.TimedOut);
+        var fa = LE.FinT.Succ<Identity, int>(1);
+        var fx = LE.FinT.Fail<Identity, int>(Errors.TimedOut);
         FunctorLaw<FinT<Identity>>.assert(fa);
         FunctorLaw<FinT<Identity>>.assert(fx);
     }

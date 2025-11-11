@@ -25,7 +25,7 @@ public partial class FinT<M> :
         ma.As().Map(f);
 
     static K<FinT<M>, A> Applicative<FinT<M>>.Pure<A>(A value) => 
-        FinT<M, A>.Succ(value);
+        FinT.Succ<M, A>(value);
 
     static K<FinT<M>, B> Applicative<FinT<M>>.Apply<A, B>(K<FinT<M>, Func<A, B>> mf, K<FinT<M>, A> ma) =>
         new FinT<M, B>(
@@ -39,10 +39,10 @@ public partial class FinT<M> :
         ma.As().Bind(_ => mb);
 
     static K<FinT<M>, A> MonadT<FinT<M>, M>.Lift<A>(K<M, A> ma) => 
-        FinT<M, A>.Lift(ma);
+        FinT.lift(ma);
         
     static K<FinT<M>, A> MonadIO<FinT<M>>.LiftIO<A>(IO<A> ma) => 
-        FinT<M, A>.Lift(M.LiftIOMaybe(ma));
+        FinT.lift(M.LiftIOMaybe(ma));
 
     static K<FinT<M>, A> MonoidK<FinT<M>>.Empty<A>() =>
         FinT.Fail<M, A>(Error.Empty);
@@ -78,12 +78,12 @@ public partial class FinT<M> :
                          }));
 
     static K<FinT<M>, A> Fallible<Error, FinT<M>>.Fail<A>(Error error) =>
-        Fail<A>(error);
+        FinT.Fail<M, A>(error);
 
     static K<FinT<M>, A> Fallible<Error, FinT<M>>.Catch<A>(
         K<FinT<M>, A> fa, Func<Error, bool> Predicate,
         Func<Error, K<FinT<M>, A>> Fail) =>
-        fa.As().BindFail(l => Predicate(l) ? Fail(l).As() : Fail<A>(l));
+        fa.As().BindFail(l => Predicate(l) ? Fail(l).As() : FinT.Fail<M, A>(l));
 
     static K<EitherT<Error, M>, A> Natural<FinT<M>, EitherT<Error, M>>.Transform<A>(K<FinT<M>, A> fa) => 
         new EitherT<Error, M, A>(fa.As().runFin.Map(Natural.transform<Fin, Either<Error>, A>).Map(ma => ma.As()));
