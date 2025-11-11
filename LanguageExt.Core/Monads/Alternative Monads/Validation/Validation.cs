@@ -320,7 +320,7 @@ public abstract partial record Validation<F, A> :
     public Option<A> ToOption() =>
         this switch
         {
-            Success (var x) => Option<A>.Some(x),
+            Success (var x) => Option.Some(x),
             Fail            => Option<A>.None,
             _               => throw new NotSupportedException()
         };

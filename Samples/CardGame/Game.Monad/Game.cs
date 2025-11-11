@@ -9,7 +9,7 @@ public record Game<A>(StateT<GameState, OptionT<IO>, A> runGame) : K<Game, A>
         new(StateT<GameState, OptionT<IO>, A>.Pure(x));
     
     public static Game<A> None =>
-        new(StateT<GameState, OptionT<IO>, A>.Lift(OptionT<IO>.None<A>()));
+        new(StateT<GameState, OptionT<IO>, A>.Lift(OptionT.None<IO, A>()));
     
     public static Game<A> Lift(Option<A> mx) =>
         new(StateT<GameState, OptionT<IO>, A>.Lift(OptionT.lift<IO, A>(mx)));

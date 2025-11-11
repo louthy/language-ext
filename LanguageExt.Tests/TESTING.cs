@@ -165,7 +165,7 @@ public static class Testing
             OptionT.liftIO<ReaderT<string, IO>, A>(ma);
     }
        
-    public static void Test9()
+    /*public static void Test9()
     {
         var m1 = OptionT.lift(StateT<string>.lift(IO.pure(100)));
         var m2 = OptionT.lift(StateT<string>.lift(IO.pure(200)));
@@ -173,7 +173,7 @@ public static class Testing
         var m0 = from w in Pure(123)
                  from q in m1
                  from x in StateT.get<IO, string>()
-                 from i in OptionT<StateT<string, IO>>.liftIO(IO.pure("Hello"))
+                 from i in OptionT.liftIO<StateT<string, IO>, string>(IO.pure("Hello"))
                  from j in IO.pure("Hello").Fork()
                //from k in m1.ForkIO()                          -- Can't work, because OptionT is not MonadUnliftIO
                  from k in m1.Run().Run("state").As().Fork()    // But we can manually unpack 
@@ -186,7 +186,7 @@ public static class Testing
                              None: () => "bar").As()
                       .Run("Paul").As()
                       .Run(); 
-    }
+    }*/
        
     public static void Test10()
     {

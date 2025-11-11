@@ -85,6 +85,49 @@ public static partial class IOExtensions
     public static IO<C> SelectMany<A, B, C>(this K<IO, A> ma, Func<A, K<IO, B>> bind, Func<A, B, C> project) =>
         ma.As().SelectMany(bind, project);
 
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static OptionT<M, C> SelectMany<M, A, B, C>(this K<IO, A> ma, Func<A, OptionT<M, B>> bind, Func<A, B, C> project)
+        where M : MonadIO<M>, Alternative<M> =>
+        OptionT.liftIO<M, A>(ma.As()).SelectMany(bind, project);
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static TryT<M, C> SelectMany<M, A, B, C>(this K<IO, A> ma, Func<A, TryT<M, B>> bind, Func<A, B, C> project)
+        where M : MonadIO<M>, Alternative<M> =>
+        TryT.liftIO<M, A>(ma.As()).SelectMany(bind, project);
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static EitherT<L, M, C> SelectMany<L, M, A, B, C>(this K<IO, A> ma, Func<A, EitherT<L, M, B>> bind, Func<A, B, C> project)
+        where M : MonadIO<M>, Alternative<M> =>
+        EitherT<L, M, A>.LiftIO(ma.As()).SelectMany(bind, project);
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static FinT<M, C> SelectMany<M, A, B, C>(this K<IO, A> ma, Func<A, FinT<M, B>> bind, Func<A, B, C> project)
+        where M : MonadIO<M>, Alternative<M> =>
+        FinT<M, A>.LiftIO(ma.As()).SelectMany(bind, project);
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ValidationT<F, M, C> SelectMany<F, M, A, B, C>(this K<IO, A> ma, Func<A, ValidationT<F, M, B>> bind, Func<A, B, C> project)
+        where F : Monoid<F>
+        where M : MonadIO<M>, Alternative<M> =>
+        ValidationT.liftIO<F, M, A>(ma.As()).SelectMany(bind, project);
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ReaderT<Env, M, C> SelectMany<Env, M, A, B, C>(this K<IO, A> ma, Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
+        where M : MonadIO<M>, Alternative<M> =>
+        ReaderT<Env, M, A>.LiftIO(ma.As()).SelectMany(bind, project);
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static StateT<S, M, C> SelectMany<S, M, A, B, C>(this K<IO, A> ma, Func<A, StateT<S, M, B>> bind, Func<A, B, C> project)
+        where M : MonadIO<M>, Alternative<M> =>
+        StateT<S, M, A>.LiftIO(ma.As()).SelectMany(bind, project);
+
     /// <summary>
     /// Wait for a signal
     /// </summary>

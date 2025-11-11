@@ -97,7 +97,7 @@ public readonly record struct Pure<A>(A Value)
     public Option<A> ToOption() =>
         Value is null 
             ? Option<A>.None 
-            : Option<A>.Some(Value);
+            : Option.Some(Value);
     
     public Either<L, A> ToEither<L>() =>
         Either.Right<L, A>(Value);

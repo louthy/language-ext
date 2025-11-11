@@ -158,7 +158,7 @@ public static class List
     /// <returns>Optional head item</returns>
     [Pure]
     public static Option<A> headOrNone<A>(IEnumerable<A> list) =>
-        list.Select(Option<A>.Some)
+        list.Select(Option.Some)
             .DefaultIfEmpty(Option<A>.None)
             .FirstOrDefault();
 
@@ -213,7 +213,7 @@ public static class List
     /// <returns>Last item</returns>
     [Pure]
     public static Option<A> lastOrNone<A>(IEnumerable<A> list) =>
-        list.Select(Option<A>.Some)
+        list.Select(Option.Some)
             .DefaultIfEmpty(Option<A>.None)
             .LastOrDefault();
 

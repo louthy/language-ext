@@ -106,7 +106,7 @@ public class Either<L> :
     static K<Option, A> Natural<Either<L>, Option>.Transform<A>(K<Either<L>, A> fa) =>
         fa switch
         {
-            Either<L, A>.Right (var r) => Option<A>.Some(r),
+            Either<L, A>.Right (var r) => Option.Some(r),
             _                          => Option<A>.None
         };
 }

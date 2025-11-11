@@ -531,7 +531,7 @@ public static class Prim
     public static Parser<Option<T>> optional<T>(Parser<T> p) =>
         inp =>
         {
-            var r = p.Map(x => Option<T>.Some(x))(inp);
+            var r = p.Map(Option.Some)(inp);
             return r.Reply.Tag == ReplyTag.OK
                        ? r
                        : EmptyOK(Option<T>.None, inp);
