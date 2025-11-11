@@ -107,7 +107,7 @@ public partial class Arr
     /// <returns>Reversed list</returns>
     [Pure]
     public static T[] rev<T>(T[] array) =>
-        array.Reverse().ToArray();
+        array.AsEnumerable().Reverse().ToArray();
 
     /// <summary>
     /// Reverses the array (Reverse in LINQ)

@@ -602,7 +602,7 @@ public struct Arr<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Arr<A> Reverse() =>
-        new (Value.Reverse().ToArray());
+        new (Value.AsEnumerable().Reverse().ToArray());
 
     /// <summary>
     /// Impure iteration of the bound values in the structure
