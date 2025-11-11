@@ -3,66 +3,103 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public partial class OptionT<M>
-{
-    public static OptionT<M, A> Some<A>(A value) => 
-        OptionT<M, A>.Some(value);
-
-    public static OptionT<M, A> None<A>() => 
-        OptionT<M, A>.None;
-
-    public static OptionT<M, A> lift<A>(Option<A> ma) => 
-        OptionT<M, A>.Lift(ma);
-
-    public static OptionT<M, A> lift<A>(Pure<A> ma) => 
-        OptionT<M, A>.Lift(ma);
-
-    public static OptionT<M, A> lift<A>(Fail<Unit> ma) => 
-        OptionT<M, A>.Lift(ma);
-
-    public static OptionT<M, A> liftIO<A>(IO<A> ma) =>  
-        OptionT<M, A>.Lift(M.LiftIOMaybe(ma));
-}
-
 public partial class OptionT
 {
-    public static OptionT<M, B> bind<M, A, B>(OptionT<M, A> ma, Func<A, OptionT<M, B>> f) 
-        where M : Monad<M> =>
-        ma.As().Bind(f);
-
-    public static OptionT<M, B> map<M, A, B>(Func<A, B> f, OptionT<M, A> ma)  
-        where M : Monad<M> =>
-        ma.As().Map(f);
-
+    /// <summary>
+    /// Lift a pure value into the monad-transformer
+    /// </summary>
+    /// <param name="value">Value to lift</param>
+    /// <returns>`OptionT`</returns>
     public static OptionT<M, A> Some<M, A>(A value)  
         where M : Monad<M> =>
-        OptionT<M, A>.Some(value);
+        lift(M.Pure(value));
 
+    /// <summary>
+    /// Lift a `None` value into the monad-transformer   
+    /// </summary>
+    /// <returns>`OptionT`</returns>
     public static OptionT<M, A> None<M, A>()  
         where M : Monad<M> =>
         OptionT<M, A>.None;
-
-    public static OptionT<M, A> lift<M, A>(Option<A> ma)  
-        where M : Monad<M> =>
-        OptionT<M, A>.Lift(ma);
-
-    public static OptionT<M, A> lift<M, A>(K<M, A> ma)  
-        where M : Monad<M> =>
-        OptionT<M, A>.Lift(ma);
-
-    public static OptionT<M, A> lift<M, A>(Pure<A> ma)  
-        where M : Monad<M> =>
-        OptionT<M, A>.Lift(ma);
-
-    public static OptionT<M, A> lift<M, A>(Fail<Unit> ma)  
-        where M : Monad<M> =>
-        OptionT<M, A>.Lift(ma);
-
-    public static OptionT<M, A> liftIO<M, A>(IO<A> ma)  
-        where M : Monad<M> =>
-        OptionT<M, A>.Lift(M.LiftIOMaybe(ma));
     
-    public static K<M, B> match<M, A, B>(OptionT<M, A> ma, Func<A, B> Some, Func<B> None) 
+    /// <summary>
+    /// Lifts a given monad into the transformer
+    /// </summary>
+    /// <param name="monad">Monad to lift</param>
+    /// <returns>`OptionT`</returns>
+    public static OptionT<M, A> lift<M, A>(Pure<A> monad) 
         where M : Monad<M> =>
-        ma.Match(Some, None);
+        Some<M, A>(monad.Value);
+
+    /// <summary>
+    /// Lifts a given monad into the transformer
+    /// </summary>
+    /// <param name="monad">Monad to lift</param>
+    /// <returns>`OptionT`</returns>
+    public static OptionT<M, A> lift<M, A>(Option<A> monad) 
+        where M : Monad<M> =>
+        new(M.Pure(monad));
+
+    /// <summary>
+    /// Lifts a given monad into the transformer
+    /// </summary>
+    /// <param name="monad">Monad to lift</param>
+    /// <returns>`OptionT`</returns>
+    public static OptionT<M, A> lift<M, A>(Fail<Unit> monad) 
+        where M : Monad<M> =>
+        lift<M, A>(Option<A>.None);
+
+    /// <summary>
+    /// Lifts a given monad into the transformer
+    /// </summary>
+    /// <param name="monad">Monad to lift</param>
+    /// <returns>`OptionT`</returns>
+    public static OptionT<M, A> lift<M, A>(K<M, A> monad) 
+        where M : Monad<M> =>
+        new(M.Map(Option.Some, monad));
+
+    /// <summary>
+    /// Lifts a given monad into the transformer
+    /// </summary>
+    /// <param name="monad">Monad to lift</param>
+    /// <returns>`OptionT`</returns>
+    public static OptionT<M, A> lift<M, A>(K<M, Option<A>> monad) 
+        where M : Monad<M> =>
+        new(monad);
+
+    /// <summary>
+    /// Lifts a given monad into the transformer
+    /// </summary>
+    /// <param name="monad">Monad to lift</param>
+    /// <returns>`OptionT`</returns>
+    public static OptionT<M, A> liftIO<M, A>(IO<A> monad) 
+        where M : MonadIO<M> =>
+        lift(M.LiftIO(monad));
+
+    /// <summary>
+    /// Lifts a given monad into the transformer
+    /// </summary>
+    /// <param name="monad">Monad to lift</param>
+    /// <returns>`OptionT`</returns>
+    internal static OptionT<M, A> liftIOMaybe<M, A>(IO<A> monad) 
+        where M : Monad<M> =>
+        lift(M.LiftIOMaybe(monad));
+
+    /// <summary>
+    /// Lifts a given monad into the transformer
+    /// </summary>
+    /// <param name="monad">Monad to lift</param>
+    /// <returns>`OptionT`</returns>
+    public static OptionT<M, A> liftIO<M, A>(IO<Option<A>> monad) 
+        where M : MonadIO<M> =>
+        lift(M.LiftIO(monad));
+    
+    /// <summary>
+    /// Lifts a given monad into the transformer
+    /// </summary>
+    /// <param name="monad">Monad to lift</param>
+    /// <returns>`OptionT`</returns>
+    internal static OptionT<M, A> liftIOMaybe<M, A>(IO<Option<A>> monad) 
+        where M : Monad<M> =>
+        lift(M.LiftIOMaybe(monad));
 }

@@ -24,7 +24,7 @@ public partial class Try :
         new Try<B>(() => ma.Run().Map(f));
 
     static K<Try, A> Applicative<Try>.Pure<A>(A value) => 
-        Try<A>.Succ(value);
+        Succ(value);
 
     static K<Try, B> Applicative<Try>.Apply<A, B>(K<Try, Func<A, B>> mf, K<Try, A> ma) =>
         new Try<B>(() => mf.Run().Apply(ma.Run()));
@@ -38,7 +38,7 @@ public partial class Try :
                          });
 
     static K<Try, A> MonoidK<Try>.Empty<A>() =>
-        Try<A>.Fail(Error.Empty);
+        Try.Fail<A>(Error.Empty);
 
     static K<Try, A> SemigroupK<Try>.Combine<A>(K<Try, A> ma, K<Try, A> mb) =>
         new Try<A>(() => ma.Run() switch
@@ -65,7 +65,7 @@ public partial class Try :
                          });
 
     static K<Try, A> Fallible<Error, Try>.Fail<A>(Error value) => 
-        Try<A>.Fail(value);
+        Fail<A>(value);
 
     static K<Try, A> Fallible<Error, Try>.Catch<A>(
         K<Try, A> fa, 

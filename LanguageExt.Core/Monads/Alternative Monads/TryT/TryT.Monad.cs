@@ -22,7 +22,7 @@ public partial class TryT<M> :
         ma.As().Map(f);
 
     static K<TryT<M>, A> Applicative<TryT<M>>.Pure<A>(A value) => 
-        TryT<M, A>.Succ(value);
+        TryT.Succ<M, A>(value);
 
     static K<TryT<M>, B> Applicative<TryT<M>>.Apply<A, B>(K<TryT<M>, Func<A, B>> mf, K<TryT<M>, A> ma) =>
         new TryT<M, B>(mf.As().runTry.Bind(
@@ -33,13 +33,13 @@ public partial class TryT<M> :
         ma.As().Bind(_ => mb);
 
     static K<TryT<M>, A> MonadT<TryT<M>, M>.Lift<A>(K<M, A> ma) => 
-        TryT<M, A>.Lift(ma);
+        TryT.lift(ma);
     
     static K<TryT<M>, A> MonadIO<TryT<M>>.LiftIO<A>(IO<A> ma) => 
-        TryT<M, A>.Lift(M.LiftIOMaybe(ma));
+        TryT.liftIOMaybe<M, A>(ma);
 
     static K<TryT<M>, A> MonoidK<TryT<M>>.Empty<A>() =>
-        Fail<A>(Error.Empty);
+        TryT.Fail<M, A>(Error.Empty);
  
     static K<TryT<M>, A> SemigroupK<TryT<M>>.Combine<A>(K<TryT<M>, A> ma, K<TryT<M>, A> mb) =>
         new TryT<M, A>(ma.Run().Bind(
@@ -78,11 +78,11 @@ public partial class TryT<M> :
                                   }));
 
     static K<TryT<M>, A> Fallible<Error, TryT<M>>.Fail<A>(Error error) =>
-        Fail<A>(error);
+        TryT.Fail<M, A>(error);
 
     static K<TryT<M>, A> Fallible<Error, TryT<M>>.Catch<A>(
         K<TryT<M>, A> fa,
         Func<Error, bool> Predicate,
         Func<Error, K<TryT<M>, A>> Fail) =>
-        fa.As().BindFail(e => Predicate(e) ? Fail(e).As() : TryT<M, A>.Fail(e));
+        fa.As().BindFail(e => Predicate(e) ? Fail(e).As() : TryT.Fail<M, A>(e));
 }

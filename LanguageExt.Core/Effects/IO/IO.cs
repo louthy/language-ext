@@ -303,7 +303,7 @@ public abstract record IO<A> :
 
     public TryT<M, C> SelectMany<M, B, C>(Func<A, TryT<M, B>> bind, Func<A, B, C> project)
         where M : Monad<M>, Alternative<M> =>
-        TryT<M, A>.LiftIO(this).SelectMany(bind, project);
+        TryT.liftIO<M, A>(this).SelectMany(bind, project);
 
     public EitherT<L, M, C> SelectMany<L, M, B, C>(Func<A, EitherT<L, M, B>> bind, Func<A, B, C> project)
         where M : Monad<M>, Alternative<M> =>

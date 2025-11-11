@@ -15,67 +15,6 @@ public record TryT<M, A>(K<M, Try<A>> runTry) :
     Fallible<TryT<M, A>, TryT<M>, Error, A>
     where M : Monad<M>
 {
-    /// <summary>
-    /// Lift a pure value into the monad-transformer
-    /// </summary>
-    /// <param name="value">Value to lift</param>
-    /// <returns>`TryT`</returns>
-    public static TryT<M, A> Succ(A value) =>
-        Lift(M.Pure(value));
-    
-    /// <summary>
-    /// Lift a fail value into the monad-transformer
-    /// </summary>
-    /// <param name="value">Value to lift</param>
-    /// <returns>`TryT`</returns>
-    public static TryT<M, A> Fail(Error value) =>
-        Lift(Fin.Fail<A>(value));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <returns>`TryT`</returns>
-    public static TryT<M, A> Lift(Pure<A> pure) =>
-        Succ(pure.Value);
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <returns>`TryT`</returns>
-    public static TryT<M, A> Lift(Fin<A> result) =>
-        new(M.Pure(Try.lift(result)));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <returns>`TryT`</returns>
-    public static TryT<M, A> Lift(Func<Fin<A>> result) =>
-        new(M.Pure(Try.lift(result)));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="fail">Monad to lift</param>
-    /// <returns>`TryT`</returns>
-    public static TryT<M, A> Lift(Fail<Error> fail) =>
-        Lift(Fin.Fail<A>(fail.Value));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="monad">Monad to lift</param>
-    /// <returns>`TryT`</returns>
-    public static TryT<M, A> Lift(K<M, A> monad) =>
-        new(M.Map(Try<A>.Succ, monad));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="monad">Monad to lift</param>
-    /// <returns>`TryT`</returns>
-    public static TryT<M, A> LiftIO(IO<A> monad) =>
-        new(M.LiftIOMaybe(monad.Try().Run()).Map(Try<A>.Lift));
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Match
@@ -193,16 +132,7 @@ public record TryT<M, A>(K<M, Try<A>> runTry) :
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`TryT`</returns>
     public TryT<M, A> BindFail(Func<Error, TryT<M, A>> Fail) =>
-        BiBind(Succ, Fail);
-
-    /// <summary>
-    /// Monad bind operation
-    /// </summary>
-    /// <param name="f">Mapping function</param>
-    /// <typeparam name="B">Target bound value type</typeparam>
-    /// <returns>`TryT`</returns>
-    public TryT<M, B> Bind<B>(Func<A, IO<B>> f) =>
-        Bind(a => TryT<M, B>.LiftIO(f(a)));
+        BiBind(TryT.Succ<M, A>, Fail);
 
     /// <summary>
     /// Monad bind operation
@@ -249,7 +179,7 @@ public record TryT<M, A>(K<M, Try<A>> runTry) :
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`TryT`</returns>
     public TryT<M, C> SelectMany<B, C>(Func<A, K<M, B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => TryT<M, B>.Lift(bind(x)), project);
+        SelectMany(x => TryT.lift(bind(x)), project);
 
     /// <summary>
     /// Monad bind operation
@@ -260,7 +190,7 @@ public record TryT<M, A>(K<M, Try<A>> runTry) :
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`TryT`</returns>
     public TryT<M, C> SelectMany<B, C>(Func<A, Fin<B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => TryT<M, B>.Lift(bind(x)), project);
+        SelectMany(x => TryT.lift<M, B>(bind(x)), project);
 
     /// <summary>
     /// Monad bind operation
@@ -272,17 +202,6 @@ public record TryT<M, A>(K<M, Try<A>> runTry) :
     /// <returns>`TryT`</returns>
     public TryT<M, C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         Map(x => project(x, bind(x).Value));
-
-    /// <summary>
-    /// Monad bind operation
-    /// </summary>
-    /// <param name="bind">Monadic bind function</param>
-    /// <param name="project">Projection function</param>
-    /// <typeparam name="B">Intermediate bound value type</typeparam>
-    /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>`TryT`</returns>
-    public TryT<M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => M.LiftIOMaybe(bind(x)), project);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -330,19 +249,19 @@ public record TryT<M, A>(K<M, Try<A>> runTry) :
         lhs.Bind(x => rhs.Map(_ => x));
     
     public static implicit operator TryT<M, A>(Pure<A> ma) =>
-        Succ(ma.Value);
+        TryT.Succ<M, A>(ma.Value);
     
     public static implicit operator TryT<M, A>(Error ma) =>
-        Lift(Fin.Fail<A>(ma));
+        TryT.lift<M, A>(Fin.Fail<A>(ma));
     
     public static implicit operator TryT<M, A>(Fail<Error> ma) =>
-        Lift(Fin.Fail<A>(ma.Value));
+        TryT.lift<M, A>(Fin.Fail<A>(ma.Value));
     
     public static implicit operator TryT<M, A>(Fail<Exception> ma) =>
-        Lift(Fin.Fail<A>(ma.Value));
+        TryT.lift<M, A>(Fin.Fail<A>(ma.Value));
     
     public static implicit operator TryT<M, A>(IO<A> ma) =>
-        LiftIO(ma);
+        TryT.liftIOMaybe<M, A>(ma);
     
     public static TryT<M, A> operator +(TryT<M, A> lhs, TryT<M, A> rhs) =>
         lhs.Combine(rhs);
@@ -372,13 +291,13 @@ public record TryT<M, A>(K<M, Try<A>> runTry) :
         lhs.Choose(rhs.As()).As();
 
     public static TryT<M, A> operator |(TryT<M, A> ma, Pure<A> mb) =>
-        ma.Choose(Succ(mb.Value)).As();
+        ma.Choose(TryT.Succ<M, A>(mb.Value)).As();
 
     public static TryT<M, A> operator |(TryT<M, A> ma, Fail<Error> mb) =>
-        ma.Choose(Fail(mb.Value)).As();
+        ma.Choose(TryT.Fail<M, A>(mb.Value)).As();
 
     public static TryT<M, A> operator |(TryT<M, A> ma, Fail<Exception> mb) =>
-        ma.Choose(Fail(mb.Value)).As();
+        ma.Choose(TryT.Fail<M, A>(mb.Value)).As();
 
     public static TryT<M, A> operator |(TryT<M, A> ma, CatchM<Error, TryT<M>, A> mb) =>
         (ma.Kind() | mb).As();

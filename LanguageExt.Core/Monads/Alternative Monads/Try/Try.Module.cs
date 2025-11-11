@@ -5,38 +5,87 @@ namespace LanguageExt;
 
 public partial class Try
 {
+    /// <summary>
+    /// Lifts a pure success value into a `Try` monad
+    /// </summary>
+    /// <param name="value">Value to lift</param>
+    /// <returns>`Try`</returns>
     public static Try<A> Succ<A>(A value) => 
-        Try<A>.Succ(value);
+        new (() => value);
 
+    /// <summary>
+    /// Lifts a failure value into a `Try` monad
+    /// </summary>
+    /// <param name="value">Failure value to lift</param>
+    /// <returns>`Try`</returns>
     public static Try<A> Fail<A>(Error value) => 
-        Try<A>.Fail(value);
+        new (() => value);
 
-    public static Try<A> lift<A>(Func<Fin<A>> ma) => 
-        Try<A>.Lift(ma);
-
-    public static Try<A> lift<A>(Fin<A> ma) => 
-        Try<A>.Lift(ma);
-
-    public static Try<A> lift<A>(Pure<A> ma) => 
-        Try<A>.Lift(ma);
-
-    public static Try<A> lift<A>(Fail<Error> ma) => 
-        Try<A>.Lift(ma);
-
-    public static Try<A> lift<A>(Error ma) => 
-        Try<A>.Lift(ma);
-
-    public static Try<A> lift<A>(Func<A> f) => 
-        Try<A>.Lift(f);
-
-    public static Try<Unit> lift(Action f) =>
-        Try<Unit>.Lift(
-            () =>
+    /// <summary>
+    /// Lifts a given function into a `Try` monad
+    /// </summary>
+    /// <param name="f">Function to lift</param>
+    /// <returns>`Try`</returns>
+    public static Try<A> lift<A>(Func<Fin<A>> f) => 
+        new(() =>
             {
-                f();
-                return default;
+                try
+                {
+                    return f();
+                }
+                catch (Exception e)
+                {
+                    return Fin.Fail<A>(e);
+                }
+            });
+    
+    /// <summary>
+    /// Lifts a given value into a `Try` monad
+    /// </summary>
+    /// <param name="ma">Value to lift</param>
+    /// <returns>`Try`</returns>
+    public static Try<A> lift<A>(Fin<A> ma) => 
+        new (() => ma);
+
+    /// <summary>
+    /// Lifts a given value into a `Try` monad
+    /// </summary>
+    /// <param name="ma">Value to lift</param>
+    /// <returns>`Try`</returns>
+    public static Try<A> lift<A>(Pure<A> ma) => 
+        new (() => ma.Value);
+
+    /// <summary>
+    /// Lifts a given value into a `Try` monad
+    /// </summary>
+    /// <param name="ma">Value to lift</param>
+    /// <returns>`Try`</returns>
+    public static Try<A> lift<A>(Fail<Error> ma) => 
+        new (() => ma.Value);
+
+    /// <summary>
+    /// Lifts a given function into a `Try` monad
+    /// </summary>
+    /// <param name="f">Function to lift</param>
+    /// <returns>`Try`</returns>
+    public static Try<A> lift<A>(Func<A> f) => 
+        new(() =>
+            {
+                try
+                {
+                    return f();
+                }
+                catch (Exception e)
+                {
+                    return Fin.Fail<A>(e);
+                }
             });
 
-    public static Fin<B> match<A, B>(Try<A> ma, Func<A, B> Succ, Func<Error, B> Fail) => 
-        ma.Match(Succ, Fail);
+    /// <summary>
+    /// Lifts a given function into a `Try` monad
+    /// </summary>
+    /// <param name="f">Function to lift</param>
+    /// <returns>`Try`</returns>
+    public static Try<Unit> lift(Action f) =>
+        lift<Unit>(() => { f(); return default; });
 }

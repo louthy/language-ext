@@ -21,72 +21,8 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) :
     /// </summary>
     /// <param name="value">Value to lift</param>
     /// <returns>`OptionT`</returns>
-    public static OptionT<M, A> Some(A value) =>
-        Lift(M.Pure(value));
-    
-    /// <summary>
-    /// Lift a pure value into the monad-transformer
-    /// </summary>
-    /// <param name="value">Value to lift</param>
-    /// <returns>`OptionT`</returns>
     public static readonly OptionT<M, A> None =
-        Lift(Option<A>.None);
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="monad">Monad to lift</param>
-    /// <returns>`OptionT`</returns>
-    public static OptionT<M, A> Lift(Pure<A> monad) =>
-        Some(monad.Value);
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="monad">Monad to lift</param>
-    /// <returns>`OptionT`</returns>
-    public static OptionT<M, A> Lift(Option<A> monad) =>
-        new(M.Pure(monad));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="monad">Monad to lift</param>
-    /// <returns>`OptionT`</returns>
-    public static OptionT<M, A> Lift(Fail<Unit> monad) =>
-        Lift(Option<A>.None);
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="monad">Monad to lift</param>
-    /// <returns>`OptionT`</returns>
-    public static OptionT<M, A> Lift(K<M, A> monad) =>
-        new(M.Map(Option<A>.Some, monad));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="monad">Monad to lift</param>
-    /// <returns>`OptionT`</returns>
-    public static OptionT<M, A> Lift(K<M, Option<A>> monad) =>
-        new(monad);
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="monad">Monad to lift</param>
-    /// <returns>`OptionT`</returns>
-    public static OptionT<M, A> LiftIO(IO<A> monad) =>
-        Lift(M.LiftIOMaybe(monad));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="monad">Monad to lift</param>
-    /// <returns>`OptionT`</returns>
-    public static OptionT<M, A> LiftIO(IO<Option<A>> monad) =>
-        Lift(M.LiftIOMaybe(monad));
+        OptionT.lift<M, A>(Option<A>.None);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -264,16 +200,7 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) :
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`OptionT`</returns>
     public OptionT<M, A> BindNone(Func<OptionT<M, A>> None) =>
-        BiBind(Some, None);
-
-    /// <summary>
-    /// Monad bind operation
-    /// </summary>
-    /// <param name="f">Mapping function</param>
-    /// <typeparam name="B">Target bound value type</typeparam>
-    /// <returns>`OptionT`</returns>
-    public OptionT<M, B> Bind<B>(Func<A, IO<B>> f) =>
-        Bind(a => OptionT<M, B>.LiftIO(f(a)));
+        BiBind(OptionT.Some<M, A>, None);
 
     /// <summary>
     /// Monad bind operation
@@ -320,7 +247,7 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) :
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`OptionT`</returns>
     public OptionT<M, C> SelectMany<B, C>(Func<A, K<M, B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => OptionT<M, B>.Lift(bind(x)), project);
+        SelectMany(x => OptionT.lift(bind(x)), project);
 
     /// <summary>
     /// Monad bind operation
@@ -331,7 +258,7 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) :
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`OptionT`</returns>
     public OptionT<M, C> SelectMany<B, C>(Func<A, Option<B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => OptionT<M, B>.Lift(bind(x)), project);
+        SelectMany(x => OptionT.lift<M, B>(bind(x)), project);
 
     /// <summary>
     /// Monad bind operation
@@ -343,17 +270,6 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) :
     /// <returns>`OptionT`</returns>
     public OptionT<M, C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         Map(x => project(x, bind(x).Value));
-
-    /// <summary>
-    /// Monad bind operation
-    /// </summary>
-    /// <param name="bind">Monadic bind function</param>
-    /// <param name="project">Projection function</param>
-    /// <typeparam name="B">Intermediate bound value type</typeparam>
-    /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>`OptionT`</returns>
-    public OptionT<M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => M.LiftIOMaybe(bind(x)), project);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -401,28 +317,28 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) :
         lhs.Bind(x => rhs.Map(_ => x));
     
     public static implicit operator OptionT<M, A>(in Option<A> ma) =>
-        Lift(ma);
+        OptionT.lift<M, A>(ma);
     
     public static implicit operator OptionT<M, A>(Pure<A> ma) =>
         Some(ma.Value);
     
     public static implicit operator OptionT<M, A>(Fail<Unit> ma) =>
-        Lift(Option<A>.None);
+        OptionT.lift<M, A>(Option<A>.None);
 
     public static implicit operator OptionT<M, A>(in Unit fail) => 
-        Lift(Option<A>.None);
+        OptionT.lift<M, A>(Option<A>.None);
 
     public static implicit operator OptionT<M, A>(IO<A> ma) =>
-        LiftIO(ma);
+        OptionT.liftIOMaybe<M, A>(ma);
     
     public static implicit operator OptionT<M, A>(Lift<A> ma) =>
-        LiftIO(ma);
+        OptionT.liftIOMaybe<M, A>(ma);
     
     public static implicit operator OptionT<M, A>(Lift<EnvIO, A> ma) =>
-        LiftIO(ma);
+        OptionT.liftIOMaybe<M, A>(ma);
     
     public static implicit operator OptionT<M, A>(IO<Option<A>> ma) =>
-        LiftIO(ma);
+        OptionT.liftIOMaybe<M, A>(ma);
 
     public EitherT<L, M, A> ToEither<L>(L left) =>
         new(runOption.Map(ma => ma.ToEither(left)));
@@ -432,14 +348,7 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) :
 
     public EitherT<L, M, A> ToEither<L>() where L : Monoid<L> =>
         new(runOption.Map(ma => ma.ToEither<L>()));
-
-    /*
-    public StreamT<M, A> ToStream() =>
-        from seq in StreamT<M, Seq<A>>.Lift(runOption.Map(ma => ma.IsSome ? Seq((A)ma) : Seq<A>.Empty))
-        from res in StreamT<M, A>.Lift(seq)
-        select res;
     
-    */
     public static OptionT<M, A> operator |(OptionT<M, A> lhs, OptionT<M, A> rhs) =>
         lhs.Choose(rhs).As();
 

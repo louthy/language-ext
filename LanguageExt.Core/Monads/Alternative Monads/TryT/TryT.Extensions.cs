@@ -25,6 +25,16 @@ public static partial class TryTExtensions
         ma.As().runTry.Map(t => t.Run());
 
     /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`TryT`</returns>
+    public static TryT<M, B> Bind<M, A, B>(this K<TryT<M>, A> ma, Func<A, IO<B>> f) 
+        where M : MonadIO<M> =>
+        ma.As().Bind(a => TryT.liftIO<M, B>(f(a)));
+
+    /// <summary>
     /// Monadic join
     /// </summary>
     [Pure]
@@ -66,7 +76,7 @@ public static partial class TryTExtensions
         Func<A, K<TryT<M>, B>> bind, 
         Func<A, B, C> project)
         where M : Monad<M> =>
-        TryT<M, A>.Lift(ma).SelectMany(bind, project);
+        TryT.lift(ma).SelectMany(bind, project);
 
     /// <summary>
     /// Monad bind operation
@@ -82,5 +92,21 @@ public static partial class TryTExtensions
         Func<A, TryT<M, B>> bind, 
         Func<A, B, C> project)
         where M : Monad<M> =>
-        TryT<M, A>.Lift(ma).SelectMany(bind, project);
+        TryT.lift(ma).SelectMany(bind, project);
+    
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`TryT`</returns>
+    [Pure]
+    public static TryT<M, C> SelectMany<M, A, B, C>(
+        this K<TryT<M>, A> ma,
+        Func<A, IO<B>> bind, 
+        Func<A, B, C> project) 
+        where M : MonadIO<M> =>
+        ma.As().SelectMany(x => M.LiftIO(bind(x)), project);
 }

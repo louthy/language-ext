@@ -14,82 +14,6 @@ namespace LanguageExt;
 public record Try<A>(Func<Fin<A>> runTry) : 
     Fallible<Try<A>, Try, Error, A>
 {
-    /// <summary>
-    /// Lift a pure value into the monad-transformer
-    /// </summary>
-    /// <param name="value">Value to lift</param>
-    /// <returns>`TryT`</returns>
-    public static Try<A> Succ(A value) =>
-        new (() => value);
-    
-    /// <summary>
-    /// Lift a fail value into the monad-transformer
-    /// </summary>
-    /// <param name="value">Value to lift</param>
-    /// <returns>`TryT`</returns>
-    public static Try<A> Fail(Error value) =>
-        new (() => value);
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="pure">Monad to lift</param>
-    /// <returns>`TryT`</returns>
-    public static Try<A> Lift(Pure<A> pure) =>
-        new (() => pure.Value);
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="either">Monad to lift</param>
-    /// <returns>`TryT`</returns>
-    public static Try<A> Lift(Fin<A> result) =>
-        new (() => result);
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="either">Monad to lift</param>
-    /// <returns>`TryT`</returns>
-    public static Try<A> Lift(Func<Fin<A>> result) =>
-        new(() =>
-            {
-                try
-                {
-                    return result();
-                }
-                catch (Exception e)
-                {
-                    return Fin.Fail<A>(e);
-                }
-            });
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="either">Monad to lift</param>
-    /// <returns>`TryT`</returns>
-    public static Try<A> Lift(Func<A> result) =>
-        new(() =>
-            {
-                try
-                {
-                    return result();
-                }
-                catch (Exception e)
-                {
-                    return Fin.Fail<A>(e);
-                }
-            });
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="fail">Monad to lift</param>
-    /// <returns>`TryT`</returns>
-    public static Try<A> Lift(Fail<Error> fail) =>
-        new (() => fail.Value);
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Match
@@ -251,7 +175,7 @@ public record Try<A>(Func<Fin<A>> runTry) :
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`TryT`</returns>
     public Try<C> SelectMany<B, C>(Func<A, Fin<B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => Try<B>.Lift(bind(x)), project);
+        SelectMany(x => Try.lift(bind(x)), project);
 
     /// <summary>
     /// Monad bind operation
@@ -270,16 +194,16 @@ public record Try<A>(Func<Fin<A>> runTry) :
     //
 
     public static implicit operator Try<A>(Pure<A> ma) =>
-        Succ(ma.Value);
+        Try.Succ(ma.Value);
     
     public static implicit operator Try<A>(Error ma) =>
-        Lift(Fin.Fail<A>(ma));
+        Try.lift(Fin.Fail<A>(ma));
     
     public static implicit operator Try<A>(Fail<Error> ma) =>
-        Lift(Fin.Fail<A>(ma.Value));
+        Try.lift(Fin.Fail<A>(ma.Value));
     
     public static implicit operator Try<A>(Fail<Exception> ma) =>
-        Lift(Fin.Fail<A>(ma.Value));
+        Try.lift(Fin.Fail<A>(ma.Value));
 
     public Option<A> ToOption() =>
         this.Run().ToOption(); 
@@ -329,16 +253,16 @@ public record Try<A>(Func<Fin<A>> runTry) :
         lhs.As().Choose(rhs).As();
 
     public static Try<A> operator |(Try<A> ma, Pure<A> mb) =>
-        ma.Choose(Succ(mb.Value)).As();
+        ma.Choose(Try.Succ(mb.Value)).As();
 
     public static Try<A> operator |(Try<A> ma, Fail<Error> mb) =>
-        ma.Choose(Fail(mb.Value)).As();
+        ma.Choose(Try.Fail<A>(mb.Value)).As();
 
     public static Try<A> operator |(Try<A> ma, Fail<Exception> mb) =>
-        ma.Choose(Fail(mb.Value)).As();
+        ma.Choose(Try.Fail<A>(mb.Value)).As();
 
     public static Try<A> operator |(Try<A> ma, Exception mb) =>
-        ma.Choose(Fail(mb)).As();
+        ma.Choose(Try.Fail<A>(mb)).As();
 
     public static Try<A> operator |(Try<A> ma, CatchM<Error, Try, A> mb) =>
         (ma.Kind() | mb).As();

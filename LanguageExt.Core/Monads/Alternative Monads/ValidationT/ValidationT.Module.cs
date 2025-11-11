@@ -37,8 +37,8 @@ public partial class ValidationT
 
     public static ValidationT<L, M, A> liftIO<L, M, A>(IO<A> ma)  
         where L : Monoid<L>
-        where M : Monad<M> =>
-        new (_ => M.LiftIOMaybe(ma).Map(Validation.Success<L, A>));
+        where M : MonadIO<M> =>
+        new (_ => M.LiftIO(ma).Map(Validation.Success<L, A>));
     
     public static K<M, B> match<F, M, A, B>(K<ValidationT<F, M>, A> ma, Func<F, B> Fail, Func<A, B> Succ) 
         where F : Monoid<F>

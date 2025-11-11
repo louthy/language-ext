@@ -1,5 +1,6 @@
 using Xunit;
 using LanguageExt.Common;
+using LE = LanguageExt;
 
 namespace LanguageExt.Tests.TraitTests;
 
@@ -133,8 +134,8 @@ public class FunctorLawTests
     [Fact]
     public void Fin()
     {
-        var fa = LanguageExt.Fin.Succ(1);
-        var fx = LanguageExt.Fin.Fail<int>(Errors.TimedOut);
+        var fa = LE.Fin.Succ(1);
+        var fx = LE.Fin.Fail<int>(Errors.TimedOut);
         FunctorLaw<Fin>.assert(fa);
         FunctorLaw<Fin>.assert(fx);
     }
@@ -172,8 +173,8 @@ public class FunctorLawTests
         bool eq(K<Try, int> vx, K<Try, int> vy) => 
             vx.Run().Equals(vy.Run());
         
-        var fa = Try<int>.Succ(1);
-        var fx = Try<int>.Fail(Errors.EndOfStream);
+        var fa = LE.Try.Succ(1);
+        var fx = LE.Try.Fail<int>(Errors.EndOfStream);
         FunctorLaw<Try>.assert(fa, eq);
         FunctorLaw<Try>.assert(fx, eq);
     }
@@ -184,8 +185,8 @@ public class FunctorLawTests
         bool eq(K<TryT<Identity>, int> vx, K<TryT<Identity>, int> vy) => 
             vx.Run().Run().Equals(vy.Run().Run());
         
-        var fa = TryT<Identity, int>.Succ(1);
-        var fx = TryT<Identity, int>.Fail(Errors.EndOfStream);
+        var fa = LE.TryT.Succ<Identity, int>(1);
+        var fx = LE.TryT.Fail<Identity, int>(Errors.EndOfStream);
         FunctorLaw<TryT<Identity>>.assert(fa, eq);
         FunctorLaw<TryT<Identity>>.assert(fx, eq);
     }
@@ -205,8 +206,8 @@ public class FunctorLawTests
         bool eq(K<ValidationT<StringM, Identity>, int> vx, K<ValidationT<StringM, Identity>, int> vy) =>
             vx.Run().As().Value.Equals(vy.Run().As().Value);
         
-        var fa = LanguageExt.ValidationT.Success<StringM, Identity, int>(1);
-        var fx = LanguageExt.ValidationT.Fail<StringM, Identity, int>("failed");
+        var fa = LE.ValidationT.Success<StringM, Identity, int>(1);
+        var fx = LE.ValidationT.Fail<StringM, Identity, int>("failed");
         FunctorLaw<ValidationT<StringM, Identity>>.assert(fa, eq);
         FunctorLaw<ValidationT<StringM, Identity>>.assert(fx, eq);
     }
@@ -214,7 +215,7 @@ public class FunctorLawTests
     [Fact]
     public void Identity()
     {
-        var fa = LanguageExt.Identity.Pure(1);
+        var fa = LE.Identity.Pure(1);
         FunctorLaw<Identity>.assert(fa);
     }
     

@@ -22,7 +22,7 @@ public partial class OptionT<M> :
         ma.As().Map(f);
 
     static K<OptionT<M>, A> Applicative<OptionT<M>>.Pure<A>(A value) => 
-        OptionT<M, A>.Some(value);
+        OptionT.Some<M, A>(value);
 
     static K<OptionT<M>, B> Applicative<OptionT<M>>.Apply<A, B>(K<OptionT<M>, Func<A, B>> mf, K<OptionT<M>, A> ma) =>
         mf.As().Bind(x => ma.As().Map(x));
@@ -31,10 +31,10 @@ public partial class OptionT<M> :
         ma.As().Bind(_ => mb);
 
     static K<OptionT<M>, A> MonadT<OptionT<M>, M>.Lift<A>(K<M, A> ma) => 
-        OptionT<M, A>.Lift(ma);
+        OptionT.lift(ma);
         
     static K<OptionT<M>, A> MonadIO<OptionT<M>>.LiftIO<A>(IO<A> ma) => 
-        OptionT<M, A>.Lift(M.LiftIOMaybe(ma));
+        OptionT.lift(M.LiftIOMaybe(ma));
 
     static K<OptionT<M>, A> MonoidK<OptionT<M>>.Empty<A>() =>
         OptionT<M, A>.None;
@@ -57,7 +57,7 @@ public partial class OptionT<M> :
         lhs.Choose(rhs);
 
     static K<OptionT<M>, A> Fallible<Unit, OptionT<M>>.Fail<A>(Unit error) =>
-        None<A>();
+        OptionT.None<M, A>();
 
     static K<OptionT<M>, A> Fallible<Unit, OptionT<M>>.Catch<A>(
         K<OptionT<M>, A> fa, 

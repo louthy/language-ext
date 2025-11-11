@@ -41,16 +41,6 @@ public readonly struct Option<A> :
         default;
 
     /// <summary>
-    /// Construct an Option of A in a Some state
-    /// </summary>
-    /// <param name="value">Value to bind, must be non-null</param>
-    /// <returns>Option of A</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<A> Some(A value) =>
-        new (value);
-
-    /// <summary>
     /// Constructor
     /// </summary>
     internal Option(A value)
@@ -423,7 +413,7 @@ public readonly struct Option<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Option<B> Select<B>(Func<A, B> f) =>
         isSome
-            ? Option<B>.Some(f(Value!))
+            ? Option.Some(f(Value!))
             : default;
 
     /// <summary>
@@ -436,7 +426,7 @@ public readonly struct Option<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Option<B> Map<B>(Func<A, B> f) =>
         isSome
-            ? Option<B>.Some(f(Value!))
+            ? Option.Some(f(Value!))
             : default;
     
     /// <summary>
@@ -601,20 +591,8 @@ public readonly struct Option<A> :
     /// <returns></returns>
     [Pure]
     public OptionT<IO, A> ToIO() =>
-        OptionT<IO, A>.Lift(this);
+        OptionT.lift<IO, A>(this);
 
-    /*
-    /// <summary>
-    /// Convert to a stream
-    /// </summary>
-    [Pure]
-    public StreamT<M, A> ToStream<M>() 
-        where M : Monad<M> =>
-        isSome 
-            ? StreamT<M, A>.Pure(Value!) 
-            : StreamT<M, A>.Empty;
-            */
-    
     /// <summary>
     /// Convert the structure to an `Eff`
     /// </summary>
@@ -1262,12 +1240,12 @@ public readonly struct Option<A> :
     [Pure]
     public Option<C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         IsSome
-            ? Option<C>.Some(project(Value!, bind(Value!).Value))
+            ? Option.Some(project(Value!, bind(Value!).Value))
             : Option<C>.None;
 
     [Pure]
     public static implicit operator Option<A>(Pure<A> mr) =>
-        mr.Value is null ? None : Some(mr.Value);
+        mr.Value is null ? None : Option.Some(mr.Value);
 
     /// <summary>
     /// Semigroup combine
