@@ -9,14 +9,14 @@ public static partial class Prelude
     /// Construct identity monad
     /// </summary>
     public static Identity<A> Id<A>(A value) =>
-        Identity<A>.Pure(value);
+        Identity.Pure(value);
 
     /// <summary>
     /// Construct identity monad
     /// </summary>
     public static IdentityT<M, A> Id<M, A>(A value) 
         where M : Monad<M>, Choice<M> =>
-        IdentityT<M, A>.Pure(value);
+        IdentityT.Pure<M, A>(value);
 
     /// <summary>
     /// Create a new Pure monad.  This monad doesn't do much, but when combined with

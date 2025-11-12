@@ -20,9 +20,6 @@ public record Identity<A>(A Value) :
     K<Identity, A>,
     IComparable<Identity<A>>
 {
-    public static Identity<A> Pure(A value) =>
-        new (value);
-    
     /// <summary>
     /// Map each element of a structure to an action, evaluate these actions from
     /// left to right, and collect the results.

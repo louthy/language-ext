@@ -11,8 +11,8 @@ public static class EitherTGuardExtensions
     public static EitherT<L, M, Unit> ToEitherT<L, M>(this Guard<L, Unit> guard)
         where M : Monad<M> =>
         guard.Flag
-            ? EitherT<L, M, Unit>.Right(default)
-            : EitherT<L, M, Unit>.Left(guard.OnFalse());
+            ? EitherT.Right<L, M, Unit>(default)
+            : EitherT.Left<L, M, Unit>(guard.OnFalse());
 
     /// <summary>
     /// Monadic binding support for `EitherT`
@@ -23,7 +23,7 @@ public static class EitherTGuardExtensions
         where M : Monad<M> =>
         guard.Flag
             ? f(default).As()
-            : EitherT<L, M, B>.Left(guard.OnFalse());
+            : EitherT.Left<L, M, B>(guard.OnFalse());
 
     /// <summary>
     /// Monadic binding support for `EitherT`
@@ -35,6 +35,6 @@ public static class EitherTGuardExtensions
         where M : Monad<M> =>
         guard.Flag
             ? bind(default).As().Map(b => project(default, b))
-            : EitherT<L, M, C>.Left(guard.OnFalse());
+            : EitherT.Left<L, M, C>(guard.OnFalse());
 
 }

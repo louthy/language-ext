@@ -18,9 +18,6 @@ namespace LanguageExt.ContT;
 public record ContT<R, M, A>(Func<Func<A, K<M, R>>, K<M, R>> runCont)
     where M : Applicative<M>
 {
-    public static ContT<R, M, A> Pure(A value) =>
-        new(f => f(value));
-
     /// <summary>
     /// Monadic bind operation
     /// </summary>

@@ -11,12 +11,6 @@ namespace LanguageExt;
 public record IdentityT<M, A>(K<M, A> Value) : K<IdentityT<M>, A>
     where M : Monad<M>, Choice<M>
 {
-    public static IdentityT<M, A> Pure(A value) =>
-        new (M.Pure(value));
-
-    public static IdentityT<M, A> Lift(K<M, A> value) =>
-        new (value);
-
     [Pure]
     public IdentityT<M, B> Map<B>(Func<A, B> f) =>
         new(M.Map(f, Value));

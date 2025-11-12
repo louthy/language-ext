@@ -125,8 +125,8 @@ public class FunctorLawTests
     [Fact]
     public void EitherT()
     {
-        var fa = EitherT<string, Identity, int>.Right(1);
-        var fx = EitherT<string, Identity, int>.Left("failed");
+        var fa = LE.EitherT.Right<string, Identity, int>(1);
+        var fx = LE.EitherT.Left<string, Identity, int>("failed");
         FunctorLaw<EitherT<string, Identity>>.assert(fa);
         FunctorLaw<EitherT<string, Identity>>.assert(fx);
     }
@@ -222,7 +222,7 @@ public class FunctorLawTests
     [Fact]
     public void IdentityT()
     {
-        var fa = IdentityT<Identity, int>.Pure(1);
+        var fa = LE.IdentityT.Pure<Identity, int>(1);
         FunctorLaw<IdentityT<Identity>>.assert(fa);
     }
     

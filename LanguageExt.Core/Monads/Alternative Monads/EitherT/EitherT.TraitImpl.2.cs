@@ -9,16 +9,16 @@ public class EitherT<M> :
     where M : Monad<M>
 {
     static K<EitherT<M>, A, B> CoproductCons<EitherT<M>>.Left<A, B>(A value) => 
-        EitherT<A, M, B>.Left(value);
+        EitherT.Left<A, M, B>(value);
 
     static K<EitherT<M>, A, B> CoproductCons<EitherT<M>>.Right<A, B>(B value) => 
-        EitherT<A, M, B>.Right(value);
+        EitherT.Right<A, M, B>(value);
 
     static K<EitherT<M>, A, C> CoproductK<EitherT<M>>.Match<A, B, C>(
         Func<A, C> Left, 
         Func<B, C> Right,
         K<EitherT<M>, A, B> fab) => 
-        EitherT<A, M, C>.Lift(fab.As2().Match(Left, Right));
+        EitherT.lift<A, M, C>(fab.As2().Match(Left, Right));
 
     static K<EitherT<M>, L1, B> Bifunctor<EitherT<M>>.BiMap<L, A, L1, B>(
         Func<L, L1> first, 

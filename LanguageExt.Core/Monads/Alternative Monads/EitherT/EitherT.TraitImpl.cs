@@ -22,7 +22,7 @@ public partial class EitherT<L, M> :
         ma.As().Map(f);
 
     static K<EitherT<L, M>, A> Applicative<EitherT<L, M>>.Pure<A>(A value) => 
-        EitherT<L, M, A>.Right(value);
+        EitherT.Right<L, M, A>(value);
 
     static K<EitherT<L, M>, B> Applicative<EitherT<L, M>>.Apply<A, B>(K<EitherT<L, M>, Func<A, B>> mf, K<EitherT<L, M>, A> ma) =>
         mf.As().Bind(x => ma.As().Map(x));
@@ -31,10 +31,10 @@ public partial class EitherT<L, M> :
         ma.As().Bind(_ => mb);
 
     static K<EitherT<L, M>, A> MonadT<EitherT<L, M>, M>.Lift<A>(K<M, A> ma) => 
-        EitherT<L, M, A>.Lift(ma);
+        EitherT.lift<L, M, A>(ma);
         
     static K<EitherT<L, M>, A> MonadIO<EitherT<L, M>>.LiftIO<A>(IO<A> ma) => 
-        EitherT<L, M, A>.Lift(M.LiftIOMaybe(ma));
+        EitherT.lift<L, M, A>(M.LiftIOMaybe(ma));
 
     static K<EitherT<L, M>, A> Choice<EitherT<L, M>>.Choose<A>(K<EitherT<L, M>, A> ma, K<EitherT<L, M>, A> mb) =>
         new EitherT<L, M, A>(

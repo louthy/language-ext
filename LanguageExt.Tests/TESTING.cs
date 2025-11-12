@@ -103,8 +103,8 @@ public static class Testing
    
     public static void Test6()
     {
-        var m1 = ReaderT<string>.lift(IdentityT<IO, int>.Lift(IO.pure(123)));
-        var m2 = ReaderT<string>.lift(IdentityT<IO, int>.Lift(IO.pure(123)));
+        var m1 = ReaderT<string>.lift(IdentityT.lift(IO.pure(123)));
+        var m2 = ReaderT<string>.lift(IdentityT.lift(IO.pure(123)));
                 
         var m0 = from w in Pure(123)
                  from p in ReaderT.ask<IdentityT<IO>, string>()

@@ -12,25 +12,6 @@ public class IdentityT<M> :
     MonadUnliftIO<IdentityT<M>>
     where M : Monad<M>, Choice<M>
 {
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Module
-    //
-    
-    public static K<IdentityT<M>, A> Pure<A>(A value) =>
-        IdentityT<M, A>.Pure(value);
-    
-    public static IdentityT<M, B> bind<A, B>(IdentityT<M, A> ma, Func<A, IdentityT<M, B>> f) =>
-        ma.As().Bind(f);
-
-    public static IdentityT<M, B> map<A, B>(Func<A, B> f, IdentityT<M, A> ma) => 
-        ma.As().Map(f);
-
-    public static IdentityT<M, B> apply<A, B>(IdentityT<M, Func<A, B>> mf, IdentityT<M, A> ma) =>
-        new(mf.As().Value.Apply(ma.As().Value));
-
-    public static IdentityT<M, B> action<A, B>(IdentityT<M, A> ma, IdentityT<M, B> mb) =>
-        ma.Bind(_ => mb);
  
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -43,6 +24,9 @@ public class IdentityT<M> :
     static K<IdentityT<M>, B> Functor<IdentityT<M>>.Map<A, B>(Func<A, B> f, K<IdentityT<M>, A> ma) => 
         ma.As().Map(f);
 
+    static K<IdentityT<M>, A> Applicative<IdentityT<M>>.Pure<A>(A value) => 
+        IdentityT.Pure<M, A>(value);
+
     static K<IdentityT<M>, B> Applicative<IdentityT<M>>.Apply<A, B>(K<IdentityT<M>, Func<A, B>> mf, K<IdentityT<M>, A> ma) =>
         mf.As().Bind(f => ma.As().Map(f));
 
@@ -50,10 +34,10 @@ public class IdentityT<M> :
         ma.As().Bind(_ => mb);
 
     static K<IdentityT<M>, A> MonadT<IdentityT<M>, M>.Lift<A>(K<M, A> ma) =>
-        IdentityT<M, A>.Lift(ma);
+        IdentityT.lift(ma);
 
     static K<IdentityT<M>, A> MonadIO<IdentityT<M>>.LiftIO<A>(IO<A> ma) => 
-        IdentityT<M, A>.Lift(M.LiftIOMaybe(ma));
+        IdentityT.lift(M.LiftIOMaybe(ma));
 
     static K<IdentityT<M>, IO<A>> MonadUnliftIO<IdentityT<M>>.ToIO<A>(K<IdentityT<M>, A> ma) =>
         new IdentityT<M, IO<A>>(M.ToIOMaybe(ma.As().Value));

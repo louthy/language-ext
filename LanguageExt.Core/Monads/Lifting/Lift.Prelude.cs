@@ -98,32 +98,32 @@ public static partial class Prelude
         new(IO.liftAsync(async () => await ma.ConfigureAwait(false)));
 
     /// <summary>
-    /// Lift an Either into a `EitherT IO` 
+    /// Lift an `Either` into a `EitherT IO` 
     /// </summary>
     public static EitherT<L, IO, A> liftIO<L, A>(Either<L, A> ma) =>
-        EitherT<L, IO, A>.Lift(ma);
+        EitherT.lift<L, IO, A>(ma);
 
     /// <summary>
-    /// Lift an Either into a `EitherT IO` 
+    /// Lift an `Either` into a `EitherT IO` 
     /// </summary>
     public static EitherT<L, IO, A> liftIO<L, A>(Task<Either<L, A>> ma) =>
         new(IO.liftAsync(async () => await ma.ConfigureAwait(false)));
 
     /// <summary>
-    /// Lift an Either into a `EitherT IO` 
+    /// Lift an `Either` into a `EitherT IO` 
     /// </summary>
     public static FinT<IO, A> liftIO<A>(Task<Fin<A>> ma) =>
         new(IO.liftAsync(async () => await ma.ConfigureAwait(false)));
 
     /// <summary>
-    /// Lift an Validation into a `ValidationT IO` 
+    /// Lift a `Validation` into a `ValidationT IO` 
     /// </summary>
     public static ValidationT<L, IO, A> liftIO<L, A>(Validation<L, A> ma) 
         where L : Monoid<L> =>
         ValidationT.lift<L, IO, A>(ma);
 
     /// <summary>
-    /// Lift a Validation into a `ValidationT IO` 
+    /// Lift a `Validation` into a `ValidationT IO` 
     /// </summary>
     public static ValidationT<L, IO, A> liftIO<L, A>(Task<Validation<L, A>> ma) 
         where L : Monoid<L> =>

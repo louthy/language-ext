@@ -101,7 +101,7 @@ public static partial class IOExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static EitherT<L, M, C> SelectMany<L, M, A, B, C>(this K<IO, A> ma, Func<A, EitherT<L, M, B>> bind, Func<A, B, C> project)
         where M : MonadIO<M>, Alternative<M> =>
-        EitherT<L, M, A>.LiftIO(ma.As()).SelectMany(bind, project);
+        EitherT.liftIO<L, M, A>(ma.As()).SelectMany(bind, project);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -277,7 +277,7 @@ public abstract partial record Either<L, R> :
     /// <returns></returns>
     [Pure]
     public EitherT<L, IO, R> ToIO() =>
-        EitherT<L, IO, R>.Lift(this);
+        EitherT.lift<L, IO, R>(this);
     
     /// <summary>
     /// Comparison operator

@@ -33,11 +33,21 @@ public static partial class EitherTExtensions
         ma.As().runEither;
 
     /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`EitherT`</returns>
+    public static EitherT<L, M, B> Bind<L, M, A, B>(this K<EitherT<L, M>, A> ma, Func<A, IO<B>> f) 
+        where M : MonadIO<M> =>
+        ma.As().Bind(a => EitherT.liftIO<L, M, B>(f(a)));
+    
+    /// <summary>
     /// Get the outer task and wrap it up in a new IO within the EitherT IO
     /// </summary>
     public static EitherT<L, IO, A> Flatten<L, A>(this Task<EitherT<L, IO, A>> tma) =>
-        EitherT<L, IO, EitherT<L, IO, A>>
-           .Lift(IO.liftAsync(async () => await tma.ConfigureAwait(false)))
+        EitherT
+           .lift<L, IO, EitherT<L, IO, A>>(IO.liftAsync(async () => await tma.ConfigureAwait(false)))
            .Flatten();
 
     /// <summary>
@@ -76,7 +86,7 @@ public static partial class EitherTExtensions
     public static EitherT<L, M, A> Filter<L, M, A>(this K<EitherT<L, M>, A> ma, Func<A, bool> pred)
         where L : Monoid<L>
         where M : Monad<M> =>
-        ma.As().Bind(x => pred(x) ? EitherT<L, M, A>.Right(x) : EitherT<L, M, A>.Left(L.Empty));    
+        ma.As().Bind(x => pred(x) ? EitherT.Right<L, M, A>(x) : EitherT.Left<L, M, A>(L.Empty));    
     
     /// <summary>
     /// Monad bind operation
@@ -92,7 +102,7 @@ public static partial class EitherTExtensions
         Func<A, K<EitherT<L, M>, B>> bind, 
         Func<A, B, C> project)
         where M : Monad<M> =>
-        EitherT<L, M, A>.Lift(ma).SelectMany(bind, project);
+        EitherT.lift<L, M, A>(ma).SelectMany(bind, project);
 
     /// <summary>
     /// Monad bind operation
@@ -108,7 +118,7 @@ public static partial class EitherTExtensions
         Func<A, EitherT<L, M, B>> bind, 
         Func<A, B, C> project)
         where M : Monad<M> =>
-        EitherT<L, M, A>.Lift(ma).SelectMany(bind, project);
+        EitherT.lift<L, M, A>(ma).SelectMany(bind, project);
 
     /// <summary>
     /// Partitions a foldable of `EitherT` into two sequences.

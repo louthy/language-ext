@@ -18,22 +18,6 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
     where M : Monad<M>
 {
     /// <summary>
-    /// Lift a pure value into the monad-transformer
-    /// </summary>
-    /// <param name="value">Value to lift</param>
-    /// <returns>`EitherT`</returns>
-    public static EitherT<L, M, R> Right(R value) =>
-        Lift(M.Pure(value));
-    
-    /// <summary>
-    /// Lift a fail value into the monad-transformer
-    /// </summary>
-    /// <param name="value">Value to lift</param>
-    /// <returns>`EitherT`</returns>
-    public static EitherT<L, M, R> Left(L value) =>
-        Lift(Either.Left<L, R>(value));
-
-    /// <summary>
     /// Is the `EitherT` in a Right state?
     /// </summary>
     public K<M, bool> IsRight =>
@@ -45,62 +29,6 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
     public K<M, bool> IsLeft =>
         Match(Left: _ => true, Right: _ => false);
     
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="pure">Monad to lift</param>
-    /// <returns>`EitherT`</returns>
-    public static EitherT<L, M, R> Lift(Pure<R> pure) =>
-        Right(pure.Value);
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="either">Monad to lift</param>
-    /// <returns>`EitherT`</returns>
-    public static EitherT<L, M, R> Lift(Either<L, R> either) =>
-        new(M.Pure(either));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="fail">Monad to lift</param>
-    /// <returns>`EitherT`</returns>
-    public static EitherT<L, M, R> Lift(Fail<L> fail) =>
-        Lift(Either.Left<L, R>(fail.Value));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="monad">Monad to lift</param>
-    /// <returns>`EitherT`</returns>
-    public static EitherT<L, M, R> Lift(K<M, R> monad) =>
-        new(M.Map(Either.Right<L, R>, monad));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="monad">Monad to lift</param>
-    /// <returns>`EitherT`</returns>
-    public static EitherT<L, M, R> Lift(K<M, Either<L, R>> monad) =>
-        new(monad);
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="monad">Monad to lift</param>
-    /// <returns>`EitherT`</returns>
-    public static EitherT<L, M, R> LiftIO(IO<R> monad) =>
-        Lift(M.LiftIOMaybe(monad));
-
-    /// <summary>
-    /// Lifts a given monad into the transformer
-    /// </summary>
-    /// <param name="monad">Monad to lift</param>
-    /// <returns>`EitherT`</returns>
-    public static EitherT<L, M, R> LiftIO(IO<Either<L, R>> monad) =>
-        Lift(M.LiftIOMaybe(monad));
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Match
@@ -293,7 +221,7 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
     public EitherT<L, M, B> Bind<B>(Func<R, Either<L, B>> f) =>
-        Bind(x => EitherT<L, M, B>.Lift(f(x)));
+        Bind(x => EitherT.lift<L, M, B>(f(x)));
 
     /// <summary>
     /// Monad bind operation
@@ -313,15 +241,6 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
-    public EitherT<L, M, B> Bind<B>(Func<R, IO<B>> f) =>
-        Bind(a => EitherT<L, M, B>.LiftIO(f(a)));
-
-    /// <summary>
-    /// Monad bind operation
-    /// </summary>
-    /// <param name="f">Mapping function</param>
-    /// <typeparam name="B">Target bound value type</typeparam>
-    /// <returns>`EitherT`</returns>
     public EitherT<L, M, B> Bind<B>(Func<R, Pure<B>> f) =>
         Map(a => f(a).Value);
 
@@ -332,7 +251,7 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
     public EitherT<L, M, B> Bind<B>(Func<R, Fail<L>> f) =>
-        Bind(a => EitherT<L, M, B>.Lift(f(a).Value));
+        Bind(a => EitherT.lift<L, M, B>(f(a).Value));
 
     /// <summary>
     /// Bimonad bind left
@@ -388,7 +307,7 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
     public EitherT<L, M, C> SelectMany<B, C>(Func<R, K<M, B>> bind, Func<R, B, C> project) =>
-        SelectMany(x => EitherT<L, M, B>.Lift(bind(x)), project);
+        SelectMany(x => EitherT.lift<L, M, B>(bind(x)), project);
 
     /// <summary>
     /// Monad bind operation
@@ -399,7 +318,7 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`EitherT`</returns>
     public EitherT<L, M, C> SelectMany<B, C>(Func<R, Either<L, B>> bind, Func<R, B, C> project) =>
-        SelectMany(x => EitherT<L, M, B>.Lift(bind(x)), project);
+        SelectMany(x => EitherT.lift<L, M, B>(bind(x)), project);
 
     /// <summary>
     /// Monad bind operation
@@ -480,28 +399,28 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
         lhs.Bind(x => rhs.Map(_ => x));
     
     public static implicit operator EitherT<L, M, R>(Either<L, R> ma) =>
-        Lift(ma);
+        EitherT.lift<L, M, R>(ma);
     
     public static implicit operator EitherT<L, M, R>(Pure<R> ma) =>
-        Right(ma.Value);
-    
-    public static implicit operator EitherT<L, M, R>(Fail<L> ma) =>
-        Lift(Either.Left<L, R>(ma.Value));
+        EitherT.Right<L, M, R>(ma.Value);
 
-    public static implicit operator EitherT<L, M, R>(L fail) => 
-        Lift(Either.Left<L, R>(fail));
+    public static implicit operator EitherT<L, M, R>(Fail<L> ma) =>
+        EitherT.lift<L, M, R>(ma);
+
+    public static implicit operator EitherT<L, M, R>(L fail) =>
+        EitherT.Left<L, M, R>(fail);
 
     public static implicit operator EitherT<L, M, R>(IO<R> ma) =>
-        LiftIO(ma);
+        EitherT.liftIOMaybe<L, M, R>(ma);
     
     public static implicit operator EitherT<L, M, R>(Lift<R> ma) =>
-        LiftIO(ma);
+        EitherT.liftIOMaybe<L, M, R>(ma.ToIO());
     
     public static implicit operator EitherT<L, M, R>(Lift<EnvIO, R> ma) =>
-        LiftIO(ma);
+        EitherT.liftIOMaybe<L, M, R>(ma.ToIO());
     
     public static implicit operator EitherT<L, M, R>(IO<Either<L, R>> ma) =>
-        LiftIO(ma);
+        EitherT.liftIOMaybe<L, M, R>(ma);
 
     [Pure, MethodImpl(Opt.Default)]
     public static EitherT<L, M, R> operator |(EitherT<L, M, R> lhs, EitherT<L, M, R> rhs) =>
