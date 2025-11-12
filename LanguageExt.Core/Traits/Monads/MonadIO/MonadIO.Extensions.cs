@@ -1,4 +1,5 @@
 using System;
+using LanguageExt.DSL;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -27,8 +28,8 @@ public static class MonadIOExtensions
     /// Monad bind operation
     /// </summary>
     public static K<M, C> SelectMany<M, A, B, C>(this K<M, A> ma, Func<A, IO<B>> bind, Func<A, B, C> project) 
-        where M : MonadIO<M>, Monad<M> =>
-        M.SelectMany(ma, x => M.LiftIOMaybe(bind(x)), project);
+        where M : MonadIO<M> =>
+        ma.Bind(x => IOTail<A>.resolve(x, bind(x), project));
 
     /// <summary>
     /// Monad bind operation

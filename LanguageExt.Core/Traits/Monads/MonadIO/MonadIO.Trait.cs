@@ -45,17 +45,6 @@ public interface MonadIO<M> : Monad<M>
 
     static K<M, A> Maybe.MonadIO<M>.LiftIOMaybe<A>(K<IO, A> ma) => 
         M.LiftIO(ma);
-
-    public static virtual K<M, C> SelectMany<A, B, C>(K<M, A> ma, Func<A, IO<B>> bind, Func<A, B, C> project) =>
-        ma.Bind(x => bind(x) switch
-                     {
-                         IOTail<B> tail when typeof(B) == typeof(C) => (IO<C>)(object)tail,
-                         IOTail<B> => throw new NotSupportedException("Tail calls can't transform in the `select`"),
-                         var mb => mb.Map(y => project(x, y))
-                     });
-
-    public static virtual K<M, C> SelectMany<A, B, C>(IO<A> ma, Func<A, K<M, B>> bind, Func<A, B, C> project) =>
-        M.SelectMany(M.LiftIOMaybe(ma), bind, project);
     
     public static virtual K<M, EnvIO> EnvIO => 
         M.LiftIOMaybe(IO.env);

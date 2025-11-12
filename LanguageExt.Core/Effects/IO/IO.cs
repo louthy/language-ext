@@ -245,20 +245,10 @@ public abstract record IO<A> :
         Map(f);
 
     public IO<C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
-        Bind(x => bind(x) switch
-                  {
-                      IOTail<B> tail when typeof(B) == typeof(C) => (IO<C>)(object)tail,
-                      IOTail<B> => throw new NotSupportedException("Tail calls can't transform in the `select`"),
-                      var mb => mb.Map(y => project(x, y)).Kind()
-                  });
+        Bind(x => IOTail<A>.resolve(x, bind(x), project));
 
     public IO<C> SelectMany<B, C>(Func<A, K<IO, B>> bind, Func<A, B, C> project) =>
-        Bind(x => bind(x) switch
-                  {
-                      IOTail<B> tail when typeof(B) == typeof(C) => (IO<C>)(object)tail,
-                      IOTail<B> => throw new NotSupportedException("Tail calls can't transform in the `select`"),
-                      var mb => mb.Map(y => project(x, y))
-                  });
+        Bind(x => IOTail<A>.resolve(x, bind(x).As(), project));
 
     public IO<C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
