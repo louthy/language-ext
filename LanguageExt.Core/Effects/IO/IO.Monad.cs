@@ -49,7 +49,7 @@ public partial class IO :
         new IOPure<A>(value);
 
     static K<IO, A> Fallible<Error, IO>.Fail<A>(Error error) => 
-        IO<A>.Fail(error);
+        fail<A>(error);
 
     static K<IO, A> Fallible<Error, IO>.Catch<A>(
         K<IO, A> fa, 

@@ -85,8 +85,8 @@ public class FunctorLawTests
         bool eq(K<IO, int> vx, K<IO, int> vy) => 
             vx.RunSafe().Equals(vy.RunSafe());
         
-        var ma = IO<int>.Pure(1);
-        var mx = IO<int>.Fail(Errors.Closed);
+        var ma = LE.IO.pure(1);
+        var mx = LE.IO.fail<int>(Errors.Closed);
         FunctorLaw<IO>.assert(ma, eq);
         FunctorLaw<IO>.assert(mx, eq);
     }

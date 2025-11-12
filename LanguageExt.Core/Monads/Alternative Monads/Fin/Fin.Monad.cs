@@ -161,8 +161,8 @@ public partial class Fin :
     static K<IO, A> Natural<Fin, IO>.Transform<A>(K<Fin, A> fa) =>
         fa switch
         {
-            Fin<A>.Succ (var x) => IO<A>.Pure(x),
-            Fin<A>.Fail (var e) => IO<A>.Fail(e),
+            Fin<A>.Succ (var x) => IO.pure(x),
+            Fin<A>.Fail (var e) => IO.fail<A>(e),
             _                   => throw new NotSupportedException()
         };
 }

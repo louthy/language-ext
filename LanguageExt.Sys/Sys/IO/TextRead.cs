@@ -68,15 +68,15 @@ public static class TextRead<M, RT>
                 }
             }
         }
-    }         
-        
+    }
+
     /// <summary>
     /// Read the rest of the text in the stream
     /// </summary>
     [Pure]
     public static PipeT<TextReader, string, M, Unit> readToEnd =>
         from tr in awaiting<M, TextReader, string>()
-        from tx in IO<string>.LiftAsync(async e => await tr.ReadToEndAsync(e.Token))
+        from tx in LanguageExt.IO.liftAsync(async e => await tr.ReadToEndAsync(e.Token))
         from __ in yield<M, TextReader, string>(tx)
         select unit;
 

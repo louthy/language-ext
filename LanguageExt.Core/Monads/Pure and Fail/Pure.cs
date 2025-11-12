@@ -106,7 +106,7 @@ public readonly record struct Pure<A>(A Value)
         Fin.Succ(Value);
     
     public IO<A> ToIO() =>
-        IO<A>.Pure(Value);
+        IO.pure(Value);
     
     public Eff<RT, A> ToEff<RT>() =>
         Eff<RT, A>.Pure(Value);

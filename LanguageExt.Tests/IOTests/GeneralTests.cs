@@ -12,7 +12,7 @@ public class IO_GeneralTests
     {
         // Arrange
         var value = 42;
-        var io = IO<int>.Pure(value);
+        var io = IO.pure(value);
 
         // Act
         var result = io.Run();
@@ -26,7 +26,7 @@ public class IO_GeneralTests
     {
         // Arrange
         var error = Error.New("Test error");
-        var io = IO<int>.Fail(error);
+        var io = IO.fail<int>(error);
 
         // Act & Assert
         var ex = Assert.ThrowsAny<ExpectedException>(() => io.Run());
@@ -37,7 +37,7 @@ public class IO_GeneralTests
     public void Map_ShouldTransformValue()
     {
         // Arrange
-        var io = IO<int>.Pure(5);
+        var io = IO.pure(5);
 
         // Act
         var result = io.Map(x => x * 2).Run();
@@ -50,10 +50,10 @@ public class IO_GeneralTests
     public void Bind_ShouldChainComputations()
     {
         // Arrange
-        var io = IO<int>.Pure(10);
+        var io = IO.pure(10);
 
         // Act
-        var result = io.Bind(x => IO<int>.Pure(x + 20)).Run();
+        var result = io.Bind(x => IO.pure(x + 20)).Run();
 
         // Assert
         Assert.Equal(30, result);
@@ -63,7 +63,7 @@ public class IO_GeneralTests
     public void Catch_ShouldHandleErrorsGracefully()
     {
         // Arrange
-        var io = IO<int>.Fail(Error.New("Test error"));
+        var io = IO.fail<int>(Error.New("Test error"));
 
         // Act
         var result = io.IfFail(42).Run();
@@ -76,7 +76,7 @@ public class IO_GeneralTests
     public void Select_ShouldMapValue_WhenUsingLINQ()
     {
         // Arrange
-        var io = IO<int>.Pure(4);
+        var io = IO.pure(4);
 
         // Act
         var result = from x in io select x * 2;
@@ -89,8 +89,8 @@ public class IO_GeneralTests
     public void SelectMany_ShouldChainOperations_WhenUsingLINQ()
     {
         // Arrange
-        var io1 = IO<int>.Pure(5);
-        var io2 = IO<int>.Pure(3);
+        var io1 = IO.pure(5);
+        var io2 = IO.pure(3);
 
         // Act
         var result = from x in io1
@@ -106,7 +106,7 @@ public class IO_GeneralTests
     {
         // Arrange
         var count = 0;
-        var io = IO<int>.Lift(() =>
+        var io = IO.lift(() =>
         {
             if (count++ < 2) throw new Exception("Retry test");
             return 42;
@@ -125,7 +125,7 @@ public class IO_GeneralTests
     {
         // Arrange
         var counter = 0;
-        var io = IO<int>.Lift(() => ++counter);
+        var io = IO.lift(() => ++counter);
 
         // Act
         var result = io.RepeatUntil(x => x == 5).Run();
@@ -139,7 +139,7 @@ public class IO_GeneralTests
     public void Timeout_ShouldThrowException_WhenTimeLimitExceeded()
     {
         // Arrange
-        var io = IO<int>.Lift(() =>
+        var io = IO.lift(() =>
         {
             Task.Delay(1000).Wait();
             return 42;

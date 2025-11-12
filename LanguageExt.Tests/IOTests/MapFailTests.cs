@@ -10,7 +10,7 @@ public class IO_MapFailTests
     public void MapFail_ShouldNotAlterSuccessValue()
     {
         // Arrange
-        var ioValue = IO<int>.Pure(10); // Successful computation
+        var ioValue = IO.pure(10); // Successful computation
         Func<Error, Error> errorMapper = error => Error.New("Mapped Error"); // Transformation function (not used here)
         
         // Act
@@ -25,7 +25,7 @@ public class IO_MapFailTests
     {
         // Arrange
         var initialError = Error.New("Initial Error");
-        var failedIO = IO<int>.Fail(initialError); // Failing computation
+        var failedIO = IO.fail<int>(initialError); // Failing computation
 
         // Transformation function to map the error
         Func<Error, Error> errorMapper = error => Error.New($"{error.Message} -> Mapped Error");
@@ -43,7 +43,7 @@ public class IO_MapFailTests
     {
         // Arrange
         var nestedError = Error.New("Nested Error");
-        var failedIO    = IO<int>.Fail(nestedError);
+        var failedIO    = IO.fail<int>(nestedError);
 
         // Transformation function that appends extra context to the error
         Func<Error, Error> errorMapper = error => Error.New($"{error.Message}, with additional info");
@@ -61,7 +61,7 @@ public class IO_MapFailTests
     {
         // Arrange
         var initialError = Error.New("Original Error");
-        var failedIO     = IO<int>.Fail(initialError); // Failing computation
+        var failedIO     = IO.fail<int>(initialError); // Failing computation
         
         // Transformation function that throws an exception
         Func<Error, Error> errorMapper = error => throw new InvalidOperationException("Transformation failed");

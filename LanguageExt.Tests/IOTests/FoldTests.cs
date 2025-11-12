@@ -10,7 +10,7 @@ public class IOFoldTests
     public void Fold_AccumulatesStateAccurately()
     {
         // Arrange
-        var                 computation  = IO<int>.Pure(10); // Successful IO returning 10
+        var                 computation  = IO.pure(10); // Successful IO returning 10
         var                 initialState = 0;
         Func<int, int, int> sumFolder    = (state, value) => state + value;
 
@@ -64,7 +64,7 @@ public class IOFoldTests
     public void FoldUntil_StopsOnMatchingPredicate()
     {
         // Arrange
-        var                 computation  = IO<int>.Pure(10); // IO succeeds with result 10
+        var                 computation  = IO.pure(10); // IO succeeds with result 10
         var                 initialState = 0;
         Func<int, int, int> sumFolder    = (state, value) => state + value;
         Func<int, bool>     predicate    = state => state > 5; // Stop folding if state > 5
@@ -80,7 +80,7 @@ public class IOFoldTests
     public void FoldWhile_StatePredicatesEnforcedCorrectly()
     {
         // Arrange
-        var                 computation   = IO<int>.Pure(20);
+        var                 computation   = IO.pure(20);
         var                 initialState  = 5;
         Func<int, int, int> folder        = (state, value) => state + value;
         Func<int, bool>     continueWhile = state => state < 30; // Continue only if state < 30
@@ -96,7 +96,7 @@ public class IOFoldTests
     public void FoldWhile_StopsWhenStateConditionIsNotMet()
     {
         // Arrange
-        var                 computation       = IO<int>.Pure(50);
+        var                 computation       = IO.pure(50);
         var                 initialState      = 10;
         Func<int, int, int> folder            = (state, value) => state + value;
         Func<int, bool>     continuePredicate = state => state < 30; // Stop if state >= 30
@@ -112,7 +112,7 @@ public class IOFoldTests
     public void FoldWhile_HandlesEmptyCorrectly()
     {
         // Arrange
-        var                 computation       = IO<int>.Empty; // No effect occurs
+        var                 computation       = IO.empty<int>(); // No effect occurs
         var                 initialState      = 10;
         Func<int, int, int> folder            = (state, value) => state + value;
         Func<int, bool>     continuePredicate = state => state < 30;
@@ -125,7 +125,7 @@ public class IOFoldTests
     public void FoldUntil_CompletesOnConditionMet()
     {
         // Arrange
-        var                 computation   = IO<int>.Pure(10);
+        var                 computation   = IO.pure(10);
         var                 initialState  = 5;
         Func<int, int, int> folder        = (state, value) => state + value;
         Func<int, bool>     stopCondition = state => state >= 15; // Stop if >= 15
@@ -141,7 +141,7 @@ public class IOFoldTests
     public void FoldUntil_HandlesErrorsWithoutStateChange()
     {
         // Arrange
-        var                 computation   = IO<int>.Fail(Error.New("An error"));
+        var                 computation   = IO.fail<int>(Error.New("An error"));
         var                 initialState  = 42;
         Func<int, int, int> folder        = (state, value) => state - value; // Just a demonstration
         Func<int, bool>     stopCondition = state => state < 0;

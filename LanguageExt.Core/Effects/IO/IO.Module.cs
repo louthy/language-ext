@@ -19,7 +19,7 @@ public partial class IO
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>IO in a success state.  Always yields the lifted value.</returns>
     public static IO<A> pure<A>(A value) =>
-        IO<A>.Pure(value);
+        new IOPure<A>(value);
     
     /// <summary>
     /// Lift a pure value into an IO computation
@@ -46,7 +46,7 @@ public partial class IO
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>IO in a failed state.  Always yields an error.</returns>
     public static IO<A> fail<A>(Error value) =>
-        IO<A>.Fail(value);
+        new IOFail<A>(value);
     
     /// <summary>
     /// Put the IO into a failure state
@@ -55,7 +55,7 @@ public partial class IO
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>IO in a failed state.  Always yields an error.</returns>
     public static IO<A> fail<A>(string value) =>
-        IO<A>.Fail(Error.New(value));
+        fail<A>(Error.New(value));
     
     /// <summary>
     /// Lift an action into the IO monad
@@ -67,6 +67,47 @@ public partial class IO
                  f();
                  return unit;
              });
+    
+    public static IO<A> lift<A>(Either<Error, A> ma) =>
+        ma switch
+        {
+            Either<Error, A>.Right (var r) => pure(r),
+            Either<Error, A>.Left (var l)  => fail<A>(l),
+            _                              => fail<A>(Errors.Bottom)
+        };
+    
+    public static IO<A> lift<A>(Fin<A> ma) =>
+        lift(ma.ToEither());
+    
+    public static IO<A> lift<A>(Func<A> f) => 
+        new IOLiftSync<A, A>(_ => f(), pure);
+    
+    public static IO<A> lift<A>(Func<EnvIO, A> f) => 
+        new IOLiftSync<A, A>(f, pure);
+    
+    public static IO<A> lift<A>(Func<Fin<A>> f) => 
+        lift(() => f().ThrowIfFail());
+    
+    public static IO<A> lift<A>(Func<EnvIO, Fin<A>> f) => 
+        lift(e => f(e).ThrowIfFail());
+    
+    public static IO<A> lift<A>(Func<Either<Error, A>> f) => 
+        lift(() => f().ToFin().ThrowIfFail());
+    
+    public static IO<A> lift<A>(Func<EnvIO, Either<Error, A>> f) => 
+        lift(e => f(e).ToFin().ThrowIfFail());
+
+    public static IO<A> liftAsync<A>(Func<Task<A>> f) => 
+        new IOLiftAsync<A, A>(_ => f(), pure);
+
+    public static IO<A> liftAsync<A>(Func<EnvIO, Task<A>> f) => 
+        new IOLiftAsync<A, A>(f, pure);
+
+    public static IO<A> liftVAsync<A>(Func<ValueTask<A>> f) => 
+        new IOLiftVAsync<A, A>(_ => f(), pure);
+
+    public static IO<A> liftVAsync<A>(Func<EnvIO, ValueTask<A>> f) => 
+        new IOLiftVAsync<A, A>(f, pure);
 
     /// <summary>
     /// Creates a local cancellation environment
@@ -100,47 +141,6 @@ public partial class IO
     /// <returns>Result of the computation</returns>
     public static IO<A> local<A>(K<IO, A> ma) => 
         ma.As().Local();
-    
-    public static IO<A> lift<A>(Either<Error, A> ma) =>
-        ma switch
-        {
-            Either<Error, A>.Right (var r) => IO<A>.Pure(r),
-            Either<Error, A>.Left (var l)  => IO<A>.Fail(l),
-            _                              => IO<A>.Fail(Errors.Bottom)
-        };
-    
-    public static IO<A> lift<A>(Fin<A> ma) =>
-        lift(ma.ToEither());
-    
-    public static IO<A> lift<A>(Func<A> f) => 
-        IO<A>.Lift(f);
-    
-    public static IO<A> lift<A>(Func<EnvIO, A> f) => 
-        IO<A>.Lift(f);
-    
-    public static IO<A> lift<A>(Func<Fin<A>> f) => 
-        IO<A>.Lift(() => f().ThrowIfFail());
-    
-    public static IO<A> lift<A>(Func<EnvIO, Fin<A>> f) => 
-        IO<A>.Lift(e => f(e).ThrowIfFail());
-    
-    public static IO<A> lift<A>(Func<Either<Error, A>> f) => 
-        IO<A>.Lift(() => f().ToFin().ThrowIfFail());
-    
-    public static IO<A> lift<A>(Func<EnvIO, Either<Error, A>> f) => 
-        IO<A>.Lift(e => f(e).ToFin().ThrowIfFail());
-
-    public static IO<A> liftAsync<A>(Func<Task<A>> f) => 
-        IO<A>.LiftAsync(f);
-
-    public static IO<A> liftAsync<A>(Func<EnvIO, Task<A>> f) => 
-        IO<A>.LiftAsync(f);
-
-    public static IO<A> liftVAsync<A>(Func<ValueTask<A>> f) => 
-        IO<A>.LiftVAsync(f);
-
-    public static IO<A> liftVAsync<A>(Func<EnvIO, ValueTask<A>> f) => 
-        IO<A>.LiftVAsync(f);
 
     public static readonly IO<EnvIO> env = 
         lift(e => e);
@@ -196,7 +196,7 @@ public partial class IO
     public static IO<Unit> yieldFor(Duration duration) =>
         Math.Abs(duration.Milliseconds) < 0.00000001
             ? unitIO
-            : IO<Unit>.LiftAsync(e => yieldFor(duration, e.Token));
+            : liftAsync(e => yieldFor(duration, e.Token));
 
     /// <summary>
     /// Yield the thread for the specified duration or until cancelled.
@@ -208,7 +208,7 @@ public partial class IO
     public static IO<Unit> yieldFor(TimeSpan timeSpan) =>
         Math.Abs(timeSpan.TotalMilliseconds) < 0.00000001
             ? unitIO
-            : IO<Unit>.LiftAsync(e => yieldFor(timeSpan, e.Token));
+            : liftAsync(e => yieldFor(timeSpan, e.Token));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

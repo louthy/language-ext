@@ -51,11 +51,11 @@ public static partial class Prelude
     /// <param name="action">Function</param>
     /// <returns>Value that can be used with monadic types in LINQ expressions</returns>
     public static IO<Unit> liftIO(Func<Task> action) =>
-        IO<Unit>.LiftAsync(async _ =>
-                        {
-                            await action().ConfigureAwait(false);
-                            return unit;
-                        });
+        IO.liftAsync(async _ =>
+                     {
+                         await action().ConfigureAwait(false);
+                         return unit;
+                     });
 
     /// <summary>
     /// Lift a asynchronous IO action
@@ -63,36 +63,36 @@ public static partial class Prelude
     /// <param name="action">Action</param>
     /// <returns>Value that can be used with monadic types in LINQ expressions</returns>
     public static IO<Unit> liftIO(Func<EnvIO, Task> action) =>
-        IO<Unit>.LiftAsync(async env =>
-                        {
-                            await action(env).ConfigureAwait(false);
-                            return unit;
-                        });
+        IO.liftAsync(async env =>
+                     {
+                         await action(env).ConfigureAwait(false);
+                         return unit;
+                     });
 
     /// <summary>
-    /// Lift a asynchronous IO function 
+    /// Lift an asynchronous IO function 
     /// </summary>
     /// <param name="function">Function</param>
     /// <returns>Value that can be used with monadic types in LINQ expressions</returns>
     public static IO<A> liftIO<A>(Func<Task<A>> function) =>
-        IO<A>.LiftAsync(async () => await function().ConfigureAwait(false));
+        IO.liftAsync(async () => await function().ConfigureAwait(false));
 
     /// <summary>
-    /// Lift a asynchronous IO function 
+    /// Lift an asynchronous IO function 
     /// </summary>
     /// <param name="function">Function</param>
     /// <returns>Value that can be used with monadic types in LINQ expressions</returns>
     public static IO<A> liftIO<A>(Func<EnvIO, Task<A>> function) =>
-        IO<A>.LiftAsync(async e => await function(e).ConfigureAwait(false));
+        IO.liftAsync<A>(async e => await function(e).ConfigureAwait(false));
 
     /// <summary>
-    /// Lift an option into a `OptionT IO` 
+    /// Lift an option into an `OptionT IO` 
     /// </summary>
     public static OptionT<IO, A> liftIO<A>(Option<A> ma) =>
         OptionT.lift<IO, A>(ma);
 
     /// <summary>
-    /// Lift an Option into a `OptionT IO` 
+    /// Lift an Option into an `OptionT IO` 
     /// </summary>
     public static OptionT<IO, A> liftIO<A>(Task<Option<A>> ma) =>
         new(IO.liftAsync(async () => await ma.ConfigureAwait(false)));

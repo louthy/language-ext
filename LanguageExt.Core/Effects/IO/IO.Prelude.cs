@@ -23,7 +23,7 @@ public static partial class Prelude
     /// Request a cancellation of the IO expression
     /// </summary>
     public static readonly IO<Unit> cancel =
-        IO<Unit>.Lift(
+        IO.lift<Unit>(
             e =>
             {
                 e.Source.Cancel();
@@ -34,13 +34,13 @@ public static partial class Prelude
     /// Always yields a `Unit` value
     /// </summary>
     public static readonly IO<Unit> unitIO = 
-        IO<Unit>.Pure(default);
+        IO.pure<Unit>(default);
     
     /// <summary>
     /// Yields the IO environment
     /// </summary>
     public static readonly IO<EnvIO> envIO = 
-        IO<EnvIO>.Lift(e => e);
+        IO.lift<EnvIO>(e => e);
 
     /// <summary>
     /// Tail call 

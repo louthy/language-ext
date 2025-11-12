@@ -121,19 +121,17 @@ record TrackedResourceDisposable<A>(A Value) : TrackedResource
     public override IO<Unit> Release() =>
         Value switch
         {
-            IAsyncDisposable disposable => IO<Unit>.LiftAsync(
-                async () =>
-                {
-                    await disposable.DisposeAsync().ConfigureAwait(false);
-                    return unit;
-                }),
-            
-            _ => IO<Unit>.Lift(
-                () =>
-                {
-                    Value.Dispose();
-                    return unit;
-                })
+            IAsyncDisposable disposable => IO.liftAsync(async () =>
+                                                        {
+                                                            await disposable.DisposeAsync().ConfigureAwait(false);
+                                                            return unit;
+                                                        }),
+
+            _ => IO.lift(() =>
+                         {
+                             Value.Dispose();
+                             return unit;
+                         })
         };
 }
 
@@ -144,10 +142,9 @@ record TrackedResourceAsyncDisposable<A>(A Value) : TrackedResource
     where A : IAsyncDisposable
 {
     public override IO<Unit> Release() =>
-        IO<Unit>.LiftAsync(
-                async () =>
-                {
-                    await Value.DisposeAsync().ConfigureAwait(false);
-                    return unit;
-                });
+        IO.liftAsync(async () =>
+                     {
+                         await Value.DisposeAsync().ConfigureAwait(false);
+                         return unit;
+                     });
 }

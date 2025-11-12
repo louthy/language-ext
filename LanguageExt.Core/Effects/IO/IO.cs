@@ -19,7 +19,7 @@ namespace LanguageExt;
 /// perform I/O from an arbitrary function, unless that function is itself in the `IO` monad and
 /// called at some point, directly or indirectly, from `Main`.
 ///
-/// Obviously, as this is C#, the above restrictions are for you to enforce. It would be reasonable
+/// As this is C#, the above restrictions are for you to enforce. It would be reasonable
 /// to relax that approach and have I/O invoked from, say, web-request handlers - or any other 'edges'
 /// of your application.
 /// 
@@ -34,45 +34,11 @@ public abstract record IO<A> :
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //  Construction
-    //
-    
-    public static IO<A> Pure(A value) => 
-        new IOPure<A>(value);
-    
-    public static IO<A> Fail(Error value) => 
-        new IOFail<A>(value);
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
     //  General
     //
     
     public static IO<A> Empty =>
         IOEmpty<A>.Default;
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Lifting
-    //
-
-    public static IO<A> Lift(Func<EnvIO, A> f) =>
-        new IOLiftSync<A, A>(f, Pure);
-    
-    public static IO<A> LiftAsync(Func<EnvIO, Task<A>> f) => 
-        new IOLiftAsync<A, A>(f, Pure);
-    
-    public static IO<A> LiftVAsync(Func<EnvIO, ValueTask<A>> f) => 
-        new IOLiftVAsync<A, A>(f, Pure);
-    
-    public static IO<A> Lift(Func<A> f) =>
-        Lift(_ => f());
-
-    public static IO<A> LiftAsync(Func<Task<A>> f) =>
-        LiftAsync(_ => f());
-
-    public static IO<A> LiftVAsync(Func<ValueTask<A>> f) =>
-        LiftVAsync(_ => f());
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -213,7 +179,7 @@ public abstract record IO<A> :
     /// all IO computations)
     /// </summary>
     public virtual IO<A> Post() =>
-        LiftAsync(async env =>
+        IO.liftAsync(async env =>
                        {
                            if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
                            if (env.SyncContext is null) return await RunAsync(env);
@@ -431,22 +397,22 @@ public abstract record IO<A> :
     //
     
     public static implicit operator IO<A>(Pure<A> ma) =>
-        Pure(ma.Value);
+        IO.pure(ma.Value);
 
     public static implicit operator IO<A>(Error error) =>
-        Lift(_ => error.Throw<A>());
+        IO.lift(_ => error.Throw<A>());
 
     public static implicit operator IO<A>(Fail<Error> ma) =>
-        Lift(() => ma.Value.Throw<A>());
+        IO.lift(() => ma.Value.Throw<A>());
 
     public static implicit operator IO<A>(Fail<Exception> ma) =>
-        Lift(() => ma.Value.Rethrow<A>());
+        IO.lift(() => ma.Value.Rethrow<A>());
 
     public static implicit operator IO<A>(Lift<EnvIO, A> ma) =>
-        Lift(ma.Function);
+        IO.lift(ma.Function);
 
     public static implicit operator IO<A>(Lift<A> ma) =>
-        Lift(ma.Function);
+        IO.lift(ma.Function);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -497,7 +463,7 @@ public abstract record IO<A> :
     /// <param name="timeout">Optional timeout</param>
     /// <returns>`Fork` record that contains members for cancellation and optional awaiting</returns>
     public virtual IO<ForkIO<A>> Fork(Option<TimeSpan> timeout = default) =>
-        IO<ForkIO<A>>.Lift(
+        IO.lift(
             env =>
             {
                 if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
@@ -532,7 +498,7 @@ public abstract record IO<A> :
                     }, TaskCreationOptions.LongRunning);
 
                 return new ForkIO<A>(
-                        IO<Unit>.Lift(() => {
+                        IO.lift<Unit>(() => {
                                           try
                                           {
                                               tsrc.Cancel();
@@ -543,7 +509,7 @@ public abstract record IO<A> :
                                           }
                                           return default; 
                                       }),
-                        LiftAsync(e => AwaitAsync(task, e, token, tsrc)));
+                        IO.liftAsync(e => AwaitAsync(task, e, token, tsrc)));
             });
     
     

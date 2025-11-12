@@ -8,7 +8,7 @@ public class IO_RepeatTests
     IO<int> CreateIncrementingIO(Atom<int> callCount)
     {
         callCount.Swap(_ => 0);
-        return IO<int>.Lift(() => callCount.Swap(x => x + 1));
+        return IO.lift(() => callCount.Swap(x => x + 1));
     }
 
     [Fact]
