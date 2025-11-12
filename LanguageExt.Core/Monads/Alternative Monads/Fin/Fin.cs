@@ -15,7 +15,6 @@ namespace LanguageExt;
 /// Called `Fin` because it is expected to be used as the concrete result of a computation
 /// </summary>
 public abstract partial class Fin<A> : 
-    IEnumerable<A>,
     IComparable<Fin<A>>, 
     IEquatable<Fin<A>>,
     IComparable, 
@@ -466,16 +465,6 @@ public abstract partial class Fin<A> :
             : CompareTo<OrdDefault<A>>(other);
 
     [Pure, MethodImpl(Opt.Default)]
-    public IEnumerator<A> GetEnumerator()
-    {
-        foreach (var x in SuccSpan().ToArray()) 
-            yield return x;
-    }
-
-    IEnumerator IEnumerable.GetEnumerator() =>
-        GetEnumerator();
-
-    [Pure, MethodImpl(Opt.Default)]
     public int CompareTo(object? obj) =>
         obj is Fin<A> t ? CompareTo(t) : 1;
 
@@ -584,6 +573,16 @@ public abstract partial class Fin<A> :
     [Pure, MethodImpl(Opt.Default)]
     public Fin<C> SelectMany<C>(Func<A, Guard<Error, Unit>> bind, Func<A, Unit, C> project) =>
         Bind(a => bind(a).ToFin().Map(_ => project(a, default)));    
+    
+    [Pure, MethodImpl(Opt.Default)]
+    public IEnumerable<A> AsEnumerable()
+    {
+        if(IsSucc) yield return SuccValue;
+    }
+
+    [Pure, MethodImpl(Opt.Default)]
+    public Iterable<A> ToIterable() =>
+        Iterable.createRange(AsEnumerable());
     
     [Pure, MethodImpl(Opt.Default)]
     public Lst<A> ToList() =>

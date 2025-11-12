@@ -38,8 +38,8 @@ public readonly record struct Fail<E>(E Value)
     public Either<E, C> SelectMany<B, C>(Func<Unit, Pure<B>> bind, Func<Unit, B, C> project) =>
         this;
 
-    public Either<E, C> SelectMany<B, C>(Func<Unit, Option<B>> bind, Func<Unit, B, C> project) =>
-        this;
+    public Option<C> SelectMany<B, C>(Func<Unit, Option<B>> bind, Func<Unit, B, C> project) =>
+        default;
 }
 
 public static class FailExtensions

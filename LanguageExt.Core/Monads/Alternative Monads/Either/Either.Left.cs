@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
 
@@ -60,6 +61,15 @@ public abstract partial record Either<L, R>
         [Pure]
         public override ReadOnlySpan<R> RightSpan() =>
             ReadOnlySpan<R>.Empty;
+
+        /// <summary>
+        /// Singleton enumerable if in a right state, otherwise empty enumerable
+        /// </summary>
+        [Pure]
+        public override IEnumerable<R> AsEnumerable()
+        {
+            yield break;
+        }
 
         /// <summary>
         /// Compare this structure to another to find its relative ordering

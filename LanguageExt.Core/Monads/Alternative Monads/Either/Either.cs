@@ -30,7 +30,6 @@ namespace LanguageExt;
 /// <typeparam name="R">Right</typeparam>
 public abstract partial record Either<L, R> :
     IEither,
-    IEnumerable<R>,
     IComparable<R>,
     IComparable,
     IComparable<Pure<R>>,
@@ -184,19 +183,9 @@ public abstract partial record Either<L, R> :
     public L IfRight(Func<R, L> rightMap) =>
         Match(Left: identity, Right: rightMap);
 
-    IEnumerator IEnumerable.GetEnumerator() => 
-        GetEnumerator();
-
     [Pure]
     public int CompareTo(object? obj) =>
         obj is Either<L, R> t ? CompareTo(t) : 1;
-
-    [Pure]
-    public IEnumerator<R> GetEnumerator()
-    {
-        foreach (var x in RightSpan().ToArray()) 
-            yield return x;
-    }
 
     /// <summary>
     /// Span of left value
@@ -211,20 +200,17 @@ public abstract partial record Either<L, R> :
     public abstract ReadOnlySpan<R> RightSpan();
 
     /// <summary>
-    /// Project the Either into a Lst L
+    /// Singleton enumerable if in a right state, otherwise empty.
     /// </summary>
-    /// <returns>If the Either is in a Left state, a Lst of L with one item.  A zero length Lst L otherwise</returns>
     [Pure]
-    public Lst<L> LeftToList() =>
-        new(LeftSpan());
+    public abstract IEnumerable<R> AsEnumerable();
 
     /// <summary>
-    /// Project the Either into an ImmutableArray L
+    /// Singleton `Iterable` if in a right state, otherwise empty.
     /// </summary>
-    /// <returns>If the Either is in a Left state, a ImmutableArray of L with one item.  A zero length ImmutableArray of L otherwise</returns>
     [Pure]
-    public Arr<L> LeftToArray() =>
-        new(LeftSpan());
+    public Iterable<R> ToIterable() =>
+        [..RightSpan()];
 
     /// <summary>
     /// Project the Either into a Lst R
@@ -236,7 +222,7 @@ public abstract partial record Either<L, R> :
     /// <summary>
     /// Project the Either into an ImmutableArray R
     /// </summary>
-    /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
+    /// <returns>If the Either is in a Right state, an immutable-array of R with one item.  A zero-length array of R otherwise</returns>
     public Arr<R> ToArray() =>
         new(RightSpan());
 
@@ -246,13 +232,6 @@ public abstract partial record Either<L, R> :
     [Pure]
     public Seq<R> ToSeq() =>
         new(RightSpan());
-
-    /// <summary>
-    /// Convert either to sequence of 0 or 1 left values
-    /// </summary>
-    [Pure]
-    public Seq<L> LeftToSeq() =>
-        new(LeftSpan());
 
     /// <summary>
     /// Convert the Either to an Option

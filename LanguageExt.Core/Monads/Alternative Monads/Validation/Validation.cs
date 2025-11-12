@@ -34,7 +34,6 @@ namespace LanguageExt;
 /// <typeparam name="A">Success value type</typeparam>
 [Serializable]
 public abstract partial record Validation<F, A> :
-    IEnumerable<A>,
     IComparable<Validation<F, A>>,
     IComparable<A>,
     IComparable,
@@ -245,35 +244,9 @@ public abstract partial record Validation<F, A> :
     public Unit IfRight(Action<A> Success) =>
         Match(_ => { }, Success);
 
-    IEnumerator IEnumerable.GetEnumerator() => 
-        GetEnumerator();
-
     [Pure]
     public int CompareTo(object? obj) =>
         obj is Validation<F, A> t ? CompareTo(t) : 1;
-
-    [Pure]
-    public IEnumerator<A> GetEnumerator()
-    {
-        foreach (var x in SuccessSpan().ToArray()) 
-            yield return x;
-    }
-
-    /// <summary>
-    /// Project the value into a `Lst〈F〉`
-    /// </summary>
-    /// <returns>If in a Fail state, a `Lst` of `L` with one item.  A zero length `Lst` of `L` otherwise</returns>
-    [Pure]
-    public Lst<F> FailToList() =>
-        new(FailSpan());
-
-    /// <summary>
-    /// Project into an `Arr〈F〉`
-    /// </summary>
-    /// <returns>If in a Fail state, a `Arr` of `L` with one item.  A zero length `Arr` of `L` otherwise</returns>
-    [Pure]
-    public Arr<F> FailToArray() =>
-        new(FailSpan());
 
     /// <summary>
     /// Project into a `Lst〈A〉`
@@ -297,11 +270,18 @@ public abstract partial record Validation<F, A> :
         new(SuccessSpan());
 
     /// <summary>
-    /// Convert either to sequence of 0 or 1 left values
+    /// Convert to sequence of 0 or 1 success values
     /// </summary>
     [Pure]
-    public Seq<F> FailToSeq() =>
-        new(FailSpan());
+    public Iterable<A> ToIterable() =>
+        [..SuccessSpan()];
+    
+    /// <summary>
+    /// Convert to sequence of 0 or 1 success values
+    /// </summary>
+    [Pure]
+    public IEnumerable<A> AsEnumerable() =>
+        [..SuccessSpan()];
 
     [Pure]
     public Either<F, A> ToEither() =>

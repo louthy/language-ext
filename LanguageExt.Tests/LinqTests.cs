@@ -13,20 +13,20 @@ public class LinqTests
         var opt  = Some("pre ");
         var list = Some(new[] { "hello", "world" }.AsEnumerable());
 
-        var res = (from a in opt
-                   from x in list
-                   from y in x
-                   select a + y).AsIterable();
+        var res = from a in opt.ToIterable()
+                  from x in list.ToIterable()
+                  from y in x
+                  select a + y;
 
         Assert.True(res.Head().ValueUnsafe()        == "pre hello");
         Assert.True(res.Tail().Head().ValueUnsafe() == "pre world");
 
         opt = None;
 
-        res = (from a in opt
-               from x in list
-               from y in x
-               select a + y).AsIterable();;
+        res = from a in opt.ToIterable()
+              from x in list.ToIterable()
+              from y in x
+              select a + y;
 
         Assert.True(!res.Any());
     }
@@ -40,7 +40,7 @@ public class LinqTests
 
         var r1 =
             from a in oa.Map(x => List(x)) // a : int
-            from b in Some(lb)                      // b : int
+            from b in Some(lb)             // b : int
             select a + b;
 
         Assert.True(r1 == Some(List(1, 2, 3, 4, 5)));
@@ -49,7 +49,7 @@ public class LinqTests
     [Fact]
     public void WithOptionSomeList()
     {
-        var res = from v in GetOptionValue(true)
+        var res = from v in GetOptionValue(true).ToIterable()
                   from r in Range(1, 10)
                   select v * r;
 
@@ -63,7 +63,7 @@ public class LinqTests
     [Fact]
     public void WithOptionNoneList()
     {
-        var res = from v in GetOptionValue(false)
+        var res = from v in GetOptionValue(false).ToIterable()
                   from r in Range(1, 10)
                   select v * r;
 
@@ -154,7 +154,7 @@ public class LinqTests
         var list = List(1, 2, 3, 4);
         var opt  = Some(5);
 
-        var res = from y in opt
+        var res = from y in opt.ToList()
                   from x in list
                   select x + y;
     }

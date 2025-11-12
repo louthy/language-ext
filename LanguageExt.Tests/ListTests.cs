@@ -244,7 +244,7 @@ public class ListTests
     public void IterSimpleTest()
     {
         var embeddedSideEffectResult = 0;
-        var expression = from dummy in Some(unit)
+        var expression = from dummy in Some(unit).ToIterable()
                          from i in List(2, 3, 5)
                          let _ = fun(() => embeddedSideEffectResult += i)()
                          select i;
@@ -262,7 +262,7 @@ public class ListTests
     public void IterPositionalTest()
     {
         var embeddedSideEffectResult = 0;
-        var expression = from dummy in Some(unit)
+        var expression = from dummy in Some(unit).ToIterable()
                          from i in List(2, 3, 5)
                          let _ = fun(() => embeddedSideEffectResult += i)()
                          select i;
@@ -280,7 +280,7 @@ public class ListTests
     public void ConsumeTest()
     {
         var embeddedSideEffectResult = 0;
-        System.Collections.Generic.IEnumerable<int> expression = from dummy in Some(unit)
+        System.Collections.Generic.IEnumerable<int> expression = from dummy in Some(unit).ToIterable()
                                                                  from i in List(2, 3, 5)
                                                                  let _ = fun(() => embeddedSideEffectResult += i)()
                                                                  select i;

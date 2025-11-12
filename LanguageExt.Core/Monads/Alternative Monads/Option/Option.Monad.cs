@@ -94,7 +94,7 @@ public partial class Option :
         fa.As().ToSeq();
 
     static K<Iterable, A> Natural<Option, Iterable>.Transform<A>(K<Option, A> fa) => 
-        fa.As().ToIterable();
+        FoldableExtensions.ToIterable(fa.As());
 
     static K<Eff, A> Natural<Option, Eff>.Transform<A>(K<Option, A> fa) => 
         fa.As().ToEff();

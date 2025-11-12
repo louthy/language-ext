@@ -22,7 +22,6 @@ namespace LanguageExt;
 /// <typeparam name="A">Bound value</typeparam>
 [Serializable]
 public readonly struct Option<A> :
-    IEnumerable<A>,
     IOptional,
     IEquatable<Option<A>>,
     IComparable<Option<A>>,
@@ -535,6 +534,17 @@ public readonly struct Option<A> :
         typeof(A);
 
     /// <summary>
+    /// If the Option is in a `Some` state then the span will contain one itemm otherwise empty.
+    /// </summary>
+    /// <returns></returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ReadOnlySpan<A> ToSpan() =>
+        IsSome
+            ? new([Value!])
+            : ReadOnlySpan<A>.Empty;
+    
+    /// <summary>
     /// Convert the Option to an enumerable of zero or one items
     /// </summary>
     /// <returns>An enumerable of zero or one items</returns>
@@ -568,12 +578,21 @@ public readonly struct Option<A> :
             : [];
 
     /// <summary>
+    /// Convert the `Option` to an enumerable of zero or one items
+    /// </summary>
+    /// <returns>An enumerable of zero or one items</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public IEnumerable<A> AsEnumerable() =>
+        IsSome ? [Value!] : [];
+
+    /// <summary>
     /// Convert the Option to an enumerable of zero or one items
     /// </summary>
     /// <returns>An enumerable of zero or one items</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Iterable<A> AsIterable() =>
+    public Iterable<A> ToIterable() =>
         IsSome ? [Value!] : [];
         
     /// <summary>
@@ -1193,20 +1212,6 @@ public readonly struct Option<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Option<Func<B, Func<C, D>>> ParMap<B, C, D>(Func<A, B, C, D> func) =>
         Map(curry(func));
-
-    /// <summary>
-    /// Get an enumerator for the Option
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerator<A> GetEnumerator() =>
-        AsIterable().GetEnumerator();
-
-    /// <summary>
-    /// Get an enumerator for the Option
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    IEnumerator IEnumerable.GetEnumerator() =>
-        AsIterable().GetEnumerator();
         
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 

@@ -92,7 +92,7 @@ public class OptionTTests
     {
         var opt = Some(List(1, 2, 3, 4, 5));
 
-        var res = from x in opt
+        var res = from x in opt.ToIterable()
                   from y in x
                   select y * 2;
 
@@ -106,7 +106,7 @@ public class OptionTTests
     {
         var opt = Some(Map((1, "A"), (2, "B"), (3, "C"), (4, "D"), (5, "E")));
 
-        var res = from x in opt.AsIterable()
+        var res = from x in opt.ToIterable()
                   from y in x.AsIterable()
                   select y.Value.ToLower();
 
