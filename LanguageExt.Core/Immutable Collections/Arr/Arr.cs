@@ -601,8 +601,19 @@ public struct Arr<A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Arr<A> Reverse() =>
-        new (Value.Reverse().ToArray());
+    public Arr<A> Reverse()
+    {
+        var l = Count;
+        var n = new A[l];
+        var v = Value;
+        var i = 0;
+        var j = l - 1;
+        for (; i < l; i++, j--)
+        {
+            n[i] = v[j];
+        }
+        return new Arr<A>(n);
+    }
 
     /// <summary>
     /// Impure iteration of the bound values in the structure

@@ -106,8 +106,18 @@ public partial class Arr
     /// <param name="array">Array to reverse</param>
     /// <returns>Reversed list</returns>
     [Pure]
-    public static T[] rev<T>(T[] array) =>
-        array.Reverse().ToArray();
+    public static T[] rev<T>(T[] array)
+    {
+        var l = array.Length;
+        var n = new T[l];
+        var i = 0;
+        var j = l - 1;
+        for (; i < l; i++, j--)
+        {
+            n[i] = array[j];
+        }
+        return n;
+    }
 
     /// <summary>
     /// Reverses the array (Reverse in LINQ)
