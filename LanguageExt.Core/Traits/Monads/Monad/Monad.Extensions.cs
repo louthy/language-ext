@@ -4,9 +4,6 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-/// <summary>
-/// Monad module
-/// </summary>
 public static partial class MonadExtensions
 {
     /// <summary>

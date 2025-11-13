@@ -10,7 +10,7 @@ namespace LanguageExt;
 /// <summary>
 /// Monad module
 /// </summary>
-public static class ApplicativeExtensions
+public static partial class ApplicativeExtensions
 {
     [Pure]
     public static K<M, B> ApplyM<M, A, B>(this K<M, Func<A, K<M, B>>> mf, K<M, A> ma)

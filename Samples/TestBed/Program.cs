@@ -51,35 +51,56 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        Issue1497.AppPrelude.Test();
+        //var my = IO.pure(true);
+        //var mz = mx >> my;
         
+        var fx = IO.pure(100);
+        var fy = IO.pure(200);
+        var fz = IO.pure(300);
+        var fr = ((int x, int y, int z) => x + y + z) * fx * fy * fz;
+
+        var af = IO.pure((int x, int y, int z) => x + y + z);
+        var ax = IO.pure(100);
+        var ay = IO.pure(200);
+        var az = IO.pure(300);
+        var ar = af * ax * ay * az;
+        
+        var mx = IO.pure(100);
+        var mr = mx >> (x => IO.pure(x + 1));
+        
+        var fr1 = fr.Run();
+        var ar1 = ar.Run();
+        var mr1 = mr.Run();
+
+        /*Issue1497.AppPrelude.Test();
+
         var mx = Validation.Fail<StringM, int>("fail 1");
         var my = Validation.Fail<StringM, int>("fail 2");
         var mz = mx & my;
-        
+
         Seq<K<Either, string, int>> m1 =
         [
-            (Either<string, int>)Right(100), 
-            (Either<string, int>)Left("Hello"), 
+            (Either<string, int>)Right(100),
+            (Either<string, int>)Left("Hello"),
             (Either<string, int>)Left("World"),
             (Either<string, int>)Right(200)
         ];
         IEnumerable<Either<string, int>> m2 =
         [
-            (Either<string, int>)Right(100), 
-            (Either<string, int>)Left("Hello"), 
+            (Either<string, int>)Right(100),
+            (Either<string, int>)Left("Hello"),
             (Either<string, int>)Left("World"),
             (Either<string, int>)Right(200)
         ];
         Iterable<Either<string, int>>     m3 = [Right(100), Left("Hello"), Left("World"), Right(200)];
         Lst<Either<string, int>>          m4 = [Right(100), Left("Hello"), Left("World"), Right(200)];
         Seq<ChronicleT<StringM, IO, int>> m5 = [];
-        
+
         var r1 = m1.Partition();
         var r2 = m2.PartitionSequence();
         var r3 = m3.PartitionSequence();
         var r4 = m4.PartitionSequence();
-        var r5 = m5.PartitionSequence();
+        var r5 = m5.PartitionSequence();*/
 
         //TestBed.StateStuff.StateForkIO.forkTest.Run(4).Run().Ignore();
         //Issue1453.Test();
