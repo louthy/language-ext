@@ -63,7 +63,7 @@ public class Program
         var ax = IO.pure(100);
         var ay = IO.pure(200);
         var az = IO.pure(300);
-        var ar = af * ax * ay * az;
+        var ar = +(af * ax * ay * az);
         
         var mx = IO.pure(100);
         var mr = mx >> (x => IO.pure(x + 1));

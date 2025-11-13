@@ -3,10 +3,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-/// <summary>
-/// A semigroup on applicative functors
-/// </summary>
-public static class ChoiceExtensions
+public static partial class ChoiceExtensions
 {
     /// <summary>
     /// Where `F` defines some notion of failure or choice, this function picks the

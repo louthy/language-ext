@@ -27,7 +27,7 @@ public readonly struct Option<A> :
     IComparable<Option<A>>,
     IComparable,
     ISerializable,
-    Fallible<Option<A>, Option, Unit, A>,
+    K<Option, A>,
     Monoid<Option<A>>
 {
     internal readonly A? Value;

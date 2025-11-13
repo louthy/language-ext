@@ -3,12 +3,12 @@ namespace LanguageExt.Traits;
 public static class Final
 {
     /// <summary>
-    /// Run a `finally` operation after the `ma` operation regardless of whether `ma` succeeds or not.
+    /// Create a `finally` operation that can be used as the right-hand side of a `|` operator to
+    /// cause a final operation to be run regardless of whether the primary operation succeeds or not.
     /// </summary>
-    /// <param name="ma">Primary operation</param>
     /// <param name="finally">Finally operation</param>
     /// <returns>Result of primary operation</returns>
-    public static K<F, A> @finally<X, F, A>(K<F, A> ma, K<F, X> @finally)
+    public static Finally<F, X> final<F, X>(K<F, X> @finally)
         where F : Final<F> =>
-        F.Finally(ma, @finally);
+        new(@finally);
 }

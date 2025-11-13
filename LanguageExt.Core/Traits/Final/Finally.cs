@@ -3,10 +3,9 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 /// <summary>
-/// Finally structure.  
-///
-/// Implicit operators use this temporarily value-type to carry a `finally` computation.
+/// Create a `finally` operation that can be used as the right-hand side of a `|` operator to
+/// cause a final operation to be run regardless of whether the primary operation succeeds or not.
 /// </summary>
 /// <param name="finally"></param>
 /// <typeparam name="F"></typeparam>
-public readonly record struct Finally<F>(K<F, Unit> Operation);
+public readonly record struct Finally<F, X>(K<F, X> Operation);

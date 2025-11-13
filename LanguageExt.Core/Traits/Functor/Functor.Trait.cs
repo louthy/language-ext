@@ -31,4 +31,15 @@ public interface Functor<F>
     /// <typeparam name="Fnctr">Trait of the functor</typeparam>
     /// <returns>Mapped functor</returns>
     public static abstract K<F, B> Map<A, B>(Func<A, B> f, K<F, A> ma);
+    
+    /// <summary>
+    /// Functor map operation with a constant value
+    /// </summary>
+    /// <param name="constantValue">Constant value used to override each bound value in the structure</param>
+    /// <param name="ma">Functor to map</param>
+    /// <typeparam name="Fnctr">Trait of the functor</typeparam>
+    /// <returns>Mapped functor</returns>
+    public static virtual K<F, A> ConstMap<A, B>(A constantValue, K<F, B> ma) =>
+        ma.Map(_ => constantValue);
+    
 }

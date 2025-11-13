@@ -12,7 +12,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record FinT<M, A>(K<M, Fin<A>> runFin) : 
-    Fallible<FinT<M, A>, FinT<M>, Error, A>
+    K<FinT<M>, A>
     where M : Monad<M>
 {
     /// <summary>

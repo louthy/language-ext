@@ -9,61 +9,62 @@ namespace LanguageExt;
 
 public static partial class IOExtensions
 {
-    /// <summary>
-    /// Convert the kind version of the `IO` monad to an `IO` monad.
-    /// </summary>
-    /// <remarks>
-    /// This is a simple cast operation which is just a bit more elegant
-    /// than manually casting.
-    /// </remarks>
-    /// <param name="ma"></param>
-    /// <typeparam name="A"></typeparam>
-    /// <returns></returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IO<A> As<A>(this K<IO, A> ma) =>
-        (IO<A>)ma;
+    extension<A>(K<IO, A> ma)
+    {
+        /// <summary>
+        /// Convert the kind version of the `IO` monad to an `IO` monad.
+        /// </summary>
+        /// <remarks>
+        /// This is a simple cast operation which is just a bit more elegant
+        /// than manually casting.
+        /// </remarks>
+        /// <returns></returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IO<A> As() =>
+            (IO<A>)ma;
 
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static A Run<A>(this K<IO, A> ma) =>
-        ma.As().Run();
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public A Run() =>
+            ma.As().Run();
 
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static A Run<A>(this K<IO, A> ma, EnvIO envIO) =>
-        ma.As().Run(envIO);
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public A Run(EnvIO envIO) =>
+            ma.As().Run(envIO);
 
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Fin<A> RunSafe<A>(this K<IO, A> ma) =>
-        ma.As().Try().Run().Run();
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Fin<A> RunSafe() =>
+            ma.As().Try().Run().Run();
 
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Fin<A> RunSafe<A>(this K<IO, A> ma, EnvIO envIO) =>
-        ma.As().Try().Run().Run(envIO);
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Fin<A> RunSafe(EnvIO envIO) =>
+            ma.As().Try().Run().Run(envIO);
 
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ValueTask<A> RunAsync<A>(this K<IO, A> ma) =>
-        ma.As().RunAsync();
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ValueTask<A> RunAsync() =>
+            ma.As().RunAsync();
 
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ValueTask<A> RunAsync<A>(this K<IO, A> ma, EnvIO envIO) =>
-        ma.As().RunAsync(envIO);
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ValueTask<A> RunAsync(EnvIO envIO) =>
+            ma.As().RunAsync(envIO);
 
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ValueTask<Fin<A>> RunSafeAsync<A>(this K<IO, A> ma) =>
-        ma.As().Try().Run().RunAsync();
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ValueTask<Fin<A>> RunSafeAsync() =>
+            ma.As().Try().Run().RunAsync();
 
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ValueTask<Fin<A>> RunSafeAsync<A>(this K<IO, A> ma, EnvIO envIO) =>
-        ma.As().Try().Run().RunAsync(envIO);
-    
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ValueTask<Fin<A>> RunSafeAsync(EnvIO envIO) =>
+            ma.As().Try().Run().RunAsync(envIO);
+    }
+
     /// <summary>
     /// Get the outer task and wrap it up in a new IO within the IO
     /// </summary>

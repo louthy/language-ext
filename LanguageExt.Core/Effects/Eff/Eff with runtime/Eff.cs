@@ -14,7 +14,7 @@ namespace LanguageExt;
 /// <typeparam name="RT">Runtime type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record Eff<RT, A>(ReaderT<RT, IO, A> effect) : 
-    Fallible<Eff<RT, A>, Eff<RT>, Error, A>
+    K<Eff<RT>, A>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

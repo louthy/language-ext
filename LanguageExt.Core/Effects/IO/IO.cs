@@ -29,7 +29,7 @@ namespace LanguageExt;
 /// <param name="runIO">The lifted thunk that is the IO operation</param>
 /// <typeparam name="A">Bound value</typeparam>
 public abstract record IO<A> :
-    Fallible<IO<A>, IO, Error, A>,
+    K<IO, A>,
     Monoid<IO<A>>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -261,35 +261,6 @@ public abstract record IO<A> :
 
     public IO<C> SelectMany<C>(Func<A, Guard<Error, Unit>> bind, Func<A, Unit, C> project) =>
         SelectMany(a => bind(a).ToIO(), project);
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Operators
-    //
-    
-    public static IO<A> operator |(IO<A> lhs, IO<A> rhs) =>
-        lhs.Choose(rhs).As();
-
-    public static IO<A> operator |(IO<A> lhs, K<IO, A> rhs) => 
-        lhs.Choose(rhs).As();
-
-    public static IO<A> operator |(K<IO, A> lhs, IO<A> rhs) => 
-        lhs.Choose(rhs).As();
-
-    public static IO<A> operator |(IO<A> lhs, Pure<A> rhs) =>
-        lhs.Choose(rhs.ToIO()).As();
-
-    public static IO<A> operator |(IO<A> lhs, Fail<Error> rhs) =>
-        lhs.Catch(rhs).As();
-
-    public static IO<A> operator |(IO<A> lhs, CatchM<Error, IO, A> rhs) =>
-        lhs.Catch(rhs).As();
-
-    public static IO<A> operator |(IO<A> lhs, A rhs) =>
-        lhs.Choose(IO.pure(rhs)).As();
-
-    public static IO<A> operator |(IO<A> lhs, Finally<IO> rhs) =>
-        lhs.Finally(rhs.Operation);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

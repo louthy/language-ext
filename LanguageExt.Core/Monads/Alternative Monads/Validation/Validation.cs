@@ -40,7 +40,7 @@ public abstract partial record Validation<F, A> :
     IEquatable<Pure<A>>,
     IComparable<Pure<A>>,
     IEquatable<A>,
-    Fallible<Validation<F, A>, Validation<F>, F, A>,
+    K<Validation<F>, A>,
     K<Validation, F, A>
 {
     /// <summary>

@@ -12,7 +12,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record TryT<M, A>(K<M, Try<A>> runTry) : 
-    Fallible<TryT<M, A>, TryT<M>, Error, A>
+    K<TryT<M>, A>
     where M : Monad<M>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

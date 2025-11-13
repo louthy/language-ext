@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using LanguageExt.Common;
+using LanguageExt.Traits;
 
-namespace LanguageExt.Traits;
+namespace LanguageExt;
 
 public static partial class FallibleExtensions
 {

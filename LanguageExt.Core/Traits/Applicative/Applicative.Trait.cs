@@ -24,7 +24,7 @@ public interface Applicative<F> : Functor<F>
     public static abstract K<F, B> Apply<A, B>(K<F, Func<A, B>> mf, K<F, A> ma);
 
     public static virtual K<F, B> ApplyLazy<A, B>(K<F, Func<A, B>> mf, Func<K<F, A>> ma) =>
-        F.Apply(mf, ma());
+        mf * ma();
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -32,16 +32,16 @@ public interface Applicative<F> : Functor<F>
     //
 
     public static virtual K<F, B> Action<A, B>(K<F, A> ma, K<F, B> mb) =>
-        fun((A _, B b) => b).Map(ma).Apply(mb);
+        ((A _, B y) => y) * ma * mb;
     
     public static virtual K<F, C> Apply<A, B, C>(K<F, Func<A, B, C>> mf, K<F, A> ma, K<F, B> mb) =>
-        F.Apply(F.Apply(F.Map(curry, mf), ma), mb);
+        curry * mf * ma * mb;
 
     public static virtual K<F, Func<B, C>> Apply<A, B, C>(K<F, Func<A, B, C>> mf, K<F, A> ma) =>
-         F.Apply(F.Map(curry, mf), ma);
+        curry * mf * ma;
 
     public static virtual K<F, C> Apply<A, B, C>(K<F, Func<A, Func<B, C>>> mf, K<F, A> ma, K<F, B> mb) =>
-        F.Apply(F.Apply(mf, ma), mb);
+        mf * ma * mb;
 
     /// <summary>
     /// Chains a sequence of applicative actions

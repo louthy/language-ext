@@ -18,7 +18,7 @@ public abstract partial class Fin<A> :
     IComparable<Fin<A>>, 
     IEquatable<Fin<A>>,
     IComparable, 
-    Fallible<Fin<A>, Fin, Error, A>
+    K<Fin, A>
 {
     /// <summary>
     /// Stop other types deriving from Fin

@@ -13,7 +13,7 @@ namespace LanguageExt;
 /// <typeparam name="L">Left value type</typeparam>
 /// <typeparam name="R">Bound value type</typeparam>
 public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) : 
-    Fallible<EitherT<L, M, R>, EitherT<L, M>, L, R>,
+    K<EitherT<L, M>, R>,
     K<EitherT<M>, L, R>
     where M : Monad<M>
 {

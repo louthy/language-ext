@@ -1,7 +1,8 @@
 using System;
 using LanguageExt.Common;
+using LanguageExt.Traits;
 
-namespace LanguageExt.Traits;
+namespace LanguageExt;
 
 /// <summary>
 /// Extensions for higher-kinded structures that have a failure state `E`
@@ -48,8 +49,8 @@ public static partial class FallibleExtensionsE
         this K<M, A> ma,
         Func<E, bool> Predicate,
         Func<E, IO<A>> Fail) 
-        where M : Fallible<E, M>, Monad<M> =>
-        M.Catch(ma, Predicate, e => M.LiftIOMaybe(Fail(e)));
+        where M : Fallible<E, M>, MonadIO<M> =>
+        M.Catch(ma, Predicate, e => M.LiftIO(Fail(e)));
     
     /// <summary>
     /// Run the `Fallible` structure.  If in a failed state, test the failure value
@@ -123,8 +124,8 @@ public static partial class FallibleExtensionsE
         this K<M, A> ma,
         E Match,
         Func<E, IO<A>> Fail) 
-        where M : Fallible<E, M>, Monad<M> =>
-        M.Catch(ma, e => Match?.Equals(e) ?? false, e => M.LiftIOMaybe(Fail(e)));
+        where M : Fallible<E, M>, MonadIO<M> =>
+        M.Catch(ma, e => Match?.Equals(e) ?? false, e => M.LiftIO(Fail(e)));
     
     /// <summary>
     /// Run the `Fallible` structure.  If in a failed state, test the failure value
@@ -196,8 +197,8 @@ public static partial class FallibleExtensionsE
     public static K<M, A> Catch<E, M, A>(
         this K<M, A> ma,
         Func<E, IO<A>> Fail) 
-        where M : Fallible<E, M>, Monad<M> =>
-        M.Catch(ma, _ => true, e => M.LiftIOMaybe(Fail(e)));
+        where M : Fallible<E, M>, MonadIO<M> =>
+        M.Catch(ma, _ => true, e => M.LiftIO(Fail(e)));
     
     /// <summary>
     /// Run the `Fallible` structure.  If in a failed state, test the failure value
@@ -242,7 +243,7 @@ public static partial class FallibleExtensionsE
     /// <param name="fa">`Fallible` structure</param>
     /// <typeparam name="A">Bound value type</typeparam>
     public static K<F, A> Catch<E, F, A>(this K<F, A> fa, Fail<E> fail) 
-        where F : Fallible<E, F>, Applicative<F> =>
+        where F : Fallible<E, F> =>
         F.Catch(fa, _ => true, _ => F.Fail<A>(fail.Value));
     
     /// <summary>
@@ -251,7 +252,7 @@ public static partial class FallibleExtensionsE
     /// <param name="fa">`Fallible` structure</param>
     /// <typeparam name="A">Bound value type</typeparam>
     public static K<F, A> Catch<E, F, A>(this K<F, A> fa, E fail) 
-        where F : Fallible<E, F>, Applicative<F> =>
+        where F : Fallible<E, F> =>
         F.Catch(fa, _ => true, _ => F.Fail<A>(fail));
     
     /// <summary>
@@ -281,6 +282,6 @@ public static partial class FallibleExtensionsE
     /// <param name="fa">`Fallible` structure</param>
     /// <typeparam name="A">Bound value type</typeparam>
     public static K<F, A> Catch<E, F, A>(this K<F, A> fa, K<F, A> alternative) 
-        where F : Fallible<E, F>, Applicative<F> =>
+        where F : Fallible<E, F> =>
         F.Catch(fa, _ => true, _ => alternative);
 }

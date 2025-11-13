@@ -13,7 +13,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record OptionT<M, A>(K<M, Option<A>> runOption) : 
-    Fallible<OptionT<M, A>, OptionT<M>, Unit, A>
+    K<OptionT<M>, A>
     where M : Monad<M>
 {
     /// <summary>

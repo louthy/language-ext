@@ -1,3 +1,4 @@
+/*
 using System.Diagnostics.Contracts;
 
 namespace LanguageExt.Traits;
@@ -48,3 +49,4 @@ public interface Fallible<FA, F, E, A> :
     [Pure]
     public static abstract FA operator |(FA lhs, CatchM<E, F, A> rhs);
 }
+*/

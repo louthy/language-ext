@@ -13,7 +13,7 @@ namespace LanguageExt;
 /// <typeparam name="F">Left value type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record ValidationT<F, M, A>(Func<MonoidInstance<F>, K<M, Validation<F, A>>> runValidation) : 
-    Fallible<ValidationT<F, M, A>, ValidationT<F, M>, F, A>,
+    K<ValidationT<F, M>, A>,
     K<ValidationT<M>, F, A>
     where M : Monad<M>
 {

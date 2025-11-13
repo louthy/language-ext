@@ -13,6 +13,6 @@ public readonly record struct CatchM<E, M, A>(Func<E, bool> Match, Func<E, K<M, 
     public K<M, A> Run(E error, K<M, A> otherwise) =>
         Match(error) ? Action(error) : otherwise;
 
-    public static K<M, A> operator |(K<M, A> lhs, CatchM<E, M, A> rhs) =>
-        lhs.Catch(rhs.Match, rhs.Action);
+    /*public static K<M, A> operator |(K<M, A> lhs, CatchM<E, M, A> rhs) =>
+        lhs.Catch(rhs.Match, rhs.Action);*/
 }
