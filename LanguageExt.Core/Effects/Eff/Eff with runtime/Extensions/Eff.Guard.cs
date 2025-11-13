@@ -4,7 +4,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public static partial class EffGuardExtensions
+public static partial class EffExtensions
 {
     /// <summary>
     /// Natural transformation to `Eff`

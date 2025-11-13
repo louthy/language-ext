@@ -12,5 +12,8 @@ public static partial class IOExtensions
 
         public static IO<A> operator |(K<IO, A> lhs, Fail<Error> rhs) =>
             lhs.Catch(rhs).As();
+
+        public static IO<A> operator |(K<IO, A> lhs, Error rhs) =>
+            lhs.Catch(rhs).As();
     }
 }

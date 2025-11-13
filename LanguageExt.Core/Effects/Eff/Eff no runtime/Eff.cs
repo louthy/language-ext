@@ -21,6 +21,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     Fallible<Eff<A>>,
     K<Eff, A>,
     Alternative<Eff<A>>,
+    Final<Eff<A>>,
     Deriving.Choice<Eff<A>, ReaderT<A, IO>>,
     Deriving.Readable<Eff<A>, A, ReaderT<A, IO>>,
     Deriving.MonadUnliftIO<Eff<A>, ReaderT<A, IO>>
@@ -457,49 +458,9 @@ public record Eff<A>(Eff<MinRT, A> effect) :
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    // Operators
+    // Conversion operators
     //
 
-    /// <summary>
-    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
-    /// as the semicolon) in C#.
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the second action</returns>
-    public static Eff<A> operator >> (Eff<A> lhs, Eff<A> rhs) =>
-        lhs.Bind(_ => rhs);
-
-    /// <summary>
-    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
-    /// as the semicolon) in C#.
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the second action</returns>
-    public static Eff<A> operator >> (Eff<A> lhs, Eff<Unit> rhs) =>
-        lhs.Bind(x => rhs.Map(_ => x));
-
-    /// <summary>
-    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
-    /// first action is propagated. 
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the first action</returns>
-    public static Eff<A> operator >> (Eff<A> lhs, K<Eff, A> rhs) =>
-        lhs.Bind(_ => rhs);
-
-    /// <summary>
-    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
-    /// first action is propagated. 
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the first action</returns>
-    public static Eff<A> operator >> (Eff<A> lhs, K<Eff, Unit> rhs) =>
-        lhs.Bind(x => rhs.Map(_ => x));
-    
     /// <summary>
     /// Convert to an `Eff` monad
     /// </summary>
@@ -567,94 +528,6 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     public static implicit operator Eff<A>(in Error fail) => 
         Fail(fail);
 
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, Eff<A> mb) =>
-        ma.Choose(mb).As();
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(K<Eff, A> ma, Eff<A> mb) =>
-        ma.Choose(mb).As();
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, K<Eff, A> mb) =>
-        ma.Choose(mb).As();
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative value if the IO operation fails</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, Pure<A> mb) =>
-        ma.Choose(mb.ToEff()).As();
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="error">Alternative value if the IO operation fails</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, Fail<Error> error) =>
-        ma.Catch(error).As();
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="error">Error if the IO operation fails</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, Error error) =>
-        ma.Catch(error).As();
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="value">Alternative value if the IO operation fails</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, A value) =>
-        ma.Catch(value).As();
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise, return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, CatchM<Error, Eff, A> mb) =>
-        ma.Catch(mb).As();
-
     public override string ToString() => 
         "Eff";
 
@@ -679,6 +552,11 @@ public record Eff<A>(Eff<MinRT, A> effect) :
             new ReaderT<A, IO, T>(
                 env => ma.As().RunIO(env).Catch(pred, e => f(e).As().effect.Run(env))));
 
+    static K<Eff<A>, T> Final<Eff<A>>.Finally<X, T>(K<Eff<A>, T> fa, K<Eff<A>, X> @finally) => 
+        new Eff<A, T>(
+            new ReaderT<A, IO, T>(
+                env => fa.As().RunIO(env).Finally(@finally.As().effect.Run(env))));
+    
     static K<Eff<A>, U> Applicative<Eff<A>>.Action<T, U>(K<Eff<A>, T> ma, K<Eff<A>, U> mb) =>
         new Eff<A, U>(ma.As().effect.Action(mb.As().effect).As());
 

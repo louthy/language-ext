@@ -39,6 +39,6 @@ public static class ErrorAndGuardExample<RT>
                from _2 in guard(ln != "sys", () => throw new SystemException())
                from _3 in guard(ln != "err", () => throw new Exception())
                from _4 in Console<RT>.writeLine(ln)
-               select unit).As()
+               select unit)
       | @catch(UserExited, pure<Eff<RT>, Unit>(unit));
 }

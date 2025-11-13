@@ -8,136 +8,139 @@ namespace LanguageExt;
 
 public static partial class EffExtensions
 {
-    /// <summary>
-    /// Cast type to its Kind
-    /// </summary>
-    public static Eff<RT, A> As<RT, A>(this K<Eff<RT>, A> ma) =>
-        (Eff<RT, A>)ma;
+    extension<RT, A>(K<Eff<RT>, A> ma)
+    {
+        /// <summary>
+        /// Cast type to its Kind
+        /// </summary>
+        public Eff<RT, A> As() =>
+            (Eff<RT, A>)ma;
+
+        /// <summary>
+        /// Invoke the effect
+        /// </summary>
+        /// <remarks>
+        /// Returns the result value only 
+        /// </remarks>
+        [Pure, MethodImpl(Opt.Default)]
+        public Fin<A> Run(RT env) =>
+            ma.As().Run(env, EnvIO.New());
+
+        /// <summary>
+        /// Invoke the effect
+        /// </summary>
+        /// <remarks>
+        /// Returns the result value only 
+        /// </remarks>
+        [Pure, MethodImpl(Opt.Default)]
+        public Fin<A> Run(RT env, EnvIO envIO)
+        {
+            try
+            {
+                return ma.As().effect.Run(env).Run(envIO);
+            }
+            catch(Exception e)
+            {
+                return Fin.Fail<A>(e);
+            }
+        }
+
+        /// <summary>
+        /// Invoke the effect
+        /// </summary>
+        /// <remarks>
+        /// This is labelled 'unsafe' because it can throw an exception, whereas
+        /// `Run` will capture any errors and return a `Fin` type.
+        /// </remarks>
+        [Pure, MethodImpl(Opt.Default)]
+        public A RunUnsafe(RT env) =>
+            ma.As().effect.Run(env).Run();
+
+        /// <summary>
+        /// Invoke the effect
+        /// </summary>
+        /// <remarks>
+        /// This is labelled 'unsafe' because it can throw an exception, whereas
+        /// `Run` will capture any errors and return a `Fin` type.
+        /// </remarks>
+        [Pure, MethodImpl(Opt.Default)]
+        public A RunUnsafe(RT env, EnvIO envIO) =>
+            ma.As().effect.Run(env).Run(envIO);
+
+        /// <summary>
+        /// Invoke the effect to leave the inner IO monad
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public IO<A> RunIO(RT env) =>
+            ma.As().effect.Run(env).As();
+
+        /// <summary>
+        /// Invoke the effect
+        /// </summary>
+        /// <remarks>
+        /// Returns the result value only 
+        /// </remarks>
+        [Pure, MethodImpl(Opt.Default)]
+        public async Task<Fin<A>> RunAsync(RT env)
+        {
+            try
+            {
+                return await ma.As().effect.Run(env).RunAsync();
+            }
+            catch(Exception e)
+            {
+                return Fin.Fail<A>(e);
+            }
+        }
+
+        /// <summary>
+        /// Invoke the effect
+        /// </summary>
+        /// <remarks>
+        /// Returns the result value only 
+        /// </remarks>
+        [Pure, MethodImpl(Opt.Default)]
+        public async Task<Fin<A>> RunAsync(RT env, EnvIO envIO)
+        {
+            try
+            {
+                return await ma.As().effect.Run(env).RunAsync(envIO);
+            }
+            catch(Exception e)
+            {
+                return Fin.Fail<A>(e);
+            }
+        }
+
+        /// <summary>
+        /// Invoke the effect
+        /// </summary>
+        /// <remarks>
+        /// This is labelled 'unsafe' because it can throw an exception, whereas
+        /// `Run` will capture any errors and return a `Fin` type.
+        /// </remarks>
+        [Pure, MethodImpl(Opt.Default)]
+        public ValueTask<A> RunUnsafeAsync(RT env) =>
+            ma.As().effect.Run(env).RunAsync(EnvIO.New());
+
+        /// <summary>
+        /// Invoke the effect
+        /// </summary>
+        /// <remarks>
+        /// This is labelled 'unsafe' because it can throw an exception, whereas
+        /// `Run` will capture any errors and return a `Fin` type.
+        /// </remarks>
+        [Pure, MethodImpl(Opt.Default)]
+        public ValueTask<A> RunUnsafeAsync(RT env, EnvIO envIO) =>
+            ma.As().effect.Run(env).RunAsync(envIO);
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Invoking
     //
 
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
-    /// Returns the result value only 
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> Run<RT, A>(this K<Eff<RT>, A> ma, RT env) =>
-        ma.As().Run(env, EnvIO.New());
 
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
-    /// Returns the result value only 
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> Run<RT, A>(this K<Eff<RT>, A> ma, RT env, EnvIO envIO)
-    {
-        try
-        {
-            return ma.As().effect.Run(env).Run(envIO);
-        }
-        catch(Exception e)
-        {
-            return Fin.Fail<A>(e);
-        }
-    }  
-    
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
-    /// This is labelled 'unsafe' because it can throw an exception, whereas
-    /// `Run` will capture any errors and return a `Fin` type.
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public static A RunUnsafe<RT, A>(this K<Eff<RT>, A> ma, RT env) =>
-        ma.As().effect.Run(env).Run();
-
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
-    /// This is labelled 'unsafe' because it can throw an exception, whereas
-    /// `Run` will capture any errors and return a `Fin` type.
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public static A RunUnsafe<RT, A>(this K<Eff<RT>, A> ma, RT env, EnvIO envIO) =>
-        ma.As().effect.Run(env).Run(envIO);
-
-    /// <summary>
-    /// Invoke the effect to leave the inner IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<A> RunIO<RT, A>(this K<Eff<RT>, A> ma, RT env) =>
-        ma.As().effect.Run(env).As();
-
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
-    /// Returns the result value only 
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public static async Task<Fin<A>> RunAsync<RT, A>(this K<Eff<RT>, A> ma, RT env)
-    {
-        try
-        {
-            return await ma.As().effect.Run(env).RunAsync();
-        }
-        catch(Exception e)
-        {
-            return Fin.Fail<A>(e);
-        }
-    }  
-
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
-    /// Returns the result value only 
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public static async Task<Fin<A>> RunAsync<RT, A>(this K<Eff<RT>, A> ma, RT env, EnvIO envIO)
-    {
-        try
-        {
-            return await ma.As().effect.Run(env).RunAsync(envIO);
-        }
-        catch(Exception e)
-        {
-            return Fin.Fail<A>(e);
-        }
-    }  
-    
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
-    /// This is labelled 'unsafe' because it can throw an exception, whereas
-    /// `Run` will capture any errors and return a `Fin` type.
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public static ValueTask<A> RunUnsafeAsync<RT, A>(this K<Eff<RT>, A> ma, RT env) =>
-        ma.As().effect.Run(env).RunAsync(EnvIO.New());
-
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
-    /// This is labelled 'unsafe' because it can throw an exception, whereas
-    /// `Run` will capture any errors and return a `Fin` type.
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public static ValueTask<A> RunUnsafeAsync<RT, A>(this K<Eff<RT>, A> ma, RT env, EnvIO envIO) =>
-        ma.As().effect.Run(env).RunAsync(envIO);
-    
-    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Monadic join

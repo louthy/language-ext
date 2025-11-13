@@ -227,31 +227,4 @@ public static partial class Prelude
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> filter<RT, A>(Eff<RT, A> ma, Func<A, bool> predicate) =>
         ma.Filter(predicate);
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Obsolete
-    //
-    
-    /// <summary>
-    /// Construct an effect that will either succeed, have an exceptional, or unexceptional failure
-    /// </summary>
-    /// <param name="f">Function to capture the effect</param>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <returns>Synchronous IO monad that captures the effect</returns>
-    [Obsolete("Use either: `Prelude.liftEff`, `Eff<A>.Lift`, or `Eff<A>.LiftIO` (for async)")]
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> EffMaybe<RT, A>(Func<RT, Fin<A>> f) =>
-        LanguageExt.Eff<RT, A>.Lift(f);
-    
-    /// <summary>
-    /// Construct an effect that will either succeed or have an exceptional failure
-    /// </summary>
-    /// <param name="f">Function to capture the effect</param>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <returns>Synchronous IO monad that captures the effect</returns>
-    [Obsolete("Use either: `Prelude.lift`, `Prelude.liftEff`, `Eff<A>.Lift`, or `Eff<A>.LiftIO` (for async)")]
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> Eff<RT, A>(Func<RT, A> f) =>
-        LanguageExt.Eff<RT, A>.Lift(f);
 }

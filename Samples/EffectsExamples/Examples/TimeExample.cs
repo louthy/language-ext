@@ -20,8 +20,8 @@ public static class TimeExample<RT>
         Has<Eff<RT>, ConsoleIO>
 {
     public static Eff<RT, Unit> main =>
-        repeat(Schedule.spaced(10 * second) | Schedule.fibonacci(1 * second) | Schedule.recurs(9),
+       +repeat(Schedule.spaced(10 * second) | Schedule.fibonacci(1 * second) | Schedule.recurs(9),
                from tm in Time<RT>.now
                from _1 in Console<RT>.writeLine(tm.ToLongTimeString())
-               select unit).As();
+               select unit);
 }

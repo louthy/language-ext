@@ -44,7 +44,7 @@ public class MemoryConsoleTests
         // test
         var comp = repeat(from l in Console.readLine
                           from _ in Console.writeLine(l)
-                          select unit).As() | unitEff;
+                          select unit) | unitEff;
             
         // run and assert
         comp.Run(rt, EnvIO.New()).ThrowIfFail();

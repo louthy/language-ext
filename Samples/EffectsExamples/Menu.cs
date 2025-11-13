@@ -26,7 +26,7 @@ public static class Menu<RT>
                select unit).As();
  
     static Eff<RT, Seq<Unit>> showOptions =>
-        menuItems.Traverse(p => Console<RT>.writeLine($"{p.Item}. {p.Text}")).As();
+       +menuItems.Traverse(p => Console<RT>.writeLine($"{p.Item}. {p.Text}"));
 
     static Eff<RT, Unit> clearConsole(ConsoleColor color) =>
         from _0 in Console<RT>.clear.As()
@@ -46,7 +46,7 @@ public static class Menu<RT>
         menuItems.Find(item => item.Item == ix)
                  .Map(item => (Example: item.Example, Desc: item.Desc))
                  .ToEff()
-      | (SuccessEff<RT, Unit>(unit), "invalid menu option");
+      | Pure((Eff.unit<RT>(), "invalid menu option"));
 
     static Eff<RT, Unit> logError(Error e) =>
         from _0 in Console<RT>.setColour(ConsoleColor.Red).As()

@@ -51,8 +51,9 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        //var my = IO.pure(true);
-        //var mz = mx >> my;
+        var aax = IO.pure(123);
+        var aay = IO.pure(unit);
+        var aaz = aax >>> aay;
         
         var fx = IO.pure(100);
         var fy = IO.pure(200);

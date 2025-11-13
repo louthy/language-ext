@@ -20,7 +20,7 @@ public static class ForkCancelExample<RT>
         Has<Eff<RT>, TimeIO>
 {
     public static Eff<RT, Unit> main =>
-        from frk in fork(inner).As()
+       +from frk in fork(inner)
         from key in Console<RT>.readKey
         from _1  in frk.Cancel
         from _2  in Console<RT>.writeLine("done")
@@ -32,10 +32,10 @@ public static class ForkCancelExample<RT>
         select unit;
 
     static Eff<RT, int> sum =>
-        digit.FoldIO(Schedule.recurs(9) | Schedule.spaced(1 * second), 0, (s, x) => s + x).As();
+        +digit.FoldIO(Schedule.recurs(9) | Schedule.spaced(1 * second), 0, (s, x) => s + x);
 
     static Eff<RT, int> digit =>
         from one in SuccessEff<RT, int>(1)
-        from _ in Console<RT>.writeLine("*")
+        from _   in Console<RT>.writeLine("*")
         select one;
 }

@@ -22,7 +22,7 @@ public class TimeoutExample<RT>
         Has<Eff<RT>, ConsoleIO>
 {
     public static Eff<RT, Unit> main =>
-        from _1 in timeout(60 * seconds, longRunning).As()
+        from _1 in timeout(60 * seconds, longRunning)
                      | @catch(Errors.TimedOut, pure<Eff<RT>, Unit>(unit))
         from _2 in Console<RT>.writeLine("done")
         select unit;

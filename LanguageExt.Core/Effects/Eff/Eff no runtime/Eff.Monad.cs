@@ -8,8 +8,9 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public class Eff : 
+public partial class Eff : 
     MonadUnliftIO<Eff>,
+    Final<Eff>,
     Fallible<Eff>,
     Readable<Eff, MinRT>,
     Alternative<Eff>
@@ -69,4 +70,7 @@ public class Eff :
 
     static K<Eff, A> SemigroupK<Eff>.Combine<A>(K<Eff, A> lhs, K<Eff, A> rhs) => 
         lhs.Choose(rhs);
+
+    static K<Eff, A> Final<Eff>.Finally<X, A>(K<Eff, A> fa, K<Eff, X> @finally) =>
+        new Eff<A>(fa.As().effect.Finally(@finally.As().effect).As());
 }

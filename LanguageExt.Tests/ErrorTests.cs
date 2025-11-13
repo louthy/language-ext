@@ -83,7 +83,7 @@ public class ErrorTests
         Assert.False(eb.IsExpected);
         Assert.True(eb.IsExceptional);
         Assert.True(ea.Is(eb));
-        Assert.True(eb.Is(ea));
+        Assert.True (eb.Is(ea));
     }
 
     public record BespokeError([property: DataMember] bool MyData) : 
