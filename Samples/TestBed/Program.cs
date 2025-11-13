@@ -51,6 +51,10 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
+        var readLine = IO.lift(Console.ReadLine);
+
+        var ioop = parseInt<IO> * readLine;
+        
         var aax = IO.pure(123);
         var aay = IO.pure(unit);
         var aaz = aax >>> aay;
