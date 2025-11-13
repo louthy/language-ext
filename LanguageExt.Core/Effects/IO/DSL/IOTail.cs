@@ -18,7 +18,7 @@ record IOTail<A>(IO<A> Tail) : IO<A>
     public override string ToString() => 
         "IO tail";
 
-    public static IO<C> resolve<A, B, C>(A initialValue, IO<B> bindResult, Func<A, B, C> project)
+    public static IO<C> resolve<B, C>(A initialValue, IO<B> bindResult, Func<A, B, C> project)
         => bindResult switch
            {
                IOTail<B> tail when typeof(B) == typeof(C) => (IO<C>)(object)tail.Tail,
