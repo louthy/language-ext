@@ -3,7 +3,8 @@ namespace LanguageExt;
 
 public static partial class SemigroupKExtensions
 {
-    extension<F, A>(K<F, A> _) where F : SemigroupK<F>
+    extension<F, A>(K<F, A> _) 
+        where F : SemigroupK<F>
     {
         /// <summary>
         /// Choice operator.  Usually means if the first argument succeeds, return it, otherwise return the second

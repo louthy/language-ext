@@ -3,7 +3,8 @@ namespace LanguageExt;
 
 public static class SemigroupExtensions
 {
-    extension<A>(A _) where A : Semigroup<A>
+    extension<A>(A _) 
+        where A : Semigroup<A>
     {
         /// <summary>
         /// Choice operator.  Usually means if the first argument succeeds, return it, otherwise return the second
