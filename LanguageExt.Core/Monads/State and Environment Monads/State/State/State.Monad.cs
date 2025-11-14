@@ -41,7 +41,4 @@ public partial class State<S> :
 
     static K<State<S>, A> Choice<State<S>>.Choose<A>(K<State<S>, A> fa, Func<K<State<S>, A>> fb) => 
         fa;
-
-    static K<State<S>, A> SemigroupK<State<S>>.Combine<A>(K<State<S>, A> lhs, K<State<S>, A> rhs) =>
-        lhs.Choose(rhs);
 }

@@ -1,4 +1,5 @@
 using LanguageExt;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace CardGame;
@@ -11,7 +12,7 @@ public partial class Game
     /// <summary>
     /// Play the game!
     /// </summary>
-    public static Game<Unit> play =>
+    public static K<Game, Unit> play =>
         Display.askPlayerNames >>
         enterPlayerNames       >>
         Display.introduction   >>
@@ -46,7 +47,7 @@ public partial class Game
     /// <summary>
     /// Play a single hand
     /// </summary>
-    static Game<Unit> playHand =>
+    static K<Game, Unit> playHand =>
         dealHands >>
         playRound >>
         gameOver  >>
@@ -117,7 +118,7 @@ public partial class Game
     /// <summary>
     /// Berate the user for not following instructions!
     /// </summary>
-    static Game<Unit> stickOrTwistBerate =>
+    static K<Game, Unit> stickOrTwistBerate =>
         Display.stickOrTwistBerate >>
         stickOrTwist;
 

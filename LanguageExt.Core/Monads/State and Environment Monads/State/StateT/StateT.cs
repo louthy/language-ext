@@ -12,7 +12,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<StateT<S, M>, A>
-    where M : Monad<M>, Choice<M>
+    where M : Monad<M>
 {
     /// <summary>
     /// Lift a pure value into the monad-transformer
@@ -385,78 +385,6 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
     
     public static implicit operator StateT<S, M, A>(IO<A> ma) =>
         LiftIO(ma);
-
-    /// <summary>
-    /// Choice operator
-    /// </summary>
-    public static StateT<S, M, A> operator |(StateT<S, M, A> ma, K<StateT<S, M>, A> mb) =>
-        ma.Choose(mb).As();
-    
-    /// <summary>
-    /// Choice operator
-    /// </summary>
-    public static StateT<S, M, A> operator |(K<StateT<S, M>, A> ma, StateT<S, M, A> mb) =>
-        ma.Choose(mb).As();
-    
-    /// <summary>
-    /// Choice operator
-    /// </summary>
-    public static StateT<S, M, A> operator |(StateT<S, M, A> ma, Pure<A> mb) =>
-        ma.Choose(Pure(mb.Value)).As();
-    
-    /// <summary>
-    /// Choice operator
-    /// </summary>
-    public static StateT<S, M, A> operator |(Pure<A> ma, StateT<S, M, A>mb) =>
-        Pure(ma.Value).Choose(mb).As();
-    
-    /// <summary>
-    /// Choice operator
-    /// </summary>
-    public static StateT<S, M, A> operator |(IO<A> ma, StateT<S, M, A> mb) =>
-        LiftIO(ma).Choose(mb).As();
-    
-    /// <summary>
-    /// Choice operator
-    /// </summary>
-    public static StateT<S, M, A> operator |(StateT<S, M, A> ma, IO<A> mb) =>
-        ma.Choose(LiftIO(mb)).As();
-
-    /// <summary>
-    /// Combine operator
-    /// </summary>
-    public static StateT<S, M, A> operator +(StateT<S, M, A> ma, K<StateT<S, M>, A> mb) =>
-        ma.Combine(mb).As();
-    
-    /// <summary>
-    /// Combine operator
-    /// </summary>
-    public static StateT<S, M, A> operator +(K<StateT<S, M>, A> ma, StateT<S, M, A> mb) =>
-        ma.Combine(mb).As();
-    
-    /// <summary>
-    /// Combine operator
-    /// </summary>
-    public static StateT<S, M, A> operator +(StateT<S, M, A> ma, Pure<A> mb) =>
-        ma.Combine(Pure(mb.Value)).As();
-    
-    /// <summary>
-    /// Combine operator
-    /// </summary>
-    public static StateT<S, M, A> operator +(Pure<A> ma, StateT<S, M, A>mb) =>
-        Pure(ma.Value).Combine(mb).As();
-    
-    /// <summary>
-    /// Combine operator
-    /// </summary>
-    public static StateT<S, M, A> operator +(IO<A> ma, StateT<S, M, A> mb) =>
-        LiftIO(ma).Combine(mb).As();
-    
-    /// <summary>
-    /// Combine operator
-    /// </summary>
-    public static StateT<S, M, A> operator +(StateT<S, M, A> ma, IO<A> mb) =>
-        ma.Combine(LiftIO(mb)).As();
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

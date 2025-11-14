@@ -139,11 +139,6 @@ public class StateEff<S, E> :
                 }
             }
         );
-
-    static K<StateEff<S, E>, A> SemigroupK<StateEff<S, E>>.Combine<A>(
-        K<StateEff<S, E>, A> lhs,
-        K<StateEff<S, E>, A> rhs) =>
-        lhs.Choose(rhs);
 }
     
     

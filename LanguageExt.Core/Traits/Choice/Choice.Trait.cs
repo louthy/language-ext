@@ -3,10 +3,10 @@ using System;
 namespace LanguageExt.Traits;
 
 /// <summary>
-/// A semigroup on applicative functors
+/// Choose between two structures.  If the first succeeds, then return it; otherwise return the second.
 /// </summary>
-/// <typeparam name="F">Applicative functor</typeparam>
-public interface Choice<F> : Applicative<F>, SemigroupK<F>
+/// <typeparam name="F">Structure type</typeparam>
+public interface Choice<F>
     where F : Choice<F>
 {
     /// <summary>

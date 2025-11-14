@@ -44,7 +44,7 @@ public static partial class ChoiceExtensions
     /// <param name="v">Applicative functor</param>
     /// <returns>One or more values</returns>
     public static K<F, Seq<A>> Some<F, A>(this K<F, A> v)
-        where F : Choice<F> =>
+        where F : Choice<F>, Applicative<F> =>
         Choice.some(v);
 
     /// <summary>
@@ -58,6 +58,6 @@ public static partial class ChoiceExtensions
     /// <param name="v">Applicative functor</param>
     /// <returns>Zero or more values</returns>
     public static K<F, Seq<A>> Many<F, A>(this K<F, A> v)
-        where F : Choice<F> =>
+        where F : Choice<F>, Applicative<F> =>
         Choice.many(v);
 }

@@ -18,7 +18,7 @@ namespace LanguageExt.Traits;
 /// </remarks>
 /// <typeparam name="F">Alternative type</typeparam>
 public static class AlternativeLaw<F>
-    where F : Alternative<F>
+    where F : Alternative<F>, Applicative<F>
 {
     /// <summary>
     /// Assert that the Alternative laws hold

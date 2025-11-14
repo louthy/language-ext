@@ -306,13 +306,6 @@ public abstract partial record Validation<F, A> :
         };
 
     /// <summary>
-    /// Action operator
-    /// </summary>
-    [Pure]
-    public static Validation<F, A> operator >>(Validation<F, A> lhs, Validation<F, A> rhs) =>
-        lhs.Action(rhs).As();
-    
-    /// <summary>
     /// Comparison operator
     /// </summary>
     /// <param name="lhs">The left-hand side of the operation</param>

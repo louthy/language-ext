@@ -11,8 +11,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class Writer<W> : 
     Monad<Writer<W>>, 
-    Writable<Writer<W>, W>,
-    Choice<Writer<W>>
+    Writable<Writer<W>, W>
     where W : Monoid<W>
 {
     static K<Writer<W>, B> Monad<Writer<W>>.Bind<A, B>(K<Writer<W>, A> ma, Func<A, K<Writer<W>, B>> f) => 
@@ -44,13 +43,4 @@ public partial class Writer<W> :
                 var ((a, f), w1) = action.As().Run();
                 return (a, w + f(w1));
             });
-
-    static K<Writer<W>, A> Choice<Writer<W>>.Choose<A>(K<Writer<W>, A> fa, K<Writer<W>, A> fb) =>
-        fa;
-
-    static K<Writer<W>, A> Choice<Writer<W>>.Choose<A>(K<Writer<W>, A> fa, Func<K<Writer<W>, A>> fb) => 
-        fa;
-
-    static K<Writer<W>, A> SemigroupK<Writer<W>>.Combine<A>(K<Writer<W>, A> lhs, K<Writer<W>, A> rhs) =>
-        lhs.Choose(rhs);
 }

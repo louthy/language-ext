@@ -8,8 +8,7 @@ namespace LanguageExt;
 /// </summary>
 public partial class Identity : 
     Monad<Identity>, 
-    Traversable<Identity>,
-    Choice<Identity>
+    Traversable<Identity>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -65,18 +64,4 @@ public partial class Identity :
     
     static K<F, K<Identity, B>> Traversable<Identity>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Identity, A> ta) =>
         F.Map(PureK, f(ta.As().Value));
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Alternative
-    //
-
-    static K<Identity, A> Choice<Identity>.Choose<A>(K<Identity, A> lhs, K<Identity, A> rhs) => 
-        lhs;
-
-    static K<Identity, A> Choice<Identity>.Choose<A>(K<Identity, A> lhs, Func<K<Identity, A>> rhs) => 
-        lhs;
-
-    static K<Identity, A> SemigroupK<Identity>.Combine<A>(K<Identity, A> lhs, K<Identity, A> rhs) =>
-        lhs.Choose(rhs);
 }

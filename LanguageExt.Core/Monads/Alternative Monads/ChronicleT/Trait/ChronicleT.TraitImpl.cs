@@ -54,9 +54,6 @@ public partial class ChronicleT<Ch, M> :
         Func<Ch, K<ChronicleT<Ch, M>, A>> Fail) =>
         fa.As().Catch(Predicate, Fail);
 
-    static K<ChronicleT<Ch, M>, A> SemigroupK<ChronicleT<Ch, M>>.Combine<A>(K<ChronicleT<Ch, M>, A> lhs, K<ChronicleT<Ch, M>, A> rhs) => 
-        lhs.As().Choose(rhs);
-
     static K<ChronicleT<Ch, M>, A> Choice<ChronicleT<Ch, M>>.Choose<A>(K<ChronicleT<Ch, M>, A> lhs, K<ChronicleT<Ch, M>, A> rhs) => 
         lhs.As().Choose(rhs);
 

@@ -10,8 +10,8 @@ public static partial class Deriving
     /// </summary>
     public interface Choice<Supertype, Subtype> :
         Choice<Supertype>,
-        Applicative<Supertype, Subtype>,
-        SemigroupK<Supertype, Subtype>
+        Traits.Natural<Supertype, Subtype>,
+        Traits.CoNatural<Supertype, Subtype>
         where Supertype : Choice<Supertype, Subtype>
         where Subtype : Choice<Subtype>
     {

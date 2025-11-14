@@ -16,14 +16,14 @@ public static partial class Prelude
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped functor</returns>
     public static StateT<S, M, B> map<S, M, A, B>(Func<A, B> f, K<StateT<S, M>, A> ma)
-        where M : Monad<M>, Choice<M> =>
+        where M : Monad<M> =>
         Functor.map(f, ma).As();
 
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static StateT<S, M, B> action<S, M, A, B>(K<StateT<S, M>, A> ma, K<StateT<S, M>, B> mb)
-        where M : Monad<M>, Choice<M> =>
+        where M : Monad<M> =>
         Applicative.action(ma, mb).As();
 
     /// <summary>
@@ -37,6 +37,6 @@ public static partial class Prelude
     /// <param name="mf">Mapping function(s)</param>
     /// <returns>Mapped applicative functor</returns>
     public static StateT<S, M, B> apply<S, M, A, B>(K<StateT<S, M>, Func<A, B>> mf, K<StateT<S, M>, A> ma) 
-        where M : Monad<M>, Choice<M> =>
+        where M : Monad<M> =>
         Applicative.apply(mf, ma).As();
 }    

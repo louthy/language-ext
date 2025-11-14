@@ -26,7 +26,7 @@ public readonly record struct Put<S>(S Value)
     /// Convert to a `StateT`
     /// </summary>
     public StateT<S, M, Unit> ToStateT<M>()
-        where M : Monad<M>, Choice<M> =>
+        where M : Monad<M> =>
         Stateful.put<StateT<S, M>, S>(Value).As();
     
     /// <summary>
@@ -39,14 +39,14 @@ public readonly record struct Put<S>(S Value)
     /// Monadic bind
     /// </summary>
     public StateT<S, M, C> SelectMany<M, B, C>(Func<Unit, StateT<S, M, B>> bind, Func<Unit, B, C> project)
-        where M : Monad<M>, Choice<M> =>
+        where M : Monad<M> =>
         ToStateT<M>().SelectMany(bind, project);
 
     /// <summary>
     /// Monadic bind
     /// </summary>
     public StateT<S, M, C> SelectMany<M, B, C>(Func<Unit, K<StateT<S, M>, B>> bind, Func<Unit, B, C> project)
-        where M : Monad<M>, Choice<M> =>
+        where M : Monad<M> =>
         ToStateT<M>().SelectMany(bind, project);
 
     /// <summary>
@@ -101,7 +101,7 @@ public readonly record struct Modify<S>(Func<S, S> f)
     /// Convert to a `StateT`
     /// </summary>
     public StateT<S, M, Unit> ToStateT<M>()
-        where M : Monad<M>, Choice<M> =>
+        where M : Monad<M> =>
         StateT<S, M, Unit>.Modify(f);
     
     /// <summary>
@@ -114,14 +114,14 @@ public readonly record struct Modify<S>(Func<S, S> f)
     /// Monadic bind
     /// </summary>
     public StateT<S, M, C> SelectMany<M, B, C>(Func<Unit, StateT<S, M, B>> bind, Func<Unit, B, C> project)
-        where M : Monad<M>, Choice<M> =>
+        where M : Monad<M> =>
         ToStateT<M>().SelectMany(bind, project);
 
     /// <summary>
     /// Monadic bind
     /// </summary>
     public StateT<S, M, C> SelectMany<M, B, C>(Func<Unit, K<StateT<S, M>, B>> bind, Func<Unit, B, C> project)
-        where M : Monad<M>, Choice<M> =>
+        where M : Monad<M> =>
         ToStateT<M>().SelectMany(bind, project);
 
     /// <summary>
@@ -177,7 +177,7 @@ public readonly record struct Gets<S, A>(Func<S, A> f)
     /// Convert ot a `StateT`
     /// </summary>
     public StateT<S, M, A> ToStateT<M>()
-        where M : Monad<M>, Choice<M> =>
+        where M : Monad<M> =>
         StateT<S, M, A>.Gets(f);
     
     /// <summary>
@@ -190,14 +190,14 @@ public readonly record struct Gets<S, A>(Func<S, A> f)
     /// Monadic bind
     /// </summary>
     public StateT<S, M, C> SelectMany<M, B, C>(Func<A, StateT<S, M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, Choice<M> =>
+        where M : Monad<M> =>
         ToStateT<M>().SelectMany(bind, project);
 
     /// <summary>
     /// Monadic bind
     /// </summary>
     public StateT<S, M, C> SelectMany<M, B, C>(Func<A, K<StateT<S, M>, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, Choice<M> =>
+        where M : Monad<M> =>
         ToStateT<M>().SelectMany(bind, project);
 
     /// <summary>

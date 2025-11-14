@@ -11,9 +11,8 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class WriterT<W, M> : 
     MonadT<WriterT<W, M>, M>, 
-    Choice<WriterT<W, M>>,
     Writable<WriterT<W, M>, W>
-    where M : Monad<M>, Choice<M>
+    where M : Monad<M>
     where W : Monoid<W>
 {
     static K<WriterT<W, M>, B> Monad<WriterT<W, M>>.Bind<A, B>(K<WriterT<W, M>, A> ma, Func<A, K<WriterT<W, M>, B>> f) => 
@@ -36,15 +35,6 @@ public partial class WriterT<W, M> :
     
     static K<WriterT<W, M>, A> Maybe.MonadIO<WriterT<W, M>>.LiftIOMaybe<A>(IO<A> ma) =>
         WriterT<W, M, A>.Lift(M.LiftIOMaybe(ma));
-
-    static K<WriterT<W, M>, A> SemigroupK<WriterT<W, M>>.Combine<A>(K<WriterT<W, M>, A> ma, K<WriterT<W, M>, A> mb) => 
-        new WriterT<W, M, A>(w => M.Combine(ma.As().runWriter(w), mb.As().runWriter(w)));
-
-    static K<WriterT<W, M>, A> Choice<WriterT<W, M>>.Choose<A>(K<WriterT<W, M>, A> ma, K<WriterT<W, M>, A> mb) => 
-        new WriterT<W, M, A>(w => M.Choose(ma.As().runWriter(w), mb.As().runWriter(w)));
-
-    static K<WriterT<W, M>, A> Choice<WriterT<W, M>>.Choose<A>(K<WriterT<W, M>, A> ma, Func<K<WriterT<W, M>, A>> mb) => 
-        new WriterT<W, M, A>(w => M.Choose(ma.As().runWriter(w), mb().As().runWriter(w)));
 
     static K<WriterT<W, M>, Unit> Writable<WriterT<W, M>, W>.Tell(W item) =>
         new WriterT<W, M, Unit>(w => M.Pure((unit, w + item)));

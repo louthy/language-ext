@@ -92,9 +92,6 @@ public class Either<L> :
     static K<Either<L>, A> Choice<Either<L>>.Choose<A>(K<Either<L>, A> ma, Func<K<Either<L>, A>> mb) => 
         ma is Either<L, A>.Right ? ma : mb();
 
-    static K<Either<L>, A> SemigroupK<Either<L>>.Combine<A>(K<Either<L>, A> lhs, K<Either<L>, A> rhs) =>
-        lhs.Choose(rhs);
-
     static K<Either<L>, A> Fallible<L, Either<L>>.Fail<A>(L error) => 
         new Either<L, A>.Left(error);
 

@@ -8,9 +8,8 @@ namespace LanguageExt;
 /// </summary>
 public class IdentityT<M> : 
     MonadT<IdentityT<M>, M>, 
-    Choice<IdentityT<M>>,
     MonadUnliftIO<IdentityT<M>>
-    where M : Monad<M>, Choice<M>
+    where M : Monad<M>
 {
  
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,13 +43,4 @@ public class IdentityT<M> :
 
     static K<IdentityT<M>, B> MonadUnliftIO<IdentityT<M>>.MapIO<A, B>(K<IdentityT<M>, A> ma, Func<IO<A>, IO<B>> f) => 
         new IdentityT<M, B>(M.MapIOMaybe(ma.As().Value, f));
-
-    static K<IdentityT<M>, A> SemigroupK<IdentityT<M>>.Combine<A>(K<IdentityT<M>, A> ma, K<IdentityT<M>, A> mb) =>
-        new IdentityT<M, A>(M.Combine(ma.As().Value, mb.As().Value));
-
-    static K<IdentityT<M>, A> Choice<IdentityT<M>>.Choose<A>(K<IdentityT<M>, A> ma, K<IdentityT<M>, A> mb) =>
-        new IdentityT<M, A>(M.Combine(ma.As().Value, mb.As().Value));
-
-    static K<IdentityT<M>, A> Choice<IdentityT<M>>.Choose<A>(K<IdentityT<M>, A> ma, Func<K<IdentityT<M>, A>> mb) => 
-        new IdentityT<M, A>(M.Combine(ma.As().Value, mb().As().Value));
 }

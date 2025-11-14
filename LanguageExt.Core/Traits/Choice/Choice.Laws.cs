@@ -16,7 +16,7 @@ namespace LanguageExt.Traits;
 /// </remarks>
 /// <typeparam name="F">Alternative type</typeparam>
 public static class ChoiceLaw<F>
-    where F : Choice<F>
+    where F : Choice<F>, Applicative<F>
 {
     /// <summary>
     /// Assert that the Alternative laws hold
@@ -43,9 +43,8 @@ public static class ChoiceLaw<F>
     public static Validation<Error, Unit> validate(K<F, int> failure, Func<K<F, int>, K<F, int>, bool>? equals = null)
     {
         equals ??= (fa, fb) => fa.Equals(fb);
-        return ApplicativeLaw<F>.validate(equals) >>
-               leftZeroLaw(failure, equals)       >>
-               rightZeroLaw(failure, equals)      >>
+        return leftZeroLaw(failure, equals)  >>
+               rightZeroLaw(failure, equals) >>
                leftCatchLaw(equals);
     }
 

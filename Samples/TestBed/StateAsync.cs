@@ -74,7 +74,6 @@ public static class StateIOExtensions
 /// </summary>
 public class StateIO<S> : 
     Deriving.Monad<StateIO<S>, StateT<S, IO>>,
-    Deriving.Choice<StateIO<S>, StateT<S, IO>>,
     Deriving.Stateful<StateIO<S>, StateT<S, IO>, S>,
     MonadUnliftIO<StateIO<S>>
 {

@@ -10,9 +10,8 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class StateT<S, M> : 
     MonadT<StateT<S, M>, M>, 
-    Choice<StateT<S, M>>,
     Stateful<StateT<S, M>, S>
-    where M : Monad<M>, Choice<M>
+    where M : Monad<M>
 {
     static K<StateT<S, M>, B> Monad<StateT<S, M>>.Bind<A, B>(K<StateT<S, M>, A> ma, Func<A, K<StateT<S, M>, B>> f) => 
         ma.As().Bind(f);
@@ -43,13 +42,4 @@ public partial class StateT<S, M> :
 
     static K<StateT<S, M>, A> Maybe.MonadIO<StateT<S, M>>.LiftIOMaybe<A>(IO<A> ma) =>
         StateT<S, M, A>.Lift(M.LiftIOMaybe(ma));
-
-    static K<StateT<S, M>, A> SemigroupK<StateT<S, M>>.Combine<A>(K<StateT<S, M>, A> ma, K<StateT<S, M>, A> mb) => 
-        new StateT<S, M, A>(state => M.Combine(ma.As().runState(state), mb.As().runState(state)));
-    
-    static K<StateT<S, M>, A> Choice<StateT<S, M>>.Choose<A>(K<StateT<S, M>, A> ma, K<StateT<S, M>, A> mb) => 
-        new StateT<S, M, A>(state => M.Choose(ma.As().runState(state), mb.As().runState(state)));
-
-    static K<StateT<S, M>, A> Choice<StateT<S, M>>.Choose<A>(K<StateT<S, M>, A> ma, Func<K<StateT<S, M>, A>> mb) => 
-        new StateT<S, M, A>(state => M.Choose(ma.As().runState(state), mb().As().runState(state)));
 }

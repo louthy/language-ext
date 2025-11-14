@@ -56,9 +56,6 @@ public partial class EitherT<L, M> :
                              _                  => M.Pure(ea)
                          }));
 
-    static K<EitherT<L, M>, A> SemigroupK<EitherT<L, M>>.Combine<A>(K<EitherT<L, M>, A> lhs, K<EitherT<L, M>, A> rhs) =>
-        lhs.Choose(rhs);
-
     static K<EitherT<L, M>, A> Fallible<L, EitherT<L, M>>.Fail<A>(L error) =>
         EitherT.Left<L, M, A>(error);
 

@@ -13,11 +13,10 @@ namespace LanguageExt;
 /// <typeparam name="M">Lifted monad type</typeparam>
 public class RWST<R, W, S, M> :
     MonadT<RWST<R, W, S, M>, M>, 
-    Choice<RWST<R, W, S, M>>,
     Readable<RWST<R, W, S, M>, R>,
     Writable<RWST<R, W, S, M>, W>,
     Stateful<RWST<R, W, S, M>, S>
-    where M : Monad<M>, Choice<M>
+    where M : Monad<M>
     where W : Monoid<W>
 {
     static K<RWST<R, W, S, M>, B> Monad<RWST<R, W, S, M>>.Bind<A, B>(
@@ -47,21 +46,6 @@ public class RWST<R, W, S, M> :
 
     static K<RWST<R, W, S, M>, A> MonadT<RWST<R, W, S, M>, M>.Lift<A>(K<M, A> ma) => 
         new RWST<R, W, S, M, A>(input => ma.Map(value => (value, input.Output, input.State)));
-
-    static K<RWST<R, W, S, M>, A> SemigroupK<RWST<R, W, S, M>>.Combine<A>(
-        K<RWST<R, W, S, M>, A> lhs, 
-        K<RWST<R, W, S, M>, A> rhs) => 
-        new RWST<R, W, S, M, A>(input => lhs.As().runRWST(input).Combine(rhs.As().runRWST(input)));
-
-    static K<RWST<R, W, S, M>, A> Choice<RWST<R, W, S, M>>.Choose<A>(
-        K<RWST<R, W, S, M>, A> lhs, 
-        K<RWST<R, W, S, M>, A> rhs) => 
-        new RWST<R, W, S, M, A>(input => lhs.As().runRWST(input).Choose(rhs.As().runRWST(input)));
-
-    static K<RWST<R, W, S, M>, A> Choice<RWST<R, W, S, M>>.Choose<A>(
-        K<RWST<R, W, S, M>, A> lhs, 
-        Func<K<RWST<R, W, S, M>, A>> rhs) => 
-        new RWST<R, W, S, M, A>(input => lhs.As().runRWST(input).Choose(rhs().As().runRWST(input)));
 
     static K<RWST<R, W, S, M>, A> Readable<RWST<R, W, S, M>, R>.Asks<A>(Func<R, A> f) => 
         new RWST<R, W, S, M, A>(input => M.Pure((f(input.Env), input.Output, input.State)));

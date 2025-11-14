@@ -27,7 +27,7 @@ public record Tell<W>(W Value) where W : Monoid<W>
     /// Convert to a `WriterT`
     /// </summary>
     public WriterT<W, M, Unit> ToWriterT<M>()
-        where M : Monad<M>, Choice<M> =>
+        where M : Monad<M> =>
         Writable.tell<WriterT<W, M>, W>(Value).As();
     
     /// <summary>
@@ -40,14 +40,14 @@ public record Tell<W>(W Value) where W : Monoid<W>
     /// Monadic bind with `WriterT`
     /// </summary>
     public WriterT<W, M, C> SelectMany<M, B, C>(Func<Unit, WriterT<W, M, B>> bind, Func<Unit, B, C> project)
-        where M : Monad<M>, Choice<M> =>
+        where M : Monad<M> =>
         ToWriterT<M>().SelectMany(bind, project);
 
     /// <summary>
     /// Monadic bind with `WriterT`
     /// </summary>
     public WriterT<W, M, C> SelectMany<M, B, C>(Func<Unit, K<WriterT<W, M>, B>> bind, Func<Unit, B, C> project)
-        where M : Monad<M>, Choice<M> =>
+        where M : Monad<M> =>
         ToWriterT<M>().SelectMany(bind, project);
 
     /// <summary>

@@ -48,7 +48,4 @@ public class Free<F> :
 
     static K<Free<F>, A> Choice<Free<F>>.Choose<A>(K<Free<F>, A> lhs, Func<K<Free<F>, A>> rhs) => 
         lhs;
-
-    static K<Free<F>, A> SemigroupK<Free<F>>.Combine<A>(K<Free<F>, A> lhs, K<Free<F>, A> rhs) =>
-        lhs.Choose(rhs);
 }
