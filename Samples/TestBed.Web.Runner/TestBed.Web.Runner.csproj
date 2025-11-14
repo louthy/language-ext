@@ -8,8 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="NBomber" Version="5.7.0" />
-        <PackageReference Include="NBomber.Http" Version="5.1.0" />
+        <PackageReference Include="NBomber" Version="6.1.2" />
+        <PackageReference Include="NBomber.Http" Version="6.1.0" />
     </ItemGroup>
 
 </Project>
