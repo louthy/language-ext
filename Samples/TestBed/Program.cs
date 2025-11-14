@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using LanguageExt;
 using System.Threading.Tasks;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 using TestBed;
 using static LanguageExt.Prelude;
@@ -51,14 +52,37 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        var readLine = IO.lift(Console.ReadLine);
+        /*
+        var mx = IO.pure(100);
+        var my = IO.pure(200);
+        var mz = IO.pure(300);
 
-        var ioop = parseInt<IO> * readLine;
+        var mr = ((int x, int y, int z) => x + y + z) * mx  * my  * mz;
+
+        var r = mr.Run(); // 600        
+        */
         
+        var readLine = from ln in IO.lift(Console.ReadLine)
+                       from _  in guard(ln is not null, (Error)"expected a value")
+                       select ln;
+
+        var numberExpected = Error.New("expected a number");
+
+        var theEnd = IO.lift(() => Console.WriteLine("THE END"));
+        
+        var op = readLine >> parseInt<IO> | final(theEnd);
+
+        Console.Write(op.Run());
+
+        /*
+        var op = readLine.Map(parseInt<Option>);
+
+        var r = op.Run().As();
+
         var aax = IO.pure(123);
         var aay = IO.pure(unit);
         var aaz = aax >>> aay;
-        
+
         var fx = IO.pure(100);
         var fy = IO.pure(200);
         var fz = IO.pure(300);
@@ -69,13 +93,13 @@ public class Program
         var ay = IO.pure(200);
         var az = IO.pure(300);
         var ar = af * ax * ay * az;
-        
+
         var mx = IO.pure(100);
         var mr = mx >> (x => IO.pure(x + 1));
-        
+
         var fr1 = fr.Run();
         var ar1 = ar.Run();
-        var mr1 = mr.Run();
+        var mr1 = mr.Run();*/
 
         /*Issue1497.AppPrelude.Test();
 
