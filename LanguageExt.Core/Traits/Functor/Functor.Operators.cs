@@ -14,6 +14,12 @@ public static partial class FunctorExtensions
         /// </summary>
         public static K<M, B> operator * (Func<A, B> f, K<M, A> ma) =>
             M.Map(f, ma);
+        
+        /// <summary>
+        /// Functor map operator
+        /// </summary>
+        public static K<M, B> operator * (K<M, A> ma, Func<A, B> f) =>
+            M.Map(f, ma);
     }
     
     extension<M, A, B, C>(K<M, A> self)
@@ -25,6 +31,14 @@ public static partial class FunctorExtensions
         public static K<M, Func<B, C>> operator * (
             Func<A, B, C> f, 
             K<M, A> ma) =>
+            curry(f) * ma;
+        
+        /// <summary>
+        /// Functor map operator
+        /// </summary>
+        public static K<M, Func<B, C>> operator * (
+            K<M, A> ma,
+            Func<A, B, C> f) =>
             curry(f) * ma;
     }
         
@@ -38,6 +52,14 @@ public static partial class FunctorExtensions
             Func<A, B, C, D> f, 
             K<M, A> ma) =>
             curry(f) * ma;
+        
+        /// <summary>
+        /// Functor map operator
+        /// </summary>
+        public static K<M, Func<B, Func<C, D>>> operator * (
+            K<M, A> ma,
+            Func<A, B, C, D> f) =>
+            curry(f) * ma;
     }
             
     extension<M, A, B, C, D, E>(K<M, A> self)
@@ -49,6 +71,14 @@ public static partial class FunctorExtensions
         public static K<M, Func<B, Func<C, Func<D, E>>>> operator * (
             Func<A, B, C, D, E> f, 
             K<M, A> ma) =>
+            curry(f) * ma;
+        
+        /// <summary>
+        /// Functor map operator
+        /// </summary>
+        public static K<M, Func<B, Func<C, Func<D, E>>>> operator * (
+            K<M, A> ma,
+            Func<A, B, C, D, E> f) =>
             curry(f) * ma;
     }
                 
@@ -62,6 +92,14 @@ public static partial class FunctorExtensions
             Func<A, B, C, D, E, F> f, 
             K<M, A> ma) =>
             curry(f) * ma;
+        
+        /// <summary>
+        /// Functor map operator
+        /// </summary>
+        public static K<M, Func<B, Func<C, Func<D, Func<E, F>>>>> operator * (
+            K<M, A> ma,
+            Func<A, B, C, D, E, F> f) =>
+            curry(f) * ma;
     }
                     
     extension<M, A, B, C, D, E, F, G>(K<M, A> self)
@@ -73,6 +111,14 @@ public static partial class FunctorExtensions
         public static K<M, Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> operator * (
             Func<A, B, C, D, E, F, G> f, 
             K<M, A> ma) =>
+            curry(f) * ma;
+        
+        /// <summary>
+        /// Functor map operator
+        /// </summary>
+        public static K<M, Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> operator * (
+            K<M, A> ma,
+            Func<A, B, C, D, E, F, G> f) =>
             curry(f) * ma;
     }    
                         
@@ -86,6 +132,14 @@ public static partial class FunctorExtensions
             Func<A, B, C, D, E, F, G, H> f, 
             K<M, A> ma) =>
             curry(f) * ma;
+        
+        /// <summary>
+        /// Functor map operator
+        /// </summary>
+        public static K<M, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> operator * (
+            K<M, A> ma,
+            Func<A, B, C, D, E, F, G, H> f) =>
+            curry(f) * ma;
     }
                         
     extension<M, A, B, C, D, E, F, G, H, I>(K<M, A> self)
@@ -97,6 +151,14 @@ public static partial class FunctorExtensions
         public static K<M, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> operator * (
             Func<A, B, C, D, E, F, G, H, I> f, 
             K<M, A> ma) =>
+            curry(f) * ma;
+        
+        /// <summary>
+        /// Functor map operator
+        /// </summary>
+        public static K<M, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> operator * (
+            K<M, A> ma,
+            Func<A, B, C, D, E, F, G, H, I> f) =>
             curry(f) * ma;
     }    
                         
@@ -110,6 +172,14 @@ public static partial class FunctorExtensions
             Func<A, B, C, D, E, F, G, H, I, J> f, 
             K<M, A> ma) =>
             curry(f) * ma;
+        
+        /// <summary>
+        /// Functor map operator
+        /// </summary>
+        public static K<M, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, J>>>>>>>>> operator * (
+            K<M, A> ma,
+            Func<A, B, C, D, E, F, G, H, I, J> f) =>
+            curry(f) * ma;
     }
                             
     extension<M, A, B, C, D, E, F, G, H, I, J, K>(K<M, A> self)
@@ -121,6 +191,14 @@ public static partial class FunctorExtensions
         public static K<M, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, Func<J, K>>>>>>>>>> operator * (
             Func<A, B, C, D, E, F, G, H, I, J, K> f, 
             K<M, A> ma) =>
+            curry(f) * ma;
+        
+        /// <summary>
+        /// Functor map operator
+        /// </summary>
+        public static K<M, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, Func<J, K>>>>>>>>>> operator * (
+            K<M, A> ma,
+            Func<A, B, C, D, E, F, G, H, I, J, K> f) =>
             curry(f) * ma;
     }
 }

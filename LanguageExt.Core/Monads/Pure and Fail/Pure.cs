@@ -99,6 +99,9 @@ public readonly record struct Pure<A>(A Value)
             ? Option<A>.None 
             : Option.Some(Value);
     
+    public These<X, A> ToThese<X>() =>
+        These.That<X, A>(Value);
+    
     public Either<L, A> ToEither<L>() =>
         Either.Right<L, A>(Value);
     

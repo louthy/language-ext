@@ -71,6 +71,8 @@ public class Program
         var theEnd = IO.lift(() => Console.WriteLine("THE END"));
         
         var op = readLine >> parseInt<IO> | final(theEnd);
+        
+        var op1 = readLine >> parseInt<IO> | Pure(100);
 
         Console.Write(op.Run());
 

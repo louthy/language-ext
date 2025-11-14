@@ -37,6 +37,14 @@ public static partial class IOExtensions
             K<IO, Func<A, B, C>> mf, 
             K<IO, A> ma) =>
             curry * mf * ma;
+        
+        /// <summary>
+        /// Applicative apply operator
+        /// </summary>
+        public static IO<Func<B, C>> operator * (
+            K<IO, A> ma,
+            K<IO, Func<A, B, C>> mf) =>
+            curry * mf * ma;
     }
         
     extension<A, B, C, D>(K<IO, A> self)

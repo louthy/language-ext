@@ -4,190 +4,190 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public static partial class EffExtensions
+public static partial class EitherExtensions
 {
-    extension<A, B>(K<Eff, A> _)
+    extension<L, A, B>(K<Either<L>, A> _)
     {
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<B> operator *(Func<A, B> f, K<Eff, A> ma) =>
+        public static Either<L, B> operator *(Func<A, B> f, K<Either<L>, A> ma) =>
             ma.Map(f).As();
         
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<B> operator *(K<Eff, A> ma, Func<A, B> f) =>
+        public static Either<L, B> operator *(K<Either<L>, A> ma, Func<A, B> f) =>
             ma.Map(f).As();
     }
     
-    extension<A, B, C>(K<Eff, A> _)
+    extension<L, A, B, C>(K<Either<L>, A> _)
     {
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<Func<B, C>> operator * (
+        public static Either<L, Func<B, C>> operator * (
             Func<A, B, C> f, 
-            K<Eff, A> ma) =>
+            K<Either<L>, A> ma) =>
             curry(f) * ma;
         
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<Func<B, C>> operator * (
-            K<Eff, A> ma,
+        public static Either<L, Func<B, C>> operator * (
+            K<Either<L>, A> ma,
             Func<A, B, C> f) =>
             curry(f) * ma;
     }
         
-    extension<A, B, C, D>(K<Eff, A> _)
+    extension<L, A, B, C, D>(K<Either<L>, A> _)
     {
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<Func<B, Func<C, D>>> operator * (
+        public static Either<L, Func<B, Func<C, D>>> operator * (
             Func<A, B, C, D> f, 
-            K<Eff, A> ma) =>
+            K<Either<L>, A> ma) =>
             curry(f) * ma;
         
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<Func<B, Func<C, D>>> operator * (
-            K<Eff, A> ma, 
+        public static Either<L, Func<B, Func<C, D>>> operator * (
+            K<Either<L>, A> ma,
             Func<A, B, C, D> f) =>
             curry(f) * ma;
     }
             
-    extension<A, B, C, D, E>(K<Eff, A> _)
+    extension<L, A, B, C, D, E>(K<Either<L>, A> _)
     {
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<Func<B, Func<C, Func<D, E>>>> operator * (
+        public static Either<L, Func<B, Func<C, Func<D, E>>>> operator * (
             Func<A, B, C, D, E> f, 
-            K<Eff, A> ma) =>
+            K<Either<L>, A> ma) =>
             curry(f) * ma;
         
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<Func<B, Func<C, Func<D, E>>>> operator * (
-            K<Eff, A> ma,
+        public static Either<L, Func<B, Func<C, Func<D, E>>>> operator * (
+            K<Either<L>, A> ma,
             Func<A, B, C, D, E> f) =>
             curry(f) * ma;
     }
                 
-    extension<A, B, C, D, E, F>(K<Eff, A> _)
+    extension<L, A, B, C, D, E, F>(K<Either<L>, A> _)
     {
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<Func<B, Func<C, Func<D, Func<E, F>>>>> operator * (
+        public static Either<L, Func<B, Func<C, Func<D, Func<E, F>>>>> operator * (
             Func<A, B, C, D, E, F> f, 
-            K<Eff, A> ma) =>
+            K<Either<L>, A> ma) =>
             curry(f) * ma;
         
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<Func<B, Func<C, Func<D, Func<E, F>>>>> operator * (
-            K<Eff, A> ma, 
+        public static Either<L, Func<B, Func<C, Func<D, Func<E, F>>>>> operator * (
+            K<Either<L>, A> ma,
             Func<A, B, C, D, E, F> f) =>
             curry(f) * ma;
     }
                     
-    extension<A, B, C, D, E, F, G>(K<Eff, A> _)
+    extension<L, A, B, C, D, E, F, G>(K<Either<L>, A> _)
     {
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> operator * (
+        public static Either<L, Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> operator * (
             Func<A, B, C, D, E, F, G> f, 
-            K<Eff, A> ma) =>
+            K<Either<L>, A> ma) =>
             curry(f) * ma;
         
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> operator * (
-            K<Eff, A> ma,
+        public static Either<L, Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> operator * (
+            K<Either<L>, A> ma,
             Func<A, B, C, D, E, F, G> f) =>
             curry(f) * ma;
     }    
                         
-    extension<A, B, C, D, E, F, G, H>(K<Eff, A> _)
+    extension<L, A, B, C, D, E, F, G, H>(K<Either<L>, A> _)
     {
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> operator * (
+        public static Either<L, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> operator * (
             Func<A, B, C, D, E, F, G, H> f, 
-            K<Eff, A> ma) =>
+            K<Either<L>, A> ma) =>
             curry(f) * ma;
         
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> operator * (
-            K<Eff, A> ma, 
+        public static Either<L, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> operator * (
+            K<Either<L>, A> ma,
             Func<A, B, C, D, E, F, G, H> f) =>
             curry(f) * ma;
     }
                         
-    extension<A, B, C, D, E, F, G, H, I>(K<Eff, A> _)
+    extension<L, A, B, C, D, E, F, G, H, I>(K<Either<L>, A> _)
     {
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> operator * (
+        public static Either<L, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> operator * (
             Func<A, B, C, D, E, F, G, H, I> f, 
-            K<Eff, A> ma) =>
+            K<Either<L>, A> ma) =>
             curry(f) * ma;
         
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> operator * (
-            K<Eff, A> ma,
+        public static Either<L, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> operator * (
+            K<Either<L>, A> ma,
             Func<A, B, C, D, E, F, G, H, I> f) =>
             curry(f) * ma;
     }    
                         
-    extension<A, B, C, D, E, F, G, H, I, J>(K<Eff, A> _)
+    extension<L, A, B, C, D, E, F, G, H, I, J>(K<Either<L>, A> _)
     {
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, J>>>>>>>>> operator * (
+        public static Either<L, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, J>>>>>>>>> operator * (
             Func<A, B, C, D, E, F, G, H, I, J> f, 
-            K<Eff, A> ma) =>
+            K<Either<L>, A> ma) =>
             curry(f) * ma;
         
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, J>>>>>>>>> operator * (
-            K<Eff, A> ma,
+        public static Either<L, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, J>>>>>>>>> operator * (
+            K<Either<L>, A> ma,
             Func<A, B, C, D, E, F, G, H, I, J> f) =>
             curry(f) * ma;
     }
                             
-    extension<A, B, C, D, E, F, G, H, I, J, K>(K<Eff, A> _)
+    extension<L, A, B, C, D, E, F, G, H, I, J, K>(K<Either<L>, A> _)
     {
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, Func<J, K>>>>>>>>>> operator * (
+        public static Either<L, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, Func<J, K>>>>>>>>>> operator * (
             Func<A, B, C, D, E, F, G, H, I, J, K> f, 
-            K<Eff, A> ma) =>
+            K<Either<L>, A> ma) =>
             curry(f) * ma;
         
         /// <summary>
         /// Functor map operator
         /// </summary>
-        public static Eff<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, Func<J, K>>>>>>>>>> operator * (
-            K<Eff, A> ma,
+        public static Either<L, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, Func<J, K>>>>>>>>>> operator * (
+            K<Either<L>, A> ma,
             Func<A, B, C, D, E, F, G, H, I, J, K> f) =>
             curry(f) * ma;
     }

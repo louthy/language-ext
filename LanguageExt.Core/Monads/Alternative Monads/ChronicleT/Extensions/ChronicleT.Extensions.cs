@@ -5,7 +5,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public static class ChronicleTExtensions
+public static partial class ChronicleTExtensions
 {
     /// <summary>
     /// Downcast operator

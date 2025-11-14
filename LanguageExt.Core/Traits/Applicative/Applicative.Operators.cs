@@ -39,6 +39,14 @@ public static partial class ApplicativeExtensions
             K<M, Func<A, B, C>> mf, 
             K<M, A> ma) =>
             curry * mf * ma;
+        
+        /// <summary>
+        /// Applicative apply operator
+        /// </summary>
+        public static K<M, Func<B, C>> operator * (
+            K<M, A> ma,
+            K<M, Func<A, B, C>> mf) =>
+            curry * mf * ma;
     }
         
     extension<M, A, B, C, D>(K<M, A> self)

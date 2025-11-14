@@ -36,6 +36,14 @@ public static partial class EffExtensions
             K<Eff<RT>, Func<A, B, C>> mf, 
             K<Eff<RT>, A> ma) =>
             curry * mf * ma;
+        
+        /// <summary>
+        /// Applicative apply operator
+        /// </summary>
+        public static Eff<RT, Func<B, C>> operator * (
+            K<Eff<RT>, A> ma,
+            K<Eff<RT>, Func<A, B, C>> mf) =>
+            curry * mf * ma;
     }
         
     extension<RT, A, B, C, D>(K<Eff<RT>, A> self)
