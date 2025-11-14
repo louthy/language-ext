@@ -7,6 +7,10 @@ namespace LanguageExt;
 
 public abstract partial record Either<L, R>
 {
+    /// <summary>
+    /// Right case-type
+    /// </summary>
+    /// <param name="Value">Right value</param>
     public sealed record Right(R Value) : Either<L, R>
     {
         /// <summary>

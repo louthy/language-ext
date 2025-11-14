@@ -13,7 +13,7 @@ public static class MonadIOExtensions
         this K<M, A> ma,
         Func<A, IO<B>> f)
         where M : MonadIO<M>, Monad<M> =>
-        M.Bind(ma, x => M.LiftIOMaybe(f(x)));
+        M.Bind(ma, x => M.LiftIO(f(x)));
     
     /// <summary>
     /// Monad bind operation
@@ -22,7 +22,7 @@ public static class MonadIOExtensions
         this IO<A> ma,
         Func<A, K<M, B>> f)
         where M : MonadIO<M>, Monad<M> =>
-        M.Bind(M.LiftIOMaybe(ma), f);
+        M.Bind(M.LiftIO(ma), f);
     
     /// <summary>
     /// Monad bind operation

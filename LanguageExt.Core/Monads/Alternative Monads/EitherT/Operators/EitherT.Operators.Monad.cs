@@ -3,9 +3,10 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public static partial class EffExtensions
+public static partial class EitherTExtensions
 {
-    extension<A, B>(K<Eff, A> self)
+    extension<L, M, A, B>(K<EitherT<L, M>, A> self)
+        where M : Monad<M>
     {
         /// <summary>
         /// Monad bind operator
@@ -13,7 +14,7 @@ public static partial class EffExtensions
         /// <param name="ma">Monad to bind</param>
         /// <param name="f">Binding function</param>
         /// <returns>Mapped monad</returns>
-        public static Eff<B> operator >> (K<Eff, A> ma, Func<A, K<Eff, B>> f) =>
+        public static EitherT<L, M, B> operator >> (K<EitherT<L, M>, A> ma, Func<A, K<EitherT<L, M>, B>> f) =>
             +ma.Bind(f);
         
         /// <summary>
@@ -23,17 +24,21 @@ public static partial class EffExtensions
         /// <param name="lhs">First action to run</param>
         /// <param name="rhs">Second action to run</param>
         /// <returns>Result of the second action</returns>
-        public static Eff<B> operator >> (K<Eff, A> lhs, K<Eff, B> rhs) =>
+        public static EitherT<L, M, B> operator >> (K<EitherT<L, M>, A> lhs, K<EitherT<L, M>, B> rhs) =>
             lhs >> (_ => rhs);
-
+    }
+    
+    extension<L, M, A, B>(K<EitherT<L, M>, A> self)
+        where M : MonadIO<M>
+    {
         /// <summary>
         /// Monad bind operator
         /// </summary>
         /// <param name="ma">Monad to bind</param>
         /// <param name="f">Binding function</param>
         /// <returns>Mapped monad</returns>
-        public static Eff<B> operator >> (K<Eff, A> ma, Func<A, K<IO, B>> f) =>
-            +ma.Bind(x => Eff.lift(+f(x)));
+        public static EitherT<L, M, B> operator >> (K<EitherT<L, M>, A> ma, Func<A, K<IO, B>> f) =>
+            +ma.Bind(x => +f(x));
         
         /// <summary>
         /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
@@ -42,11 +47,12 @@ public static partial class EffExtensions
         /// <param name="lhs">First action to run</param>
         /// <param name="rhs">Second action to run</param>
         /// <returns>Result of the second action</returns>
-        public static Eff<B> operator >> (K<Eff, A> lhs, K<IO, B> rhs) =>
+        public static EitherT<L, M, B> operator >> (K<EitherT<L, M>, A> lhs, K<IO, B> rhs) =>
             lhs >> (_ => rhs);
     }
     
-    extension<A>(K<Eff, A> self)
+    extension<L, M, A>(K<EitherT<L, M>, A> self)
+        where M : Monad<M>
     {
         /// <summary>
         /// Sequentially compose two actions.  The second action is a unit-returning action, so the result of the
@@ -55,9 +61,13 @@ public static partial class EffExtensions
         /// <param name="lhs">First action to run</param>
         /// <param name="rhs">Second action to run</param>
         /// <returns>Result of the first action</returns>
-        public static Eff<A> operator >> (K<Eff, A> lhs, K<Eff, Unit> rhs) =>
+        public static EitherT<L, M, A> operator >> (K<EitherT<L, M>, A> lhs, K<EitherT<L, M>, Unit> rhs) =>
             lhs >> (x => (_ => x) * rhs);
+    }
         
+    extension<L, M, A>(K<EitherT<L, M>, A> self)
+        where M : MonadIO<M>
+    {
         /// <summary>
         /// Sequentially compose two actions.  The second action is a unit-returning action, so the result of the
         /// first action is propagated. 
@@ -65,7 +75,7 @@ public static partial class EffExtensions
         /// <param name="lhs">First action to run</param>
         /// <param name="rhs">Second action to run</param>
         /// <returns>Result of the first action</returns>
-        public static Eff<A> operator >> (K<Eff, A> lhs, K<IO, Unit> rhs) =>
+        public static EitherT<L, M, A> operator >> (K<EitherT<L, M>, A> lhs, K<IO, Unit> rhs) =>
             lhs >> (x => (_ => x) * rhs);
     }
 }

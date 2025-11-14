@@ -12,13 +12,13 @@ public static partial class IOExtensions
         /// Functor map operator
         /// </summary>
         public static IO<B> operator *(Func<A, B> f, K<IO, A> ma) =>
-            ma.Map(f).As();
+            +ma.Map(f);
         
         /// <summary>
         /// Functor map operator
         /// </summary>
         public static IO<B> operator *(K<IO, A> ma, Func<A, B> f) =>
-            ma.Map(f).As();
+            +ma.Map(f);
     }
     
     extension<A, B, C>(K<IO, A> _)

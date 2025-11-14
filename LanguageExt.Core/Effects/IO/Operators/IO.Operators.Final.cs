@@ -11,6 +11,6 @@ public static class IOExtensions
         /// <param name="rhs">Finally operation</param>
         /// <returns>Result of primary operation</returns>
         public static IO<A> operator |(K<IO, A> lhs, Finally<IO, X> rhs) =>
-            lhs.Finally(rhs.Operation).As();
+            +lhs.Finally(rhs.Operation);
     }
 }

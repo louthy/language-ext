@@ -14,7 +14,7 @@ public static partial class IOExtensions
         /// <param name="f">Binding function</param>
         /// <returns>Mapped monad</returns>
         public static IO<B> operator >> (K<IO, A> ma, Func<A, K<IO, B>> f) =>
-            ma.Bind(f).As();
+            +ma.Bind(f);
         
         /// <summary>
         /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such

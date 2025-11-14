@@ -8,4 +8,5 @@ namespace LanguageExt;
 /// </summary>
 /// <param name="finally"></param>
 /// <typeparam name="F"></typeparam>
-public readonly record struct Finally<F, X>(K<F, X> Operation);
+public readonly record struct Finally<F, X>(K<F, X> Operation)
+    where F : Final<F>;
