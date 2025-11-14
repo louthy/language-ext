@@ -13,7 +13,7 @@ public static partial class IOExtensions
         /// Applicative sequence operator
         /// </summary>
         public static IO<B> operator >>> (K<IO, A> ma, K<IO, B> mb) =>
-            ma.Action(mb).As();
+            +ma.Action(mb);
         
         /// <summary>
         /// Applicative apply operator

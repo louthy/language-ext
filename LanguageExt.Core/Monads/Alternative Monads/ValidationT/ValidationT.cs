@@ -234,46 +234,6 @@ public record ValidationT<F, M, A>(Func<MonoidInstance<F>, K<M, Validation<F, A>
     //  Operators
     //
 
-    /// <summary>
-    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
-    /// as the semicolon) in C#.
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the second action</returns>
-    public static ValidationT<F, M, A> operator >> (ValidationT<F, M, A> lhs, ValidationT<F, M, A> rhs) =>
-        lhs.Bind(_ => rhs);
-    
-    /// <summary>
-    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
-    /// as the semicolon) in C#.
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the second action</returns>
-    public static ValidationT<F, M, A> operator >> (ValidationT<F, M, A> lhs, K<ValidationT<F, M>, A> rhs) =>
-        lhs.Bind(_ => rhs);
-
-    /// <summary>
-    /// Sequentially compose two actions.  The second action is a unit-returning action, so the result of the
-    /// first action is propagated. 
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the first action</returns>
-    public static ValidationT<F, M, A> operator >> (ValidationT<F, M, A> lhs, ValidationT<F, M, Unit> rhs) =>
-        lhs.Bind(x => rhs.Map(_ => x));
-    
-    /// <summary>
-    /// Sequentially compose two actions.  The second action is a unit-returning action, so the result of the
-    /// first action is propagated. 
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the first action</returns>
-    public static ValidationT<F, M, A> operator >> (ValidationT<F, M, A> lhs, K<ValidationT<F, M>, Unit> rhs) =>
-        lhs.Bind(x => rhs.Map(_ => x));
-
     public static implicit operator ValidationT<F, M, A>(Pure<A> ma) =>
         ValidationT.SuccessI<F, M, A>(ma.Value);
     
@@ -285,50 +245,6 @@ public record ValidationT<F, M, A>(Func<MonoidInstance<F>, K<M, Validation<F, A>
 
     public static implicit operator ValidationT<F, M, A>(IO<A> ma) =>
         ValidationT.liftIOI<F, M, A>(ma);
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static ValidationT<F, M, A> operator +(ValidationT<F, M, A> lhs, ValidationT<F, M, A> rhs) =>
-        lhs.Combine(rhs).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static ValidationT<F, M, A> operator +(K<ValidationT<F, M>, A> lhs, ValidationT<F, M, A> rhs) =>
-        lhs.Combine(rhs).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static ValidationT<F, M, A> operator +(ValidationT<F, M, A> lhs, K<ValidationT<F, M>, A> rhs) =>
-        lhs.Combine(rhs).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static ValidationT<F, M, A> operator +(ValidationT<F, M, A> lhs, Pure<A> rhs) =>
-        lhs.Combine(ValidationT.SuccessI<F, M, A>(rhs.Value)).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static ValidationT<F, M, A> operator +(ValidationT<F, M, A> lhs, Fail<F> rhs) =>
-        lhs.Combine(ValidationT.FailI<F, M, A>(rhs.Value)).As();
-    
-    [Pure, MethodImpl(Opt.Default)]
-    public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, ValidationT<F, M, A> rhs) =>
-        lhs.Choose(rhs).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static ValidationT<F, M, A> operator |(K<ValidationT<F, M>, A> lhs, ValidationT<F, M, A> rhs) =>
-        lhs.Choose(rhs).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, K<ValidationT<F, M>, A> rhs) =>
-        lhs.Choose(rhs).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, Pure<A> rhs) =>
-        lhs.Choose(ValidationT.SuccessI<F, M, A>(rhs.Value)).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, Fail<F> rhs) =>
-        lhs.Choose(ValidationT.FailI<F, M, A>(rhs.Value)).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static ValidationT<F, M, A> operator |(ValidationT<F, M, A> lhs, CatchM<F, ValidationT<F, M>, A> rhs) =>
-        lhs.Catch(rhs).As();
 
     public static ValidationT<F, M, Seq<A>> operator &(ValidationT<F, M, A> ma, ValidationT<F, M, A> mb) =>
         new(monoid => M.Bind(ma.runValidation(monoid), ea => M.Map(eb => ea & eb, mb.runValidation(monoid))));

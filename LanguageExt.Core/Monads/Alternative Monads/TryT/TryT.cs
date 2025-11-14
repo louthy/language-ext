@@ -208,46 +208,6 @@ public record TryT<M, A>(K<M, Try<A>> runTry) :
     //  Operators
     //
 
-    /// <summary>
-    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
-    /// as the semicolon) in C#.
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the second action</returns>
-    public static TryT<M, A> operator >> (TryT<M, A> lhs, TryT<M, A> rhs) =>
-        lhs.Bind(_ => rhs);
-    
-    /// <summary>
-    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
-    /// as the semicolon) in C#.
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the second action</returns>
-    public static TryT<M, A> operator >> (TryT<M, A> lhs, K<TryT<M>, A> rhs) =>
-        lhs.Bind(_ => rhs);
-
-    /// <summary>
-    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
-    /// first action is propagated. 
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the first action</returns>
-    public static TryT<M, A> operator >> (TryT<M, A> lhs, TryT<M, Unit> rhs) =>
-        lhs.Bind(x => rhs.Map(_ => x));
-    
-    /// <summary>
-    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
-    /// first action is propagated. 
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the first action</returns>
-    public static TryT<M, A> operator >> (TryT<M, A> lhs, K<TryT<M>, Unit> rhs) =>
-        lhs.Bind(x => rhs.Map(_ => x));
-    
     public static implicit operator TryT<M, A>(Pure<A> ma) =>
         TryT.Succ<M, A>(ma.Value);
     
@@ -263,45 +223,6 @@ public record TryT<M, A>(K<M, Try<A>> runTry) :
     public static implicit operator TryT<M, A>(IO<A> ma) =>
         TryT.liftIOMaybe<M, A>(ma);
     
-    public static TryT<M, A> operator +(TryT<M, A> lhs, TryT<M, A> rhs) =>
-        lhs.Combine(rhs);
-
-    public static TryT<M, A> operator +(K<TryT<M>, A> lhs, TryT<M, A> rhs) =>
-        lhs.As().Combine(rhs);
-
-    public static TryT<M, A> operator +(TryT<M, A> lhs, K<TryT<M>, A> rhs) =>
-        lhs.Combine(rhs.As());
-
-    public static TryT<M, A> operator +(TryT<M, A> ma, Pure<A> mb) =>
-        ma.Combine(mb);
-
-    public static TryT<M, A> operator +(TryT<M, A> ma, Fail<Error> mb) =>
-        ma.Combine(mb);
-
-    public static TryT<M, A> operator +(TryT<M, A> ma, Fail<Exception> mb) =>
-        ma.Combine(mb);
-    
-    public static TryT<M, A> operator |(TryT<M, A> lhs, TryT<M, A> rhs) =>
-        lhs.Choose(rhs).As();
-
-    public static TryT<M, A> operator |(K<TryT<M>, A> lhs, TryT<M, A> rhs) =>
-        lhs.As().Choose(rhs).As();
-
-    public static TryT<M, A> operator |(TryT<M, A> lhs, K<TryT<M>, A> rhs) =>
-        lhs.Choose(rhs.As()).As();
-
-    public static TryT<M, A> operator |(TryT<M, A> ma, Pure<A> mb) =>
-        ma.Choose(TryT.Succ<M, A>(mb.Value)).As();
-
-    public static TryT<M, A> operator |(TryT<M, A> ma, Fail<Error> mb) =>
-        ma.Choose(TryT.Fail<M, A>(mb.Value)).As();
-
-    public static TryT<M, A> operator |(TryT<M, A> ma, Fail<Exception> mb) =>
-        ma.Choose(TryT.Fail<M, A>(mb.Value)).As();
-
-    public static TryT<M, A> operator |(TryT<M, A> ma, CatchM<Error, TryT<M>, A> mb) =>
-        (ma.Kind() | mb).As();
-
     public TryT<M, A> Combine(TryT<M, A> rhs) =>
         this.Kind().Combine(rhs).As();
 }

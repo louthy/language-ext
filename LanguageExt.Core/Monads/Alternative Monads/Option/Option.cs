@@ -157,6 +157,12 @@ public readonly struct Option<A> :
 
         return OrdA.Compare(Value!, other.Value!);
     }
+    
+    /// <summary>
+    /// Must exist here to make `operator true` work
+    /// </summary>
+    public static Option<A> operator |(Option<A> lhs, Option<A> rhs) =>
+        lhs.Choose(rhs).As();
 
     /// <summary>
     /// Explicit conversion operator from `Option〈A〉` to `A`

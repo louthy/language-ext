@@ -156,6 +156,12 @@ public abstract partial class Fin<A> :
     [Pure]
     public static Fin<A> Empty { get; } = 
         new Fail(Errors.None);
+    
+    /// <summary>
+    /// Must exist here to make `operator true` work
+    /// </summary>
+    public static Fin<A> operator |(Fin<A> lhs, Fin<A> rhs) =>
+        lhs.Choose(rhs).As();
 
     [Pure, MethodImpl(Opt.Default)]
     public static implicit operator Fin<A>(A value) =>

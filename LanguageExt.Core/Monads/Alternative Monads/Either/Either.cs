@@ -54,6 +54,12 @@ public abstract partial record Either<L, R> :
     public abstract bool IsLeft { get; }
     
     /// <summary>
+    /// Must exist here to make `operator true` work
+    /// </summary>
+    public static Either<L, R> operator |(Either<L, R> lhs, Either<L, R> rhs) =>
+        lhs.Choose(rhs).As();
+    
+    /// <summary>
     /// Explicit conversion operator from `Either` to `R`
     /// </summary>
     /// <param name="value">Value</param>
