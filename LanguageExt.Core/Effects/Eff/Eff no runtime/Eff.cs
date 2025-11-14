@@ -22,7 +22,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     K<Eff, A>,
     Alternative<Eff<A>>,
     Final<Eff<A>>,
-    Deriving.Choice<Eff<A>, ReaderT<A, IO>>,
+    Choice<Eff<A>>,
     Deriving.Readable<Eff<A>, A, ReaderT<A, IO>>,
     Deriving.MonadUnliftIO<Eff<A>, ReaderT<A, IO>>
 {
@@ -578,6 +578,15 @@ public record Eff<A>(Eff<MinRT, A> effect) :
 
     static K<Eff<A>, T> CoNatural<Eff<A>, ReaderT<A, IO>>.CoTransform<T>(K<ReaderT<A, IO>, T> fa) => 
         new Eff<A, T>(fa.As());
+    
+    static K<Eff<A>, A1> SemigroupK<Eff<A>>.Combine<A1>(K<Eff<A>, A1> lhs, K<Eff<A>, A1> rhs) => 
+        lhs.Catch(e1 => rhs.Catch(e2 => e1 + e2));
+
+    static K<Eff<A>, A1> Choice<Eff<A>>.Choose<A1>(K<Eff<A>, A1> lhs, K<Eff<A>, A1> rhs) => 
+        lhs.Catch(rhs);
+
+    static K<Eff<A>, A1> Choice<Eff<A>>.Choose<A1>(K<Eff<A>, A1> lhs, Func<K<Eff<A>, A1>> rhs) => 
+        lhs.Catch(_ => rhs());
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

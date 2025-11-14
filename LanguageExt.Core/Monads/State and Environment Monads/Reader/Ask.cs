@@ -33,7 +33,7 @@ public readonly record struct Ask<Env, A>(Func<Env, A> F)
     /// Convert to a `ReaderT`
     /// </summary>
     public ReaderT<Env, M, A> ToReaderT<M>()
-        where M : Monad<M>, Choice<M> =>
+        where M : Monad<M> =>
         ToReadable<ReaderT<Env, M>>().As();
     
     /// <summary>
@@ -54,21 +54,21 @@ public readonly record struct Ask<Env, A>(Func<Env, A> F)
     /// Monadic bind with any `Reader`
     /// </summary>
     public K<M, C> SelectMany<M, B, C>(Func<A, K<M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, Choice<M>, Readable<M, Env> =>
+        where M : Monad<M>, Readable<M, Env> =>
         M.Bind(M.Asks(F), x => M.Map(y => project(x, y), bind(x)));
     
     /// <summary>
     /// Monadic bind with `ReaderT`
     /// </summary>
     public ReaderT<Env, M, C> SelectMany<M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, Choice<M> =>
+        where M : Monad<M> =>
         ToReaderT<M>().SelectMany(bind, project);
     
     /// <summary>
     /// Monadic bind with `ReaderT`
     /// </summary>
     public ReaderT<Env, M, C> SelectMany<M, B, C>(Func<A, K<ReaderT<Env, M>, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, Choice<M> =>
+        where M : Monad<M> =>
         ToReaderT<M>().SelectMany(bind, project);
 
     /// <summary>
@@ -123,6 +123,6 @@ public static class AskExtensions
         this K<M, A> ma,
         Func<A, Ask<Env, B>> bind,
         Func<A, B, C> project)
-        where M : Monad<M>, Choice<M>, Readable<M, Env> =>
+        where M : Monad<M>, Readable<M, Env> =>
         M.Bind(ma, a => M.Map(b => project(a, b), M.Asks(bind(a).F)));
 }

@@ -11,9 +11,8 @@ namespace LanguageExt;
 public partial class ReaderT<Env, M> :
     MonadT<ReaderT<Env, M>, M>,
     Readable<ReaderT<Env, M>, Env>, 
-    Choice<ReaderT<Env, M>>,
     MonadUnliftIO<ReaderT<Env, M>>
-    where M : Monad<M>, Choice<M>
+    where M : Monad<M>
 {
     static K<ReaderT<Env, M>, B> Monad<ReaderT<Env, M>>.Bind<A, B>(
         K<ReaderT<Env, M>, A> ma,
@@ -52,15 +51,4 @@ public partial class ReaderT<Env, M> :
 
     static K<ReaderT<Env, M>, B> MonadUnliftIO<ReaderT<Env, M>>.MapIO<A, B>(K<ReaderT<Env, M>, A> ma, Func<IO<A>, IO<B>> f) => 
         new ReaderT<Env, M, B>(env => M.MapIOMaybe(ma.As().runReader(env), f));
-
-    static K<ReaderT<Env, M>, A> SemigroupK<ReaderT<Env, M>>.Combine<A>(
-        K<ReaderT<Env, M>, A> ma, K<ReaderT<Env, M>, A> mb) =>
-        new ReaderT<Env, M, A>(env => M.Combine(ma.As().runReader(env), mb.As().runReader(env)));
-
-    static K<ReaderT<Env, M>, A> Choice<ReaderT<Env, M>>.Choose<A>(
-        K<ReaderT<Env, M>, A> ma, K<ReaderT<Env, M>, A> mb) =>
-        new ReaderT<Env, M, A>(env => M.Choose(ma.As().runReader(env), mb.As().runReader(env)));
-
-    public static K<ReaderT<Env, M>, A> Choose<A>(K<ReaderT<Env, M>, A> ma, Func<K<ReaderT<Env, M>, A>> mb) => 
-        new ReaderT<Env, M, A>(env => M.Choose(ma.As().runReader(env), mb().As().runReader(env)));
 }
