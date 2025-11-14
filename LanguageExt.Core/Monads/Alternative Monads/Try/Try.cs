@@ -216,56 +216,6 @@ public record Try<A>(Func<Fin<A>> runTry) :
 
     public IO<A> ToIO() => 
         IO.lift(runTry);
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Error catching operators
-    //
-    
-    public static Try<A> operator +(Try<A> lhs, Try<A> rhs) =>
-        lhs.Combine(rhs);
-    
-    public static Try<A> operator +(Try<A> lhs, K<Try, A> rhs) =>
-        lhs.Combine(rhs.As());
-    
-    public static Try<A> operator +(K<Try, A> lhs, Try<A> rhs) =>
-        lhs.As().Combine(rhs);
-
-    public static Try<A> operator +(Try<A> ma, Pure<A> mb) =>
-        ma.Combine(mb);
-
-    public static Try<A> operator +(Try<A> ma, Fail<Error> mb) =>
-        ma.Combine(mb);
-
-    public static Try<A> operator +(Try<A> ma, Fail<Exception> mb) =>
-        ma.Combine(mb);
-
-    public static Try<A> operator +(Try<A> ma, Exception mb) =>
-        ma.Combine((Error)mb);
-    
-    public static Try<A> operator |(Try<A> lhs, Try<A> rhs) =>
-        lhs.Choose(rhs).As();
-    
-    public static Try<A> operator |(Try<A> lhs, K<Try, A> rhs) =>
-        lhs.Choose(rhs.As()).As();
-    
-    public static Try<A> operator |(K<Try, A> lhs, Try<A> rhs) =>
-        lhs.As().Choose(rhs).As();
-
-    public static Try<A> operator |(Try<A> ma, Pure<A> mb) =>
-        ma.Choose(Try.Succ(mb.Value)).As();
-
-    public static Try<A> operator |(Try<A> ma, Fail<Error> mb) =>
-        ma.Choose(Try.Fail<A>(mb.Value)).As();
-
-    public static Try<A> operator |(Try<A> ma, Fail<Exception> mb) =>
-        ma.Choose(Try.Fail<A>(mb.Value)).As();
-
-    public static Try<A> operator |(Try<A> ma, Exception mb) =>
-        ma.Choose(Try.Fail<A>(mb)).As();
-
-    public static Try<A> operator |(Try<A> ma, CatchM<Error, Try, A> mb) =>
-        (ma.Kind() | mb).As();
 
     [Pure]
     public Try<A> Combine(Try<A> rhs) =>

@@ -275,46 +275,6 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) :
     //
     //  Operators
     //
-
-    /// <summary>
-    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
-    /// as the semicolon) in C#.
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the second action</returns>
-    public static OptionT<M, A> operator >> (OptionT<M, A> lhs, OptionT<M, A> rhs) =>
-        lhs.Bind(_ => rhs);
-    
-    /// <summary>
-    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
-    /// as the semicolon) in C#.
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the second action</returns>
-    public static OptionT<M, A> operator >> (OptionT<M, A> lhs, K<OptionT<M>, A> rhs) =>
-        lhs.Bind(_ => rhs);
-
-    /// <summary>
-    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
-    /// first action is propagated. 
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the first action</returns>
-    public static OptionT<M, A> operator >> (OptionT<M, A> lhs, OptionT<M, Unit> rhs) =>
-        lhs.Bind(x => rhs.Map(_ => x));
-    
-    /// <summary>
-    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
-    /// first action is propagated. 
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the first action</returns>
-    public static OptionT<M, A> operator >> (OptionT<M, A> lhs, K<OptionT<M>, Unit> rhs) =>
-        lhs.Bind(x => rhs.Map(_ => x));
     
     public static implicit operator OptionT<M, A>(in Option<A> ma) =>
         OptionT.lift<M, A>(ma);
@@ -348,22 +308,4 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) :
 
     public EitherT<L, M, A> ToEither<L>() where L : Monoid<L> =>
         new(runOption.Map(ma => ma.ToEither<L>()));
-    
-    public static OptionT<M, A> operator |(OptionT<M, A> lhs, OptionT<M, A> rhs) =>
-        lhs.Choose(rhs).As();
-
-    public static OptionT<M, A> operator |(K<OptionT<M>, A> lhs, OptionT<M, A> rhs) =>
-        lhs.As().Choose(rhs).As();
-
-    public static OptionT<M, A> operator |(OptionT<M, A> lhs, K<OptionT<M>, A> rhs) =>
-        lhs.Choose(rhs).As();
-
-    public static OptionT<M, A> operator |(OptionT<M, A> ma, Pure<A> mb) =>
-        ma.Choose(pure<OptionT<M>, A>(mb.Value)).As();
-
-    public static OptionT<M, A> operator |(OptionT<M, A> ma, Fail<Unit> _) =>
-        ma.Choose(fail<Unit, OptionT<M>, A>(default)).As();
-
-    public static OptionT<M, A> operator |(OptionT<M, A> ma, CatchM<Unit, OptionT<M>, A> mb) =>
-        (ma.Kind() | mb).As(); 
 }

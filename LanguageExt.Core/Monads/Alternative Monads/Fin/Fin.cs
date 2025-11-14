@@ -189,58 +189,6 @@ public abstract partial class Fin<A> :
     [Pure, MethodImpl(Opt.Default)]
     public static explicit operator Error(Fin<A> ma) =>
         ma.FailValue;
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator +(Fin<A> lhs, Fin<A> rhs) =>
-        lhs.Combine(rhs).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator +(K<Fin, A> lhs, Fin<A> rhs) =>
-        lhs.As().Combine(rhs).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator +(Fin<A> lhs, K<Fin, A> rhs) =>
-        lhs.Combine(rhs.As()).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator +(Fin<A> ma, Pure<A> mb) =>
-        ma.Combine(pure<Fin, A>(mb.Value)).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator +(Fin<A> ma, Fail<Error> mb) =>
-        ma.Combine(fail<Error, Fin, A>(mb.Value)).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator +(Fin<A> ma, Fail<Exception> mb) =>
-        ma.Combine(fail<Error, Fin, A>(mb.Value)).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator |(Fin<A> lhs, Fin<A> rhs) =>
-        lhs.Choose(rhs).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator |(K<Fin, A> lhs, Fin<A> rhs) =>
-        lhs.As().Choose(rhs).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator |(Fin<A> lhs, K<Fin, A> rhs) =>
-        lhs.Choose(rhs.As()).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator |(Fin<A> ma, Pure<A> mb) =>
-        ma.Choose(pure<Fin, A>(mb.Value)).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator |(Fin<A> ma, Fail<Error> mb) =>
-        ma.Choose(fail<Error, Fin, A>(mb.Value)).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator |(Fin<A> ma, Fail<Exception> mb) =>
-        ma.Choose(fail<Error, Fin, A>(mb.Value)).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Fin<A> operator |(Fin<A> ma, CatchM<Error, Fin, A> mb) =>
-        (ma.Kind() | mb).As();
     
     [Pure, MethodImpl(Opt.Default)]
     public static bool operator true(Fin<A> ma) =>

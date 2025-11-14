@@ -239,22 +239,4 @@ public record ChronicleT<Ch, M, A>(Func<SemigroupInstance<Ch>, K<M, These<Ch, A>
                           Either<Ch, A>.Right(var r) => dictate<Ch, M, A>(r),
                           _                          => throw new NSE()
                       });
-
-    /// <summary>
-    /// Coalescing operator
-    /// </summary>
-    public static ChronicleT<Ch, M, A> operator |(ChronicleT<Ch, M, A> lhs, K<ChronicleT<Ch, M>, A> rhs) =>
-        lhs.Choose(rhs);
-
-    /// <summary>
-    /// Coalescing operator
-    /// </summary>
-    public static ChronicleT<Ch, M, A> operator |(ChronicleT<Ch, M, A> lhs, Pure<A> rhs) =>
-        lhs.Choose(dictate<Ch, M, A>(rhs.Value));    
-
-    /// <summary>
-    /// Coalescing operator
-    /// </summary>
-    public static ChronicleT<Ch, M, A> operator |(ChronicleT<Ch, M, A> lhs, Fail<Ch> rhs) =>
-        lhs.Choose(confess<Ch, M, A>(rhs.Value));    
 }

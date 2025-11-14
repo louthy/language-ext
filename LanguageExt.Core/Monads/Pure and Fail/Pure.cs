@@ -108,6 +108,9 @@ public readonly record struct Pure<A>(A Value)
     public Fin<A> ToFin() =>
         Fin.Succ(Value);
     
+    public Try<A> ToTry() =>
+        Try.Succ(Value);
+    
     public IO<A> ToIO() =>
         IO.pure(Value);
     

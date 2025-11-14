@@ -7,8 +7,7 @@ public static class SemigroupExtensions
         where A : Semigroup<A>
     {
         /// <summary>
-        /// Choice operator.  Usually means if the first argument succeeds, return it, otherwise return the second
-        /// argument.
+        /// Semigroup combine operator: an associative binary operation.
         /// </summary>
         /// <param name="lhs">Left-hand side operand</param>
         /// <param name="rhs">Right-hand side operand</param>

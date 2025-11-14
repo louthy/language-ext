@@ -293,38 +293,6 @@ public readonly struct Option<A> :
         !(lhs == rhs);
 
     /// <summary>
-    /// Coalescing operator
-    /// </summary>
-    /// <param name="lhs">Left hand side of the operation</param>
-    /// <param name="rhs">Right hand side of the operation</param>
-    /// <returns>if lhs is Some then lhs, else rhs</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Option<A> operator |(Option<A> lhs, Option<A> rhs) =>
-        lhs.IsSome
-            ? lhs
-            : rhs;
-    
-    [Pure, MethodImpl(Opt.Default)]
-    public static Option<A> operator |(K<Option, A> lhs, Option<A> rhs) =>
-        lhs.Choose(rhs).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Option<A> operator |(Option<A> lhs, K<Option, A> rhs) =>
-        lhs.Choose(rhs.As()).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Option<A> operator |(Option<A> ma, Pure<A> mb) =>
-        ma.Choose(pure<Option, A>(mb.Value)).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Option<A> operator |(Option<A> ma, Fail<Unit> mb) =>
-        ma.Choose(None).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Option<A> operator |(Option<A> ma, CatchM<Unit, Option, A> mb) =>
-        (ma.Kind() | mb).As(); 
-
-    /// <summary>
     /// Truth operator
     /// </summary>
     [Pure]

@@ -10,6 +10,7 @@ namespace LanguageExt;
 public partial class Try : 
     Monad<Try>,
     Fallible<Try>, 
+    Final<Try>,
     Alternative<Try>
 {
     static K<Try, B> Monad<Try>.Bind<A, B>(K<Try, A> ma, Func<A, K<Try, B>> f) =>
@@ -77,4 +78,17 @@ public partial class Try :
                              Fin<A>.Fail(var e) when Predicate(e) => Fail(e).Run(),
                              var ma                               => ma
                          });
+
+    static K<Try, A> Final<Try>.Finally<X, A>(K<Try, A> fa, K<Try, X> @finally) =>
+        new Try<A>(() =>
+                   {
+                       try
+                       {
+                           return fa.Run();
+                       }
+                       finally
+                       {
+                           @finally.Run().ThrowIfFail();
+                       }
+                   });
 }

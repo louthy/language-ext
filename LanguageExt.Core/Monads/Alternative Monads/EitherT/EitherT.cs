@@ -358,46 +358,6 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
     //  Operators
     //
 
-    /// <summary>
-    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
-    /// as the semicolon) in C#.
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the second action</returns>
-    public static EitherT<L, M, R> operator >> (EitherT<L, M, R> lhs, EitherT<L, M, R> rhs) =>
-        lhs.Bind(_ => rhs);
-    
-    /// <summary>
-    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
-    /// as the semicolon) in C#.
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the second action</returns>
-    public static EitherT<L, M, R> operator >> (EitherT<L, M, R> lhs, K<EitherT<L, M>, R> rhs) =>
-        lhs.Bind(_ => rhs);
-
-    /// <summary>
-    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
-    /// first action is propagated. 
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the first action</returns>
-    public static EitherT<L, M, R> operator >> (EitherT<L, M, R> lhs, EitherT<L, M, Unit> rhs) =>
-        lhs.Bind(x => rhs.Map(_ => x));
-    
-    /// <summary>
-    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
-    /// first action is propagated. 
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the first action</returns>
-    public static EitherT<L, M, R> operator >> (EitherT<L, M, R> lhs, K<EitherT<L, M>, Unit> rhs) =>
-        lhs.Bind(x => rhs.Map(_ => x));
-    
     public static implicit operator EitherT<L, M, R>(Either<L, R> ma) =>
         EitherT.lift<L, M, R>(ma);
     
@@ -422,50 +382,6 @@ public record EitherT<L, M, R>(K<M, Either<L, R>> runEither) :
     public static implicit operator EitherT<L, M, R>(IO<Either<L, R>> ma) =>
         EitherT.liftIOMaybe<L, M, R>(ma);
 
-    [Pure, MethodImpl(Opt.Default)]
-    public static EitherT<L, M, R> operator |(EitherT<L, M, R> lhs, EitherT<L, M, R> rhs) =>
-        lhs.Choose(rhs).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static EitherT<L, M, R> operator |(K<EitherT<L, M>, R> lhs, EitherT<L, M, R> rhs) =>
-        lhs.As().Choose(rhs).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static EitherT<L, M, R> operator |(EitherT<L, M, R> lhs, K<EitherT<L, M>, R> rhs) =>
-        lhs.Choose(rhs.As()).As();
-
-    public static EitherT<L, M, R> operator |(EitherT<L, M, R> ma, R b) => 
-        ma.Choose(pure<EitherT<L, M>, R>(b)).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static EitherT<L, M, R> operator |(EitherT<L, M, R> ma, Pure<R> mb) =>
-        ma.Choose(pure<EitherT<L, M>, R>(mb.Value)).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static EitherT<L, M, R> operator |(EitherT<L, M, R> ma, Fail<L> mb) =>
-        ma.Choose(fail<L, EitherT<L, M>, R>(mb.Value)).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static EitherT<L, M, R> operator |(EitherT<L, M, R> ma, L mb) =>
-        ma.Choose(fail<L, EitherT<L, M>, R>(mb)).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static EitherT<L, M, R> operator |(EitherT<L, M, R> ma, CatchM<L, EitherT<L, M>, R> mb) =>
-        (ma.Kind() | mb).As();
-
     public OptionT<M, R> ToOption() =>
         new(runEither.Map(ma => ma.ToOption()));
-
-    /*
-    public StreamT<M, R> ToStream() =>
-        from seq in StreamT<M, Seq<R>>.Lift(runEither.Map(ma => ma.IsRight ? Seq((R)ma) : Seq<R>.Empty))
-        from res in StreamT<M, R>.Lift(seq)
-        select res;
-
-    public StreamT<M, L> LeftToStream() =>
-        from seq in StreamT<M, Seq<L>>.Lift(runEither.Map(ma => ma.IsLeft ? Seq((L)ma) : Seq<L>.Empty))
-        from res in StreamT<M, L>.Lift(seq)
-        select res;
-        */
-    
 }

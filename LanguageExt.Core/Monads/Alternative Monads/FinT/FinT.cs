@@ -323,46 +323,6 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     //
     //  Operators
     //
-
-    /// <summary>
-    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
-    /// as the semicolon) in C#.
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the second action</returns>
-    public static FinT<M, A> operator >> (FinT<M, A> lhs, FinT<M, A> rhs) =>
-        lhs.Bind(_ => rhs);
-    
-    /// <summary>
-    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
-    /// as the semicolon) in C#.
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the second action</returns>
-    public static FinT<M, A> operator >> (FinT<M, A> lhs, K<FinT<M>, A> rhs) =>
-        lhs.Bind(_ => rhs);
-
-    /// <summary>
-    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
-    /// first action is propagated. 
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the first action</returns>
-    public static FinT<M, A> operator >> (FinT<M, A> lhs, FinT<M, Unit> rhs) =>
-        lhs.Bind(x => rhs.Map(_ => x));
-    
-    /// <summary>
-    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
-    /// first action is propagated. 
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the first action</returns>
-    public static FinT<M, A> operator >> (FinT<M, A> lhs, K<FinT<M>, Unit> rhs) =>
-        lhs.Bind(x => rhs.Map(_ => x));
     
     public static implicit operator FinT<M, A>(Fin<A> ma) =>
         FinT.lift<M, A>(ma);
@@ -387,54 +347,6 @@ public record FinT<M, A>(K<M, Fin<A>> runFin) :
     
     public static implicit operator FinT<M, A>(IO<Fin<A>> ma) =>
         FinT.liftIOMaybe<M, A>(ma);
-
-    public static FinT<M, A> operator +(FinT<M, A> lhs, FinT<M, A> rhs) =>
-        lhs.Combine(rhs).As();
-
-    public static FinT<M, A> operator +(K<FinT<M>, A> lhs, FinT<M, A> rhs) =>
-        lhs.As().Combine(rhs).As();
-
-    public static FinT<M, A> operator +(FinT<M, A> lhs, K<FinT<M>, A> rhs) =>
-        lhs.Combine(rhs.As()).As();
-
-    public static FinT<M, A> operator +(FinT<M, A> lhs, A rhs) => 
-        lhs.Combine(pure<FinT<M>, A>(rhs)).As();
-
-    public static FinT<M, A> operator +(FinT<M, A> ma, Pure<A> mb) =>
-        ma.Combine(pure<FinT<M>, A>(mb.Value)).As();
-
-    public static FinT<M, A> operator +(FinT<M, A> ma, Fail<Error> mb) =>
-        ma.Combine(fail<Error, FinT<M>, A>(mb.Value)).As();
-
-    public static FinT<M, A> operator +(FinT<M, A> ma, Fail<Exception> mb) =>
-        ma.Combine(fail<Error, FinT<M>, A>(mb.Value)).As();
-    
-    public static FinT<M, A> operator |(FinT<M, A> lhs, FinT<M, A> rhs) =>
-        lhs.Choose(rhs).As();
-
-    public static FinT<M, A> operator |(K<FinT<M>, A> lhs, FinT<M, A> rhs) =>
-        lhs.As().Choose(rhs).As();
-
-    public static FinT<M, A> operator |(FinT<M, A> lhs, K<FinT<M>, A> rhs) =>
-        lhs.Choose(rhs.As()).As();
-
-    public static FinT<M, A> operator |(FinT<M, A> lhs, A rhs) => 
-        lhs.Choose(pure<FinT<M>, A>(rhs)).As();
-
-    public static FinT<M, A> operator |(FinT<M, A> ma, Pure<A> mb) =>
-        ma.Choose(pure<FinT<M>, A>(mb.Value)).As();
-
-    public static FinT<M, A> operator |(FinT<M, A> ma, Fail<Error> mb) =>
-        ma.Choose(fail<Error, FinT<M>, A>(mb.Value)).As();
-
-    public static FinT<M, A> operator |(FinT<M, A> ma, Fail<Exception> mb) =>
-        ma.Choose(fail<Error, FinT<M>, A>(mb.Value)).As();
-
-    public static FinT<M, A> operator |(FinT<M, A> ma, Error mb) =>
-        ma.Choose(fail<Error, FinT<M>, A>(mb)).As();
-
-    public static FinT<M, A> operator |(FinT<M, A> ma, CatchM<Error, FinT<M>, A> mb) =>
-        (ma.Kind() | mb).As();
     
     public OptionT<M, A> ToOption() =>
         new(runFin.Map(ma => ma.ToOption()));

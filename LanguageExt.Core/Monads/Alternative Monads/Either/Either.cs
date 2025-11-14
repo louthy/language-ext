@@ -514,30 +514,6 @@ public abstract partial record Either<L, R> :
     [Pure]
     public static bool operator !=(Pure<R> lhs, Either<L, R> rhs) =>
         !(lhs == rhs);
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Either<L, R> operator |(Either<L, R> lhs, Either<L, R> rhs) =>
-        lhs.Choose(rhs).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Either<L, R> operator |(K<Either<L>, R> lhs, Either<L, R> rhs) =>
-        lhs.As().Choose(rhs).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Either<L, R> operator |(Either<L, R> lhs, K<Either<L>, R> rhs) =>
-        lhs.Choose(rhs.As()).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Either<L, R> operator |(Either<L, R> ma, Pure<R> mb) =>
-        ma.Choose(pure<Either<L>, R>(mb.Value)).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Either<L, R> operator |(Either<L, R> ma, Fail<L> mb) =>
-        ma.Choose(fail<L, Either<L>, R>(mb.Value)).As();
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static Either<L, R> operator |(Either<L, R> ma, CatchM<L, Either<L>, R> mb) =>
-        (ma.Kind() | mb).As();
     
     /// <summary>
     /// Override of the True operator to return True if the Either is Right

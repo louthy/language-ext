@@ -1,10 +1,11 @@
 using LanguageExt.Traits;
 namespace LanguageExt;
 
-public static partial class SemigroupKExtensions
+public static partial class TheseExtensions
 {
-    extension<F, A>(K<F, A> _) 
-        where F : SemigroupK<F>
+    extension<A, B>(K<These<A>, B> _) 
+        where A : Semigroup<A>
+        where B : Semigroup<B>
     {
         /// <summary>
         /// Semigroup combine operator: an associative binary operation.
@@ -12,7 +13,7 @@ public static partial class SemigroupKExtensions
         /// <param name="lhs">Left-hand side operand</param>
         /// <param name="rhs">Right-hand side operand</param>
         /// <returns></returns>
-        public static K<F, A> operator +(K<F, A> lhs, K<F, A> rhs) =>
+        public static K<These<A>, B> operator +(K<These<A>, B> lhs, K<These<A>, B> rhs) =>
             lhs.Combine(rhs);
     }
 }
