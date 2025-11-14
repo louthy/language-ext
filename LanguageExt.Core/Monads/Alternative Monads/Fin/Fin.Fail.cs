@@ -6,6 +6,10 @@ namespace LanguageExt;
 
 public partial class Fin<A>
 {
+    /// <summary>
+    /// Fail case for the `Fin` union-type
+    /// </summary>
+    /// <param name="Error">Error value</param>
     public sealed class Fail(Error Error) : Fin<A>
     {
         /// <summary>

@@ -9,7 +9,7 @@ public partial class Fin<A>
     /// <summary>
     /// Success case for the `Fin` union-type
     /// </summary>
-    /// <param name="Value"></param>
+    /// <param name="Value">Success value</param>
     public sealed class Succ(A Value) : Fin<A>
     {
         /// <summary>
