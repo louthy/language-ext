@@ -18,4 +18,28 @@ public static class FuncExtensions
     [Pure]
     public static Func<B, Func<A, C>> Flip<A, B, C>(this Func<A, Func<B, C>> f) =>
         b => a => f(a)(b);
+
+    extension<A, B, C>(Func<A, B> lhs)
+    {
+        /// <summary>
+        /// Function composition
+        /// </summary>
+        /// <param name="f">First function</param>
+        /// <param name="g">Second function</param>
+        /// <returns></returns>
+        public static Func<A, C> operator >>(Func<A, B> f, Func<B, C> g) =>
+            x => g(f(x));
+    }
+    
+    extension<A, B, C>(Func<B, C> lhs)
+    {
+        /// <summary>
+        /// Function composition
+        /// </summary>
+        /// <param name="f">First function</param>
+        /// <param name="g">Second function</param>
+        /// <returns></returns>
+        public static Func<A, C> operator <<(Func<B, C> g, Func<A, B> f) =>
+            x => g(f(x));        
+    }
 }
