@@ -17,7 +17,7 @@ public static partial class Prelude
         new Either<L, R>.Right(value);
 
     /// <summary>
-    /// Constructs an EitherRight which can be implicitly cast to an 
+    /// Constructs an `Pure` which can be implicitly cast to an 
     /// Either〈_, R〉
     /// </summary>
     /// <typeparam name="R">Right</typeparam>
@@ -40,7 +40,7 @@ public static partial class Prelude
         new Either<L, R>.Left(value);
 
     /// <summary>
-    /// Constructs an EitherLeft which can be implicitly cast to an 
+    /// Constructs a `Fail` which can be implicitly cast to an 
     /// Either〈L, _〉
     /// </summary>
     /// <typeparam name="L">Left</typeparam>

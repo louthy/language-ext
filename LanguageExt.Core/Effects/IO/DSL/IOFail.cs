@@ -130,7 +130,7 @@ record IOFail<A>(Error Value) : InvokeSync<A>
         this;
 
     public override IO<A> Catch(Func<Error, bool> Predicate, Func<Error, K<IO, A>> Fail) =>
-        this;
+        Fail(Value).As();
     
     public override string ToString() => 
         $"fail({Value})";
