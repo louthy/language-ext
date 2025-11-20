@@ -39,6 +39,52 @@ public interface Foldable<out T> where T : Foldable<T>
     //
 
     /// <summary>
+    /// Fold until the `Option` returns `None`
+    /// </summary>
+    /// <param name="f">Fold function</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Aggregated value</returns>
+    public static virtual S FoldMaybe<A, S>(
+        Func<S, Func<A, Option<S>>> f,
+        S initialState,
+        K<T, A> ta) =>
+        T.FoldWhile<A, (bool IsSome, S Value)>(
+            a => s => f(s.Value)(a) switch
+                      {
+                          { IsSome: true, Case: S value } => (true, value),
+                          _                               => (false, s.Value)
+                      },
+            s => s.State.IsSome,
+            (true, initialState), 
+            ta).Value;
+
+    /// <summary>
+    /// Fold until the `Option` returns `None`
+    /// </summary>
+    /// <param name="f">Fold function</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Aggregated value</returns>
+    public static virtual S FoldBackMaybe<A, S>(
+        Func<A, Func<S, Option<S>>> f,
+        S initialState,
+        K<T, A> ta) =>
+        T.FoldBackWhile<A, (bool IsSome, S Value)>(
+            s => a => f(a)(s.Value) switch
+                      {
+                          { IsSome: true, Case: S value } => (true, value),
+                          _                               => (false, s.Value)
+                      },
+            s => s.State.IsSome,
+            (true, initialState),
+            ta).Value;
+    
+    /// <summary>
     /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
@@ -89,7 +135,7 @@ public interface Foldable<out T> where T : Foldable<T>
     /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
-    /// </remarks>
+    /// </summary>
     public static virtual K<M, S> FoldUntilM<A, M, S>(
         Func<A, Func<S, K<M, S>>> f, 
         Func<A, bool> predicate, 
@@ -174,7 +220,7 @@ public interface Foldable<out T> where T : Foldable<T>
     /// <remarks>
     /// Note that to produce the outermost application of the operator the
     /// entire input list must be traversed.  Like all left-associative folds,
-    /// `FoldBack' will diverge if given an infinite list.
+    /// `FoldBack` will diverge if given an infinite list.
     /// </remarks>
     public static virtual S FoldBack<A, S>(Func<S, Func<A, S>> f, S initialState, K<T, A> ta) =>
         T.FoldBackWhile(f, _ => true, initialState, ta);
@@ -192,7 +238,7 @@ public interface Foldable<out T> where T : Foldable<T>
     /// <remarks>
     /// Note that to produce the outermost application of the operator the
     /// entire input list must be traversed.  Like all left-associative folds,
-    /// `FoldBack' will diverge if given an infinite list.
+    /// `FoldBack` will diverge if given an infinite list.
     /// </remarks>
     public static virtual K<M, S> FoldBackM<A, M, S>(
         Func<S, Func<A, K<M, S>>> f, 
@@ -309,17 +355,17 @@ public interface Foldable<out T> where T : Foldable<T>
     /// List of elements of a structure, from left to right
     /// </summary>
     public static virtual Arr<A> ToArr<A>(K<T, A> ta) =>
-        new (T.ToEnumerable(ta).ToArray());
+        new (T.ToIterable(ta).ToArray());
 
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
-    public static virtual EnumerableM<A> ToEnumerable<A>(K<T, A> ta) =>
+    public static virtual Iterable<A> ToIterable<A>(K<T, A> ta) =>
         T.Fold(a => s =>
                {
                    s.Add(a);
                    return s;
-               }, new System.Collections.Generic.List<A>(), ta).AsEnumerableM();
+               }, new System.Collections.Generic.List<A>(), ta).AsIterable();
 
     /// <summary>
     /// List of elements of a structure, from left to right
@@ -375,13 +421,13 @@ public interface Foldable<out T> where T : Foldable<T>
         T.FoldBackWhile(s => a => predicate(a) ? Some(a) : s, s => s.State.IsNone, Option<A>.None, ta);
 
     /// <summary>
-    /// Find the the elements that match the predicate
+    /// Find the elements that match the predicate
     /// </summary>
     public static virtual Seq<A> FindAll<A>(Func<A, bool> predicate, K<T, A> ta) =>
         T.Fold(a => s => predicate(a) ? s.Add(a) : s, Seq<A>.Empty, ta);
 
     /// <summary>
-    /// Find the the elements that match the predicate
+    /// Find the elements that match the predicate
     /// </summary>
     public static virtual Seq<A> FindAllBack<A>(Func<A, bool> predicate, K<T, A> ta) =>
         T.FoldBack(s => a => predicate(a) ? s.Add(a) : s, Seq<A>.Empty, ta);
@@ -564,4 +610,17 @@ public interface Foldable<out T> where T : Foldable<T>
                           s => s.State.Result.IsNone,
                           (Index: 0, Result: Option<A>.None),
                           ta).Result;
+
+    /// <summary>
+    /// Partition a foldable into two sequences based on a predicate
+    /// </summary>
+    /// <param name="f">Predicate function</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Partitioned structure</returns>
+    public static virtual (Seq<A> True, Seq<A> False) Partition<A>(Func<A, bool> f, K<T, A> ta) =>
+        T.Fold(x => s => f(x) ? (s.True.Add(x), s.False)
+                              : (s.True, s.False.Add(x)),
+               (True: Seq<A>(), False: Seq<A>()),
+               ta);
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using LanguageExt.Common;
 
 namespace LanguageExt;
 
@@ -15,7 +16,7 @@ internal class SeqEmptyInternal<A> : ISeqInternal<A>
         default;
 
     public A Head =>
-        throw new InvalidOperationException("Sequence is empty");
+        throw Exceptions.SequenceEmpty;
 
     public ISeqInternal<A> Tail =>
         this;
@@ -27,7 +28,7 @@ internal class SeqEmptyInternal<A> : ISeqInternal<A>
         this;
 
     public A Last =>
-        throw new InvalidOperationException("Sequence is empty");
+        throw Exceptions.SequenceEmpty;
 
     public int Count => 
         0;

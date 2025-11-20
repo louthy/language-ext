@@ -50,7 +50,7 @@ public class WindowIO<RT> : Window
     /// Useful for wrapping IO event-handlers into a Task base event-handler
     /// </remarks>
     protected void handle<A>(Eff<RT, A> operation) =>
-        operation.Fork().Run(Runtime, EnvIO).ThrowIfFail();
+        operation.ForkIO().Run(Runtime, EnvIO).ThrowIfFail();
         
     /// <summary>
     /// Helper IO for setting control text 
@@ -84,5 +84,5 @@ public class WindowIO<RT> : Window
     /// Async delay
     /// </summary>
     protected static Eff<RT, Unit> waitFor(double ms) =>
-        yield(ms);
+        IO.yieldFor(ms);
 }

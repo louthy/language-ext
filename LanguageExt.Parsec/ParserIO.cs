@@ -37,15 +37,15 @@ public static class ParserIOExtensions
             }
             if (res.Reply.Tag == ReplyTag.Error)
             {
-                return EmptyError<I, O>(ParserError.Expect(inp.Pos, res.Reply.Error.Msg, expected), inp.TokenPos);
+                return EmptyError<I, O>(ParserError.Expect(inp.Pos, res.Reply.Error?.Msg ?? "<error>", expected), inp.TokenPos);
             }
-            if (res.Reply.Error == null || res.Reply.Error.Tag == ParserErrorTag.Unknown)
+            if (res.Reply.Error is null || res.Reply.Error.Tag == ParserErrorTag.Unknown)
             {
                 return res;
             }
             else
             {
-                return EmptyOK(res.Reply.Result, res.Reply.State, ParserError.Expect(inp.Pos, res.Reply.Error.Msg, expected));
+                return EmptyOK(res.Reply.Result!, res.Reply.State, ParserError.Expect(inp.Pos, res.Reply.Error.Msg, expected));
             }
         };
 

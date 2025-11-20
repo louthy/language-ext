@@ -701,28 +701,28 @@ public static partial class Map
     /// </summary>
     [Pure]
     public static Map<K, V> toMap<K, V>(IDictionary<K, V> dict) =>
-        Prelude.toMap(dict.AsEnumerableM().Map(kv => (kv.Key, kv.Value)));
+        Prelude.toMap(dict.AsIterable().Map(kv => (kv.Key, kv.Value)));
 
     /// <summary>
     /// Convert any IDictionary into an immutable Map K V
     /// </summary>
     [Pure]
     public static Map<K, V> ToMap<K, V>(this IDictionary<K, V> dict) =>
-        Prelude.toMap(dict.AsEnumerableM().Map(kv => (kv.Key, kv.Value)));
+        Prelude.toMap(dict.AsIterable().Map(kv => (kv.Key, kv.Value)));
 
     /// <summary>
     /// Convert any IDictionary into an immutable Map K V
     /// </summary>
     [Pure]
     public static HashMap<K, V> toHashMap<K, V>(IDictionary<K, V> dict) =>
-        Prelude.toHashMap(dict.AsEnumerableM().Map(kv => (kv.Key, kv.Value)));
+        Prelude.toHashMap(dict.AsIterable().Map(kv => (kv.Key, kv.Value)));
 
     /// <summary>
     /// Convert any IDictionary into an immutable Map K V
     /// </summary>
     [Pure]
     public static HashMap<K, V> ToHashMap<K, V>(this IDictionary<K, V> dict) =>
-        Prelude.toHashMap(dict.AsEnumerableM().Map(kv => (kv.Key, kv.Value)));
+        Prelude.toHashMap(dict.AsIterable().Map(kv => (kv.Key, kv.Value)));
 
     /// <summary>
     /// Union two maps.  The merge function is called keys are
@@ -760,6 +760,7 @@ public static partial class Map
     /// Intersect two maps.  Only keys that are in both maps are
     /// returned.  The merge function is called for every resulting
     /// key.
+    /// </summary>
     [Pure]
     public static Map<K, R> intersect<K, A, B, R>(Map<K, A> left, Map<K, B> right, WhenMatched<K, A, B, R> merge) =>
         left.Intersect(right, merge);

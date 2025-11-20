@@ -627,7 +627,7 @@ public readonly struct HashMap<K, V> :
     /// Enumerable of map keys
     /// </summary>
     [Pure]
-    public EnumerableM<K> Keys
+    public Iterable<K> Keys
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Value.Keys;
@@ -637,7 +637,7 @@ public readonly struct HashMap<K, V> :
     /// Enumerable of map values
     /// </summary>
     [Pure]
-    public EnumerableM<V> Values
+    public Iterable<V> Values
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Value.Values;
@@ -652,7 +652,7 @@ public readonly struct HashMap<K, V> :
         Func<(K Key, V Value), KR> keySelector, 
         Func<(K Key, V Value), VR> valueSelector)
         where KR : notnull =>
-        AsEnumerable().ToDictionary(x => keySelector(x), x => valueSelector(x));
+        AsIterable().ToDictionary(x => keySelector(x), x => valueSelector(x));
 
     /// <summary>
     /// GetEnumerator - IEnumerable interface
@@ -666,6 +666,7 @@ public readonly struct HashMap<K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator IEnumerable.GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         Value.GetEnumerator();
 
     /// <summary>
@@ -685,7 +686,7 @@ public readonly struct HashMap<K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override string ToString() =>
-        CollectionFormat.ToShortArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), Count);
+        CollectionFormat.ToShortArrayString(AsIterable().Map(kv => $"({kv.Key}: {kv.Value})"), Count);
 
     /// <summary>
     /// Format the collection as `(key: value), (key: value), (key: value), ...`
@@ -693,7 +694,7 @@ public readonly struct HashMap<K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ToFullString(string separator = ", ") =>
-        CollectionFormat.ToFullString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
+        CollectionFormat.ToFullString(AsIterable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
     /// <summary>
     /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
@@ -701,12 +702,12 @@ public readonly struct HashMap<K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ToFullArrayString(string separator = ", ") =>
-        CollectionFormat.ToFullArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
+        CollectionFormat.ToFullArrayString(AsIterable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<(K Key, V Value)> AsEnumerable() =>
-        new(Value);
+    public Iterable<(K Key, V Value)> AsIterable() =>
+        Value.AsIterable();
 
     /// <summary>
     /// Implicit conversion from an untyped empty list
@@ -717,7 +718,7 @@ public readonly struct HashMap<K, V> :
         Empty;
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -725,7 +726,7 @@ public readonly struct HashMap<K, V> :
         lhs.Equals(rhs);
 
     /// <summary>
-    /// In-equality of keys and values with `EqDefault<V>` used for values
+    /// In-equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -989,7 +990,7 @@ public readonly struct HashMap<K, V> :
 
     
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -997,7 +998,7 @@ public readonly struct HashMap<K, V> :
         obj is HashMap<K, V> hm && Equals(hm);
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1087,7 +1088,7 @@ public readonly struct HashMap<K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ForAll(Func<K, V, bool> pred)
     {
-        foreach (var item in AsEnumerable())
+        foreach (var item in AsIterable())
         {
             if (!pred(item.Key, item.Value)) return false;
         }
@@ -1102,7 +1103,7 @@ public readonly struct HashMap<K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ForAll(Func<(K Key, V Value), bool> pred) =>
-        AsEnumerable().Map(kv => (kv.Key, kv.Value)).ForAll(pred);
+        AsIterable().Map(kv => (kv.Key, kv.Value)).ForAll(pred);
 
     /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied
@@ -1113,7 +1114,7 @@ public readonly struct HashMap<K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Exists(Func<K, V, bool> pred)
     {
-        foreach (var item in AsEnumerable())
+        foreach (var item in AsIterable())
         {
             if (pred(item.Key, item.Value)) return true;
         }
@@ -1128,7 +1129,7 @@ public readonly struct HashMap<K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Exists(Func<(K Key, V Value), bool> pred) =>
-        AsEnumerable().Map(kv => (kv.Key, kv.Value)).Exists(pred);
+        AsIterable().Map(kv => (kv.Key, kv.Value)).Exists(pred);
 
     /// <summary>
     /// Atomically iterate through all key/value pairs in the map (in order) and execute an
@@ -1165,7 +1166,7 @@ public readonly struct HashMap<K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
-        AsEnumerable().Map(p => new KeyValuePair<K, V>(p.Key, p.Value)).GetEnumerator();
+        AsIterable().Map(p => new KeyValuePair<K, V>(p.Key, p.Value)).GetEnumerator();
     
     [Pure]
     IEnumerable<K> IReadOnlyDictionary<K, V>.Keys => Keys;

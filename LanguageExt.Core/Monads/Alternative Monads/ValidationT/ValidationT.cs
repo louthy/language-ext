@@ -1,0 +1,251 @@
+﻿using System;
+using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using LanguageExt.Common;
+using LanguageExt.Traits;
+
+namespace LanguageExt;
+
+/// <summary>
+/// `ValidationT` monad transformer, which allows for an optional result. 
+/// </summary>
+/// <typeparam name="M">Given monad trait</typeparam>
+/// <typeparam name="F">Left value type</typeparam>
+/// <typeparam name="A">Bound value type</typeparam>
+public record ValidationT<F, M, A>(Func<MonoidInstance<F>, K<M, Validation<F, A>>> runValidation) : 
+    K<ValidationT<F, M>, A>,
+    K<ValidationT<M>, F, A>
+    where M : Monad<M>
+{
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Match
+    //
+
+    internal Func<MonoidInstance<F>, K<M, B>> MatchI<B>(
+        Func<F, B> Fail,
+        Func<A, B> Succ) => 
+        monoid => M.Map(mx => mx.Match(Fail, Succ), Run(monoid));
+    
+    public K<M, Validation<F, A>> Run(MonoidInstance<F> monoid) =>
+        runValidation(monoid);
+ 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Map
+    //
+
+    /// <summary>
+    /// Maps the bound monad
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="M1">Target monad type</typeparam>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>Mapped monad</returns>
+    public ValidationT<F, M1, B> MapT<M1, B>(Func<K<M, Validation<F, A>>, K<M1, Validation<F, B>>> f)
+        where M1 : Monad<M1> =>
+        new(monoid => f(runValidation(monoid)));
+
+    /// <summary>
+    /// Maps the given monad
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    public ValidationT<F, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
+        new(monoid => runValidation(monoid)
+               .Bind(fv => fv switch
+                           {
+                               Validation<F, A>.Success (var v) => f(M.Pure(v)).Map(Validation.SuccessI<F, B>),
+                               Validation<F, A>.Fail (var e)    => M.Pure<Validation<F, B>>(e),
+                               _                                => throw new NotSupportedException()
+                           }));
+    
+    /// <summary>
+    /// Maps the bound value
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`ValidationT`</returns>
+    public ValidationT<F, M, B> Map<B>(Func<A, B> f) =>
+        new(monoid => M.Map(mx => mx.Map(f), runValidation(monoid)));
+    
+    /// <summary>
+    /// Maps the bound value
+    /// </summary>
+    /// <param name="f">Mapping transducer</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`ValidationT`</returns>
+    public ValidationT<F, M, B> Select<B>(Func<A, B> f) =>
+        new(monoid => M.Map(mx => mx.Map(f), runValidation(monoid)));
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Bind
+    //
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`ValidationT`</returns>
+    public ValidationT<F, M, B> Bind<B>(Func<A, K<ValidationT<F, M>, B>> f) =>
+        Bind(x => f(x).As());
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`ValidationT`</returns>
+    public ValidationT<F, M, B> Bind<B>(Func<A, ValidationT<F, M, B>> f) =>
+        new(monoid => M.Bind(runValidation(monoid),
+                             ea => ea.IsSuccess switch
+                                   {
+                                       true  => f(ea.SuccessValue).runValidation(monoid),
+                                       false => M.Pure(Validation.FailI<F, B>(ea.FailValue))
+                                   }));    
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="Succ">Success mapping function</param>
+    /// <param name="Fail">Failure mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`ValidationT`</returns>
+    public ValidationT<F, M, B> BiBind<B>(Func<A, ValidationT<F, M, B>> Succ, Func<F, ValidationT<F, M, B>> Fail) =>
+        new(monoid => M.Bind(runValidation(monoid),
+                             ea => ea.IsSuccess switch
+                                   {
+                                       true  => Succ(ea.SuccessValue).runValidation(monoid),
+                                       false => Fail(ea.FailValue).runValidation(monoid)
+                                   }));
+
+    /// <summary>
+    /// Failure bind operation
+    /// </summary>
+    /// <param name="Fail">Failure mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`ValidationT`</returns>
+    public ValidationT<F, M, A> BindFail(Func<F, ValidationT<F, M, A>> Fail) =>
+        BiBind(ValidationT.SuccessI<F, M, A>, Fail);
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`ValidationT`</returns>
+    public ValidationT<F, M, B> Bind<B>(Func<A, IO<B>> f) =>
+        Bind(a => ValidationT.liftIOI<F, M, B>(f(a)));
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`ValidationT`</returns>
+    public ValidationT<F, M, B> Bind<B>(Func<A, Pure<B>> f) =>
+        Map(a => f(a).Value);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  SelectMany
+    //
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`ValidationT`</returns>
+    public ValidationT<F, M, C> SelectMany<B, C>(Func<A, K<ValidationT<F, M>, B>> bind, Func<A, B, C> project) =>
+        SelectMany(x => bind(x).As(), project);
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`ValidationT`</returns>
+    public ValidationT<F, M, C> SelectMany<B, C>(Func<A, ValidationT<F, M, B>> bind, Func<A, B, C> project) =>
+        Bind(x => bind(x).Map(y => project(x, y)));
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`ValidationT`</returns>
+    public ValidationT<F, M, C> SelectMany<B, C>(Func<A, K<M, B>> bind, Func<A, B, C> project) =>
+        SelectMany(x => ValidationT.liftI<F, M, B>(bind(x)), project);
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`ValidationT`</returns>
+    public ValidationT<F, M, C> SelectMany<B, C>(Func<A, Validation<F, B>> bind, Func<A, B, C> project) =>
+        SelectMany(x => ValidationT.liftI<F, M, B>(bind(x)), project);
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`ValidationT`</returns>
+    public ValidationT<F, M, C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
+        Map(x => project(x, bind(x).Value));
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`ValidationT`</returns>
+    public ValidationT<F, M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
+        SelectMany(x => M.LiftIOMaybe(bind(x)), project);
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`ValidationT`</returns>
+    public ValidationT<F, M, C> SelectMany<C>(Func<A, Guard<F, Unit>> bind, Func<A, Unit, C> project) =>
+        Bind(x => bind(x).ToValidationTI<F, M>().Map(_ => project(x, default)));
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Operators
+    //
+
+    public static implicit operator ValidationT<F, M, A>(Pure<A> ma) =>
+        ValidationT.SuccessI<F, M, A>(ma.Value);
+    
+    public static implicit operator ValidationT<F, M, A>(Fail<F> ma) =>
+        ValidationT.FailI<F, M, A>(ma.Value);
+
+    public static implicit operator ValidationT<F, M, A>(F fail) => 
+        ValidationT.FailI<F, M, A>(fail);
+
+    public static implicit operator ValidationT<F, M, A>(IO<A> ma) =>
+        ValidationT.liftIOI<F, M, A>(ma);
+
+    public static ValidationT<F, M, Seq<A>> operator &(ValidationT<F, M, A> ma, ValidationT<F, M, A> mb) =>
+        new(monoid => M.Bind(ma.runValidation(monoid), ea => M.Map(eb => ea & eb, mb.runValidation(monoid))));
+}

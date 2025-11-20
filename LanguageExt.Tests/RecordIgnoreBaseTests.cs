@@ -20,13 +20,13 @@ namespace LanguageExt.Tests
             public SubClass1(int x, int y) : base(x) =>
                 Y = y;
 
-            public int CompareTo(SubClass1 other) =>
+            public int CompareTo(SubClass1? other) =>
                 RecordTypeIgnoreBase<SubClass1>.Compare(this, other);
 
-            public override bool Equals(object obj) =>
+            public override bool Equals(object? obj) =>
                 RecordTypeIgnoreBase<SubClass1>.Equality(this, obj);
 
-            public bool Equals(SubClass1 other) =>
+            public bool Equals(SubClass1? other) =>
                 RecordTypeIgnoreBase<SubClass1>.EqualityTyped(this, other);
 
             public override int GetHashCode() =>

@@ -5,7 +5,10 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public partial class HashSet : Monad<HashSet>, MonoidK<HashSet>, Traversable<HashSet>
+public partial class HashSet : 
+    Monad<HashSet>, 
+    Alternative<HashSet>, 
+    Traversable<HashSet>
 {
     static K<HashSet, B> Monad<HashSet>.Bind<A, B>(K<HashSet, A> ma, Func<A, K<HashSet, B>> f)
     {
@@ -61,6 +64,12 @@ public partial class HashSet : Monad<HashSet>, MonoidK<HashSet>, Traversable<Has
     static K<HashSet, A> SemigroupK<HashSet>.Combine<A>(K<HashSet, A> ma, K<HashSet, A> mb) =>
         ma.As() + mb.As();
     
+    static K<HashSet, A> Choice<HashSet>.Choose<A>(K<HashSet, A> ma, K<HashSet, A> mb) => 
+        ma.IsEmpty() ? mb : ma;
+    
+    static K<HashSet, A> Choice<HashSet>.Choose<A>(K<HashSet, A> ma, Func<K<HashSet, A>> mb) => 
+        ma.IsEmpty() ? mb() : ma;
+    
     static bool Foldable<HashSet>.Contains<EqA, A>(A value, K<HashSet, A> ta) =>
         ta.As().Contains(value);
 
@@ -105,7 +114,7 @@ public partial class HashSet : Monad<HashSet>, MonoidK<HashSet>, Traversable<Has
             Foldable.fold(acc, F.Pure(empty<B>()), ta));
 
         K<F, HashSet<B>> acc(K<F, HashSet<B>> ys, A x) =>
-            Applicative.lift((b, bs) => bs.Add(b), f(x), ys);
+            Applicative.lift((bs, b) => bs.Add(b), ys, f(x));
     }
 
     static K<F, K<HashSet, B>> Traversable<HashSet>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<HashSet, A> ta) 

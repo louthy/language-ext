@@ -89,20 +89,6 @@ public readonly record struct Pure<A>(A Value)
     public IO<C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
         ToIO().SelectMany(bind, project);
 
-    /// <summary>
-    /// Monadic bind and project
-    /// </summary>
-    /// <param name="bind">Bind function</param>
-    /// <param name="project">Project function</param>
-    /// <typeparam name="B">Result of the bind operation bound value type</typeparam>
-    /// <typeparam name="C">Result of the mapping operation bound value type</typeparam>
-    /// <returns>Result of the applying the bind and mapping function to the `Pure` value</returns>
-    public Transducer<E, C> SelectMany<E, B, C>(Func<A, Transducer<E, B>> bind, Func<A, B, C> project)
-    {
-        var a = Value;
-        return Transducer.compose(bind(a), Transducer.lift<B, C>(b => project(a, b)));
-    }
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Conversion
@@ -111,16 +97,22 @@ public readonly record struct Pure<A>(A Value)
     public Option<A> ToOption() =>
         Value is null 
             ? Option<A>.None 
-            : Option<A>.Some(Value);
+            : Option.Some(Value);
+    
+    public These<X, A> ToThese<X>() =>
+        These.That<X, A>(Value);
     
     public Either<L, A> ToEither<L>() =>
-        Either<L, A>.Right(Value);
+        Either.Right<L, A>(Value);
     
     public Fin<A> ToFin() =>
-        Fin<A>.Succ(Value);
+        Fin.Succ(Value);
+    
+    public Try<A> ToTry() =>
+        Try.Succ(Value);
     
     public IO<A> ToIO() =>
-        IO<A>.Pure(Value);
+        IO.pure(Value);
     
     public Eff<RT, A> ToEff<RT>() =>
         Eff<RT, A>.Pure(Value);
@@ -153,14 +145,14 @@ public readonly record struct Pure<A>(A Value)
         bind(Value);
     
     public ReaderT<Env, M, B> Bind<Env, M, B>(Func<A, ReaderT<Env, M, B>> bind)
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, Alternative<M> =>
         bind(Value);
     
     public State<S, B> Bind<S, B>(Func<A, State<S, B>> bind) =>
         bind(Value);
     
     public StateT<S, M, B> Bind<S, M, B>(Func<A, StateT<S, M, B>> bind)
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, Alternative<M> =>
         bind(Value);
     
     public OptionT<M, B> Bind<M, B>(Func<A, OptionT<M, B>> bind)
@@ -198,11 +190,11 @@ public readonly record struct Pure<A>(A Value)
         Bind(x => bind(x).As().Map(y => project(x, y)));
     
     public ReaderT<Env, M, C> SelectMany<Env, M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, Alternative<M> =>
         Bind(x => bind(x).Map(y => project(x, y)));
     
     public ReaderT<Env, M, C> SelectMany<Env, M, B, C>(Func<A, K<ReaderT<Env, M>, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, Alternative<M> =>
         Bind(x => bind(x).As().Map(y => project(x, y)));
     
     public State<S, C> SelectMany<S, B, C>(Func<A, State<S, B>> bind, Func<A, B, C> project) =>
@@ -212,11 +204,11 @@ public readonly record struct Pure<A>(A Value)
         Bind(x => bind(x).As().Map(y => project(x, y)));
     
     public StateT<S, M, C> SelectMany<S, M, B, C>(Func<A, StateT<S, M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, Alternative<M> =>
         Bind(x => bind(x).Map(y => project(x, y)));
     
     public StateT<S, M, C> SelectMany<S, M, B, C>(Func<A, K<StateT<S, M>, B>> bind, Func<A, B, C> project)
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M>, Alternative<M> =>
         Bind(x => bind(x).As().Map(y => project(x, y)));
     
     public OptionT<M, C> SelectMany<M, B, C>(Func<A, OptionT<M, B>> bind, Func<A, B, C> project)
@@ -229,23 +221,6 @@ public readonly record struct Pure<A>(A Value)
 
     public Option<C> SelectMany<B, C>(Func<A, Option<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Transducer
-    //
-
-    public Transducer<Unit, A> Morphism { get; } =
-        Transducer.pure(Value);
-    
-    public Reducer<Unit, S> Transform<S>(Reducer<A, S> reduce) => 
-        Morphism.Transform(reduce);
-            
-    public override string ToString() =>
-        $"Pure({Value})";
-
-    public static implicit operator Transducer<Unit, A>(Pure<A> ma) =>
-        Transducer.pure(ma.Value);
 }
 
 public static class PureExtensions
@@ -265,7 +240,7 @@ public static class PureExtensions
 
     public static Validation<F, A> ToValidation<F, A>(this Pure<A> ma)
         where F : Monoid<F> =>
-        Validation<F, A>.Success(ma.Value);
+        Validation.Success<F, A>(ma.Value);
 
     public static Validation<F, C> SelectMany<F, A, B, C>(
         this Pure<A> ma,

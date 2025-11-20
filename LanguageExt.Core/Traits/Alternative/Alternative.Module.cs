@@ -1,36 +1,21 @@
+using System;
+using System.Diagnostics.Contracts;
+using static LanguageExt.Prelude;
+
 namespace LanguageExt.Traits;
 
-/// <summary>
-/// A monoid on applicative functors
-/// </summary>
-/// <typeparam name="F">Applicative functor</typeparam>
-public static partial class Alternative
+public static class Alternative
 {
     /// <summary>
-    /// Identity
-    /// </summary>
-    /// <typeparam name="A"></typeparam>
-    /// <returns></returns>
-    public static K<F, A> empty<F, A>()
-        where F : Alternative<F> =>
-        F.Empty<A>();
-
-    /// <summary>
-    /// Associative binary operator
-    /// </summary>
-    public static K<F, A> combine<F, A>(K<F, A> ma, K<F, A> mb)
-        where F : SemiAlternative<F> =>
-        F.Combine(ma, mb);
-    
-    /// <summary>
     /// Given a set of applicative functors, return the first one to succeed.
     /// </summary>
     /// <remarks>
     /// If none succeed, the last applicative functor will be returned.
     /// </remarks>
+    [Pure]
     public static K<F, A> oneOf<F, A>(params K<F, A>[] ms)
         where F : Alternative<F> =>
-        oneOf(ms.AsEnumerableM().ToSeq());
+        oneOf(toSeq(ms));
 
     /// <summary>
     /// Given a set of applicative functors, return the first one to succeed.
@@ -38,12 +23,19 @@ public static partial class Alternative
     /// <remarks>
     /// If none succeed, the last applicative functor will be returned.
     /// </remarks>
+    [Pure]
     public static K<F, A> oneOf<F, A>(Seq<K<F, A>> ms)
-        where F : Alternative<F> =>
-        ms.IsEmpty
-            ? F.Empty<A>()
-            : F.Combine(ms.Head.Value!, oneOf(ms.Tail));
-
+        where F : Alternative<F>
+    {
+        if(ms.IsEmpty()) return F.Empty<A>();
+        var r = ms[0];
+        foreach (var m in ms.Tail)
+        {
+            r = F.Choose(r, m);
+        }
+        return r;
+    }
+    
     /// <summary>
     /// One or more...
     /// </summary>
@@ -52,37 +44,54 @@ public static partial class Alternative
     ///
     /// Will always succeed if at least one item has been yielded.
     /// </remarks>
-    /// <param name="v">Applicative functor</param>
+    /// <remarks>
+    /// NOTE: It is important that the `F` applicative-type overrides `Apply` (the one with `Func` laziness) in its
+    /// trait-implementations otherwise this will likely result in a stack-overflow. 
+    /// </remarks>
+    /// <param name="fa">Applicative functor</param>
     /// <returns>One or more values</returns>
-    public static K<F, Seq<A>> some<F, A>(K<F, A> v)
-        where F : Alternative<F> =>
-        F.Some(v);
+    [Pure]
+    public static K<F, Seq<A>> some<F, A>(K<F, A> fa)
+        where F : Alternative<F>, Applicative<F>
+    {
+        return some_v();
+        
+        K<F, Seq<A>> many_v() =>
+            F.Choose(some_v(), F.Pure(Seq<A>()));
 
+        K<F, Seq<A>> some_v() =>
+            Append<A>.cons.Map(fa).Apply(many_v);
+    }
+    
     /// <summary>
     /// Zero or more...
     /// </summary>
     /// <remarks>
     /// Run the applicative functor repeatedly, collecting the results, until failure.
-    ///
     /// Will always succeed.
     /// </remarks>
-    /// <param name="v">Applicative functor</param>
+    /// <remarks>
+    /// NOTE: It is important that the `F` applicative-type overrides `ApplyLazy` in its trait-implementations
+    /// otherwise this will likely result in a stack-overflow. 
+    /// </remarks>
+    /// <param name="fa">Applicative functor</param>
     /// <returns>Zero or more values</returns>
-    public static K<F, Seq<A>> many<F, A>(K<F, A> v)
-        where F : Alternative<F> =>
-        F.Many(v);
-    
-    /// <summary>
-    /// Conditional failure of `Alternative` computations. Defined by
-    ///
-    ///     guard(true)  = Applicative.pure
-    ///     guard(false) = Alternative.empty
-    ///
-    /// </summary>
-    /// <param name="flag"></param>
-    /// <typeparam name="F"></typeparam>
-    /// <returns></returns>
-    public static K<F, Unit> guard<F>(bool flag)
-        where F : Alternative<F> =>
-        flag ? Applicative.pure<F, Unit>(default) : empty<F, Unit>();
+    [Pure]
+    public static K<F, Seq<A>> many<F, A>(K<F, A> fa)
+        where F : Alternative<F>, Applicative<F>
+    {
+        return many_v();
+        
+        K<F, Seq<A>> many_v() =>
+            F.Choose(some_v(), F.Pure(Seq<A>()));
+
+        K<F, Seq<A>> some_v() =>
+            Append<A>.cons.Map(fa).Apply(many_v);
+    }
+        
+    static class Append<A>
+    {
+        public static readonly Func<A, Func<Seq<A>, Seq<A>>> cons =
+            x => xs => x.Cons(xs);
+    }    
 }

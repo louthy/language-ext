@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 
 namespace LanguageExt;
 
@@ -123,7 +124,8 @@ internal class SeqLazy<A> : ISeqInternal<A>
                 var (succ, val) = seq.Get(seqStart);
                 return succ
                            ? val!
-                           : throw new InvalidOperationException("Sequence is empty");
+                           : throw Exceptions.SequenceEmpty;
+
             }
         }
     }
@@ -170,7 +172,7 @@ internal class SeqLazy<A> : ISeqInternal<A>
             InternalStrict();
             return seq.Count > seqStart ? seq.Data[seq.Count - 1]
                    : count   > 0        ? data[^1]
-                                          : throw new InvalidOperationException("Sequence is empty");
+                   : throw Exceptions.SequenceEmpty;
         }
     }
 

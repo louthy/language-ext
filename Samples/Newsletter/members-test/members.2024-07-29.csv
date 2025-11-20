@@ -1,0 +1,6 @@
+id,email,name,note,subscribed_to_emails,complimentary_plan,stripe_customer_id,created_at,deleted_at,labels,tiers
+65f31f852ac0342e8bc9373e,paul@example.com,Paul Louth,,true,,,2024-03-14T16:02:13.000Z,,,
+66a73e0798be6a03e27d0e12,alan@example.com,Alan Turing,,true,,,2024-07-29T07:00:23.000Z,,,
+65ddcee799e5fbe500fe8da7,isaac@example.com,Isaac Newton,,true,,,2024-02-27T12:00:39.000Z,,,
+65de0dd899e5fbe500fe8e7f,sophie@example.com,Sophie Wilson,,true,,,2024-02-27T16:29:12.000Z,,,
+65de17aa99e5fbe500fe8e87,delia@example.com,"Delia Derbyshire",,true,,,2024-02-27T17:11:06.000Z,,,

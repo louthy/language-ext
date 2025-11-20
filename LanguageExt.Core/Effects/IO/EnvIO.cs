@@ -12,19 +12,23 @@ public class EnvIO : IDisposable
     public readonly CancellationToken Token;
     public readonly CancellationTokenSource Source;
     public readonly SynchronizationContext? SyncContext;
+    private readonly CancellationTokenRegistration? Registration;
     readonly int Own;
+    int disposed;
 
     EnvIO(Resources resources,
           CancellationToken token,
           CancellationTokenSource source,
           SynchronizationContext? syncContext,
+          CancellationTokenRegistration? registration,
           int own)
     {
-        Resources   = resources;
-        Token       = token;
-        Source      = source;
-        SyncContext = syncContext;
-        Own         = own;
+        Resources    = resources;
+        Token        = token;
+        Source       = source;
+        SyncContext  = syncContext;
+        Registration = registration;
+        Own          = own;
     }
 
     public static EnvIO New(
@@ -34,36 +38,53 @@ public class EnvIO : IDisposable
         SynchronizationContext? syncContext = null)
     {
         var own = 0;
+        CancellationTokenRegistration? reg = null; 
         if (source is null)
         {
-            source =  new CancellationTokenSource();
-            own    |= 1;
+            source = new CancellationTokenSource();
+            own |= 1;
         }
 
         if (resources is null)
         {
-            resources =  new Resources(null);
-            own       |= 2;
+            resources = new Resources(null);
+            own |= 2;
         }
 
-        token       =   token.CanBeCanceled ? token : source.Token;
+        if ((own & 1) == 1)
+        {
+            if (token.CanBeCanceled)
+            {
+                reg = token.Register(() => source.Cancel());
+            }
+
+            token = source.Token;
+        }
+
         syncContext ??= SynchronizationContext.Current;
-        return new EnvIO(resources, token, source, syncContext, own);
+        return new EnvIO(resources, token, source, syncContext, reg, own);
     }
+
+    public EnvIO Local =>
+        New(null, Token, null, SynchronizationContext.Current);
 
     public EnvIO LocalResources =>
         New(null, Token, Source, SyncContext);
 
     public EnvIO LocalCancel =>
-        New(Resources, default, null, SyncContext);
+        New(Resources, Token, null, SyncContext);
 
     public EnvIO LocalSyncContext =>
         New(Resources, Token, Source, SynchronizationContext.Current);
 
     public void Dispose()
     {
-        if ((Own & 2) == 2) Resources.DisposeU(this);
-        if ((Own & 1) == 1) Source.Dispose();
+        if (Interlocked.CompareExchange(ref disposed, 1, 0) == 0)
+        {
+            if ((Own & 2) == 2) Resources.DisposeU(this);
+            if ((Own & 1) == 1) Source.Dispose();
+            Registration?.Dispose();
+        }
     }
 
     public override string ToString() => 

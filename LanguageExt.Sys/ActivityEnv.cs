@@ -10,7 +10,7 @@ public record ActivityEnv(
     string? ParentId) : 
     IDisposable
 {
-    public static readonly ActivityEnv Default;
+    public static ActivityEnv Default;
 
     static ActivityEnv()
     {
@@ -23,4 +23,7 @@ public record ActivityEnv(
         ActivitySource.Dispose();
         Activity?.Dispose();
     }
+
+    public override string ToString() => 
+        "Activity Environment";
 }

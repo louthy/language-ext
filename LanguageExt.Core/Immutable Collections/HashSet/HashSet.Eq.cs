@@ -136,7 +136,7 @@ public readonly struct HashSet<EqA, A> :
     /// </returns>
     public HashSet<EqA, A> Do(Action<A> f)
     {
-        this.AsEnumerableM().Iter(f);
+        IterableExtensions.AsIterable(this).Iter(f);
         return this;
     }
 
@@ -396,6 +396,7 @@ public readonly struct HashSet<EqA, A> :
     /// </summary>
     [Pure]
     public IEnumerator<A> GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         Value.GetEnumerator();
 
     /// <summary>
@@ -403,6 +404,7 @@ public readonly struct HashSet<EqA, A> :
     /// </summary>
     [Pure]
     IEnumerator IEnumerable.GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         Value.GetEnumerator();
 
     [Pure]
@@ -434,8 +436,8 @@ public readonly struct HashSet<EqA, A> :
         CollectionFormat.ToFullArrayString(this, separator);
 
     [Pure]
-    public EnumerableM<A> AsEnumerable() =>
-        new(this);
+    public Iterable<A> AsIterable() =>
+        Iterable.createRange(this);
 
     /// <summary>
     /// Implicit conversion from an untyped empty list
@@ -600,7 +602,7 @@ public readonly struct HashSet<EqA, A> :
 
         IEnumerable<B> Yield()
         {
-            foreach (var x in self.AsEnumerable())
+            foreach (var x in self.AsIterable())
             {
                 foreach (var y in f(x))
                 {
@@ -618,7 +620,7 @@ public readonly struct HashSet<EqA, A> :
 
         IEnumerable<C> Yield()
         {
-            foreach (var x in self.AsEnumerable())
+            foreach (var x in self.AsIterable())
             {
                 foreach (var y in bind(x))
                 {

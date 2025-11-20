@@ -4,7 +4,7 @@ using System.Diagnostics.Contracts;
 namespace LanguageExt.ClassInstances;
 
 /// <summary>
-/// Set<T> equality
+/// Set〈T〉 equality
 /// </summary>
 public struct EqSet<EQ, A> : Eq<Set<A>> where EQ : Eq<A>
 {
@@ -42,7 +42,7 @@ public struct EqSet<EQ, A> : Eq<Set<A>> where EQ : Eq<A>
 }
 
 /// <summary>
-/// Set<T> equality
+/// Set〈T〉 equality
 /// </summary>
 public struct EqSet<A> : Eq<Set<A>>
 {

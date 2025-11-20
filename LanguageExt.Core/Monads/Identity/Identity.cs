@@ -12,7 +12,7 @@ namespace LanguageExt;
 /// Simply carries the bound value through its bind expressions without imparting any additional behaviours.  It can
 /// be constructed using:
 ///
-///     Identity<int> ma = Id(123);
+///     Identity〈int〉 ma = Id(123);
 /// 
 /// </remarks>
 /// <typeparam name="A">Bound value type</typeparam>
@@ -20,14 +20,10 @@ public record Identity<A>(A Value) :
     K<Identity, A>,
     IComparable<Identity<A>>
 {
-    public static Identity<A> Pure(A value) =>
-        new (value);
-    
     /// <summary>
     /// Map each element of a structure to an action, evaluate these actions from
     /// left to right, and collect the results.
     /// </summary>
-    /// </remarks>
     /// <param name="f"></param>
     /// <param name="ta">Traversable structure</param>
     /// <typeparam name="F">Applicative functor trait</typeparam>
@@ -49,7 +45,15 @@ public record Identity<A>(A Value) :
     public K<M, Identity<B>> TraverseM<M, B>(Func<A, K<M, B>> f) 
         where M : Monad<M> =>
         M.Map(x => x.As(), Traversable.traverseM(f, this));
-    
+
+    [Pure]
+    public virtual bool Equals(Identity<A>? other) =>
+        other is not null && EqDefault<A>.Equals(Value, other.Value);
+
+    [Pure]
+    public override int GetHashCode() => 
+        HashableDefault<A>.GetHashCode(Value);
+
     [Pure]
     public Identity<B> Map<B>(Func<A, B> f) =>
         new(f(Value));

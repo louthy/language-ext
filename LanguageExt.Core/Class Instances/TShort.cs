@@ -97,7 +97,7 @@ public struct TShort : Num<short>, Bool<short>
     /// Generate a numeric value from an integer
     /// </summary>
     /// <param name="x">The integer to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static short FromInteger(int x) =>
         (short)x;
@@ -106,7 +106,7 @@ public struct TShort : Num<short>, Bool<short>
     /// Generate a numeric value from a float
     /// </summary>
     /// <param name="x">The float to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static short FromDecimal(decimal x) =>
         (short)x;
@@ -115,7 +115,7 @@ public struct TShort : Num<short>, Bool<short>
     /// Generate a numeric value from a double
     /// </summary>
     /// <param name="x">The double to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static short FromFloat(float x) =>
         (short)x;
@@ -124,7 +124,7 @@ public struct TShort : Num<short>, Bool<short>
     /// Generate a numeric value from a decimal
     /// </summary>
     /// <param name="x">The decimal to use</param>
-    /// <returns>The equivalent of x in the Num<A></returns>
+    /// <returns>The equivalent of x in the Num〈A〉</returns>
     [Pure]
     public static short FromDouble(double x) =>
         (short)x;

@@ -1,0 +1,51 @@
+﻿@page "/weather"
+@using BlazorApp.Data
+@using BlazorApp.Effects
+@using LanguageExt
+@using static LanguageExt.Prelude
+@attribute [StreamRendering]
+@inherits Page
+
+<PageTitle>Weather</PageTitle>
+<h1>Weather</h1>
+<p>This component demonstrates showing data.</p>
+
+@if (forecasts.IsEmpty)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Temp. (C)</th>
+            <th>Temp. (F)</th>
+            <th>Summary</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var forecast in forecasts)
+        {
+            <tr>
+                <td>@forecast.Date.ToShortDateString()</td>
+                <td>@forecast.Temperature.Celsius</td>
+                <td>@forecast.Temperature.Fahrenheit</td>
+                <td>@forecast.Summary</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    AtomSeq<WeatherForecast> forecasts = AtomSeq<WeatherForecast>();
+
+    protected override Eff<Runtime, Unit> OnInitialized() =>
+        from fs in Control.Weather<Runtime>.forecastNextFiveDays
+        from _ in forecasts.SwapIO(_ => fs)
+        select unit;
+}

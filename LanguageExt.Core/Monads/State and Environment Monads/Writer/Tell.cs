@@ -17,34 +17,62 @@ namespace LanguageExt;
 public record Tell<W>(W Value) where W : Monoid<W>
 {
     /// <summary>
-    /// Convert ot a `WriterT`
+    /// Convert with `Writable`
+    /// </summary>
+    public K<M, Unit> ToWritable<M>()
+        where M : Writable<M, W> =>
+        Writable.tell<M, W>(Value);
+
+    /// <summary>
+    /// Convert to a `WriterT`
     /// </summary>
     public WriterT<W, M, Unit> ToWriterT<M>()
-        where M : Monad<M>, SemiAlternative<M> =>
-        new (w => M.Pure((unit, w + Value)));
+        where M : Monad<M> =>
+        Writable.tell<WriterT<W, M>, W>(Value).As();
     
     /// <summary>
-    /// Convert ot a `WriterT`
+    /// Convert to a `WriterT`
     /// </summary>
     public Writer<W, Unit> ToWriter() =>
-        new (w => (unit, w + Value));
-    
-    /// <summary>
-    /// Convert ot a `State`
-    /// </summary>
-    //public State<S, Unit> ToState() =>
-    //    State<S, Unit>.Put(Value).As();
+        Writable.tell<Writer<W>, W>(Value).As();
 
     /// <summary>
     /// Monadic bind with `WriterT`
     /// </summary>
     public WriterT<W, M, C> SelectMany<M, B, C>(Func<Unit, WriterT<W, M, B>> bind, Func<Unit, B, C> project)
-        where M : Monad<M>, SemiAlternative<M> =>
+        where M : Monad<M> =>
         ToWriterT<M>().SelectMany(bind, project);
 
     /// <summary>
-    /// Monadic bind with `State`
+    /// Monadic bind with `WriterT`
+    /// </summary>
+    public WriterT<W, M, C> SelectMany<M, B, C>(Func<Unit, K<WriterT<W, M>, B>> bind, Func<Unit, B, C> project)
+        where M : Monad<M> =>
+        ToWriterT<M>().SelectMany(bind, project);
+
+    /// <summary>
+    /// Monadic bind with `Writer`
     /// </summary>
     public Writer<W, C> SelectMany<B, C>(Func<Unit, Writer<W, B>> bind, Func<Unit, B, C> project) =>
         ToWriter().SelectMany(bind, project);
+
+    /// <summary>
+    /// Monadic bind with `Writer`
+    /// </summary>
+    public Writer<W, C> SelectMany<B, C>(Func<Unit, K<Writer<W>, B>> bind, Func<Unit, B, C> project) =>
+        ToWriter().SelectMany(bind, project);
+
+    /// <summary>
+    /// Monadic bind with `RWST`
+    /// </summary>
+    public RWST<R, W, S, M, C> SelectMany<R, S, M, B, C>(Func<Unit, RWST<R, W, S, M, B>> bind, Func<Unit, B, C> project)
+        where M : Writable<M, W>, Monad<M>, Choice<M> =>
+        ToWritable<M>().SelectMany(bind, project);
+
+    /// <summary>
+    /// Monadic bind with `RWST`
+    /// </summary>
+    public RWST<R, W, S, M, C> SelectMany<R, S, M, B, C>(Func<Unit, K<RWST<R, W, S, M>, B>> bind, Func<Unit, B, C> project)
+        where M : Writable<M, W>, Monad<M>, Choice<M> =>
+        ToWritable<M>().SelectMany(bind, project);
 }

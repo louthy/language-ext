@@ -7,7 +7,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public static class MapExtensions
+public static partial class MapExtensions
 {
     public static Map<Key, V> As<Key, V>(this K<Map<Key>, V> ma) =>
         (Map<Key, V>)ma;
@@ -60,7 +60,7 @@ public static class MapExtensions
     /// <returns>Mapped items in a new map</returns>
     [Pure]
     public static Map<K, U> Map<K, V, U>(this Map<K, V> self, Func<V, U> mapper) =>
-        new (MapModule.Map(self.Value.Root, mapper), self.Value.Rev);
+        new (self.AsIterable().Select(kv => (kv.Key, mapper( kv.Value))));
 
     /// <summary>
     /// Atomically maps the map to a new map
@@ -68,5 +68,5 @@ public static class MapExtensions
     /// <returns>Mapped items in a new map</returns>
     [Pure]
     public static Map<K, U> Map<K, V, U>(this Map<K, V> self, Func<K, V, U> mapper) =>
-        new (MapModule.Map(self.Value.Root, mapper), self.Value.Rev);
+        new (self.AsIterable().Select(kv => (kv.Key, mapper(kv.Key, kv.Value))));
 }

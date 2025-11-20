@@ -47,7 +47,7 @@ public class GenLanguageDef
 
     /// <summary>
     /// This parser should accept any start characters of operators. For
-    /// example oneOf(":!#$%&*+.\/\<=>?\@\\\\^|-~")
+    /// example oneOf(":!#$%＆*+.\/\〈=〉?\@\\\\^|-~")
     /// </summary>
     public readonly Parser<char> OpStart;
 
@@ -102,8 +102,8 @@ public class GenLanguageDef
         IdentLetter     = identLetter;
         OpStart         = opStart;
         OpLetter        = opLetter;
-        ReservedNames   = reservedNames.OrderBy(x => x).AsEnumerableM().ToLst();
-        ReservedOpNames = reservedOpNames.OrderBy(x=> x).AsEnumerableM().ToLst();
+        ReservedNames   = reservedNames.OrderBy(x => x).AsIterable().ToLst();
+        ReservedOpNames = reservedOpNames.OrderBy(x=> x).AsIterable().ToLst();
         CaseSensitive   = caseSensitive;
     }
 

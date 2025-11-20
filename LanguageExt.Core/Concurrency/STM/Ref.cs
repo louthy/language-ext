@@ -36,12 +36,34 @@ public sealed class Ref<A> : IEquatable<A>
         Change?.Invoke(value);
 
     /// <summary>
-    /// Value accessor
+    /// Value accessor (read and write)
     /// </summary>
     public A Value
     {
         get => (A)STM.Read(Id);
         set => STM.Write(Id, value!);
+    }
+
+    /// <summary>
+    /// Value accessor (read and write)
+    /// </summary>
+    /// <remarks>
+    /// 
+    /// * Gets will return a freshly constructed `IO` monad that can be repeatedly
+    /// evaluated to get the latest state of the `Ref`.
+    /// 
+    /// * Sets pass an `IO` monad that will be mapped to an operation that will set
+    /// the value of the `Ref` each time it's evaluated.
+    /// 
+    /// </remarks>
+    public IO<A> ValueIO
+    {
+        get => IO.lift(_ => (A)STM.Read(Id));
+        set => value.Map(v =>
+                         {
+                             STM.Write(Id, v!);
+                             return unit;
+                         });
     }
 
     /// <summary>
@@ -94,163 +116,13 @@ public sealed class Ref<A> : IEquatable<A>
     /// </summary>
     /// <param name="f">Swap function</param>
     /// <returns>The value returned from `f`</returns>
-    public async ValueTask<A> SwapAsync(Func<A, ValueTask<A>> f)
-    {
-        var v = await f(Value).ConfigureAwait(false);
-        Value = v;
-        return v;
-    }
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="f">Swap function</param>
-    /// <returns>The value returned from `f`</returns>
-    public Eff<A> SwapEff(Func<A, Eff<A>> f) =>
-        lift(() =>
+    public IO<A> SwapIO(Func<A, A> f) =>
+        IO.lift(_ =>
         {
-            var fv = f(Value).Run();
-            if (fv.IsFail) return fv;
-            Value = fv.SuccValue;
+            var fv = f(Value);
+            Value = fv;
             return fv;
         });
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="f">Swap function</param>
-    /// <returns>The value returned from `f`</returns>
-    public Eff<RT, A> SwapEff<RT>(Func<A, Eff<RT, A>> f) =>
-        from sta in getState<RT>()
-        from res in Eff<RT, A>.Lift(
-            env =>
-            {
-                var fv = f(Value).Run(env, sta.EnvIO);
-                if (fv.IsFail) return fv;
-                Value = fv.SuccValue;
-                return fv;
-            })
-        select res;
-        
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="f">Swap function</param>
-    /// <returns>The value returned from `f`</returns>
-    public A Swap<X>(X x, Func<X, A, A> f)
-    {
-        var v = f(x, Value);
-        Value = v;
-        return v;
-    }
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="f">Swap function</param>
-    /// <returns>The value returned from `f`</returns>
-    public async ValueTask<A> SwapAsync<X, Y>(X x, Y y, Func<X, Y, A, ValueTask<A>> f)
-    {
-        var v = await f(x, y, Value).ConfigureAwait(false);
-        Value = v;
-        return v;
-    }
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="f">Swap function</param>
-    /// <returns>The value returned from `f`</returns>
-    public Eff<A> SwapEff<X, Y>(X x, Y y, Func<X, Y, A, Eff<A>> f) =>
-        lift(() =>
-        {
-            var fv = f(x, y, Value).Run();
-            if (fv.IsFail) return fv;
-            Value = fv.SuccValue;
-            return fv;
-        });
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="f">Swap function</param>
-    /// <returns>The value returned from `f`</returns>
-    public Eff<RT, A> SwapEff<X, Y, RT>(X x, Y y, Func<X, Y, A, Eff<RT, A>> f) =>
-        from sta in getState<RT>()
-        from res in Eff<RT, A>.Lift(
-            env =>
-            {
-                var fv = f(x, y, Value).Run(env, sta.EnvIO);
-                if (fv.IsFail) return fv;
-                Value = fv.SuccValue;
-                return fv;
-            })
-        select res;
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="f">Swap function</param>
-    /// <returns>The value returned from `f`</returns>
-    public A Swap<X, Y>(X x, Y y, Func<X, Y, A, A> f)
-    {
-        var v = f(x, y, Value);
-        Value = v;
-        return v;
-    }
-        
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="f">Swap function</param>
-    /// <returns>The value returned from `f`</returns>
-    public async ValueTask<A> SwapAsync<X>(X x, Func<X, A, ValueTask<A>> f)
-    {
-        var v = await f(x, Value).ConfigureAwait(false);
-        Value = v;
-        return v;
-    }
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="f">Swap function</param>
-    /// <returns>The value returned from `f`</returns>
-    public Eff<A> SwapEff<X>(X x, Func<X, A, Eff<A>> f) =>
-        lift(() =>
-        {
-            var fv = f(x, Value).Run();
-            if (fv.IsFail) return fv;
-            Value = fv.SuccValue;
-            return fv;
-        });
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="f">Swap function</param>
-    /// <returns>The value returned from `f`</returns>
-    public Eff<RT, A> SwapEff<X, RT>(X x, Func<X, A, Eff<RT, A>> f) =>
-        from sta in getState<RT>()
-        from res in Eff<RT, A>.Lift(
-            env =>
-            {
-                var fv = f(x, Value).Run(env, sta.EnvIO);
-                if (fv.IsFail) return fv;
-                Value = fv.SuccValue;
-                return fv;
-            })
-        select res;
 
     /// <summary>
     /// Must be called in a transaction. Sets the in-transaction-value of
@@ -273,54 +145,6 @@ public sealed class Ref<A> : IEquatable<A>
     public CommuteRef<A> Commute(Func<A, A> f)
     {
         STM.Commute(Id, f);
-        return new CommuteRef<A>(this);
-    }
-
-    /// <summary>
-    /// Must be called in a transaction. Sets the in-transaction-value of
-    /// ref to:  
-    /// 
-    ///     `f(in-transaction-value-of-ref)`
-    ///     
-    /// and returns the in-transaction-value when complete.
-    /// 
-    /// At the commit point of the transaction, `f` is run *AGAIN* with the
-    /// most recently committed value:
-    /// 
-    ///     `f(most-recently-committed-value-of-ref)`
-    /// 
-    /// Thus `f` should be commutative, or, failing that, you must accept
-    /// last-one-in-wins behavior.
-    /// 
-    /// Commute allows for more concurrency than just setting the Ref's value
-    /// </summary>
-    public CommuteRef<A> Commute<X>(X x, Func<X, A, A> f)
-    {
-        STM.Commute(Id, x, f);
-        return new CommuteRef<A>(this);
-    }
-
-    /// <summary>
-    /// Must be called in a transaction. Sets the in-transaction-value of
-    /// ref to:  
-    /// 
-    ///     `f(in-transaction-value-of-ref)`
-    ///     
-    /// and returns the in-transaction-value when complete.
-    /// 
-    /// At the commit point of the transaction, `f` is run *AGAIN* with the
-    /// most recently committed value:
-    /// 
-    ///     `f(most-recently-committed-value-of-ref)`
-    /// 
-    /// Thus `f` should be commutative, or, failing that, you must accept
-    /// last-one-in-wins behavior.
-    /// 
-    /// Commute allows for more concurrency than just setting the Ref's value
-    /// </summary>
-    public CommuteRef<A> Commute<X, Y>(X x, Y y, Func<X, Y, A, A> f)
-    {
-        STM.Commute(Id, x, y, f);
         return new CommuteRef<A>(this);
     }
 }

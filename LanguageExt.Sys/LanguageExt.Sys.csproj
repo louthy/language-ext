@@ -1,37 +1,37 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <LangVersion>default</LangVersion>
 
-        <PackageVersion>5.0.0-alpha.11</PackageVersion>
+        <PackageVersion>5.0.0-beta-57</PackageVersion>
         <PackageId>LanguageExt.Sys</PackageId>
         <Title>LanguageExt.Sys</Title>
         <Authors>Paul Louth</Authors>
         <Summary>BCL System namespace wrapped up into Aff and Eff effects for controlled functional side-effects in C#</Summary>
         <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
-        <Description>Extensions to language-ext effects system that wraps the IO behaviours from the .NET BCL</Description>
+        <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
+        <Description>Extensions to language-ext framework effects system that wraps the IO behaviours from the .NET BCL</Description>
         <PackageTags>C#, Functional, Language Extension, Aff, Eff, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
         <PackageIcon>lang-ext-small.png</PackageIcon>
         <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
         <OutputType>library</OutputType>
-        <AssemblyVersion>4.0.0.0</AssemblyVersion>
-        <FileVersion>4.0.0.0</FileVersion>
+        <AssemblyVersion>5.0.0.0</AssemblyVersion>
+        <FileVersion>5.0.0.0</FileVersion>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
+        <InternalsVisibleTo Include="LanguageExt.Tests" />
     </ItemGroup>
-
     <ItemGroup>
-        <None Include="..\Images\lang-ext-small.png">
-            <Pack>True</Pack>
-            <PackagePath></PackagePath>
-        </None>
+      <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
+        <None Include="README.nuget.md" Pack="true" PackagePath="\"/>
+        <None Include="..\Images\lang-ext-small.png" Pack="true" PackagePath="\"/>
+        <ProjectReference Include="..\LanguageExt.Streaming\LanguageExt.Streaming.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,3 +1,4 @@
+using System;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -8,7 +9,23 @@ namespace LanguageExt;
 /// <typeparam name="F">Functor type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public abstract record Free<F, A> : K<Free<F>, A>
-    where F : Functor<F>;
+    where F : Functor<F>
+{
+    public Free<F, B> Map<B>(Func<A, B> f) =>
+        this.Kind().Map(f).As();
+    
+    public Free<F, B> Select<B>(Func<A, B> f) =>
+        this.Kind().Map(f).As();
+    
+    public Free<F, B> Bind<B>(Func<A, Free<F, B>> f) =>
+        this.Kind().Bind(f).As();
+    
+    public Free<F, B> Bind<B>(Func<A, K<Free<F>, B>> f) =>
+        this.Kind().Bind(f).As();
+    
+    public Free<F, C> SelectMany<B, C>(Func<A, K<Free<F>, B>> bind, Func<A, B, C> project) =>
+        Bind(x => bind(x).Map(y => project(x, y)));
+}
 
 /// <summary>
 /// Terminal case for the free monad

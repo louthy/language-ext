@@ -11,7 +11,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    ///     Func〈int,int,int〉 add = (int x, int y) => x + y;
     /// 
     /// You can use this function and do:
     /// 
@@ -28,7 +28,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    ///     Func〈int,int,int〉 add = (int x, int y) => x + y;
     /// 
     /// You can use this function and do:
     /// 
@@ -45,7 +45,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    ///     Func〈int,int,int〉 add = (int x, int y) => x + y;
     /// 
     /// You can use this function and do:
     /// 
@@ -62,7 +62,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    ///     Func〈int,int,int〉 add = (int x, int y) => x + y;
     /// 
     /// You can use this function and do:
     /// 
@@ -79,7 +79,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    ///     Func〈int,int,int〉 add = (int x, int y) => x + y;
     /// 
     /// You can use this function and do:
     /// 
@@ -96,7 +96,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    ///     Func〈int,int,int〉 add = (int x, int y) => x + y;
     /// 
     /// You can use this function and do:
     /// 
@@ -113,7 +113,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    ///     Func〈int,int,int〉 add = (int x, int y) => x + y;
     /// 
     /// You can use this function and do:
     /// 
@@ -130,7 +130,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    ///     Func〈int,int,int〉 add = (int x, int y) => x + y;
     /// 
     /// You can use this function and do:
     /// 
@@ -147,7 +147,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    ///     Func〈int,int,int〉 add = (int x, int y) => x + y;
     /// 
     /// You can use this function and do:
     /// 
@@ -164,7 +164,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    ///     Func〈int,int,int〉 add = (int x, int y) => x + y;
     /// 
     /// You can use this function and do:
     /// 
@@ -181,7 +181,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    ///     Func〈int,int,int〉 add = (int x, int y) => x + y;
     /// 
     /// You can use this function and do:
     /// 
@@ -198,7 +198,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    ///     Func〈int,int,int〉 add = (int x, int y) => x + y;
     /// 
     /// You can use this function and do:
     /// 
@@ -215,7 +215,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    ///     Func〈int,int,int〉 add = (int x, int y) => x + y;
     /// 
     /// You can use this function and do:
     /// 
@@ -232,7 +232,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    ///     Func〈int,int,int〉 add = (int x, int y) => x + y;
     /// 
     /// You can use this function and do:
     /// 
@@ -249,7 +249,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    ///     Func〈int,int,int〉 add = (int x, int y) => x + y;
     /// 
     /// You can use this function and do:
     /// 
@@ -266,7 +266,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    ///     Func〈int,int,int〉 add = (int x, int y) => x + y;
     /// 
     /// You can use this function and do:
     /// 
@@ -283,7 +283,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    ///     Func〈int,int,int〉 add = (int x, int y) => x + y;
     /// 
     /// You can use this function and do:
     /// 
@@ -300,7 +300,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;string,Unit&gt; putStr = (string x) => { Console.WriteLine(x); return unit; }
+    ///     Func〈string,Unit〉 putStr = (string x) => { Console.WriteLine(x); return unit; }
     /// 
     /// You can use this function and do:
     /// 
@@ -317,7 +317,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;string,Unit&gt; putStr = (string x) => { Console.WriteLine(x); return unit; }
+    ///     Func〈string,Unit〉 putStr = (string x) => { Console.WriteLine(x); return unit; }
     /// 
     /// You can use this function and do:
     /// 
@@ -334,7 +334,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;string,Unit&gt; putStr = (string x) => { Console.WriteLine(x); return unit; }
+    ///     Func〈string,Unit〉 putStr = (string x) => { Console.WriteLine(x); return unit; }
     /// 
     /// You can use this function and do:
     /// 
@@ -351,7 +351,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;string,Unit&gt; putStr = (string x) => { Console.WriteLine(x); return unit; }
+    ///     Func〈string,Unit〉 putStr = (string x) => { Console.WriteLine(x); return unit; }
     /// 
     /// You can use this function and do:
     /// 
@@ -368,7 +368,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;string,Unit&gt; putStr = (string x) => { Console.WriteLine(x); return unit; }
+    ///     Func〈string,Unit〉 putStr = (string x) => { Console.WriteLine(x); return unit; }
     /// 
     /// You can use this function and do:
     /// 
@@ -385,7 +385,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;string,Unit&gt; putStr = (string x) => { Console.WriteLine(x); return unit; }
+    ///     Func〈string,Unit〉 putStr = (string x) => { Console.WriteLine(x); return unit; }
     /// 
     /// You can use this function and do:
     /// 
@@ -402,7 +402,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;string,Unit&gt; putStr = (string x) => { Console.WriteLine(x); return unit; }
+    ///     Func〈string,Unit〉 putStr = (string x) => { Console.WriteLine(x); return unit; }
     /// 
     /// You can use this function and do:
     /// 
@@ -419,7 +419,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;string,Unit&gt; putStr = (string x) => { Console.WriteLine(x); return unit; }
+    ///     Func〈string,Unit〉 putStr = (string x) => { Console.WriteLine(x); return unit; }
     /// 
     /// You can use this function and do:
     /// 
@@ -436,7 +436,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Action&lt;string&gt; putStr = (string x) => Console.WriteLine(x);
+    ///     Action〈string〉 putStr = (string x) => Console.WriteLine(x);
     /// 
     /// You can use this function and do:
     /// 
@@ -453,7 +453,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Action&lt;string&gt; putStr = (string x) => Console.WriteLine(x);
+    ///     Action〈string〉 putStr = (string x) => Console.WriteLine(x);
     /// 
     /// You can use this function and do:
     /// 
@@ -470,7 +470,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Action&lt;string&gt; putStr = (string x) => Console.WriteLine(x);
+    ///     Action〈string〉 putStr = (string x) => Console.WriteLine(x);
     /// 
     /// You can use this function and do:
     /// 
@@ -487,7 +487,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Action&lt;string&gt; putStr = (string x) => Console.WriteLine(x);
+    ///     Action〈string〉 putStr = (string x) => Console.WriteLine(x);
     /// 
     /// You can use this function and do:
     /// 
@@ -504,7 +504,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Action&lt;string&gt; putStr = (string x) => Console.WriteLine(x);
+    ///     Action〈string〉 putStr = (string x) => Console.WriteLine(x);
     /// 
     /// You can use this function and do:
     /// 
@@ -521,7 +521,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Action&lt;string&gt; putStr = (string x) => Console.WriteLine(x);
+    ///     Action〈string〉 putStr = (string x) => Console.WriteLine(x);
     /// 
     /// You can use this function and do:
     /// 
@@ -538,7 +538,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Action&lt;string&gt; putStr = (string x) => Console.WriteLine(x);
+    ///     Action〈string〉 putStr = (string x) => Console.WriteLine(x);
     /// 
     /// You can use this function and do:
     /// 
@@ -555,7 +555,7 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Action&lt;string&gt; putStr = (string x) => Console.WriteLine(x);
+    ///     Action〈string〉 putStr = (string x) => Console.WriteLine(x);
     /// 
     /// You can use this function and do:
     /// 
@@ -572,9 +572,9 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;string, string&gt; thereIs = ...
+    ///     Func〈string, string〉 thereIs = ...
     /// 
-    ///     Action&lt;string,Unit&gt; thereIsNoReturn = (string x) => { thereis(x); };
+    ///     Action〈string,Unit〉 thereIsNoReturn = (string x) => { thereis(x); };
     /// 
     /// You can use this function and do:
     /// 
@@ -591,9 +591,9 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;string, string&gt; thereIs = ...
+    ///     Func〈string, string〉 thereIs = ...
     /// 
-    ///     Action&lt;string,Unit&gt; thereIsNoReturn = (string x) => { thereis(x); };
+    ///     Action〈string,Unit〉 thereIsNoReturn = (string x) => { thereis(x); };
     /// 
     /// You can use this function and do:
     /// 
@@ -610,9 +610,9 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;string, string&gt; thereIs = ...
+    ///     Func〈string, string〉 thereIs = ...
     /// 
-    ///     Action&lt;string,Unit&gt; thereIsNoReturn = (string x) => { thereis(x); };
+    ///     Action〈string,Unit〉 thereIsNoReturn = (string x) => { thereis(x); };
     /// 
     /// You can use this function and do:
     /// 
@@ -629,9 +629,9 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;string, string&gt; thereIs = ...
+    ///     Func〈string, string〉 thereIs = ...
     /// 
-    ///     Action&lt;string,Unit&gt; thereIsNoReturn = (string x) => { thereis(x); };
+    ///     Action〈string,Unit〉 thereIsNoReturn = (string x) => { thereis(x); };
     /// 
     /// You can use this function and do:
     /// 
@@ -648,9 +648,9 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;string, string&gt; thereIs = ...
+    ///     Func〈string, string〉 thereIs = ...
     /// 
-    ///     Action&lt;string,Unit&gt; thereIsNoReturn = (string x) => { thereis(x); };
+    ///     Action〈string,Unit〉 thereIsNoReturn = (string x) => { thereis(x); };
     /// 
     /// You can use this function and do:
     /// 
@@ -667,9 +667,9 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;string, string&gt; thereIs = ...
+    ///     Func〈string, string〉 thereIs = ...
     /// 
-    ///     Action&lt;string,Unit&gt; thereIsNoReturn = (string x) => { thereis(x); };
+    ///     Action〈string,Unit〉 thereIsNoReturn = (string x) => { thereis(x); };
     /// 
     /// You can use this function and do:
     /// 
@@ -686,9 +686,9 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;string, string&gt; thereIs = ...
+    ///     Func〈string, string〉 thereIs = ...
     /// 
-    ///     Action&lt;string,Unit&gt; thereIsNoReturn = (string x) => { thereis(x); };
+    ///     Action〈string,Unit〉 thereIsNoReturn = (string x) => { thereis(x); };
     /// 
     /// You can use this function and do:
     /// 
@@ -705,9 +705,9 @@ public static partial class Prelude
     /// 
     /// Try it with lambdas, instead of doing:
     /// 
-    ///     Func&lt;string, string&gt; thereIs = ...
+    ///     Func〈string, string〉 thereIs = ...
     /// 
-    ///     Action&lt;string,Unit&gt; thereIsNoReturn = (string x) => { thereis(x); };
+    ///     Action〈string,Unit〉 thereIsNoReturn = (string x) => { thereis(x); };
     /// 
     /// You can use this function and do:
     /// 

@@ -160,7 +160,7 @@ namespace LanguageExt.Tests
 
             Action sideEffectNone = () => sideEffectResult += 1;
 
-            Assert.Equal(0, Option<string>.Some("test").IfNone(sideEffectNone).Return(sideEffectResult));
+            Assert.Equal(0, Option.Some("test").IfNone(sideEffectNone).Return(sideEffectResult));
             Assert.Equal(1, Option<string>.None.IfNone(sideEffectNone).Return(sideEffectResult));
         }
 
@@ -172,7 +172,7 @@ namespace LanguageExt.Tests
             Action<string> sideEffectSome = _ => sideEffectResult += 2;
 
             Assert.Equal(0, Option<string>.None.IfSome(sideEffectSome).Return(sideEffectResult));
-            Assert.Equal(2, Option<string>.Some("test").IfSome(sideEffectSome).Return(sideEffectResult));
+            Assert.Equal(2, Option.Some("test").IfSome(sideEffectSome).Return(sideEffectResult));
         }
 
         [Fact]
@@ -182,7 +182,7 @@ namespace LanguageExt.Tests
             var some = Some(123);
             var none = Option<int>.None;
 
-            var mx = FinSucc(123);
+            var mx = Fin.Succ(123);
             var my = some.ToFin();
             var me = none.ToFin(e);
 

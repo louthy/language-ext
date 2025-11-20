@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
 using LanguageExt.Traits;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -16,7 +9,7 @@ namespace LanguageExt;
 /// </summary>
 /// <remarks>
 /// Used heavily by `repeat`, `retry`, and `fold` with the effect types.  Use the static methods to create parts
-/// of schedulers and then union them using `|` or intersect them using `&`.  Union will take the minimum of the two
+/// of schedulers and then union them using `|` or intersect them using `＆`.  Union will take the minimum of the two
 /// schedules to the length of the longest, intersect will take the maximum of the two schedules to the length of the
 /// shortest.
 /// </remarks>
@@ -37,7 +30,7 @@ namespace LanguageExt;
 /// This example creates a schedule that repeats 5 times, with an exponential delay between each stage, starting
 /// at 10 milliseconds and with a minimum delay of 300 milliseconds:
 /// 
-///     var s = Schedule.recurs(5) | Schedule.exponential(10*ms) & Schedule.spaced(300*ms)
+///     var s = Schedule.recurs(5) | Schedule.exponential(10*ms) ＆ Schedule.spaced(300*ms)
 /// </example>
 public abstract partial record Schedule : Semigroup<Schedule>
 {
@@ -74,7 +67,7 @@ public abstract partial record Schedule : Semigroup<Schedule>
     /// </summary>
     /// <returns>The underlying time-series of durations</returns>
     [Pure]
-    public abstract EnumerableM<Duration> Run();
+    public abstract Iterable<Duration> Run();
 
     /// <summary>
     /// Intersection of two schedules. As long as they are both running it returns the max duration
@@ -147,6 +140,15 @@ public abstract partial record Schedule : Semigroup<Schedule>
     [Pure]
     public Schedule Prepend(Duration value) =>
         new SchCons(value, this);
+
+    /// <summary>
+    /// Prepend a zero duration in-front of the rest of the scheduled durations
+    /// </summary>
+    /// <param name="value">Duration to prepend</param>
+    /// <returns>Schedule with the duration prepended</returns>
+    [Pure]
+    public Schedule PrependZero =>
+        Prepend(Duration.Zero);
 
     /// <summary>
     /// Functor map operation for Schedule

@@ -15,53 +15,30 @@ public static class EnumerableOptimal
             : new ConcatEnum<A>(Seq(ma, mb));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EnumerableM<A> ConcatFast<A>(this EnumerableM<A> ma, IEnumerable<A> mb) =>
-        new(ma.runEnumerable.ConcatFast(mb));
+    public static Iterable<A> ConcatFast<A>(this Iterable<A> ma, IEnumerable<A> mb) =>
+        ma.Concat(new IterableEnumerable<A>(mb));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static IEnumerable<B> BindFast<A, B>(this IEnumerable<A> ma, Func<A, IEnumerable<B>> f) =>
+    internal static IEnumerable<B> BindFast<A, B>(this IEnumerable<A>? ma, Func<A, IEnumerable<B>> f) =>
         ma is null
             ? System.Linq.Enumerable.Empty<B>()
             : new BindEnum<A, B>(ma, f);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static EnumerableM<B> BindFast<A, B>(this EnumerableM<A> ma, Func<A, IEnumerable<B>> f) =>
-        new(ma.runEnumerable.BindFast(f));
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static IEnumerable<B> BindFast<A, B>(this IEnumerable<A> ma, Func<A, Lst<B>> f) =>
         ma == null
             ? System.Linq.Enumerable.Empty<B>()
-            : new BindEnum<A, B>(ma, a => f(a).AsEnumerable());
+            : new BindEnum<A, B>(ma, a => f(a).AsIterable());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static EnumerableM<B> BindFast<A, B>(this EnumerableM<A> ma, Func<A, Lst<B>> f) =>
-        new(ma.runEnumerable.BindFast(f));
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static IEnumerable<B> BindFast<A, B>(this IEnumerable<A> ma, Func<A, Seq<B>> f) =>
-        ma == null
-            ? System.Linq.Enumerable.Empty<B>()
-            : new BindEnum<A, B>(ma, a => f(a).AsEnumerable());
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static EnumerableM<B> BindFast<A, B>(this EnumerableM<A> ma, Func<A, Seq<B>> f) =>
-        new(ma.runEnumerable.BindFast(f));
-
-    internal class ConcatEnum<A> : IEnumerable<A>
+    internal class ConcatEnum<A>(Seq<IEnumerable<A>> ms) : IEnumerable<A>
     {
-        internal readonly Seq<IEnumerable<A>> ms;
+        internal readonly Seq<IEnumerable<A>> ms = ms;
 
-        public ConcatEnum(Seq<IEnumerable<A>> ms)
-        {
-            this.ms = ms;
-        }
+        public ConcatIter<A> GetEnumerator() => 
+            new(ms);
 
-        public ConcatIter<A> GetEnumerator() =>
-            new ConcatIter<A>(ms);
-
-        public ConcatEnum<A> Concat(IEnumerable<A> cb) =>
-            new ConcatEnum<A>(ms.Add(cb));
+        public ConcatEnum<A> Concat(IEnumerable<A> cb) => 
+            new(ms.Add(cb));
 
         IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
             new ConcatIter<A>(ms);
@@ -103,14 +80,14 @@ public static class EnumerableOptimal
             this.ms = ms;
             this.index = 0;
             this.iter = ms[0].GetEnumerator();
-            current = default;
+            current = default!;
         }
 
         public readonly A Current => 
             current;
 
         readonly object IEnumerator.Current => 
-            current;
+            current!;
 
         public void Dispose() =>
             iter?.Dispose();
@@ -124,7 +101,7 @@ public static class EnumerableOptimal
             }
             else
             {
-                current = default;
+                current = default!;
                 index++;
                 while(index < ms.Count)
                 {
@@ -158,24 +135,24 @@ public static class EnumerableOptimal
     {
         readonly Func<A, IEnumerable<B>> f;
         readonly IEnumerable<A> ema;
-        IEnumerator<A> ma;
-        IEnumerator<B> mb;
+        IEnumerator<A>? ma;
+        IEnumerator<B>? mb;
         B current;
 
         public BindIter(IEnumerable<A> ma, Func<A, IEnumerable<B>> f)
         {
             this.ema = ma;
             this.ma = ema.GetEnumerator();
-            this.mb = default;
+            this.mb = default!;
             this.f = f;
-            current = default;
+            current = default!;
         }
 
         public B Current =>
             current;
 
         object IEnumerator.Current =>
-            current;
+            current!;
 
         public void Dispose()
         {

@@ -5,7 +5,10 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public partial class Seq : Monad<Seq>, MonoidK<Seq>, Traversable<Seq>
+public partial class Seq : 
+    Monad<Seq>, 
+    Alternative<Seq>, 
+    Traversable<Seq>
 {
     static K<Seq, B> Monad<Seq>.Bind<A, B>(K<Seq, A> ma, Func<A, K<Seq, B>> f)
     {
@@ -61,6 +64,12 @@ public partial class Seq : Monad<Seq>, MonoidK<Seq>, Traversable<Seq>
     static K<Seq, A> MonoidK<Seq>.Empty<A>() =>
         Seq<A>.Empty;
 
+    static K<Seq, A> Choice<Seq>.Choose<A>(K<Seq, A> ma, K<Seq, A> mb) => 
+        ma.As().IsEmpty ? mb : ma;
+
+    static K<Seq, A> Choice<Seq>.Choose<A>(K<Seq, A> ma, Func<K<Seq, A>> mb) => 
+        ma.As().IsEmpty ? mb() : ma;
+
     static K<Seq, A> SemigroupK<Seq>.Combine<A>(K<Seq, A> ma, K<Seq, A> mb) =>
         ma.As() + mb.As();
 
@@ -103,24 +112,26 @@ public partial class Seq : Monad<Seq>, MonoidK<Seq>, Traversable<Seq>
         }
         return state;
     }
-
-    static K<F, K<Seq, B>> Traversable<Seq>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Seq, A> ta) 
+    
+    static K<F, K<Seq, B>> Traversable<Seq>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Seq, A> ta)
     {
-        return F.Map<Seq<B>, K<Seq, B>>(
-            ks => ks, 
-            Foldable.foldBack(cons, F.Pure(empty<B>()), ta));
+        return Foldable.fold(add, F.Pure(Seq<B>.Empty), ta)
+                       .Map(bs => bs.Kind());
 
-        K<F, Seq<B>> cons(K<F, Seq<B>> ys, A x) =>
-            Applicative.lift(Prelude.Cons, f(x), ys);
+        Func<K<F, Seq<B>>, K<F, Seq<B>>> add(A value) =>
+            state =>
+                Applicative.lift((bs, b) => bs.Add(b), state, f(value));                                            
     }
 
     static K<F, K<Seq, B>> Traversable<Seq>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Seq, A> ta) 
     {
-        return F.Map<Seq<B>, K<Seq, B>>(
-            ks => ks, 
-            Foldable.foldBack(cons, F.Pure(empty<B>()), ta));
+        return Foldable.fold(add, F.Pure(Seq<B>.Empty), ta)
+                       .Map(bs => bs.Kind());
 
-        K<F, Seq<B>> cons(K<F, Seq<B>> fys, A x) =>
-            fys.Bind(ys => f(x).Map(y => y.Cons(ys)));
+        Func<K<F, Seq<B>>, K<F, Seq<B>>> add(A value) =>
+            state =>
+                state.Bind(
+                    bs => f(value).Bind(
+                        b => F.Pure(bs.Add(b)))); 
     }
 }

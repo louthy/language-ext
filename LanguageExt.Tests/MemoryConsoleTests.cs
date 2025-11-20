@@ -2,7 +2,7 @@ using System;
 using Xunit;
 using LanguageExt.Sys.Test;
 
-using Console = LanguageExt.Sys.Console<LanguageExt.Eff<LanguageExt.Sys.Test.Runtime>, LanguageExt.Sys.Test.Runtime>;
+using Console = LanguageExt.Sys.Console<LanguageExt.Sys.Test.Runtime>;
 
 namespace LanguageExt.Tests;
 
@@ -16,15 +16,15 @@ public class MemoryConsoleTests
     [InlineData("abc\ndef\n")]
     public void Write_line(string unsplitLines)
     {
-        var lines = unsplitLines.Split('\n').AsEnumerableM().ToSeq();
-        var rt    = Runtime.New();
+        var       lines = unsplitLines.Split('\n').AsIterable();
+        using var rt    = Runtime.New();
 
-        var xs = lines.Traverse(Either<Unit, string>.Right);
+        var xs = lines.Traverse(Either.Right<Unit, string>);
         
         var comp = lines.Traverse(Console.writeLine).As();
         comp.Run(rt, EnvIO.New()).ThrowIfFail();
 
-        var clines = rt.Env.Console.AsEnumerableM().ToSeq();
+        var clines = rt.Env.Console.AsIterable();
         Assert.True(lines == clines, $"sequences don't match {lines} != {clines}");
     }
         
@@ -37,8 +37,8 @@ public class MemoryConsoleTests
     public void Read_line_followed_by_write_line(string unsplitLines)
     {
         // Prep the runtime and the keyboard buffer with the typed lines
-        var rt    = Runtime.New();
-        var lines = unsplitLines.Split('\n').AsEnumerableM().ToSeq();
+        using var rt    = Runtime.New();
+        var       lines = unsplitLines.Split('\n').AsIterable().ToSeq();
         lines.Iter(line => rt.Env.Console.WriteKeyLine(line));
 
         // test
@@ -48,6 +48,6 @@ public class MemoryConsoleTests
             
         // run and assert
         comp.Run(rt, EnvIO.New()).ThrowIfFail();
-        Assert.True(lines == rt.Env.Console.AsEnumerableM().ToSeq(), "sequences don't match");
+        Assert.True(lines == rt.Env.Console.AsIterable().ToSeq(), "sequences don't match");
     }
 }

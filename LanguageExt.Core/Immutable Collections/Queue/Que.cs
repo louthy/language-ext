@@ -6,6 +6,7 @@ using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 
 namespace LanguageExt;
 
@@ -60,7 +61,7 @@ public readonly struct Que<A> :
     ///
     ///     Empty collection     = null
     ///     Singleton collection = A
-    ///     More                 = (A, Seq<A>)   -- head and tail
+    ///     More                 = (A, Seq〈A〉)   -- head and tail
     ///
     ///     var res = list.Case switch
     ///     {
@@ -118,7 +119,7 @@ public readonly struct Que<A> :
     /// <summary>
     /// Look at the item at the front of the queue
     /// </summary>
-    /// <exception cref="InvalidOperationException">Throws if the queue is empty</exception>
+    /// <exception cref="ExpectedException">Throws if the queue is empty</exception>
     /// <returns>The item at the front of the queue, or throw an exception if none exists</returns>
     [Pure]
     public A Peek() =>
@@ -135,7 +136,7 @@ public readonly struct Que<A> :
     /// <summary>
     /// Removes the item from the front of the queue
     /// </summary>
-    /// <exception cref="InvalidOperationException">Throws if the queue is empty</exception>
+    /// <exception cref="ExpectedException">Throws if the queue is empty</exception>
     /// <returns>A tuple containing the new `Que` with the first item removed and the first item</returns>
     [Pure]
     public (Que<A> Queue, A Value) DequeueUnsafe() =>
@@ -179,8 +180,8 @@ public readonly struct Que<A> :
     /// </summary>
     /// <returns>`IEnumerable`</returns>
     [Pure]
-    public EnumerableM<A> AsEnumerable() =>
-        Value.AsEnumerable();
+    public Iterable<A> AsIterable() =>
+        Value.AsIterable();
 
     /// <summary>
     /// Get an enumerator of the collection
@@ -188,7 +189,7 @@ public readonly struct Que<A> :
     /// <returns>`IEnumerator`</returns>
     [Pure]
     public IEnumerator<A> GetEnumerator() =>
-        AsEnumerable().GetEnumerator();
+        AsIterable().GetEnumerator();
 
     /// <summary>
     /// Get an enumerator of the collection
@@ -196,7 +197,7 @@ public readonly struct Que<A> :
     /// <returns>`IEnumerator`</returns>
     [Pure]
     IEnumerator IEnumerable.GetEnumerator() =>
-        AsEnumerable().GetEnumerator();
+        AsIterable().GetEnumerator();
 
     /// <summary>
     /// Append two queues together
@@ -215,7 +216,7 @@ public readonly struct Que<A> :
     /// <returns>Concatenated queue</returns>
     [Pure]
     public Que<A> Combine(Que<A> rhs) =>
-        new(Value.AsEnumerableM().Combine(rhs.AsEnumerableM()));
+        new(IterableExtensions.AsIterable(Value).Combine(IterableExtensions.AsIterable(rhs)));
 
     /// <summary>
     /// Subtract one queue from another
@@ -234,7 +235,7 @@ public readonly struct Que<A> :
     /// <returns>lhs - rhs</returns>
     [Pure]
     public Que<A> Subtract(Que<A> rhs) =>
-        new (Enumerable.Except(Value.AsEnumerable(), rhs.Value.AsEnumerable()));
+        new (Enumerable.Except(Value.AsIterable(), rhs.Value.AsIterable()));
 
     /// <summary>
     /// Queue equality

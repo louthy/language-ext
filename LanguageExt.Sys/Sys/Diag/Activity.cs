@@ -10,40 +10,35 @@ namespace LanguageExt.Sys.Diag;
 /// An `Activity` has an operation name, an ID, a start time and duration, tags, and baggage.
 /// 
 /// Activities should be created by calling the `span` functions, configured as necessary.  Each `span` function
-/// takes an `Eff` or `Aff` operation to run (which is the activity).  The runtime system will maintain the parent-
+/// takes an `Eff` or `Aff` operation to run (which is the activity).  The runtime system will maintain the parent/
 /// child relationships for the activities, and maintains the 'current' activity.
 /// </summary>
-/// <typeparam name="M">Reader, Resource, and monad trait</typeparam>
+/// <typeparam name="M">Monad trait</typeparam>
 /// <typeparam name="RT">Runtime</typeparam>
 public class Activity<M, RT>
-    where M :
-        StateM<M, RT>,
-        Monad<M>
-
+    where M : 
+        MonadIO<M>
     where RT :
         Has<M, ActivitySourceIO>,
-        Mutates<M, RT, ActivityEnv>
+        Local<M, ActivityEnv>
 {
-    static readonly K<M, ActivitySourceIO> trait =
-        StateM.getsM<M, RT, ActivitySourceIO>(e => e.Trait);
-
-    static K<M, Unit> mutate(Func<ActivityEnv, ActivityEnv> f) =>
-        StateM.getsM<M, RT, Unit>(e => e.Modify(f));
+    static K<M, ActivitySourceIO> activityIO =>
+        Has<M, RT, ActivitySourceIO>.ask;
 
     static K<M, ActivityEnv> env =>
-        StateM.getsM<M, RT, ActivityEnv>(e => e.Get);
+        Has<M, RT, ActivityEnv>.ask;
 
-    static K<M, Activity?> currentActivity =>
+    public static K<M, Activity?> currentActivity =>
         env.Map(e => e.Activity);
 
-    static K<M, Activity> startActivity(
+    public static K<M, Activity> startActivity(
         string name,
         ActivityKind activityKind,
         HashMap<string, object> activityTags,
         Seq<ActivityLink> activityLinks,
         DateTimeOffset startTime,
-        ActivityContext? parentContext = default) =>
-        from src in trait
+        ActivityContext? parentContext = null) =>
+        from src in activityIO
         from cur in currentActivity
         from act in use(src.StartActivity(
                             name,
@@ -53,7 +48,7 @@ public class Activity<M, RT>
                                 : parentContext ?? cur.Context,
                             activityTags,
                             activityLinks,
-                            startTime))
+                            startTime).Map(a => a ?? throw new NullReferenceException("Activity is null")))
         select act;
 
     /// <summary>
@@ -115,7 +110,7 @@ public class Activity<M, RT>
         DateTimeOffset startTime,
         K<M, TA> operation) =>
         from a in startActivity(name, activityKind, activityTags, activityLinks, startTime)
-        from r in StateM.bracket<M, RT, TA>(mutate(e => e with { Activity = a }), operation)
+        from r in Local.with<M, RT, ActivityEnv, TA>(e => e with { Activity = a }, operation)
         select r;
 
     /// <summary>
@@ -146,7 +141,7 @@ public class Activity<M, RT>
             activityLinks,
             startTime,
             parentContext)
-        from r in StateM.bracket<M, RT, A>(mutate(e => e with { Activity = a }), operation)
+        from r in Local.with<M, RT, ActivityEnv, A>(e => e with { Activity = a }, operation)
         select r;
 
     /// <summary>
@@ -194,7 +189,7 @@ public class Activity<M, RT>
     public static K<M, HashMap<string, string?>> baggage =>
         currentActivity.Map(
             a => a is not null
-                     ? a.Baggage.AsEnumerableM().Map(kv => (kv.Key, kv.Value)).ToHashMap()
+                     ? a.Baggage.AsIterable().Map(kv => (kv.Key, kv.Value)).ToHashMap()
                      : HashMap<string, string?>());
 
     /// <summary>
@@ -230,7 +225,7 @@ public class Activity<M, RT>
     public static K<M, HashMap<string, string?>> tags =>
         currentActivity.Map(
             a => a is not null
-                     ? a.Tags.AsEnumerableM().Map(kv => (kv.Key, kv.Value)).ToHashMap()
+                     ? a.Tags.AsIterable().Map(kv => (kv.Key, kv.Value)).ToHashMap()
                      : HashMap<string, string?>());
 
     /// <summary>
@@ -239,7 +234,7 @@ public class Activity<M, RT>
     public static K<M, HashMap<string, object?>> tagObjects =>
         currentActivity.Map(
             a => a is not null
-                     ? a.TagObjects.AsEnumerableM().Map(kv => (kv.Key, kv.Value)).ToHashMap()
+                     ? a.TagObjects.AsIterable().Map(kv => (kv.Key, kv.Value)).ToHashMap()
                      : HashMap<string, object?>());
 
     /// <summary>
@@ -274,7 +269,7 @@ public class Activity<M, RT>
     public static K<M, Seq<ActivityEvent>> events =>
         currentActivity.Map(
             a => a is not null
-                     ? a.Events.AsEnumerableM().ToSeq()
+                     ? a.Events.AsIterable().ToSeq()
                      : Seq<ActivityEvent>());
 
     /// <summary>
@@ -297,7 +292,7 @@ public class Activity<M, RT>
     public static K<M, Seq<ActivityLink>> links =>
         currentActivity.Map(
             a => a is not null
-                     ? a.Links.AsEnumerableM().ToSeq()
+                     ? a.Links.AsIterable().ToSeq()
                      : Seq<ActivityLink>());
 
     /// <summary>

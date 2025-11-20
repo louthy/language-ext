@@ -15,16 +15,15 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="A">Value type</typeparam>
 [Serializable]
-internal class LstInternal<PRED, A> : 
+internal class LstInternal<A> : 
     IReadOnlyList<A>,
-    IEquatable<LstInternal<PRED, A>>,
+    IEquatable<LstInternal<A>>,
     ListInfo 
-    where PRED : Pred<A>
 {
     /// <summary>
     /// Empty list
     /// </summary>
-    public static readonly LstInternal<PRED, A> Empty = new ();
+    public static readonly LstInternal<A> Empty = new ();
 
     internal ListItem<A> root;
     internal int hashCode;
@@ -40,7 +39,7 @@ internal class LstInternal<PRED, A> :
         else
         {
             root = ListItem<A>.EmptyM;
-            root = ListModuleM.InsertMany<PRED, A>(root, items, 0);
+            root = ListModuleM.InsertMany<A>(root, items, 0);
         }
     }
 
@@ -49,12 +48,12 @@ internal class LstInternal<PRED, A> :
     {
         hashCode = 0;
         root = ListItem<A>.EmptyM;
-        root = ListModuleM.InsertMany<PRED, A>(root, items, 0);
+        root = ListModuleM.InsertMany<A>(root, items, 0);
     }
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static LstInternal<PRED, A> Wrap(ListItem<A> list) =>
+    internal static LstInternal<A> Wrap(ListItem<A> list) =>
         new (list);
 
     /// <summary>
@@ -130,7 +129,7 @@ internal class LstInternal<PRED, A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LstInternal<PRED, A> Add(A value) =>
+    public LstInternal<A> Add(A value) =>
         Wrap(ListModule.Add(Root, value));
 
     /// <summary>
@@ -138,10 +137,10 @@ internal class LstInternal<PRED, A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LstInternal<PRED, A> AddRange(IEnumerable<A> items)
+    public LstInternal<A> AddRange(IEnumerable<A> items)
     {
-        if (Count == 0) return new LstInternal<PRED, A>(items);
-        return Wrap(ListModule.AddRange<PRED, A>(Root, items));
+        if (Count == 0) return new LstInternal<A>(items);
+        return Wrap(ListModule.AddRange<A>(Root, items));
     }
 
     /// <summary>
@@ -149,7 +148,7 @@ internal class LstInternal<PRED, A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LstInternal<PRED, A> Clear() =>
+    public LstInternal<A> Clear() =>
         Empty;
 
     /// <summary>
@@ -193,7 +192,7 @@ internal class LstInternal<PRED, A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LstInternal<PRED, A> Insert(int index, A value)
+    public LstInternal<A> Insert(int index, A value)
     {
         if (index < 0 || index > Root.Count) throw new IndexOutOfRangeException();
         return Wrap(ListModule.Insert(Root, value, index));
@@ -204,10 +203,10 @@ internal class LstInternal<PRED, A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LstInternal<PRED, A> InsertRange(int index, IEnumerable<A> items)
+    public LstInternal<A> InsertRange(int index, IEnumerable<A> items)
     {
         if (index < 0 || index > Root.Count) throw new IndexOutOfRangeException();
-        return Wrap(ListModule.InsertMany<PRED, A>(Root, items, index));
+        return Wrap(ListModule.InsertMany<A>(Root, items, index));
     }
 
     /// <summary>
@@ -223,7 +222,7 @@ internal class LstInternal<PRED, A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LstInternal<PRED, A> Remove(A value) => 
+    public LstInternal<A> Remove(A value) => 
         Remove(value, EqualityComparer<A>.Default);
 
     /// <summary>
@@ -231,7 +230,7 @@ internal class LstInternal<PRED, A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LstInternal<PRED, A> Remove(A value, IEqualityComparer<A> equalityComparer) =>
+    public LstInternal<A> Remove(A value, IEqualityComparer<A> equalityComparer) =>
         Wrap(ListModule.Remove(Root, value, equalityComparer));
 
     /// <summary>
@@ -239,7 +238,7 @@ internal class LstInternal<PRED, A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LstInternal<PRED, A> RemoveAll(Func<A, bool> pred) =>
+    public LstInternal<A> RemoveAll(Func<A, bool> pred) =>
         Wrap(ListModule.Remove(Root, pred));
 
     /// <summary>
@@ -249,7 +248,7 @@ internal class LstInternal<PRED, A> :
     /// <returns></returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LstInternal<PRED, A> RemoveAt(int index)
+    public LstInternal<A> RemoveAt(int index)
     {
         if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
         return Wrap(ListModule.Remove(Root, index));
@@ -260,7 +259,7 @@ internal class LstInternal<PRED, A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LstInternal<PRED, A> RemoveRange(int index, int count)
+    public LstInternal<A> RemoveRange(int index, int count)
     {
         if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
         if (index + count > Root.Count) throw new IndexOutOfRangeException();
@@ -278,11 +277,11 @@ internal class LstInternal<PRED, A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LstInternal<PRED, A> SetItem(int index, A value)
+    public LstInternal<A> SetItem(int index, A value)
     {
         if (isnull(value)) throw new ArgumentNullException(nameof(value));
         if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
-        return new LstInternal<PRED, A>(ListModule.SetItem(Root, value, index));
+        return new LstInternal<A>(ListModule.SetItem(Root, value, index));
     }
 
     [Pure]
@@ -297,9 +296,9 @@ internal class LstInternal<PRED, A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<A> Skip(int amount)
+    public Iterable<A> Skip(int amount)
     {
-        return new(Go());
+        return Iterable.createRange(Go());
         IEnumerable<A> Go()
         {
             var iter = new ListEnumerator<A>(Root, false, amount);
@@ -315,7 +314,7 @@ internal class LstInternal<PRED, A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LstInternal<PRED, A> Reverse() =>
+    public LstInternal<A> Reverse() =>
         new (this.AsEnumerable().Reverse());
 
     /// <summary>
@@ -337,16 +336,16 @@ internal class LstInternal<PRED, A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LstInternal<PREDU, U> Map<PREDU, U>(Func<A, U> map) where PREDU : Pred<U> =>
+    public LstInternal<U> Map<U>(Func<A, U> map) =>
         new (this.AsEnumerable().Select(map));
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<A> FindRange(int index, int count)
+    public Iterable<A> FindRange(int index, int count)
     {
         if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
         if (count < 0) throw new ArgumentOutOfRangeException(nameof(index));
-        return new(Go());
+        return Iterable.createRange(Go());
 
         IEnumerable<A> Go()
         {
@@ -363,7 +362,7 @@ internal class LstInternal<PRED, A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LstInternal<PRED, A> Filter(Func<A, bool> pred)
+    public LstInternal<A> Filter(Func<A, bool> pred)
     {
         IEnumerable<A> Yield()
         {
@@ -375,37 +374,37 @@ internal class LstInternal<PRED, A> :
                 }
             }
         }
-        return new LstInternal<PRED, A>(Yield());
+        return new LstInternal<A>(Yield());
     }
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static LstInternal<PRED, A> operator +(LstInternal<PRED, A> lhs, A rhs) =>
+    public static LstInternal<A> operator +(LstInternal<A> lhs, A rhs) =>
         lhs.Add(rhs);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static LstInternal<PRED, A> operator +(A rhs, LstInternal<PRED, A> lhs) =>
+    public static LstInternal<A> operator +(A rhs, LstInternal<A> lhs) =>
         new (rhs.Cons(lhs));
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static LstInternal<PRED, A> operator +(LstInternal<PRED, A> lhs, LstInternal<PRED, A> rhs) =>
+    public static LstInternal<A> operator +(LstInternal<A> lhs, LstInternal<A> rhs) =>
         lhs.Combine(rhs);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LstInternal<PRED, A> Combine(LstInternal<PRED, A> rhs) =>
+    public LstInternal<A> Combine(LstInternal<A> rhs) =>
         AddRange(rhs);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static LstInternal<PRED, A> operator -(LstInternal<PRED, A> lhs, LstInternal<PRED, A> rhs) =>
+    public static LstInternal<A> operator -(LstInternal<A> lhs, LstInternal<A> rhs) =>
         lhs.Subtract(rhs);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LstInternal<PRED, A> Subtract(LstInternal<PRED, A> rhs)
+    public LstInternal<A> Subtract(LstInternal<A> rhs)
     {
         var self = this;
         foreach (var item in rhs)
@@ -418,7 +417,7 @@ internal class LstInternal<PRED, A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool Equals(object? obj) =>
-        obj is LstInternal<PRED, A> @as &&
+        obj is LstInternal<A> @as &&
         Equals(@as);
 
     /// <summary>
@@ -435,7 +434,7 @@ internal class LstInternal<PRED, A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(LstInternal<PRED, A>? other)
+    public bool Equals(LstInternal<A>? other)
     {
         if (ReferenceEquals(this, other)) return true;
         if (ReferenceEquals(other, null)) return false;
@@ -444,17 +443,17 @@ internal class LstInternal<PRED, A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator ==(LstInternal<PRED, A> lhs, LstInternal<PRED, A> rhs) =>
+    public static bool operator ==(LstInternal<A> lhs, LstInternal<A> rhs) =>
         lhs.Equals(rhs);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator !=(LstInternal<PRED, A> lhs, LstInternal<PRED, A> rhs) =>
+    public static bool operator !=(LstInternal<A> lhs, LstInternal<A> rhs) =>
         !lhs.Equals(rhs);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int CompareTo(LstInternal<PRED, A> other)
+    public int CompareTo(LstInternal<A> other)
     {
         var cmp = Count.CompareTo(other.Count);
         if (cmp != 0) return cmp;
@@ -470,7 +469,7 @@ internal class LstInternal<PRED, A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int CompareTo<OrdA>(LstInternal<PRED, A> other) where OrdA : Ord<A>
+    public int CompareTo<OrdA>(LstInternal<A> other) where OrdA : Ord<A>
     {
         var cmp = Count.CompareTo(other.Count);
         if (cmp != 0) return cmp;
@@ -547,24 +546,21 @@ class ListItem<T>
 internal static class ListModuleM
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ListItem<A> InsertMany<PRED, A>(ListItem<A> node, IEnumerable<A> items, int index) 
-        where PRED : Pred<A> =>
-        Insert(node, BuildSubTree<PRED, A>(items), index);
+    public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index) =>
+        Insert(node, BuildSubTree(items), index);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ListItem<A> InsertMany<PRED, A>(ListItem<A> node, ReadOnlySpan<A> items, int index) 
-        where PRED : Pred<A> =>
-        Insert(node, BuildSubTree<PRED, A>(items), index);
+    public static ListItem<A> InsertMany<A>(ListItem<A> node, ReadOnlySpan<A> items, int index) =>
+        Insert(node, BuildSubTree(items), index);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ListItem<A> BuildSubTree<PRED, A>(IEnumerable<A> items) where PRED : Pred<A>
+    public static ListItem<A> BuildSubTree<A>(IEnumerable<A> items)
     {
         var root = ListItem<A>.EmptyM;
 
         var subIndex = 0;
         foreach (var item in items)
         {
-            if (!PRED.True(item)) throw new ArgumentOutOfRangeException(nameof(items));
             root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
             subIndex++;
         }
@@ -573,14 +569,13 @@ internal static class ListModuleM
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ListItem<A> BuildSubTree<PRED, A>(ReadOnlySpan<A> items) where PRED : Pred<A>
+    public static ListItem<A> BuildSubTree<A>(ReadOnlySpan<A> items)
     {
         var root = ListItem<A>.EmptyM;
 
         var subIndex = 0;
         foreach (var item in items)
         {
-            if (!PRED.True(item)) throw new ArgumentOutOfRangeException(nameof(items));
             root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
             subIndex++;
         }
@@ -711,8 +706,8 @@ static class ListModule
             : new ListItem<U>(node.Height, node.Count, Map(node.Left, f), f(node.Key), Map(node.Right, f));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ListItem<A> AddRange<PRED, A>(ListItem<A> node, IEnumerable<A> items) where PRED : Pred<A> =>
-        AddRange(node, ListModuleM.BuildSubTree<PRED, A>(items));
+    public static ListItem<A> AddRange<A>(ListItem<A> node, IEnumerable<A> items) =>
+        AddRange(node, ListModuleM.BuildSubTree(items));
 
     static ListItem<A> AddRange<A>(ListItem<A> node, ListItem<A> insertNode) =>
         node.IsEmpty
@@ -720,13 +715,12 @@ static class ListModule
             : Balance(Make(node.Key, node.Left, AddRange(node.Right, insertNode)));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ListItem<A> InsertMany<PRED, A>(ListItem<A> node, IEnumerable<A> items, int index) where PRED : Pred<A>
+    public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index)
     {
         var root     = node;
         var subIndex = index;
         foreach(var item in items)
         {
-            if (!PRED.True(item)) throw new ArgumentOutOfRangeException(nameof(items));
             root = Insert(root, item, subIndex);
             subIndex++;
         }

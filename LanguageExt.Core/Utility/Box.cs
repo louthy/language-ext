@@ -34,7 +34,7 @@ namespace LanguageExt
         {
             if (ILCapability.Available)
             {
-                var dynamic = new DynamicMethod("GetValue_Class", typeof(A), new[] {typeof(object)}, typeof(A).Module, true);
+                var dynamic = new DynamicMethod("GetValue_Class", typeof(A), [typeof(object)], typeof(A).Module, true);
                 var il      = dynamic.GetILGenerator();
 
                 il.Emit(OpCodes.Ldarg_0);
@@ -44,7 +44,7 @@ namespace LanguageExt
             }
             else
             {
-                return (object x) => (A)x;
+                return x => (A)x;
             }
         }
 
@@ -58,7 +58,7 @@ namespace LanguageExt
 
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Castclass, typeof(Box<A>));
-                il.Emit(OpCodes.Ldfld, field);
+                il.Emit(OpCodes.Ldfld, field!);
                 il.Emit(OpCodes.Ret);
 
                 return (Func<object, A>)dynamic.CreateDelegate(typeof(Func<object, A>));
@@ -83,7 +83,7 @@ namespace LanguageExt
             }
             else
             {
-                return static (A x) => (object)x;
+                return static (A x) => (object?)x ?? throw new NullReferenceException();
             }
         }
 
@@ -96,7 +96,7 @@ namespace LanguageExt
                 var il      = dynamic.GetILGenerator();
 
                 il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Newobj, ctor);
+                il.Emit(OpCodes.Newobj, ctor!);
                 il.Emit(OpCodes.Ret);
 
                 return (Func<A, object>)dynamic.CreateDelegate(typeof(Func<A, object>));

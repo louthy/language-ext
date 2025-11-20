@@ -10,7 +10,7 @@ public class IEnumerableEither
     [Fact]
     public void EmptyIEnumerableIsRightEmptyIEnumerable()
     {
-        var ma = EnumerableM.empty<Either<Error, int>>();
+        var ma = Iterable.empty<Either<Error, int>>();
 
         var mb = ma.Traverse(x => x).As();
 
@@ -23,7 +23,7 @@ public class IEnumerableEither
     [Fact]
     public void IEnumerableRightsIsRightIEnumerables()
     {
-        var ma = new[] {Right<Error, int>(1), Right<Error, int>(2), Right<Error, int>(3)}.AsEnumerableM();
+        var ma = new[] {Right<Error, int>(1), Right<Error, int>(2), Right<Error, int>(3)}.AsIterable();
 
         var mb = ma.Traverse(x => x).As();
 
@@ -33,7 +33,7 @@ public class IEnumerableEither
     [Fact]
     public void IEnumerableRightAndLeftIsLeftEmpty()
     {
-        var ma = new[] {Right<Error, int>(1), Right<Error, int>(2), Left<Error, int>(Error.New("alternative"))}.AsEnumerableM();
+        var ma = new[] {Right<Error, int>(1), Right<Error, int>(2), Left<Error, int>(Error.New("alternative"))}.AsIterable();
 
         var mb = ma.Traverse(x => x).As();
 

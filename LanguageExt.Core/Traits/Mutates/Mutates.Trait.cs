@@ -1,22 +1,18 @@
-using System;
-
 namespace LanguageExt.Traits;
 
 /// <summary>
-/// Makes a value, within a bound `State`, mutable via a mapping function (this is effectively a Lens)
+/// Makes an atomic value within an environment available for mutation 
 /// </summary>
-/// <typeparam name="M">State trait</typeparam>
-/// <typeparam name="OUTER_STATE">The internal state of the `M` type</typeparam>
-/// <typeparam name="INNER_STATE">The value extracted from the `OUTER_STATE` by the implementation
-/// of `Modify`, so that it can be mapped via `Modify` and then re-wrapped up into the `OUTER_STATE`</typeparam>
-public interface Mutates<in M, OUTER_STATE, INNER_STATE> : Reads<M, OUTER_STATE, INNER_STATE>  
-    where M : StateM<M, OUTER_STATE>
+/// <typeparam name="M">Structure trait</typeparam>
+/// <typeparam name="InnerEnv">The value extracted from an environment</typeparam>
+public interface Mutates<in M, InnerEnv> : Has<M, InnerEnv>
+    where M : Functor<M>
 {
     /// <summary>
-    /// Extracts the `INNER_STATE` from the `OUTER_STATE`, passes it to the `f`
-    /// mapping functions, and then wraps it back up into the generic `M<Unit>` type.
+    /// Extracts the `A` from the `Env`, passes it to the `f`
+    /// mapping functions, and then wraps it back up into the generic `M〈Unit〉` type.
     /// </summary>
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped value</returns>
-    K<M, Unit> Modify(Func<INNER_STATE, INNER_STATE> f);
+    public static abstract K<M, Atom<InnerEnv>> Mutable { get; }
 }

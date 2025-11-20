@@ -8,9 +8,9 @@ public class IdentityIEnumerable
     [Fact]
     public void IdEmptyIsEmpty()
     {
-        var ma = Id(EnumerableM.empty<int>());
+        var ma = Id(Iterable.empty<int>());
         var mb = ma.Traverse(identity).As();
-        var mc = EnumerableM.empty<Identity<int>>();
+        var mc = Iterable.empty<Identity<int>>();
 
         Assert.True(mb.ToSeq() == mc.ToSeq());
     }
@@ -18,10 +18,10 @@ public class IdentityIEnumerable
     [Fact]
     public void IdNonEmptyIEnumerableIsIEnumerableId()
     {
-        var ma = Id(EnumerableM.create([1, 2, 3]));
+        var ma = Id(Iterable.create([1, 2, 3]));
         var mb = ma.Traverse(identity).As();
         var mc = new[] { Id(1), Id(2), Id(3) }.AsEnumerable();
 
-        Assert.True(mb.ToSeq() == mc.AsEnumerableM().ToSeq());
+        Assert.True(mb.ToSeq() == mc.AsIterable().ToSeq());
     }
 }

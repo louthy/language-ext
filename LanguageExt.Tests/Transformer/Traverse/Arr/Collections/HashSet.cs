@@ -34,7 +34,7 @@ public class HashSetArr
             
         mb = mb.OrderBy(x => x.ToArray()[1])
                .OrderBy(x => x.ToArray()[0])
-               .AsEnumerableM()
+               .AsIterable()
                .ToArr();
 
         var mc = Array(

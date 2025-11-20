@@ -11,7 +11,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class Writer<W> : 
     Monad<Writer<W>>, 
-    WriterM<Writer<W>, W>
+    Writable<Writer<W>, W>
     where W : Monoid<W>
 {
     static K<Writer<W>, B> Monad<Writer<W>>.Bind<A, B>(K<Writer<W>, A> ma, Func<A, K<Writer<W>, B>> f) => 
@@ -29,13 +29,13 @@ public partial class Writer<W> :
     static K<Writer<W>, B> Applicative<Writer<W>>.Action<A, B>(K<Writer<W>, A> ma, K<Writer<W>, B> mb) =>
         ma.As().Bind(_ => mb);
 
-    static K<Writer<W>, Unit> WriterM<Writer<W>, W>.Tell(W item) =>
+    static K<Writer<W>, Unit> Writable<Writer<W>, W>.Tell(W item) =>
         new Writer<W, Unit>(w => (unit, w + item));
 
-    static K<Writer<W>, (A Value, W Output)> WriterM<Writer<W>, W>.Listen<A>(K<Writer<W>, A> ma) =>
+    static K<Writer<W>, (A Value, W Output)> Writable<Writer<W>, W>.Listen<A>(K<Writer<W>, A> ma) =>
         ma.As().Listen();
 
-    static K<Writer<W>, A> WriterM<Writer<W>, W>.Pass<A>(
+    static K<Writer<W>, A> Writable<Writer<W>, W>.Pass<A>(
         K<Writer<W>, (A Value, Func<W, W> Function)> action) =>
         new Writer<W, A>(
             w =>

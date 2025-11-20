@@ -110,11 +110,11 @@ public static partial class Prelude
         self.MapAsync(map);
 
     [Pure]
-    public static ValueTask<A> plus<A>(this ValueTask<A> ma, ValueTask<A> mb) =>
+    public static ValueTask<A> plus<A>(ValueTask<A> ma, ValueTask<A> mb) =>
         ma.Plus(mb);
 
     [Pure]
-    public static ValueTask<A> plusFirst<A>(this ValueTask<A> ma, ValueTask<A> mb) =>
+    public static ValueTask<A> plusFirst<A>(ValueTask<A> ma, ValueTask<A> mb) =>
         ma.PlusFirst(mb);
 
     /// <summary>
@@ -207,7 +207,7 @@ public static partial class Prelude
     /// </summary>
     /// <param name="fab">Function to apply the applicative to</param>
     /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func〈B, C〉</returns>
     [Pure]
     public static async ValueTask<Func<B, C>> apply<A, B, C>(ValueTask<Func<A, B, C>> fabc, ValueTask<A> fa)
     {
@@ -220,7 +220,7 @@ public static partial class Prelude
     /// </summary>
     /// <param name="fab">Function to apply the applicative to</param>
     /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func〈B, C〉</returns>
     [Pure]
     public static ValueTask<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, ValueTask<A> fa) =>
         fa.Map(curry(fabc));
@@ -230,7 +230,7 @@ public static partial class Prelude
     /// </summary>
     /// <param name="fab">Function to apply the applicative to</param>
     /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func〈B, C〉</returns>
     [Pure]
     public static async ValueTask<Func<B, C>> apply<A, B, C>(ValueTask<Func<A, Func<B, C>>> fabc, ValueTask<A> fa)
     {
@@ -243,7 +243,7 @@ public static partial class Prelude
     /// </summary>
     /// <param name="fab">Function to apply the applicative to</param>
     /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func〈B, C〉</returns>
     [Pure]
     public static ValueTask<Func<B, C>> apply<A, B, C>(Func<A, Func<B, C>> fabc, ValueTask<A> fa) =>
         fa.Map(fabc);

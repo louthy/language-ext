@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace LanguageExt;
 
 /// <summary>
-/// A `Patch` is a collection of edits performed to a _document_, in this case an 'IEnumerable&lt;A&gt;'. 
+/// A `Patch` is a collection of edits performed to a _document_, in this case an 'IEnumerable〈A〉'. 
 /// They are implemented as a list of 'Edit', and can be converted to and from raw lists of edits using 
 /// `toList` and `fromList` respectively.
 /// 
@@ -235,7 +235,7 @@ public static class Patch
     /// Apply a patch to a document, returning the transformed document.
     /// </summary>
     public static Lst<A> apply<EqA, A>(Patch<EqA, A> patch, Lst<A> va) where EqA : Eq<A> =>
-        toList(apply(patch, va.AsEnumerable()));
+        toList(apply(patch, va.AsIterable()));
 
     /// <summary>
     /// Apply a patch to a document, returning the transformed document.
@@ -247,7 +247,7 @@ public static class Patch
     /// Apply a patch to a document, returning the transformed document.
     /// </summary>
     public static Arr<A> apply<EqA, A>(Patch<EqA, A> patch, Arr<A> va) where EqA : Eq<A> =>
-        apply(patch, va.AsEnumerable()).ToArr();
+        apply(patch, va.AsIterable()).ToArr();
 
     /// <summary>
     /// Apply a patch to a document, returning the transformed document.
@@ -270,16 +270,16 @@ public static class Patch
     /// <summary>
     /// Apply a patch to a document, returning the transformed document.
     /// </summary>
-    public static EnumerableM<A> apply<EqA, A>(Patch<EqA, A> patch, IEnumerable<A> va) where EqA : Eq<A>
+    public static Iterable<A> apply<EqA, A>(Patch<EqA, A> patch, IEnumerable<A> va) where EqA : Eq<A>
     {
-        if (patch.Edits.Count == 0) return new(va);
+        if (patch.Edits.Count == 0) return va.AsIterable();
         var i = SpanArray<A>.New(va);
 
         var dlength = i.Count + sizeChange(patch);
         var d       = SpanArray<A>.New(dlength);
 
         go(patch.Edits, i, d, 0);
-        return new(d);
+        return d.AsIterable();
  
         static Unit go(Seq<Edit<EqA, A>> edits, SpanArray<A> src, SpanArray<A> dest, int si)
         {

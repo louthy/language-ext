@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Numerics;
 using static LanguageExt.Prelude;
-using LanguageExt.ClassInstances.Pred;
 using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
 using System.Runtime.CompilerServices;
@@ -35,11 +34,11 @@ public readonly struct Lst<A> :
     /// </summary>
     public static Lst<A> Empty { get; } = new (System.Array.Empty<A>().AsSpan());
     
-    readonly LstInternal<True<A>, A>? value;
-    internal LstInternal<True<A>, A> Value
+    readonly LstInternal<A>? value;
+    internal LstInternal<A> Value
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value ?? LstInternal<True<A>, A>.Empty;
+        get => value ?? LstInternal<A>.Empty;
     }
 
     /// <summary>
@@ -47,20 +46,20 @@ public readonly struct Lst<A> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst(IEnumerable<A> initial) =>
-        value = new LstInternal<True<A>, A>(initial);
+        value = new LstInternal<A>(initial);
 
     /// <summary>
     /// Ctor
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst(ReadOnlySpan<A> initial) =>
-        value = new LstInternal<True<A>, A>(initial);
+        value = new LstInternal<A>(initial);
 
     /// <summary>
     /// Ctor
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    Lst(LstInternal<True<A>, A> initial) =>
+    Lst(LstInternal<A> initial) =>
         value = initial;
 
     /// <summary>
@@ -68,7 +67,7 @@ public readonly struct Lst<A> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal Lst(ListItem<A> root) =>
-        value = new LstInternal<True<A>, A>(root);
+        value = new LstInternal<A>(root);
 
     ListItem<A> Root
     {
@@ -90,7 +89,7 @@ public readonly struct Lst<A> :
     ///
     ///     Empty collection     = null
     ///     Singleton collection = A
-    ///     More                 = (A, Seq<A>)   -- head and tail
+    ///     More                 = (A, Seq〈A〉)   -- head and tail
     ///
     ///  Example:
     ///
@@ -186,7 +185,7 @@ public readonly struct Lst<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lens<Lst<A>, Lst<B>> map<B>(Lens<A, B> lens) => Lens<Lst<A>, Lst<B>>.New(
         Get: la => la.Map(lens.Get),
-        Set: lb => la => la.Zip(lb).Select(ab => lens.Set(ab.Item2, ab.Item1)).AsEnumerableM().ToLst()
+        Set: lb => la => la.Zip(lb).Map(ab => lens.Set(ab.Item2, ab.Item1)).ToLst()
     );
 
     /// <summary>
@@ -231,6 +230,16 @@ public readonly struct Lst<A> :
         get => Count;
     }
 
+    /*
+    /// <summary>
+    /// Stream as an enumerable
+    /// </summary>
+    [Pure]
+    public StreamT<M, A> AsStream<M>()
+        where M : Monad<M> =>
+        StreamT<M, A>.Lift(this);
+        */
+
     [Pure]
     A IReadOnlyList<A>.this[int index]
     {
@@ -243,11 +252,11 @@ public readonly struct Lst<A> :
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    Lst<A> Wrap(LstInternal<True<A>, A> list) =>
+    Lst<A> Wrap(LstInternal<A> list) =>
         new (list);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static Lst<X> Wrap<X>(LstInternal<True<X>, X> list) =>
+    static Lst<X> Wrap<X>(LstInternal<X> list) =>
         new (list);
 
     /// <summary>
@@ -258,7 +267,7 @@ public readonly struct Lst<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains(A value) =>
-        Value.AsEnumerableM().Find(a => EqDefault<A>.Equals(a, value)).IsSome;
+        Value.AsIterable().Find(a => EqDefault<A>.Equals(a, value)).IsSome;
 
     /// <summary>
     /// Contains with provided Eq class instance
@@ -269,7 +278,7 @@ public readonly struct Lst<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains<EqA>(A value) where EqA : Eq<A> =>
-        Value.AsEnumerableM().Find(a => EqA.Equals(a, value)).IsSome;
+        Value.AsIterable().Find(a => EqA.Equals(a, value)).IsSome;
 
     /// <summary>
     /// Add an item to the end of the list
@@ -394,7 +403,7 @@ public readonly struct Lst<A> :
     /// <returns>IEnumerable of items</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<A> FindRange(int index, int count) =>
+    public Iterable<A> FindRange(int index, int count) =>
         Value.FindRange(index, count);
 
     [Pure]
@@ -441,12 +450,12 @@ public readonly struct Lst<A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<A> AsEnumerable() =>
-        new(this);
+    public Iterable<A> AsIterable() =>
+        Iterable.createRange(this);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<A> Skip(int amount) =>
+    public Iterable<A> Skip(int amount) =>
         Value.Skip(amount);
 
     /// <summary>
@@ -476,7 +485,7 @@ public readonly struct Lst<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<U> Map<U>(Func<A, U> map) =>
-        Wrap(Value.Map<True<U>, U>(map));
+        Wrap(Value.Map(map));
     
     /// <summary>
     /// Map each element of a structure to an action, evaluate these actions from
@@ -527,6 +536,22 @@ public readonly struct Lst<A> :
     public static Lst<A> operator +(Lst<A> lhs, Lst<A> rhs) =>
         lhs.Combine(rhs);
 
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Lst<A> operator |(Lst<A> x, K<Lst, A> y) =>
+        x.Choose(y).As();
+
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Lst<A> operator |(K<Lst, A> x, Lst<A> y) =>
+        x.Choose(y).As();
+    
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<A> Combine(Lst<A> rhs) =>
@@ -548,7 +573,7 @@ public readonly struct Lst<A> :
         obj switch
         {
             Lst<A> s         => Equals(s),
-            IEnumerable<A> e => Equals(e.AsEnumerableM().ToLst()),
+            IEnumerable<A> e => Equals(e.AsIterable().ToLst()),
             _                => false
         };
 
@@ -567,7 +592,7 @@ public readonly struct Lst<A> :
         obj switch
         {
             Lst<A> s         => CompareTo(s),
-            IEnumerable<A> e => CompareTo(e.AsEnumerableM().ToLst()),
+            IEnumerable<A> e => CompareTo(e.AsIterable().ToLst()),
             _                => 1
         };
 

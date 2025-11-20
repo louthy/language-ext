@@ -4,6 +4,8 @@ using System.Linq;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Runtime.Serialization;
+using LanguageExt.Common;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests
 {
@@ -25,10 +27,10 @@ namespace LanguageExt.Tests
             select id;
 
         static EitherT<Exception, IO, ADUser> Initialization =>
-            EitherT.Right<Exception, IO, ADUser>(ADUser.New("test user"));
+            EitherT.Right<Exception, IO, ADUser>(new ADUser("test user"));
 
         static Either<Exception, UserMapping> createUserMapping(ADUser user) =>
-            Right<Exception, UserMapping>(UserMapping.New(user + " mapped"));
+            Right<Exception, UserMapping>(new UserMapping(user + " mapped"));
 
         static EitherT<Exception, IO, int> addUser(UserMapping user) =>
             EitherT.Right<Exception, IO, int>(user.ToString().Length);
@@ -37,7 +39,7 @@ namespace LanguageExt.Tests
             IO.lift(() => user.ToString().Length);
 
         static IO<UserMapping> createUserMapping2(ADUser user) => 
-            IO.lift(() => UserMapping.New(user + " mapped"));
+            IO.lift(() => new UserMapping(user + " mapped"));
 
         public IO<int> Issue207_5() =>
             from us in IO.lift<ADUser>(() => throw new Exception("fail"))
@@ -79,8 +81,8 @@ namespace LanguageExt.Tests
         }
     }
 
-    public class ADUser(string u) : NewType<ADUser, string>(u);
-    public class UserMapping(string u) : NewType<UserMapping, string>(u);
+    public record ADUser(string u);
+    public record UserMapping(string u);
 }
 
 // https://github.com/louthy/language-ext/issues/245
@@ -135,10 +137,10 @@ namespace Core.Tests
         public void what_i_desire_EitherAsync()
         {
             EitherT<Error, IO, Pixel> GetPixelE(PixelId id) =>
-                GetPixel(id).ToEither(Error.New("pixel not found"));
+                GetPixel(id).ToEither(new Error("pixel not found"));
 
             var program =
-                from pixel in GetPixelE(PixelId.New("wkrp"))
+                from pixel in GetPixelE(new PixelId("wkrp"))
                 from id in GenerateLinkId(pixel.Value)
                 from resource in ScrapeUrl("http://google.com")
                 select resource;
@@ -152,10 +154,7 @@ namespace Core.Tests
 
     static class ExternalSystem
     {
-        public class Error : NewType<Error, string>
-        {
-            public Error(string value) : base(value) { }
-        }
+        public record Error(string Value);
 
         public static OptionT<IO, Pixel> GetPixel(PixelId id) =>
             OptionT<IO, Pixel>.None;
@@ -166,18 +165,18 @@ namespace Core.Tests
         public static EitherT<Error, IO, WebResource> ScrapeUrl(string url) =>
             Right<Error, WebResource>(new WebResource(200));
 
-        public class WebResource(int value) : NewType<WebResource, int>(value);
-        public class PixelId(string value) : NewType<PixelId, string>(value);
-        public class Pixel(PixelId value) : NewType<Pixel, PixelId>(value);
+        public record WebResource(int Value);
+        public record PixelId(string Value);
+        public record Pixel(PixelId Value);
     }
 }
 
 namespace Issues
 {
-    public class CollectorId : NewType<CollectorId, int> { public CollectorId(int value) : base(value) { } };
-    public class TenantId : NewType<TenantId, int> { public TenantId(int value) : base(value) { } };
-    public class UserId : NewType<UserId, int> { public UserId(int value) : base(value) { } };
-    public class Instant : NewType<Instant, int> { public Instant(int value) : base(value) { } };
+    public record CollectorId(int Value);
+    public record TenantId(int Value);
+    public record UserId(int Value);
+    public record Instant(int Value);
 
     public class Collector : Record<Collector>, ISerializable
     {
@@ -203,8 +202,8 @@ namespace Issues
         [Fact]
         public void TestSerial()
         {
-            var x = new Collector(CollectorId.New(1), "nick", TenantId.New(2), UserId.New(3), Instant.New(4));
-            var y = new Collector(CollectorId.New(1), "nick", TenantId.New(2), UserId.New(3), Instant.New(4));
+            var x = new Collector(new CollectorId(1), "nick", new TenantId(2), new UserId(3), new Instant(4));
+            var y = new Collector(new CollectorId(1), "nick", new TenantId(2), new UserId(3), new Instant(4));
 
             var z1 = x == y;
             var z2 = x.Equals(y);
@@ -217,7 +216,7 @@ namespace Issues
 
     public static class Issue251
     {
-        public class Error(string value) : NewType<Error, string>(value);
+        public record Error(string Value);
         public class ErrorException(Error error) : Exception(error.Value)
         {
             public readonly Error Error = error;
@@ -239,7 +238,7 @@ namespace Issues
         public static Error AsError(this Exception ex) =>
             ex is ErrorException err
                 ? err.Error
-                : Error.New(ex.Message);
+                : new Error(ex.Message);
     }
 
     public class Issue263
@@ -254,8 +253,8 @@ namespace Issues
         [Fact]
         public void Test1()
         {
-            var ma = Writer.Pure<Seq<string>, int>(100);
-            var mb = Writer.Pure<Seq<string>, int>(200);
+            var ma = Writer.pure<Seq<string>, int>(100);
+            var mb = Writer.pure<Seq<string>, int>(200);
 
             var mc = from x in ma
                      from y in mb
@@ -273,8 +272,8 @@ namespace Issues
         [Fact]
         public void Test2()
         {
-            var ma = Writer.Pure<Lst<string>, int>(100);
-            var mb = Writer.Pure<Lst<string>, int>(200);
+            var ma = Writer.pure<Lst<string>, int>(100);
+            var mb = Writer.pure<Lst<string>, int>(200);
 
             var mc = from x in ma
                      from y in mb
@@ -315,7 +314,7 @@ namespace Issues
             Pure(1);
 
         public static EitherT<string, IO, int> Op2() =>
-            IO.Pure(2);
+            IO.pure(2);
 
         public static EitherT<string, IO, int> Op3() =>
             Fail("error");
@@ -377,7 +376,7 @@ namespace Issues
 
             var result = someData
                             .Select(Some)
-                            .AsEnumerableM()
+                            .AsIterable()
                             .Traverse(x => x)
                             .Map(x => x.ToArray())
                             .As();
@@ -423,6 +422,35 @@ namespace Issues
                         from r in ExecuteCommand(f, cmd)
                         select r)
                        .Traverse(x => x).As();
+        }
+    }
+    
+    
+    public class Issue1340
+    {
+        public sealed record CustomExpected(string Message, int Code, string Another) : Expected(Message, Code);
+
+        [Fact]
+        public void Test()
+        {
+            // Arrange
+            var      expected = new CustomExpected("Name", 100, "This is loss");
+            Eff<int> effect   = liftEff<int>(() => expected);
+
+            // Act
+            Fin<int> fin = effect.Run();
+
+            // Assert
+            fin.Match(_ => Assert.True(false),
+                      error =>
+                      {
+                          Assert.Equal(error.Code, expected.Code);
+                          Assert.Equal(error.Message, expected.Message);
+
+                          var fail = (CustomExpected)error;
+                          Assert.Equal(fail.Another, expected.Another);
+                      });
+
         }
     }
 }

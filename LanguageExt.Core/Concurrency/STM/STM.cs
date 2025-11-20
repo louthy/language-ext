@@ -18,12 +18,12 @@ public static class STM
 {
     static long refIdNext;
     static readonly AtomHashMap<EqLong, long, RefState> state;
-    static readonly AsyncLocal<Transaction> transaction;
+    static readonly AsyncLocal<Transaction?> transaction;
 
     static STM()
     {
         state       = AtomHashMap<EqLong, long, RefState>();
-        transaction = new AsyncLocal<Transaction>();
+        transaction = new AsyncLocal<Transaction?>();
     }
 
     static void OnChange(TrieMap<EqLong, long, Change<RefState>> patch) 

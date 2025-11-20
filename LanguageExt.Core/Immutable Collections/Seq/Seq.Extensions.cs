@@ -6,12 +6,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public static class SeqExtensions
+public static partial class SeqExtensions
 {
     public static Seq<A> As<A>(this K<Seq, A> xs) =>
         (Seq<A>)xs;
@@ -22,7 +21,7 @@ public static class SeqExtensions
     [Pure]
     public static Seq<A> Flatten<A>(this Seq<Seq<A>> ma) =>
         ma.Bind(identity);
-
+    
     /// <summary>
     /// Applies the given function 'selector' to each element of the sequence. Returns the sequence 
     /// comprised of the results for each element where the function returns Some(f(x)).
@@ -134,7 +133,7 @@ public static class SeqExtensions
     /// <param name="zipper">Join function</param>
     /// <returns>Joined sequence of tuples</returns>
     [Pure]
-    public static Seq<(T Left, U Right)> Zip<T, U>(this Seq<T> list, Seq<U> other) =>
+    public static Seq<(T First, U Second)> Zip<T, U>(this Seq<T> list, Seq<U> other) =>
         toSeq(Enumerable.Zip(list, other, (t, u) => (t, u)));
 
     /// <summary>
@@ -188,13 +187,13 @@ public static class SeqExtensions
     /// remainder of the list:
     /// </summary>
     /// <example>
-    /// Seq.span(List(1,2,3,4,1,2,3,4), x => x &lt; 3) == (List(1,2),List(3,4,1,2,3,4))
+    /// Seq.span(List(1,2,3,4,1,2,3,4), x => x 〈 3) == (List(1,2),List(3,4,1,2,3,4))
     /// </example>
     /// <example>
-    /// Seq.span(List(1,2,3), x => x &lt; 9) == (List(1,2,3),List())
+    /// Seq.span(List(1,2,3), x => x 〈 9) == (List(1,2,3),List())
     /// </example>
     /// <example>
-    /// Seq.span(List(1,2,3), x => x &lt; 0) == (List(),List(1,2,3))
+    /// Seq.span(List(1,2,3), x => x 〈 0) == (List(),List(1,2,3))
     /// </example>
     /// <typeparam name="T">List element type</typeparam>
     /// <param name="self">List</param>

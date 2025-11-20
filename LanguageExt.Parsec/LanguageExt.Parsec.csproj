@@ -3,19 +3,20 @@
         <DefineConstants>TRACE;DEBUG</DefineConstants>
     </PropertyGroup>
     <PropertyGroup Label="Configuration">
-        <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
+        <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1711;CS1572;CS1587</NoWarn>
         <DefineConstants>CONTRACTS_FULL</DefineConstants>
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <PackageVersion>5.0.0-alpha.11</PackageVersion>
+        <TargetFramework>net10.0</TargetFramework>
+        <PackageVersion>5.0.0-beta-57</PackageVersion>
         <PackageId>LanguageExt.Parsec</PackageId>
         <Title>LanguageExt.Parsec</Title>
         <Authors>Paul Louth</Authors>
         <Summary>Functional language extensions for C#</Summary>
         <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
-        <Description>Parser combinators library based on Haskell Parsec.  This is part of the LanguageExt functional base class library and requires LanguageExt.Core</Description>
+        <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
+        <Description>Parser combinators library based on Haskell Parsec.  This is part of the LanguageExt functional framework and requires LanguageExt.Core</Description>
         <PackageTags>C#, Functional, Language Extension, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
         <PackageIcon>lang-ext-small.png</PackageIcon>
         <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
@@ -23,15 +24,16 @@
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
         <OutputType>library</OutputType>
-        <AssemblyVersion>4.0.0.0</AssemblyVersion>
-        <FileVersion>4.0.0.0</FileVersion>
+        <AssemblyVersion>5.0.0.0</AssemblyVersion>
+        <FileVersion>5.0.0.0</FileVersion>
         <LangVersion>default</LangVersion>
     </PropertyGroup>
     <ItemGroup>
-        <None Include="..\Images\lang-ext-small.png">
-            <Pack>True</Pack>
-            <PackagePath/>
-        </None>
+        <InternalsVisibleTo Include="LanguageExt.Tests" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="README.nuget.md" Pack="true" PackagePath="\"/>
+        <None Include="..\Images\lang-ext-small.png" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -48,5 +50,6 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
+        <ProjectReference Include="..\LanguageExt.Streaming\LanguageExt.Streaming.csproj" />
     </ItemGroup>
 </Project>

@@ -6,12 +6,11 @@ namespace LanguageExt;
 /// <summary>
 /// `WriterT` monad transformer, which adds a modifiable state to a given monad. 
 /// </summary>
-/// <param name="runState">Transducer that represents the transformer operation</param>
 /// <typeparam name="S">State type</typeparam>
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record WriterT<W, M, A>(Func<W, K<M, (A Value, W Output)>> runWriter) : K<WriterT<W, M>, A>
-    where M : Monad<M>, SemiAlternative<M>
+    where M : Monad<M>
     where W : Monoid<W>
 {
     /// <summary>
@@ -29,7 +28,7 @@ public record WriterT<W, M, A>(Func<W, K<M, (A Value, W Output)>> runWriter) : K
     /// The inverse of `Run()`
     /// </remarks>
     /// <param name="result">Result / Output pair</param>
-    public WriterT<W, M, A> Write((A Value, W Output) result) =>
+    public static WriterT<W, M, A> Write((A Value, W Output) result) =>
         new(w => M.Pure((result.Value, w.Combine(result.Output))));
 
     /// <summary>
@@ -39,13 +38,13 @@ public record WriterT<W, M, A>(Func<W, K<M, (A Value, W Output)>> runWriter) : K
     /// The inverse of `Run()`
     /// </remarks>
     /// <param name="result">Result / Output pair</param>
-    public WriterT<W, M, A> Write(A value, W output) =>
+    public static WriterT<W, M, A> Write(A value, W output) =>
         new(w => M.Pure((value, w.Combine(output))));
 
     /// <summary>
     /// Writes an item and returns a value at the same time
     /// </summary>
-    public WriterT<W, M, (A Value, W Output)> Listen() =>
+    public WriterT<W, M, (A Value, W Output)> Listen =>
         Listens(x => x);
 
     /// <summary>
@@ -94,7 +93,7 @@ public record WriterT<W, M, A>(Func<W, K<M, (A Value, W Output)>> runWriter) : K
     /// <param name="ma">IO monad to lift</param>
     /// <returns>`WriterT`</returns>
     public static WriterT<W, M, A> LiftIO(IO<A> ma) =>
-        Lift(M.LiftIO(ma));
+        Lift(M.LiftIOMaybe(ma));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -108,7 +107,7 @@ public record WriterT<W, M, A>(Func<W, K<M, (A Value, W Output)>> runWriter) : K
     /// <typeparam name="M1">Trait of the monad to map to</typeparam>
     /// <returns>`WriterT`</returns>
     public WriterT<W, M1, B> MapT<M1, B>(Func<K<M, (A Value, W Output)>, K<M1, (B Value, W Output)>> f)
-        where M1 : Monad<M1>, SemiAlternative<M1> =>
+        where M1 : Monad<M1>, Choice<M1> =>
         new (w => f(runWriter(w)));
 
     /// <summary>
@@ -255,26 +254,54 @@ public record WriterT<W, M, A>(Func<W, K<M, (A Value, W Output)>> runWriter) : K
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //  Conversion operators
+    //  Operators
     //
 
+    /// <summary>
+    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
+    /// as the semicolon) in C#.
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the second action</returns>
+    public static WriterT<W, M, A> operator >> (WriterT<W, M, A> lhs, WriterT<W, M, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
+    /// <summary>
+    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
+    /// as the semicolon) in C#.
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the second action</returns>
+    public static WriterT<W, M, A> operator >> (WriterT<W, M, A> lhs, K<WriterT<W, M>, A> rhs) =>
+        lhs.Bind(_ => rhs);
+
+    /// <summary>
+    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// first action is propagated. 
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the first action</returns>
+    public static WriterT<W, M, A> operator >> (WriterT<W, M, A> lhs, WriterT<W, M, Unit> rhs) =>
+        lhs.Bind(x => rhs.Map(_ => x));
+    
+    /// <summary>
+    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// first action is propagated. 
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the first action</returns>
+    public static WriterT<W, M, A> operator >> (WriterT<W, M, A> lhs, K<WriterT<W, M>, Unit> rhs) =>
+        lhs.Bind(x => rhs.Map(_ => x));
+    
     public static implicit operator WriterT<W, M, A>(Pure<A> ma) =>
         Pure(ma.Value);
     
     public static implicit operator WriterT<W, M, A>(IO<A> ma) =>
         LiftIO(ma);
-    
-    public static WriterT<W, M, A> operator |(WriterT<W, M, A> ma, WriterT<W, M, A> mb) =>
-        new (w => M.Combine(ma.runWriter(w), mb.runWriter(w)));
-    
-    public static WriterT<W, M, A> operator |(WriterT<W, M, A> ma, Pure<A> mb) =>
-        new (w => M.Combine(ma.runWriter(w), Pure(mb.Value).runWriter(w)));
-    
-    public static WriterT<W, M, A> operator |(Pure<A> ma,  WriterT<W, M, A>mb) =>
-        new (w => M.Combine(Pure(ma.Value).runWriter(w), mb.runWriter(w)));
-    
-    public static WriterT<W, M, A> operator |(IO<A> ma, WriterT<W, M, A> mb) =>
-        new (w => M.Combine(LiftIO(ma).runWriter(w), mb.runWriter(w)));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

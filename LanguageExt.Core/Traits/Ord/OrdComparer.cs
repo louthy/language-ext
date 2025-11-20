@@ -5,7 +5,7 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 /// <summary>
-/// Hosts a standard .NET `IComparer` from an `Ord<A>` instance (in the static `Default` property)
+/// Hosts a standard .NET `IComparer` from an `Ord〈A〉` instance (in the static `Default` property)
 /// </summary>
 public class OrdComparer<OrdA, A> : IComparer<A> where OrdA : Ord<A>
 {

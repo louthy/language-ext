@@ -24,20 +24,27 @@ Language-ext is 10 years old this year, so please consider this my _once per dec
 		* [Applicative]()
 		* [Monad]()
 		* [Foldable]()
+        * [Fallible]()
 		* [Traversable]()
+        * [SemigroupK]()
+		* [MonoidK]()
+		* [SemiAlternative]()
 		* [Alternative]()
 		* [Free monads]()
-		* [Monad transformers (MonadT)]()
-		* [Reader and ReaderT]()
-		* [Writer and WriterT]()
-		* [State and StateT]()
-		* [ResourceT]()
  	* [IO monad]()
-	* [Auto-resource managment]() (`use` / `release`)
+       * [Auto-resource managment]() (`use` / `release`)
+	* [Streaming effects]()
+    * [Monad transformers (MonadT)]()
+      * [OptionT]()
+	  * [EitherT]()
+	  * [FinT]()
+	  * [ValidationT]()
+      * [Reader and ReaderT]()
+      * [Writer and WriterT]()
+      * [State and StateT]()
+      * [StreamT]()
 	* [All computation based monads rewritten to use transformers]()
 	* [Infinite recursion in monads]()
-	* [Streaming effects]()
-	* [Transducers]()
 	* [`Pure` / `Fail` monads]()
 	* [Lifting]()
 	* [Improved guards]()
@@ -53,7 +60,7 @@ Language-ext is 10 years old this year, so please consider this my _once per dec
 	* [`Apply` extensions that use raw `Func` removed](#apply-extensions-that-use-raw-func-removed)
 	* [Manually written `Sequence` extension methods have been removed (#1)](#manually-written-sequence-extension-methods-have-been-removed-1)
 	* [Manually written `Sequence` extension methods have been removed (#2)](#manually-written-sequence-extension-methods-have-been-removed-2)
-	* [Manually written `Sequence` extension methods have been removed (#2)](#manually-written-traverse-extension-methods-have-been-removed-3)
+	* [Manually written `Sequence` extension methods have been removed (#3)](#manually-written-traverse-extension-methods-have-been-removed-3)
 	* [`ToComparer` doesn't exist on the `Ord<A>` trait any more](#tocomparer-doesnt-exist-on-the-orda-trait-any-more)
 	* [Renamed `LanguageExt.ClassInstances.Sum`](#renamed-languageextclassinstancessum)
 	* [`Guard<E>` has become `Guard<E, A>`](#guarde-has-become-guarde-a)
@@ -77,6 +84,7 @@ Language-ext is 10 years old this year, so please consider this my _once per dec
 		* [`OptionalResult<A>`](#optionalresulta)
 		* [Async extensions for `Option<A>`](#async-extensions-for-optiona)
 		* [`ExceptionMatch`, `ExceptionMatchAsync`, `ExceptionMatchOptionalAsync`](#exceptionmatch-exceptionmatchasync-exceptionmatchoptionalasync)
+        * [`NewType`, `NumType`, `FloatType`]()
 	* [Libraries removed outright](#libraries-removed-outright)
 		* [`LanguageExt.SysX`](#languageextsysx)
 		* [`LanguageExt.CodeGen`](#languageextcodegen)	
@@ -115,7 +123,7 @@ When you want an operation not to run concurrently, but in parallel instead (i.e
 ```c#
 var forkedOperation = from f in operation.Fork() // runs in parallel
                       from r in f.Await		     // use the ForkIO to await the result
-			          select r;
+                      select r;
 
 // This will yield the current thread to allow concurrency, whilst the forked
 // operation runs on another thread.
@@ -144,7 +152,7 @@ And we get a concrete `Seq<string>` - not a `Task<Seq<string>>`, but the operati
 
 ## Leverage modern C# features
 
-The library has been held back by the need to support .NET Framework.  As of now this library is .NET (formally known as .NET Core) only.  Instantly jumping to .NET 8.0 (which has Long Term Support).
+The library has been held back by the need to support .NET Framework.  As of now this library is .NET (formerly known as .NET Core) only.  Instantly jumping to .NET 8.0 (which has Long Term Support).
 
 This opens up: static interface members (which allows the trait/ad-hoc polymorphism support to get a power-up) and collection initialisers for all of the immutable collections - amongst others.
 

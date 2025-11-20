@@ -1,0 +1,18 @@
+# Notes from a Small Functional Island
+
+## [POST_TITLE]
+
+By Paul Louth - [POST_DATE]
+
+Read the original article on paullouth.com at: [POST_URL]
+
+[POST_CONTENT]
+
+## Keep reading
+
+[RECENT_ARTICLES]
+
+Paul Louth © [YEAR_RANGE]
+
+You're receiving this email because you signed up to the newsletter at https://paullouth.com.  
+You can unsubscribe by going to the site, logging in, and toggling the 'Email Newsletter' option.  Any problems or if you need to reach out for any reason, drop me an email to: paul@paullouth.com

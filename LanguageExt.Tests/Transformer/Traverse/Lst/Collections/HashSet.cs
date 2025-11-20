@@ -25,11 +25,14 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
         public void HashSetLstCrossProduct()
         {
             var ma = HashSet(List(1, 2), List(10, 20, 30));
-
             var mb = ma.Traverse(mx => mx).As();
-
-
-            var mc = List(HashSet(1, 10), HashSet(2, 10), HashSet(1, 20), HashSet(2, 20), HashSet(1, 30), HashSet(2, 30));
+            var mc = List(
+                HashSet(1, 10), 
+                HashSet(1, 20), 
+                HashSet(1, 30), 
+                HashSet(2, 10), 
+                HashSet(2, 20), 
+                HashSet(2, 30));
 
             var tb = mb.ToString();
             var tc = mc.ToString();

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
 
 namespace LanguageExt;
 
@@ -72,21 +69,17 @@ public static partial class Prelude
     public static Ref<A> Ref<A>(A value, Func<A, bool>? validator = null) =>
         STM.NewRef(value, validator);
         
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
     /// <remarks>
-    /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+    /// Snapshot isolation requires that nothing outside the transaction has written to any of the values that are
     /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
     /// the transaction is rolled back and retried (using the latest 'world' state). 
     /// </remarks>
     /// <remarks>
-    /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
-    /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+    /// Serialisable isolation requires that nothing outside the transaction has written to any of the values that
+    /// are *read-from or written-to within the transaction*.  If anything does read from or written to the values used
     /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
     ///
-    /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+    /// It is the strictest form of isolation, and the most likely to conflict; but protects against cross read/write  
     /// inconsistencies.  For example, if you have:
     ///
     ///     var x = Ref(1);
@@ -94,7 +87,7 @@ public static partial class Prelude
     ///
     ///     snapshot(() => x.Value = y.Value + 1);
     ///
-    /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+    /// Then something writing to `y` mid-way through the transaction would *not* cause the transaction to fail.
     /// Because `y` was only read-from, not written to.  However, this: 
     ///
     ///     var x = Ref(1);
@@ -113,16 +106,16 @@ public static partial class Prelude
     /// If a transaction is already running, then this becomes part of the parent transaction
     /// </summary>
     /// <remarks>
-    /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+    /// Snapshot isolation requires that nothing outside the transaction has written to any of the values that are
     /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
     /// the transaction is rolled back and retried (using the latest 'world' state). 
     /// </remarks>
     /// <remarks>
-    /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
-    /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+    /// Serialisable isolation requires that nothing outside the transaction has written to any of the values that
+    /// are *read-from or written-to within the transaction*.  If anything does read from or written to the values used
     /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
     ///
-    /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+    /// It is the strictest form of isolation, and the most likely to conflict; but protects against cross read/write  
     /// inconsistencies.  For example, if you have:
     ///
     ///     var x = Ref(1);
@@ -130,223 +123,7 @@ public static partial class Prelude
     ///
     ///     snapshot(() => x.Value = y.Value + 1);
     ///
-    /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
-    /// Because `y` was only read-from, not written to.  However, this: 
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     serial(() => x.Value = y.Value + 1);
-    ///
-    /// ... would fail if something wrote to `y`.  
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Eff<R> atomic<R>(Eff<R> op, Isolation isolation = Isolation.Snapshot) =>
-        STM.DoTransaction(op, isolation);
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    /// <remarks>
-    /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
-    /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
-    /// the transaction is rolled back and retried (using the latest 'world' state). 
-    /// </remarks>
-    /// <remarks>
-    /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
-    /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
-    /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
-    ///
-    /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
-    /// inconsistencies.  For example, if you have:
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     snapshot(() => x.Value = y.Value + 1);
-    ///
-    /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
-    /// Because `y` was only read-from, not written to.  However, this: 
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     serial(() => x.Value = y.Value + 1);
-    ///
-    /// ... would fail if something wrote to `y`.  
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Eff<RT, R> atomic<RT, R>(Eff<RT, R> op, Isolation isolation = Isolation.Snapshot) =>
-        STM.DoTransaction(op, isolation);
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    /// <remarks>
-    /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
-    /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
-    /// the transaction is rolled back and retried (using the latest 'world' state). 
-    /// </remarks>
-    /// <remarks>
-    /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
-    /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
-    /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
-    ///
-    /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
-    /// inconsistencies.  For example, if you have:
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     snapshot(() => x.Value = y.Value + 1);
-    ///
-    /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
-    /// Because `y` was only read-from, not written to.  However, this: 
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     serial(() => x.Value = y.Value + 1);
-    ///
-    /// ... would fail if something wrote to `y`.  
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ValueTask<R> atomic<R>(Func<ValueTask<R>> op, Isolation isolation = Isolation.Snapshot) =>
-        STM.DoTransaction(op, isolation);
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    /// <remarks>
-    /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
-    /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
-    /// the transaction is rolled back and retried (using the latest 'world' state). 
-    /// </remarks>
-    /// <remarks>
-    /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
-    /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
-    /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
-    ///
-    /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
-    /// inconsistencies.  For example, if you have:
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     snapshot(() => x.Value = y.Value + 1);
-    ///
-    /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
-    /// Because `y` was only read-from, not written to.  However, this: 
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     serial(() => x.Value = y.Value + 1);
-    ///
-    /// ... would fail if something wrote to `y`.  
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ValueTask<Unit> atomic(Func<ValueTask> op, Isolation isolation = Isolation.Snapshot) =>
-        STM.DoTransaction(async () => { await op().ConfigureAwait(false); return unit; }, isolation);
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    /// <remarks>
-    /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
-    /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
-    /// the transaction is rolled back and retried (using the latest 'world' state). 
-    /// </remarks>
-    /// <remarks>
-    /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
-    /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
-    /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
-    ///
-    /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
-    /// inconsistencies.  For example, if you have:
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     snapshot(() => x.Value = y.Value + 1);
-    ///
-    /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
-    /// Because `y` was only read-from, not written to.  However, this: 
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     serial(() => x.Value = y.Value + 1);
-    ///
-    /// ... would fail if something wrote to `y`.  
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Task<R> atomic<R>(Func<Task<R>> op, Isolation isolation = Isolation.Snapshot) =>
-        STM.DoTransaction(async () => await op().ConfigureAwait(false), isolation).AsTask();
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    /// <remarks>
-    /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
-    /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
-    /// the transaction is rolled back and retried (using the latest 'world' state). 
-    /// </remarks>
-    /// <remarks>
-    /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
-    /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
-    /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
-    ///
-    /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
-    /// inconsistencies.  For example, if you have:
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     snapshot(() => x.Value = y.Value + 1);
-    ///
-    /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
-    /// Because `y` was only read-from, not written to.  However, this: 
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     serial(() => x.Value = y.Value + 1);
-    ///
-    /// ... would fail if something wrote to `y`.  
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Task<Unit> atomic(Func<Task> op, Isolation isolation = Isolation.Snapshot) =>
-        STM.DoTransaction(async () => { await op().ConfigureAwait(false); return unit; }, isolation).AsTask();
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    /// <remarks>
-    /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
-    /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
-    /// the transaction is rolled back and retried (using the latest 'world' state). 
-    /// </remarks>
-    /// <remarks>
-    /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
-    /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
-    /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
-    ///
-    /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
-    /// inconsistencies.  For example, if you have:
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     snapshot(() => x.Value = y.Value + 1);
-    ///
-    /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+    /// Then something writing to `y` mid-way through the transaction would *not* cause the transaction to fail.
     /// Because `y` was only read-from, not written to.  However, this: 
     ///
     ///     var x = Ref(1);
@@ -359,14 +136,13 @@ public static partial class Prelude
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Unit atomic(Action op, Isolation isolation = Isolation.Snapshot) =>
         STM.DoTransaction(() => { op(); return unit; }, isolation);
-
         
     /// <summary>
     /// Run the op within a new transaction
     /// If a transaction is already running, then this becomes part of the parent transaction
     /// </summary>
     /// <remarks>
-    /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+    /// Snapshot isolation requires that nothing outside the transaction has written to any of the values that are
     /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
     /// the transaction is rolled back and retried (using the latest 'world' state). 
     /// </remarks>
@@ -379,85 +155,7 @@ public static partial class Prelude
     /// If a transaction is already running, then this becomes part of the parent transaction
     /// </summary>
     /// <remarks>
-    /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
-    /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
-    /// the transaction is rolled back and retried (using the latest 'world' state). 
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Eff<R> snapshot<R>(Eff<R> op) =>
-        STM.DoTransaction(op, Isolation.Snapshot);
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    /// <remarks>
-    /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
-    /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
-    /// the transaction is rolled back and retried (using the latest 'world' state). 
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Eff<RT, R> snapshot<RT, R>(Eff<RT, R> op) =>
-        STM.DoTransaction(op, Isolation.Snapshot);
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    /// <remarks>
-    /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
-    /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
-    /// the transaction is rolled back and retried (using the latest 'world' state). 
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ValueTask<R> snapshot<R>(Func<ValueTask<R>> op) =>
-        STM.DoTransaction(op, Isolation.Snapshot);
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    /// <remarks>
-    /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
-    /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
-    /// the transaction is rolled back and retried (using the latest 'world' state). 
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ValueTask<Unit> snapshot(Func<ValueTask> op) =>
-        STM.DoTransaction(async () => { await op().ConfigureAwait(false); return unit; }, Isolation.Snapshot);
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    /// <remarks>
-    /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
-    /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
-    /// the transaction is rolled back and retried (using the latest 'world' state). 
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Task<R> snapshot<R>(Func<Task<R>> op) =>
-        STM.DoTransaction(async () => await op().ConfigureAwait(false), Isolation.Snapshot).AsTask();
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    /// <remarks>
-    /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
-    /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
-    /// the transaction is rolled back and retried (using the latest 'world' state). 
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Task<Unit> snapshot(Func<Task> op) =>
-        STM.DoTransaction(async () => { await op().ConfigureAwait(false); return unit; }, Isolation.Snapshot).AsTask();
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    /// <remarks>
-    /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+    /// Snapshot isolation requires that nothing outside the transaction has written to any of the values that are
     /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
     /// the transaction is rolled back and retried (using the latest 'world' state). 
     /// </remarks>
@@ -465,17 +163,16 @@ public static partial class Prelude
     public static Unit snapshot(Action op) =>
         STM.DoTransaction(() => { op(); return unit; }, Isolation.Snapshot);        
         
-        
     /// <summary>
     /// Run the op within a new transaction
     /// If a transaction is already running, then this becomes part of the parent transaction
     /// </summary>
     /// <remarks>
-    /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
-    /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+    /// Serialisable isolation requires that nothing outside the transaction has written to any of the values that
+    /// are *read-from or written-to within the transaction*.  If anything does read from or written to the values used
     /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
     ///
-    /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+    /// It is the strictest form of isolation, and the most likely to conflict; but protects against cross read/write  
     /// inconsistencies.  For example, if you have:
     ///
     ///     var x = Ref(1);
@@ -483,7 +180,7 @@ public static partial class Prelude
     ///
     ///     snapshot(() => x.Value = y.Value + 1);
     ///
-    /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+    /// Then something writing to `y` mid-way through the transaction would *not* cause the transaction to fail.
     /// Because `y` was only read-from, not written to.  However, this: 
     ///
     ///     var x = Ref(1);
@@ -502,11 +199,11 @@ public static partial class Prelude
     /// If a transaction is already running, then this becomes part of the parent transaction
     /// </summary>
     /// <remarks>
-    /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
-    /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+    /// Serialisable isolation requires that nothing outside the transaction has written to any of the values that
+    /// are *read-from or written-to within the transaction*.  If anything does read from or written to the values used
     /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
     ///
-    /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+    /// It is the strictest form of isolation, and the most likely to conflict; but protects against cross read/write  
     /// inconsistencies.  For example, if you have:
     ///
     ///     var x = Ref(1);
@@ -514,193 +211,7 @@ public static partial class Prelude
     ///
     ///     snapshot(() => x.Value = y.Value + 1);
     ///
-    /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
-    /// Because `y` was only read-from, not written to.  However, this: 
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     serial(() => x.Value = y.Value + 1);
-    ///
-    /// ... would fail if something wrote to `y`.  
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Eff<R> serial<R>(Eff<R> op) =>
-        STM.DoTransaction(op, Isolation.Snapshot);
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    /// <remarks>
-    /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
-    /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
-    /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
-    ///
-    /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
-    /// inconsistencies.  For example, if you have:
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     snapshot(() => x.Value = y.Value + 1);
-    ///
-    /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
-    /// Because `y` was only read-from, not written to.  However, this: 
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     serial(() => x.Value = y.Value + 1);
-    ///
-    /// ... would fail if something wrote to `y`.  
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Eff<RT, R> serial<RT, R>(Eff<RT, R> op) =>
-        STM.DoTransaction(op, Isolation.Snapshot);
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    /// <remarks>
-    /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
-    /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
-    /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
-    ///
-    /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
-    /// inconsistencies.  For example, if you have:
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     snapshot(() => x.Value = y.Value + 1);
-    ///
-    /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
-    /// Because `y` was only read-from, not written to.  However, this: 
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     serial(() => x.Value = y.Value + 1);
-    ///
-    /// ... would fail if something wrote to `y`.  
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ValueTask<R> serial<R>(Func<ValueTask<R>> op) =>
-        STM.DoTransaction(op, Isolation.Snapshot);
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    /// <remarks>
-    /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
-    /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
-    /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
-    ///
-    /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
-    /// inconsistencies.  For example, if you have:
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     snapshot(() => x.Value = y.Value + 1);
-    ///
-    /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
-    /// Because `y` was only read-from, not written to.  However, this: 
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     serial(() => x.Value = y.Value + 1);
-    ///
-    /// ... would fail if something wrote to `y`.  
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ValueTask<Unit> serial(Func<ValueTask> op) =>
-        STM.DoTransaction(async () => { await op().ConfigureAwait(false); return unit; }, Isolation.Snapshot);
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    /// <remarks>
-    /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
-    /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
-    /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
-    ///
-    /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
-    /// inconsistencies.  For example, if you have:
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     snapshot(() => x.Value = y.Value + 1);
-    ///
-    /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
-    /// Because `y` was only read-from, not written to.  However, this: 
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     serial(() => x.Value = y.Value + 1);
-    ///
-    /// ... would fail if something wrote to `y`.  
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Task<R> serial<R>(Func<Task<R>> op) =>
-        STM.DoTransaction(async () => await op().ConfigureAwait(false), Isolation.Snapshot).AsTask();
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    /// <remarks>
-    /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
-    /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
-    /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
-    ///
-    /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
-    /// inconsistencies.  For example, if you have:
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     snapshot(() => x.Value = y.Value + 1);
-    ///
-    /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
-    /// Because `y` was only read-from, not written to.  However, this: 
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     serial(() => x.Value = y.Value + 1);
-    ///
-    /// ... would fail if something wrote to `y`.  
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Task<Unit> serial(Func<Task> op) =>
-        STM.DoTransaction(async () => { await op().ConfigureAwait(false); return unit; }, Isolation.Snapshot).AsTask();
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    /// <remarks>
-    /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
-    /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
-    /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
-    ///
-    /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
-    /// inconsistencies.  For example, if you have:
-    ///
-    ///     var x = Ref(1);
-    ///     var y = Ref(2);
-    ///
-    ///     snapshot(() => x.Value = y.Value + 1);
-    ///
-    /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+    /// Then something writing to `y` mid-way through the transaction would *not* cause the transaction to fail.
     /// Because `y` was only read-from, not written to.  However, this: 
     ///
     ///     var x = Ref(1);
@@ -713,7 +224,6 @@ public static partial class Prelude
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Unit serial(Action op) =>
         STM.DoTransaction(() => { op(); return unit; }, Isolation.Snapshot);        
-        
     
     /// <summary>
     /// Swap the old value for the new returned by `f`
@@ -726,127 +236,6 @@ public static partial class Prelude
     public static A swap<A>(Ref<A> r, Func<A, A> f) =>
         r.Swap(f);
 
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="r">`Ref` to process</param>
-    /// <param name="f">Function to update the `Ref`</param>
-    /// <returns>The value returned from `f`</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ValueTask<A> swapAsync<A>(Ref<A> r, Func<A, ValueTask<A>> f) =>
-        r.SwapAsync(f);
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="r">`Ref` to process</param>
-    /// <param name="f">Function to update the `Ref`</param>
-    /// <returns>The value returned from `f`</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Eff<A> swapEff<A>(Ref<A> r, Func<A, Eff<A>> f) =>
-        r.SwapEff(f);
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="r">`Ref` to process</param>
-    /// <param name="f">Function to update the `Ref`</param>
-    /// <returns>The value returned from `f`</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Eff<RT, A> swapEff<RT, A>(Ref<A> r, Func<A, Eff<RT, A>> f) =>
-        r.SwapEff(f);
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="r">`Ref` to process</param>
-    /// <param name="f">Function to update the `Ref`</param>
-    /// <returns>The value returned from `f`</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static A swap<A, X>(Ref<A> r, X x, Func<X, A, A> f) =>
-        r.Swap(x, f);
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="r">`Ref` to process</param>
-    /// <param name="f">Function to update the `Ref`</param>
-    /// <returns>The value returned from `f`</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ValueTask<A> swapAsync<X, A>(Ref<A> r, X x, Func<X, A, ValueTask<A>> f) =>
-        r.SwapAsync(x, f);
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="r">`Ref` to process</param>
-    /// <param name="f">Function to update the `Ref`</param>
-    /// <returns>The value returned from `f`</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Eff<A> swapEff<X, A>(Ref<A> r, X x, Func<X, A, Eff<A>> f) =>
-        r.SwapEff(x, f);
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="r">`Ref` to process</param>
-    /// <param name="f">Function to update the `Ref`</param>
-    /// <returns>The value returned from `f`</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Eff<RT, A> swapEff<RT, X, A>(Ref<A> r, X x, Func<X, A, Eff<RT, A>> f) =>
-        r.SwapEff(x, f);
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="r">`Ref` to process</param>
-    /// <param name="f">Function to update the `Ref`</param>
-    /// <returns>The value returned from `f`</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static A swap<A, X, Y>(Ref<A> r, X x, Y y, Func<X, Y, A, A> f) =>
-        r.Swap(x, y, f);
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="r">`Ref` to process</param>
-    /// <param name="f">Function to update the `Ref`</param>
-    /// <returns>The value returned from `f`</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ValueTask<A> swapAsync<X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, ValueTask<A>> f) =>
-        r.SwapAsync(x, y, f);
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="r">`Ref` to process</param>
-    /// <param name="f">Function to update the `Ref`</param>
-    /// <returns>The value returned from `f`</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Eff<A> swapEff<X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, Eff<A>> f) =>
-        r.SwapEff(x, y, f);
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="r">`Ref` to process</param>
-    /// <param name="f">Function to update the `Ref`</param>
-    /// <returns>The value returned from `f`</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Eff<RT, A> swapEff<RT, X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, Eff<RT, A>> f) =>
-        r.SwapEff(x, y, f);        
-        
     /// <summary>
     /// Must be called in a transaction. Sets the in-transaction-value of
     /// ref to:  
@@ -868,50 +257,6 @@ public static partial class Prelude
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static A commute<A>(Ref<A> r, Func<A, A> f) =>
         r.Commute(f);
-
-    /// <summary>
-    /// Must be called in a transaction. Sets the in-transaction-value of
-    /// ref to:  
-    /// 
-    ///     `f(in-transaction-value-of-ref)`
-    ///     
-    /// and returns the in-transaction-value when complete.
-    /// 
-    /// At the commit point of the transaction, `f` is run *AGAIN* with the
-    /// most recently committed value:
-    /// 
-    ///     `f(most-recently-committed-value-of-ref)`
-    /// 
-    /// Thus `f` should be commutative, or, failing that, you must accept
-    /// last-one-in-wins behavior.
-    /// 
-    /// Commute allows for more concurrency than just setting the Ref's value
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static A commute<A, X>(Ref<A> r, X x, Func<X, A, A> f) =>
-        r.Commute(x, f);
-
-    /// <summary>
-    /// Must be called in a transaction. Sets the in-transaction-value of
-    /// ref to:  
-    /// 
-    ///     `f(in-transaction-value-of-ref)`
-    ///     
-    /// and returns the in-transaction-value when complete.
-    /// 
-    /// At the commit point of the transaction, `f` is run *AGAIN* with the
-    /// most recently committed value:
-    /// 
-    ///     `f(most-recently-committed-value-of-ref)`
-    /// 
-    /// Thus `f` should be commutative, or, failing that, you must accept
-    /// last-one-in-wins behavior.
-    /// 
-    /// Commute allows for more concurrency than just setting the Ref's value
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static A commute<A, X, Y>(Ref<A> r, X x, Y y, Func<X, Y, A, A> f) =>
-        r.Commute(x, y, f);
 
     /// <summary>
     /// Atoms provide a way to manage shared, synchronous, independent state without 
@@ -1036,289 +381,68 @@ public static partial class Prelude
     /// <summary>
     /// Atomically updates the value by passing the old value to `f` and updating
     /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
+    /// should be free of side effects.
     /// </summary>
     /// <param name="f">Function to update the atom</param>
-    /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
-    /// and its validation passed. None otherwise</returns>
-    public static Option<A> swap<A>(Atom<A> ma, Func<A, A> f) =>
+    /// <returns>
+    /// If the swap operation succeeded then a snapshot of the value that was set is returned.
+    /// If the swap operation fails (which can only happen due to its validator returning false),
+    /// then a snapshot of the current value within the Atom is returned.
+    /// If there is no validator for the Atom then the return value is always the snapshot of
+    /// the successful `f` function. 
+    /// </returns>
+    public static A swap<A>(Atom<A> ma, Func<A, A> f) =>
         ma.Swap(f);
-        
+    
     /// <summary>
     /// Atomically updates the value by passing the old value to `f` and updating
     /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
+    /// should be free of side effects.
     /// </summary>
-    /// <param name="x">Additional value to pass to `f`</param>
     /// <param name="f">Function to update the atom</param>
-    /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
-    /// validation passed. Failure state otherwise</returns>
-    public static Eff<A> swapEff<A>(Atom<A> ma, Func<A, Eff<A>> f) =>
-        ma.SwapEff(f);
-        
+    /// <returns>
+    /// * If `f` returns `None` then no update occurs and the result of the call
+    ///   to `Swap` will be the latest (unchanged) value of `A`.
+    /// * If the swap operation fails, due to its validator returning false, then a snapshot of
+    ///   the current value within the Atom is returned.
+    /// * If the swap operation succeeded then a snapshot of the value that was set is returned.
+    /// * If there is no validator for the Atom then the return value is always the snapshot of
+    ///   the successful `f` function. 
+    /// </returns>
+    public static A swap<A>(Atom<A> ma, Func<A, Option<A>> f) =>
+        ma.SwapMaybe(f);
+    
     /// <summary>
     /// Atomically updates the value by passing the old value to `f` and updating
     /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
+    /// should be free of side effects.
     /// </summary>
     /// <param name="f">Function to update the atom</param>
-    /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
-    /// validation passed. Failure state otherwise</returns>
-    public static Eff<RT, A> swapEff<RT, A>(Atom<A> ma, Func<A, Eff<RT, A>> f) =>
-        ma.SwapEff(f);
-
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
-    /// and its validation passed. None otherwise</returns>
-    public static ValueTask<Option<A>> swapAsync<A>(Atom<A> ma, Func<A, ValueTask<A>> f) =>
-        ma.SwapAsync(f);
-        
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="x">Additional value to pass to `f`</param>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
-    /// and its validation passed. None otherwise</returns>
-    public static Option<A> swap<X, A>(Atom<A> ma, X x, Func<X, A, A> f) =>
-        ma.Swap(x, f);
-        
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="x">Additional value to pass to `f`</param>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
-    /// validation passed. Failure state otherwise</returns>
-    public static Eff<A> swapEff<X, A>(Atom<A> ma, X x, Func<X, A, Eff<A>> f) =>
-        ma.SwapEff(x, f);
-        
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="x">Additional value to pass to `f`</param>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
-    /// validation passed. Failure state otherwise</returns>
-    public static Eff<RT, A> swapEff<RT, X, A>(Atom<A> ma, X x, Func<X, A, Eff<RT, A>> f) =>
-        ma.SwapEff(x, f);
-
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="x">Additional value to pass to `f`</param>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
-    /// and its validation passed. None otherwise</returns>
-    public static ValueTask<Option<A>> swapAsync<X, A>(Atom<A> ma, X x, Func<X, A, ValueTask<A>> f) =>
-        ma.SwapAsync(x, f);
-        
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="x">Additional value to pass to `f`</param>
-    /// <param name="y">Additional value to pass to `f`</param>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
-    /// and its validation passed. None otherwise</returns>
-    public static Option<A> swap<X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, A> f) =>
-        ma.Swap(x, y, f);
-                
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="x">Additional value to pass to `f`</param>
-    /// <param name="y">Additional value to pass to `f`</param>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
-    /// validation passed. Failure state otherwise</returns>
-    public static Eff<A> swapEff<X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, Eff<A>> f) =>
-        ma.SwapEff(x, y, f);
-        
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="x">Additional value to pass to `f`</param>
-    /// <param name="y">Additional value to pass to `f`</param>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
-    /// validation passed. Failure state otherwise</returns>
-    public static Eff<RT, A> swapEff<RT, X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, Eff<RT, A>> f) =>
-        ma.SwapEff(x, y, f);
-
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="x">Additional value to pass to `f`</param>
-    /// <param name="y">Additional value to pass to `f`</param>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
-    /// and its validation passed. None otherwise</returns>
-    public static ValueTask<Option<A>> swapAsync<X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, ValueTask<A>> f) =>
-        ma.SwapAsync(x, y, f);
-        
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
-    /// and its validation passed. None otherwise</returns>
-    public static Option<A> swap<M, A>(Atom<M, A> ma, Func<M, A, A> f) =>
+    /// <returns>
+    /// If the swap operation succeeded then a snapshot of the value that was set is returned.
+    /// If the swap operation fails (which can only happen due to its validator returning false),
+    /// then a snapshot of the current value within the Atom is returned.
+    /// If there is no validator for the Atom then the return value is always the snapshot of
+    /// the successful `f` function. 
+    /// </returns>
+    public static A swap<M, A>(Atom<M, A> ma, Func<M, A, A> f) =>
         ma.Swap(f);
-                
+    
     /// <summary>
     /// Atomically updates the value by passing the old value to `f` and updating
     /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
+    /// should be free of side effects.
     /// </summary>
     /// <param name="f">Function to update the atom</param>
-    /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
-    /// validation passed. Failure state otherwise</returns>
-    public static Eff<A> swapEff<M, A>(Atom<M, A> ma, Func<M, A, Eff<A>> f) =>
-        ma.SwapEff(f);
-        
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
-    /// validation passed. Failure state otherwise</returns>
-    public static Eff<RT, A> swapEff<RT, M, A>(Atom<M, A> ma, Func<M, A, Eff<RT, A>> f) =>
-        ma.SwapEff(f);
-
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
-    /// and its validation passed. None otherwise</returns>
-    public static ValueTask<Option<A>> swapAsync<M, A>(Atom<M, A> ma, Func<M, A, ValueTask<A>> f) =>
-        ma.SwapAsync(f);
-        
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="x">Additional value to pass to `f`</param>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
-    /// and its validation passed. None otherwise</returns>
-    public static Option<A> swap<M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, A> f) =>
-        ma.Swap(x, f);
-                
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="x">Additional value to pass to `f`</param>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
-    /// validation passed. Failure state otherwise</returns>
-    public static Eff<A> swapEff<M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, Eff<A>> f) =>
-        ma.SwapEff(x, f);
-        
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="x">Additional value to pass to `f`</param>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
-    /// validation passed. Failure state otherwise</returns>
-    public static Eff<RT, A> swapEff<RT, M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, Eff<RT, A>> f) =>
-        ma.SwapEff(x, f);
-
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="x">Additional value to pass to `f`</param>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
-    /// and its validation passed. None otherwise</returns>
-    public static ValueTask<Option<A>> swapAsync<M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, ValueTask<A>> f) =>
-        ma.SwapAsync(x, f);
-        
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="x">Additional value to pass to `f`</param>
-    /// <param name="y">Additional value to pass to `f`</param>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
-    /// and its validation passed. None otherwise</returns>
-    public static Option<A> swap<M, X, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, A> f) =>
-        ma.Swap(x, y, f);
-                
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="x">Additional value to pass to `f`</param>
-    /// <param name="y">Additional value to pass to `f`</param>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
-    /// validation passed. Failure state otherwise</returns>
-    public static Eff<A> swapEff<M, X, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, Eff<A>> f) =>
-        ma.SwapEff(x, y, f);
-        
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="x">Additional value to pass to `f`</param>
-    /// <param name="y">Additional value to pass to `f`</param>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
-    /// validation passed. Failure state otherwise</returns>
-    public static Eff<RT, A> swapEff<RT, M, X, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, Eff<RT, A>> f) =>
-        ma.SwapEff(x, y, f);
-
-    /// <summary>
-    /// Atomically updates the value by passing the old value to `f` and updating
-    /// the atom with the result.  Note: `f` may be called multiple times, so it
-    /// should be free of side-effects.
-    /// </summary>
-    /// <param name="x">Additional value to pass to `f`</param>
-    /// <param name="y">Additional value to pass to `f`</param>
-    /// <param name="f">Function to update the atom</param>
-    /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
-    /// and its validation passed. None otherwise</returns>
-    public static ValueTask<Option<A>> swapAsync<M, X, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, ValueTask<A>> f) =>
-        ma.SwapAsync(x, y, f);
+    /// <returns>
+    /// * If `f` returns `None` then no update occurs and the result of the call
+    ///   to `Swap` will be the latest (unchanged) value of `A`.
+    /// * If the swap operation fails, due to its validator returning false, then a snapshot of
+    ///   the current value within the Atom is returned.
+    /// * If the swap operation succeeded then a snapshot of the value that was set is returned.
+    /// * If there is no validator for the Atom then the return value is always the snapshot of
+    ///   the successful `f` function. 
+    /// </returns>
+    public static A swap<M, A>(Atom<M, A> ma, Func<M, A, Option<A>> f) =>
+        ma.Swap(f);
 }

@@ -28,25 +28,25 @@ public static class Expr
     ///  This is an example of an expression parser that handles prefix signs, 
     ///  postfix increment and basic arithmetic.
     /// 
-    ///    Parser<int> expr = null;
+    ///    Parser〈int〉 expr = null;
     /// 
-    ///    var binary = fun((string name, Func<int,int,int> f, Assoc assoc) =>
-    ///         Operator.Infix<int>( assoc,
+    ///    var binary = fun((string name, Func〈int, int, int〉 f, Assoc assoc) =〉
+    ///         Operator.Infix〈int〉( assoc,
     ///                              from x in reservedOp(name)
     ///                              select fun );
     ///                              
-    ///    var prefix = fun((string name, Func<int,int> f) =>
-    ///         Operator.Prefix<int>(from x in reservedOp(name)
+    ///    var prefix = fun((string name, Func〈int, int〉 f) =〉
+    ///         Operator.Prefix〈int〉(from x in reservedOp(name)
     ///                              select fun );
     /// 
-    ///    var postfix = fun((string name, Func<int,int> f) =>
-    ///         Operator.Postfix<int>(from x in reservedOp(name)
+    ///    var postfix = fun((string name, Func〈int, int〉 f) =〉
+    ///         Operator.Postfix〈int〉(from x in reservedOp(name)
     ///                               select fun );
     ///         
-    ///    Operator<int>[][] table = { { prefix("-",negate), prefix("+",id) }
-    ///                              , { postfix("++", incr) }
-    ///                              , { binary("*", mult) Assoc.Left), binary("/", div, Assoc.Left) }
-    ///                              , { binary("+", add, Assoc.Left), binary("-", subtr, Assoc.Left) } };
+    ///    Operator〈int〉[][] table = [ [ prefix("-",negate), prefix("+",id) ]
+    ///                               , [ postfix("++", incr) ]
+    ///                               , [ binary("*", mult) Assoc.Left), binary("/", div, Assoc.Left) ]
+    ///                               , [ binary("+", add, Assoc.Left), binary("-", subtr, Assoc.Left) ] ];
     ///              ]
     ///    var term              = either(parens(expr),natural).label("simple expression")
     ///            
@@ -59,7 +59,7 @@ public static class Expr
         Parser<T> simpleExpr
         )
     {
-        return operators.AsEnumerableM().FoldBack(
+        return operators.AsIterable().FoldBack(
             simpleExpr, 
             (term, ops) => makeParser(ops, term)
         );
@@ -73,7 +73,7 @@ public static class Expr
         var e3 = Seq.empty<Parser<Func<T,T,T>>>();
         var e2 = Seq.empty<Parser<Func<T,T>>>();
 
-        return ops.AsEnumerableM()
+        return ops.AsIterable()
                   .Fold((e3, e3, e3, e2, e2), (state, op) => op.SplitOp(state))
                   .Map((rassoc, lassoc, nassoc, prefix, postfix) =>
                        {

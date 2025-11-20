@@ -10,67 +10,91 @@ namespace LanguageExt;
 /// <summary>
 /// Monad module
 /// </summary>
-public static class ApplicativeExtensions
+public static partial class ApplicativeExtensions
 {
-    [Pure]
-    public static K<F, B> Apply<F, A, B>(this K<F, Func<A, B>> mf, K<F, A> ma)
-        where F : Applicative<F> =>
-        F.Apply(mf, ma);
+    extension<AF, A, B>(K<AF, Func<A, B>> mf)
+        where AF : Applicative<AF>
+    {
+        [Pure]
+        public K<AF, B> Apply(K<AF, A> ma) =>
+            AF.Apply(mf, ma);
 
-    [Pure]
-    public static K<F, B> ApplyM<F, A, B>(this K<F, Func<A, K<F, B>>> mf, K<F, A> ma)
-        where F : Monad<F> =>
-        F.Apply(mf, ma).Flatten();
+        [Pure]
+        public K<AF, B> Apply(Func<K<AF, A>> ma) =>
+            AF.ApplyLazy(mf, ma);
+    }
 
-    [Pure]
-    public static K<F, Func<B, C>> Apply<F, A, B, C>(this K<F, Func<A, B, C>> mf, K<F, A> ma)
-        where F : Applicative<F> =>
-        F.Apply(F.Map(curry, mf), ma);
+    extension<AF, A, B, C>(K<AF, Func<A, B, C>> mf) 
+        where AF : Applicative<AF>
+    {
+        [Pure]
+        public K<AF, Func<B, C>> Apply(K<AF, A> ma) =>
+            AF.Apply(AF.Map(curry, mf), ma);
+    }
 
-    [Pure]
-    public static K<F, Func<B, K<F, C>>> ApplyM<F, A, B, C>(this K<F, Func<A, B, K<F, C>>> mf, K<F, A> ma)
-        where F : Applicative<F> =>
-        F.Apply(F.Map(curry, mf), ma);
+    extension<AF, A, B, C, D>(K<AF, Func<A, B, C, D>> mf) 
+        where AF : Applicative<AF>
+    {
+        [Pure]
+        public K<AF, Func<B,Func<C, D>>> Apply(K<AF, A> ma) =>
+            AF.Apply(AF.Map(curry, mf), ma);
+    }
 
-    [Pure]
-    public static K<F, C> Apply<F, A, B, C>(this K<F, Func<A, B, C>> mf, K<F, A> ma, K<F, B> mb)
-        where F : Applicative<F> =>
-        F.Apply(F.Apply(F.Map(curry, mf), ma), mb);
+    extension<AF, A, B, C, D, E>(K<AF, Func<A, B, C, D, E>> mf) 
+        where AF : Applicative<AF>
+    {
+        [Pure]
+        public K<AF, Func<B,Func<C, Func<D, E>>>> Apply(K<AF, A> ma) =>
+            AF.Apply(AF.Map(curry, mf), ma);
+    }
 
-    [Pure]
-    public static K<F, C> ApplyM<F, A, B, C>(this K<F, Func<A, B, K<F, C>>> mf, K<F, A> ma, K<F, B> mb)
-        where F : Monad<F> =>
-        F.Apply(F.Apply(F.Map(curry, mf), ma), mb).Flatten();
+    extension<AF, A, B, C, D, E, F>(K<AF, Func<A, B, C, D, E, F>> mf) 
+        where AF : Applicative<AF>
+    {
+        [Pure]
+        public K<AF, Func<B,Func<C, Func<D, Func<E, F>>>>> Apply(K<AF, A> ma) =>
+            AF.Apply(AF.Map(curry, mf), ma);
+    }
 
-    [Pure]
-    public static K<F, D> Apply<F, A, B, C, D>(this K<F, Func<A, B, C, D>> mf, K<F, A> ma, K<F, B> mb, K<F, C> mc)
-        where F : Applicative<F> =>
-        F.Apply(F.Apply(F.Map(curry, mf), ma, mb), mc);
+    extension<AF, A, B, C, D, E, F, G>(K<AF, Func<A, B, C, D, E, F, G>> mf) 
+        where AF : Applicative<AF>
+    {
+        [Pure]
+        public K<AF, Func<B,Func<C, Func<D, Func<E, Func<F, G>>>>>> Apply(K<AF, A> ma) =>
+            AF.Apply(AF.Map(curry, mf), ma);
+    }
 
-    [Pure]
-    public static K<F, D> ApplyM<F, A, B, C, D>(this K<F, Func<A, B, C, K<F, D>>> mf, K<F, A> ma, K<F, B> mb, K<F, C> mc)
-        where F : Monad<F> =>
-        F.Apply(F.Apply(F.Map(curry, mf), ma, mb), mc).Flatten();
+    extension<AF, A, B, C, D, E, F, G, H>(K<AF, Func<A, B, C, D, E, F, G, H>> mf) 
+        where AF : Applicative<AF>
+    {
+        [Pure]
+        public K<AF, Func<B,Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> Apply(K<AF, A> ma) =>
+            AF.Apply(AF.Map(curry, mf), ma);
+    }
 
-    [Pure]
-    public static K<F, Func<C, D>> Apply<F, A, B, C, D>(this K<F, Func<A, B, C, D>> mf, K<F, A> ma, K<F, B> mb)
-        where F : Applicative<F> =>
-        F.Apply(F.Map(curry, mf), ma, mb);
+    extension<AF, A, B, C, D, E, F, G, H, I>(K<AF, Func<A, B, C, D, E, F, G, H, I>> mf) 
+        where AF : Applicative<AF>
+    {
+        [Pure]
+        public K<AF, Func<B,Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> Apply(K<AF, A> ma) =>
+            AF.Apply(AF.Map(curry, mf), ma);
+    }
 
-    [Pure]
-    public static K<F, Func<C, K<F, D>>> ApplyM<F, A, B, C, D>(this K<F, Func<A, B, C, K<F, D>>> mf, K<F, A> ma, K<F, B> mb)
-        where F : Applicative<F> =>
-        F.Apply(F.Map(curry, mf), ma, mb);
+    extension<AF, A, B, C, D, E, F, G, H, I, J>(K<AF, Func<A, B, C, D, E, F, G, H, I, J>> mf) 
+        where AF : Applicative<AF>
+    {
+        [Pure]
+        public K<AF, Func<B,Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, J>>>>>>>>> Apply(K<AF, A> ma) =>
+            AF.Apply(AF.Map(curry, mf), ma);
+    }
 
-    [Pure]
-    public static K<F, Func<B,Func<C, D>>> Apply<F, A, B, C, D>(this K<F, Func<A, B, C, D>> mf, K<F, A> ma)
-        where F : Applicative<F> =>
-        F.Apply(F.Map(curry, mf), ma);
-
-    [Pure]
-    public static K<F, Func<B,Func<C, K<F, D>>>> ApplyM<F, A, B, C, D>(this K<F, Func<A, B, C, K<F, D>>> mf, K<F, A> ma)
-        where F : Applicative<F> =>
-        F.Apply(F.Map(curry, mf), ma);
+    extension<AF, A, B, C, D, E, F, G, H, I, J, K>(K<AF, Func<A, B, C, D, E, F, G, H, I, J, K>> mf) 
+        where AF : Applicative<AF>
+    {
+        [Pure]
+        public K<AF, Func<B,Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, Func<J, K>>>>>>>>>> Apply(K<AF, A> ma) =>
+            AF.Apply(AF.Map(curry, mf), ma);
+    }
     
     [Pure]
     public static K<F, B> Action<F, A, B>(this K<F, A> ma, K<F, B> mb)
@@ -79,6 +103,11 @@ public static class ApplicativeExtensions
     
     [Pure]
     public static K<F, A> Actions<F, A>(this IEnumerable<K<F, A>> ma)
+        where F : Applicative<F> =>
+        F.Actions(ma);
+    
+    [Pure]
+    public static K<F, A> Actions<F, A>(this IAsyncEnumerable<K<F, A>> ma)
         where F : Applicative<F> =>
         F.Actions(ma);
 
@@ -408,4 +437,153 @@ public static class ApplicativeExtensions
         where F : Applicative<F>
         where A : IDivisionOperators<A, A, A> =>
         (fa, fb).Apply((x, y) => x / y);
+    
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Zipping
+    //
+
+    /// <summary>
+    /// Zips applicatives into a tuple
+    /// </summary>
+    /// <param name="tuple">Tuple of applicatives to run</param>
+    /// <typeparam name="F">Applicative trait type</typeparam>
+    /// <typeparam name="A">First applicative's bound value type</typeparam>
+    /// <typeparam name="B">Second applicative's bound value type</typeparam>
+    /// <returns>Zipped applicative</returns>
+    public static K<F, (A First, B Second)> Zip<F, A, B>(
+        this (K<F, A> First, K<F, B> Second) tuple)
+        where F : Applicative<F> =>
+        map((A a, B b) => (a, b), tuple.First).Apply(tuple.Second);
+
+    /// <summary>
+    /// Zips applicatives into a tuple
+    /// </summary>
+    /// <param name="tuple">Tuple of applicatives to run</param>
+    /// <typeparam name="F">Applicative trait type</typeparam>
+    /// <typeparam name="A">First applicative's bound value type</typeparam>
+    /// <typeparam name="B">Second applicative's bound value type</typeparam>
+    /// <typeparam name="C">Third applicative's bound value type</typeparam>
+    /// <returns>Zipped applicative</returns>
+    public static K<F, (A First, B Second, C Third)> Zip<F, A, B, C>(
+        this (K<F, A> First, K<F, B> Second, K<F, C> Third) tuple)
+        where F : Applicative<F> =>
+        map((A a, B b, C c) => (a, b, c), tuple.First)
+           .Apply(tuple.Second)
+           .Apply(tuple.Third);
+
+    /// <summary>
+    /// Zips applicatives into a tuple
+    /// </summary>
+    /// <param name="tuple">Tuple of applicatives to run</param>
+    /// <typeparam name="F">Applicative trait type</typeparam>
+    /// <typeparam name="A">First applicative's bound value type</typeparam>
+    /// <typeparam name="B">Second applicative's bound value type</typeparam>
+    /// <typeparam name="C">Third applicative's bound value type</typeparam>
+    /// <typeparam name="D">Fourth applicative's bound value type</typeparam>
+    /// <returns>Zipped applicative</returns>
+    public static K<F, (A First, B Second, C Third, D Fourth)> Zip<F, A, B, C, D>(
+        this (K<F, A> First, K<F, B> Second, K<F, C> Third, K<F, D> Fourth) tuple)
+        where F : Applicative<F> =>
+        map((A a, B b, C c, D d) => (a, b, c, d), tuple.First)
+           .Apply(tuple.Second)
+           .Apply(tuple.Third)
+           .Apply(tuple.Fourth);
+
+    /// <summary>
+    /// Zips applicatives into a tuple
+    /// </summary>
+    /// <param name="tuple">Tuple of applicatives to run</param>
+    /// <typeparam name="F">Applicative trait type</typeparam>
+    /// <typeparam name="A">First applicative's bound value type</typeparam>
+    /// <typeparam name="B">Second applicative's bound value type</typeparam>
+    /// <typeparam name="C">Third applicative's bound value type</typeparam>
+    /// <typeparam name="D">Fourth applicative's bound value type</typeparam>
+    /// <returns>Zipped applicative</returns>
+    public static K<F, (A First, B Second, C Third, D Fourth, E Fifth)> Zip<F, A, B, C, D, E>(
+        this (K<F, A> First, K<F, B> Second, K<F, C> Third, K<F, D> Fourth, K<F, E> Fifth) tuple)
+        where F : Applicative<F> =>
+        map((A a, B b, C c, D d, E e) => (a, b, c, d, e), tuple.First)
+           .Apply(tuple.Second)
+           .Apply(tuple.Third)
+           .Apply(tuple.Fourth)
+           .Apply(tuple.Fifth);
+    
+
+    /// <summary>
+    /// Zips applicatives into a tuple
+    /// </summary>
+    /// <param name="First">First applicative</param>
+    /// <param name="Second">Second applicative</param>
+    /// <typeparam name="F">Applicative trait type</typeparam>
+    /// <typeparam name="A">First applicative's bound value type</typeparam>
+    /// <typeparam name="B">Second applicative's bound value type</typeparam>
+    /// <returns>Zipped applicative</returns>
+    public static K<F, (A First, B Second)> Zip<F, A, B>(
+        this K<F, A> First, K<F, B> Second)
+        where F : Applicative<F> =>
+        map((A a, B b) => (a, b), First).Apply(Second);
+
+    /// <summary>
+    /// Zips applicatives into a tuple
+    /// </summary>
+    /// <param name="First">First applicative</param>
+    /// <param name="Second">Second applicative</param>
+    /// <param name="Third">Third applicative</param>
+    /// <typeparam name="F">Applicative trait type</typeparam>
+    /// <typeparam name="A">First applicative's bound value type</typeparam>
+    /// <typeparam name="B">Second applicative's bound value type</typeparam>
+    /// <typeparam name="C">Third applicative's bound value type</typeparam>
+    /// <returns>Zipped applicative</returns>
+    public static K<F, (A First, B Second, C Third)> Zip<F, A, B, C>(
+        this K<F, A> First, K<F, B> Second, K<F, C> Third)
+        where F : Applicative<F> =>
+        map((A a, B b, C c) => (a, b, c), First)
+           .Apply(Second)
+           .Apply(Third);
+
+    /// <summary>
+    /// Zips applicatives into a tuple
+    /// </summary>
+    /// <param name="First">First applicative</param>
+    /// <param name="Second">Second applicative</param>
+    /// <param name="Third">Third applicative</param>
+    /// <param name="Fourth">Fourth applicative</param>
+    /// <typeparam name="F">Applicative trait type</typeparam>
+    /// <typeparam name="A">First applicative's bound value type</typeparam>
+    /// <typeparam name="B">Second applicative's bound value type</typeparam>
+    /// <typeparam name="C">Third applicative's bound value type</typeparam>
+    /// <typeparam name="D">Fourth applicative's bound value type</typeparam>
+    /// <returns>Zipped applicative</returns>
+    public static K<F, (A First, B Second, C Third, D Fourth)> Zip<F, A, B, C, D>(
+        this K<F, A> First, K<F, B> Second, K<F, C> Third, K<F, D> Fourth)
+        where F : Applicative<F> =>
+        map((A a, B b, C c, D d) => (a, b, c, d), First)
+           .Apply(Second)
+           .Apply(Third)
+           .Apply(Fourth);
+
+    /// <summary>
+    /// Zips applicatives into a tuple
+    /// </summary>
+    /// <param name="First">First applicative</param>
+    /// <param name="Second">Second applicative</param>
+    /// <param name="Third">Third applicative</param>
+    /// <param name="Fourth">Fourth applicative</param>
+    /// <param name="Fifth">Fifth applicative</param>
+    /// <typeparam name="F">Applicative trait type</typeparam>
+    /// <typeparam name="A">First applicative's bound value type</typeparam>
+    /// <typeparam name="B">Second applicative's bound value type</typeparam>
+    /// <typeparam name="C">Third applicative's bound value type</typeparam>
+    /// <typeparam name="D">Fourth applicative's bound value type</typeparam>
+    /// <returns>Zipped applicative</returns>
+    public static K<F, (A First, B Second, C Third, D Fourth, E Fifth)> Zip<F, A, B, C, D, E>(
+        this K<F, A> First, K<F, B> Second, K<F, C> Third, K<F, D> Fourth, K<F, E> Fifth)
+        where F : Applicative<F> =>
+        map((A a, B b, C c, D d, E e) => (a, b, c, d, e), First)
+           .Apply(Second)
+           .Apply(Third)
+           .Apply(Fourth)
+           .Apply(Fifth);      
 }

@@ -3,17 +3,9 @@
     <FileVersion>3.0.0.0</FileVersion>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <LangVersion>default</LangVersion>
-    <RoslynCodeGenVersion>0.6.1</RoslynCodeGenVersion>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-  <ItemGroup>
-    <DotNetCliToolReference Include="dotnet-codegen" Version="$(RoslynCodeGenVersion)" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="LanguageExt.Tests.nuget.props" />
-    <None Remove="LanguageExt.Tests.project.lock.json" />
-  </ItemGroup>
   <ItemGroup>
       <PackageReference Include="FluentAssertions" Version="6.11.0" />
       <PackageReference Include="System.Reactive" Version="6.0.0" />
@@ -21,18 +13,14 @@
     <PackageReference Include="Nito.AsyncEx" Version="5.1.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.0" />
     <PackageReference Include="xunit" Version="2.7.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LanguageExt.CodeGen\LanguageExt.CodeGen.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
     <ProjectReference Include="..\LanguageExt.FSharp\LanguageExt.FSharp.csproj" />
     <ProjectReference Include="..\LanguageExt.Parsec\LanguageExt.Parsec.csproj" />
     <ProjectReference Include="..\LanguageExt.Rx\LanguageExt.Rx.csproj" />
     <ProjectReference Include="..\LanguageExt.Sys\LanguageExt.Sys.csproj" />
+    <ProjectReference Include="..\LanguageExt.XUnitExt\LanguageExt.XUnitExt.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />

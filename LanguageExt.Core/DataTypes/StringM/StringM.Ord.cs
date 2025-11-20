@@ -1,11 +1,15 @@
 using System;
+using LanguageExt.Traits.Domain;
 
 namespace LanguageExt;
 
 public readonly record struct StringOrdinalM(string Value) : StringM<StringOrdinalM>
 {
-    public static StringOrdinalM From(string repr) =>
-        new(repr);
+    static Fin<StringOrdinalM> DomainType<StringOrdinalM, string>.From(string repr) =>
+        new StringOrdinalM(repr);
+
+    public static StringOrdinalM From(string repr) => 
+        new (repr);
 
     public string To() =>
         Value;
@@ -23,8 +27,11 @@ public readonly record struct StringOrdinalM(string Value) : StringM<StringOrdin
 
 public readonly record struct StringOrdinalIgnoreCaseM(string Value) : StringM<StringOrdinalIgnoreCaseM>
 {
-    public static StringOrdinalIgnoreCaseM From(string repr) =>
-        new(repr);
+    static Fin<StringOrdinalIgnoreCaseM> DomainType<StringOrdinalIgnoreCaseM, string>.From(string repr) =>
+        new StringOrdinalIgnoreCaseM(repr);
+
+    public static StringInvariantM From(string repr) => 
+        new (repr);
 
     public string To() =>
         Value;
@@ -42,8 +49,11 @@ public readonly record struct StringOrdinalIgnoreCaseM(string Value) : StringM<S
 
 public readonly record struct StringCultureM(string Value) : StringM<StringCultureM>
 {
-    public static StringCultureM From(string repr) =>
-        new(repr);
+    static Fin<StringCultureM> DomainType<StringCultureM, string>.From(string repr) =>
+        new StringCultureM(repr);
+
+    public static StringCultureM From(string repr) => 
+        new (repr);
 
     public string To() =>
         Value;
@@ -61,8 +71,11 @@ public readonly record struct StringCultureM(string Value) : StringM<StringCultu
 
 public readonly record struct StringCultureIgnoreCaseM(string Value) : StringM<StringCultureIgnoreCaseM>
 {
-    public static StringCultureIgnoreCaseM From(string repr) =>
-        new(repr);
+    static Fin<StringCultureIgnoreCaseM> DomainType<StringCultureIgnoreCaseM, string>.From(string repr) =>
+        new StringCultureIgnoreCaseM(repr);
+
+    public static StringCultureIgnoreCaseM From(string repr) => 
+        new (repr);
 
     public string To() =>
         Value;
@@ -79,8 +92,11 @@ public readonly record struct StringCultureIgnoreCaseM(string Value) : StringM<S
 
 public readonly record struct StringInvariantM(string Value) : StringM<StringInvariantM>
 {
-    public static StringInvariantM From(string repr) =>
-        new(repr);
+    public static Fin<StringInvariantM> From(string repr) =>
+        new StringInvariantM(repr);
+
+    public static StringInvariantM FromUnsafe(string repr) => 
+        new (repr);
 
     public string To() =>
         Value;
@@ -97,8 +113,11 @@ public readonly record struct StringInvariantM(string Value) : StringM<StringInv
 
 public readonly record struct StringInvariantIgnoreCaseM(string Value) : StringM<StringInvariantIgnoreCaseM>
 {
-    public static StringInvariantIgnoreCaseM From(string repr) =>
-        new(repr);
+    static Fin<StringInvariantIgnoreCaseM> DomainType<StringInvariantIgnoreCaseM, string>.From(string repr) =>
+        new StringInvariantIgnoreCaseM(repr);
+
+    public static StringInvariantIgnoreCaseM From(string repr) => 
+        new (repr);
 
     public string To() =>
         Value;

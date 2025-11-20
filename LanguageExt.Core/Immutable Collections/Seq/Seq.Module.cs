@@ -93,7 +93,7 @@ public partial class Seq
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> generate<A>(int count, Func<int, A> generator) =>
-        Range(0, count).AsEnumerableM().Map(generator).ToSeq();
+        IterableExtensions.AsIterable(Range(0, count)).Map(generator).ToSeq();
 
     /// <summary>
     /// Generates a sequence that contains one repeated value.
@@ -101,7 +101,7 @@ public partial class Seq
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> repeat<A>(A item, int count) =>
-        Range(0, count).AsEnumerableM().Map(_ => item).ToSeq();
+        IterableExtensions.AsIterable(Range(0, count)).Map(_ => item).ToSeq();
 
     /// <summary>
     /// Get the item at the head (first) of the sequence
@@ -331,7 +331,7 @@ public partial class Seq
     /// <returns>Joined sequence of tuples</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Seq<(T Left, U Right)> zip<T, U>(Seq<T> list, Seq<U> other) =>
+    public static Seq<(T First, U Second)> zip<T, U>(Seq<T> list, Seq<U> other) =>
         toSeq(list.Zip(other, (t, u) => (t, u)));
 
 
@@ -463,13 +463,13 @@ public partial class Seq
     /// remainder of the list:
     /// </summary>
     /// <example>
-    /// Seq.span(Seq(1,2,3,4,1,2,3,4), x => x &lt; 3) == (Seq(1,2), Seq(3,4,1,2,3,4))
+    /// Seq.span(Seq(1,2,3,4,1,2,3,4), x => x 〈 3) == (Seq(1,2), Seq(3,4,1,2,3,4))
     /// </example>
     /// <example>
-    /// Seq.span(Seq(1,2,3), x => x &lt; 9) == (Seq(1,2,3), Seq())
+    /// Seq.span(Seq(1,2,3), x => x 〈 9) == (Seq(1,2,3), Seq())
     /// </example>
     /// <example>
-    /// Seq.span(Seq(1,2,3), x => x &lt; 0) == (Seq(), Seq(1,2,3))
+    /// Seq.span(Seq(1,2,3), x => x 〈 0) == (Seq(), Seq(1,2,3))
     /// </example>
     /// <typeparam name="T">List element type</typeparam>
     /// <param name="self">List</param>

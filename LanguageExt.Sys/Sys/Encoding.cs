@@ -4,15 +4,17 @@ using LanguageExt.Traits;
 namespace LanguageExt.Sys;
 
 public static class Enc<M, RT>
-    where M : StateM<M, RT>, Monad<M>
-    where RT : Has<M, EncodingIO>
+    where M : 
+        MonadIO<M>
+    where RT : 
+        Has<M, EncodingIO>
 {
-    static readonly K<M, EncodingIO> trait = 
-        StateM.getsM<M, RT, EncodingIO>(e => e.Trait);
+    static readonly K<M, EncodingIO> encIO =
+        Has<M, RT, EncodingIO>.ask;
 
     /// <summary>
     /// Encoding
     /// </summary>
     public static K<M, System.Text.Encoding> encoding =>
-        trait.Bind(e => e.Encoding);
+        encIO.Bind(e => e.Encoding);
 }

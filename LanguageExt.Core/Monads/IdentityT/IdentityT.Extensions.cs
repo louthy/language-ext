@@ -4,7 +4,12 @@ namespace LanguageExt;
 
 public static class IdentityTExt
 {
-    public static IdentityT<M, A> As<M, A>(this K<IdentityT<M>, A> ma) 
-        where M : Monad<M>, SemiAlternative<M> =>
-        (IdentityT<M, A>)ma;
+    extension<M, A>(K<IdentityT<M>, A> ma) where M : Monad<M>
+    {
+        public IdentityT<M, A> As() =>
+            (IdentityT<M, A>)ma;
+
+        public K<M, A> Run() =>
+            ((IdentityT<M, A>)ma).Value;
+    }
 }

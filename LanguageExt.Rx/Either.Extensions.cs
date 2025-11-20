@@ -24,7 +24,7 @@ public static class EitherRxExtensions
     /// </summary>
     [Pure]
     public static IObservable<R2> MatchObservable<L, R, R2>(this IObservable<Either<L, R>> self, Func<R, R2> Right, Func<L, R2> Left) =>
-        self.Select(either => match(either, Left, Right));
+        self.Select(either => either.Match(Left, Right));
 
 
     /// <summary>

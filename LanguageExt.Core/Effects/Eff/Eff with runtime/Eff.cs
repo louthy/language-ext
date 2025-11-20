@@ -4,17 +4,17 @@ using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using LanguageExt.Pipes;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
 
 /// <summary>
-/// Transducer based effect/`Eff` monad
+/// This monad is used to encapsulate side effects, exception capture, and dependency-injection via the `RT` runtime. 
 /// </summary>
-/// <typeparam name="RT">Runtime struct</typeparam>
+/// <typeparam name="RT">Runtime type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
+public record Eff<RT, A>(ReaderT<RT, IO, A> effect) : 
+    K<Eff<RT>, A>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -75,23 +75,8 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// </summary>
     [MethodImpl(Opt.Default)]
     Eff(IO<A> effect) 
-        : this(StateT.liftIO<RT, IO, A>(effect))
+        : this(ReaderT.liftIO<RT, IO, A>(effect))
     { }
-
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Timeout
-    //
-
-    /// <summary>
-    /// Cancel the operation if it takes too long
-    /// </summary>
-    /// <param name="timeoutDelay">Timeout period</param>
-    /// <returns>An IO operation that will timeout if it takes too long</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, A> Timeout(TimeSpan timeoutDelay) =>
-        MapIO(io => io.Timeout(timeoutDelay));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -197,22 +182,6 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
         new(ma);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // 
-    // Forking
-    //
-
-    /// <summary>
-    /// Queue this IO operation to run on the thread-pool. 
-    /// </summary>
-    /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
-    /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
-    /// the forked IO operation or to await the result of it.
-    /// </returns>
-    [MethodImpl(Opt.Default)]
-    public Eff<RT, ForkIO<A>> Fork(Option<TimeSpan> timeout = default) =>
-        MapIO(io => io.Fork(timeout));
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Map and map-left
     //
@@ -224,7 +193,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <returns>Mapped `Eff` monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, B> Map<B>(Func<A, B> f) =>
-        BiMap(f, x => x);
+        new (effect.Map(f));
 
     /// <summary>
     /// Maps the `Eff` monad if it's in a success state
@@ -233,7 +202,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <returns>Mapped `Eff` monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, B> Select<B>(Func<A, B> f) =>
-        BiMap(f, x => x);
+        new (effect.Map(f));
 
     /// <summary>
     /// Maps the `Eff` monad if it's in a success state
@@ -242,7 +211,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <returns>Mapped `Eff` monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, A> MapFail(Func<Error, Error> f) =>
-        BiMap(x => x, f);
+        this.Catch(f).As();
 
     /// <summary>
     /// Maps the inner IO monad
@@ -251,17 +220,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <returns>Mapped `Eff` monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, B> MapIO<B>(Func<IO<A>, IO<B>> f) =>
-        from s in getState<RT>()
-        let a = Atom<RT>(s.Runtime)
-        from r in f(RunUnsafeIO(s.Runtime)
-                       .Map(p =>
-                            {
-                                // TODO: This is ugly -- work out whether it's needed
-                                a.Swap(_ => p.Runtime);
-                                return p.Value;
-                            }))
-        from _ in StateM.put<Eff<RT>, RT>(a.Value)
-        select r;
+        IO.mapIO(this, f).As();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -276,28 +235,8 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <param name="Fail">Mapping to use if the `Eff` monad if in a failure state</param>
     /// <returns>Mapped `Eff` monad</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail)
-    {
-        return new(from env in Eff<RT>.getState
-                   from res in go(env.Runtime, env.EnvIO)
-                   select res);
-
-        StateT <RT, IO, B> go(RT env, EnvIO envIO)
-        {
-            try
-            {
-                return StateT<RT, IO, B>.State(mapFirst(Succ, RunUnsafe(env, envIO)));
-            }
-            catch (ErrorException e)
-            {
-                return Fail(e.ToError()).Throw<StateT<RT, IO, B>>();
-            }
-            catch (Exception e)
-            {
-                return Fail(e).Throw<StateT<RT, IO, B>>();
-            }
-        }
-    }    
+    public Eff<RT, B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail) =>
+        Map(Succ).Catch(Fail).As();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -311,28 +250,8 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <param name="Fail">Failure value mapping</param>
     /// <returns>IO in a success state</returns>
     [Pure]
-    public Eff<RT, B> Match<B>(Func<A, B> Succ, Func<Error, B> Fail)
-    {
-        return new(from env in Eff<RT>.getState
-                   from res in go(env.Runtime, env.EnvIO)
-                   select res);
-
-        StateT<RT, IO, B> go(RT env, EnvIO envIO)
-        {
-            try
-            {
-                return StateT<RT, IO, B>.State(mapFirst(Succ, RunUnsafe(env, envIO)));
-            }
-            catch (ErrorException e)
-            {
-                return StateT<RT, IO, B>.State(Fail(e.ToError()), env);
-            }
-            catch (Exception e)
-            {
-                return StateT<RT, IO, B>.State(Fail(e), env);
-            }
-        }
-    }
+    public Eff<RT, B> Match<B>(Func<A, B> Succ, Func<Error, B> Fail) =>
+        Map(Succ).Catch(Fail).As();
 
     /// <summary>
     /// Map the failure to a success value
@@ -341,7 +260,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <returns>IO in a success state</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, A> IfFail(Func<Error, A> Fail) =>
-        Match(Succ: x => x, Fail: Fail);
+        this.Catch(Fail).As();
 
     /// <summary>
     /// Map the failure to a new IO effect
@@ -349,8 +268,8 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <param name="f">Function to map the fail value</param>
     /// <returns>IO that encapsulates that IfFail</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, A> IfFailEff(Func<Error, Eff<RT, A>> Fail) =>
-        Match(Succ: Pure, Fail: Fail).Flatten();
+    public Eff<RT, A> IfFailEff(Func<Error, K<Eff<RT>, A>> Fail) =>
+        this.Catch(Fail).As();
 
     /// <summary>
     /// Map the failure to a new IO effect
@@ -358,8 +277,8 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <param name="f">Function to map the fail value</param>
     /// <returns>IO that encapsulates that IfFail</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, A> IfFailEff(Func<Error, Eff<A>> Fail) =>
-        Match(Succ: Pure, Fail: x => Fail(x).WithRuntime<RT>()).Flatten();    
+    public Eff<RT, A> IfFailEff(Func<Error, K<Eff, A>> Fail) =>
+        IfFailEff(e => Fail(e).As().WithRuntime<RT>());
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -419,29 +338,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <param name="f">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, Unit> Bind(Func<A, Put<RT>> f) =>
-        new(effect.Bind(f));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, B> Bind<B>(Func<A, Gets<RT, B>> f) =>
-        new(effect.Bind(f));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, Unit> Bind(Func<A, Modify<RT>> f) =>
+    public Eff<RT, B> Bind<B>(Func<A, Ask<RT, B>> f) =>
         new(effect.Bind(f));
 
     /// <summary>
@@ -556,29 +453,7 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// <param name="bind">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, C> SelectMany<C>(Func<A, Put<RT>> bind, Func<A, Unit, C> project) =>
-        new(effect.SelectMany(bind, project));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="bind">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, C> SelectMany<B, C>(Func<A, Gets<RT, B>> bind, Func<A, B, C> project) =>
-        new(effect.SelectMany(bind, project));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="bind">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, C> SelectMany<C>(Func<A, Modify<RT>> bind, Func<A, Unit, C> project) =>
+    public Eff<RT, C> SelectMany<B, C>(Func<A, Ask<RT, B>> bind, Func<A, B, C> project) =>
         new(effect.SelectMany(bind, project));
 
     /// <summary>
@@ -650,189 +525,21 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    // Folding
-    //
-
-    /// <summary>
-    /// Fold the effect forever or until the schedule expires
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, S> Fold<S>(
-        Schedule schedule,
-        S initialState,
-        Func<S, A, S> folder) =>
-        MapIO(io => io.Fold(schedule, initialState, folder));
-
-    /// <summary>
-    /// Fold the effect forever
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, S> Fold<S>(
-        S initialState,
-        Func<S, A, S> folder) =>
-        MapIO(io => io.Fold(initialState, folder));
-
-    /// <summary>
-    /// Fold the effect until the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, S> FoldUntil<S>(
-        Schedule schedule,
-        S initialState,
-        Func<S, A, S> folder,
-        Func<(S State, A Value), bool> predicate) =>
-        MapIO(io => io.FoldUntil(schedule, initialState, folder, predicate));
-
-    /// <summary>
-    /// Fold the effect until the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, S> FoldUntil<S>(
-        Schedule schedule,
-        S initialState,
-        Func<S, A, S> folder,
-        Func<S, bool> stateIs) =>
-        MapIO(io => io.FoldUntil(schedule, initialState, folder, stateIs));
-
-    /// <summary>
-    /// Fold the effect until the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, S> FoldUntil<S>(
-        Schedule schedule,
-        S initialState,
-        Func<S, A, S> folder,
-        Func<A, bool> valueIs) =>
-        MapIO(io => io.FoldUntil(schedule, initialState, folder, valueIs));
-
-    /// <summary>
-    /// Fold the effect until the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, S> FoldUntil<S>(
-        S initialState,
-        Func<S, A, S> folder,
-        Func<(S State, A Value), bool> predicate) =>
-        MapIO(io => io.FoldUntil(initialState, folder, predicate));
-
-    /// <summary>
-    /// Fold the effect until the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, S> FoldUntil<S>(
-        S initialState,
-        Func<S, A, S> folder,
-        Func<S, bool> stateIs) =>
-        MapIO(io => io.FoldUntil(initialState, folder, stateIs));
-
-    /// <summary>
-    /// Fold the effect until the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, S> FoldUntil<S>(
-        S initialState,
-        Func<S, A, S> folder,
-        Func<A, bool> valueIs) =>
-        MapIO(io => io.FoldUntil(initialState, folder, valueIs));
-
-    /// <summary>
-    /// Fold the effect while the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, S> FoldWhile<S>(
-        Schedule schedule,
-        S initialState,
-        Func<S, A, S> folder,
-        Func<(S State, A Value), bool> predicate) =>
-        MapIO(io => io.FoldWhile(schedule, initialState, folder, predicate));
-
-    /// <summary>
-    /// Fold the effect while the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, S> FoldWhile<S>(
-        Schedule schedule,
-        S initialState,
-        Func<S, A, S> folder,
-        Func<S, bool> stateIs) =>
-        MapIO(io => io.FoldWhile(schedule, initialState, folder, stateIs));
-
-    /// <summary>
-    /// Fold the effect while the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, S> FoldWhile<S>(
-        Schedule schedule,
-        S initialState,
-        Func<S, A, S> folder,
-        Func<A, bool> valueIs) =>
-        MapIO(io => io.FoldWhile(schedule, initialState, folder, valueIs));
-
-    /// <summary>
-    /// Fold the effect while the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, S> FoldWhile<S>(
-        S initialState,
-        Func<S, A, S> folder,
-        Func<(S State, A Value), bool> predicate) =>
-        MapIO(io => io.FoldWhile(initialState, folder, predicate));
-
-    /// <summary>
-    /// Fold the effect while the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, S> FoldWhile<S>(
-        S initialState,
-        Func<S, A, S> folder,
-        Func<S, bool> stateIs) =>
-        MapIO(io => io.FoldWhile(initialState, folder, stateIs));
-
-    /// <summary>
-    /// Fold the effect until the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, S> FoldWhile<S>(
-        S initialState,
-        Func<S, A, S> folder,
-        Func<A, bool> valueIs) =>
-        MapIO(io => io.FoldWhile(initialState, folder, valueIs));
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Synchronisation between contexts
-    //
-
-    /// <summary>
-    /// Make the effect run on the `SynchronizationContext` that was captured at the start
-    /// of an `Run` call.
-    /// </summary>
-    /// <remarks>
-    /// The effect receives its input value from the currently running sync-context and
-    /// then proceeds to run its operation in the captured `SynchronizationContext`:
-    /// typically a UI context, but could be any captured context.  The result of the
-    /// effect is the received back on the currently running sync-context.
-    /// </remarks>
-    public Eff<RT, A> Post() =>
-        MapIO(io => io.Post());
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Operators
+    // Conversion operators
     //
 
     /// <summary>
     /// Convert to an `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Eff<RT, A>(in Pure<A> ma) =>
+    public static implicit operator Eff<RT, A>(Pure<A> ma) =>
         ma.ToEff<RT>();
 
     /// <summary>
     /// Convert to an `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Eff<RT, A>(in Fail<Error> ma) =>
+    public static implicit operator Eff<RT, A>(Fail<Error> ma) =>
         ma.ToEff<RT, A>();
 
     /// <summary>
@@ -888,216 +595,12 @@ public record Eff<RT, A>(StateT<RT, IO, A> effect) : K<Eff<RT>, A>
     /// Convert to an `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Eff<RT, A>(in Effect<Eff<RT>, A> ma) =>
-        ma.RunEffect().As();
-
-    /// <summary>
-    /// Convert to an `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
     public static implicit operator Eff<RT, A>(in IO<A> ma) =>
         LiftIO(ma);
 
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, Eff<RT, A> mb) =>
-        ma.IfFailEff(_ => mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative value if the IO operation fails</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, Pure<A> mb) =>
-        new (ma | (Eff<RT, A>)mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="error">Alternative value if the IO operation fails</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, Fail<Error> error) =>
-        new (ma | (Eff<RT, A>)error);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="error">Error if the IO operation fails</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, Error error) =>
-        new (ma | Fail(error));
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="value">Alternative value if the IO operation fails</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, A value) =>
-        new (ma | (Eff<RT, A>)Prelude.Pure(value));
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchError<Error> mb) =>
-        ma.MapFail(e => mb.Match(e) ? mb.Value(e) : e);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchError mb) =>
-        ma.MapFail(e => mb.Match(e) ? mb.Value(e) : e);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchError<Exception> mb) =>
-        ma.MapFail(e => mb.Match(e) ? mb.Value(e) : e);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchValue<Error, A> mb) =>
-        ma.IfFailEff(e => mb.Match(e) ? Pure(mb.Value(e)) : Fail(e));
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchValue<Exception, A> mb) =>
-        ma.IfFailEff(e => mb.Match(e) ? Pure(mb.Value(e)) : Fail(e));
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchValue<A> mb) =>
-        ma.IfFailEff(e => mb.Match(e) ? Pure(mb.Value(e)) : Fail(e));
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchM<Eff<RT>, A> mb) =>
-        ma.IfFailEff(e => mb.Match(e) ? mb.Value(e).As() : Fail(e));
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> operator |(Eff<RT, A> ma, CatchM<Eff, A> mb) =>
-        ma.IfFailEff(e => mb.Match(e) ? mb.Value(e).As().WithRuntime<RT>() : Fail(e));
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Invoking
-    //
-
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
-    /// Returns the result value only 
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public Fin<A> Run(RT env, EnvIO envIO) =>
-        RunState(env, envIO).Map(x => x.Value);
-    
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
-    /// Returns the result value and the runtime (which carries state) 
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public Fin<(A Value, RT Runtime)> RunState(RT env, EnvIO envIO)
-    {
-        try
-        {
-            return RunUnsafe(env, envIO);
-        }
-        catch(Exception e)
-        {
-            return Fin<(A Value, RT Runtime)>.Fail(e);
-        }
-    }
-
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
-    /// This is labelled 'unsafe' because it can throw an exception, whereas
-    /// `Run` will capture any errors and return a `Fin` type.
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public (A Value, RT Runtime) RunUnsafe(RT env, EnvIO envIO) => 
-        effect
-          .Run(env).As()
-          .Run(envIO);
-
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    /// <remarks>
-    /// This is labelled 'unsafe' because it can throw an exception, whereas
-    /// `Run` will capture any errors and return a `Fin` type.
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<(A Value, RT Runtime)> RunUnsafeIO(RT env) => 
-        effect.Run(env).As();
+    public static implicit operator Eff<RT, A>(Error fail) =>
+        Fail(fail);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

@@ -8,27 +8,29 @@ using System.Diagnostics.Contracts;
 using LanguageExt.UnsafeValueAccess;
 using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
-using static LanguageExt.Pipes.Proxy;
+using static LanguageExt.Pipes.PipeT;
 
 namespace LanguageExt.Sys.IO;
 
 public static class TextRead<M, RT>
-    where RT : Has<M, TextReadIO>
-    where M : StateM<M, RT>, Monad<M>
+    where RT : 
+        Has<M, TextReadIO>
+    where M : 
+        MonadIO<M>
 {
-    static readonly K<M, TextReadIO> trait = 
-        StateM.getsM<M, RT, TextReadIO>(e => e.Trait); 
+    static K<M, TextReadIO> textReadIO => 
+        Has<M, RT, TextReadIO>.ask;
     
     /// <summary>
     /// Open a text file and streams the lines through the pipe
     /// </summary>
     [Pure]
-    public static Pipe<TextReader, string, M, Unit> readLine
+    public static PipeT<TextReader, string, M, Unit> readLine
     {
         get
         {
-            return from tr in awaiting<TextReader>()
-                   from _  in yieldAll(go(tr))
+            return from tr in awaiting<M, TextReader, string>()
+                   from _  in yieldAll<M, TextReader, string>(go(tr))
                    select unit;
 
             static async IAsyncEnumerable<string> go(TextReader reader)
@@ -47,12 +49,12 @@ public static class TextRead<M, RT>
     /// Open a text file and streams the chars through the pipe
     /// </summary>
     [Pure]
-    public static Pipe<TextReader, char, M, Unit> readChar
+    public static PipeT<TextReader, char, M, Unit> readChar
     {
         get
         {
-            return from tr in awaiting<TextReader>()
-                   from _  in yieldAll(go(tr))
+            return from tr in awaiting<M, TextReader, char>()
+                   from _  in yieldAll<M, TextReader, char>(go(tr))
                    select unit;
 
             static async IAsyncEnumerable<char> go(TextReader reader)
@@ -66,26 +68,26 @@ public static class TextRead<M, RT>
                 }
             }
         }
-    }         
-        
+    }
+
     /// <summary>
     /// Read the rest of the text in the stream
     /// </summary>
     [Pure]
-    public static Pipe<TextReader, string, M, Unit> readToEnd =>
-        from tr in awaiting<TextReader>()
-        from tx in IO<string>.LiftAsync(async e => await tr.ReadToEndAsync(e.Token))
-        from __ in yield(tx)
+    public static PipeT<TextReader, string, M, Unit> readToEnd =>
+        from tr in awaiting<M, TextReader, string>()
+        from tx in LanguageExt.IO.liftAsync(async e => await tr.ReadToEndAsync(e.Token))
+        from __ in yield<M, TextReader, string>(tx)
         select unit;
 
     /// <summary>
     /// Repeatedly read a number of chars from the stream
     /// </summary>
     [Pure]
-    public static Pipe<TextReader, SeqLoan<char>, M, Unit> readChars(int charCount)
+    public static PipeT<TextReader, SeqLoan<char>, M, Unit> readChars(int charCount)
     {
-        return from tr in awaiting<TextReader>()
-               from _  in yieldAll(go(tr, charCount))
+        return from tr in awaiting<M, TextReader, SeqLoan<char>>()
+               from _  in yieldAll<M, TextReader, SeqLoan<char>>(go(tr, charCount))
                select unit;
 
         static async IAsyncEnumerable<SeqLoan<char>> go(TextReader reader, int count)
@@ -105,10 +107,10 @@ public static class TextRead<M, RT>
     /// Read a number of chars from the stream
     /// </summary>
     [Pure]
-    public static Pipe<TextReader, string, M, Unit> read(int charCount)
+    public static PipeT<TextReader, string, M, Unit> read(int charCount)
     {
-        return from tr in awaiting<TextReader>()
-               from _  in yieldAll(go(tr, charCount))
+        return from tr in awaiting<M, TextReader, string>()
+               from _  in yieldAll<M, TextReader, string>(go(tr, charCount))
                select unit;
 
         static async IAsyncEnumerable<string> go(TextReader reader, int count)
@@ -136,5 +138,5 @@ public static class TextRead<M, RT>
     /// </summary>
     [Pure, MethodImpl(EffOpt.mops)]
     public static K<M, Unit> close(TextReader reader) =>
-        trait.Bind(e => e.Close(reader));
+        textReadIO.Bind(e => e.Close(reader));
 }

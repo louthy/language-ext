@@ -20,6 +20,18 @@ public record FileIO : Sys.Traits.FileIO
         lift(() => File.Copy(fromPath, toPath, overwrite));
 
     /// <summary>
+    /// Move file from one place to another
+    /// </summary>
+    public IO<Unit> Move(string fromPath, string toPath) =>
+        lift(() => File.Move(fromPath, toPath));
+
+    /// <summary>
+    /// Move file from one place to another
+    /// </summary>
+    public IO<Unit> Move(string fromPath, string toPath, bool overwrite) =>
+        lift(() => File.Move(fromPath, toPath, overwrite));
+
+    /// <summary>
     /// Append lines to the end of a file
     /// </summary>
     public IO<Unit> AppendAllLines(string path, IEnumerable<string> lines, Encoding encoding) =>
@@ -33,7 +45,7 @@ public record FileIO : Sys.Traits.FileIO
     /// Read all lines from a file
     /// </summary>
     public IO<Seq<string>> ReadAllLines(string path, Encoding encoding) =>
-        liftIO(async env => (await File.ReadAllLinesAsync(path, encoding, env.Token).ConfigureAwait(false)).AsEnumerableM().ToSeq());
+        liftIO(async env => (await File.ReadAllLinesAsync(path, encoding, env.Token).ConfigureAwait(false)).AsIterable().ToSeq());
 
     /// <summary>
     /// Write all lines to a file

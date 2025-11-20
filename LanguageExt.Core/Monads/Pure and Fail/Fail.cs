@@ -30,18 +30,7 @@ public readonly record struct Fail<E>(E Value)
     //
 
     public Either<E, A> ToEither<A>() =>
-        Either<E, A>.Left(Value);
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Transducer
-    //
-
-    public Transducer<Unit, E> ToTransducer() =>
-        Transducer.pure(Value);
-
-    public Reducer<Unit, S> Transform<S>(Reducer<E, S> reduce) =>
-        ToTransducer().Transform(reduce);
+        Either.Left<E, A>(Value);
 
     public override string ToString() =>
         $"Fail({Value})";
@@ -49,8 +38,8 @@ public readonly record struct Fail<E>(E Value)
     public Either<E, C> SelectMany<B, C>(Func<Unit, Pure<B>> bind, Func<Unit, B, C> project) =>
         this;
 
-    public Either<E, C> SelectMany<B, C>(Func<Unit, Option<B>> bind, Func<Unit, B, C> project) =>
-        this;
+    public Option<C> SelectMany<B, C>(Func<Unit, Option<B>> bind, Func<Unit, B, C> project) =>
+        default;
 }
 
 public static class FailExtensions
@@ -61,11 +50,11 @@ public static class FailExtensions
     //
     
     public static Fin<A> ToFin<A>(this Fail<Error> fail) =>
-        Fin<A>.Fail(fail.Value);
+        Fin.Fail<A>(fail.Value);
     
     public static Validation<F, A> ToValidation<F, A>(this Fail<F> fail) 
         where F : Monoid<F> =>
-        Validation<F, A>.Fail(fail.Value);
+        Validation.Fail<F, A>(fail.Value);
     
     public static Eff<RT, A> ToEff<RT, A>(this Fail<Error> fail) =>
         Eff<RT, A>.Fail(fail.Value);

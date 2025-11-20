@@ -13,10 +13,9 @@ namespace LanguageExt;
 /// accessors (Metres, Centimetres, etc.) or divide by 1.Metre()
 /// </summary>
 public readonly struct Length :
-    IComparable<Length>,
-    IEquatable<Length>,
     IComparable,
-    AmountLike<Length, double, double> 
+    DomainType<Length, double>,
+    Amount<Length, double> 
 {
     readonly double Value;
 
@@ -130,23 +129,27 @@ public readonly struct Length :
     public Length Max(Length rhs) =>
         new (Math.Max(Value, rhs.Value));
 
-    public double Miles       => Value * 6.2137119223484848484848484848485e-4;
-    public double Yards       => Value * 1.0936132983333333333333333333333;
-    public double Feet        => Value * 3.280839895;
-    public double Inches      => Value * 39.37007874;
-    public double Kilometres  => Value / 1000.0;
-    public double Hectometres => Value / 100.0;
-    public double Decametres  => Value / 10.0;
-    public double Metres      => Value;
-    public double Centimetres => Value * 100.0;
-    public double Millimetres => Value * 1000.0;
-    public double Micrometres => Value * 1000000.0;
-    public double Nanometres  => Value * 1000000000.0;
-    public double Angstroms   => Value * 10000000000.0;
+    public double Miles         => Value * 6.2137119223484848484848484848485e-4;
+    public double NauticalMiles => Value * 1852.0;
+    public double Yards         => Value * 1.0936132983333333333333333333333;
+    public double Feet          => Value * 3.280839895;
+    public double Inches        => Value * 39.37007874;
+    public double Kilometres    => Value / 1000.0;
+    public double Hectometres   => Value / 100.0;
+    public double Decametres    => Value / 10.0;
+    public double Metres        => Value;
+    public double Centimetres   => Value * 100.0;
+    public double Millimetres   => Value * 1000.0;
+    public double Micrometres   => Value * 1000000.0;
+    public double Nanometres    => Value * 1000000000.0;
+    public double Angstroms     => Value * 10000000000.0;
     
+    static Fin<Length> DomainType<Length, double>.From(double repr) =>
+        new Length(repr);
+
     public static Length From(double repr) => 
         new (repr);
-
+    
     public double To() =>
         Value;
 }
@@ -161,6 +164,15 @@ public static class UnitsLengthExtensions
 
     public static Length Miles(this double self) =>
         new (1609.344000006437376000025749504 * self);
+
+    public static Length NauticalMiles(this int self) =>
+        new (self / 1852.0);
+
+    public static Length NauticalMiles(this float self) =>
+        new (self / 1852.0);
+
+    public static Length NauticalMiles(this double self) =>
+        new (self / 1852.0);
 
     public static Length Yards(this int self) =>
         new (0.9144000000036576000000146304 * self);

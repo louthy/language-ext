@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
@@ -79,7 +80,7 @@ public readonly struct Map<OrdK, K, V> :
     ///
     ///     Empty collection     = null
     ///     Singleton collection = (K, V)
-    ///     More                 = ((K, V), Seq<(K, V)>)   -- head and tail
+    ///     More                 = ((K, V), Seq〈(K, V)〉)   -- head and tail
     ///
     ///     var res = list.Case switch
     ///     {
@@ -94,7 +95,7 @@ public readonly struct Map<OrdK, K, V> :
     public object? Case =>
         IsEmpty 
             ? null
-            : AsEnumerable().ToSeq().Case;
+            : AsIterable().ToSeq().Case;
 
     /// <summary>
     /// 'this' accessor
@@ -474,7 +475,7 @@ public readonly struct Map<OrdK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
     /// <returns>Range of values</returns>
     [Pure]
-    public EnumerableM<V> FindRange(K keyFrom, K keyTo) => Value.FindRange(keyFrom, keyTo);
+    public Iterable<V> FindRange(K keyFrom, K keyTo) => Value.FindRange(keyFrom, keyTo);
 
     /// <summary>
     /// Retrieve a range of values 
@@ -484,7 +485,7 @@ public readonly struct Map<OrdK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
     /// <returns>Range of values</returns>
     [Pure]
-    public EnumerableM<(K Key, V Value)> FindRangePairs(K keyFrom, K keyTo) => Value.FindRangePairs(keyFrom, keyTo);
+    public Iterable<(K Key, V Value)> FindRangePairs(K keyFrom, K keyTo) => Value.FindRangePairs(keyFrom, keyTo);
 
     /// <summary>
     /// Skips 'amount' values and returns a new tree without the 
@@ -493,7 +494,7 @@ public readonly struct Map<OrdK, K, V> :
     /// <param name="amount">Amount to skip</param>
     /// <returns>New tree</returns>
     [Pure]
-    public EnumerableM<(K Key, V Value)> Skip(int amount) => Value.Skip(amount);
+    public Iterable<(K Key, V Value)> Skip(int amount) => Value.Skip(amount);
 
     /// <summary>
     /// Checks for existence of a key in the map
@@ -604,13 +605,13 @@ public readonly struct Map<OrdK, K, V> :
     /// Enumerable of map keys
     /// </summary>
     [Pure]
-    public EnumerableM<K> Keys => Value.Keys;
+    public Iterable<K> Keys => Value.Keys;
 
     /// <summary>
     /// Enumerable of map values
     /// </summary>
     [Pure]
-    public EnumerableM<V> Values => Value.Values;
+    public Iterable<V> Values => Value.Values;
 
     /// <summary>
     /// Map the map the a dictionary
@@ -625,7 +626,7 @@ public readonly struct Map<OrdK, K, V> :
     /// </summary>
     /// <returns>Tuples</returns>
     [Pure]
-    public EnumerableM<(K Key, V Value)> Pairs =>
+    public Iterable<(K Key, V Value)> Pairs =>
         Value.Pairs;
 
     /// <summary>
@@ -634,7 +635,7 @@ public readonly struct Map<OrdK, K, V> :
     /// <returns>Tuples</returns>
     [Pure]
     [Obsolete("Use `Pairs` instead")]
-    public EnumerableM<(K Key, V Value)> ValueTuples =>
+    public Iterable<(K Key, V Value)> ValueTuples =>
         Value.Pairs;
 
     /// <summary>
@@ -653,7 +654,7 @@ public readonly struct Map<OrdK, K, V> :
 
     [Pure]
     public Seq<(K Key, V Value)> ToSeq() =>
-        AsEnumerable().ToSeq();
+        AsIterable().ToSeq();
 
     /// <summary>
     /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
@@ -679,9 +680,11 @@ public readonly struct Map<OrdK, K, V> :
     public string ToFullArrayString(string separator = ", ") =>
         CollectionFormat.ToFullArrayString(Pairs.Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
-
     [Pure]
-    public EnumerableM<(K Key, V Value)> AsEnumerable() => 
+    public Iterable<(K Key, V Value)> AsIterable() => 
+        Value.AsIterable();
+
+    [Pure] public IEnumerable<(K Key, V Value)> AsEnumerable() => 
         Value.AsEnumerable();
 
     internal Map<OrdK, K, V> SetRoot(MapItem<K, V> root) => 
@@ -724,14 +727,14 @@ public readonly struct Map<OrdK, K, V> :
         new(lhs.Value - rhs.Value);
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public override bool Equals(object? obj) =>
         obj is Map<OrdK, K, V> m && Equals(m);
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public bool Equals(Map<OrdK, K, V> y) =>
@@ -778,7 +781,7 @@ public readonly struct Map<OrdK, K, V> :
     [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public Map<OrdK, K, U> Select<U>(Func<V, U> mapper) =>
-        new (MapModule.Map(Value.Root, mapper), Value.Rev);
+        new (AsEnumerable().Select(kv => (kv.Key, mapper(kv.Value))));
 
     /// <summary>
     /// Atomically maps the map to a new map
@@ -787,7 +790,7 @@ public readonly struct Map<OrdK, K, V> :
     [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public Map<OrdK, K, U> Select<U>(Func<K, V, U> mapper) =>
-        new (MapModule.Map(Value.Root, mapper), Value.Rev);
+        new (AsEnumerable().Select(kv => (kv.Key, mapper(kv.Key, kv.Value))));
 
     /// <summary>
     /// Atomically filter out items that return false when a predicate is applied
@@ -1153,6 +1156,7 @@ public readonly struct Map<OrdK, K, V> :
     /// Intersect two maps.  Only keys that are in both maps are
     /// returned.  The merge function is called for every resulting
     /// key.
+    /// </summary>
     [Pure]
     public Map<OrdK, K, R> Intersect<V2, R>(Map<OrdK, K, V2> other, WhenMatched<K, V, V2, R> Merge) =>
         new (Value.Intersect(other.Value, Merge));
@@ -1173,7 +1177,7 @@ public readonly struct Map<OrdK, K, V> :
         new (Value.SymmetricExcept(other.Value));
 
     /// <summary>
-    /// Compare keys and values (values use `OrdDefault<V>` for ordering)
+    /// Compare keys and values (values use `OrdDefault〈V〉` for ordering)
     /// </summary>
     [Pure]
     public int CompareTo(Map<OrdK, K, V> other) =>
@@ -1247,7 +1251,7 @@ public readonly struct Map<OrdK, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
-        AsEnumerable().Map(p => new KeyValuePair<K, V>(p.Key, p.Value)).GetEnumerator();    
+        AsIterable().Map(p => new KeyValuePair<K, V>(p.Key, p.Value)).GetEnumerator();    
 
     public static Map<OrdK, K, V> AdditiveIdentity => 
         Empty;

@@ -8,9 +8,9 @@ namespace LanguageExt;
 /// <summary>
 /// Time series of durations
 /// </summary>
-internal record SchItems(EnumerableM<Duration> Items) : Schedule
+internal record SchItems(Iterable<Duration> Items) : Schedule
 {
-    public override EnumerableM<Duration> Run() =>
+    public override Iterable<Duration> Run() =>
         Items;
 }
 
@@ -19,7 +19,7 @@ internal record SchItems(EnumerableM<Duration> Items) : Schedule
 /// </summary>
 internal record SchMap(Schedule Schedule, Func<Duration, Duration> F) : Schedule 
 {
-    public override EnumerableM<Duration> Run() =>
+    public override Iterable<Duration> Run() =>
         Schedule.Run().Map(F);
 }
 
@@ -28,7 +28,7 @@ internal record SchMap(Schedule Schedule, Func<Duration, Duration> F) : Schedule
 /// </summary>
 internal record SchMapIndex(Schedule Schedule, Func<Duration, int, Duration> F) : Schedule 
 {
-    public override EnumerableM<Duration> Run() =>
+    public override Iterable<Duration> Run() =>
         Schedule.Run().Select(F);
 }
 
@@ -37,7 +37,7 @@ internal record SchMapIndex(Schedule Schedule, Func<Duration, int, Duration> F) 
 /// </summary>
 internal record SchFilter(Schedule Schedule, Func<Duration, bool> Pred) : Schedule 
 {
-    public override EnumerableM<Duration> Run() =>
+    public override Iterable<Duration> Run() =>
         Schedule.Run().Filter(Pred);
 }
 
@@ -46,7 +46,7 @@ internal record SchFilter(Schedule Schedule, Func<Duration, bool> Pred) : Schedu
 /// </summary>
 internal record SchBind(Schedule Schedule, Func<Duration, Schedule> BindF) : Schedule
 {
-    public override EnumerableM<Duration> Run() =>
+    public override Iterable<Duration> Run() =>
         Schedule.Run().Bind(x => BindF(x).Run());
 }    
 
@@ -55,7 +55,7 @@ internal record SchBind(Schedule Schedule, Func<Duration, Schedule> BindF) : Sch
 /// </summary>
 internal record SchBind2(Schedule Schedule, Func<Duration, Schedule> BindF, Func<Duration, Duration, Duration> Project) : Schedule
 {
-    public override EnumerableM<Duration> Run() =>
+    public override Iterable<Duration> Run() =>
         Schedule.Run().Bind(x => BindF(x).Run().Map(y => Project(x, y)));
 }
 
@@ -64,7 +64,7 @@ internal record SchBind2(Schedule Schedule, Func<Duration, Schedule> BindF, Func
 /// </summary>
 internal record SchTail(Schedule Schedule) : Schedule
 {
-    public override EnumerableM<Duration> Run() =>
+    public override Iterable<Duration> Run() =>
         Schedule.Run().Tail();
 }    
 
@@ -73,7 +73,7 @@ internal record SchTail(Schedule Schedule) : Schedule
 /// </summary>
 internal record SchSkip(Schedule Schedule, int Count) : Schedule
 {
-    public override EnumerableM<Duration> Run() =>
+    public override Iterable<Duration> Run() =>
         Schedule.Run().Skip(Count);
 }    
 
@@ -82,7 +82,7 @@ internal record SchSkip(Schedule Schedule, int Count) : Schedule
 /// </summary>
 internal record SchTake(Schedule Schedule, int Count) : Schedule
 {
-    public override EnumerableM<Duration> Run() =>
+    public override Iterable<Duration> Run() =>
         Schedule.Run().Take(Count);
 }
 
@@ -91,7 +91,7 @@ internal record SchTake(Schedule Schedule, int Count) : Schedule
 /// </summary>
 internal record SchCombine(Schedule Left, Schedule Right) : Schedule
 {
-    public override EnumerableM<Duration> Run() =>
+    public override Iterable<Duration> Run() =>
         Left.Run().Combine(Right.Run());
 }    
 
@@ -100,7 +100,7 @@ internal record SchCombine(Schedule Left, Schedule Right) : Schedule
 /// </summary>
 internal record SchInterleave(Schedule Left, Schedule Right) : Schedule
 {
-    public override EnumerableM<Duration> Run() =>
+    public override Iterable<Duration> Run() =>
         Left.Run()
             .Zip(Right.Run(), static (d1, d2) => new[] {d1, d2})
             .SelectMany(x => x);
@@ -111,9 +111,9 @@ internal record SchInterleave(Schedule Left, Schedule Right) : Schedule
 /// </summary>
 internal record SchUnion(Schedule Left, Schedule Right) : Schedule
 {
-    public override EnumerableM<Duration> Run()
+    public override Iterable<Duration> Run()
     {
-        return Go().AsEnumerableM();
+        return Go().AsIterable();
         IEnumerable<Duration> Go()
         {
             using var aEnumerator = Left.Run().GetEnumerator();
@@ -144,7 +144,7 @@ internal record SchUnion(Schedule Left, Schedule Right) : Schedule
 /// </summary>
 internal record SchIntersect(Schedule Left, Schedule Right) : Schedule
 {
-    public override EnumerableM<Duration> Run() =>
+    public override Iterable<Duration> Run() =>
         Left.Run()
             .Zip(Right.Run())
             .Map(static t => (Duration)Math.Max(t.Item1, t.Item2));
@@ -155,9 +155,9 @@ internal record SchIntersect(Schedule Left, Schedule Right) : Schedule
 /// </summary>
 internal record SchCons(Duration Left, Schedule Right) : Schedule
 {
-    public override EnumerableM<Duration> Run()
+    public override Iterable<Duration> Run()
     {
-        return Go().AsEnumerableM();
+        return Go().AsIterable();
         IEnumerable<Duration> Go()
         {
             yield return Left;
@@ -171,9 +171,9 @@ internal record SchCons(Duration Left, Schedule Right) : Schedule
 
 internal record SchRepeatForever(Schedule Schedule) : Schedule
 {
-    public override EnumerableM<Duration> Run()
+    public override Iterable<Duration> Run()
     {
-        return Go().AsEnumerableM();
+        return Go().AsIterable();
         IEnumerable<Duration> Go()
         {
             while (true)
@@ -185,9 +185,9 @@ internal record SchRepeatForever(Schedule Schedule) : Schedule
 
 internal record SchLinear(Duration Seed, double Factor) : Schedule
 {
-    public override EnumerableM<Duration> Run()
+    public override Iterable<Duration> Run()
     {
-        return Go().AsEnumerableM();
+        return Go().AsIterable();
         IEnumerable<Duration> Go()
         {
             Duration delayToAdd  = Seed * Factor;
@@ -205,9 +205,9 @@ internal record SchLinear(Duration Seed, double Factor) : Schedule
 
 internal record SchFibonacci(Duration Seed) : Schedule
 {
-    public override EnumerableM<Duration> Run()
+    public override Iterable<Duration> Run()
     {
-        return Go().AsEnumerableM();
+        return Go().AsIterable();
         IEnumerable<Duration> Go()
         {
             var last        = Duration.Zero;
@@ -229,9 +229,9 @@ internal record SchForever : Schedule
 {
     public static readonly Schedule Default = new SchForever();
 
-    public override EnumerableM<Duration> Run()
+    public override Iterable<Duration> Run()
     {
-        return Go().AsEnumerableM();
+        return Go().AsIterable();
         IEnumerable<Duration> Go()
         {
             while(true) yield return Duration.Zero;
@@ -243,15 +243,15 @@ internal record SchNever : Schedule
 {
     public static readonly Schedule Default = new SchNever();
 
-    public override EnumerableM<Duration> Run() =>
-        EnumerableM.empty<Duration>();
+    public override Iterable<Duration> Run() =>
+        Iterable.empty<Duration>();
 }
 
 internal record SchUpTo(Duration Max, Func<DateTime>? CurrentTimeFn = null) : Schedule
 {
-    public override EnumerableM<Duration> Run()
+    public override Iterable<Duration> Run()
     {
-        return Go().AsEnumerableM();
+        return Go().AsIterable();
         IEnumerable<Duration> Go()
         {
             var now       = CurrentTimeFn ?? LiveNowFn;
@@ -265,9 +265,9 @@ internal record SchUpTo(Duration Max, Func<DateTime>? CurrentTimeFn = null) : Sc
 
 internal record SchFixed(Duration Interval, Func<DateTime>? CurrentTimeFn = null) : Schedule
 {
-    public override EnumerableM<Duration> Run()
+    public override Iterable<Duration> Run()
     {
-        return Go().AsEnumerableM();
+        return Go().AsIterable();
         IEnumerable<Duration> Go()
         {
             var now         = CurrentTimeFn ?? LiveNowFn;
@@ -295,9 +295,9 @@ internal record SchFixed(Duration Interval, Func<DateTime>? CurrentTimeFn = null
 
 internal record SchWindowed(Duration Interval, Func<DateTime>? CurrentTimeFn = null) : Schedule
 {
-    public override EnumerableM<Duration> Run()
+    public override Iterable<Duration> Run()
     {
-        return Go().AsEnumerableM();
+        return Go().AsIterable();
         IEnumerable<Duration> Go()
         {
             var now       = CurrentTimeFn ?? LiveNowFn;
@@ -313,9 +313,9 @@ internal record SchWindowed(Duration Interval, Func<DateTime>? CurrentTimeFn = n
 
 internal record SchSecondOfMinute(int Second, Func<DateTime>? CurrentTimeFn = null) : Schedule
 {
-    public override EnumerableM<Duration> Run()
+    public override Iterable<Duration> Run()
     {
-        return Go().AsEnumerableM();
+        return Go().AsIterable();
         IEnumerable<Duration> Go()
         {
             var now = CurrentTimeFn ?? LiveNowFn;
@@ -327,9 +327,9 @@ internal record SchSecondOfMinute(int Second, Func<DateTime>? CurrentTimeFn = nu
 
 internal record SchMinuteOfHour(int Minute, Func<DateTime>? CurrentTimeFn = null) : Schedule
 {
-    public override EnumerableM<Duration> Run()
+    public override Iterable<Duration> Run()
     {
-        return Go().AsEnumerableM();
+        return Go().AsIterable();
         IEnumerable<Duration> Go()
         {
             var now = CurrentTimeFn ?? LiveNowFn;
@@ -341,9 +341,9 @@ internal record SchMinuteOfHour(int Minute, Func<DateTime>? CurrentTimeFn = null
 
 internal record SchHourOfDay(int Hour, Func<DateTime>? CurrentTimeFn = null) : Schedule
 {
-    public override EnumerableM<Duration> Run()
+    public override Iterable<Duration> Run()
     {
-        return Go().AsEnumerableM();
+        return Go().AsIterable();
         IEnumerable<Duration> Go()
         {
             var now = CurrentTimeFn ?? LiveNowFn;
@@ -355,9 +355,9 @@ internal record SchHourOfDay(int Hour, Func<DateTime>? CurrentTimeFn = null) : S
 
 internal record SchDayOfWeek(DayOfWeek Day, Func<DateTime>? CurrentTimeFn = null) : Schedule
 {
-    public override EnumerableM<Duration> Run()
+    public override Iterable<Duration> Run()
     {
-        return Go().AsEnumerableM();
+        return Go().AsIterable();
         IEnumerable<Duration> Go()
         {
             var now = CurrentTimeFn ?? LiveNowFn;
@@ -369,15 +369,15 @@ internal record SchDayOfWeek(DayOfWeek Day, Func<DateTime>? CurrentTimeFn = null
 
 internal record SchMaxDelay(Schedule Schedule, Duration Max) : Schedule
 {
-    public override EnumerableM<Duration> Run() =>
+    public override Iterable<Duration> Run() =>
         Schedule.Run().Map(x => x > Max ? Max : x);
 }
 
 internal record SchMaxCumulativeDelay(Schedule Schedule, Duration Max) : Schedule
 {
-    public override EnumerableM<Duration> Run()
+    public override Iterable<Duration> Run()
     {
-        return Go().AsEnumerableM();
+        return Go().AsIterable();
         IEnumerable<Duration> Go()
         {
             var totalAppliedDelay = Duration.Zero;
@@ -394,21 +394,21 @@ internal record SchMaxCumulativeDelay(Schedule Schedule, Duration Max) : Schedul
 
 internal record SchJitter1(Schedule Schedule, Duration MinRandom, Duration MaxRandom, Option<int> Seed) : Schedule
 {
-    public override EnumerableM<Duration> Run() =>
+    public override Iterable<Duration> Run() =>
         Schedule.Run().Map(x => (Duration)(x + SingletonRandom.Uniform(MinRandom, MaxRandom, Seed)));
 }
 
 internal record SchJitter2(Schedule Schedule, double Factor, Option<int> Seed) : Schedule
 {
-    public override EnumerableM<Duration> Run() =>
+    public override Iterable<Duration> Run() =>
         Schedule.Run().Map(x => (Duration)(x + SingletonRandom.Uniform(0, x * Factor, Seed)));
 }
 
 internal record SchDecorrelate(Schedule Schedule, double Factor, Option<int> Seed) : Schedule
 {
-    public override EnumerableM<Duration> Run()
+    public override Iterable<Duration> Run()
     {
-        return Go().AsEnumerableM();
+        return Go().AsIterable();
         IEnumerable<Duration> Go()
         {
             foreach(var currentMilliseconds in Schedule.Run())
@@ -424,9 +424,9 @@ internal record SchDecorrelate(Schedule Schedule, double Factor, Option<int> See
 
 internal record SchResetAfter(Schedule Schedule, Duration Max) : Schedule
 {
-    public override EnumerableM<Duration> Run()
+    public override Iterable<Duration> Run()
     {
-        return Go().AsEnumerableM();
+        return Go().AsIterable();
         IEnumerable<Duration> Go()
         {
             while (true)
@@ -438,9 +438,9 @@ internal record SchResetAfter(Schedule Schedule, Duration Max) : Schedule
 
 internal record SchRepeat(Schedule Schedule, int Times) : Schedule
 {
-    public override EnumerableM<Duration> Run()
+    public override Iterable<Duration> Run()
     {
-        return Go().AsEnumerableM();
+        return Go().AsIterable();
         IEnumerable<Duration> Go()
         {
             for (var i = 0; i < Times; i++)

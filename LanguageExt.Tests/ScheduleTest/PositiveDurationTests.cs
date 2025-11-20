@@ -1,7 +1,4 @@
-﻿#nullable enable
-
-using FluentAssertions;
-using Xunit;
+﻿using Xunit;
 
 namespace LanguageExt.Tests.ScheduleTest;
 
@@ -9,33 +6,33 @@ public static class PositiveDurationTests
 {
     [Fact]
     public static void EqualsTest() =>
-        (new Duration(2) == new Duration(2)).Should().BeTrue();
+        Assert.True(new Duration(2) == new Duration(2));
 
     [Fact]
     public static void NotEqualsTest() =>
-        (new Duration(2) != new Duration(4)).Should().BeTrue();
+        Assert.True(new Duration(2) != new Duration(4));
 
     [Fact]
     public static void GreaterThanTest() =>
-        (new Duration(4) > new Duration(2)).Should().BeTrue();
+        Assert.True(new Duration(4) > new Duration(2));
 
     [Fact]
     public static void GreaterThanEqualToTest() =>
-        (new Duration(4) >= new Duration(4)).Should().BeTrue();
+        Assert.True(new Duration(4) >= new Duration(4));
 
     [Fact]
     public static void GreaterThanEqualToTest2() =>
-        (new Duration(2) >= new Duration(4)).Should().BeFalse();
+        Assert.False(new Duration(2) >= new Duration(4));
 
     [Fact]
     public static void LessThanTest() =>
-        (new Duration(2) < new Duration(4)).Should().BeTrue();
+        Assert.True(new Duration(2) < new Duration(4));
 
     [Fact]
     public static void GreaterLessThanOrEqualToTest() =>
-        (new Duration(2) <= new Duration(2)).Should().BeTrue();
+        Assert.True(new Duration(2) <= new Duration(2));
 
     [Fact]
     public static void GreaterLessThanOrEqualToTest2() =>
-        (new Duration(5) <= new Duration(2)).Should().BeFalse();
+        Assert.False(new Duration(5) <= new Duration(2));
 }

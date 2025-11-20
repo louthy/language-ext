@@ -636,14 +636,14 @@ public readonly struct TrackingHashMap<EqK, K, V> :
     /// Enumerable of map keys
     /// </summary>
     [Pure]
-    public EnumerableM<K> Keys =>
+    public Iterable<K> Keys =>
         Value.Keys;
 
     /// <summary>
     /// Enumerable of map values
     /// </summary>
     [Pure]
-    public EnumerableM<V> Values =>
+    public Iterable<V> Values =>
         Value.Values;
 
     /// <summary>
@@ -712,8 +712,8 @@ public readonly struct TrackingHashMap<EqK, K, V> :
         CollectionFormat.ToFullArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
     [Pure]
-    public EnumerableM<(K Key, V Value)> AsEnumerable() =>
-        Value.AsEnumerable();
+    public Iterable<(K Key, V Value)> AsEnumerable() =>
+        Value.AsIterable();
 
     /// <summary>
     /// Implicit conversion from an untyped empty list
@@ -724,14 +724,14 @@ public readonly struct TrackingHashMap<EqK, K, V> :
         Empty;
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public static bool operator ==(TrackingHashMap<EqK, K, V> lhs, TrackingHashMap<EqK, K, V> rhs) =>
         lhs.Equals(rhs);
 
     /// <summary>
-    /// In-equality of keys and values with `EqDefault<V>` used for values
+    /// In-equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public static bool operator !=(TrackingHashMap<EqK, K, V> lhs, TrackingHashMap<EqK, K, V> rhs) =>
@@ -948,14 +948,14 @@ public readonly struct TrackingHashMap<EqK, K, V> :
         Wrap(Value.UnionWithLog(other, static (_, v) => v, MapRight, Merge));
         
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public override bool Equals(object? obj) =>
         obj is TrackingHashMap<EqK, K, V> hm && Equals(hm);
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     public bool Equals(TrackingHashMap<EqK, K, V> other) =>

@@ -4,18 +4,19 @@
     </PropertyGroup>
     <PropertyGroup Label="Configuration">
         <DefineConstants>CONTRACTS_FULL</DefineConstants>
-        <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
+        <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1711;CS1572;CS1587</NoWarn>
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <PackageVersion>5.0.0-alpha.11</PackageVersion>
+        <TargetFramework>net10.0</TargetFramework>
+        <PackageVersion>5.0.0-beta-57</PackageVersion>
         <PackageId>LanguageExt.FSharp</PackageId>
         <Title>LanguageExt.FSharp</Title>
         <Authors>Paul Louth</Authors>
         <Summary>Functional language extensions for C#</Summary>
         <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
-        <Description>Helper library for LanguageExt.Core that facilitates conversion between F# native types like Option, Map, List, etc to .NET and Language Ext types.</Description>
+        <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
+        <Description>Helper library for the  LanguageExt functional framework that facilitates interop between F# native types like Option, Map, List, etc to .NET and Language-Ext types.</Description>
         <PackageTags>C#, Functional, Language Extension, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
         <PackageIcon>lang-ext-small.png</PackageIcon>
         <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
@@ -23,15 +24,13 @@
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
         <OutputType>library</OutputType>
-        <AssemblyVersion>4.0.0.0</AssemblyVersion>
-        <FileVersion>4.0.0.0</FileVersion>
+        <AssemblyVersion>5.0.0.0</AssemblyVersion>
+        <FileVersion>5.0.0.0</FileVersion>
         <LangVersion>default</LangVersion>
     </PropertyGroup>
     <ItemGroup>
-        <None Include="..\Images\lang-ext-small.png">
-            <Pack>True</Pack>
-            <PackagePath></PackagePath>
-        </None>
+        <None Include="README.nuget.md" Pack="true" PackagePath="\"/>
+        <None Include="..\Images\lang-ext-small.png" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
     <ItemGroup>

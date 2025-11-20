@@ -184,10 +184,9 @@ public class HashMapTests
     {
         int max = 100000;
 
-        var items = Range(1, max)
-                   .AsEnumerableM()
-                   .Map( _ => (Key: Guid.NewGuid(), Value: Guid.NewGuid()))
-                   .ToSeq();
+        var items = IterableExtensions.AsIterable(Range(1, max))
+                                      .Map( _ => (Key: Guid.NewGuid(), Value: Guid.NewGuid()))
+                                      .ToSeq();
 
         var m = HashMap<Guid, Guid>().AddRange(items);
         Assert.True(m.Count == max);
@@ -243,7 +242,7 @@ public class HashMapTests
 
         var minus = map.RemoveRange(rmv);
 
-        Assert.True(minus.Keys.AsEnumerableM().Find(i => i == 1477).IsSome); // true
+        Assert.True(minus.Keys.AsIterable().Find(i => i == 1477).IsSome); // true
             
         Assert.True(minus.ContainsKey(1477)); // false
         Assert.True(minus.Find(1477).IsSome); // false

@@ -8,7 +8,7 @@ namespace LanguageExt.Parsec
         /// Parses only when indented past the level of the reference
         /// </summary>
         /// <remarks>
-        /// You must have provided a TokenPos to the initial PString&lt;TOKEN&gt; that gives accurate
+        /// You must have provided a TokenPos to the initial PString〈TOKEN〉 that gives accurate
         /// column and line values for this function to work.
         /// </remarks>
         public static Parser<TOKEN, A> indented<TOKEN, A>(int offset, Parser<TOKEN, A> p) =>
@@ -38,7 +38,7 @@ namespace LanguageExt.Parsec
         /// Parses only when indented zero or more characters past the level of the reference
         /// </summary>
         /// <remarks>
-        /// You must have provided a TokenPos to the initial PString&lt;TOKEN&gt; that gives accurate
+        /// You must have provided a TokenPos to the initial PString〈TOKEN〉 that gives accurate
         /// column and line values for this function to work.
         /// </remarks>
         public static Parser<TOKEN, A> indented<TOKEN, A>(Parser<TOKEN, A> p) =>
@@ -48,7 +48,7 @@ namespace LanguageExt.Parsec
         /// Parses only when indented one or more characters past the level of the reference
         /// </summary>
         /// <remarks>
-        /// You must have provided a TokenPos to the initial PString&lt;TOKEN&gt; that gives accurate
+        /// You must have provided a TokenPos to the initial PString〈TOKEN〉 that gives accurate
         /// column and line values for this function to work.
         /// </remarks>
         public static Parser<TOKEN, A> indented1<TOKEN, A>(Parser<TOKEN, A> p) =>
@@ -58,7 +58,7 @@ namespace LanguageExt.Parsec
         /// Parses only when indented two or more characters past the level of the reference
         /// </summary>
         /// <remarks>
-        /// You must have provided a TokenPos to the initial PString&lt;TOKEN&gt; that gives accurate
+        /// You must have provided a TokenPos to the initial PString〈TOKEN〉 that gives accurate
         /// column and line values for this function to work.
         /// </remarks>
         public static Parser<TOKEN, A> indented2<TOKEN, A>(Parser<TOKEN, A> p) =>
@@ -68,7 +68,7 @@ namespace LanguageExt.Parsec
         /// Parses only when indented four or more characters past the level of the reference
         /// </summary>
         /// <remarks>
-        /// You must have provided a TokenPos to the initial PString&lt;TOKEN&gt; that gives accurate
+        /// You must have provided a TokenPos to the initial PString〈TOKEN〉 that gives accurate
         /// column and line values for this function to work.
         /// </remarks>
         public static Parser<TOKEN, A> indented4<TOKEN, A>(Parser<TOKEN, A> p) =>
@@ -89,9 +89,9 @@ namespace LanguageExt.Parsec
                       pres.Tag,
                       new Reply<TOKEN, A>(
                           pres.Reply.Tag,
-                          pres.Reply.Result,
+                          pres.Reply.Result!,
                           new PString<TOKEN>(inp.Value, pres.Reply.State.Index, inp.EndIndex, pres.Reply.State.UserState, pres.Reply.State.TokenPos),
-                          pres.Reply.Error));
+                          pres.Reply.Error!));
         }  
     }
 }

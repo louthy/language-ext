@@ -1,133 +1,15 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
 public static partial class Prelude
 {
-    /*
-    public static K<M, A> tail<M, A>(K<M, A> ma)
-    {
-        return ma;
-    }
-    */
-    
-    /// <summary>
-    /// Projects a value into a lambda
-    /// Useful when one needs to declare a local variable which breaks your
-    /// expression.  This allows you to keep the expression going.
-    /// </summary>
-    [Pure]
-    public static R map<T, R>(T value, Func<T, R> project) =>
-        project(value);
-
-    /// <summary>
-    /// Projects values into a lambda
-    /// Useful when one needs to declare a local variable which breaks your
-    /// expression.  This allows you to keep the expression going.
-    /// </summary>
-    [Pure]
-    public static R map<T1, T2, R>(T1 value1, T2 value2, Func<T1, T2, R> project) =>
-        project(value1, value2);
-
-    /// <summary>
-    /// Projects values into a lambda
-    /// Useful when one needs to declare a local variable which breaks your
-    /// expression.  This allows you to keep the expression going.
-    /// </summary>
-    [Pure]
-    public static R map<T1, T2, T3, R>(T1 value1, T2 value2, T3 value3, Func<T1, T2, T3, R> project) =>
-        project(value1, value2, value3);
-
-    /// <summary>
-    /// Projects values into a lambda
-    /// Useful when one needs to declare a local variable which breaks your
-    /// expression.  This allows you to keep the expression going.
-    /// </summary>
-    [Pure]
-    public static R map<T1, T2, T3, T4, R>(T1 value1, T2 value2, T3 value3, T4 value4, Func<T1, T2, T3, T4, R> project) =>
-        project(value1, value2, value3, value4);
-
-    /// <summary>
-    /// Projects values into a lambda
-    /// Useful when one needs to declare a local variable which breaks your
-    /// expression.  This allows you to keep the expression going.
-    /// </summary>
-    [Pure]
-    public static R map<T1, T2, T3, T4, T5, R>(T1 value1, T2 value2, T3 value3, T4 value4, T5 value5, Func<T1, T2, T3, T4, T5, R> project) =>
-        project(value1, value2, value3, value4, value5);
-
-    /// <summary>
-    /// Use with the 'match' function to match values and map a result
-    /// </summary>
-    [Pure]
-    public static Func<T, Option<R>> with<T, R>(T value, Func<T, R> map) =>
-        input =>
-            EqDefault<T>.Equals(input, value)
-                ? Some(map(input))
-                : None;
-
-    /// <summary>
-    /// Use with the 'match' function to match values and map a result
-    /// </summary>
-    [Pure]
-    public static Func<Exception, Option<R>> with<T, R>(Func<T, R> map)
-        where T : Exception =>
-        input =>
-            input is T e
-                ? Some(map(e))
-                : None;
-
-    /// <summary>
-    /// Use with the 'match' function to catch a non-matched value and map a result
-    /// </summary>
-    [Pure]
-    public static Func<T, Option<R>> otherwise<T, R>(Func<T, R> map) =>
-        input => Some(map(input));
-
-    /// <summary>
-    /// Pattern matching for values
-    /// </summary>
-    /// <typeparam name="A">Value type to match</typeparam>
-    /// <typeparam name="B">Result of expression</typeparam>
-    /// <param name="value">Value to match</param>
-    /// <param name="clauses">Clauses to test</param>
-    /// <returns>Result</returns>
-    [Pure]
-    public static B match<A, B>(A value, params Func<A, Option<B>>[] clauses)
-    {
-        foreach (var clause in clauses)
-        {
-            var res = clause(value);
-            if (res.IsSome) return (B)res;
-        }
-        throw new Exception("Match not exhaustive");
-    }
-
-    /// <summary>
-    /// Pattern matching for values
-    /// </summary>
-    /// <typeparam name="A">Value type to match</typeparam>
-    /// <typeparam name="B">Result of expression</typeparam>
-    /// <param name="value">Value to match</param>
-    /// <param name="clauses">Clauses to test</param>
-    /// <returns>Result</returns>
-    [Pure]
-    public static Func<A, B> function<A, B>(params Func<A, Option<B>>[] clauses) =>
-        value =>
-        {
-            foreach (var clause in clauses)
-            {
-                var res = clause(value);
-                if (res.IsSome) return (B)res;
-            }
-
-            throw new Exception("Match not exhaustive");
-        };
-
     /// <summary>
     /// Identity function
     /// </summary>
@@ -364,7 +246,7 @@ public static partial class Prelude
     /// <returns>True if the string is null, empty, or whitespace</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool isEmpty(string? value) =>
+    public static bool isEmpty([NotNullWhen(false)] string? value) =>
         string.IsNullOrWhiteSpace(value);
 
     [Pure]

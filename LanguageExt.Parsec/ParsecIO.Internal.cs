@@ -37,14 +37,14 @@ namespace LanguageExt.Parsec
                 : inp =>
             {
                 var results = new List<O>();
-                ParserError error = null;
+                ParserError? error = null;
 
                 foreach (var p in ps)
                 {
                     var t = p(inp);
 
                     // cok
-                    if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
+                    if (t is { Tag: ResultTag.Consumed, Reply.Tag: ReplyTag.OK })
                     {
                         return t;
                     }
@@ -52,7 +52,7 @@ namespace LanguageExt.Parsec
                     // eok
                     if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
                     {
-                        return EmptyOK<I, O>(t.Reply.Result, t.Reply.State, mergeError(error, t.Reply.Error));
+                        return EmptyOK<I, O>(t.Reply.Result!, t.Reply.State, mergeError(error, t.Reply.Error));
                     }
 
                     // cerr
@@ -64,7 +64,7 @@ namespace LanguageExt.Parsec
                     error = mergeError(error, t.Reply.Error);
                 }
 
-                return EmptyError<I, O>(error, inp.TokenPos);
+                return EmptyError<I, O>(error!, inp.TokenPos);
             };
 
         /// <summary>

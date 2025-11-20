@@ -172,20 +172,22 @@ public struct Compositions<A> :
     /// <summary>
     /// Convert to an enumerable
     /// </summary>
-    public EnumerableM<A> AsEnumerable() =>
-        new(FoldCompositions<A>.Fold(this, Seq<A>(), (s, x) => x.Cons(s))(unit));
+    public Iterable<A> AsIterable() =>
+        FoldCompositions<A>.Fold(this, Seq<A>(), (s, x) => x.Cons(s))(unit).AsIterable();
 
     /// <summary>
     /// Get enumerator
     /// </summary>
     public IEnumerator<A> GetEnumerator() =>
-        AsEnumerable().GetEnumerator();
+        // ReSharper disable once NotDisposedResourceIsReturned
+        AsIterable().GetEnumerator();
 
     /// <summary>
     /// Get enumerator
     /// </summary>
     IEnumerator IEnumerable.GetEnumerator() =>
-        AsEnumerable().GetEnumerator();
+        // ReSharper disable once NotDisposedResourceIsReturned
+        AsIterable().GetEnumerator();
 
     public class Node
     {

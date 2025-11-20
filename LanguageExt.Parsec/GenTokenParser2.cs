@@ -165,8 +165,8 @@ public class GenTokenParser2
         select x;
 
     /// <summary>
-    /// Lexeme parser angles(p) parses p enclosed in angle brackets <
-    /// and >, returning the value of p. 
+    /// Lexeme parser angles(p) parses p enclosed in angle brackets〈
+    /// and 〉, returning the value of p. 
     /// </summary>
     public Parser<(A Value, Pos BeginPos, Pos EndPos, int BeginIndex, int EndIndex)> Angles<A>(Parser<(A Value, Pos BeginPos, Pos EndPos, int BeginIndex, int EndIndex)> p) =>
         from o in Symbol("<")

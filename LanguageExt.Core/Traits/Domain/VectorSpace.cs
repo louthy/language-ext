@@ -1,22 +1,33 @@
-// TODO: Decide whether you want to develop this idea or not
-// https://mmapped.blog/posts/25-domain-types.html
+using System;
+using System.Numerics;
 
 namespace LanguageExt.Traits.Domain;
 
-public interface VectorSpace<SELF, in SCALAR> where SELF : VectorSpace<SELF, SCALAR>
-{
-    /// Returns the additive inverse of the value.
-    public static abstract SELF operator -(SELF self);
-
-    /// Adds two vectors.
-    public static abstract SELF operator +(SELF lhs, SELF rhs);
-    
-    /// Subtracts the other vector from self.
-    public static abstract SELF operator -(SELF lhs, SELF rhs);
-    
-    /// Multiplies the vector by a scalar.
-    public static abstract SELF operator *(SELF lhs, SCALAR rhs);
-    
-    /// Divides the vector by a scalar.
-    public static abstract SELF operator /(SELF lhs, SCALAR rhs);
-}
+/// <summary>
+/// A typical use of domain types is representing quantities, such as the amount of money in USD in a bank account,
+/// or the file-size in bytes. Being able to compare, add, and subtract amounts is essential.
+/// 
+/// Generally, we cannot multiply or divide two compatible amounts and expect to get the amount of the same type back. 
+///
+/// Unless we’re modeling mathematical entities, such as probabilities or points on an elliptic curve.. Multiplying two
+/// dollars by two dollars gives four squared dollars. I don’t know about you, but I’m yet to find a practical use for
+/// squared dollars.
+/// 
+/// Multiplying amounts by a dimensionless number, however, is meaningful. There is nothing wrong with a banking app
+/// increasing a dollar amount by ten percent or a disk utility dividing the total number of allocated bytes by the file
+/// count.
+/// 
+/// The appropriate mathematical abstraction for amounts is vector spaces. Vector space is a set with additional
+/// operations defined on the elements of this set: addition, subtraction, and scalar multiplication, such that
+/// behaviors of these operations satisfy a few natural axioms.
+/// </summary>
+/// <typeparam name="SELF">Type implementing this interface</typeparam>
+/// <typeparam name="SCALAR">Scalar units</typeparam>
+public interface VectorSpace<SELF, SCALAR> :
+    Identifier<SELF>,
+    IUnaryNegationOperators<SELF, SELF>,
+    IAdditionOperators<SELF, SELF, SELF>,
+    ISubtractionOperators<SELF, SELF, SELF>,
+    IMultiplyOperators<SELF, SCALAR, SELF>,
+    IDivisionOperators<SELF, SCALAR, SELF>
+    where SELF : VectorSpace<SELF, SCALAR>;

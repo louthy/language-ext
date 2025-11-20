@@ -7,7 +7,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public static class ArrExtensions
+public static partial class ArrExtensions
 {
     public static Arr<A> As<A>(this K<Arr, A> xs) =>
         (Arr<A>)xs;
@@ -99,5 +99,6 @@ public static class ArrExtensions
     [Pure]
     public static IQueryable<A> AsQueryable<A>(this Arr<A> source) =>
         // NOTE TO FUTURE ME: Don't delete this thinking it's not needed!
+        // NOTE FROM FUTURE ME: Next time you leave a message for your future self, explain your reasoning.
         source.Value.AsQueryable();
 }

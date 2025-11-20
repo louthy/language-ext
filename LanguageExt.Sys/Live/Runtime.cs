@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using LanguageExt.Traits;
 using LanguageExt.Sys.Traits;
 
@@ -9,8 +8,8 @@ namespace LanguageExt.Sys.Live;
 /// Live IO runtime
 /// </summary>
 public record Runtime(RuntimeEnv Env) : 
+    Local<Eff<Runtime>, ActivityEnv>,
     Has<Eff<Runtime>, ActivitySourceIO>,
-    Mutates<Eff<Runtime>, Runtime, ActivityEnv>,
     Has<Eff<Runtime>, ConsoleIO>,
     Has<Eff<Runtime>, FileIO>,
     Has<Eff<Runtime>, TextReadIO>,
@@ -23,105 +22,87 @@ public record Runtime(RuntimeEnv Env) :
     /// Constructor function
     /// </summary>
     public static Runtime New() =>
-        new (new RuntimeEnv(ActivityEnv.Default, EnvIO.New()));
+        new (new RuntimeEnv(ActivityEnv.Default));
 
-    public Runtime WithActivity(Activity? activity) =>
-        new(Env with
-                {
-                    Activity = Env.Activity with { Activity = activity, ParentId = Env.Activity.Activity?.Id ?? "" }
-                });
+    static K<Eff<Runtime>, A> asks<A>(Func<Runtime, A> f) =>
+        Readable.asks<Eff<Runtime>, Runtime, A>(f);
 
-    public Activity? CurrentActivity =>
-        Env.Activity.Activity;
+    static K<Eff<Runtime>, A> local<A>(Func<Runtime, Runtime> f, K<Eff<Runtime>, A> ma) =>
+        Readable.local(f, ma);
 
-    public Runtime WithIO(EnvIO envIO) =>
-        new (Env with { EnvIO = envIO });
-
-    public EnvIO EnvIO =>
-        Env.EnvIO;
-
-    static K<Eff<Runtime>, A> gets<A>(Func<Runtime, A> f) =>
-        StateM.gets<Eff<Runtime>, Runtime, A>(f);
-    
-    static K<Eff<Runtime>, Unit> modify(Func<RuntimeEnv, RuntimeEnv> f) =>
-        StateM.modify<Eff<Runtime>, Runtime>(rt => rt with { Env = f(rt.Env) } );
-    
     static K<Eff<Runtime>, A> pure<A>(A value) =>
         Eff<Runtime, A>.Pure(value);
     
     /// <summary>
     /// Activity
     /// </summary>
-    K<Eff<Runtime>, ActivitySourceIO> Has<Eff<Runtime>, ActivitySourceIO>.Trait =>
-        gets<ActivitySourceIO>(rt => new Implementations.ActivitySourceIO(rt.Env.Activity));
-
-    /// <summary>
-    /// Modify the activity state
-    /// </summary>
-    public K<Eff<Runtime>, Unit> Modify(Func<ActivityEnv, ActivityEnv> f) =>
-        modify(rt => rt with { Activity = f(rt.Activity) });
-
-    /// <summary>
-    /// Read the activity state
-    /// </summary>
-    public K<Eff<Runtime>, ActivityEnv> Get { get; } =
-        gets(rt => rt.Env.Activity);
+    static K<Eff<Runtime>, ActivitySourceIO> Has<Eff<Runtime>, ActivitySourceIO>.Ask =>
+        asks<ActivitySourceIO>(rt => new Implementations.ActivitySourceIO(rt.Env.Activity));
 
     /// <summary>
     /// Access the console environment
     /// </summary>
     /// <returns>Console environment</returns>
-    K<Eff<Runtime>, ConsoleIO> Has<Eff<Runtime>, ConsoleIO>.Trait { get; } =
+    static K<Eff<Runtime>, ConsoleIO> Has<Eff<Runtime>, ConsoleIO>.Ask { get; } =
         pure(Implementations.ConsoleIO.Default);
 
     /// <summary>
     /// Access the file environment
     /// </summary>
     /// <returns>File environment</returns>
-    K<Eff<Runtime>, FileIO> Has<Eff<Runtime>, FileIO>.Trait { get; } =
+    static K<Eff<Runtime>, FileIO> Has<Eff<Runtime>, FileIO>.Ask { get; } =
         pure(Implementations.FileIO.Default);
 
     /// <summary>
     /// Access the TextReader environment
     /// </summary>
     /// <returns>TextReader environment</returns>
-    K<Eff<Runtime>, TextReadIO> Has<Eff<Runtime>, TextReadIO>.Trait { get; } =
+    static K<Eff<Runtime>, TextReadIO> Has<Eff<Runtime>, TextReadIO>.Ask { get; } =
         pure(Implementations.TextReadIO.Default);
  
     /// <summary>
     /// Access the time environment
     /// </summary>
     /// <returns>Time environment</returns>
-    K<Eff<Runtime>, TimeIO> Has<Eff<Runtime>, TimeIO>.Trait { get; } =
+    static K<Eff<Runtime>, TimeIO> Has<Eff<Runtime>, TimeIO>.Ask { get; } =
         pure(Implementations.TimeIO.Default);
 
     /// <summary>
     /// Access the operating-system environment
     /// </summary>
     /// <returns>Operating-system environment environment</returns>
-    K<Eff<Runtime>, EnvironmentIO> Has<Eff<Runtime>, EnvironmentIO>.Trait { get; } =
+    static K<Eff<Runtime>, EnvironmentIO> Has<Eff<Runtime>, EnvironmentIO>.Ask { get; } =
         pure(Implementations.EnvironmentIO.Default);
 
     /// <summary>
     /// Access the directory environment
     /// </summary>
     /// <returns>Directory environment</returns>
-    K<Eff<Runtime>, DirectoryIO> Has<Eff<Runtime>, DirectoryIO>.Trait { get; } =
+    static K<Eff<Runtime>, DirectoryIO> Has<Eff<Runtime>, DirectoryIO>.Ask { get; } =
         pure(Implementations.DirectoryIO.Default);
 
     /// <summary>
     /// Access the directory environment
     /// </summary>
     /// <returns>Directory environment</returns>
-    K<Eff<Runtime>, EncodingIO> Has<Eff<Runtime>, EncodingIO>.Trait { get; } =
+    static K<Eff<Runtime>, EncodingIO> Has<Eff<Runtime>, EncodingIO>.Ask { get; } =
         pure(Implementations.EncodingIO.Default);
+
+    /// <summary>
+    /// Run with a local ActivityEnv 
+    /// </summary>
+    static K<Eff<Runtime>, A> Local<Eff<Runtime>, ActivityEnv>.With<A>(Func<ActivityEnv, ActivityEnv> f, K<Eff<Runtime>, A> ma) => 
+        local(rt => rt with { Env = rt.Env with { Activity = f(rt.Env.Activity) } }, ma);
+
+    /// <summary>
+    /// Read the current ActivityEnv
+    /// </summary>
+    static K<Eff<Runtime>, ActivityEnv> Has<Eff<Runtime>, ActivityEnv>.Ask =>
+        asks(rt => rt.Env.Activity);
 }
 
-public record RuntimeEnv(ActivityEnv Activity, EnvIO EnvIO) : IDisposable
+public record RuntimeEnv(ActivityEnv Activity) : IDisposable
 {
-    public void Dispose()
-    {
+    public void Dispose() => 
         Activity.Dispose();
-        EnvIO.Dispose();
-    }
 }

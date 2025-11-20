@@ -14,7 +14,7 @@ public static class Query
         list.FirstOrDefault() ?? Option<T>.None;
 
     public static Either<L, R> headOrLeft<L, R>(IQueryable<R> list, L left) =>
-        list.FirstOrDefault() ?? Either<L, R>.Left(left);
+        list.FirstOrDefault() ?? Either.Left<L, R>(left);
 
     public static IQueryable<T> tail<T>(IQueryable<T> list) =>
         list.Skip(1);

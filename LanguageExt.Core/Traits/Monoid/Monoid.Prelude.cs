@@ -27,7 +27,7 @@ public static class Monoid
     [Pure]
     public static A combine<A>(A mx, A my, A mz, params A[] xs)
         where A : Monoid<A> =>
-        xs.AsEnumerableM().Fold(combine(combine(mx, my), mz), combine);
+        xs.AsIterable().Fold(combine(combine(mx, my), mz), combine);
 
     /// <summary>
     /// Fold a list using the monoid.
@@ -35,7 +35,7 @@ public static class Monoid
     [Pure]
     public static A combine<A>(IEnumerable<A> xs)
         where A : Monoid<A> =>
-        xs.AsEnumerableM().Fold(A.Empty, combine);
+        xs.AsIterable().Fold(A.Empty, combine);
 
     /// <summary>
     /// Fold a list using the monoid.
@@ -44,4 +44,14 @@ public static class Monoid
     public static A combine<A>(Seq<A> xs)
         where A : Monoid<A> =>
         xs.Fold(A.Empty, combine);
+
+    /// <summary>
+    /// Get a concrete monoid instance value from a monoid supporting trait-type
+    /// </summary>
+    /// <typeparam name="A">Monoid type</typeparam>
+    /// <returns>Monoid instance that can be passed around as a value</returns>
+    [Pure]
+    public static MonoidInstance<A> instance<A>()
+        where A : Monoid<A> =>
+        A.Instance;
 }

@@ -7,6 +7,22 @@ namespace LanguageExt.Traits;
 public static class Foldable
 {
     /// <summary>
+    /// Fold the structure: `ta` and pass each element that it yields to `f`, resulting in an `F` applicative-value.
+    /// The fold operator is applicative `Action`, which causes each applicative-value to be sequenced.      
+    /// </summary>
+    /// <param name="ta">Foldable structure</param>
+    /// <param name="f">Mapping operation</param>
+    /// <typeparam name="T">Foldable</typeparam>
+    /// <typeparam name="F">Applicative</typeparam>
+    /// <typeparam name="A">Input bound value</typeparam>
+    /// <typeparam name="B">Mapping bound value</typeparam>
+    /// <returns></returns>
+    public static K<F, Unit> forM<T, F, A, B>(K<T, A> ta, Func<A, K<F, B>> f)
+        where F : Applicative<F>
+        where T : Foldable<T> =>
+        ta.Fold(pure<F, Unit>(unit), x => f(x).Action);
+    
+    /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
     /// </summary>
@@ -392,7 +408,7 @@ public static class Foldable
     public static B foldMap<T, A, B>(Func<A, B> f, K<T, A> ta)
         where T : Foldable<T>
         where B : Monoid<B> =>
-        T.Fold(x => a => f(x).Combine(a), B.Empty, ta);
+        T.FoldMap(f, ta);
 
     /// <summary>
     /// Map each element of the structure into a monoid, and combine the
@@ -403,7 +419,7 @@ public static class Foldable
     public static B foldMapWhile<T, A, B>(Func<A, B> f, Func<(B State, A Value), bool> predicate, K<T, A> ta)
         where T : Foldable<T>
         where B : Monoid<B> =>
-        T.FoldWhile(x => a => f(x).Combine(a), predicate, B.Empty, ta);
+        T.FoldMapWhile(f, predicate, ta);
 
     /// <summary>
     /// Map each element of the structure into a monoid, and combine the
@@ -414,7 +430,7 @@ public static class Foldable
     public static B foldMapUntil<T, A, B>(Func<A, B> f, Func<(B State, A Value), bool> predicate, K<T, A> ta)
         where T : Foldable<T>
         where B : Monoid<B> =>
-        T.FoldUntil(x => a => f(x).Combine(a), predicate, B.Empty, ta);
+        T.FoldMapUntil(f, predicate, ta);
 
     /// <summary>
     /// A left-associative variant of 'FoldMap' that is strict in the
@@ -424,7 +440,7 @@ public static class Foldable
     public static B foldMapBack<T, A, B>(Func<A, B> f, K<T, A> ta)
         where T : Foldable<T>
         where B : Monoid<B> =>
-        T.FoldBack(x => a => x.Combine(f(a)), B.Empty, ta);
+        T.FoldMapBack(f, ta);
 
     /// <summary>
     /// A left-associative variant of 'FoldMap' that is strict in the
@@ -434,7 +450,7 @@ public static class Foldable
     public static B foldMapBackWhile<T, A, B>(Func<A, B> f, Func<(B State, A Value), bool> predicate, K<T, A> ta)
         where T : Foldable<T>
         where B : Monoid<B> =>
-        T.FoldBackWhile(x => a => x.Combine(f(a)), predicate, B.Empty, ta);
+        T.FoldMapBackWhile(f, predicate, ta);
 
     /// <summary>
     /// A left-associative variant of 'FoldMap' that is strict in the
@@ -444,21 +460,21 @@ public static class Foldable
     public static B foldMapBackUntil<T, A, B>(Func<A, B> f, Func<(B State, A Value), bool> predicate, K<T, A> ta)
         where T : Foldable<T> 
         where B : Monoid<B> =>
-        T.FoldBackUntil(x => a => x.Combine(f(a)), predicate, B.Empty, ta);
+        T.FoldMapBackUntil(f, predicate, ta);
 
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
     public static Seq<A> toSeq<T, A>(K<T, A> ta) 
         where T : Foldable<T> =>
-        T.Fold(a => s => s.Add(a), Seq<A>(), ta);
+        T.ToSeq(ta);
 
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
     public static Lst<A> toLst<T, A>(K<T, A> ta) 
         where T : Foldable<T> =>
-        T.Fold(a => s => s.Add(a), List.empty<A>(), ta);
+        T.ToLst(ta);
 
     /// <summary>
     /// List of elements of a structure, from left to right
@@ -470,20 +486,16 @@ public static class Foldable
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
-    public static EnumerableM<A> toEnumerable<T, A>(K<T, A> ta) 
+    public static Iterable<A> toIterable<T, A>(K<T, A> ta) 
         where T : Foldable<T> =>
-        T.Fold(a => s =>
-                    {
-                        s.Add(a);
-                        return s;
-                    }, new System.Collections.Generic.List<A>(), ta).AsEnumerableM();
+        T.ToIterable(ta);
 
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
-    public static bool isEmpty<T, A>(K<T, A> ta) 
+    public static bool isEmpty<T, A>(K<T, A> ta)
         where T : Foldable<T> =>
-        T.FoldWhile(_ => _ => false, s => s.State, true, ta);
+        T.IsEmpty(ta);
 
     /// <summary>
     /// Returns the size/length of a finite structure as an `int`.  The
@@ -495,21 +507,21 @@ public static class Foldable
     /// </summary>
     public static int count<T, A>(K<T, A> ta) 
         where T : Foldable<T> =>
-        T.FoldBack(c => _ => c + 1, 0, ta);
+        T.Count(ta);
 
     /// <summary>
     /// Does an element that fits the predicate occur in the structure?
     /// </summary>
     public static bool exists<T, A>(Func<A, bool> predicate, K<T, A> ta) 
         where T : Foldable<T> =>
-        T.FoldBackUntil(s => c => s || predicate(c), s => s.State, false, ta);
+        T.Exists(predicate, ta);
 
     /// <summary>
     /// Does the predicate hold for all elements in the structure?
     /// </summary>
     public static bool forAll<T, A>(Func<A, bool> predicate, K<T, A> ta) 
         where T : Foldable<T> =>
-        T.FoldBackWhile(s => c => s && predicate(c), s => s.State, true, ta);
+        T.ForAll(predicate, ta);
 
     /// <summary>
     /// Does the element exist in the structure?
@@ -517,7 +529,7 @@ public static class Foldable
     public static bool contains<EqA, T, A>(A value, K<T, A> ta) 
         where EqA : Eq<A> 
         where T : Foldable<T> =>
-        T.Exists(x => EqA.Equals(value, x), ta);
+        T.Contains<EqA, A>(value, ta);
 
     /// <summary>
     /// Does the element exist in the structure?
@@ -541,14 +553,14 @@ public static class Foldable
         T.FindBack(predicate, ta);
 
     /// <summary>
-    /// Find the the elements that match the predicate
+    /// Find the elements that match the predicate
     /// </summary>
     public static Seq<A> findAll<T, A>(Func<A, bool> predicate, K<T, A> ta) 
         where T : Foldable<T> =>
         T.FindAll(predicate, ta);
 
     /// <summary>
-    /// Find the the elements that match the predicate
+    /// Find the elements that match the predicate
     /// </summary>
     public static Seq<A> findAllBack<T, A>(Func<A, bool> predicate, K<T, A> ta) 
         where T : Foldable<T> =>
@@ -575,14 +587,14 @@ public static class Foldable
     /// </summary>
     public static Option<A> head<T, A>(K<T, A> ta) 
         where T : Foldable<T> =>
-        T.FoldWhile(x => _ => Some(x), s => s.State.IsNone, Option<A>.None, ta);
+        T.Head(ta);
 
     /// <summary>
     /// Get the head item in the foldable or `None`
     /// </summary>
     public static Option<A> last<T, A>(K<T, A> ta) 
         where T : Foldable<T> =>
-        T.FoldBackWhile(_ => Some, s => s.State.IsNone, Option<A>.None, ta);
+        T.Last(ta);
 
     /// <summary>
     /// Map each element of a structure to an 'Applicative' action, evaluate these
@@ -601,7 +613,7 @@ public static class Foldable
     /// </summary>
     public static Unit iter<T, A>(Action<int, A> f, K<T, A> ta) 
         where T : Foldable<T> =>
-        ignore(T.Fold(a => ix => { f(ix, a); return ix + 1; }, 0, ta));
+        T.Iter(f, ta);
     
     /// <summary>
     /// Map each element of a structure to an action, evaluate these
@@ -698,4 +710,15 @@ public static class Foldable
     public static Option<A> at<T, A>(K<T, A> ta, Index index)
         where T : Foldable<T> =>
         T.At(ta, index);
+
+    /// <summary>
+    /// Partition a foldable into two sequences based on a predicate
+    /// </summary>
+    /// <param name="f">Predicate function</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Partitioned structure</returns>
+    public static (Seq<A> True, Seq<A> False) partition<T, A>(Func<A, bool> f, K<T, A> ta)
+        where T : Foldable<T> =>
+        T.Partition(f, ta);
 }

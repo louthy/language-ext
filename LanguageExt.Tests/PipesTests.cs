@@ -1,20 +1,21 @@
-﻿using LanguageExt.Pipes;
-using LanguageExt.Sys.Test;
+﻿using LanguageExt.Sys.Test;
 using Xunit;
-using static LanguageExt.Pipes.Proxy;
+using static LanguageExt.Pipes.Producer;
+using static LanguageExt.Pipes.Consumer;
 
 namespace LanguageExt.Tests;
 
 public class PipesTests
 {
     [Fact]
-    public void MergeSynchronousProducersSucceeds() =>
-        compose(
-            Producer.merge<int, Eff<Runtime>>(
-                yield(1),
-                yield(1)),
-            awaiting<int>().Map(ignore))
-        .RunEffect().As()
-        .Run(Runtime.New(), EnvIO.New())
-        .Ignore();
+    public void MergeSynchronousProducersSucceeds()
+    {
+        using var rt = Runtime.New();
+        
+        (merge(yield<Runtime, int>(1), yield<Runtime, int>(1))
+           | awaiting<Runtime, int>().Map(ignore))
+               .Run().As()
+               .Run(rt, EnvIO.New())
+               .Ignore();
+    }
 }

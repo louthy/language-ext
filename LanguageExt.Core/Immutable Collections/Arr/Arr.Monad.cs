@@ -5,7 +5,15 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public partial class Arr : Monad<Arr>, MonoidK<Arr>, Traversable<Arr>
+public partial class Arr : 
+    Monad<Arr>, 
+    Traversable<Arr>, 
+    Alternative<Arr>,
+    Natural<Arr, Seq>,
+    Natural<Arr, Iterable>,
+    Natural<Arr, Lst>,
+    Natural<Arr, Set>,
+    Natural<Arr, HashSet>
 {
     static K<Arr, B> Monad<Arr>.Bind<A, B>(K<Arr, A> ma, Func<A, K<Arr, B>> f)
     {
@@ -30,17 +38,20 @@ public partial class Arr : Monad<Arr>, MonoidK<Arr>, Traversable<Arr>
 
     static K<Arr, B> Applicative<Arr>.Apply<A, B>(K<Arr, Func<A, B>> mf, K<Arr, A> ma) 
     {
-        return new Arr<B>(Go());
-        IEnumerable<B> Go()
+        var ff   = mf.As();
+        var fa   = ma.As();
+        var size = ff.Count * fa.Count;
+        var bs   = new B[size];
+        var ix   = 0;
+        foreach (var f in ff)
         {
-            foreach (var f in mf.As())
+            foreach (var a in fa)
             {
-                foreach (var a in ma.As())
-                {
-                    yield return f(a);
-                }
+                bs[ix] = f(a);
+                ix++;
             }
         }
+        return new Arr<B>(bs);
     }    
 
     static K<Arr, B> Applicative<Arr>.Action<A, B>(K<Arr, A> ma, K<Arr, B> mb) => 
@@ -51,6 +62,12 @@ public partial class Arr : Monad<Arr>, MonoidK<Arr>, Traversable<Arr>
 
     static K<Arr, A> SemigroupK<Arr>.Combine<A>(K<Arr, A> ma, K<Arr, A> mb) =>
         ma.As() + mb.As();
+    
+    static K<Arr, A> Choice<Arr>.Choose<A>(K<Arr, A> ma, K<Arr, A> mb) => 
+        ma.IsEmpty() ? mb : ma;
+
+    public static K<Arr, A> Choose<A>(K<Arr, A> ma, Func<K<Arr, A>> mb) => 
+        ma.IsEmpty() ? mb() : ma;
 
     static int Foldable<Arr>.Count<A>(K<Arr, A> ta) =>
         ta.As().Count;
@@ -61,9 +78,8 @@ public partial class Arr : Monad<Arr>, MonoidK<Arr>, Traversable<Arr>
     static S Foldable<Arr>.FoldWhile<A, S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate, S state, K<Arr, A> ta)
     {
         var arr = ta.As().Value;
-        for (var i = 0; i < arr.Length; i++)
+        foreach (var x in arr)
         {
-            var x = arr[i];
             if (!predicate((state, x))) return state;
             state = f(x)(state);
         }
@@ -96,31 +112,46 @@ public partial class Arr : Monad<Arr>, MonoidK<Arr>, Traversable<Arr>
     static Lst<A> Foldable<Arr>.ToLst<A>(K<Arr, A> ta) =>
         new(ta.As());
 
-    static EnumerableM<A> Foldable<Arr>.ToEnumerable<A>(K<Arr, A> ta) =>
-        new(ta.As());
+    static Iterable<A> Foldable<Arr>.ToIterable<A>(K<Arr, A> ta) =>
+        ta.As().AsIterable();
     
     static Seq<A> Foldable<Arr>.ToSeq<A>(K<Arr, A> ta) =>
         Seq.FromArray(ta.As().Value);
     
-    static K<F, K<Arr, B>> Traversable<Arr>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Arr, A> ta) 
+    static K<F, K<Arr, B>> Traversable<Arr>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Arr, A> ta)
     {
-        return F.Map<Arr<B>, K<Arr, B>>(
-            ks => ks, 
-            F.Map(s => s.ToArr(), 
-                  Foldable.foldBack(cons, F.Pure(Seq.empty<B>()), ta)));
+        return Foldable.fold(addItem, F.Pure(new SeqStrict<B>(new B[ta.As().Count], 0, 0, 0, 0)), ta)
+                       .Map(bs => new Arr<B>(bs.data.AsSpan().Slice(bs.start, bs.Count)).Kind());
 
-        K<F, Seq<B>> cons(K<F, Seq<B>> ys, A x) =>
-            Applicative.lift(Prelude.Cons, f(x), ys);
+        Func<K<F, SeqStrict<B>>, K<F, SeqStrict<B>>> addItem(A value) =>
+            state =>
+                Applicative.lift((bs, b) => (SeqStrict<B>)bs.Add(b), state, f(value));                                            
     }
-    
+
     static K<F, K<Arr, B>> Traversable<Arr>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Arr, A> ta) 
     {
-        return F.Map<Arr<B>, K<Arr, B>>(
-            ks => ks, 
-            F.Map(s => s.ToArr(), 
-                  Foldable.foldBack(cons, F.Pure(Seq.empty<B>()), ta)));
+        return Foldable.fold(addItem, F.Pure(new SeqStrict<B>(new B[ta.As().Count], 0, 0, 0, 0)), ta)
+                       .Map(bs => new Arr<B>(bs.data.AsSpan().Slice(bs.start, bs.Count)).Kind());
 
-        K<F, Seq<B>> cons(K<F, Seq<B>> fys, A x) =>
-            fys.Bind(ys => f(x).Map(y => y.Cons(ys)));
+        Func<K<F, SeqStrict<B>>, K<F, SeqStrict<B>>> addItem(A value) =>
+            state =>
+                state.Bind(
+                    bs => f(value).Bind(
+                        b => F.Pure((SeqStrict<B>)bs.Add(b)))); 
     }
+
+    static K<Seq, A> Natural<Arr, Seq>.Transform<A>(K<Arr, A> fa) => 
+        toSeq(fa.As().ToSeq());
+
+    static K<Iterable, A> Natural<Arr, Iterable>.Transform<A>(K<Arr, A> fa) => 
+        fa.As().AsIterable();
+
+    static K<Lst, A> Natural<Arr, Lst>.Transform<A>(K<Arr, A> fa) => 
+        toList(fa.As());
+
+    static K<Set, A> Natural<Arr, Set>.Transform<A>(K<Arr, A> fa) => 
+        toSet(fa.As());
+
+    static K<HashSet, A> Natural<Arr, HashSet>.Transform<A>(K<Arr, A> fa) => 
+        toHashSet(fa.As());
 }

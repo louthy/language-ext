@@ -1,5 +1,4 @@
 using System;
-using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -7,352 +6,340 @@ namespace LanguageExt;
 
 public static partial class FunctorExtensions
 {
-    /// <summary>
-    /// Monad bind operation
-    /// </summary>
-    /// <param name="bind">Monadic bind function</param>
-    /// <param name="project">Projection function</param>
-    /// <typeparam name="A">Initial bound value type</typeparam>
-    /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>M<C></returns>
-    public static K<F, C> SelectMany<F, A, C>(
-        this K<F, A> ma,
-        Func<A, Guard<Error, Unit>> bind,
-        Func<A, Unit, C> project)
-        where F : Functor<F> =>
-        F.Map(a => bind(a) switch
-                   {
-                       { Flag: true } => project(a, default),
-                       var guard      => guard.OnFalse().Throw<C>()
-                   }, ma);
-    
-    /// <summary>
-    /// Monad bind operation
-    /// </summary>
-    /// <param name="bind">Monadic bind function</param>
-    /// <param name="project">Projection function</param>
-    /// <typeparam name="A">Initial bound value type</typeparam>
-    /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>M<C></returns>
-    public static K<F, C> SelectMany<F, A, C>(
-        this K<F, A> ma,
-        Func<A, Guard<Fail<Error>, Unit>> bind,
-        Func<A, Unit, C> project)
-        where F : Functor<F> =>
-        F.Map(a => bind(a) switch
-                   {
-                       { Flag: true } => project(a, default),
-                       var guard      => guard.OnFalse().Value.Throw<C>()
-                   }, ma);
+    extension<E>(Guard<E, Unit> ma)
+    {
+        /// <summary>
+        /// Monad bind operation
+        /// </summary>
+        /// <param name="bind">Monadic bind function</param>
+        /// <param name="project">Projection function</param>
+        /// <typeparam name="F">Functor trait</typeparam>
+        /// <typeparam name="B">Intermediate bound value type</typeparam>
+        /// <typeparam name="C">Target bound value type</typeparam>
+        /// <returns>M〈C〉</returns>
+        public K<F, C> SelectMany<F, B, C>(Func<Unit, K<F, B>> bind, Func<Unit, B, C> project)
+            where F : Functor<F>, Fallible<E, F> =>
+            ma switch
+            {
+                { Flag: true } => F.Map(b => project(default, b), bind(default)),
+                var guard      => F.Fail<C>(guard.OnFalse())
+            };
+    }
 
-    /// <summary>
-    /// Monad bind operation
-    /// </summary>
-    /// <param name="bind">Monadic bind function</param>
-    /// <param name="project">Projection function</param>
-    /// <typeparam name="B">Intermediate bound value type</typeparam>
-    /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>M<C></returns>
-    public static K<F, C> SelectMany<F, B, C>(
-        this Guard<Error, Unit> ma,
-        Func<Unit, K<F, B>> bind,
-        Func<Unit, B, C> project)
-        where F : Functor<F> =>
-        ma switch
-        {
-            { Flag: true } => F.Map(b => project(default, b), bind(default)),
-            var guard      => guard.OnFalse().Throw<K<F, C>>()
-        };
+    extension<E>(Guard<Fail<E>, Unit> ma)
+    {
+        /// <summary>
+        /// Monad bind operation
+        /// </summary>
+        /// <param name="bind">Monadic bind function</param>
+        /// <param name="project">Projection function</param>
+        /// <typeparam name="F">Functor trait</typeparam>
+        /// <typeparam name="B">Intermediate bound value type</typeparam>
+        /// <typeparam name="C">Target bound value type</typeparam>
+        /// <returns>M〈C〉</returns>
+        public K<F, C> SelectMany<F, B, C>(Func<Unit, K<F, B>> bind, Func<Unit, B, C> project)
+            where F : Functor<F>, Fallible<E, F> =>
+            ma switch
+            {
+                { Flag: true } => F.Map(b => project(default, b), bind(default)),
+                var guard      => F.Fail<C>(guard.OnFalse().Value)
+            };
+    }
 
-    /// <summary>
-    /// Monad bind operation
-    /// </summary>
-    /// <param name="bind">Monadic bind function</param>
-    /// <param name="project">Projection function</param>
-    /// <typeparam name="B">Intermediate bound value type</typeparam>
-    /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>M<C></returns>
-    public static K<F, C> SelectMany<F, B, C>(
-        this Guard<Fail<Error>, Unit> ma,
-        Func<Unit, K<F, B>> bind,
-        Func<Unit, B, C> project)
-        where F : Functor<F> =>
-        ma switch
-        {
-            { Flag: true } => F.Map(b => project(default, b), bind(default)),
-            var guard      => guard.OnFalse().Value.Throw<K<F, C>>()
-        };
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
+    extension<Fnctr, A>(K<Fnctr, A> ma) 
+        where Fnctr : Functor<Fnctr>
+    {
+        /// <summary>
+        /// Ignores the bound value result and instead maps it to `Unit`
+        /// </summary>
+        /// <returns>Functor with unit bound value</returns>
+        public K<Fnctr, Unit> IgnoreF() =>
+            ma.Map(_ => default(Unit));
+        
+        /// <summary>
+        /// Functor map operation
+        /// </summary>
+        /// <remarks>
+        /// Unwraps the value within the functor, passes it to the map function `f` provided, and
+        /// then takes the mapped value and wraps it back up into a new functor.
+        /// </remarks>
+        /// <param name="f">Mapping function</param>
+        /// <returns>Mapped functor</returns>
+        public K<Fnctr, B> Map<B>(Func<A, B> f) =>
+            Fnctr.Map(f, ma);
+
+        /// <summary>
+        /// Functor map operation
+        /// </summary>
+        /// <remarks>
+        /// Invokes the functor, extracting its bound value, which it then ignores and
+        /// then maps to the default `value` provided.  This is useful for side-effecting
+        /// monads that have an effect on the world, which the result value can be ignored,
+        /// to then return a default.
+        /// </remarks>
+        /// <param name="value">Ignore the bound value and map to this</param>
+        /// <returns>Mapped functor</returns>
+        public K<Fnctr, B> Map<B>(B value) =>
+            Fnctr.ConstMap(value, ma);
+
+        /// <summary>
+        /// Functor map operation
+        /// </summary>
+        /// <remarks>
+        /// Unwraps the value within the functor, passes it to the map function `f` provided, and
+        /// then takes the mapped value and wraps it back up into a new functor.
+        /// </remarks>
+        /// <param name="f">Mapping function</param>
+        /// <returns>Mapped functor</returns>
+        public K<Fnctr, B> Select<B>(Func<A, B> f) =>
+            Fnctr.Map(f, ma);
+    }
+
+    extension<Fnctr, A, B>(Func<A, B> f) where Fnctr : Functor<Fnctr>
+    {
+        /// <summary>
+        /// Functor map operation
+        /// </summary>
+        /// <remarks>
+        /// Unwraps the value within the functor, passes it to the map function `f` provided, and
+        /// then takes the mapped value and wraps it back up into a new functor.
+        /// </remarks>
+        /// <param name="ma">Functor to map</param>
+        /// <returns>Mapped functor</returns>
+        public K<Fnctr, B> Map(K<Fnctr, A> ma) =>
+            Fnctr.Map(f, ma);
+    }
+
     /// <param name="f">Mapping function</param>
     /// <typeparam name="Fnctr">Trait of the functor</typeparam>
-    /// <returns>Mapped functor</returns>
-    public static K<Fnctr, B> Map<Fnctr, A, B>(
-        this K<Fnctr, A> ma, Func<A, B> f) 
-        where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(f, ma);
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
+    extension<Fnctr, A, B, C>(Func<A, B, C> f) where Fnctr : Functor<Fnctr>
+    {
+        /// <summary>
+        /// Functor map operation
+        /// </summary>
+        /// <remarks>
+        /// Unwraps the value within the functor, passes it to the map function `f` provided, and
+        /// then takes the mapped value and wraps it back up into a new functor.
+        /// </remarks>
+        /// <remarks>
+        /// This variant takes the passed function and partially applies it, so the result is a
+        /// functor within the value being the partially applied function.  If `Fnctr` is also an
+        /// `Applicative`, which is often the case, you can provide further arguments to the
+        /// partially applied function by calling `.Apply()` on the resulting functor.
+        /// 
+        /// You can continue this until all arguments have been provided and then you'll have
+        /// a functor within the result of the function wrapped up inside.
+        /// </remarks>
+        /// <param name="ma">Functor to map</param>
+        /// <returns>Mapped functor</returns>
+        public K<Fnctr, Func<B, C>> Map(K<Fnctr, A> ma) =>
+            curry(f) * ma;
+    }
+
+    extension<Fnctr, A, B, C, D>(Func<A, B, C, D> f) where Fnctr : Functor<Fnctr>
+    {
+        /// <summary>
+        /// Functor map operation
+        /// </summary>
+        /// <remarks>
+        /// Unwraps the value within the functor, passes it to the map function `f` provided, and
+        /// then takes the mapped value and wraps it back up into a new functor.
+        /// </remarks>
+        /// <remarks>
+        /// This variant takes the passed function and partially applies it, so the result is a
+        /// functor within the value being the partially applied function.  If `Fnctr` is also an
+        /// `Applicative`, which is often the case, you can provide further arguments to the
+        /// partially applied function by calling `.Apply()` on the resulting functor.
+        /// 
+        /// You can continue this until all arguments have been provided and then you'll have
+        /// a functor within the result of the function wrapped up inside.
+        /// </remarks>
+        /// <param name="ma">Functor to map</param>
+        /// <returns>Mapped functor</returns>
+        public K<Fnctr, Func<B, Func<C, D>>> Map(K<Fnctr, A> ma) =>
+            curry(f) * ma;
+    }
+
+    extension<Fnctr, A, B, C, D, E>(Func<A, B, C, D, E> f) 
+        where Fnctr : Functor<Fnctr>
+    {
+        /// <summary>
+        /// Functor map operation
+        /// </summary>
+        /// <remarks>
+        /// Unwraps the value within the functor, passes it to the map function `f` provided, and
+        /// then takes the mapped value and wraps it back up into a new functor.
+        /// </remarks>
+        /// <remarks>
+        /// This variant takes the passed function and partially applies it, so the result is a
+        /// functor within the value being the partially applied function.  If `Fnctr` is also an
+        /// `Applicative`, which is often the case, you can provide further arguments to the
+        /// partially applied function by calling `.Apply()` on the resulting functor.
+        /// 
+        /// You can continue this until all arguments have been provided and then you'll have
+        /// a functor within the result of the function wrapped up inside.
+        /// </remarks>
+        /// <param name="ma">Functor to map</param>
+        /// <returns>Mapped functor</returns>
+        public K<Fnctr, Func<B, Func<C, Func<D, E>>>> Map(K<Fnctr, A> ma) =>
+            curry(f) * ma;
+    }
+
     /// <param name="f">Mapping function</param>
     /// <typeparam name="Fnctr">Trait of the functor</typeparam>
-    /// <returns>Mapped functor</returns>
-    public static K<Fnctr, B> Select<Fnctr, A, B>(
-        this K<Fnctr, A> ma, Func<A, B> f) 
-        where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(f, ma);
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <typeparam name="Fnctr">Trait of the functor</typeparam>
-    /// <returns>Mapped functor</returns>
-    public static K<Fnctr, B> Map<Fnctr, A, B>(
-        this Func<A, B> f, K<Fnctr, A> ma) 
-        where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(f, ma);
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <remarks>
-    /// This variant takes the passed function and partially applies it, so the result is a
-    /// functor within the value being the partially applied function.  If `Fnctr` is also an
-    /// `Applicative`, which is often the case, you can provide further arguments to the
-    /// partially applied function by calling `.Apply()` on the resulting functor.
-    ///
-    /// You can continue this until all arguments have been provided and then you'll have
-    /// a functor within the result of the function wrapped up inside.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <typeparam name="Fnctr">Trait of the functor</typeparam>
-    /// <returns>Mapped functor</returns>
-    public static K<Fnctr, Func<B, C>> Map<Fnctr, A, B, C>(
-        this Func<A, B, C> f, K<Fnctr, A> ma) 
-        where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(x => curry(f)(x), ma);
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <remarks>
-    /// This variant takes the passed function and partially applies it, so the result is a
-    /// functor within the value being the partially applied function.  If `Fnctr` is also an
-    /// `Applicative`, which is often the case, you can provide further arguments to the
-    /// partially applied function by calling `.Apply()` on the resulting functor.
-    ///
-    /// You can continue this until all arguments have been provided and then you'll have
-    /// a functor within the result of the function wrapped up inside.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <typeparam name="Fnctr">Trait of the functor</typeparam>
-    /// <returns>Mapped functor</returns>
-    public static K<Fnctr, Func<B, Func<C, D>>> Map<Fnctr, A, B, C, D>(
-        this Func<A, B, C, D> f, K<Fnctr, A> ma) 
-        where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(x => curry(f)(x), ma);
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <remarks>
-    /// This variant takes the passed function and partially applies it, so the result is a
-    /// functor within the value being the partially applied function.  If `Fnctr` is also an
-    /// `Applicative`, which is often the case, you can provide further arguments to the
-    /// partially applied function by calling `.Apply()` on the resulting functor.
-    ///
-    /// You can continue this until all arguments have been provided and then you'll have
-    /// a functor within the result of the function wrapped up inside.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <typeparam name="Fnctr">Trait of the functor</typeparam>
-    /// <returns>Mapped functor</returns>
-    public static K<Fnctr, Func<B, Func<C, Func<D, E>>>> Map<Fnctr, A, B, C, D, E>(
-        this Func<A, B, C, D, E> f, K<Fnctr, A> ma) 
-        where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(x => curry(f)(x), ma);
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <remarks>
-    /// This variant takes the passed function and partially applies it, so the result is a
-    /// functor within the value being the partially applied function.  If `Fnctr` is also an
-    /// `Applicative`, which is often the case, you can provide further arguments to the
-    /// partially applied function by calling `.Apply()` on the resulting functor.
-    ///
-    /// You can continue this until all arguments have been provided and then you'll have
-    /// a functor within the result of the function wrapped up inside.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <typeparam name="Fnctr">Trait of the functor</typeparam>
-    /// <returns>Mapped functor</returns>
-    public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, F>>>>> Map<Fnctr, A, B, C, D, E, F>(
-        this Func<A, B, C, D, E, F> f, K<Fnctr, A> ma) 
-        where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(x => curry(f)(x), ma);
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <remarks>
-    /// This variant takes the passed function and partially applies it, so the result is a
-    /// functor within the value being the partially applied function.  If `Fnctr` is also an
-    /// `Applicative`, which is often the case, you can provide further arguments to the
-    /// partially applied function by calling `.Apply()` on the resulting functor.
-    ///
-    /// You can continue this until all arguments have been provided and then you'll have
-    /// a functor within the result of the function wrapped up inside.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <typeparam name="Fnctr">Trait of the functor</typeparam>
-    /// <returns>Mapped functor</returns>
-    public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> Map<Fnctr, A, B, C, D, E, F, G>(
-        this Func<A, B, C, D, E, F, G> f, K<Fnctr, A> ma) 
-        where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(x => curry(f)(x), ma);
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <remarks>
-    /// This variant takes the passed function and partially applies it, so the result is a
-    /// functor within the value being the partially applied function.  If `Fnctr` is also an
-    /// `Applicative`, which is often the case, you can provide further arguments to the
-    /// partially applied function by calling `.Apply()` on the resulting functor.
-    ///
-    /// You can continue this until all arguments have been provided and then you'll have
-    /// a functor within the result of the function wrapped up inside.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <typeparam name="Fnctr">Trait of the functor</typeparam>
-    /// <returns>Mapped functor</returns>
-    public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> Map<Fnctr, A, B, C, D, E, F, G, H>(
-        this Func<A, B, C, D, E, F, G, H> f, K<Fnctr, A> ma) 
-        where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(x => curry(f)(x), ma);
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <remarks>
-    /// This variant takes the passed function and partially applies it, so the result is a
-    /// functor within the value being the partially applied function.  If `Fnctr` is also an
-    /// `Applicative`, which is often the case, you can provide further arguments to the
-    /// partially applied function by calling `.Apply()` on the resulting functor.
-    ///
-    /// You can continue this until all arguments have been provided and then you'll have
-    /// a functor within the result of the function wrapped up inside.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <typeparam name="Fnctr">Trait of the functor</typeparam>
-    /// <returns>Mapped functor</returns>
-    public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> Map<Fnctr, A, B, C, D, E, F, G, H, I>(
-        this Func<A, B, C, D, E, F, G, H, I> f, K<Fnctr, A> ma) 
-        where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(x => curry(f)(x), ma);
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <remarks>
-    /// This variant takes the passed function and partially applies it, so the result is a
-    /// functor within the value being the partially applied function.  If `Fnctr` is also an
-    /// `Applicative`, which is often the case, you can provide further arguments to the
-    /// partially applied function by calling `.Apply()` on the resulting functor.
-    ///
-    /// You can continue this until all arguments have been provided and then you'll have
-    /// a functor within the result of the function wrapped up inside.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <typeparam name="Fnctr">Trait of the functor</typeparam>
-    /// <returns>Mapped functor</returns>
-    public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, J>>>>>>>>> Map<Fnctr, A, B, C, D, E, F, G, H, I, J>(
-        this Func<A, B, C, D, E, F, G, H, I, J> f, K<Fnctr, A> ma) 
-        where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(x => curry(f)(x), ma);
-    
-    /// <summary>
-    /// Functor map operation
-    /// </summary>
-    /// <remarks>
-    /// Unwraps the value within the functor, passes it to the map function `f` provided, and
-    /// then takes the mapped value and wraps it back up into a new functor.
-    /// </remarks>
-    /// <remarks>
-    /// This variant takes the passed function and partially applies it, so the result is a
-    /// functor within the value being the partially applied function.  If `Fnctr` is also an
-    /// `Applicative`, which is often the case, you can provide further arguments to the
-    /// partially applied function by calling `.Apply()` on the resulting functor.
-    ///
-    /// You can continue this until all arguments have been provided and then you'll have
-    /// a functor within the result of the function wrapped up inside.
-    /// </remarks>
-    /// <param name="ma">Functor to map</param>
-    /// <param name="f">Mapping function</param>
-    /// <typeparam name="Fnctr">Trait of the functor</typeparam>
-    /// <returns>Mapped functor</returns>
-    public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, Func<J, K>>>>>>>>>> Map<Fnctr, A, B, C, D, E, F, G, H, I, J, K>(
-        this Func<A, B, C, D, E, F, G, H, I, J, K> f, K<Fnctr, A> ma) 
-        where Fnctr : Functor<Fnctr> =>
-        Fnctr.Map(x => curry(f)(x), ma);
+    extension<Fnctr, A, B, C, D, E, F>(Func<A, B, C, D, E, F> f) 
+        where Fnctr : Functor<Fnctr>
+    {
+        /// <summary>
+        /// Functor map operation
+        /// </summary>
+        /// <remarks>
+        /// Unwraps the value within the functor, passes it to the map function `f` provided, and
+        /// then takes the mapped value and wraps it back up into a new functor.
+        /// </remarks>
+        /// <remarks>
+        /// This variant takes the passed function and partially applies it, so the result is a
+        /// functor within the value being the partially applied function.  If `Fnctr` is also an
+        /// `Applicative`, which is often the case, you can provide further arguments to the
+        /// partially applied function by calling `.Apply()` on the resulting functor.
+        /// 
+        /// You can continue this until all arguments have been provided and then you'll have
+        /// a functor within the result of the function wrapped up inside.
+        /// </remarks>
+        /// <param name="ma">Functor to map</param>
+        /// <returns>Mapped functor</returns>
+        public K<Fnctr, Func<B, Func<C, Func<D, Func<E, F>>>>> Map(
+            K<Fnctr, A> ma) =>
+            curry(f) * ma;
+    }
+
+    extension<Fnctr, A, B, C, D, E, F, G>(Func<A, B, C, D, E, F, G> f) 
+        where Fnctr : Functor<Fnctr>
+    {
+        /// <summary>
+        /// Functor map operation
+        /// </summary>
+        /// <remarks>
+        /// Unwraps the value within the functor, passes it to the map function `f` provided, and
+        /// then takes the mapped value and wraps it back up into a new functor.
+        /// </remarks>
+        /// <remarks>
+        /// This variant takes the passed function and partially applies it, so the result is a
+        /// functor within the value being the partially applied function.  If `Fnctr` is also an
+        /// `Applicative`, which is often the case, you can provide further arguments to the
+        /// partially applied function by calling `.Apply()` on the resulting functor.
+        /// 
+        /// You can continue this until all arguments have been provided and then you'll have
+        /// a functor within the result of the function wrapped up inside.
+        /// </remarks>
+        /// <param name="ma">Functor to map</param>
+        /// <returns>Mapped functor</returns>
+        public K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> Map(
+            K<Fnctr, A> ma) =>
+            curry(f) * ma;
+    }
+
+    extension<Fnctr, A, B, C, D, E, F, G, H>(Func<A, B, C, D, E, F, G, H> f) 
+        where Fnctr : Functor<Fnctr>
+    {
+        /// <summary>
+        /// Functor map operation
+        /// </summary>
+        /// <remarks>
+        /// Unwraps the value within the functor, passes it to the map function `f` provided, and
+        /// then takes the mapped value and wraps it back up into a new functor.
+        /// </remarks>
+        /// <remarks>
+        /// This variant takes the passed function and partially applies it, so the result is a
+        /// functor within the value being the partially applied function.  If `Fnctr` is also an
+        /// `Applicative`, which is often the case, you can provide further arguments to the
+        /// partially applied function by calling `.Apply()` on the resulting functor.
+        /// 
+        /// You can continue this until all arguments have been provided and then you'll have
+        /// a functor within the result of the function wrapped up inside.
+        /// </remarks>
+        /// <param name="ma">Functor to map</param>
+        /// <returns>Mapped functor</returns>
+        public K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> Map(
+            K<Fnctr, A> ma) =>
+            curry(f) * ma;
+    }
+
+    extension<Fnctr, A, B, C, D, E, F, G, H, I>(Func<A, B, C, D, E, F, G, H, I> f) 
+        where Fnctr : Functor<Fnctr>
+    {
+        /// <summary>
+        /// Functor map operation
+        /// </summary>
+        /// <remarks>
+        /// Unwraps the value within the functor, passes it to the map function `f` provided, and
+        /// then takes the mapped value and wraps it back up into a new functor.
+        /// </remarks>
+        /// <remarks>
+        /// This variant takes the passed function and partially applies it, so the result is a
+        /// functor within the value being the partially applied function.  If `Fnctr` is also an
+        /// `Applicative`, which is often the case, you can provide further arguments to the
+        /// partially applied function by calling `.Apply()` on the resulting functor.
+        /// 
+        /// You can continue this until all arguments have been provided and then you'll have
+        /// a functor within the result of the function wrapped up inside.
+        /// </remarks>
+        /// <param name="ma">Functor to map</param>
+        /// <returns>Mapped functor</returns>
+        public K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> Map(
+            K<Fnctr, A> ma) =>
+            curry(f) * ma;
+    }
+
+    extension<Fnctr, A, B, C, D, E, F, G, H, I, J>(Func<A, B, C, D, E, F, G, H, I, J> f) 
+        where Fnctr : Functor<Fnctr>
+    {
+        /// <summary>
+        /// Functor map operation
+        /// </summary>
+        /// <remarks>
+        /// Unwraps the value within the functor, passes it to the map function `f` provided, and
+        /// then takes the mapped value and wraps it back up into a new functor.
+        /// </remarks>
+        /// <remarks>
+        /// This variant takes the passed function and partially applies it, so the result is a
+        /// functor within the value being the partially applied function.  If `Fnctr` is also an
+        /// `Applicative`, which is often the case, you can provide further arguments to the
+        /// partially applied function by calling `.Apply()` on the resulting functor.
+        /// 
+        /// You can continue this until all arguments have been provided and then you'll have
+        /// a functor within the result of the function wrapped up inside.
+        /// </remarks>
+        /// <param name="ma">Functor to map</param>
+        /// <returns>Mapped functor</returns>
+        public K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, J>>>>>>>>> Map(
+            K<Fnctr, A> ma) =>
+            curry(f) * ma;
+    }
+
+    extension<Fnctr, A, B, C, D, E, F, G, H, I, J, K>(Func<A, B, C, D, E, F, G, H, I, J, K> f) 
+        where Fnctr : Functor<Fnctr>
+    {
+        /// <summary>
+        /// Functor map operation
+        /// </summary>
+        /// <remarks>
+        /// Unwraps the value within the functor, passes it to the map function `f` provided, and
+        /// then takes the mapped value and wraps it back up into a new functor.
+        /// </remarks>
+        /// <remarks>
+        /// This variant takes the passed function and partially applies it, so the result is a
+        /// functor within the value being the partially applied function.  If `Fnctr` is also an
+        /// `Applicative`, which is often the case, you can provide further arguments to the
+        /// partially applied function by calling `.Apply()` on the resulting functor.
+        /// 
+        /// You can continue this until all arguments have been provided and then you'll have
+        /// a functor within the result of the function wrapped up inside.
+        /// </remarks>
+        /// <param name="ma">Functor to map</param>
+        /// <returns>Mapped functor</returns>
+        public K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, Func<J, K>>>>>>>>>> Map(
+            K<Fnctr, A> ma) =>
+            curry(f) * ma;
+    }
 }

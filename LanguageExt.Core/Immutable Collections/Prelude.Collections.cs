@@ -106,6 +106,66 @@ public static partial class Prelude
     /// <param name="tail">Tail of the sequence</param>
     /// <returns></returns>
     [Pure]
+    public static Iterable<A> Cons<A>(this A head, Iterable<A> tail) =>
+        tail.Cons(head);
+    
+    /// <summary>
+    /// Construct a list from head and tail; head becomes the first item in 
+    /// the list.  
+    /// </summary>
+    /// <typeparam name="A">Type of the items in the sequence</typeparam>
+    /// <param name="head">Head item in the sequence</param>
+    /// <param name="tail">Tail of the sequence</param>
+    /// <returns></returns>
+    [Pure]
+    public static Iterator<A> Cons<A>(this A head, Iterator<A> tail) =>
+        Iterator.Cons(head, tail);
+
+    /// <summary>
+    /// Construct a list from head and tail; head becomes the first item in 
+    /// the list.  
+    /// </summary>
+    /// <typeparam name="A">Type of the items in the sequence</typeparam>
+    /// <param name="head">Head item in the sequence</param>
+    /// <param name="tail">Tail of the sequence</param>
+    /// <returns></returns>
+    [Pure]
+    public static Iterator<A> Cons<A>(this A head, Func<Iterator<A>> tail) =>
+        Iterator.Cons(head, tail);
+
+    /// <summary>
+    /// Construct a list from head and tail; head becomes the first item in 
+    /// the list.  
+    /// </summary>
+    /// <typeparam name="A">Type of the items in the sequence</typeparam>
+    /// <param name="head">Head item in the sequence</param>
+    /// <param name="tail">Tail of the sequence</param>
+    /// <returns></returns>
+    [Pure]
+    public static IteratorAsync<A> Cons<A>(this A head, IteratorAsync<A> tail) =>
+        IteratorAsync.Cons(head, tail);
+
+    /// <summary>
+    /// Construct a list from head and tail; head becomes the first item in 
+    /// the list.  
+    /// </summary>
+    /// <typeparam name="A">Type of the items in the sequence</typeparam>
+    /// <param name="head">Head item in the sequence</param>
+    /// <param name="tail">Tail of the sequence</param>
+    /// <returns></returns>
+    [Pure]
+    public static IteratorAsync<A> Cons<A>(this A head, Func<IteratorAsync<A>> tail) =>
+        IteratorAsync.Cons(head, tail);
+
+    /// <summary>
+    /// Construct a list from head and tail; head becomes the first item in 
+    /// the list.  
+    /// </summary>
+    /// <typeparam name="A">Type of the items in the sequence</typeparam>
+    /// <param name="head">Head item in the sequence</param>
+    /// <param name="tail">Tail of the sequence</param>
+    /// <returns></returns>
+    [Pure]
     public static Lst<A> Cons<A>(this A head, Lst<A> tail) =>
         tail.Insert(0, head);
 
@@ -121,21 +181,21 @@ public static partial class Prelude
     /// </summary>
     [Pure]
     public static Seq<A> Sort<OrdA, A>(this Seq<A> xs) where OrdA : Ord<A> =>
-        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).AsEnumerableM().ToSeq();
+        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).AsIterable().ToSeq();
 
     /// <summary>
     /// Provide a sorted Lst
     /// </summary>
     [Pure]
     public static Lst<A> Sort<OrdA, A>(this Lst<A> xs) where OrdA : Ord<A> =>
-        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).AsEnumerableM().ToLst();
+        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).AsIterable().ToLst();
 
     /// <summary>
     /// Provide a sorted Arr
     /// </summary>
     [Pure]
     public static Arr<A> Sort<OrdA, A>(this Arr<A> xs) where OrdA : Ord<A> =>
-        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).AsEnumerableM().ToArr();
+        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).AsIterable().ToArr();
 
     /// <summary>
     /// Provide a sorted array
@@ -145,14 +205,30 @@ public static partial class Prelude
         xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).ToArray();
 
     /// <summary>
-    /// Lazy sequence of natural numbers up to Int32.MaxValue
+    /// Forever sequence of units
     /// </summary>
     [Pure]
-    public static EnumerableM<int> Naturals
+    public static Iterable<Unit> Units
     {
         get
         {
-            return Go().AsEnumerableM();
+            return Go().AsIterable();
+            IEnumerable<Unit> Go()
+            {
+                while (true) yield return default;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Lazy sequence of natural numbers up to Int32.MaxValue
+    /// </summary>
+    [Pure]
+    public static Iterable<int> Naturals
+    {
+        get
+        {
+            return Go().AsIterable();
             IEnumerable<int> Go()
             {
                 for (var i = 0; i < int.MaxValue; i++)
@@ -167,11 +243,11 @@ public static partial class Prelude
     /// Lazy sequence of natural numbers up to Int64.MaxValue
     /// </summary>
     [Pure]
-    public static EnumerableM<long> LongNaturals
+    public static Iterable<long> LongNaturals
     {
         get
         {
-            return Go().AsEnumerableM();
+            return Go().AsIterable();
             IEnumerable<long> Go()
             {
                 for (var i = 0L; i < long.MaxValue; i++)
@@ -835,6 +911,55 @@ public static partial class Prelude
         match(LanguageExt.HashMap.find(map, key),
               Some,
               None);
+    
+    /// <summary>
+    /// Construct an empty Iterable
+    /// </summary>
+    [Pure]
+    public static Iterable<A> Iterable<A>() =>
+        LanguageExt.Iterable<A>.Empty;
+        
+    /// <summary>
+    /// Construct a sequence from an Enumerable
+    /// </summary>
+    [Pure]
+    public static Iterable<A> Iterable<A>(ReadOnlySpan<A> value) =>
+        LanguageExt.Iterable<A>.FromSpan(value);
+
+    /// <summary>
+    /// Construct a sequence from an Enumerable
+    /// </summary>
+    [Pure]
+    public static Iterable<A> Iterable<A>(A fst, A snd, params A[] rest)
+    {
+        return new IterableEnumerable<A>(Yield());
+        IEnumerable<A> Yield()
+        {
+            yield return fst;
+            yield return snd;
+            foreach (var value in rest)
+            {
+                yield return value;
+            }
+        }
+    }
+        
+    /// <summary>
+    /// Construct a sequence from an Enumerable
+    /// Deals with `value == null` by returning `[]` and also memoizes the
+    /// items in the enumerable as they're being consumed.
+    /// </summary>
+    [Pure]
+    public static Iterable<A> Iterable<A>(IEnumerable<A>? value) =>
+        value switch
+        {
+            null                => LanguageExt.Iterable<A>.Empty,
+            Iterable<A> iter    => iter, 
+            Seq<A> seq          => seq.AsIterable(),
+            Arr<A> arr          => arr.AsIterable(),
+            A[] array           => Iterable(array),
+            _                   => new IterableEnumerable<A>(value)
+        };
 
     /// <summary>
     /// Construct an empty Seq

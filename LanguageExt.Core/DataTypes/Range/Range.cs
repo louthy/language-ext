@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.Diagnostics.Contracts;
-using System.Numerics;
 
 namespace LanguageExt;
 
@@ -25,17 +24,26 @@ public record Range<A>(A From, A To, A Step, IEnumerable<A> runRange) :
 
     [Pure]
     public Seq<A> ToSeq() =>
-        Prelude.toSeq(AsEnumerable());
+        Prelude.toSeq(AsIterable());
 
     [Pure]
-    public EnumerableM<A> AsEnumerable() =>
-        new(runRange);
+    public Iterable<A> AsIterable() =>
+        runRange.AsIterable();
+
+    /*
+    [Pure]
+    public StreamT<M, A> AsStream<M>() 
+        where M : Monad<M> =>
+        StreamT<M>.lift(runRange);
+        */
 
     [Pure]
     public IEnumerator<A> GetEnumerator() => 
+        // ReSharper disable once NotDisposedResourceIsReturned
         runRange.GetEnumerator();
 
     [Pure]
     IEnumerator IEnumerable.GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         runRange.GetEnumerator();
 }

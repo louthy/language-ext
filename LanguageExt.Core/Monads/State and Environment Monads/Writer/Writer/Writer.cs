@@ -7,7 +7,6 @@ namespace LanguageExt;
 /// <summary>
 /// `Writer` monad transformer, which adds a modifiable state to a given monad. 
 /// </summary>
-/// <param name="runState">Transducer that represents the transformer operation</param>
 /// <typeparam name="S">State type</typeparam>
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
@@ -196,9 +195,49 @@ public record Writer<W, A>(Func<W, (A Value, W Output)> runWriter) : K<Writer<W>
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //  Conversion operators
+    //  Operators
     //
 
+    /// <summary>
+    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
+    /// as the semicolon) in C#.
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the second action</returns>
+    public static Writer<W, A> operator >> (Writer<W, A> lhs, Writer<W, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
+    /// <summary>
+    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
+    /// as the semicolon) in C#.
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the second action</returns>
+    public static Writer<W, A> operator >> (Writer<W, A> lhs, K<Writer<W>, A> rhs) =>
+        lhs.Bind(_ => rhs);
+
+    /// <summary>
+    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// first action is propagated. 
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the first action</returns>
+    public static Writer<W, A> operator >> (Writer<W, A> lhs, Writer<W, Unit> rhs) =>
+        lhs.Bind(x => rhs.Map(_ => x));
+    
+    /// <summary>
+    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// first action is propagated. 
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the first action</returns>
+    public static Writer<W, A> operator >> (Writer<W, A> lhs, K<Writer<W>, Unit> rhs) =>
+        lhs.Bind(x => rhs.Map(_ => x));
+    
     public static implicit operator Writer<W, A>(Pure<A> ma) =>
         Pure(ma.Value);
     

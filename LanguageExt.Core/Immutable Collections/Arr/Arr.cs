@@ -74,6 +74,24 @@ public struct Arr<A> :
         this.value = value;
     }
 
+    /*
+    /// <summary>
+    /// Stream as an enumerable
+    /// </summary>
+    [Pure]
+    public StreamT<M, A> AsStream<M>()
+        where M : Monad<M> =>
+        StreamT<M, A>.Lift(this);
+        */
+    
+    [Pure]
+    public ReadOnlySpan<A> AsSpan() =>
+        new (Value);
+    
+    [Pure]
+    public ReadOnlySpan<A> AsSpan(int start, int length) =>
+        new (Value, start, length);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Arr<A>(A[] xs) =>
         new (xs);
@@ -135,7 +153,7 @@ public struct Arr<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lens<Arr<A>, Arr<B>> map<B>(Lens<A, B> lens) => Lens<Arr<A>, Arr<B>>.New(
         Get: la => la.Map(lens.Get),
-        Set: lb => la => la.Zip(lb).Select(ab => lens.Set(ab.Item2, ab.Item1)).AsEnumerableM().ToArr());
+        Set: lb => la => la.Zip(lb).Map(ab => lens.Set(ab.Item2, ab.Item1)).ToArr());
 
     /// <summary>
     /// Index accessor
@@ -154,7 +172,7 @@ public struct Arr<A> :
     ///
     ///     Empty collection     = result is null
     ///     Singleton collection = result is A
-    ///     More                 = result is (A, Seq<A>) -- head and tail
+    ///     More                 = result is (A, Seq〈A〉) -- head and tail
     ///
     ///  Example:
     ///
@@ -533,12 +551,13 @@ public struct Arr<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         Value.AsEnumerable().GetEnumerator();
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<A> AsEnumerable() =>
-        new(this);
+    public Iterable<A> AsIterable() =>
+        Iterable.createRange(this);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -574,16 +593,27 @@ public struct Arr<A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<A> Skip(int amount) =>
-        new(Value.Skip(amount));
+    public Iterable<A> Skip(int amount) =>
+        Value.Skip(amount).AsIterable();
 
     /// <summary>
     /// Reverse the order of the items in the array
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Arr<A> Reverse() =>
-        new (Value.Reverse().ToArray());
+    public Arr<A> Reverse()
+    {
+        var l = Count;
+        var n = new A[l];
+        var v = Value;
+        var i = 0;
+        var j = l - 1;
+        for (; i < l; i++, j--)
+        {
+            n[i] = v[j];
+        }
+        return new Arr<A>(n);
+    }
 
     /// <summary>
     /// Impure iteration of the bound values in the structure
@@ -663,6 +693,22 @@ public struct Arr<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Arr<A> operator +(Arr<A> lhs, Arr<A> rhs) =>
         rhs.InsertRange(0, lhs);
+
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Arr<A> operator |(Arr<A> x, K<Arr, A> y) =>
+        x.Choose(y).As();
+
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Arr<A> operator |(K<Arr, A> x, Arr<A> y) =>
+        x.Choose(y).As();
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

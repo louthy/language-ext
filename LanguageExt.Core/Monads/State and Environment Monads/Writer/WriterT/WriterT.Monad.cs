@@ -11,9 +11,8 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class WriterT<W, M> : 
     MonadT<WriterT<W, M>, M>, 
-    SemiAlternative<WriterT<W, M>>,
-    WriterM<WriterT<W, M>, W>
-    where M : Monad<M>, SemiAlternative<M>
+    Writable<WriterT<W, M>, W>
+    where M : Monad<M>
     where W : Monoid<W>
 {
     static K<WriterT<W, M>, B> Monad<WriterT<W, M>>.Bind<A, B>(K<WriterT<W, M>, A> ma, Func<A, K<WriterT<W, M>, B>> f) => 
@@ -34,22 +33,16 @@ public partial class WriterT<W, M> :
     static K<WriterT<W, M>, A> MonadT<WriterT<W, M>, M>.Lift<A>(K<M, A> ma) => 
         WriterT<W, M, A>.Lift(ma);
     
-    static K<WriterT<W, M>, B> MonadT<WriterT<W, M>, M>.MapM<A, B>(Func<K<M, A>, K<M, B>> f, K<WriterT<W, M>, A> ma) =>
-        ma.As().MapM(f);
+    static K<WriterT<W, M>, A> Maybe.MonadIO<WriterT<W, M>>.LiftIOMaybe<A>(IO<A> ma) =>
+        WriterT<W, M, A>.Lift(M.LiftIOMaybe(ma));
 
-    static K<WriterT<W, M>, A> Monad<WriterT<W, M>>.LiftIO<A>(IO<A> ma) =>
-        WriterT<W, M, A>.Lift(M.LiftIO(ma));
-
-    static K<WriterT<W, M>, A> SemigroupK<WriterT<W, M>>.Combine<A>(K<WriterT<W, M>, A> ma, K<WriterT<W, M>, A> mb) => 
-        new WriterT<W, M, A>(w => M.Combine(ma.As().runWriter(w), mb.As().runWriter(w)));
-
-    static K<WriterT<W, M>, Unit> WriterM<WriterT<W, M>, W>.Tell(W item) =>
+    static K<WriterT<W, M>, Unit> Writable<WriterT<W, M>, W>.Tell(W item) =>
         new WriterT<W, M, Unit>(w => M.Pure((unit, w + item)));
 
-    static K<WriterT<W, M>, (A Value, W Output)> WriterM<WriterT<W, M>, W>.Listen<A>(K<WriterT<W, M>, A> ma) =>
-        ma.As().Listen();
+    static K<WriterT<W, M>, (A Value, W Output)> Writable<WriterT<W, M>, W>.Listen<A>(K<WriterT<W, M>, A> ma) =>
+        ma.As().Listen;
 
-    static K<WriterT<W, M>, A> WriterM<WriterT<W, M>, W>.Pass<A>(
+    static K<WriterT<W, M>, A> Writable<WriterT<W, M>, W>.Pass<A>(
         K<WriterT<W, M>, (A Value, Func<W, W> Function)> action) =>
         new WriterT<W, M, A>(
             w => action.As()

@@ -1,11 +1,11 @@
 namespace LanguageExt.Traits;
 
 /// <summary>
-/// Makes a value accessible via a property
+/// Makes a value accessible via a property.  This allows for _structural property access_. 
 /// </summary>
-/// <typeparam name="M"></typeparam>
-/// <typeparam name="TRAIT"></typeparam>
-public interface Has<in M, TRAIT>
+/// <typeparam name="M">Higher-kind that supports access to the trait</typeparam>
+/// <typeparam name="VALUE">Type to return as the bound-value</typeparam>
+public interface Has<in M, VALUE>
 {
-    K<M, TRAIT> Trait { get; }
+    public static abstract K<M, VALUE> Ask { get; }
 }

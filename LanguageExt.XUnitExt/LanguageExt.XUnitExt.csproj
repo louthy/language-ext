@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Update="README.nuget.md">
+        <Pack>true</Pack>
+        <PackagePath>/</PackagePath>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
+      <ProjectReference Include="..\LanguageExt.Streaming\LanguageExt.Streaming.csproj" />
+      <ProjectReference Include="..\LanguageExt.Sys\LanguageExt.Sys.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="xunit" Version="2.7.0" />
+    </ItemGroup>
+
+</Project>

@@ -100,6 +100,17 @@ public class AtomSeq<A> :
     /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
     /// to update this data structure.  Therefore the functions must spend as little time performing the injected
     /// behaviours as possible to avoid repeated attempts</remarks>
+    public IO<Unit> SwapIO(Func<Seq<A>, Seq<A>> swap) =>
+        IO.lift(_ => Swap(swap));
+        
+    /// <summary>
+    /// Atomically swap the underlying Seq.  Allows for multiple operations on the Seq in an entirely
+    /// transactional and atomic way.
+    /// </summary>
+    /// <param name="swap">Swap function, maps the current state of the AtomSeq to a new state</param>
+    /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
+    /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+    /// behaviours as possible to avoid repeated attempts</remarks>
     public Unit Swap(Func<Seq<A>, Seq<A>> swap)
     {
         SpinWait sw = default;
@@ -518,8 +529,8 @@ public class AtomSeq<A> :
     {
         var xs = items;
         return xs.IsEmpty
-                   ? Either<L, A>.Left(Left)
-                   : Either<L, A>.Right(xs.Last);
+                   ? Either.Left<L, A>(Left)
+                   : Either.Right<L, A>(xs.Last);
     }
 
     /// <summary>
@@ -531,8 +542,8 @@ public class AtomSeq<A> :
     {
         var xs = items;
         return xs.IsEmpty
-                   ? Either<L, A>.Left(Left())
-                   : Either<L, A>.Right(xs.Last);
+                   ? Either.Left<L, A>(Left())
+                   : Either.Right<L, A>(xs.Last);
     }
 
     /// <summary>
@@ -601,8 +612,8 @@ public class AtomSeq<A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<A> AsEnumerable() => 
-        new(items);
+    public Iterable<A> AsIterable() => 
+        items.AsIterable();
 
     /// <summary>
     /// Match empty sequence, or multi-item sequence
@@ -1419,11 +1430,13 @@ public class AtomSeq<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerator<A> GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         items.GetEnumerator();
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator IEnumerable.GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         items.GetEnumerator();
 
     [Pure]
@@ -1443,8 +1456,8 @@ public static class AtomSeqExtensions
     {
         var xs = ma.ToSeq();
         return xs.IsEmpty
-                   ? Validation<F, A>.Fail(Fail)
-                   : Validation<F, A>.Success((A)xs.Last);
+                   ? Validation.Fail<F, A>(Fail)
+                   : Validation.Success<F, A>((A)xs.Last);
     }
 
     /// <summary>
@@ -1458,7 +1471,7 @@ public static class AtomSeqExtensions
     {
         var xs = ma.ToSeq();
         return xs.IsEmpty
-                   ? Validation<F, A>.Fail(Fail)
+                   ? Validation.Fail<F, A>(Fail)
                    : Pure((A)xs.Head);
     }
     
@@ -1472,7 +1485,7 @@ public static class AtomSeqExtensions
     {
         var xs = ma.ToSeq();
         return xs.IsEmpty
-                   ? Validation<F, A>.Fail(Fail())
+                   ? Validation.Fail<F, A>(Fail())
                    : Pure((A)xs.Last);
     }
 
@@ -1487,7 +1500,7 @@ public static class AtomSeqExtensions
     {
         var xs = ma.ToSeq();
         return xs.IsEmpty
-                   ? Validation<F, A>.Fail(Fail())
+                   ? Validation.Fail<F, A>(Fail())
                    : Pure((A)xs.Head);
     }
     

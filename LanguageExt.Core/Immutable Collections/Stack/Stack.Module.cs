@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -65,9 +66,9 @@ public static class Stack
 
     /// <summary>
     /// Return the item on the top of the stack without affecting the stack itself
-    /// NOTE: Will throw an InvalidOperationException if the stack is empty
+    /// NOTE: Will throw an ExpectedException if the stack is empty
     /// </summary>
-    /// <exception cref="InvalidOperationException">Stack is empty</exception>
+    /// <exception cref="ExpectedException">Stack is empty</exception>
     /// <returns>Top item value</returns>
     [Pure]
     public static T peek<T>(Stck<T> stack) =>
@@ -104,9 +105,9 @@ public static class Stack
 
     /// <summary>
     /// Pop an item off the top of the stack
-    /// NOTE: Will throw an InvalidOperationException if the stack is empty
+    /// NOTE: Will throw an ExpectedException if the stack is empty
     /// </summary>
-    /// <exception cref="InvalidOperationException">Stack is empty</exception>
+    /// <exception cref="ExpectedException">Stack is empty</exception>
     /// <returns>Stack with the top item popped</returns>
     [Pure]
     public static Stck<T> pop<T>(Stck<T> stack) =>

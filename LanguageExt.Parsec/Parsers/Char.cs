@@ -52,7 +52,7 @@ public static class Char
     /// <summary>
     /// ch(c) parses a single character c
     /// </summary>
-    /// <typeparam name="EQ">Eq<char> trait</typeparam>
+    /// <typeparam name="EQ">Eq〈char〉 trait</typeparam>
     /// <returns>The parsed character</returns>
     public static Parser<char> ch<EQ>(char c) where EQ : Eq<char> =>
         satisfy(x => EQ.Equals(x, c)).label($"'{c}'");
@@ -249,12 +249,12 @@ public static class Char
     /// Parse a string
     /// </summary>
     public static Parser<string> str(string s) =>
-        asString(chain(toSeq(s.AsEnumerableM().Map(ch)))).label($"'{s}'");
+        asString(chain(toSeq(s.AsIterable().Map(ch)))).label($"'{s}'");
 
     /// <summary>
     /// Parse a string case insensitive (char by char)
-    /// <typeparam name="EQ">Eq<char> trait</typeparam>
+    /// <typeparam name="EQ">Eq〈char〉 trait</typeparam>
     /// </summary>
     public static Parser<string> str<EQ>(string s) where EQ: Eq<char>  =>
-        asString(chain(toSeq(s.AsEnumerableM().Map(ch<EQ>)))).label($"'{s}'");
+        asString(chain(toSeq(s.AsIterable().Map(ch<EQ>)))).label($"'{s}'");
 }

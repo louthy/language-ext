@@ -8,6 +8,7 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -82,7 +83,7 @@ public readonly struct Seq<A> :
 
     public void Deconstruct(out A head, out Seq<A> tail)
     {
-        head = Head.IfNone(() => throw new InvalidOperationException("sequence is empty"));
+        head = Head.IfNone(() => throw Exceptions.SequenceEmpty);
         tail = Tail;
     }
 
@@ -159,10 +160,6 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Add a range of items to the end of the sequence
     /// </summary>
-    /// <remarks>
-    /// Forces evaluation of the entire lazy sequence so the items
-    /// can be appended.  
-    /// </remarks>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<A> Concat(IEnumerable<A> items) =>
@@ -410,9 +407,11 @@ public readonly struct Seq<A> :
         new (Value.Cons(value));
 
     /// <summary>
-    /// Head item in the sequence.  NOTE:  If `IsEmpty` is true then Head 
-    /// is undefined.  Call HeadOrNone() if for maximum safety.
+    /// Head item in the sequence.
     /// </summary>
+    /// <remarks>
+    /// If `IsEmpty` is `true` then Head is undefined and therefore returns `None`
+    /// </remarks>
     public Option<A> Head
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -488,8 +487,26 @@ public readonly struct Seq<A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<A> AsEnumerable() => 
-        new(Value);
+    public IEnumerable<A> AsEnumerable() => 
+        this;
+
+    /*
+    /// <summary>
+    /// Stream as an enumerable
+    /// </summary>
+    [Pure]
+    public StreamT<M, A> AsStream<M>()
+        where M : Monad<M> =>
+        StreamT<M, A>.Lift(AsEnumerable());
+        */
+
+    /// <summary>
+    /// Stream as an enumerable
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Iterable<A> AsIterable() => 
+        new IterableEnumerable<A>(Value);
 
     /// <summary>
     /// Match empty sequence, or multi-item sequence
@@ -616,6 +633,28 @@ public readonly struct Seq<A> :
             foreach (var item in items)
             {
                 yield return f(item);
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Map the sequence using the function provided
+    /// </summary>
+    /// <remarks>
+    /// Exposes an index for each map 
+    /// </remarks>
+    /// <returns>Mapped sequence</returns>
+    [Pure]
+    public Seq<B> Map<B>(Func<A, int, B> f)
+    {
+        return new Seq<B>(new SeqLazy<B>(Yield(this)));
+        IEnumerable<B> Yield(Seq<A> items)
+        {
+            var ix = 0;
+            foreach (var item in items)
+            {
+                yield return f(item, ix);
+                ix++;
             }
         }
     }
@@ -827,13 +866,47 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Append operator
     /// </summary>
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> operator +(Seq<A> x, Seq<A> y) =>
         x.Concat(y);
 
     /// <summary>
+    /// Append operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Seq<A> operator +(Seq<A> x, K<Seq, A> y) =>
+        x.Concat(y.As());
+
+    /// <summary>
+    /// Append operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Seq<A> operator +(K<Seq, A> x, Seq<A> y) =>
+        x.As().Concat(y);
+
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Seq<A> operator |(Seq<A> x, K<Seq, A> y) =>
+        x.Choose(y).As();
+
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Seq<A> operator |(K<Seq, A> x, Seq<A> y) =>
+        x.Choose(y).As();
+
+    /// <summary>
     /// Ordering operator
     /// </summary>
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >(Seq<A> x, Seq<A> y) =>
         x.CompareTo(y) > 0;
@@ -841,6 +914,7 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Ordering operator
     /// </summary>
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >=(Seq<A> x, Seq<A> y) =>
         x.CompareTo(y) >= 0;
@@ -848,6 +922,7 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Ordering  operator
     /// </summary>
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(Seq<A> x, Seq<A> y) =>
         x.CompareTo(y) < 0;
@@ -855,6 +930,7 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Ordering  operator
     /// </summary>
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <=(Seq<A> x, Seq<A> y) =>
         x.CompareTo(y) <= 0;
@@ -862,6 +938,7 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Equality operator
     /// </summary>
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(Seq<A> x, Seq<A> y) =>
         x.Equals(y);
@@ -869,6 +946,7 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Non-equality operator
     /// </summary>
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(Seq<A> x, Seq<A> y) =>
         !(x == y);
@@ -876,6 +954,7 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Equality test
     /// </summary>
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool Equals(object? obj) =>
         obj switch

@@ -1,4 +1,5 @@
-﻿using LanguageExt.Traits;
+﻿using LanguageExt.Common;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -8,7 +9,14 @@ public static partial class Prelude
     /// Construct identity monad
     /// </summary>
     public static Identity<A> Id<A>(A value) =>
-        Identity<A>.Pure(value);
+        Identity.Pure(value);
+
+    /// <summary>
+    /// Construct identity monad
+    /// </summary>
+    public static IdentityT<M, A> Id<M, A>(A value) 
+        where M : Monad<M>, Choice<M> =>
+        IdentityT.Pure<M, A>(value);
 
     /// <summary>
     /// Create a new Pure monad.  This monad doesn't do much, but when combined with
@@ -29,7 +37,7 @@ public static partial class Prelude
     /// <returns>Pure monad</returns>
     public static Pure<A> Pure<A>(A value) =>
         new(value);
-        
+
     /// <summary>
     /// Create a new Fail monad: the monad that always fails.  This monad doesn't do much,
     /// but when combined with other monads, it allows for easier construction of lifted 
@@ -50,12 +58,4 @@ public static partial class Prelude
     /// <returns>Pure monad</returns>
     public static Fail<E> Fail<E>(E error) =>
         new(error);
-    
-    /// <summary>
-    /// Lift the IO monad into a transformer-stack with an IO as its innermost monad.
-    /// </summary>
-    public static K<T, A> liftIO<T, M, A>(IO<A> ma)
-        where T : MonadT<T, M>
-        where M : Monad<M> => 
-        T.Lift(M.LiftIO(ma));
 }

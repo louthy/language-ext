@@ -44,7 +44,7 @@ public static class FSharp
     /// Convert a LanguageExt Map (Map K V) into an F# Map
     /// </summary>
     public static FSharpMap<K, V> fs<K, V>(Map<K, V> map) =>
-        MapModule.OfSeq(map.AsEnumerable().Map(item => Tuple.Create(item.Key,item.Value)));
+        MapModule.OfSeq(map.AsIterable().Map(item => Tuple.Create(item.Key,item.Value)));
 
     /// <summary>
     /// Convert LanguageExt Unit to F# unit
@@ -59,16 +59,15 @@ public static class FSharp
     /// </summary>
     public static Either<TError, T> fs<T, TError>(FSharpResult<T, TError> result) =>
         result.IsOk
-            ? Either<TError, T>.Right(result.ResultValue)
-            : Either<TError, T>.Left(result.ErrorValue);
+            ? Either.Right<TError, T>(result.ResultValue)
+            : Either.Left<TError, T>(result.ErrorValue);
 
     /// <summary>
     /// Convert a LanguageExt Either into an F# Result
     /// </summary>
     public static FSharpResult<R, L> fs<L, R>(Either<L, R> either) =>
-        match(either,
-              FSharpResult<R, L>.NewError,
-              FSharpResult<R, L>.NewOk);
+        either.Match(FSharpResult<R, L>.NewError,
+                     FSharpResult<R, L>.NewOk);
 
     /// <summary>
     /// Convert a LanguageExt Option into an F# Option 
@@ -84,7 +83,7 @@ public static class FSharp
     /// Convert a LanguageExt Map (Map K V) into an F# Map
     /// </summary>
     public static FSharpMap<K, V> ToFSharp<K, V>(this Map<K, V> map) =>
-        MapModule.OfSeq(map.AsEnumerable().Map(item => Tuple.Create(item.Key, item.Value)));
+        MapModule.OfSeq(map.AsIterable().Map(item => Tuple.Create(item.Key, item.Value)));
 
     /// <summary>
     /// Convert a LanguageExt List (Lst A) into an F# List
@@ -96,7 +95,6 @@ public static class FSharp
     /// Convert a LanguageExt Either into an F# Result
     /// </summary>
     public static FSharpResult<R, L> ToFSharp<L, R>(this Either<L, R> either) =>
-        match(either,
-              FSharpResult<R, L>.NewError,
-              FSharpResult<R, L>.NewOk);
+        either.Match(FSharpResult<R, L>.NewError,
+                     FSharpResult<R, L>.NewOk);
 }

@@ -12,10 +12,10 @@ namespace LanguageExt;
 /// elements in a list, in order.
 /// </para>
 /// <code>
-///     var vc = VectorClock&lt;char&gt;.Empty;
+///     var vc = VectorClock〈char〉.Empty;
 ///     vc = vc.Insert('a', 1);
 ///     vc = vc.Insert('b', 2);
-///     vc == VectorClock&lt;char&gt;.fromList(Seq(('a', 1), ('b', 2)))
+///     vc == VectorClock〈char〉.fromList(Seq(('a', 1), ('b', 2)))
 /// </code>
 /// <para>
 /// Note that, for different keys, the order of insertion does not
@@ -64,11 +64,11 @@ public record VectorClock<A>(Seq<(A, long)> Entries)
     public static readonly VectorClock<A> Empty = new(Seq<(A, long)>());
 
     public virtual bool Equals(VectorClock<A>? rhs) =>
-        rhs is not null                                                                             &&
-        GetHashCode() == rhs.GetHashCode()                                                          &&
-        Count         == rhs.Count                                                                  &&
-        Entries.Zip(rhs.Entries).ForAll(p => equals<OrdDefault<A>, A>(p.Left.Item1, p.Right.Item1)) &&
-        Entries.Zip(rhs.Entries).ForAll(p => p.Left.Item2 == p.Right.Item2);
+        rhs is not null                                                                               &&
+        GetHashCode() == rhs.GetHashCode()                                                            &&
+        Count         == rhs.Count                                                                    &&
+        Entries.Zip(rhs.Entries).ForAll(p => equals<OrdDefault<A>, A>(p.First.Item1, p.Second.Item1)) &&
+        Entries.Zip(rhs.Entries).ForAll(p => p.First.Item2 == p.Second.Item2);
 
     public override int GetHashCode() =>
         Entries.GetHashCode();

@@ -122,7 +122,7 @@ public readonly struct Set<A> :
     ///
     ///     Empty collection     = null
     ///     Singleton collection = A
-    ///     More                 = (A, Seq<A>)   -- head and tail
+    ///     More                 = (A, Seq〈A〉)   -- head and tail
     ///
     ///     var res = set.Case switch
     ///     {
@@ -138,6 +138,16 @@ public readonly struct Set<A> :
         IsEmpty
             ? null
             : toSeq(Value).Case;
+
+    /*
+    /// <summary>
+    /// Stream as an enumerable
+    /// </summary>
+    [Pure]
+    public StreamT<M, A> AsStream<M>()
+        where M : Monad<M> =>
+        StreamT<M, A>.Lift(AsEnumerable());
+        */
 
     /// <summary>
     /// Add an item to the set
@@ -219,7 +229,7 @@ public readonly struct Set<A> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
     /// <returns>Range of values</returns>
     [Pure]
-    public EnumerableM<A> FindRange(A keyFrom, A keyTo) => Value.FindRange(keyFrom, keyTo);
+    public Iterable<A> FindRange(A keyFrom, A keyTo) => Value.FindRange(keyFrom, keyTo);
 
     /// <summary>
     /// Retrieve the value from previous item to specified key
@@ -328,6 +338,7 @@ public readonly struct Set<A> :
     /// <returns>IEnumerator</returns>
     [Pure]
     IEnumerator IEnumerable.GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         Value.GetEnumerator();
 
     /// <summary>
@@ -544,6 +555,22 @@ public readonly struct Set<A> :
         Wrap(lhs.Value + rhs.Value);
 
     /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Set<A> operator |(Set<A> x, K<Set, A> y) =>
+        x.Choose(y).As();
+
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Set<A> operator |(K<Set, A> x, Set<A> y) =>
+        x.Choose(y).As();
+
+    /// <summary>
     /// Append performs a union of the two sets
     /// </summary>
     /// <param name="rhs">Right hand side set</param>
@@ -578,7 +605,7 @@ public readonly struct Set<A> :
     /// <returns>True if sets are equal</returns>
     [Pure]
     public bool Equals(Set<A> other) =>
-        Value.SetEquals(other.Value.AsEnumerable());
+        Value.SetEquals(other.Value.AsIterable());
 
     /// <summary>
     /// Equality operator
@@ -666,8 +693,8 @@ public readonly struct Set<A> :
         toSeq(this);
 
     [Pure]
-    public EnumerableM<A> AsEnumerable() =>
-        new(this);
+    public Iterable<A> AsEnumerable() =>
+        Iterable.createRange(this);
 
     [Pure]
     public Set<B> Select<B>(Func<A, B> f) =>
@@ -714,7 +741,7 @@ public readonly struct Set<A> :
     }
 
     [Pure]
-    public EnumerableM<A> Skip(int amount) =>
+    public Iterable<A> Skip(int amount) =>
         Value.Skip(amount);
 
     [Pure]

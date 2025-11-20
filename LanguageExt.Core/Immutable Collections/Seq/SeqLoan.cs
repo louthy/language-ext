@@ -4,6 +4,7 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using System.Threading;
+using LanguageExt.Common;
 
 namespace LanguageExt;
 
@@ -99,7 +100,7 @@ public class SeqLoan<A> : IDisposable
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => freed == 1 || count == 0
-                   ? throw new InvalidOperationException("Sequence is empty")
+                   ? throw Exceptions.SequenceEmpty
                    : data[start];
     }
 
@@ -172,7 +173,7 @@ public class SeqLoan<A> : IDisposable
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get =>
             freed == 1 || IsEmpty
-                ? throw new InvalidOperationException("Sequence is empty")
+                ? throw Exceptions.SequenceEmpty
                 : data[start + count - 1];
     }
 

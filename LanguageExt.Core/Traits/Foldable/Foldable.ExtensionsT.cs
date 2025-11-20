@@ -320,9 +320,9 @@ public static partial class FoldableExtensions
         return new(Go().ToArray());
         IEnumerable<A> Go()
         {
-            foreach(var ua in tua.ToEnumerable())
+            foreach(var ua in tua.ToIterable())
             {
-                foreach (var a in ua.ToEnumerable())
+                foreach (var a in ua.ToIterable())
                 {
                     yield return a;
                 }
@@ -333,7 +333,7 @@ public static partial class FoldableExtensions
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
-    public static EnumerableM<A> ToEnumerableT<T, U, A>(this K<T, K<U, A>> tua)
+    public static Iterable<A> ToEnumerableT<T, U, A>(this K<T, K<U, A>> tua)
         where T : Foldable<T>
         where U : Foldable<U> =>
         Foldable.fold(
@@ -346,7 +346,7 @@ public static partial class FoldableExtensions
                       s1,
                       ua),
             new List<A>(),
-            tua).AsEnumerableM();
+            tua).AsIterable();
 
     /// <summary>
     /// List of elements of a structure, from left to right

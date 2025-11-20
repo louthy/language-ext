@@ -8,6 +8,102 @@ namespace LanguageExt;
 public static partial class FoldableExtensions
 {
     /// <summary>
+    /// Fold the structure: `ta` and pass each element that it yields to `f`, resulting in an `F` applicative-value.
+    /// The fold operator is applicative `Action`, which causes each applicative-value to be sequenced.      
+    /// </summary>
+    /// <param name="ta">Foldable structure</param>
+    /// <param name="f">Mapping operation</param>
+    /// <typeparam name="T">Foldable</typeparam>
+    /// <typeparam name="F">Applicative</typeparam>
+    /// <typeparam name="A">Input bound value</typeparam>
+    /// <typeparam name="B">Mapping bound value</typeparam>
+    /// <returns></returns>
+    public static K<F, Unit> ForM<T, F, A, B>(this Func<A, K<F, B>> f, K<T, A> ta)
+        where F : Applicative<F>
+        where T : Foldable<T> =>
+        ta.Fold(pure<F, Unit>(unit), x => f(x).Action);
+    
+    /// <summary>
+    /// Fold the structure: `ta` and pass each element that it yields to `f`, resulting in an `F` applicative-value.
+    /// The fold operator is applicative `Action`, which causes each applicative-value to be sequenced.      
+    /// </summary>
+    /// <param name="ta">Foldable structure</param>
+    /// <param name="f">Mapping operation</param>
+    /// <typeparam name="T">Foldable</typeparam>
+    /// <typeparam name="F">Applicative</typeparam>
+    /// <typeparam name="A">Input bound value</typeparam>
+    /// <typeparam name="B">Mapping bound value</typeparam>
+    /// <returns></returns>
+    public static K<F, Unit> ForM<T, F, A, B>(this K<T, A> ta, Func<A, K<F, B>> f)
+        where F : Applicative<F>
+        where T : Foldable<T> =>
+        ta.Fold(pure<F, Unit>(unit), x => f(x).Action);
+    
+    /// <summary>
+    /// Fold until the `Option` returns `None`
+    /// </summary>
+    /// <param name="f">Fold function</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Aggregated value</returns>
+    public static S FoldMaybe<T, A, S>(
+        this K<T, A> ta,
+        S initialState,
+        Func<S, Func<A, Option<S>>> f) 
+        where T : Foldable<T> =>
+        T.FoldMaybe(f, initialState, ta);
+
+    /// <summary>
+    /// Fold until the `Option` returns `None`
+    /// </summary>
+    /// <param name="f">Fold function</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Aggregated value</returns>
+    public static S FoldMaybe<T, A, S>(
+        this K<T, A> ta,
+        S initialState,
+        Func<S, A, Option<S>> f) 
+        where T : Foldable<T> =>
+        T.FoldMaybe(s => a => f(s, a), initialState, ta);
+
+    /// <summary>
+    /// Fold until the `Option` returns `None`
+    /// </summary>
+    /// <param name="f">Fold function</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Aggregated value</returns>
+    public static S FoldBackMaybe<T, A, S>(
+        this K<T, A> ta,
+        S initialState,
+        Func<A, Func<S, Option<S>>> f)
+        where T : Foldable<T> =>
+        T.FoldBackMaybe(f, initialState, ta);
+
+    /// <summary>
+    /// Fold until the `Option` returns `None`
+    /// </summary>
+    /// <param name="f">Fold function</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Aggregated value</returns>
+    public static S FoldBackMaybe<T, A, S>(
+        this K<T, A> ta,
+        S initialState,
+        Func<S, A, Option<S>> f)
+        where T : Foldable<T> =>
+        T.FoldBackMaybe(a => s => f(s, a), initialState, ta);
+    
+    /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
     /// </summary>
@@ -283,7 +379,7 @@ public static partial class FoldableExtensions
     /// <remarks>
     /// Note that to produce the outermost application of the operator the
     /// entire input list must be traversed.  Like all left-associative folds,
-    /// `FoldBack' will diverge if given an infinite list.
+    /// `FoldBack` will diverge if given an infinite list.
     /// </remarks>
     public static S FoldBack<T, A, S>(this K<T, A> ta, S initialState, Func<S, Func<A, S>> f) 
         where T : Foldable<T> =>
@@ -302,7 +398,7 @@ public static partial class FoldableExtensions
     /// <remarks>
     /// Note that to produce the outermost application of the operator the
     /// entire input list must be traversed.  Like all left-associative folds,
-    /// `FoldBack' will diverge if given an infinite list.
+    /// `FoldBack` will diverge if given an infinite list.
     /// </remarks>
     public static S FoldBack<T, A, S>(this K<T, A> ta, S initialState, Func<S, A, S> f) 
         where T : Foldable<T> =>
@@ -321,7 +417,7 @@ public static partial class FoldableExtensions
     /// <remarks>
     /// Note that to produce the outermost application of the operator the
     /// entire input list must be traversed.  Like all left-associative folds,
-    /// `FoldBack' will diverge if given an infinite list.
+    /// `FoldBack` will diverge if given an infinite list.
     /// </remarks>
     public static K<M, S> FoldBackM<T, A, M, S>(
         this K<T, A> ta, 
@@ -344,7 +440,7 @@ public static partial class FoldableExtensions
     /// <remarks>
     /// Note that to produce the outermost application of the operator the
     /// entire input list must be traversed.  Like all left-associative folds,
-    /// `FoldBack' will diverge if given an infinite list.
+    /// `FoldBack` will diverge if given an infinite list.
     /// </remarks>
     public static K<M, S> FoldBackM<T, A, M, S>(
         this K<T, A> ta, 
@@ -358,7 +454,7 @@ public static partial class FoldableExtensions
     /// Given a structure with elements whose type is a `Monoid`, combine them
     /// via the monoid's `Append` operator.  This fold is right-associative and
     /// lazy in the accumulator.  When you need a strict left-associative fold,
-    /// use 'foldMap'' instead, with 'id' as the map.
+    /// use `FoldMap` instead, with `identity` as the map.
     /// </summary>
     public static A Fold<T, A>(this K<T, A> tm) 
         where T : Foldable<T>
@@ -369,7 +465,7 @@ public static partial class FoldableExtensions
     /// Given a structure with elements whose type is a `Monoid`, combine them
     /// via the monoid's `Append` operator.  This fold is right-associative and
     /// lazy in the accumulator.  When you need a strict left-associative fold,
-    /// use 'foldMap'' instead, with 'id' as the map.
+    /// use `FoldMap` instead, with `identity` as the map.
     /// </summary>
     public static A FoldWhile<T, A>(this K<T, A> tm, Func<(A State, A Value), bool> predicate) 
         where T : Foldable<T>
@@ -380,7 +476,7 @@ public static partial class FoldableExtensions
     /// Given a structure with elements whose type is a `Monoid`, combine them
     /// via the monoid's `Append` operator.  This fold is right-associative and
     /// lazy in the accumulator.  When you need a strict left-associative fold,
-    /// use 'foldMap'' instead, with 'id' as the map.
+    /// use `FoldMap` instead, with `identity` as the map.
     /// </summary>
     public static A FoldUntil<T, A>(this K<T, A> tm, Func<(A State, A Value), bool> predicate) 
         where T : Foldable<T>
@@ -474,9 +570,9 @@ public static partial class FoldableExtensions
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
-    public static EnumerableM<A> ToEnumerable<T, A>(this K<T, A> ta)
+    public static Iterable<A> ToIterable<T, A>(this K<T, A> ta)
         where T : Foldable<T> =>
-        T.ToEnumerable(ta);
+        T.ToIterable(ta);
 
     /// <summary>
     /// List of elements of a structure, from left to right
@@ -541,14 +637,14 @@ public static partial class FoldableExtensions
         T.FindBack(predicate, ta);
 
     /// <summary>
-    /// Find the the elements that match the predicate
+    /// Find the elements that match the predicate
     /// </summary>
     public static Seq<A> FindAll<T, A>(this K<T, A> ta, Func<A, bool> predicate) 
         where T : Foldable<T> =>
         T.FindAll(predicate, ta);
 
     /// <summary>
-    /// Find the the elements that match the predicate
+    /// Find the elements that match the predicate
     /// </summary>
     public static Seq<A> FindAllBack<T, A>(this K<T, A> ta, Func<A, bool> predicate) 
         where T : Foldable<T> =>
@@ -610,7 +706,7 @@ public static partial class FoldableExtensions
     /// </summary>
     public static Unit Iter<T, A>(this K<T, A> ta, Action<int, A> f) 
         where T : Foldable<T> =>
-        ignore(T.Fold(a => ix => { f(ix, a); return ix + 1; }, 0, ta));
+        T.Iter(f, ta);
         
     /// <summary>
     /// Find the minimum value in the structure
@@ -698,4 +794,15 @@ public static partial class FoldableExtensions
     public static Option<A> At<T, A>(this K<T, A> ta, Index index)
         where T : Foldable<T> =>
         T.At(ta, index);
+
+    /// <summary>
+    /// Partition a foldable into two sequences based on a predicate
+    /// </summary>
+    /// <param name="f">Predicate function</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Partitioned structure</returns>
+    public static (Seq<A> True, Seq<A> False) Partition<T, A>(this K<T, A> ta, Func<A, bool> f)
+        where T : Foldable<T> =>
+        T.Partition(f, ta);
 }

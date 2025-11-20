@@ -11,7 +11,7 @@ public partial class Range
     /// </summary>
     public static Range<A> zero<A>() 
         where A : IAdditiveIdentity<A, A> =>
-        new(A.AdditiveIdentity, A.AdditiveIdentity, A.AdditiveIdentity, EnumerableM<A>.Empty);
+        new(A.AdditiveIdentity, A.AdditiveIdentity, A.AdditiveIdentity, Iterable<A>.Empty);
 
     /// <summary>
     /// Construct a new range

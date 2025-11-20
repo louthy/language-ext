@@ -24,8 +24,8 @@ public static class List
     /// Monadic join
     /// </summary>
     [Pure]
-    public static EnumerableM<A> flatten<A>(IEnumerable<IEnumerable<A>> ma) =>
-        ma.Bind(identity).AsEnumerableM();
+    public static Iterable<A> flatten<A>(IEnumerable<IEnumerable<A>> ma) =>
+        ma.Bind(identity).AsIterable();
 
     /// <summary>
     /// Create an empty IEnumerable T
@@ -85,23 +85,23 @@ public static class List
     /// each item.
     /// </summary>
     [Pure]
-    public static EnumerableM<T> generate<T>(int count, Func<int, T> generator) =>
-        Range(0, count).AsEnumerableM().Map(generator);
+    public static Iterable<T> generate<T>(int count, Func<int, T> generator) =>
+        IterableExtensions.AsIterable(Range(0, count)).Map(generator);
 
     /// <summary>
     /// Generates an int.MaxValue sequence of T using the provided delegate to initialise
     /// each item.
     /// </summary>
     [Pure]
-    public static EnumerableM<T> generate<T>(Func<int, T> generator) =>
-        Range(0, int.MaxValue).AsEnumerableM().Map(generator);
+    public static Iterable<T> generate<T>(Func<int, T> generator) =>
+        IterableExtensions.AsIterable(Range(0, int.MaxValue)).Map(generator);
 
     /// <summary>
     /// Generates a sequence that contains one repeated value.
     /// </summary>
     [Pure]
-    public static EnumerableM<T> repeat<T>(T item, int count) =>
-        Range(0, count).AsEnumerableM().Map(_ => item);
+    public static Iterable<T> repeat<T>(T item, int count) =>
+        IterableExtensions.AsIterable(Range(0, count)).Map(_ => item);
 
     /// <summary>
     /// Add an item to the list
@@ -158,7 +158,7 @@ public static class List
     /// <returns>Optional head item</returns>
     [Pure]
     public static Option<A> headOrNone<A>(IEnumerable<A> list) =>
-        list.Select(Option<A>.Some)
+        list.Select(Option.Some)
             .DefaultIfEmpty(Option<A>.None)
             .FirstOrDefault();
 
@@ -169,8 +169,8 @@ public static class List
     /// <returns>Either head item or left</returns>
     [Pure]
     public static Either<L, R> headOrLeft<L, R>(IEnumerable<R> list, L left) =>
-        list.Select(Either<L, R>.Right)
-            .DefaultIfEmpty(Either<L, R>.Left(left))
+        list.Select(Either.Right<L, R>)
+            .DefaultIfEmpty(Either.Left<L, R>(left))
             .FirstOrDefault() ?? left;
 
     /// <summary>
@@ -181,8 +181,8 @@ public static class List
     [Pure]
     public static Validation<Fail, Success> headOrInvalid<Fail, Success>(IEnumerable<Success> list, Fail fail) 
         where Fail : Monoid<Fail> =>
-        list.Select(Validation<Fail, Success>.Success)
-            .DefaultIfEmpty(Validation<Fail, Success>.Fail(fail))
+        list.Select(Validation.Success<Fail, Success>)
+            .DefaultIfEmpty(Validation.Fail<Fail, Success>(fail))
             .FirstOrDefault() ?? Fail.Empty;
 
     /// <summary>
@@ -193,8 +193,8 @@ public static class List
     [Pure]
     public static Validation<Fail, Success> headOrInvalid<Fail, Success>(IEnumerable<Success> list)
         where Fail : Monoid<Fail> =>
-        list.Select(Validation<Fail, Success>.Success)
-            .DefaultIfEmpty(Validation<Fail, Success>.Fail(Fail.Empty))
+        list.Select(Validation.Success<Fail, Success>)
+            .DefaultIfEmpty(Validation.Fail<Fail, Success>(Fail.Empty))
             .FirstOrDefault() ?? Fail.Empty;
 
     /// <summary>
@@ -213,7 +213,7 @@ public static class List
     /// <returns>Last item</returns>
     [Pure]
     public static Option<A> lastOrNone<A>(IEnumerable<A> list) =>
-        list.Select(Option<A>.Some)
+        list.Select(Option.Some)
             .DefaultIfEmpty(Option<A>.None)
             .LastOrDefault();
 
@@ -224,8 +224,8 @@ public static class List
     /// <returns>Last item</returns>
     [Pure]
     public static Either<L, R> lastOrLeft<L, R>(IEnumerable<R> list, L left) =>
-        list.Select(Either<L, R>.Right)
-            .DefaultIfEmpty(Either<L, R>.Left(left))
+        list.Select(Either.Right<L, R>)
+            .DefaultIfEmpty(Either.Left<L, R>(left))
             .LastOrDefault() ?? left;
 
     /// <summary>
@@ -236,8 +236,8 @@ public static class List
     [Pure]
     public static Validation<Fail, Success> lastOrInvalid<Fail, Success>(IEnumerable<Success> list, Fail fail)
         where Fail : Monoid<Fail> =>
-        list.Select(Validation<Fail, Success>.Success)
-            .DefaultIfEmpty(Validation<Fail, Success>.Fail(fail))
+        list.Select(Validation.Success<Fail, Success>)
+            .DefaultIfEmpty(Validation.Fail<Fail, Success>(fail))
             .LastOrDefault() ?? fail;
 
     /// <summary>
@@ -248,8 +248,8 @@ public static class List
     [Pure]
     public static Validation<Fail, Success> lastOrInvalid<Fail, Success>(IEnumerable<Success> list)
         where Fail : Monoid<Fail> =>
-        list.Select(Validation<Fail, Success>.Success)
-            .DefaultIfEmpty(Validation<Fail, Success>.Fail(Fail.Empty))
+        list.Select(Validation.Success<Fail, Success>)
+            .DefaultIfEmpty(Validation.Fail<Fail, Success>(Fail.Empty))
             .LastOrDefault() ?? Fail.Empty;
 
     /// <summary>
@@ -274,8 +274,8 @@ public static class List
     /// <param name="list">List</param>
     /// <returns>Enumerable of T</returns>
     [Pure]
-    public static EnumerableM<T> tail<T>(IEnumerable<T> list) =>
-        list.Skip(1).AsEnumerableM();
+    public static Iterable<T> tail<T>(IEnumerable<T> list) =>
+        list.Skip(1).AsIterable();
 
     /// <summary>
     /// Projects the values in the enumerable using a map function into a new enumerable (Select in LINQ).
@@ -286,8 +286,8 @@ public static class List
     /// <param name="map">Map function</param>
     /// <returns>Mapped enumerable</returns>
     [Pure]
-    public static EnumerableM<R> map<T, R>(IEnumerable<T> list, Func<T, R> map) =>
-        list.Select(map).AsEnumerableM();
+    public static Iterable<R> map<T, R>(IEnumerable<T> list, Func<T, R> map) =>
+        list.Select(map).AsIterable();
 
     /// <summary>
     /// Projects the values in the enumerable into a new enumerable using a map function, which is also given an index value
@@ -300,8 +300,8 @@ public static class List
     /// <param name="map">Map function</param>
     /// <returns>Mapped enumerable</returns>
     [Pure]
-    public static EnumerableM<R> map<T, R>(IEnumerable<T> list, Func<int, T, R> map) =>
-        zip(list, Range(0, int.MaxValue), (t, i) => map(i, t)).AsEnumerableM();
+    public static Iterable<R> map<T, R>(IEnumerable<T> list, Func<int, T, R> map) =>
+        zip(list, Range(0, int.MaxValue), (t, i) => map(i, t)).AsIterable();
 
     /// <summary>
     /// Removes items from the list that do not match the given predicate (Where in LINQ)
@@ -311,8 +311,8 @@ public static class List
     /// <param name="predicate">Predicate function</param>
     /// <returns>Filtered enumerable</returns>
     [Pure]
-    public static EnumerableM<T> filter<T>(IEnumerable<T> list, Func<T, bool> predicate) =>
-        list.Where(predicate).AsEnumerableM();
+    public static Iterable<T> filter<T>(IEnumerable<T> list, Func<T, bool> predicate) =>
+        list.Where(predicate).AsIterable();
 
     /// <summary>
     /// Applies the given function 'selector' to each element of the list. Returns the list comprised of 
@@ -323,7 +323,7 @@ public static class List
     /// <param name="selector">Selector function</param>
     /// <returns>Mapped and filtered enumerable</returns>
     [Pure]
-    public static EnumerableM<R> choose<T, R>(IEnumerable<T> list, Func<T, Option<R>> selector) =>
+    public static Iterable<R> choose<T, R>(IEnumerable<T> list, Func<T, Option<R>> selector) =>
         map(filter(map(list, selector), t => t.IsSome), t => t.Value!);
 
     /// <summary>
@@ -336,7 +336,7 @@ public static class List
     /// <param name="selector">Selector function</param>
     /// <returns>Mapped and filtered enumerable</returns>
     [Pure]
-    public static EnumerableM<R> choose<T, R>(IEnumerable<T> list, Func<int, T, Option<R>> selector) =>
+    public static Iterable<R> choose<T, R>(IEnumerable<T> list, Func<int, T, Option<R>> selector) =>
         map(filter(map(list, selector), t => t.IsSome), t => t.Value!);
 
     /// <summary>
@@ -349,10 +349,10 @@ public static class List
     /// <param name="map">Map function</param>
     /// <returns>Mapped enumerable</returns>
     [Pure]
-    public static EnumerableM<R> collect<T, R>(IEnumerable<T> list, Func<T, IEnumerable<R>> map) =>
+    public static Iterable<R> collect<T, R>(IEnumerable<T> list, Func<T, IEnumerable<R>> map) =>
         (from t in list
          from r in map(t)
-         select r).AsEnumerableM();
+         select r).AsIterable();
 
     /// <summary>
     /// Returns the sum total of all the items in the list (Sum in LINQ)
@@ -397,8 +397,8 @@ public static class List
     /// <param name="list">Enumerable to reverse</param>
     /// <returns>Reversed enumerable</returns>
     [Pure]
-    public static EnumerableM<T> rev<T>(IEnumerable<T> list) =>
-        list.Reverse().AsEnumerableM();
+    public static Iterable<T> rev<T>(IEnumerable<T> list) =>
+        list.Reverse().AsIterable();
 
     /// <summary>
     /// Reverses the list (Reverse in LINQ)
@@ -418,8 +418,8 @@ public static class List
     /// <param name="rhs">Second enumerable</param>
     /// <returns>Concatenated enumerable</returns>
     [Pure]
-    public static EnumerableM<T> append<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) =>
-        lhs.ConcatFast(rhs).AsEnumerableM();
+    public static Iterable<T> append<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) =>
+        lhs.ConcatFast(rhs).AsIterable();
 
     /// <summary>
     /// Concatenate an enumerable and an enumerable of enumerables
@@ -429,10 +429,10 @@ public static class List
     /// <param name="rhs">Second list</param>
     /// <returns>Concatenated list</returns>
     [Pure]
-    public static EnumerableM<T> append<T>(IEnumerable<T> x, IEnumerable<IEnumerable<T>> xs) =>
+    public static Iterable<T> append<T>(IEnumerable<T> x, IEnumerable<IEnumerable<T>> xs) =>
         xs.HeadAndTailSafe()
           .Match(
-               None: x.AsEnumerableM,
+               None: x.AsIterable,
                Some: tuple => append(x, append(tuple.Head, tuple.Tail)));
 
     /// <summary>
@@ -442,11 +442,11 @@ public static class List
     /// <param name="lists">Enumerables to concatenate</param>
     /// <returns>A single enumerable with all of the items concatenated</returns>
     [Pure]
-    public static EnumerableM<T> append<T>(params IEnumerable<T>[] lists) =>
+    public static Iterable<T> append<T>(params IEnumerable<T>[] lists) =>
         lists.Length == 0
-            ? EnumerableM.empty<T>()
+            ? Iterable.empty<T>()
             : lists.Length == 1
-                ? lists[0].AsEnumerableM()
+                ? lists[0].AsIterable()
                 : append(lists[0], lists.Skip(1));
 
     /// <summary>
@@ -857,7 +857,7 @@ public static class List
     /// <param name="zipper">Join function</param>
     /// <returns>Joined enumerable of tuples</returns>
     [Pure]
-    public static IEnumerable<(T Left, U Right)> zip<T, U>(IEnumerable<T> list, IEnumerable<U> other) =>
+    public static IEnumerable<(T First, U Second)> zip<T, U>(IEnumerable<T> list, IEnumerable<U> other) =>
         list.Zip(other, (t, u) => (t, u));
 
     /// <summary>
@@ -1167,70 +1167,6 @@ public static class List
        .FirstOrDefault();
 
     /// <summary>
-    /// Apply an IEnumerable of values to an IEnumerable of functions
-    /// </summary>
-    /// <param name="fabc">IEnumerable of functions</param>
-    /// <param name="fa">IEnumerable of argument values</param>
-    /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
-    [Pure]
-    public static EnumerableM<B> apply<A, B>(IEnumerable<Func<A, B>> fabc, IEnumerable<A> fa) =>
-        fabc.AsEnumerableM().Apply(fa.AsEnumerableM()).As();
-
-    /// <summary>
-    /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">IEnumerable of functions</param>
-    /// <param name="fa">IEnumerable argument values</param>
-    /// <returns>Returns the result of applying the IEnumerable of argument values to the 
-    /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
-    [Pure]
-    public static EnumerableM<Func<B, C>> apply<A, B, C>(IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa) =>
-        fabc.AsEnumerableM().Apply(fa.AsEnumerableM()).As();
-
-    /// <summary>
-    /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">IEnumerable of functions</param>
-    /// <param name="fa">IEnumerable argument values</param>
-    /// <param name="fb">IEnumerable argument values</param>
-    /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
-    [Pure]
-    public static EnumerableM<C> apply<A, B, C>(IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-        fabc.AsEnumerableM().Apply(fa.AsEnumerableM(), fb.AsEnumerableM()).As();
-
-    /// <summary>
-    /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">IEnumerable of functions</param>
-    /// <param name="fa">IEnumerable argument values</param>
-    /// <returns>Returns the result of applying the IEnumerable of argument values to the 
-    /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
-    [Pure]
-    public static EnumerableM<Func<B, C>> apply<A, B, C>(IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa) =>
-        fabc.AsEnumerableM().Apply(fa.AsEnumerableM()).As();
-
-    /// <summary>
-    /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">IEnumerable of functions</param>
-    /// <param name="fa">IEnumerable argument values</param>
-    /// <param name="fb">IEnumerable argument values</param>
-    /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
-    [Pure]
-    public static EnumerableM<C> apply<A, B, C>(IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-        fabc.AsEnumerableM().Apply(fa.AsEnumerableM()).Apply(fb.AsEnumerableM()).As();
-
-    /// <summary>
-    /// Evaluate fa, then fb, ignoring the result of fa
-    /// </summary>
-    /// <param name="fa">Applicative to evaluate first</param>
-    /// <param name="fb">Applicative to evaluate second and then return</param>
-    /// <returns>Applicative of type FB derived from Applicative of B</returns>
-    [Pure]
-    public static EnumerableM<B> action<A, B>(IEnumerable<A> fa, IEnumerable<B> fb) =>
-        fa.AsEnumerableM().Action(fb.AsEnumerableM()).As();
-
-    /// <summary>
     /// The tails function returns all final segments of the argument, longest first. For example,
     ///  i.e. tails(['a','b','c']) == [['a','b','c'], ['b','c'], ['c'],[]]
     /// </summary>
@@ -1254,13 +1190,13 @@ public static class List
     /// remainder of the list:
     /// </summary>
     /// <example>
-    /// List.span(List(1,2,3,4,1,2,3,4), x => x &lt; 3) == (List(1,2),List(3,4,1,2,3,4))
+    /// List.span(List(1,2,3,4,1,2,3,4), x => x 〈 3) == (List(1,2),List(3,4,1,2,3,4))
     /// </example>
     /// <example>
-    /// List.span(List(1,2,3), x => x &lt; 9) == (List(1,2,3),List())
+    /// List.span(List(1,2,3), x => x 〈 9) == (List(1,2,3),List())
     /// </example>
     /// <example>
-    /// List.span(List(1,2,3), x => x &lt; 0) == (List(),List(1,2,3))
+    /// List.span(List(1,2,3), x => x 〈 0) == (List(),List(1,2,3))
     /// </example>
     /// <typeparam name="T">List element type</typeparam>
     /// <param name="self">List</param>

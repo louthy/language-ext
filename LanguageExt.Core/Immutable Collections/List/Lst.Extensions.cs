@@ -6,22 +6,23 @@ using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Text;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public static class ListExtensions
+public static partial class LstExtensions
 {
     public static Lst<A> As<A>(this K<Lst, A> xs) =>
         (Lst<A>)xs;
- 
+
     /// <summary>
     /// Accesses the head of an enumerable and yields the remainder without multiple-enumerations
     /// </summary>
-    /// <exception cref="InvalidOperationException">Throws if sequence is empty</exception>
+    /// <exception cref="ExpectedException">Throws if sequence is empty</exception>
     public static (A Head, IEnumerable<A> Tail) HeadAndTail<A>(this IEnumerable<A> ma) =>
         ma.HeadAndTailSafe()
-          .IfNone(() => throw new InvalidOperationException("Sequence is empty"));
+          .IfNone(() => throw Exceptions.SequenceEmpty);
     
     /// <summary>
     /// Accesses the head of an enumerable and yields the remainder without multiple-enumerations
@@ -120,7 +121,7 @@ public static class ListExtensions
     /// <param name="list">List</param>
     /// <returns>Enumerable of T</returns>
     [Pure]
-    public static EnumerableM<T> Tail<T>(this IEnumerable<T> list) =>
+    public static Iterable<T> Tail<T>(this IEnumerable<T> list) =>
         List.tail(list);
 
     /// <summary>
@@ -269,13 +270,13 @@ public static class ListExtensions
     /// remainder of the list:
     /// </summary>
     /// <example>
-    /// List.span(List(1,2,3,4,1,2,3,4), x => x &lt; 3) == (List(1,2),List(3,4,1,2,3,4))
+    /// List.span(List(1,2,3,4,1,2,3,4), x => x 〈 3) == (List(1,2),List(3,4,1,2,3,4))
     /// </example>
     /// <example>
-    /// List.span(List(1,2,3), x => x &lt; 9) == (List(1,2,3),List())
+    /// List.span(List(1,2,3), x => x 〈 9) == (List(1,2,3),List())
     /// </example>
     /// <example>
-    /// List.span(List(1,2,3), x => x &lt; 0) == (List(),List(1,2,3))
+    /// List.span(List(1,2,3), x => x 〈 0) == (List(),List(1,2,3))
     /// </example>
     /// <typeparam name="T">List element type</typeparam>
     /// <param name="self">List</param>
@@ -297,7 +298,7 @@ public static class ListExtensions
     /// </summary>
     [Pure]
     public static Lst<B> Select<A, B>(this Lst<A> self, Func<A, B> map) =>
-        new (self.AsEnumerable().Select(map));
+        new (self.AsIterable().Select(map));
 
     /// <summary>
     /// Monadic bind function for Lst that returns an IEnumerable
@@ -390,7 +391,7 @@ public static class ListExtensions
     public static Option<A> ToOption<A>(this IEnumerable<A> self) =>
         self.Match(
             ()     => Option<A>.None,
-            (x, _) => Option<A>.Some(x));
+            (x, _) => Option.Some(x));
     
     /// <summary>
     /// Convert to a queryable 

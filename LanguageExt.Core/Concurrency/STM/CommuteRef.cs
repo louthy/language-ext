@@ -26,9 +26,6 @@ public readonly struct CommuteRef<A>
     public override bool Equals(object? obj) => obj is A val && Equals(val);
     public bool Equals(A other) => EqDefault<A>.Equals(other, Value);
     public A Swap(Func<A, A> f) => Ref.Swap(f);
-    public A Swap<X>(X x, Func<X, A, A> f) => Ref.Swap(x, f);
-    public A Swap<X, Y>(X x, Y y, Func<X, Y, A, A> f) => Ref.Swap(x, y, f);
+    public IO<A> SwapIO(Func<A, A> f) => Ref.SwapIO(f);
     public CommuteRef<A> Commute(Func<A, A> f) => Ref.Commute(f);
-    public A Commute<X>(X x, Func<X, A, A> f) => Ref.Commute(x, f);
-    public A Commute<X, Y>(X x, Y y, Func<X, Y, A, A> f) => Ref.Commute(x, y, f);
 }

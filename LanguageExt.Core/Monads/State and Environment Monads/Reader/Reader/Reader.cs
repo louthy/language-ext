@@ -6,7 +6,6 @@ namespace LanguageExt;
 /// <summary>
 /// `Reader` monad transformer, which adds a static environment to a given monad. 
 /// </summary>
-/// <param name="runReader">Transducer that represents the transformer operation</param>
 /// <typeparam name="Env">Reader environment type</typeparam>
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
@@ -192,7 +191,7 @@ public record Reader<Env, A>(Func<Env, A> runReader) : K<Reader<Env>, A>
     /// Run the reader monad 
     /// </summary>
     /// <param name="env">Input environment</param>
-    /// <returns>Bound monad</returns>
+    /// <returns>Computed value</returns>
     public A Run(Env env) =>
         runReader(env);
 }

@@ -19,10 +19,10 @@ public class CancelExample<RT>
     Has<Eff<RT>, ConsoleIO>
 {
     public static Eff<RT, Unit> main =>
-        repeat(from k in Console<Eff<RT>, RT>.readKey
+       +repeat(from k in Console<RT>.readKey
                from _ in k.Key == ConsoleKey.Enter
                              ? cancel
                              : unitIO
-               from w in Console<Eff<RT>, RT>.write(k.KeyChar)
+               from w in Console<RT>.write(k.KeyChar)
                select unit);
 }

@@ -4,6 +4,7 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Threading.Tasks;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
@@ -43,7 +44,22 @@ public abstract record Error : Monoid<Error>
     /// If this error represents an exceptional error, then this will return true if the exceptional error is of type E
     /// </summary>
     [Pure]
-    public abstract bool Is<E>() where E : Exception;
+    public virtual bool HasException<E>() where E : Exception =>
+        false;
+
+    /// <summary>
+    /// Return true if an `Error` with `Code` equalling `code` is contained within 
+    /// </summary>
+    [Pure]
+    public virtual bool HasCode(int code) =>
+        Code == code;
+    
+    /// <summary>
+    /// Return true if this error contains or *is* the `error` provided
+    /// </summary>
+    [Pure]
+    public virtual bool IsType<E>() where E : Error =>
+        this is E;
 
     /// <summary>
     /// Return true if this error contains or *is* the `error` provided
@@ -52,9 +68,54 @@ public abstract record Error : Monoid<Error>
     public virtual bool Is(Error error) =>
         error is ManyErrors errors
             ? errors.Errors.Exists(Is) 
-                : Code == 0
-                    ? Message == error.Message
-                    : Code == error.Code;
+            : Code == 0
+                ? Message == error.Message
+                : Code == error.Code;
+
+    /// <summary>
+    /// Filter the error(s) so that only errors of type `E` are left
+    /// </summary>
+    /// <remarks>
+    /// If no errors match, then returns `Errors.None`.
+    /// </remarks>
+    [Pure]
+    public virtual Error Filter<E>() where E : Error =>
+        this is E ? this : Errors.None;
+    
+    /// <summary>
+    /// For each error in this structure, invoke the `f` function and
+    /// monad bind it with the subsequent value.
+    ///
+    /// If any `f` invocation yields a failure, then subsequent error will
+    /// not be processed.
+    /// monad
+    /// </summary>
+    /// <remarks>
+    /// The final `A` is returned.
+    /// </remarks>
+    /// <param name="f">Function</param>
+    /// <returns>The final `A` is returned.</returns>
+    [Pure]
+    public virtual K<M, A> ForAllM<M, A>(Func<Error, K<M, A>> f) 
+        where M : Monad<M>, Fallible<Error, M> =>
+        f(this);
+    
+    /// <summary>
+    /// For each error in this structure, invoke the `f` function and
+    /// monoid combine it with the subsequent value.
+    ///
+    /// If any `f` invocation yields a failure, then subsequent error
+    /// values may be processed.  This is dependent on the `M` monoid. 
+    /// </summary>
+    /// <remarks>
+    /// The aggregated `K〈M, A〉` is returned.
+    /// </remarks>
+    /// <param name="f">Function</param>
+    /// <returns>The aggregated `K〈M, A〉` is returned.</returns>
+    [Pure]
+    public virtual K<M, A> FoldM<M, A>(Func<Error, K<M, A>> f) 
+        where M : MonoidK<M> =>
+        f(this);
 
     /// <summary>
     /// True if the error is exceptional
@@ -141,6 +202,8 @@ public abstract record Error : Monoid<Error>
     public Error Combine(Error error) =>
         (this, error) switch
         {
+            ({IsEmpty: true}, var e)       => e,
+            (var e, {IsEmpty: true})       => e,
             (ManyErrors e1, ManyErrors e2) => new ManyErrors(e1.Errors + e2.Errors), 
             (ManyErrors e1, var e2)        => new ManyErrors(e1.Errors.Add(e2)), 
             (var e1,        ManyErrors e2) => new ManyErrors(e1.Cons(e2.Errors)), 
@@ -160,9 +223,9 @@ public abstract record Error : Monoid<Error>
         lhs.Combine(rhs);
 
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual EnumerableM<Error> AsEnumerable()
+    public virtual Iterable<Error> AsIterable()
     {
-        return new EnumerableM<Error>(go());
+        return Iterable.createRange(go());
         IEnumerable<Error> go() 
         {
             yield return this;
@@ -184,13 +247,15 @@ public abstract record Error : Monoid<Error>
     public static Error New(Exception? thisException) =>
         thisException switch
         {
-            null                       => Errors.None,
-            ErrorException e           => e.ToError(),
-            TaskCanceledException      => Errors.Cancelled,
-            OperationCanceledException => Errors.Cancelled,
-            TimeoutException           => Errors.TimedOut,
-            AggregateException a       => ManyErrors.FromAggregate(a),
-            var e                      => new Exceptional(e)
+            null                               => Errors.None,
+            WrappedErrorExceptionalException w => w.ToError(),
+            WrappedErrorExpectedException w    => w.ToError(),
+            ErrorException e                   => e.ToError(),
+            TaskCanceledException              => Errors.Cancelled,
+            OperationCanceledException         => Errors.Cancelled,
+            TimeoutException                   => Errors.TimedOut,
+            AggregateException a               => ManyErrors.FromAggregate(a),
+            var e                              => new Exceptional(e)
         };
         
 
@@ -252,7 +317,7 @@ public abstract record Error : Monoid<Error>
             ? Errors.None
             : errors.Length == 1
                 ? errors[0]
-                : new ManyErrors(errors.AsEnumerableM().ToSeq());
+                : new ManyErrors(errors.AsIterable().ToSeq());
 
     /// <summary>
     /// Create a new error 
@@ -282,22 +347,24 @@ public abstract record Error : Monoid<Error>
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Exception(Error e) =>
         e.ToException();
-    
+
     /// <summary>
     /// Attempt to recover an error from an object.
-    /// Will accept Error, ErrorException, Exception, string, Option<Error>
+    /// Will accept Error, ErrorException, Exception, string, Option〈Error〉
     /// If it fails, Errors.Bottom is returned
     /// </summary>
     [Pure]
     public static Error FromObject(object? value) =>
         value switch
         {
-            Error err          => err,
-            ErrorException ex  => ex.ToError(),
-            Exception ex       => New(ex),
-            string str         => New(str),
-            Option<Error> oerr => oerr.IfNone(Errors.Bottom),
-            _                  => Errors.Bottom
+            Error err                          => err,
+            WrappedErrorExceptionalException w => w.ToError(),
+            WrappedErrorExpectedException w    => w.ToError(),
+            ErrorException ex                  => ex.ToError(),
+            Exception ex                       => New(ex),
+            string str                         => New(str),
+            Option<Error> oerr                 => oerr.IfNone(Errors.Bottom),
+            _                                  => Errors.Bottom
         };
     
     [Pure]
@@ -328,10 +395,22 @@ public abstract record Error : Monoid<Error>
     /// <summary>
     /// Throw the error as an exception
     /// </summary>
-    public R Throw<R>()
+    public virtual R Throw<R>()
     {
         ExceptionDispatchInfo.Capture(ToException()).Throw();
         return default;
+    }
+
+    protected virtual bool PrintMembers(StringBuilder builder)
+    {
+        builder.Append("Message = ");
+        builder.Append(Message);
+        if (Code != 0)
+        {
+            builder.Append(", Code = ");
+            builder.Append(Code);
+        }
+        return true;
     }
 }
 
@@ -340,7 +419,7 @@ public abstract record Error : Monoid<Error>
 /// 
 /// * `Code` - an integer value
 /// * `Message` - display text
-/// * `Option<Error>` - a nested inner error
+/// * `Option〈Error〉` - a nested inner error
 /// 
 /// It returns `false` when `IsExceptional` is called against it; and `true` when `IsExpected` is
 /// called against it.
@@ -390,15 +469,18 @@ public record Expected(string Message, int Code, Option<Error> Inner = default) 
     /// </summary>
     [Pure]
     public override ErrorException ToErrorException() => 
-        new ExpectedException(Message, Code, Inner.Map(static e => e.ToErrorException()));
+        new WrappedErrorExpectedException(this);
+
+    public override R Throw<R>() => 
+        throw ToErrorException();
 
     /// <summary>
     /// Returns false because this type isn't exceptional
     /// </summary>
     [Pure]
-    public override bool Is<E>() =>
+    public override bool HasException<E>() =>
         false;
-    
+
     /// <summary>
     /// True if the error is exceptional
     /// </summary>
@@ -421,10 +503,10 @@ public record Expected(string Message, int Code, Option<Error> Inner = default) 
 /// called against it; and `false` when `IsExpected` is called against it.  
 /// </summary>
 /// <remarks>
-/// If this record is constructed via deserialisation, or the default constructor then the internal `Exception` will
+/// If this record is constructed via deserialisation, or the default constructor then the internal `Exception`
 /// will be `null`.  This is intentional to stop exceptions leaking over application boundaries.  The type will
 /// gracefully handle that, but all stack-trace information (and the like) will be erased.  It is still considered
-/// an exceptional error however.
+/// an exceptional error, however.
 /// </remarks>
 [DataContract]
 public record Exceptional(string Message, int Code) : Error
@@ -482,16 +564,21 @@ public record Exceptional(string Message, int Code) : Error
     /// </summary>
     /// <returns></returns>
     [Pure]
-    public override ErrorException ToErrorException() => 
+    public override ErrorException ToErrorException() =>
         Value == null
-            ? new ExceptionalException(Message, Code)
+            ? new WrappedErrorExceptionalException(this)
             : new ExceptionalException(Value);
+
+    public override R Throw<R>() =>
+        Value is null
+            ? throw ToErrorException()
+            : Value.Rethrow<R>();
 
     /// <summary>
     /// Return true if the exceptional error is of type E
     /// </summary>
     [Pure]
-    public override bool Is<E>() =>
+    public override bool HasException<E>() =>
         Value is E;
 
     [Pure]
@@ -552,11 +639,14 @@ public sealed record BottomError() : Exceptional(BottomException.Default)
     public override ErrorException ToErrorException() => 
         BottomException.Default;
 
+    public override R Throw<R>() =>
+        throw new BottomException();
+
     /// <summary>
     /// Return true if the exceptional error is of type E
     /// </summary>
     [Pure]
-    public override bool Is<E>() =>
+    public override bool HasException<E>() =>
         BottomException.Default is E;
 
     /// <summary>
@@ -618,13 +708,27 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     public override ErrorException ToErrorException() =>
         new ManyExceptions(Errors.Map(static e => e.ToErrorException()));
 
+    public override R Throw<R>() =>
+        throw ToErrorException();
+    
     /// <summary>
-    /// False
+    /// Return true if an exception of type E is contained within 
     /// </summary>
     [Pure]
-    public override bool Is<E>() =>
-        Errors.Exists(static e => e.Is<E>());
+    public override bool HasException<E>() =>
+        Errors.Exists(static e => e.HasException<E>());
 
+    /// <summary>
+    /// Return true if an `Error` with `Code` equalling `code` is contained within 
+    /// </summary>
+    [Pure]
+    public override bool HasCode(int code) =>
+        Errors.Exists(e => e.Code == code);
+    
+    [Pure]
+    public override bool IsType<E>() =>
+        Errors.Exists(static e => e.IsType<E>());
+    
     /// <summary>
     /// Return true this error contains or *is* the `error` provided
     /// </summary>
@@ -633,7 +737,69 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
         Errors.Exists(e => e.Is(error));
 
     /// <summary>
-    /// True if any of the the errors are exceptional
+    /// Filter the error(s) so that only errors of type `E` are left
+    /// </summary>
+    /// <remarks>
+    /// If no errors match, then returns `Errors.None`.
+    /// </remarks>
+    [Pure]
+    public override Error Filter<E>() =>
+        Errors.Choose(e => e.IsType<E>() ? Some(e.Filter<E>()) : None) switch
+        {
+            []     => Common.Errors.None,
+            var es => Many(es)
+        };
+
+    /// <summary>
+    /// For each error in this structure, invoke the `f` function and
+    /// monad bind it with the subsequent value.
+    ///
+    /// If any `f` invocation yields a failure, then subsequent error will
+    /// not be processed.
+    /// monad
+    /// </summary>
+    /// <remarks>
+    /// The final `A` is returned.
+    /// </remarks>
+    /// <param name="f">Function</param>
+    /// <returns>The final `A` is returned.</returns>
+    [Pure]
+    public override K<M, A> ForAllM<M, A>(Func<Error, K<M, A>> f)
+    {
+        if(Errors.IsEmpty) return M.Fail<A>(this);
+        var result = Errors[0].ForAllM(f);
+        foreach (var e in Errors.Tail)
+        {
+            result = result.Bind(_ => e.ForAllM(f));
+        }
+        return result;
+    }
+    
+    /// <summary>
+    /// For each error in this structure, invoke the `f` function and
+    /// monoid combine it with the subsequent value.
+    ///
+    /// If any `f` invocation yields a failure, then subsequent error
+    /// values may be processed.  This is dependent on the `M` monoid. 
+    /// </summary>
+    /// <remarks>
+    /// The aggregated `K〈M, A〉` is returned.
+    /// </remarks>
+    /// <param name="f">Function</param>
+    /// <returns>The aggregated `K〈M, A〉` is returned.</returns>
+    [Pure]
+    public override K<M, A> FoldM<M, A>(Func<Error, K<M, A>> f)
+    {
+        var result = M.Empty<A>();
+        foreach (var e in Errors)
+        {
+            result = result.Combine(e.FoldM(f));
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// True if any errors are exceptional
     /// </summary>
     [Pure]
     [IgnoreDataMember]
@@ -641,7 +807,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
         Errors.Exists(static e => e.IsExceptional);
 
     /// <summary>
-    /// True if all of the the errors are expected
+    /// True if all the errors are expected
     /// </summary>
     [Pure]
     [IgnoreDataMember]
@@ -689,14 +855,14 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
         Errors.Count;
 
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override EnumerableM<Error> AsEnumerable() =>
-        new (Errors.AsEnumerable());
+    public override Iterable<Error> AsIterable() =>
+        Errors.AsIterable();
 
     [Pure]
     internal static Error FromAggregate(AggregateException? e)
     {
         if (e is null) return Common.Errors.None;
-        var errs = e.InnerExceptions.Bind(x => New(x).AsEnumerable()).AsEnumerableM().ToSeq();
+        var errs = e.InnerExceptions.Bind(x => New(x).AsIterable()).AsIterable().ToSeq();
         if (errs.Count == 0) return Common.Errors.None;
         if (errs.Count == 1) return (Error)errs.Head;
         return Many(errs);

@@ -13,9 +13,8 @@ public class FSharpTests
 
         var either = LanguageExt.FSharp.fs(result);
 
-        match(either,
-              Right: _ => Assert.Fail("Shouldn't get here"),
-              Left: l => Assert.True(l == error));
+        either.Match(Right: _ => Assert.Fail("Shouldn't get here"),
+                     Left: l => Assert.True(l == error));
     }
 
     [Fact]
@@ -25,15 +24,14 @@ public class FSharpTests
 
         var either = LanguageExt.FSharp.fs(result);
 
-        match(either,
-              Right: r => Assert.True(r == 123),
-              Left: _ => Assert.Fail("Shouldn't get here"));
+        either.Match(Right: r => Assert.True(r == 123),
+                     Left: _ => Assert.Fail("Shouldn't get here"));
     }
 
     [Fact]
     public void Either_to_ErrorResult()
     {
-        var either = Either<string, int>.Left("Error");
+        var either = Either.Left<string, int>("Error");
 
         var result = LanguageExt.FSharp.fs(either);
 
@@ -44,7 +42,7 @@ public class FSharpTests
     [Fact]
     public void Either_to_OkResult()
     {
-        var either = Either<string, int>.Right(123);
+        var either = Either.Right<string, int>(123);
 
         var result = LanguageExt.FSharp.fs(either);
 

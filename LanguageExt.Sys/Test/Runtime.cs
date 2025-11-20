@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Text;
 using LanguageExt.Sys.Traits;
 using LanguageExt.Traits;
@@ -9,7 +10,7 @@ namespace LanguageExt.Sys.Test;
 /// Test IO runtime
 /// </summary>
 public record Runtime(RuntimeEnv Env) : 
-    Mutates<Eff<Runtime>, Runtime, ActivityEnv>,
+    Local<Eff<Runtime>, ActivityEnv>,
     Has<Eff<Runtime>, ActivitySourceIO>,
     Has<Eff<Runtime>, ConsoleIO>,
     Has<Eff<Runtime>, EncodingIO>,
@@ -17,13 +18,19 @@ public record Runtime(RuntimeEnv Env) :
     Has<Eff<Runtime>, TextReadIO>,
     Has<Eff<Runtime>, TimeIO>,
     Has<Eff<Runtime>, EnvironmentIO>,
-    Has<Eff<Runtime>, DirectoryIO>
+    Has<Eff<Runtime>, DirectoryIO>,
+    IDisposable
 {
     /// <summary>
     /// Constructor function
     /// </summary>
-    public static Runtime New() =>
-        new(RuntimeEnv.Default);
+    public static Runtime New()
+    {
+        var tmp = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tmp);
+        return new(RuntimeEnv.New(tmp));
+    }
+
     /// <summary>
     /// Constructor function
     /// </summary>
@@ -31,106 +38,106 @@ public record Runtime(RuntimeEnv Env) :
     public static Runtime New(RuntimeEnv env) =>
         new(env);
 
-
-    /// <summary>
-    /// Get encoding
-    /// </summary>
-    /// <returns></returns>
-    public Encoding Encoding =>
-        Env.Encoding;
-
-    public Runtime WithIO(EnvIO envIO) =>
-        new(Env with { EnvIO = envIO });
-
-    public EnvIO EnvIO =>
-        Env.EnvIO;
-
-    static K<Eff<Runtime>, A> gets<A>(Func<Runtime, A> f) =>
-        StateM.gets<Eff<Runtime>, Runtime, A>(f);
+    static K<Eff<Runtime>, A> asks<A>(Func<Runtime, A> f) =>
+        Readable.asks<Eff<Runtime>, Runtime, A>(f);
     
-    static K<Eff<Runtime>, Unit> modify(Func<RuntimeEnv, RuntimeEnv> f) =>
-        StateM.modify<Eff<Runtime>, Runtime>(rt => new Runtime(Env: f(rt.Env)) );
+    static K<Eff<Runtime>, A> local<A>(Func<Runtime, Runtime> f, K<Eff<Runtime>, A> ma) =>
+        Readable.local(f, ma);
     
-    static K<Eff<Runtime>, A> pure<A>(A value) =>
-        Eff<Runtime, A>.Pure(value);
-    
+    static K<Eff<Runtime>, A> localEnv<A>(Func<RuntimeEnv, RuntimeEnv> f, K<Eff<Runtime>, A> ma) =>
+        local(e => e with { Env = f(e.Env) }, ma);
+
+    static K<Eff<Runtime>, A> localActivity<A>(Func<ActivityEnv, ActivityEnv> f, K<Eff<Runtime>, A> ma) =>
+        local(e => e with { Env = e.Env with { Activity = f(e.Env.Activity) } }, ma);
+
     /// <summary>
     /// Access the console environment
     /// </summary>
     /// <returns>Console environment</returns>
-    K<Eff<Runtime>, ConsoleIO> Has<Eff<Runtime>, ConsoleIO>.Trait => 
-        gets<ConsoleIO>(rt => new Implementations.ConsoleIO(rt.Env.Console));
+    static K<Eff<Runtime>, ConsoleIO> Has<Eff<Runtime>, ConsoleIO>.Ask => 
+        asks<ConsoleIO>(rt => new Implementations.ConsoleIO(rt.Env.Console));
 
     /// <summary>
     /// Access the file environment
     /// </summary>
     /// <returns>File environment</returns>
-    K<Eff<Runtime>, FileIO> Has<Eff<Runtime>, FileIO>.Trait => 
-        from n in Time<Eff<Runtime>, Runtime>.now
-        from r in gets<FileIO>(rt => new Implementations.FileIO(rt.Env.FileSystem, n))
-        select r;
+    static K<Eff<Runtime>, FileIO> Has<Eff<Runtime>, FileIO>.Ask =>
+        asks<FileIO>(rt => new Implementations.FileIO(rt.Env.RootPath));
 
     /// <summary>
     /// Access the TextReader environment
     /// </summary>
     /// <returns>TextReader environment</returns>
-    K<Eff<Runtime>, TextReadIO> Has<Eff<Runtime>, TextReadIO>.Trait => 
-        gets<TextReadIO>(_ => Implementations.TextReadIO.Default);
+    static K<Eff<Runtime>, TextReadIO> Has<Eff<Runtime>, TextReadIO>.Ask => 
+        asks<TextReadIO>(_ => Implementations.TextReadIO.Default);
 
     /// <summary>
     /// Access the time environment
     /// </summary>
     /// <returns>Time environment</returns>
-    K<Eff<Runtime>, TimeIO> Has<Eff<Runtime>, TimeIO>.Trait => 
-        gets<TimeIO>(rt => new Implementations.TimeIO(rt.Env.TimeSpec));
+    static K<Eff<Runtime>, TimeIO> Has<Eff<Runtime>, TimeIO>.Ask => 
+        asks<TimeIO>(rt => new Implementations.TimeIO(rt.Env.TimeSpec));
 
     /// <summary>
     /// Access the operating-system environment
     /// </summary>
     /// <returns>Operating-system environment environment</returns>
-    K<Eff<Runtime>, EnvironmentIO> Has<Eff<Runtime>, EnvironmentIO>.Trait => 
-        gets<EnvironmentIO>(rt => new Implementations.EnvironmentIO(rt.Env.SysEnv));
+    static K<Eff<Runtime>, EnvironmentIO> Has<Eff<Runtime>, EnvironmentIO>.Ask => 
+        asks<EnvironmentIO>(rt => new Implementations.EnvironmentIO(rt.Env.SysEnv));
 
     /// <summary>
     /// Access the directory environment
     /// </summary>
     /// <returns>Directory environment</returns>
-    K<Eff<Runtime>, DirectoryIO> Has<Eff<Runtime>, DirectoryIO>.Trait =>
-        from n in Time<Eff<Runtime>, Runtime>.now
-        from r in gets<DirectoryIO>(rt => new Implementations.DirectoryIO(rt.Env.FileSystem, n))
-        select r;
+    static K<Eff<Runtime>, DirectoryIO> Has<Eff<Runtime>, DirectoryIO>.Ask =>
+        asks<DirectoryIO>(rt => new Implementations.DirectoryIO(rt.Env.RootPath));
 
-    K<Eff<Runtime>, EncodingIO> Has<Eff<Runtime>, EncodingIO>.Trait =>
-        gets<EncodingIO>(_ => Live.Implementations.EncodingIO.Default);
+    static K<Eff<Runtime>, EncodingIO> Has<Eff<Runtime>, EncodingIO>.Ask =>
+        asks<EncodingIO>(_ => Live.Implementations.EncodingIO.Default);
 
-    K<Eff<Runtime>, ActivitySourceIO> Has<Eff<Runtime>, ActivitySourceIO>.Trait => 
-        gets<ActivitySourceIO>(rt => new Live.Implementations.ActivitySourceIO(rt.Env.ActivityEnv));
+    static K<Eff<Runtime>, ActivitySourceIO> Has<Eff<Runtime>, ActivitySourceIO>.Ask => 
+        asks<ActivitySourceIO>(rt => new Live.Implementations.ActivitySourceIO(rt.Env.Activity));
 
-    K<Eff<Runtime>, ActivityEnv> Reads<Eff<Runtime>, Runtime, ActivityEnv>.Get =>
-        gets(rt => rt.Env.ActivityEnv);
+    /// <summary>
+    /// Run with a local ActivityEnv 
+    /// </summary>
+    static K<Eff<Runtime>, A> Local<Eff<Runtime>, ActivityEnv>.With<A>(Func<ActivityEnv, ActivityEnv> f, K<Eff<Runtime>, A> ma) => 
+        localActivity(f, ma);
 
-    K<Eff<Runtime>, Unit> Mutates<Eff<Runtime>, Runtime, ActivityEnv>.Modify(Func<ActivityEnv, ActivityEnv> f) => 
-        modify(rt => rt with { ActivityEnv = f(rt.ActivityEnv) });
+    /// <summary>
+    /// Read the current ActivityEnv
+    /// </summary>
+    static K<Eff<Runtime>, ActivityEnv> Has<Eff<Runtime>, ActivityEnv>.Ask =>
+        asks(rt => rt.Env.Activity);
+
+    public override string ToString() => 
+        "Test Runtime";
+
+    public void Dispose() => 
+        Directory.Delete(Env.RootPath, recursive: true);
 }
     
 public record RuntimeEnv(
     EnvIO EnvIO,
     Encoding Encoding,
     MemoryConsole Console,
-    MemoryFS FileSystem,
+    string RootPath,
     Implementations.TestTimeSpec TimeSpec,
     MemorySystemEnvironment SysEnv,
-    ActivityEnv ActivityEnv)
+    ActivityEnv Activity)
 {
     public RuntimeEnv LocalCancel =>
         this with { EnvIO = EnvIO.LocalCancel };
 
-    public static RuntimeEnv Default =>
+    public static RuntimeEnv New(string rootPath) =>
         new(EnvIO.New(),
             Encoding.Default,
             new MemoryConsole(),
-            new MemoryFS(),
+            rootPath,
             Implementations.TestTimeSpec.RunningFromNow(),
             MemorySystemEnvironment.InitFromSystem(),
             ActivityEnv.Default);
+
+    public override string ToString() => 
+        "Runtime Environment";
 }

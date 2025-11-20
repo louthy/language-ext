@@ -35,11 +35,8 @@ public class EitherApply
     [Fact]
     public void ApplyRightArgsF2()
     {
-        var either = apply(
-            Right<string, Func<int, int, int>>(add),
-            Right<string, int>(3),
-            Right<string, int>(4)
-        );
+        var either = map(add, Right<string, int>(3)).Apply(Right<string, int>(4));
+        
         Assert.Equal(Right<string, int>(7), either);
     }
 
@@ -50,7 +47,7 @@ public class EitherApply
         var none = Option<int>.None;
         var four = Some(4); 
 
-        var res = apply(opt, none, four);
+        var res = apply(opt, none).Apply(four);
 
         Assert.Equal(None, res);
 
@@ -64,26 +61,14 @@ public class EitherApply
     [Fact]
     public void ApplyLeftArgsF()
     {
-        var either =
-            apply(
-                apply(
-                    Right<string, Func<int, int, int>>(add),
-                    Left<string, int>("left")
-                ),
-                Right<string, int>(4));
-
+        var either = apply(map(add, Left<string, int>("left")), Right<string, int>(4));
         Assert.Equal(Left<string, int>("left"), either);
     }
 
     [Fact]
     public void ApplyLeftArgsF2()
     {
-        var either = apply(
-            Right<string, Func<int, int, int>>(add),
-            Left<string, int>("left"),
-            Right<string, int>(4)
-        );
-
+        var either = map(add, Left<string, int>("left")).Apply(Right<string, int>(4));
         Assert.Equal(Left<string, int>("left"), either);
     }
 
@@ -91,8 +76,8 @@ public class EitherApply
     public void ApplicativeLawHolds()
     {
         var first = Right<string, Func<int, int, int>>(add)
-                   .Apply(Right<string, int>(3))
-                   .Apply(Right<string, int>(4));
+                        .Apply(Right<string, int>(3))
+                        .Apply(Right<string, int>(4));
 
         var second = add.Map(Right<string, int>(3))
                         .Apply(Right<string, int>(4));
@@ -103,13 +88,7 @@ public class EitherApply
     [Fact]
     public void ApplicativeLawHoldsF()
     {
-        var first = apply(
-            apply(
-                Right<string, Func<int, int, int>>(add),
-                Right<string, int>(3)
-            ),
-            Right<string, int>(4));
-
+        var first = apply(map(add, Right<string, int>(3)), Right<string, int>(4));
         var second = add.Map(Right<string, int>(3)).Apply(Right<string, int>(4));
 
         Assert.Equal(first, second);
@@ -118,12 +97,7 @@ public class EitherApply
     [Fact]
     public void ApplicativeLawHoldsF2()
     {
-        var first = apply(
-            Right<string, Func<int, int, int>>(add),
-            Right<string, int>(3),
-            Right<string, int>(4)
-        );
-
+        var first = map(add, Right<string, int>(3)).Apply(Right<string, int>(4));
         var second = add.Map(Right<string, int>(3)).Apply(Right<string, int >(4));
 
         Assert.Equal(first, second);

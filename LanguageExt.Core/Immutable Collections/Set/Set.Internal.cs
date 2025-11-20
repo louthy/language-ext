@@ -49,10 +49,10 @@ internal class SetInternal<OrdA, A> :
 
     public override int GetHashCode() =>
         hashCode == 0
-            ? hashCode = FNV32.Hash<OrdA, A>(AsEnumerable())
+            ? hashCode = FNV32.Hash<OrdA, A>(AsIterable())
             : hashCode;
 
-    public EnumerableM<A> AsEnumerable()
+    public Iterable<A> AsIterable()
     {
         IEnumerable<A> Yield()
         {
@@ -62,12 +62,12 @@ internal class SetInternal<OrdA, A> :
                 yield return iter.Current;
             }
         }
-        return new(Yield());
+        return Iterable.createRange(Yield());
     }
 
-    public EnumerableM<A> Skip(int amount)
+    public Iterable<A> Skip(int amount)
     {
-        return new(Go());
+        return Iterable.createRange(Go());
         IEnumerable<A> Go()
         {
             using var iter = new SetModule.SetEnumerator<A>(set, false, amount);
@@ -261,13 +261,13 @@ internal class SetInternal<OrdA, A> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
     /// <returns>Range of values</returns>
     [Pure]
-    public EnumerableM<A> FindRange(A keyFrom, A keyTo)
+    public Iterable<A> FindRange(A keyFrom, A keyTo)
     {
         if (isnull(keyFrom)) throw new ArgumentNullException(nameof(keyFrom));
         if (isnull(keyTo)) throw new ArgumentNullException(nameof(keyTo));
         return OrdA.Compare(keyFrom, keyTo) > 0
-                   ? SetModule.FindRange<OrdA, A>(set, keyTo, keyFrom).AsEnumerableM()
-                   : SetModule.FindRange<OrdA, A>(set, keyFrom, keyTo).AsEnumerableM();
+                   ? SetModule.FindRange<OrdA, A>(set, keyTo, keyFrom).AsIterable()
+                   : SetModule.FindRange<OrdA, A>(set, keyFrom, keyTo).AsIterable();
     }
 
 
@@ -438,7 +438,7 @@ internal class SetInternal<OrdA, A> :
     /// <returns>Mapped Set</returns>
     [Pure]
     public SetInternal<OrdB, B> Map<OrdB, B>(Func<A, B> f) where OrdB : Ord<B> =>
-        new (SetModule.Map(set, f));
+        new (AsIterable().Map(f));
 
     /// <summary>
     /// Maps the values of this set into a new set of values using the
@@ -449,7 +449,7 @@ internal class SetInternal<OrdA, A> :
     /// <returns>Mapped Set</returns>
     [Pure]
     public SetInternal<OrdA, A> Map(Func<A, A> f) =>
-        new (SetModule.Map(set, f));
+        new (AsIterable().Map(f));
 
     /// <summary>
     /// Filters items from the set using the predicate.  If the predicate
@@ -460,7 +460,7 @@ internal class SetInternal<OrdA, A> :
     /// <returns>Filtered enumerable</returns>
     [Pure]
     public SetInternal<OrdA, A> Filter(Func<A, bool> pred) =>
-        new (AsEnumerable().Filter(pred), SetModuleM.AddOpt.TryAdd);
+        new (AsIterable().Filter(pred), SetModuleM.AddOpt.TryAdd);
 
     /// <summary>
     /// Check the existence of an item in the set using a 
@@ -700,7 +700,7 @@ internal class SetInternal<OrdA, A> :
     /// <returns>Unioned set</returns>
     [Pure]
     public SetInternal<OrdA, A> Append(SetInternal<OrdA, A> rhs) =>
-        Union(rhs.AsEnumerable());
+        Union(rhs.AsIterable());
 
     /// <summary>
     /// Subtract operator - performs a subtract of the two sets
@@ -753,7 +753,7 @@ internal class SetInternal<OrdA, A> :
     /// <returns>True if sets are equal</returns>
     [Pure]
     public bool Equals(SetInternal<OrdA, A>? other) =>
-        other is not null && SetEquals(other.AsEnumerable());
+        other is not null && SetEquals(other.AsIterable());
 
     [Pure]
     public int CompareTo(SetInternal<OrdA, A> other)
@@ -1242,12 +1242,6 @@ internal static class SetModule
         node.IsEmpty
             ? node
             : RotLeft(Make(node.Key, node.Left, RotRight(node.Right)));
-
-    [Pure]
-    public static SetItem<B> Map<A, B>(SetItem<A> node, Func<A, B> f) =>
-        node.IsEmpty
-            ? SetItem<B>.Empty
-            : new SetItem<B>(node.Height, node.Count, f(node.Key), Map(node.Left, f), Map(node.Right, f));
 
     internal static Option<A> Max<A>(SetItem<A> node) =>
         node.Right.IsEmpty

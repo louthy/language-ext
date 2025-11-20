@@ -6,7 +6,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public static class SetExtensions
+public static partial class SetExtensions
 {
     public static Set<A> As<A>(this K<Set, A> ma) =>
         (Set<A>)ma;

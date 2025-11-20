@@ -43,7 +43,7 @@ public static class Testing
         var r2 = m4.As().Run("Hello").As();
     }
     
-    /*public static void Test2()
+    public static void Test2()
     {
         var m1 = Reader<string, int>.Pure(123);
         var m2 = Reader<string, int>.Pure(123);
@@ -58,7 +58,7 @@ public static class Testing
                  from e in ask<string>()
                  from z in Pure(234)
                  select $"{e}: {x + y}";
-    }*/
+    }
     
     public static void Test3()
     {
@@ -103,14 +103,14 @@ public static class Testing
    
     public static void Test6()
     {
-        var m1 = ReaderT<string>.lift(IdentityT<IO, int>.Lift(IO.Pure(123)));
-        var m2 = ReaderT<string>.lift(IdentityT<IO, int>.Lift(IO.Pure(123)));
+        var m1 = ReaderT<string>.lift(IdentityT.lift(IO.pure(123)));
+        var m2 = ReaderT<string>.lift(IdentityT.lift(IO.pure(123)));
                 
         var m0 = from w in Pure(123)
                  from p in ReaderT.ask<IdentityT<IO>, string>()
-                 from x in IO.Pure("Hello")
-                 from i in ReaderT<string, IdentityT<IO>>.liftIO(IO.Pure("Hello"))
-                 from j in IO.Pure("Hello").Fork()
+                 from x in IO.pure("Hello")
+                 from i in ReaderT<string, IdentityT<IO>>.liftIO(IO.pure("Hello"))
+                 from j in IO.pure("Hello").Fork()
                  from r in envIO 
                  from y in m2
                  select $"{p} {y} {j}";
@@ -118,72 +118,65 @@ public static class Testing
         var value = m0.Run("Hello").As().Value.As().Run(EnvIO.New());
     }
    
-    /*
     public static void Test7()
     {
-        var m1 = ResourceT.lift(ReaderT<string>.lift(IO.Pure(123)));
-        var m2 = ResourceT.lift(ReaderT<string>.lift(IO.Pure(123)));
+        var m1 = ReaderT<string>.lift(IO.pure(123));
+        var m2 = ReaderT<string>.lift(IO.pure(123));
                 
         var m0 = from w in Pure(123)
                  from q in m1
-                 from f in ResourceT<ReaderT<string, IO>>.use(() => File.Open("c:\\test.txt", FileMode.Open))
+                 from f in use(() => File.Open("c:\\test.txt", FileMode.Open))
                  from p in ReaderT.ask<IO, string>()
-                 from x in IO.Pure("Hello")
-                 from i in ReaderT<string, IO>.liftIO(IO.Pure("Hello"))
-                 from j in IO.Pure("Hello").Fork()
+                 from x in IO.pure("Hello")
+                 from i in ReaderT<string, IO>.liftIO(IO.pure("Hello"))
+                 from j in IO.pure("Hello").Fork()
                  from r in envIO 
                  from y in m2
                  select $"{p} {y} {j}";
 
-        var value = m0.Run().As()
-                      .Run("Hello").As();
+        var value = m0.Run("Hello").As();
     }
    
     public static void Test8()
     {
-        var m1 = OptionT.lift(ReaderT<string>.lift(ResourceT.lift(IO.Pure(123))));
-        var m2 = OptionT.lift(ReaderT<string>.lift(ResourceT.lift(IO.Pure(123))));
+        var m1 = OptionT.lift(ReaderT<string>.lift(IO.pure(123)));
+        var m2 = OptionT.lift(ReaderT<string>.lift(IO.pure(123)));
 
         var m0 = from w in Pure(123)
                  from q in m1
                  from f in use(() => File.Open("c:\\test.txt", FileMode.Open))
                  from p in ask<string>()
-                 from i in liftIO(IO.Pure("Hello"))
-                 from j in IO.Pure("Hello").Fork()
-                 from r in envIO 
+                 from i in liftIO(IO.pure("Hello"))
+                 from j in IO.pure("Hello").Fork()
+                 from r in envIO
                  from _ in release(f)
                  from y in m2
                  select $"{w} {f} {i}";
 
-        var value = m0.Match(Some: v => $"foo {v}", 
+        var value = m0.Match(Some: v => $"foo {v}",
                              None: () => "bar").As()
                       .Run("Paul").As()
-                      .Run(); 
+                      .Run();
 
-        OptionT<ReaderT<Env, ResourceT<IO>>, Env> ask<Env>() =>
-            OptionT.lift(ReaderT.ask<ResourceT<IO>, Env>()); 
+        OptionT<ReaderT<Env, IO>, Env> ask<Env>() =>
+            OptionT.lift(ReaderT.ask<IO, Env>());
         
-        OptionT<ReaderT<string, ResourceT<IO>>, A> use<A>(Func<A> f) where A : IDisposable =>
-            OptionT.lift(ReaderT<string>.lift(ResourceT<IO>.use(f)));
-        
-        OptionT<ReaderT<string, ResourceT<IO>>, Unit> release<A>(A value) where A : IDisposable =>
-            OptionT.lift(ReaderT<string>.lift(ResourceT<IO>.release(value)));
-
-        OptionT<ReaderT<string, ResourceT<IO>>, A> liftIO<A>(IO<A> ma) =>
-            OptionT.lift(ReaderT<string>.lift(ResourceT<IO>.liftIO(ma)));
+        OptionT<ReaderT<string, IO>, A> liftIO<A>(IO<A> ma) =>
+            OptionT.liftIO<ReaderT<string, IO>, A>(ma);
     }
-    */
        
-    public static void Test9()
+    /*public static void Test9()
     {
-        var m1 = OptionT.lift(StateT<string>.lift(IO.Pure(100)));
-        var m2 = OptionT.lift(StateT<string>.lift(IO.Pure(200)));
+        var m1 = OptionT.lift(StateT<string>.lift(IO.pure(100)));
+        var m2 = OptionT.lift(StateT<string>.lift(IO.pure(200)));
 
         var m0 = from w in Pure(123)
                  from q in m1
                  from x in StateT.get<IO, string>()
-                 from i in OptionT<StateT<string, IO>>.liftIO(IO.Pure("Hello"))
-                 from j in IO.Pure("Hello").Fork()
+                 from i in OptionT.liftIO<StateT<string, IO>, string>(IO.pure("Hello"))
+                 from j in IO.pure("Hello").Fork()
+               //from k in m1.ForkIO()                          -- Can't work, because OptionT is not MonadUnliftIO
+                 from k in m1.Run().Run("state").As().Fork()    // But we can manually unpack 
                  from _ in StateT.put<IO, string>(x)
                  from r in envIO
                  from y in m2
@@ -193,18 +186,18 @@ public static class Testing
                              None: () => "bar").As()
                       .Run("Paul").As()
                       .Run(); 
-    }
+    }*/
        
     public static void Test10()
     {
-        var m1 = StateT<string>.lift(OptionT.lift(IO.Pure(100)));
-        var m2 = StateT<string>.lift(OptionT.lift(IO.Pure(200)));
+        var m1 = StateT<string>.lift(OptionT.lift(IO.pure(100)));
+        var m2 = StateT<string>.lift(OptionT.lift(IO.pure(200)));
 
         var m0 = from w in Pure(123)
                  from q in m1
                  from x in StateT.get<OptionT<IO>, string>()
-                 from i in StateT<string, OptionT<IO>>.liftIO(IO.Pure("Hello"))
-                 from j in IO.Pure("Hello").Fork()
+                 from i in StateT<string, OptionT<IO>>.liftIO(IO.pure("Hello"))
+                 from j in IO.pure("Hello").Fork()
                  from _ in StateT.put<OptionT<IO>, string>(x)
                  from r in envIO
                  from y in m2
@@ -235,7 +228,7 @@ public static class GeneralIO<M>
     where M : Monad<M>
 {
     public static K<M, string> readAllText(string path) =>
-        M.LiftIO(liftIO(async _ => await File.ReadAllTextAsync(path)));
+        M.LiftIOMaybe(liftIO(async _ => await File.ReadAllTextAsync(path)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -263,7 +256,7 @@ public class Maybe : Monad<Maybe>
     public static K<Maybe, B> Action<A, B>(K<Maybe, A> ma, K<Maybe, B> mb) =>
         ma.As().Bind(_ => mb);
 
-    public static K<Maybe, A> LiftIO<A>(IO<A> ma) => 
+    public static K<Maybe, A> LiftIOMaybe<A>(IO<A> ma) => 
         throw new NotImplementedException();
 }
 
@@ -316,24 +309,48 @@ public static class MaybeExt
 //
 
 // Domain monad
-public record App<A>(Func<AppConfig, K<Either<Error>, A>> runReader)
-    : ReaderT<AppConfig, Either<Error>, A>(runReader);
+public record App<A>(ReaderT<AppConfig, Either<Error>, A> runReader) : K<App, A>;
 
 // Application environment
 public record AppConfig(string ConnectionString, string RootFolder);
 
-public static class App
+public static class AppExtensions
+{
+    public static App<A> As<A>(this K<App, A> ma) =>
+        (App<A>)ma;
+    
+    public static Either<Error, A> Run<A>(this K<App, A> ma, AppConfig config) =>
+        ma.As().runReader.Run(config).As();
+}
+
+public class App :
+    Fallible<App>,
+    Deriving.MonadT<App, ReaderT<AppConfig, Either<Error>>, Either<Error>>,
+    Deriving.MonadIO<App, ReaderT<AppConfig, Either<Error>>>,
+    Deriving.Readable<App, AppConfig, ReaderT<AppConfig, Either<Error>>>
 {
     public static App<A> Pure<A>(A value) =>
-        (App<A>)App<A>.Pure(value);
+        Applicative.pure<App, A>(value).As();
 
     public static App<A> Fail<A>(Error error) =>
-        (App<A>)App<A>.Lift(Left<Error, A>(error));
+        Fallible.error<App, A>(error).As();
+
+    public static K<App, A> Catch<A>(K<App, A> fa, Func<Error, bool> Predicate, Func<Error, K<App, A>> Fail) => 
+        throw new NotImplementedException();
 
     public static App<string> connectionString =>
-        (App<string>)App<string>.Asks(env => env.ConnectionString);
+        Readable.asks<App, AppConfig, string>(env => env.ConnectionString).As();
 
     public static App<string> rootFolder =>
-        (App<string>)App<string>.Asks(env => env.RootFolder);    
+        Readable.asks<App, AppConfig, string>(env => env.RootFolder).As();
+
+    public static K<ReaderT<AppConfig, Either<Error>>, A> Transform<A>(K<App, A> fa) => 
+        fa.As().runReader;
+
+    public static K<App, A> CoTransform<A>(K<ReaderT<AppConfig, Either<Error>>, A> fa) => 
+        new App<A>(fa.As());
+
+    static K<App, A> Fallible<Error, App>.Fail<A>(Error error) =>
+        new App<A>(ReaderT.lift<AppConfig, Either<Error>, A>(Left<Error, A>(error).As()));
 }
 

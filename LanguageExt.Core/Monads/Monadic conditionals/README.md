@@ -24,7 +24,7 @@ Supported monads are:
 ## When and Unless
 
 `when` and `unless` are similar to guards, but instead of providing _the_ alternative value, you provide an alternative monad 
-to run.  This monad could be in a failed state, or it could run a successful _side effect_ (an `Aff` calling `Console<RT>.writeLine()` 
+to run.  This monad could be in a failed state, or it could run a successful _side effect_ (an `Eff` calling `Console<RT>.writeLine()` 
 for example).
 
     from x in ma

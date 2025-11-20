@@ -103,12 +103,12 @@ public interface Range<SELF, NumOrdA, A> : IEnumerable<A>, K<SELF, A>
 
     [Pure]
     public Seq<A> ToSeq() =>
-        Prelude.toSeq(AsEnumerable());
+        Prelude.toSeq(AsIterable());
 
     [Pure]
-    public EnumerableM<A> AsEnumerable()
+    public Iterable<A> AsIterable()
     {
-        return new(Go());
+        return Iterable.createRange(Go());
         IEnumerable<A> Go()
         {
             if (StepIsAscending)
@@ -129,17 +129,18 @@ public interface Range<SELF, NumOrdA, A> : IEnumerable<A>, K<SELF, A>
     }
 
     [Pure]
-    public IEnumerator<A> GetEnumerator() => 
-        AsEnumerable().GetEnumerator();
+    IEnumerator<A> IEnumerable<A>.GetEnumerator() => 
+        // ReSharper disable once NotDisposedResourceIsReturned
+        AsIterable().GetEnumerator();
 
     [Pure]
     IEnumerator IEnumerable.GetEnumerator() =>
-        AsEnumerable().GetEnumerator();
+        AsIterable().GetEnumerator();
 
     [Pure]
     public S Fold<S>(S state, Func<S, A, S> f)
     {
-        foreach(var x in AsEnumerable())
+        foreach(var x in AsIterable())
         {
             state = f(state, x);
         }

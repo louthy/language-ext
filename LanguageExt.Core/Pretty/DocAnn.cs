@@ -33,7 +33,7 @@ public static class DocAnn
                 ? Char<A>(text[0])
                 : text.Contains("\n")
                     ? text.Split('\n')
-                          .AsEnumerableM() 
+                          .AsIterable() 
                           .Map(Text<A>)
                           .Intersperse(DocLine<A>.Default)
                           .Reduce(Cat)

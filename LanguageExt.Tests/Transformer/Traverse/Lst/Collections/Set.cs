@@ -25,7 +25,13 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
             var mb = ma.Traverse(mx => mx).As();
             var mbb = ma.Traverse(x => x).As();
 
-            var mc = List(Set(1, 10), Set(2, 10), Set(1, 20), Set(2, 20), Set(1, 30), Set(2, 30));
+            var mc = List(
+                Set(1, 10), 
+                Set(1, 20), 
+                Set(1, 30), 
+                Set(2, 10), 
+                Set(2, 20), 
+                Set(2, 30));
             
             Assert.True(mb == mc);
             Assert.True(mbb == mc);

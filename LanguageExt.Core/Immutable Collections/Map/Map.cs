@@ -90,7 +90,7 @@ public readonly struct Map<K, V> :
     ///
     ///     Empty collection     = null
     ///     Singleton collection = (K, V)
-    ///     More                 = ((K, V), Seq<(K, V)>)   -- head and tail
+    ///     More                 = ((K, V), Seq〈(K, V)〉)   -- head and tail
     ///
     ///     var res = list.Case switch
     ///     {
@@ -105,7 +105,7 @@ public readonly struct Map<K, V> :
     public object? Case =>
         IsEmpty 
             ? null
-            : AsEnumerable().ToSeq().Case;
+            : AsIterable().ToSeq().Case;
         
     /// <summary>
     /// Item at index lens
@@ -557,7 +557,7 @@ public readonly struct Map<K, V> :
     /// <returns>Range of values</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<V> FindRange(K keyFrom, K keyTo) => Value.FindRange(keyFrom, keyTo);
+    public Iterable<V> FindRange(K keyFrom, K keyTo) => Value.FindRange(keyFrom, keyTo);
 
     /// <summary>
     /// Retrieve a range of values 
@@ -568,7 +568,7 @@ public readonly struct Map<K, V> :
     /// <returns>Range of key, values</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<(K Key, V Value)> FindRangePairs(K keyFrom, K keyTo) => Value.FindRangePairs(keyFrom, keyTo);
+    public Iterable<(K Key, V Value)> FindRangePairs(K keyFrom, K keyTo) => Value.FindRangePairs(keyFrom, keyTo);
 
     /// <summary>
     /// Skips 'amount' values and returns a new tree without the 
@@ -578,7 +578,7 @@ public readonly struct Map<K, V> :
     /// <returns>New tree</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<(K Key, V Value)> Skip(int amount) => Value.Skip(amount);
+    public Iterable<(K Key, V Value)> Skip(int amount) => Value.Skip(amount);
 
     /// <summary>
     /// Checks for existence of a key in the map
@@ -711,7 +711,7 @@ public readonly struct Map<K, V> :
     /// Enumerable of map keys
     /// </summary>
     [Pure]
-    public EnumerableM<K> Keys
+    public Iterable<K> Keys
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Value.Keys;
@@ -721,7 +721,7 @@ public readonly struct Map<K, V> :
     /// Enumerable of map values
     /// </summary>
     [Pure]
-    public EnumerableM<V> Values
+    public Iterable<V> Values
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Value.Values;
@@ -741,7 +741,7 @@ public readonly struct Map<K, V> :
     /// </summary>
     /// <returns>Tuples</returns>
     [Pure]
-    public EnumerableM<(K Key, V Value)> Pairs
+    public Iterable<(K Key, V Value)> Pairs
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Value.Pairs;
@@ -753,7 +753,7 @@ public readonly struct Map<K, V> :
     /// <returns>Tuples</returns>
     [Pure]
     [Obsolete("Use Pairs instead")]
-    public EnumerableM<(K Key, V Value)> ValueTuples =>
+    public Iterable<(K Key, V Value)> ValueTuples =>
         Value.Pairs;
 
     /// <summary>
@@ -783,7 +783,7 @@ public readonly struct Map<K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<(K Key, V Value)> ToSeq() =>
-        AsEnumerable().ToSeq();
+        AsIterable().ToSeq();
 
     /// <summary>
     /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
@@ -794,7 +794,7 @@ public readonly struct Map<K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override string ToString() =>
-        CollectionFormat.ToShortArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), Count);
+        CollectionFormat.ToShortArrayString(AsIterable().Map(kv => $"({kv.Key}: {kv.Value})"), Count);
 
     /// <summary>
     /// Format the collection as `(key: value), (key: value), (key: value), ...`
@@ -802,7 +802,7 @@ public readonly struct Map<K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ToFullString(string separator = ", ") =>
-        CollectionFormat.ToFullString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
+        CollectionFormat.ToFullString(AsIterable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
     /// <summary>
     /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
@@ -810,11 +810,15 @@ public readonly struct Map<K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ToFullArrayString(string separator = ", ") =>
-        CollectionFormat.ToFullArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
+        CollectionFormat.ToFullArrayString(AsIterable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<(K Key, V Value)> AsEnumerable() => 
+    public Iterable<(K Key, V Value)> AsIterable() => 
+        Value.AsIterable();
+
+    [Pure] [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public IEnumerable<(K Key, V Value)> AsEnumerable() => 
         Value.AsEnumerable();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -947,7 +951,7 @@ public readonly struct Map<K, V> :
         new(lhs.Value - rhs.Value);
     
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -955,7 +959,7 @@ public readonly struct Map<K, V> :
         obj is Map<K, V> m && Equals(m);
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1008,7 +1012,7 @@ public readonly struct Map<K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Map<K, U> Select<U>(Func<V, U> mapper) =>
-        new (MapModule.Map(Value.Root, mapper), Value.Rev);
+        new (AsIterable().Select(kv => (kv.Key, mapper(kv.Value))));
 
     /// <summary>
     /// Atomically maps the map to a new map
@@ -1017,7 +1021,7 @@ public readonly struct Map<K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Map<K, U> Select<U>(Func<K, V, U> mapper) =>
-        new (MapModule.Map(Value.Root, mapper), Value.Rev);
+        new (AsIterable().Select(kv => (kv.Key, mapper(kv.Key, kv.Value))));
 
     /// <summary>
     /// Atomically filter out items that return false when a predicate is applied
@@ -1327,6 +1331,7 @@ public readonly struct Map<K, V> :
     /// Intersect two maps.  Only keys that are in both maps are
     /// returned.  The merge function is called for every resulting
     /// key.
+    /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Map<K, R> Intersect<V2, R>(Map<K, V2> other, WhenMatched<K, V, V2, R> Merge) =>
@@ -1350,7 +1355,7 @@ public readonly struct Map<K, V> :
         Wrap(Value.SymmetricExcept(other.Value));
 
     /// <summary>
-    /// Compare keys and values (values use `OrdDefault<V>` for ordering)
+    /// Compare keys and values (values use `OrdDefault〈V〉` for ordering)
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1432,7 +1437,7 @@ public readonly struct Map<K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
-        AsEnumerable().Map(p => new KeyValuePair<K, V>(p.Key, p.Value)).GetEnumerator();
+        AsIterable().Map(p => new KeyValuePair<K, V>(p.Key, p.Value)).GetEnumerator();
 
     public static Map<K, V> AdditiveIdentity => 
         Empty;

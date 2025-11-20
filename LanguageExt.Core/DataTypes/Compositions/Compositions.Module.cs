@@ -172,5 +172,5 @@ public static class Compositions
     /// </summary>
     public static Compositions<A> fromList<A>(IEnumerable<A> ma)
         where A : Monoid<A> =>
-        ma.AsEnumerableM().Fold(Compositions<A>.Empty, (s, x) => s.Combine(singleton(x)));
+        ma.AsIterable().Fold(Compositions<A>.Empty, (s, x) => s.Combine(singleton(x)));
 }

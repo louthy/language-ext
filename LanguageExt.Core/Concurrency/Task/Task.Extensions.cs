@@ -330,7 +330,7 @@ public static class TaskExtensions
                 {
                     if (iter.MoveNext())
                     {
-                        results.Add(default);
+                        results.Add(default!);
                         return Some((index, iter.Current.Map(f)));
                     }
                     else

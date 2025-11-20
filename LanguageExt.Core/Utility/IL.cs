@@ -463,7 +463,7 @@ public static class IL
     /// the hash-codes of all the *fields* that make up the type.  
     /// </summary>
     /// <remarks>You should cache the result of this method to reduce the work of building the IL 
-    /// each time.  Better still use the `RecordType<A>` type to provide a cached version of these
+    /// each time.  Better still use the `RecordType〈A〉` type to provide a cached version of these
     /// results.
     /// </remarks>
     public static Func<A, int> GetHashCode<A>(bool includeBase)
@@ -508,7 +508,7 @@ public static class IL
 
         // Implement FNV 1a hashing algorithm - [Fowler–Noll–Vo hash function](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash)
         var expr = Fields()
-                  .AsEnumerableM()
+                  .AsIterable()
                   .Fold(fnvOffsetBasis as Expression,
                         (state, field) =>
                             Expression.Multiply(
@@ -533,7 +533,7 @@ public static class IL
     /// all are equal.  
     /// </summary>
     /// <remarks>You should cache the result of this method to reduce the work of building the IL 
-    /// each time.  Better still use the `RecordType<A>` type to provide a cached version of these
+    /// each time.  Better still use the `RecordType〈A〉` type to provide a cached version of these
     /// results.
     /// </remarks>
     public static Func<A, object, bool> Equals<A>(bool includeBase)
@@ -574,7 +574,7 @@ public static class IL
         var expr = Expression.AndAlso(
             typesEqual,
             fields
-               .AsEnumerableM()
+               .AsIterable()
                .Fold(True as Expression,
                         (state, field) =>
                             Expression.AndAlso(
@@ -601,7 +601,7 @@ public static class IL
     /// equal.  
     /// </summary>
     /// <remarks>You should cache the result of this method to reduce the work of building the IL 
-    /// each time.  Better still use the `RecordType<A>` type to provide a cached version of these
+    /// each time.  Better still use the `RecordType〈A〉` type to provide a cached version of these
     /// results.
     /// </remarks>
     public static Func<A, A, bool> EqualsTyped<A>(bool includeBase)
@@ -639,7 +639,7 @@ public static class IL
         var expr = Expression.AndAlso(
             typesEqual,
             fields
-               .AsEnumerableM()
+               .AsIterable()
                .Fold(True as Expression, (state, field) =>
                             Expression.AndAlso(
                                 state,
@@ -665,7 +665,7 @@ public static class IL
     /// if X is less than Y, and 1 if X is greater than Y.
     /// </summary>
     /// <remarks>You should cache the result of this method to reduce the work of building the IL 
-    /// each time.  Better still use the `RecordType<A>` type to provide a cached version of these
+    /// each time.  Better still use the `RecordType〈A〉` type to provide a cached version of these
     /// results.
     /// </remarks>
     public static Func<A, A, int> Compare<A>(bool includeBase)
@@ -789,7 +789,7 @@ public static class IL
         var result        = Expression.Variable(typeof(string), "result");
         var returnTarget  = Expression.Label(typeof(string));
             
-        if (name.IndexOf('`') != -1) name = name.Split('`').AsEnumerableM().Head().Value!;
+        if (name.IndexOf('`') != -1) name = name.Split('`').AsIterable().Head().Value!;
 
         Expression fieldExpr(FieldInfo field)
         {
@@ -857,7 +857,7 @@ public static class IL
         var appendString = GetPublicInstanceMethod<StringBuilder, string>("Append", true).IfNone(() => throw new ArgumentException($"Append method found for StringBuilder"));
         var toString = GetPublicInstanceMethod<Object>("ToString", true).IfNone(() => throw new ArgumentException($"ToString method found for Object"));
         var name = typeof(A).Name;
-        if (name.IndexOf('`') != -1) name = name.Split('`').AsEnumerableM().Head().Value!;
+        if (name.IndexOf('`') != -1) name = name.Split('`').AsIterable().Head().Value!;
 
         var il = dynamic.GetILGenerator();
         il.DeclareLocal(typeof(StringBuilder));
@@ -936,7 +936,7 @@ public static class IL
                .IfNone(() => throw new Exception());
 
             if (field.FieldType.GetTypeInfo().IsValueType && 
-                convertToString.GetParameters().AsEnumerableM().Head().Value!.ParameterType == typeof(object))
+                convertToString.GetParameters().AsIterable().Head().Value!.ParameterType == typeof(object))
             {
                 il.Emit(OpCodes.Box, field.FieldType);
             }

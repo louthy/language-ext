@@ -6,7 +6,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public static class HashSetExtensions
+public static partial class HashSetExtensions
 {
     [Pure]
     public static HashSet<A> As<A>(this K<HashSet, A> ma) =>

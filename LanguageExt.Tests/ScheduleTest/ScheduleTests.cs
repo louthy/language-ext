@@ -18,6 +18,7 @@ public sealed class ScheduleTests
         result
            .Run()
            .Take(10)
+           .AsEnumerable() 
            .Should()
            .HaveCount(10)
            .And
@@ -30,6 +31,7 @@ public sealed class ScheduleTests
         var result = Schedule.Never;
         result
            .Run()
+           .AsEnumerable() 
            .Should()
            .BeEmpty();
     }
@@ -40,6 +42,7 @@ public sealed class ScheduleTests
         var result = Schedule.Once;
         result
            .Run()
+           .AsEnumerable() 
            .Should()
            .ContainSingle(x => x == Duration.Zero);
     }
@@ -50,6 +53,7 @@ public sealed class ScheduleTests
         var result = Schedule.TimeSeries(1 * sec, 2 * sec, 3 * sec);
         result
            .Run()
+           .AsEnumerable() 
            .Should()
            .Equal(1 * sec, 2 * sec, 3 * sec);
     }
@@ -63,6 +67,7 @@ public sealed class ScheduleTests
                .Map<Duration>(x => x * seconds));
         result
            .Run()
+           .AsEnumerable() 
            .Should()
            .Equal(2 * sec, 4 * sec);
     }
@@ -73,6 +78,7 @@ public sealed class ScheduleTests
         var results = Schedule.recurs(5) | Schedule.Forever;
         results
            .Run()
+           .AsEnumerable() 
            .Should()
            .HaveCount(5)
            .And
@@ -86,6 +92,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .Take(5)
+           .AsEnumerable() 
            .Should()
            .HaveCount(5)
            .And
@@ -99,6 +106,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .Take(5)
+           .AsEnumerable() 
            .Should()
            .Equal(1 * sec, 2 * sec, 3 * sec, 4 * sec, 5 * sec);
     }
@@ -110,6 +118,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .Take(5)
+           .AsEnumerable() 
            .Should()
            .Equal(100, 300, 500, 700, 900);
     }
@@ -121,6 +130,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .Take(5)
+           .AsEnumerable() 
            .Should()
            .Equal(1 * sec, 2 * sec, 4 * sec, 8 * sec, 16 * sec);
     }
@@ -132,6 +142,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .Take(5)
+           .AsEnumerable() 
            .Should()
            .Equal(1 * sec, 3 * sec, 9 * sec, 27 * sec, 81 * sec);
     }
@@ -143,6 +154,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .Take(6)
+           .AsEnumerable() 
            .Should()
            .Equal(1 * sec, 1 * sec, 2 * sec, 3 * sec, 5 * sec, 8 * sec);
     }
@@ -155,6 +167,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .Take(5)
+           .AsEnumerable() 
            .Should()
            .Equal(0 * sec, 10 * sec, 10 * sec, 10 * sec, 10 * sec);
     }
@@ -188,6 +201,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .Take(5)
+           .AsEnumerable() 
            .Should()
            .Equal(1 * sec, 2 * sec, 4 * sec, 5 * sec, 5 * sec);
     }
@@ -199,6 +213,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .Take(5)
+           .AsEnumerable() 
            .Should()
            .Equal(5 * sec, 5 * sec, 5 * sec, 8 * sec, 16 * sec);
     }
@@ -211,6 +226,7 @@ public sealed class ScheduleTests
             Schedule.TimeSeries(4 * sec, 5 * sec, 6 * sec);
         results
            .Run()
+           .AsEnumerable() 
            .Should()
            .Equal(1 * sec, 2 * sec, 3 * sec, 4 * sec, 5 * sec, 6 * sec);
     }
@@ -219,10 +235,9 @@ public sealed class ScheduleTests
     static Seq<DateTime> FromDuration(Duration duration)
     {
         var now = DateTime.Now;
-        return Range(0, (int)((TimeSpan)duration).TotalSeconds)
-              .AsEnumerableM()
-              .Map(i => now + TimeSpan.FromSeconds(i))
-              .ToSeq();
+        return IterableExtensions.AsIterable(Range(0, (int)((TimeSpan)duration).TotalSeconds))
+                                 .Map(i => now + TimeSpan.FromSeconds(i))
+                                 .ToSeq();
     }
 
     [Pure]
@@ -248,6 +263,7 @@ public sealed class ScheduleTests
         var results = Schedule.upto(5 * sec, FromDates(FromDuration(2 * min)));
         results
            .Run()
+           .AsEnumerable() 
            .Should()
            .Equal(0, 0, 0, 0);
     }
@@ -263,6 +279,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .Take(3)
+           .AsEnumerable() 
            .Should()
            .Equal(0, 4 * sec, 1 * sec);
     }
@@ -278,6 +295,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .Take(3)
+           .AsEnumerable() 
            .Should()
            .Equal(4 * sec, 4 * sec, 3 * sec);
     }
@@ -293,6 +311,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .Take(3)
+           .AsEnumerable() 
            .Should()
            .Equal(37 * sec, 2 * sec, 16 * sec);
     }
@@ -308,6 +327,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .Take(3)
+           .AsEnumerable() 
            .Should()
            .Equal(37 * min, 2 * min, 16 * min);
     }
@@ -324,6 +344,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .Take(4)
+           .AsEnumerable() 
            .Should()
            .Equal(2 * hours, 23 * hours, 21 * hour, 24 * hours);
     }
@@ -340,6 +361,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .Take(4)
+           .AsEnumerable() 
            .Should()
            .Equal(4 * days, 2 * days, 5 * days, 7 * days);
     }
@@ -360,7 +382,7 @@ public sealed class ScheduleTests
         var res = withJitter.ToArray();
         Assert.True(res.Length == 5);
         Assert.True(res.Zip(noJitter)
-                       .AsEnumerableM()
+                       .AsIterable()
                        .Filter(p => p.Item1 > p.Item2 && p.Item1 - p.Item2 <= 100)
                        .Any());
     }
@@ -379,7 +401,7 @@ public sealed class ScheduleTests
         var res = withJitter.ToArray();
         Assert.True(res.Length == 5);
         Assert.True(res.Zip(noJitter)
-                       .AsEnumerableM()
+                       .AsIterable()
                        .Filter(p => p.Item1 > p.Item2 && p.Item1 - p.Item2 <= p.Item2 * 1.5)
                        .Any());
     }
@@ -389,7 +411,7 @@ public sealed class ScheduleTests
     {
         var schedule = Schedule.linear(10 * sec) | Schedule.decorrelate(seed: Seed);
         var result   = schedule.Take(5).Run().ToSeq();
-        Assert.True(result.Zip(result.Skip(1)).Filter(x => x.Left > x.Right).Any());
+        Assert.True(result.Zip(result.Skip(1)).Filter(x => x.First > x.Second).Any());
     }
 
     [Fact]
@@ -401,6 +423,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .Take(4)
+           .AsEnumerable() 
            .Should()
            .Equal(10 * sec, 20 * sec, 10 * sec, 20 * sec);
     }
@@ -413,6 +436,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .Take(12)
+           .AsEnumerable() 
            .Should()
            .Equal(1 * sec, 5 * sec, 20 * sec,
                   1 * sec, 5 * sec, 20 * sec,
@@ -427,6 +451,7 @@ public sealed class ScheduleTests
             
         results
            .Run()
+           .AsEnumerable() 
            .Should()
            .HaveCount(9)
            .And
@@ -442,6 +467,7 @@ public sealed class ScheduleTests
             
         results
            .Run()
+           .AsEnumerable() 
            .Should()
            .HaveCount(6)
            .And
@@ -457,6 +483,7 @@ public sealed class ScheduleTests
         var results = schedule1.Interleave(schedule2);
         results
            .Run()
+           .AsEnumerable() 
            .Should()
            .HaveCount(6)
            .And
@@ -479,23 +506,29 @@ public sealed class ScheduleTests
           | Schedule.decorrelate()
           | Schedule.recurs(5);
 
-        schedule1.Run().Should().HaveCount(5);
-        schedule2.Run().Should().HaveCount(5);
-        schedule3.Run().Should().HaveCount(5);
+        schedule1.Run().AsEnumerable()
+                 .Should().HaveCount(5);
+        schedule2.Run().AsEnumerable()
+                 .Should().HaveCount(5);
+        schedule3.Run().AsEnumerable()
+                 .Should().HaveCount(5);
     }
 
     [Fact]
     public static void MapTest()
     {
         var schedule = Schedule.linear(1 * ms).Map((x, i) => x % 2 == 0 ? x + i : x - i).Take(4);
-        schedule.Run().Should().Equal(1 * ms, 3 * ms, 1 * ms, 7 * ms);
+        schedule.Run()
+                .AsEnumerable() 
+                .Should().Equal(1 * ms, 3 * ms, 1 * ms, 7 * ms);
     }
 
     [Fact]
     public static void FilterTest()
     {
         var schedule = Schedule.linear(1 * ms).Filter(x => x % 2 == 0).Take(4);
-        schedule.Run().Should().Equal(2 * ms, 4 * ms, 6 * ms, 8 * ms);
+        schedule.Run().AsEnumerable()
+                .Should().Equal(2 * ms, 4 * ms, 6 * ms, 8 * ms);
     }
 
     [Fact]
@@ -513,11 +546,13 @@ public sealed class ScheduleTests
                             .Take(2)
                             .Bind(odd => Schedule.TimeSeries(even, odd)));
 
-        schedule.Run().Should().Equal(
-            2 * ms, 1 * ms,
-            2 * ms, 3 * ms,
-            4 * ms, 1 * ms,
-            4 * ms, 3 * ms);
+        schedule.Run()
+                .AsEnumerable()
+                .Should()
+                .Equal(2 * ms, 1 * ms,
+                       2 * ms, 3 * ms,
+                       4 * ms, 1 * ms,
+                       4 * ms, 3 * ms);
     }
 
     [Fact]
@@ -534,6 +569,7 @@ public sealed class ScheduleTests
                        .Take(2)
             select Math.Pow(even, odd);
 
-        schedule.Run().Should().Equal(2 * ms, 8 * ms, 4 * ms, 64 * ms);
+        schedule.Run().AsEnumerable()
+                .Should().Equal(2 * ms, 8 * ms, 4 * ms, 64 * ms);
     }
 }

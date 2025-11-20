@@ -3,19 +3,20 @@
     <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
+    <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1711;CS1572;CS1587</NoWarn>
     <DefineConstants>CONTRACTS_FULL</DefineConstants>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup>
-    <PackageVersion>5.0.0-alpha.11</PackageVersion>
+    <PackageVersion>5.0.0-beta-57</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>
     <Summary>Functional language extensions for C#</Summary>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
     <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
-    <Description>This library uses and abuses the features of C# to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself.</Description>
+    <Description>This framework uses and abuses the features of C# to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself.</Description>
     <PackageTags>C#, Functional, Language Extension, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
     <PackageIcon>lang-ext-small.png</PackageIcon>
     <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
@@ -23,15 +24,16 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <OutputType>library</OutputType>
-    <AssemblyVersion>4.0.0.0</AssemblyVersion>
-    <FileVersion>4.0.0.0</FileVersion>
+    <AssemblyVersion>5.0.0.0</AssemblyVersion>
+    <FileVersion>5.0.0.0</FileVersion>
     <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="..\Images\lang-ext-small.png">
-      <Pack>True</Pack>
-      <PackagePath />
-    </None>
+    <InternalsVisibleTo Include="LanguageExt.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.nuget.md" Pack="true" PackagePath="\"/>
+    <None Include="..\Images\lang-ext-small.png" Pack="true" PackagePath="\"/>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" />

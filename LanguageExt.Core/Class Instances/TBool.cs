@@ -6,9 +6,9 @@ namespace LanguageExt.ClassInstances;
 /// <summary>
 /// Bool class instance.  Implements
 /// 
-///     Eq<bool>
-///     Ord<bool>
-///     Bool<bool>
+///     Eq〈bool〉
+///     Ord〈bool〉
+///     Bool〈bool〉
 /// </summary>
 public struct TBool : Ord<bool>, Bool<bool>
 {

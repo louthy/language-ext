@@ -5,7 +5,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public partial class Set : Monad<Set>, MonoidK<Set>, Traversable<Set>
+public partial class Set : Monad<Set>, Alternative<Set>, Traversable<Set>
 {
     static K<Set, B> Monad<Set>.Bind<A, B>(K<Set, A> ma, Func<A, K<Set, B>> f)
     {
@@ -61,6 +61,12 @@ public partial class Set : Monad<Set>, MonoidK<Set>, Traversable<Set>
     static K<Set, A> SemigroupK<Set>.Combine<A>(K<Set, A> ma, K<Set, A> mb) =>
         ma.As() + mb.As();
     
+    static K<Set, A> Choice<Set>.Choose<A>(K<Set, A> ma, K<Set, A> mb) => 
+        ma.IsEmpty() ? mb : ma;
+
+    static K<Set, A> Choice<Set>.Choose<A>(K<Set, A> ma, Func<K<Set, A>> mb) => 
+        ma.IsEmpty() ? mb() : ma;
+
     static bool Foldable<Set>.Contains<EqA, A>(A value, K<Set, A> ta) =>
         ta.As().Contains(value);
 
@@ -105,7 +111,7 @@ public partial class Set : Monad<Set>, MonoidK<Set>, Traversable<Set>
             Foldable.fold(acc, F.Pure(empty<B>()), ta));
 
         K<F, Set<B>> acc(K<F, Set<B>> ys, A x) =>
-            Applicative.lift((b, bs) => bs.Add(b), f(x), ys);
+            Applicative.lift((bs, b) => bs.Add(b), ys, f(x));
     }
 
     static K<F, K<Set, B>> Traversable<Set>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Set, A> ta) 

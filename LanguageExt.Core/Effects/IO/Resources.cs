@@ -16,7 +16,7 @@ public class Resources : IDisposable
         this.parent = parent;
 
     public static IO<Resources> NewIO(Resources? parent) => 
-        new (_ => new Resources(parent));
+        IO.lift(_ => new Resources(parent));
     
     public void Dispose()
     {
@@ -41,13 +41,20 @@ public class Resources : IDisposable
     }
 
     public IO<Unit> DisposeIO() =>
-        new (DisposeU);
+        IO.lift(_ => DisposeU());
 
     public Unit Acquire<A>(A value) where A : IDisposable
     {
         var obj = (object?)value;
         if (obj is null) throw new InvalidCastException();
         return resources.TryAdd(obj, new TrackedResourceDisposable<A>(value));
+    }
+
+    public Unit AcquireAsync<A>(A value) where A : IAsyncDisposable
+    {
+        var obj = (object?)value;
+        if (obj is null) throw new InvalidCastException();
+        return resources.TryAdd(obj, new TrackedResourceAsyncDisposable<A>(value));
     }
 
     public Unit Acquire<A>(A value, Func<A, IO<Unit>> release) 
@@ -88,7 +95,7 @@ public class Resources : IDisposable
                 });
     
     internal Unit Merge(Resources rhs) =>
-        resources.Swap(r => r.AddRange(rhs.resources.AsEnumerable()));
+        resources.Swap(r => r.AddRange(rhs.resources.AsIterable()));
 }
 
 abstract record TrackedResource
@@ -112,10 +119,32 @@ record TrackedResourceDisposable<A>(A Value) : TrackedResource
     where A : IDisposable
 {
     public override IO<Unit> Release() =>
-        IO<Unit>.Lift(
-            () =>
-            {
-                Value.Dispose();
-                return unit;
-            });
+        Value switch
+        {
+            IAsyncDisposable disposable => IO.liftAsync(async () =>
+                                                        {
+                                                            await disposable.DisposeAsync().ConfigureAwait(false);
+                                                            return unit;
+                                                        }),
+
+            _ => IO.lift(() =>
+                         {
+                             Value.Dispose();
+                             return unit;
+                         })
+        };
+}
+
+/// <summary>
+/// Holds a resource with its disposal function
+/// </summary>
+record TrackedResourceAsyncDisposable<A>(A Value) : TrackedResource
+    where A : IAsyncDisposable
+{
+    public override IO<Unit> Release() =>
+        IO.liftAsync(async () =>
+                     {
+                         await Value.DisposeAsync().ConfigureAwait(false);
+                         return unit;
+                     });
 }

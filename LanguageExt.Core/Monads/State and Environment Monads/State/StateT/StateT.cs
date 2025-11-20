@@ -7,12 +7,12 @@ namespace LanguageExt;
 /// <summary>
 /// `StateT` monad transformer, which adds a modifiable state to a given monad. 
 /// </summary>
-/// <param name="runState">Transducer that represents the transformer operation</param>
+/// <param name="runState">Function that represents the transformer operation</param>
 /// <typeparam name="S">State type</typeparam>
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<StateT<S, M>, A>
-    where M : Monad<M>, SemiAlternative<M>
+    where M : Monad<M>
 {
     /// <summary>
     /// Lift a pure value into the monad-transformer
@@ -109,14 +109,14 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
         new(state => M.Pure((f(), state)));
     
     /// <summary>
-    /// Lifts a an IO monad into the monad 
+    /// Lifts an IO monad into the monad 
     /// </summary>
     /// <remarks>NOTE: If the IO monad isn't the innermost monad of the transformer
     /// stack then this will throw an exception.</remarks>
     /// <param name="ma">IO monad to lift</param>
     /// <returns>`StateT`</returns>
     public static StateT<S, M, A> LiftIO(IO<A> ma) =>
-        Lift(M.LiftIO(ma));
+        Lift(M.LiftIOMaybe(ma));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -130,7 +130,7 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
     /// <typeparam name="M1">Trait of the monad to map to</typeparam>
     /// <returns>`StateT`</returns>
     public StateT<S, M1, B> MapT<M1, B>(Func<K<M, (A Value, S State)>, K<M1, (B Value, S State)>> f)
-        where M1 : Monad<M1>, SemiAlternative<M1> =>
+        where M1 : Monad<M1>, Choice<M1> =>
         new (state => f(runState(state)));
 
     /// <summary>
@@ -220,6 +220,15 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
     public StateT<S, M, B> Bind<B>(Func<A, IO<B>> f) =>
         Bind(x => StateT<S, M, B>.LiftIO(f(x)));
 
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`StateT`</returns>
+    public StateT<S, M, B> Bind<B>(Func<A, K<IO, B>> f) =>
+        Bind(x => StateT<S, M, B>.LiftIO(f(x).As()));
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  SelectMany
@@ -246,7 +255,7 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
     /// <returns>`StateT`</returns>
     public StateT<S, M, C> SelectMany<B, C>(Func<A, StateT<S, M, B>> bind, Func<A, B, C> project) =>
         new(state => M.Bind(runState(state), 
-                            x => M.Map(y => (project(x.Value, y.Value), x.State), 
+                            x => M.Map(y => (project(x.Value, y.Value), y.State), 
                                        bind(x.Value).runState(x.State))));
 
     /// <summary>
@@ -315,28 +324,67 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
     public StateT<S, M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`StateT`</returns>
+    public StateT<S, M, C> SelectMany<B, C>(Func<A, K<IO, B>> bind, Func<A, B, C> project) =>
+        Bind(x => bind(x).As().Map(y => project(x, y)));
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //  Conversion operators
+    //  Operators
     //
 
+    /// <summary>
+    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
+    /// as the semicolon) in C#.
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the second action</returns>
+    public static StateT<S, M, A> operator >> (StateT<S, M, A> lhs, StateT<S, M, A> rhs) =>
+        lhs.Bind(_ => rhs);
+    
+    /// <summary>
+    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
+    /// as the semicolon) in C#.
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the second action</returns>
+    public static StateT<S, M, A> operator >> (StateT<S, M, A> lhs, K<StateT<S, M>, A> rhs) =>
+        lhs.Bind(_ => rhs);
+
+    /// <summary>
+    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// first action is propagated. 
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the first action</returns>
+    public static StateT<S, M, A> operator >> (StateT<S, M, A> lhs, StateT<S, M, Unit> rhs) =>
+        lhs.Bind(x => rhs.Map(_ => x));
+    
+    /// <summary>
+    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
+    /// first action is propagated. 
+    /// </summary>
+    /// <param name="lhs">First action to run</param>
+    /// <param name="rhs">Second action to run</param>
+    /// <returns>Result of the first action</returns>
+    public static StateT<S, M, A> operator >> (StateT<S, M, A> lhs, K<StateT<S, M>, Unit> rhs) =>
+        lhs.Bind(x => rhs.Map(_ => x));
+    
     public static implicit operator StateT<S, M, A>(Pure<A> ma) =>
         Pure(ma.Value);
     
     public static implicit operator StateT<S, M, A>(IO<A> ma) =>
         LiftIO(ma);
-    
-    public static StateT<S, M, A> operator |(StateT<S, M, A> ma, StateT<S, M, A> mb) =>
-        new (state => M.Combine(ma.runState(state), mb.runState(state)));
-    
-    public static StateT<S, M, A> operator |(StateT<S, M, A> ma, Pure<A> mb) =>
-        new (state => M.Combine(ma.runState(state), Pure(mb.Value).runState(state)));
-    
-    public static StateT<S, M, A> operator |(Pure<A> ma,  StateT<S, M, A>mb) =>
-        new (state => M.Combine(Pure(ma.Value).runState(state), mb.runState(state)));
-    
-    public static StateT<S, M, A> operator |(IO<A> ma, StateT<S, M, A> mb) =>
-        new (state => M.Combine(LiftIO(ma).runState(state), mb.runState(state)));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

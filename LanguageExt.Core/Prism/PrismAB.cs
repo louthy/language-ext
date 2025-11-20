@@ -52,7 +52,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Implicit conversion operator from Lens<A,B> to Prism<A,B>
+        /// Implicit conversion operator from Lens〈A, B〉 to Prism〈A, B〉
         /// </summary>
         /// <param name="value">Value</param>
         [Pure]
@@ -60,7 +60,7 @@ namespace LanguageExt
             New(value);
 
         /// <summary>
-        /// Implicit conversion operator from Option<A> to Result<A>
+        /// Implicit conversion operator from Option〈A〉 to Result〈A〉
         /// </summary>
         /// <param name="value">Value</param>
         [Pure]

@@ -15,7 +15,7 @@ public static class MapOrdExtensions
     [Pure]
     public static Map<OrdK, K, U> Map<OrdK, K, V, U>(this Map<OrdK, K, V> self, Func<V, U> mapper)
         where OrdK : Ord<K> =>
-        new (MapModule.Map(self.Value.Root, mapper), self.Value.Rev);
+        new (self.AsEnumerable().Select(kv => (kv.Key, mapper(kv.Value))));
 
     /// <summary>
     /// Atomically maps the map to a new map
@@ -23,7 +23,7 @@ public static class MapOrdExtensions
     /// <returns>Mapped items in a new map</returns>
     [Pure]
     public static Map<OrdK, K, U> Map<OrdK, K, V, U>(this Map<OrdK, K, V> self, Func<K, V, U> mapper) where OrdK : Ord<K> =>
-        new (MapModule.Map(self.Value.Root, mapper), self.Value.Rev);
+        new (self.AsEnumerable().Select(kv => (kv.Key, mapper(kv.Key, kv.Value))));
 
     /// <summary>
     /// Number of items in the map

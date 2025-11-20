@@ -18,18 +18,18 @@ namespace EffectsExamples;
 /// <typeparam name="RT"></typeparam>
 public class TimeoutExample<RT>
     where RT : 
-    Has<Eff<RT>, TimeIO>, 
-    Has<Eff<RT>, ConsoleIO>
+        Has<Eff<RT>, TimeIO>, 
+        Has<Eff<RT>, ConsoleIO>
 {
     public static Eff<RT, Unit> main =>
         from _1 in timeout(60 * seconds, longRunning)
-                 | @catch(Errors.TimedOut, unit)
-        from _2 in Console<Eff<RT>, RT>.writeLine("done")
+                     | @catch(Errors.TimedOut, pure<Eff<RT>, Unit>(unit))
+        from _2 in Console<RT>.writeLine("done")
         select unit;
 
     static Eff<RT, Unit> longRunning =>
-        (from tm in Time<Eff<RT>, RT>.now
-         from _1 in Console<Eff<RT>, RT>.writeLine(tm.ToLongTimeString())
+        (from tm in Time<RT>.now
+         from _1 in Console<RT>.writeLine(tm.ToLongTimeString())
          select unit)
-       .Repeat(Schedule.fibonacci(1 * second));
+        .RepeatIO(Schedule.fibonacci(1 * second)).As();
 }

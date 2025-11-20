@@ -234,20 +234,20 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     /// Enumerable of keys
     /// </summary>
     [Pure]
-    public EnumerableM<K> Keys
+    public Iterable<K> Keys
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => AsEnumerable().Map(static x => x.Key);
+        get => AsIterable().Map(static x => x.Key);
     }
 
     /// <summary>
     /// Enumerable of value
     /// </summary>
     [Pure]
-    public EnumerableM<V> Values
+    public Iterable<V> Values
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => AsEnumerable().Map(static x => x.Value);
+        get => AsIterable().Map(static x => x.Value);
     }
 
     /// <summary>
@@ -256,14 +256,14 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<K, V> ToHashMap() =>
-        Items.AsEnumerable().Choose(static x => x.Value.Value.Map(v => (x.Key, v))).ToHashMap();
+        Items.AsIterable().Choose(static x => x.Value.Value.Map(v => (x.Key, v))).ToHashMap();
 
     /// <summary>
     /// GetEnumerator - IEnumerable interface
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerator<(K Key, V Value)> GetEnumerator() =>
-        Items.AsEnumerable().Choose(static x => x.Value.Value.Map(v => (x.Key, v))).GetEnumerator();
+        Items.AsIterable().Choose(static x => x.Value.Value.Map(v => (x.Key, v))).GetEnumerator();
 
     /// <summary>
     /// GetEnumerator - IEnumerable interface
@@ -275,7 +275,7 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<(K Key, V Value)> ToSeq() =>
-        toSeq(AsEnumerable());
+        toSeq(AsIterable());
 
     /// <summary>
     /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
@@ -286,7 +286,7 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override string ToString() =>
-        CollectionFormat.ToShortArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), Count);
+        CollectionFormat.ToShortArrayString(AsIterable().Map(kv => $"({kv.Key}: {kv.Value})"), Count);
 
     /// <summary>
     /// Format the collection as `(key: value), (key: value), (key: value), ...`
@@ -294,7 +294,7 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ToFullString(string separator = ", ") =>
-        CollectionFormat.ToFullString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
+        CollectionFormat.ToFullString(AsIterable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
     /// <summary>
     /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
@@ -302,12 +302,12 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ToFullArrayString(string separator = ", ") =>
-        CollectionFormat.ToFullArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
+        CollectionFormat.ToFullArrayString(AsIterable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EnumerableM<(K Key, V Value)> AsEnumerable() =>
-        Items.AsEnumerable().Choose(static x => x.Value.Value.Map(v => (x.Key, v)));
+    public Iterable<(K Key, V Value)> AsIterable() =>
+        Items.AsIterable().Choose(static x => x.Value.Value.Map(v => (x.Key, v)));
 
     /// <summary>
     /// Returns True if 'other' is a proper subset of this set
@@ -452,7 +452,7 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     } 
         
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -460,7 +460,7 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
         obj is VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> hm && Equals(hm);
 
     /// <summary>
-    /// Equality of keys and values with `EqDefault<V>` used for values
+    /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -581,7 +581,7 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ForAll(Func<K, V, bool> pred)
     {
-        foreach (var (key, value) in AsEnumerable())
+        foreach (var (key, value) in AsIterable())
         {
             if (!pred(key, value)) return false;
         }
@@ -596,7 +596,7 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ForAll(Func<(K Key, V Value), bool> pred) =>
-        AsEnumerable().Map(kv => (kv.Key, kv.Value)).ForAll(pred);
+        AsIterable().Map(kv => (kv.Key, kv.Value)).ForAll(pred);
 
     /// <summary>
     /// Return true if *all* items in the map return true when the predicate is applied
@@ -606,7 +606,7 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ForAll(Func<KeyValuePair<K, V>, bool> pred) =>
-        AsEnumerable().Map(kv => new KeyValuePair<K, V>(kv.Key, kv.Value)).ForAll(pred);
+        AsIterable().Map(kv => new KeyValuePair<K, V>(kv.Key, kv.Value)).ForAll(pred);
 
     /// <summary>
     /// Return true if all items in the map return true when the predicate is applied
@@ -616,7 +616,7 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ForAll(Func<V, bool> pred) =>
-        AsEnumerable().Map(static x => x.Value).ForAll(pred);
+        AsIterable().Map(static x => x.Value).ForAll(pred);
 
     /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied
@@ -627,7 +627,7 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Exists(Func<K, V, bool> pred)
     {
-        foreach (var (key, value) in AsEnumerable())
+        foreach (var (key, value) in AsIterable())
         {
             if (pred(key, value)) return true;
         }
@@ -642,7 +642,7 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Exists(Func<(K Key, V Value), bool> pred) =>
-        AsEnumerable().Map(kv => (kv.Key, kv.Value)).Exists(pred);
+        AsIterable().Map(kv => (kv.Key, kv.Value)).Exists(pred);
 
     /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied
@@ -652,7 +652,7 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Exists(Func<V, bool> pred) =>
-        AsEnumerable().Map(static x => x.Value).Exists(pred);
+        AsIterable().Map(static x => x.Value).Exists(pred);
 
     /// <summary>
     /// Atomically iterate through all key/value pairs in the map (in order) and execute an
@@ -728,7 +728,7 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public S Fold<S>(S state, Func<S, K, V, S> folder) =>
-        AsEnumerable().Fold(state, (s, x) => folder(s, x.Key, x.Value));
+        AsIterable().Fold(state, (s, x) => folder(s, x.Key, x.Value));
 
     /// <summary>
     /// Atomically folds all items in the map (in order) using the folder function provided.
@@ -740,5 +740,5 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public S Fold<S>(S state, Func<S, V, S> folder) =>
-        AsEnumerable().Map(static x => x.Value).Fold(state, folder);
+        AsIterable().Map(static x => x.Value).Fold(state, folder);
 }

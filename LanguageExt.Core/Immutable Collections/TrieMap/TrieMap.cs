@@ -63,7 +63,7 @@ internal class TrieMap<EqK, K, V> :
         {
             var h       = (uint)EqK.GetHashCode(item.Key);
             Sec section = default;
-            var (countDelta, newRoot, _) = Root.Update((type, true), item, h, section);
+            var (countDelta, newRoot, _, _) = Root.Update((type, true), item, h, section);
             count += countDelta;
             Root = newRoot;
         }
@@ -77,7 +77,7 @@ internal class TrieMap<EqK, K, V> :
         {
             var h       = (uint)EqK.GetHashCode(item.Key);
             Sec section = default;
-            var (countDelta, newRoot, _) = Root.Update((type, true), item, h, section);
+            var (countDelta, newRoot, _, _) = Root.Update((type, true), item, h, section);
             count += countDelta;
             Root = newRoot;
         }
@@ -941,7 +941,7 @@ internal class TrieMap<EqK, K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode() =>
         hash == 0
-            ? (hash = FNV32.Hash<HashablePair<EqK, HashableDefault<V>, K, V>, (K, V)>(AsEnumerable()))
+            ? (hash = FNV32.Hash<HashablePair<EqK, HashableDefault<V>, K, V>, (K, V)>(AsIterable()))
             : hash;
 
     /// <summary>
@@ -1192,7 +1192,7 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, U> Map<U>(Func<V, U> f) =>
-        new (AsEnumerable().Select(kv => (kv.Key, f(kv.Value))), false);
+        new (AsIterable().Select(kv => (kv.Key, f(kv.Value))), false);
 
     /// <summary>
     /// Map from V to U
@@ -1217,7 +1217,7 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, U> Map<U>(Func<K, V, U> f) =>
-        new (AsEnumerable().Select(kv => (kv.Key, f(kv.Key, kv.Value))), false);
+        new (AsIterable().Select(kv => (kv.Key, f(kv.Key, kv.Value))), false);
 
     /// <summary>
     /// Map from V to U
@@ -1242,7 +1242,7 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, V> Filter(Func<V, bool> f) =>
-        new (AsEnumerable().Filter(kv => f(kv.Value)), false);
+        new (AsIterable().Filter(kv => f(kv.Value)), false);
 
     /// <summary>
     /// Map from V to U
@@ -1273,7 +1273,7 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, V> Filter(Func<K, V, bool> f) =>
-        new (AsEnumerable().Filter(kv => f(kv.Key, kv.Value)), false);
+        new (AsIterable().Filter(kv => f(kv.Key, kv.Value)), false);
 
     /// <summary>
     /// Map from V to U
@@ -1304,14 +1304,14 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, V> Append(TrieMap<EqK, K, V> rhs) =>
-        TryAddRange(rhs.AsEnumerable());
+        TryAddRange(rhs.AsIterable());
 
     /// <summary>
     /// Associative union
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (TrieMap<EqK, K, V> Map, TrieMap<EqK, K, Change<V>> Changes) AppendWithLog(TrieMap<EqK, K, V> rhs) =>
-        TryAddRangeWithLog(rhs.AsEnumerable());
+        TryAddRangeWithLog(rhs.AsIterable());
 
     /// <summary>
     /// Subtract
@@ -1435,10 +1435,10 @@ internal class TrieMap<EqK, K, V> :
     {
         var h       = (uint)EqK.GetHashCode(key);
         Sec section = default;
-        var (countDelta, newRoot, _) = Root.Update((type, mutate), (key, value), h, section);
-        return ReferenceEquals(newRoot, Root)
-                   ? this
-                   : new TrieMap<EqK, K, V>(newRoot, count + countDelta);
+        var (countDelta, newRoot, _, changed) = Root.Update((type, mutate), (key, value), h, section);
+        return countDelta != 0 || changed
+                   ? new TrieMap<EqK, K, V>(newRoot, count + countDelta)
+                   : this;
     }
 
     /// <summary>
@@ -1449,15 +1449,15 @@ internal class TrieMap<EqK, K, V> :
     {
         var h       = (uint)EqK.GetHashCode(key);
         Sec section = default;
-        var (countDelta, newRoot, oldV) = Root.Update((type, mutate), (key, value), h, section);
-        return ReferenceEquals(newRoot, Root)
-                   ? (this, Change<V>.None)
-                   : (new TrieMap<EqK, K, V>(newRoot, count + countDelta), 
+        var (countDelta, newRoot, oldV, changed) = Root.Update((type, mutate), (key, value), h, section);
+        return changed
+                   ? (new TrieMap<EqK, K, V>(newRoot, count + countDelta), 
                       countDelta == 0 
                           ? EqDefault<V>.Equals(oldV!, value)
                                 ? Change<V>.None 
                                 : Change<V>.Mapped(oldV, value)
-                          : Change<V>.Added(value));
+                          : Change<V>.Added(value))
+                   : (this, Change<V>.None);
     }
 
     /// <summary>
@@ -2126,7 +2126,7 @@ internal class TrieMap<EqK, K, V> :
     {
         Tag Type { get; }
         (bool Found, K Key, V? Value) Read(K key, uint hash, Sec section);
-        (int CountDelta, Node Node, V? Old) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section);
+        (int CountDelta, Node Node, V? Old, bool Changed) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section);
         (int CountDelta, Node Node, V? Old) Remove(K key, uint hash, Sec section);
     }
 
@@ -2286,7 +2286,7 @@ internal class TrieMap<EqK, K, V> :
             }
         }
 
-        public (int CountDelta, Node Node, V? Old) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section)
+        public (int CountDelta, Node Node, V? Old, bool Changed) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section)
         {
             // var hashIndex = Bit.Get(hash, section);
             // var mask = Mask(hashIndex);
@@ -2309,11 +2309,11 @@ internal class TrieMap<EqK, K, V> :
                     else if (env.Type == UpdateType.TryAdd)
                     {
                         // Already added, so we don't continue to try
-                        return (0, this, default);
+                        return (0, this, default, false);
                     }
 
                     var (newItems, old) = SetItem(Items, entryIndex, change, env.Mutate);
-                    return (0, new Entries(EntryMap, NodeMap, newItems, Nodes), old.Value);
+                    return (0, new Entries(EntryMap, NodeMap, newItems, Nodes), old.Value, true);
                 }
                 else
                 {
@@ -2325,7 +2325,7 @@ internal class TrieMap<EqK, K, V> :
                     else if (env.Type == UpdateType.TrySetItem)
                     {
                         // Key doesn't exist, so there's nothing to set
-                        return (0, this, default);
+                        return (0, this, default, false);
                     }
 
                     // Add
@@ -2354,12 +2354,7 @@ internal class TrieMap<EqK, K, V> :
 
                     var newNodes = Insert(Nodes, nodeIndex, node);
 
-                    return (1, new Entries(
-                                newEntryMap, 
-                                newNodeMap, 
-                                newItems, 
-                                newNodes), 
-                            default);
+                    return (1, new Entries(newEntryMap, newNodeMap, newItems, newNodes), default, true);
                 }
             }
             else if (Bit.Get(NodeMap, mask))
@@ -2368,9 +2363,9 @@ internal class TrieMap<EqK, K, V> :
                 var nodeIndex = BitCount((int)NodeMap & ((int)mask - 1));
 
                 var nodeToUpdate = Nodes[nodeIndex];
-                var (cd, newNode, ov) = nodeToUpdate.Update(env, change, hash, section.Next());
+                var (cd, newNode, ov, ch) = nodeToUpdate.Update(env, change, hash, section.Next());
                 var (newNodes, _) = SetItem(Nodes, nodeIndex, newNode, env.Mutate);
-                return (cd, new Entries(EntryMap, NodeMap, Items, newNodes), ov);
+                return (cd, new Entries(EntryMap, NodeMap, Items, newNodes), ov, ch);
             }
             else
             {
@@ -2382,7 +2377,7 @@ internal class TrieMap<EqK, K, V> :
                 else if (env.Type == UpdateType.TrySetItem)
                 {
                     // Key doesn't exist, so there's nothing to set
-                    return (0, this, default);
+                    return (0, this, default, false);
                 }
 
                 // var entryIndex = Index(EntryMap, mask);
@@ -2392,7 +2387,7 @@ internal class TrieMap<EqK, K, V> :
                 var entries = EntryMap | mask;
 
                 var newItems = Insert(Items, entryIndex, change);
-                return (1, new Entries(entries, NodeMap, newItems, Nodes), default);
+                return (1, new Entries(entries, NodeMap, newItems, Nodes), default, true);
             }
         }
 
@@ -2451,7 +2446,7 @@ internal class TrieMap<EqK, K, V> :
             else if (len == 1) return (-1, EmptyNode.Default, Items[0].Value);
             else if (len == 2)
             {
-                var ((_, n, _), ov) = EqK.Equals(Items[0].Key, key)
+                var ((_, n, _, _), ov) = EqK.Equals(Items[0].Key, key)
                                           ? (EmptyNode.Default.Update((UpdateType.Add, false), Items[1], hash, default), Items[0].Value)
                                           : (EmptyNode.Default.Update((UpdateType.Add, false), Items[0], hash, default), Items[1].Value);
 
@@ -2481,7 +2476,7 @@ internal class TrieMap<EqK, K, V> :
             }
         }
 
-        public (int CountDelta, Node Node, V? Old) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section)
+        public (int CountDelta, Node Node, V? Old, bool Changed) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section)
         {
             var index = -1;
             for (var i = 0; i < Items.Length; i++)
@@ -2503,11 +2498,11 @@ internal class TrieMap<EqK, K, V> :
                 else if (env.Type == UpdateType.TryAdd)
                 {
                     // Already added, so we don't continue to try
-                    return (0, this, default);
+                    return (0, this, default, false);
                 }
 
                 var (newArr, ov) = SetItem(Items, index, change, false);
-                return (0, new Collision(newArr, hash), ov.Value);
+                return (0, new Collision(newArr, hash), ov.Value, true);
             }
             else
             {
@@ -2519,13 +2514,13 @@ internal class TrieMap<EqK, K, V> :
                 else if (env.Type == UpdateType.TrySetItem)
                 {
                     // Key doesn't exist, so there's nothing to set
-                    return (0, this, default);
+                    return (0, this, default, false);
                 }
 
                 var nitems = new (K, V)[Items.Length + 1];
                 Array.Copy(Items, nitems, Items.Length);
                 nitems[Items.Length] = change;
-                return (1, new Collision(nitems, hash), default);
+                return (1, new Collision(nitems, hash), default, true);
             }
         }
 
@@ -2551,7 +2546,7 @@ internal class TrieMap<EqK, K, V> :
         public (int CountDelta, Node Node, V? Old) Remove(K key, uint hash, Sec section) =>
             (0, this, default);
 
-        public (int CountDelta, Node Node, V? Old) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section)
+        public (int CountDelta, Node Node, V? Old, bool Changed) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section)
         {
             if (env.Type == UpdateType.SetItem)
             {
@@ -2561,11 +2556,11 @@ internal class TrieMap<EqK, K, V> :
             else if (env.Type == UpdateType.TrySetItem)
             {
                 // Key doesn't exist, so there's nothing to set
-                return (0, this, default);
+                return (0, this, default, false);
             }
 
             var dataMap = Mask(Bit.Get(hash, section));
-            return (1, new Entries(dataMap, 0, [change], Array.Empty<Node>()), default);
+            return (1, new Entries(dataMap, 0, [change], []), default, true);
         }
 
         public IEnumerator<(K, V)> GetEnumerator()
@@ -2610,13 +2605,15 @@ internal class TrieMap<EqK, K, V> :
         }
     }
 
-    public EnumerableM<(K Key, V Value)> AsEnumerable() =>
-        new(Root);
+    public Iterable<(K Key, V Value)> AsIterable() =>
+        Root.AsIterable();
 
     public IEnumerator<(K Key, V Value)> GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         Root.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() =>
+        // ReSharper disable once NotDisposedResourceIsReturned
         Root.GetEnumerator();
 
     /// <summary>
@@ -2740,17 +2737,17 @@ internal class TrieMap<EqK, K, V> :
 
     public override string ToString() =>
         count < 50
-            ? $"[{ string.Join(", ", AsEnumerable().Select(TupleToString)) }]"
-            : $"[{ string.Join(", ", AsEnumerable().Select(TupleToString).Take(50)) } ... ]";
+            ? $"[{ string.Join(", ", AsIterable().Select(TupleToString)) }]"
+            : $"[{ string.Join(", ", AsIterable().Select(TupleToString).Take(50)) } ... ]";
 
     string TupleToString((K Key, V Value) tuple) =>
         $"({tuple.Key}, {tuple.Value})";
 
-    public EnumerableM<K> Keys =>
-        AsEnumerable().Map(kv => kv.Key);
+    public Iterable<K> Keys =>
+        AsIterable().Map(kv => kv.Key);
 
-    public EnumerableM<V> Values =>
-        AsEnumerable().Map(kv => kv.Value);
+    public Iterable<V> Values =>
+        AsIterable().Map(kv => kv.Value);
 
     public bool TryGetValue(K key, out V value)
     {

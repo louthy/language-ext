@@ -1,3 +1,4 @@
+using System;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -15,7 +16,7 @@ public static class Free
         new Pure<F, A>(value);
 
     /// <summary>
-    /// Lift the functor into the the free monad
+    /// Lift the functor into the free monad
     /// </summary>
     /// <param name="value">Functor that yields a `Free` monad</param>
     /// <typeparam name="F">Functor type</typeparam>
@@ -33,4 +34,24 @@ public static class Free
     public static Free<F, A> bind<F, A>(K<F, Free<F, A>> value) 
         where F : Functor<F> =>
         new Bind<F, A>(value);
+
+    /// <summary>
+    /// Lift a natural transformation from `F` to `G` into a natural-transformation from
+    /// `Free F` to `Free G`.
+    /// </summary>
+    /// <param name="fb">Free monad in F</param>
+    /// <typeparam name="N">Natural transformation</typeparam>
+    /// <typeparam name="F">Functor</typeparam>
+    /// <typeparam name="G">Functor</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Free monad in G</returns>
+    public static Free<G, A> hoist<F, G, A>(Free<F, A> fb)
+        where F : Functor<F>, Natural<F, G>
+        where G : Functor<G> =>
+        fb switch
+        {
+            Pure<F, A>(var x)  => pure<G, A>(x),
+            Bind<F, A>(var xs) => bind(F.Transform(xs).Map(hoist<F, G, A>)),
+            _                  => throw new NotSupportedException()
+        };
 }

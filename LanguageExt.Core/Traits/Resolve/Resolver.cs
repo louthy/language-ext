@@ -9,7 +9,7 @@ internal static class Resolver
 {
     
     public static MethodInfo? Method(Type? type, string name, params Type[] types) =>
-        type.GetMethod(name, BindingFlags.Static | BindingFlags.Public, types);
+        type?.GetMethod(name, BindingFlags.Static | BindingFlags.Public, types);
     
     public static Type? Find(Type type, string prefix = "")
     {

@@ -1,8 +1,4 @@
 using System;
-using System.Threading;
-using LanguageExt.Attributes;
-using LanguageExt.Effects.Traits;
-using LanguageExt.Traits;
 
 namespace LanguageExt.Sys.Traits;
 

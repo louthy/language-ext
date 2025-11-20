@@ -8,15 +8,15 @@ using LanguageExt.UnsafeValueAccess;
 
 namespace LanguageExt.Sys.IO;
 
-public class Stream<M> where M : Monad<M>
+public static class Stream<M> where M : MonadIO<M>
 {
     /// <summary>
     /// Get a pipe of chunks from a Stream
     /// </summary>
-    public static Pipe<Stream, SeqLoan<byte>, M, Unit> read(int chunkSize)
+    public static PipeT<Stream, SeqLoan<byte>, M, Unit> read(int chunkSize)
     {
-        return from fs in Proxy.awaiting<Stream>()
-               from _  in Proxy.yieldAll(chunks(fs, chunkSize))
+        return from fs in PipeT.awaiting<M, Stream, SeqLoan<byte>>()
+               from _  in PipeT.yieldAll<M, Stream, SeqLoan<byte>>(chunks(fs, chunkSize))
                select unit;
 
         static async IAsyncEnumerable<SeqLoan<byte>> chunks(Stream fs, int chunkSize)
