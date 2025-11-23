@@ -200,4 +200,122 @@ public class SeqModuleTests
             Assert.True(task.Result == sum, $"Result is {task.Result}, should be: {sum}");
         }
     }
+
+    /// <summary>
+    /// Test Seq.unfold with a basic range
+    /// </summary>
+    [Fact]
+    public void UnfoldBasicRangeTest()
+    {
+        // Arrange: Create a range from 1 to 5 using unfold
+        var expected = new[] { 1, 2, 3, 4, 5 };
+        
+        // Act: Use unfold to generate the sequence
+        var result = Seq.unfold(
+            seed => seed <= 5
+                ? Some((seed, seed + 1))
+                : None,
+            1).ToArray();
+        
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    /// <summary>
+    /// Test that unfold correctly terminates with None
+    /// </summary>
+    [Fact]
+    public void UnfoldTerminationTest()
+    {
+        // Arrange & Act: Create a sequence that should terminate at specific condition
+        var result = Seq.unfold(
+            seed => seed < 3
+                ? Some((seed * 2, seed + 1))
+                : None,
+            1).ToArray();
+        
+        // Assert: Should produce [2, 4]
+        Assert.Equal(new[] { 2, 4 }, result);
+    }
+
+    /// <summary>
+    /// Test unfold with different seed type
+    /// </summary>
+    [Fact]
+    public void UnfoldStringResultTest()
+    {
+        // Arrange & Act: Generate strings from a numeric seed
+        var result = Seq.unfold(
+            seed => seed <= 3
+                ? Some(($"Item{seed}", seed + 1))
+                : None,
+            1).ToArray();
+        
+        // Assert
+        var expected = new[] { "Item1", "Item2", "Item3" };
+        Assert.Equal(expected, result);
+    }
+
+    /// <summary>
+    /// Test that unfold creates a lazy sequence
+    /// </summary>
+    [Fact]
+    public void UnfoldLazyEvaluationTest()
+    {
+        // Arrange
+        int evaluationCount = 0;
+        Func<int, Option<(int, int)>> folder = seed =>
+        {
+            evaluationCount++;
+            return seed <= 3
+                ? Some((seed, seed + 1))
+                : None;
+        };
+
+        // Act: Create the unfold (should not evaluate yet)
+        var unfoldSequence = Seq.unfold(folder, 1);
+        
+        // Assert: Evaluation count should be 0 before iteration
+        Assert.Equal(0, evaluationCount);
+
+        // Act: Take only first 2 items
+        var result = unfoldSequence.Take(2).ToArray();
+
+        // Assert: Should only evaluate 2 times (for items 1 and 2)
+        Assert.Equal(new[] { 1, 2 }, result);
+        Assert.Equal(2, evaluationCount);
+    }
+
+    /// <summary>
+    /// Test unfold with empty sequence
+    /// </summary>
+    [Fact]
+    public void UnfoldEmptySequenceTest()
+    {
+        // Act: Create unfold that returns None immediately
+        var result = Seq.unfold(
+            seed => (Option<(int, int)>)None,
+            1).ToArray();
+        
+        // Assert: Should be empty
+        Assert.Empty(result);
+    }
+
+    /// <summary>
+    /// Test unfold with complex state transformation (Fibonacci sequence)
+    /// </summary>
+    [Fact]
+    public void UnfoldComplexStateTest()
+    {
+        // Arrange: Generate Fibonacci sequence
+        var result = Seq.unfold(
+            state => state.Item2 < 1000
+                ? Some((state.Item1, (state.Item2, state.Item1 + state.Item2)))
+                : None,
+            (0, 1)).ToArray();
+        
+        // Assert: Should generate Fibonacci numbers less than 1000
+        var expected = new[] { 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987 };
+        Assert.Equal(expected, result);
+    }
 }
