@@ -80,18 +80,6 @@ public static partial class Prelude
     /// <param name="tail">Tail of the sequence</param>
     /// <returns></returns>
     [Pure]
-    public static Seq<A> Cons<A>(this A head, Arr<A> tail) =>
-        Cons(head, tail.Value);
-
-    /// <summary>
-    /// Construct a list from head and tail; head becomes the first item in 
-    /// the list.  
-    /// </summary>
-    /// <typeparam name="A">Type of the items in the sequence</typeparam>
-    /// <param name="head">Head item in the sequence</param>
-    /// <param name="tail">Tail of the sequence</param>
-    /// <returns></returns>
-    [Pure]
     public static Seq<A> Cons<A>(this A head, IEnumerable<A> tail) =>
         tail is Seq<A> seq 
             ? head.Cons(seq)
@@ -573,7 +561,7 @@ public static partial class Prelude
     /// </summary>
     [Pure]
     public static Lst<T> toList<T>(Arr<T> items) =>
-        new (items.Value.AsSpan());
+        new (items.AsSpan());
 
     /// <summary>
     /// Create an immutable list
@@ -1166,7 +1154,7 @@ public static partial class Prelude
         {
             null                => Empty,
             Seq<A> seq          => seq,
-            Arr<A> arr          => LSeq.FromArray(arr.Value),
+            Arr<A> arr          => toSeq(arr),
             A[] array           => toSeq(array),
             IList<A> list       => toSeq(list),
             ICollection<A> coll => toSeq(coll),
@@ -1184,7 +1172,7 @@ public static partial class Prelude
         {
             null                => Empty,
             Seq<A> seq          => seq,
-            Arr<A> arr          => LSeq.FromArray(arr.Value),
+            Arr<A> arr          => toSeq(arr.ToArray()),
             A[] array           => toSeq(array),
             IList<A> list       => toSeq(list),
             ICollection<A> coll => toSeq(coll),
@@ -1220,13 +1208,6 @@ public static partial class Prelude
             return LSeq.FromArray(data);
         }
     }
-
-    /// <summary>
-    /// Construct a sequence from an immutable array
-    /// </summary>
-    [Pure]
-    public static Seq<A> toSeq<A>(Arr<A> value) =>
-        toSeq(value.Value);
 
     /// <summary>
     /// Construct a sequence from a list

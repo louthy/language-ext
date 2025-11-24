@@ -48,6 +48,10 @@ internal class SeqLazy<A> : ISeqInternal<A>
     /// </summary>
     int selfHash;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ReadOnlySpan<A> AsSpan() =>
+        Strict().AsSpan();
+    
     /// <summary>
     /// Constructor
     /// </summary>

@@ -100,5 +100,5 @@ public static partial class ArrExtensions
     public static IQueryable<A> AsQueryable<A>(this Arr<A> source) =>
         // NOTE TO FUTURE ME: Don't delete this thinking it's not needed!
         // NOTE FROM FUTURE ME: Next time you leave a message for your future self, explain your reasoning.
-        source.Value.AsQueryable();
+        source.AsEnumerable().AsQueryable();
 }

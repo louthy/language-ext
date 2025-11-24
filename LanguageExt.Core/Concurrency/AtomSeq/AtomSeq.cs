@@ -267,23 +267,6 @@ public class AtomSeq<A> :
         var arr = items.ToArray();
         return Concat(Seq.FromArray(arr));
     }
-                
-    /// <summary>
-    /// Add a range of items to the end of the sequence
-    /// </summary>
-    /// <remarks>
-    /// Forces evaluation of the entire lazy sequence so the items
-    /// can be appended.  
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Unit Concat(Arr<A> items)
-    {
-        if (items.Count == 0)
-        {
-            return default;
-        }
-        return Concat(Seq.FromArray(items.Value));
-    }
         
     /// <summary>
     /// Add a range of items to the end of the sequence

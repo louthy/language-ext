@@ -499,6 +499,12 @@ public class Iterable<A> :
     }
 
     /// <summary>
+    /// Tail of the iterable
+    /// </summary>
+    public Iterable<A> Tail =>
+        Skip(1);
+    
+    /// <summary>
     /// Skip count items
     /// </summary>
     [Pure]

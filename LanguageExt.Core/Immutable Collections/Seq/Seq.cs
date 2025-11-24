@@ -7,6 +7,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.Traits;
@@ -29,6 +30,7 @@ public readonly struct Seq<A> :
     IComparisonOperators<Seq<A>, Seq<A>, bool>,
     IAdditionOperators<Seq<A>, Seq<A>, Seq<A>>,
     IAdditiveIdentity<Seq<A>, Seq<A>>,
+    TokenStream<Seq<A>, A>,
     Monoid<Seq<A>>,
     K<Seq, A>
 {
@@ -86,6 +88,10 @@ public readonly struct Seq<A> :
         head = Head.IfNone(() => throw Exceptions.SequenceEmpty);
         tail = Tail;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ReadOnlySpan<A> AsSpan() =>
+        Value.AsSpan();
 
     /// <summary>
     /// Head lens
@@ -248,23 +254,6 @@ public readonly struct Seq<A> :
         }
         var arr = items.ToArray();
         return Concat(Seq.FromArray(arr));
-    }
-                
-    /// <summary>
-    /// Add a range of items to the end of the sequence
-    /// </summary>
-    /// <remarks>
-    /// Forces evaluation of the entire lazy sequence so the items
-    /// can be appended.  
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Seq<A> Concat(in Arr<A> items)
-    {
-        if (items.Count == 0)
-        {
-            return this;
-        }
-        return Concat(Seq.FromArray(items.Value));
     }
         
     /// <summary>
@@ -1265,4 +1254,79 @@ public readonly struct Seq<A> :
 
     public static Seq<A> AdditiveIdentity => 
         Empty;
+    
+    
+    static Seq<A> TokenStream<Seq<A>, A>.TokenToChunk(in A token) => 
+        Seq.singleton(token);
+
+    static Seq<A> TokenStream<Seq<A>, A>.TokensToChunk(in ReadOnlySpan<A> token) => 
+        [..token];
+
+    static ReadOnlySpan<A> TokenStream<Seq<A>, A>.ChunkToTokens(in Seq<A> tokens) => 
+        tokens.As().AsSpan();
+
+    static int TokenStream<Seq<A>, A>.ChunkLength(in Seq<A> tokens) => 
+        tokens.As().Count;
+
+    static bool TokenStream<Seq<A>, A>.Take1(in Seq<A> stream, out A head, out Seq<A> tail)
+    {
+        var s = stream.As();
+        if (s.IsEmpty)
+        {
+            head = default!;
+            tail = stream;
+            return false;
+        }
+        else
+        {
+            head = s[0];
+            tail = s.Tail;
+            return true;
+        }
+    }
+
+    static bool TokenStream<Seq<A>, A>.Take(int amount, in Seq<A> stream, out ReadOnlySpan<A> head, out Seq<A> tail)
+    {
+        var xs = new A[amount];
+        var s  = stream.As();
+        var n  = amount;
+        for (var i = 0; i < n; i++)
+        {
+            if (s.IsEmpty)
+            {
+                // Failed to read, so return empty.
+                head = ReadOnlySpan<A>.Empty;
+                tail = s;
+                return false;
+            }
+            else
+            {
+                xs[i] = s[0];
+                s = s.Tail;
+            }
+        }
+        head = xs.AsSpan(0, n);
+        tail = s;
+        return true;
+    }
+
+    static Seq<A> TokenStream<Seq<A>, A>.TakeWhile(Func<A, bool> predicate, in Seq<A> stream, out ReadOnlySpan<A> head)
+    {
+        var xs = new System.Collections.Generic.List<A>();
+        var s  = stream.As();
+        while(true)
+        {
+            if (s.IsEmpty || !predicate(s[0]))
+            {
+                // Failed to read, so return collected so far.
+                head = CollectionsMarshal.AsSpan(xs);
+                return s;
+            }
+            else
+            {
+                xs.Add(s[0]);
+                s = s.Tail;
+            }
+        }
+    }      
 }

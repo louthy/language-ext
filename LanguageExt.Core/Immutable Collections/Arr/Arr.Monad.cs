@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -77,7 +79,7 @@ public partial class Arr :
 
     static S Foldable<Arr>.FoldWhile<A, S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate, S state, K<Arr, A> ta)
     {
-        var arr = ta.As().Value;
+        var arr = ta.As();
         foreach (var x in arr)
         {
             if (!predicate((state, x))) return state;
@@ -88,7 +90,7 @@ public partial class Arr :
 
     static S Foldable<Arr>.FoldBackWhile<A, S>(Func<S, Func<A, S>> f, Func<(S State, A Value), bool> predicate, S state, K<Arr, A> ta) 
     {
-        var arr = ta.As().Value;
+        var arr = ta.As();
         for (var i = arr.Length - 1; i >= 0; i--)
         {
             var x = arr[i];
@@ -100,7 +102,7 @@ public partial class Arr :
 
     static Option<A> Foldable<Arr>.At<A>(K<Arr, A> ta, Index index)
     {
-        var arr = ta.As().Value;
+        var arr = ta.As();
         return index.Value >= 0 && index.Value < arr.Length
                    ? Some(arr[index])
                    : Option<A>.None;
@@ -116,7 +118,7 @@ public partial class Arr :
         ta.As().AsIterable();
     
     static Seq<A> Foldable<Arr>.ToSeq<A>(K<Arr, A> ta) =>
-        Seq.FromArray(ta.As().Value);
+        Seq.FromArray(ta.As().ToArray());
     
     static K<F, K<Arr, B>> Traversable<Arr>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Arr, A> ta)
     {

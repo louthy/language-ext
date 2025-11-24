@@ -8,6 +8,7 @@ using static LanguageExt.Prelude;
 using LanguageExt.Traits;
 using LanguageExt.ClassInstances;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace LanguageExt;
 
@@ -20,7 +21,7 @@ namespace LanguageExt;
 /// <typeparam name="A">Value type</typeparam>
 [Serializable]
 [CollectionBuilder(typeof(Arr), nameof(Arr.create))]
-public struct Arr<A> :
+public readonly struct Arr<A> :
     IReadOnlyList<A>,
     IEquatable<Arr<A>>,
     IComparable<Arr<A>>,
@@ -28,6 +29,7 @@ public struct Arr<A> :
     IComparisonOperators<Arr<A>, Arr<A>, bool>,
     IAdditionOperators<Arr<A>, Arr<A>, Arr<A>>,
     IAdditiveIdentity<Arr<A>, Arr<A>>,
+    TokenStream<Arr<A>, A>,
     IComparable,
     K<Arr, A>
 {
@@ -35,10 +37,13 @@ public struct Arr<A> :
     /// Empty array
     /// </summary>
     public static Arr<A> Empty { get; } = new (System.Array.Empty<A>());
-    readonly A[] value;
-    int hashCode;
 
-    internal A[] Value
+    readonly A[] value;
+    readonly int start;
+    readonly int length;
+    readonly Atom<int> hashCode = Atom(0);
+
+    A[] Value
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => value ?? Empty.Value;
@@ -50,8 +55,10 @@ public struct Arr<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Arr(IEnumerable<A> initial)
     {
-        hashCode = 0;
+        hashCode = Atom(0);
         value = initial.ToArray();
+        start = 0;
+        length = value.Length;
     }
 
     /// <summary>
@@ -60,8 +67,10 @@ public struct Arr<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Arr(ReadOnlySpan<A> initial)
     {
-        hashCode = 0;
+        hashCode = Atom(0);
         value = initial.ToArray();
+        start = 0;
+        length = value.Length;
     }
 
     /// <summary>
@@ -70,27 +79,62 @@ public struct Arr<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal Arr(A[] value)
     {
-        hashCode = 0;
+        hashCode = Atom(0);
         this.value = value;
+        start = 0;
+        length = value.Length;
     }
 
-    /*
     /// <summary>
-    /// Stream as an enumerable
+    /// Ctor
     /// </summary>
-    [Pure]
-    public StreamT<M, A> AsStream<M>()
-        where M : Monad<M> =>
-        StreamT<M, A>.Lift(this);
-        */
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal Arr(A[] value, int start, int length)
+    {
+        if(start < 0) throw new ArgumentOutOfRangeException(nameof(start));
+        if(start + length > value.Length) throw new ArgumentOutOfRangeException(nameof(length));
+        hashCode = Atom(0);
+        this.value = value;
+        this.start = start;
+        this.length = length;
+    }
     
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlySpan<A> AsSpan() =>
-        new (Value);
+        new (Value, start, length);
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ReadOnlySpan<A> AsSpan(int start, int length) =>
+        start <= this.length
+            ? start + length <= this.length
+                ? new(Value, this.start + start, length)
+                : throw new IndexOutOfRangeException(nameof(length))
+            : throw new IndexOutOfRangeException(nameof(start));
+
+    /// <summary>
+    /// Create a sub-array of this array.  This doesn't do any copying, so is very fast, but be aware that any items
+    /// outside of the splice are still active.   
+    /// </summary>
+    /// <param name="startOffset">Offset from the current start position.</param>
+    /// <param name="take">The number of items to take</param>
+    /// <returns></returns>
+    /// <exception cref="IndexOutOfRangeException"></exception>
+    [Pure]
+    public Arr<A> Splice(int startOffset, int take)
+    {
+        var arr = Value;
+        if (startOffset < 0 || startOffset        >= length) throw new IndexOutOfRangeException(nameof(startOffset));
+        if (take        < 0 || startOffset + take > length) throw new IndexOutOfRangeException(nameof(take));
+        return new Arr<A>(arr, start + startOffset, take);   
+    }
     
     [Pure]
-    public ReadOnlySpan<A> AsSpan(int start, int length) =>
-        new (Value, start, length);
+    public Arr<A> Tail =>
+        IsEmpty
+            ? this
+            : Splice(1, length - 1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Arr<A>(A[] xs) =>
@@ -162,7 +206,11 @@ public struct Arr<A> :
     public A this[Index index]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Value[index];
+        get => index.IsFromEnd switch
+               {
+                   false => Value[start          + index.Value],
+                   true  => Value[start + length - index.Value - 1]
+               };
     }
 
     /// <summary>
@@ -200,7 +248,7 @@ public struct Arr<A> :
     public bool IsEmpty
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value == null || value.Length == 0;
+        get => value == null || length == 0;
     }
 
     /// <summary>
@@ -210,7 +258,7 @@ public struct Arr<A> :
     public int Count
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.Length ?? 0;
+        get => value == null ? 0 : length;
     }
 
     /// <summary>
@@ -220,7 +268,7 @@ public struct Arr<A> :
     public int Length
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.Length ?? 0;
+        get => value == null ? 0 : length;
     }
 
     [Pure]
@@ -234,7 +282,7 @@ public struct Arr<A> :
     A IReadOnlyList<A>.this[int index]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Value[index];
+        get => Value[start + index];
     }
 
     /// <summary>
@@ -278,16 +326,18 @@ public struct Arr<A> :
     {
         readonly A[] arr;
         int index;
+        int end;
 
         internal Enumerator(in Arr<A> arr)
         {
             this.arr = arr.Value;
-            index = -1;
+            index = arr.start -1;
+            end = arr.start   + arr.length;
         }
 
         public readonly A Current => arr[index];
 
-        public bool MoveNext() => ++index < arr.Length;
+        public bool MoveNext() => ++index < end;
     }
 
     /// <summary>
@@ -298,10 +348,9 @@ public struct Arr<A> :
     {
         var eq = equalityComparer ?? EqualityComparer<A>.Default;
 
-        var arr = Value;
-        for (; index >= 0 && index < arr.Length && count != 0; index++, count--)
+        for (; index >= 0 && index < length && count != 0; index++, count--)
         {
-            if (eq.Equals(item, arr[index])) return index;
+            if (eq.Equals(item, this[index])) return index;
         }
         return -1;
     }
@@ -315,11 +364,11 @@ public struct Arr<A> :
         var eq = equalityComparer ?? EqualityComparer<A>.Default;
 
         var arr = Value;
-        index = index < 0 ? arr.Length - 1 : index;
+        index = index < 0 ? length - 1 : index;
 
-        for (; index >= 0 && index < arr.Length && count != 0; index--, count--)
+        for (; index >= 0 && index < length && count != 0; index--, count--)
         {
-            if (eq.Equals(item, arr[index])) return index;
+            if (eq.Equals(item, this[index])) return index;
         }
         return -1;
     }
@@ -331,9 +380,9 @@ public struct Arr<A> :
     public int IndexOf<EQ>(A item, int index = 0, int count = -1) where EQ : Eq<A>
     {
         var arr = Value;
-        for (; index < arr.Length && count != 0; index++, count--)
+        for (; index < length && count != 0; index++, count--)
         {
-            if (EQ.Equals(item, arr[index])) return index;
+            if (EQ.Equals(item, this[index])) return index;
         }
         return -1;
     }
@@ -345,11 +394,11 @@ public struct Arr<A> :
     public int LastIndexOf<EQ>(A item, int index = -1, int count = -1) where EQ : Eq<A>
     {
         var arr = Value;
-        index = index < 0 ? arr.Length - 1 : index;
+        index = index < 0 ? length - 1 : index;
 
-        for (; index >= 0 && index < arr.Length && count != 0; index--, count--)
+        for (; index >= 0 && index < length && count != 0; index--, count--)
         {
-            if (EQ.Equals(item, arr[index])) return index;
+            if (EQ.Equals(item, this[index])) return index;
         }
         return -1;
     }
@@ -361,22 +410,22 @@ public struct Arr<A> :
     public Arr<A> Insert(int index, A valueToInsert)
     {
         var arr = Value;
-        if (index < 0 || index > Count) throw new IndexOutOfRangeException(nameof(index));
-        if (arr.Length == 0)
+        if (index < 0 || index > Length) throw new IndexOutOfRangeException(nameof(index));
+        if (length == 0)
         {
             return new Arr<A>([valueToInsert]);
         }
 
-        var xs = new A[arr.Length + 1];
+        var xs = new A[length + 1];
         xs[index] = valueToInsert;
 
         if (index != 0)
         {
-            System.Array.Copy(arr, 0, xs, 0, index);
+            System.Array.Copy(arr, start, xs, 0, index);
         }
         if (index != arr.Length)
         {
-            System.Array.Copy(arr, index, xs, index + 1, arr.Length - index);
+            System.Array.Copy(arr, start + index, xs, index + 1, length - index);
         }
         return new Arr<A>(xs);
     }
@@ -388,9 +437,9 @@ public struct Arr<A> :
     public Arr<A> InsertRange(int index, IEnumerable<A> items)
     {
         var arr = Value;
-        if (index < 0 || index > arr.Length) throw new IndexOutOfRangeException(nameof(index));
+        if (index < 0 || index > Length) throw new IndexOutOfRangeException(nameof(index));
 
-        if (arr.Length == 0)
+        if (length == 0)
         {
             return new Arr<A>(items);
         }
@@ -403,15 +452,15 @@ public struct Arr<A> :
             return this;
         }
 
-        var newArray = new A[arr.Length + count];
+        var newArray = new A[length + count];
 
         if (index != 0)
         {
-            System.Array.Copy(arr, 0, newArray, 0, index);
+            System.Array.Copy(arr, start, newArray, 0, index);
         }
         if (index != arr.Length)
         {
-            System.Array.Copy(arr, index, newArray, index + count, arr.Length - index);
+            System.Array.Copy(arr, start + index, newArray, index + count, length - index);
         }
         insertArr.CopyTo(newArray, index);
 
@@ -458,13 +507,12 @@ public struct Arr<A> :
     [Pure]
     public Arr<A> RemoveAll(Predicate<A> pred)
     {
-        var self = Value;
         if (IsEmpty) return this;
 
         List<int>? removeIndices = null;
-        for (var i = 0; i < self.Length; i++)
+        for (var i = 0; i < Length; i++)
         {
-            if (pred(self[i]))
+            if (pred(this[i]))
             {
                 if (removeIndices == null)
                 {
@@ -485,19 +533,19 @@ public struct Arr<A> :
         var arr = Value;
         if (remove.Count == 0) return this;
 
-        var newArray         = new A[arr.Length - remove.Count];
-        int copied           = 0;
-        int removed          = 0;
-        int lastIndexRemoved = -1;
+        var newArray         = new A[length - remove.Count];
+        var copied           = 0;
+        var removed          = 0;
+        var lastIndexRemoved = -1;
         foreach (var item in remove)
         {
-            int copyLength = lastIndexRemoved == -1 ? item : (item - lastIndexRemoved - 1);
-            System.Array.Copy(arr, copied + removed, newArray, copied, copyLength);
+            var copyLength = lastIndexRemoved == -1 ? item : (item - lastIndexRemoved - 1);
+            System.Array.Copy(arr, start + copied + removed, newArray, copied, copyLength);
             removed++;
             copied += copyLength;
             lastIndexRemoved = item;
         }
-        System.Array.Copy(arr, copied + removed, newArray, copied, arr.Length - (copied + removed));
+        System.Array.Copy(arr, start + copied + removed, newArray, copied, length - (copied + removed));
         return new Arr<A>(newArray);
     }
 
@@ -518,13 +566,13 @@ public struct Arr<A> :
     public Arr<A> RemoveRange(int index, int count)
     {
         var arr = Value;
-        if (index < 0 || index > arr.Length) throw new IndexOutOfRangeException(nameof(index));
-        if (!(count >= 0 && index + count <= arr.Length)) throw new IndexOutOfRangeException(nameof(index));
+        if (index < 0 || index > Length) throw new IndexOutOfRangeException(nameof(index));
+        if (!(count >= 0 && index + count <= Length)) throw new IndexOutOfRangeException(nameof(index));
         if (count == 0) return this;
 
-        var newArray = new A[arr.Length - count];
-        System.Array.Copy(arr, 0, newArray, 0, index);
-        System.Array.Copy(arr, index + count, newArray, index, arr.Length - index - count);
+        var newArray = new A[length - count];
+        System.Array.Copy(arr, start, newArray, 0, index);
+        System.Array.Copy(arr, start + index + count, newArray, index, length - index - count);
         return new Arr<A>(newArray);
     }
 
@@ -537,8 +585,8 @@ public struct Arr<A> :
         var arr = Value;
         if (index < 0 || index >= arr.Length) throw new IndexOutOfRangeException(nameof(index));
 
-        var newArray = new A[Count];
-        arr.CopyTo(newArray, 0);
+        var newArray = new A[Length];
+        System.Array.Copy(arr, start, newArray, 0, length);
         newArray[index] = valueToSet;
         return new Arr<A>(newArray);
     }
@@ -593,8 +641,20 @@ public struct Arr<A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Iterable<A> Skip(int amount) =>
-        Value.Skip(amount).AsIterable();
+    public Iterable<A> Skip(int amount)
+    {
+        var s = start;
+        var e = start + length;
+        return Iterable.createRange(Go(s, e, Value));
+        static IEnumerable<A> Go(int s, int e, A[] v)
+        {
+            for (var i = s; i < e; i++)
+            {
+                yield return v[i];
+            }
+        }
+    }
+        //Value.Skip(start + amount).AsIterable();
 
     /// <summary>
     /// Reverse the order of the items in the array
@@ -610,7 +670,7 @@ public struct Arr<A> :
         var j = l - 1;
         for (; i < l; i++, j--)
         {
-            n[i] = v[j];
+            n[i] = v[j + start];
         }
         return new Arr<A>(n);
     }
@@ -636,11 +696,10 @@ public struct Arr<A> :
     public Arr<B> Map<B>(Func<A, B> map)
     {
         var arr      = Value;
-        var length   = arr.Length;
         var newArray = new B[length];
         for (var i = 0; i < length; i++)
         {
-            newArray[i] = map(arr[i]);
+            newArray[i] = map(arr[start + i]);
         }
         return new Arr<B>(newArray);
     }
@@ -727,10 +786,16 @@ public struct Arr<A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override int GetHashCode() =>
-        hashCode == 0
-            ? (hashCode = FNV32.Hash<HashableDefault<A>, A>(Value))
+    public override int GetHashCode()
+    {
+        var self = this;
+        return hashCode == 0
+            ? hashCode.Swap(_ => self.CalcHashCode())
             : hashCode;
+    }
+
+    int CalcHashCode() =>
+        FNV32.Hash<HashableDefault<A>, A>(Value, start, length);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -816,4 +881,78 @@ public struct Arr<A> :
 
     public static Arr<A> AdditiveIdentity => 
         Empty;
+    
+    static Arr<A> TokenStream<Arr<A>, A>.TokenToChunk(in A token) => 
+        Arr.singleton(token);
+
+    static Arr<A> TokenStream<Arr<A>, A>.TokensToChunk(in ReadOnlySpan<A> token) => 
+        [..token];
+
+    static ReadOnlySpan<A> TokenStream<Arr<A>, A>.ChunkToTokens(in Arr<A> tokens) => 
+        tokens.As().AsSpan();
+
+    static int TokenStream<Arr<A>, A>.ChunkLength(in Arr<A> tokens) => 
+        tokens.As().Count;
+
+    static bool TokenStream<Arr<A>, A>.Take1(in Arr<A> stream, out A head, out Arr<A> tail)
+    {
+        var s = stream.As();
+        if (s.IsEmpty)
+        {
+            head = default!;
+            tail = stream;
+            return false;
+        }
+        else
+        {
+            head = s[0];
+            tail = s.Tail;
+            return true;
+        }
+    }
+
+    static bool TokenStream<Arr<A>, A>.Take(int amount, in Arr<A> stream, out ReadOnlySpan<A> head, out Arr<A> tail)
+    {
+        var xs = new A[amount];
+        var s  = stream.As();
+        var n  = amount;
+        for (var i = 0; i < n; i++)
+        {
+            if (s.IsEmpty)
+            {
+                // Failed to read, so return empty.
+                head = ReadOnlySpan<A>.Empty;
+                tail = s;
+                return false;
+            }
+            else
+            {
+                xs[i] = s[0];
+                s = s.Tail;
+            }
+        }
+        head = xs.AsSpan(0, n);
+        tail = s;
+        return true;
+    }
+
+    static Arr<A> TokenStream<Arr<A>, A>.TakeWhile(Func<A, bool> predicate, in Arr<A> stream, out ReadOnlySpan<A> head)
+    {
+        var xs = new System.Collections.Generic.List<A>();
+        var s  = stream.As();
+        while(true)
+        {
+            if (s.IsEmpty || !predicate(s[0]))
+            {
+                // Failed to read, so return collected so far.
+                head = CollectionsMarshal.AsSpan(xs);
+                return s;
+            }
+            else
+            {
+                xs.Add(s[0]);
+                s = s.Tail;
+            }
+        }
+    }    
 }

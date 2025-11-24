@@ -11,7 +11,12 @@ namespace LanguageExt;
 internal class SeqConcat<A>(Seq<ISeqInternal<A>> ms) : ISeqInternal<A>
 {
     internal readonly Seq<ISeqInternal<A>> ms = ms;
+    
     int selfHash;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ReadOnlySpan<A> AsSpan() =>
+        Strict().AsSpan();
 
     public A this[int index]
     {

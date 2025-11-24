@@ -29,17 +29,5 @@ public interface EmptyError<E, S, in M>
     K<M, B> Invoke<B>(ParseError<S, E> error, State<S, E> state);
 }
 
-public interface UnParser<E, S, M, A>
-{
-    (Func<A, State<S, E>, Hints<S>, K<M, B>> ConsumedOK, 
-     Func<ParseError<S, E>, State<S, E>, Hints<S>, K<M, B>> ConsumedError, 
-     Func<A, State<S, E>, Hints<S>, K<M, B>> EmptyOK, 
-     Func<ParseError<S, E>, State<S, E>, Hints<S>, K<M, B>> EmptyError) Invoke<B>(State<S, E> state);
-}
 
-public record ParsecT<E, S, M, A>(UnParser<E, S, M, A> unParser) : K<ParsecT<E, S, M>, A>;
 
-public record ParsecT<E, S, M>
-{
-    
-}

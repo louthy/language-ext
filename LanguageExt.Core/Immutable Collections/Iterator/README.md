@@ -1,6 +1,6 @@
 `Iterator<A>` is a functional-wrapper for `IEnumerator<A>`.  The abstraction leaks a little, so it's worth 
-understanding how it works by reading the details below.  On the whole it behaves like an immutable stream 
-that caches values as it goes, but there's some footguns that you should be aware of so that they can be 
+understanding how it works by reading the details below.  On the whole, it behaves like an immutable stream 
+that caches values as it goes, but there are some footguns that you should be aware of so that they can be 
 avoided.
 
 ## Problem: `IEnumerator<A>`
@@ -58,6 +58,17 @@ static A Sum<A>(Iterator<A> iter) where A : INumber
     {
         total += iter.Head;
         iter = iter.Tail;
+    }
+    return total;
+}
+```
+And,
+```c#
+static A Sum<A>(Iterator<A> iter) where A : INumber
+{
+    for(var total = A.Zero; !iter.IsEmpty; iter = iter.Tail)
+    {
+        total += iter.Head;
     }
     return total;
 }
@@ -130,7 +141,7 @@ This all looks quite complex, but you should be able to see that the `Interlocke
 then-block is where the `IEnumerator` is created.  We then either set `firstValue` to a new `ConsValueEnum` with 
 the head-item and the `enumerator` as arguments; or we set it to `Nil`.  
 
-Upon success we set `firstAcquired` to `2`.  So, subsequent calls to `First` will just return `firstValue`.  This
+Upon success, we set `firstAcquired` to `2`.  So, subsequent calls to `First` will just return `firstValue`.  This
 locking technique without using locks is a way to efficiently protect the enumerator from race-conditions.
 
 So, upon first access to either `Head` or `Tail` we launch the `IEnumerator` and cache the first item in the sequence. 
@@ -214,21 +225,21 @@ to `tailValue` and `tailAcquired` gets set to `2`.  That means subsequent calls 
 That process continues for each item of the sequence until the `IEnumerator` runs out of items to yield.  The end
 result is a linked-list of `ConsValueEnum` objects that have a `ConsFirst` object at the head of the linked-list.
 
-So, `Iterator<A>` effectively caches the sequence as you go.  If you hold on to the head of the sequence then the
+So, `Iterator<A>` effectively caches the sequence as you go.  If you hold on to the head of the sequence, then the
 whole list may end up in memory at once.  This could be problematic when working with large lazy sequences or even
 infinite sequences.
 
-This for example is fine:
+This, for example, is fine:
 ```c#
 for(var iter = Naturals.GetIterator(); !iter.IsEmpty; iter = iter.Tail)
 {
     Console.WriteLine(iter.Head);
 }
 ```
-Because the `iter` reference keeps getting updated in-place, meaning that nothing is holding on to the head-item in
+Because the `iter` reference keeps getting updated, in-place, meaning that nothing is holding on to the head-item in
 the sequence, and so the garbage-collector can collect those unreferenced items.
 
-Whereas this will cause memory-usage to grow and grow:
+Whereas this (below) will cause memory-usage to grow and grow:
 ```c#
 var start = Naturals.GetIterator();
 for(var iter = start; !iter.IsEmpty; iter = iter.Tail)
@@ -251,6 +262,6 @@ This creates a new 'head' for the sequence and so `iter` is the only reference, 
 make the head elements free for garbage collection.
 
 So, `Iterator<A>` is much, much more powerful than `IEnumerator<A>`.  It is mostly useful for immutable data-types 
-that need to carry an `IEnumerator<A>`, but can't due it its limitations.  `Iterator<A>` has some limitations of its
-own, but they are relatively easy to workaround, whereas that isn't the case with `IEnumerator<A>` (without writing
+that need to carry an `IEnumerator<A>`, but can't due to its mutable-limitations.  `Iterator<A>` has some limitations of 
+its own, but they are relatively easy to work around, whereas that isn't the case with `IEnumerator<A>` (without writing
 a type like `Iterator<A>`!).

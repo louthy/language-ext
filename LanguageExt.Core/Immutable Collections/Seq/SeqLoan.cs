@@ -53,7 +53,7 @@ public class SeqLoan<A> : IDisposable
     /// Cached hash code
     /// </summary>
     int selfHash;
-
+    
     /// <summary>
     /// Constructor
     /// </summary>

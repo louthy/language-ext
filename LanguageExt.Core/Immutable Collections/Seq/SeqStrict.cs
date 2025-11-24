@@ -49,6 +49,10 @@ internal class SeqStrict<A> : ISeqInternal<A>
     /// </summary>
     int selfHash;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ReadOnlySpan<A> AsSpan() =>
+        new(data, start, count);
+
     /// <summary>
     /// Constructor
     /// </summary>

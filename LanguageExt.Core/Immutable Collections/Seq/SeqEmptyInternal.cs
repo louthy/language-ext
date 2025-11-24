@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using LanguageExt.Common;
 
 namespace LanguageExt;
@@ -8,6 +9,10 @@ namespace LanguageExt;
 internal class SeqEmptyInternal<A> : ISeqInternal<A>
 {
     public static ISeqInternal<A> Default = new SeqEmptyInternal<A>();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ReadOnlySpan<A> AsSpan() =>
+        ReadOnlySpan<A>.Empty;
 
     public A this[int index] => 
         throw new IndexOutOfRangeException();
