@@ -41,24 +41,3 @@ public readonly record struct Fail<E>(E Value)
     public Option<C> SelectMany<B, C>(Func<Unit, Option<B>> bind, Func<Unit, B, C> project) =>
         default;
 }
-
-public static class FailExtensions
-{
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Conversion
-    //
-    
-    public static Fin<A> ToFin<A>(this Fail<Error> fail) =>
-        Fin.Fail<A>(fail.Value);
-    
-    public static Validation<F, A> ToValidation<F, A>(this Fail<F> fail) 
-        where F : Monoid<F> =>
-        Validation.Fail<F, A>(fail.Value);
-    
-    public static Eff<RT, A> ToEff<RT, A>(this Fail<Error> fail) =>
-        Eff<RT, A>.Fail(fail.Value);
-    
-    public static Eff<A> ToEff<A>(this Fail<Error> fail) =>
-        Eff<A>.Fail(fail.Value);
-}

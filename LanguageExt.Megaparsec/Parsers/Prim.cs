@@ -41,12 +41,11 @@ public static class Prim<E, S, T, M>
     /// <summary>
     /// Stop parsing and report a fancy 'ParseError'. To report a single custom parse error
     /// </summary>
-    /// <param name="errors">Optional unexpected tokens</param>
-    /// <param name="expected">Expected tokens</param>
+    /// <param name="error">Custom error</param>
     /// <typeparam name="A">Value type (never yielded because this is designed to error)</typeparam>
     /// <returns>Parser</returns>
     public static K<M, A> customFailure<A>(E error) =>
-        error >> ErrorFancy.Custom >> Set.singleton >> fancyFailure<A>;
+        Pure(error) >> ErrorFancy.Custom >> Set.singleton >> fancyFailure<A> >> lower;
     
     /// <summary>
     /// The parser `unexpected(item)` fails with an error message telling

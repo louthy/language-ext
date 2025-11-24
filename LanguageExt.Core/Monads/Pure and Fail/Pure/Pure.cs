@@ -222,30 +222,3 @@ public readonly record struct Pure<A>(A Value)
     public Option<C> SelectMany<B, C>(Func<A, Option<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
 }
-
-public static class PureExtensions
-{
-    /// <summary>
-    /// Monadic join
-    /// </summary>
-    /// <param name="mma">Nested `Pure` monad</param>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <returns>Flattened monad</returns>
-    public static Pure<A> Flatten<A>(this Pure<Pure<A>> mma) =>
-        mma.Value;
-
-    public static Validation<F, B> Bind<F, A, B>(this Pure<A> ma, Func<A, Validation<F, B>> bind)
-        where F : Monoid<F> =>
-        bind(ma.Value);
-
-    public static Validation<F, A> ToValidation<F, A>(this Pure<A> ma)
-        where F : Monoid<F> =>
-        Validation.Success<F, A>(ma.Value);
-
-    public static Validation<F, C> SelectMany<F, A, B, C>(
-        this Pure<A> ma,
-        Func<A, Validation<F, B>> bind,
-        Func<A, B, C> project)
-        where F : Monoid<F> =>
-        bind(ma.Value).Map(y => project(ma.Value, y));
-}

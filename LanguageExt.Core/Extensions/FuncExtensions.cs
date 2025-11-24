@@ -43,18 +43,6 @@ public static class FuncExtensions
             x => g(f(x));        
     }
 
-    extension<A, B>(Pure<A> lhs)
-    {
-        /// <summary>
-        /// Function composition
-        /// </summary>
-        /// <param name="x">Input</param>
-        /// <param name="f">Function</param>
-        /// <returns>Result of invoking the function</returns>
-        public static B operator >>(Pure<A> x, Func<A, B> f) =>
-            f(x.Value);
-    }
-
     extension<A, B>(Func<B, A> lhs)
     {
         /// <summary>
@@ -63,8 +51,7 @@ public static class FuncExtensions
         /// <param name="f">Function</param>
         /// <param name="x">Input</param>
         /// <returns>Result of invoking the function</returns>
-        public static A operator >>(Func<B, A> f, Pure<B>  x) =>
-            f(x.Value);
+        public static Pure<A> operator >> (Func<B, A> f, Pure<B> x) =>
+            new(f(x.Value));
     }
-    
 }

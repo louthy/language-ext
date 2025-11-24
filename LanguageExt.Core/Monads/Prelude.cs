@@ -58,4 +58,14 @@ public static partial class Prelude
     /// <returns>Pure monad</returns>
     public static Fail<E> Fail<E>(E error) =>
         new(error);
+
+    /// <summary>
+    /// Extractor for types that support lowering via operators  
+    /// </summary>
+    /// <example>
+    /// For example:
+    ///
+    ///     Pure(123) >> lower == 123
+    /// </example>
+    public static readonly Lower lower = default;
 }
