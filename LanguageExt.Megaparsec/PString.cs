@@ -90,22 +90,35 @@ public readonly struct PString(string value, int start, int length) :
         }
     }
 
-    static bool TokenStream<PString, char>.Take(int amount, in PString stream, out ReadOnlySpan<char> head, out PString tail)
+    static bool TokenStream<PString, char>.Take(int amount, in PString stream, out PString head, out PString tail)
     {
-        if (amount <= stream.Length)
+        // If the requested length `amount` is 0 (or less), `false` should
+        // not be returned, instead `true` and `(out Empty, out stream)` should be returned.
+        if (amount <= 0)
         {
-            var start = stream.Start;
-            var value = stream.Value;
-            head = value.AsSpan(start, amount);
-            tail = new PString(value, start + amount, stream.Length - amount);
+            head = Empty;
+            tail = stream;
             return true;
         }
-        else
+
+        // If the requested length is greater than 0 and the stream is
+        // empty, `false` should be returned indicating end-of-input.
+        if (stream.Length <= 0)
         {
-            head = default;
+            head = Empty;
             tail = stream;
             return false;
         }
+        
+        // In other cases, take chunk of length `amount` (or shorter if the
+        // stream is not long enough) from the input stream and return the
+        // chunk along with the rest of the stream.
+        amount = Math.Min(amount, stream.Length);
+        var start = stream.Start;
+        var value = stream.Value;
+        head = new PString(value, start, amount);
+        tail = new PString(value, start + amount, stream.Length - amount);
+        return true;
     }
 
     static PString TokenStream<PString, char>.TakeWhile(

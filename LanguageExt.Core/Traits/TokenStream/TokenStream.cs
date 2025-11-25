@@ -50,7 +50,7 @@ public interface TokenStream<TOKENS, TOKEN>
     /// <param name="amount">Number of elements to take</param>
     /// <param name="stream">Stream</param>
     /// <returns>Head element taken from the stream and a Tail of remaining stream items</returns>
-    public static abstract bool Take(int amount, in TOKENS stream, out ReadOnlySpan<TOKEN> head, out TOKENS tail);
+    public static abstract bool Take(int amount, in TOKENS stream, out TOKENS head, out TOKENS tail);
     
     /// <summary>
     /// Extract chunk of the stream taking tokens while the supplied predicate returns 'True'. Return the chunk and the

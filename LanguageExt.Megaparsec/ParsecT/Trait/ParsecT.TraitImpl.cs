@@ -26,7 +26,6 @@ public class ParsecT<E, S, T, M> :
         K<ParsecT<E, S, T, M>, A> p) =>
         new ParsecTLookAhead<E, S, T, M, A>(p.As());
 
-
     static K<ParsecT<E, S, T, M>, Unit> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.NotFollowedBy<A>(
         K<ParsecT<E, S, T, M>, A> p) =>
         new ParsecTNotFollowedBy<E, S, T, M, A>(p.As());
@@ -66,7 +65,7 @@ public class ParsecT<E, S, T, M> :
     static K<ParsecT<E, S, T, M>, S> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.Take(
         Option<string> name, 
         int n) => 
-        throw new NotImplementedException();
+        new ParsecTTake<E, S, T, M>(name, n);
 
     static K<ParsecT<E, S, T, M>, State<S, T, E>> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.ParserState => 
         _parserState;
