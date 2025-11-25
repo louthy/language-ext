@@ -132,57 +132,48 @@ public readonly struct PString(string value, int start, int length) :
         int offset,
         PosState<PString> pst)
     {
-        var newpos  = pst;
-        var inital  = offset;
+        var newpos = TraversableTokenStream.reachOffsetNoLine<PString, char>(offset, pst);
         var lineText = LineText.Lift(() => pst.SourcePos.Line == newpos.SourcePos.Line
-                                               ? $"{pst.LinePrefix}{pst.Input.Substring(inital)}"
-                                               : pst.Input.Substring(inital).ToString());
+                                               ? $"{pst.LinePrefix}{pst.Input.Substring(offset)}"
+                                               : pst.Input.Substring(offset).ToString());
 
-        return (lineText, TraversableTokenStream.reachOffsetNoLine<PString, char>(offset, pst));
+        return (lineText, newpos);
     }
 
     static PosState<PString> TraversableTokenStream<PString, char>.ReachOffsetNoLine(
         int offset,
         PosState<PString> pst)
     {
-        offset = Math.Clamp(offset, 0, pst.Input.Length);
+        offset -= pst.Offset;
+        if (offset == 0) return pst;
+        var max = pst.Input.Length - pst.Offset;
+        offset = Math.Clamp(offset, 0, max);
         var current = pst.Offset;
-        var line    = pst.SourcePos.Line;
-        var column  = pst.SourcePos.Column;
-        var max     = pst.Input.Length;
+        var srcpos  = pst.SourcePos;
         var tab     = pst.TabWidth;
-        var newpos  = pst;
         
         while (offset > 0)
         {
             offset--;
             current++;
-            if (current >= max)
+            if (current >= max) break;
+            
+            switch (pst.Input[pst.Offset + current])
             {
-                newpos = pst with { Offset = current, SourcePos = pst.SourcePos with { Column = column, Line = line } };
-                return newpos;
-            }
-            else
-            {
-                switch (pst.Input[current])
-                {
-                    case '\n':
-                        column = 0;
-                        line++;
-                        break;
-                    
-                    case '\t':
-                        column += tab;
-                        break;
-                    
-                    default:
-                        column++;
-                        break;
-                }
+                case '\n':
+                    srcpos = srcpos.NextLine;
+                    break;
                 
+                case '\t':
+                    srcpos = srcpos.Next(tab);
+                    break;
+                
+                default:
+                    srcpos = srcpos.NextToken;
+                    break;
             }
         }
-        return pst with { Offset = current, SourcePos = pst.SourcePos with { Column = column, Line = line } };
+        return pst with { Offset = current, SourcePos = srcpos };
     }
 
     public bool Equals(PString other)

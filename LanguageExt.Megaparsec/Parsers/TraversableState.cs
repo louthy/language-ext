@@ -1,17 +1,19 @@
 using LanguageExt.Traits;
 
-namespace LanguageExt.Megaparsec.Parsers;
+namespace LanguageExt.Megaparsec;
 
 /// <summary>
 /// Parser state parser combinators
 /// </summary>
+/// <typeparam name="MP">This monad transformer</typeparam>
 /// <typeparam name="E">Error type</typeparam>
 /// <typeparam name="S">Stream type</typeparam>
 /// <typeparam name="T">Stream token type</typeparam>
-/// <typeparam name="M">Self</typeparam>
-public class TraversableState<E, S, T, M>
+/// <typeparam name="M">Lifted monad</typeparam>
+public class TraversableState<MP, E, S, T, M>
+    where MP : MonadParsecT<MP, E, S, T, M>
     where S : TraversableTokenStream<S, T>
-    where M : MonadParsec<E, S, T, M>
+    where M : Monad<M>
 {
     /// <summary>
     /// Return the current source position. This function /is not cheap/, do
@@ -27,9 +29,9 @@ public class TraversableState<E, S, T, M>
     /// need to get the position of the current token.
     /// </remarks>
     /// <returns>Parser</returns>
-    public static readonly K<M, SourcePos> getSourcePos =
-        from st in M.ParserState
+    public static readonly K<MP, SourcePos> getSourcePos =
+        from st in MP.ParserState
         let pst = S.ReachOffsetNoLine(st.Offset, st.PosState)
-        from _ in M.UpdateParserState(_ => st with { PosState = pst })
+        from _ in MP.UpdateParserState(_ => st with { PosState = pst })
         select pst.SourcePos;
 }

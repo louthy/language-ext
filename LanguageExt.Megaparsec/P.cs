@@ -1,3 +1,4 @@
+/*
 using LanguageExt.Traits;
 
 namespace LanguageExt.Megaparsec;
@@ -13,3 +14,4 @@ namespace LanguageExt.Megaparsec;
 public interface P<E, S, T, in M, A> : K<M, A>
     where M : MonadParsec<E, S, T, M>
     where S : TokenStream<S, T>;
+    */

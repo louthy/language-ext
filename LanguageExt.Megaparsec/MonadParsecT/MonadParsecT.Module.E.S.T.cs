@@ -1,51 +1,52 @@
-using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Megaparsec;
 
 /// <summary>
-/// MonadParsec module
+/// `MonadParsecT` module
 /// </summary>
-public static class MonadParsec
+/// <typeparam name="MP">This monad transformer type</typeparam>
+/// <typeparam name="E">Error type</typeparam>
+/// <typeparam name="S">Stream type</typeparam>
+/// <typeparam name="T">Token type</typeparam>
+/// <typeparam name="M">Lifted monad type</typeparam>
+public static partial class Module<MP, E, S, T, M>
+    where MP : MonadParsecT<MP, E, S, T, M> 
+    where M : Monad<M>
+    where S : TokenStream<S, T>
 {
     /// <summary>
     /// Stop parsing and report the `ParseError`. This is the only way to
     /// control the position of the error without manipulating the parser state
     /// manually.
     /// </summary>
-    /// <param name="error">Error</param>
-    /// <typeparam name="M">This monad type</typeparam>
     /// <typeparam name="A">Value type to parse</typeparam>
+    /// <param name="error">Error</param>
     /// <returns>Parser</returns>
-    public static K<M, A> error<M, A>(ParseError<char, Error> error)
-        where M : MonadParsec<Error, PString, char, M> =>
-        M.Error<A>(error);
+    public static K<MP, A> error<A>(ParseError<T, E> error) =>
+        MP.Error<A>(error);
 
     /// <summary>
     /// The parser `Label(name, p)` behaves as parser `p`, but whenever the
     /// parser `p` fails /without consuming any input/, it replaces names of
     /// “expected” tokens with the name `name`.
     /// </summary>
+    /// <typeparam name="A">Value type to parse</typeparam>
     /// <param name="name">Label name</param>
     /// <param name="p">Parser to label</param>
-    /// <typeparam name="M">This monad type</typeparam>
-    /// <typeparam name="A">Value type to parse</typeparam>
     /// <returns>Parser</returns>
-    public static K<M, A> label<M, A>(string name, K<M, A> p)
-        where M : MonadParsec<Error, PString, char, M> =>
-        M.Label(name, p);
+    public static K<MP, A> label<A>(string name, K<MP, A> p) =>
+        MP.Label(name, p);
 
     /// <summary>
     /// `hHidden(p)` behaves just like parser `p`, but it doesn't show any
     /// “expected” tokens in the error-message when `p` fails.
     /// </summary>
-    /// <param name="p">Parser to hide</param>
-    /// <typeparam name="M">This monad type</typeparam>
     /// <typeparam name="A">Value type to parse</typeparam>
+    /// <param name="p">Parser to hide</param>
     /// <returns>Parser</returns>
-    public static K<M, A> hidden<M, A>(K<M, A> p)
-        where M : MonadParsec<Error, PString, char, M> =>
-        M.Hidden(p);
+    public static K<MP, A> hidden<A>(K<MP, A> p) =>
+        MP.Hidden(p);
 
     /// <summary>
     /// The parser `Try(p)` behaves like the parser `p`, except that it
@@ -87,13 +88,11 @@ public static class MonadParsec
     /// does not need `Try`. However, the examples above demonstrate the idea behind 'Try' so well
     /// that it was decided to keep them. You still need to use 'Try' when your
     /// alternatives are complex, composite parsers.
-    /// <param name="p">Parser to try</param>
-    /// <typeparam name="M">This monad type</typeparam>
     /// <typeparam name="A">Value type to parse</typeparam>
+    /// <param name="p">Parser to try</param>
     /// <returns>Parser</returns>
-    public static K<M, A> @try<M, A>(K<M, A> p)
-        where M : MonadParsec<Error, PString, char, M> =>
-        M.Try(p);
+    public static K<MP, A> @try<A>(K<MP, A> p) =>
+        MP.Try(p);
 
     /// <summary>
     /// If `p` in `lookAhead(p)` succeeds (either by consuming input or not),
@@ -102,27 +101,22 @@ public static class MonadParsec
     ///  effect, i.e. it will fail consuming input if `p` fails consuming input.
     ///  Combine with `try` if this is undesirable
     /// </summary>
-    /// <param name="p">Parser to look ahead with</param>
-    /// <typeparam name="M">This monad type</typeparam>
     /// <typeparam name="A">Value type to parse</typeparam>
+    /// <param name="p">Parser to look ahead with</param>
     /// <returns>Parser</returns>
-    public static K<M, A> lookAhead<M, A>(K<M, A> p)
-        where M : MonadParsec<Error, PString, char, M> =>
-        M.LookAhead(p);
-    
+    public static K<MP, A> lookAhead<A>(K<MP, A> p) =>
+        MP.LookAhead(p);
 
     /// <summary>
     /// `notFollowedBy(p)` only succeeds when the parser `p` fails. This parser
     /// /never consumes/ any input and /never modifies/ parser state. It can be
     /// used to implement the “longest match” rule.
     /// </summary>
-    /// <param name="p">Parser to test</param>
-    /// <typeparam name="M">This monad type</typeparam>
     /// <typeparam name="A">Value type to parse</typeparam>
+    /// <param name="p">Parser to test</param>
     /// <returns>Parser</returns>
-    public static K<M, Unit> notFollowedBy<M, A>(K<M, A> p) 
-        where M : MonadParsec<Error, PString, char, M> =>
-        M.NotFollowedBy(p);
+    public static K<MP, Unit> notFollowedBy<A>(K<MP, A> p) => 
+        MP.NotFollowedBy(p);
   
     /// <summary>
     /// `withRecovery(f, p)` allows us to continue parsing even if the parser
@@ -137,22 +131,18 @@ public static class MonadParsec
     /// </summary>
     /// <param name="onError">Delegate to invoke on error</param>
     /// <param name="p">Parser to run</param>
-    /// <typeparam name="M">This monad type</typeparam>
     /// <typeparam name="A">Value type to parse</typeparam>
     /// <returns>Parser</returns>
-    public static K<M, A> withRecovery<M, A>(Func<ParseError<char, Error>, K<M, A>> onError, K<M, A> p)
-        where M : MonadParsec<Error, PString, char, M> =>
-        M.WithRecovery(onError, p);    
+    public static K<MP, A> withRecovery<A>(Func<ParseError<T, E>, K<MP, A>> onError, K<MP, A> p) =>
+        MP.WithRecovery(onError, p);
 
     /// <summary>
     /// This parser only succeeds at the end of input
     /// </summary>
-    /// <typeparam name="M">This monad type</typeparam>
     /// <returns>Parser</returns>
-    public static K<M, Unit> eof<M>()
-        where M : MonadParsec<Error, PString, char, M> =>
-        M.EOF;
-
+    public static readonly K<MP, Unit> eof =
+        MP.EOF;
+    
     /// <summary>
     /// `observing(p)` allows us to “observe” failure of the `p` parser,
     /// should it happen, without actually ending parsing but instead getting
@@ -161,13 +151,11 @@ public static class MonadParsec
     /// parse errors as they happen, it does not backtrack or change how the
     /// `p` parser works in any way.
     /// </summary>
-    /// <typeparam name="M">This monad type</typeparam>
     /// <typeparam name="A">Parser value type</typeparam>
     /// <param name="p">Parser</param>
     /// <returns>Parser</returns>
-    public static K<M, Either<ParseError<char, Error>, A>> observing<M, A>(K<M, A> p)
-        where M : MonadParsec<Error, PString, char, M> =>
-        M.Observing(p);
+    public static K<MP, Either<ParseError<T, E>, A>> observing<A>(K<MP, A> p) =>
+        MP.Observing(p);
     
     /// <summary>
     /// The parser `token(test, expected)` accepts tokens for which the
@@ -175,14 +163,12 @@ public static class MonadParsec
     /// returned, the `expected` set is used to report the items that were
     /// expected.
     /// </summary>
+    /// <typeparam name="A">Value type to parse</typeparam>
     /// <param name="test">Token predicate test function</param>
     /// <param name="expected">Expected items</param>
-    /// <typeparam name="M">This monad type</typeparam>
-    /// <typeparam name="A">Value type to parse</typeparam>
     /// <returns>Token parser</returns>
-    public static K<M, A> token<M, A>(Func<char, Option<A>> test, in Set<ErrorItem<char>> expected) 
-        where M : MonadParsec<Error, PString, char, M> =>
-        M.Token(test, expected);
+    public static K<MP, A> token<A>(Func<T, Option<A>> test, in Set<ErrorItem<T>> expected) => 
+        MP.Token(test, expected);
     
     /// <summary>
     /// The parser `tokens(test, chunk)` parses a chunk of input and returns it.
@@ -211,9 +197,8 @@ public static class MonadParsec
     /// test, the second argument is the reference chunk.</param>
     /// <param name="chunk">Reference chunk</param>
     /// <returns>Parsed chunk</returns>
-    public static K<M, PString> tokens<M>(Func<PString, PString, bool> test, PString chunk)
-        where M : MonadParsec<Error, PString, char, M> =>
-        M.Tokens(test, chunk);    
+    public static K<MP, S> tokens(Func<S, S, bool> test, S chunk) =>
+        MP.Tokens(test, chunk);
     
     /// <summary>
     /// Parse zero or more tokens for which the supplied predicate holds.
@@ -228,9 +213,8 @@ public static class MonadParsec
     /// <param name="name">Name for a single token in the row</param>
     /// <param name="test">Predicate to use to test tokens</param>
     /// <returns>A chunk of matching tokens</returns>
-    public static K<M, PString> takeWhile<M>(Option<string> name, Func<char, bool> test)
-        where M : MonadParsec<Error, PString, char, M> =>
-        M.TakeWhile(name, test);    
+    public static K<MP, S> takeWhile(Option<string> name, Func<T, bool> test) =>
+        MP.TakeWhile(name, test);
     
     /// <summary>
     /// Parse one or more tokens for which the supplied predicate holds.
@@ -244,12 +228,9 @@ public static class MonadParsec
     /// </summary>
     /// <param name="name">Name for a single token in the row</param>
     /// <param name="test">Predicate to use to test tokens</param>
-    /// <typeparam name="M">This monad type</typeparam>
-    /// <typeparam name="A">Value type to parse</typeparam>
     /// <returns>A chunk of matching tokens</returns>
-    public static K<M, PString> takeWhile1<M>(Option<string> name, Func<char, bool> test)
-        where M : MonadParsec<Error, PString, char, M> =>
-        M.TakeWhile1(name, test);
+    public static K<MP, S> takeWhile1(Option<string> name, Func<T, bool> test) =>
+        MP.TakeWhile1(name, test);
 
     /// <summary>
     /// Extract the specified number of tokens from the input stream and
@@ -269,37 +250,30 @@ public static class MonadParsec
     /// <param name="name">Name for a single token in the row</param>
     /// <param name="n">How many tokens to extract</param>
     /// <returns>A chunk of matching tokens</returns>
-    public static K<M, PString> take<M>(Option<string> name, int n) 
-        where M : MonadParsec<Error, PString, char, M> =>
-        M.Take(name, n);
+    public static K<MP, S> take(Option<string> name, int n) => 
+        MP.Take(name, n);
 
     /// <summary>
     /// Return the full parser state as a `State` record
     /// </summary>
-    /// <typeparam name="M">This monad type</typeparam>
     /// <returns>Parser</returns>
-    public static K<M, State<PString, char, Error>> getParserState<M>()
-        where M : MonadParsec<Error, PString, char, M> =>
-        M.ParserState;
+    public static readonly K<MP, State<S, T, E>> parserState =
+        MP.ParserState;
 
     /// <summary>
     /// Update the parser state using the supplied function
     /// </summary>
-    /// <typeparam name="M">This monad type</typeparam>
     /// <param name="f">Update function</param>
     /// <returns>Parser</returns>
-    public static K<M, Unit> updateParserState<M>(Func<State<PString, char, Error>, State<PString, char, Error>> f)
-        where M : MonadParsec<Error, PString, char, M> =>
-        M.UpdateParserState(f);
+    public static K<MP, Unit> updateParserState(Func<State<S, T, E>, State<S, T, E>> f) =>
+        MP.UpdateParserState(f);
 
     /// <summary>
     /// An escape hatch for defining custom 'MonadParsec' primitives
     /// </summary>
-    /// <typeparam name="M">This monad type</typeparam>
     /// <typeparam name="A">Parser value type</typeparam>
     /// <param name="f">Parsing function to lift</param>
     /// <returns>Parser</returns>
-    public static K<M, A> lift<M, A>(Func<State<PString, char, Error>, Reply<Error, PString, A>> f)
-        where M : MonadParsec<Error, PString, char, M> =>
-        M.Lift(f);    
+    public static K<MP, A> lift<A>(Func<State<S, T, E>, Reply<E, S, A>> f) =>
+        MP.Lift(f);
 }
