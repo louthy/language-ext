@@ -19,10 +19,10 @@ namespace LanguageExt.Megaparsec;
 /// <typeparam name="T">Token type</typeparam>
 /// <typeparam name="M">Lifted monad</typeparam>
 public interface MonadParsecT<MP, E, S, T, M> : 
-    Monad<MP>, 
+    MonadT<MP, M>,
     Alternative<MP>, 
     Identifiable<MP, string>,
-    Fallible<E, MP> 
+    Fallible<ParseError<T, E>, MP> 
     where MP : MonadParsecT<MP, E, S, T, M>
     where M : Monad<M>
     where S : TokenStream<S, T>

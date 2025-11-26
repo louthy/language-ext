@@ -5,7 +5,8 @@ using static LanguageExt.Prelude;
 namespace LanguageExt.Megaparsec;
 
 public class ParsecT<E, S, T, M> : 
-    MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>
+    MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>,
+    MonadIO<ParsecT<E, S, T, M>>
     where M : Monad<M>
     where S : TokenStream<S, T>
 {
@@ -126,12 +127,18 @@ public class ParsecT<E, S, T, M> :
     static K<ParsecT<E, S, T, M>, A> MonoidK<ParsecT<E, S, T, M>>.Empty<A>() => 
         ParsecTEmpty<E, S, T, M, A>.Default;
 
-    static K<ParsecT<E, S, T, M>, A> Fallible<E, ParsecT<E, S, T, M>>.Fail<A>(E error) =>
-        DSL<E, S, T, M>.fail<A>(error);
+    static K<ParsecT<E, S, T, M>, A> Fallible<ParseError<T, E>, ParsecT<E, S, T, M>>.Fail<A>(ParseError<T, E> error) =>
+        DSL<E, S, T, M>.error<A>(error);
 
-    static K<ParsecT<E, S, T, M>, A> Fallible<E, ParsecT<E, S, T, M>>.Catch<A>(
-        K<ParsecT<E, S, T, M>, A> fa, 
-        Func<E, bool> Predicate, 
-        Func<E, K<ParsecT<E, S, T, M>, A>> Fail) => 
-        throw new NotImplementedException();
+    static K<ParsecT<E, S, T, M>, A> Fallible<ParseError<T, E>, ParsecT<E, S, T, M>>.Catch<A>(
+        K<ParsecT<E, S, T, M>, A> fa,
+        Func<ParseError<T, E>, bool> predicate,
+        Func<ParseError<T, E>, K<ParsecT<E, S, T, M>, A>> fail) =>
+        DSL<E, S, T, M>.@catch(fa, predicate, fail);
+
+    static K<ParsecT<E, S, T, M>, A> MonadIO<ParsecT<E, S, T, M>>.LiftIO<A>(IO<A> ma) =>
+        DSL<E, S, T, M>.liftIO(ma);
+
+    static K<ParsecT<E, S, T, M>, A> MonadT<ParsecT<E, S, T, M>, M>.Lift<A>(K<M, A> ma) =>
+        DSL<E, S, T, M>.liftM(ma);
 }

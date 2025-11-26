@@ -97,6 +97,14 @@ static class DSL<E, S, T, M>
         new ParsecTLift<E, S, T, M, A>(f);
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ParsecT<E, S, T, M, A> liftM<A>(K<M, A> ma) =>
+        new ParsecTMTransLift<E, S, T, M, A>(ma);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ParsecT<E, S, T, M, A> liftIO<A>(IO<A> ma) =>
+        new ParsecTMTransLiftIO<E, S, T, M, A>(ma);
+        
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ParsecT<E, S, T, M, B> map<A, B>(
         ParsecT<E, S, T, M, A> p, 
         Func<A, B> f) =>
@@ -125,6 +133,13 @@ static class DSL<E, S, T, M>
         K<ParsecT<E, S, T, M>, A> m, 
         Func<K<ParsecT<E, S, T, M>, A>> n) =>
         new ParsecTChooseLazy<E, S, T, M, A>(m.As(), n);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ParsecT<E, S, T, M, A> @catch<A>(
+        K<ParsecT<E, S, T, M>, A> fa,
+        Func<ParseError<T, E>, bool> predicate, 
+        Func<ParseError<T, E>, K<ParsecT<E, S, T, M>, A>> fail) =>
+        new ParsecTCatch<E, S, T, M, A>(fa.As(), predicate, fail);
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ParsecT<E, S, T, M, A> fail<A>(string message) =>
