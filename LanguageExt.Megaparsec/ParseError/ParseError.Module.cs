@@ -15,6 +15,13 @@ public static class ParseError
         new ParseError<T, E>.Trivial(offset, unexpected, Set.singleton(expected));
 
     public static ParseError<T, E> Trivial<T, E>(
+        int offset,
+        Option<ErrorItem<T>> unexpected,
+        Option<ErrorItem<T>> expected) =>
+        new ParseError<T, E>.Trivial(offset, unexpected,
+                                     expected.IsSome ? Set.singleton((ErrorItem<T>)expected) : default);
+
+    public static ParseError<T, E> Trivial<T, E>(
         int offset, 
         Option<ErrorItem<T>> unexpected) =>
         new ParseError<T, E>.Trivial(offset, unexpected, default);

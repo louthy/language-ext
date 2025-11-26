@@ -7,8 +7,15 @@ public class ErrorItem : Functor<ErrorItem>
     public static ErrorItem<T> Token<T>(T token) => 
         new ErrorItem<T>.Tokens([token]);
     
-    public static ErrorItem<T> Tokens<T>(Seq<T> tokens) => 
+    public static ErrorItem<T> Tokens<T>(in Seq<T> tokens) => 
         new ErrorItem<T>.Tokens(tokens);
+    
+    public static ErrorItem<T> Tokens<T>(in ReadOnlySpan<T> tokens) => 
+        new ErrorItem<T>.Tokens([..tokens]);
+    
+    public static ErrorItem<T> Tokens<S, T>(in S tokens)
+        where S : TokenStream<S, T> => 
+        Tokens(S.ChunkToTokens(tokens));
     
     public static ErrorItem<T> Label<T>(string label) => 
         new ErrorItem<T>.Label(label);

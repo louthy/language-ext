@@ -3,7 +3,7 @@ using LanguageExt.UnsafeValueAccess;
 
 namespace LanguageExt.Megaparsec.DSL;
 
-record ParsecTTake<E, S, T, M>(Option<string> Name, int Amount) : 
+record ParsecTTake<E, S, T, M>(in Option<string> Name, int Amount) : 
     ParsecT<E, S, T, M, S>
     where M : Monad<M>
     where S : TokenStream<S, T>

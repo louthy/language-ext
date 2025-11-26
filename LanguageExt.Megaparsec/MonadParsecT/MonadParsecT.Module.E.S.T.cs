@@ -274,6 +274,6 @@ public static partial class Module<MP, E, S, T, M>
     /// <typeparam name="A">Parser value type</typeparam>
     /// <param name="f">Parsing function to lift</param>
     /// <returns>Parser</returns>
-    public static K<MP, A> lift<A>(Func<State<S, T, E>, Reply<E, S, A>> f) =>
+    public static K<MP, A> lift<A>(Func<State<S, T, E>, Reply<E, S, T, A>> f) =>
         MP.Lift(f);
 }

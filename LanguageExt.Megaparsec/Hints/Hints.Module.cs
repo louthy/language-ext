@@ -9,6 +9,12 @@ public static class Hints
         Hints<T>.Empty;
     
     /// <summary>
+    /// No hints
+    /// </summary>
+    public static Hints<T> singleton<T>(ErrorItem<T> value) => 
+        new ([value]);
+    
+    /// <summary>
     /// Convert a `ParseError` record into 'Hints'.
     /// </summary>
     /// <param name="streamPos"></param>

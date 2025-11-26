@@ -121,10 +121,11 @@ public readonly struct PString(string value, int start, int length) :
         return true;
     }
 
-    static PString TokenStream<PString, char>.TakeWhile(
+    static void TokenStream<PString, char>.TakeWhile(
         Func<char, bool> predicate, 
         in PString stream,
-        out ReadOnlySpan<char> head)
+        out PString head,
+        out PString tail)
     {
         var value  = stream.Value;
         var start  = stream.Start;
@@ -137,8 +138,8 @@ public readonly struct PString(string value, int start, int length) :
             end++;
             count++;
         }
-        head = value.AsSpan(start, count);
-        return new PString(value, end, length - count);
+        head = new PString(value, start, count);
+        tail = new PString(value, end, length - count);
     }
 
     static (Option<LineText> Line, PosState<PString> Updated) TraversableTokenStream<PString, char>.ReachOffset(

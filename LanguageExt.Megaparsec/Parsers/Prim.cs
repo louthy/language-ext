@@ -44,7 +44,7 @@ public static partial class Module<MP, E, S, T, M>
     /// <typeparam name="A">Value type (never yielded because this is designed to error)</typeparam>
     /// <returns>Parser</returns>
     public static K<MP, A> customFailure<A>(E error) =>
-        Pure(error) >> ErrorFancy.Custom >> Set.singleton >> fancyFailure<A> >> lower;
+        Pure(error) >> ErrorFancy.Custom >> Set.singleton >> (fancyFailure<A>) >> lower;
 
     /// <summary>
     /// The parser `unexpected(item)` fails with an error message telling

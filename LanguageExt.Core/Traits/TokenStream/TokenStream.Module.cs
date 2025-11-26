@@ -34,6 +34,13 @@ public class TokenStream
         S.ChunkLength(tokens);
 
     /// <summary>
+    /// Is the chunk empty?
+    /// </summary>
+    public static bool chunkEmpty<S, A>(in S tokens)
+        where S : TokenStream<S, A> =>
+        S.ChunkLength(tokens) <= 0;
+
+    /// <summary>
     /// Take the first element of the stream if it exists.
     /// </summary>
     /// <param name="stream">Stream</param>
@@ -56,7 +63,7 @@ public class TokenStream
     /// <param name="amount">Number of elements to take</param>
     /// <param name="stream">Stream</param>
     /// <returns>Head element taken from the stream and a Tail of remaining stream items</returns>
-    public static bool take<S, A>(int amount, in S stream, out ReadOnlySpan<A> head, out S tail)
+    public static bool take<S, A>(int amount, in S stream, out S head, out S tail)
         where S : TokenStream<S, A> =>
         S.Take(amount, stream, out head, out tail);
     
@@ -70,7 +77,7 @@ public class TokenStream
     /// <param name="predicate">Token testing predicate</param>
     /// <param name="stream">Stream to read from</param>
     /// <returns></returns>
-    public static S takeWhile<S, A>(Func<A, bool> predicate, in S stream, out ReadOnlySpan<A> head) 
+    public static void takeWhile<S, A>(Func<A, bool> predicate, in S stream, out S head, out S tail) 
         where S : TokenStream<S, A> =>
-        S.TakeWhile(predicate, stream, out head); 
+        S.TakeWhile(predicate, stream, out head, out tail); 
 }

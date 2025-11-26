@@ -4,12 +4,12 @@ namespace LanguageExt.Megaparsec;
 
 public static class ReplyExtensions
 {
-    extension<E, S, A>(K<Reply<E, S>, A> self)
+    extension<E, S, T, A>(K<Reply<E, S, T>, A> self)
     {
-        public Reply<E, S, A> As() =>
-            (Reply<E, S, A>)self;
+        public Reply<E, S, T, A> As() =>
+            (Reply<E, S, T, A>)self;
 
-        public static Reply<E, S, A> operator +(K<Reply<E, S>, A> ma) =>
+        public static Reply<E, S, T, A> operator +(K<Reply<E, S, T>, A> ma) =>
             ma.As();
     }
 }

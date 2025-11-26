@@ -196,7 +196,7 @@ public interface MonadParsecT<MP, E, S, T, M> : Monad<MP>, Alternative<MP>, Iden
     /// test, the second argument is the reference chunk.</param>
     /// <param name="chunk">Reference chunk</param>
     /// <returns>Parsed chunk</returns>
-    public static abstract K<MP, S> Tokens(Func<S, S, bool> test, S chunk);
+    public static abstract K<MP, S> Tokens(Func<S, S, bool> test, in S chunk);
 
     /// <summary>
     /// Parse zero or more tokens for which the supplied predicate holds.
@@ -211,7 +211,7 @@ public interface MonadParsecT<MP, E, S, T, M> : Monad<MP>, Alternative<MP>, Iden
     /// <param name="name">Name for a single token in the row</param>
     /// <param name="test">Predicate to use to test tokens</param>
     /// <returns>A chunk of matching tokens</returns>
-    public static abstract K<MP, S> TakeWhile(Option<string> name, Func<T, bool> test);
+    public static abstract K<MP, S> TakeWhile(in Option<string> name, Func<T, bool> test);
 
     /// <summary>
     /// Parse one or more tokens for which the supplied predicate holds.
@@ -226,7 +226,7 @@ public interface MonadParsecT<MP, E, S, T, M> : Monad<MP>, Alternative<MP>, Iden
     /// <param name="name">Name for a single token in the row</param>
     /// <param name="test">Predicate to use to test tokens</param>
     /// <returns>A chunk of matching tokens</returns>
-    public static abstract K<MP, S> TakeWhile1(Option<string> name, Func<T, bool> test);
+    public static abstract K<MP, S> TakeWhile1(in Option<string> name, Func<T, bool> test);
 
     /// <summary>
     /// Extract the specified number of tokens from the input stream and
@@ -246,7 +246,7 @@ public interface MonadParsecT<MP, E, S, T, M> : Monad<MP>, Alternative<MP>, Iden
     /// <param name="name">Name for a single token in the row</param>
     /// <param name="n">How many tokens to extract</param>
     /// <returns>A chunk of matching tokens</returns>
-    public static abstract K<MP, S> Take(Option<string> name, int n);
+    public static abstract K<MP, S> Take(in Option<string> name, int n);
 
     /// <summary>
     /// Return the full parser state as a `State` record
@@ -267,5 +267,5 @@ public interface MonadParsecT<MP, E, S, T, M> : Monad<MP>, Alternative<MP>, Iden
     /// <param name="f">Parsing function to lift</param>
     /// <typeparam name="A">Parser value type</typeparam>
     /// <returns>Parser</returns>
-    public static abstract K<MP, A> Lift<A>(Func<State<S, T, E>, Reply<E, S, A>> f);
+    public static abstract K<MP, A> Lift<A>(Func<State<S, T, E>, Reply<E, S, T, A>> f);
 }

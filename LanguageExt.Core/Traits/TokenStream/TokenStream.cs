@@ -62,5 +62,5 @@ public interface TokenStream<TOKENS, TOKEN>
     /// <param name="predicate">Token testing predicate</param>
     /// <param name="stream">Stream to read from</param>
     /// <returns></returns>
-    public static abstract TOKENS TakeWhile(Func<TOKEN, bool> predicate, in TOKENS stream, out ReadOnlySpan<TOKEN> head);
+    public static abstract void TakeWhile(Func<TOKEN, bool> predicate, in TOKENS stream, out TOKENS head, out TOKENS tail);
 }

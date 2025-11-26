@@ -1,4 +1,5 @@
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Megaparsec;
 
@@ -22,11 +23,27 @@ public abstract record ParseError<T, E>(int Offset)
     /// and expected tokens.
     /// </summary>
     public record Trivial(int Offset, Option<ErrorItem<T>> Unexpected, Set<ErrorItem<T>> Expected)
-        : ParseError<T, E>(Offset);
+        : ParseError<T, E>(Offset)
+    {
+        public override Func<State<S, T, E>, K<M, B>> WithHints<S, M, B>(
+            Hints<T> hs, 
+            Func<ParseError<T, E>, State<S, T, E>, K<M, B>> f) => 
+            curry(f)(ParseError.Trivial<T, E>(Offset, Unexpected, Expected + hs.Errors));
+    }
 
     /// <summary>
     /// Fancy, custom errors.
     /// </summary>
     public record Fancy(int Offset, Set<ErrorFancy<E>> Errors)
-        : ParseError<T, E>(Offset);
+        : ParseError<T, E>(Offset)
+    {
+        public override Func<State<S, T, E>, K<M, B>> WithHints<S, M, B>(
+            Hints<T> hs, 
+            Func<ParseError<T, E>, State<S, T, E>, K<M, B>> f) => 
+            curry(f)(this);
+    }
+
+    public abstract Func<State<S, T, E>, K<M, B>> WithHints<S, M, B>(
+        Hints<T> hs, 
+        Func<ParseError<T, E>, State<S, T, E>, K<M, B>> f);
 }

@@ -11,86 +11,86 @@ public class ParsecT<E, S, T, M> :
 {
     static K<ParsecT<E, S, T, M>, A> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.Error<A>(
         ParseError<T, E> error) =>
-        new ParsecTError<E, S, T, M, A>(error);
+        DSL<E, S, T, M>.error<A>(error);
 
     static K<ParsecT<E, S, T, M>, A> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.Label<A>(
         string name,
         K<ParsecT<E, S, T, M>, A> p) =>
-        new ParsecTLabel<E, S, T, M, A>(name, p.As());
+        DSL<E, S, T, M>.label(name, p);
 
     static K<ParsecT<E, S, T, M>, A> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.Try<A>(
         K<ParsecT<E, S, T, M>, A> p) =>
-        new ParsecTTry<E, S, T, M, A>(p.As());
+        DSL<E, S, T, M>.@try(p);
 
     static K<ParsecT<E, S, T, M>, A> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.LookAhead<A>(
         K<ParsecT<E, S, T, M>, A> p) =>
-        new ParsecTLookAhead<E, S, T, M, A>(p.As());
+        DSL<E, S, T, M>.lookAhead(p);
 
     static K<ParsecT<E, S, T, M>, Unit> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.NotFollowedBy<A>(
         K<ParsecT<E, S, T, M>, A> p) =>
-        new ParsecTNotFollowedBy<E, S, T, M, A>(p.As());
+        DSL<E, S, T, M>.notFollowedBy(p);
 
     static K<ParsecT<E, S, T, M>, A> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.WithRecovery<A>(
         Func<ParseError<T, E>, K<ParsecT<E, S, T, M>, A>> onError, 
         K<ParsecT<E, S, T, M>, A> p) => 
-        new ParsecTWithRecovery<E, S, T, M, A>(onError, p.As());
+        DSL<E, S, T, M>.withRecovery(onError, p);
 
     static K<ParsecT<E, S, T, M>, Unit> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.EOF => 
-        ParsecTEOF<E, S, T, M>.Default;
+        DSL<E, S, T, M>.eof;
 
     static K<ParsecT<E, S, T, M>, Either<ParseError<T, E>, A>> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.Observing<A>(
         K<ParsecT<E, S, T, M>, A> p) => 
-        throw new NotImplementedException();
+        DSL<E, S, T, M>.observing(p);
 
     static K<ParsecT<E, S, T, M>, A> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.Token<A>(
         Func<T, Option<A>> test, 
         in Set<ErrorItem<T>> expected) => 
-        throw new NotImplementedException();
+        DSL<E, S, T, M>.token(test, expected);
 
     static K<ParsecT<E, S, T, M>, S> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.Tokens(
         Func<S, S, bool> test, 
-        S chunk) => 
-        throw new NotImplementedException();
+        in S chunk) => 
+        DSL<E, S, T, M>.tokens(test, chunk);
 
     static K<ParsecT<E, S, T, M>, S> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.TakeWhile(
-        Option<string> name, 
+        in Option<string> name, 
         Func<T, bool> test) => 
-        throw new NotImplementedException();
+        DSL<E, S, T, M>.takeWhile(name, test);
 
     static K<ParsecT<E, S, T, M>, S> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.TakeWhile1(
-        Option<string> name, 
+        in Option<string> name, 
         Func<T, bool> test) => 
-        throw new NotImplementedException();
+        DSL<E, S, T, M>.takeWhile1(name, test);
 
     static K<ParsecT<E, S, T, M>, S> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.Take(
-        Option<string> name, 
+        in Option<string> name, 
         int n) => 
-        new ParsecTTake<E, S, T, M>(name, n);
+        DSL<E, S, T, M>.take(name, n);
 
     static K<ParsecT<E, S, T, M>, State<S, T, E>> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.ParserState => 
-        _parserState;
+        DSL<E, S, T, M>.parserState;
 
     static K<ParsecT<E, S, T, M>, Unit> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.UpdateParserState(
         Func<State<S, T, E>, State<S, T, E>> f) => 
-        throw new NotImplementedException();
+        DSL<E, S, T, M>.updateParserState(f);
 
     static K<ParsecT<E, S, T, M>, A> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.Lift<A>(
-        Func<State<S, T, E>, Reply<E, S, A>> f) => 
-        throw new NotImplementedException();
+        Func<State<S, T, E>, Reply<E, S, T, A>> f) =>
+        DSL<E, S, T, M>.lift(f);
 
     static K<ParsecT<E, S, T, M>, A> Identifiable<ParsecT<E, S, T, M>, string>.Identify<A>(
-        K<ParsecT<E, S, T, M>, A> fa, 
-        Label<string> label) => 
-        throw new NotImplementedException();
+        K<ParsecT<E, S, T, M>, A> fa,
+        Label<string> label) =>
+        DSL<E, S, T, M>.label(label.Value, fa);
 
     static K<ParsecT<E, S, T, M>, B> Functor<ParsecT<E, S, T, M>>.Map<A, B>(
         Func<A, B> f, 
         K<ParsecT<E, S, T, M>, A> ma) => 
-        throw new NotImplementedException();
+        DSL<E, S, T, M>.map(ma.As(), f);
 
     static K<ParsecT<E, S, T, M>, A> Applicative<ParsecT<E, S, T, M>>.Pure<A>(
         A value) => 
-        throw new NotImplementedException();
+        new ParsecTPure<E, S, T, M, A>(value);
 
     static K<ParsecT<E, S, T, M>, B> Applicative<ParsecT<E, S, T, M>>.Apply<A, B>(
         K<ParsecT<E, S, T, M>, Func<A, B>> mf, 
