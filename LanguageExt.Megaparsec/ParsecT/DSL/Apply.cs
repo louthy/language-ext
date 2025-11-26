@@ -1,5 +1,4 @@
 using LanguageExt.Traits;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Megaparsec.DSL;
 

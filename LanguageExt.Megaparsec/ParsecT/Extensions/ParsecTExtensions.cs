@@ -4,7 +4,9 @@ namespace LanguageExt.Megaparsec;
 
 public static class ParsecTExtensions
 {
-    extension<E, S, T, M, A>(K<ParsecT<E, S, T, M>, A> self) where S : TokenStream<S, T> where M : Monad<M>
+    extension<E, S, T, M, A>(K<ParsecT<E, S, T, M>, A> self) 
+        where S : TokenStream<S, T> 
+        where M : Monad<M>
     {
         /// <summary>
         /// Downcast operator

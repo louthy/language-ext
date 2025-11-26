@@ -93,14 +93,14 @@ public class ParsecT<E, S, T, M> :
         new ParsecTPure<E, S, T, M, A>(value);
 
     static K<ParsecT<E, S, T, M>, B> Applicative<ParsecT<E, S, T, M>>.Apply<A, B>(
-        K<ParsecT<E, S, T, M>, Func<A, B>> mf, 
-        K<ParsecT<E, S, T, M>, A> ma) => 
-        throw new NotImplementedException();
+        K<ParsecT<E, S, T, M>, Func<A, B>> mf,
+        K<ParsecT<E, S, T, M>, A> ma) =>
+        DSL<E, S, T, M>.apply(mf.As(), ma.As());
 
     static K<ParsecT<E, S, T, M>, B> Monad<ParsecT<E, S, T, M>>.Bind<A, B>(
         K<ParsecT<E, S, T, M>, A> ma, 
         Func<A, K<ParsecT<E, S, T, M>, B>> f) => 
-        throw new NotImplementedException();
+        DSL<E, S, T, M>.bind(ma, f);
 
     static K<ParsecT<E, S, T, M>, A> Choice<ParsecT<E, S, T, M>>.Choose<A>(
         K<ParsecT<E, S, T, M>, A> fa, 
