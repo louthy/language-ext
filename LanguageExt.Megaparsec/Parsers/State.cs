@@ -15,7 +15,7 @@ public static partial class Module<MP, E, S, T, M>
     /// <summary>
     /// Return the current input
     /// </summary>
-    public static readonly K<MP, S> input =
+    public static readonly K<MP, S> getInput =
         (s => s.Input) * MP.ParserState;
 
     /// <summary>
@@ -30,7 +30,7 @@ public static partial class Module<MP, E, S, T, M>
     /// Get the number of tokens processed so far.
     /// </summary>
     /// <returns>Parser</returns>
-    public static readonly K<MP, int> offset =
+    public static readonly K<MP, int> getOffset =
         (x => x.Offset) * MP.ParserState;
 
     /// <summary>

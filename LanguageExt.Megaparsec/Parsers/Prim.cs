@@ -21,7 +21,7 @@ public static partial class Module<MP, E, S, T, M>
     /// <typeparam name="A">Value type (never yielded because this is designed to error)</typeparam>
     /// <returns>Parser</returns>
     public static K<MP, A> failure<A>(Option<ErrorItem<T>> unexpected, Set<ErrorItem<T>> expected) =>
-        from o in offset
+        from o in getOffset
         from r in error<A>(ParseError.Trivial<T, E>(o, unexpected, expected))
         select r;
 
@@ -33,7 +33,7 @@ public static partial class Module<MP, E, S, T, M>
     /// <typeparam name="A">Value type (never yielded because this is designed to error)</typeparam>
     /// <returns>Parser</returns>
     public static K<MP, A> fancyFailure<A>(Set<ErrorFancy<E>> errors) =>
-        from o in offset
+        from o in getOffset
         from r in error<A>(ParseError.Fancy<T, E>(o, errors))
         select r;
 
