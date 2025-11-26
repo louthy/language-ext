@@ -13,10 +13,10 @@ namespace LanguageExt.Megaparsec;
 /// <typeparam name="S">Stream type</typeparam>
 /// <typeparam name="T">Token type</typeparam>
 /// <typeparam name="A">Value type</typeparam>
-public readonly record struct Reply<E, S, T, A>(State<S, T, E> NewState, bool Consumed, Result<S, E, A> Result)
+public readonly record struct Reply<E, S, T, A>(State<S, T, E> NewState, bool Consumed, Result<T, E, A> Result)
     : K<Reply<E, S, T>, A>
 {
-    public Reply(State<S, T, E> NewState, bool Consumed, K<Result<S, E>, A> Result) :
+    public Reply(State<S, T, E> NewState, bool Consumed, K<Result<T, E>, A> Result) :
         this(NewState, Consumed, +Result)
     { }
 }
