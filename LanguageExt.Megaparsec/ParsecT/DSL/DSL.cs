@@ -113,4 +113,24 @@ static class DSL<E, S, T, M>
         K<ParsecT<E, S, T, M>, A> ma, 
         Func<A, K<ParsecT<E, S, T, M>, B>> f) =>
         new ParsecTBind<E, S, T, M, A, B>(ma.As(), f);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ParsecT<E, S, T, M, A> choose<A>(
+        K<ParsecT<E, S, T, M>, A> m, 
+        K<ParsecT<E, S, T, M>, A> n) =>
+        new ParsecTChoose<E, S, T, M, A>(m.As(), n.As());
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ParsecT<E, S, T, M, A> choose<A>(
+        K<ParsecT<E, S, T, M>, A> m, 
+        Func<K<ParsecT<E, S, T, M>, A>> n) =>
+        new ParsecTChooseLazy<E, S, T, M, A>(m.As(), n);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ParsecT<E, S, T, M, A> fail<A>(string message) =>
+        new ParsecTFail1<E, S, T, M, A>(message);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ParsecT<E, S, T, M, A> fail<A>(E error) =>
+        new ParsecTFail2<E, S, T, M, A>(error);    
 }

@@ -11,7 +11,7 @@ public abstract record ErrorItem<T> : K<ErrorItem, T>, IComparable<ErrorItem<T>>
 {
     public ErrorItem<U> Map<U>(Func<T, U> f) =>
         this.Kind().Map(f).As();
-    
+
     public ErrorItem<U> Select<U>(Func<T, U> f) =>
         this.Kind().Map(f).As();
 
@@ -48,4 +48,16 @@ public abstract record ErrorItem<T> : K<ErrorItem, T>, IComparable<ErrorItem<T>>
     }
 
     public abstract int CompareTo(ErrorItem<T>? other);
+
+    public static bool operator >(ErrorItem<T> l, ErrorItem<T> r) =>
+        l.CompareTo(r) > 0;
+
+    public static bool operator >=(ErrorItem<T> l, ErrorItem<T> r) =>
+        l.CompareTo(r) >= 0;
+
+    public static bool operator <(ErrorItem<T> l, ErrorItem<T> r) =>
+        l.CompareTo(r) < 0;
+
+    public static bool operator <=(ErrorItem<T> l, ErrorItem<T> r) =>
+        l.CompareTo(r) <= 0;
 }

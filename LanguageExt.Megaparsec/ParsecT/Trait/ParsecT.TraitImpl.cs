@@ -105,18 +105,33 @@ public class ParsecT<E, S, T, M> :
     static K<ParsecT<E, S, T, M>, A> Choice<ParsecT<E, S, T, M>>.Choose<A>(
         K<ParsecT<E, S, T, M>, A> fa, 
         K<ParsecT<E, S, T, M>, A> fb) => 
-        throw new NotImplementedException();
+        DSL<E, S, T, M>.choose(fa, fb);
 
     static K<ParsecT<E, S, T, M>, A> Choice<ParsecT<E, S, T, M>>.Choose<A>(
-        K<ParsecT<E, S, T, M>, A> fa, 
-        Func<K<ParsecT<E, S, T, M>, A>> fb) => 
-        throw new NotImplementedException();
+        K<ParsecT<E, S, T, M>, A> fa,
+        Func<K<ParsecT<E, S, T, M>, A>> fb) =>
+        DSL<E, S, T, M>.choose(fa, fb);
 
     static K<ParsecT<E, S, T, M>, A> SemigroupK<ParsecT<E, S, T, M>>.Combine<A>(
-        K<ParsecT<E, S, T, M>, A> lhs, 
-        K<ParsecT<E, S, T, M>, A> rhs) => 
-        throw new NotImplementedException();
+        K<ParsecT<E, S, T, M>, A> fa,
+        K<ParsecT<E, S, T, M>, A> fb) =>
+        SemigroupInstance<A>.Instance switch
+        {
+            { IsSome: true, Case: SemigroupInstance<A> semi } =>
+                ((A x, A y) => semi.Combine(x, y)) * fa * fb,
+
+            _ => DSL<E, S, T, M>.choose(fa, fb)
+        };
 
     static K<ParsecT<E, S, T, M>, A> MonoidK<ParsecT<E, S, T, M>>.Empty<A>() => 
+        ParsecTEmpty<E, S, T, M, A>.Default;
+
+    static K<ParsecT<E, S, T, M>, A> Fallible<E, ParsecT<E, S, T, M>>.Fail<A>(E error) =>
+        DSL<E, S, T, M>.fail<A>(error);
+
+    static K<ParsecT<E, S, T, M>, A> Fallible<E, ParsecT<E, S, T, M>>.Catch<A>(
+        K<ParsecT<E, S, T, M>, A> fa, 
+        Func<E, bool> Predicate, 
+        Func<E, K<ParsecT<E, S, T, M>, A>> Fail) => 
         throw new NotImplementedException();
 }
