@@ -14,9 +14,20 @@ public readonly struct PString(string value, int start, int length) :
     IEquatable<PString>,
     IComparable<PString>
 {
-    readonly string Value = value;
-    readonly int Start = start;
-    readonly int Length = length;
+    /// <summary>
+    /// Backing string
+    /// </summary>
+    string Value => value;
+    
+    /// <summary>
+    /// Start position in the backing string
+    /// </summary>
+    int Start => start;
+    
+    /// <summary>
+    /// Number of characters in the backing string
+    /// </summary>
+    int Length => length;
     
     /// <summary>
     /// Empty parser string
@@ -40,18 +51,20 @@ public readonly struct PString(string value, int start, int length) :
                 ? Value[Start + Length - ix.Value]
                 : Value[Start          + ix.Value];
     
-    public PString Substring(int amount)
+    public PString Splice(int offset, int amount)
     {
-        if(amount < 0) throw new ArgumentOutOfRangeException(nameof(amount));
-        if (amount <= Length)
-        {
-            var value = Value;
-            return new PString(value, Start, amount);
-        }
-        else
-        {
-            return this;
-        }
+        if (amount < 0) return Empty;
+        return amount - offset < Length
+            ? new PString(Value, Start + offset, amount)
+            : this;
+    }    
+    
+    public PString Splice(int amount)
+    {
+        if (amount < 0) return Empty;
+        return amount < Length
+            ? new PString(Value, Start, amount)
+            : this;
     }
 
     public override string ToString() => 
@@ -148,8 +161,8 @@ public readonly struct PString(string value, int start, int length) :
     {
         var newpos = TraversableTokenStream.reachOffsetNoLine<PString, char>(offset, pst);
         var lineText = LineText.Lift(() => pst.SourcePos.Line == newpos.SourcePos.Line
-                                               ? $"{pst.LinePrefix}{pst.Input.Substring(offset)}"
-                                               : pst.Input.Substring(offset).ToString());
+                                               ? $"{pst.LinePrefix}{pst.Input.Splice(offset)}"
+                                               : pst.Input.Splice(offset).ToString());
 
         return (lineText, newpos);
     }
