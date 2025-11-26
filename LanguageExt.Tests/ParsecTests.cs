@@ -189,7 +189,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void LowerComb()
         {
-            var p = lower;
+            var p = Parsec.Char.lower;
             var r = parse(p, "hello");
 
             Assert.False(r.IsFaulted);
@@ -200,7 +200,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void LowerFailComb()
         {
-            var p = lower;
+            var p = Parsec.Char.lower;
             var r = parse(p, "Hello");
 
             Assert.True(r.IsFaulted);
