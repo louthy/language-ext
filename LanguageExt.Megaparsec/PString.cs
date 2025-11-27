@@ -12,7 +12,7 @@ namespace LanguageExt.Megaparsec;
 /// <param name="length">Length of text</param>
 [CollectionBuilder(typeof(PString), nameof(PString.From))]
 public readonly struct PString(string value, int start, int length) :
-    TraversableTokenStream<PString, char>,
+    TokenStream<PString, char>,
     IEquatable<PString>,
     IComparable<PString>
 {
@@ -77,6 +77,15 @@ public readonly struct PString(string value, int start, int length) :
 
     public PStringEnum GetEnumerator() =>
         new (this);
+
+    static bool TokenStream<PString, char>.IsTab(char token) =>
+        token == '\t';
+
+    static bool TokenStream<PString, char>.IsNewline(char token) => 
+        token == '\n';
+
+    static ReadOnlySpan<char> TokenStream<PString, char>.TokenToString(char token) => 
+        new ([token]);
 
     static PString TokenStream<PString, char>.TokenToChunk(in char token) => 
         new (token.ToString(), 0, 1);
@@ -158,54 +167,6 @@ public readonly struct PString(string value, int start, int length) :
         }
         head = new PString(value, start, count);
         tail = new PString(value, end, length - count);
-    }
-
-    static (Option<LineText> Line, PosState<PString> Updated) TraversableTokenStream<PString, char>.ReachOffset(
-        int offset,
-        PosState<PString> pst)
-    {
-        var newpos = TraversableTokenStream.reachOffsetNoLine<PString, char>(offset, pst);
-        var lineText = LineText.Lift(() => pst.SourcePos.Line == newpos.SourcePos.Line
-                                               ? $"{pst.LinePrefix}{pst.Input.Splice(offset)}"
-                                               : pst.Input.Splice(offset).ToString());
-
-        return (lineText, newpos);
-    }
-
-    static PosState<PString> TraversableTokenStream<PString, char>.ReachOffsetNoLine(
-        int offset,
-        PosState<PString> pst)
-    {
-        offset -= pst.Offset;
-        if (offset == 0) return pst;
-        var max = pst.Input.Length - pst.Offset;
-        offset = Math.Clamp(offset, 0, max);
-        var current = pst.Offset;
-        var srcpos  = pst.SourcePos;
-        var tab     = pst.TabWidth;
-        
-        while (offset > 0)
-        {
-            offset--;
-            current++;
-            if (current >= max) break;
-            
-            switch (pst.Input[pst.Offset + current])
-            {
-                case '\n':
-                    srcpos = srcpos.NextLine;
-                    break;
-                
-                case '\t':
-                    srcpos = srcpos.Next(tab);
-                    break;
-                
-                default:
-                    srcpos = srcpos.NextToken;
-                    break;
-            }
-        }
-        return pst with { Offset = current, SourcePos = srcpos };
     }
 
     public bool Equals(PString other)

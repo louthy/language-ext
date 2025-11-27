@@ -881,7 +881,16 @@ public readonly struct Arr<A> :
 
     public static Arr<A> AdditiveIdentity => 
         Empty;
-    
+
+    static bool TokenStream<Arr<A>, A>.IsTab(A token) =>
+        false;
+
+    static bool TokenStream<Arr<A>, A>.IsNewline(A token) => 
+        false;
+
+    static ReadOnlySpan<char> TokenStream<Arr<A>, A>.TokenToString(A token) => 
+        (token?.ToString() ?? "").AsSpan() ;
+
     static Arr<A> TokenStream<Arr<A>, A>.TokenToChunk(in A token) => 
         Arr.singleton(token);
 

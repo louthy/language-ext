@@ -10,6 +10,29 @@ public interface TokenStream<TOKENS, TOKEN>
     where TOKENS : TokenStream<TOKENS, TOKEN>
 {
     /// <summary>
+    /// If the stream supports the concept of tabs, then this function
+    /// should return true if the token is a tab.
+    /// </summary>
+    /// <param name="token">Token to test</param>
+    /// <returns>True if a tab</returns>
+    public static abstract bool IsTab(TOKEN token);
+
+    /// <summary>
+    /// If the stream supports the concept of newlines, then this function
+    /// should return true if the token is a newline.
+    /// </summary>
+    /// <param name="token">Token to test</param>
+    /// <returns>True if a newline</returns>
+    public static abstract bool IsNewline(TOKEN token);
+
+    /// <summary>
+    /// Create a textual respresentation of the token
+    /// </summary>
+    /// <param name="token">Token</param>
+    /// <returns>Text</returns>
+    public static abstract ReadOnlySpan<char> TokenToString(TOKEN token);
+    
+    /// <summary>
     /// Lift a single token to chunk of the stream
     /// </summary>
     public static abstract TOKENS TokenToChunk(in TOKEN token);
