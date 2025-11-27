@@ -10,7 +10,7 @@ record ParsecTEOF<E, S, T, M> :
 {
     public static readonly ParsecT<E, S, T, M, Unit> Default = new ParsecTEOF<E, S, T, M>();
     
-    public override K<M, B> Run<B>(
+    public K<M, B> Run<B>(
         State<S, T, E> s,
         ConsumedOK<E, S, T, M, Unit, B> cok,
         ConsumedErr<E, S, T, M, B> cerr,

@@ -8,7 +8,7 @@ record ParsecTNotFollowedBy<E, S, T, M, A>(ParsecT<E, S, T, M, A> P) :
     where M : Monad<M>
     where S : TokenStream<S, T>
 {
-    public override K<M, B> Run<B>(
+    public K<M, B> Run<B>(
         State<S, T, E> s,
         ConsumedOK<E, S, T, M, Unit, B> _,
         ConsumedErr<E, S, T, M, B> __,

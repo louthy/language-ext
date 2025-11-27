@@ -94,6 +94,16 @@ static class DSL<E, S, T, M>
         new ParsecTTokens<E, S, T, M>(test, chunk);
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ParsecT<E, S, T, M, T> oneOf<EqT>(S tokens) 
+        where EqT : Eq<T> =>
+        new ParsecTOneOf<E, S, T, M, EqT>(tokens);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ParsecT<E, S, T, M, T> noneOf<EqT>(S tokens) 
+        where EqT : Eq<T> =>
+        new ParsecTNoneOf<E, S, T, M, EqT>(tokens);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ParsecT<E, S, T, M, S> takeWhile(
         Func<T, bool> test,
         in Option<string> name = default) =>
@@ -119,6 +129,11 @@ static class DSL<E, S, T, M>
     public static ParsecT<E, S, T, M, A> lift<A>(
         Func<State<S, T, E>, Reply<E, S, T, A>> f) =>
         new ParsecTLift<E, S, T, M, A>(f);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ParsecT<E, S, T, M, A> lift<A>(
+        Func<State<S, T, E>, K<M, Reply<E, S, T, A>>> f) =>
+        new ParsecTLift2<E, S, T, M, A>(f);
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ParsecT<E, S, T, M, A> liftM<A>(K<M, A> ma) =>

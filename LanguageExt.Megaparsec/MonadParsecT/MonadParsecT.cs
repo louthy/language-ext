@@ -203,6 +203,22 @@ public interface MonadParsecT<MP, E, S, T, M> :
     /// <param name="chunk">Reference chunk</param>
     /// <returns>Parsed chunk</returns>
     public static abstract K<MP, S> Tokens(Func<S, S, bool> test, in S chunk);
+    
+    /// <summary>
+    /// The parser `oneOf(test, expected)` accepts a set of tokens to match.
+    /// </summary>
+    /// <param name="tokens">Tokens to test</param>
+    /// <returns>Parsed stream of tokens</returns>
+    public static abstract K<MP, T> OneOf<EqT>(S tokens) 
+        where EqT : Eq<T>;
+    
+    /// <summary>
+    /// The parser `noneOf(test, expected)` accepts a set of tokens to not match.
+    /// </summary>
+    /// <param name="tokens">Tokens to test</param>
+    /// <returns>Parsed stream of tokens</returns>
+    public static abstract K<MP, T> NoneOf<EqT>(S tokens)
+        where EqT : Eq<T>;
 
     /// <summary>
     /// Parse zero or more tokens for which the supplied predicate holds.

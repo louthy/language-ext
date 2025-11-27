@@ -3,7 +3,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Megaparsec;
 
-public static partial class Module<MP, E, S, M>
+public static partial class ModuleT<MP, E, S, M>
     where MP : MonadParsecT<MP, E, S, char, M>
     where S : TokenStream<S, char>
     where M : Monad<M>
@@ -12,7 +12,7 @@ public static partial class Module<MP, E, S, M>
     /// Parse a string
     /// </summary>
     public static K<MP, S> @string(string xs) =>
-        Module<MP, E, S, char, M>.chunk(S.TokensToChunk(xs.AsSpan()));
+        ModuleT<MP, E, S, char, M>.chunk(S.TokensToChunk(xs.AsSpan()));
 
     /// <summary>
     /// Parse the specified character
@@ -38,7 +38,7 @@ public static partial class Module<MP, E, S, M>
     /// Parse a newline character.
     /// </summary>
     public static readonly K<MP, S> crlf =
-        Module<MP, E, S, char, M>.chunk(S.TokensToChunk(['\r', '\n']));
+        ModuleT<MP, E, S, char, M>.chunk(S.TokensToChunk(['\r', '\n']));
     
     /// <summary>
     /// End of line parser.
@@ -156,5 +156,5 @@ public static partial class Module<MP, E, S, M>
         S.TokenToChunk(ch);
     
     static K<MP, char> Test =>
-        Module<MP, E, S, char, M>.oneOf(['1', '2', '3']) | Prelude.label("hello");
+        ModuleT<MP, E, S, char, M>.oneOf(['1', '2', '3']) | label("hello");
 }

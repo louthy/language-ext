@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Megaparsec;
@@ -9,6 +10,7 @@ namespace LanguageExt.Megaparsec;
 /// <param name="value">Text</param>
 /// <param name="start">Start of text</param>
 /// <param name="length">Length of text</param>
+[CollectionBuilder(typeof(PString), nameof(PString.From))]
 public readonly struct PString(string value, int start, int length) :
     TraversableTokenStream<PString, char>,
     IEquatable<PString>,
@@ -38,6 +40,9 @@ public readonly struct PString(string value, int start, int length) :
     public PString(string Value) : this(Value, 0, Value.Length)
     {
     }
+    
+    public static PString From(string value) =>
+        new (value);
 
     public char this[int ix] =>
         ix < 0 || ix >= Length 
@@ -77,7 +82,7 @@ public readonly struct PString(string value, int start, int length) :
         new (token.ToString(), 0, 1);
 
     static PString TokenStream<PString, char>.TokensToChunk(in ReadOnlySpan<char> token) => 
-        new (token.ToString(), 0, token.Length);
+        new (new string(token), 0, token.Length);
 
     static ReadOnlySpan<char> TokenStream<PString, char>.ChunkToTokens(in PString tokens) => 
         tokens.Value.AsSpan(tokens.Start, tokens.Length);

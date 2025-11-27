@@ -8,7 +8,7 @@ record ParsecTPutState<E, S, T, M>(State<S, T, E> State) :
     where M : Monad<M>
     where S : TokenStream<S, T>
 {
-    public override K<M, B> Run<B>(
+    public K<M, B> Run<B>(
         State<S, T, E> s,
         ConsumedOK<E, S, T, M, Unit, B> _,
         ConsumedErr<E, S, T, M, B> __,
@@ -22,7 +22,7 @@ record ParsecTModifyState<E, S, T, M>(Func<State<S, T, E>, State<S, T, E>> Updat
     where M : Monad<M>
     where S : TokenStream<S, T>
 {
-    public override K<M, B> Run<B>(
+    public K<M, B> Run<B>(
         State<S, T, E> s,
         ConsumedOK<E, S, T, M, Unit, B> _,
         ConsumedErr<E, S, T, M, B> __,

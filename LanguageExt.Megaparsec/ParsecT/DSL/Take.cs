@@ -8,7 +8,7 @@ record ParsecTTake<E, S, T, M>(in Option<string> Name, int Amount) :
     where M : Monad<M>
     where S : TokenStream<S, T>
 {
-    public override K<M, B> Run<B>(
+    public K<M, B> Run<B>(
         State<S, T, E> s,
         ConsumedOK<E, S, T, M, S, B> cok,
         ConsumedErr<E, S, T, M, B> cerr,

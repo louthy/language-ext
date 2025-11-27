@@ -10,7 +10,7 @@ record ParsecTAsk<E, S, T, M> :
 {
     public static readonly ParsecT<E, S, T, M, State<S, T, E>> Default = new ParsecTAsk<E, S, T, M>();
     
-    public override K<M, B> Run<B>(
+    public K<M, B> Run<B>(
         State<S, T, E> s,
         ConsumedOK<E, S, T, M, State<S, T, E>, B> cok,
         ConsumedErr<E, S, T, M, B> cerr,
@@ -24,7 +24,7 @@ record ParsecTAsks<E, S, T, M, A>(Func<State<S, T, E>, A> F) :
     where M : Monad<M>
     where S : TokenStream<S, T>
 {
-    public override K<M, B> Run<B>(
+    public K<M, B> Run<B>(
         State<S, T, E> s,
         ConsumedOK<E, S, T, M, A, B> cok,
         ConsumedErr<E, S, T, M, B> cerr,
@@ -38,7 +38,7 @@ record ParsecTLocal<E, S, T, M, A>(Func<State<S, T, E>, State<S, T, E>> F, Parse
     where M : Monad<M>
     where S : TokenStream<S, T>
 {
-    public override K<M, B> Run<B>(
+    public K<M, B> Run<B>(
         State<S, T, E> s,
         ConsumedOK<E, S, T, M, A, B> cok,
         ConsumedErr<E, S, T, M, B> cerr,

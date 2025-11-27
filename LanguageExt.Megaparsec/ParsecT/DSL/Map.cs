@@ -7,7 +7,7 @@ record ParsecTMap<E, S, T, M, A, B>(ParsecT<E, S, T, M, A> P, Func<A, B> F) :
     where M : Monad<M>
     where S : TokenStream<S, T>
 {
-    public override K<M, C> Run<C>(
+    public K<M, C> Run<C>(
         State<S, T, E> s,
         ConsumedOK<E, S, T, M, B, C> cok,
         ConsumedErr<E, S, T, M, C> cerr,

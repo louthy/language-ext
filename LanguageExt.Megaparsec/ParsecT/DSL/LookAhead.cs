@@ -7,7 +7,7 @@ record ParsecTLookAhead<E, S, T, M, A>(ParsecT<E, S, T, M, A> P) :
     where M : Monad<M>
     where S : TokenStream<S, T>
 {
-    public override K<M, B> Run<B>(
+    public K<M, B> Run<B>(
         State<S, T, E> s,
         ConsumedOK<E, S, T, M, A, B> cok,
         ConsumedErr<E, S, T, M, B> cerr,

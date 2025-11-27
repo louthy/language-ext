@@ -2,15 +2,44 @@ using LanguageExt.Traits;
 
 namespace LanguageExt.Megaparsec;
 
-public static partial class Module<MP, E, S, T, M>
+public static partial class ModuleT<MP, E, S, T, M>
     where MP : MonadParsecT<MP, E, S, T, M>
-    where M : Monad<M>
     where S : TokenStream<S, T>
+    where M : Monad<M>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  State parser combinators
     //
+
+    /// <summary>
+    /// Return the full parser state as a `State` record
+    /// </summary>
+    /// <returns>Parser</returns>
+    public static readonly K<MP, State<S, T, E>> getParserState =
+        MP.Ask;
+
+    /// <summary>
+    /// Write the full parser state
+    /// </summary>
+    /// <returns>Parser</returns>
+    public static K<MP, Unit> setParserState(State<S, T, E> s) => 
+        MP.Put(s);
+
+    /// <summary>
+    /// Return the full parser state and then map it to a new value using the supplied function
+    /// </summary>
+    /// <returns>Parser</returns>
+    public static K<MP, A> mapParserState<A>(Func<State<S, T, E>, A> f) => 
+        MP.Asks(f);
+
+    /// <summary>
+    /// Update the parser state using the supplied function
+    /// </summary>
+    /// <param name="f">Update function</param>
+    /// <returns>Parser</returns>
+    public static K<MP, Unit> modifyParserState(Func<State<S, T, E>, State<S, T, E>> f) =>
+        MP.Modify(f);
 
     /// <summary>
     /// Return the current input
@@ -40,12 +69,4 @@ public static partial class Module<MP, E, S, T, M>
     /// <returns>Parser</returns>
     public static K<MP, Unit> setOffset(int offset) =>
         MP.Modify(s => s with { Offset = offset });
-
-    /// <summary>
-    /// Write a state to the parser
-    /// </summary>
-    /// <param name="st"></param>
-    /// <returns></returns>
-    public static K<MP, Unit> setParserState(State<S, T, E> st) =>
-        MP.Put(st);
 }

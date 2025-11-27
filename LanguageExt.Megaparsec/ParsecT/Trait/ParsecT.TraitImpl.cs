@@ -53,6 +53,14 @@ public class ParsecT<E, S, T, M> :
         in S chunk) => 
         DSL<E, S, T, M>.tokens(test, chunk);
 
+    static K<ParsecT<E, S, T, M>, T> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.OneOf<EqT>(
+        S tokens)  =>
+        DSL<E, S, T, M>.oneOf<EqT>(tokens);
+
+    static K<ParsecT<E, S, T, M>, T> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.NoneOf<EqT>(
+        S tokens) => 
+        DSL<E, S, T, M>.noneOf<EqT>(tokens);
+
     static K<ParsecT<E, S, T, M>, S> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.TakeWhile(
         Func<T, bool> test,
         in Option<string> name) => 
