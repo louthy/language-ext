@@ -1,5 +1,8 @@
 namespace LanguageExt.Megaparsec;
 
+/// <summary>
+/// Reply module
+/// </summary>
 public static class Reply
 {
     public static Reply<E, S, T, A> ConsumedOK<E, S, T, A>(A value, State<S, T, E> state, Hints<T> hints) =>

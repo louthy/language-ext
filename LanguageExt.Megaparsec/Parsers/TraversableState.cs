@@ -30,8 +30,8 @@ public class TraversableState<MP, E, S, T, M>
     /// </remarks>
     /// <returns>Parser</returns>
     public static readonly K<MP, SourcePos> getSourcePos =
-        from st in MP.ParserState
-        let pst = S.ReachOffsetNoLine(st.Offset, st.PosState)
-        from _ in MP.UpdateParserState(_ => st with { PosState = pst })
+        from st in MP.Get
+        let pst =  S.ReachOffsetNoLine(st.Offset, st.PosState)
+        from _  in MP.Put(st with { PosState = pst })
         select pst.SourcePos;
 }

@@ -19,13 +19,15 @@ record ParsecTLift<E, S, T, M, A>(Func<State<S, T, E>, Reply<E, S, T, A>> F) :
                 result switch
                 {
                     Result<T, E, A>.OK(var hs, var x) => cok(x, s1, hs),
-                    Result<T, E, A>.Error(var e)      => cerr(e, s1)
+                    Result<T, E, A>.Error(var e)      => cerr(e, s1),
+                    _                                 => throw new NotSupportedException()
                 },
             (var s1, false, var result) =>
                 result switch
                 {
                     Result<T, E, A>.OK(var hs, var x) => eok(x, s1, hs),
-                    Result<T, E, A>.Error(var e)      => eerr(e, s1)
+                    Result<T, E, A>.Error(var e)      => eerr(e, s1),
+                    _                                 => throw new NotSupportedException()
                 }
         };
 }

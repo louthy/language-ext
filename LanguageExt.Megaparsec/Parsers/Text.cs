@@ -121,27 +121,27 @@ public static partial class Module<MP, E, S, M>
     /// Parse zero or more white-space characters.
     /// </summary>
     public static readonly K<MP, Unit> space =
-        (_ => unit) * MP.TakeWhile(ExpectedErrors.whiteSpace, char.IsWhiteSpace);
+        (_ => unit) * MP.TakeWhile(char.IsWhiteSpace, ExpectedErrors.whiteSpace);
 
     /// <summary>
     /// Parse one or more white-space characters.
     /// </summary>
     public static readonly K<MP, Unit> space1 =
-        (_ => unit) * MP.TakeWhile1(ExpectedErrors.whiteSpace, char.IsWhiteSpace);
+        (_ => unit) * MP.TakeWhile1(char.IsWhiteSpace, ExpectedErrors.whiteSpace);
 
     /// <summary>
     /// Parse zero or more white-space characters (ignoring newlines and carriage-returns).
     /// </summary>
     public static readonly K<MP, Unit> hspace =
-        (_ => unit) * MP.TakeWhile(ExpectedErrors.whiteSpace, 
-                                   static ch => ch != '\n' && ch != '\r' && char.IsWhiteSpace(ch));
+        (_ => unit) * MP.TakeWhile(static ch => ch != '\n' && ch != '\r' && char.IsWhiteSpace(ch),
+                                   ExpectedErrors.whiteSpace);
 
     /// <summary>
     /// Parse zero or more white-space characters (ignoring newlines and carriage-returns).
     /// </summary>
     public static readonly K<MP, Unit> hspace1 =
-        (_ => unit) * MP.TakeWhile1(ExpectedErrors.whiteSpace, 
-                                   static ch => ch != '\n' && ch != '\r' && char.IsWhiteSpace(ch));
+        (_ => unit) * MP.TakeWhile1(static ch => ch != '\n' && ch != '\r' && char.IsWhiteSpace(ch),
+                                    ExpectedErrors.whiteSpace);
 
     /// <summary>
     /// Parse a control character

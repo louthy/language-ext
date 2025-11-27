@@ -17,41 +17,11 @@ record ParsecTCatch<E, S, T, M, A>(
         EmptyOK<E, S, T, M, A, B> eok,
         EmptyErr<E, S, T, M, B> eerr)
     {
-        return fa.Run(s, cok, mcerr, eok, meerr);
+        return fa.Run(s, cok, cerr, eok, @catch);
 
-        K<M, B> mcerr(ParseError<T, E> err, State<S, T, E> ms)
-        {
-            K<M, B> ncerr(ParseError<T, E> err1, State<S, T, E> s1) =>
-                cerr(err1 + err, longestMatch(ms, s1));
-          
-            K<M, B> neok(A x, State<S, T, E> s1, Hints<T> hs) =>
-                eok(x, s1, Hints.fromOffset(s1.Offset, err) + hs);
-          
-            K<M, B> neerr(ParseError<T, E> err1, State<S, T, E> s1) =>
-                eerr(err1 + err, longestMatch(ms, s1));
-          
-            return predicate(err)
-                       ? fail(err).As().Run(ms, cok, ncerr, neok, neerr)
-                       : eerr(err, ms);
-        }        
-
-        K<M, B> meerr(ParseError<T, E> err, State<S, T, E> ms)
-        {
-          K<M, B> ncerr(ParseError<T, E> err1, State<S, T, E> s1) =>
-              cerr(err1 + err, longestMatch(ms, s1));
-          
-          K<M, B> neok(A x, State<S, T, E> s1, Hints<T> hs) =>
-              eok(x, s1, Hints.fromOffset(s1.Offset, err) + hs);
-          
-          K<M, B> neerr(ParseError<T, E> err1, State<S, T, E> s1) =>
-              eerr(err1 + err, longestMatch(ms, s1));
-          
-          return predicate(err)
-                    ? fail(err).As().Run(ms, cok, ncerr, neok, neerr)
-                    : eerr(err, ms);
-        }
-        
-        State<S, T, E> longestMatch(State<S, T, E> s1, State<S, T, E> s2) =>
-            s1.Offset > s2.Offset ? s1 : s2;
+        K<M, B> @catch(ParseError<T, E> err, State<S, T, E> ms) =>
+            predicate(err)
+                ? fail(err).As().Run(ms, cok, cerr, eok, eerr)
+                : eerr(err, ms);
     }
 }

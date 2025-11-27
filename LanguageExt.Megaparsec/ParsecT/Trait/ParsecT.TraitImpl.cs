@@ -54,26 +54,19 @@ public class ParsecT<E, S, T, M> :
         DSL<E, S, T, M>.tokens(test, chunk);
 
     static K<ParsecT<E, S, T, M>, S> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.TakeWhile(
-        in Option<string> name, 
-        Func<T, bool> test) => 
-        DSL<E, S, T, M>.takeWhile(name, test);
+        Func<T, bool> test,
+        in Option<string> name) => 
+        DSL<E, S, T, M>.takeWhile(test, name);
 
     static K<ParsecT<E, S, T, M>, S> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.TakeWhile1(
-        in Option<string> name, 
-        Func<T, bool> test) => 
-        DSL<E, S, T, M>.takeWhile1(name, test);
+        Func<T, bool> test,
+        in Option<string> name) => 
+        DSL<E, S, T, M>.takeWhile1(test, name);
 
     static K<ParsecT<E, S, T, M>, S> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.Take(
-        in Option<string> name, 
-        int n) => 
+        int n,
+        in Option<string> name) =>
         DSL<E, S, T, M>.take(name, n);
-
-    static K<ParsecT<E, S, T, M>, State<S, T, E>> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.ParserState => 
-        DSL<E, S, T, M>.parserState;
-
-    static K<ParsecT<E, S, T, M>, Unit> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.UpdateParserState(
-        Func<State<S, T, E>, State<S, T, E>> f) => 
-        DSL<E, S, T, M>.updateParserState(f);
 
     static K<ParsecT<E, S, T, M>, A> MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>.Lift<A>(
         Func<State<S, T, E>, Reply<E, S, T, A>> f) =>
@@ -89,9 +82,8 @@ public class ParsecT<E, S, T, M> :
         K<ParsecT<E, S, T, M>, A> ma) => 
         DSL<E, S, T, M>.map(ma.As(), f);
 
-    static K<ParsecT<E, S, T, M>, A> Applicative<ParsecT<E, S, T, M>>.Pure<A>(
-        A value) => 
-        new ParsecTPure<E, S, T, M, A>(value);
+    static K<ParsecT<E, S, T, M>, A> Applicative<ParsecT<E, S, T, M>>.Pure<A>(A value) => 
+        DSL<E, S, T, M>.pure(value);
 
     static K<ParsecT<E, S, T, M>, B> Applicative<ParsecT<E, S, T, M>>.Apply<A, B>(
         K<ParsecT<E, S, T, M>, Func<A, B>> mf,
@@ -124,8 +116,8 @@ public class ParsecT<E, S, T, M> :
             _ => DSL<E, S, T, M>.choose(fa, fb)
         };
 
-    static K<ParsecT<E, S, T, M>, A> MonoidK<ParsecT<E, S, T, M>>.Empty<A>() => 
-        ParsecTEmpty<E, S, T, M, A>.Default;
+    static K<ParsecT<E, S, T, M>, A> MonoidK<ParsecT<E, S, T, M>>.Empty<A>() =>
+        DSL<E, S, T, M>.empty<A>();
 
     static K<ParsecT<E, S, T, M>, A> Fallible<ParseError<T, E>, ParsecT<E, S, T, M>>.Fail<A>(ParseError<T, E> error) =>
         DSL<E, S, T, M>.error<A>(error);
@@ -141,4 +133,25 @@ public class ParsecT<E, S, T, M> :
 
     static K<ParsecT<E, S, T, M>, A> MonadT<ParsecT<E, S, T, M>, M>.Lift<A>(K<M, A> ma) =>
         DSL<E, S, T, M>.liftM(ma);
+
+    static K<ParsecT<E, S, T, M>, A> Readable<ParsecT<E, S, T, M>, State<S, T, E>>.Asks<A>(
+        Func<State<S, T, E>, A> f) => 
+        DSL<E, S, T, M>.asks(f);
+
+    static K<ParsecT<E, S, T, M>, A> Readable<ParsecT<E, S, T, M>, State<S, T, E>>.Local<A>(
+        Func<State<S, T, E>, State<S, T, E>> f, 
+        K<ParsecT<E, S, T, M>, A> ma) => 
+        DSL<E, S, T, M>.local(f, ma.As());
+
+    static K<ParsecT<E, S, T, M>, Unit> Stateful<ParsecT<E, S, T, M>, State<S, T, E>>.Put(
+        State<S, T, E> value) => 
+        DSL<E, S, T, M>.put(value);
+
+    static K<ParsecT<E, S, T, M>, Unit> Stateful<ParsecT<E, S, T, M>, State<S, T, E>>.Modify(
+        Func<State<S, T, E>, State<S, T, E>> f) => 
+        DSL<E, S, T, M>.modify(f);
+    
+    static K<ParsecT<E, S, T, M>, A> Stateful<ParsecT<E, S, T, M>, State<S, T, E>>.Gets<A>(
+        Func<State<S, T, E>, A> f) =>
+        DSL<E, S, T, M>.asks(f);
 }

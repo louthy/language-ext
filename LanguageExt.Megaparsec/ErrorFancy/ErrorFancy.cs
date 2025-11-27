@@ -26,7 +26,8 @@ public abstract record ErrorFancy<E> : IComparable<ErrorFancy<E>>
                              },
                         var n => n
                     },
-                Custom => 1
+                Custom => 1,
+                _      => throw new NotSupportedException()
             };
     }
 

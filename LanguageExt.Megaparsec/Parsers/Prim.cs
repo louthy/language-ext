@@ -32,7 +32,7 @@ public static partial class Module<MP, E, S, T, M>
     /// <param name="expected">Expected tokens</param>
     /// <typeparam name="A">Value type (never yielded because this is designed to error)</typeparam>
     /// <returns>Parser</returns>
-    public static K<MP, A> fancyFailure<A>(Set<ErrorFancy<E>> errors) =>
+    public static K<MP, A> failure<A>(Set<ErrorFancy<E>> errors) =>
         from o in getOffset
         from r in error<A>(ParseError.Fancy<T, E>(o, errors))
         select r;
@@ -43,8 +43,8 @@ public static partial class Module<MP, E, S, T, M>
     /// <param name="error">Custom error</param>
     /// <typeparam name="A">Value type (never yielded because this is designed to error)</typeparam>
     /// <returns>Parser</returns>
-    public static K<MP, A> customFailure<A>(E error) =>
-        Pure(error) >> ErrorFancy.Custom >> Set.singleton >> (fancyFailure<A>) >> lower;
+    public static K<MP, A> failure<A>(E error) =>
+        Pure(error) >> ErrorFancy.Custom >> Set.singleton >> (failure<A>) >> lower;
 
     /// <summary>
     /// The parser `unexpected(item)` fails with an error message telling
@@ -69,17 +69,17 @@ public static partial class Module<MP, E, S, T, M>
     /// <typeparam name="A">Parser value type</typeparam>
     /// <returns>Parser</returns>
     public static K<MP, A> region<A>(Func<ParseError<T, E>, ParseError<T, E>> mapError, K<MP, A> region) =>
-        from de in (s => s.ParseErrors) * MP.ParserState
-        from _1 in MP.UpdateParserState(s => s with { ParseErrors = [] })
+        from de in MP.Asks(s => s.ParseErrors)
+        from _1 in MP.Modify(s => s with { ParseErrors = [] })
         from r1 in MP.Observing(region)
-        from _2 in MP.UpdateParserState(s => s with { ParseErrors = s.ParseErrors.Map(mapError) + de })
+        from _2 in MP.Modify(s => s with { ParseErrors = s.ParseErrors.Map(mapError) + de })
         from r2 in r1 switch
                    {
                        Either<ParseError<T, E>, A>.Left (var err) => MP.Error<A>(mapError(err)),
-                       Either<ParseError<T, E>, A>.Right (var x)  => MP.Pure(x)
+                       Either<ParseError<T, E>, A>.Right (var x)  => MP.Pure(x),
+                       _                                          => throw new NotSupportedException()
                    }
         select r2;
-
 
     /// <summary>
     /// Match a single token
@@ -88,7 +88,7 @@ public static partial class Module<MP, E, S, T, M>
     ///     semicolon = single(';')
     /// </example>
     /// <param name="token">Token to match</param>
-    /// <returns></returns>
+    /// <returns>Parser</returns>
     public static K<MP, T> single(T token) =>
         token<T>(x => x?.Equals(token) ?? false ? Some(x) : None,
                  Set.singleton(ErrorItem.Token(token)));
@@ -106,7 +106,7 @@ public static partial class Module<MP, E, S, T, M>
     /// See also: `anySingle`, `anySingleBut`, `oneOf`, `noneOf`.
     /// </remarks>
     /// <param name="f">Predicate function</param>
-    /// <returns></returns>
+    /// <returns>Parser</returns>
     public static K<MP, T> satisfy(Func<T, bool> f) =>
         token<T>(x => f(x) ? Some(x) : None, default);
 
@@ -114,7 +114,7 @@ public static partial class Module<MP, E, S, T, M>
     /// Parse and return a single token. It's a good idea to attach a 'label'
     /// to this parser.
     /// </summary>
-    public static readonly K<MP, T> angSingle =
+    public static readonly K<MP, T> anySingle =
         satisfy(_ => true);
 
     /// <summary>
@@ -146,7 +146,6 @@ public static partial class Module<MP, E, S, T, M>
     /// label it manually with `label` or `|`.
     /// </summary>
     /// <param name="cases">Token cases to test</param>
-    /// <typeparam name="F">Foldable trait</typeparam>
     /// <returns>Parser</returns>
     public static K<MP, T> oneOf(Seq<T> cases) =>
         satisfy(x => Foldable.contains(x, cases));
@@ -173,7 +172,6 @@ public static partial class Module<MP, E, S, T, M>
     /// `label` or `|`
     /// </summary>
     /// <param name="cases">Token cases to test</param>
-    /// <typeparam name="F">Foldable trait</typeparam>
     /// <returns>Parser</returns>
     public static K<MP, T> noneOf(Seq<T> cases) =>
         satisfy(x => !Foldable.contains(x, cases));
@@ -181,6 +179,7 @@ public static partial class Module<MP, E, S, T, M>
     /// <summary>
     /// `chunk(chk)` only matches the chunk `chk`.
     /// </summary>
-    public static readonly Func<S, K<MP, S>> chunk =
-        static chk => tokens(static (x, y) => x.Equals(y), chk);
+    /// <returns>Parser</returns>
+    public static K<MP, S> chunk(S chk) =>
+        tokens(static (x, y) => x.Equals(y), chk);
 }

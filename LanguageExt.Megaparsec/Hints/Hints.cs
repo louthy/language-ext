@@ -3,6 +3,14 @@ using LanguageExt.UnsafeValueAccess;
 
 namespace LanguageExt.Megaparsec;
 
+/// <summary>
+/// `Hints` represent a collection of `ErrorItem` values to be included into
+/// q `ParseError` (when it's a `TrivialError`) as 'expected' message items
+/// when a parser fails without consuming input right after a successful parser
+/// that produced the hints. 
+/// </summary>
+/// <param name="Errors">Errors</param>
+/// <typeparam name="T">Token type</typeparam>
 public record Hints<T>(Set<ErrorItem<T>> Errors) : Monoid<Hints<T>>
 {
     public Hints<T> Combine(Hints<T> rhs) => 

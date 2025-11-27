@@ -210,11 +210,11 @@ public static partial class Module<MP, E, S, T, M>
     /// 
     /// The combinator never fails, although it may parse the empty chunk.
     /// </summary>
-    /// <param name="name">Name for a single token in the row</param>
     /// <param name="test">Predicate to use to test tokens</param>
+    /// <param name="name">Name for a single token in the row</param>
     /// <returns>A chunk of matching tokens</returns>
-    public static K<MP, S> takeWhile(Option<string> name, Func<T, bool> test) =>
-        MP.TakeWhile(name, test);
+    public static K<MP, S> takeWhile(Func<T, bool> test, Option<string> name = default) =>
+        MP.TakeWhile(test, name);
     
     /// <summary>
     /// Parse one or more tokens for which the supplied predicate holds.
@@ -226,11 +226,11 @@ public static partial class Module<MP, E, S, T, M>
     /// 
     /// The combinator never fails, although it may parse the empty chunk.
     /// </summary>
-    /// <param name="name">Name for a single token in the row</param>
     /// <param name="test">Predicate to use to test tokens</param>
+    /// <param name="name">Name for a single token in the row</param>
     /// <returns>A chunk of matching tokens</returns>
-    public static K<MP, S> takeWhile1(Option<string> name, Func<T, bool> test) =>
-        MP.TakeWhile1(name, test);
+    public static K<MP, S> takeWhile1(Func<T, bool> test, Option<string> name = default) =>
+        MP.TakeWhile1(test, name);
 
     /// <summary>
     /// Extract the specified number of tokens from the input stream and
@@ -247,26 +247,40 @@ public static partial class Module<MP, E, S, T, M>
     /// in the input stream, it backtracks automatically. No `@try` is necessary
     /// with `take`.
     /// </summary>
-    /// <param name="name">Name for a single token in the row</param>
     /// <param name="n">How many tokens to extract</param>
+    /// <param name="name">Name for a single token in the row</param>
     /// <returns>A chunk of matching tokens</returns>
-    public static K<MP, S> take(Option<string> name, int n) => 
-        MP.Take(name, n);
+    public static K<MP, S> take(int n, Option<string> name = default) => 
+        MP.Take(n, name);
 
     /// <summary>
     /// Return the full parser state as a `State` record
     /// </summary>
     /// <returns>Parser</returns>
-    public static readonly K<MP, State<S, T, E>> parserState =
-        MP.ParserState;
+    public static readonly K<MP, State<S, T, E>> getParserState =
+        MP.Ask;
+
+    /// <summary>
+    /// Write the full parser state
+    /// </summary>
+    /// <returns>Parser</returns>
+    public static K<MP, Unit> putParserState(State<S, T, E> s) => 
+        MP.Put(s);
+
+    /// <summary>
+    /// Return the full parser state and then map it to a new value using the supplied function
+    /// </summary>
+    /// <returns>Parser</returns>
+    public static K<MP, A> mapParserState<A>(Func<State<S, T, E>, A> f) => 
+        MP.Asks(f);
 
     /// <summary>
     /// Update the parser state using the supplied function
     /// </summary>
     /// <param name="f">Update function</param>
     /// <returns>Parser</returns>
-    public static K<MP, Unit> updateParserState(Func<State<S, T, E>, State<S, T, E>> f) =>
-        MP.UpdateParserState(f);
+    public static K<MP, Unit> modifyParserState(Func<State<S, T, E>, State<S, T, E>> f) =>
+        MP.Modify(f);
 
     /// <summary>
     /// An escape hatch for defining custom 'MonadParsec' primitives

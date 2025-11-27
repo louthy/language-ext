@@ -13,6 +13,7 @@ public class Result<T, E> : Functor<Result<T, E>>
         ma switch
         {
             Result<T, E, A>.OK (var hints, var value) => Result.OK<T, E, B>(hints, f(value)),
-            Result<T, E, A>.Error (var e)             => Result.Error<T, E, B>(e)
+            Result<T, E, A>.Error (var e)             => Result.Error<T, E, B>(e),
+            _                                         => throw new NotSupportedException()
         };
 }

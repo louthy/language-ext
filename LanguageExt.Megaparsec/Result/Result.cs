@@ -2,7 +2,8 @@ using LanguageExt.Traits;
 namespace LanguageExt.Megaparsec;
 
 /// <summary>
-/// Parser result
+/// Whether the parser has failed or not. On success we include the
+/// resulting value, on failure we include a `ParseError`.
 /// </summary>
 /// <typeparam name="T">Token type</typeparam>
 /// <typeparam name="E">Error type</typeparam>

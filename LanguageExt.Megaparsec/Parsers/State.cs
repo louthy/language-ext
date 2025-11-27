@@ -16,7 +16,7 @@ public static partial class Module<MP, E, S, T, M>
     /// Return the current input
     /// </summary>
     public static readonly K<MP, S> getInput =
-        (s => s.Input) * MP.ParserState;
+        MP.Asks(s => s.Input);
 
     /// <summary>
     /// `setInput(input)` continues parsing with `input`.
@@ -24,14 +24,14 @@ public static partial class Module<MP, E, S, T, M>
     /// <param name="input">Input to continue with</param>
     /// <returns>Parser</returns>
     public static K<MP, Unit> setInput(S input) =>
-        MP.UpdateParserState(current => current with { Input = input });
+        MP.Modify(current => current with { Input = input });
 
     /// <summary>
     /// Get the number of tokens processed so far.
     /// </summary>
     /// <returns>Parser</returns>
     public static readonly K<MP, int> getOffset =
-        (x => x.Offset) * MP.ParserState;
+        MP.Asks(x => x.Offset);
 
     /// <summary>
     /// Set the number of tokens processed so far
@@ -39,7 +39,7 @@ public static partial class Module<MP, E, S, T, M>
     /// <param name="offset">Token offset</param>
     /// <returns>Parser</returns>
     public static K<MP, Unit> setOffset(int offset) =>
-        MP.UpdateParserState(s => s with { Offset = offset });
+        MP.Modify(s => s with { Offset = offset });
 
     /// <summary>
     /// Write a state to the parser
@@ -47,5 +47,5 @@ public static partial class Module<MP, E, S, T, M>
     /// <param name="st"></param>
     /// <returns></returns>
     public static K<MP, Unit> setParserState(State<S, T, E> st) =>
-        MP.UpdateParserState(_ => st);
+        MP.Put(st);
 }

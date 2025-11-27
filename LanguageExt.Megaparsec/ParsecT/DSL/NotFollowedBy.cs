@@ -15,7 +15,7 @@ record ParsecTNotFollowedBy<E, S, T, M, A>(ParsecT<E, S, T, M, A> P) :
         EmptyOK<E, S, T, M, Unit, B> eok,
         EmptyErr<E, S, T, M, B> eerr)
     {
-        return P.Run(s, eok1, cerr1, eok1, eerr1);
+        return P.Run(s, cok1, cerr1, eok1, eerr1);
 
         // Updated ConsumedOK
         K<M, B> cok1(A x, State<S, T, E> s1, Hints<T> hs) =>

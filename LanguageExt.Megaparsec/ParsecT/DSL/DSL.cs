@@ -12,11 +12,36 @@ static class DSL<E, S, T, M>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => ParsecTEOF<E, S, T, M>.Default;
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ParsecT<E, S, T, M, A> pure<A>(A value) => 
+        new ParsecTPure<E, S, T, M, A>(value);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ParsecT<E, S, T, M, A> empty<A>() => 
+        ParsecTEmpty<E, S, T, M, A>.Default;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ParsecT<E, S, T, M, A> error<A>(
         ParseError<T, E> error) =>
         new ParsecTError<E, S, T, M, A>(error);
+
+
+    public static ParsecT<E, S, T, M, State<S, T, E>> ask
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => ParsecTAsk<E, S, T, M>.Default;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ParsecT<E, S, T, M, A> asks<A>(Func<State<S, T, E>, A> f) =>
+        new ParsecTAsks<E, S, T, M, A>(f);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ParsecT<E, S, T, M, A> local<A>(
+        Func<State<S, T, E>, State<S, T, E>> f, 
+        ParsecT<E, S, T, M, A> ma) =>
+        new ParsecTLocal<E, S, T, M, A>(f, ma);
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ParsecT<E, S, T, M, A> label<A>(
@@ -70,26 +95,25 @@ static class DSL<E, S, T, M>
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ParsecT<E, S, T, M, S> takeWhile(
-        in Option<string> name, 
-        Func<T, bool> test) =>
+        Func<T, bool> test,
+        in Option<string> name = default) =>
         new ParsecTTakeWhile<E, S, T, M>(name, test);
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ParsecT<E, S, T, M, S> takeWhile1(
-        in Option<string> name, 
-        Func<T, bool> test) =>
+        Func<T, bool> test,
+        in Option<string> name = default) =>
         new ParsecTTakeWhile1<E, S, T, M>(name, test);
     
-    public static ParsecT<E, S, T, M, State<S, T, E>> parserState 
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => ParsecTParserState<E, S, T, M>.Default;
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ParsecT<E, S, T, M, Unit> put(
+        State<S, T, E> s) =>
+        new ParsecTPutState<E, S, T, M>(s);
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ParsecT<E, S, T, M, Unit> updateParserState(
+    public static ParsecT<E, S, T, M, Unit> modify(
         Func<State<S, T, E>, State<S, T, E>> f) =>
-        new ParsecTUpdateParserState<E, S, T, M>(f);
+        new ParsecTModifyState<E, S, T, M>(f);
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ParsecT<E, S, T, M, A> lift<A>(

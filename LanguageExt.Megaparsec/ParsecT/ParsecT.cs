@@ -6,7 +6,6 @@ namespace LanguageExt.Megaparsec;
 /// <summary>
 /// Parser combinator transformer
 /// </summary>
-/// <param name="runParser"></param>
 /// <typeparam name="E">Error type</typeparam>
 /// <typeparam name="S">Token stream type</typeparam>
 /// <typeparam name="T">Token type</typeparam>

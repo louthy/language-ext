@@ -22,7 +22,9 @@ public interface MonadParsecT<MP, E, S, T, M> :
     MonadT<MP, M>,
     Alternative<MP>, 
     Identifiable<MP, string>,
-    Fallible<ParseError<T, E>, MP> 
+    Fallible<ParseError<T, E>, MP>,
+    Readable<MP, State<S, T, E>>, 
+    Stateful<MP, State<S, T, E>> 
     where MP : MonadParsecT<MP, E, S, T, M>
     where M : Monad<M>
     where S : TokenStream<S, T>
@@ -212,10 +214,10 @@ public interface MonadParsecT<MP, E, S, T, M> :
     /// 
     /// The combinator never fails, although it may parse the empty chunk.
     /// </summary>
-    /// <param name="name">Name for a single token in the row</param>
     /// <param name="test">Predicate to use to test tokens</param>
+    /// <param name="name">Name for a single token in the row</param>
     /// <returns>A chunk of matching tokens</returns>
-    public static abstract K<MP, S> TakeWhile(in Option<string> name, Func<T, bool> test);
+    public static abstract K<MP, S> TakeWhile(Func<T, bool> test, in Option<string> name = default);
 
     /// <summary>
     /// Parse one or more tokens for which the supplied predicate holds.
@@ -227,10 +229,10 @@ public interface MonadParsecT<MP, E, S, T, M> :
     /// 
     /// The combinator never fails, although it may parse the empty chunk.
     /// </summary>
-    /// <param name="name">Name for a single token in the row</param>
     /// <param name="test">Predicate to use to test tokens</param>
+    /// <param name="name">Name for a single token in the row</param>
     /// <returns>A chunk of matching tokens</returns>
-    public static abstract K<MP, S> TakeWhile1(in Option<string> name, Func<T, bool> test);
+    public static abstract K<MP, S> TakeWhile1(Func<T, bool> test, in Option<string> name = default);
 
     /// <summary>
     /// Extract the specified number of tokens from the input stream and
@@ -247,23 +249,10 @@ public interface MonadParsecT<MP, E, S, T, M> :
     /// in the input stream, it backtracks automatically. No `@try` is necessary
     /// with `take`.
     /// </summary>
-    /// <param name="name">Name for a single token in the row</param>
     /// <param name="n">How many tokens to extract</param>
+    /// <param name="name">Name for a single token in the row</param>
     /// <returns>A chunk of matching tokens</returns>
-    public static abstract K<MP, S> Take(in Option<string> name, int n);
-
-    /// <summary>
-    /// Return the full parser state as a `State` record
-    /// </summary>
-    /// <returns>Parser</returns>
-    public static abstract K<MP, State<S, T, E>> ParserState { get; }
-
-    /// <summary>
-    /// Update the parser state using the supplied function
-    /// </summary>
-    /// <param name="f">Update function</param>
-    /// <returns>Parser</returns>
-    public static abstract K<MP, Unit> UpdateParserState(Func<State<S, T, E>, State<S, T, E>> f);
+    public static abstract K<MP, S> Take(int n, in Option<string> name = default);
 
     /// <summary>
     /// An escape hatch for defining custom 'MonadParsec' primitives

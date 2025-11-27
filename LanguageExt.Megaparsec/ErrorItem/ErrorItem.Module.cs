@@ -28,7 +28,8 @@ public class ErrorItem : Functor<ErrorItem>
         {
             ErrorItem<A>.Tokens (var tokens) => Tokens(tokens.Map(f)),
             ErrorItem<A>.Label (var label)   => Label<B>(label),
-            ErrorItem<A>.EndfOfInput         => EndOfInput<B>()
+            ErrorItem<A>.EndfOfInput         => EndOfInput<B>(),
+            _                                => throw new NotSupportedException()
         };
 }
 
