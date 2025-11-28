@@ -6,6 +6,7 @@ namespace LanguageExt;
 
 public partial class Fin : 
     Monad<Fin>, 
+    MonoidK<Fin>, 
     Fallible<Fin>,
     Traversable<Fin>, 
     Alternative<Fin>,
@@ -44,12 +45,14 @@ public partial class Fin :
             _                                                     => throw new NotSupportedException()
         };
 
-    static K<Fin, B> Applicative<Fin>.Action<A, B>(K<Fin, A> ma, K<Fin, B> mb) =>
-        (ma, mb) switch
+    static K<Fin, B> Applicative<Fin>.Apply<A, B>(K<Fin, Func<A, B>> mf, Memo<Fin, A> ma) =>
+        (mf, ma.Value) switch
         {
-            (Fin<A>.Fail (var e1), Fin<B>.Fail (var e2)) => Fail<B>(e1 + e2),
-            (Fin<A>.Fail (var e1), _)                    => Fail<B>(e1),
-            var (_, r2)                                  => r2
+            (Fin<Func<A, B>>.Succ (var f), Fin<A>.Succ (var a))   => Succ(f(a)),
+            (Fin<Func<A, B>>.Fail (var e1), Fin<A>.Fail (var e2)) => Fail<B>(e1 + e2),
+            (Fin<Func<A, B>>.Fail (var e1), _)                    => Fail<B>(e1),
+            (_, Fin<A>.Fail (var e2))                             => Fail<B>(e2),
+            _                                                     => throw new NotSupportedException()
         };
 
     static S Foldable<Fin>.FoldWhile<A, S>(
@@ -85,6 +88,9 @@ public partial class Fin :
     static K<Fin, A> MonoidK<Fin>.Empty<A>() =>
         Fail<A>(Errors.None);
 
+    static K<Fin, A> Alternative<Fin>.Empty<A>() =>
+        Fail<A>(Errors.None);
+
     static K<Fin, A> SemigroupK<Fin>.Combine<A>(K<Fin, A> ma, K<Fin, A> mb) =>
         ma switch
         {
@@ -105,11 +111,11 @@ public partial class Fin :
             _           => mb
         };
 
-    static K<Fin, A> Choice<Fin>.Choose<A>(K<Fin, A> ma, Func<K<Fin, A>> mb) =>
+    static K<Fin, A> Choice<Fin>.Choose<A>(K<Fin, A> ma, Memo<Fin, A> mb) =>
         ma switch
         {
             Fin<A>.Succ => ma,
-            _           => mb()
+            _           => mb.Value
         };
 
     static K<Fin, A> ConsSucc<A>(A value) =>

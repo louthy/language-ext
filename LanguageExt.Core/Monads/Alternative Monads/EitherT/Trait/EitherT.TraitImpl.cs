@@ -27,8 +27,8 @@ public partial class EitherT<L, M> :
     static K<EitherT<L, M>, B> Applicative<EitherT<L, M>>.Apply<A, B>(K<EitherT<L, M>, Func<A, B>> mf, K<EitherT<L, M>, A> ma) =>
         mf.As().Bind(x => ma.As().Map(x));
 
-    static K<EitherT<L, M>, B> Applicative<EitherT<L, M>>.Action<A, B>(K<EitherT<L, M>, A> ma, K<EitherT<L, M>, B> mb) =>
-        ma.As().Bind(_ => mb);
+    static K<EitherT<L, M>, B> Applicative<EitherT<L, M>>.Apply<A, B>(K<EitherT<L, M>, Func<A, B>> mf, Memo<EitherT<L, M>, A> ma) =>
+        mf.As().Bind(x => ma.Value.As().Map(x));
 
     static K<EitherT<L, M>, A> MonadT<EitherT<L, M>, M>.Lift<A>(K<M, A> ma) => 
         EitherT.lift<L, M, A>(ma);
@@ -46,13 +46,13 @@ public partial class EitherT<L, M> :
                              _                  => M.Pure(ea)
                          }));
 
-    static K<EitherT<L, M>, A> Choice<EitherT<L, M>>.Choose<A>(K<EitherT<L, M>, A> ma, Func<K<EitherT<L, M>, A>> mb) =>
+    static K<EitherT<L, M>, A> Choice<EitherT<L, M>>.Choose<A>(K<EitherT<L, M>, A> ma, Memo<EitherT<L, M>, A> mb) =>
         new EitherT<L, M, A>(
             M.Bind(ma.As().runEither,
                    ea => ea switch
                          {
                              Either<L, A>.Right => M.Pure(ea),
-                             Either<L, A>.Left  => mb().As().runEither,
+                             Either<L, A>.Left  => mb.Value.As().runEither,
                              _                  => M.Pure(ea)
                          }));
 

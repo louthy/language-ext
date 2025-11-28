@@ -222,7 +222,4 @@ public record TryT<M, A>(K<M, Try<A>> runTry) :
     
     public static implicit operator TryT<M, A>(IO<A> ma) =>
         TryT.liftIOMaybe<M, A>(ma);
-    
-    public TryT<M, A> Combine(TryT<M, A> rhs) =>
-        this.Kind().Combine(rhs).As();
 }

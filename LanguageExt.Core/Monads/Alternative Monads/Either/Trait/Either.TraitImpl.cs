@@ -7,9 +7,9 @@ namespace LanguageExt;
 /// Monad trait implementation for `Either〈L, R〉`
 /// </summary>
 /// <typeparam name="L">Left type parameter</typeparam>
-public class Either<L> : 
+public class Either<L> :
     Either,
-    Monad<Either<L>>, 
+    Monad<Either<L>>,
     Fallible<L, Either<L>>,
     Traversable<Either<L>>,
     Natural<Either<L>, Option>,
@@ -26,11 +26,16 @@ public class Either<L> :
             _                                                                 => throw new NotSupportedException()
         };
 
-    static K<Either<L>, B> Applicative<Either<L>>.Action<A, B>(
-        K<Either<L>, A> ma, 
-        K<Either<L>, B> mb) => 
-        mb;
-
+    static K<Either<L>, B> Applicative<Either<L>>.Apply<A, B>(
+        K<Either<L>, Func<A, B>> mf,
+        Memo<Either<L>, A> ma) =>
+        mf switch
+        {
+            Either<L, Func<A, B>>.Right         => mf.Apply(ma.Value),
+            Either<L, Func<A, B>>.Left (var e1) => Left<B>(e1),
+            _                                   => throw new NotSupportedException()
+        };
+    
     static K<Either<L>, B> Monad<Either<L>>.Bind<A, B>(K<Either<L>, A> ma, Func<A, K<Either<L>, B>> f) =>
         ma switch
         {
@@ -89,8 +94,8 @@ public class Either<L> :
     static K<Either<L>, A> Choice<Either<L>>.Choose<A>(K<Either<L>, A> ma, K<Either<L>, A> mb) =>
         ma is Either<L, A>.Right ? ma : mb;
 
-    static K<Either<L>, A> Choice<Either<L>>.Choose<A>(K<Either<L>, A> ma, Func<K<Either<L>, A>> mb) => 
-        ma is Either<L, A>.Right ? ma : mb();
+    static K<Either<L>, A> Choice<Either<L>>.Choose<A>(K<Either<L>, A> ma, Memo<Either<L>, A> mb) => 
+        ma is Either<L, A>.Right ? ma : mb.Value;
 
     static K<Either<L>, A> Fallible<L, Either<L>>.Fail<A>(L error) => 
         new Either<L, A>.Left(error);

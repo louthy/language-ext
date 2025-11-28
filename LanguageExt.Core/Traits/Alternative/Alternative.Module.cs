@@ -7,6 +7,16 @@ namespace LanguageExt.Traits;
 public static class Alternative
 {
     /// <summary>
+    /// Empty / none state for the `F` structure 
+    /// </summary>
+    /// <typeparam name="F">Alternative trait implementation</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Empty</returns>
+    public static K<F, A> empty<F, A>()
+        where F : Alternative<F> =>
+        F.Empty<A>();
+    
+    /// <summary>
     /// Given a set of applicative functors, return the first one to succeed.
     /// </summary>
     /// <remarks>

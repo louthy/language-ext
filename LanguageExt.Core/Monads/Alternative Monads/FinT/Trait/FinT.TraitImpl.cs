@@ -11,6 +11,7 @@ namespace LanguageExt;
 public partial class FinT<M> : 
     MonadT<FinT<M>, M>, 
     Fallible<FinT<M>>,
+    MonoidK<FinT<M>>,
     Alternative<FinT<M>>,
     Natural<FinT<M>, EitherT<Error, M>>,
     Natural<FinT<M>, OptionT<M>>,
@@ -28,15 +29,10 @@ public partial class FinT<M> :
         FinT.Succ<M, A>(value);
 
     static K<FinT<M>, B> Applicative<FinT<M>>.Apply<A, B>(K<FinT<M>, Func<A, B>> mf, K<FinT<M>, A> ma) =>
-        new FinT<M, B>(
-            M.Pure((Fin<Func<A, B>> ff) => 
-                       (Fin<A> fa) => 
-                           ff.Apply(fa).As())
-             .Apply(mf.As().runFin)
-             .Apply(ma.As().runFin));
+        new FinT<M, B>(((Fin<Func<A, B>> ff, Fin<A> fa) => ff.Apply(fa)) * mf.As().runFin * ma.As().runFin);
 
-    static K<FinT<M>, B> Applicative<FinT<M>>.Action<A, B>(K<FinT<M>, A> ma, K<FinT<M>, B> mb) =>
-        ma.As().Bind(_ => mb);
+    static K<FinT<M>, B> Applicative<FinT<M>>.Apply<A, B>(K<FinT<M>, Func<A, B>> mf, Memo<FinT<M>, A> ma) =>
+        new FinT<M, B>(((Fin<Func<A, B>> ff, Fin<A> fa) => ff.Apply(fa)) * mf.As().runFin * ma.Value.As().runFin);
 
     static K<FinT<M>, A> MonadT<FinT<M>, M>.Lift<A>(K<M, A> ma) => 
         FinT.lift(ma);
@@ -45,6 +41,9 @@ public partial class FinT<M> :
         FinT.lift(M.LiftIOMaybe(ma));
 
     static K<FinT<M>, A> MonoidK<FinT<M>>.Empty<A>() =>
+        FinT.Fail<M, A>(Error.Empty);
+
+    static K<FinT<M>, A> Alternative<FinT<M>>.Empty<A>() =>
         FinT.Fail<M, A>(Error.Empty);
 
     static K<FinT<M>, A> SemigroupK<FinT<M>>.Combine<A>(K<FinT<M>, A> ma, K<FinT<M>, A> mb) =>
@@ -67,13 +66,13 @@ public partial class FinT<M> :
                              _           => M.Pure(ea)
                          }));
 
-    static K<FinT<M>, A> Choice<FinT<M>>.Choose<A>(K<FinT<M>, A> ma, Func<K<FinT<M>, A>> mb) => 
+    static K<FinT<M>, A> Choice<FinT<M>>.Choose<A>(K<FinT<M>, A> ma, Memo<FinT<M>, A> mb) => 
         new FinT<M, A>(
             M.Bind(ma.As().runFin,
                    ea => ea switch
                          {
                              Fin<A>.Succ => M.Pure(ea),
-                             Fin<A>.Fail => mb().As().runFin,
+                             Fin<A>.Fail => mb.Value.As().runFin,
                              _           => M.Pure(ea)
                          }));
 

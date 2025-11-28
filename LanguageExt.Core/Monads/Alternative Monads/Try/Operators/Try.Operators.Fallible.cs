@@ -15,7 +15,7 @@ public static partial class TryExtensions
             +lhs.Catch(rhs);
 
         public static Try<A> operator |(K<Try, A> lhs, Fail<Exception> rhs) =>
-            +lhs.Combine(Try.Fail<A>(rhs.Value));
+            +lhs.Choose(Try.Fail<A>(rhs.Value));
 
         public static Try<A> operator |(K<Try, A> lhs, Error rhs) =>
             +lhs.Catch(rhs);

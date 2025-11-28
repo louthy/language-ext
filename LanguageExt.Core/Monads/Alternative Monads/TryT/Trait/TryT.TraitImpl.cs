@@ -28,9 +28,11 @@ public partial class TryT<M> :
         new TryT<M, B>(mf.As().runTry.Bind(
                            mf1 => ma.As().runTry.Bind(
                                ma1 => M.Pure(mf1.Apply(ma1)))));
-
-    static K<TryT<M>, B> Applicative<TryT<M>>.Action<A, B>(K<TryT<M>, A> ma, K<TryT<M>, B> mb) =>
-        ma.As().Bind(_ => mb);
+    
+    static K<TryT<M>, B> Applicative<TryT<M>>.Apply<A, B>(K<TryT<M>, Func<A, B>> mf, Memo<TryT<M>, A> ma) =>
+        new TryT<M, B>(mf.As().runTry.Bind(
+                           mf1 => ma.Value.As().runTry.Bind(
+                               ma1 => M.Pure(mf1.Apply(ma1)))));
 
     static K<TryT<M>, A> MonadT<TryT<M>, M>.Lift<A>(K<M, A> ma) => 
         TryT.lift(ma);
@@ -38,26 +40,8 @@ public partial class TryT<M> :
     static K<TryT<M>, A> MonadIO<TryT<M>>.LiftIO<A>(IO<A> ma) => 
         TryT.liftIOMaybe<M, A>(ma);
 
-    static K<TryT<M>, A> MonoidK<TryT<M>>.Empty<A>() =>
+    static K<TryT<M>, A> Alternative<TryT<M>>.Empty<A>() =>
         TryT.Fail<M, A>(Error.Empty);
- 
-    static K<TryT<M>, A> SemigroupK<TryT<M>>.Combine<A>(K<TryT<M>, A> ma, K<TryT<M>, A> mb) =>
-        new TryT<M, A>(ma.Run().Bind(
-                           lhs => lhs switch
-                                  {
-                                      Fin<A>.Succ (var x) =>
-                                          M.Pure(Try.Succ(x)),
-
-                                      Fin<A>.Fail (var e1) =>
-                                          mb.Run().Bind(
-                                              r => r switch
-                                                   {
-                                                       Fin<A>.Succ (var x)  => M.Pure(Try.Succ(x)),
-                                                       Fin<A>.Fail (var e2) => M.Pure(Try.Fail<A>(e1 + e2)),
-                                                       _                       => throw new NotSupportedException()
-                                                   }),
-                                      _ => throw new NotSupportedException()
-                                  }));
 
     static K<TryT<M>, A> Choice<TryT<M>>.Choose<A>(K<TryT<M>, A> ma, K<TryT<M>, A> mb) =>
         new TryT<M, A>(ma.Run().Bind(
@@ -68,12 +52,12 @@ public partial class TryT<M> :
                                       _                      => throw new NotSupportedException()
                                   }));
 
-    static K<TryT<M>, A> Choice<TryT<M>>.Choose<A>(K<TryT<M>, A> ma, Func<K<TryT<M>, A>> mb) => 
+    static K<TryT<M>, A> Choice<TryT<M>>.Choose<A>(K<TryT<M>, A> ma, Memo<TryT<M>, A> mb) => 
         new TryT<M, A>(ma.Run().Bind(
                            lhs => lhs switch
                                   {
                                       Fin<A>.Succ (var x) => M.Pure(Try.Succ(x)),
-                                      Fin<A>.Fail         => mb().As().runTry,
+                                      Fin<A>.Fail         => mb.Value.As().runTry,
                                       _                      => throw new NotSupportedException()
                                   }));
 

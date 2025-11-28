@@ -9,6 +9,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class Validation<FAIL> :
     Monad<Validation<FAIL>>,
+    MonoidK<Validation<FAIL>>,
     Alternative<Validation<FAIL>>,
     Traversable<Validation<FAIL>>,
     Fallible<FAIL, Validation<FAIL>>
@@ -41,11 +42,20 @@ public partial class Validation<FAIL> :
         K<Validation<FAIL>, A> ma) =>
         mf.ApplyI(ma, SemigroupInstance<FAIL>.Instance);
 
-    static K<Validation<FAIL>, B> Applicative<Validation<FAIL>>.Action<A, B>(
-        K<Validation<FAIL>, A> ma,
-        K<Validation<FAIL>, B> mb) =>
-        ma.ActionI(mb, SemigroupInstance<FAIL>.Instance);
-    
+    static K<Validation<FAIL>, B> Applicative<Validation<FAIL>>.Apply<A, B>(
+        K<Validation<FAIL>, Func<A, B>> mf,
+        Memo<Validation<FAIL>, A> ma) =>
+        mf.ApplyI(ma.Value, SemigroupInstance<FAIL>.Instance);
+
+    static K<Validation<FAIL>, A> Alternative<Validation<FAIL>>.Empty<A>() =>
+        MonoidInstance<FAIL>.Instance switch
+        {
+            { IsSome: true, Value: { } monoid } =>
+                Validation.FailI<FAIL, A>(monoid.Empty),
+
+            _ => throw new NotSupportedException($"{typeof(FAIL).Name} must be a Monoid")
+        };
+
     static K<Validation<FAIL>, A> MonoidK<Validation<FAIL>>.Empty<A>() =>
         MonoidInstance<FAIL>.Instance switch
         {
@@ -72,14 +82,17 @@ public partial class Validation<FAIL> :
 
     static K<Validation<FAIL>, A> Choice<Validation<FAIL>>.Choose<A>(
         K<Validation<FAIL>, A> ma,
-        Func<K<Validation<FAIL>, A>> mb) =>
-        (ma, mb) switch
+        Memo<Validation<FAIL>, A> mb) =>
+        ma switch
         {
-            (Validation<FAIL, A>.Success, _) => ma,
-            (_, Validation<FAIL, A>.Success) => mb(),
-            _                                => ma
+            Validation<FAIL, A>.Success => ma,
+            _                           => mb.Value switch
+                                           {
+                                               Validation<FAIL, A>.Success b => b,
+                                               _ => ma
+                                           }
         };
-
+    
     static S Foldable<Validation<FAIL>>.FoldWhile<A, S>(
         Func<A, Func<S, S>> f,
         Func<(S State, A Value), bool> predicate,

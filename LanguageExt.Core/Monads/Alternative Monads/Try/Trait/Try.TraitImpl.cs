@@ -30,24 +30,11 @@ public partial class Try :
     static K<Try, B> Applicative<Try>.Apply<A, B>(K<Try, Func<A, B>> mf, K<Try, A> ma) =>
         new Try<B>(() => mf.Run().Apply(ma.Run()));
 
-    static K<Try, B> Applicative<Try>.Action<A, B>(K<Try, A> ma, K<Try, B> mb) =>
-        new Try<B>(() => ma.Run() switch
-                         {
-                             Fin<A>.Succ        => mb.Run(),
-                             Fin<A>.Fail(var e) => Fin.Fail<B>(e),
-                             _                  => throw new NotSupportedException()
-                         });
+    static K<Try, B> Applicative<Try>.Apply<A, B>(K<Try, Func<A, B>> mf, Memo<Try, A> ma) =>
+        new Try<B>(() => mf.Run().Apply(ma.Value.Run()));
 
-    static K<Try, A> MonoidK<Try>.Empty<A>() =>
+    static K<Try, A> Alternative<Try>.Empty<A>() =>
         Try.Fail<A>(Error.Empty);
-
-    static K<Try, A> SemigroupK<Try>.Combine<A>(K<Try, A> ma, K<Try, A> mb) =>
-        new Try<A>(() => ma.Run() switch
-                         {
-                             Fin<A>.Succ(var x) => Fin.Succ<A>(x),
-                             Fin<A>.Fail fa     => fa.Combine(mb.Run()).As(),
-                             _                  => throw new NotSupportedException()
-                         });
 
     static K<Try, A> Choice<Try>.Choose<A>(K<Try, A> ma, K<Try, A> mb) =>
         new Try<A>(() => ma.Run() switch
@@ -57,11 +44,11 @@ public partial class Try :
                              _                  => throw new NotSupportedException()
                          });
 
-    static K<Try, A> Choice<Try>.Choose<A>(K<Try, A> ma, Func<K<Try, A>> mb) => 
+    static K<Try, A> Choice<Try>.Choose<A>(K<Try, A> ma, Memo<Try, A> mb) => 
         new Try<A>(() => ma.Run() switch
                          {
                              Fin<A>.Succ(var x) => Fin.Succ(x),
-                             Fin<A>.Fail        => mb().Run(),
+                             Fin<A>.Fail        => mb.Value.Run(),
                              _                  => throw new NotSupportedException()
                          });
 

@@ -26,10 +26,10 @@ public partial class Option :
         Some(value);
 
     static K<Option, B> Applicative<Option>.Apply<A, B>(K<Option, Func<A, B>> mf, K<Option, A> ma) =>
-        mf.As().Bind(x => ma.As().Map(x));
+        mf.As().Bind(f => ma.As().Map(f));
 
-    static K<Option, B> Applicative<Option>.Action<A, B>(K<Option, A> ma, K<Option, B> mb) =>
-        mb;
+    static K<Option, B> Applicative<Option>.Apply<A, B>(K<Option, Func<A, B>> mf, Memo<Option, A> ma) =>
+        mf.As().Bind(f => ma.Value.As().Map(f));
 
     static S Foldable<Option>.FoldWhile<A, S>(
         Func<A, Func<S, S>> f, 
@@ -49,9 +49,9 @@ public partial class Option :
 
     static K<F, K<Option, B>> Traversable<Option>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Option, A> ta) =>
         ta.As().Match(Some: a => F.Map(Prelude.pure<Option, B>, f(a)),
-                      None: F.Pure(MonoidK.empty<Option, B>()));
+                      None: F.Pure(Alternative.empty<Option, B>()));
 
-    static K<Option, A> MonoidK<Option>.Empty<A>() =>
+    static K<Option, A> Alternative<Option>.Empty<A>() =>
         Option<A>.None;
 
     static K<Option, A> Choice<Option>.Choose<A>(K<Option, A> ma, K<Option, A> mb) =>
@@ -61,15 +61,12 @@ public partial class Option :
             _                => mb
         };
 
-    static K<Option, A> Choice<Option>.Choose<A>(K<Option, A> ma, Func<K<Option, A>> mb) => 
+    static K<Option, A> Choice<Option>.Choose<A>(K<Option, A> ma, Memo<Option, A> mb) => 
         ma.As() switch
         {
             { IsSome: true } => ma,
-            _                => mb()
+            _                => mb.Value
         };
-
-    static K<Option, A> SemigroupK<Option>.Combine<A>(K<Option, A> lhs, K<Option, A> rhs) =>
-        lhs.Choose(rhs);
 
     public static B Match<A, B>(K<Option, A> fa, Func<A, B> Some, Func<B> None) =>
         fa.As().Match(Some, None);

@@ -27,8 +27,8 @@ public partial class OptionT<M> :
     static K<OptionT<M>, B> Applicative<OptionT<M>>.Apply<A, B>(K<OptionT<M>, Func<A, B>> mf, K<OptionT<M>, A> ma) =>
         mf.As().Bind(x => ma.As().Map(x));
 
-    static K<OptionT<M>, B> Applicative<OptionT<M>>.Action<A, B>(K<OptionT<M>, A> ma, K<OptionT<M>, B> mb) =>
-        ma.As().Bind(_ => mb);
+    static K<OptionT<M>, B> Applicative<OptionT<M>>.Apply<A, B>(K<OptionT<M>, Func<A, B>> mf, Memo<OptionT<M>, A> ma) =>
+        mf.As().Bind(x => ma.Value.As().Map(x));
 
     static K<OptionT<M>, A> MonadT<OptionT<M>, M>.Lift<A>(K<M, A> ma) => 
         OptionT.lift(ma);
@@ -36,7 +36,7 @@ public partial class OptionT<M> :
     static K<OptionT<M>, A> MonadIO<OptionT<M>>.LiftIO<A>(IO<A> ma) => 
         OptionT.lift(M.LiftIOMaybe(ma));
 
-    static K<OptionT<M>, A> MonoidK<OptionT<M>>.Empty<A>() =>
+    static K<OptionT<M>, A> Alternative<OptionT<M>>.Empty<A>() =>
         OptionT<M, A>.None;
  
     static K<OptionT<M>, A> Choice<OptionT<M>>.Choose<A>(K<OptionT<M>, A> ma, K<OptionT<M>, A> mb) =>
@@ -46,15 +46,12 @@ public partial class OptionT<M> :
                              ? M.Pure(ea)
                              : mb.As().runOption));
 
-    static K<OptionT<M>, A> Choice<OptionT<M>>.Choose<A>(K<OptionT<M>, A> ma, Func<K<OptionT<M>, A>> mb) => 
+    static K<OptionT<M>, A> Choice<OptionT<M>>.Choose<A>(K<OptionT<M>, A> ma, Memo<OptionT<M>, A> mb) => 
         new OptionT<M, A>(
             M.Bind(ma.As().runOption,
                    ea => ea.IsSome
                              ? M.Pure(ea)
-                             : mb().As().runOption));
-
-    static K<OptionT<M>, A> SemigroupK<OptionT<M>>.Combine<A>(K<OptionT<M>, A> lhs, K<OptionT<M>, A> rhs) =>
-        lhs.Choose(rhs);
+                             : mb.Value.As().runOption));
 
     static K<OptionT<M>, A> Fallible<Unit, OptionT<M>>.Fail<A>(Unit error) =>
         OptionT.None<M, A>();
