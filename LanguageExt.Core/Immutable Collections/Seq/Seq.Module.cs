@@ -12,11 +12,8 @@ using System.Runtime.CompilerServices;
 namespace LanguageExt;
 
 /// <summary>
-/// Cons sequence module
-/// Represents a sequence of values in a similar way to IEnumerable, but without the
-/// issues of multiple evaluation for key LINQ operators like Skip, Count, etc.
+/// `Seq` module
 /// </summary>
-/// <typeparam name="A">Type of the values in the sequence</typeparam>
 public partial class Seq
 {
     /// <summary>

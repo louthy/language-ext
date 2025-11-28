@@ -4,6 +4,7 @@ using System.Linq;
 using LanguageExt.Common;
 using LanguageExt.DSL;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -21,12 +22,28 @@ public partial class IO :
             _                        => ma.As().ApplyBack(mf.As()),
         };
 
-    static K<IO, B> Applicative<IO>.Action<A, B>(K<IO, A> ma, K<IO, B> mb) =>
-        (ma, mb) switch
+    static Memo<IO, B> Applicative<IO>.Apply<A, B>(K<IO, Func<A, B>> mf, Memo<IO, A> ma) =>
+        mf switch
         {
-            (IOEmpty<A>, IOEmpty<B>) => IOEmpty<B>.Default,
-            (IOEmpty<B>, var my)     => my,
-            _                        => new IOAction<A, B, B>(ma, mb, pure),
+            IOEmpty<Func<A, B>>       => memoF(IOEmpty<B>.Default),
+            IOFail<Func<A, B>>(var e) => memoF(new IOFail<B>(e)),
+            _                         => memoF(() => ma.Value.As().ApplyBack(mf)) 
+        };
+
+    static K<IO, B> Applicative<IO>.Action<A, B>(K<IO, A> ma, K<IO, B> mb) =>
+        ma switch
+        {
+            IOEmpty<A>       => IOEmpty<B>.Default,
+            IOFail<A>(var e) => new IOFail<B>(e),
+            _                => new IOAction<A, B, B>(ma, mb, pure)
+        };
+
+    static Memo<IO, B> Applicative<IO>.Action<A, B>(K<IO, A> ma, Memo<IO, B> mb) =>
+        ma switch
+        {
+            IOEmpty<A>       => memoF(IOEmpty<B>.Default),
+            IOFail<A>(var e) => memoF(new IOFail<B>(e)),
+            _                => memoF(new IOActionLazy<A, B, B>(ma, mb, pure))
         };
 
     static K<IO, A> Applicative<IO>.Actions<A>(IEnumerable<K<IO, A>> fas) =>
@@ -36,9 +53,13 @@ public partial class IO :
         new IOAsyncActions<A, A>(fas.FilterAsync(fa => fa is not IOEmpty<A>).GetIteratorAsync(), pure);
 
     static K<IO, B> Monad<IO>.Bind<A, B>(K<IO, A> ma, Func<A, K<IO, B>> f) =>
-        ma is IOEmpty<A>
-            ? IOEmpty<B>.Default
-            : ma.As().Bind(f);
+        ma switch
+        {
+            IOEmpty<A>       => IOEmpty<B>.Default,
+            IOFail<A>(var e) => new IOFail<B>(e),
+            IO<A> io         => io.Bind(f),
+            _                => throw new NotSupportedException()
+        };
 
     static K<IO, B> Functor<IO>.Map<A, B>(Func<A, B> f, K<IO, A> ma) => 
         ma is IOEmpty<A>
@@ -52,27 +73,33 @@ public partial class IO :
         fail<A>(error);
 
     static K<IO, A> Fallible<Error, IO>.Catch<A>(
-        K<IO, A> fa, 
+        K<IO, A> fa,
         Func<Error, bool> Predicate,
         Func<Error, K<IO, A>> Fail) =>
-        fa is IOEmpty<A>
-            ? fa
-            : new IOCatch<A, A>(fa, Predicate, Fail, null, pure);
+        fa switch
+        {
+            IOEmpty<A>       => Predicate(Errors.None) ? Fail(Errors.None) : fa,
+            IOFail<A>(var e) => Predicate(e) ? Fail(e) : fa,
+            _                => new IOCatch<A, A>(fa, Predicate, Fail, null, pure),
+        };        
 
     static K<IO, A> Choice<IO>.Choose<A>(K<IO, A> fa, K<IO, A> fb) =>
-        fa is IOEmpty<A>
-            ? fb
-            : new IOCatch<A, A>(fa, _ => true, _ => fb, null, pure);
+        fa switch
+        {
+            IOEmpty<A> => fb,
+            IOFail<A>  => fb,
+            _          => new IOCatch<A, A>(fa, _ => true, _ => fb, null, pure)
+        };
 
-    static K<IO, A> Choice<IO>.Choose<A>(K<IO, A> fa, Func<K<IO, A>> fb) => 
-        fa is IOEmpty<A>
-            ? fb()
-            : new IOCatch<A, A>(fa, _ => true, _ => fb(), null, pure);
+    static Memo<IO, A> Choice<IO>.Choose<A>(K<IO, A> fa, Memo<IO, A> fb) =>
+        fa switch
+        {
+            IOEmpty<A> => fb,
+            IOFail<A>  => fb,
+            _          => memoF(new IOCatch<A, A>(fa, _ => true, _ => fb.Value, null, pure))
+        };
 
-    static K<IO, A> SemigroupK<IO>.Combine<A>(K<IO, A> lhs, K<IO, A> rhs) =>
-        lhs.Choose(rhs);
-
-    static K<IO, A> MonoidK<IO>.Empty<A>() =>
+    static K<IO, A> Alternative<IO>.Empty<A>() =>
         empty<A>();
 
     static K<IO, A> MonadIO<IO>.LiftIO<A>(IO<A> ma) => 

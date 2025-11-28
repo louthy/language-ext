@@ -15,7 +15,7 @@ internal static class Reach<S, T>
     /// <param name="o">Offset to reach</param>
     /// <param name="posState">Initial `PosState` to use</param>
     /// <returns></returns>
-    public static (string Line, PosState<S> UpdatedState) offset(int o, PosState<S> posState) 
+    public static (string Line, PosState<S> UpdatedState) offset(int o, in PosState<S> posState) 
     {
         // Split the input stream at the current offset position
         // TODO: Consider if the maths here are correct
@@ -98,7 +98,7 @@ internal static class Reach<S, T>
     /// <param name="o">Offset to reach</param>
     /// <param name="posState">Initial `PosState` to use</param>
     /// <returns></returns>
-    public static PosState<S> offsetNoLine(int o, PosState<S> posState)                    
+    public static PosState<S> offsetNoLine(int o, in PosState<S> posState)                    
     {
         // Split the input stream at the current offset position
         // TODO: Consider if the maths here are correct

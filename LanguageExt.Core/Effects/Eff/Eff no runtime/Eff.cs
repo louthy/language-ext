@@ -21,10 +21,12 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     Fallible<Eff<A>>,
     K<Eff, A>,
     Alternative<Eff<A>>,
+    MonoidK<Eff<A>>,
     Final<Eff<A>>,
-    Choice<Eff<A>>,
     Deriving.Readable<Eff<A>, A, ReaderT<A, IO>>,
-    Deriving.MonadUnliftIO<Eff<A>, ReaderT<A, IO>>
+    Deriving.MonadUnliftIO<Eff<A>, ReaderT<A, IO>>,
+    Natural<Eff<MinRT>, Eff>,
+    CoNatural<Eff<MinRT>, Eff>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -585,8 +587,17 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     static K<Eff<A>, A1> Choice<Eff<A>>.Choose<A1>(K<Eff<A>, A1> lhs, K<Eff<A>, A1> rhs) => 
         lhs.Catch(rhs);
 
-    static K<Eff<A>, A1> Choice<Eff<A>>.Choose<A1>(K<Eff<A>, A1> lhs, Func<K<Eff<A>, A1>> rhs) => 
-        lhs.Catch(_ => rhs());
+    static Memo<Eff<A>, A1> Choice<Eff<A>>.Choose<A1>(K<Eff<A>, A1> lhs, Memo<Eff<A>, A1> rhs) => 
+        memoF(lhs.Catch(_ => rhs.Value));
+
+    static K<Eff<A>, T> Alternative<Eff<A>>.Empty<T>() => 
+        Eff<A, T>.Fail(Errors.None);
+
+    static K<Eff, T> Natural<Eff<MinRT>, Eff>.Transform<T>(K<Eff<MinRT>, T> fa) => 
+        new Eff<T>(fa.As());
+
+    static K<Eff<MinRT>, T> CoNatural<Eff<MinRT>, Eff>.CoTransform<T>(K<Eff, T> fa) =>
+        fa.As().effect;
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

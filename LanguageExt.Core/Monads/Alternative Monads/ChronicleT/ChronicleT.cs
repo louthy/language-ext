@@ -216,11 +216,11 @@ public record ChronicleT<Ch, M, A>(Func<SemigroupInstance<Ch>, K<M, These<Ch, A>
     /// <summary>
     /// Coalescing operation
     /// </summary>
-    public ChronicleT<Ch, M, A> Choose(Func<K<ChronicleT<Ch, M>, A>> rhs) =>
+    public ChronicleT<Ch, M, A> Choose(Memo<ChronicleT<Ch, M>, A> rhs) =>
         Memento()
            .Bind(x => x switch
                       {
-                          Either<Ch, A>.Left         => rhs(),
+                          Either<Ch, A>.Left         => rhs.Value,
                           Either<Ch, A>.Right(var r) => dictate<Ch, M, A>(r),
                           _                          => throw new NSE()
                       });

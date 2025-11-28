@@ -15,7 +15,7 @@ public static class Alternative
     [Pure]
     public static K<F, A> oneOf<F, A>(params K<F, A>[] ms)
         where F : Alternative<F> =>
-        oneOf(toSeq(ms));
+        F.OneOf(ms);
 
     /// <summary>
     /// Given a set of applicative functors, return the first one to succeed.
@@ -25,17 +25,20 @@ public static class Alternative
     /// </remarks>
     [Pure]
     public static K<F, A> oneOf<F, A>(Seq<K<F, A>> ms)
-        where F : Alternative<F>
-    {
-        if(ms.IsEmpty()) return F.Empty<A>();
-        var r = ms[0];
-        foreach (var m in ms.Tail)
-        {
-            r = F.Choose(r, m);
-        }
-        return r;
-    }
-    
+        where F : Alternative<F> =>
+        F.OneOf(ms);
+
+    /// <summary>
+    /// Given a set of applicative functors, return the first one to succeed.
+    /// </summary>
+    /// <remarks>
+    /// If none succeed, the last applicative functor will be returned.
+    /// </remarks>
+    [Pure]
+    public static K<F, A> oneOf<F, A>(ReadOnlySpan<K<F, A>> ms)
+        where F : Alternative<F> =>
+        F.OneOf(ms);
+
     /// <summary>
     /// One or more...
     /// </summary>
@@ -52,16 +55,8 @@ public static class Alternative
     /// <returns>One or more values</returns>
     [Pure]
     public static K<F, Seq<A>> some<F, A>(K<F, A> fa)
-        where F : Alternative<F>, Applicative<F>
-    {
-        return some_v();
-        
-        K<F, Seq<A>> many_v() =>
-            F.Choose(some_v(), F.Pure(Seq<A>()));
-
-        K<F, Seq<A>> some_v() =>
-            Append<A>.cons.Map(fa).Apply(many_v);
-    }
+        where F : Alternative<F>, Applicative<F> =>
+        F.Some(fa);
     
     /// <summary>
     /// Zero or more...
@@ -78,20 +73,20 @@ public static class Alternative
     /// <returns>Zero or more values</returns>
     [Pure]
     public static K<F, Seq<A>> many<F, A>(K<F, A> fa)
-        where F : Alternative<F>, Applicative<F>
-    {
-        return many_v();
-        
-        K<F, Seq<A>> many_v() =>
-            F.Choose(some_v(), F.Pure(Seq<A>()));
+        where F : Alternative<F>, Applicative<F> =>
+        F.Many(fa);
 
-        K<F, Seq<A>> some_v() =>
-            Append<A>.cons.Map(fa).Apply(many_v);
-    }
-        
-    static class Append<A>
-    {
-        public static readonly Func<A, Func<Seq<A>, Seq<A>>> cons =
-            x => xs => x.Cons(xs);
-    }    
+    /// <summary>
+    /// Skip zero or more...
+    /// </summary>
+    /// <remarks>
+    /// Run the applicative functor repeatedly until failure.
+    /// Will always succeed.
+    /// </remarks>
+    /// <param name="fa">Applicative functor</param>
+    /// <returns>Unit</returns>
+    [Pure]
+    public static K<F, Unit> skipMany<F, A>(K<F, A> fa)
+        where F : Alternative<F>, Applicative<F> =>
+        F.SkipMany(fa);
 }

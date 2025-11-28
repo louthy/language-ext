@@ -789,7 +789,7 @@ public static class IL
         var result        = Expression.Variable(typeof(string), "result");
         var returnTarget  = Expression.Label(typeof(string));
             
-        if (name.IndexOf('`') != -1) name = name.Split('`').AsIterable().Head().Value!;
+        if (name.IndexOf('`') != -1) name = name.Split('`').AsIterable().Head.Value!;
 
         Expression fieldExpr(FieldInfo field)
         {
@@ -857,7 +857,7 @@ public static class IL
         var appendString = GetPublicInstanceMethod<StringBuilder, string>("Append", true).IfNone(() => throw new ArgumentException($"Append method found for StringBuilder"));
         var toString = GetPublicInstanceMethod<Object>("ToString", true).IfNone(() => throw new ArgumentException($"ToString method found for Object"));
         var name = typeof(A).Name;
-        if (name.IndexOf('`') != -1) name = name.Split('`').AsIterable().Head().Value!;
+        if (name.IndexOf('`') != -1) name = name.Split('`').AsIterable().Head.Value!;
 
         var il = dynamic.GetILGenerator();
         il.DeclareLocal(typeof(StringBuilder));
@@ -936,7 +936,7 @@ public static class IL
                .IfNone(() => throw new Exception());
 
             if (field.FieldType.GetTypeInfo().IsValueType && 
-                convertToString.GetParameters().AsIterable().Head().Value!.ParameterType == typeof(object))
+                convertToString.GetParameters().AsIterable().Head.Value!.ParameterType == typeof(object))
             {
                 il.Emit(OpCodes.Box, field.FieldType);
             }

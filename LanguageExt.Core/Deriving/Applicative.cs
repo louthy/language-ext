@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using LanguageExt.Async.Linq;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -28,16 +25,7 @@ public static partial class Deriving
         static K<Supertype, B> Applicative<Supertype>.Apply<A, B>(K<Supertype, Func<A, B>> mf, K<Supertype, A> ma) =>
             Supertype.CoTransform(Subtype.Apply(Supertype.Transform(mf), Supertype.Transform(ma)));
 
-        static K<Supertype, C> Applicative<Supertype>.Apply<A, B, C>(K<Supertype, Func<A, B, C>> mf, K<Supertype, A> ma, K<Supertype, B> mb) =>
-            Supertype.CoTransform(Subtype.Apply(Supertype.Transform(mf), Supertype.Transform(ma), Supertype.Transform(mb)));
-
-        static K<Supertype, C> Applicative<Supertype>.Apply<A, B, C>(K<Supertype, Func<A, Func<B, C>>> mf, K<Supertype, A> ma, K<Supertype, B> mb) => 
-            Supertype.CoTransform(Subtype.Apply(Supertype.Transform(mf), Supertype.Transform(ma), Supertype.Transform(mb)));
-
-        static K<Supertype, Func<B, C>> Applicative<Supertype>.Apply<A, B, C>(K<Supertype, Func<A, B, C>> mf, K<Supertype, A> ma) =>
-            Supertype.CoTransform(Subtype.Apply(Supertype.Transform(mf), Supertype.Transform(ma)));
-
-        static K<Supertype, B> Applicative<Supertype>.ApplyLazy<A, B>(K<Supertype, Func<A, B>> mf, Func<K<Supertype, A>> ma) => 
-            Supertype.CoTransform(Subtype.ApplyLazy(Supertype.Transform(mf), () => Supertype.Transform(ma())));
+        static Memo<Supertype, B> Applicative<Supertype>.Apply<A, B>(K<Supertype, Func<A, B>> mf, Memo<Supertype, A> ma) => 
+            Memo.cotransform<Supertype, Subtype, B>(Subtype.Apply(Supertype.Transform(mf), Memo.transform<Supertype, Subtype, A>(ma)));
     }
 }

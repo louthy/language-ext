@@ -107,11 +107,11 @@ public partial class Iterable
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<A> head<A>(Iterable<A> list) =>
-        list.Head();
+        list.Head;
 
     /// <summary>
     /// Applies the given function 'selector' to each element of the sequence. Returns the sequence 
-    /// comprised of the results for each element where the function returns Some(f(x)).
+    /// of results for each element where the function returns Some(f(x)).
     /// </summary>
     /// <typeparam name="A">sequence item type</typeparam>
     /// <param name="list">sequence</param>

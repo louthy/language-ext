@@ -354,7 +354,7 @@ public static partial class FoldableExtensions
     public static bool IsEmptyT<T, U, A>(this K<T, K<U, A>> tua)
         where T : Foldable<T>
         where U : Foldable<U> =>
-        Foldable.fold(ua => s => s && ua.IsEmpty(), true, tua);
+        Foldable.fold(ua => s => s && ua.IsEmpty, true, tua);
     
     /// <summary>
     /// Returns the size/length of a finite structure as an `int`.  The
@@ -367,7 +367,7 @@ public static partial class FoldableExtensions
     public static int CountT<T, U, A>(this K<T, K<U, A>> tua) 
         where T : Foldable<T>
         where U : Foldable<U> =>
-        Foldable.fold(ua => s => s + ua.Count(), 0, tua);
+        Foldable.fold(ua => s => s + ua.Count, 0, tua);
 
     /// <summary>
     /// Does an element that fits the predicate occur in the structure?

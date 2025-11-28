@@ -47,4 +47,7 @@
   <ItemGroup>
     <None Include="README.md" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Immutable Collections\IteratorAsync\DSL\" />
+  </ItemGroup>
 </Project>

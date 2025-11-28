@@ -1,5 +1,7 @@
 using System;
+using System.Buffers;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -34,6 +36,22 @@ public partial class ChronicleT<Ch, M> :
                 mf.Apply(mx, combine);
     }
 
+    static K<ChronicleT<Ch, M>, B> Applicative<ChronicleT<Ch, M>>.Apply<A, B>(
+        K<ChronicleT<Ch, M>, Func<A, B>> mf,
+        Memo<ChronicleT<Ch, M>, A> mma)
+    {
+        return new ChronicleT<Ch, M, B>(
+            semi => Applicative.lift(
+                apply(semi.Combine), 
+                memoF(mf.As().Run(semi)),
+                mma.Lower().Map(ma => ma.As().Run(semi)).Lift()));
+        
+        static Func<These<Ch, Func<A, B>>, These<Ch, A>, These<Ch, B>> apply(Func<Ch, Ch, Ch> combine) =>
+            (mf, mx) =>
+                mf.Apply(mx, combine);
+        
+    }
+
     static K<ChronicleT<Ch, M>, B> Monad<ChronicleT<Ch, M>>.Bind<A, B>(
         K<ChronicleT<Ch, M>, A> ma,
         Func<A, K<ChronicleT<Ch, M>, B>> f) =>
@@ -57,7 +75,7 @@ public partial class ChronicleT<Ch, M> :
     static K<ChronicleT<Ch, M>, A> Choice<ChronicleT<Ch, M>>.Choose<A>(K<ChronicleT<Ch, M>, A> lhs, K<ChronicleT<Ch, M>, A> rhs) => 
         lhs.As().Choose(rhs);
 
-    static K<ChronicleT<Ch, M>, A> Choice<ChronicleT<Ch, M>>.Choose<A>(K<ChronicleT<Ch, M>, A> lhs, Func<K<ChronicleT<Ch, M>, A>> rhs) => 
+    static K<ChronicleT<Ch, M>, A> Choice<ChronicleT<Ch, M>>.Choose<A>(K<ChronicleT<Ch, M>, A> lhs, Memo<ChronicleT<Ch, M>, A> rhs) => 
         lhs.As().Choose(rhs);
 
     static K<ChronicleT<Ch, M>, A> Chronicaler<ChronicleT<Ch, M>, Ch>.Dictate<A>(A value) => 

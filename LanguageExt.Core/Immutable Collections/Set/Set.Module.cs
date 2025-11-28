@@ -171,7 +171,7 @@ public partial class Set
     /// <returns>Number of elements</returns>
     [Pure]
     public static int length<T>(Set<T> set) =>
-        set.Count();
+        set.Count;
 
     /// <summary>
     /// Returns setA - setB.  Only the items in setA that are not in 

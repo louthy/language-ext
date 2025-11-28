@@ -31,5 +31,5 @@ public interface Choice<F>
     /// <typeparam name="F">Alternative structure type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>First argument to succeed</returns>
-    static abstract K<F, A> Choose<A>(K<F, A> fa, Func<K<F, A>> fb);    
+    static abstract K<F, A> Choose<A>(K<F, A> fa, Memo<F, A> fb);
 }

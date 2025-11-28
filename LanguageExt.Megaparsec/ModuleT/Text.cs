@@ -121,33 +121,39 @@ public static partial class ModuleT<MP, E, S, M>
     /// Parse zero or more white-space characters.
     /// </summary>
     public static readonly K<MP, Unit> space =
-        (_ => unit) * MP.TakeWhile(char.IsWhiteSpace, ExpectedErrors.whiteSpace);
+        (static _ => unit) * MP.TakeWhile(char.IsWhiteSpace, ExpectedErrors.whiteSpace);
 
     /// <summary>
     /// Parse one or more white-space characters.
     /// </summary>
     public static readonly K<MP, Unit> space1 =
-        (_ => unit) * MP.TakeWhile1(char.IsWhiteSpace, ExpectedErrors.whiteSpace);
+        (static _ => unit) * MP.TakeWhile1(char.IsWhiteSpace, ExpectedErrors.whiteSpace);
 
     /// <summary>
     /// Parse zero or more white-space characters (ignoring newlines and carriage-returns).
     /// </summary>
     public static readonly K<MP, Unit> hspace =
-        (_ => unit) * MP.TakeWhile(static ch => ch != '\n' && ch != '\r' && char.IsWhiteSpace(ch),
-                                   ExpectedErrors.whiteSpace);
+        (static _ => unit) * MP.TakeWhile(static ch => ch != '\n' && ch != '\r' && char.IsWhiteSpace(ch),
+                                          ExpectedErrors.whiteSpace);
 
     /// <summary>
     /// Parse zero or more white-space characters (ignoring newlines and carriage-returns).
     /// </summary>
     public static readonly K<MP, Unit> hspace1 =
-        (_ => unit) * MP.TakeWhile1(static ch => ch != '\n' && ch != '\r' && char.IsWhiteSpace(ch),
-                                    ExpectedErrors.whiteSpace);
+        (static _ => unit) * MP.TakeWhile1(static ch => ch != '\n' && ch != '\r' && char.IsWhiteSpace(ch),
+                                           ExpectedErrors.whiteSpace);
 
     /// <summary>
     /// Parse a control character
     /// </summary>
     public static readonly K<MP, char> controlChar =
         MP.Token(static ch => char.IsControl(ch) ? Some(ch) : None, ExpectedErrors.control);
+
+    /// <summary>
+    /// Parse a separator character
+    /// </summary>
+    public static readonly K<MP, char> separatorChar =
+        MP.Token(static ch => char.IsSeparator(ch) ? Some(ch) : None, ExpectedErrors.separator);
     
     /// <summary>
     /// Make a chunk `S` from a single token `char`

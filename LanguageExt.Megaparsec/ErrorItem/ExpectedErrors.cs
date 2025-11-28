@@ -54,5 +54,6 @@ public static class ExpectedErrors
     public static readonly Set<ErrorItem<char>> control =
         Set.singleton(ErrorItem.Label<char>("control character"));
 
-    
+    public static readonly Set<ErrorItem<char>> separator =
+        Set.singleton(ErrorItem.Label<char>("separator"));
 }

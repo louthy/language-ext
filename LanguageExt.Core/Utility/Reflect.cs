@@ -71,7 +71,7 @@ namespace LanguageExt
         /// <param name="p"></param>
         /// <returns></returns>
         public static bool IsStatic
-            (PropertyInfo p) => p.GetAccessors( true ).AsIterable().Head().Map( x => x.IsStatic ).IfNone( false );
+            (PropertyInfo p) => p.GetAccessors( true ).AsIterable().Head.Map( x => x.IsStatic ).IfNone( false );
 
         public static Option<MethodInfo> GetPublicStaticMethod(Type type, string name, Type argA) =>
             type.GetTypeInfo()

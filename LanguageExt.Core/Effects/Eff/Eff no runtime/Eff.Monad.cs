@@ -13,7 +13,10 @@ public partial class Eff :
     Final<Eff>,
     Fallible<Eff>,
     Readable<Eff, MinRT>,
-    Alternative<Eff>
+    MonoidK<Eff>,
+    Alternative<Eff>,
+    Natural<Eff, Eff<MinRT>>,
+    CoNatural<Eff, Eff<MinRT>>
 {
     static K<Eff, B> Monad<Eff>.Bind<A, B>(K<Eff, A> ma, Func<A, K<Eff, B>> f) =>
         new Eff<B>(ma.As().effect.Bind(f));
@@ -27,6 +30,12 @@ public partial class Eff :
     static K<Eff, B> Applicative<Eff>.Apply<A, B>(K<Eff, Func<A, B>> mf, K<Eff, A> ma) => 
         new Eff<B>(mf.As().effect.Apply(ma.As().effect));
 
+    static Memo<Eff, B> Applicative<Eff>.Apply<A, B>(K<Eff, Func<A, B>> mf, Memo<Eff, A> ma) =>
+        Memo.cotransform<Eff, Eff<MinRT>, B>(
+            mf.As()
+              .effect
+              .Apply(Memo.transform<Eff, Eff<MinRT>, A>(ma)));
+
     static K<Eff, B> Applicative<Eff>.Action<A, B>(K<Eff, A> ma, K<Eff, B> mb) => 
         new Eff<B>(ma.As().effect.Action(mb.As().effect));
 
@@ -39,11 +48,17 @@ public partial class Eff :
     static K<Eff, A> MonoidK<Eff>.Empty<A>() => 
         Eff<A>.Fail(Errors.None);
 
+    static K<Eff, A> Alternative<Eff>.Empty<A>() => 
+        Eff<A>.Fail(Errors.None);
+
     static K<Eff, A> Choice<Eff>.Choose<A>(K<Eff, A> ma, K<Eff, A> mb) => 
         new Eff<A>(ma.As().effect.Choose(mb.As().effect).As());
 
-    static K<Eff, A> Choice<Eff>.Choose<A>(K<Eff, A> ma, Func<K<Eff, A>> mb) => 
-        new Eff<A>(ma.As().effect.Choose(mb().As().effect).As());
+    static Memo<Eff, A> Choice<Eff>.Choose<A>(K<Eff, A> ma, Memo<Eff, A> mb) => 
+        Memo.cotransform<Eff, Eff<MinRT>, A>(
+            ma.As()
+              .effect
+              .Choose(Memo.transform<Eff, Eff<MinRT>, A>(mb)));
 
     static K<Eff, A> Readable<Eff, MinRT>.Asks<A>(Func<MinRT, A> f) => 
         new Eff<A>(Readable.asks<Eff<MinRT>, MinRT, A>(f).As());
@@ -73,4 +88,10 @@ public partial class Eff :
 
     static K<Eff, A> Final<Eff>.Finally<X, A>(K<Eff, A> fa, K<Eff, X> @finally) =>
         new Eff<A>(fa.As().effect.Finally(@finally.As().effect).As());
+
+    static K<Eff<MinRT>, A> Natural<Eff, Eff<MinRT>>.Transform<A>(K<Eff, A> fa) => 
+        fa.As().effect;
+
+    static K<Eff, A> CoNatural<Eff, Eff<MinRT>>.CoTransform<A>(K<Eff<MinRT>, A> fa) => 
+        new Eff<A>(fa.As());
 }

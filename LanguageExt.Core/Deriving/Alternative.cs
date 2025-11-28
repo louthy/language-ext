@@ -7,7 +7,7 @@ public static partial class Deriving
     public interface Alternative<Supertype, Subtype> :
         Alternative<Supertype>,
         Choice<Supertype, Subtype>,
-        MonoidK<Supertype, Subtype>
+        Applicative<Supertype, Subtype>
         where Supertype : Alternative<Supertype, Subtype>
         where Subtype : Alternative<Subtype>;
 }

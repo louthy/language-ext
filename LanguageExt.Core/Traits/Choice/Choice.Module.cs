@@ -44,7 +44,7 @@ public static class Choice
             F.Choose(some_v(), F.Pure(Seq<A>()));
 
         K<F, Seq<A>> some_v() =>
-            Append<A>.cons.Map(fa).Apply(many_v);
+            Append<A>.cons.Map(fa).Apply(memoF(many_v));
     }
     
     /// <summary>
@@ -70,7 +70,7 @@ public static class Choice
             F.Choose(some_v(), F.Pure(Seq<A>()));
 
         K<F, Seq<A>> some_v() =>
-            Append<A>.cons.Map(fa).Apply(many_v);
+            Append<A>.cons.Map(fa).Apply(memoF(many_v));
     }
         
     static class Append<A>
