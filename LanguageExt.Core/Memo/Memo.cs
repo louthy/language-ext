@@ -129,7 +129,7 @@ public class Memo<A>
                     // value is not set yet, so try to set it
                     try
                     {
-                        value = acquire();
+                        value = acquire!();
                         state = 2;
                         return value;
                     }

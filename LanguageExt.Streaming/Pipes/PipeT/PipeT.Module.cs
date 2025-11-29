@@ -199,6 +199,18 @@ public static class PipeT
         new PipeTLazy<IN, OUT, M, A>(() => pure<IN, OUT, M, A>(f()));
     
     /// <summary>
+    /// Create a pipe that simply returns a bound value without yielding anything
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static PipeT<IN, OUT, M, A> lift<IN, OUT, M, A>(Memo<A> f) 
+        where M : MonadIO<M> =>
+        new PipeTLazy<IN, OUT, M, A>(() => pure<IN, OUT, M, A>(f.Value));
+    
+    /// <summary>
     /// Create a lazy pipe 
     /// </summary>
     /// <typeparam name="IN">Stream value to consume</typeparam>
@@ -209,6 +221,18 @@ public static class PipeT
     public static PipeT<IN, OUT, M, A> liftT<IN, OUT, M, A>(Func<PipeT<IN, OUT, M, A>> f) 
         where M : MonadIO<M> =>
         new PipeTLazy<IN, OUT, M, A>(f);
+    
+    /// <summary>
+    /// Create a memoised pipe 
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns></returns>
+    public static PipeT<IN, OUT, M, A> liftT<IN, OUT, M, A>(Memo<PipeT<IN, OUT, M>, A> f) 
+        where M : MonadIO<M> =>
+        new PipeTMemo<IN, OUT, M, A>(f);
     
     /// <summary>
     /// Create an asynchronous lazy pipe 

@@ -5,6 +5,7 @@ namespace LanguageExt;
 
 public partial class Source : 
     Monad<Source>, 
+    MonoidK<Source>,
     Alternative<Source>
 {
     static K<Source, B> Monad<Source>.Bind<A, B>(K<Source, A> ma, Func<A, K<Source, B>> f) => 
@@ -19,14 +20,20 @@ public partial class Source :
     static K<Source, B> Applicative<Source>.Apply<A, B>(K<Source, Func<A, B>> mf, K<Source, A> ma) => 
         ma.As().ApplyBack(mf.As());
 
+    static K<Source, B> Applicative<Source>.Apply<A, B>(K<Source, Func<A, B>> mf, Memo<Source, A> ma) =>
+        new ApplySource2<A, B>(mf.As(), ma);
+
     static K<Source, A> SemigroupK<Source>.Combine<A>(K<Source, A> fa, K<Source, A> fb) =>
         fa.As().Combine(fb.As());
 
     static K<Source, A> Choice<Source>.Choose<A>(K<Source, A> fa, K<Source, A> fb) =>
         fa.As().Choose(fb.As());
 
-    public static K<Source, A> Choose<A>(K<Source, A> fa, Func<K<Source, A>> fb) => 
-        fa.As().Choose(() => fb().As());
+    public static K<Source, A> Choose<A>(K<Source, A> fa, Memo<Source, A> fb) => 
+        fa.As().Choose(fb);
+
+    static K<Source, A> Alternative<Source>.Empty<A>() =>
+        EmptySource<A>.Default;
 
     static K<Source, A> MonoidK<Source>.Empty<A>() =>
         EmptySource<A>.Default;

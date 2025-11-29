@@ -19,7 +19,7 @@ public class MapTests
     [Fact]
     public void MapGeneratorAndMatchTest()
     {
-        Map<int, string> m2 = ((1, "a"), (2, "b"), (3, "c"));
+        Map<int, string> m2 = [(1, "a"), (2, "b"), (3, "c")];
 
         m2 = add(m2, 100, "world");
 
@@ -248,11 +248,11 @@ public class MapTests
         Assert.True(m[(Some(1), None)]    == "Some None");
         Assert.True(m[(None, None)]       == "None None");
 
-        Assert.True(m.Count() == 4);
+        Assert.True(m.Count == 4);
 
         m = m.Filter(v => v.EndsWith("None", StringComparison.Ordinal));
 
-        Assert.True(m.Count() == 2);
+        Assert.True(m.Count == 2);
     }
 
     [Fact]

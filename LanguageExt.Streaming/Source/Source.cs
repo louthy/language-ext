@@ -155,6 +155,16 @@ public abstract record Source<A> :
         };
 
     /// <summary>
+    /// The value streams are both merged into a new stream.  Values are yielded
+    /// as they become available.
+    /// </summary>
+    /// <param name="this">Left-hand side</param>
+    /// <param name="rhs">Right-hand side</param>
+    /// <returns>Merged stream</returns>
+    public Source<A> Choose(Memo<Source, A> rhs) =>
+        Choose(rhs.Value.As());    
+    
+    /// <summary>
     /// Zip two sources into one
     /// </summary>
     /// <param name="second">Stream to zip with this one</param>

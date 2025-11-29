@@ -22,6 +22,11 @@ public class Effect<RT> :
     static K<Effect<RT>, B> Applicative<Effect<RT>>.Apply<A, B>(K<Effect<RT>, Func<A, B>> mf, K<Effect<RT>, A> ma) => 
         ma.As().ApplyBack(mf.As());
 
+    static K<Effect<RT>, B> Applicative<Effect<RT>>.Apply<A, B>(K<Effect<RT>, Func<A, B>> mf, Memo<Effect<RT>, A> ma) => 
+        new PipeTMemo<Unit, Void, Eff<RT>, A>(ma.Lower().Map(ma => ma.As().Proxy.Kind()).Lift())
+            .ApplyBack(mf.As().Proxy)
+            .ToEffect();
+
     static K<Effect<RT>, A> MonadT<Effect<RT>, Eff<RT>>.Lift<A>(K<Eff<RT>, A> ma) =>
         Effect.liftM(ma);
 

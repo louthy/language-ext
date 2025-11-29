@@ -69,9 +69,9 @@ static Validation<Error, int> ValidateInt(string value) =>
 
     static Validation<Error, K<F, A>> ValidateLength<F, A>(K<F, A> fa, int length)
         where F : Foldable<F> =>
-        fa.Count() == length
+        fa.Count == length
             ? Pure(fa)
-            : Fail(Error.New($"expected length to be {length}, but got: {fa.Count()}"));
+            : Fail(Error.New($"expected length to be {length}, but got: {fa.Count}"));
 
     static Validation<Error, int> CharToDigit(char ch) =>
         ch is >= '0' and <= '9'

@@ -23,7 +23,7 @@ public static class Posts<M, RT>
     /// </summary>
     public static K<M, Post> readFromApi =>
         readAllFromApi.Bind(
-            p => p.Head()
+            p => p.Head
                   .Match(Some: M.Pure,
                          None: M.Fail<Post>(Error.New("no posts found"))));
 

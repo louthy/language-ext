@@ -253,6 +253,9 @@ public class Maybe : Monad<Maybe>
     public static K<Maybe, B> Apply<A, B>(K<Maybe, Func<A, B>> mf, K<Maybe, A> ma) =>
         mf.As().Bind(f => ma.As().Map(f));
 
+    public static K<Maybe, B> Apply<A, B>(K<Maybe, Func<A, B>> mf, Memo<Maybe, A> ma) =>
+        mf.As().Bind(f => ma.Value.As().Map(f));
+
     public static K<Maybe, B> Action<A, B>(K<Maybe, A> ma, K<Maybe, B> mb) =>
         ma.As().Bind(_ => mb);
 

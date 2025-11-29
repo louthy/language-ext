@@ -28,7 +28,7 @@ public static class Members<M, RT>
         Directory<M, RT>.enumerateFiles(folder, "*.csv")
                         .Map(fs => fs.OrderDescending()
                                      .AsIterable()
-                                     .Head())
+                                     .Head)
                         .Bind(path => path.Match(
                                   Some: pure<M, string>,
                                   None: error<M, string>(Error.New($"no member files found in {folder}"))));

@@ -51,7 +51,7 @@ public class ParserError : IEquatable<ParserError>, IComparable<ParserError>
             ? ""
             : expects.Count == 1
                 ? $"expecting {expects.Head.ValueUnsafe()}"
-                : $"expecting {string.Join(", ", expects.Take(expects.Count - 1))} or {expects.Last().ValueUnsafe()}";
+                : $"expecting {string.Join(", ", expects.Take(expects.Count - 1))} or {expects.Last.ValueUnsafe()}";
 
     public override string ToString() =>
         $"error at {Pos}: {ToStringNoPosition()}";

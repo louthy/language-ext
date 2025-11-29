@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using LanguageExt.Async.Linq;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
@@ -27,6 +26,13 @@ public class Consumer<RT, IN> :
         K<Consumer<RT, IN>, Func<A, B>> mf,
         K<Consumer<RT, IN>, A> ma) =>
         ma.As().ApplyBack(mf.As());
+
+    static K<Consumer<RT, IN>, B> Applicative<Consumer<RT, IN>>.Apply<A, B>(
+        K<Consumer<RT, IN>, Func<A, B>> mf,
+        Memo<Consumer<RT, IN>, A> mma) =>
+        new PipeTMemo<IN, Void, Eff<RT>, A>(mma.Lower().Map(ma => ma.As().Proxy.Kind()).Lift())
+           .ApplyBack(mf.As().Proxy)
+           .ToConsumer();
 
     static K<Consumer<RT, IN>, A> MonadT<Consumer<RT, IN>, Eff<RT>>.Lift<A>(K<Eff<RT>, A> ma) =>
         Consumer.liftM<RT, IN, A>(ma);

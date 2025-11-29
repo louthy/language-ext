@@ -19,7 +19,6 @@ namespace LanguageExt.Tests
             Assert.True(seq.Tail.Tail.IsEmpty);
             Assert.True(seq.Head.IsNone);
             Assert.True(seq.Count == 0);
-            Assert.True(seq.Count() == 0);
 
             var res1 = seq.Match(
                 ()      => true,
@@ -36,7 +35,6 @@ namespace LanguageExt.Tests
             var skipped = seq.Skip(1);
             Assert.True(skipped.IsEmpty);
             Assert.True(skipped.Count == 0);
-            Assert.True(skipped.Count() == 0);
             Assert.True(skipped.Head.IsNone);
         }
 
@@ -52,7 +50,6 @@ namespace LanguageExt.Tests
             Assert.True(seq.Tail.Tail.IsEmpty);
 
             Assert.True(seq.Count == 1);
-            Assert.True(seq.Count() == 1);
 
             var res1 = seq.Match(
                 ()      => false,
@@ -69,7 +66,6 @@ namespace LanguageExt.Tests
             var skipped = seq.Skip(1);
             Assert.True(skipped.IsEmpty);
             Assert.True(skipped.Count == 0);
-            Assert.True(skipped.Count() == 0);
             Assert.True(skipped.Head.IsNone);
         }
         
@@ -95,19 +91,10 @@ namespace LanguageExt.Tests
             Assert.True(seq.Tail.Tail.Tail.Tail.Tail.IsEmpty);
 
             Assert.True(seq.Count == 5);
-            Assert.True(seq.Count() == 5);
-
             Assert.True(seq.Tail.Count == 4);
-            Assert.True(seq.Tail.Count() == 4);
-
             Assert.True(seq.Tail.Tail.Count == 3);
-            Assert.True(seq.Tail.Tail.Count() == 3);
-
             Assert.True(seq.Tail.Tail.Tail.Count == 2);
-            Assert.True(seq.Tail.Tail.Tail.Count() == 2);
-
             Assert.True(seq.Tail.Tail.Tail.Tail.Count == 1);
-            Assert.True(seq.Tail.Tail.Tail.Tail.Count() == 1);
 
             var res = Sum(seq);
 
@@ -116,27 +103,22 @@ namespace LanguageExt.Tests
             var skipped1 = seq.Skip(1);
             Assert.True(skipped1.Head == 2);
             Assert.True(skipped1.Count == 4);
-            Assert.True(skipped1.Count() == 4);
 
             var skipped2 = seq.Skip(2);
             Assert.True(skipped2.Head == 3);
             Assert.True(skipped2.Count == 3);
-            Assert.True(skipped2.Count() == 3);
 
             var skipped3 = seq.Skip(3);
             Assert.True(skipped3.Head == 4);
             Assert.True(skipped3.Count == 2);
-            Assert.True(skipped3.Count() == 2);
 
             var skipped4 = seq.Skip(4);
             Assert.True(skipped4.Head == 5);
             Assert.True(skipped4.Count == 1);
-            Assert.True(skipped4.Count() == 1);
 
             var skipped5 = seq.Skip(5);
             Assert.True(skipped5.IsEmpty);
             Assert.True(skipped5.Count == 0);
-            Assert.True(skipped5.Count() == 0);
         }
 
         [Fact]

@@ -142,6 +142,17 @@ public abstract record SourceT<M, A> :
         };
 
     /// <summary>
+    /// Combine two sources into a single source.  The value streams are both
+    /// merged into a new stream.  Values are yielded as they become available
+    /// regardless of which stream yields it.
+    /// </summary>
+    /// <param name="this">Left-hand side</param>
+    /// <param name="rhs">Right-hand side</param>
+    /// <returns>Merged stream of values</returns>
+    public SourceT<M, A> Choose(Memo<SourceT<M>, A> rhs) =>
+        Choose(rhs.Value.As());
+
+    /// <summary>
     /// Skip items in the source
     /// </summary>
     /// <param name="amount">Amount to skip</param>

@@ -15,7 +15,7 @@ public class SeqTests
         var x = "test";
 
         Assert.True(Seq(x).Count() == 1);
-        Assert.True(Seq(x).Head()  == x);
+        Assert.True(Seq(x).Head    == x);
     }
 
     [Fact]

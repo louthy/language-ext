@@ -29,6 +29,13 @@ public class ConsumerT<IN, M> :
         K<ConsumerT<IN, M>, A> ma) =>
         ma.As().ApplyBack(mf.As());
 
+    static K<ConsumerT<IN, M>, B> Applicative<ConsumerT<IN, M>>.Apply<A, B>(
+        K<ConsumerT<IN, M>, Func<A, B>> mf,
+        Memo<ConsumerT<IN, M>, A> ma) =>
+        new PipeTMemo<IN, Void, M, A>(ma.Lower().Map(ma => ma.As().Proxy.Kind()).Lift())
+           .ApplyBack(mf.As().Proxy)
+           .ToConsumer();
+
     static K<ConsumerT<IN, M>, A> MonadT<ConsumerT<IN, M>, M>.Lift<A>(K<M, A> ma) =>
         ConsumerT.liftM<IN, M, A>(ma);
 

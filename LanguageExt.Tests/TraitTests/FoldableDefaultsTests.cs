@@ -197,21 +197,21 @@ public class FoldableDefaultsTests
     [Fact]
     public static void IsEmptyFalseTest()
     {
-        var res = FList.New(1, 2, 3, 4, 5).IsEmpty();
+        var res = FList.New(1, 2, 3, 4, 5).IsEmpty;
         Assert.False(res);
     }
 
     [Fact]
     public static void IsEmptyTrueTest()
     {
-        var res = FList.New<int>().IsEmpty();
+        var res = FList.New<int>().IsEmpty;
         Assert.True(res);
     }
 
     [Fact]
     public static void CountTest()
     {
-        var res = FList.New(1, 2, 3, 4, 5).Count();
+        var res = FList.New(1, 2, 3, 4, 5).Count;
         Assert.True(res == 5);
     }
     
@@ -344,28 +344,28 @@ public class FoldableDefaultsTests
     [Fact]
     public static void HeadSomeTest()
     {
-        var res = FList.New(1, 2, 3, 4, 5).Head();
+        var res = FList.New(1, 2, 3, 4, 5).Head;
         Assert.True(res == Some(1));
     }
         
     [Fact]
     public static void HeadNoneTest()
     {
-        var res = FList.New<int>().Head();
+        var res = FList.New<int>().Head;
         Assert.True(res == None);
     }
         
     [Fact]
     public static void LastSomeTest()
     {
-        var res = FList.New(1, 2, 3, 4, 5).Last();
+        var res = FList.New(1, 2, 3, 4, 5).Last;
         Assert.True(res == Some(5));
     }
         
     [Fact]
     public static void LastNoneTest()
     {
-        var res = FList.New<int>().Last();
+        var res = FList.New<int>().Last;
         Assert.True(res == None);
     }
             

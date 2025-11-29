@@ -78,6 +78,27 @@ public class StateEff<S, E> :
                         Left(e)
                 });
 
+    static K<StateEff<S, E>, B> Applicative<StateEff<S, E>>.Apply<A, B>(
+        K<StateEff<S, E>, Func<A, B>> mf,
+        Memo<StateEff<S, E>, A> ma) =>
+        new StateEff<S, E, B>(
+            (eio, state) =>
+                mf.As().runStateEff(eio, state) switch
+                {
+                    Either<E, (S State, Func<A, B> Value)>.Right(var (s1, f)) =>
+                        ma.Value.As().runStateEff(eio, s1) switch
+                        {
+                            Either<E, (S State, A Value)>.Right(var (s2, x)) =>
+                                Right((s2, f(x))),
+
+                            Either<E, (S State, A Value)>.Left(var e) =>
+                                Left(e)
+                        },
+
+                    Either<E, (S State, Func<A, B> Value)>.Left(var e) =>
+                        Left(e)
+                });
+
     static K<StateEff<S, E>, Unit> Stateful<StateEff<S, E>, S>.Put(S value) =>
         new StateEff<S, E, Unit>((_, _) => Right((value, unit)));
 
@@ -99,7 +120,7 @@ public class StateEff<S, E> :
                         fb.As().runStateEff(eio, state)
                 });
 
-    static K<StateEff<S, E>, A> Choice<StateEff<S, E>>.Choose<A>(K<StateEff<S, E>, A> fa, Func<K<StateEff<S, E>, A>> fb) => 
+    static K<StateEff<S, E>, A> Choice<StateEff<S, E>>.Choose<A>(K<StateEff<S, E>, A> fa, Memo<StateEff<S, E>, A> fb) => 
         new StateEff<S, E, A>(
             (eio, state) =>
                 fa.As().runStateEff(eio, state) switch
@@ -108,7 +129,7 @@ public class StateEff<S, E> :
                         succ,
 
                     Either<E, (S State, A Value)>.Left =>
-                        fb().As().runStateEff(eio, state)
+                        fb.Value.As().runStateEff(eio, state)
                 });
 
     static K<StateEff<S, E>, IO<A>> Maybe.MonadUnliftIO<StateEff<S, E>>.ToIOMaybe<A>(K<StateEff<S, E>, A> ma) =>

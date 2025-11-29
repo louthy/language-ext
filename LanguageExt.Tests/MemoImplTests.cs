@@ -15,11 +15,11 @@ public class MemoImplTests
 
         var f = memo(() => date.ToString());
 
-        var res1 = f();
+        var res1 = ~f;
 
         date = DateTime.Now.AddDays(1);
 
-        var res2 = f();
+        var res2 = ~f;
 
         Assert.True(res1 == res2);
     }

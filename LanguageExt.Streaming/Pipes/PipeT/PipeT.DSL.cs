@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using LanguageExt.Async.Linq;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -120,6 +119,40 @@ record PipeTFail<IN, OUT, E, M, A>(E Value) : PipeT<IN, OUT, M, A>
 
     internal override ValueTask<K<M, A>> RunAsync() =>
         new(M.Fail<A>(Value));
+}
+
+record PipeTMemo<IN, OUT, M, A>(Memo<PipeT<IN, OUT, M>, A> Acquire) : PipeT<IN, OUT, M, A>
+    where M : MonadIO<M>
+{
+    public override PipeT<IN, OUT, M, B> Map<B>(Func<A, B> f) =>
+        new PipeTLazy<IN, OUT, M, B>(() => Acquire.Map(f).As());
+
+    public override PipeT<IN, OUT, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) =>
+        new PipeTLazy<IN, OUT, M, B>(() => Acquire.Value.As().MapM(f));
+    
+    public override PipeT<IN, OUT, M, B> ApplyBack<B>(PipeT<IN, OUT, M, Func<A, B>> ff) =>
+        new PipeTLazy<IN, OUT, M, B>(() => Acquire.Value.As().ApplyBack(ff));
+
+    public override PipeT<IN, OUT, M, B> Action<B>(PipeT<IN, OUT, M, B> fb) =>
+        new PipeTLazy<IN, OUT, M, B>(() => Acquire.Value.As().Action(fb));
+
+    public override PipeT<IN, OUT, M, B> Bind<B>(Func<A, PipeT<IN, OUT, M, B>> f) =>
+        new PipeTLazy<IN, OUT, M, B>(() => Acquire.Value.As().Bind(f));
+
+    internal override PipeT<IN1, OUT, M, A> ReplaceAwait<IN1>(Func<PipeT<IN1, OUT, M, IN>> producer) => 
+        new PipeTLazy<IN1, OUT, M, A>(() => Acquire.Value.As().ReplaceAwait(producer));
+
+    internal override PipeT<IN, OUT1, M, A> ReplaceYield<OUT1>(Func<OUT, PipeT<IN, OUT1, M, Unit>> consumer) => 
+        new PipeTLazy<IN, OUT1, M, A>(() => Acquire.Value.As().ReplaceYield(consumer));
+    
+    internal override PipeT<IN1, OUT, M, A> PairEachAwaitWithYield<IN1>(Func<Unit, PipeT<IN1, IN, M, A>> producer) => 
+        new PipeTLazy<IN1, OUT, M, A>(() => Acquire.Value.As().PairEachAwaitWithYield(producer));
+
+    internal override PipeT<IN, OUT1, M, A> PairEachYieldWithAwait<OUT1>(Func<OUT, PipeT<OUT, OUT1, M, A>> consumer) =>
+        new PipeTLazy<IN, OUT1, M, A>(() => Acquire.Value.As().PairEachYieldWithAwait(consumer));
+
+    internal override ValueTask<K<M, A>> RunAsync() =>
+        Acquire.Value.As().RunAsync();
 }
 
 record PipeTLazy<IN, OUT, M, A>(Func<PipeT<IN, OUT, M, A>> Acquire) : PipeT<IN, OUT, M, A>

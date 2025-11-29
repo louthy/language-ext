@@ -244,7 +244,7 @@ public sealed class ScheduleTests
     static Seq<DateTime> FromDurations(Seq<Duration> durations) =>
         durations.Fold(Seq(DateTime.Now), (times, duration) =>
                                            {
-                                               var last = times.Head();
+                                               var last = times.Head;
                                                return times.Add(last.ValueUnsafe() + (TimeSpan)duration);
                                            });
 

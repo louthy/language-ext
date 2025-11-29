@@ -29,6 +29,13 @@ public class Pipe<RT, IN, OUT> :
         K<Pipe<RT, IN, OUT>, A> ma) =>
         ma.As().ApplyBack(mf.As());
 
+    static K<Pipe<RT, IN, OUT>, B> Applicative<Pipe<RT, IN, OUT>>.Apply<A, B>(
+        K<Pipe<RT, IN, OUT>, Func<A, B>> mf,
+        Memo<Pipe<RT, IN, OUT>, A> ma) =>
+        new Pipe<RT, IN, OUT, B>(
+            new PipeTMemo<IN, OUT, Eff<RT>, A>(ma.Lower().Map(ma => ma.As().Proxy.Kind()).Lift())
+               .ApplyBack(mf.As().Proxy));
+    
     static K<Pipe<RT, IN, OUT>, B> Applicative<Pipe<RT, IN, OUT>>.Action<A, B>(
         K<Pipe<RT, IN, OUT>, A> ma, 
         K<Pipe<RT, IN, OUT>, B> mb) =>

@@ -27,7 +27,14 @@ public class Producer<RT, OUT> :
         K<Producer<RT, OUT>, Func<A, B>> mf,
         K<Producer<RT, OUT>, A> ma) =>
         ma.As().ApplyBack(mf.As());
-
+    
+    static K<Producer<RT, OUT>, B> Applicative<Producer<RT, OUT>>.Apply<A, B>(
+        K<Producer<RT, OUT>, Func<A, B>> mf,
+        Memo<Producer<RT, OUT>, A> ma) =>
+        new PipeTMemo<Unit, OUT, Eff<RT>, A>(ma.Lower().Map(ma => ma.As().Proxy.Kind()).Lift())
+           .ApplyBack(mf.As().Proxy)
+           .ToProducer();
+    
     static K<Producer<RT, OUT>, A> MonadT<Producer<RT, OUT>, Eff<RT>>.Lift<A>(K<Eff<RT>, A> ma) => 
         Producer.liftM<RT, OUT, A>(ma);
 

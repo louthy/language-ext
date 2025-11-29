@@ -18,8 +18,8 @@ public class LinqTests
                   from y in x
                   select a + y;
 
-        Assert.True(res.Head().ValueUnsafe()        == "pre hello");
-        Assert.True(res.Tail().Head().ValueUnsafe() == "pre world");
+        Assert.True(res.Head.ValueUnsafe()        == "pre hello");
+        Assert.True(res.Tail.Head.ValueUnsafe() == "pre world");
 
         opt = None;
 

@@ -25,6 +25,11 @@ public class TransduceFromM<M, IN> :
         K<TransduceFromM<M, IN>, A> ma) =>
         mf.Bind(ma.Map);
 
+    static K<TransduceFromM<M, IN>, B> Applicative<TransduceFromM<M, IN>>.Apply<A, B>(
+        K<TransduceFromM<M, IN>, Func<A, B>> mf,
+        Memo<TransduceFromM<M, IN>, A> ma) =>
+        mf.Bind(ma.Map);
+
     public static K<TransduceFromM<M, IN>, A> Asks<A>(Func<IN, A> f) => 
         TransducerM.map<M, IN, A>(f);
 

@@ -3,7 +3,8 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public partial class SourceT<M> : 
+public partial class SourceT<M> :
+    MonoidK<SourceT<M>>,
     MonadUnliftIO<SourceT<M>>,
     Alternative<SourceT<M>>
     where M : MonadIO<M>, Alternative<M>
@@ -19,6 +20,9 @@ public partial class SourceT<M> :
 
     static K<SourceT<M>, B> Applicative<SourceT<M>>.Apply<A, B>(K<SourceT<M>, Func<A, B>> mf, K<SourceT<M>, A> ma) => 
         ma.As().ApplyBack(mf.As());
+    
+    static K<SourceT<M>, B> Applicative<SourceT<M>>.Apply<A, B>(K<SourceT<M>, Func<A, B>> mf, Memo<SourceT<M>, A> ma) =>
+        new ApplySourceT2<M,A,B>(mf.As(), ma);
 
     static K<SourceT<M>, A> SemigroupK<SourceT<M>>.Combine<A>(K<SourceT<M>, A> fa, K<SourceT<M>, A> fb) =>
         fa.As().Combine(fb.As());
@@ -26,8 +30,11 @@ public partial class SourceT<M> :
     static K<SourceT<M>, A> Choice<SourceT<M>>.Choose<A>(K<SourceT<M>, A> fa, K<SourceT<M>, A> fb) =>
         fa.As().Choose(fb.As());
 
-    static K<SourceT<M>, A> Choice<SourceT<M>>.Choose<A>(K<SourceT<M>, A> fa, Func<K<SourceT<M>, A>> fb) => 
-        fa.As().Choose(() => fb().As());
+    static K<SourceT<M>, A> Choice<SourceT<M>>.Choose<A>(K<SourceT<M>, A> fa, Memo<SourceT<M>, A> fb) => 
+        fa.As().Choose(fb);
+
+    static K<SourceT<M>, A> Alternative<SourceT<M>>.Empty<A>() =>
+        EmptySourceT<M ,A>.Default;
 
     static K<SourceT<M>, A> MonoidK<SourceT<M>>.Empty<A>() =>
         EmptySourceT<M ,A>.Default;

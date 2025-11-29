@@ -61,12 +61,7 @@ public class Memo<F, A>
     }
 
     public Memo<K<F, A>> Lower() =>
-        (acquire, state) switch
-        {
-            (null, 2) => new Memo<K<F, A>>(acquire, value),
-            (null, _) => new Memo<K<F, A>>(value!),
-            _         => new Memo<K<F, A>>(acquire)
-        };
+        new (() => Value);
     
     /// <summary>
     /// Acquired value
@@ -134,7 +129,7 @@ public class Memo<F, A>
                     // value is not set yet, so try to set it
                     try
                     {
-                        value = acquire();
+                        value = acquire!();
                         state = 2;
                         return value;
                     }

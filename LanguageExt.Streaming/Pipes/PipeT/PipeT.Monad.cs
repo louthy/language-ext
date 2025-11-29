@@ -29,6 +29,11 @@ public class PipeT<IN, OUT, M> :
         K<PipeT<IN, OUT, M>, A> ma) =>
         ma.As().ApplyBack(mf.As());
 
+    static K<PipeT<IN, OUT, M>, B> Applicative<PipeT<IN, OUT, M>>.Apply<A, B>(
+        K<PipeT<IN, OUT, M>, Func<A, B>> mf,
+        Memo<PipeT<IN, OUT, M>, A> ma) =>
+        new PipeTMemo<IN, OUT, M, A>(ma).ApplyBack(mf.As());
+
     static K<PipeT<IN, OUT, M>, B> Applicative<PipeT<IN, OUT, M>>.Action<A, B>(
         K<PipeT<IN, OUT, M>, A> ma, 
         K<PipeT<IN, OUT, M>, B> mb) =>
