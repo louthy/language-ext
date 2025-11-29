@@ -28,8 +28,8 @@ public partial class ReaderT<Env, M> :
     static K<ReaderT<Env, M>, B> Applicative<ReaderT<Env, M>>.Apply<A, B>(K<ReaderT<Env, M>, Func<A, B>> mf, K<ReaderT<Env, M>, A> ma) => 
         new ReaderT<Env, M, B>(env => mf.As().runReader(env).Apply(ma.As().runReader(env)));
 
-    static K<ReaderT<Env, M>, B> Applicative<ReaderT<Env, M>>.Action<A, B>(K<ReaderT<Env, M>, A> ma, K<ReaderT<Env, M>, B> mb) =>
-        new ReaderT<Env, M, B>(env => ma.As().runReader(env).Action(mb.As().runReader(env)));
+    static K<ReaderT<Env, M>, B> Applicative<ReaderT<Env, M>>.Apply<A, B>(K<ReaderT<Env, M>, Func<A, B>> mf, Memo<ReaderT<Env, M>, A> ma) => 
+        new ReaderT<Env, M, B>(env => mf.As().runReader(env).Apply(ma.Value.As().runReader(env)));
 
     static K<ReaderT<Env, M>, A> MonadT<ReaderT<Env, M>, M>.Lift<A>(K<M, A> ma) => 
         new ReaderT<Env, M, A>(_ => ma);

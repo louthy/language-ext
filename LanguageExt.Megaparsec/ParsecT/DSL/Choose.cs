@@ -35,7 +35,7 @@ record ParsecTChoose<E, S, T, M, A>(ParsecT<E, S, T, M, A> m, ParsecT<E, S, T, M
     }
 }
 
-record ParsecTChooseLazy<E, S, T, M, A>(ParsecT<E, S, T, M, A> m, Func<K<ParsecT<E, S, T, M>, A>> n) : 
+record ParsecTChooseLazy<E, S, T, M, A>(ParsecT<E, S, T, M, A> m, Memo<ParsecT<E, S, T, M>, A> n) : 
     ParsecT<E, S, T, M, A>
     where M : Monad<M>
     where S : TokenStream<S, T>
@@ -60,7 +60,7 @@ record ParsecTChooseLazy<E, S, T, M, A>(ParsecT<E, S, T, M, A> m, Func<K<ParsecT
             K<M, B> neerr(ParseError<T, E> err1, State<S, T, E> s1) =>
                 eerr(err1 + err, longestMatch(ms, s1));
           
-            return n().As().Run(ms, cok, ncerr, neok, neerr);
+            return n.Value.As().Run(ms, cok, ncerr, neok, neerr);
         }
         
         State<S, T, E> longestMatch(State<S, T, E> s1, State<S, T, E> s2) =>

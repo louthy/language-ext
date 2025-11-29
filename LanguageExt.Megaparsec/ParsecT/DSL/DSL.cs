@@ -156,6 +156,12 @@ static class DSL<E, S, T, M>
         new ParsecTApply<E, S, T, M, A, B>(ff.As(), fa.As());
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ParsecT<E, S, T, M, B> apply<A, B>(
+        K<ParsecT<E, S, T, M>, Func<A, B>> ff, 
+        Memo<ParsecT<E, S, T, M>, A> fa) =>
+        new ParsecTApplyLazy<E, S, T, M, A, B>(ff.As(), fa);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ParsecT<E, S, T, M, B> bind<A, B>(
         K<ParsecT<E, S, T, M>, A> ma, 
         Func<A, K<ParsecT<E, S, T, M>, B>> f) =>
@@ -170,7 +176,7 @@ static class DSL<E, S, T, M>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ParsecT<E, S, T, M, A> choose<A>(
         K<ParsecT<E, S, T, M>, A> m, 
-        Func<K<ParsecT<E, S, T, M>, A>> n) =>
+        Memo<ParsecT<E, S, T, M>, A> n) =>
         new ParsecTChooseLazy<E, S, T, M, A>(m.As(), n);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

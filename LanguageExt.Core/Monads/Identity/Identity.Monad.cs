@@ -27,8 +27,8 @@ public partial class Identity :
     static K<Identity, B> Applicative<Identity>.Apply<A, B>(K<Identity, Func<A, B>> mf, K<Identity, A> ma) =>
         mf.As().Bind(f => ma.As().Map(f));
 
-    static K<Identity, B> Applicative<Identity>.Action<A, B>(K<Identity, A> ma, K<Identity, B> mb) =>
-        ma.As().Bind(_ => mb);
+    static K<Identity, B> Applicative<Identity>.Apply<A, B>(K<Identity, Func<A, B>> mf, Memo<Identity, A> ma) =>
+        mf.As().Bind(f => ma.Value.As().Map(f));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

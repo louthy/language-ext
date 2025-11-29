@@ -27,8 +27,8 @@ public partial class WriterT<W, M> :
     static K<WriterT<W, M>, B> Applicative<WriterT<W, M>>.Apply<A, B>(K<WriterT<W, M>, Func<A, B>> mf, K<WriterT<W, M>, A> ma) => 
         mf.As().Bind(x => ma.As().Map(x));
 
-    static K<WriterT<W, M>, B> Applicative<WriterT<W, M>>.Action<A, B>(K<WriterT<W, M>, A> ma, K<WriterT<W, M>, B> mb) =>
-        ma.As().Bind(_ => mb);
+    static K<WriterT<W, M>, B> Applicative<WriterT<W, M>>.Apply<A, B>(K<WriterT<W, M>, Func<A, B>> mf, Memo<WriterT<W, M>, A> ma) => 
+        mf.As().Bind(x => ma.Value.As().Map(x));
 
     static K<WriterT<W, M>, A> MonadT<WriterT<W, M>, M>.Lift<A>(K<M, A> ma) => 
         WriterT<W, M, A>.Lift(ma);

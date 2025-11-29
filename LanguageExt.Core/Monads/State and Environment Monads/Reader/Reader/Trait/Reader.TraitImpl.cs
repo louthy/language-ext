@@ -23,8 +23,8 @@ public partial class Reader<Env> :
     static K<Reader<Env>, B> Applicative<Reader<Env>>.Apply<A, B>(K<Reader<Env>, Func<A, B>> mf, K<Reader<Env>, A> ma) => 
         mf.As().Bind(x => ma.As().Map(x));
 
-    static K<Reader<Env>, B> Applicative<Reader<Env>>.Action<A, B>(K<Reader<Env>, A> ma, K<Reader<Env>, B> mb) =>
-        ma.As().Bind(_ => mb);
+    static K<Reader<Env>, B> Applicative<Reader<Env>>.Apply<A, B>(K<Reader<Env>, Func<A, B>> mf, Memo<Reader<Env>, A> ma) => 
+        mf.As().Bind(x => ma.Value.As().Map(x));
 
     static K<Reader<Env>, Env> Readable<Reader<Env>, Env>.Ask =>
         Reader<Env, Env>.Asks(Prelude.identity);

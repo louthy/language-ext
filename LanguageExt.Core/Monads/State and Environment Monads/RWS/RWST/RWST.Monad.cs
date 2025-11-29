@@ -44,6 +44,14 @@ public class RWST<R, W, S, M> :
                      from ra in ma.As().runRWST((input.Env, rf.Output, rf.State))
                      select (rf.Value(ra.Value), ra.Output, ra.State));
 
+    static K<RWST<R, W, S, M>, B> Applicative<RWST<R, W, S, M>>.Apply<A, B>(
+        K<RWST<R, W, S, M>, Func<A, B>> mf,
+        Memo<RWST<R, W, S, M>, A> ma) =>
+        new RWST<R, W, S, M, B>(
+            input => from rf in mf.As().runRWST(input)
+                     from ra in ma.Value.As().runRWST((input.Env, rf.Output, rf.State))
+                     select (rf.Value(ra.Value), ra.Output, ra.State));
+
     static K<RWST<R, W, S, M>, A> MonadT<RWST<R, W, S, M>, M>.Lift<A>(K<M, A> ma) => 
         new RWST<R, W, S, M, A>(input => ma.Map(value => (value, input.Output, input.State)));
 

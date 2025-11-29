@@ -26,8 +26,8 @@ public partial class Writer<W> :
     static K<Writer<W>, B> Applicative<Writer<W>>.Apply<A, B>(K<Writer<W>, Func<A, B>> mf, K<Writer<W>, A> ma) => 
         mf.As().Bind(x => ma.As().Map(x));
 
-    static K<Writer<W>, B> Applicative<Writer<W>>.Action<A, B>(K<Writer<W>, A> ma, K<Writer<W>, B> mb) =>
-        ma.As().Bind(_ => mb);
+    static K<Writer<W>, B> Applicative<Writer<W>>.Apply<A, B>(K<Writer<W>, Func<A, B>> mf, Memo<Writer<W>, A> ma) => 
+        mf.As().Bind(x => ma.Value.As().Map(x));
 
     static K<Writer<W>, Unit> Writable<Writer<W>, W>.Tell(W item) =>
         new Writer<W, Unit>(w => (unit, w + item));

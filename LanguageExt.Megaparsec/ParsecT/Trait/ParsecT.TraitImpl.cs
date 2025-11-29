@@ -5,6 +5,7 @@ using static LanguageExt.Prelude;
 namespace LanguageExt.Megaparsec;
 
 public class ParsecT<E, S, T, M> : 
+    MonoidK<ParsecT<E, S, T, M>>, 
     MonadParsecT<ParsecT<E, S, T, M>, E, S, T, M>,
     MonadIO<ParsecT<E, S, T, M>>
     where M : Monad<M>
@@ -98,6 +99,11 @@ public class ParsecT<E, S, T, M> :
         K<ParsecT<E, S, T, M>, A> ma) =>
         DSL<E, S, T, M>.apply(mf.As(), ma.As());
 
+    static K<ParsecT<E, S, T, M>, B> Applicative<ParsecT<E, S, T, M>>.Apply<A, B>(
+        K<ParsecT<E, S, T, M>, Func<A, B>> mf,
+        Memo<ParsecT<E, S, T, M>, A> ma) =>
+        DSL<E, S, T, M>.apply(mf.As(), ma);
+
     static K<ParsecT<E, S, T, M>, B> Monad<ParsecT<E, S, T, M>>.Bind<A, B>(
         K<ParsecT<E, S, T, M>, A> ma, 
         Func<A, K<ParsecT<E, S, T, M>, B>> f) => 
@@ -110,7 +116,7 @@ public class ParsecT<E, S, T, M> :
 
     static K<ParsecT<E, S, T, M>, A> Choice<ParsecT<E, S, T, M>>.Choose<A>(
         K<ParsecT<E, S, T, M>, A> fa,
-        Func<K<ParsecT<E, S, T, M>, A>> fb) =>
+        Memo<ParsecT<E, S, T, M>, A> fb) =>
         DSL<E, S, T, M>.choose(fa, fb);
 
     static K<ParsecT<E, S, T, M>, A> SemigroupK<ParsecT<E, S, T, M>>.Combine<A>(
@@ -125,6 +131,9 @@ public class ParsecT<E, S, T, M> :
         };
 
     static K<ParsecT<E, S, T, M>, A> MonoidK<ParsecT<E, S, T, M>>.Empty<A>() =>
+        DSL<E, S, T, M>.empty<A>();
+
+    static K<ParsecT<E, S, T, M>, A> Alternative<ParsecT<E, S, T, M>>.Empty<A>() =>
         DSL<E, S, T, M>.empty<A>();
 
     static K<ParsecT<E, S, T, M>, A> Fallible<ParseError<T, E>, ParsecT<E, S, T, M>>.Fail<A>(ParseError<T, E> error) =>

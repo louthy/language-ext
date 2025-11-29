@@ -29,8 +29,8 @@ public class IdentityT<M> :
     static K<IdentityT<M>, B> Applicative<IdentityT<M>>.Apply<A, B>(K<IdentityT<M>, Func<A, B>> mf, K<IdentityT<M>, A> ma) =>
         mf.As().Bind(f => ma.As().Map(f));
 
-    static K<IdentityT<M>, B> Applicative<IdentityT<M>>.Action<A, B>(K<IdentityT<M>, A> ma, K<IdentityT<M>, B> mb) =>
-        ma.As().Bind(_ => mb);
+    static K<IdentityT<M>, B> Applicative<IdentityT<M>>.Apply<A, B>(K<IdentityT<M>, Func<A, B>> mf, Memo<IdentityT<M>, A> ma) =>
+        mf.As().Bind(f => ma.Value.As().Map(f));
 
     static K<IdentityT<M>, A> MonadT<IdentityT<M>, M>.Lift<A>(K<M, A> ma) =>
         IdentityT.lift(ma);

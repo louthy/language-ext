@@ -271,7 +271,7 @@ public static partial class Prelude
     /// <param name="f">Mapping function</param>
     /// <typeparam name="Fnctr">Trait of the functor</typeparam>
     /// <returns>Mapped functor</returns>
-    public static Memo<Fnctr, B> map<Fnctr, A, B>(
+    public static K<Fnctr, B> map<Fnctr, A, B>(
         Func<A, B> f, Memo<Fnctr, A> ma) 
         where Fnctr : Functor<Fnctr> =>
         Fnctr.Map(f, ma);
@@ -296,7 +296,7 @@ public static partial class Prelude
     /// <param name="f">Mapping function</param>
     /// <typeparam name="Fnctr">Trait of the functor</typeparam>
     /// <returns>Mapped functor</returns>
-    public static Memo<Fnctr, Func<B, C>> map<Fnctr, A, B, C>(
+    public static K<Fnctr, Func<B, C>> map<Fnctr, A, B, C>(
         Func<A, B, C> f, Memo<Fnctr, A> ma) 
         where Fnctr : Functor<Fnctr> =>
         Fnctr.Map(x => curry(f)(x), ma);
@@ -321,7 +321,7 @@ public static partial class Prelude
     /// <param name="f">Mapping function</param>
     /// <typeparam name="Fnctr">Trait of the functor</typeparam>
     /// <returns>Mapped functor</returns>
-    public static Memo<Fnctr, Func<B, Func<C, D>>> map<Fnctr, A, B, C, D>(
+    public static K<Fnctr, Func<B, Func<C, D>>> map<Fnctr, A, B, C, D>(
         Func<A, B, C, D> f, Memo<Fnctr, A> ma) 
         where Fnctr : Functor<Fnctr> =>
         Fnctr.Map(x => curry(f)(x), ma);
@@ -346,7 +346,7 @@ public static partial class Prelude
     /// <param name="f">Mapping function</param>
     /// <typeparam name="Fnctr">Trait of the functor</typeparam>
     /// <returns>Mapped functor</returns>
-    public static Memo<Fnctr, Func<B, Func<C, Func<D, E>>>> map<Fnctr, A, B, C, D, E>(
+    public static K<Fnctr, Func<B, Func<C, Func<D, E>>>> map<Fnctr, A, B, C, D, E>(
         Func<A, B, C, D, E> f, Memo<Fnctr, A> ma) 
         where Fnctr : Functor<Fnctr> =>
         Fnctr.Map(x => curry(f)(x), ma);
@@ -371,7 +371,7 @@ public static partial class Prelude
     /// <param name="f">Mapping function</param>
     /// <typeparam name="Fnctr">Trait of the functor</typeparam>
     /// <returns>Mapped functor</returns>
-    public static Memo<Fnctr, Func<B, Func<C, Func<D, Func<E, F>>>>> map<Fnctr, A, B, C, D, E, F>(
+    public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, F>>>>> map<Fnctr, A, B, C, D, E, F>(
         Func<A, B, C, D, E, F> f, Memo<Fnctr, A> ma) 
         where Fnctr : Functor<Fnctr> =>
         Fnctr.Map(x => curry(f)(x), ma);
@@ -396,7 +396,7 @@ public static partial class Prelude
     /// <param name="f">Mapping function</param>
     /// <typeparam name="Fnctr">Trait of the functor</typeparam>
     /// <returns>Mapped functor</returns>
-    public static Memo<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> map<Fnctr, A, B, C, D, E, F, G>(
+    public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> map<Fnctr, A, B, C, D, E, F, G>(
         Func<A, B, C, D, E, F, G> f, Memo<Fnctr, A> ma) 
         where Fnctr : Functor<Fnctr> =>
         Fnctr.Map(x => curry(f)(x), ma);
@@ -421,7 +421,7 @@ public static partial class Prelude
     /// <param name="f">Mapping function</param>
     /// <typeparam name="Fnctr">Trait of the functor</typeparam>
     /// <returns>Mapped functor</returns>
-    public static Memo<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> map<Fnctr, A, B, C, D, E, F, G, H>(
+    public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> map<Fnctr, A, B, C, D, E, F, G, H>(
         Func<A, B, C, D, E, F, G, H> f, Memo<Fnctr, A> ma) 
         where Fnctr : Functor<Fnctr> =>
         Fnctr.Map(x => curry(f)(x), ma);
@@ -446,7 +446,7 @@ public static partial class Prelude
     /// <param name="f">Mapping function</param>
     /// <typeparam name="Fnctr">Trait of the functor</typeparam>
     /// <returns>Mapped functor</returns>
-    public static Memo<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> map<Fnctr, A, B, C, D, E, F, G, H, I>(
+    public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> map<Fnctr, A, B, C, D, E, F, G, H, I>(
         Func<A, B, C, D, E, F, G, H, I> f, Memo<Fnctr, A> ma) 
         where Fnctr : Functor<Fnctr> =>
         Fnctr.Map(x => curry(f)(x), ma);
@@ -471,7 +471,7 @@ public static partial class Prelude
     /// <param name="f">Mapping function</param>
     /// <typeparam name="Fnctr">Trait of the functor</typeparam>
     /// <returns>Mapped functor</returns>
-    public static Memo<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, J>>>>>>>>> map<Fnctr, A, B, C, D, E, F, G, H, I, J>(
+    public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, J>>>>>>>>> map<Fnctr, A, B, C, D, E, F, G, H, I, J>(
         Func<A, B, C, D, E, F, G, H, I, J> f, Memo<Fnctr, A> ma) 
         where Fnctr : Functor<Fnctr> =>
         Fnctr.Map(x => curry(f)(x), ma);
@@ -496,7 +496,7 @@ public static partial class Prelude
     /// <param name="f">Mapping function</param>
     /// <typeparam name="Fnctr">Trait of the functor</typeparam>
     /// <returns>Mapped functor</returns>
-    public static Memo<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, Func<J, K>>>>>>>>>> map<Fnctr, A, B, C, D, E, F, G, H, I, J, K>(
+    public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, Func<J, K>>>>>>>>>> map<Fnctr, A, B, C, D, E, F, G, H, I, J, K>(
         Func<A, B, C, D, E, F, G, H, I, J, K> f, Memo<Fnctr, A> ma) 
         where Fnctr : Functor<Fnctr> =>
         Fnctr.Map(x => curry(f)(x), ma);    

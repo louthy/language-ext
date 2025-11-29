@@ -25,8 +25,8 @@ public partial class StateT<S, M> :
     static K<StateT<S, M>, B> Applicative<StateT<S, M>>.Apply<A, B>(K<StateT<S, M>, Func<A, B>> mf, K<StateT<S, M>, A> ma) => 
         mf.As().Bind(x => ma.As().Map(x));
 
-    static K<StateT<S, M>, B> Applicative<StateT<S, M>>.Action<A, B>(K<StateT<S, M>, A> ma, K<StateT<S, M>, B> mb) =>
-        ma.As().Bind(_ => mb);
+    static K<StateT<S, M>, B> Applicative<StateT<S, M>>.Apply<A, B>(K<StateT<S, M>, Func<A, B>> mf, Memo<StateT<S, M>, A> ma) => 
+        mf.As().Bind(x => ma.Value.As().Map(x));
 
     static K<StateT<S, M>, A> MonadT<StateT<S, M>, M>.Lift<A>(K<M, A> ma) => 
         StateT<S, M, A>.Lift(ma);

@@ -6,9 +6,7 @@ namespace LanguageExt;
 /// <summary>
 /// Free monad makes any functor into a monad 
 /// </summary>
-public class Free<F> : 
-    Choice<Free<F>>,
-    Monad<Free<F>>
+public class Free<F> : Monad<Free<F>>
     where F : Functor<F>
 {
     static K<Free<F>, B> Functor<Free<F>>.Map<A, B>(Func<A, B> f, K<Free<F>, A> ma)
@@ -43,9 +41,12 @@ public class Free<F> :
             _                                                 => throw new InvalidOperationException()
         };
 
-    static K<Free<F>, A> Choice<Free<F>>.Choose<A>(K<Free<F>, A> lhs, K<Free<F>, A> rhs) => 
-        lhs;
-
-    static K<Free<F>, A> Choice<Free<F>>.Choose<A>(K<Free<F>, A> lhs, Func<K<Free<F>, A>> rhs) => 
-        lhs;
+    static K<Free<F>, B> Applicative<Free<F>>.Apply<A, B>(K<Free<F>, Func<A, B>> mf, Memo<Free<F>, A> ma) =>
+        (mf, ma.Value) switch
+        {
+            (Pure<F, Func<A, B>> (var f), Pure<F, A> (var a)) => new Pure<F, B>(f(a)),
+            (Pure<F, Func<A, B>> (var f), Bind<F, A> (var a)) => new Bind<F, B>(a.Map(x => x.Map(f).As())),
+            (Bind<F, Func<A, B>> (var f), Bind<F, A> a)       => new Bind<F, B>(f.Map(x => x.Apply(a).As())),
+            _                                                 => throw new InvalidOperationException()
+        };
 }
