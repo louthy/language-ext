@@ -41,9 +41,9 @@ public partial class Iterator :
         }
     }
 
-    static Memo<Iterator, B> Applicative<Iterator>.Apply<A, B>(K<Iterator, Func<A, B>> mf, Memo<Iterator, A> ma)
+    static K<Iterator, B> Applicative<Iterator>.Apply<A, B>(K<Iterator, Func<A, B>> mf, Memo<Iterator, A> ma)
     {
-        return memoF(go().GetIterator());
+        return go().GetIterator();
         G.IEnumerable<B> go()
         {
             for (var f = mf.As().Clone(); !f.IsEmpty; f = f.Tail)
@@ -54,12 +54,6 @@ public partial class Iterator :
                 }
             }
         }
-    }
-
-    static K<Iterator, B> Applicative<Iterator>.Action<A, B>(K<Iterator, A> ma, K<Iterator, B> mb)
-    {
-        ignore(ma.As().Count);
-        return mb;
     }
 
     static K<Iterator, A> MonoidK<Iterator>.Empty<A>() =>
@@ -74,8 +68,8 @@ public partial class Iterator :
     static K<Iterator, A> Choice<Iterator>.Choose<A>(K<Iterator, A> ma, K<Iterator, A> mb) => 
         ma.IsEmpty ? mb : ma;
     
-    static Memo<Iterator, A> Choice<Iterator>.Choose<A>(K<Iterator, A> ma, Memo<Iterator, A> mb) => 
-        ma.IsEmpty ? mb : memoF(ma);
+    static K<Iterator, A> Choice<Iterator>.Choose<A>(K<Iterator, A> ma, Memo<Iterator, A> mb) => 
+        ma.IsEmpty ? mb.Value : ma;
     
     static K<F, K<Iterator, B>> Traversable<Iterator>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Iterator, A> ta)
     {

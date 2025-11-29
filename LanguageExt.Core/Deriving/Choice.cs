@@ -36,8 +36,7 @@ public static partial class Deriving
         /// <param name="fb">Second structure to return if the first one fails</param>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>First argument to succeed</returns>
-        static Memo<Supertype, A> Choice<Supertype>.Choose<A>(K<Supertype, A> fa, Memo<Supertype, A> fb) =>
-            Memo.cotransform<Supertype, Subtype, A>(
-                Subtype.Choose(Supertype.Transform(fa), Memo.transform<Supertype, Subtype, A>(fb)));
+        static K<Supertype, A> Choice<Supertype>.Choose<A>(K<Supertype, A> fa, Memo<Supertype, A> fb) =>
+            Supertype.CoTransform(Subtype.Choose(Supertype.Transform(fa), Memo.transform<Supertype, Subtype, A>(fb)));
     }
 }

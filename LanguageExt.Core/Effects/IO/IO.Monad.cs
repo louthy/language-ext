@@ -22,12 +22,12 @@ public partial class IO :
             _                        => ma.As().ApplyBack(mf.As()),
         };
 
-    static Memo<IO, B> Applicative<IO>.Apply<A, B>(K<IO, Func<A, B>> mf, Memo<IO, A> ma) =>
+    static K<IO, B> Applicative<IO>.Apply<A, B>(K<IO, Func<A, B>> mf, Memo<IO, A> ma) =>
         mf switch
         {
-            IOEmpty<Func<A, B>>       => memoF(IOEmpty<B>.Default),
-            IOFail<Func<A, B>>(var e) => memoF(new IOFail<B>(e)),
-            _                         => memoF(() => ma.Value.As().ApplyBack(mf)) 
+            IOEmpty<Func<A, B>>       => IOEmpty<B>.Default,
+            IOFail<Func<A, B>>(var e) => new IOFail<B>(e),
+            _                         => ma.Value.As().ApplyBack(mf) 
         };
 
     static K<IO, B> Applicative<IO>.Action<A, B>(K<IO, A> ma, K<IO, B> mb) =>
@@ -38,12 +38,12 @@ public partial class IO :
             _                => new IOAction<A, B, B>(ma, mb, pure)
         };
 
-    static Memo<IO, B> Applicative<IO>.Action<A, B>(K<IO, A> ma, Memo<IO, B> mb) =>
+    static K<IO, B> Applicative<IO>.Action<A, B>(K<IO, A> ma, Memo<IO, B> mb) =>
         ma switch
         {
-            IOEmpty<A>       => memoF(IOEmpty<B>.Default),
-            IOFail<A>(var e) => memoF(new IOFail<B>(e)),
-            _                => memoF(new IOActionLazy<A, B, B>(ma, mb, pure))
+            IOEmpty<A>       => IOEmpty<B>.Default,
+            IOFail<A>(var e) => new IOFail<B>(e),
+            _                => new IOActionLazy<A, B, B>(ma, mb, pure)
         };
 
     static K<IO, A> Applicative<IO>.Actions<A>(IEnumerable<K<IO, A>> fas) =>
@@ -91,12 +91,12 @@ public partial class IO :
             _          => new IOCatch<A, A>(fa, _ => true, _ => fb, null, pure)
         };
 
-    static Memo<IO, A> Choice<IO>.Choose<A>(K<IO, A> fa, Memo<IO, A> fb) =>
+    static K<IO, A> Choice<IO>.Choose<A>(K<IO, A> fa, Memo<IO, A> fb) =>
         fa switch
         {
-            IOEmpty<A> => fb,
-            IOFail<A>  => fb,
-            _          => memoF(new IOCatch<A, A>(fa, _ => true, _ => fb.Value, null, pure))
+            IOEmpty<A> => fb.Value,
+            IOFail<A>  => fb.Value,
+            _          => new IOCatch<A, A>(fa, _ => true, _ => fb.Value, null, pure)
         };
 
     static K<IO, A> Alternative<IO>.Empty<A>() =>

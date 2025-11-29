@@ -33,10 +33,10 @@ public partial class IteratorAsync :
         }        
     }   
     
-    static Memo<IteratorAsync, B> Applicative<IteratorAsync>.Apply<A, B>(
+    static K<IteratorAsync, B> Applicative<IteratorAsync>.Apply<A, B>(
         K<IteratorAsync, Func<A, B>> mf, Memo<IteratorAsync, A> ma)
     {
-        return memoF(from(go()));
+        return from(go());
 
         async G.IAsyncEnumerable<B> go()
         {
@@ -49,40 +49,4 @@ public partial class IteratorAsync :
             }
         }        
     }   
-
-    static K<IteratorAsync, B> Applicative<IteratorAsync>.Action<A, B>(K<IteratorAsync, A> ma, K<IteratorAsync, B> mb)
-    {
-        return from(go());
-
-        async G.IAsyncEnumerable<B> go()
-        {
-            for (var ia = ma.As().Clone(); !await ia.IsEmpty; ia = await ia.Tail)
-            {
-                // consume
-                await ia.Head;
-            }
-            for (var ib = mb.As().Clone(); !await ib.IsEmpty; ib = await ib.Tail)
-            {
-                yield return await ib.Head;
-            }
-        }
-    }
-    
-    static Memo<IteratorAsync, B> Applicative<IteratorAsync>.Action<A, B>(K<IteratorAsync, A> ma, Memo<IteratorAsync, B> mb)
-    {
-        return memoF(from(go()));
-
-        async G.IAsyncEnumerable<B> go()
-        {
-            for (var ia = ma.As().Clone(); !await ia.IsEmpty; ia = await ia.Tail)
-            {
-                // consume
-                await ia.Head;
-            }
-            for (var ib = mb.Value.As().Clone(); !await ib.IsEmpty; ib = await ib.Tail)
-            {
-                yield return await ib.Head;
-            }
-        }
-    }    
 }

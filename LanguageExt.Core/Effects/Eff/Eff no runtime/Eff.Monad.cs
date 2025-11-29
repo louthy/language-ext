@@ -30,14 +30,8 @@ public partial class Eff :
     static K<Eff, B> Applicative<Eff>.Apply<A, B>(K<Eff, Func<A, B>> mf, K<Eff, A> ma) => 
         new Eff<B>(mf.As().effect.Apply(ma.As().effect));
 
-    static Memo<Eff, B> Applicative<Eff>.Apply<A, B>(K<Eff, Func<A, B>> mf, Memo<Eff, A> ma) =>
-        Memo.cotransform<Eff, Eff<MinRT>, B>(
-            mf.As()
-              .effect
-              .Apply(Memo.transform<Eff, Eff<MinRT>, A>(ma)));
-
-    static K<Eff, B> Applicative<Eff>.Action<A, B>(K<Eff, A> ma, K<Eff, B> mb) => 
-        new Eff<B>(ma.As().effect.Action(mb.As().effect));
+    static K<Eff, B> Applicative<Eff>.Apply<A, B>(K<Eff, Func<A, B>> mf, Memo<Eff, A> ma) =>
+        new Eff<B>(mf.As().effect.Apply(Memo.transform<Eff, Eff<MinRT>, A>(ma)).As());
 
     static K<Eff, A> Applicative<Eff>.Actions<A>(IEnumerable<K<Eff, A>> fas) => 
         new Eff<A>(fas.Select(fa => fa.As().effect).Actions().As()); 
@@ -54,11 +48,8 @@ public partial class Eff :
     static K<Eff, A> Choice<Eff>.Choose<A>(K<Eff, A> ma, K<Eff, A> mb) => 
         new Eff<A>(ma.As().effect.Choose(mb.As().effect).As());
 
-    static Memo<Eff, A> Choice<Eff>.Choose<A>(K<Eff, A> ma, Memo<Eff, A> mb) => 
-        Memo.cotransform<Eff, Eff<MinRT>, A>(
-            ma.As()
-              .effect
-              .Choose(Memo.transform<Eff, Eff<MinRT>, A>(mb)));
+    static K<Eff, A> Choice<Eff>.Choose<A>(K<Eff, A> ma, Memo<Eff, A> mb) => 
+        new Eff<A>(ma.As().effect.Choose(Memo.transform<Eff, Eff<MinRT>, A>(mb)).As());
 
     static K<Eff, A> Readable<Eff, MinRT>.Asks<A>(Func<MinRT, A> f) => 
         new Eff<A>(Readable.asks<Eff<MinRT>, MinRT, A>(f).As());

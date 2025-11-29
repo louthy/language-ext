@@ -57,9 +57,9 @@ public partial class Seq :
         }
     }
 
-    static Memo<Seq, B> Applicative<Seq>.Apply<A, B>(K<Seq, Func<A, B>> mf, Memo<Seq, A> ma) 
+    static K<Seq, B> Applicative<Seq>.Apply<A, B>(K<Seq, Func<A, B>> mf, Memo<Seq, A> ma) 
     {
-        return memoF(new Seq<B>(go()));
+        return new Seq<B>(go());
         IEnumerable<B> go()
         {
             foreach (var f in mf.As())
@@ -72,18 +72,6 @@ public partial class Seq :
         }
     }
 
-    static K<Seq, B> Applicative<Seq>.Action<A, B>(K<Seq, A> ma, K<Seq, B> mb)
-    {
-        ignore(ma.As().Strict());
-        return mb;
-    }
-
-    static Memo<Seq, B> Applicative<Seq>.Action<A, B>(K<Seq, A> ma, Memo<Seq, B> mb)
-    {
-        ignore(ma.As().Strict());
-        return mb;
-    }
-
     static K<Seq, A> MonoidK<Seq>.Empty<A>() =>
         Seq<A>.Empty;
 
@@ -93,8 +81,8 @@ public partial class Seq :
     static K<Seq, A> Choice<Seq>.Choose<A>(K<Seq, A> ma, K<Seq, A> mb) => 
         ma.As().IsEmpty ? mb : ma;
 
-    static Memo<Seq, A> Choice<Seq>.Choose<A>(K<Seq, A> ma, Memo<Seq, A> mb) => 
-        ma.As().IsEmpty ? mb : memoF(ma);
+    static K<Seq, A> Choice<Seq>.Choose<A>(K<Seq, A> ma, Memo<Seq, A> mb) => 
+        ma.As().IsEmpty ? ~mb : ma;
 
     static K<Seq, A> SemigroupK<Seq>.Combine<A>(K<Seq, A> ma, K<Seq, A> mb) =>
         ma.As() + mb.As();

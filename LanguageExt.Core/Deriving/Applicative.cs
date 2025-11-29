@@ -25,7 +25,7 @@ public static partial class Deriving
         static K<Supertype, B> Applicative<Supertype>.Apply<A, B>(K<Supertype, Func<A, B>> mf, K<Supertype, A> ma) =>
             Supertype.CoTransform(Subtype.Apply(Supertype.Transform(mf), Supertype.Transform(ma)));
 
-        static Memo<Supertype, B> Applicative<Supertype>.Apply<A, B>(K<Supertype, Func<A, B>> mf, Memo<Supertype, A> ma) => 
-            Memo.cotransform<Supertype, Subtype, B>(Subtype.Apply(Supertype.Transform(mf), Memo.transform<Supertype, Subtype, A>(ma)));
+        static K<Supertype, B> Applicative<Supertype>.Apply<A, B>(K<Supertype, Func<A, B>> mf, Memo<Supertype, A> ma) => 
+            Supertype.CoTransform(Subtype.Apply(Supertype.Transform(mf), Memo.transform<Supertype, Subtype, A>(ma)));
     }
 }

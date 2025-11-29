@@ -15,6 +15,9 @@ namespace LanguageExt.Traits;
 public interface Applicative<F> : Functor<F>
     where F : Applicative<F>
 {
+    static Func<A, Func<B, B>> action<A, B>() =>
+        Act<A, B>.fun;        
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Abstract members
@@ -103,7 +106,7 @@ public interface Applicative<F> : Functor<F>
     /// <typeparam name="B">Second applicative structure bound value type</typeparam>
     /// <returns>The result of the second applicative action (if there wasn't a failure beforehand)</returns>
     public static virtual K<F, B> Action<A, B>(K<F, A> ma, K<F, B> mb) =>
-        ((A _, B y) => y) * ma * mb;
+        action<A, B>() * ma * mb;
 
     /// <summary>
     /// Applicative action.  Computes the first applicative action and then computes the second.
@@ -114,7 +117,7 @@ public interface Applicative<F> : Functor<F>
     /// <typeparam name="B">Second applicative structure bound value type</typeparam>
     /// <returns>The result of the second applicative action (if there wasn't a failure beforehand)</returns>
     public static virtual K<F, B> Action<A, B>(K<F, A> ma, Memo<F, B> mb) =>
-        ((A _, B y) => y) * ma * mb;
+        action<A, B>() * ma * mb;
 
     /// <summary>
     /// Applicative action.  Computes the first applicative action and then computes the second.
@@ -125,7 +128,7 @@ public interface Applicative<F> : Functor<F>
     /// <typeparam name="B">Second applicative structure bound value type</typeparam>
     /// <returns>The result of the second applicative action (if there wasn't a failure beforehand)</returns>
     public static virtual K<F, B> Action<A, B>(Memo<F, A> ma, Memo<F, B> mb) =>
-        ((A _, B y) => y) * ma * mb;
+        action<A, B>() * ma * mb;
 
     /// <summary>
     /// Applicative action.  Computes the first applicative action and then computes the second.
@@ -136,7 +139,7 @@ public interface Applicative<F> : Functor<F>
     /// <typeparam name="B">Second applicative structure bound value type</typeparam>
     /// <returns>The result of the second applicative action (if there wasn't a failure beforehand)</returns>
     public static virtual K<F, B> Action<A, B>(Memo<F, A> ma, K<F, B> mb) =>
-        ((A _, B y) => y) * ma * mb;
+        action<A, B>() * ma * mb;
 
     /// <summary>
     /// Chains a sequence of applicative actions

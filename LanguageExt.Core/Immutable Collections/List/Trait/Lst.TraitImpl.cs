@@ -7,6 +7,7 @@ namespace LanguageExt;
 
 public class Lst : 
     Monad<Lst>, 
+    MonoidK<Lst>,
     Alternative<Lst>, 
     Traversable<Lst>
 {
@@ -55,20 +56,35 @@ public class Lst :
         }
     }
 
-    static K<Lst, B> Applicative<Lst>.Action<A, B>(K<Lst, A> ma, K<Lst, B> mb) =>
-        mb;
+    static K<Lst, B> Applicative<Lst>.Apply<A, B>(K<Lst, Func<A, B>> mf, Memo<Lst, A> ma)
+    {
+        return new Lst<B>(go());
+        IEnumerable<B> go()
+        {
+            foreach (var f in mf.As())
+            {
+                foreach (var a in ma.Value.As())
+                {
+                    yield return f(a);
+                }
+            }
+        }
+    }
 
     static K<Lst, A> MonoidK<Lst>.Empty<A>() =>
+        Lst<A>.Empty;
+
+    static K<Lst, A> Alternative<Lst>.Empty<A>() =>
         Lst<A>.Empty;
 
     static K<Lst, A> SemigroupK<Lst>.Combine<A>(K<Lst, A> ma, K<Lst, A> mb) => 
         ma.As() + mb.As();
 
     static K<Lst, A> Choice<Lst>.Choose<A>(K<Lst, A> ma, K<Lst, A> mb) => 
-        ma.IsEmpty() ? mb : ma;
+        ma.IsEmpty ? mb : ma;
 
-    static K<Lst, A> Choice<Lst>.Choose<A>(K<Lst, A> ma, Func<K<Lst, A>> mb) => 
-        ma.IsEmpty() ? mb() : ma;
+    static K<Lst, A> Choice<Lst>.Choose<A>(K<Lst, A> ma, Memo<Lst, A> mb) => 
+        ma.IsEmpty ? mb.Value : ma;
 
     static K<F, K<Lst, B>> Traversable<Lst>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Lst, A> ta)
     {

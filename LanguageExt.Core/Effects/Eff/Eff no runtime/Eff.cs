@@ -559,9 +559,6 @@ public record Eff<A>(Eff<MinRT, A> effect) :
             new ReaderT<A, IO, T>(
                 env => fa.As().RunIO(env).Finally(@finally.As().effect.Run(env))));
     
-    static K<Eff<A>, U> Applicative<Eff<A>>.Action<T, U>(K<Eff<A>, T> ma, K<Eff<A>, U> mb) =>
-        new Eff<A, U>(ma.As().effect.Action(mb.As().effect).As());
-
     static K<Eff<A>, T> Applicative<Eff<A>>.Actions<T>(IEnumerable<K<Eff<A>, T>> fas) =>
         new Eff<A, T>(
             new ReaderT<A, IO, T>(
@@ -587,8 +584,8 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     static K<Eff<A>, A1> Choice<Eff<A>>.Choose<A1>(K<Eff<A>, A1> lhs, K<Eff<A>, A1> rhs) => 
         lhs.Catch(rhs);
 
-    static Memo<Eff<A>, A1> Choice<Eff<A>>.Choose<A1>(K<Eff<A>, A1> lhs, Memo<Eff<A>, A1> rhs) => 
-        memoF(lhs.Catch(_ => rhs.Value));
+    static K<Eff<A>, A1> Choice<Eff<A>>.Choose<A1>(K<Eff<A>, A1> lhs, Memo<Eff<A>, A1> rhs) => 
+        lhs.Catch(_ => rhs.Value);
 
     static K<Eff<A>, T> Alternative<Eff<A>>.Empty<T>() => 
         Eff<A, T>.Fail(Errors.None);
