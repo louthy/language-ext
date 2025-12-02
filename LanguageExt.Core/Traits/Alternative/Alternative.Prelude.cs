@@ -16,7 +16,7 @@ public static partial class Prelude
     [Pure]
     public static K<F, A> oneOf<F, A>(params K<F, A>[] ms)
         where F : Alternative<F> =>
-        Alternative.oneOf(ms);
+        Alternative.choice(ms);
 
     /// <summary>
     /// Given a set of applicative functors, return the first one to succeed.
@@ -27,5 +27,5 @@ public static partial class Prelude
     [Pure]
     public static K<F, A> oneOf<F, A>(Seq<K<F, A>> ms)
         where F : Alternative<F> =>
-        Alternative.oneOf(ms);
+        Alternative.choice(ms);
 }

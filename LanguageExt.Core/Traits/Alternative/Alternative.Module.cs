@@ -23,9 +23,9 @@ public static class Alternative
     /// If none succeed, the last applicative functor will be returned.
     /// </remarks>
     [Pure]
-    public static K<F, A> oneOf<F, A>(params K<F, A>[] ms)
+    public static K<F, A> choice<F, A>(params K<F, A>[] ms)
         where F : Alternative<F> =>
-        F.OneOf(ms);
+        F.Choice(ms);
 
     /// <summary>
     /// Given a set of applicative functors, return the first one to succeed.
@@ -34,9 +34,9 @@ public static class Alternative
     /// If none succeed, the last applicative functor will be returned.
     /// </remarks>
     [Pure]
-    public static K<F, A> oneOf<F, A>(Seq<K<F, A>> ms)
+    public static K<F, A> choice<F, A>(Seq<K<F, A>> ms)
         where F : Alternative<F> =>
-        F.OneOf(ms);
+        F.Choice(ms);
 
     /// <summary>
     /// Given a set of applicative functors, return the first one to succeed.
@@ -45,9 +45,9 @@ public static class Alternative
     /// If none succeed, the last applicative functor will be returned.
     /// </remarks>
     [Pure]
-    public static K<F, A> oneOf<F, A>(ReadOnlySpan<K<F, A>> ms)
+    public static K<F, A> choice<F, A>(ReadOnlySpan<K<F, A>> ms)
         where F : Alternative<F> =>
-        F.OneOf(ms);
+        F.Choice(ms);
 
     /// <summary>
     /// One or more...
@@ -65,7 +65,7 @@ public static class Alternative
     /// <returns>One or more values</returns>
     [Pure]
     public static K<F, Seq<A>> some<F, A>(K<F, A> fa)
-        where F : Alternative<F>, Applicative<F> =>
+        where F : Alternative<F> =>
         F.Some(fa);
     
     /// <summary>
@@ -83,7 +83,7 @@ public static class Alternative
     /// <returns>Zero or more values</returns>
     [Pure]
     public static K<F, Seq<A>> many<F, A>(K<F, A> fa)
-        where F : Alternative<F>, Applicative<F> =>
+        where F : Alternative<F> =>
         F.Many(fa);
 
     /// <summary>
@@ -97,6 +97,19 @@ public static class Alternative
     /// <returns>Unit</returns>
     [Pure]
     public static K<F, Unit> skipMany<F, A>(K<F, A> fa)
-        where F : Alternative<F>, Applicative<F> =>
+        where F : Alternative<F> =>
         F.SkipMany(fa);
+
+    /// <summary>
+    /// Combine two alternatives
+    /// </summary>
+    /// <param name="ma">Left alternative</param>
+    /// <param name="mb">Right alternative</param>
+    /// <typeparam name="A">Left value type</typeparam>
+    /// <typeparam name="B">Right value type</typeparam>
+    /// <returns>Alternative structure with an `Either` lifted into it</returns>
+    [Pure]
+    public static K<F, Either<A, B>> either<F, A, B>(K<F, A> ma, K<F, B> mb) 
+        where F : Alternative<F> =>
+        F.Either(ma, mb); 
 }

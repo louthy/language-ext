@@ -20,13 +20,13 @@ public interface Alternative<F> : Choice<F>, Applicative<F>
     /// If none succeed, the last applicative functor will be returned.
     /// </remarks>
     [Pure]
-    public static virtual K<F, A> OneOf<A>(in Seq<K<F, A>> ms)
+    public static virtual K<F, A> Choice<A>(in Seq<K<F, A>> ms)
     {
         if(ms.IsEmpty) return F.Empty<A>();
         var r = ms[0];
         foreach (var m in ms.Tail)
         {
-            r = F.Choose(r, m);
+            r |= m;
         }
         return r;
     }
@@ -38,13 +38,13 @@ public interface Alternative<F> : Choice<F>, Applicative<F>
     /// If none succeed, the last applicative functor will be returned.
     /// </remarks>
     [Pure]
-    public static virtual K<F, A> OneOf<A>(in ReadOnlySpan<K<F, A>> ms)
+    public static virtual K<F, A> Choice<A>(in ReadOnlySpan<K<F, A>> ms)
     {
         if(ms.Length == 0) return F.Empty<A>();
         var r = ms[0];
         foreach (var m in ms)
         {
-            r = F.Choose(r, m);
+            r |= m;
         }
         return r;
     }
@@ -68,7 +68,7 @@ public interface Alternative<F> : Choice<F>, Applicative<F>
             F.Choose(some_v(), F.Pure(Seq<A>()));
 
         K<F, Seq<A>> some_v() =>
-            (Cached<A>.cons * fa).Apply(memoK(many_v));
+            Cached<A>.cons * fa * memoK(many_v);
     }
     
     /// <summary>
@@ -112,6 +112,32 @@ public interface Alternative<F> : Choice<F>, Applicative<F>
         K<F, Unit> some_v() =>
             Cached<A>.ignore * fa * memoK(many_v);
     }
+    
+    // -- | @'endBy' p sep@ parses /zero/ or more occurrences of @p@, separated and
+    // -- ended by @sep@. Returns a list of values returned by @p@.
+    // --
+    // -- > cStatements = cStatement `endBy` semicolon
+    // endBy :: Alternative m => m a -> m sep -> m [a]
+    // endBy p sep = many (p <* sep)
+    public static K<F, Seq<A>> EndBy<A, SEP>(K<F, A> p, K<F, SEP> sep) =>
+        F.Many(p << sep);
+    
+    // -- | @'endBy1' p sep@ parses /one/ or more occurrences of @p@, separated and
+    // -- ended by @sep@. Returns a list of values returned by @p@.
+    // endBy1 :: Alternative m => m a -> m sep -> m [a]
+    // endBy1 p sep = some (p <* sep)    
+
+    /// <summary>
+    /// Combine two alternatives
+    /// </summary>
+    /// <param name="ma">Left alternative</param>
+    /// <param name="mb">Right alternative</param>
+    /// <typeparam name="A">Left value type</typeparam>
+    /// <typeparam name="B">Right value type</typeparam>
+    /// <returns>Alternative structure with an `Either` lifted into it</returns>
+    [Pure]
+    public static virtual K<F, Either<A, B>> Either<A, B>(K<F, A> ma, K<F, B> mb) =>
+        (Left<A, B>) * ma | (Right<A, B>) * mb; 
         
     static class Cached<A>
     {

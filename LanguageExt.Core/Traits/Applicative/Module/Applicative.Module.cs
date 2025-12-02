@@ -35,5 +35,19 @@ public static partial class Applicative
         K<F, CLOSE> close, 
         K<F, A> p)
         where F : Applicative<F> =>
-        F.Between(open, close, p);    
+        F.Between(open, close, p);
+    
+    
+    /// <summary>
+    /// Construct a sequence of `count` repetitions of `fa`
+    /// </summary>
+    /// <param name="count">Number of repetitions</param>
+    /// <param name="fa">Applicative computation to run</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Applicative structure of `count` items</returns>
+    [Pure]
+    public static K<F, Seq<A>> replicate<F, A>(int count, K<F, A> fa) 
+        where F : Applicative<F> =>
+        F.Replicate(count, fa);
+    
 }

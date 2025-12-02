@@ -33,6 +33,18 @@ public partial class Seq
         Seq<A>.Empty;
 
     /// <summary>
+    /// Construct a sequence from a single item and a tail sequence
+    /// </summary>
+    /// <param name="head">Head item</param>
+    /// <param name="tail">Tail sequence</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Constructed sequence</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Seq<A> cons<A>(A head, Seq<A> tail) =>
+        head.Cons(tail);
+    
+    /// <summary>
     /// Create an empty sequence
     /// </summary>
     [Pure]

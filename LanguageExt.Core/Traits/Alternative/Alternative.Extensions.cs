@@ -16,5 +16,5 @@ public static class AlternativeExtensions
     /// </remarks>
     public static K<F, A> OneOf<F, A>(this Seq<K<F, A>> ms)
         where F : Alternative<F> =>
-        Alternative.oneOf(ms);
+        Alternative.choice(ms);
 }

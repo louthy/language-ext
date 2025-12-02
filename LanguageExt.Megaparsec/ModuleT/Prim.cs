@@ -79,166 +79,6 @@ public static partial class ModuleT<MP, E, S, T, M>
         satisfy(x => !EqT.Equals(x, token));
 
     /// <summary>
-    /// `oneOf(cases)` succeeds if the current token is in the collection of token
-    /// `cases`. Returns the parsed token. Note, this parser cannot automatically
-    /// generate the “expected” component of the error-message, so usually you should
-    /// label it manually with `label` or `|`.
-    /// </summary>
-    /// <typeparam name="F">Foldable trait</typeparam>
-    /// <param name="cases">Token cases to test</param>
-    /// <returns>Parser</returns>
-    public static K<MP, T> oneOf<F>(K<F, T> cases)
-        where F : Foldable<F> =>
-        oneOf<F, EqDefault<T>>(cases);
-
-    /// <summary>
-    /// `oneOf(cases)` succeeds if the current token is in the collection of token
-    /// `cases`. Returns the parsed token. Note, this parser cannot automatically
-    /// generate the “expected” component of the error-message, so usually you should
-    /// label it manually with `label` or `|`.
-    /// </summary>
-    /// <typeparam name="F">Foldable trait</typeparam>
-    /// <typeparam name="EqT">Equality trait</typeparam>
-    /// <param name="cases">Token cases to test</param>
-    /// <returns>Parser</returns>
-    public static K<MP, T> oneOf<F, EqT>(K<F, T> cases)
-        where F : Foldable<F> 
-        where EqT : Eq<T> =>
-        satisfy(x => Foldable.contains<EqT, F, T>(x, cases));
-
-    /// <summary>
-    /// `oneOf(cases)` succeeds if the current token is in the collection of token
-    /// `cases`. Returns the parsed token. Note, this parser cannot automatically
-    /// generate the “expected” component of the error-message, so usually you should
-    /// label it manually with `label` or `|`.
-    /// </summary>
-    /// <param name="cases">Token cases to test</param>
-    /// <returns>Parser</returns>
-    public static K<MP, T> oneOf(ReadOnlySpan<T> cases) =>
-        MP.OneOf<EqDefault<T>>(S.TokensToChunk(cases));
-
-    /// <summary>
-    /// `oneOf(cases)` succeeds if the current token is in the collection of token
-    /// `cases`. Returns the parsed token. Note, this parser cannot automatically
-    /// generate the “expected” component of the error-message, so usually you should
-    /// label it manually with `label` or `|`.
-    /// </summary>
-    /// <param name="cases">Token cases to test</param>
-    /// <returns>Parser</returns>
-    public static K<MP, T> oneOf(S cases) =>
-        MP.OneOf<EqDefault<T>>(cases);
-
-    /// <summary>
-    /// `oneOf(cases)` succeeds if the current token is in the collection of token
-    /// `cases`. Returns the parsed token. Note, this parser cannot automatically
-    /// generate the “expected” component of the error-message, so usually you should
-    /// label it manually with `label` or `|`.
-    /// </summary>
-    /// <typeparam name="EqT">Equality trait</typeparam>
-    /// <param name="cases">Token cases to test</param>
-    /// <returns>Parser</returns>
-    public static K<MP, T> oneOf<EqT>(ReadOnlySpan<T> cases) 
-        where EqT : Eq<T> =>
-        MP.OneOf<EqT>(S.TokensToChunk(cases));
-    
-    /// <summary>
-    /// `oneOf(cases)` succeeds if the current token is in the collection of token
-    /// `cases`. Returns the parsed token. Note, this parser cannot automatically
-    /// generate the “expected” component of the error-message, so usually you should
-    /// label it manually with `label` or `|`.
-    /// </summary>
-    /// <typeparam name="EqT">Equality trait</typeparam>
-    /// <param name="cases">Token cases to test</param>
-    /// <returns>Parser</returns>
-    public static K<MP, T> oneOf<EqT>(S cases) 
-        where EqT : Eq<T> =>
-        MP.OneOf<EqT>(cases);
-
-    /// <summary>
-    /// As the dual of `oneOf`, `noneOf` succeeds if the current token is not in the
-    /// supplied list of token `cases`. Returns the parsed character. Note that this
-    /// parser cannot automatically generate the “expected” component of the
-    /// error-message, so usually you should label it manually with.
-    /// `label` or `|`
-    /// </summary>
-    /// <param name="cases">Token cases to test</param>
-    /// <typeparam name="F">Foldable trait</typeparam>
-    /// <returns>Parser</returns>
-    public static K<MP, T> noneOf<F>(K<F, T> cases)
-        where F : Foldable<F> =>
-        satisfy(x => !Foldable.contains(x, cases));
-    
-    /// <summary>
-    /// As the dual of `oneOf`, `noneOf` succeeds if the current token is not in the
-    /// supplied list of token `cases`. Returns the parsed character. Note that this
-    /// parser cannot automatically generate the “expected” component of the
-    /// error-message, so usually you should label it manually with.
-    /// `label` or `|`
-    /// </summary>
-    /// <param name="cases">Token cases to test</param>
-    /// <typeparam name="EqT">Equality trait</typeparam>
-    /// <typeparam name="F">Foldable trait</typeparam>
-    /// <returns>Parser</returns>
-    public static K<MP, T> noneOf<EqT, F>(K<F, T> cases)
-        where F : Foldable<F> 
-        where EqT : Eq<T> =>
-        satisfy(x => !Foldable.contains<EqT, F, T>(x, cases));
-    
-    /// <summary>
-    /// As the dual of `oneOf`, `noneOf` succeeds if the current token is not in the
-    /// supplied list of token `cases`. Returns the parsed character. Note that this
-    /// parser cannot automatically generate the “expected” component of the
-    /// error-message, so usually you should label it manually with.
-    /// `label` or `|`
-    /// </summary>
-    /// <param name="cases">Token cases to test</param>
-    /// <typeparam name="EqT">Equality trait</typeparam>
-    /// <returns>Parser</returns>
-    public static K<MP, T> noneOf(ReadOnlySpan<T> cases) => 
-        MP.NoneOf<EqDefault<T>>(S.TokensToChunk(cases));
-    
-    /// <summary>
-    /// As the dual of `oneOf`, `noneOf` succeeds if the current token is not in the
-    /// supplied list of token `cases`. Returns the parsed character. Note that this
-    /// parser cannot automatically generate the “expected” component of the
-    /// error-message, so usually you should label it manually with.
-    /// `label` or `|`
-    /// </summary>
-    /// <param name="cases">Token cases to test</param>
-    /// <typeparam name="EqT">Equality trait</typeparam>
-    /// <returns>Parser</returns>
-    public static K<MP, T> noneOf(S cases) => 
-        MP.NoneOf<EqDefault<T>>(cases);
-    
-    /// <summary>
-    /// As the dual of `oneOf`, `noneOf` succeeds if the current token is not in the
-    /// supplied list of token `cases`. Returns the parsed character. Note that this
-    /// parser cannot automatically generate the “expected” component of the
-    /// error-message, so usually you should label it manually with.
-    /// `label` or `|`
-    /// </summary>
-    /// <param name="cases">Token cases to test</param>
-    /// <typeparam name="EqT">Equality trait</typeparam>
-    /// <returns>Parser</returns>
-    public static K<MP, T> noneOf<EqT>(ReadOnlySpan<T> cases) 
-        where EqT : Eq<T> =>
-        MP.NoneOf<EqT>(S.TokensToChunk(cases));
-    
-    /// <summary>
-    /// As the dual of `oneOf`, `noneOf` succeeds if the current token is not in the
-    /// supplied list of token `cases`. Returns the parsed character. Note that this
-    /// parser cannot automatically generate the “expected” component of the
-    /// error-message, so usually you should label it manually with.
-    /// `label` or `|`
-    /// </summary>
-    /// <param name="cases">Token cases to test</param>
-    /// <typeparam name="EqT">Equality trait</typeparam>
-    /// <returns>Parser</returns>
-    public static K<MP, T> noneOf<EqT>(S cases) 
-        where EqT : Eq<T> =>
-        MP.NoneOf<EqT>(cases);
-    
-    /// <summary>
     /// `chunk(chk)` only matches the chunk `chk`.
     /// </summary>
     /// <returns>Parser</returns>
@@ -351,5 +191,175 @@ public static partial class ModuleT<MP, E, S, T, M>
     /// <param name="f">Parsing function to lift</param>
     /// <returns>Parser</returns>
     public static K<MP, A> lift<A>(Func<State<S, T, E>, Reply<E, S, T, A>> f) =>
-        MP.Lift(f);    
+        MP.Lift(f);
+
+    /// <summary>
+    /// `oneOf(cases)` succeeds if the current token is in the collection of token
+    /// `cases`. Returns the parsed token. Note, this parser cannot automatically
+    /// generate the “expected” component of the error-message, so usually you should
+    /// label it manually with `label` or `|`.
+    /// </summary>
+    /// <typeparam name="F">Foldable trait</typeparam>
+    /// <param name="cases">Token cases to test</param>
+    /// <returns>Parser</returns>
+    public static K<MP, T> oneOf<F>(K<F, T> cases)
+        where F : Foldable<F> =>
+        oneOf<F, EqDefault<T>>(cases);
+
+    /// <summary>
+    /// `oneOf(cases)` succeeds if the current token is in the collection of token
+    /// `cases`. Returns the parsed token. Note, this parser cannot automatically
+    /// generate the “expected” component of the error-message, so usually you should
+    /// label it manually with `label` or `|`.
+    /// </summary>
+    /// <typeparam name="F">Foldable trait</typeparam>
+    /// <typeparam name="EqT">Equality trait</typeparam>
+    /// <param name="cases">Token cases to test</param>
+    /// <returns>Parser</returns>
+    public static K<MP, T> oneOf<F, EqT>(K<F, T> cases)
+        where F : Foldable<F> 
+        where EqT : Eq<T> =>
+        satisfy(x => Foldable.contains<EqT, F, T>(x, cases));
+
+    /// <summary>
+    /// `oneOf(cases)` succeeds if the current token is in the collection of token
+    /// `cases`. Returns the parsed token. Note, this parser cannot automatically
+    /// generate the “expected” component of the error-message, so usually you should
+    /// label it manually with `label` or `|`.
+    /// </summary>
+    /// <param name="cases">Token cases to test</param>
+    /// <returns>Parser</returns>
+    public static K<MP, T> oneOf(ReadOnlySpan<T> cases) =>
+        MP.OneOf<EqDefault<T>>(S.TokensToChunk(cases));
+
+    /// <summary>
+    /// `oneOf(cases)` succeeds if the current token is in the collection of token
+    /// `cases`. Returns the parsed token. Note, this parser cannot automatically
+    /// generate the “expected” component of the error-message, so usually you should
+    /// label it manually with `label` or `|`.
+    /// </summary>
+    /// <typeparam name="EqT">Equality trait</typeparam>
+    /// <param name="cases">Token cases to test</param>
+    /// <returns>Parser</returns>
+    public static K<MP, T> oneOf<EqT>(ReadOnlySpan<T> cases) 
+        where EqT : Eq<T> =>
+        MP.OneOf<EqT>(S.TokensToChunk(cases));
+
+    /// <summary>
+    /// `oneOf(cases)` succeeds if the current token is in the collection of token
+    /// `cases`. Returns the parsed token. Note, this parser cannot automatically
+    /// generate the “expected” component of the error-message, so usually you should
+    /// label it manually with `label` or `|`.
+    /// </summary>
+    /// <param name="cases">Token cases to test</param>
+    /// <returns>Parser</returns>
+    public static K<MP, T> oneOf(S cases) =>
+        MP.OneOf<EqDefault<T>>(cases);
+    
+    /// <summary>
+    /// `oneOf(cases)` succeeds if the current token is in the collection of token
+    /// `cases`. Returns the parsed token. Note, this parser cannot automatically
+    /// generate the “expected” component of the error-message, so usually you should
+    /// label it manually with `label` or `|`.
+    /// </summary>
+    /// <typeparam name="EqT">Equality trait</typeparam>
+    /// <param name="cases">Token cases to test</param>
+    /// <returns>Parser</returns>
+    public static K<MP, T> oneOf<EqT>(S cases) 
+        where EqT : Eq<T> =>
+        MP.OneOf<EqT>(cases);
+
+    /// <summary>
+    /// As the dual of `oneOf`, `noneOf` succeeds if the current token is not in the
+    /// supplied list of token `cases`. Returns the parsed character. Note that this
+    /// parser cannot automatically generate the “expected” component of the
+    /// error-message, so usually you should label it manually with.
+    /// `label` or `|`
+    /// </summary>
+    /// <param name="cases">Token cases to test</param>
+    /// <typeparam name="F">Foldable trait</typeparam>
+    /// <returns>Parser</returns>
+    public static K<MP, T> noneOf<F>(K<F, T> cases)
+        where F : Foldable<F> =>
+        satisfy(x => !Foldable.contains(x, cases));
+    
+    /// <summary>
+    /// As the dual of `oneOf`, `noneOf` succeeds if the current token is not in the
+    /// supplied list of token `cases`. Returns the parsed character. Note that this
+    /// parser cannot automatically generate the “expected” component of the
+    /// error-message, so usually you should label it manually with.
+    /// `label` or `|`
+    /// </summary>
+    /// <param name="cases">Token cases to test</param>
+    /// <typeparam name="EqT">Equality trait</typeparam>
+    /// <typeparam name="F">Foldable trait</typeparam>
+    /// <returns>Parser</returns>
+    public static K<MP, T> noneOf<EqT, F>(K<F, T> cases)
+        where F : Foldable<F> 
+        where EqT : Eq<T> =>
+        satisfy(x => !Foldable.contains<EqT, F, T>(x, cases));
+    
+    /// <summary>
+    /// As the dual of `oneOf`, `noneOf` succeeds if the current token is not in the
+    /// supplied list of token `cases`. Returns the parsed character. Note that this
+    /// parser cannot automatically generate the “expected” component of the
+    /// error-message, so usually you should label it manually with.
+    /// `label` or `|`
+    /// </summary>
+    /// <param name="cases">Token cases to test</param>
+    /// <typeparam name="EqT">Equality trait</typeparam>
+    /// <returns>Parser</returns>
+    public static K<MP, T> noneOf(ReadOnlySpan<T> cases) => 
+        MP.NoneOf<EqDefault<T>>(S.TokensToChunk(cases));
+    
+    /// <summary>
+    /// As the dual of `oneOf`, `noneOf` succeeds if the current token is not in the
+    /// supplied list of token `cases`. Returns the parsed character. Note that this
+    /// parser cannot automatically generate the “expected” component of the
+    /// error-message, so usually you should label it manually with.
+    /// `label` or `|`
+    /// </summary>
+    /// <param name="cases">Token cases to test</param>
+    /// <typeparam name="EqT">Equality trait</typeparam>
+    /// <returns>Parser</returns>
+    public static K<MP, T> noneOf<EqT>(ReadOnlySpan<T> cases) 
+        where EqT : Eq<T> =>
+        MP.NoneOf<EqT>(S.TokensToChunk(cases));
+    
+    /// <summary>
+    /// As the dual of `oneOf`, `noneOf` succeeds if the current token is not in the
+    /// supplied list of token `cases`. Returns the parsed character. Note that this
+    /// parser cannot automatically generate the “expected” component of the
+    /// error-message, so usually you should label it manually with.
+    /// `label` or `|`
+    /// </summary>
+    /// <param name="cases">Token cases to test</param>
+    /// <typeparam name="EqT">Equality trait</typeparam>
+    /// <returns>Parser</returns>
+    public static K<MP, T> noneOf(S cases) => 
+        MP.NoneOf<EqDefault<T>>(cases);
+    
+    /// <summary>
+    /// As the dual of `oneOf`, `noneOf` succeeds if the current token is not in the
+    /// supplied list of token `cases`. Returns the parsed character. Note that this
+    /// parser cannot automatically generate the “expected” component of the
+    /// error-message, so usually you should label it manually with.
+    /// `label` or `|`
+    /// </summary>
+    /// <param name="cases">Token cases to test</param>
+    /// <typeparam name="EqT">Equality trait</typeparam>
+    /// <returns>Parser</returns>
+    public static K<MP, T> noneOf<EqT>(S cases) 
+        where EqT : Eq<T> =>
+        MP.NoneOf<EqT>(cases);
+    
+    /// <summary>
+    /// The `choice(ps)` parser tries to apply the parsers in the list `ps` in order,
+    /// until one of them succeeds. Returns the value of the succeeding parser.
+    /// </summary>
+    /// <param name="ps">Parsers to try</param>
+    /// <typeparam name="A">Type of value to parse</typeparam>
+    /// <returns>Succeeding parser or MP.Empty on fail - use the `|` operator to capture failure</returns>
+    public static K<MP, A> choice<A>(ReadOnlySpan<K<MP, A>> ps) =>
+        Alternative.choice(ps);
 }

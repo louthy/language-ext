@@ -110,7 +110,7 @@ public interface Applicative<F> : Functor<F>
     /// <returns>The result of the second applicative action (if there wasn't a failure beforehand)</returns>
     [Pure]
     public static virtual K<F, B> Action<A, B>(K<F, A> ma, K<F, B> mb) =>
-        action<A, B>() * ma * mb;
+        Applicative.lift<F, A, B, B>(_ => y => y, ma, mb);
 
     /// <summary>
     /// Applicative action.  Computes the first applicative action and then computes the second.
@@ -122,7 +122,7 @@ public interface Applicative<F> : Functor<F>
     /// <returns>The result of the second applicative action (if there wasn't a failure beforehand)</returns>
     [Pure]
     public static virtual K<F, B> Action<A, B>(K<F, A> ma, Memo<F, B> mb) =>
-        action<A, B>() * ma * mb;
+        Applicative.lift<F, A, B, B>(_ => y => y, memoK(ma), mb);
 
     /// <summary>
     /// Applicative action.  Computes the first applicative action and then computes the second.
@@ -134,7 +134,7 @@ public interface Applicative<F> : Functor<F>
     /// <returns>The result of the second applicative action (if there wasn't a failure beforehand)</returns>
     [Pure]
     public static virtual K<F, B> Action<A, B>(Memo<F, A> ma, Memo<F, B> mb) =>
-        action<A, B>() * ma * mb;
+        Applicative.lift<F, A, B, B>(_ => y => y, ma, mb);
 
     /// <summary>
     /// Applicative action.  Computes the first applicative action and then computes the second.
@@ -146,7 +146,7 @@ public interface Applicative<F> : Functor<F>
     /// <returns>The result of the second applicative action (if there wasn't a failure beforehand)</returns>
     [Pure]
     public static virtual K<F, B> Action<A, B>(Memo<F, A> ma, K<F, B> mb) =>
-        action<A, B>() * ma * mb;
+        Applicative.lift<F, A, B, B>(_ => y => y, ma, memoK(mb));
 
     /// <summary>
     /// Chains a sequence of applicative actions
@@ -293,11 +293,18 @@ public interface Applicative<F> : Functor<F>
         K<F, A> p) =>
         open >> p << close;
     
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Internal
-    //
-    
-    static Func<A, Func<B, B>> action<A, B>() =>
-        Act<A, B>.fun;        
+    /// <summary>
+    /// Construct a sequence of `count` repetitions of `fa`
+    /// </summary>
+    /// <param name="count">Number of repetitions</param>
+    /// <param name="fa">Applicative computation to run</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Applicative structure of `count` items</returns>
+    [Pure]
+    public static virtual K<F, Seq<A>> Replicate<A>(int count, K<F, A> fa) =>
+        count switch
+        {
+            <= 0 => F.Pure<Seq<A>>([]),
+            _    => Applicative.lift(Seq.cons, fa, F.Replicate(count - 1, fa))
+        };
 }

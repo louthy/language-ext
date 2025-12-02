@@ -19,7 +19,7 @@ public static partial class ApplicativeExtensions
         /// Applicative sequence operator
         /// </summary>
         public static K<M, A> operator << (K<M, A> ma, K<M, B> mb) =>
-            M.Action(mb, ma);
+            Applicative.lift<M, A, B, A>(x => _ => x, ma, mb);
         
         /// <summary>
         /// Applicative apply operator
