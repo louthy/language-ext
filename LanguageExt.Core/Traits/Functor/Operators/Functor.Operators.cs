@@ -18,8 +18,20 @@ public static partial class FunctorExtensions
         /// <summary>
         /// Functor map operator
         /// </summary>
+        public static K<M, B> operator * (Pure<B> pb, K<M, A> ma) =>
+            M.ConstMap(pb.Value, ma);
+        
+        /// <summary>
+        /// Functor map operator
+        /// </summary>
         public static K<M, B> operator * (K<M, A> ma, Func<A, B> f) =>
             M.Map(f, ma);
+        
+        /// <summary>
+        /// Functor map operator
+        /// </summary>
+        public static K<M, B> operator * (K<M, A> ma, Pure<B> pb) =>
+            M.ConstMap(pb.Value, ma);
     }
     
     extension<M, A, B, C>(K<M, A> self)
