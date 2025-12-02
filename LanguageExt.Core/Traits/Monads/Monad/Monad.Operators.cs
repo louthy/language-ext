@@ -14,7 +14,7 @@ public static partial class MonadExtensions
         /// <param name="ma">Monad to bind</param>
         /// <param name="f">Binding function</param>
         /// <returns>Mapped monad</returns>
-        public static K<M, B> operator >> (K<M, A> ma, Func<A, K<M, B>> f) =>
+        public static K<M, B> operator >>> (K<M, A> ma, Func<A, K<M, B>> f) =>
             ma.Bind(f);
         
         /// <summary>
@@ -24,8 +24,8 @@ public static partial class MonadExtensions
         /// <param name="lhs">First action to run</param>
         /// <param name="rhs">Second action to run</param>
         /// <returns>Result of the second action</returns>
-        public static K<M, B> operator >> (K<M, A> lhs, K<M, B> rhs) =>
-            lhs >> (_ => rhs);
+        public static K<M, B> operator >>> (K<M, A> lhs, K<M, B> rhs) =>
+            lhs >>> (_ => rhs);
     }
     
     extension<M, A, B>(K<M, A> self)
@@ -37,7 +37,7 @@ public static partial class MonadExtensions
         /// <param name="ma">Monad to bind</param>
         /// <param name="f">Binding function</param>
         /// <returns>Mapped monad</returns>
-        public static K<M, B> operator >> (K<M, A> ma, Func<A, K<IO, B>> f) =>
+        public static K<M, B> operator >>> (K<M, A> ma, Func<A, K<IO, B>> f) =>
             ma.Bind(x => M.LiftIO(f(x)));
         
         /// <summary>
@@ -47,8 +47,8 @@ public static partial class MonadExtensions
         /// <param name="lhs">First action to run</param>
         /// <param name="rhs">Second action to run</param>
         /// <returns>Result of the second action</returns>
-        public static K<M, B> operator >> (K<M, A> lhs, K<IO, B> rhs) =>
-            lhs >> (_ => rhs);
+        public static K<M, B> operator >>> (K<M, A> lhs, K<IO, B> rhs) =>
+            lhs >>> (_ => rhs);
     }
     
     extension<M, A>(K<M, A> self)
@@ -61,8 +61,8 @@ public static partial class MonadExtensions
         /// <param name="lhs">First action to run</param>
         /// <param name="rhs">Second action to run</param>
         /// <returns>Result of the first action</returns>
-        public static K<M, A> operator >> (K<M, A> lhs, K<M, Unit> rhs) =>
-            lhs >> (x => (_ => x) * rhs);
+        public static K<M, A> operator >>> (K<M, A> lhs, K<M, Unit> rhs) =>
+            lhs >>> (x => (_ => x) * rhs);
     }
     
     extension<M, A>(K<M, A> self)
@@ -75,7 +75,7 @@ public static partial class MonadExtensions
         /// <param name="lhs">First action to run</param>
         /// <param name="rhs">Second action to run</param>
         /// <returns>Result of the first action</returns>
-        public static K<M, A> operator >> (K<M, A> lhs, K<IO, Unit> rhs) =>
-            lhs >> (x => (_ => x) * rhs);
+        public static K<M, A> operator >>> (K<M, A> lhs, K<IO, Unit> rhs) =>
+            lhs >>> (x => (_ => x) * rhs);
     }
 }

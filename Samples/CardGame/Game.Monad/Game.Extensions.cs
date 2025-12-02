@@ -35,5 +35,12 @@ public static class GameExtensions
         this Pure<A> ma,
         Func<A, K<Game, B>> bind,
         Func<A, B, C> project) =>
-        Game.Pure(ma.Value).SelectMany(bind, project); 
+        Game.Pure(ma.Value).SelectMany(bind, project);
+
+    extension<A>(K<Game, A> self)
+    {
+        public static Game<A> operator >>> (K<Game, A> ma, Lower _) =>
+            (Game<A>)ma;
+    }
+
 }

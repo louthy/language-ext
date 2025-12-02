@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt.Common;
@@ -15,9 +16,6 @@ namespace LanguageExt.Traits;
 public interface Applicative<F> : Functor<F>
     where F : Applicative<F>
 {
-    static Func<A, Func<B, B>> action<A, B>() =>
-        Act<A, B>.fun;        
-    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Abstract members
@@ -29,6 +27,7 @@ public interface Applicative<F> : Functor<F>
     /// <param name="value">Value to lift</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Constructed applicative structure</returns>
+    [Pure]
     public static abstract K<F, A> Pure<A>(A value);
     
     /// <summary>
@@ -43,6 +42,7 @@ public interface Applicative<F> : Functor<F>
     /// <typeparam name="B">Return type</typeparam>
     /// <returns>Applicative structure that represents the result of invoking the lifted function with
     /// the lifted argument</returns>
+    [Pure]
     public static abstract K<F, B> Apply<A, B>(K<F, Func<A, B>> mf, K<F, A> ma);
     
     /// <summary>
@@ -58,6 +58,7 @@ public interface Applicative<F> : Functor<F>
     /// <typeparam name="B">Return type</typeparam>
     /// <returns>Applicative structure that represents the result of invoking the lifted function with
     /// the lifted argument</returns>
+    [Pure]
     public static abstract K<F, B> Apply<A, B>(K<F, Func<A, B>> mf, Memo<F, A> ma);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,6 +79,7 @@ public interface Applicative<F> : Functor<F>
     /// <typeparam name="B">Return type</typeparam>
     /// <returns>Applicative structure that represents the result of invoking the lifted function with
     /// the lifted argument</returns>
+    [Pure]
     public static virtual K<F, B> Apply<A, B>(Memo<F, Func<A, B>> mf, Memo<F, A> ma) =>
         mf.Value.Apply(ma);
 
@@ -94,6 +96,7 @@ public interface Applicative<F> : Functor<F>
     /// <typeparam name="B">Return type</typeparam>
     /// <returns>Applicative structure that represents the result of invoking the lifted function with
     /// the lifted argument</returns>
+    [Pure]
     public static virtual K<F, B> Apply<A, B>(Memo<F, Func<A, B>> mf, K<F, A> ma) =>
         mf.Value.Apply(ma);
 
@@ -105,6 +108,7 @@ public interface Applicative<F> : Functor<F>
     /// <typeparam name="A">First applicative structure bound value type</typeparam>
     /// <typeparam name="B">Second applicative structure bound value type</typeparam>
     /// <returns>The result of the second applicative action (if there wasn't a failure beforehand)</returns>
+    [Pure]
     public static virtual K<F, B> Action<A, B>(K<F, A> ma, K<F, B> mb) =>
         action<A, B>() * ma * mb;
 
@@ -116,6 +120,7 @@ public interface Applicative<F> : Functor<F>
     /// <typeparam name="A">First applicative structure bound value type</typeparam>
     /// <typeparam name="B">Second applicative structure bound value type</typeparam>
     /// <returns>The result of the second applicative action (if there wasn't a failure beforehand)</returns>
+    [Pure]
     public static virtual K<F, B> Action<A, B>(K<F, A> ma, Memo<F, B> mb) =>
         action<A, B>() * ma * mb;
 
@@ -127,6 +132,7 @@ public interface Applicative<F> : Functor<F>
     /// <typeparam name="A">First applicative structure bound value type</typeparam>
     /// <typeparam name="B">Second applicative structure bound value type</typeparam>
     /// <returns>The result of the second applicative action (if there wasn't a failure beforehand)</returns>
+    [Pure]
     public static virtual K<F, B> Action<A, B>(Memo<F, A> ma, Memo<F, B> mb) =>
         action<A, B>() * ma * mb;
 
@@ -138,6 +144,7 @@ public interface Applicative<F> : Functor<F>
     /// <typeparam name="A">First applicative structure bound value type</typeparam>
     /// <typeparam name="B">Second applicative structure bound value type</typeparam>
     /// <returns>The result of the second applicative action (if there wasn't a failure beforehand)</returns>
+    [Pure]
     public static virtual K<F, B> Action<A, B>(Memo<F, A> ma, K<F, B> mb) =>
         action<A, B>() * ma * mb;
 
@@ -165,6 +172,7 @@ public interface Applicative<F> : Functor<F>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     /// <exception cref="ExpectedException">Sequence is empty</exception>
+    [Pure]
     public static virtual K<F, A> Actions<A>(params K<F, A>[] fas) =>
         F.Actions(fas.AsEnumerable());
 
@@ -192,6 +200,7 @@ public interface Applicative<F> : Functor<F>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     /// <exception cref="ExpectedException">Sequence is empty</exception>
+    [Pure]
     public static virtual K<F, A> Actions<A>(Seq<K<F, A>> fas) =>
         F.Actions(fas.AsEnumerable());
 
@@ -219,6 +228,7 @@ public interface Applicative<F> : Functor<F>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     /// <exception cref="ExpectedException">Sequence is empty</exception>
+    [Pure]
     public static virtual K<F, A> Actions<A>(IEnumerable<K<F, A>> fas)
     {
         K<F, A>? ra = null;
@@ -257,6 +267,37 @@ public interface Applicative<F> : Functor<F>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns></returns>
     /// <exception cref="ExpectedException">Sequence is empty</exception>
+    [Pure]
     public static virtual K<F, A> Actions<A>(IAsyncEnumerable<K<F, A>> fas) =>
         F.Actions(fas.ToBlockingEnumerable());
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Supplementary members
+    //
+    
+    /// <summary>
+    /// `between(open, close, p) parses `open`, followed by `p` and `close`.
+    /// </summary>
+    /// <param name="open">Open computation</param>
+    /// <param name="close">Close computation</param>
+    /// <param name="p">Between computation</param>
+    /// <typeparam name="A">Return value type</typeparam>
+    /// <typeparam name="OPEN">OPEN value type</typeparam>
+    /// <typeparam name="CLOSE">CLOSE value type</typeparam>
+    /// <returns>The value returned by `p`</returns>
+    [Pure]
+    public static virtual K<F, A> Between<A, OPEN, CLOSE>(
+        K<F, OPEN> open, 
+        K<F, CLOSE> close, 
+        K<F, A> p) =>
+        open >> p << close;
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Internal
+    //
+    
+    static Func<A, Func<B, B>> action<A, B>() =>
+        Act<A, B>.fun;        
 }

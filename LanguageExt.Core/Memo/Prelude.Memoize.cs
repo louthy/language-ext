@@ -18,7 +18,7 @@ public static partial class Prelude
     /// <summary>
     /// Create a preloaded memo structure with a pure value.  
     /// </summary>
-    public static Memo<A> memoPure<A>(A value) =>
+    public static Memo<A> memo<A>(A value) =>
         new (value);
 
     /// <summary>
@@ -31,20 +31,20 @@ public static partial class Prelude
     /// of the `K〈F, A〉`. If `K〈F, A〉` itself is lazy, then it can be invoked multiple times;
     /// this memoisation won't affect that.
     /// </remarks>
-    public static Memo<F, A> memoF<F, A>(Func<K<F, A>> f) =>
+    public static Memo<F, A> memoK<F, A>(Func<K<F, A>> f) =>
         new(f);
 
     /// <summary>
     /// Create a preloaded memo structure with a pure value
     /// </summary>
-    public static Memo<F, A> memoPureF<F, A>(A value) 
+    public static Memo<F, A> memoK<F, A>(A value) 
         where F : Applicative<F> =>
         new (F.Pure(value));
 
     /// <summary>
     /// Create a preloaded memo structure.  
     /// </summary>
-    public static Memo<F, A> memoF<F, A>(K<F, A> fa) 
+    public static Memo<F, A> memoK<F, A>(K<F, A> fa) 
         where F : Applicative<F> =>
         new (fa);
     

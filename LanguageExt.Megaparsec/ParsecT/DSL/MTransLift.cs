@@ -13,7 +13,7 @@ record ParsecTMTransLift<E, S, T, M, A>(K<M, A> ma) :
         ConsumedErr<E, S, T, M, B> cerr,
         EmptyOK<E, S, T, M, A, B> eok,
         EmptyErr<E, S, T, M, B> eerr) =>
-        ma >> (a => eok(a, s, Hints<T>.Empty));
+        ma >>> (a => eok(a, s, Hints<T>.Empty));
 }
 
 record ParsecTMTransLiftIO<E, S, T, M, A>(IO<A> ma) : 
@@ -27,5 +27,5 @@ record ParsecTMTransLiftIO<E, S, T, M, A>(IO<A> ma) :
         ConsumedErr<E, S, T, M, B> cerr,
         EmptyOK<E, S, T, M, A, B> eok,
         EmptyErr<E, S, T, M, B> eerr) =>
-        M.LiftIOMaybe(ma) >> (a => eok(a, s, Hints<T>.Empty));
+        M.LiftIOMaybe(ma) >>> (a => eok(a, s, Hints<T>.Empty));
 }

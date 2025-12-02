@@ -20,7 +20,7 @@ public interface Alternative<F> : Choice<F>, Applicative<F>
     /// If none succeed, the last applicative functor will be returned.
     /// </remarks>
     [Pure]
-    public static virtual K<F, A> OneOf<A>(Seq<K<F, A>> ms)
+    public static virtual K<F, A> OneOf<A>(in Seq<K<F, A>> ms)
     {
         if(ms.IsEmpty) return F.Empty<A>();
         var r = ms[0];
@@ -38,7 +38,7 @@ public interface Alternative<F> : Choice<F>, Applicative<F>
     /// If none succeed, the last applicative functor will be returned.
     /// </remarks>
     [Pure]
-    public static virtual K<F, A> OneOf<A>(ReadOnlySpan<K<F, A>> ms)
+    public static virtual K<F, A> OneOf<A>(in ReadOnlySpan<K<F, A>> ms)
     {
         if(ms.Length == 0) return F.Empty<A>();
         var r = ms[0];
@@ -68,7 +68,7 @@ public interface Alternative<F> : Choice<F>, Applicative<F>
             F.Choose(some_v(), F.Pure(Seq<A>()));
 
         K<F, Seq<A>> some_v() =>
-            (Cached<A>.cons * fa).Apply(memoF(many_v));
+            (Cached<A>.cons * fa).Apply(memoK(many_v));
     }
     
     /// <summary>
@@ -86,10 +86,10 @@ public interface Alternative<F> : Choice<F>, Applicative<F>
         return many_v();
         
         K<F, Seq<A>> many_v() =>
-            F.Choose(some_v(), F.Pure(Seq<A>()));
+            some_v() | F.Pure(Seq<A>());
 
         K<F, Seq<A>> some_v() =>
-            (Cached<A>.cons * fa).Apply(memoF(many_v));
+            Cached<A>.cons * fa * memoK(many_v);
     }
     
     /// <summary>
@@ -107,10 +107,10 @@ public interface Alternative<F> : Choice<F>, Applicative<F>
         return many_v();
         
         K<F, Unit> many_v() =>
-            F.Choose(some_v(), F.Pure(unit));
+            some_v() | F.Pure(unit);
 
         K<F, Unit> some_v() =>
-            (Cached<A>.ignore * fa).Apply(memoF(many_v));
+            Cached<A>.ignore * fa * memoK(many_v);
     }
         
     static class Cached<A>

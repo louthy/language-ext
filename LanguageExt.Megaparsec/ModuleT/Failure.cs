@@ -29,7 +29,7 @@ public static partial class ModuleT<MP, E, S, T, M>
     /// <typeparam name="A">Value type (never yielded because this is designed to error)</typeparam>
     /// <returns>Parser</returns>
     public static K<MP, A> failure<A>(Option<ErrorItem<T>> unexpected, Set<ErrorItem<T>> expected) =>
-        getOffset >> (o => error<A>(ParseError.Trivial<T, E>(o, unexpected, expected)));
+        getOffset >>> (o => error<A>(ParseError.Trivial<T, E>(o, unexpected, expected)));
 
     /// <summary>
     /// Stop parsing and report a fancy 'ParseError'. To report a single custom parse error
@@ -39,7 +39,7 @@ public static partial class ModuleT<MP, E, S, T, M>
     /// <typeparam name="A">Value type (never yielded because this is designed to error)</typeparam>
     /// <returns>Parser</returns>
     public static K<MP, A> failure<A>(Set<ErrorFancy<E>> errors) =>
-        getOffset >> (o => error<A>(ParseError.Fancy<T, E>(o, errors)));
+        getOffset >>> (o => error<A>(ParseError.Fancy<T, E>(o, errors)));
 
     /// <summary>
     /// Stop parsing and report a fancy 'ParseError'. To report a single custom parse error
@@ -87,9 +87,9 @@ public static partial class ModuleT<MP, E, S, T, M>
     /// <typeparam name="A">Parser value type</typeparam>
     /// <returns>Parser</returns>
     public static K<MP, A> region<A>(Func<ParseError<T, E>, ParseError<T, E>> mapError, K<MP, A> region) =>
-        from de in MP.Gets(s => s.ParseErrors) >>
+        from de in MP.Gets(s => s.ParseErrors) >>>
                    MP.Modify(s => s with { ParseErrors = [] })
-        from r1 in MP.Observing(region) >>
+        from r1 in MP.Observing(region) >>>
                    MP.Modify(s => s with { ParseErrors = s.ParseErrors.Map(mapError) + de })
         from r2 in r1 switch
                    {

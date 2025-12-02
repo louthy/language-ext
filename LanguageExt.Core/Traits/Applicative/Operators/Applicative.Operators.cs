@@ -12,8 +12,14 @@ public static partial class ApplicativeExtensions
         /// <summary>
         /// Applicative sequence operator
         /// </summary>
-        public static K<M, B> operator >>> (K<M, A> ma, K<M, B> mb) =>
+        public static K<M, B> operator >> (K<M, A> ma, K<M, B> mb) =>
             M.Action(ma, mb);
+        
+        /// <summary>
+        /// Applicative sequence operator
+        /// </summary>
+        public static K<M, A> operator << (K<M, A> ma, K<M, B> mb) =>
+            M.Action(mb, ma);
         
         /// <summary>
         /// Applicative apply operator

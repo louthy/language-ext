@@ -19,7 +19,7 @@ public record Player(string Name)
     public static Game<A> with<A>(Player player, Game<A> ma) =>
         from cp in Game.gets(s => s.CurrentPlayer)
         from _1 in setCurrent(player)
-        from rs in ma >> setCurrent(cp)
+        from rs in ma >>> setCurrent(cp)
         select rs;
 
     /// <summary>

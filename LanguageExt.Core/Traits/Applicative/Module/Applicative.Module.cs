@@ -18,4 +18,22 @@ public static partial class Applicative
     public static K<F, Unit> unless<F>(bool flag, K<F, Unit> fx)
         where F : Applicative<F> =>
         when(!flag, fx);
+    
+    /// <summary>
+    /// `between(open, close, p) parses `open`, followed by `p` and `close`.
+    /// </summary>
+    /// <param name="open">Open computation</param>
+    /// <param name="close">Close computation</param>
+    /// <param name="p">Between computation</param>
+    /// <typeparam name="A">Return value type</typeparam>
+    /// <typeparam name="OPEN">OPEN value type</typeparam>
+    /// <typeparam name="CLOSE">CLOSE value type</typeparam>
+    /// <returns>The value returned by `p`</returns>
+    [Pure]
+    public static K<F, A> between<F, A, OPEN, CLOSE>(
+        K<F, OPEN> open, 
+        K<F, CLOSE> close, 
+        K<F, A> p)
+        where F : Applicative<F> =>
+        F.Between(open, close, p);    
 }

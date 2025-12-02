@@ -43,7 +43,7 @@ public partial class ChronicleT<Ch, M> :
         return new ChronicleT<Ch, M, B>(
             semi => Applicative.lift(
                 apply(semi.Combine), 
-                memoF(mf.As().Run(semi)),
+                memoK(mf.As().Run(semi)),
                 mma.Lower().Map(ma => ma.As().Run(semi)).Lift()));
         
         static Func<These<Ch, Func<A, B>>, These<Ch, A>, These<Ch, B>> apply(Func<Ch, Ch, Ch> combine) =>
