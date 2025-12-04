@@ -326,7 +326,7 @@ public interface Alternative<F> : Choice<F>, Applicative<F>
     {
         return go();
         K<F, END> go() =>
-            fend | (fa >> memoK(go)); 
+            fend | fa >> memoK(go); 
     }
 
     /// <summary>
