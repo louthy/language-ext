@@ -93,7 +93,7 @@ public readonly struct Option<A> :
     public object? Case =>
         IsSome
             ? Value
-            : default;
+            : null;
 
     /// <summary>
     /// Uses the `EqDefault` instance to do an equality check on the bound value.  
