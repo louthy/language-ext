@@ -138,7 +138,7 @@ public class Program
         var ar1 = ar.Run();
         var mr1 = mr.Run();*/
 
-        /*Issue1497.AppPrelude.Test();
+        /*Issue1497.AppPrelude.Test();*/
 
 
         //TestBed.StateStuff.StateForkIO.forkTest.Run(4).Run().Ignore();
