@@ -41,5 +41,4 @@ public interface Functor<F>
     /// <returns>Mapped functor</returns>
     public static virtual K<F, A> ConstMap<A, B>(A constantValue, K<F, B> ma) =>
         ma.Map(_ => constantValue);
-    
 }

@@ -62,6 +62,41 @@ public class Program
         var r = mr.Run(); // 600        
         */
         
+        Seq<Fin<int>> x = new();
+        var           b = x.Succs(); 
+
+        
+        
+        var mx = Validation.Fail<StringM, int>("fail 1");
+        var my = Validation.Fail<StringM, int>("fail 2");
+        var mz = mx & my;
+
+        Seq<K<Either, string, int>> m1 =
+        [
+            (Either<string, int>)Right(100),
+            (Either<string, int>)Left("Hello"),
+            (Either<string, int>)Left("World"),
+            (Either<string, int>)Right(200)
+        ];
+        IEnumerable<Either<string, int>> m2 =
+        [
+            (Either<string, int>)Right(100),
+            (Either<string, int>)Left("Hello"),
+            (Either<string, int>)Left("World"),
+            (Either<string, int>)Right(200)
+        ];
+        Iterable<Either<string, int>>     m3 = [Right(100), Left("Hello"), Left("World"), Right(200)];
+        Lst<Either<string, int>>          m4 = [Right(100), Left("Hello"), Left("World"), Right(200)];
+        Seq<ChronicleT<StringM, IO, int>> m5 = [];
+
+        var r1 = m1.Partition();
+        var r2 = m2.PartitionSequence();
+        var r3 = m3.PartitionSequence();
+        var r4 = m4.PartitionSequence();
+        var r5 = m5.PartitionSequence();
+        
+        
+        
         var readLine = from ln in IO.lift(Console.ReadLine)
                        from _  in guard(ln is not null, (Error)"expected a value")
                        select ln;
@@ -105,33 +140,6 @@ public class Program
 
         /*Issue1497.AppPrelude.Test();
 
-        var mx = Validation.Fail<StringM, int>("fail 1");
-        var my = Validation.Fail<StringM, int>("fail 2");
-        var mz = mx & my;
-
-        Seq<K<Either, string, int>> m1 =
-        [
-            (Either<string, int>)Right(100),
-            (Either<string, int>)Left("Hello"),
-            (Either<string, int>)Left("World"),
-            (Either<string, int>)Right(200)
-        ];
-        IEnumerable<Either<string, int>> m2 =
-        [
-            (Either<string, int>)Right(100),
-            (Either<string, int>)Left("Hello"),
-            (Either<string, int>)Left("World"),
-            (Either<string, int>)Right(200)
-        ];
-        Iterable<Either<string, int>>     m3 = [Right(100), Left("Hello"), Left("World"), Right(200)];
-        Lst<Either<string, int>>          m4 = [Right(100), Left("Hello"), Left("World"), Right(200)];
-        Seq<ChronicleT<StringM, IO, int>> m5 = [];
-
-        var r1 = m1.Partition();
-        var r2 = m2.PartitionSequence();
-        var r3 = m3.PartitionSequence();
-        var r4 = m4.PartitionSequence();
-        var r5 = m5.PartitionSequence();*/
 
         //TestBed.StateStuff.StateForkIO.forkTest.Run(4).Run().Ignore();
         //Issue1453.Test();
