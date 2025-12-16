@@ -11,7 +11,6 @@
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
         <PackageReference Include="System.Reactive" Version="5.0.0" />
-        <PackageReference Include="System.ValueTuple" Version="4.5.0" />
         <ProjectReference Include="..\..\LanguageExt.Core\LanguageExt.Core.csproj" />
         <ProjectReference Include="..\..\LanguageExt.FSharp\LanguageExt.FSharp.csproj" />
         <ProjectReference Include="..\..\LanguageExt.Parsec\LanguageExt.Parsec.csproj" />

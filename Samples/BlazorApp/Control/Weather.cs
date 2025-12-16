@@ -42,17 +42,17 @@ public static class Weather<RT>
     /// Get the date now
     /// </summary>
     static Eff<RT, DateOnly> dateNow =>
-        Time<Eff<RT>, RT>.now.Map(DateOnly.FromDateTime).As();
+        Time<RT>.now.Map(DateOnly.FromDateTime).As();
     
     /// <summary>
     /// Generate a random temperature between -20 and 55 degrees celsius
     /// </summary>
     static Eff<RT, Temperature> randomTemperature =>
-        Rnd<Eff<RT>, RT>.next(-20, 55).Map(c => c.Celsius()).As();
+        Rnd<RT>.next(-20, 55).Map(c => c.Celsius()).As();
 
     /// <summary>
     /// Generate a random summary
     /// </summary>
     static Eff<RT, string> randomSummary =>
-        Rnd<Eff<RT>, RT>.next(summaries.Length).Map(ix => summaries[ix]).As();
+        Rnd<RT>.next(summaries.Length).Map(ix => summaries[ix]).As();
 }
