@@ -18,7 +18,7 @@ public record Hints<T>(Set<ErrorItem<T>> Errors) : Monoid<Hints<T>>
 
     public static Hints<T> Empty { get; } = 
         new (Set<ErrorItem<T>>.Empty);
-    
+
     /// <summary>
     /// Replace the hints with the given `ErrorItem` (or delete it if 'Nothing' is given).
     /// This is used in the `label` primitive.

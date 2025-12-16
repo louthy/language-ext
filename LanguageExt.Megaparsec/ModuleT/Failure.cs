@@ -35,7 +35,6 @@ public static partial class ModuleT<MP, E, S, T, M>
     /// Stop parsing and report a fancy 'ParseError'. To report a single custom parse error
     /// </summary>
     /// <param name="errors">Optional unexpected tokens</param>
-    /// <param name="expected">Expected tokens</param>
     /// <typeparam name="A">Value type (never yielded because this is designed to error)</typeparam>
     /// <returns>Parser</returns>
     public static K<MP, A> failure<A>(Set<ErrorFancy<E>> errors) =>
