@@ -39,6 +39,13 @@ public abstract record IO<A> :
     
     public static IO<A> Empty =>
         IOEmpty<A>.Default;
+    
+    /// <summary>
+    /// Wraps this IO computation in a local-environment that ignores any cancellation-token cancellation requests.
+    /// </summary>
+    /// <returns>An uninterruptible IO computation</returns>
+    public IO<A> Uninterruptible() =>
+        new IOUninterruptible<A, A>(this, IO.pure);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -341,12 +348,12 @@ public abstract record IO<A> :
     //
 
     /// <summary>
-    /// Applies a time limit to the IO computation.  If exceeded an exception is thrown.  
+    /// Applies a time limit to the IO computation.  If exceeded, an exception is thrown.  
     /// </summary>
     /// <param name="timeout">Timeout</param>
     /// <returns>Result of the operation or throws if the time limit exceeded.</returns>
     public IO<A> Timeout(TimeSpan timeout) =>
-        Fork(timeout).Await().As();
+        new IOTimeout<A, A>(this, timeout, IO.pure);
 
     /// <summary>
     /// Map the `EnvIO` value that is threaded through computation and run this `IO` operation in the newly

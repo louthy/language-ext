@@ -52,95 +52,7 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        /*
-        var mx = IO.pure(100);
-        var my = IO.pure(200);
-        var mz = IO.pure(300);
-
-        var mr = ((int x, int y, int z) => x + y + z) * mx  * my  * mz;
-
-        var r = mr.Run(); // 600        
-        */
-        
-        Seq<Fin<int>> x = new();
-        var           b = x.Succs(); 
-
-        
-        
-        var mx = Validation.Fail<StringM, int>("fail 1");
-        var my = Validation.Fail<StringM, int>("fail 2");
-        var mz = mx & my;
-
-        Seq<K<Either, string, int>> m1 =
-        [
-            (Either<string, int>)Right(100),
-            (Either<string, int>)Left("Hello"),
-            (Either<string, int>)Left("World"),
-            (Either<string, int>)Right(200)
-        ];
-        IEnumerable<Either<string, int>> m2 =
-        [
-            (Either<string, int>)Right(100),
-            (Either<string, int>)Left("Hello"),
-            (Either<string, int>)Left("World"),
-            (Either<string, int>)Right(200)
-        ];
-        Iterable<Either<string, int>>     m3 = [Right(100), Left("Hello"), Left("World"), Right(200)];
-        Lst<Either<string, int>>          m4 = [Right(100), Left("Hello"), Left("World"), Right(200)];
-        Seq<ChronicleT<StringM, IO, int>> m5 = [];
-
-        var r1 = m1.Partition();
-        var r2 = m2.PartitionSequence();
-        var r3 = m3.PartitionSequence();
-        var r4 = m4.PartitionSequence();
-        var r5 = m5.PartitionSequence();
-        
-        
-        
-        var readLine = from ln in IO.lift(Console.ReadLine)
-                       from _  in guard(ln is not null, (Error)"expected a value")
-                       select ln;
-
-        var numberExpected = Error.New("expected a number");
-
-        var theEnd = IO.lift(() => Console.WriteLine("THE END"));
-        
-        var op = readLine >> parseInt<IO> | final(theEnd);
-        
-        var op1 = readLine >> parseInt<IO> | Pure(100);
-
-        Console.Write(op.Run());
-
-        /*
-        var op = readLine.Map(parseInt<Option>);
-
-        var r = op.Run().As();
-
-        var aax = IO.pure(123);
-        var aay = IO.pure(unit);
-        var aaz = aax >>> aay;
-
-        var fx = IO.pure(100);
-        var fy = IO.pure(200);
-        var fz = IO.pure(300);
-        var fr = ((int x, int y, int z) => x + y + z) * fx * fy * fz;
-
-        var af = IO.pure((int x, int y, int z) => x + y + z);
-        var ax = IO.pure(100);
-        var ay = IO.pure(200);
-        var az = IO.pure(300);
-        var ar = af * ax * ay * az;
-
-        var mx = IO.pure(100);
-        var mr = mx >> (x => IO.pure(x + 1));
-
-        var fr1 = fr.Run();
-        var ar1 = ar.Run();
-        var mr1 = mr.Run();*/
-
-        /*Issue1497.AppPrelude.Test();*/
-
-
+        AwaitAnyTest.Run();
         //TestBed.StateStuff.StateForkIO.forkTest.Run(4).Run().Ignore();
         //Issue1453.Test();
         //UseTest.Main().GetAwaiter().GetResult();
@@ -162,6 +74,8 @@ public class Program
         //Issue1234.Test();
         //SequenceParallelTest.Run();
         //FreeTests.Test();
+        
+        Console.WriteLine("Goodbye, World");
     }
 
     public record Item;

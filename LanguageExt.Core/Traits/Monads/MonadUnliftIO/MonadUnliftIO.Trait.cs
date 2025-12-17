@@ -75,6 +75,13 @@ public interface MonadUnliftIO<M> : MonadIO<M>
         M.MapIO(ma, io => io.Local());
 
     /// <summary>
+    /// Wraps this computation in a local-environment that ignores any cancellation-token cancellation requests.
+    /// </summary>
+    /// <returns>An uninterruptible computation</returns>
+    public static virtual K<M, A> UninterruptibleIO<A>(K<M, A> ma) =>
+        M.MapIO(ma, io => io.Uninterruptible());
+
+    /// <summary>
     /// Make this IO computation run on the `SynchronizationContext` that was captured at the start
     /// of the IO chain (i.e. the one embedded within the `EnvIO` environment that is passed through
     /// all IO computations)

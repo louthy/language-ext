@@ -64,7 +64,6 @@
         <None Remove="ValidationSeq.Extensions.cs" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="System.ValueTuple" Version="[4.5.0,)" />
         <PackageReference Include="System.Reactive" Version="5.0.0" />
     </ItemGroup>
     <ItemGroup>

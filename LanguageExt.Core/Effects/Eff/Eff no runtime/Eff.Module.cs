@@ -68,8 +68,22 @@ public partial class Eff
     /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> lift<A>(Func<EnvIO, Fin<A>> f) =>
+        +envIO.Bind(e => Eff<A>.Lift(() => f(e)));
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> lift<A>(Func<A> f) =>
         Eff<A>.Lift(f);
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> lift<A>(Func<EnvIO, A> f) =>
+        +envIO.Bind(e => Eff<A>.Lift(() => f(e)));
 
     /// <summary>
     /// Lift an effect into the `Eff` monad
@@ -82,8 +96,22 @@ public partial class Eff
     /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> lift<A>(Func<EnvIO, Task<A>> f) =>
+        +envIO.Bind(e => Eff<A>.LiftIO(() => f(e)));
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> lift<A>(Func<Task<Fin<A>>> f) =>
         Eff<A>.LiftIO(f);
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> lift<A>(Func<EnvIO, Task<Fin<A>>> f) =>
+        +envIO.Bind(e => Eff<A>.LiftIO(() => f(e)));
 
     /// <summary>
     /// Lift an effect into the `Eff` monad

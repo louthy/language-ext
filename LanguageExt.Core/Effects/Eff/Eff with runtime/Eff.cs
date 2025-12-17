@@ -220,7 +220,7 @@ public record Eff<RT, A>(ReaderT<RT, IO, A> effect) :
     /// <returns>Mapped `Eff` monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, B> MapIO<B>(Func<IO<A>, IO<B>> f) =>
-        IO.mapIO(this, f).As();
+        mapIO(this, f).As();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

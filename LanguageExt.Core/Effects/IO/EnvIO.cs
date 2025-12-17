@@ -35,13 +35,16 @@ public class EnvIO : IDisposable
         Resources? resources = null,
         CancellationToken token = default,
         CancellationTokenSource? source = null,
-        SynchronizationContext? syncContext = null)
+        SynchronizationContext? syncContext = null,
+        TimeSpan? timeout = null)
     {
         var own = 0;
         CancellationTokenRegistration? reg = null; 
         if (source is null)
         {
-            source = new CancellationTokenSource();
+            source = timeout is null 
+                         ? new CancellationTokenSource() 
+                         : new CancellationTokenSource(timeout.Value);
             own |= 1;
         }
 
@@ -68,6 +71,9 @@ public class EnvIO : IDisposable
     public EnvIO Local =>
         New(null, Token, null, SynchronizationContext.Current);
 
+    public EnvIO LocalWithTimeout(TimeSpan timeout) =>
+        New(null, Token, null, SynchronizationContext.Current, timeout);
+
     public EnvIO LocalResources =>
         New(null, Token, Source, SyncContext);
 
@@ -76,6 +82,9 @@ public class EnvIO : IDisposable
 
     public EnvIO LocalSyncContext =>
         New(Resources, Token, Source, SynchronizationContext.Current);
+
+    public EnvIO LocalCancelWithTimeout(TimeSpan timeout) =>
+        New(Resources, Token, null, SyncContext, timeout);
 
     public void Dispose()
     {

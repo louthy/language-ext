@@ -90,8 +90,8 @@ public partial class Eff
     /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> lift<RT, A>(Func<RT, Either<Error, A>> f) =>
-        Eff<RT, A>.Lift(f);
+    public static Eff<RT, A> lift<RT, A>(Func<EnvIO, RT, Either<Error, A>> f) =>
+        +envIO.Bind(e => Eff<RT, A>.Lift(rt => f(e, rt)));
 
     /// <summary>
     /// Lift an effect into the `Eff` monad
@@ -104,8 +104,22 @@ public partial class Eff
     /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> lift<RT, A>(Func<EnvIO, RT, Fin<A>> f) =>
+        +envIO.Bind(e => Eff<RT, A>.Lift(rt => f(e, rt)));
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> lift<RT, A>(Func<RT, A> f) =>
         Eff<RT, A>.Lift(f);
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> lift<RT, A>(Func<EnvIO, RT, A> f) =>
+        +envIO.Bind(e => Eff<RT, A>.Lift(rt => f(e, rt)));
 
     /// <summary>
     /// Lift an effect into the `Eff` monad
@@ -118,8 +132,22 @@ public partial class Eff
     /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> lift<RT, A>(Func<EnvIO, RT, Task<A>> f) =>
+        +envIO.Bind(e => Eff<RT, A>.LiftIO(rt => f(e, rt)));
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> lift<RT, A>(Func<RT, Task<Fin<A>>> f) =>
         Eff<RT, A>.LiftIO(f);
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> lift<RT, A>(Func<EnvIO, RT, Task<Fin<A>>> f) =>
+        +envIO.Bind(e => Eff<RT, A>.LiftIO(rt => f(e, rt)));
 
     /// <summary>
     /// Lift an effect into the `Eff` monad
