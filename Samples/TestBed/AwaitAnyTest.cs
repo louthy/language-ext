@@ -11,11 +11,9 @@ public class AwaitAnyTest
     {
         Console.WriteLine("Started");
 
-        var eff = +fork(uninterruptible(
-                            awaitAny(
-                                delayed("A", 9),
-                                delayed("B", 7),
-                                delayed("C", 5))));
+        var eff = awaitAny(uninterruptible(delayed("A", 9)),
+                           uninterruptible(delayed("B", 7)),
+                           uninterruptible(delayed("C", 5)));
 
         using var env = EnvIO.New();
         ignore(eff.Run(env));
