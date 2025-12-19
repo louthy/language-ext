@@ -37,6 +37,54 @@ public class SeqArrTests
     }
 
     [Fact]
+    public void TestGetHashCodeEmpty()
+    {
+        var seq = Arr.empty<int>();
+
+        // check that GetHashCode won't throw
+        _ = seq.GetHashCode();
+    }
+
+    [Fact]
+    public void TestGetHashCodeDefault()
+    {
+        Arr<int> seq = default;
+
+        // check that GetHashCode won't throw
+        _ = seq.GetHashCode();
+    }
+
+    [Fact]
+    public void TestGetHashCodeDefaultCtor()
+    {
+        var seq = new Arr<int>();
+
+        // check that GetHashCode won't throw
+        _ = seq.GetHashCode();
+    }
+    
+    [Fact]
+    public void TestGetHashCodePartOfContainer()
+    {
+        var container = new Arr<int>[1];
+
+        // check that GetHashCode won't throw
+        _ = container[0].GetHashCode();
+    }
+    
+    [Fact]
+    public void TestGetHashCodeEmptyVsDefault()
+    {
+        var emptySeq = Arr.empty<int>();
+        Arr<int> defaultSeq = default;
+
+        var emptyHash = emptySeq.GetHashCode();
+        var defaultHash = defaultSeq.GetHashCode();
+        Assert.Equal(emptyHash, defaultHash);
+    }
+
+
+    [Fact]
     public void TestOne()
     {
         var arr = Arr.create(1);

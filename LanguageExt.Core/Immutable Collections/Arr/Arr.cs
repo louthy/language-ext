@@ -38,10 +38,10 @@ public readonly struct Arr<A> :
     /// </summary>
     public static Arr<A> Empty { get; } = new (System.Array.Empty<A>());
 
-    readonly A[] value;
+    readonly A[]? value;
     readonly int start;
     readonly int length;
-    readonly Atom<int> hashCode = Atom(0);
+    readonly Atom<int>? hashCode;
 
     A[] Value
     {
@@ -788,6 +788,9 @@ public readonly struct Arr<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode()
     {
+        if (hashCode is null)
+            return CalcHashCode();
+        
         var self = this;
         return hashCode == 0
             ? hashCode.Swap(_ => self.CalcHashCode())
