@@ -877,6 +877,7 @@ public abstract record IO<A> :
                     break;
             
                 case IOLocalRestore<A> restore:
+                    locals[0].Dispose();
                     locals = locals.Tail;
                     envIO = locals[0];
                     ma = restore.Next.As();

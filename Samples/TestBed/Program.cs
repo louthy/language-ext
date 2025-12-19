@@ -52,7 +52,8 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        AwaitAnyTest.Run();
+        BracketTest.Run();
+        //AwaitAnyTest.Run();
         //TestBed.StateStuff.StateForkIO.forkTest.Run(4).Run().Ignore();
         //Issue1453.Test();
         //UseTest.Main().GetAwaiter().GetResult();
