@@ -35,7 +35,7 @@ public static partial class Module<MP, E, S, M>
         MP.Label(name, p);
 
     /// <summary>
-    /// `hHidden(p)` behaves just like parser `p`, but it doesn't show any
+    /// `hidden(p)` behaves just like parser `p`, but it doesn't show any
     /// “expected” tokens in the error-message when `p` fails.
     /// </summary>
     /// <param name="p">Parser to hide</param>
