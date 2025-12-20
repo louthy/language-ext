@@ -275,9 +275,9 @@ public abstract record IO<A> :
     //
 
     /// <summary>
-    /// The IO monad tracks resources automatically, this creates a local resource environment
-    /// to run this computation in.  Once the computation has completed any resources acquired
-    /// are automatically released.  Imagine this as the ultimate `using` statement.
+    /// The IO monad tracks resources automatically; this method creates a local resource environment
+    /// to run this computation in.  Once the computation is complete, any resources acquired are automatically
+    /// released.  Imagine this as the ultimate `using` statement.
     /// </summary>
     [Pure]
     [MethodImpl(Opt.Default)]
@@ -285,8 +285,8 @@ public abstract record IO<A> :
         WithEnv(env => env.LocalResources);
 
     /// <summary>
-    /// The IO monad tracks resources automatically, this creates a local resource environment
-    /// to run this computation in.  If the computation errors then the resources are automatically
+    /// The IO monad tracks resources automatically; this method creates a local resource environment
+    /// to run the computation in.  If the computation errors, then the resources are automatically
     /// released.  
     /// </summary>
     /// <remarks>
@@ -356,19 +356,19 @@ public abstract record IO<A> :
         new IOTimeout<A, A>(this, timeout, IO.pure);
 
     /// <summary>
-    /// Map the `EnvIO` value that is threaded through computation and run this `IO` operation in the newly
-    /// mapped environment.       
+    /// Map the `EnvIO` value threaded through the computation.  Upon completion, any resources acquired during
+    /// the processing of this computation (in the newly mapped local context) will automatically be released.       
     /// </summary>
-    protected virtual IO<A> WithEnv(Func<EnvIO, EnvIO> f) =>
+   protected virtual IO<A> WithEnv(Func<EnvIO, EnvIO> f) =>
         new IOLocal<A, A>(f, this, IO.pure);
 
     /// <summary>
-    /// Map the `EnvIO` value that is threaded through computation and run this `IO` operation in the newly
-    /// mapped environment.    
+    /// Map the `EnvIO` value threaded through the computation.  Upon completion, any resources acquired during
+    /// the processing of this computation (in the newly mapped local context) will automatically be released.       
     /// </summary>
     /// <remarks>
-    /// Note, this only resets the environment upon error.  Successful operations will propagate the mapped
-    /// environment.
+    /// This variant will only release resources on failure.  Successful computations will allow the return of
+    /// acquired resources so they can be used outside this computation.
     /// </remarks>
     protected virtual IO<A> WithEnvFail(Func<EnvIO, EnvIO> f) =>
         new IOLocalOnFailOnly<A, A>(f, this, IO.pure);
@@ -819,20 +819,20 @@ public abstract record IO<A> :
     {
         if (envIO.Token.IsCancellationRequested) return ValueTask.FromCanceled<A>(envIO.Token);
         var ma     = this;
-        var locals = Seq(envIO);
-        var stack  = Seq(new StackItem(ex => ex.Rethrow<IO<A>>(), locals)); // we want at least one item in the stack
-                                                                              // so that we benefit from the auto-clean-up   
-                                                                              // of resources.
+        
+        var stack  = Seq(new StackItem(ex => ex.Rethrow<IO<A>>())); // we want at least one item in the stack
+                                                                    // so that we benefit from the auto-clean-up   
+                                                                    // of resources.
                                                                               
         while (!envIO.Token.IsCancellationRequested)
         {
             switch (ma)
             {
                 case InvokeAsync<A>:
-                    return ma.RunAsyncInternal(stack, locals);
+                    return ma.RunAsyncInternal(stack, envIO);
 
                 case InvokeAsyncIO<A>:
-                    return ma.RunAsyncInternal(stack, locals);
+                    return ma.RunAsyncInternal(stack, envIO);
 
                 case InvokeSync<A> op:
                     try
@@ -861,7 +861,7 @@ public abstract record IO<A> :
 
                 case IOCatch<A> c:
                     var @catch = c.MakeHandler();
-                    stack = new StackItem(@catch, locals).Cons(stack);
+                    stack = new StackItem(@catch).Cons(stack);
                     ma = c.MakeOperation();
                     break;
 
@@ -869,19 +869,6 @@ public abstract record IO<A> :
                     stack = stack.Tail;
                     ma = pop.Next;
                     break;
-                
-                case IOLocal<A> local:
-                    locals = local.MapEnvIO(envIO).Cons(locals);
-                    envIO = locals[0]; 
-                    ma = local.MakeOperation();
-                    break;
-            
-                case IOLocalRestore<A> restore:
-                    locals[0].Dispose();
-                    locals = locals.Tail;
-                    envIO = locals[0];
-                    ma = restore.Next.As();
-                    break;                    
 
                 case IOTail<A> tail:
                     ma = tail.Tail;
@@ -896,17 +883,9 @@ public abstract record IO<A> :
 
         IO<A> RunCatchHandler(Exception e)
         {
-            var oldLocals = locals;
             var top       = stack[0];
             var @catch    = top.Catch;
-            locals = top.EnvIO;
             stack = stack.Tail;
-
-            // Unwind any local environments
-            for (var i = oldLocals.Count - 1; i >= locals.Count; i--)
-            {
-                oldLocals[i].Dispose();
-            }
 
             // This must be the last thing because the `@catch` may rethrow,
             // so we have to have cleaned everything up.
@@ -918,10 +897,9 @@ public abstract record IO<A> :
     /// This version of `RunAsync` uses the async/await machinery.  It is kept separate from the `RunAsync` version
     /// so that we can avoid creating the async/await state-machine if all operations are synchronous.
     /// </summary>
-    async ValueTask<A> RunAsyncInternal(Seq<StackItem> stack, Seq<EnvIO> locals)
+    async ValueTask<A> RunAsyncInternal(Seq<StackItem> stack, EnvIO envIO)
     {
         var ma = this;
-        var envIO = locals[0];
         while (!envIO.Token.IsCancellationRequested)
         {
             switch (ma)
@@ -976,25 +954,13 @@ public abstract record IO<A> :
 
                 case IOCatch<A> c:
                     var @catch = c.MakeHandler();
-                    stack = new StackItem(@catch, locals).Cons(stack);
+                    stack = new StackItem(@catch).Cons(stack);
                     ma = c.MakeOperation();
                     break;
 
                 case IOCatchPop<A> pop:
                     stack = stack.Tail;
                     ma = pop.Next;
-                    break;
-
-                case IOLocal<A> local:
-                    locals = local.MapEnvIO(envIO).Cons(locals);
-                    envIO = locals[0]; 
-                    ma = local.MakeOperation();
-                    break;
-                
-                case IOLocalRestore<A> restore:
-                    locals = locals.Tail;
-                    envIO = locals[0];
-                    ma = restore.Next.As();
                     break;
                 
                 case IOTail<A> tail:
@@ -1010,17 +976,9 @@ public abstract record IO<A> :
 
         IO<A> RunCatchHandler(Exception e)
         {
-            var oldLocals = locals;
-            var top       = stack[0];
-            var @catch    = top.Catch;
-            locals = top.EnvIO;
+            var top    = stack[0];
+            var @catch = top.Catch;
             stack = stack.Tail;
-
-            // Unwind any local environments
-            for (var i = oldLocals.Count - 1; i >= locals.Count; i--)
-            {
-                oldLocals[i].Dispose();
-            }
 
             // This must be the last thing because the `@catch` may rethrow,
             // so we have to have cleaned everything up.
@@ -1058,5 +1016,5 @@ public abstract record IO<A> :
         }
     }
     
-    readonly record struct StackItem(Func<Exception, IO<A>> Catch, Seq<EnvIO> EnvIO); 
+    readonly record struct StackItem(Func<Exception, IO<A>> Catch); 
 }

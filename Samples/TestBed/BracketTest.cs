@@ -18,8 +18,13 @@ public class BracketTest
     {
         var workflow = bracketIO(
             from d in use(() => new Test())
+          //from _ in fail()
             select d
         );
-        ignore(workflow.RunSafe());
+        ignore(workflow.Run());
     }
+
+    static IO<Unit> fail() =>
+        IO.lift(() => throw new Exception("boom"));
+
 }

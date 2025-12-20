@@ -12,9 +12,10 @@ public class EnvIO : IDisposable
     public readonly CancellationToken Token;
     public readonly CancellationTokenSource Source;
     public readonly SynchronizationContext? SyncContext;
-    private readonly CancellationTokenRegistration? Registration;
+    readonly CancellationTokenRegistration? Registration;
     readonly int Own;
-    int disposed;
+    int resourcesDisposed;
+    int nonResourcesDisposed;
 
     EnvIO(Resources resources,
           CancellationToken token,
@@ -23,12 +24,14 @@ public class EnvIO : IDisposable
           CancellationTokenRegistration? registration,
           int own)
     {
-        Resources    = resources;
-        Token        = token;
-        Source       = source;
-        SyncContext  = syncContext;
-        Registration = registration;
-        Own          = own;
+        Resources            = resources;
+        Token                = token;
+        Source               = source;
+        SyncContext          = syncContext;
+        Registration         = registration;
+        Own                  = own;
+        resourcesDisposed    = 0;
+        nonResourcesDisposed = 0;
     }
 
     public static EnvIO New(
@@ -88,9 +91,22 @@ public class EnvIO : IDisposable
 
     public void Dispose()
     {
-        if (Interlocked.CompareExchange(ref disposed, 1, 0) == 0)
+        DisposeResources();
+        DisposeNonResources();
+    }
+
+    public void DisposeResources()
+    {
+        if (Interlocked.CompareExchange(ref resourcesDisposed, 1, 0) == 0)
         {
             if ((Own & 2) == 2) Resources.DisposeU(this);
+        }
+    }
+
+    public void DisposeNonResources()
+    {
+        if (Interlocked.CompareExchange(ref nonResourcesDisposed, 1, 0) == 0)
+        {
             if ((Own & 1) == 1) Source.Dispose();
             Registration?.Dispose();
         }
