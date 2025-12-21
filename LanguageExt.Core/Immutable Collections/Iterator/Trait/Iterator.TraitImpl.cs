@@ -1,4 +1,5 @@
 using System;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 using G = System.Collections.Generic;
 using static LanguageExt.Prelude;
@@ -17,6 +18,9 @@ public partial class Iterator :
     Natural<Iterator, Iterable>,
     Natural<Iterator, HashSet>
 {
+    static K<Iterator, B> Monad<Iterator>.Recur<A, B>(A value, Func<A, K<Iterator, Next<A, B>>> f) =>
+        Monad.unsafeRecur(value, f);
+    
     static K<Iterator, B> Monad<Iterator>.Bind<A, B>(K<Iterator, A> ma, Func<A, K<Iterator, B>> f) =>
         ma.As().Bind(f);
 

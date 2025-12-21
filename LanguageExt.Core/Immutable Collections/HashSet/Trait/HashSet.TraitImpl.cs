@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -12,6 +13,9 @@ public partial class HashSet :
     Alternative<HashSet>, 
     Traversable<HashSet>
 {
+    static K<HashSet, B> Monad<HashSet>.Recur<A, B>(A value, Func<A, K<HashSet, Next<A, B>>> f) =>
+        Monad.unsafeRecur(value, f);
+    
     static K<HashSet, B> Monad<HashSet>.Bind<A, B>(K<HashSet, A> ma, Func<A, K<HashSet, B>> f)
     {
         return new HashSet<B>(Go());

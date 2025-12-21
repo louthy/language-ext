@@ -12,6 +12,9 @@ public partial class Seq :
     Alternative<Seq>, 
     Traversable<Seq>
 {
+    static K<Seq, B> Monad<Seq>.Recur<A, B>(A value, Func<A, K<Seq, Next<A, B>>> f) =>
+        Monad.unsafeRecur(value, f);
+    
     static K<Seq, B> Monad<Seq>.Bind<A, B>(K<Seq, A> ma, Func<A, K<Seq, B>> f)
     {
         return new Seq<B>(go());

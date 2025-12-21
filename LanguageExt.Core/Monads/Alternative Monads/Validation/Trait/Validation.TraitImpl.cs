@@ -24,6 +24,18 @@ public partial class Validation<FAIL> :
             _                                   => throw new NotSupportedException()
         };
 
+    static K<Validation<FAIL>, B> Monad<Validation<FAIL>>.Recur<A, B>(A value, Func<A, K<Validation<FAIL>, Next<A, B>>> f)
+    {
+        while (true)
+        {
+            var mr = +f(value);
+            if (mr.IsFail) return Validation.FailI<FAIL, B>(mr.FailValue);
+            var next = (Next<A, B>)mr;
+            if(next.IsDone) return Validation.SuccessI<FAIL, B>(next.DoneValue);
+            value = next.ContValue;
+        }
+    }
+
     static K<Validation<FAIL>, B> Functor<Validation<FAIL>>.Map<A, B>(
         Func<A, B> f,
         K<Validation<FAIL>, A> ma) =>

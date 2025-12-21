@@ -1,4 +1,5 @@
 using System;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 using G = System.Collections.Generic;
 using static LanguageExt.Prelude;
@@ -8,6 +9,9 @@ namespace LanguageExt;
 public partial class IteratorAsync : 
     Monad<IteratorAsync>
 {
+    static K<IteratorAsync, B> Monad<IteratorAsync>.Recur<A, B>(A value, Func<A, K<IteratorAsync, Next<A, B>>> f) =>
+        Monad.unsafeRecur(value, f);
+    
     static K<IteratorAsync, B> Monad<IteratorAsync>.Bind<A, B>(K<IteratorAsync, A> ma, Func<A, K<IteratorAsync, B>> f) =>
         ma.As().Bind(f);
 

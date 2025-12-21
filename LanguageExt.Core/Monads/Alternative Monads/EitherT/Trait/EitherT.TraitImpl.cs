@@ -18,6 +18,20 @@ public partial class EitherT<L, M> :
     static K<EitherT<L, M>, B> Monad<EitherT<L, M>>.Bind<A, B>(K<EitherT<L, M>, A> ma, Func<A, K<EitherT<L, M>, B>> f) => 
         ma.As().Bind(f);
 
+    static K<EitherT<L, M>, B> Monad<EitherT<L, M>>.Recur<A, B>(A value, Func<A, K<EitherT<L, M>, Next<A, B>>> f) =>
+        new EitherT<L, M, B>(
+            M.Recur<A, Either<L, B>>(
+                value,
+                a => f(a).As()
+                         .runEither
+                         .Map(e => e switch
+                                   {
+                                       Either<L, Next<A, B>>.Left(var l)               => Next.Done<A, Either<L, B>>(l), 
+                                       Either<L, Next<A, B>>.Right({ IsDone: true } n) => Next.Done<A, Either<L, B>>(n.DoneValue), 
+                                       Either<L, Next<A, B>>.Right({ IsCont: true } n) => Next.Cont<A, Either<L, B>>(n.ContValue),
+                                       _ => throw new NotSupportedException()
+                                   })));
+
     static K<EitherT<L, M>, B> Functor<EitherT<L, M>>.Map<A, B>(Func<A, B> f, K<EitherT<L, M>, A> ma) => 
         ma.As().Map(f);
 

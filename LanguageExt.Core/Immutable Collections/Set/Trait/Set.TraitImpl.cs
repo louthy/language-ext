@@ -11,6 +11,9 @@ public partial class Set :
     Alternative<Set>, 
     Traversable<Set>
 {
+    static K<Set, B> Monad<Set>.Recur<A, B>(A value, Func<A, K<Set, Next<A, B>>> f) =>
+        Monad.unsafeRecur(value, f);
+    
     static K<Set, B> Monad<Set>.Bind<A, B>(K<Set, A> ma, Func<A, K<Set, B>> f)
     {
         return new Set<B>(Go());

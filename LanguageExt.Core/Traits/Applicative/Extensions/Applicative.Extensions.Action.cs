@@ -17,7 +17,7 @@ public static partial class ApplicativeExtensions
     }
 
     [Pure]
-    public static K<F, A> Actions<F, A>(this IEnumerable<K<F, A>> ma)
+    public static K<F, A> Actions<F, A>(this IterableNE<K<F, A>> ma)
         where F : Applicative<F> =>
         F.Actions(ma);
     

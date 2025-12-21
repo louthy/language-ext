@@ -21,6 +21,20 @@ public partial class ValidationT<F, M> :
         Func<A, K<ValidationT<F, M>, B>> f) => 
         ma.As().Bind(f);
 
+    static K<ValidationT<F, M>, B> Monad<ValidationT<F, M>>.Recur<A, B>(A value, Func<A, K<ValidationT<F, M>, Next<A, B>>> f) =>
+        new ValidationT<F, M, B>(semi =>
+            M.Recur<A, Validation<F, B>>(
+                value,
+                a => f(a).As()
+                         .runValidation(semi)
+                         .Map(e => e switch
+                                   {
+                                       Validation<F, Next<A, B>>.Fail(var err)               => Next.Done<A, Validation<F, B>>(err), 
+                                       Validation<F, Next<A, B>>.Success({ IsDone: true } n) => Next.Done<A, Validation<F, B>>(n.DoneValue), 
+                                       Validation<F, Next<A, B>>.Success({ IsCont: true } n) => Next.Cont<A, Validation<F, B>>(n.ContValue),
+                                       _ => throw new NotSupportedException()
+                                   })));
+
     static K<ValidationT<F, M>, B> Functor<ValidationT<F, M>>.Map<A, B>(
         Func<A, B> f,
         K<ValidationT<F, M>, A> ma) =>

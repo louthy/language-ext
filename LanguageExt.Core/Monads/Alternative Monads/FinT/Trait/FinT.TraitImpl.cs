@@ -22,6 +22,20 @@ public partial class FinT<M> :
     static K<FinT<M>, B> Monad<FinT<M>>.Bind<A, B>(K<FinT<M>, A> ma, Func<A, K<FinT<M>, B>> f) => 
         ma.As().Bind(f);
 
+    static K<FinT<M>, B> Monad<FinT<M>>.Recur<A, B>(A value, Func<A, K<FinT<M>, Next<A, B>>> f) => 
+        new FinT<M, B>(
+            M.Recur<A, Fin<B>>(
+                value,
+                a => f(a).As()
+                         .runFin
+                         .Map(e => e switch
+                                   {
+                                       Fin<Next<A, B>>.Fail(var err)            => Next.Done<A, Fin<B>>(err), 
+                                       Fin<Next<A, B>>.Succ({ IsDone: true } n) => Next.Done<A, Fin<B>>(n.DoneValue), 
+                                       Fin<Next<A, B>>.Succ({ IsCont: true } n) => Next.Cont<A, Fin<B>>(n.ContValue),
+                                       _                                        => throw new NotSupportedException()
+                                   })));
+
     static K<FinT<M>, B> Functor<FinT<M>>.Map<A, B>(Func<A, B> f, K<FinT<M>, A> ma) => 
         ma.As().Map(f);
 

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Traits;
@@ -19,6 +21,16 @@ public interface Monad<M> :
     
     public static abstract K<M, B> Bind<A, B>(K<M, A> ma, Func<A, K<M, B>> f);
 
+    /// <summary>
+    /// Tail-recursive bind
+    /// </summary>
+    /// <param name="value">Initial value to the bind expression</param>
+    /// <param name="f">Bind function</param>
+    /// <typeparam name="A">Continuation value type</typeparam>
+    /// <typeparam name="B">Completed value type</typeparam>
+    /// <returns>Result of repeatedly invoking `f` until Right(b) is returned</returns>
+    public static abstract K<M, B> Recur<A, B>(A value, Func<A, K<M, Next<A, B>>> f);
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Default implementations
@@ -32,4 +44,17 @@ public interface Monad<M> :
 
     public static virtual K<M, A> Flatten<A>(K<M, K<M, A>> mma) =>
         M.Bind(mma, identity);
+
+    static K<M, A> Applicative<M>.Actions<A>(IterableNE<K<M, A>> mas)
+    {
+        // TODO: Check if this implementation is valid
+        
+        return M.Recur(mas.GetIterator(), go).Flatten();
+        K<M, Next<Iterator<K<M, A>>, K<M, A>>> go(Iterator<K<M, A>> iter) =>
+            iter switch
+            {
+                (var head, { IsEmpty : true }) => M.Pure(Next.Done<Iterator<K<M, A>>, K<M, A>>(head)),
+                var (head, tail)               => head.Map(_ => Next.Cont<Iterator<K<M, A>>, K<M, A>>(tail.Clone()))
+            };
+    }   
 }

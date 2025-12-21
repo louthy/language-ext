@@ -20,6 +20,10 @@ public class IdentityT<M> :
     static K<IdentityT<M>, B> Monad<IdentityT<M>>.Bind<A, B>(K<IdentityT<M>, A> ma, Func<A, K<IdentityT<M>, B>> f) =>
         ma.As().Bind(f);
 
+    static K<IdentityT<M>, B> Monad<IdentityT<M>>.Recur<A, B>(A value, Func<A, K<IdentityT<M>, Next<A, B>>> f) => 
+        // TODO: Make a stack-safe version of this
+        Monad.unsafeRecur(value, f);
+
     static K<IdentityT<M>, B> Functor<IdentityT<M>>.Map<A, B>(Func<A, B> f, K<IdentityT<M>, A> ma) => 
         ma.As().Map(f);
 

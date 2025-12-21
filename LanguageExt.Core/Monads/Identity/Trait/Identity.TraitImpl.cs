@@ -18,6 +18,16 @@ public partial class Identity :
     static K<Identity, B> Monad<Identity>.Bind<A, B>(K<Identity, A> ma, Func<A, K<Identity, B>> f) =>
         ma.As().Bind(f);
 
+    static K<Identity, B> Monad<Identity>.Recur<A, B>(A value, Func<A, K<Identity, Next<A, B>>> f)
+    {
+        while (true)
+        {
+            var mr = +f(value);
+            if (mr.Value.IsDone) return new Identity<B>(mr.Value.DoneValue);
+            value = mr.Value.ContValue;
+        }
+    }
+
     static K<Identity, B> Functor<Identity>.Map<A, B>(Func<A, B> f, K<Identity, A> ma) => 
         ma.As().Map(f);
 

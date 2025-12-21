@@ -21,6 +21,19 @@ public partial class Try :
                              _                  => throw new NotSupportedException()
                          });
 
+    static K<Try, B> Monad<Try>.Recur<A, B>(A value, Func<A, K<Try, Next<A, B>>> f) =>
+        lift(() =>
+             {
+                 while (true)
+                 {
+                     var mr = +f(value).Run();
+                     if (mr.IsFail) return Fin.Fail<B>(mr.FailValue);
+                     var next = (Next<A, B>)mr;
+                     if (next.IsDone) return Fin.Succ<B>(next.DoneValue);
+                     value = next.ContValue;
+                 }
+             });
+
     static K<Try, B> Functor<Try>.Map<A, B>(Func<A, B> f, K<Try, A> ma) => 
         new Try<B>(() => ma.Run().Map(f));
 

@@ -21,6 +21,19 @@ public partial class Eff :
     static K<Eff, B> Monad<Eff>.Bind<A, B>(K<Eff, A> ma, Func<A, K<Eff, B>> f) =>
         new Eff<B>(ma.As().effect.Bind(f));
 
+    static K<Eff, B> Monad<Eff>.Recur<A, B>(A value, Func<A, K<Eff, Next<A, B>>> f) =>
+        lift<B>(async env =>
+                {
+                    while (true)
+                    {
+                        var mnext = await f(value).As().RunAsync(env);
+                        if (mnext.IsFail) return Fin.Fail<B>(mnext.FailValue);
+                        var next = (Next<A, B>)mnext;
+                        if (next.IsDone) return Fin.Succ(next.DoneValue);
+                        value = next.ContValue;
+                    }
+                });
+
     static K<Eff, B> Functor<Eff>.Map<A, B>(Func<A, B> f, K<Eff, A> ma) => 
         new Eff<B>(ma.As().effect.Map(f));
 
@@ -33,7 +46,7 @@ public partial class Eff :
     static K<Eff, B> Applicative<Eff>.Apply<A, B>(K<Eff, Func<A, B>> mf, Memo<Eff, A> ma) =>
         new Eff<B>(mf.As().effect.Apply(Memo.transform<Eff, Eff<MinRT>, A>(ma)).As());
 
-    static K<Eff, A> Applicative<Eff>.Actions<A>(IEnumerable<K<Eff, A>> fas) => 
+    static K<Eff, A> Applicative<Eff>.Actions<A>(IterableNE<K<Eff, A>> fas) => 
         new Eff<A>(fas.Select(fa => fa.As().effect).Actions().As()); 
 
     static K<Eff, A> Applicative<Eff>.Actions<A>(IAsyncEnumerable<K<Eff, A>> fas) => 

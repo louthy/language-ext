@@ -57,6 +57,39 @@ public partial class ChronicleT<Ch, M> :
         Func<A, K<ChronicleT<Ch, M>, B>> f) =>
         ma.As().Bind(f);
 
+    static K<ChronicleT<Ch, M>, B> Monad<ChronicleT<Ch, M>>.Recur<A, B>(
+        A value, Func<A, K<ChronicleT<Ch, M>, Next<A, B>>> f) =>
+            new ChronicleT<Ch, M, B>(semi =>
+            M.Recur<(Ch? Chronicle, A Value), These<Ch, B>>(
+                (default, value),
+                pair => f(pair.Value)
+                           .As()
+                           .runChronicleT(semi)
+                           .Map(e => e switch
+                                     {
+                                         These<Ch, Next<A, B>>.This(var ch) => 
+                                             Next.Done<(Ch? Chronicle, A Value), These<Ch, B>>(These.This<Ch, B>(ch)),
+                                         
+                                         These<Ch, Next<A, B>>.That({ IsDone: true } n)         
+                                             => Next.Done<(Ch? Chronicle, A Value), These<Ch, B>>(These.That<Ch, B>(n.DoneValue)),
+                                         
+                                         These<Ch, Next<A, B>>.That({ IsCont: true } n)         
+                                             => Next.Cont<(Ch? Chronicle, A Value), These<Ch, B>>((pair.Chronicle, n.ContValue)),
+                                         
+                                         These<Ch, Next<A, B>>.Both(var ch, { IsDone: true } n) => 
+                                             Next.Done<(Ch? Chronicle, A Value), These<Ch, B>>(These.Both(Combine(pair.Chronicle, ch, semi), n.DoneValue)),
+                                         
+                                         These<Ch, Next<A, B>>.Both(var ch, { IsCont: true } n) => 
+                                             Next.Cont<(Ch? Chronicle, A Value), These<Ch, B>>((Combine(pair.Chronicle, ch, semi), n.ContValue)),
+                                         
+                                         _ => throw new NotSupportedException()
+                                     })));
+
+    static Ch Combine(Ch? fst, Ch snd, SemigroupInstance<Ch> semi) =>
+        fst is null
+            ? snd
+            : semi.Combine(fst, snd);
+    
     static K<ChronicleT<Ch, M>, A> MonadT<ChronicleT<Ch, M>, M>.Lift<A>(K<M, A> ma) =>
         ChronicleT.lift<Ch, M, A>(ma);
 

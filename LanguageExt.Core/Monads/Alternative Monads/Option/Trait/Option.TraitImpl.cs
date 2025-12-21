@@ -31,6 +31,18 @@ public partial class Option :
     static K<Option, B> Applicative<Option>.Apply<A, B>(K<Option, Func<A, B>> mf, Memo<Option, A> ma) =>
         mf.As().Bind(f => ma.Value.As().Map(f));
 
+    static K<Option, B> Monad<Option>.Recur<A, B>(A value, Func<A, K<Option, Next<A, B>>> f)
+    {
+        while (true)
+        {
+            var mr = +f(value);
+            if (mr.IsNone) return Option<B>.None;
+            var mnext = (Next<A, B>)mr;
+            if(mnext.IsDone) return Some(mnext.DoneValue);
+            value = mnext.ContValue;
+        }
+    }
+
     static S Foldable<Option>.FoldWhile<A, S>(
         Func<A, Func<S, S>> f, 
         Func<(S State, A Value), bool> predicate, 

@@ -11,6 +11,9 @@ public class Lst :
     Alternative<Lst>, 
     Traversable<Lst>
 {
+    static K<Lst, B> Monad<Lst>.Recur<A, B>(A value, Func<A, K<Lst, Next<A, B>>> f) =>
+        Monad.unsafeRecur(value, f);
+    
     static K<Lst, B> Monad<Lst>.Bind<A, B>(K<Lst, A> ma, Func<A, K<Lst, B>> f)
     {
         return new Lst<B>(go());

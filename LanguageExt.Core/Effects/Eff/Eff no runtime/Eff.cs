@@ -5,7 +5,6 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using LanguageExt.Async.Linq;
 using LanguageExt.Effects;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
@@ -559,7 +558,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
             new ReaderT<A, IO, T>(
                 env => fa.As().RunIO(env).Finally(@finally.As().effect.Run(env))));
     
-    static K<Eff<A>, T> Applicative<Eff<A>>.Actions<T>(IEnumerable<K<Eff<A>, T>> fas) =>
+    static K<Eff<A>, T> Applicative<Eff<A>>.Actions<T>(IterableNE<K<Eff<A>, T>> fas) =>
         new Eff<A, T>(
             new ReaderT<A, IO, T>(
                 rt => fas.Select(fa => fa.RunIO(rt)).Actions())); 
@@ -595,6 +594,19 @@ public record Eff<A>(Eff<MinRT, A> effect) :
 
     static K<Eff<MinRT>, T> CoNatural<Eff<MinRT>, Eff>.CoTransform<T>(K<Eff, T> fa) =>
         fa.As().effect;
+
+    static K<Eff<A>, B> Monad<Eff<A>>.Recur<X, B>(X value, Func<X, K<Eff<A>, Next<X, B>>> f) =>
+        Eff.lift<A, B>(async (env, rt) =>
+                      {
+                          while (true)
+                          {
+                              var mnext = await f(value).As().RunAsync(rt, env);
+                              if (mnext.IsFail) return Fin.Fail<B>(mnext.FailValue);
+                              var next = (Next<X, B>)mnext;
+                              if (next.IsDone) return Fin.Succ(next.DoneValue);
+                              value = next.ContValue;
+                          }
+                      });
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

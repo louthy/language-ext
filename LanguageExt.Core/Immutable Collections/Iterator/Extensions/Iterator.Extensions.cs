@@ -3,7 +3,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public static class IteratorExtensions
+public static partial class IteratorExtensions
 {
     /// <summary>
     /// Downcast operator

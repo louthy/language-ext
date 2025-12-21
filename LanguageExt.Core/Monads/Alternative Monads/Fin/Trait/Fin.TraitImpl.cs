@@ -24,6 +24,18 @@ public partial class Fin :
             _                   => throw new NotSupportedException()
         };
 
+    static K<Fin, B> Monad<Fin>.Recur<A, B>(A value, Func<A, K<Fin, Next<A, B>>> f)
+    {
+        while (true)
+        {
+            var mr = +f(value);
+            if (mr.IsFail) return Fail<B>(mr.FailValue);
+            var next = (Next<A, B>)mr;
+            if(next.IsDone) return Succ(next.DoneValue);
+            value = next.ContValue;
+        }
+    }
+
     static K<Fin, B> Functor<Fin>.Map<A, B>(Func<A, B> f, K<Fin, A> ma) =>
         ma switch
         {

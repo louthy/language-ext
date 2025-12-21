@@ -1,8 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using LanguageExt.Traits;
+using System.Collections.Generic;
+using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -32,6 +32,9 @@ public partial class Arr :
             }
         }
     }
+
+    static K<Arr, B> Monad<Arr>.Recur<A, B>(A value, Func<A, K<Arr, Next<A, B>>> f) =>
+        Monad.unsafeRecur(value, f);
 
     static K<Arr, B> Functor<Arr>.Map<A, B>(Func<A, B> f, K<Arr, A> ma) => 
         ma.As().Map(f);

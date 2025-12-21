@@ -267,7 +267,6 @@ public static class List
         return new Seq<A>(new SeqStrict<A>(items, 0, Math.Max(0, items.Length - 1), 0, 0));
     }
 
-
     /// <summary>
     /// Get the tail of the list (skips the head item)
     /// </summary>

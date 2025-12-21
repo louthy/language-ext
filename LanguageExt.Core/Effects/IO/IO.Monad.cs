@@ -46,7 +46,7 @@ public partial class IO :
             _                => new IOActionLazy<A, B, B>(ma, mb, pure)
         };
 
-    static K<IO, A> Applicative<IO>.Actions<A>(IEnumerable<K<IO, A>> fas) =>
+    static K<IO, A> Applicative<IO>.Actions<A>(IterableNE<K<IO, A>> fas) =>
         new IOActions<A, A>(fas.Where(fa => fa is not IOEmpty<A>).GetIterator(), pure);
 
     static K<IO, A> Applicative<IO>.Actions<A>(IAsyncEnumerable<K<IO, A>> fas) => 
@@ -60,6 +60,17 @@ public partial class IO :
             IO<A> io         => io.Bind(f),
             _                => throw new NotSupportedException()
         };
+
+    static K<IO, B> Monad<IO>.Recur<A, B>(A value, Func<A, K<IO, Next<A, B>>> f) =>
+        liftVAsync(async env =>
+                  {
+                      while (true)
+                      {
+                          var next = await f(value).As().RunAsync(env);
+                          if (next.IsDone) return next.DoneValue;
+                          value = next.ContValue;
+                      }
+                  });
 
     static K<IO, B> Functor<IO>.Map<A, B>(Func<A, B> f, K<IO, A> ma) => 
         ma is IOEmpty<A>

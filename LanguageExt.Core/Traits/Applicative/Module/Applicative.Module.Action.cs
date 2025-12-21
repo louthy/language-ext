@@ -11,7 +11,7 @@ public static partial class Applicative
         F.Action(ma, mb);
 
     [Pure]
-    public static K<F, A> actions<F, A>(IEnumerable<K<F, A>> ma)
+    public static K<F, A> actions<F, A>(IterableNE<K<F, A>> ma)
         where F : Applicative<F> =>
         F.Actions(ma);
     

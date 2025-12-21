@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.Common;
 
 namespace LanguageExt.Traits;
 
@@ -28,7 +29,52 @@ public static partial class Monad
         where MB : K<M, B>
         where M : Monad<M> =>
         (MB)bind(ma, x => f(x));
+    
+    /// <summary>
+    /// Allow for tail-recursion by using a trampoline.  Returns a monad with the bound value wrapped
+    /// by `Next`, which enables decision-making about whether to keep the computation going or not.  
+    /// </summary>
+    /// <remarks>
+    /// It is expected that the implementor of the `Monad` trait has made a 'stack-neutral' implementation
+    /// of `Monad.Recur` 
+    /// </remarks>
+    /// <param name="value">Initial value to start the recursive process</param>
+    /// <param name="f">Bind function that returns a monad with the bound value wrapped by `Next`, which
+    /// enables decision-making about whether to recur, or not.</param>
+    /// <typeparam name="M">Monad type</typeparam>
+    /// <typeparam name="A">Continue value</typeparam>
+    /// <typeparam name="B">Done value</typeparam>
+    /// <returns>Monad structure</returns>
+    [Pure]
+    public static K<M, B> recur<M, A, B>(A value, Func<A, K<M, Next<A, B>>> f) 
+        where M : Monad<M> =>
+        M.Recur(value, f);
 
+    /// <summary>
+    /// This is a default implementation of `Monad.Recur` that doesn't use the trampoline.
+    /// It's here to use as a placeholder implementation for the trampoline version and for types
+    /// where it's unlikely that recursion will be a problem.  NOTE: Using this isn't declarative,
+    /// and the users of `Monad.recur` would rightly be miffed if an implementation yielded a
+    /// stack-overflow, so use this function with caution.
+    /// </summary>
+    /// <param name="value">Initial value to start the recursive process</param>
+    /// <param name="f">Bind function that returns a monad with the bound value wrapped by `Next`, which
+    /// enables decision-making about whether to recur, or not.</param>
+    /// <typeparam name="M">Monad type</typeparam>
+    /// <typeparam name="A">Continue value</typeparam>
+    /// <typeparam name="B">Done value</typeparam>
+    /// <returns>Monad structure</returns>
+    /// <exception cref="BottomException"></exception>
+    [Pure]
+    public static K<M, B> unsafeRecur<M, A, B>(A value, Func<A, K<M, Next<A, B>>> f)
+        where M : Monad<M> =>
+        f(value).Bind(n => n switch
+                           {
+                               { IsCont: true, ContValue: var v } => unsafeRecur(v, f),
+                               { IsDone: true, DoneValue: var v } => M.Pure(v),
+                               _                                  => throw new BottomException()
+                           });
+    
     /// <summary>
     /// When the predicate evaluates to `true`, compute `Then`
     /// </summary>

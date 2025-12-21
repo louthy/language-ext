@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -16,6 +17,9 @@ public partial class Iterable :
     NaturalMono<Iterable, Set>,
     NaturalMono<Iterable, HashSet>
 {
+    static K<Iterable, B> Monad<Iterable>.Recur<A, B>(A value, Func<A, K<Iterable, Next<A, B>>> f) =>
+        Monad.unsafeRecur(value, f);
+    
     static K<Iterable, B> Monad<Iterable>.Bind<A, B>(K<Iterable, A> ma, Func<A, K<Iterable, B>> f) =>
         ma.As().Bind(f);
 

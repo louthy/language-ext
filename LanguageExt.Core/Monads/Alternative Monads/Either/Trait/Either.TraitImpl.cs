@@ -44,6 +44,18 @@ public class Either<L> :
             _                          => throw new NotSupportedException()
         };
 
+    static K<Either<L>, B> Monad<Either<L>>.Recur<A, B>(A value, Func<A, K<Either<L>, Next<A, B>>> f) 
+    {
+        while (true)
+        {
+            var mr = +f(value);
+            if (mr.IsLeft) return Either.Left<L, B>(mr.LeftValue);
+            var next = (Next<A, B>)mr;
+            if(next.IsDone) return Either.Right<L, B>(next.DoneValue);
+            value = next.ContValue;
+        }
+    }
+
     static K<Either<L>, A> Applicative<Either<L>>.Pure<A>(A value) => 
         new Either<L, A>.Right(value);
 

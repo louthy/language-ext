@@ -18,6 +18,20 @@ public partial class TryT<M> :
     static K<TryT<M>, B> Monad<TryT<M>>.Bind<A, B>(K<TryT<M>, A> ma, Func<A, K<TryT<M>, B>> f) => 
         ma.As().Bind(f);
 
+    static K<TryT<M>, B> Monad<TryT<M>>.Recur<A, B>(A value, Func<A, K<TryT<M>, Next<A, B>>> f) => 
+        new TryT<M, B>(
+            M.Recur<A, Try<B>>(
+                value,
+                a => f(a).As()
+                         .Run()
+                         .Map(e => e switch
+                                   {
+                                       Fin<Next<A, B>>.Fail(var err)            => Next.Done<A, Try<B>>(err), 
+                                       Fin<Next<A, B>>.Succ({ IsDone: true } n) => Next.Done<A, Try<B>>(Try.Succ(n.DoneValue)), 
+                                       Fin<Next<A, B>>.Succ({ IsCont: true } n) => Next.Cont<A, Try<B>>(n.ContValue),
+                                       _                                        => throw new NotSupportedException()
+                                   })));
+
     static K<TryT<M>, B> Functor<TryT<M>>.Map<A, B>(Func<A, B> f, K<TryT<M>, A> ma) => 
         ma.As().Map(f);
 

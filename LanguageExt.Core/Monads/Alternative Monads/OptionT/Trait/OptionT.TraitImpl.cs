@@ -18,6 +18,20 @@ public partial class OptionT<M> :
     static K<OptionT<M>, B> Monad<OptionT<M>>.Bind<A, B>(K<OptionT<M>, A> ma, Func<A, K<OptionT<M>, B>> f) => 
         ma.As().Bind(f);
 
+    static K<OptionT<M>, B> Monad<OptionT<M>>.Recur<A, B>(A value, Func<A, K<OptionT<M>, Next<A, B>>> f) => 
+        new OptionT<M, B>(
+            M.Recur<A, Option<B>>(
+                value,
+                a => f(a).As()
+                         .runOption
+                         .Map(e => e switch
+                                   {
+                                       { IsNone: true }                            => Next.Done<A, Option<B>>(default), 
+                                       { IsSome: true, Value: { IsDone: true } n } => Next.Done<A, Option<B>>(n.DoneValue), 
+                                       { IsSome: true, Value: { IsCont: true } n } => Next.Cont<A, Option<B>>(n.ContValue),
+                                       _                                           => throw new NotSupportedException()
+                                   })));
+
     static K<OptionT<M>, B> Functor<OptionT<M>>.Map<A, B>(Func<A, B> f, K<OptionT<M>, A> ma) => 
         ma.As().Map(f);
 
