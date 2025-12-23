@@ -16,7 +16,7 @@ public static class EnumerableOptimal
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Iterable<A> ConcatFast<A>(this Iterable<A> ma, IEnumerable<A> mb) =>
-        ma.Concat(new IterableEnumerable<A>(mb));
+        ma.Concat(Iterable.createRange(mb));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static IEnumerable<B> BindFast<A, B>(this IEnumerable<A>? ma, Func<A, IEnumerable<B>> f) =>

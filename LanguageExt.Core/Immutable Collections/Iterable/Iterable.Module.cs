@@ -37,7 +37,7 @@ public partial class Iterable
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Iterable<A> singleton<A>(A value) =>
-        new IterableEnumerable<A>([value]);
+        new IterableSingleton<A>(value);
 
     /// <summary>
     /// Create a new empty sequence
@@ -49,11 +49,12 @@ public partial class Iterable
         Iterable<A>.Empty;
 
     /// <summary>
-    /// Create a sequence from a initial set of items
+    /// Create a sequence from an initial set of items
     /// </summary>
     /// <param name="items">Items</param>
     /// <returns>sequence</returns>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Iterable<A> create<A>(params A[] items)
     {
         if (items.Length == 0) return Iterable<A>.Empty;
@@ -80,7 +81,17 @@ public partial class Iterable
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Iterable<A> createRange<A>(IEnumerable<A> items) =>
-        new IterableEnumerable<A>(items);
+        new IterableEnumerable<A>(IO.pure(items));
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Iterable<A> createRange<A>(IAsyncEnumerable<A> items) =>
+        new IterableAsyncEnumerable<A>(IO.pure(items));
 
     /// <summary>
     /// Generates a sequence of A using the provided delegate to initialise
@@ -132,41 +143,6 @@ public partial class Iterable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Iterable<A> rev<A>(Iterable<A> list) =>
         list.Reverse();
-
-    /// <summary>
-    /// Applies a function to each element of the sequence, threading an accumulator argument 
-    /// through the computation. This function takes the state argument, and applies the function 
-    /// to it and the first element of the sequence. Then, it passes this result into the function 
-    /// along with the second element, and so on. Finally, it returns the list of intermediate 
-    /// results and the final result.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <typeparam name="A">sequence item type</typeparam>
-    /// <param name="list">sequence to fold</param>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Folding function</param>
-    /// <returns>Aggregate state</returns>
-    [Pure]
-    public static Iterable<S> scan<S, A>(Iterable<A> list, S state, Func<S, A, S> folder) =>
-        list.Scan(state, folder);
-
-    /// <summary>
-    /// Applies a function to each element of the sequence (from last element to first), 
-    /// threading an accumulator argument through the computation. This function takes the state 
-    /// argument, and applies the function to it and the first element of the sequence. Then, it 
-    /// passes this result into the function along with the second element, and so on. Finally, 
-    /// it returns the list of intermediate results and the final result.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <typeparam name="A">Enumerable item type</typeparam>
-    /// <param name="list">Enumerable to fold</param>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Folding function</param>
-    /// <returns>Aggregate state</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Iterable<S> scanBack<S, A>(Iterable<A> list, S state, Func<S, A, S> folder) =>
-        scan(rev(list), state, folder);
 
     /// <summary>
     /// Joins two sequences together either into a single sequence using the join 

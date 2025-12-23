@@ -23,8 +23,8 @@ public partial class Identity :
         while (true)
         {
             var mr = +f(value);
-            if (mr.Value.IsDone) return new Identity<B>(mr.Value.DoneValue);
-            value = mr.Value.ContValue;
+            if (mr.Value.IsDone) return new Identity<B>(mr.Value.Done);
+            value = mr.Value.Loop;
         }
     }
 

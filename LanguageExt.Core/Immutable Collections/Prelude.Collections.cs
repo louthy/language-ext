@@ -920,7 +920,7 @@ public static partial class Prelude
     [Pure]
     public static Iterable<A> Iterable<A>(A fst, A snd, params A[] rest)
     {
-        return new IterableEnumerable<A>(Yield());
+        return new IterableEnumerable<A>(IO.pure(Yield()));
         IEnumerable<A> Yield()
         {
             yield return fst;
@@ -946,7 +946,15 @@ public static partial class Prelude
             Seq<A> seq          => seq.AsIterable(),
             Arr<A> arr          => arr.AsIterable(),
             A[] array           => Iterable(array),
-            _                   => new IterableEnumerable<A>(value)
+            _                   => new IterableEnumerable<A>(IO.pure(value))
+        };
+    
+    [Pure]
+    public static Iterable<A> Iterable<A>(IAsyncEnumerable<A>? value) =>
+        value switch
+        {
+            null             => LanguageExt.Iterable<A>.Empty,
+            _                => new IterableAsyncEnumerable<A>(IO.pure(value))
         };
 
     /// <summary>

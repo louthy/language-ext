@@ -27,8 +27,8 @@ public partial class OptionT<M> :
                          .Map(e => e switch
                                    {
                                        { IsNone: true }                            => Next.Done<A, Option<B>>(default), 
-                                       { IsSome: true, Value: { IsDone: true } n } => Next.Done<A, Option<B>>(n.DoneValue), 
-                                       { IsSome: true, Value: { IsCont: true } n } => Next.Cont<A, Option<B>>(n.ContValue),
+                                       { IsSome: true, Value: { IsDone: true } n } => Next.Done<A, Option<B>>(n.Done), 
+                                       { IsSome: true, Value: { IsLoop: true } n } => Next.Loop<A, Option<B>>(n.Loop),
                                        _                                           => throw new NotSupportedException()
                                    })));
 

@@ -494,7 +494,7 @@ public readonly struct Seq<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Iterable<A> AsIterable() => 
-        new IterableEnumerable<A>(Value);
+       Iterable.createRange(AsEnumerable());
 
     /// <summary>
     /// Match empty sequence, or multi-item sequence

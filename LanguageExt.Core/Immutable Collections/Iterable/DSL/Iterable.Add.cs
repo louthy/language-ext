@@ -1,243 +1,416 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace LanguageExt;
 
-#pragma warning disable CA2260
 sealed class IterableAdd<A>(SeqStrict<A> Prefix, Iterable<A> Source, SeqStrict<A> Postfix) : Iterable<A>
-#pragma warning restore CA2260
 {
-    /// <summary>
-    /// Number of items in the sequence.
-    /// </summary>
-    /// <remarks>
-    /// NOTE: This will force evaluation of the sequence
-    /// </remarks>
-    [Pure]
-    public override int Count() =>
-        Prefix.Count + Source.Count() + Postfix.Count;
+    internal override bool IsAsync =>
+        Source.IsAsync;
+    
+    public override IO<int> CountIO() =>
+        Source.CountIO().Map(c => Prefix.Count + c + Postfix.Count);
 
-    /// <summary>
-    /// Add an item to the end of the sequence
-    /// </summary>
-    /// <remarks>
-    /// This does not force evaluation of the whole lazy sequence, nor does it cause
-    /// exponential iteration issues when repeated adds occur.
-    /// </remarks>
-    [Pure]
     public override Iterable<A> Add(A item) =>
         new IterableAdd<A>(Prefix, Source, (SeqStrict<A>)Postfix.Add(item));
 
-    /// <summary>
-    /// Add an item to the beginning of the sequence
-    /// </summary>
-    /// <remarks>
-    /// This does not force evaluation of the whole lazy sequence, nor does it cause
-    /// exponential iteration issues when repeated cons occur.
-    /// </remarks>
-    [Pure]
     public override Iterable<A> Cons(A item) =>
         new IterableAdd<A>((SeqStrict<A>)Prefix.Cons(item), Source, Postfix);
 
-    /// <summary>
-    /// Stream as an enumerable
-    /// </summary>
-    [Pure]
-    public override IEnumerable<A> AsEnumerable()
+    public override IO<IEnumerable<A>> AsEnumerableIO()
     {
-        foreach (var x in Prefix)
+        return IO.lift(go);
+        IEnumerable<A> go(EnvIO env)
         {
-            yield return x;
+            foreach (var x in Prefix)
+            {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                yield return x;
+            }
+
+            foreach (var x in Source.AsEnumerable(env.Token))
+            {
+                if(env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                yield return x;
+            }
+
+            foreach (var x in Postfix)
+            {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                yield return x;
+            }
         }
-        foreach (var x in Source)
+    }
+
+    public override IO<IAsyncEnumerable<A>> AsAsyncEnumerableIO()
+    {
+        return IO.lift(go);
+        async IAsyncEnumerable<A> go(EnvIO env)
         {
-            yield return x;
-        }
-        foreach (var x in Postfix)
-        {
-            yield return x;
+            foreach (var x in Prefix)
+            {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                yield return x;
+            }
+
+            await foreach (var x in Source.AsAsyncEnumerable(env.Token))
+            {
+                yield return x;
+            }
+
+            foreach (var x in Postfix)
+            {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                yield return x;
+            }
         }
     }
 
     public override Iterable<A> Reverse() =>
         new IterableAdd<A>(Postfix.Rev(), Source.Rev(), Prefix.Rev());
 
-    /// <summary>
-    /// Impure iteration of the bound values in the structure
-    /// </summary>
-    /// <returns>
-    /// Returns the original unmodified structure
-    /// </returns>
-    public override Unit Iter(Action<A> f)
+    public override Iterable<B> Map<B>(Func<A, B> f) =>
+        new IterableAdd<B>(Prefix.Map(f), Source.Map(f), Postfix.Map(f));
+
+    public override Iterable<A> Filter(Func<A, bool> f) =>
+        new IterableAdd<A>(Prefix.Filter(f), Source.Filter(f), Postfix.Filter(f));
+
+    public override IO<S> FoldWhileIO<S>(
+        Func<A, Func<S, S>> f,
+        Func<(S State, A Value), bool> predicate,
+        S initialState) =>
+        Source.IsAsync
+            ? IO.liftVAsync(async env =>
+                            {
+                                var s = initialState;
+
+                                foreach (var x in Prefix)
+                                {
+                                    if (!predicate((s, x)))
+                                    {
+                                        return s;
+                                    }
+
+                                    s = f(x)(s);
+                                }
+
+                                await foreach (var x in Source.AsAsyncEnumerable(env.Token))
+                                {
+                                    if (!predicate((s, x)))
+                                    {
+                                        return s;
+                                    }
+
+                                    s = f(x)(s);
+                                }
+
+                                foreach (var x in Postfix)
+                                {
+                                    if (!predicate((s, x)))
+                                    {
+                                        return s;
+                                    }
+
+                                    s = f(x)(s);
+                                }
+
+                                return s;
+                            })
+            : IO.lift(env =>
+                      {
+                          var s = initialState;
+
+                          foreach (var x in Prefix)
+                          {
+                              if (!predicate((s, x)))
+                              {
+                                  return s;
+                              }
+
+                              s = f(x)(s);
+                          }
+
+                          foreach (var x in Source.AsEnumerable(env.Token))
+                          {
+                              if (!predicate((s, x)))
+                              {
+                                  return s;
+                              }
+
+                              s = f(x)(s);
+                          }
+
+                          foreach (var x in Postfix)
+                          {
+                              if (!predicate((s, x)))
+                              {
+                                  return s;
+                              }
+
+                              s = f(x)(s);
+                          }
+
+                          return s;
+                      });
+
+    public override IO<S> FoldWhileIO<S>(Func<S, A, S> f, Func<(S State, A Value), bool> predicate, S initialState) =>
+        Source.IsAsync
+            ? IO.liftVAsync(async env =>
+                            {
+                                var s = initialState;
+
+                                foreach (var x in Prefix)
+                                {
+                                    if (!predicate((s, x)))
+                                    {
+                                        return s;
+                                    }
+
+                                    s = f(s, x);
+                                }
+
+                                await foreach (var x in Source.AsAsyncEnumerable(env.Token))
+                                {
+                                    if (!predicate((s, x)))
+                                    {
+                                        return s;
+                                    }
+
+                                    s = f(s, x);
+                                }
+
+                                foreach (var x in Postfix)
+                                {
+                                    if (!predicate((s, x)))
+                                    {
+                                        return s;
+                                    }
+
+                                    s = f(s, x);
+                                }
+
+                                return s;
+                            })
+            : IO.lift(env =>
+                      {
+                          var s = initialState;
+
+                          foreach (var x in Prefix)
+                          {
+                              if (!predicate((s, x)))
+                              {
+                                  return s;
+                              }
+
+                              s = f(s, x);
+                          }
+
+                          foreach (var x in Source.AsEnumerable(env.Token))
+                          {
+                              if (!predicate((s, x)))
+                              {
+                                  return s;
+                              }
+
+                              s = f(s, x);
+                          }
+
+                          foreach (var x in Postfix)
+                          {
+                              if (!predicate((s, x)))
+                              {
+                                  return s;
+                              }
+
+                              s = f(s, x);
+                          }
+
+                          return s;
+                      });
+
+    public override IO<S> FoldUntilIO<S>(
+        Func<A, Func<S, S>> f, 
+        Func<(S State, A Value), bool> predicate,
+        S initialState) =>
+        Source.IsAsync
+            ? IO.liftVAsync(async env =>
+                            {
+                                var s = initialState;
+
+                                foreach (var x in Prefix)
+                                {
+                                    s = f(x)(s);
+                                    if (predicate((s, x)))
+                                    {
+                                        return s;
+                                    }
+                                }
+
+                                await foreach (var x in Source.AsAsyncEnumerable(env.Token))
+                                {
+                                    s = f(x)(s);
+                                    if (predicate((s, x)))
+                                    {
+                                        return s;
+                                    }
+                                }
+
+                                foreach (var x in Postfix)
+                                {
+                                    s = f(x)(s);
+                                    if (predicate((s, x)))
+                                    {
+                                        return s;
+                                    }
+                                }
+                                return s;
+                            })
+            : IO.lift(env =>
+                      {
+                          var s = initialState;
+
+                          foreach (var x in Prefix)
+                          {
+                              s = f(x)(s);
+                              if (predicate((s, x)))
+                              {
+                                  return s;
+                              }
+                          }
+
+                          foreach (var x in Source.AsEnumerable(env.Token))
+                          {
+                              s = f(x)(s);
+                              if (predicate((s, x)))
+                              {
+                                  return s;
+                              }
+                          }
+
+                          foreach (var x in Postfix)
+                          {
+                              s = f(x)(s);
+                              if (predicate((s, x)))
+                              {
+                                  return s;
+                              }
+                          }
+
+                          return s;
+                      });
+
+    public override IO<S> FoldUntilIO<S>(Func<S, A, S> f, Func<(S State, A Value), bool> predicate, S initialState) => 
+        Source.IsAsync
+            ? IO.liftVAsync(async env =>
+                            {
+                                var s = initialState;
+
+                                foreach (var x in Prefix)
+                                {
+                                    s = f(s, x);
+                                    if (predicate((s, x)))
+                                    {
+                                        return s;
+                                    }
+                                }
+
+                                await foreach (var x in Source.AsAsyncEnumerable(env.Token))
+                                {
+                                    s = f(s, x);
+                                    if (predicate((s, x)))
+                                    {
+                                        return s;
+                                    }
+                                }
+
+                                foreach (var x in Postfix)
+                                {
+                                    s = f(s, x);
+                                    if (predicate((s, x)))
+                                    {
+                                        return s;
+                                    }
+                                }
+                                return s;
+                            })
+            : IO.lift(env =>
+                      {
+                          var s = initialState;
+
+                          foreach (var x in Prefix)
+                          {
+                              s = f(s, x);
+                              if (predicate((s, x)))
+                              {
+                                  return s;
+                              }
+                          }
+
+                          foreach (var x in Source.AsEnumerable(env.Token))
+                          {
+                              s = f(s, x);
+                              if (predicate((s, x)))
+                              {
+                                  return s;
+                              }
+                          }
+
+                          foreach (var x in Postfix)
+                          {
+                              s = f(s, x);
+                              if (predicate((s, x)))
+                              {
+                                  return s;
+                              }
+                          }
+
+                          return s;
+                      });
+
+    public override Iterable<A> Choose(Iterable<A> rhs)
     {
-        foreach (var a in Prefix)
-        {
-            f(a);
-        }
-        foreach (var a in Source)
-        {
-            f(a);
-        }
-        foreach (var a in Postfix)
-        {
-            f(a);
-        }
-        return default;
+        if (!Prefix.IsEmpty) return this;
+        return new IterableAsyncEnumerable<A>(
+            IO.liftVAsync(async env =>
+                          {
+                              var ls   = AsAsyncEnumerable(env.Token);
+                              var iter = ls.GetIteratorAsync();
+                              if (await iter.IsEmpty)
+                              {
+                                  return rhs.AsAsyncEnumerable(env.Token);
+                              }
+                              else
+                              {
+                                  // This has already been evaluated by `IsEmpty`
+                                  var head = await iter.Head;
+                                  var tail = (await iter.Tail).Split().AsEnumerable(env.Token);
+                                  return tail.Prepend(head);
+                              }
+                          }));
     }
 
-    /// <summary>
-    /// Impure iteration of the bound values in the structure
-    /// </summary>
-    /// <returns>
-    /// Returns the original unmodified structure
-    /// </returns>
-    public override Unit Iter(Action<A, int> f)
+    public override Iterable<A> Choose(Memo<Iterable, A> rhs) 
     {
-        var ix = 0;
-        foreach (var a in Prefix)
-        {
-            f(a, ix);
-            ix++;
-        }
-        foreach (var a in Source)
-        {
-            f(a, ix);
-            ix++;
-        }
-        foreach (var a in Postfix)
-        {
-            f(a, ix);
-            ix++;
-        }
-        return default;
+        if (!Prefix.IsEmpty) return this;
+        return new IterableAsyncEnumerable<A>(
+            IO.liftVAsync(async env =>
+                          {
+                              var ls   = AsAsyncEnumerable(env.Token);
+                              var iter = ls.GetIteratorAsync();
+                              if (await iter.IsEmpty)
+                              {
+                                  return rhs.Value.As().AsAsyncEnumerable(env.Token);
+                              }
+                              else
+                              {
+                                  // This has already been evaluated by `IsEmpty`
+                                  var head = await iter.Head;
+                                  var tail = (await iter.Tail).Split().AsEnumerable(env.Token);
+                                  return tail.Prepend(head);
+                              }
+                          }));
     }
 
-
-    /// <summary>
-    /// Map the sequence using the function provided
-    /// </summary>
-    /// <typeparam name="B"></typeparam>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped sequence</returns>
-    [Pure]
-    public override Iterable<B> Map<B>(Func<A, B> f)
-    {
-        return new IterableEnumerable<B>(Yield());
-        IEnumerable<B> Yield()
-        {
-            foreach (var a in Prefix)
-            {
-                yield return f(a);
-            }
-            foreach (var a in Source)
-            {
-                yield return f(a);
-            }
-            foreach (var a in Postfix)
-            {
-                yield return f(a);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Map the sequence using the function provided
-    /// </summary>
-    /// <typeparam name="B"></typeparam>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped sequence</returns>
-    [Pure]
-    public override Iterable<B> Map<B>(Func<A, int, B> f)
-    {
-        return new IterableEnumerable<B>(Yield());
-        IEnumerable<B> Yield()
-        {
-            var ix = 0;
-            foreach (var a in Prefix)
-            {
-                yield return f(a, ix);
-                ix++;
-            }
-            foreach (var a in Source)
-            {
-                yield return f(a, ix);
-                ix++;
-            }
-            foreach (var a in Postfix)
-            {
-                yield return f(a, ix);
-                ix++;
-            }
-        }
-    }
-    
-    /// <summary>
-    /// Monadic bind (flatmap) of the sequence
-    /// </summary>
-    /// <typeparam name="B">Bound return value type</typeparam>
-    /// <param name="f">Bind function</param>
-    /// <returns>Flat-mapped sequence</returns>
-    [Pure]
-    public override Iterable<B> Bind<B>(Func<A, Iterable<B>> f)
-    {
-        return new IterableEnumerable<B>(Yield());
-        IEnumerable<B> Yield()
-        {
-            foreach (var a in Prefix)
-            {
-                foreach (var b in f(a))
-                {
-                    yield return b;
-                }
-            }
-            foreach (var a in Source)
-            {
-                foreach (var b in f(a))
-                {
-                    yield return b;
-                }
-            }
-            foreach (var a in Postfix)
-            {
-                foreach (var b in f(a))
-                {
-                    yield return b;
-                }
-            }
-        }
-    }
-
-    /// <summary>
-    /// Filter the items in the sequence
-    /// </summary>
-    /// <param name="f">Predicate to apply to the items</param>
-    /// <returns>Filtered sequence</returns>
-    [Pure]
-    public override Iterable<A> Filter(Func<A, bool> f)
-    {
-        return new IterableEnumerable<A>(Yield());
-        IEnumerable<A> Yield()
-        {
-            foreach (var a in Prefix)
-            {
-                if (f(a)) yield return a;
-            }
-            foreach (var a in Source)
-            {
-                if (f(a)) yield return a;
-            }
-            foreach (var a in Postfix)
-            {
-                if (f(a)) yield return a;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Format the collection as `[a, b, c, ...]`
-    /// </summary>
-    [Pure]
-    public override string ToString() =>
-        CollectionFormat.ToShortArrayString(AsEnumerable());
 }

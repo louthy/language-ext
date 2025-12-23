@@ -36,11 +36,7 @@ public static partial class IterableNEExtensions
         /// <param name="selector">Selector function</param>
         /// <returns>Mapped and filtered sequence</returns>
         [Pure]
-        public Option<IterableNE<B>> Choose<B>(Func<A, Option<B>> selector) =>
+        public Iterable<B> Choose<B>(Func<A, Option<B>> selector) =>
             IterableNE.choose(list, selector);
-
-        [Pure]
-        public IterableNE<A> Rev() =>
-            IterableNE.rev(list);
     }
 }

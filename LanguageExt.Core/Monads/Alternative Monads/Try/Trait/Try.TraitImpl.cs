@@ -29,8 +29,8 @@ public partial class Try :
                      var mr = +f(value).Run();
                      if (mr.IsFail) return Fin.Fail<B>(mr.FailValue);
                      var next = (Next<A, B>)mr;
-                     if (next.IsDone) return Fin.Succ<B>(next.DoneValue);
-                     value = next.ContValue;
+                     if (next.IsDone) return Fin.Succ<B>(next.Done);
+                     value = next.Loop;
                  }
              });
 

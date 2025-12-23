@@ -1,27 +1,29 @@
-﻿#pragma warning disable CS1998
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
+using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-sealed class IterableEnumerable<A>(IO<IEnumerable<A>> runEnumerable) : Iterable<A>
+sealed class IterableAsyncEnumerable<A>(IO<IAsyncEnumerable<A>> runEnumerable) : Iterable<A>
 {
     internal override bool IsAsync =>
-        false;
-    
+        true;
+
     public override IO<int> CountIO() =>
-        AsEnumerableIO().Map(xs => xs.Count());
+        IO.liftVAsync(async env => await (await runEnumerable.RunAsync(env)).CountAsync(env.Token));
 
     public override IO<IEnumerable<A>> AsEnumerableIO()
     {
-        // This makes a regular IEnumerable cancellable.
         return IO.lift(env => go(env, runEnumerable));
-        static IEnumerable<A> go(EnvIO env, IO<IEnumerable<A>> run)
+
+        static IEnumerable<A> go(EnvIO env, IO<IAsyncEnumerable<A>> run)
         {
             var xs = run.Run(env);
-            foreach (var x in xs)
+            foreach (var x in xs.ToBlockingEnumerable(env.Token))
             {
                 if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
                 yield return x;
@@ -29,26 +31,39 @@ sealed class IterableEnumerable<A>(IO<IEnumerable<A>> runEnumerable) : Iterable<
         }
     }
 
-    public override IO<IAsyncEnumerable<A>> AsAsyncEnumerableIO() =>
-        AsEnumerableIO().Map(xs => xs.ToAsyncEnumerable());
+    public override IO<IAsyncEnumerable<A>> AsAsyncEnumerableIO() 
+    {
+        return IO.lift(env => go(env, runEnumerable));
+
+        static async IAsyncEnumerable<A> go(EnvIO env, IO<IAsyncEnumerable<A>> run)
+        {
+            var xs = await run.RunAsync(env);
+            await foreach (var x in xs.WithCancellation(env.Token))
+            {
+                yield return x;
+            }
+        }
+    }
 
     public override Iterable<A> Reverse() =>
-        new IterableEnumerable<A>(AsEnumerableIO().Map(xs => xs.Reverse()));
+        new IterableAsyncEnumerable<A>(AsAsyncEnumerableIO().Map(xs => xs.Reverse()));
 
     public override Iterable<B> Map<B>(Func<A, B> f) =>
-        new IterableEnumerable<B>(AsEnumerableIO().Map(xs => xs.Select(f)));
+        new IterableAsyncEnumerable<B>(AsAsyncEnumerableIO().Map(xs => xs.Select(f)));
 
     public override Iterable<A> Filter(Func<A, bool> f) =>
-        new IterableEnumerable<A>(AsEnumerableIO().Map(xs => xs.Where(f)));
+        new IterableAsyncEnumerable<A>(AsAsyncEnumerableIO().Map(xs => xs.Where(f)));
 
-    public override IO<S> FoldWhileIO<S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate, S initialState) => 
+    public override IO<S> FoldWhileIO<S>(
+        Func<A, Func<S, S>> f,
+        Func<(S State, A Value), bool> predicate,
+        S initialState) =>
         IO.liftVAsync(async env =>
                       {
-                          var s  = initialState;
+                          var s = initialState;
                           var xs = await runEnumerable.RunAsync(env);
-                          foreach (var x in xs)
+                          await foreach (var x in xs.WithCancellation(env.Token))
                           {
-                              if(env.Token.IsCancellationRequested) throw new TaskCanceledException();
                               if (!predicate((s, x)))
                               {
                                   return s;
@@ -58,49 +73,51 @@ sealed class IterableEnumerable<A>(IO<IEnumerable<A>> runEnumerable) : Iterable<
                           return s;
                       });
 
-    public override IO<S> FoldWhileIO<S>(Func<S, A, S> f, Func<(S State, A Value), bool> predicate, S initialState) => 
+    public override IO<S> FoldWhileIO<S>(Func<S, A, S> f, Func<(S State, A Value), bool> predicate, S initialState) =>
         IO.liftVAsync(async env =>
                       {
                           var s  = initialState;
                           var xs = await runEnumerable.RunAsync(env);
-                          foreach (var x in xs)
+                          await foreach (var x in xs.WithCancellation(env.Token))
                           {
-                              if(env.Token.IsCancellationRequested) throw new TaskCanceledException();
                               if (!predicate((s, x)))
                               {
                                   return s;
                               }
+
                               s = f(s, x);
                           }
+
                           return s;
                       });
 
-
-    public override IO<S> FoldUntilIO<S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate, S initialState) => 
+    public override IO<S> FoldUntilIO<S>(
+        Func<A, Func<S, S>> f, 
+        Func<(S State, A Value), bool> predicate,
+        S initialState) =>
         IO.liftVAsync(async env =>
                       {
                           var s  = initialState;
                           var xs = await runEnumerable.RunAsync(env);
-                          foreach (var x in xs)
+                          await foreach (var x in xs.WithCancellation(env.Token))
                           {
-                              if(env.Token.IsCancellationRequested) throw new TaskCanceledException();
                               s = f(x)(s);
                               if (predicate((s, x)))
                               {
                                   return s;
                               }
                           }
+
                           return s;
                       });
 
-    public override IO<S> FoldUntilIO<S>(Func<S, A, S> f, Func<(S State, A Value), bool> predicate, S initialState) =>
+    public override IO<S> FoldUntilIO<S>(Func<S, A, S> f, Func<(S State, A Value), bool> predicate, S initialState) => 
         IO.liftVAsync(async env =>
                       {
                           var s  = initialState;
                           var xs = await runEnumerable.RunAsync(env);
-                          foreach (var x in xs)
+                          await foreach (var x in xs.WithCancellation(env.Token))
                           {
-                              if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
                               s = f(s, x);
                               if (predicate((s, x)))
                               {
@@ -109,44 +126,33 @@ sealed class IterableEnumerable<A>(IO<IEnumerable<A>> runEnumerable) : Iterable<
                           }
                           return s;
                       });
+
 
     public override Iterable<A> Choose(Iterable<A> rhs) =>
-        rhs.IsAsync
-            ? new IterableAsyncEnumerable<A>(
-                IO.liftVAsync(async env =>
+        new IterableAsyncEnumerable<A>(
+            IO.liftVAsync(async env =>
+                          {
+                              var ls   = AsAsyncEnumerable(env.Token);
+                              var iter = ls.GetIteratorAsync();
+                              if (await iter.IsEmpty)
                               {
-                                  var ls   = AsAsyncEnumerable(env.Token);
-                                  var iter = ls.GetIteratorAsync();
-                                  if (await iter.IsEmpty)
-                                  {
-                                      return rhs.AsAsyncEnumerable(env.Token);
-                                  }
-                                  else
-                                  {
-                                      // This has already been evaluated by `IsEmpty`
-                                      var head = await iter.Head;
-                                      var tail = (await iter.Tail).Split().AsEnumerable(env.Token);
-                                      return tail.Prepend(head);
-                                  }
-                              }))
-            : new IterableEnumerable<A>(
-                IO.lift(env =>
-                        {
-                            var ls   = AsEnumerable(env.Token);
-                            var iter = ls.GetIterator();
-                            if (iter.IsEmpty)
-                            {
-                                return rhs.AsEnumerable(env.Token);
-                            }
-                            else
-                            {
-                                // This has already been evaluated by `IsEmpty`
-                                var head = iter.Head;
-                                var tail = iter.Tail.Split().AsEnumerable();
-                                return tail.Prepend(head);
-                            }
-                        }));
+                                  return rhs.AsAsyncEnumerable(env.Token);
+                              }
+                              else
+                              {
+                                  // This has already been evaluated by `IsEmpty`
+                                  var head = await iter.Head;
+                                  var tail = (await iter.Tail).Split().AsEnumerable(env.Token);
+                                  return tail.Prepend(head);
+                              }
+                          }));
 
+    /// <summary>
+    /// If this sequence is empty, return the other sequence, otherwise return this sequence.
+    /// </summary>
+    /// <param name="rhs">Right hand side of the operator</param>
+    /// <returns>A choice between two sequences based</returns>
+    [Pure]
     public override Iterable<A> Choose(Memo<Iterable, A> rhs) =>
         new IterableAsyncEnumerable<A>(
             IO.liftVAsync(async env =>

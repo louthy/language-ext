@@ -250,8 +250,7 @@ public static partial class FoldableExtensions
         /// starting value (typically the right-identity of the operator), and a
         /// list, reduces the list using the binary operator, from right to left.
         /// </summary>
-        public S Fold<S>(S initialState,
-                         Func<A, Func<S, S>> f) =>
+        public S Fold<S>(S initialState, Func<A, Func<S, S>> f) =>
             T.Fold(f, initialState, ta);
 
         /// <summary>
@@ -271,8 +270,8 @@ public static partial class FoldableExtensions
         /// starting value (typically the right-identity of the operator), and a
         /// list, reduces the list using the binary operator, from right to left.
         /// </summary>
-        public K<M, S> FoldM<M, S>(S initialState,
-                                   Func<A, Func<S, K<M, S>>> f) where M : Monad<M> =>
+        public K<M, S> FoldM<M, S>(S initialState, Func<A, Func<S, K<M, S>>> f) 
+            where M : Monad<M> =>
             T.FoldM(f, initialState, ta);
 
         /// <summary>
@@ -282,8 +281,8 @@ public static partial class FoldableExtensions
         /// starting value (typically the right-identity of the operator), and a
         /// list, reduces the list using the binary operator, from right to left.
         /// </summary>
-        public K<M, S> FoldM<M, S>(S initialState,
-                                   Func<S, A, K<M, S>> f) where M : Monad<M> =>
+        public K<M, S> FoldM<M, S>(S initialState, Func<S, A, K<M, S>> f) 
+            where M : Monad<M> =>
             T.FoldM<A, M, S>(a => s => f(s, a), initialState, ta);
 
         /// <summary>

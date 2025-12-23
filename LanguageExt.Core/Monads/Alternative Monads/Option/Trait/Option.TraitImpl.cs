@@ -38,8 +38,8 @@ public partial class Option :
             var mr = +f(value);
             if (mr.IsNone) return Option<B>.None;
             var mnext = (Next<A, B>)mr;
-            if(mnext.IsDone) return Some(mnext.DoneValue);
-            value = mnext.ContValue;
+            if(mnext.IsDone) return Some(mnext.Done);
+            value = mnext.Loop;
         }
     }
 

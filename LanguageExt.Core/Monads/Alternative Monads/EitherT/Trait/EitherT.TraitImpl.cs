@@ -27,8 +27,8 @@ public partial class EitherT<L, M> :
                          .Map(e => e switch
                                    {
                                        Either<L, Next<A, B>>.Left(var l)               => Next.Done<A, Either<L, B>>(l), 
-                                       Either<L, Next<A, B>>.Right({ IsDone: true } n) => Next.Done<A, Either<L, B>>(n.DoneValue), 
-                                       Either<L, Next<A, B>>.Right({ IsCont: true } n) => Next.Cont<A, Either<L, B>>(n.ContValue),
+                                       Either<L, Next<A, B>>.Right({ IsDone: true } n) => Next.Done<A, Either<L, B>>(n.Done), 
+                                       Either<L, Next<A, B>>.Right({ IsLoop: true } n) => Next.Loop<A, Either<L, B>>(n.Loop),
                                        _ => throw new NotSupportedException()
                                    })));
 

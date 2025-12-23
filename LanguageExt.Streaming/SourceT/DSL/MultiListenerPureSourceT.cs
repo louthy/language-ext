@@ -20,8 +20,8 @@ record MultiListenerPureSourceT<M, A>(Channel<A> Source) : SourceT<M, A>
         return from channel in mkChannel
                let final    =  final(channel)
                from result  in body(channel, state)
-                                .Bind(final.Map)            // Run final if we succeed
-                                .Choose(final.Map(state))   // Run final if we fail and keep the original state
+                                .Bind(final.ConstMap)            // Run final if we succeed
+                                .Choose(final.ConstMap(state))   // Run final if we fail and keep the original state
                select result;
 
         K<M, S> body(Channel<K<M, A>> channel, S state) =>

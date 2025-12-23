@@ -68,19 +68,19 @@ public partial class ChronicleT<Ch, M> :
                            .Map(e => e switch
                                      {
                                          These<Ch, Next<A, B>>.This(var ch) => 
-                                             Next.Done<(Ch? Chronicle, A Value), These<Ch, B>>(These.This<Ch, B>(ch)),
+                                             Pure(These.This<Ch, B>(ch)),
                                          
-                                         These<Ch, Next<A, B>>.That({ IsDone: true } n)         
-                                             => Next.Done<(Ch? Chronicle, A Value), These<Ch, B>>(These.That<Ch, B>(n.DoneValue)),
+                                         These<Ch, Next<A, B>>.That({ IsDone: true } n) => 
+                                             Pure(These.That<Ch, B>(n.Done)),
                                          
-                                         These<Ch, Next<A, B>>.That({ IsCont: true } n)         
-                                             => Next.Cont<(Ch? Chronicle, A Value), These<Ch, B>>((pair.Chronicle, n.ContValue)),
+                                         These<Ch, Next<A, B>>.That({ IsLoop: true } n) => 
+                                             Loop((pair.Chronicle, n.Loop)),
                                          
                                          These<Ch, Next<A, B>>.Both(var ch, { IsDone: true } n) => 
-                                             Next.Done<(Ch? Chronicle, A Value), These<Ch, B>>(These.Both(Combine(pair.Chronicle, ch, semi), n.DoneValue)),
+                                             Pure(These.Both(Combine(pair.Chronicle, ch, semi), n.Done)),
                                          
-                                         These<Ch, Next<A, B>>.Both(var ch, { IsCont: true } n) => 
-                                             Next.Cont<(Ch? Chronicle, A Value), These<Ch, B>>((Combine(pair.Chronicle, ch, semi), n.ContValue)),
+                                         These<Ch, Next<A, B>>.Both(var ch, { IsLoop: true } n) => 
+                                             Next.Loop<(Ch? Chronicle, A Value), These<Ch, B>>((Combine(pair.Chronicle, ch, semi), n.Loop)),
                                          
                                          _ => throw new NotSupportedException()
                                      })));

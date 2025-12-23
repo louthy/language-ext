@@ -22,26 +22,3 @@ public interface Eq<in A> : Hashable<A>, Trait
     [Pure]
     public static abstract bool Equals(A x, A y);
 }
-
-public static class Eq
-{
-    class EqEqualityComparer<EqA, A> : IEqualityComparer<A>
-        where EqA : Eq<A>
-    {
-        public bool Equals(A? x, A? y) =>
-            (x, y) switch
-            {
-                (null, null) => true,
-                (null, _)    => false,
-                (_, null)    => false,
-                var (nx, ny) => EqA.Equals(nx, ny)
-            };
-
-        public int GetHashCode(A obj) =>
-            EqA.GetHashCode(obj);
-    }
-
-    public static IEqualityComparer<A> Comparer<EqA, A>()
-        where EqA : Eq<A> =>
-        new EqEqualityComparer<EqA, A>();
-}

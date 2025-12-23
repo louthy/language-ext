@@ -31,8 +31,8 @@ public partial class Validation<FAIL> :
             var mr = +f(value);
             if (mr.IsFail) return Validation.FailI<FAIL, B>(mr.FailValue);
             var next = (Next<A, B>)mr;
-            if(next.IsDone) return Validation.SuccessI<FAIL, B>(next.DoneValue);
-            value = next.ContValue;
+            if(next.IsDone) return Validation.SuccessI<FAIL, B>(next.Done);
+            value = next.Loop;
         }
     }
 

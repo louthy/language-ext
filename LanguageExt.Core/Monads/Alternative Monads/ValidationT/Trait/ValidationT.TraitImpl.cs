@@ -30,8 +30,8 @@ public partial class ValidationT<F, M> :
                          .Map(e => e switch
                                    {
                                        Validation<F, Next<A, B>>.Fail(var err)               => Next.Done<A, Validation<F, B>>(err), 
-                                       Validation<F, Next<A, B>>.Success({ IsDone: true } n) => Next.Done<A, Validation<F, B>>(n.DoneValue), 
-                                       Validation<F, Next<A, B>>.Success({ IsCont: true } n) => Next.Cont<A, Validation<F, B>>(n.ContValue),
+                                       Validation<F, Next<A, B>>.Success({ IsDone: true } n) => Next.Done<A, Validation<F, B>>(n.Done), 
+                                       Validation<F, Next<A, B>>.Success({ IsLoop: true } n) => Next.Loop<A, Validation<F, B>>(n.Loop),
                                        _ => throw new NotSupportedException()
                                    })));
 

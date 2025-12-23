@@ -29,35 +29,11 @@ public partial class Iterable :
     static K<Iterable, A> Applicative<Iterable>.Pure<A>(A value) =>
         singleton(value);
 
-    static K<Iterable, B> Applicative<Iterable>.Apply<A, B>(K<Iterable, Func<A, B>> mf, K<Iterable, A> ma)
-    {
-        return go().AsIterable();        
-        IEnumerable<B> go()
-        {
-            foreach (var f in mf.As())
-            {
-                foreach (var a in ma.As())
-                {
-                    yield return f(a); 
-                }
-            }
-        }
-    }
+    static K<Iterable, B> Applicative<Iterable>.Apply<A, B>(K<Iterable, Func<A, B>> mf, K<Iterable, A> ma) =>
+        mf >>> ma.Map;
 
-    static K<Iterable, B> Applicative<Iterable>.Apply<A, B>(K<Iterable, Func<A, B>> mf, Memo<Iterable, A> ma)
-    {
-        return go().AsIterable();        
-        IEnumerable<B> go()
-        {
-            foreach (var f in mf.As())
-            {
-                foreach (var a in ma.Value.As())
-                {
-                    yield return f(a); 
-                }
-            }
-        }
-    }
+    static K<Iterable, B> Applicative<Iterable>.Apply<A, B>(K<Iterable, Func<A, B>> mf, Memo<Iterable, A> ma) =>
+        mf >>> ma.Map;
 
     static K<Iterable, A> MonoidK<Iterable>.Empty<A>() =>
         Iterable<A>.Empty;
@@ -66,35 +42,19 @@ public partial class Iterable :
         Iterable<A>.Empty;
     
     static K<Iterable, A> SemigroupK<Iterable>.Combine<A>(K<Iterable, A> ma, K<Iterable, A> mb) =>
-        ma.As().Concat(mb.As());
+        ma.As().Concat(+mb);
 
-    static K<Iterable, A> Choice<Iterable>.Choose<A>(K<Iterable, A> ma, K<Iterable, A> mb) => 
-        ma.IsEmpty ? mb : ma;
+    static K<Iterable, A> Choice<Iterable>.Choose<A>(K<Iterable, A> ma, K<Iterable, A> mb) =>
+        ma.As().Choose(+mb);
     
     static K<Iterable, A> Choice<Iterable>.Choose<A>(K<Iterable, A> ma, Memo<Iterable, A> mb) => 
-        ma.IsEmpty ? mb.Value : ma;
-    
-    static K<F, K<Iterable, B>> Traversable<Iterable>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Iterable, A> ta)
-    {
-        return Foldable.fold(add, F.Pure(Iterable<B>.Empty), ta)
-                       .Map(bs => bs.Kind());
+        ma.As().Choose(mb);
 
-        Func<K<F, Iterable<B>>, K<F, Iterable<B>>> add(A value) =>
-            state =>
-                Applicative.lift((bs, b) => bs.Add(b), state, f(value));                                            
-    }
+    static K<F, K<Iterable, B>> Traversable<Iterable>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Iterable, A> ta) =>
+        ta.As().Traverse(f).Map(mb => mb.Kind());
 
-    static K<F, K<Iterable, B>> Traversable<Iterable>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Iterable, A> ta) 
-    {
-        return Foldable.fold(add, F.Pure(Iterable<B>.Empty), ta)
-                       .Map(bs => bs.Kind());
-
-        Func<K<F, Iterable<B>>, K<F, Iterable<B>>> add(A value) =>
-            state =>
-                state.Bind(
-                    bs => f(value).Bind(
-                        b => F.Pure(bs.Add(b)))); 
-    }
+    static K<F, K<Iterable, B>> Traversable<Iterable>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Iterable, A> ta) => 
+        ta.As().TraverseM(f).Map(mb => mb.Kind());
 
     static S Foldable<Iterable>.FoldWhile<A, S>(
         Func<A, Func<S, S>> f,
@@ -108,7 +68,7 @@ public partial class Iterable :
         Func<(S State, A Value), bool> predicate, 
         S state, 
         K<Iterable, A> ta) =>
-        ta.As().FoldBackWhile(f, predicate, state);
+        ta.As().Reverse().FoldWhile((a, s) => f(a)(s), predicate, state);
     
     static Arr<A> Foldable<Iterable>.ToArr<A>(K<Iterable, A> ta) =>
         new(ta.As());

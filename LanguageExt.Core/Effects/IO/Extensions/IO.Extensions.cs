@@ -3,6 +3,7 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt.DSL;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -63,6 +64,16 @@ public static partial class IOExtensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ValueTask<Fin<A>> RunSafeAsync(EnvIO envIO) =>
             ma.As().Try().Run().RunAsync(envIO);
+    }
+    
+    extension<M, A, B>(K<IO, A> ma) 
+        where M : MonadIO<M>
+    {
+        public K<M, B> Bind(Func<A, K<M, B>> f) =>
+            M.LiftIO(ma).Bind(f);
+
+        public K<M, B> BindAsync(Func<A, ValueTask<K<M, B>>> f) => 
+            ma.Bind(x => M.LiftIO(new IOPureAsync<K<M, B>>(f(x)))).Flatten();
     }
 
     /// <summary>

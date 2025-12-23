@@ -79,12 +79,7 @@ public static partial class Prelude
         F.Action(ma, mb);
     
     [Pure]
-    public static K<F, A> actions<F, A>(IEnumerable<K<F, A>> ma)
-        where F : Applicative<F> =>
-        F.Actions(ma);
-    
-    [Pure]
-    public static K<F, A> actions<F, A>(IAsyncEnumerable<K<F, A>> ma)
+    public static K<F, A> actions<F, A>(IterableNE<K<F, A>> ma)
         where F : Applicative<F> =>
         F.Actions(ma);
     

@@ -67,8 +67,8 @@ public partial class IO :
                       while (true)
                       {
                           var next = await f(value).As().RunAsync(env);
-                          if (next.IsDone) return next.DoneValue;
-                          value = next.ContValue;
+                          if (next.IsDone) return next.Done;
+                          value = next.Loop;
                       }
                   });
 

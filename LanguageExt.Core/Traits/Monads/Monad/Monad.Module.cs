@@ -70,8 +70,8 @@ public static partial class Monad
         where M : Monad<M> =>
         f(value).Bind(n => n switch
                            {
-                               { IsCont: true, ContValue: var v } => unsafeRecur(v, f),
-                               { IsDone: true, DoneValue: var v } => M.Pure(v),
+                               { IsLoop: true, Loop: var v } => unsafeRecur(v, f),
+                               { IsDone: true, Done: var v } => M.Pure(v),
                                _                                  => throw new BottomException()
                            });
     

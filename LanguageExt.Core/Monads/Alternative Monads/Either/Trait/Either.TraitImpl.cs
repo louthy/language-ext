@@ -51,8 +51,8 @@ public class Either<L> :
             var mr = +f(value);
             if (mr.IsLeft) return Either.Left<L, B>(mr.LeftValue);
             var next = (Next<A, B>)mr;
-            if(next.IsDone) return Either.Right<L, B>(next.DoneValue);
-            value = next.ContValue;
+            if(next.IsDone) return Either.Right<L, B>(next.Done);
+            value = next.Loop;
         }
     }
 

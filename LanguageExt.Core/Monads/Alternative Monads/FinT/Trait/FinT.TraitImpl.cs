@@ -31,8 +31,8 @@ public partial class FinT<M> :
                          .Map(e => e switch
                                    {
                                        Fin<Next<A, B>>.Fail(var err)            => Next.Done<A, Fin<B>>(err), 
-                                       Fin<Next<A, B>>.Succ({ IsDone: true } n) => Next.Done<A, Fin<B>>(n.DoneValue), 
-                                       Fin<Next<A, B>>.Succ({ IsCont: true } n) => Next.Cont<A, Fin<B>>(n.ContValue),
+                                       Fin<Next<A, B>>.Succ({ IsDone: true } n) => Next.Done<A, Fin<B>>(n.Done), 
+                                       Fin<Next<A, B>>.Succ({ IsLoop: true } n) => Next.Loop<A, Fin<B>>(n.Loop),
                                        _                                        => throw new NotSupportedException()
                                    })));
 

@@ -27,8 +27,8 @@ public partial class TryT<M> :
                          .Map(e => e switch
                                    {
                                        Fin<Next<A, B>>.Fail(var err)            => Next.Done<A, Try<B>>(err), 
-                                       Fin<Next<A, B>>.Succ({ IsDone: true } n) => Next.Done<A, Try<B>>(Try.Succ(n.DoneValue)), 
-                                       Fin<Next<A, B>>.Succ({ IsCont: true } n) => Next.Cont<A, Try<B>>(n.ContValue),
+                                       Fin<Next<A, B>>.Succ({ IsDone: true } n) => Next.Done<A, Try<B>>(Try.Succ(n.Done)), 
+                                       Fin<Next<A, B>>.Succ({ IsLoop: true } n) => Next.Loop<A, Try<B>>(n.Loop),
                                        _                                        => throw new NotSupportedException()
                                    })));
 

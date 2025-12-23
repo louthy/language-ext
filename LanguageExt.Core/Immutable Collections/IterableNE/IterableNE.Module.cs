@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
-using LanguageExt.Traits;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace LanguageExt;
 
@@ -47,6 +47,42 @@ public partial class IterableNE
     /// <param name="items">Items</param>
     /// <returns>sequence</returns>
     [Pure]
+    public static IterableNE<A> create<A>(A head, IEnumerable<A> tail) =>
+        new (head, Iterable.createRange(tail));
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static IterableNE<A> create<A>(A head, IAsyncEnumerable<A> tail) =>
+        new (head, Iterable.createRange(tail));
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static IterableNE<A> create<A>(A head, Iterable<A> tail) =>
+        new (head, tail);
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static IterableNE<A> create<A>(A head, IterableNE<A> tail) =>
+        new (head, tail.AsIterable());
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<IterableNE<A>> createRange<A>(ReadOnlySpan<A> items) =>
         items.Length == 0 
@@ -76,8 +112,15 @@ public partial class IterableNE
     /// <returns>sequence</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static IterableNE<A> createRangeUnsafe<A>(ReadOnlySpan<A> items) =>
-        IterableNE<A>.FromSpan(items);
+    public static IO<IterableNE<A>> createRange<A>(IAsyncEnumerable<A> items) =>
+        IO.liftVAsync(async _ =>
+                      {
+                          var iter = IteratorAsync.from(items);
+                          if (await iter.IsEmpty) throw new ArgumentException("Can't create an IterableNE from an empty sequence");
+                          var head = await iter.Head;
+                          var tail = (await iter.Tail).AsIterable();
+                          return new IterableNE<A>(head, tail);
+                      });
 
     /// <summary>
     /// Create a sequence from an initial set of items
@@ -86,13 +129,29 @@ public partial class IterableNE
     /// <returns>sequence</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static IterableNE<A> createRangeUnsafe<A>(IEnumerable<A> items)
+    public static IO<IterableNE<A>> createRange<A>(Iterable<A> items)
     {
-        var iter = Iterator.from(items);
-        if (iter.IsEmpty) throw new ArgumentException("Can't create an IterableNE from an empty sequence");
-        var head = iter.Head;
-        var tail = iter.Tail.AsIterable();
-        return new IterableNE<A>(head, tail);
+        return IO.liftVAsync(_ => items.IsAsync
+                                      ? async()
+                                      : sync());
+    
+        async ValueTask<IterableNE<A>> async()
+        {
+            var iter = IteratorAsync.from(items);
+            if (await iter.IsEmpty) throw new ArgumentException("Can't create an IterableNE from an empty sequence");
+            var head = await iter.Head;
+            var tail = (await iter.Tail).AsIterable();
+            return new IterableNE<A>(head, tail);
+        }
+
+        ValueTask<IterableNE<A>> sync()
+        {
+            var iter = Iterator.from(items);
+            if (iter.IsEmpty) throw new ArgumentException("Can't create an IterableNE from an empty sequence");
+            var head = iter.Head;
+            var tail = iter.Tail.AsIterable();
+            return ValueTask.FromResult(new IterableNE<A>(head, tail));
+        }
     }
 
     /// <summary>
@@ -136,56 +195,10 @@ public partial class IterableNE
     /// <returns>Mapped and filtered sequence</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<IterableNE<B>> choose<A, B>(IterableNE<A> list, Func<A, Option<B>> selector) =>
+    public static Iterable<B> choose<A, B>(IterableNE<A> list, Func<A, Option<B>> selector) =>
         list.Map(selector)
             .Filter(t => t.IsSome)
-            .Map(ts => ts.Map(t => t.Value!));
-
-    /// <summary>
-    /// Reverses the sequence (Reverse in LINQ)
-    /// </summary>
-    /// <typeparam name="A">sequence item type</typeparam>
-    /// <param name="list">sequence to reverse</param>
-    /// <returns>Reversed sequence</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IterableNE<A> rev<A>(IterableNE<A> list) =>
-        list.Reverse();
-
-    /// <summary>
-    /// Applies a function to each element of the sequence, threading an accumulator argument 
-    /// through the computation. This function takes the state argument, and applies the function 
-    /// to it and the first element of the sequence. Then, it passes this result into the function 
-    /// along with the second element, and so on. Finally, it returns the list of intermediate 
-    /// results and the final result.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <typeparam name="A">sequence item type</typeparam>
-    /// <param name="list">sequence to fold</param>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Folding function</param>
-    /// <returns>Aggregate state</returns>
-    [Pure]
-    public static IterableNE<S> scan<S, A>(IterableNE<A> list, S state, Func<S, A, S> folder) =>
-        list.Scan(state, folder);
-
-    /// <summary>
-    /// Applies a function to each element of the sequence (from last element to first), 
-    /// threading an accumulator argument through the computation. This function takes the state 
-    /// argument, and applies the function to it and the first element of the sequence. Then, it 
-    /// passes this result into the function along with the second element, and so on. Finally, 
-    /// it returns the list of intermediate results and the final result.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <typeparam name="A">Enumerable item type</typeparam>
-    /// <param name="list">Enumerable to fold</param>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Folding function</param>
-    /// <returns>Aggregate state</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IterableNE<S> scanBack<S, A>(IterableNE<A> list, S state, Func<S, A, S> folder) =>
-        scan(rev(list), state, folder);
+            .Map(t => t.Value!);
 
     /// <summary>
     /// Joins two sequences together either into a single sequence using the join 
@@ -213,28 +226,6 @@ public partial class IterableNE
         list.Zip(other, (t, u) => (t, u));
 
     /// <summary>
-    /// Return a new sequence with all duplicate values removed
-    /// </summary>
-    /// <typeparam name="A">sequence item type</typeparam>
-    /// <param name="list">sequence</param>
-    /// <returns>A new sequence with all duplicate values removed</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IterableNE<A> distinct<A>(IterableNE<A> list) =>
-        list.Distinct();
-
-    /// <summary>
-    /// Return a new sequence with all duplicate values removed
-    /// </summary>
-    /// <typeparam name="A">sequence item type</typeparam>
-    /// <param name="list">sequence</param>
-    /// <returns>A new sequence with all duplicate values removed</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IterableNE<A> distinct<EqA, A>(IterableNE<A> list) where EqA : Eq<A> =>
-        list.Distinct<EqA>();
-
-    /// <summary>
     /// Returns a new sequence with the first 'count' items from the sequence provided
     /// </summary>
     /// <typeparam name="A">sequence item type</typeparam>
@@ -243,7 +234,7 @@ public partial class IterableNE
     /// <returns>A new sequence with the first 'count' items from the sequence provided</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<IterableNE<A>> take<A>(IterableNE<A> list, int count) =>
+    public static Iterable<A> take<A>(IterableNE<A> list, int count) =>
         list.Take(count);
 
     /// <summary>
@@ -256,7 +247,7 @@ public partial class IterableNE
     /// <returns>A new sequence with the first items that match the predicate</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<IterableNE<A>> takeWhile<A>(IterableNE<A> list, Func<A, bool> pred) =>
+    public static Iterable<A> takeWhile<A>(IterableNE<A> list, Func<A, bool> pred) =>
         list.TakeWhile(pred);
 
     /// <summary>
@@ -269,6 +260,6 @@ public partial class IterableNE
     /// <returns>A new sequence with the first items that match the predicate</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<IterableNE<A>> takeWhile<A>(IterableNE<A> list, Func<A, int, bool> pred) =>
+    public static Iterable<A> takeWhile<A>(IterableNE<A> list, Func<A, int, bool> pred) =>
         list.TakeWhile(pred);
 }

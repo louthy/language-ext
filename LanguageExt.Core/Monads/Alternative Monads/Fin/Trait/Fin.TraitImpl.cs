@@ -31,8 +31,8 @@ public partial class Fin :
             var mr = +f(value);
             if (mr.IsFail) return Fail<B>(mr.FailValue);
             var next = (Next<A, B>)mr;
-            if(next.IsDone) return Succ(next.DoneValue);
-            value = next.ContValue;
+            if(next.IsDone) return Succ(next.Done);
+            value = next.Loop;
         }
     }
 

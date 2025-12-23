@@ -16,7 +16,7 @@ record SinkTCombine<M, A, B, C>(Func<A, (B Left, C Right)> F, SinkT<M, B> Left, 
                     F(value) switch
                     {
                         var (b, c) =>
-                            awaitAll(Left.PostM(M.Pure(b)).Map(Seq<Error>()), Right.PostM(M.Pure(c)).Map(Seq<Error>()))
+                            awaitAll(Left.PostM(M.Pure(b)).ConstMap(Seq<Error>()), Right.PostM(M.Pure(c)).ConstMap(Seq<Error>()))
                                .Map(es => es.Flatten())
                                .Bind(es => es switch
                                            {

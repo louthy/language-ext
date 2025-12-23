@@ -5,6 +5,8 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
@@ -20,8 +22,9 @@ namespace LanguageExt;
 /// </remarks>
 /// <typeparam name="A">Type of the values in the sequence</typeparam>
 [CollectionBuilder(typeof(Iterable), nameof(Iterable.createRange))]
-public class Iterable<A> :
+public abstract class Iterable<A> :
     IEnumerable<A>,
+    IAsyncEnumerable<A>,
     Monoid<Iterable<A>>,
     IComparable<Iterable<A>>,
     IAdditiveIdentity<Iterable<A>, Iterable<A>>,
@@ -31,8 +34,16 @@ public class Iterable<A> :
 {
     int? hashCode;
 
+    /// <summary>
+    /// True if this iterable or any component part of the structure has asynchonicity.  
+    /// </summary>
+    internal abstract bool IsAsync { get; }
+
+    /// <summary>
+    /// Create an iterable from a span
+    /// </summary>
     public static Iterable<A> FromSpan(ReadOnlySpan<A> ma) =>
-        new IterableEnumerable<A>(ma.ToArray().AsEnumerable());
+        new IterableEnumerable<A>(IO.pure<IEnumerable<A>>(ma.ToArray()));
 
     /// <summary>
     /// Number of items in the sequence.
@@ -41,21 +52,61 @@ public class Iterable<A> :
     /// NOTE: This will force evaluation of the sequence
     /// </remarks>
     [Pure]
-    public virtual int Count() => 0;
+    public int Count() =>
+        CountIO().Run();
+
+    /// <summary>
+    /// Number of items in the sequence.
+    /// </summary>
+    [Pure]
+    public abstract IO<int> CountIO();
 
     /// <summary>
     /// Stream as an enumerable
     /// </summary>
     [Pure]
-    public virtual IEnumerable<A> AsEnumerable() => 
-        [];
+    public IEnumerable<A> AsEnumerable(CancellationToken token = default)
+    {
+        using var env = EnvIO.New(token: token);
+        var       xs  = AsEnumerableIO().Run();
+        foreach (var x in xs)
+        {
+            if(env.Token.IsCancellationRequested) throw new TaskCanceledException();
+            yield return x;
+        }
+    }
+
+    /// <summary>
+    /// Stream as an enumerable
+    /// </summary>
+    [Pure]
+    public abstract IO<IEnumerable<A>> AsEnumerableIO();
+
+    /// <summary>
+    /// Stream as an enumerable
+    /// </summary>
+    [Pure]
+    public async IAsyncEnumerable<A> AsAsyncEnumerable(CancellationToken token = default)
+    {
+        using var env = EnvIO.New(token: token);
+        var xs = await AsAsyncEnumerableIO().RunAsync();
+        await foreach (var x in xs.WithCancellation(token))
+        {
+            yield return x;
+        }
+    }
+
+    /// <summary>
+    /// Stream as an enumerable
+    /// </summary>
+    [Pure]
+    public abstract IO<IAsyncEnumerable<A>> AsAsyncEnumerableIO();
 
     /// <summary>
     /// Reverse the sequence
     /// </summary>
     [Pure]
-    public virtual Iterable<A> Reverse() =>
-        [];
+    public abstract Iterable<A> Reverse();
 
     /// <summary>
     /// Add an item to the end of the sequence
@@ -91,8 +142,35 @@ public class Iterable<A> :
     /// <returns>
     /// Returns the original unmodified structure
     /// </returns>
-    public virtual Unit Iter(Action<A> f) =>
-        default;
+    public Unit Iter(Action<A> f) =>
+        IterIO(f).Run();
+
+    /// <summary>
+    /// Pure iteration of the bound values in the structure
+    /// </summary>
+    /// <returns>
+    /// Returns the original unmodified structure
+    /// </returns>
+    [Pure]
+    public IO<Unit> IterIO(Action<A> f) =>
+        IsAsync
+            ? IO.liftVAsync(async env =>
+                            {
+                                await foreach (var x in AsAsyncEnumerable(env.Token))
+                                {
+                                    f(x);
+                                }
+                                return unit;
+                            })
+            : IO.lift(env =>
+                      {
+                          foreach (var x in AsEnumerable(env.Token))
+                          {
+                              f(x);
+                          }
+                          return unit;
+                      });
+
 
     /// <summary>
     /// Impure iteration of the bound values in the structure
@@ -100,8 +178,38 @@ public class Iterable<A> :
     /// <returns>
     /// Returns the original unmodified structure
     /// </returns>
-    public virtual Unit Iter(Action<A, int> f) =>
-        default;
+    public Unit Iter(Action<A, int> f) =>
+        IterIO(f).Run();
+
+    /// <summary>
+    /// Pure iteration of the bound values in the structure
+    /// </summary>
+    /// <returns>
+    /// Returns the original unmodified structure
+    /// </returns>
+    [Pure]
+    public IO<Unit> IterIO(Action<A, int> f, int offset = 0) =>
+        IsAsync
+            ? IO.liftVAsync(async env =>
+                            {
+                                var ix = offset;
+                                await foreach (var x in AsAsyncEnumerable(env.Token))
+                                {
+                                    f(x, ix++);
+                                }
+
+                                return unit;
+                            })
+            : IO.lift(env =>
+                      {
+                          var ix = offset;
+                          foreach (var x in AsEnumerable(env.Token))
+                          {
+                              f(x, ix++);
+                          }
+
+                          return unit;
+                      });
     
     /// <summary>
     /// Map the sequence using the function provided
@@ -110,8 +218,7 @@ public class Iterable<A> :
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped sequence</returns>
     [Pure]
-    public virtual Iterable<B> Map<B>(Func<A, B> f) =>
-        [];
+    public abstract Iterable<B> Map<B>(Func<A, B> f);
 
     /// <summary>
     /// Map the sequence using the function provided
@@ -120,18 +227,9 @@ public class Iterable<A> :
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped sequence</returns>
     [Pure]
-    public virtual Iterable<B> Map<B>(Func<A, int, B> f) =>
-        [];
-
-    /// <summary>
-    /// Monadic bind (flatmap) of the sequence
-    /// </summary>
-    /// <typeparam name="B">Bound return value type</typeparam>
-    /// <param name="f">Bind function</param>
-    /// <returns>Flat-mapped sequence</returns>
-    [Pure]
-    public virtual Iterable<B> Bind<B>(Func<A, Iterable<B>> f) =>
-        [];
+    public Iterable<B> Map<B>(Func<A, int, B> f, int offset = 0) =>
+        Zip(Iterable.createRange(Enumerable.InfiniteSequence(offset, 1)))
+           .Map(p => f(p.First, p.Second));
 
     /// <summary>
     /// Filter the items in the sequence
@@ -139,15 +237,51 @@ public class Iterable<A> :
     /// <param name="f">Predicate to apply to the items</param>
     /// <returns>Filtered sequence</returns>
     [Pure]
-    public virtual Iterable<A> Filter(Func<A, bool> f) =>
-        [];
+    public abstract Iterable<A> Filter(Func<A, bool> f);
 
     /// <summary>
     /// Equality test
     /// </summary>
     [Pure]
-    public virtual bool Equals(Iterable<A>? other) =>
-        other is not null && Equals<EqDefault<A>>(other);
+    public IO<bool> EqualsIO<EqA>(Iterable<A>? other) 
+        where EqA : Eq<A> =>
+        other is null
+            ? IO.pure(false)
+            : ReferenceEquals(this, other)
+                  ? IO.pure(true)
+                  : (IsAsync, IsAsync) switch
+                    {
+                        (true, true)   => IO.liftVAsync(async env => await AsAsyncEnumerable(env.Token).SequenceEqualAsync(other.AsAsyncEnumerable(env.Token), Eq.Comparer<EqA, A>())),
+                        (true, false)  => IO.liftVAsync(async env => await AsAsyncEnumerable(env.Token).SequenceEqualAsync(other.AsAsyncEnumerable(env.Token), Eq.Comparer<EqA, A>())),
+                        (false, true)  => IO.liftVAsync(async env => await AsAsyncEnumerable(env.Token).SequenceEqualAsync(other.AsAsyncEnumerable(env.Token), Eq.Comparer<EqA, A>())),
+                        (false, false) => IO.lift(env => AsEnumerable(env.Token).SequenceEqual(other.AsEnumerable(env.Token), Eq.Comparer<EqA, A>()))
+                    };
+    
+    /// <summary>
+    /// Equality test
+    /// </summary>
+    [Pure]
+    public IO<bool> EqualsIO(Iterable<A>? other) =>
+        EqualsIO<EqDefault<A>>(other);
+
+    /// <summary>
+    /// Equality test
+    /// </summary>
+    [Pure]
+    public bool Equals<EqA>(Iterable<A>? other)
+        where EqA : Eq<A> =>
+        EqualsIO<EqA>(other).Run();
+
+    /// <summary>
+    /// Equality test
+    /// </summary>
+    [Pure]
+    public bool Equals(Iterable<A>? other) =>
+        EqualsIO<EqDefault<A>>(other).Run();
+
+    [Pure]
+    public IAsyncEnumerator<A> GetAsyncEnumerator(CancellationToken cancellationToken = default) => 
+        AsAsyncEnumerable(cancellationToken).GetAsyncEnumerator(cancellationToken);
 
     [Pure]
     public override bool Equals(object? obj) =>
@@ -167,62 +301,6 @@ public class Iterable<A> :
     public static bool operator !=(Iterable<A>? lhs, Iterable<A>? rhs) =>
         !(lhs == rhs);
 
-    [Pure]
-    public S FoldWhile<S>(
-        Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S state)
-    {
-        foreach (var x in AsEnumerable())
-        {
-            if (!predicate((state, x))) return state;
-            state = f(x)(state);
-        }
-        return state;
-    }
-
-    [Pure]
-    public S FoldWhile<S>(
-        Func<S, A, S> f,
-        Func<(S State, A Value), bool> predicate,
-        S state)
-    {
-        foreach (var x in AsEnumerable())
-        {
-            if (!predicate((state, x))) return state;
-            state = f(state, x);
-        }
-        return state;
-    }
-
-    [Pure]
-    public S FoldBackWhile<S>(
-        Func<S, Func<A, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S state)
-    {
-        foreach (var x in AsEnumerable().Reverse())
-        {
-            if (!predicate((state, x))) return state;
-            state = f(state)(x);
-        }
-        return state;
-    }
-
-    [Pure]
-    public S FoldBackWhile<S>(
-        Func<S, A, S> f,
-        Func<(S State, A Value), bool> predicate,
-        S state)
-    {
-        foreach (var x in AsEnumerable().Reverse())
-        {
-            if (!predicate((state, x))) return state;
-            state = f(state, x);
-        }
-        return state;
-    }
-    
     /// <summary>
     /// Semigroup combine two iterables (concatenate)
     /// </summary>
@@ -235,7 +313,14 @@ public class Iterable<A> :
     /// </summary>
     [Pure]
     public Iterable<A> Concat(IEnumerable<A> items) =>
-        Concat(new IterableEnumerable<A>(items));
+        Concat(new IterableEnumerable<A>(IO.pure(items)));
+
+    /// <summary>
+    /// Add a range of items to the end of the sequence
+    /// </summary>
+    [Pure]
+    public Iterable<A> Concat(IAsyncEnumerable<A> items) =>
+        Concat(new IterableAsyncEnumerable<A>(IO.pure(items)));
 
     /// <summary>
     /// Add a range of items to the end of the sequence
@@ -249,49 +334,7 @@ public class Iterable<A> :
             (var l, IterableConcat<A> r)               => new IterableConcat<A>(l.Cons(r.Items)),
             var (l, r)                                 => new IterableConcat<A>(Seq(l, r))
         };
-    
-    /// <summary>
-    /// Applies a function to each element of the sequence, threading an accumulator argument 
-    /// through the computation. This function takes the state argument, and applies the function 
-    /// to it and the first element of the sequence. Then, it passes this result into the function 
-    /// along with the second element, and so on. Finally, it returns the list of intermediate 
-    /// results and the final result.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <typeparam name="T">sequence item type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Folding function</param>
-    /// <returns>Aggregate state</returns>
-    [Pure]
-    public Iterable<S> Scan<S>(S state, Func<S, A, S> folder) 
-    {
-        return new IterableEnumerable<S>(Yield());
-        IEnumerable<S> Yield()
-        {
-            yield return state;
-            foreach (var item in AsEnumerable())
-            {
-                state = folder(state, item);
-                yield return state;
-            }
-        }
-    }
 
-    /// <summary>
-    /// Applies a function to each element of the sequence (from last element to first), 
-    /// threading an accumulator argument through the computation. This function takes the state 
-    /// argument, and applies the function to it and the first element of the sequence. Then, it 
-    /// passes this result into the function along with the second element, and so on. Finally, 
-    /// it returns the list of intermediate results and the final result.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Folding function</param>
-    /// <returns>Aggregate state</returns>
-    [Pure]
-    public Iterable<S> ScanBack<S>(S state, Func<S, A, S> folder) =>
-        Reverse().Scan(state, folder);
-    
     /// <summary>
     /// Return a new sequence with all duplicate values removed
     /// </summary>
@@ -299,20 +342,10 @@ public class Iterable<A> :
     /// <returns>A new sequence with all duplicate values removed</returns>
     [Pure]
     public Iterable<A> Distinct<EqA>()
-        where EqA : Eq<A>
-    {
-        return new IterableEnumerable<A>(Yield());
-        IEnumerable<A> Yield()
-        {
-            HashSet<EqA, A> set = [];
-            foreach (var x in AsEnumerable())
-            {
-                if(set.Contains(x)) continue;
-                set = set.Add(x);
-                yield return x;
-            }
-        }
-    }
+        where EqA : Eq<A> =>
+        IsAsync
+            ? new IterableAsyncEnumerable<A>(AsAsyncEnumerableIO().Map(xs => xs.Distinct(Eq.Comparer<EqA, A>())))
+            : new IterableEnumerable<A>(AsEnumerableIO().Map(xs => xs.Distinct(Eq.Comparer<EqA, A>())));
 
     /// <summary>
     /// Return a new sequence with all duplicate values removed
@@ -322,20 +355,52 @@ public class Iterable<A> :
     [Pure]
     public Iterable<A> Distinct() =>
         Distinct<EqDefault<A>>();
-    
+
     /// <summary>
     /// Map each element of a structure to an action, evaluate these actions from
     /// left to right, and collect the results.
     /// </summary>
+    /// <remarks>
+    /// NOTE: This method will eagerly evaluate the iterable. If you're working with
+    /// an asynchronous sequence, then it is advised to use `TraverseIO`.
+    /// </remarks>
     /// <param name="f"></param>
     /// <param name="ta">Traversable structure</param>
     /// <typeparam name="F">Applicative functor trait</typeparam>
     /// <typeparam name="B">Bound value (output)</typeparam>
     [Pure]
-    public K<F, Iterable<B>> Traverse<F, B>(Func<A, K<F, B>> f) 
-        where F : Applicative<F> =>
-        F.Map(x => x.As(), Traversable.traverse(f, this));
-    
+    public K<F, Iterable<B>> Traverse<F, B>(Func<A, K<F, B>> f)
+        where F : Applicative<F>
+    {
+        return FoldIO(add, F.Pure(Iterable<B>.Empty)).Run();
+        Func<K<F, Iterable<B>>, K<F, Iterable<B>>> add(A value) =>
+            state =>
+                Applicative.lift((bs, b) => bs.Add(b), state, f(value));                                            
+        
+    }
+
+    /// <summary>
+    /// Map each element of a structure to an action, evaluate these actions from
+    /// left to right, and collect the results.
+    /// </summary>
+    /// <remarks>
+    /// NOTE: This method will eagerly evaluate the iterable. If you're working with
+    /// an asynchronous sequence, then it is advised to use `TraverseIO`.
+    /// </remarks>
+    /// <param name="f"></param>
+    /// <param name="ta">Traversable structure</param>
+    /// <typeparam name="M">Monad trait</typeparam>
+    /// <typeparam name="B">Bound value (output)</typeparam>
+    [Pure]
+    public K<M, Iterable<B>> TraverseM<M, B>(Func<A, K<M, B>> f)
+        where M : Monad<M>
+    {
+        return FoldIO(add, M.Pure(Iterable<B>.Empty)).Run();
+
+        Func<K<M, Iterable<B>>, K<M, Iterable<B>>> add(A value) =>
+            state => state.Bind(bs => f(value).Map(bs.Add)); 
+    }    
+
     /// <summary>
     /// Map each element of a structure to an action, evaluate these actions from
     /// left to right, and collect the results.
@@ -345,10 +410,19 @@ public class Iterable<A> :
     /// <typeparam name="M">Monad trait</typeparam>
     /// <typeparam name="B">Bound value (output)</typeparam>
     [Pure]
-    public K<M, Iterable<B>> TraverseM<M, B>(Func<A, K<M, B>> f) 
-        where M : Monad<M> =>
-        M.Map(x => x.As(), Traversable.traverseM(f, this));
+    public K<F, Iterable<B>> TraverseIO<F, B>(Func<A, K<F, B>> f, K<Iterable, A> kta) 
+        where F : MonadIO<F>
+    {
+        var ta = +kta;
+        return F.LiftIO(ta.FoldIO(add, F.Pure(Iterable<B>.Empty))).Flatten();
 
+        Func<K<F, Iterable<B>>, K<F, Iterable<B>>> add(A value) =>
+            state =>
+                state.Bind(
+                    bs => f(value).Bind(
+                        b => F.Pure(bs.Add(b)))); 
+    }    
+    
     /// <summary>
     /// Monadic bind (flatmap) of the sequence
     /// </summary>
@@ -356,19 +430,461 @@ public class Iterable<A> :
     /// <param name="f">Bind function</param>
     /// <returns>Flat-mapped sequence</returns>
     [Pure]
-    public Iterable<B> Bind<B>(Func<A, K<Iterable, B>> f) =>
-        Bind(a => f(a).As());
+    public Iterable<B> Bind<B>(Func<A, Iterable<B>> f)
+    {
+        return IsAsync
+                   ? new IterableAsyncEnumerable<B>(IO.lift(async))
+                   : new IterableAsyncEnumerable<B>(IO.lift(sync));
+
+        async IAsyncEnumerable<B> async(EnvIO env)
+        {
+            await foreach (var a in AsAsyncEnumerable(env.Token))
+            {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                var mb = f(a);
+                if (mb.IsAsync)
+                {
+                    await foreach (var b in mb.AsAsyncEnumerable(env.Token))
+                    {
+                        if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                        yield return b;
+                    }
+                }
+                else
+                {
+                    foreach (var b in mb.AsEnumerable(env.Token))
+                    {
+                        if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                        yield return b;
+                    }
+                }
+            }
+        }
+
+        async IAsyncEnumerable<B> sync(EnvIO env)
+        {
+            foreach (var a in AsEnumerable(env.Token))
+            {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                var mb = f(a);
+                if (mb.IsAsync)
+                {
+                    await foreach (var b in mb.AsAsyncEnumerable(env.Token))
+                    {
+                        if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                        yield return b;
+                    }
+                }
+                else
+                {
+                    foreach (var b in mb.AsEnumerable(env.Token))
+                    {
+                        if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                        yield return b;
+                    }
+                }
+            }
+        }
+    }
 
     /// <summary>
-    /// Monadic bind (flatmap) of the sequence
+    /// Fold over the sequence from the left, accumulating state in `f`
     /// </summary>
-    /// <typeparam name="B">Bound return value type</typeparam>
-    /// <param name="f">Bind function</param>
-    /// <returns>Flat-mapped sequence</returns>
-    [Pure]
-    public Iterable<B> Bind<B>(Func<A, IEnumerable<B>> f) =>
-        Bind(x => new IterableEnumerable<B>(f(x)));
+    /// <param name="f">Fold function to apply to each item in the sequence</param>
+    /// <param name="predicate">Continue while the predicate returns true for any pair of value and state.
+    /// This is tested before the value is processed and the state is updated. So, use `FoldWhile*` for pre-assertions.
+    /// </param>
+    /// <param name="initialState">Initial state value</param>
+    /// <typeparam name="S">State value type</typeparam>
+    /// <returns>Resulting state</returns>
+    public S FoldWhile<S>(
+        Func<A, Func<S, S>> f,
+        Func<(S State, A Value), bool> predicate,
+        S initialState) =>
+        FoldWhileIO(f, predicate, initialState).Run();
 
+    /// <summary>
+    /// Fold over the sequence from the left, accumulating state in `f`
+    /// </summary>
+    /// <param name="f">Fold function to apply to each item in the sequence</param>
+    /// <param name="predicate">Continue while the predicate returns true for any pair of value and state.
+    /// This is tested before the value is processed and the state is updated. So, use `FoldWhile*` for pre-assertions.
+    /// </param>
+    /// <param name="initialState">Initial state value</param>
+    /// <typeparam name="S">State value type</typeparam>
+    /// <returns>Resulting state</returns>
+    public S FoldWhile<S>(
+        Func<S, A, S> f,
+        Func<(S State, A Value), bool> predicate,
+        S initialState) =>
+        FoldWhileIO(f, predicate, initialState).Run();
+
+    /// <summary>
+    /// Fold over the sequence from the left, accumulating state in `f`
+    /// </summary>
+    /// <param name="f">Fold function to apply to each item in the sequence</param>
+    /// <param name="predicate">Continue while the predicate returns true for any pair of value and state.
+    /// This is tested before the value is processed and the state is updated. So, use `FoldWhile*` for pre-assertions.
+    /// </param>
+    /// <param name="initialState">Initial state value</param>
+    /// <typeparam name="S">State value type</typeparam>
+    /// <returns>Resulting state</returns>
+    public abstract IO<S> FoldWhileIO<S>(
+        Func<A, Func<S, S>> f,
+        Func<(S State, A Value), bool> predicate,
+        S initialState);
+
+    /// <summary>
+    /// Fold over the sequence from the left, accumulating state in `f`
+    /// </summary>
+    /// <param name="f">Fold function to apply to each item in the sequence</param>
+    /// <param name="predicate">Continue while the predicate returns true for any pair of value and state.
+    /// This is tested before the value is processed and the state is updated. So, use `FoldWhile*` for pre-assertions.
+    /// </param>
+    /// <param name="initialState">Initial state value</param>
+    /// <typeparam name="S">State value type</typeparam>
+    /// <returns>Resulting state</returns>
+    public abstract IO<S> FoldWhileIO<S>(
+        Func<S, A, S> f,
+        Func<(S State, A Value), bool> predicate,
+        S initialState);
+
+    /// <summary>
+    /// Fold over the sequence from the left, accumulating state in `f`
+    /// </summary>
+    /// <param name="f">Fold function to apply to each item in the sequence</param>
+    /// <param name="predicate">Continue while the predicate returns true for any pair of value and state.
+    /// This is tested before the value is processed and the state is updated. So, use `FoldWhile*` for pre-assertions.
+    /// </param>
+    /// <param name="initialState">Initial state value</param>
+    /// <typeparam name="S">State value type</typeparam>
+    /// <returns>Resulting state</returns>
+    public S FoldUntil<S>(
+        Func<A, Func<S, S>> f,
+        Func<(S State, A Value), bool> predicate,
+        S initialState) =>
+        FoldUntilIO(f, predicate, initialState).Run();
+
+    /// <summary>
+    /// Fold over the sequence from the left, accumulating state in `f`
+    /// </summary>
+    /// <param name="f">Fold function to apply to each item in the sequence</param>
+    /// <param name="predicate">Continue while the predicate returns true for any pair of value and state.
+    /// This is tested before the value is processed and the state is updated. So, use `FoldWhile*` for pre-assertions.
+    /// </param>
+    /// <param name="initialState">Initial state value</param>
+    /// <typeparam name="S">State value type</typeparam>
+    /// <returns>Resulting state</returns>
+    public S FoldUntil<S>(
+        Func<S, A, S> f,
+        Func<(S State, A Value), bool> predicate,
+        S initialState) =>
+        FoldUntilIO(f, predicate, initialState).Run();
+
+    /// <summary>
+    /// Fold over the sequence from the left, accumulating state in `f`
+    /// </summary>
+    /// <param name="f">Fold function to apply to each item in the sequence</param>
+    /// <param name="predicate">Continue while the predicate returns true for any pair of value and state.
+    /// This is tested before the value is processed and the state is updated. So, use `FoldWhile*` for pre-assertions.
+    /// </param>
+    /// <param name="initialState">Initial state value</param>
+    /// <typeparam name="S">State value type</typeparam>
+    /// <returns>Resulting state</returns>
+    public abstract IO<S> FoldUntilIO<S>(
+        Func<A, Func<S, S>> f,
+        Func<(S State, A Value), bool> predicate,
+        S initialState);
+
+    /// <summary>
+    /// Fold over the sequence from the left, accumulating state in `f`
+    /// </summary>
+    /// <param name="f">Fold function to apply to each item in the sequence</param>
+    /// <param name="predicate">Continue while the predicate returns true for any pair of value and state.
+    /// This is tested before the value is processed and the state is updated. So, use `FoldWhile*` for pre-assertions.
+    /// </param>
+    /// <param name="initialState">Initial state value</param>
+    /// <typeparam name="S">State value type</typeparam>
+    /// <returns>Resulting state</returns>
+    public abstract IO<S> FoldUntilIO<S>(
+        Func<S, A, S> f,
+        Func<(S State, A Value), bool> predicate,
+        S initialState);
+
+    /// <summary>
+    /// Fold until the `Option` returns `None`
+    /// </summary>
+    /// <param name="f">Fold function</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Aggregated value</returns>
+    public S FoldMaybe<S>(
+        Func<S, Func<A, Option<S>>> f,
+        S initialState) =>
+        FoldMaybeIO(f, initialState).Run();
+
+    /// <summary>
+    /// Fold until the `Option` returns `None`
+    /// </summary>
+    /// <param name="f">Fold function</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Aggregated value</returns>
+    public S FoldMaybe<S>(
+        Func<S, A, Option<S>> f,
+        S initialState) =>
+        FoldMaybeIO(f, initialState).Run();
+
+    /// <summary>
+    /// Fold until the `Option` returns `None`
+    /// </summary>
+    /// <param name="f">Fold function</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Aggregated value</returns>
+    public IO<S> FoldMaybeIO<S>(
+        Func<S, Func<A, Option<S>>> f,
+        S initialState) =>
+        FoldWhileIO<(bool IsSome, S Value)>(
+                a => s => f(s.Value)(a) switch
+                          {
+                              { IsSome: true, Case: S value } => (true, value),
+                              _                               => (false, s.Value)
+                          },
+                s => s.State.IsSome,
+                (true, initialState))
+           .Map(s => s.Value);
+
+    /// <summary>
+    /// Fold until the `Option` returns `None`
+    /// </summary>
+    /// <param name="f">Fold function</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Aggregated value</returns>
+    public IO<S> FoldMaybeIO<S>(
+        Func<S, A, Option<S>> f,
+        S initialState) =>
+        FoldWhileIO<(bool IsSome, S Value)>(
+                (s, a) => f(s.Value, a) switch
+                          {
+                              { IsSome: true, Case: S value } => (true, value),
+                              _                               => (false, s.Value)
+                          },
+                s => s.State.IsSome,
+                (true, initialState))
+           .Map(s => s.Value);
+
+    /// <summary>
+    /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
+    /// early exit of the operation once the predicate function becomes `false` for the
+    /// state/value pair 
+    /// </summary>
+    public K<M, S> FoldWhileM<M, S>(
+        Func<A, Func<S, K<M, S>>> f, 
+        Func<A, bool> predicate, 
+        S initialState) 
+        where M : MonadIO<M>
+    {
+        return FoldWhileIO(acc, s => predicate(s.Value), Monad.pure<M, S>)
+                  .Bind(f1 => f1(initialState));
+
+        Func<Func<S, K<M, S>>, Func<S, K<M, S>>> acc(A value) =>
+            bind => state => Monad.bind(f(value)(state), bind);
+    }
+
+    /// <summary>
+    /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
+    /// early exit of the operation once the predicate function becomes `false` for the
+    /// state/value pair 
+    /// </summary>
+    public K<M, S> FoldWhileM<M, S>(
+        Func<S, A, K<M, S>> f, 
+        Func<A, bool> predicate, 
+        S initialState) 
+        where M : MonadIO<M>
+    {
+        return FoldWhileIO(acc, s => predicate(s.Value), Monad.pure<M, S>)
+           .Bind(f1 => f1(initialState));
+
+        Func<Func<S, K<M, S>>, Func<S, K<M, S>>> acc(A value) =>
+            bind => state => Monad.bind(f(state, value), bind);
+    }
+
+    /// <summary>
+    /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
+    /// early exit of the operation once the predicate function becomes `false` for the
+    /// state/value pair 
+    /// </summary>
+    public K<M, S> FoldUntilM<M, S>(
+        Func<A, Func<S, K<M, S>>> f, 
+        Func<A, bool> predicate, 
+        S initialState) 
+        where M : MonadIO<M>
+    {
+        return FoldUntilIO(acc, s => predicate(s.Value), Monad.pure<M, S>).Bind(f1 => f1(initialState));
+
+        Func<Func<S, K<M, S>>, Func<S, K<M, S>>> acc(A value) =>
+            bind => state => Monad.bind(f(value)(state), bind);
+    }
+
+    /// <summary>
+    /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
+    /// early exit of the operation once the predicate function becomes `false` for the
+    /// state/value pair 
+    /// </summary>
+    public K<M, S> FoldUntilM<M, S>(
+        Func<S, A, K<M, S>> f, 
+        Func<A, bool> predicate, 
+        S initialState) 
+        where M : MonadIO<M>
+    {
+        return FoldUntilIO(acc, s => predicate(s.Value), Monad.pure<M, S>).Bind(f1 => f1(initialState));
+
+        Func<Func<S, K<M, S>>, Func<S, K<M, S>>> acc(A value) =>
+            bind => state => Monad.bind(f(state, value), bind);
+    }
+
+    /// <summary>
+    /// Right-associative fold of a structure, lazy in the accumulator.
+    ///
+    /// In the case of lists, 'Fold', when applied to a binary operator, a
+    /// starting value (typically the right-identity of the operator), and a
+    /// list, reduces the list using the binary operator, from right to left.
+    /// </summary>
+    public S Fold<S>(Func<A, Func<S, S>> f, S initialState) =>
+        FoldIO(f, initialState).Run();
+
+    /// <summary>
+    /// Right-associative fold of a structure, lazy in the accumulator.
+    ///
+    /// In the case of lists, 'Fold', when applied to a binary operator, a
+    /// starting value (typically the right-identity of the operator), and a
+    /// list, reduces the list using the binary operator, from right to left.
+    /// </summary>
+    public S Fold<S>(Func<S, A, S> f, S initialState) =>
+        FoldIO(f, initialState).Run();
+
+    /// <summary>
+    /// Right-associative fold of a structure, lazy in the accumulator.
+    ///
+    /// In the case of lists, 'Fold', when applied to a binary operator, a
+    /// starting value (typically the right-identity of the operator), and a
+    /// list, reduces the list using the binary operator, from right to left.
+    /// </summary>
+    public IO<S> FoldIO<S>(Func<A, Func<S, S>> f, S initialState) =>
+        FoldWhileIO(f, _ => true, initialState);
+
+    /// <summary>
+    /// Right-associative fold of a structure, lazy in the accumulator.
+    ///
+    /// In the case of lists, 'Fold', when applied to a binary operator, a
+    /// starting value (typically the right-identity of the operator), and a
+    /// list, reduces the list using the binary operator, from right to left.
+    /// </summary>
+    public IO<S> FoldIO<S>(Func<S, A, S> f, S initialState) =>
+        FoldWhileIO(f, _ => true, initialState);
+
+    /// <summary>
+    /// Right-associative fold of a structure, lazy in the accumulator.
+    ///
+    /// In the case of lists, 'Fold', when applied to a binary operator, a
+    /// starting value (typically the right-identity of the operator), and a
+    /// list, reduces the list using the binary operator, from right to left.
+    /// </summary>
+    public K<M, S> FoldM<M, S>(
+        Func<A, Func<S, K<M, S>>> f, 
+        S initialState) 
+        where M : MonadIO<M>
+    {
+        return FoldIO(acc, Monad.pure<M, S>).Bind(f => f(initialState));
+
+        Func<Func<S, K<M, S>>, Func<S, K<M, S>>> acc(A value) =>
+            bind => state => Monad.bind(f(value)(state), bind);
+    }
+
+    /// <summary>
+    /// Right-associative fold of a structure, lazy in the accumulator.
+    ///
+    /// In the case of lists, 'Fold', when applied to a binary operator, a
+    /// starting value (typically the right-identity of the operator), and a
+    /// list, reduces the list using the binary operator, from right to left.
+    /// </summary>
+    public K<M, S> FoldM<M, S>(
+        Func<S, A, K<M, S>> f, 
+        S initialState) 
+        where M : MonadIO<M>
+    {
+        return FoldIO(acc, Monad.pure<M, S>).Bind(f => f(initialState));
+
+        Func<Func<S, K<M, S>>, Func<S, K<M, S>>> acc(A value) =>
+            bind => state => Monad.bind(f(state, value), bind);
+    }
+
+    /// <summary>
+    /// Map each element of the structure into a monoid, and combine the
+    /// results with `Append`.  This fold is right-associative and lazy in the
+    /// accumulator.  For strict left-associative folds consider `FoldMapBack`
+    /// instead.
+    /// </summary>
+    public B FoldMap<B>(Func<A, B> f)
+        where B : Monoid<B> =>
+        FoldMapIO(f).Run();
+
+    /// <summary>
+    /// Map each element of the structure into a monoid, and combine the
+    /// results with `Append`.  This fold is right-associative and lazy in the
+    /// accumulator.  For strict left-associative folds consider `FoldMapBack`
+    /// instead.
+    /// </summary>
+    public IO<B> FoldMapIO<B>(Func<A, B> f)
+        where B : Monoid<B> =>
+        FoldIO(x => a => f(x).Combine(a), B.Empty);
+
+    /// <summary>
+    /// Map each element of the structure into a monoid, and combine the
+    /// results with `Append`.  This fold is right-associative and lazy in the
+    /// accumulator.  For strict left-associative folds consider `FoldMapBack`
+    /// instead.
+    /// </summary>
+    public B FoldMapWhile<B>(Func<A, B> f, Func<(B State, A Value), bool> predicate)
+        where B : Monoid<B> =>
+        FoldMapWhileIO(f, predicate).Run();
+
+    /// <summary>
+    /// Map each element of the structure into a monoid, and combine the
+    /// results with `Append`.  This fold is right-associative and lazy in the
+    /// accumulator.  For strict left-associative folds consider `FoldMapBack`
+    /// instead.
+    /// </summary>
+    public IO<B> FoldMapWhileIO<B>(Func<A, B> f, Func<(B State, A Value), bool> predicate)
+        where B : Monoid<B> =>
+        FoldWhileIO(x => a => f(x).Combine(a), predicate, B.Empty);
+
+    /// <summary>
+    /// Map each element of the structure into a monoid, and combine the
+    /// results with `Append`.  This fold is right-associative and lazy in the
+    /// accumulator.  For strict left-associative folds consider `FoldMapBack`
+    /// instead.
+    /// </summary>
+    public B FoldMapUntil<B>(Func<A, B> f, Func<(B State, A Value), bool> predicate)
+        where B : Monoid<B> =>
+        FoldMapUntilIO(f, predicate).Run();
+
+    /// <summary>
+    /// Map each element of the structure into a monoid, and combine the
+    /// results with `Append`.  This fold is right-associative and lazy in the
+    /// accumulator.  For strict left-associative folds consider `FoldMapBack`
+    /// instead.
+    /// </summary>
+    public IO<B> FoldMapUntilIO<B>(Func<A, B> f, Func<(B State, A Value), bool> predicate)
+        where B : Monoid<B> =>
+        FoldUntilIO(x => a => f(x).Combine(a), predicate, B.Empty);
+    
     /// <summary>
     /// Returns true if the sequence has items in it
     /// </summary>
@@ -387,12 +903,30 @@ public class Iterable<A> :
     [Pure]
     public Iterable<A> Intersperse(A value)
     {
-        return new IterableEnumerable<A>(Yield());
-        IEnumerable<A> Yield()
+        return IsAsync
+                   ? new IterableAsyncEnumerable<A>(IO.lift(goAsync))
+                   : new IterableEnumerable<A>(IO.lift(goSync));
+        
+        IEnumerable<A> goSync(EnvIO env)
+        {
+            var isFirst = true;
+            foreach(var item in AsEnumerable(env.Token))
+            {
+                if (!isFirst)
+                {
+                    yield return value;
+                }
+
+                yield return item;
+                isFirst = false;
+            }
+        }
+        
+        async IAsyncEnumerable<A> goAsync(EnvIO env)
         {
             {
                 var isFirst = true;
-                foreach(var item in AsEnumerable())
+                await foreach(var item in AsAsyncEnumerable(env.Token))
                 {
                     if (!isFirst)
                     {
@@ -407,10 +941,20 @@ public class Iterable<A> :
     }
 
     [Pure]
+    public IO<int> CompareToIO(object? obj) =>
+        obj is Iterable<A> rhs
+            ? CompareToIO(rhs)
+            : IO.pure(1);
+
+    [Pure]
     public int CompareTo(object? obj) =>
         obj is Iterable<A> rhs
             ? CompareTo(rhs)
             : 1;
+
+    [Pure]
+    public IO<int> CompareToIO(Iterable<A>? other) =>
+        CompareToIO<OrdDefault<A>>(other);
 
     [Pure]
     public int CompareTo(Iterable<A>? other) =>
@@ -420,32 +964,69 @@ public class Iterable<A> :
     /// Compare to another sequence
     /// </summary>
     [Pure]
-    public virtual int CompareTo<OrdA>(Iterable<A>? rhs) 
+    public IO<int> CompareToIO<OrdA>(Iterable<A>? rhs) 
         where OrdA : Ord<A>
     {
-        if (rhs is null) return 1;        
-        using var iterA = GetEnumerator();
-        using var iterB = rhs.AsEnumerable().GetEnumerator();
-        while (iterA.MoveNext())
-        {
-            if (iterB.MoveNext())
-            {
-                var cmp = OrdA.Compare(iterA.Current, iterB.Current);
-                if (cmp != 0) return cmp;
-            }
-            else
-            {
-                return 1;
-            }
-        }
+        if (rhs is null) return IO.pure(1);
 
-        if (iterB.MoveNext())
-        {
-            return -1;
-        }
+        return IsAsync || rhs.IsAsync
+                   ? IO.liftVAsync(async env =>
+                                   {
+                                       var iterA = GetAsyncEnumerator(env.Token);
+                                       var iterB = rhs.GetAsyncEnumerator(env.Token);
+                                       while (await iterA.MoveNextAsync())
+                                       {
+                                           if (await iterB.MoveNextAsync())
+                                           {
+                                               var cmp = OrdA.Compare(iterA.Current, iterB.Current);
+                                               if (cmp != 0) return cmp;
+                                           }
+                                           else
+                                           {
+                                               return 1;
+                                           }
+                                       }
 
-        return 0;
+                                       if (await iterB.MoveNextAsync())
+                                       {
+                                           return -1;
+                                       }
+
+                                       return 0;
+                                   })
+                   : IO.lift(env =>
+                             {
+                                 using var iterA = AsEnumerable(env.Token).GetEnumerator();
+                                 using var iterB = rhs.AsEnumerable(env.Token).GetEnumerator();
+                                 while (iterA.MoveNext())
+                                 {
+                                     if (iterB.MoveNext())
+                                     {
+                                         var cmp = OrdA.Compare(iterA.Current, iterB.Current);
+                                         if (cmp != 0) return cmp;
+                                     }
+                                     else
+                                     {
+                                         return 1;
+                                     }
+                                 }
+
+                                 if (iterB.MoveNext())
+                                 {
+                                     return -1;
+                                 }
+
+                                 return 0;
+                             });
     }
+
+    /// <summary>
+    /// Compare to another sequence
+    /// </summary>
+    [Pure]
+    public int CompareTo<OrdA>(Iterable<A>? rhs) 
+        where OrdA : Ord<A> =>
+        CompareToIO<OrdA>(rhs).Run();
 
     /// <summary>
     /// Format the collection as `[a, b, c, ...]`
@@ -455,55 +1036,55 @@ public class Iterable<A> :
     /// </summary>
     [Pure]
     public override string ToString() =>
-        CollectionFormat.ToShortArrayString(AsEnumerable());
+        ToStringIO().Run();
+
+    /// <summary>
+    /// Format the collection as `[a, b, c, ...]`
+    /// The ellipsis is used for collections over 50 items
+    /// To get a formatted string with all the items, use `ToFullString`
+    /// or `ToFullArrayString`.
+    /// </summary>
+    [Pure]
+    public virtual IO<string> ToStringIO() =>
+        // TODO: Replace with FoldIO
+        AsEnumerableIO().Map(xs => CollectionFormat.ToShortArrayString(xs));
 
     /// <summary>
     /// Format the collection as `a, b, c, ...`
     /// </summary>
     [Pure]
-    public virtual string ToFullString(string separator = ", ") =>
-        CollectionFormat.ToFullString(AsEnumerable(), separator);
+    public string ToFullString(string separator = ", ") =>
+        ToFullStringIO(separator).Run();
+
+    /// <summary>
+    /// Format the collection as `a, b, c, ...`
+    /// </summary>
+    [Pure]
+    public virtual IO<string> ToFullStringIO(string separator = ", ") =>
+        // TODO: Replace with FoldIO
+        AsEnumerableIO().Map(xs => CollectionFormat.ToFullString(xs, separator));
 
     /// <summary>
     /// Format the collection as `[a, b, c, ...]`
     /// </summary>
     [Pure]
-    public virtual string ToFullArrayString(string separator = ", ") =>
-        CollectionFormat.ToFullArrayString(AsEnumerable(), separator);
+    public string ToFullArrayString(string separator = ", ") =>
+        ToFullArrayStringIO(separator).Run();
 
     /// <summary>
-    /// Equality test
+    /// Format the collection as `[a, b, c, ...]`
     /// </summary>
     [Pure]
-    public virtual bool Equals<EqA>(Iterable<A> rhs) where EqA : Eq<A>
-    {
-        if (ReferenceEquals(this, rhs)) return true;
-        using var iterA = GetEnumerator();
-        using var iterB = rhs.AsEnumerable().GetEnumerator();
-        while (iterA.MoveNext())
-        {
-            if (iterB.MoveNext())
-            {
-                if(!EqA.Equals(iterA.Current, iterB.Current)) return false;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        if (iterB.MoveNext())
-        {
-            return false;
-        }
-        return true;
-    }
+    public virtual IO<string> ToFullArrayStringIO(string separator = ", ") =>
+        // TODO: Replace with FoldIO
+        AsEnumerableIO().Map(xs => CollectionFormat.ToFullArrayString(AsEnumerable(), separator));
 
     /// <summary>
     /// Tail of the iterable
     /// </summary>
     public Iterable<A> Tail =>
         Skip(1);
-    
+
     /// <summary>
     /// Skip count items
     /// </summary>
@@ -511,7 +1092,9 @@ public class Iterable<A> :
     public Iterable<A> Skip(int amount) =>
         amount < 1
             ? this
-            : new IterableEnumerable<A>(AsEnumerable().Skip(amount));
+            : IsAsync
+                ? new IterableEnumerable<A>(AsEnumerableIO().Map(xs => xs.Skip(amount)))
+                : new IterableAsyncEnumerable<A>(AsAsyncEnumerableIO().Map(xs => xs.Skip(amount)));
 
     /// <summary>
     /// Take count items
@@ -520,7 +1103,9 @@ public class Iterable<A> :
     public Iterable<A> Take(int amount) =>
         amount < 1
             ? Empty
-            : new IterableEnumerable<A>(AsEnumerable().Take(amount));
+            : IsAsync
+                ? new IterableEnumerable<A>(AsEnumerableIO().Map(xs => xs.Take(amount)))
+                : new IterableAsyncEnumerable<A>(AsAsyncEnumerableIO().Map(xs => xs.Take(amount)));
 
     /// <summary>
     /// Iterate the sequence, yielding items if they match the predicate 
@@ -531,20 +1116,32 @@ public class Iterable<A> :
     [Pure]
     public Iterable<A> TakeWhile(Func<A, bool> pred)
     {
-        return new IterableEnumerable<A>(Yield(AsEnumerable(), pred));
-        IEnumerable<A> Yield(IEnumerable<A> xs, Func<A, bool> f)
+        return IsAsync
+                   ? new IterableAsyncEnumerable<A>(IO.lift(async))
+                   : new IterableEnumerable<A>(IO.lift(sync));
+            
+        IEnumerable<A> sync(EnvIO env)
         {
-            foreach (var x in xs)
+            foreach (var x in AsEnumerable(env.Token))
             {
-                if (!f(x)) break;
+                if (!pred(x)) break;
                 yield return x;
             }
         }
+            
+        async IAsyncEnumerable<A> async(EnvIO env)
+        {
+            await foreach (var x in AsAsyncEnumerable(env.Token))
+            {
+                if (!pred(x)) break;
+                yield return x;
+            }
+        }        
     }
 
     /// <summary>
     /// Iterate the sequence, yielding items if they match the predicate 
-    /// provided, and stopping as soon as one doesn't.  An index value is 
+    /// provided; and stopping as soon as one doesn't.  An index value is 
     /// also provided to the predicate function.
     /// </summary>
     /// <returns>A new sequence with the first items that match the 
@@ -552,42 +1149,91 @@ public class Iterable<A> :
     [Pure]
     public Iterable<A> TakeWhile(Func<A, int, bool> pred)
     {
-        return new IterableEnumerable<A>(Yield(AsEnumerable(), pred));
-        IEnumerable<A> Yield(IEnumerable<A> xs, Func<A, int, bool> f)
+        return IsAsync
+                   ? new IterableAsyncEnumerable<A>(IO.lift(async))
+                   : new IterableEnumerable<A>(IO.lift(sync));
+            
+        IEnumerable<A> sync(EnvIO env)
         {
-            var i = 0;
-            foreach (var x in xs)
+            var ix = 0;
+            foreach (var x in AsEnumerable(env.Token))
             {
-                if (!f(x, i)) break;
+                if (!pred(x, ix++)) break;
                 yield return x;
-                i++;
             }
         }
+            
+        async IAsyncEnumerable<A> async(EnvIO env)
+        {
+            var ix = 0;
+            await foreach (var x in AsAsyncEnumerable(env.Token))
+            {
+                if (!pred(x, ix++)) break;
+                yield return x;
+            }
+        }        
     }
 
-    [Pure]
     /// <summary>
     /// Partition a list into two based on  a predicate
     /// </summary>
     /// <param name="predicate">True if the item goes in the first list, false for the second list</param>
     /// <returns>Pair of lists</returns>
-    public (Iterable<A> First, Iterable<A> Second) Partition(Func<A, bool> predicate)
+    [Pure]
+    public IO<(Iterable<A> First, Iterable<A> Second)> PartitionIO(Func<A, bool> predicate)
     {
-        var f = List<A>();
-        var s = List<A>();
-        foreach (var item in AsEnumerable())
+        return IsAsync
+                   ? IO.liftVAsync(async)
+                   : IO.lift(sync);
+        
+        async ValueTask<(Iterable<A> First, Iterable<A> Second)> async(EnvIO env)
         {
-            if (predicate(item))
+            Iterable<A> f = new IterableStrict<A>(SeqStrict<A>.Empty);
+            Iterable<A> s = new IterableStrict<A>(SeqStrict<A>.Empty);
+
+            await foreach (var item in AsAsyncEnumerable(env.Token))
             {
-                f = f.Add(item);
+                if (predicate(item))
+                {
+                    f = f.Add(item);
+                }
+                else
+                {
+                    s = s.Add(item);
+                }
             }
-            else
-            {
-                s = s.Add(item);
-            }
+            return (f, s);
         }
-        return (new IterableEnumerable<A>(f), new IterableEnumerable<A>(s));
+ 
+        (Iterable<A> First, Iterable<A> Second) sync(EnvIO env)
+        {
+            Iterable<A> f = new IterableStrict<A>(SeqStrict<A>.Empty);
+            Iterable<A> s = new IterableStrict<A>(SeqStrict<A>.Empty);
+
+            foreach (var item in AsEnumerable(env.Token))
+            {
+                if (predicate(item))
+                {
+                    f = f.Add(item);
+                }
+                else
+                {
+                    s = s.Add(item);
+                }
+            }
+
+            return (f, s);
+        }
     }
+
+    /// <summary>
+    /// Partition a list into two based on  a predicate
+    /// </summary>
+    /// <param name="predicate">True if the item goes in the first list, false for the second list</param>
+    /// <returns>Pair of lists</returns>
+    [Pure]
+    public (Iterable<A> First, Iterable<A> Second) Partition(Func<A, bool> predicate) =>
+        PartitionIO(predicate).Run();
     
     /// <summary>
     /// Cast items to another type
@@ -596,35 +1242,22 @@ public class Iterable<A> :
     /// Any item in the sequence that can't be cast to a `B` will be dropped from the result 
     /// </remarks>
     [Pure]
-    public Iterable<B> Cast<B>()
-    {
-        var seq = AsEnumerable();
-        return seq is IEnumerable<B> mb
-                   ? new IterableEnumerable<B>(mb)
-                   : new IterableEnumerable<B>(Yield(seq));
-        
-        IEnumerable<B> Yield(IEnumerable<A> ma)
-        {
-            foreach (object? item in ma.AsEnumerable())
-            {
-                if (item is B b) yield return b;
-            }
-        }
-    }
+    public Iterable<B> Cast<B>() =>
+        new IterableCast<A, B>(this);
 
     /// <summary>
     /// Zip two iterables into pairs
     /// </summary>
     [Pure]
     public Iterable<(A First, B Second)> Zip<B>(Iterable<B> rhs) =>
-        new IterableEnumerable<(A First, B Second)>(AsEnumerable().Zip(rhs.AsEnumerable()));
+        new IterableZip<A, B>(this, rhs);
 
     /// <summary>
     /// Zip two iterables into pairs
     /// </summary>
     [Pure]
     public Iterable<C> Zip<B, C>(Iterable<B> rhs, Func<A, B, C> zipper) =>
-        new IterableEnumerable<C>(AsEnumerable().Zip(rhs.AsEnumerable(), zipper));
+        Zip(rhs).Map(pair => zipper(pair.First, pair.Second));
 
 
     /// <summary>
@@ -632,7 +1265,7 @@ public class Iterable<A> :
     /// </summary>
     [Pure]
     public static Iterable<A> Empty => 
-        new IterableEnumerable<A>(Enumerable.Empty<A>());
+        IterableNil<A>.Default;
 
     /// <summary>
     /// Append operator
@@ -642,12 +1275,42 @@ public class Iterable<A> :
         x.Concat(y);
 
     /// <summary>
+    /// Append operator
+    /// </summary>
+    [Pure]
+    public static Iterable<A> operator +(A x, Iterable<A> y) =>
+        x.Cons(y);
+
+    /// <summary>
+    /// Append operator
+    /// </summary>
+    [Pure]
+    public static Iterable<A> operator +(Iterable<A> x, A y) =>
+        x.Add(y);
+
+    /// <summary>
+    /// If this sequence is empty, return the other sequence, otherwise return this sequence.
+    /// </summary>
+    /// <param name="rhs">Right hand side of the operator</param>
+    /// <returns>A choice between two sequences based</returns>
+    [Pure]
+    public abstract Iterable<A> Choose(Iterable<A> rhs);
+
+    /// <summary>
+    /// If this sequence is empty, return the other sequence, otherwise return this sequence.
+    /// </summary>
+    /// <param name="rhs">Right hand side of the operator</param>
+    /// <returns>A choice between two sequences based</returns>
+    [Pure]
+    public abstract Iterable<A> Choose(Memo<Iterable, A> rhs);
+    
+    /// <summary>
     /// Choice operator
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Iterable<A> operator |(Iterable<A> x, K<Iterable, A> y) =>
-        x.Choose(y).As();
+        x.Choose(+y);
 
     /// <summary>
     /// Choice operator
@@ -655,7 +1318,15 @@ public class Iterable<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Iterable<A> operator |(K<Iterable, A> x, Iterable<A> y) =>
-        x.Choose(y).As();
+        x.As().Choose(y);
+    
+    /// <summary>
+    /// Choice operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Iterable<A> operator |(Iterable<A> x, Memo<Iterable, A> y) =>
+        x.Choose(y);
 
     /// <summary>
     /// Ordering operator
@@ -749,7 +1420,7 @@ public class Iterable<A> :
     /// <returns>Flat-mapped sequence</returns>
     [Pure]
     public Iterable<B> SelectMany<B>(Func<A, IEnumerable<B>> bind) =>
-        Bind(bind);
+        Bind(x => bind(x).AsIterable());
 
     /// <summary>
     /// Monadic bind (flatmap) of the sequence
@@ -759,7 +1430,7 @@ public class Iterable<A> :
     /// <returns>Flat-mapped sequence</returns>
     [Pure]
     public Iterable<C> SelectMany<B, C>(Func<A, IEnumerable<B>> bind, Func<A, B, C> project) =>
-        Bind(x => new IterableEnumerable<B>(bind(x)).Map(y => project(x, y)));
+        Bind(x => bind(x).AsIterable().Map(y => project(x, y)));
 
     [Pure]
     public IEnumerator<A> GetEnumerator() =>

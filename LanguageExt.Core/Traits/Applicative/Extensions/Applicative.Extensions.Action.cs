@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Numerics;
 using LanguageExt.Traits;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -18,11 +15,6 @@ public static partial class ApplicativeExtensions
 
     [Pure]
     public static K<F, A> Actions<F, A>(this IterableNE<K<F, A>> ma)
-        where F : Applicative<F> =>
-        F.Actions(ma);
-    
-    [Pure]
-    public static K<F, A> Actions<F, A>(this IAsyncEnumerable<K<F, A>> ma)
         where F : Applicative<F> =>
         F.Actions(ma);
 }

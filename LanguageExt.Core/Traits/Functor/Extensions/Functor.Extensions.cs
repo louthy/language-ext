@@ -79,7 +79,7 @@ public static partial class FunctorExtensions
         /// </remarks>
         /// <param name="value">Ignore the bound value and map to this</param>
         /// <returns>Mapped functor</returns>
-        public K<Fnctr, B> Map<B>(B value) =>
+        public K<Fnctr, B> ConstMap<B>(B value) =>
             Fnctr.ConstMap(value, ma);
 
         /// <summary>

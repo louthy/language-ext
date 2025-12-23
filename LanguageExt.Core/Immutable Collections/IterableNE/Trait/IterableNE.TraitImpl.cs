@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -8,7 +6,6 @@ namespace LanguageExt;
 
 public partial class IterableNE : 
     Monad<IterableNE>, 
-    Choice<IterableNE>, 
     SemigroupK<IterableNE>,
     Foldable<IterableNE>,
     NaturalMono<IterableNE, Arr>,
@@ -30,44 +27,14 @@ public partial class IterableNE :
     static K<IterableNE, A> Applicative<IterableNE>.Pure<A>(A value) =>
         singleton(value);
 
-    static K<IterableNE, B> Applicative<IterableNE>.Apply<A, B>(K<IterableNE, Func<A, B>> mf, K<IterableNE, A> ma)
-    {
-        return createRangeUnsafe(go());        
-        IEnumerable<B> go()
-        {
-            foreach (var f in mf.As())
-            {
-                foreach (var a in ma.As())
-                {
-                    yield return f(a); 
-                }
-            }
-        }
-    }
+    static K<IterableNE, B> Applicative<IterableNE>.Apply<A, B>(K<IterableNE, Func<A, B>> mf, K<IterableNE, A> ma) =>
+        mf >>> ma.Map;
 
-    static K<IterableNE, B> Applicative<IterableNE>.Apply<A, B>(K<IterableNE, Func<A, B>> mf, Memo<IterableNE, A> ma)
-    {
-        return createRangeUnsafe(go());        
-        IEnumerable<B> go()
-        {
-            foreach (var f in mf.As())
-            {
-                foreach (var a in ma.Value.As())
-                {
-                    yield return f(a); 
-                }
-            }
-        }
-    }
+    static K<IterableNE, B> Applicative<IterableNE>.Apply<A, B>(K<IterableNE, Func<A, B>> mf, Memo<IterableNE, A> ma) =>
+        mf >>> ma.Map;
 
     static K<IterableNE, A> SemigroupK<IterableNE>.Combine<A>(K<IterableNE, A> ma, K<IterableNE, A> mb) =>
         ma.As().Concat(mb.As());
-
-    static K<IterableNE, A> Choice<IterableNE>.Choose<A>(K<IterableNE, A> ma, K<IterableNE, A> mb) => 
-        ma.IsEmpty ? mb : ma;
-    
-    static K<IterableNE, A> Choice<IterableNE>.Choose<A>(K<IterableNE, A> ma, Memo<IterableNE, A> mb) => 
-        ma.IsEmpty ? mb.Value : ma;
     
     static S Foldable<IterableNE>.FoldWhile<A, S>(
         Func<A, Func<S, S>> f,
@@ -81,7 +48,7 @@ public partial class IterableNE :
         Func<(S State, A Value), bool> predicate, 
         S state, 
         K<IterableNE, A> ta) =>
-        ta.As().FoldBackWhile(f, predicate, state);
+        throw new NotSupportedException("FoldBack* is currently not supported for IterableNE");
     
     static Arr<A> Foldable<IterableNE>.ToArr<A>(K<IterableNE, A> ta) =>
         new(ta.As());

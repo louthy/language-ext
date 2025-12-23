@@ -603,8 +603,8 @@ public record Eff<A>(Eff<MinRT, A> effect) :
                               var mnext = await f(value).As().RunAsync(rt, env);
                               if (mnext.IsFail) return Fin.Fail<B>(mnext.FailValue);
                               var next = (Next<X, B>)mnext;
-                              if (next.IsDone) return Fin.Succ(next.DoneValue);
-                              value = next.ContValue;
+                              if (next.IsDone) return Fin.Succ(next.Done);
+                              value = next.Loop;
                           }
                       });
     

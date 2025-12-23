@@ -29,8 +29,8 @@ public partial class Eff :
                         var mnext = await f(value).As().RunAsync(env);
                         if (mnext.IsFail) return Fin.Fail<B>(mnext.FailValue);
                         var next = (Next<A, B>)mnext;
-                        if (next.IsDone) return Fin.Succ(next.DoneValue);
-                        value = next.ContValue;
+                        if (next.IsDone) return Fin.Succ(next.Done);
+                        value = next.Loop;
                     }
                 });
 
@@ -47,7 +47,7 @@ public partial class Eff :
         new Eff<B>(mf.As().effect.Apply(Memo.transform<Eff, Eff<MinRT>, A>(ma)).As());
 
     static K<Eff, A> Applicative<Eff>.Actions<A>(IterableNE<K<Eff, A>> fas) => 
-        new Eff<A>(fas.Select(fa => fa.As().effect).Actions().As()); 
+        new Eff<A>(fas.Map(fa => fa.As().effect).Actions().As()); 
 
     static K<Eff, A> Applicative<Eff>.Actions<A>(IAsyncEnumerable<K<Eff, A>> fas) => 
         new Eff<A>(fas.Select(fa => fa.As().effect).Actions().As()); 
