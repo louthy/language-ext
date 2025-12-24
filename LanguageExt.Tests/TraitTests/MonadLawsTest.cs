@@ -17,6 +17,10 @@ public class MonadLawsTest
         MonadLaw<Iterable>.assert();
     
     [Fact]
+    public void IterableNE() =>
+        MonadLaw<IterableNE>.assert();
+    
+    [Fact]
     public void Lst() =>
         MonadLaw<Lst>.assert();
     

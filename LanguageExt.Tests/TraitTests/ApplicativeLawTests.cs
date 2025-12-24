@@ -16,6 +16,10 @@ public class ApplicativeFunctorLawTests
         ApplicativeLaw<Iterable>.assert();
     
     [Fact]
+    public void IterableNE() =>
+        ApplicativeLaw<IterableNE>.assert();
+    
+    [Fact]
     public void Lst() =>
         ApplicativeLaw<Lst>.assert();
     

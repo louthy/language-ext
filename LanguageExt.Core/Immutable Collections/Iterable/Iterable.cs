@@ -421,8 +421,71 @@ public abstract class Iterable<A> :
                 state.Bind(
                     bs => f(value).Bind(
                         b => F.Pure(bs.Add(b)))); 
-    }    
-    
+    }
+
+    /// <summary>
+    /// Monadic bind (flatmap) of the sequence
+    /// </summary>
+    /// <typeparam name="B">Bound return value type</typeparam>
+    /// <param name="f">Bind function</param>
+    /// <returns>Flat-mapped sequence</returns>
+    [Pure]
+    public Iterable<B> Bind<B>(Func<A, K<Iterable, B>> f)
+    {
+        return IsAsync
+                   ? new IterableAsyncEnumerable<B>(IO.lift(async))
+                   : new IterableAsyncEnumerable<B>(IO.lift(sync));
+
+        async IAsyncEnumerable<B> async(EnvIO env)
+        {
+            await foreach (var a in AsAsyncEnumerable(env.Token))
+            {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                var mb = +f(a);
+                if (mb.IsAsync)
+                {
+                    await foreach (var b in mb.AsAsyncEnumerable(env.Token))
+                    {
+                        if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                        yield return b;
+                    }
+                }
+                else
+                {
+                    foreach (var b in mb.AsEnumerable(env.Token))
+                    {
+                        if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                        yield return b;
+                    }
+                }
+            }
+        }
+        async IAsyncEnumerable<B> sync(EnvIO env)
+        {
+            foreach (var a in AsEnumerable(env.Token))
+            {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                var mb = +f(a);
+                if (mb.IsAsync)
+                {
+                    await foreach (var b in mb.AsAsyncEnumerable(env.Token))
+                    {
+                        if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                        yield return b;
+                    }
+                }
+                else
+                {
+                    foreach (var b in mb.AsEnumerable(env.Token))
+                    {
+                        if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                        yield return b;
+                    }
+                }
+            }
+        }
+    }
+
     /// <summary>
     /// Monadic bind (flatmap) of the sequence
     /// </summary>
