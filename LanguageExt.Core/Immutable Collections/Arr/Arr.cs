@@ -99,35 +99,85 @@ public readonly struct Arr<A> :
         this.length = length;
     }
     
+    /// <summary>
+    /// Create a readonly span of this array.  This doesn't do any copying, so it is very fast.   
+    /// </summary>
+    /// <param name="start">Offset from the beginning of the array</param>
+    /// <param name="count">The number of items to take. This will be clamped
+    /// to the maximum number of items available</param>
+    /// <returns>A read-only span of values</returns>
+    /// <exception cref="IndexOutOfRangeException">Thrown If the start index is outside the range of the array</exception>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlySpan<A> AsSpan() =>
         new (Value, start, length);
 
+    /// <summary>
+    /// Create a readonly sub-span of this array.  This doesn't do any copying, so is very fast, but be aware that any
+    /// items outside the splice are still active.   
+    /// </summary>
+    /// <param name="start">Offset from the beginning of the array</param>
+    /// <returns>A read-only span of values</returns>
+    /// <exception cref="IndexOutOfRangeException">Thrown If the start index is outside the range of the array</exception>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ReadOnlySpan<A> AsSpan(int start, int length) =>
-        start <= this.length
-            ? start + length <= this.length
-                ? new(Value, this.start + start, length)
-                : throw new IndexOutOfRangeException(nameof(length))
-            : throw new IndexOutOfRangeException(nameof(start));
+    public ReadOnlySpan<A> AsSpan(int start)
+    {
+        if (start < 0 || start >= length) throw new IndexOutOfRangeException(nameof(start));
+        var t = Math.Max(0, length - start);
+        return new(Value, this.start + start, t);
+    }
 
     /// <summary>
-    /// Create a sub-array of this array.  This doesn't do any copying, so is very fast, but be aware that any items
-    /// outside of the splice are still active.   
+    /// Create a readonly sub-span of this array.  This doesn't do any copying, so is very fast, but be aware that any
+    /// items outside the splice are still active.   
     /// </summary>
-    /// <param name="startOffset">Offset from the current start position.</param>
-    /// <param name="take">The number of items to take</param>
-    /// <returns></returns>
-    /// <exception cref="IndexOutOfRangeException"></exception>
+    /// <param name="start">Offset from the beginning of the array</param>
+    /// <param name="count">The number of items to take. This will be clamped to the maximum number of items available</param>
+    /// <returns>A read-only span of values</returns>
+    /// <exception cref="IndexOutOfRangeException">Thrown If the start index is outside the range of the array</exception>
     [Pure]
-    public Arr<A> Splice(int startOffset, int take)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ReadOnlySpan<A> AsSpan(int start, int count)
+    {
+        if (start < 0 || start >= length) throw new IndexOutOfRangeException(nameof(start));
+        var t = Math.Max(0, Math.Min(count, length - start));
+        return new(Value, this.start + start, t);
+    }
+    
+    /// <summary>
+    /// Create a subarray of this array.  This doesn't do any copying, so is very fast, but be aware that any items
+    /// outside the splice are still active.   
+    /// </summary>
+    /// <param name="start">Offset from the beginning of the array</param>
+    /// <returns></returns>
+    /// <exception cref="IndexOutOfRangeException">Thrown If the start index is outside the range of the array</exception>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Arr<A> Splice(int start)
     {
         var arr = Value;
-        if (startOffset < 0 || startOffset        >= length) throw new IndexOutOfRangeException(nameof(startOffset));
-        if (take        < 0 || startOffset + take > length) throw new IndexOutOfRangeException(nameof(take));
-        return new Arr<A>(arr, start + startOffset, take);   
+        if (start < 0 || start >= length) throw new IndexOutOfRangeException(nameof(start));
+        var t = Math.Max(0, length - start);
+        return new Arr<A>(arr, this.start + start, t);   
+    }
+    
+    /// <summary>
+    /// Create a subarray of this array.  This doesn't do any copying, so is very fast, but be aware that any items
+    /// outside the splice are still active.   
+    /// </summary>
+    /// <param name="start">Offset from the beginning of the array</param>
+    /// <param name="count">The number of items to take. This will be clamped to the maximum number of items available</param>
+    /// <returns></returns>
+    /// <exception cref="IndexOutOfRangeException">Thrown If the start index is outside the range of the array</exception>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Arr<A> Splice(int start, int count)
+    {
+        var arr = Value;
+        if (start < 0 || start >= length) throw new IndexOutOfRangeException(nameof(start));
+        var t = Math.Max(0, Math.Min(count, length - start));
+        return new Arr<A>(arr, this.start + start, t);   
     }
     
     [Pure]

@@ -17,6 +17,26 @@ public static partial class IterableNEExtensions
     [Pure]
     public static Option<IterableNE<A>> AsIterableNE<A>(this IEnumerable<A> xs) =>
         IterableNE.createRange(xs);
+
+    [Pure]
+    public static IO<IterableNE<A>> AsIterableNE<A>(this IAsyncEnumerable<A> xs) =>
+        IterableNE.createRange(xs);
+
+    [Pure]
+    public static Option<IterableNE<A>> AsIterableNE<A>(this Seq<A> xs) =>
+        xs.Head.Map(h => new IterableNE<A>(h, xs.Tail.AsIterable()));
+
+    [Pure]
+    public static Option<IterableNE<A>> AsIterableNE<A>(this Arr<A> xs) =>
+        xs.IsEmpty
+            ? None
+            : new IterableNE<A>(xs[0], xs.Splice(1).AsIterable());
+
+    [Pure]
+    public static Option<IterableNE<A>> AsIterableNE<A>(this Lst<A> xs) =>
+        xs.IsEmpty
+            ? None
+            : new IterableNE<A>(xs[0], xs.Skip(1));
     
     /// <summary>
     /// Monadic join
