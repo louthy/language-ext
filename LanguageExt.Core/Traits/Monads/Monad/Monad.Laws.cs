@@ -76,7 +76,7 @@ public static class MonadLaw<F>
         K<F, Next<(int Total, Seq<int> Values), int>> rec((int Total, Seq<int> Values) pair) =>
             pair.Values switch
             {
-                [var x]     => F.Pure(Next.Done<(int, Seq<int>), int>(x)),
+                []          => F.Pure(Next.Done<(int, Seq<int>), int>(pair.Total)),
                 var (x, xs) => F.Pure(Next.Loop<(int, Seq<int>), int>((pair.Total + x, xs))) 
             };
 
@@ -84,7 +84,7 @@ public static class MonadLaw<F>
             values switch
             {
                 [var x]     => F.Pure(x),
-                var (x, xs) => bind(xs.Tail) * (t => x + t)
+                var (x, xs) => bind(xs) * (t => x + t)
             };
     }
 
