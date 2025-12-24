@@ -34,6 +34,10 @@ public record IterableNE<A>(A Head, Iterable<A> Tail) :
         if (ma.IsEmpty) throw new ArgumentException("Cannot create an IterableNE from an empty span");
         return new IterableNE<A>(ma[0], Iterable<A>.FromSpan(ma.Slice(1)));
     }
+    
+    [Pure]
+    internal bool IsAsync =>
+        Tail.IsAsync;
 
     /// <summary>
     /// Number of items in the sequence.

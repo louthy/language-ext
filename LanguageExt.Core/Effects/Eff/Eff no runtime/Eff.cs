@@ -561,12 +561,7 @@ public record Eff<A>(Eff<MinRT, A> effect) :
     static K<Eff<A>, T> Applicative<Eff<A>>.Actions<T>(IterableNE<K<Eff<A>, T>> fas) =>
         new Eff<A, T>(
             new ReaderT<A, IO, T>(
-                rt => fas.Select(fa => fa.RunIO(rt)).Actions())); 
-
-    static K<Eff<A>, T> Applicative<Eff<A>>.Actions<T>(IAsyncEnumerable<K<Eff<A>, T>> fas) =>
-        new Eff<A, T>(
-            new ReaderT<A, IO, T>(
-                rt => fas.Select(fa => fa.RunIO(rt)).Actions())); 
+                rt => fas.Select(fa => fa.RunIO(rt).Kind()).Actions())); 
     
     static K<Eff<A>, T> MonoidK<Eff<A>>.Empty<T>() =>
         Eff<A, T>.Fail(Errors.None);

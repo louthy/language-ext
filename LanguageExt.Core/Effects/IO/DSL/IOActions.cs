@@ -5,7 +5,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt.DSL;
 
-record IOActions<A, B>(Iterator<K<IO, A>> Fas, Func<A, IO<B>> Next) : InvokeSyncIO<B>
+record IOActions<A, B>(IterableNE<K<IO, A>> Fas, Func<A, IO<B>> Next) : InvokeSyncIO<B>
 {
     public override IO<C> Map<C>(Func<B, C> f) => 
         new IOActions<A, C>(Fas, x => Next(x).Map(f));
@@ -18,22 +18,16 @@ record IOActions<A, B>(Iterator<K<IO, A>> Fas, Func<A, IO<B>> Next) : InvokeSync
 
     public override IO<B> Invoke(EnvIO envIO)
     {
-        if (Fas.IsEmpty)
+        var iter = Fas.GetIterator();
+        var head = iter.Head;
+        var task = head.RunAsync(envIO);
+        if (task.IsCompleted)
         {
-            return IO.fail<B>(Error.New("Actions is empty"));
+            return new IOActionsSync<A, B>(task.Result, iter.Tail.Split(), Next);
         }
         else
         {
-            var head = Fas.Head;
-            var task = head.RunAsync(envIO);
-            if (task.IsCompleted)
-            {
-                return new IOActionsSync<A, B>(task.Result, Fas.Tail.Split(), Next);
-            }
-            else
-            {
-                return new IOActionsAsync<A, B>(task, Fas.Tail.Split(), Next);
-            }
+            return new IOActionsAsync<A, B>(task, iter.Tail.Split(), Next);
         }
     }
 }

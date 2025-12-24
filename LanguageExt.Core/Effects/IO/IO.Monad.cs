@@ -47,10 +47,7 @@ public partial class IO :
         };
 
     static K<IO, A> Applicative<IO>.Actions<A>(IterableNE<K<IO, A>> fas) =>
-        new IOActions<A, A>(fas.Where(fa => fa is not IOEmpty<A>).GetIterator(), pure);
-
-    static K<IO, A> Applicative<IO>.Actions<A>(IAsyncEnumerable<K<IO, A>> fas) => 
-        new IOAsyncActions<A, A>(fas.FilterAsync(fa => fa is not IOEmpty<A>).GetIteratorAsync(), pure);
+        new IOActions<A, A>(fas, pure);
 
     static K<IO, B> Monad<IO>.Bind<A, B>(K<IO, A> ma, Func<A, K<IO, B>> f) =>
         ma switch

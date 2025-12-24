@@ -47,10 +47,7 @@ public partial class Eff :
         new Eff<B>(mf.As().effect.Apply(Memo.transform<Eff, Eff<MinRT>, A>(ma)).As());
 
     static K<Eff, A> Applicative<Eff>.Actions<A>(IterableNE<K<Eff, A>> fas) => 
-        new Eff<A>(fas.Map(fa => fa.As().effect).Actions().As()); 
-
-    static K<Eff, A> Applicative<Eff>.Actions<A>(IAsyncEnumerable<K<Eff, A>> fas) => 
-        new Eff<A>(fas.Select(fa => fa.As().effect).Actions().As()); 
+        new Eff<A>(fas.Map(fa => fa.As().effect.Kind()).Actions().As()); 
 
     static K<Eff, A> MonoidK<Eff>.Empty<A>() => 
         Eff<A>.Fail(Errors.None);
