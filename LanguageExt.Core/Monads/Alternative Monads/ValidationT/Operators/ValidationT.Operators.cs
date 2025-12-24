@@ -12,5 +12,11 @@ public static partial class ValidationTExtensions
         /// </summary>
         public static ValidationT<FF, M, A> operator +(K<ValidationT<FF, M>, A> ma) =>
             (ValidationT<FF, M, A>)ma;
+        
+        /// <summary>
+        /// Downcast operator
+        /// </summary>
+        public static ValidationT<FF, M, A> operator >> (K<ValidationT<FF, M>, A> ma, Lower lower) =>
+            +ma;
     }
 }

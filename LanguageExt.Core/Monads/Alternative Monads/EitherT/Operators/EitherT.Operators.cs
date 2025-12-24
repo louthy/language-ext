@@ -12,5 +12,11 @@ public static partial class EitherTExtensions
         /// </summary>
         public static EitherT<L, M, A> operator +(K<EitherT<L, M>, A> ma) =>
             (EitherT<L, M, A>)ma;
+        
+        /// <summary>
+        /// Downcast operator
+        /// </summary>
+        public static EitherT<L, M, A> operator >> (K<EitherT<L, M>, A> ma, Lower lower) =>
+            +ma;
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
+using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Traits;
 
@@ -212,11 +213,11 @@ public abstract record PipeT<IN, OUT, M, A> : K<PipeT<IN, OUT, M>, A>
     [Pure]
     internal virtual K<M, A> Run()
     {
-        var t = RunAsync();
+        var t = RunAsync(CancellationToken.None);
         if(t.IsCompleted) return t.Result;
         return t.GetAwaiter().GetResult();
     }
 
     [Pure]
-    internal abstract ValueTask<K<M, A>> RunAsync();
+    internal abstract ValueTask<K<M, A>> RunAsync(CancellationToken token);
 }

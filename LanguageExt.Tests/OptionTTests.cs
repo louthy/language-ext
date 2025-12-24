@@ -110,7 +110,7 @@ public class OptionTTests
                   from y in x.AsIterable()
                   select y.Value.ToLower();
 
-        var fd = res.AsIterable().Fold("", (s, x) => s + x);
+        var fd = res.Fold("", (s, x) => s + x);
 
         Assert.True(fd == "abcde");
     }

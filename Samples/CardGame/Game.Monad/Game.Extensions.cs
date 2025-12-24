@@ -4,20 +4,26 @@ namespace CardGame;
 
 public static class GameExtensions
 {
-    public static Game<A> As<A>(this K<Game, A> ma) =>
-        (Game<A>)ma;
+    extension<A>(K<Game, A> ma)
+    {
+        public Game<A> As() =>
+            (Game<A>)ma;
 
-    /// <summary>
-    /// Run the Game transformer down to the IO monad
-    /// </summary>
-    public static IO<Option<(A Value, GameState State)>> Run<A>(this K<Game, A> ma, GameState state) =>
-        ma.As().runGame.Run(state).As().Run().As();
-    
-    public static Game<C> SelectMany<A, B, C>(
-        this K<Game, A> ma,
-        Func<A, K<Game, B>> bind,
-        Func<A, B, C> project) =>
-        ma.As().SelectMany(bind, project);
+        /// <summary>
+        /// Run the Game transformer down to the IO monad
+        /// </summary>
+        public IO<Option<(A Value, GameState State)>> Run(GameState state) =>
+            ma.As().runGame.Run(state).As().Run().As();
+
+        public Game<C> SelectMany<B, C>(Func<A, K<Game, B>> bind, Func<A, B, C> project) =>
+            ma.As().SelectMany(bind, project);
+        
+        public static Game<A> operator + (K<Game, A> lhs) =>
+            (Game<A>)lhs;
+        
+        public static Game<A> operator >> (K<Game, A> lhs, Lower _) =>
+            (Game<A>)lhs;
+    }
 
     public static Game<C> SelectMany<A, B, C>(
         this K<IO, A> ma,
@@ -36,11 +42,4 @@ public static class GameExtensions
         Func<A, K<Game, B>> bind,
         Func<A, B, C> project) =>
         Game.Pure(ma.Value).SelectMany(bind, project);
-
-    extension<A>(K<Game, A> self)
-    {
-        public static Game<A> operator >>> (K<Game, A> ma, Lower _) =>
-            (Game<A>)ma;
-    }
-
 }

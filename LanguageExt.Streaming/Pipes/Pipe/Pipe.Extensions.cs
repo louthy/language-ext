@@ -4,7 +4,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
-public static class PipeExtensions
+public static partial class PipeExtensions
 {
     /// <summary>
     /// Downcast

@@ -12,5 +12,11 @@ public static partial class ChronicleTExtensions
         /// </summary>
         public static ChronicleT<Ch, M, A> operator +(K<ChronicleT<Ch, M>, A> ma) =>
             (ChronicleT<Ch, M, A>)ma;
+        
+        /// <summary>
+        /// Downcast operator
+        /// </summary>
+        public static ChronicleT<Ch, M, A> operator >> (K<ChronicleT<Ch, M>, A> ma, Lower lower) =>
+            +ma;
     }
 }

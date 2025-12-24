@@ -43,7 +43,7 @@ record ParsecTLift2<E, S, T, M, A>(Func<State<S, T, E>, K<M, Reply<E, S, T, A>>>
         ConsumedErr<E, S, T, M, B> cerr,
         EmptyOK<E, S, T, M, A, B> eok,
         EmptyErr<E, S, T, M, B> eerr) =>
-        F(s) >>> (f => f switch
+        F(s) >> (f => f switch
         {
             (var s1, true, var result) =>
                 result switch

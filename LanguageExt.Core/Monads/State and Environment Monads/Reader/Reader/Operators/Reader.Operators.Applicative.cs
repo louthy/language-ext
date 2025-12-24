@@ -18,13 +18,13 @@ public static partial class ReaderExtensions
         /// Applicative apply operator
         /// </summary>
         public static Reader<Env, B> operator * (K<Reader<Env>, Func<A, B>> mf, K<Reader<Env>, A> ma) =>
-            mf.Apply(ma);
+            +mf.Apply(ma);
         
         /// <summary>
         /// Applicative apply operator
         /// </summary>
         public static Reader<Env, B> operator * (K<Reader<Env>, A> ma, K<Reader<Env>, Func<A, B>> mf) =>
-            mf.Apply(ma);        
+            +mf.Apply(ma);        
     }
     
     extension<Env, A, B, C>(K<Reader<Env>, A> self)

@@ -11,5 +11,11 @@ public static partial class IdentityExtensions
         /// </summary>
         public static Identity<A> operator +(K<Identity, A> ma) =>
             (Identity<A>)ma;
+        
+        /// <summary>
+        /// Downcast operator
+        /// </summary>
+        public static Identity<A> operator >> (K<Identity, A> ma, Lower lower) =>
+            +ma;
     }
 }

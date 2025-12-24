@@ -103,7 +103,7 @@ public interface Alternative<F> : Choice<F>, Applicative<F>
     /// <returns></returns>
     [Pure]
     public static virtual K<F, Seq<A>> EndBy<A, SEP>(K<F, A> p, K<F, SEP> sep) =>
-        F.Many(p << sep);
+        F.Many(p.BackAction(sep));
     
     /// <summary>
     /// `endBy1(p, sep)` parses one-or-more occurrences of `p`, separated and ended by
@@ -116,7 +116,7 @@ public interface Alternative<F> : Choice<F>, Applicative<F>
     /// <returns></returns>
     [Pure]
     public static virtual K<F, Seq<A>> EndBy1<A, SEP>(K<F, A> p, K<F, SEP> sep) =>
-        F.Some(p << sep);
+        F.Some(p.BackAction(sep));
 
     /// <summary>
     /// Combine two alternatives
@@ -239,7 +239,7 @@ public interface Alternative<F> : Choice<F>, Applicative<F>
     /// <returns>List of values returned by `fa`</returns>
     [Pure]
     public static virtual K<F, Seq<A>> SepBy1<A, SEP>(K<F, A> fa, K<F, SEP> sep) =>
-        Applicative.lift(Seq.cons, fa, F.Many(sep >> fa));
+        Applicative.lift(Seq.cons, fa, F.Many(sep >>> fa));
 
     /// <summary>
     /// `sepEndBy(fa, sep) processes _zero_ or more occurrences of `fa`, separated
@@ -265,7 +265,7 @@ public interface Alternative<F> : Choice<F>, Applicative<F>
     /// <returns>List of values returned by `fa`</returns>
     [Pure]
     public static virtual K<F, Seq<A>> SepByEnd1<A, SEP>(K<F, A> fa, K<F, SEP> sep) =>
-        Applicative.lift(Seq.cons, fa, sep >> F.SepByEnd(fa, sep) | F.Pure(Seq<A>.Empty));
+        Applicative.lift(Seq.cons, fa, sep >>> F.SepByEnd(fa, sep) | F.Pure(Seq<A>.Empty));
     
     /// <summary>
     /// Process `fa` _zero_ or more times and drop all yielded values.
@@ -294,7 +294,7 @@ public interface Alternative<F> : Choice<F>, Applicative<F>
     /// <returns>Unit</returns>
     [Pure]
     public static virtual K<F, Unit> SkipSome<A>(K<F, A> fa) =>
-        fa >> F.SkipMany(fa);
+        fa >>> F.SkipMany(fa);
 
     /// <summary>
     /// `skip(n, fa)` processes `n` occurrences of `fa`, skipping its result.
@@ -340,7 +340,7 @@ public interface Alternative<F> : Choice<F>, Applicative<F>
     /// <returns></returns>
     [Pure]
     public static virtual K<F, END> SkipSomeUntil<A, END>(K<F, A> fa, K<F, END> fend) =>
-        fa >> F.SkipManyUntil(fa, fend);
+        fa >>> F.SkipManyUntil(fa, fend);
         
     static class Cached<A>
     {

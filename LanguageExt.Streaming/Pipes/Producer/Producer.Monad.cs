@@ -15,6 +15,9 @@ public class Producer<RT, OUT> :
         Func<A, K<Producer<RT, OUT>, B>> f) => 
         ma.As().Bind(x => f(x).As());
 
+    static K<Producer<RT, OUT>, B> Monad<Producer<RT, OUT>>.Recur<A, B>(A value, Func<A, K<Producer<RT, OUT>, Next<A, B>>> f) => 
+        Monad.unsafeRecur(value, f);
+
     static K<Producer<RT, OUT>, B> Functor<Producer<RT, OUT>>.Map<A, B>(
         Func<A, B> f, 
         K<Producer<RT, OUT>, A> ma) => 
@@ -53,14 +56,8 @@ public class Producer<RT, OUT> :
         Producer.liftM<RT, OUT, B>(ma.As().Run().Action(mb.As().Run()));
 
     static K<Producer<RT, OUT>, A> Applicative<Producer<RT, OUT>>.Actions<A>(
-        IEnumerable<K<Producer<RT, OUT>, A>> fas) =>
-        fas.Select(fa => fa.As().Proxy)
-           .Actions()
-           .ToProducer();
-
-    static K<Producer<RT, OUT>, A> Applicative<Producer<RT, OUT>>.Actions<A>(
-        IAsyncEnumerable<K<Producer<RT, OUT>, A>> fas) =>
-        fas.Select(fa => fa.As().Proxy)
+        IterableNE<K<Producer<RT, OUT>, A>> fas) =>
+        fas.Select(fa => fa.As().Proxy.Kind())
            .Actions()
            .ToProducer();
 }

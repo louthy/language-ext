@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
+using System.Threading;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;

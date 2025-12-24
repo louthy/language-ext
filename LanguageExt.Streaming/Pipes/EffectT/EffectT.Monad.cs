@@ -14,6 +14,9 @@ public class EffectT<M> :
     static K<EffectT<M>, B> Monad<EffectT<M>>.Bind<A, B>(K<EffectT<M>, A> ma, Func<A, K<EffectT<M>, B>> f) =>
         ma.As().Bind(x => f(x).As());
 
+    static K<EffectT<M>, B> Monad<EffectT<M>>.Recur<A, B>(A value, Func<A, K<EffectT<M>, Next<A, B>>> f) => 
+        Monad.unsafeRecur(value, f);
+
     static K<EffectT<M>, B> Functor<EffectT<M>>.Map<A, B>(Func<A, B> f, K<EffectT<M>, A> ma) =>
         ma.As().Map(f);
 
@@ -51,14 +54,8 @@ public class EffectT<M> :
         EffectT.liftM(ma.As().Run().Action(mb.As().Run()));
 
     static K<EffectT<M>, A> Applicative<EffectT<M>>.Actions<A>(
-        IEnumerable<K<EffectT<M>, A>> fas) =>
-        fas.Select(fa => fa.As().Proxy)
-           .Actions()
-           .ToEffect();
-
-    static K<EffectT<M>, A> Applicative<EffectT<M>>.Actions<A>(
-        IAsyncEnumerable<K<EffectT<M>, A>> fas) =>
-        fas.Select(fa => fa.As().Proxy)
+        IterableNE<K<EffectT<M>, A>> fas) =>
+        fas.Select(fa => fa.As().Proxy.Kind())
            .Actions()
            .ToEffect();
 }

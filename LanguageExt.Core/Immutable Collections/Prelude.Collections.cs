@@ -196,11 +196,11 @@ public static partial class Prelude
     /// Forever sequence of units
     /// </summary>
     [Pure]
-    public static Iterable<Unit> Units
+    public static IterableNE<Unit> Units
     {
         get
         {
-            return Go().AsIterable();
+            return IterableNE.create(unit, Go().AsIterable());
             IEnumerable<Unit> Go()
             {
                 while (true) yield return default;

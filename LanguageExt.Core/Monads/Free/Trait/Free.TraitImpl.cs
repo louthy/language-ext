@@ -30,9 +30,8 @@ public class Free<F> : Monad<Free<F>>
         };
 
     static K<Free<F>, B> Monad<Free<F>>.Recur<A, B>(A value, Func<A, K<Free<F>, Next<A, B>>> f) =>
-        // TODO: Make a stack-safe version of this
         Monad.unsafeRecur(value, f);
-
+    
     static K<Free<F>, A> Applicative<Free<F>>.Pure<A>(A value) =>
         new Pure<F, A>(value);
 

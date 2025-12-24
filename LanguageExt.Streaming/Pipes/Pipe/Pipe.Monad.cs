@@ -16,6 +16,9 @@ public class Pipe<RT, IN, OUT> :
         Func<A, K<Pipe<RT, IN, OUT>, B>> f) => 
         ma.As().Bind(x => f(x).As());
 
+    static K<Pipe<RT, IN, OUT>, B> Monad<Pipe<RT, IN, OUT>>.Recur<A, B>(A value, Func<A, K<Pipe<RT, IN, OUT>, Next<A, B>>> f) => 
+        Monad.unsafeRecur(value, f);
+
     static K<Pipe<RT, IN, OUT>, B> Functor<Pipe<RT, IN, OUT>>.Map<A, B>(
         Func<A, B> f, 
         K<Pipe<RT, IN, OUT>, A> ma) => 
@@ -41,11 +44,8 @@ public class Pipe<RT, IN, OUT> :
         K<Pipe<RT, IN, OUT>, B> mb) =>
         Pipe.liftM<RT, IN, OUT, B>(ma.As().Run().Action(mb.As().Run()));
 
-    static K<Pipe<RT, IN, OUT>, A> Applicative<Pipe<RT, IN, OUT>>.Actions<A>(IEnumerable<K<Pipe<RT, IN, OUT>, A>> fas) =>
-        Pipe.liftM<RT, IN, OUT, A>(fas.Select(fa => fa.As().Run()).Actions());
-
-    static K<Pipe<RT, IN, OUT>, A> Applicative<Pipe<RT, IN, OUT>>.Actions<A>(IAsyncEnumerable<K<Pipe<RT, IN, OUT>, A>> fas) =>
-        Pipe.liftM<RT, IN, OUT, A>(fas.Select(fa => fa.As().Run()).Actions());
+    static K<Pipe<RT, IN, OUT>, A> Applicative<Pipe<RT, IN, OUT>>.Actions<A>(IterableNE<K<Pipe<RT, IN, OUT>, A>> fas) =>
+        Pipe.liftM<RT, IN, OUT, A>(fas.Select(fa => fa.As().Run().Kind()).Actions());
 
     static K<Pipe<RT, IN, OUT>, A> MonadT<Pipe<RT, IN, OUT>, Eff<RT>>.Lift<A>(K<Eff<RT>, A> ma) => 
         Pipe.liftM<RT, IN, OUT, A>(ma);

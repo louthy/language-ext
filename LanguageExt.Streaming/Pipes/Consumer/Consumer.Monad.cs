@@ -14,6 +14,9 @@ public class Consumer<RT, IN> :
         Func<A, K<Consumer<RT, IN>, B>> f) => 
         ma.As().Bind(x => f(x).As());
 
+    static K<Consumer<RT, IN>, B> Monad<Consumer<RT, IN>>.Recur<A, B>(A value, Func<A, K<Consumer<RT, IN>, Next<A, B>>> f) => 
+        Monad.unsafeRecur(value, f);
+
     static K<Consumer<RT, IN>, B> Functor<Consumer<RT, IN>>.Map<A, B>(
         Func<A, B> f, 
         K<Consumer<RT, IN>, A> ma) => 
@@ -52,14 +55,8 @@ public class Consumer<RT, IN> :
         Consumer.liftM<RT, IN, B>(ma.As().Run().Action(mb.As().Run()));
 
     static K<Consumer<RT, IN>, A> Applicative<Consumer<RT, IN>>.Actions<A>(
-        IEnumerable<K<Consumer<RT, IN>, A>> fas) =>
-        fas.Select(fa => fa.As().Proxy)
-           .Actions()
-           .ToConsumer();
-
-    static K<Consumer<RT, IN>, A> Applicative<Consumer<RT, IN>>.Actions<A>(
-        IAsyncEnumerable<K<Consumer<RT, IN>, A>> fas) =>
-        fas.Select(fa => fa.As().Proxy)
+        IterableNE<K<Consumer<RT, IN>, A>> fas) =>
+        fas.Select(fa => fa.As().Proxy.Kind())
            .Actions()
            .ToConsumer();
 }

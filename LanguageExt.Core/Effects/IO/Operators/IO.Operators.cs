@@ -11,5 +11,8 @@ public static partial class IOExtensions
         /// </summary>
         public static IO<A> operator +(K<IO, A> ma) =>
             (IO<A>)ma;
+        
+        public static IO<A> operator >> (K<IO, A> ma, Lower lower) =>
+            (IO<A>)ma;
     }
 }

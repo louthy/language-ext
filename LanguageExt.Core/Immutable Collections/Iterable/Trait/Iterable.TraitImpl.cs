@@ -30,10 +30,10 @@ public partial class Iterable :
         singleton(value);
 
     static K<Iterable, B> Applicative<Iterable>.Apply<A, B>(K<Iterable, Func<A, B>> mf, K<Iterable, A> ma) =>
-        mf >>> ma.Map;
+        mf >> ma.Map;
 
     static K<Iterable, B> Applicative<Iterable>.Apply<A, B>(K<Iterable, Func<A, B>> mf, Memo<Iterable, A> ma) =>
-        mf >>> ma.Map;
+        mf >> ma.Map;
 
     static K<Iterable, A> MonoidK<Iterable>.Empty<A>() =>
         Iterable<A>.Empty;

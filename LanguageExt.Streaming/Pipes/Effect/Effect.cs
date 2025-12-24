@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
+using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Traits;
 
@@ -76,8 +77,8 @@ public readonly record struct Effect<RT, A>(PipeT<Unit, Void, Eff<RT>, A> Proxy)
         Proxy.Run().As();
 
     [Pure]
-    public ValueTask<Eff<RT, A>> RunAsync() =>
-        Proxy.RunAsync().Map(ma => ma.As());
+    public ValueTask<Eff<RT, A>> RunAsync(CancellationToken token) =>
+        Proxy.RunAsync(token).Map(ma => ma.As());
     
     [Pure]
     public static implicit operator Effect<RT, A>(PipeT<Unit, Void, Eff<RT>, A> pipe) =>

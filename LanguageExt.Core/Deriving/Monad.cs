@@ -29,5 +29,9 @@ public static partial class Deriving
 
         static K<Supertype, A> Monad<Supertype>.Flatten<A>(K<Supertype, K<Supertype, A>> mma) => 
             Supertype.CoTransform(Subtype.Flatten(Supertype.Transform(mma.Map(Supertype.Transform))));
+
+        static K<Supertype, B> Monad<Supertype>.Recur<A, B>(
+            A value, Func<A, K<Supertype, Next<A, B>>> f) => 
+            Supertype.CoTransform(Subtype.Recur(value, x => Supertype.Transform(f(x))));
     }
 }

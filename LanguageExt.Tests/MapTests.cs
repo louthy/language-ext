@@ -65,16 +65,16 @@ public class MapTests
             
         Assert.Equal(3, m2.Count);
         Assert.Equal(-1, m2["one"]);
-        Assert.DoesNotContain("one", m2.Keys); // make sure key got replaced, too
-        Assert.Contains("One", m2.Keys);       // make sure key got replaced, too
+        Assert.DoesNotContain("one", m2.Keys.AsEnumerable()); // make sure key got replaced, too
+        Assert.Contains("One", m2.Keys.AsEnumerable());       // make sure key got replaced, too
 
         Assert.Throws<ArgumentException>(() => m1.SetItem("four", identity));
 
         var m3 = m1.TrySetItem("four", 0).Add("five", 0).TrySetItem("Five", 5);
         Assert.Equal(5, m3["fiVe"]);
-        Assert.DoesNotContain("four", m3.Keys);
-        Assert.DoesNotContain("five", m3.Keys);
-        Assert.Contains("Five", m3.Keys);
+        Assert.DoesNotContain("four", m3.Keys.AsEnumerable());
+        Assert.DoesNotContain("five", m3.Keys.AsEnumerable());
+        Assert.Contains("Five", m3.Keys.AsEnumerable());
     }
 
     [Fact]

@@ -11,5 +11,8 @@ public static partial class EffExtensions
         /// </summary>
         public static Eff<A> operator +(K<Eff, A> ma) =>
             (Eff<A>)ma;
+        
+        public static Eff<A> operator >> (K<Eff, A> ma, Lower lower) =>
+            (Eff<A>)ma;
     }
 }

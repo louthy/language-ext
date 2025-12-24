@@ -1,5 +1,6 @@
 ﻿using System;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -18,6 +19,26 @@ public partial class ReaderT<Env, M> :
         K<ReaderT<Env, M>, A> ma,
         Func<A, K<ReaderT<Env, M>, B>> f) =>
         new ReaderT<Env, M, B>(env => ma.As().runReader(env).Bind(a => f(a).As().runReader(env)));
+
+    static K<ReaderT<Env, M>, B> Monad<ReaderT<Env, M>>.
+        Recur<A, B>(A value, Func<A, K<ReaderT<Env, M>, Next<A, B>>> f) =>
+        new ReaderT<Env, M, B>(env =>
+                               {
+                                   return M.Recur(f(value).Run(env), go);
+
+                                   K<M, Next<K<M, Next<A, B>>, B>> go(K<M, Next<A, B>> ma) =>
+                                       ma >> (n =>
+                                        n switch
+                                                 {
+                                                     { IsDone: true, Done: var x } => 
+                                                         M.Pure(Next.Done<K<M, Next<A, B>>, B>(x)),
+                                                     
+                                                     { IsLoop: true, Loop: var x } => 
+                                                         M.Pure(Next.Loop<K<M, Next<A, B>>, B>(f(x).Run(env))),
+                                                     
+                                                     _ => throw new NotSupportedException()
+                                                 });
+                               });
 
     static K<ReaderT<Env, M>, B> Functor<ReaderT<Env, M>>.Map<A, B>(Func<A, B> f, K<ReaderT<Env, M>, A> ma) => 
         new ReaderT<Env, M, B>(env => ma.As().runReader(env).Map(f));

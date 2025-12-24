@@ -12,6 +12,9 @@ public class TransduceFrom<IN> :
         Func<A, K<TransduceFrom<IN>, B>> f) =>
         ma.As().Bind(f);
 
+    static K<TransduceFrom<IN>, B> Monad<TransduceFrom<IN>>.Recur<A, B>(A value, Func<A, K<TransduceFrom<IN>, Next<A, B>>> f) => 
+        Monad.unsafeRecur(value, f);
+
     static K<TransduceFrom<IN>, B> Functor<TransduceFrom<IN>>.Map<A, B>(
         Func<A, B> f,
         K<TransduceFrom<IN>, A> ma) =>

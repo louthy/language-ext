@@ -11,5 +11,11 @@ public static partial class OptionExtensions
         /// </summary>
         public static Option<A> operator +(K<Option, A> ma) =>
             (Option<A>)ma;
+        
+        /// <summary>
+        /// Downcast operator
+        /// </summary>
+        public static Option<A> operator >> (K<Option, A> ma, Lower lower) =>
+            +ma;
     }
 }

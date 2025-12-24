@@ -14,5 +14,20 @@ public static partial class ApplicativeExtensions
         [Pure]
         public K<F, B> Action<B>(Memo<F, B> mb) =>
             F.Action(ma, mb);
+        
+        [Pure]
+        public K<F, A> BackAction<B>(Memo<F, B> mb) =>
+            F.BackAction(ma, mb);
+    }
+    
+    extension<F, A>(Memo<F, A> ma) where F : Applicative<F>
+    {
+        [Pure]
+        public K<F, B> Action<B>(Memo<F, B> mb) =>
+            F.Action(ma, mb);
+        
+        [Pure]
+        public K<F, A> BackAction<B>(Memo<F, B> mb) =>
+            F.BackAction(ma, mb);
     }
 }

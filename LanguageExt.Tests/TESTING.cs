@@ -244,6 +244,9 @@ public class Maybe : Monad<Maybe>
     public static K<Maybe, B> Bind<A, B>(K<Maybe, A> ma, Func<A, K<Maybe, B>> f) => 
         ma.As().Bind(f);
 
+    public static K<Maybe, B> Recur<A, B>(A value, Func<A, K<Maybe, Next<A, B>>> f) =>
+        Monad.unsafeRecur(value, f);
+
     public static K<Maybe, B> Map<A, B>(Func<A, B> f, K<Maybe, A> ma) => 
         ma.As().Map(f);
     

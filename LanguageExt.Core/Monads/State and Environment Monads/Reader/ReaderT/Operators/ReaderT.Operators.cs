@@ -12,5 +12,11 @@ public static partial class ReaderTExtensions
         /// </summary>
         public static ReaderT<Env, M, A> operator +(K<ReaderT<Env, M>, A> ma) =>
             (ReaderT<Env, M, A>)ma;
+        
+        /// <summary>
+        /// Downcast operator
+        /// </summary>
+        public static ReaderT<Env, M, A> operator >> (K<ReaderT<Env, M>, A> ma, Lower lower) =>
+            +ma;
     }
 }

@@ -12,5 +12,11 @@ public static partial class IOExtensions
         /// </summary>
         public static Free<F, A> operator +(K<Free<F>, A> ma) =>
             (Free<F, A>)ma;
+        
+        /// <summary>
+        /// Downcast operator
+        /// </summary>
+        public static Free<F, A> operator >> (K<Free<F>, A> ma, Lower lower) =>
+            +ma;
     }
 }

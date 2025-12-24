@@ -10,7 +10,7 @@ public class ListTests
     [Fact]
     public void ConsTest1()
     {
-        var test = Prelude.Cons(1, Prelude.Cons(2, Prelude.Cons(3, Prelude.Cons(4, Prelude.Cons(5, empty<int>())))));
+        var test = 1.Cons(2.Cons(3.Cons(4.Cons(5.Cons(empty<int>())))));
 
         var array = test.ToArray();
 
@@ -253,7 +253,7 @@ public class ListTests
 
         var sideEffectByAction = 0;
 
-        expression.AsIterable().Iter(i => sideEffectByAction += i * i);
+        expression.Iter(i => sideEffectByAction += i * i);
         Assert.Equal(2     + 3     + 5, embeddedSideEffectResult);
         Assert.Equal(2 * 2 + 3 * 3 + 5 * 5, sideEffectByAction);
     }
@@ -271,7 +271,7 @@ public class ListTests
 
         var sideEffectByAction = 0;
 
-        expression.AsIterable().Iter((pos, i) => sideEffectByAction += i * pos);
+        expression.Iter((pos, i) => sideEffectByAction += i * pos);
         Assert.Equal(2     + 3     + 5, embeddedSideEffectResult);
         Assert.Equal(2 * 0 + 3 * 1 + 5 * 2, sideEffectByAction);
     }

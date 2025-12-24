@@ -779,6 +779,27 @@ public abstract record IO<A> :
         }
     }
 
+    /// <summary>
+    /// Run the `IO` monad to get its result
+    /// </summary>
+    /// <remarks>
+    /// Any lifted asynchronous operations will yield to the thread-scheduler, allowing other queued
+    /// operations to run concurrently.  So, even though this call isn't awaitable it still plays
+    /// nicely and doesn't block the thread.
+    /// </remarks>
+    /// <remarks>
+    /// NOTE: An exception will always be thrown if the IO operation fails.  Lift this monad into
+    /// other error handling monads to leverage more declarative error handling. 
+    /// </remarks>
+    /// <param name="token">Cancellation toke</param>
+    /// <returns>Result of the IO operation</returns>
+    /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
+    public async ValueTask<A> RunAsync(CancellationToken token)
+    {
+        using var env = EnvIO.New(token: token);
+        return await RunAsync(env);
+    }
+
     static async ValueTask<A> SafeRunAsync(ValueTask<A> va, EnvIO envIO)
     {
         try

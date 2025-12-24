@@ -14,6 +14,17 @@ public partial class Reader<Env> :
     static K<Reader<Env>, B> Monad<Reader<Env>>.Bind<A, B>(K<Reader<Env>, A> ma, Func<A, K<Reader<Env>, B>> f) => 
         ma.As().Bind(f);
 
+    static K<Reader<Env>, B> Monad<Reader<Env>>.Recur<A, B>(A value, Func<A, K<Reader<Env>, Next<A, B>>> f) =>
+        new Reader<Env, B>(env =>
+                           {
+                               while (true)
+                               {
+                                   var mr = f(value).Run(env);
+                                   if (mr.IsDone) return mr.Done;
+                                   value = mr.Loop;
+                               }
+                           });
+
     static K<Reader<Env>, B> Functor<Reader<Env>>.Map<A, B>(Func<A, B> f, K<Reader<Env>, A> ma) => 
         ma.As().Map(f);
 

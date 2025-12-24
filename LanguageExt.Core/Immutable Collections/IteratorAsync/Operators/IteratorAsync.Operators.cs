@@ -11,5 +11,8 @@ public static partial class IteratorAsyncExtensions
         /// </summary>
         public static IteratorAsync<A> operator +(K<IteratorAsync, A> ma) =>
             (IteratorAsync<A>)ma;
+        
+        public static IteratorAsync<A> operator >> (K<IteratorAsync, A> ma, Lower lower) =>
+            (IteratorAsync<A>)ma;
     }
 }

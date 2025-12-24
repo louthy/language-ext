@@ -121,8 +121,32 @@ public interface Applicative<F> : Functor<F>
     /// <typeparam name="B">Second applicative structure bound value type</typeparam>
     /// <returns>The result of the second applicative action (if there wasn't a failure beforehand)</returns>
     [Pure]
+    public static virtual K<F, A> BackAction<A, B>(K<F, A> ma, K<F, B> mb) =>
+        Applicative.lift<F, A, B, A>(x => _ => x, ma, mb);
+
+    /// <summary>
+    /// Applicative action.  Computes the first applicative action and then computes the second.
+    /// </summary>
+    /// <param name="ma">First applicative structure</param>
+    /// <param name="mb">Second applicative structure</param>
+    /// <typeparam name="A">First applicative structure bound value type</typeparam>
+    /// <typeparam name="B">Second applicative structure bound value type</typeparam>
+    /// <returns>The result of the second applicative action (if there wasn't a failure beforehand)</returns>
+    [Pure]
     public static virtual K<F, B> Action<A, B>(K<F, A> ma, Memo<F, B> mb) =>
         Applicative.lift<F, A, B, B>(_ => y => y, memoK(ma), mb);
+
+    /// <summary>
+    /// Applicative action.  Computes the first applicative action and then computes the second.
+    /// </summary>
+    /// <param name="ma">First applicative structure</param>
+    /// <param name="mb">Second applicative structure</param>
+    /// <typeparam name="A">First applicative structure bound value type</typeparam>
+    /// <typeparam name="B">Second applicative structure bound value type</typeparam>
+    /// <returns>The result of the second applicative action (if there wasn't a failure beforehand)</returns>
+    [Pure]
+    public static virtual K<F, A> BackAction<A, B>(K<F, A> ma, Memo<F, B> mb) =>
+        Applicative.lift<F, A, B, A>(x => _ => x, memoK(ma), mb);
 
     /// <summary>
     /// Applicative action.  Computes the first applicative action and then computes the second.
@@ -145,8 +169,32 @@ public interface Applicative<F> : Functor<F>
     /// <typeparam name="B">Second applicative structure bound value type</typeparam>
     /// <returns>The result of the second applicative action (if there wasn't a failure beforehand)</returns>
     [Pure]
+    public static virtual K<F, A> BackAction<A, B>(Memo<F, A> ma, Memo<F, B> mb) =>
+        Applicative.lift<F, A, B, A>(x => _ => x, ma, mb);
+
+    /// <summary>
+    /// Applicative action.  Computes the first applicative action and then computes the second.
+    /// </summary>
+    /// <param name="ma">First applicative structure</param>
+    /// <param name="mb">Second applicative structure</param>
+    /// <typeparam name="A">First applicative structure bound value type</typeparam>
+    /// <typeparam name="B">Second applicative structure bound value type</typeparam>
+    /// <returns>The result of the second applicative action (if there wasn't a failure beforehand)</returns>
+    [Pure]
     public static virtual K<F, B> Action<A, B>(Memo<F, A> ma, K<F, B> mb) =>
         Applicative.lift<F, A, B, B>(_ => y => y, ma, memoK(mb));
+
+    /// <summary>
+    /// Applicative action.  Computes the first applicative action and then computes the second.
+    /// </summary>
+    /// <param name="ma">First applicative structure</param>
+    /// <param name="mb">Second applicative structure</param>
+    /// <typeparam name="A">First applicative structure bound value type</typeparam>
+    /// <typeparam name="B">Second applicative structure bound value type</typeparam>
+    /// <returns>The result of the second applicative action (if there wasn't a failure beforehand)</returns>
+    [Pure]
+    public static virtual K<F, A> BackAction<A, B>(Memo<F, A> ma, K<F, B> mb) =>
+        Applicative.lift<F, A, B, A>(x => _ => x, ma, memoK(mb));
 
     /// <summary>
     /// Chains a sequence of applicative actions
@@ -174,6 +222,7 @@ public interface Applicative<F> : Functor<F>
     /// <exception cref="ExpectedException">Sequence is empty</exception>
     [Pure]
     public static virtual K<F, A> Actions<A>(IterableNE<K<F, A>> fas) =>
+        // TODO: Consider ways to make this not be blocking as a sensible default implementation
         fas.Tail.Fold(fas.Head, (h, t) => h.Action(t));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -196,7 +245,7 @@ public interface Applicative<F> : Functor<F>
         K<F, OPEN> open, 
         K<F, CLOSE> close, 
         K<F, A> p) =>
-        open >> p << close;
+        open.Action(p).BackAction(close);
     
     /// <summary>
     /// Construct a sequence of `count` repetitions of `fa`

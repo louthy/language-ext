@@ -4,7 +4,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
-public static class EffectExtensions
+public static partial class EffectExtensions
 {
     /// <summary>
     /// Transformation from `PipeT` to `EffectT`.

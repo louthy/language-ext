@@ -12,5 +12,11 @@ public static partial class TryTExtensions
         /// </summary>
         public static TryT<M, A> operator +(K<TryT<M>, A> ma) =>
             (TryT<M, A>)ma;
+        
+        /// <summary>
+        /// Downcast operator
+        /// </summary>
+        public static TryT<M, A> operator >> (K<TryT<M>, A> ma, Lower lower) =>
+            +ma;
     }
 }

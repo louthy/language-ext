@@ -42,6 +42,9 @@ public class StateEff<S, E> :
                         Left(e)
                 });
 
+    public static K<StateEff<S, E>, B> Recur<A, B>(A value, Func<A, K<StateEff<S, E>, Next<A, B>>> f) => 
+        Monad.unsafeRecur(value, f);
+
     static K<StateEff<S, E>, B> Functor<StateEff<S, E>>.Map<A, B>(Func<A, B> f, K<StateEff<S, E>, A> ma) =>
         new StateEff<S, E, B>(
             (eio, state) =>

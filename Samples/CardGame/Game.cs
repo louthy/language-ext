@@ -13,10 +13,10 @@ public partial class Game
     /// Play the game!
     /// </summary>
     public static K<Game, Unit> play =>
-        Display.askPlayerNames >>>
-        enterPlayerNames       >>>
-        Display.introduction   >>>
-        Deck.shuffle           >>>
+        Display.askPlayerNames >>
+        enterPlayerNames       >>
+        Display.introduction   >>
+        Deck.shuffle           >>
         playHands;
 
     /// <summary>
@@ -48,10 +48,10 @@ public partial class Game
     /// Play a single hand
     /// </summary>
     static Game<Unit> playHand =>
-        dealHands >>>
-        playRound >>>
-        gameOver  >>>
-        Display.cardsRemaining >>>
+        dealHands >>
+        playRound >>
+        gameOver  >>
+        Display.cardsRemaining >>
         lower;
 
     /// <summary>
@@ -64,7 +64,7 @@ public partial class Game
     /// Deal the two initial cards to a player
     /// </summary>
     static Game<Unit> dealHand =>
-        from cs     in dealCard  >>> dealCard
+        from cs     in dealCard  >> dealCard
         from player in Player.current
         from state  in Player.state
         from _      in Display.playerState(player, state)

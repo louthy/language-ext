@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using LanguageExt.Async.Linq;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
@@ -15,6 +12,9 @@ public class ConsumerT<IN, M> :
         K<ConsumerT<IN, M>, A> ma, 
         Func<A, K<ConsumerT<IN, M>, B>> f) => 
         ma.As().Bind(x => f(x).As());
+
+    static K<ConsumerT<IN, M>, B> Monad<ConsumerT<IN, M>>.Recur<A, B>(A value, Func<A, K<ConsumerT<IN, M>, Next<A, B>>> f) => 
+        Monad.unsafeRecur(value, f);
 
     static K<ConsumerT<IN, M>, B> Functor<ConsumerT<IN, M>>.Map<A, B>(
         Func<A, B> f, 
@@ -54,14 +54,8 @@ public class ConsumerT<IN, M> :
         ConsumerT.liftM<IN, M, B>(ma.As().Run().Action(mb.As().Run()));
 
     static K<ConsumerT<IN, M>, A> Applicative<ConsumerT<IN, M>>.Actions<A>(
-        IEnumerable<K<ConsumerT<IN, M>, A>> fas) =>
-        fas.Select(fa => fa.As().Proxy)
-           .Actions()
-           .ToConsumer();
-
-    static K<ConsumerT<IN, M>, A> Applicative<ConsumerT<IN, M>>.Actions<A>(
-        IAsyncEnumerable<K<ConsumerT<IN, M>, A>> fas) =>
-        fas.Select(fa => fa.As().Proxy)
+        IterableNE<K<ConsumerT<IN, M>, A>> fas) =>
+        fas.Select(fa => fa.As().Proxy.Kind())
            .Actions()
            .ToConsumer();
 }

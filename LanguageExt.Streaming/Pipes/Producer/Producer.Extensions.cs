@@ -4,7 +4,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
-public static class ProducerExtensions
+public static partial class ProducerExtensions
 {
     /// <summary>
     /// Transformation from `PipeT` to `ProducerT`.

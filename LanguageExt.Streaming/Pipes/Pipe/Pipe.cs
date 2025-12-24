@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
+using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Traits;
 
@@ -236,6 +237,6 @@ public record Pipe<RT, IN, OUT, A>(PipeT<IN, OUT, Eff<RT>, A> Proxy) : K<Pipe<RT
         Proxy.Run().As();
 
     [Pure]
-    internal ValueTask<Eff<RT, A>> RunAsync() =>
-        Proxy.RunAsync().Map(ma => ma.As());
+    internal ValueTask<Eff<RT, A>> RunAsync(CancellationToken token) =>
+        Proxy.RunAsync(token).Map(ma => ma.As());
 }

@@ -4,7 +4,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
-public static class ConsumerExtensions
+public static partial class ConsumerExtensions
 {
     /// <summary>
     /// Transformation from `PipeT` to `Consumer`.

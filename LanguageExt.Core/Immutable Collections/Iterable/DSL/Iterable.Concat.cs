@@ -22,7 +22,7 @@ sealed class IterableConcat<A>(Seq<Iterable<A>> Items) : Iterable<A>
             items switch
             {
                 []         => IO.pure(Enumerable.Empty<A>()),
-                var (h, t) => +h.AsEnumerableIO() >>> (xs => xs.Concat * go(t))
+                var (h, t) => +h.AsEnumerableIO() >> (xs => xs.Concat * go(t))
             };
     }
 

@@ -11,6 +11,9 @@ public partial class Source :
     static K<Source, B> Monad<Source>.Bind<A, B>(K<Source, A> ma, Func<A, K<Source, B>> f) => 
         ma.As().Bind(f);
 
+    static K<Source, B> Monad<Source>.Recur<A, B>(A value, Func<A, K<Source, Next<A, B>>> f) => 
+        Monad.unsafeRecur(value, f);
+
     static K<Source, B> Functor<Source>.Map<A, B>(Func<A, B> f, K<Source, A> ma) => 
         ma.As().Map(f);
 

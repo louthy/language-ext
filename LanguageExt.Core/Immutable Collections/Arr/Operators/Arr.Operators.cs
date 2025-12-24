@@ -11,5 +11,8 @@ public static partial class ArrExtensions
         /// </summary>
         public static Arr<A> operator +(K<Arr, A> ma) =>
             (Arr<A>)ma;
+        
+        public static Arr<A> operator >> (K<Arr, A> ma, Lower lower) =>
+            (Arr<A>)ma;
     }
 }

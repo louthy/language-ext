@@ -11,5 +11,11 @@ public static partial class EitherExtensions
         /// </summary>
         public static Either<L, A> operator +(K<Either<L>, A> ma) =>
             (Either<L, A>)ma;
+        
+        /// <summary>
+        /// Downcast operator
+        /// </summary>
+        public static Either<L, A> operator >> (K<Either<L>, A> ma, Lower lower) =>
+            +ma;
     }
 }

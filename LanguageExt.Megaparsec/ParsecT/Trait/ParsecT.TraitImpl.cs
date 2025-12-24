@@ -109,6 +109,9 @@ public class ParsecT<E, S, T, M> :
         Func<A, K<ParsecT<E, S, T, M>, B>> f) => 
         DSL<E, S, T, M>.bind(ma, f);
 
+    static K<ParsecT<E, S, T, M>, B> Monad<ParsecT<E, S, T, M>>.Recur<A, B>(A value, Func<A, K<ParsecT<E, S, T, M>, Next<A, B>>> f) => 
+        Monad.unsafeRecur(value, f);
+
     static K<ParsecT<E, S, T, M>, A> Choice<ParsecT<E, S, T, M>>.Choose<A>(
         K<ParsecT<E, S, T, M>, A> fa, 
         K<ParsecT<E, S, T, M>, A> fb) => 

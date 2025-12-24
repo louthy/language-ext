@@ -11,5 +11,11 @@ public static partial class TheseExtensions
         /// </summary>
         public static These<X, A> operator +(K<These<X>, A> ma) =>
             (These<X, A>)ma;
+        
+        /// <summary>
+        /// Downcast operator
+        /// </summary>
+        public static These<X, A> operator >> (K<These<X>, A> ma, Lower lower) =>
+            +ma;
     }
 }

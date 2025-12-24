@@ -28,10 +28,10 @@ public partial class IterableNE :
         singleton(value);
 
     static K<IterableNE, B> Applicative<IterableNE>.Apply<A, B>(K<IterableNE, Func<A, B>> mf, K<IterableNE, A> ma) =>
-        mf >>> ma.Map;
+        mf >> ma.Map;
 
     static K<IterableNE, B> Applicative<IterableNE>.Apply<A, B>(K<IterableNE, Func<A, B>> mf, Memo<IterableNE, A> ma) =>
-        mf >>> ma.Map;
+        mf >> ma.Map;
 
     static K<IterableNE, A> SemigroupK<IterableNE>.Combine<A>(K<IterableNE, A> ma, K<IterableNE, A> mb) =>
         ma.As().Concat(mb.As());

@@ -11,5 +11,8 @@ public static partial class IteratorExtensions
         /// </summary>
         public static Iterator<A> operator +(K<Iterator, A> ma) =>
             (Iterator<A>)ma;
+        
+        public static Iterator<A> operator >> (K<Iterator, A> ma, Lower lower) =>
+            (Iterator<A>)ma;
     }
 }

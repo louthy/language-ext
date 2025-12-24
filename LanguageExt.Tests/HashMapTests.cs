@@ -208,8 +208,8 @@ public class HashMapTests
         var map2 = map.SetItem("One", -1);
         Assert.Equal(3, map2.Count);
         Assert.Equal(-1, map2["one"]);
-        Assert.DoesNotContain("one", map2.Keys); // make sure key got replaced, too
-        Assert.Contains("One", map2.Keys);       // make sure key got replaced, too
+        Assert.DoesNotContain("one", map2.Keys.AsEnumerable()); // make sure key got replaced, too
+        Assert.Contains("One", map2.Keys.AsEnumerable());       // make sure key got replaced, too
 
         Assert.Throws<ArgumentException>(() => map.SetItem("four", identity));
     }
@@ -218,14 +218,14 @@ public class HashMapTests
     public void EqualsTest()
     {
         Assert.True(HashMap<int, int>().Equals(HashMap<int, int>()));
-        Assert.False(HashMap<int, int>((1, 2)).Equals(HashMap<int, int>()));
-        Assert.False(HashMap<int, int>().Equals(HashMap<int, int>((1, 2))));
-        Assert.True(HashMap<int, int>((1, 2)).Equals(HashMap<int, int>((1, 2))));
-        Assert.False(HashMap<int, int>((1, 2), (3, 4)).Equals(HashMap<int, int>((1, 2))));
-        Assert.False(HashMap<int, int>((1, 2)).Equals(HashMap<int, int>((1, 2), (3, 4))));
-        Assert.True(HashMap<int, int>((1, 2), (3, 4)).Equals(HashMap<int, int>((1, 2), (3, 4))));
-        Assert.True(HashMap<int, int>((3, 4), (1, 2)).Equals(HashMap<int, int>((1, 2), (3, 4))));
-        Assert.True(HashMap<int, int>((3, 4), (1, 2)).Equals(HashMap<int, int>((3, 4), (1, 2))));
+        Assert.False(HashMap((1, 2)).Equals(HashMap<int, int>()));
+        Assert.False(HashMap<int, int>().Equals(HashMap((1, 2))));
+        Assert.True(HashMap((1, 2)).Equals(HashMap((1, 2))));
+        Assert.False(HashMap((1, 2), (3, 4)).Equals(HashMap((1, 2))));
+        Assert.False(HashMap((1, 2)).Equals(HashMap((1, 2), (3, 4))));
+        Assert.True(HashMap((1, 2), (3, 4)).Equals(HashMap((1, 2), (3, 4))));
+        Assert.True(HashMap((3, 4), (1, 2)).Equals(HashMap((1, 2), (3, 4))));
+        Assert.True(HashMap((3, 4), (1, 2)).Equals(HashMap((3, 4), (1, 2))));
     }
         
     [Fact]
@@ -242,7 +242,7 @@ public class HashMapTests
 
         var minus = map.RemoveRange(rmv);
 
-        Assert.True(minus.Keys.AsIterable().Find(i => i == 1477).IsSome); // true
+        Assert.True(minus.Keys.Find(i => i == 1477).IsSome); // true
             
         Assert.True(minus.ContainsKey(1477)); // false
         Assert.True(minus.Find(1477).IsSome); // false

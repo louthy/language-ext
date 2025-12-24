@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using LanguageExt.Async.Linq;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
@@ -32,10 +30,10 @@ public static class PipeT
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
-    public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(IEnumerable<OUT> values)
+    public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(IterableNE<OUT> values)
         where M : MonadIO<M> =>
         new PipeTYieldAll<IN, OUT, M, Unit>(values.Select(yield<M, IN, OUT>), pure<IN, OUT, M, Unit>);
-    
+
     /// <summary>
     /// Yield all values downstream
     /// </summary>
@@ -43,9 +41,46 @@ public static class PipeT
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
-    public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(IAsyncEnumerable<OUT> values) 
+    public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(Iterable<OUT> values)
         where M : MonadIO<M> =>
-        new PipeTYieldAllAsync<IN, OUT, M, Unit>(values.Select(yield<M, IN, OUT>), pure<IN, OUT, M, Unit>);
+        liftIO<IN, OUT, M, Option<IterableNE<OUT>>>(IterableNE.createRange(values).Map(Some)) >> 
+            (opt => opt switch
+                {
+                    { IsSome: true, Case: IterableNE<OUT> xs } => yieldAll<M, IN, OUT>(xs),
+                    _                                          => pure<IN, OUT, M, Unit>(unit)
+                }) >> lower;
+
+    /// <summary>
+    /// Yield all values downstream
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(IEnumerable<OUT> values)
+        where M : MonadIO<M> =>
+        IterableNE.createRange(values) switch
+        {
+            { IsSome: true, Case: IterableNE<OUT> xs } => yieldAll<M, IN, OUT>(xs),
+            _                                          => pure<IN, OUT, M, Unit>(unit)
+        };
+
+    /// <summary>
+    /// Yield all values downstream
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(IAsyncEnumerable<OUT> values)
+        where M : MonadIO<M> =>
+        from opt in liftIO<IN, OUT, M, Option<IterableNE<OUT>>>(IterableNE.createRange(values).Map(Some))
+        from res in opt switch
+                    {
+                        { IsSome: true, Case: IterableNE<OUT> xs } => yieldAll<M, IN, OUT>(xs),
+                        _                                          => pure<IN, OUT, M, Unit>(unit)
+                    }
+        select res;
     
     /// <summary>
     /// Yield all values downstream

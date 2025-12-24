@@ -55,10 +55,10 @@ public class Application
         return new Application<A>(fa.As());
     }
 
-    public static K<Application, A> Actions<A>(IEnumerable<K<Application, A>> fas) =>
+    public static K<Application, A> Actions<A>(IterableNE<K<Application, A>> fas) =>
         new Application<A>(
             from s in StateT.get<IO, ApplicationState>()
-            from r in fas.Select(fa => fa.As().Run.Run(s)).Actions()
+            from r in fas.Select(fa => fa.As().Run.Run(s).Kind()).Actions()
             from _ in StateT.put<IO, ApplicationState>(r.State)
             select r.Value);
 }
