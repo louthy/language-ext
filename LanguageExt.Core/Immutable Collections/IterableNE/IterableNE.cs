@@ -38,7 +38,7 @@ public record IterableNE<A>(A Head, Iterable<A> Tail) :
     [Pure]
     internal bool IsAsync =>
         Tail.IsAsync;
-
+    
     /// <summary>
     /// Number of items in the sequence.
     /// </summary>
