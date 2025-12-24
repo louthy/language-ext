@@ -60,6 +60,7 @@ public static class MonadLaw<F>
         var result2 = Monad.unsafeRecur((0, example), rec);
         var result3 = bind(example);
 
+        equals ??= (fa, fb) => fa.Equals(fb);
         if(!equals(result1, result2)) throw new Exception("Bug in MonadLaw or Monad.unsafeRecur. Contact language-ext maintainer via the repo.");
         if (!equals(result1, result3))
         {

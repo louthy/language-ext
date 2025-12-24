@@ -32,7 +32,6 @@ namespace LanguageExt;
 /// for infinite-streams this would be extremely problematic.  So, make sure you discard any
 /// previous `IteratorAsync` values as you walk the sequence. 
 /// </remarks>
-/// <typeparam name="A">Item value type</typeparam>
 public abstract partial class IteratorAsync<A> : 
     IAsyncEnumerable<A>,
     IAsyncDisposable,

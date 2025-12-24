@@ -86,10 +86,10 @@ public abstract class Iterable<A> :
     /// Stream as an enumerable
     /// </summary>
     [Pure]
-    public async IAsyncEnumerable<A> AsAsyncEnumerable(CancellationToken token = default)
+    public async IAsyncEnumerable<A> AsAsyncEnumerable([EnumeratorCancellation] CancellationToken token = default)
     {
         using var env = EnvIO.New(token: token);
-        var xs = await AsAsyncEnumerableIO().RunAsync();
+        var xs = await AsAsyncEnumerableIO().RunAsync(env);
         await foreach (var x in xs.WithCancellation(token))
         {
             yield return x;
