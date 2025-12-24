@@ -11,6 +11,7 @@ public partial class Iterable :
     MonoidK<Iterable>,
     Alternative<Iterable>, 
     Traversable<Iterable>,
+    NaturalEpi<Iterable, Iterable>,
     NaturalMono<Iterable, Arr>,
     NaturalMono<Iterable, Seq>,
     NaturalMono<Iterable, Lst>,
@@ -18,7 +19,7 @@ public partial class Iterable :
     NaturalMono<Iterable, HashSet>
 {
     static K<Iterable, B> Monad<Iterable>.Recur<A, B>(A value, Func<A, K<Iterable, Next<A, B>>> f) =>
-        Monad.unsafeRecur(value, f);
+        Monad.iterableRecur(value, f);
     
     static K<Iterable, B> Monad<Iterable>.Bind<A, B>(K<Iterable, A> ma, Func<A, K<Iterable, B>> f) =>
         ma.As().Bind(f);
@@ -96,4 +97,10 @@ public partial class Iterable :
 
     static K<HashSet, A> Natural<Iterable, HashSet>.Transform<A>(K<Iterable, A> fa) => 
         toHashSet(fa.As());
+
+    static K<Iterable, A> Natural<Iterable, Iterable>.Transform<A>(K<Iterable, A> fa) =>
+        fa;
+
+    static K<Iterable, A> CoNatural<Iterable, Iterable>.CoTransform<A>(K<Iterable, A> fa) => 
+        fa;
 }

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Threading;
 using LanguageExt.Common;
 
 namespace LanguageExt.Traits;
@@ -31,8 +33,8 @@ public static partial class Monad
         (MB)bind(ma, x => f(x));
     
     /// <summary>
-    /// Allow for tail-recursion by using a trampoline.  Returns a monad with the bound value wrapped
-    /// by `Next`, which enables decision-making about whether to keep the computation going or not.  
+    /// Allow for tail-recursion by using a trampoline function that returns a monad with the bound value
+    /// wrapped by `Next`, which enables decision-making about whether to keep the computation going or not.  
     /// </summary>
     /// <remarks>
     /// It is expected that the implementor of the `Monad` trait has made a 'stack-neutral' implementation
@@ -42,7 +44,7 @@ public static partial class Monad
     /// <param name="f">Bind function that returns a monad with the bound value wrapped by `Next`, which
     /// enables decision-making about whether to recur, or not.</param>
     /// <typeparam name="M">Monad type</typeparam>
-    /// <typeparam name="A">Continue value</typeparam>
+    /// <typeparam name="A">Loop value</typeparam>
     /// <typeparam name="B">Done value</typeparam>
     /// <returns>Monad structure</returns>
     [Pure]
@@ -61,7 +63,7 @@ public static partial class Monad
     /// <param name="f">Bind function that returns a monad with the bound value wrapped by `Next`, which
     /// enables decision-making about whether to recur, or not.</param>
     /// <typeparam name="M">Monad type</typeparam>
-    /// <typeparam name="A">Continue value</typeparam>
+    /// <typeparam name="A">Loop value</typeparam>
     /// <typeparam name="B">Done value</typeparam>
     /// <returns>Monad structure</returns>
     /// <exception cref="BottomException"></exception>
@@ -74,6 +76,117 @@ public static partial class Monad
                                { IsDone: true, Done: var v } => M.Pure(v),
                                _                                  => throw new BottomException()
                            });
+
+    /// <summary>
+    /// Allow for tail-recursion by using a trampoline function that returns a monad with the bound value
+    /// wrapped by `Next`, which enables decision-making about whether to keep the computation going or not.  
+    /// </summary>
+    /// <remarks>
+    /// This is a handy pre-built version of `Monad.Recur` that works with `Iterable` (a lazy stream that supports
+    /// both synchronicity and asynchronicity).  The `Natural` and `CoNatural` constraints allow any type that can
+    /// convert to and from `Iterable` to gain this prebuilt stack-protecting recursion.  
+    /// </remarks>
+    /// <param name="value">Initial value to start the recursive process</param>
+    /// <param name="f">Bind function that returns a monad with the bound value wrapped by `Next`, which
+    /// enables decision-making about whether to recur, or not.</param>
+    /// <typeparam name="M">Monad type</typeparam>
+    /// <typeparam name="A">Loop value</typeparam>
+    /// <typeparam name="B">Done value</typeparam>
+    /// <returns>Monad structure</returns>
+    [Pure]
+    public static K<M, B> iterableRecur<M, A, B>(A value, Func<A, K<M, Next<A, B>>> f)
+        where M : Natural<M, Iterable>, CoNatural<M, Iterable>
+    {
+        var iterable = Iterable.createRange(IO.lift(e => go(e.Token)));
+        return CoNatural.transform<M, Iterable, B>(iterable);
+        
+        async IAsyncEnumerable<B> go(CancellationToken token)
+        {
+            List<A> values = [value];
+            List<A> next   = [];
+
+            while (true)
+            {
+                foreach (var x in values)
+                {
+                    var iterable1 = Natural.transform<M, Iterable, Next<A, B>>(f(x)).As().AsAsyncEnumerable(token);
+                    await foreach (var mb in iterable1)
+                    {
+                        if (mb.IsDone)
+                        {
+                            yield return mb.Done;
+                        }
+                        else
+                        {
+                            next.Add(mb.Loop);
+                        }
+                    }
+                }
+
+                if (next.Count == 0)
+                {
+                    break;
+                }
+                else
+                {
+                    (values, next) = (next, values);
+                    next.Clear();
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Allow for tail-recursion by using a trampoline function that returns an enumerable monad with the bound value
+    /// wrapped by `Next`, which enables decision-making about whether to keep the computation going or not.  
+    /// </summary>
+    /// <remarks>
+    /// This is a handy pre-built version of `Monad.Recur` that works with `IEnumerable` (a lazy stream that supports
+    /// synchronicity only)  
+    /// </remarks>
+    /// <param name="value">Initial value to start the recursive process</param>
+    /// <param name="f">Bind function that returns a monad with the bound value wrapped by `Next`, which
+    /// enables decision-making about whether to recur, or not.</param>
+    /// <typeparam name="M">Monad type</typeparam>
+    /// <typeparam name="A">Loop value</typeparam>
+    /// <typeparam name="B">Done value</typeparam>
+    /// <returns>Monad structure</returns>
+    [Pure]
+    public static IEnumerable<B> enumerableRecur<A, B>(A value, Func<A, IEnumerable<Next<A, B>>> f)
+    {
+        List<A> values = [value];
+        List<A> next   = [];
+
+        while (true)
+        {
+            foreach (var x in values)
+            {
+                var iterable1 = f(x);
+                foreach (var mb in iterable1)
+                {
+                    if (mb.IsDone)
+                    {
+                        yield return mb.Done;
+                    }
+                    else
+                    {
+                        next.Add(mb.Loop);
+                    }
+                }
+            }
+
+            if (next.Count == 0)
+            {
+                break;
+            }
+            else
+            {
+                (values, next) = (next, values);
+                next.Clear();
+            }
+        }
+    }
+    
     
     /// <summary>
     /// When the predicate evaluates to `true`, compute `Then`

@@ -34,7 +34,7 @@ public partial class Arr :
     }
 
     static K<Arr, B> Monad<Arr>.Recur<A, B>(A value, Func<A, K<Arr, Next<A, B>>> f) =>
-        Monad.unsafeRecur(value, f);
+        createRange(Monad.enumerableRecur(value, x =>f(x).As().AsEnumerable()));
 
     static K<Arr, B> Functor<Arr>.Map<A, B>(Func<A, B> f, K<Arr, A> ma) => 
         ma.As().Map(f);

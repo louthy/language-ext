@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -12,7 +13,7 @@ public class Lst :
     Traversable<Lst>
 {
     static K<Lst, B> Monad<Lst>.Recur<A, B>(A value, Func<A, K<Lst, Next<A, B>>> f) =>
-        Monad.unsafeRecur(value, f);
+        List.createRange(Monad.enumerableRecur(value, x =>f(x).As().AsEnumerable()));
     
     static K<Lst, B> Monad<Lst>.Bind<A, B>(K<Lst, A> ma, Func<A, K<Lst, B>> f)
     {

@@ -94,6 +94,16 @@ public partial class Iterable
         new IterableAsyncEnumerable<A>(IO.pure(items));
 
     /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Iterable<A> createRange<A>(IO<IAsyncEnumerable<A>> items) =>
+        new IterableAsyncEnumerable<A>(items);
+
+    /// <summary>
     /// Generates a sequence of A using the provided delegate to initialise
     /// each item.
     /// </summary>

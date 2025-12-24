@@ -12,7 +12,7 @@ public partial class Set :
     Traversable<Set>
 {
     static K<Set, B> Monad<Set>.Recur<A, B>(A value, Func<A, K<Set, Next<A, B>>> f) =>
-        Monad.unsafeRecur(value, f);
+        createRange(Monad.enumerableRecur(value, x =>f(x).As().AsEnumerable()));
     
     static K<Set, B> Monad<Set>.Bind<A, B>(K<Set, A> ma, Func<A, K<Set, B>> f)
     {

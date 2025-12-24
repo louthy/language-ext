@@ -14,7 +14,7 @@ public partial class HashSet :
     Traversable<HashSet>
 {
     static K<HashSet, B> Monad<HashSet>.Recur<A, B>(A value, Func<A, K<HashSet, Next<A, B>>> f) =>
-        Monad.unsafeRecur(value, f);
+        createRange(Monad.enumerableRecur(value, x =>f(x).As().AsEnumerable()));
     
     static K<HashSet, B> Monad<HashSet>.Bind<A, B>(K<HashSet, A> ma, Func<A, K<HashSet, B>> f)
     {
