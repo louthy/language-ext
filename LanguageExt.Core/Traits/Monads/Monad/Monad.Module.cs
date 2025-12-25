@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using LanguageExt.Common;
 
@@ -100,7 +101,7 @@ public static partial class Monad
         var iterable = Iterable.createRange(IO.lift(e => go(e.Token)));
         return CoNatural.transform<M, Iterable, B>(iterable);
         
-        async IAsyncEnumerable<B> go(CancellationToken token)
+        async IAsyncEnumerable<B> go([EnumeratorCancellation] CancellationToken token)
         {
             List<A> values = [value];
             List<A> next   = [];

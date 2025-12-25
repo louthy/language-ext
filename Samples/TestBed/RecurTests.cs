@@ -18,7 +18,14 @@ public class RecurTests
         recurIsSameAsBind<Option>();
         recurIsSameAsBind<Fin>();
         recurIsSameAsBind<Try>((mx, my) => mx.Run() == my.Run()) ;
+
+        var xs = insertSort(3, [1, 2, 4]);
     }
+
+    public static Seq<int> insertSort(int value, Seq<int> sorted) =>
+        sorted.IsEmpty || value < sorted[0] 
+            ? value + sorted
+            : sorted[0] + insertSort(value, sorted.Tail);
     
     public static void recurIsSameAsBind<M>(Func<K<M, int>, K<M, int>, bool>? equals = null)
         where M : Monad<M>

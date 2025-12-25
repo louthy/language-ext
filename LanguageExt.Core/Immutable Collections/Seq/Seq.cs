@@ -864,6 +864,22 @@ public readonly struct Seq<A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Seq<A> operator +(A x, Seq<A> y) =>
+        x.Cons(y);
+
+    /// <summary>
+    /// Append operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Seq<A> operator +(Seq<A> x, A y) =>
+        x.Add(y);
+
+    /// <summary>
+    /// Append operator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> operator +(Seq<A> x, K<Seq, A> y) =>
         x.Concat(y.As());
 
