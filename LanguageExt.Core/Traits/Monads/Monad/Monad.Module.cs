@@ -34,6 +34,22 @@ public static partial class Monad
         (MB)bind(ma, x => f(x));
     
     /// <summary>
+    /// Lift a Next.Done value into the monad
+    /// </summary>
+    [Pure]
+    public static K<M, Next<A, B>> done<M, A, B>(B value) 
+        where M : Monad<M> =>
+        M.Pure(Next.Done<A, B>(value));
+    
+    /// <summary>
+    /// Lift a Next.Done value into the monad
+    /// </summary>
+    [Pure]
+    public static K<M, Next<A, B>> loop<M, A, B>(A value) 
+        where M : Monad<M> =>
+        M.Pure(Next.Loop<A, B>(value));
+    
+    /// <summary>
     /// Allow for tail-recursion by using a trampoline function that returns a monad with the bound value
     /// wrapped by `Next`, which enables decision-making about whether to keep the computation going or not.  
     /// </summary>

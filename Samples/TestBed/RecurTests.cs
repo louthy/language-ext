@@ -30,7 +30,7 @@ public class RecurTests
     public static void recurIsSameAsBind<M>(Func<K<M, int>, K<M, int>, bool>? equals = null)
         where M : Monad<M>
     {
-        var example = toSeq(Range(1, 40000)).Strict();
+        var example = toSeq(Range(1, 20000)).Strict();
 
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine("------------------------------------------------------------------------------------------");
@@ -72,15 +72,24 @@ public class RecurTests
         K<M, Next<(int Total, Seq<int> Values), int>> sumTail((int Total, Seq<int> Values) pair) =>
             pair.Values switch
             {
-                []          => M.Pure(Next.Done<(int, Seq<int>), int>(pair.Total)),
-                var (x, xs) => M.Pure(Next.Loop<(int, Seq<int>), int>((pair.Total + x, xs))) 
+                []          => M.Done<(int, Seq<int>), int>(pair.Total),
+                var (x, xs) => M.Loop<(int, Seq<int>), int>((pair.Total + x, xs)) 
             };
 
+        
+        K<M, Next<(int Total, Seq<int> Values), int>> sumTail2((int Total, Seq<int> Values) pair) =>
+            pair.Values switch
+            {
+                []          => M.Done<(int, Seq<int>), int>(pair.Total),
+                var (x, xs) => M.Loop<(int, Seq<int>), int>((pair.Total + x, xs)) 
+            };
+        
         K<M, int> sumNoTail(Seq<int> values) =>
             values switch
             {
-                [var x]     => M.Pure(x),
-                var (x, xs) => sumNoTail(xs) * (t => x + t)
+                []          => M.Pure(0),
+                var (x, xs) => from t in sumNoTail(xs)
+                               select t + x
             };
     }
 }

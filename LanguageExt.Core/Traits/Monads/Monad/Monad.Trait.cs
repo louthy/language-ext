@@ -35,6 +35,18 @@ public interface Monad<M> :
     //
     //  Default implementations
     //
+    
+    /// <summary>
+    /// Lift a Next.Done value into the monad
+    /// </summary>
+    public static virtual K<M, Next<A, B>> Done<A, B>(B value) =>
+        M.Pure(Next.Done<A, B>(value));
+    
+    /// <summary>
+    /// Lift a Next.Done value into the monad
+    /// </summary>
+    public static virtual K<M, Next<A, B>> Loop<A, B>(A value) =>
+        M.Pure(Next.Loop<A, B>(value));
 
     public static virtual K<M, C> SelectMany<A, B, C>(K<M, A> ma, Func<A, K<M, B>> bind, Func<A, B, C> project) =>
         ma.Bind(x => bind(x).Map(y => project(x, y)));
