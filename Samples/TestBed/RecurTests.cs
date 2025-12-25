@@ -12,6 +12,8 @@ public class RecurTests
 {
     public static void Run()
     {
+        recurIsSameAsBind<Seq>();
+        recurIsSameAsBind<Iterable>();
         recurIsSameAsBind<Either<Error>>();
         recurIsSameAsBind<Option>();
         recurIsSameAsBind<Fin>();
@@ -28,16 +30,18 @@ public class RecurTests
         Console.WriteLine($"{typeof(M).Name}");
         Console.ForegroundColor = ConsoleColor.White;
         
-        Console.WriteLine($"Testing Monad.recur");
+        Console.WriteLine("Testing Monad.recur");
         var sw1     = Stopwatch.StartNew();
         var result1 = Monad.recur((0, example), sumTail);
+        sw1.Stop();
         Console.WriteLine($"{sw1.Elapsed.Nanoseconds} ns");
 
         Console.WriteLine();
 
-        Console.WriteLine($"Testing general recursion");
+        Console.WriteLine("Testing general recursion");
         var sw2     = Stopwatch.StartNew();
         var result2 = sumNoTail(example);
+        sw2.Stop();
         Console.WriteLine($"{sw2.Elapsed.Nanoseconds} ns");
 
         equals ??= (fa, fb) => fa.Equals(fb);
