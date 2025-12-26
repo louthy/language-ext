@@ -204,7 +204,7 @@ public abstract record SourceT<M, A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate state</returns>
     public SourceT<M, S> Fold<S>(Func<S, A, S> Fold, S Init) =>
-        new FoldWhileSourceT<M, A, S>(this, Schedule.Forever, Fold, (_, _) => true, Init);
+        new FoldWhileSourceT<M, A, S>(this, Schedule.Forever, Fold, _ => true, Init);
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the schedule expires, or the
@@ -216,7 +216,7 @@ public abstract record SourceT<M, A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate states</returns>
     public SourceT<M, S> Fold<S>(Schedule Time, Func<S, A, S> Fold, S Init) =>
-        new FoldWhileSourceT<M, A, S>(this, Time, Fold, (_, _) => true, Init);
+        new FoldWhileSourceT<M, A, S>(this, Time, Fold, _ => true, Init);
 
     /// <summary>
     /// Fold the values flowing through.  Values are yielded downstream when either the predicate returns
@@ -227,7 +227,7 @@ public abstract record SourceT<M, A> :
     /// <param name="Init">Initial state</param>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate states</returns>
-    public SourceT<M, S> FoldWhile<S>(Func<S, A, S> Fold, Func<S, A, bool> Pred, S Init) =>
+    public SourceT<M, S> FoldWhile<S>(Func<S, A, S> Fold, Func<(S State, A Value), bool> Pred, S Init) =>
         new FoldWhileSourceT<M, A, S>(this, Schedule.Forever, Fold, Pred, Init);
 
     /// <summary>
@@ -239,7 +239,7 @@ public abstract record SourceT<M, A> :
     /// <param name="Init">Initial state</param>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Stream of aggregate states</returns>
-    public SourceT<M, S> FoldUntil<S>(Func<S, A, S> Fold, Func<S, A, bool> Pred, S Init) =>
+    public SourceT<M, S> FoldUntil<S>(Func<S, A, S> Fold, Func<(S State, A Value), bool> Pred, S Init) =>
         new FoldUntilSourceT<M, A, S>(this, Schedule.Forever, Fold, Pred, Init);
 
     /// <summary>
@@ -255,7 +255,7 @@ public abstract record SourceT<M, A> :
     public SourceT<M, S> FoldWhile<S>(
         Schedule Time,
         Func<S, A, S> Fold,
-        Func<S, A, bool> Pred,
+        Func<(S State, A Value), bool> Pred,
         S Init) =>
         new FoldWhileSourceT<M, A, S>(this, Time, Fold, Pred, Init);
 
@@ -272,7 +272,7 @@ public abstract record SourceT<M, A> :
     public SourceT<M, S> FoldUntil<S>(
         Schedule Time,
         Func<S, A, S> Fold, 
-        Func<S, A, bool> Pred, 
+        Func<(S State, A Value), bool> Pred, 
         S Init) =>
         new FoldUntilSourceT<M, A, S>(this, Time, Fold, Pred, Init);
 

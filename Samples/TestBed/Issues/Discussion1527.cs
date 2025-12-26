@@ -40,7 +40,7 @@ public class Discussion1527
         Console.WriteLine(r3);
 
         var src4 = +SourceT.lift<IO, int>(Range(1, 100))
-                           .FoldWhileIO(Seq<int>(), (s, x) => s + x, sv => sv.State.Count < 5);
+                           .FoldWhile((s, x) => s + x, sv => sv.State.Count < 5, Seq<int>());
 
         var r4 = src4.Skip(2).Take(5).Collect().Run();
 

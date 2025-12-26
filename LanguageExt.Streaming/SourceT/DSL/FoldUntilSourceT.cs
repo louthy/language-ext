@@ -7,7 +7,7 @@ record FoldUntilSourceT<M, A, S>(
     SourceT<M, A> Source,
     Schedule Schedule,
     Func<S, A, S> Folder,
-    Func<S, A, bool> Pred,
+    Func<(S State, A Value), bool> Pred,
     S State) : SourceT<M, S>
     where M : MonadIO<M>, Alternative<M>
 {
@@ -16,7 +16,7 @@ record FoldUntilSourceT<M, A, S>(
         Source.ReduceInternalM((FState: State, IState: state),
                                (rs, ma) => from a in ma
                                            let ns = Folder(rs.FState, a)
-                                           from r in Pred(ns, a)
+                                           from r in Pred((ns, a))
                                                          ? reducer(rs.IState, M.Pure(ns)).Map(s1 => s1.Map(s2 => (ns, s2)))
                                                          : M.Pure(Reduced.Continue((ns, rs.IState)))
                                            select r)

@@ -13,7 +13,7 @@ public static class Folding
         Range(0, n).AsSourceT<IO, int>();
     
     static SourceT<IO, Unit> example(int n) =>
-        from v in naturals(n).FoldUntil((s, x) => s + x, (s, _) => s % 4 == 0, 0)
+        from v in naturals(n).FoldUntil((s, x) => s + x, s => s.State % 4 == 0, 0)
         where v % 10 == 0
         from _ in writeLine(v)
         select unit;
