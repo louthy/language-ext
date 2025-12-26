@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 
 namespace LanguageExt;
@@ -5,7 +6,11 @@ namespace LanguageExt;
 /// <summary>
 /// Result of a `Reducer` delegate
 /// </summary>
-public readonly record struct Reduced<A>(bool Continue, A Value);
+public readonly record struct Reduced<A>(bool Continue, A Value)
+{
+    public Reduced<B> Map<B>(Func<A, B> f) =>
+        new (Continue, f(Value));
+}
 
 /// <summary>
 /// `Reduced〈A〉` constructors

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Issue1497;
+namespace Issues;
 
 using static AppPrelude;
 using LanguageExt.Pipes;

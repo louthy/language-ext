@@ -2,6 +2,8 @@ using System;
 using System.Runtime.Serialization;
 using LanguageExt;
 
+namespace Issues;
+
 public static class Issue1453
 {
     public static void Test()

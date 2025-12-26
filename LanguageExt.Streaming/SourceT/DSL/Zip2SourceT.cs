@@ -7,7 +7,7 @@ namespace LanguageExt;
 record Zip2SourceT<M, A, B>(SourceT<M, A> SourceA, SourceT<M, B> SourceB) : SourceT<M, (A First, B Second)>
     where M : MonadIO<M>, Alternative<M>
 {
-    public override K<M, S> ReduceM<S>(S state, ReducerM<M, K<M, (A First, B Second)>, S> reducer) =>
+    public override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, (A First, B Second)>, S> reducer) =>
         
         // Create channels that receive the values yielded by the two sources
         from channelA in M.Pure(Channel.CreateUnbounded<K<M, A>>())
@@ -20,28 +20,32 @@ record Zip2SourceT<M, A, B>(SourceT<M, A> SourceA, SourceT<M, B> SourceB) : Sour
         let triggerB = trigger<B>(writerB)
 
         // Create a forked first channel                        
-        from forkA in SourceA.ReduceM(unit, (_, ma) => writeAsync(writerA, ma))
+        from forkA in SourceA.ReduceInternalM(unit, (_, ma) => writeAsync(writerA, ma))
                              .Bind(_ => triggerA)
                              .Choose(triggerA)
                              .ForkIOMaybe()
 
         // Create a forked second channel                        
-        from forkB in SourceB.ReduceM(unit, (_, ma) => writeAsync(writerB, ma))
+        from forkB in SourceB.ReduceInternalM(unit, (_, ma) => writeAsync(writerB, ma))
                              .Bind(_ => triggerB)
                              .Choose(triggerB)
                              .ForkIOMaybe()
 
         // Then create a reader iterator that will yield the merged values 
-        from result in new Reader2SourceT<M, A, B>(channelA, channelB).ReduceM(state, reducer)
+        from result in new Reader2SourceT<M, A, B>(channelA, channelB).ReduceInternalM(state, reducer)
         
         // Make sure the forks are shutdown
-        from _      in M.LiftIOMaybe(Seq(forkA, forkB).Traverse(f => f.Cancel))
+        from _      in M.LiftIO(Seq(forkA, forkB).Traverse(f => f.Cancel))
 
         select result;
 
     static K<M, Unit> trigger<X>(ChannelWriter<K<M, X>> writer) =>
-        M.LiftIOMaybe(IO.lift(() => writer.TryComplete().Ignore()));
+        M.LiftIO(IO.lift(() => writer.TryComplete().Ignore()));
 
-    static K<M, Unit> writeAsync<X>(ChannelWriter<X> writer, X value) =>
-        M.LiftIOMaybe(IO.liftVAsync(e => writer.WriteAsync(value, e.Token).ToUnit()));
+    static K<M, Reduced<Unit>> writeAsync<X>(ChannelWriter<X> writer, X value) =>
+        M.LiftIO(IO.liftVAsync(async e =>
+                               {
+                                   await writer.WriteAsync(value, e.Token);
+                                   return Reduced.Continue(unit);
+                               }));
 }

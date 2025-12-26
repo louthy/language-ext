@@ -77,7 +77,7 @@ public static class SourceTExtensions
     [Pure]
     public static K<M, Unit> Iter<M, A>(this K<SourceT<M>, A> ma)
         where M : MonadIO<M>, Alternative<M> =>
-        ma.As().Reduce(unit, (_, _) => M.Pure(unit));
+        ma.As().FoldReduce(unit, (_, _) => unit);
 
     /// <summary>
     /// Force iteration of the stream, yielding the last structure processed
@@ -86,7 +86,7 @@ public static class SourceTExtensions
     public static K<M, A> Last<M, A>(this K<SourceT<M>, A> ma)
         where M : MonadIO<M>, Alternative<M> =>
         ma.As()
-          .Reduce(Option<A>.None, (_, x) => M.Pure(Some(x)))
+          .FoldReduce(Option<A>.None, (_, x) => Some(x))
           .Bind(ma => ma switch
                       {
                           { IsSome: true, Case: A value } => M.Pure(value),
@@ -99,7 +99,7 @@ public static class SourceTExtensions
     [Pure]
     public static K<M, Seq<A>> Collect<M, A>(this K<SourceT<M>, A> ma)
         where M : MonadIO<M>, Alternative<M> =>
-        ma.As().Reduce<Seq<A>>([], (xs, x) => M.Pure(xs.Add(x)));
+        ma.As().FoldReduce<Seq<A>>([], (xs, x) => xs.Add(x));
 
     /// <summary>
     /// Monad bind

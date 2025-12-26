@@ -33,7 +33,8 @@ class ConduitT<M, A, B, C> : ConduitT<M, A, C>
     /// <param name="value">Value to post</param>
     /// <returns>IO computation that represents the posting</returns>
     public override K<M, Unit> Post(A value) =>
-        sink.Reduce<Unit>((_, b) => Write(M.Pure(b)))(unit, value);
+        sink.Reduce<Unit>((_, b) => Write(M.Pure(b)).Map(Reduced.Continue))(unit, value)
+            .Map(r => r.Value);
 
     /// <summary>
     /// Post a value to the `Sink`
@@ -68,21 +69,23 @@ class ConduitT<M, A, B, C> : ConduitT<M, A, C>
     /// <returns>Reduced state</returns>
     public override K<M, S> Reduce<S>(S state, ReducerM<M, C, S> reducer)
     {
-        return M.LiftIOMaybe(IO.lift(e => go(state, e.Token))).Flatten();
+        return M.LiftIO(IO.lift(e => go(state, e.Token).Map(r => r.Value))).Flatten();
         
-        K<M, S> go(S s0, CancellationToken token)
+        K<M, Reduced<S>> go(S s0, CancellationToken token)
         {
-            if(token.IsCancellationRequested) return M.Pure(s0);
+            if(token.IsCancellationRequested) return M.Pure(Reduced.Done(s0));
             if (channel.Reader.WaitToReadAsync(token).GetAwaiter().GetResult())
             {
                 var mb = channel.Reader.ReadAsync(token).GetAwaiter().GetResult();
                 return mb.Bind(b => source.Reduce<S>((s1, c) => reducer(s1, c)
-                                                               .Bind(s2 => go(s2, token))
-                                                               .Choose(M.Pure(s0)))(s0, b));
+                                                               .Bind(s2 => s2.Continue
+                                                                            ? go(s2.Value, token)
+                                                                            : M.Pure(s2))
+                                                               .Choose(M.Pure(Reduced.Done(s0))))(s0, b));
             }
             else
             {
-                return M.Pure(s0);
+                return M.Pure(Reduced.Done(s0));
             }
         }
     }

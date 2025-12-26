@@ -15,7 +15,8 @@ record SinkTContraMapT<M, A, B>(TransducerM<M, B, A> F, SinkT<M, A> Sink) : Sink
         new SinkTContraMapT<M, A, C>(f.Compose(F), Sink);
 
     public override K<M, Unit> PostM(K<M, B> mb) =>
-        mb.Bind(b => F.Reduce<Unit>((_, a) => Sink.PostM(M.Pure(a)))(unit, b));
+        mb.Bind(b => F.Reduce<Unit>((_, a) => Sink.PostM(M.Pure(a)) * Reduced.Continue)(unit, b))
+          .Map(r => r.Value);
 
     public override K<M, Unit> Complete() => 
         Sink.Complete();

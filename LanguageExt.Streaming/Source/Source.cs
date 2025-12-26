@@ -208,7 +208,7 @@ public abstract record Source<A> :
     /// <param name="amount">Amount to take</param>
     /// <returns>Transformed source</returns>
     public Source<A> Take(int amount) =>
-        Transform(Transducer.take<A>(amount));
+        new TakeSource<A>(this, amount);
 
     /// <summary>
     /// Fold the values flowing through.  A value is only yielded downstream upon completion of the stream.

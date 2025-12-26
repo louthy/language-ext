@@ -470,7 +470,7 @@ record PipeTYieldAllSourceT<IN, OUT, M, X, A>(SourceT<M, X> Yields, Func<X, Pipe
     internal override ValueTask<K<M, A>> RunAsync(CancellationToken token)
     {
         var comp = Yields.ReduceM(PipeT.pure<IN, OUT, M, Unit>(unit),
-                                  (ms, mx) => M.Pure(ms.Bind(_ => mx.Bind(F))))
+                                  (ms, x) => M.Pure(Reduced.Continue(ms.Bind(_ => F(x)))))
                          .Bind(pipe => pipe.Bind(x => Next(x)));
 
         return comp.RunAsync(token);

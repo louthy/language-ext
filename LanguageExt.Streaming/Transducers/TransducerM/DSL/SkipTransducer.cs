@@ -13,7 +13,7 @@ record SkipTransducerM<M, A>(int Amount) : TransducerM<M, A, A>
                    if (amount > 0)
                    {
                        amount--;
-                       return M.Pure(s);
+                       return M.Pure(Reduced.Continue(s));
                    }
                    else
                    {

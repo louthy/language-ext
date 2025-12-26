@@ -8,7 +8,7 @@ record Zip4SourceT<M, A, B, C, D>(SourceT<M, A> SourceA, SourceT<M, B> SourceB, 
     : SourceT<M, (A First, B Second, C Third, D Fourth)>
     where M : MonadUnliftIO<M>, Alternative<M>
 {
-    public override K<M, S> ReduceM<S>(S state, ReducerM<M, K<M, (A First, B Second, C Third, D Fourth)>, S> reducer) => 
+    public override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, (A First, B Second, C Third, D Fourth)>, S> reducer) => 
                 
         // Create channels that receive the values yielded by the two sources
         from channelA in M.Pure(Channel.CreateUnbounded<K<M, A>>())
@@ -28,31 +28,31 @@ record Zip4SourceT<M, A, B, C, D>(SourceT<M, A> SourceA, SourceT<M, B> SourceB, 
         let triggerD = trigger<D>(writerD)
 
         // Create a forked first channel                        
-        from forkA in SourceA.ReduceM(unit, (_, ma) => writeAsync(writerA, ma))
+        from forkA in SourceA.ReduceInternalM(unit, (_, ma) => writeAsync(writerA, ma))
                              .Bind(_ => triggerA)
                              .Choose(triggerA)
                              .ForkIO()
 
         // Create a forked second channel                        
-        from forkB in SourceB.ReduceM(unit, (_, ma) => writeAsync(writerB, ma))
+        from forkB in SourceB.ReduceInternalM(unit, (_, ma) => writeAsync(writerB, ma))
                              .Bind(_ => triggerB)
                              .Choose(triggerB)
                              .ForkIO()
 
         // Create a forked third channel                        
-        from forkC in SourceC.ReduceM(unit, (_, ma) => writeAsync(writerC, ma))
+        from forkC in SourceC.ReduceInternalM(unit, (_, ma) => writeAsync(writerC, ma))
                              .Bind(_ => triggerC)
                              .Choose(triggerC)
                              .ForkIO()
 
         // Create a forked fourth channel                        
-        from forkD in SourceD.ReduceM(unit, (_, ma) => writeAsync(writerD, ma))
+        from forkD in SourceD.ReduceInternalM(unit, (_, ma) => writeAsync(writerD, ma))
                              .Bind(_ => triggerD)
                              .Choose(triggerD)
                              .ForkIO()
 
         // Then create a reader iterator that will yield the merged values 
-        from result in new Reader4SourceT<M, A, B, C, D>(channelA, channelB, channelC, channelD).ReduceM(state, reducer)
+        from result in new Reader4SourceT<M, A, B, C, D>(channelA, channelB, channelC, channelD).ReduceInternalM(state, reducer)
 
         // Make sure the forks are shutdown
         from _      in M.LiftIOMaybe(Seq(forkA, forkB, forkC, forkD).Traverse(f => f.Cancel))
@@ -62,6 +62,10 @@ record Zip4SourceT<M, A, B, C, D>(SourceT<M, A> SourceA, SourceT<M, B> SourceB, 
     static K<M, Unit> trigger<X>(ChannelWriter<K<M, X>> writer) =>
         M.LiftIOMaybe(IO.lift(() => writer.TryComplete().Ignore()));
 
-    static K<M, Unit> writeAsync<X>(ChannelWriter<X> writer, X value) =>
-        M.LiftIOMaybe(IO.liftVAsync(e => writer.WriteAsync(value, e.Token).ToUnit()));    
+    static K<M, Reduced<Unit>> writeAsync<X>(ChannelWriter<X> writer, X value) =>
+        M.LiftIO(IO.liftVAsync(async e =>
+                               {
+                                   await writer.WriteAsync(value, e.Token);
+                                   return Reduced.Continue(unit);
+                               }));       
 }

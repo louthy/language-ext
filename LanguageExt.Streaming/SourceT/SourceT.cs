@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using LanguageExt.Common;
 using LanguageExt.Pipes;
 using LanguageExt.Traits;
@@ -26,8 +25,22 @@ public abstract record SourceT<M, A> :
     /// <param name="reducer">Reducer</param>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Lifted aggregate state</returns>
-    public K<M, S> Reduce<S>(S state, ReducerM<M, A, S> reducer) =>
-        ReduceM(state, (s, mx) => mx.Bind(x => reducer(s, x)));
+    public K<M, S> Reduce<S>(S state, Reducer<A, S> reducer) =>
+        ReduceM(state, (s, x) => M.Pure(reducer(s, x)));
+    
+    /// <summary>
+    /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
+    /// result value.  This is returned lifted. 
+    /// </summary>
+    /// <remarks>Note, this is recursive, so `M` needs to be able to support recursion without
+    /// blowing the stack.  If you have the `IO` monad in your stack, then this will automatically
+    /// be the case.</remarks>
+    /// <param name="state">Initial state</param>
+    /// <param name="reducer">Reducer</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Lifted aggregate state</returns>
+    public K<M, S> FoldReduce<S>(S state, Func<S, A, S> reducer) =>
+        ReduceM(state, (s, x) => M.Pure(Reduced.Continue(reducer(s, x))));
 
     /// <summary>
     /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
@@ -40,7 +53,22 @@ public abstract record SourceT<M, A> :
     /// <param name="reducer">Reducer</param>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Lifted aggregate state</returns>
-    public abstract K<M, S> ReduceM<S>(S state, ReducerM<M, K<M, A>, S> reducer);
+    public K<M, S> ReduceM<S>(S state, ReducerM<M, A, S> reducer) =>
+        ReduceInternalM(state, (s, mx) => mx.Bind(x => reducer(s, x))).Map(r => r.Value);
+
+    /// <summary>
+    /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
+    /// result value.  This is returned lifted. 
+    /// </summary>
+    /// <remarks>Note, this is recursive, so `M` needs to be able to support recursion without
+    /// blowing the stack.  If you have the `IO` monad in your stack, then this will automatically
+    /// be the case.</remarks>
+    /// <param name="state">Initial state</param>
+    /// <param name="reducer">Reducer</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Lifted aggregate state</returns>
+    public K<M, S> FoldReduce<S>(S state, Func<S, A, K<M, S>> reducer) =>
+        ReduceInternalM(state, (s, mx) => mx.Bind(x => reducer(s, x).Map(Reduced.Continue))).Map(r => r.Value);
     
     /// <summary>
     /// A source that never yields a value
@@ -166,7 +194,7 @@ public abstract record SourceT<M, A> :
     /// <param name="amount">Amount to take</param>
     /// <returns>Transformed source</returns>
     public SourceT<M, A> Take(int amount) =>
-        Transform(TransducerM.take<M, A>(amount)); 
+        new TakeSourceT<M, A>(this, amount);
 
     /// <summary>
     /// Fold the values flowing through.  A value is only yielded downstream upon completion of the stream.
@@ -354,4 +382,36 @@ public abstract record SourceT<M, A> :
     /// </summary>
     public SourceT<M, C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         Map(a => project(a, bind(a).Value));
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Internal
+    //
+
+    /// <summary>
+    /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
+    /// result value.  This is returned lifted. 
+    /// </summary>
+    /// <remarks>Note, this is recursive, so `M` needs to be able to support recursion without
+    /// blowing the stack.  If you have the `IO` monad in your stack, then this will automatically
+    /// be the case.</remarks>
+    /// <param name="state">Initial state</param>
+    /// <param name="reducer">Reducer</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Lifted aggregate state</returns>
+    public K<M, Reduced<S>> ReduceInternal<S>(S state, ReducerM<M, A, S> reducer) =>
+        ReduceInternalM(state, (s, mx) => mx.Bind(x => reducer(s, x)));
+    
+    /// <summary>
+    /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
+    /// result value.  This is returned lifted. 
+    /// </summary>
+    /// <remarks>Note, this is recursive, so `M` needs to be able to support recursion without
+    /// blowing the stack.  If you have the `IO` monad in your stack, then this will automatically
+    /// be the case.</remarks>
+    /// <param name="state">Initial state</param>
+    /// <param name="reducer">Reducer</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <returns>Lifted aggregate state</returns>
+    public abstract K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer);
 }

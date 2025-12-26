@@ -17,7 +17,7 @@ record TakeTransducerM<M, A>(int Amount) : TransducerM<M, A, A>
                    }
                    else
                    {
-                       return M.Pure(s);
+                       return M.Pure(Reduced.Done(s));
                    }
                };
     }

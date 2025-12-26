@@ -52,7 +52,8 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        SourceTTests.Run();
+        Issues.Discussion1527.Run();
+        //SourceTTests.Run();
         //RecurTests.Run();
         //BracketTest.Run();
         //AwaitAnyTest.Run();

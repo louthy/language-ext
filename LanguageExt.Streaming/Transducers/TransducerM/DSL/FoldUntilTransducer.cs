@@ -23,7 +23,7 @@ record FoldUntilTransducerM<M, A, S>(
                    }
                    else
                    {
-                       return M.Pure(s1);
+                       return M.Pure(Reduced.Done(s1));
                    }
                };
     }
@@ -53,13 +53,13 @@ record FoldUntilTransducerM2<M, A, S>(
                        }
                        else
                        {
-                           return M.Pure(s1);
+                           return M.Pure(Reduced.Done(s1));
                        }
                        return reducer(s1, state);
                    }
                    else
                    {
-                       return M.Pure(s1);
+                       return M.Pure(Reduced.Done(s1));
                    }
                };
     }

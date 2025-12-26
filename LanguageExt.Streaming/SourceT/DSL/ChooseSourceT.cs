@@ -7,7 +7,7 @@ namespace LanguageExt;
 record ChooseSourceT<M, A>(Seq<SourceT<M, A>> Sources) : SourceT<M, A>
     where M : MonadIO<M>, Alternative<M>
 {
-    public override K<M, S> ReduceM<S>(S state, ReducerM<M, K<M, A>, S> reducer) =>
+    public override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer) =>
         // Create a channel for the merged streams
         from channel in M.Pure(Channel.CreateUnbounded<K<M, A>>())
         let writer = channel.Writer
@@ -16,13 +16,13 @@ record ChooseSourceT<M, A>(Seq<SourceT<M, A>> Sources) : SourceT<M, A>
         // This gives us K<M, A> that we can't run directly, so we must bind it...
         from signal in Signal.countdown<M>(Sources.Count)
         let trigger =  trigger(signal, writer)
-        from forks  in Sources.Map(s => s.ReduceM(unit, (_, ma) => writeAsync(writer, ma))
+        from forks  in Sources.Map(s => s.ReduceInternalM(unit, (_, ma) => writeAsync(writer, ma))
                                          .Bind(_ => trigger)
                                          .Choose(trigger))
                               .Traverse(ms => M.ForkIOMaybe(ms))
 
         // Reduce the merged stream
-        from result in SourceT.liftM<M, A>(channel).ReduceM(state, reducer)
+        from result in SourceT.liftM<M, A>(channel).ReduceInternalM(state, reducer)
         
         // Make sure the forks are shutdown
         from _      in M.LiftIOMaybe(forks.Traverse(f => f.Cancel))
@@ -34,6 +34,10 @@ record ChooseSourceT<M, A>(Seq<SourceT<M, A>> Sources) : SourceT<M, A>
         let _ = !f || writer.TryComplete()  // Mark channel completed if all sources are complete
         select unit;
     
-    static K<M, Unit> writeAsync<X>(ChannelWriter<X> writer, X value) =>
-        M.LiftIOMaybe(IO.liftVAsync(e => writer.WriteAsync(value, e.Token).ToUnit()));
+    static K<M, Reduced<Unit>> writeAsync<X>(ChannelWriter<X> writer, X value) =>
+        M.LiftIO(IO.liftVAsync(async e =>
+                               {
+                                    await writer.WriteAsync(value, e.Token);
+                                    return Reduced.Continue(unit);
+                               }));
 }

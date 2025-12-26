@@ -15,20 +15,20 @@ record MultiListenerSourceT<M, A>(Channel<K<M, A>> Source) : SourceT<M, A>
     readonly ConcurrentDictionary<Channel<K<M, A>>, Unit> listeners = new();
     readonly CancellationTokenSource tokenSource = new();
 
-    public override K<M, S> ReduceM<S>(S state, ReducerM<M, K<M, A>, S> reducer)
+    public override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer)
     {
         return from channel in mkChannel
                let final    =  final(channel)
                from result  in body(channel, state)
-                                .Bind(final.ConstMap)            // Run final if we succeed
-                                .Choose(final.ConstMap(state))   // Run final if we fail and keep the original state
+                                .Bind(final.ConstMap)                        // Run final if we succeed
+                                .Choose(final.ConstMap(Reduced.Done(state))) // Run final if we fail and keep the original state
                select result;
 
-        K<M, S> body(Channel<K<M, A>> channel, S state) =>
-            from _1 in addListener(channel)
-            from _2 in startup
-            from st in readAll(channel, reducer, state)
-            from _3 in final(channel)
+        K<M, Reduced<S>> body(Channel<K<M, A>> channel, S state) =>
+            from _  in addListener(channel) >>
+                       startup
+            from st in readAll(channel, reducer, state) >>
+                       final(channel)
             select st;
     }
 
@@ -87,21 +87,23 @@ record MultiListenerSourceT<M, A>(Channel<K<M, A>> Source) : SourceT<M, A>
         }
     }
 
-    K<M, S> readAll<S>(Channel<K<M, A>> channel, ReducerM<M, K<M, A>, S> reducer, S state)
+    K<M, Reduced<S>> readAll<S>(Channel<K<M, A>> channel, ReducerM<M, K<M, A>, S> reducer, S state)
     {
-        return M.LiftIOMaybe(IO.liftVAsync(async e => await go(state, reducer, e.Token))).Flatten();
+        return M.LiftIO(IO.liftVAsync(async e => await go(state, reducer, e.Token))).Flatten();
         
-        async ValueTask<K<M, S>> go(S state, ReducerM<M, K<M, A>, S> reducer, CancellationToken token)
+        async ValueTask<K<M, Reduced<S>>> go(S state, ReducerM<M, K<M, A>, S> reducer, CancellationToken token)
         {
-            if (token.IsCancellationRequested) return M.Pure(state);
-            if (!await channel.Reader.WaitToReadAsync(token)) return M.Pure(state);
+            if (token.IsCancellationRequested) return M.Pure(Reduced.Done(state));
+            if (!await channel.Reader.WaitToReadAsync(token)) return M.Pure(Reduced.Done(state));
             var head = await channel.Reader.ReadAsync(token);
-            return reducer(state, head).Bind(s => go(s, reducer, token).GetAwaiter().GetResult());
+            return reducer(state, head) >> (ns => ns.Continue
+                                                      ? go(ns.Value, reducer, token).GetAwaiter().GetResult()
+                                                      : M.Pure(ns));
         }
     }
 
     K<M, Unit> final(Channel<K<M, A>> channel) =>
-        M.LiftIOMaybe(
+        M.LiftIO(
             IO.liftVAsync(async e =>
                           {
                               listeners.TryRemove(channel, out _);

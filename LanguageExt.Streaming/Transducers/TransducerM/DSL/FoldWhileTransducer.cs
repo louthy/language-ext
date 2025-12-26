@@ -19,7 +19,7 @@ record FoldWhileTransducerM<M, A, S>(
                    if (Pred(state, x))
                    {
                        state = Folder(state, x);
-                       return M.Pure(s1);
+                       return M.Pure(Reduced.Done(s1));
                    }
                    else
                    {
@@ -51,7 +51,7 @@ record FoldWhileTransducerM2<M, A, S>(
                    if (Pred(state, x))
                    {
                        state = Folder(state, x);
-                       return M.Pure(s1);
+                       return M.Pure(Reduced.Done(s1));
                    }
                    else
                    {
@@ -62,7 +62,7 @@ record FoldWhileTransducerM2<M, A, S>(
                        }
                        else
                        {
-                           return M.Pure(s1);
+                           return M.Pure(Reduced.Done(s1));
                        }
 
                        return reducer(s1, state)
