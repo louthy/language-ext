@@ -26,6 +26,30 @@ public class RecurTests
         sorted.IsEmpty || value < sorted[0] 
             ? value + sorted
             : sorted[0] + insertSort(value, sorted.Tail);
+
+        
+    public static void recurIsSameAsBind()
+    {
+        var example = toSeq(Range(1, 20000)).Strict();
+
+        var result1 = Monad.recur((0, example), x => sumTail(x)); 
+        var result2 = sumNoTail(0, example);
+
+        
+        Option<Next<(int Total, Seq<int> Values), int>> sumTail((int Total, Seq<int> Values) pair) =>
+            pair.Values switch
+            {
+                []          => Next.Done<(int Total, Seq<int> Values), int>(pair.Total),
+                var (x, xs) => Next.Loop<(int Total, Seq<int> Values), int>((pair.Total + x, xs)) 
+            };
+
+        Option<int> sumNoTail(int total, Seq<int> values) =>
+            values switch
+            {
+                []          => Pure(total),
+                var (x, xs) => sumNoTail(total + x, xs)
+            };
+    }
     
     public static void recurIsSameAsBind<M>(Func<K<M, int>, K<M, int>, bool>? equals = null)
         where M : Monad<M>
@@ -39,7 +63,9 @@ public class RecurTests
         
         Console.WriteLine("Testing Monad.recur");
         var sw1     = Stopwatch.StartNew();
+        
         var result1 = Monad.recur((0, example), sumTail);
+        
         sw1.Stop();
         Console.WriteLine($"{sw1.Elapsed.Nanoseconds} ns");
 
@@ -47,7 +73,9 @@ public class RecurTests
 
         Console.WriteLine("Testing general recursion");
         var sw2     = Stopwatch.StartNew();
-        var result2 = sumNoTail(example);
+        
+        var result2 = sumNoTail(0, example);
+        
         sw2.Stop();
         Console.WriteLine($"{sw2.Elapsed.Nanoseconds} ns");
 
@@ -84,12 +112,11 @@ public class RecurTests
                 var (x, xs) => M.Loop<(int, Seq<int>), int>((pair.Total + x, xs)) 
             };
         
-        K<M, int> sumNoTail(Seq<int> values) =>
+        K<M, int> sumNoTail(int total, Seq<int> values) =>
             values switch
             {
-                []          => M.Pure(0),
-                var (x, xs) => from t in sumNoTail(xs)
-                               select t + x
+                []          => M.Pure(total),
+                var (x, xs) => sumNoTail(total + x, xs)
             };
     }
 }
