@@ -307,65 +307,6 @@ public abstract record Source<A> :
         ToProducerT<Eff<RT>>();
 
     /// <summary>
-    /// Concatenate two sources into a single source.
-    /// </summary>
-    /// <param name="lhs">Left-hand side</param>
-    /// <param name="rhs">Right-hand side</param>
-    /// <returns>Concatenated stream of values</returns>
-    public static Source<A> operator +(Source<A> lhs, Source<A> rhs) =>
-        lhs.Combine(rhs);
-
-    /// <summary>
-    /// The value streams are both merged into a new stream.  Values are yielded
-    /// as they become available.
-    /// </summary>
-    /// <param name="lhs">Left-hand side</param>
-    /// <param name="rhs">Right-hand side</param>
-    /// <returns>Merged stream</returns>
-    public static Source<A> operator |(Source<A> lhs, Source<A> rhs) =>
-        lhs.Choose(rhs);
-
-    /// <summary>
-    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
-    /// as the semicolon) in C#.
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the second action</returns>
-    public static Source<A> operator >> (Source<A> lhs, Source<A> rhs) =>
-        lhs.Bind(_ => rhs);
-
-    /// <summary>
-    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
-    /// as the semicolon) in C#.
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the second action</returns>
-    public static Source<A> operator >> (Source<A> lhs, K<Source, A> rhs) =>
-        lhs.Bind(_ => rhs);
-
-    /// <summary>
-    /// Sequentially compose two actions.  The second action is a unit-returning action, so the result of the
-    /// first action is propagated.
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the first action</returns>
-    public static Source<A> operator >> (Source<A> lhs, Source<Unit> rhs) =>
-        lhs.Bind(x => rhs.Map(_ => x));
-
-    /// <summary>
-    /// Sequentially compose two actions.  The second action is a unit-returning action, so the result of the
-    /// first action is propagated.
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the first action</returns>
-    public static Source<A> operator >> (Source<A> lhs, K<Source, Unit> rhs) =>
-        lhs.Bind(x => rhs.Map(_ => x));
-
-    /// <summary>
     /// Functor map
     /// </summary>
     public Source<B> Select<B>(Func<A, B> f) =>

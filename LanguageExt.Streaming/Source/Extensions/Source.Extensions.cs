@@ -7,7 +7,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public static class SourceExtensions
+public static partial class SourceExtensions
 {
     /// <summary>
     /// Downcast

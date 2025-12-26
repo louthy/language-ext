@@ -16,7 +16,7 @@ record FoldWhileSourceT<M, A, S>(
         Source.ReduceInternalM((FState: State, IState: state),
                                (s, ma) =>
                                    ma >> (a => Pred(s.FState, a)
-                                                   ? M.Pure(Reduced.Done((Folder(s.FState, a), s.IState)))
+                                                   ? M.Pure(Reduced.Continue((Folder(s.FState, a), s.IState)))
                                                    : reducer(s.IState, M.Pure(s.FState))
                                                         .Map(s1 => s1.Map(s2 => (s.FState, s2)))))
               .Map(s => s.Map(s1 => s1.IState));

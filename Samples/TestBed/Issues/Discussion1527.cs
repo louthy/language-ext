@@ -30,5 +30,20 @@ public class Discussion1527
                           .Run();
 
         Console.WriteLine(sum2);
+
+        var src3 = from x in SourceT.lift<IO, int>(Range(1, 100))
+                   where x % 10 == 0
+                   select x;
+
+        var r3 = src3.Skip(2).Take(5).Collect().Run();
+
+        Console.WriteLine(r3);
+
+        var src4 = +SourceT.lift<IO, int>(Range(1, 100))
+                           .FoldWhileIO(Seq<int>(), (s, x) => s + x, sv => sv.State.Count < 5);
+
+        var r4 = src4.Skip(2).Take(5).Collect().Run();
+
+        Console.WriteLine(r4);        
     }
 }
