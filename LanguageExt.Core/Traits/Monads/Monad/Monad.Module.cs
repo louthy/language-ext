@@ -80,11 +80,11 @@ public static partial class Monad
     [Pure]
     public static K<M, Iterable<A>> replicate<M, A>(K<M, A> ma, int count)
         where M : Monad<M> =>
-        M.Recur<(Iterable<A> Items, int Remaining), Iterable<A>>(
-            (Iterable.empty<A>(), count),
-            acc => ma.Map(a => acc.Remaining > 0 
-                                   ? Next.Loop<(Iterable<A> Items, int Remaining), Iterable<A>>((acc.Items.Add(a), acc.Remaining - 1))
-                                   : Next.Done<(Iterable<A> Items, int Remaining), Iterable<A>>(acc.Items.Add(a))));
+        recur<M, (Iterable<A> Items, int Remain), Iterable<A>>(
+            ([], count),
+            acc => ma * (a => acc.Remain > 0 
+                          ? Next.Loop<(Iterable<A> Items, int Remain), Iterable<A>>((acc.Items.Add(a), acc.Remain - 1))
+                          : Next.Done<(Iterable<A> Items, int Remain), Iterable<A>>(acc.Items.Add(a))));
 
     /// <summary>
     /// Keep running the monadic computation `ma` collecting the result values until a result value
@@ -99,7 +99,7 @@ public static partial class Monad
     public static K<M, Iterable<A>> accumUntil<M, A>(K<M, A> ma, Func<A, bool> f)
         where M : Monad<M> =>
         recur<M, Iterable<A>, Iterable<A>>(
-            Iterable.empty<A>(),
+            [],
             acc => ma * (a => f(a) ? Next.Done<Iterable<A>, Iterable<A>>(acc)
                                    : Next.Loop<Iterable<A>, Iterable<A>>(acc.Add(a))));
 
@@ -116,7 +116,7 @@ public static partial class Monad
     public static K<M, Iterable<A>> accumUntilM<M, A>(K<M, A> ma, Func<A, K<M, bool>> f)
         where M : Monad<M> =>
         recur<M, Iterable<A>, Iterable<A>>(
-            Iterable.empty<A>(),
+            [],
             acc => ma >> (a => f(a) * (r => r ? Next.Done<Iterable<A>, Iterable<A>>(acc)
                                               : Next.Loop<Iterable<A>, Iterable<A>>(acc.Add(a)))));
 
@@ -133,7 +133,7 @@ public static partial class Monad
     public static K<M, Iterable<A>> accumWhile<M, A>(K<M, A> ma, Func<A, bool> f)
         where M : Monad<M> =>
         recur<M, Iterable<A>, Iterable<A>>(
-            Iterable.empty<A>(),
+            [],
             acc => ma * (a => f(a) ? Next.Loop<Iterable<A>, Iterable<A>>(acc.Add(a))
                                    : Next.Done<Iterable<A>, Iterable<A>>(acc)));
 
@@ -150,7 +150,7 @@ public static partial class Monad
     public static K<M, Iterable<A>> accumWhileM<M, A>(K<M, A> ma, Func<A, K<M, bool>> f)
         where M : Monad<M> =>
         recur<M, Iterable<A>, Iterable<A>>(
-            Iterable.empty<A>(),
+            [],
             acc => ma >> (a => f(a) * (r => r ? Next.Loop<Iterable<A>, Iterable<A>>(acc.Add(a))
                                               : Next.Done<Iterable<A>, Iterable<A>>(acc))));
     
