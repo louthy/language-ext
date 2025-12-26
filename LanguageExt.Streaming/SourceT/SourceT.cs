@@ -67,7 +67,7 @@ public abstract record SourceT<M, A> :
     /// <param name="reducer">Reducer</param>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Lifted aggregate state</returns>
-    public K<M, S> FoldReduce<S>(S state, Func<S, A, K<M, S>> reducer) =>
+    public K<M, S> FoldReduceM<S>(S state, Func<S, A, K<M, S>> reducer) =>
         ReduceInternalM(state, (s, mx) => mx.Bind(x => reducer(s, x).Map(Reduced.Continue))).Map(r => r.Value);
     
     /// <summary>
