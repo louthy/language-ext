@@ -32,6 +32,127 @@ public static partial class Monad
         where MB : K<M, B>
         where M : Monad<M> =>
         (MB)bind(ma, x => f(x));
+
+    /// <summary>
+    /// This is equivalent to the infinite loop below without the stack-overflow issues:
+    ///
+    ///     K〈M, A〉go =>
+    ///         ma.Bind(_ => go);
+    /// 
+    /// </summary>
+    /// <param name="ma">Computation to recursively run</param>
+    /// <typeparam name="M">Monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <typeparam name="B">'Result' type, there will never be a result of `B`, but the monad rules may exit the loop
+    /// with an alternative value; and so `B` is still valid</typeparam>
+    /// <returns>A looped computation</returns>
+    [Pure]
+    public static K<M, A> forever<M, A>(K<M, A> ma)
+        where M : Monad<M> =>
+        forever<M, A, A>(ma);
+    
+    /// <summary>
+    /// This is equivalent to the infinite loop below without the stack-overflow issues:
+    ///
+    ///     K〈M, A〉go =>
+    ///         ma.Bind(_ => go);
+    /// 
+    /// </summary>
+    /// <param name="ma">Monadic computation to recursively run</param>
+    /// <typeparam name="M">Monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <typeparam name="B">'Result' type, there will never be a result of `B`, but the monad rules may exit the loop
+    /// with an alternative value; and so `B` is still valid</typeparam>
+    /// <returns>A looped computation</returns>
+    [Pure]
+    public static K<M, B> forever<M, A, B>(K<M, A> ma) 
+        where M : Monad<M> => 
+        recur<M, A, B>(default!, _ => ma.Map(_ => Next<A, B>.UnsafeDefault));
+
+    /// <summary>
+    /// Running the monadic computation `ma` a fixed number of times (`count`) collecting the results
+    /// </summary>
+    /// <param name="ma">Monadic computation to repeatedly run</param>
+    /// <param name="count">Number of times to replicate monadic computation</param>
+    /// <typeparam name="M">Monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>A lifted iterable of values collected</returns>
+    [Pure]
+    public static K<M, Iterable<A>> replicate<M, A>(K<M, A> ma, int count)
+        where M : Monad<M> =>
+        M.Recur<(Iterable<A> Items, int Remaining), Iterable<A>>(
+            (Iterable.empty<A>(), count),
+            acc => ma.Map(a => acc.Remaining > 0 
+                                   ? Next.Loop<(Iterable<A> Items, int Remaining), Iterable<A>>((acc.Items.Add(a), acc.Remaining - 1))
+                                   : Next.Done<(Iterable<A> Items, int Remaining), Iterable<A>>(acc.Items.Add(a))));
+
+    /// <summary>
+    /// Keep running the monadic computation `ma` collecting the result values until a result value
+    /// yielded triggers a `true` value when passed to the `f` predicate
+    /// </summary>
+    /// <param name="ma">Monadic computation to repeatedly run</param>
+    /// <param name="f">Predicate</param>
+    /// <typeparam name="M">Monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>A lifted iterable of values collected</returns>
+    [Pure]
+    public static K<M, Iterable<A>> accumUntil<M, A>(K<M, A> ma, Func<A, bool> f)
+        where M : Monad<M> =>
+        recur<M, Iterable<A>, Iterable<A>>(
+            Iterable.empty<A>(),
+            acc => ma * (a => f(a) ? Next.Done<Iterable<A>, Iterable<A>>(acc)
+                                   : Next.Loop<Iterable<A>, Iterable<A>>(acc.Add(a))));
+
+    /// <summary>
+    /// Keep running the monadic computation `ma` collecting the result values until a result value
+    /// yielded triggers a `true` value when passed to the `f` predicate
+    /// </summary>
+    /// <param name="ma">Monadic computation to repeatedly run</param>
+    /// <param name="f">Predicate</param>
+    /// <typeparam name="M">Monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>A lifted iterable of values collected</returns>
+    [Pure]
+    public static K<M, Iterable<A>> accumUntilM<M, A>(K<M, A> ma, Func<A, K<M, bool>> f)
+        where M : Monad<M> =>
+        recur<M, Iterable<A>, Iterable<A>>(
+            Iterable.empty<A>(),
+            acc => ma >> (a => f(a) * (r => r ? Next.Done<Iterable<A>, Iterable<A>>(acc)
+                                              : Next.Loop<Iterable<A>, Iterable<A>>(acc.Add(a)))));
+
+    /// <summary>
+    /// Keep running the monadic computation `ma` collecting the result values until a result value
+    /// yielded triggers a `true` value when passed to the `f` predicate
+    /// </summary>
+    /// <param name="ma">Monadic computation to repeatedly run</param>
+    /// <param name="f">Predicate</param>
+    /// <typeparam name="M">Monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>A lifted iterable of values collected</returns>
+    [Pure]
+    public static K<M, Iterable<A>> accumWhile<M, A>(K<M, A> ma, Func<A, bool> f)
+        where M : Monad<M> =>
+        recur<M, Iterable<A>, Iterable<A>>(
+            Iterable.empty<A>(),
+            acc => ma * (a => f(a) ? Next.Loop<Iterable<A>, Iterable<A>>(acc.Add(a))
+                                   : Next.Done<Iterable<A>, Iterable<A>>(acc)));
+
+    /// <summary>
+    /// Keep running the monadic computation `ma` collecting the result values until a result value
+    /// yielded triggers a `true` value when passed to the `f` predicate
+    /// </summary>
+    /// <param name="ma">Monadic computation to repeatedly run</param>
+    /// <param name="f">Predicate</param>
+    /// <typeparam name="M">Monad</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>A lifted iterable of values collected</returns>
+    [Pure]
+    public static K<M, Iterable<A>> accumWhileM<M, A>(K<M, A> ma, Func<A, K<M, bool>> f)
+        where M : Monad<M> =>
+        recur<M, Iterable<A>, Iterable<A>>(
+            Iterable.empty<A>(),
+            acc => ma >> (a => f(a) * (r => r ? Next.Loop<Iterable<A>, Iterable<A>>(acc.Add(a))
+                                              : Next.Done<Iterable<A>, Iterable<A>>(acc))));
     
     /// <summary>
     /// Lift a Next.Done value into the monad

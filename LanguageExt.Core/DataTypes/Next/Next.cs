@@ -36,6 +36,8 @@ public readonly struct Next<A, B>
     readonly A left;
     readonly B right;
 
+    internal static Next<A, B> UnsafeDefault = default;
+    
     internal Next(int state, A left, B right)
     {
         this.state = state;
