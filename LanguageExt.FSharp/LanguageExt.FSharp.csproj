@@ -9,7 +9,7 @@
     </PropertyGroup>
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <PackageVersion>5.0.0-beta-65</PackageVersion>
+        <PackageVersion>5.0.0-beta-66</PackageVersion>
         <PackageId>LanguageExt.FSharp</PackageId>
         <Title>LanguageExt.FSharp</Title>
         <Authors>Paul Louth</Authors>
