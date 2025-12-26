@@ -19,10 +19,10 @@ public class Discussion1527
         Console.WriteLine(sum1);
 
         var sum2 = SourceT.forever<IO, int>(1)
-                          .FoldWhileIO(
-                               0,
+                          .FoldWhile(
                                (s, x) => s + x,
-                               x => x.State <= 10
+                               x => x.State <= 10,
+                               0
                            )
                           .As()
                           .Take(1)
