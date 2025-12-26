@@ -52,7 +52,8 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        RecurTests.Run();
+        SourceTTests.Run();
+        //RecurTests.Run();
         //BracketTest.Run();
         //AwaitAnyTest.Run();
         //TestBed.StateStuff.StateForkIO.forkTest.Run(4).Run().Ignore();
