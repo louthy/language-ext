@@ -16,239 +16,100 @@ public static class Errors
         "properly (i.e. via `default(T)` or an uninitialised member).";
         
     /// <summary>
-    /// Bottom error code
-    /// </summary>
-    public const int BottomCode = -2000000000;
-        
-    /// <summary>
     /// An error that indicates a value from an operation couldn't be evaluated.  This is a hard
     /// fail for systems that depend on expressions to produce results. 
     /// </summary>
     public static readonly Error Bottom = BottomError.Default;
 
     /// <summary>
-    /// Cancelled error text
-    /// </summary>
-    public const string CancelledText = "cancelled";
-
-    /// <summary>
-    /// Cancelled error code
-    /// </summary>
-    public const int CancelledCode = -2000000001;
-
-    /// <summary>
     /// Cancelled error
     /// </summary>
-    public static readonly Error Cancelled = (CancelledCode, CancelledText);
- 
-    /// <summary>
-    /// Timed-out error text
-    /// </summary>
-    public const string TimedOutText = "timed out";
-
-    /// <summary>
-    /// Timed-out error code
-    /// </summary>
-    public const int TimedOutCode = -2000000002;
+    public static readonly Error Cancelled = (ErrorCodes.Cancelled, "cancelled");
 
     /// <summary>
     /// Timed-out error
     /// </summary>
-    public static readonly Error TimedOut = (TimedOutCode, TimedOutText);    
-
-    /// <summary>
-    /// Sequence-empty error text
-    /// </summary>
-    public const string SequenceEmptyText = "sequence empty";
-
-    /// <summary>
-    /// Sequence-empty error code
-    /// </summary>
-    public const int SequenceEmptyCode = -2000000003;
+    public static readonly Error TimedOut = (ErrorCodes.TimedOut, "timed out");    
 
     /// <summary>
     /// Sequence-empty error
     /// </summary>
-    public static readonly Error SequenceEmpty = (SequenceEmptyCode, SequenceEmptyText);    
-
-    /// <summary>
-    /// Closed error text
-    /// </summary>
-    public const string ClosedText = "closed";
-
-    /// <summary>
-    /// Closed error code
-    /// </summary>
-    public const int ClosedCode = -2000000004;
+    public static readonly Error SequenceEmpty = (ErrorCodes.SequenceEmpty, "sequence empty");    
 
     /// <summary>
     /// Closed error
     /// </summary>
-    public static readonly Error Closed = (ClosedCode, ClosedText);    
-
-    /// <summary>
-    /// Parse error error code
-    /// </summary>
-    public const int ParseErrorCode = -2000000005;
+    public static readonly Error Closed = (ErrorCodes.Closed, "closed");    
 
     /// <summary>
     /// Parse error
     /// </summary>
-    public static Error ParseError(string msg) => (ParseErrorCode, msg);
+    public static Error ParseError(string msg) => (ErrorCodes.ParseError, msg);
 
     /// <summary>
-    /// Many errors code
+    /// IO monad not in transformer stack or `MonadIO.LiftIO` not implemented
     /// </summary>
-    public const int ManyErrorsCode = -2000000006;
-
-    /// <summary>
-    /// IO monad not in transformer stack error text
-    /// </summary>
-    public const string LiftIONotSupportedText = 
-        "The IO monad is not in the monad-transformer stack or MonadIO.LiftIO has not been implemented in the trait "   +
-        "implementation for your monad-type.  Therefore it's not possible to leverage `MonadIO` lifting functionality. " +
-        "To resolve this, implement `MonadIO.LiftIO`.";
-
-    /// <summary>
-    /// IO monad not in transformer stack error code
-    /// </summary>
-    public const int LiftIONotSupportedCode = -2000000007;
-
-    /// <summary>
-    /// IO monad not in transformer stack error
-    /// </summary>
-    public static readonly Error LiftIONotSupported = (LiftIONotSupportedCode, LiftIONotSupportedText);
-
-    /// <summary>
-    /// Transformer stack has no `ToIO` support error text
-    /// </summary>
-    public const string ToIONotSupportedText =
-        "The IO monad is not in the monad-transformer stack or MonadIO.ToIO has not been implemented in the trait " +
-        "implementation for your monad-type.  Therefore it's not possible to leverage `MonadIO` unlifting trait "   +
-        "functionality. To resolve this, implement `MonadIO.ToIO` and/or `MonadIO.MapIO`.";
-
-    /// <summary>
-    /// Transformer stack has no `ToIO` support error code
-    /// </summary>
-    public const int ToIONotSupportedCode = -2000000008;
+    public static readonly Error LiftIONotSupported = 
+        (ErrorCodes.LiftIONotSupported, 
+         "The IO monad is not in the monad-transformer stack or MonadIO.LiftIO has not been implemented in the trait "   +
+         "implementation for your monad-type.  Therefore it's not possible to leverage `MonadIO` lifting functionality. " +
+         "To resolve this, implement `MonadIO.LiftIO`.");
 
     /// <summary>
     /// Transformer stack has no `ToIO` support error
     /// </summary>
-    public static readonly Error ToIONotSupported = (ToIONotSupportedCode, ToIONotSupportedText);
+    public static readonly Error ToIONotSupported = 
+        (ErrorCodes.ToIONotSupported, 
+         "The IO monad is not in the monad-transformer stack or MonadIO.ToIO has not been implemented in the trait " +
+         "implementation for your monad-type.  Therefore it's not possible to leverage `MonadIO` unlifting trait "   +
+         "functionality. To resolve this, implement `MonadIO.ToIO` and/or `MonadIO.MapIO`.");
 
     /// <summary>
-    /// Transformer stack has no `ForkIO` support error text
+    /// Transformer stack has no `Fork` support error
     /// </summary>
-    public const string ForkIONotSupportedText =
-        "The IO monad is not in the monad-transformer stack or MonadIO.ForkIO has not been implemented in the trait " +
-        "implementation for your monad-type.  Consider using `MonadUnliftIO` instead.  This type automatically "      +
-        "implements `MonadIO.ForkIO` for you, but you will need to provide `MapIO` and `ToIO` implementations.";
+    public static readonly Error ForkNotSupported =
+        (ErrorCodes.ForkIONotSupported,
+         "The IO monad is not in the monad-transformer stack or MonadIO.Fork has not been implemented in the trait " +
+         "implementation for your monad-type.");
 
     /// <summary>
-    /// Transformer stack has no `ForkIO` support error code
+    /// Transformer stack has no `Await` support error
     /// </summary>
-    public const int ForkIONotSupportedCode = -2000000008;
-
-    /// <summary>
-    /// Transformer stack has no `ForkIO` support error
-    /// </summary>
-    public static readonly Error ForkIONotSupported = (ForkIONotSupportedCode, ForkIONotSupportedText);
-
-    /// <summary>
-    /// End-of-stream error text
-    /// </summary>
-    public const string EndOfStreamText = 
-        "end of stream";
-
-    /// <summary>
-    /// End-of-stream error code
-    /// </summary>
-    public const int EndOfStreamCode = -2000000009;
+    public static readonly Error AwaitNotSupported =
+        (ErrorCodes.ForkIONotSupported,
+         "The IO monad is not in the monad-transformer stack or MonadIO.Await has not been implemented in the trait " +
+         "implementation for your monad-type.");
 
     /// <summary>
     /// End-of-stream error
     /// </summary>
-    public static readonly Error EndOfStream = (EndOfStreamCode, EndOfStreamText);
-
-    /// <summary>
-    /// Validation failed error text
-    /// </summary>
-    public const string ValidationFailedText = 
-        "validation failed";
-
-    /// <summary>
-    /// Validation failed error code
-    /// </summary>
-    public const int ValidationFailedCode = -2000000010;
+    public static readonly Error EndOfStream = (ErrorCodes.EndOfStream, "end of stream");
 
     /// <summary>
     /// Validation failed error
     /// </summary>
-    public static readonly Error ValidationFailed = (ValidationFailedCode, ValidationFailedText);
-
-    /// <summary>
-    /// Source completed error text
-    /// </summary>
-    public const string SourceCompletedText =
-        "source completed";
-    
-    /// <summary>
-    /// Source completed error code
-    /// </summary>
-    public const int SourceCompletedCode = -2000000011;
+    public static readonly Error ValidationFailed = (ErrorCodes.ValidationFailed, "validation failed");
 
     /// <summary>
     /// Source completed error
     /// </summary>
-    public static readonly Error SourceCompleted = (SourceCompletedCode, SourceCompletedText);
-
-    /// <summary>
-    /// IO DSL extension error text
-    /// </summary>
-    public const string IODSLExtensionText =
-        "If you are trying to extend the `IO` type then you must use: `InvokeAsync`, `InvokeSync`, `InvokeAsyncIO`, "+
-        "`InvokeSyncIO`, or `IOCatch` as the base-type, not `IO`";
-    
-    /// <summary>
-    /// IO DSL extension error code
-    /// </summary>
-    public const int IODSLExtensionCode = -2000000012;
+    public static readonly Error SourceCompleted = (ErrorCodes.SourceCompleted,  "source completed");
 
     /// <summary>
     /// IO DSL extension error
     /// </summary>
-    public static readonly Error IODSLExtension = new Exceptional(IODSLExtensionText, IODSLExtensionCode);
-
-    /// <summary>
-    /// Sink is full error message
-    /// </summary>
-    public const string SinkFullText =
-        "No inbox space available";
-    
-    /// <summary>
-    /// Sink is full error code
-    /// </summary>
-    public const int SinkFullCode = -2000000013;
+    public static readonly Error IODSLExtension = new Exceptional(
+        "If you are trying to extend the `IO` type then you must use: `InvokeAsync`, `InvokeSync`, `InvokeAsyncIO`, "+
+        "`InvokeSyncIO`, or `IOCatch` as the base-type, not `IO`",
+        ErrorCodes.IODSLExtension);
 
     /// <summary>
     /// Sink is full error
     /// </summary>
-    public static readonly Error SinkFull = new Expected(SinkFullText, SinkFullCode);
-
-    /// <summary>
-    /// Source is closed
-    /// </summary>
-    public const string SourceClosedText =
-        "Source is closed";
-    
-    /// <summary>
-    /// Source is closed code
-    /// </summary>
-    public const int SourceClosedCode = -2000000014;
+    public static readonly Error SinkFull = new Expected("Sink is full", ErrorCodes.SinkFull);
 
     /// <summary>
     /// Source is closed error
     /// </summary>
-    public static readonly Error SourceClosed = new Expected(SourceClosedText, SourceClosedCode);
+    public static readonly Error SourceClosed = new Expected("Source is closed", ErrorCodes.SourceClosed);
 }

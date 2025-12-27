@@ -616,7 +616,7 @@ public sealed record BottomError() : Exceptional(BottomException.Default)
     
     [DataMember]
     public override int Code => 
-        Errors.BottomCode; 
+        ErrorCodes.Bottom; 
 
     [DataMember]
     public override string Message => 
@@ -688,7 +688,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
         new ManyErrors(Seq.empty<Error>()); 
 
     public override int Code => 
-        Common.Errors.ManyErrorsCode;
+        ErrorCodes.ManyErrors;
 
     public override string Message { get; } =
         Errors.ToFullArrayString();

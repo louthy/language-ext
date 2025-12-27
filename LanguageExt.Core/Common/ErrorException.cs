@@ -378,7 +378,7 @@ public sealed class ManyExceptions(Seq<ErrorException> errors) : ErrorException(
     public readonly Seq<ErrorException> Errors = errors;
 
     public override int Code => 
-        Common.Errors.ManyErrorsCode;
+        ErrorCodes.ManyErrors;
 
     public override string Message =>
         Errors.ToFullArrayString();
@@ -449,7 +449,7 @@ public sealed class ManyExceptions(Seq<ErrorException> errors) : ErrorException(
 /// </summary>
 [Serializable]
 public class BottomException() : 
-    ExceptionalException(Errors.BottomText, Errors.BottomCode)
+    ExceptionalException(Errors.BottomText, ErrorCodes.Bottom)
 {
     public static readonly BottomException Default;
 
@@ -460,7 +460,7 @@ public class BottomException() :
         Errors.BottomText;
 
     public override int Code =>
-        Errors.BottomCode;
+        ErrorCodes.Bottom;
     
     public override Option<ErrorException> Inner =>
         default;
