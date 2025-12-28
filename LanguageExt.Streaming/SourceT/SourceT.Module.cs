@@ -221,7 +221,7 @@ public partial class SourceT
     /// <returns>Source that is the combination of all provided sources</returns>
     public static SourceT<M, A> merge<M, A>(Seq<SourceT<M, A>> sources) 
         where M : MonadIO<M>, Alternative<M> =>
-        sources.Fold(empty<M, A>(), (s, s2) => s.Combine(s2));
+        sources.Fold(empty<M, A>(), (s, s2) => s.Choose(s2));
         
     /// <summary>
     /// Merge sources into a single source

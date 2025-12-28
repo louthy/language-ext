@@ -94,6 +94,42 @@ public static partial class SourceTExtensions
                       });
 
     /// <summary>
+    /// Collect all the values into a `Seq` while the predicate holds.
+    /// </summary>
+    /// <param name="ma"></param>
+    /// <typeparam name="M"></typeparam>
+    /// <typeparam name="A"></typeparam>
+    /// <returns></returns>
+    [Pure]
+    public static K<M, Seq<A>> CollectWhile<M, A>(
+        this K<SourceT<M>, A> ma, 
+        Func<(Seq<A> Items, A Item), bool> predicate)
+        where M : MonadIO<M>, Alternative<M> =>
+        ma.As().Reduce<Seq<A>>(
+            [], 
+            (xs, x) => predicate((xs, x))
+                            ? Reduced.Continue(xs.Add(x))
+                            : Reduced.Done(xs));
+
+    /// <summary>
+    /// Collect all the values into a `Seq` while the predicate holds.
+    /// </summary>
+    /// <param name="ma"></param>
+    /// <typeparam name="M"></typeparam>
+    /// <typeparam name="A"></typeparam>
+    /// <returns></returns>
+    [Pure]
+    public static K<M, Seq<A>> CollectUntil<M, A>(
+        this K<SourceT<M>, A> ma, 
+        Func<(Seq<A> Items, A Item), bool> predicate)
+        where M : MonadIO<M>, Alternative<M> =>
+        ma.As().Reduce<Seq<A>>(
+            [], 
+            (xs, x) => predicate((xs, x))
+                           ? Reduced.Done(xs)
+                           : Reduced.Continue(xs.Add(x)));
+    
+    /// <summary>
     /// Force iteration of the stream and collect all the values into a `Seq`.
     /// </summary>
     [Pure]
@@ -148,7 +184,32 @@ public static partial class SourceTExtensions
     public static SourceT<M, C> SelectMany<M, A, B, C>(this Pure<A> ma, Func<A, SourceT<M, B>> bind, Func<A, B, C> project) 
         where M : MonadIO<M>, Alternative<M> =>
         bind(ma.Value).Map(y => project(ma.Value, y));
+
+    /// <summary>
+    /// Take values from the source for a period of time 
+    /// </summary>
+    /// <param name="ma">Source</param>
+    /// <param name="duration">Duration to take values for</param>
+    /// <typeparam name="M">Lifted monad trait</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>SourceT</returns>
+    [Pure]
+    public static SourceT<M, A> TakeFor<M, A>(this K<SourceT<M>, A> ma, Duration duration)
+        where M : MonadIO<M>, Fallible<Error, M>, Alternative<M> =>
+        new TakeForSourceT<M, A>(+ma, (TimeSpan)duration);
     
+    /// <summary>
+    /// Take values from the source for a period of time 
+    /// </summary>
+    /// <param name="ma">Source</param>
+    /// <param name="duration">Duration to take values for</param>
+    /// <typeparam name="M">Lifted monad trait</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>SourceT</returns>
+    [Pure]
+    public static SourceT<M, A> TakeFor<M, A>(this K<SourceT<M>, A> ma, TimeSpan duration)
+        where M : MonadIO<M>, Fallible<Error, M>, Alternative<M> =>
+        new TakeForSourceT<M, A>(+ma, duration);
 
     /// <summary>
     /// Zip two sources into one

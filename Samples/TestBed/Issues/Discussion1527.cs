@@ -1,12 +1,19 @@
 using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Issues;
 
-public class Discussion1527
+public static class Discussion1527
 {
     public static void Run()
     {
-        var sum1 = Source.forever(1)
+        var res = Think(1000).Run();
+
+        Console.WriteLine($"Output: {res}");
+
+        /*var sum1 = Source.forever(1)
                          .FoldWhile(
                               (s, x) => s + x,
                               (s, _) => s <= 10,
@@ -44,6 +51,46 @@ public class Discussion1527
 
         var r4 = src4.Skip(2).Take(5).Collect().Run();
 
-        Console.WriteLine(r4);        
+        Console.WriteLine(r4);   */
     }
+
+    public interface IObservation;
+
+    public record Obs(DateTime When) : IObservation;
+
+    static IObservation MakeObservation(DateTime dt)
+    {
+        Console.WriteLine($"Making observation: {dt}");
+        return new Obs(dt);
+    }
+
+    static SourceT<IO, DateTime> tickTockIO()
+    {
+        return from token in IO.token
+               from value in SourceT.lift<IO, DateTime>(go(token))
+               select value;
+        
+        static async IAsyncEnumerable<DateTime> go(CancellationToken token)
+        {
+            while (true)
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(5000), token);
+                yield return DateTime.Now;
+            }
+        }
+    }
+
+    public static SourceT<IO, IObservation> Observations =>
+        tickTockIO().Map(MakeObservation);
+
+    public static IO<Option<IObservation>> Think(Duration duration) =>
+        +Observations
+            .Take(1)
+            .TakeFor(duration)
+            .Last()
+            .Map(Some)
+        | NoObservations;
+    
+    static readonly IO<Option<IObservation>> NoObservations = 
+        IO.pure<Option<IObservation>>(None);
 }
