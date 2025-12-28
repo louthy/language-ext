@@ -22,10 +22,6 @@ record TakeForSourceT<M, A>(SourceT<M, A> Source, TimeSpan Duration) : SourceT<M
         Source.ReduceInternalM(
             state,
             (s, ma) => from ns in reducer(s, ma)
-                       from _ in sofar.SwapIO(_ =>
-                                              {
-                                                  Console.WriteLine($"Reducing state: {ns.Value}");
-                                                  return ns.Value;
-                                              })
+                       from _ in sofar.SwapIO(_ => ns.Value)
                        select ns);
 }
