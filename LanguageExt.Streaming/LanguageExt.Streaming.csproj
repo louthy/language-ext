@@ -10,7 +10,7 @@
         <RootNamespace>LanguageExt.Pipes</RootNamespace>
     </PropertyGroup>
     <PropertyGroup>
-        <PackageVersion>5.0.0-beta-72</PackageVersion>
+        <PackageVersion>5.0.0-beta-73</PackageVersion>
         <PackageId>LanguageExt.Streaming</PackageId>
         <Title>LanguageExt.Streaming</Title>
         <Authors>Paul Louth</Authors>

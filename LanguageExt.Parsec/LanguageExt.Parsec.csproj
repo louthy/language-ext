@@ -9,7 +9,7 @@
     </PropertyGroup>
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <PackageVersion>5.0.0-beta-72</PackageVersion>
+        <PackageVersion>5.0.0-beta-73</PackageVersion>
         <PackageId>LanguageExt.Parsec</PackageId>
         <Title>LanguageExt.Parsec</Title>
         <Authors>Paul Louth</Authors>
