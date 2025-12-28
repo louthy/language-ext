@@ -90,6 +90,12 @@ public static class Discussion1527
             .Last()
             .Map(Some)
         | NoObservations;
+
+
+    public static IO<Seq<IObservation>> Think2(Duration duration) =>
+        +Observations
+            .TakeFor(duration)
+            .Collect();
     
     static readonly IO<Option<IObservation>> NoObservations = 
         IO.pure<Option<IObservation>>(None);
