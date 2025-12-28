@@ -5,7 +5,7 @@ namespace LanguageExt.Tests.Streaming;
 public class SourceTests
 {
     [Fact]
-    public void Empty_Source_Should_Not_Produce_Values()
+    public void Empty_source_should_not_produce_values()
     {
         // Arrange
         var source = Source.empty<int>();
@@ -14,7 +14,7 @@ public class SourceTests
     }
     
     [Fact]
-    public void Pure_Source_Should_Produce_Single_Value()
+    public void Pure_source_should_produce_single_value()
     {
         // Arrange
         var value  = 42;
@@ -26,7 +26,7 @@ public class SourceTests
     }
 
     [Fact]
-    public void Map_Should_Transform_Values()
+    public void Map_should_transform_values()
     {
         // Arrange
         var source = Source.pure(42).Map(x => x * 2);
@@ -37,7 +37,7 @@ public class SourceTests
     }
     
     [Fact]
-    public void Where_Should_Filter_Values()
+    public void Where_should_filter_values()
     {
         // Arrange
         var source = Source.pure(42).Where(x => x > 50);
@@ -48,7 +48,7 @@ public class SourceTests
     }
 
     [Fact]
-    public void Add_Should_Concatenate_Sources()
+    public void Add_should_concatenate_sources()
     {
         // Arrange
         var source1 = Source.pure(1);
@@ -64,7 +64,7 @@ public class SourceTests
     }
     
     [Fact]
-    public void Zip_Should_Combine_Two_Sources()
+    public void Zip_should_combine_two_sources()
     {
         // Arrange
         var source1 = Source.pure(1);
@@ -77,4 +77,28 @@ public class SourceTests
         // Assert
         Assert.True(output == [(1, "A")]);
     }
+    
+    [Fact]
+    public void Or_operator_should_merge_two_sources()
+    {
+        // Arrange
+        var source1 = Source.lift([1, 2, 3]);
+        var source2 = Source.lift([10, 20, 30]);
+
+        // Act
+        var merged = source1 | source2;
+        var output = merged.Collect().Run();
+
+        // Assert that the output has 3 items lower than 10
+        Assert.True(output.Filter(x => x < 10).Count  == 3);
+
+        // Assert that the output has 3 items greater than 10
+        Assert.True(output.Filter(x => x >= 10).Count == 3);
+
+        // Assert that the output has the lower items in-order
+        Assert.True(output.Filter(x => x < 10)        == [1, 2, 3]);
+        
+        // Assert that the output has the upper items in-order
+        Assert.True(output.Filter(x => x >= 10)       == [10, 20, 30]);
+    }    
 }
