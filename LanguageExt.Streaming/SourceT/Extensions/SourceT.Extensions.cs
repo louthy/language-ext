@@ -85,13 +85,14 @@ public static partial class SourceTExtensions
     [Pure]
     public static K<M, A> Last<M, A>(this K<SourceT<M>, A> ma)
         where M : MonadIO<M>, Alternative<M> =>
+        M.Token.Bind(t =>
         ma.As()
           .FoldReduce(Option<A>.None, (_, x) => Some(x))
           .Bind(ma => ma switch
                       {
                           { IsSome: true, Case: A value } => M.Pure(value),
                           _                               => M.Empty<A>()
-                      });
+                      }));
 
     /// <summary>
     /// Collect all the values into a `Seq` while the predicate holds.

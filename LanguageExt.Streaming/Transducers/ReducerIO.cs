@@ -8,4 +8,4 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="S">State</typeparam>
 /// <typeparam name="A">Value</typeparam>
-public delegate ValueTask<Reduced<S>> ReducerAsync<in A, S>(S state, A input);
+public delegate IO<Reduced<S>> ReducerIO<in A, S>(S state, A input);

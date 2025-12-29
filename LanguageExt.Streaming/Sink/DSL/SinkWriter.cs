@@ -12,7 +12,7 @@ record SinkWriter<A>(Channel<A> Channel) : Sink<A>
     public override IO<Unit> Post(A value) =>
         from f in IO.liftVAsync(e => Channel.Writer.WaitToWriteAsync(e.Token))
         from r in f ? IO.liftVAsync(() => Channel.Writer.WriteAsync(value).ToUnit())
-                      : IO.fail<Unit>(Errors.SinkFull)
+                    : IO.fail<Unit>(Errors.SinkFull)
         select r;
 
     public override IO<Unit> Complete() =>

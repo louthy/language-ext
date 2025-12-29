@@ -1,31 +1,22 @@
 using System;
 using System.Threading;
 using System.Threading.Channels;
-using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
 record ChooseSource<A>(Seq<Source<A>> Sources) : Source<A>
 {
-    internal override async ValueTask<Reduced<S>> ReduceAsync<S>(
-        S state, 
-        ReducerAsync<A, S> reducer,
-        CancellationToken token)
-    {
-        // Create a channel for the merged streams
-        var channel = Channel.CreateUnbounded<A>();
-        var writer  = channel.Writer;
-
-        var signal  = new CountdownEvent(Sources.Count);
-        var trigger = triggerF(signal, writer);
-
-        using var env = EnvIO.New(token: token);
-        var forks = await Sources.Map(s => IO.liftAsync(async e =>
+    internal override IO<Reduced<S>> ReduceInternal<S>(S state, ReducerIO<A, S> reducer) =>
+        from channel in createChannel
+        let writer   =  channel.Writer
+        let signal   =  new CountdownEvent(Sources.Count)
+        let trigger  =  triggerF(signal, writer)
+        from forks   in Sources.Map(s => IO.liftAsync(async e =>
                                                    {
                                                        try
                                                        {
-                                                           await s.ReduceAsync(unit, (_, ma) => writeAsync(writer, ma, e.Token))
+                                                           await s.ReduceIO(unit, (_, ma) => writeAsync(writer, ma))
                                                                   .RunAsync(e);
                                                        }
                                                        finally
@@ -36,12 +27,13 @@ record ChooseSource<A>(Seq<Source<A>> Sources) : Source<A>
                                                        return unit;
                                                    }))
                             .Traverse(s => s.Fork())
-                            .RunAsync(env);
 
-        var nstate = await Source.lift(channel).ReduceAsync(state, reducer, token);
-        (await forks.Traverse(f => f.Cancel).RunAsync(env)).Strict();
-        return nstate;
-    }
+        from nstate in Source.lift(channel).ReduceInternal(state, reducer)
+        from _      in forks.Traverse(f => f.Cancel).Map(s => s.Strict())
+        select nstate;
+    
+    IO<Channel<A>> createChannel =>
+        IO.lift(Channel.CreateUnbounded<A>);
 
     static Func<Unit> triggerF(CountdownEvent signal, ChannelWriter<A> writer) =>
         () =>
@@ -53,16 +45,17 @@ record ChooseSource<A>(Seq<Source<A>> Sources) : Source<A>
             return default;
         };
 
-    static async ValueTask<Reduced<Unit>> writeAsync<X>(ChannelWriter<X> writer, X value, CancellationToken token) 
-    {
-        if (token.IsCancellationRequested)
-        {
-            return Reduced.Done(unit);
-        }
-        else
-        {
-            await writer.WriteAsync(value, token);
-            return Reduced.Continue(unit);
-        }
-    }
+    static IO<Reduced<Unit>> writeAsync<X>(ChannelWriter<X> writer, X value) =>
+        IO.liftVAsync(async e =>
+                      {
+                          if (e.Token.IsCancellationRequested)
+                          {
+                              return Reduced.Done(unit);
+                          }
+                          else
+                          {
+                              await writer.WriteAsync(value, e.Token);
+                              return Reduced.Continue(unit);
+                          }
+                      });
 }

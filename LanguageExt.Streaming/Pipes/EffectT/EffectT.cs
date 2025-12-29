@@ -72,10 +72,6 @@ public readonly record struct EffectT<M, A>(PipeT<Unit, Void, M, A> Proxy) : K<E
     [Pure]
     public K<M, A> Run() =>
         Proxy.Run();
-
-    [Pure]
-    public ValueTask<K<M, A>> RunAsync(CancellationToken token) =>
-        Proxy.RunAsync(token);
     
     [Pure]
     public static implicit operator EffectT<M, A>(PipeT<Unit, Void, M, A> pipe) =>

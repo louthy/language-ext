@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt;
+using static LanguageExt.Prelude;
 
 namespace Issues;
 
@@ -74,7 +76,7 @@ public static class Discussion1527
         {
             while (true)
             {
-                await Task.Delay(TimeSpan.FromMilliseconds(5000), token);
+                await Task.Delay(TimeSpan.FromMilliseconds(100), token);
                 yield return DateTime.Now;
             }
         }
@@ -84,7 +86,7 @@ public static class Discussion1527
         tickTockIO().Map(MakeObservation);
 
     public static IO<Option<IObservation>> Think(Duration duration) =>
-        +Observations
+        Observations
             .Take(1)
             .TakeFor(duration)
             .Last()

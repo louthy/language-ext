@@ -6,7 +6,7 @@ namespace LanguageExt;
 record ComposeTransducer<A, B, C>(Transducer<A, B> TF, Transducer<B, C> TG) : 
     Transducer<A, C> 
 {
-    public override ReducerAsync<A, S> Reduce<S>(ReducerAsync<C, S> reducer) =>
+    public override ReducerIO<A, S> Reduce<S>(ReducerIO<C, S> reducer) =>
         (s, x) => TF.Reduce<S>((s1, y) =>  TG.Reduce(reducer)(s1, y))(s, x);
 
     public override Transducer<A, D> Compose<D>(Transducer<C, D> t) =>
@@ -16,7 +16,7 @@ record ComposeTransducer<A, B, C>(Transducer<A, B> TF, Transducer<B, C> TG) :
 record ComposeTransducer<A, B, C, D>(Transducer<A, B> TF, Transducer<B, C> TG, Transducer<C, D> TH) : 
     Transducer<A, D>
 {
-    public override ReducerAsync<A, S> Reduce<S>(ReducerAsync<D, S> reducer) =>
+    public override ReducerIO<A, S> Reduce<S>(ReducerIO<D, S> reducer) =>
         (s, x) => TF.Reduce<S>((s1, y) => TG.Reduce<S>((s2, z) => TH.Reduce(reducer)(s2, z))(s1, y))(s, x);
 
     public override Transducer<A, E> Compose<E>(Transducer<D, E> t) =>
@@ -30,7 +30,7 @@ record ComposeTransducer<A, B, C, D, E>(
     Transducer<D, E> TI) : 
     Transducer<A, E>
 {
-    public override ReducerAsync<A, S> Reduce<S>(ReducerAsync<E, S> reducer) =>
+    public override ReducerIO<A, S> Reduce<S>(ReducerIO<E, S> reducer) =>
         (s, w) => TF.Reduce<S>(
                 (s1, x) => TG.Reduce<S>(
                         (s2, y) => TH.Reduce<S>(
@@ -51,7 +51,7 @@ record ComposeTransducer<A, B, C, D, E, F>(
     Transducer<E, F> TJ) : 
     Transducer<A, F>
 {
-    public override ReducerAsync<A, S> Reduce<S>(ReducerAsync<F, S> reducer) =>
+    public override ReducerIO<A, S> Reduce<S>(ReducerIO<F, S> reducer) =>
         (s, v) => TF.Reduce<S>(
                 (s1, w) => TG.Reduce<S>(
                         (s2, x) => TH.Reduce<S>(
@@ -75,7 +75,7 @@ record ComposeTransducer<A, B, C, D, E, F, G>(
     Transducer<F, G> TK) : 
     Transducer<A, G>
 {
-    public override ReducerAsync<A, S> Reduce<S>(ReducerAsync<G, S> reducer) =>
+    public override ReducerIO<A, S> Reduce<S>(ReducerIO<G, S> reducer) =>
         (s, u) => TF.Reduce<S>(
                 (s1, v) => TG.Reduce<S>(
                         (s2, w) => TH.Reduce<S>(

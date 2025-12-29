@@ -38,7 +38,7 @@ public static partial class SourceExtensions
     /// The expectation is that the stream uses `IO` for side effects, so this makes them to happen.
     /// </remarks>
     public static IO<Unit> Iter<A>(this K<Source, A> ma) =>
-        ma.As().ReduceAsync(unit, (_, _) => Reduced.ContinueAsync(unit));
+        ma.As().ReduceIO(unit, (_, _) => Reduced.ContinueIO(unit));
     
     /// <summary>
     /// Force iteration of the stream, yielding a unit `M` structure.
@@ -55,7 +55,7 @@ public static partial class SourceExtensions
     /// </summary>
     public static IO<A> Last<A>(this K<Source, A> ma) =>
         ma.As()
-          .ReduceAsync(Option<A>.None, (_, x) => Reduced.ContinueAsync(Some(x)))
+          .ReduceIO(Option<A>.None, (_, x) => Reduced.ContinueIO(Some(x)))
           .Bind(ma => ma switch
                       {
                           { IsSome: true, Case: A value } => IO.pure(value),
@@ -73,7 +73,7 @@ public static partial class SourceExtensions
     /// Force iteration of the stream and collect all the values into a `Seq`.
     /// </summary>
     public static IO<Seq<A>> Collect<A>(this K<Source, A> ma) =>
-        ma.As().ReduceAsync<Seq<A>>([], (xs, x) => Reduced.ContinueAsync(xs.Add(x)));
+        ma.As().ReduceIO<Seq<A>>([], (xs, x) => Reduced.ContinueIO(xs.Add(x)));
     
     /// <summary>
     /// Force iteration of the stream and collect all the values into a `Seq`.

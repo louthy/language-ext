@@ -17,7 +17,15 @@ public class EnvIO : IDisposable
     int resourcesDisposed;
     int nonResourcesDisposed;
 
-    EnvIO(Resources resources,
+    static readonly EnvIO DisposeEnv = new(
+        new Resources(null), 
+        CancellationToken.None, 
+        new CancellationTokenSource(), 
+        null, 
+        null, 
+        0);
+    
+    internal EnvIO(Resources resources,
           CancellationToken token,
           CancellationTokenSource source,
           SynchronizationContext? syncContext,
@@ -99,7 +107,11 @@ public class EnvIO : IDisposable
     {
         if (Interlocked.CompareExchange(ref resourcesDisposed, 1, 0) == 0)
         {
-            if ((Own & 2) == 2) Resources.DisposeU(this);
+            if ((Own & 2) == 2)
+            {
+                var env = New();
+                Resources.DisposeU(env);
+            }
         }
     }
 

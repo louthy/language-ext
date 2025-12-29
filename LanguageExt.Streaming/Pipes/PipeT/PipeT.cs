@@ -211,13 +211,5 @@ public abstract record PipeT<IN, OUT, M, A> : K<PipeT<IN, OUT, M>, A>
         PipeT.foldWhile(Time, Fold, Pred, Init, this);
     
     [Pure]
-    internal virtual K<M, A> Run()
-    {
-        var t = RunAsync(CancellationToken.None);
-        if(t.IsCompleted) return t.Result;
-        return t.GetAwaiter().GetResult();
-    }
-
-    [Pure]
-    internal abstract ValueTask<K<M, A>> RunAsync(CancellationToken token);
+    internal abstract K<M, A> Run();
 }

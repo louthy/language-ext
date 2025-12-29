@@ -235,8 +235,4 @@ public record Pipe<RT, IN, OUT, A>(PipeT<IN, OUT, Eff<RT>, A> Proxy) : K<Pipe<RT
     [Pure]
     internal virtual Eff<RT, A> Run() =>
         Proxy.Run().As();
-
-    [Pure]
-    internal ValueTask<Eff<RT, A>> RunAsync(CancellationToken token) =>
-        Proxy.RunAsync(token).Map(ma => ma.As());
 }

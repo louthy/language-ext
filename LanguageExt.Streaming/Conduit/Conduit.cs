@@ -70,7 +70,7 @@ public abstract class Conduit<A, B> : K<Conduit<A>, B>
     /// <param name="reducer">Reducer</param>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Reduced state</returns>
-    public abstract IO<S> Reduce<S>(S state, ReducerAsync<B, S> reducer);
+    public abstract IO<S> Reduce<S>(S state, ReducerIO<B, S> reducer);
     
     /// <summary>
     /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
@@ -80,7 +80,7 @@ public abstract class Conduit<A, B> : K<Conduit<A>, B>
     /// <param name="reducer">Reducer</param>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Reduced state</returns>
-    public abstract K<M, S> Reduce<M, S>(S state, ReducerAsync<B, S> reducer) 
+    public abstract K<M, S> Reduce<M, S>(S state, ReducerIO<B, S> reducer) 
         where M : MonadIO<M>;
     
     /// <summary>
@@ -91,7 +91,7 @@ public abstract class Conduit<A, B> : K<Conduit<A>, B>
     /// <summary>
     /// Functor map
     /// </summary>
-public Conduit<A, C> Select<C>(Func<B, C> f) =>
+    public Conduit<A, C> Select<C>(Func<B, C> f) =>
         Map(f);
     
     /// <summary>

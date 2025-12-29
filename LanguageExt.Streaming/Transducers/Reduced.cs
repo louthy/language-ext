@@ -52,8 +52,8 @@ public static class Reduced
     /// <param name="value">Result</param>
     /// <typeparam name="A">Result value type</typeparam>
     /// <returns>`Reduced` structure in a continue state</returns>
-    public static ValueTask<Reduced<A>> ContinueAsync<A>(A value) =>
-        new(new Reduced<A>(true, value));
+    public static IO<Reduced<A>> ContinueIO<A>(A value) =>
+        IO.pure(new Reduced<A>(true, value));
     
     /// <summary>
     /// Return a result and indicate that we're done and don't want to process any more
@@ -61,8 +61,8 @@ public static class Reduced
     /// <param name="value">Result</param>
     /// <typeparam name="A">Result value type</typeparam>
     /// <returns>`Reduced` structure in a done state</returns>
-    public static ValueTask<Reduced<A>> DoneAsync<A>(A value) =>
-        new(new Reduced<A>(false, value));
+    public static IO<Reduced<A>> DoneIO<A>(A value) =>
+        IO.pure(new Reduced<A>(false, value));
 
     /// <summary>
     /// `Reduced〈A〉` in a continue state

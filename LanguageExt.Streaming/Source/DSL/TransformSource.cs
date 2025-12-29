@@ -5,6 +5,6 @@ namespace LanguageExt;
 
 record TransformSource<A, B>(Source<A> Source, Transducer<A, B> Transducer) : Source<B>
 {
-    internal override ValueTask<Reduced<S>> ReduceAsync<S>(S state, ReducerAsync<B, S> reducer, CancellationToken token) =>
-        Source.ReduceAsync(state, Transducer.Reduce(reducer), token);
+    internal override IO<Reduced<S>> ReduceInternal<S>(S state, ReducerIO<B, S> reducer) =>
+        Source.ReduceInternal(state, Transducer.Reduce(reducer));
 }

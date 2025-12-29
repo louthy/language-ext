@@ -61,6 +61,29 @@ public static partial class MonadExtensions
             lhs >> (_ => rhs);
     }
     
+    extension<M, A, B>(K<IO, A> self)
+        where M : MonadIO<M>
+    {
+        /// <summary>
+        /// Monad bind operator
+        /// </summary>
+        /// <param name="ma">Monad to bind</param>
+        /// <param name="f">Binding function</param>
+        /// <returns>Mapped monad</returns>
+        public static K<M, B> operator >> (K<IO, A> ma, Func<A, K<M, B>> f) =>
+            M.LiftIO(ma).Bind(f);
+        
+        /// <summary>
+        /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
+        /// as the semicolon) in C#.
+        /// </summary>
+        /// <param name="lhs">First action to run</param>
+        /// <param name="rhs">Second action to run</param>
+        /// <returns>Result of the second action</returns>
+        public static K<M, B> operator >> (K<IO, A> lhs, K<M, B> rhs) =>
+            lhs >> (_ => rhs);
+    }
+    
     extension<M, A>(K<M, A> self)
         where M : Monad<M>
     {

@@ -55,18 +55,22 @@ internal class Conduit<A, B, C> : Conduit<A, C>
     /// <param name="value">Value to post</param>
     /// <returns>IO computation that represents the posting</returns>
     public override IO<Unit> Post(A value) =>
-        IO.liftVAsync(async e => (await sink.Reduce<Unit>(async (_, x) =>
-                                                          {
-                                                              if (await channel.Writer.WaitToWriteAsync(e.Token))
-                                                              {
-                                                                  await channel.Writer.WriteAsync(x);
-                                                                  return Reduced.Unit;
-                                                              }
-                                                              else
-                                                              {
-                                                                  throw Errors.SinkFull;
-                                                              }
-                                                          })(unit, value)).Value);
+        sink.Reduce<Unit>(
+            (_, x) => 
+                IO.liftVAsync(async e =>
+                          {
+                              if (await channel.Writer.WaitToWriteAsync(e.Token))
+                              {
+                                  await channel.Writer.WriteAsync(x);
+                                  return Reduced.Unit;
+                              }
+                              else
+                              {
+                                  throw Errors.SinkFull;
+                              }
+                          }))
+                    (unit, value)
+            .Map(r => r.Value);
 
     /// <summary>
     /// Complete and close the Sink
@@ -88,13 +92,13 @@ internal class Conduit<A, B, C> : Conduit<A, C>
     /// <param name="reducer">Reducer</param>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Reduced state</returns>
-    public override IO<S> Reduce<S>(S state, ReducerAsync<C, S> reducer) =>
+    public override IO<S> Reduce<S>(S state, ReducerIO<C, S> reducer) =>
         IO.liftVAsync(async e =>
                       {
                           while (await channel.Reader.WaitToReadAsync(e.Token))
                           {
                               var value = await channel.Reader.ReadAsync();
-                              switch (await source.Reduce(reducer)(state, value))
+                              switch (await source.Reduce(reducer)(state, value).RunAsync(e))
                               {
                                   case { Continue: true, Value: var nstate }:
                                     state = nstate;
@@ -115,13 +119,13 @@ internal class Conduit<A, B, C> : Conduit<A, C>
     /// <param name="reducer">Reducer</param>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Reduced state</returns>
-    public override K<M, S> Reduce<M, S>(S state, ReducerAsync<C, S> reducer) =>
+    public override K<M, S> Reduce<M, S>(S state, ReducerIO<C, S> reducer) =>
         M.LiftIOMaybe(IO.liftVAsync(async e =>
                                {
                                    while (await channel.Reader.WaitToReadAsync(e.Token))
                                    {
                                        var value = await channel.Reader.ReadAsync();
-                                       switch (await source.Reduce(reducer)(state, value))
+                                       switch (await source.Reduce(reducer)(state, value).RunAsync(e))
                                        {
                                            case { Continue: true, Value: var nstate }:
                                                state = nstate;

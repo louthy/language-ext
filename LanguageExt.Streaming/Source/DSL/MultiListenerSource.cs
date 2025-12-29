@@ -13,42 +13,44 @@ record MultiListenerSource<A>(Channel<A> Source) : Source<A>
     readonly ConcurrentDictionary<Channel<A>, Unit> listeners = new();
     readonly CancellationTokenSource tokenSource = new();
 
-    internal override async ValueTask<Reduced<S>> ReduceAsync<S>(S state, ReducerAsync<A, S> reducer, CancellationToken token)
-    {
-        var channel = Channel.CreateUnbounded<A>();
-        listeners.TryAdd(channel, unit);
-        
-        if (Interlocked.Increment(ref count) == 1)
-        {
-            _ = Startup();
-        }
+    internal override IO<Reduced<S>> ReduceInternal<S>(S state, ReducerIO<A, S> reducer) =>
+        IO.liftVAsync(async e =>
+                      {
+                          var channel = Channel.CreateUnbounded<A>();
+                          listeners.TryAdd(channel, unit);
 
-        try
-        {
-            var rdr = channel.Reader;
-            while (await rdr.WaitToReadAsync(token))
-            {
-                switch (await reducer(state, await rdr.ReadAsync(token)))
-                {
-                    case { Continue: true, Value: var nstate }:
-                        state = nstate;
-                        break;
-                    
-                    case { Value: var nstate }:
-                        return Reduced.Done(nstate);
-                }
-            }
-            return Reduced.Continue(state);
-        }
-        finally
-        {
-            listeners.TryRemove(channel, out _);
-            if (Interlocked.Decrement(ref count) == 0)
-            {
-                await Shutdown();
-            }
-        }
-    }
+                          if (Interlocked.Increment(ref count) == 1)
+                          {
+                              _ = Startup();
+                          }
+
+                          try
+                          {
+                              var rdr = channel.Reader;
+                              while (await rdr.WaitToReadAsync(e.Token))
+                              {
+                                  switch (await reducer(state, await rdr.ReadAsync(e.Token)).RunAsync(e))
+                                  {
+                                      case { Continue: true, Value: var nstate }:
+                                          state = nstate;
+                                          break;
+
+                                      case { Value: var nstate }:
+                                          return Reduced.Done(nstate);
+                                  }
+                              }
+
+                              return Reduced.Continue(state);
+                          }
+                          finally
+                          {
+                              listeners.TryRemove(channel, out _);
+                              if (Interlocked.Decrement(ref count) == 0)
+                              {
+                                  await Shutdown();
+                              }
+                          }
+                      });
 
     async Task Startup()
     {

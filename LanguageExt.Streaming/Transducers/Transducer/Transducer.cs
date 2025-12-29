@@ -13,7 +13,7 @@ public abstract record Transducer<A, B> :
     /// <param name="reducer">Reducer that folds the stream of values flowing through the transducer</param>
     /// <typeparam name="S">State</typeparam>
     /// <returns></returns>
-    public abstract ReducerAsync<A, S> Reduce<S>(ReducerAsync<B, S> reducer);
+    public abstract ReducerIO<A, S> Reduce<S>(ReducerIO<B, S> reducer);
 
     /// <summary>
     /// Compose two transducers together.  The output of the first transducer is the input to the second.

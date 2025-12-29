@@ -2,20 +2,22 @@ namespace LanguageExt;
 
 record TakeTransducer<A>(int Amount) : Transducer<A, A> 
 {
-    public override ReducerAsync<A, S> Reduce<S>(ReducerAsync<A, S> reducer)
+    public override ReducerIO<A, S> Reduce<S>(ReducerIO<A, S> reducer)
     {
         var taken = 0;
-        return (s, x) =>
-               {
-                   if (taken < Amount)
-                   {
-                       taken++;
-                       return reducer(s, x);
-                   }
-                   else
-                   {
-                       return Reduced.DoneAsync(s);
-                   }
-               };
+        return (s, x) => 
+                   IO.liftVAsync(async e =>
+                                 {
+                                     if(e.Token.IsCancellationRequested) return Reduced.Done(s);
+                                     if (taken < Amount)
+                                     {
+                                         taken++;
+                                         return await reducer(s, x).RunAsync(e);
+                                     }
+                                     else
+                                     {
+                                         return Reduced.Done(s);
+                                     }
+                                 });
     }
 }

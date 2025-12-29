@@ -14,8 +14,8 @@ record SinkContraMapT<A, B>(Transducer<B, A> F, Sink<A> Sink) : Sink<B>
         new SinkContraMapT<A, C>(f.Compose(F), Sink);
 
     public override IO<Unit> Post(B value) =>
-        IO.liftVAsync(e => F.Reduce<Unit>((_, a) => Sink.Post(a).RunAsync(e).Map(Reduced.Continue))(unit, value))
-          .Map(x => x.Value);
+        F.Reduce<Unit>((_, a) => Sink.Post(a).Map(Reduced.Continue))(unit, value)
+         .Map(x => x.Value);
 
     public override IO<Unit> Complete() => 
         Sink.Complete();

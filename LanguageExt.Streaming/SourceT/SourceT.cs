@@ -54,7 +54,12 @@ public abstract record SourceT<M, A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Lifted aggregate state</returns>
     public K<M, S> ReduceM<S>(S state, ReducerM<M, A, S> reducer) =>
-        ReduceInternalM(state, (s, mx) => mx.Bind(x => reducer(s, x))).Map(r => r.Value);
+        M.Token >> (t => M.BracketIOMaybe(
+                        ReduceInternalM(state,
+                                        (s, mx) => t.IsCancellationRequested
+                                                       ? M.Pure(Reduced.Done(s))
+                                                       : mx.Bind(x => reducer(s, x)))
+                           .Map(r => r.Value)));
 
     /// <summary>
     /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
@@ -68,7 +73,13 @@ public abstract record SourceT<M, A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Lifted aggregate state</returns>
     public K<M, S> FoldReduceM<S>(S state, Func<S, A, K<M, S>> reducer) =>
-        ReduceInternalM(state, (s, mx) => mx.Bind(x => reducer(s, x).Map(Reduced.Continue))).Map(r => r.Value);
+        M.Token >> (t => M.BracketIOMaybe(
+                        ReduceInternalM(
+                                state,
+                                (s, mx) => t.IsCancellationRequested
+                                               ? M.Pure(Reduced.Done(s))
+                                               : mx.Bind(x => reducer(s, x).Map(Reduced.Continue)))
+                           .Map(r => r.Value)));
     
     /// <summary>
     /// A source that never yields a value

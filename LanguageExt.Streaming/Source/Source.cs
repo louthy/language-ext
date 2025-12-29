@@ -29,7 +29,7 @@ public abstract record Source<A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Reduced state</returns>
     public IO<S> Reduce<S>(S state, Func<S, A, S> reducer) =>
-        IO.liftVAsync(e => ReduceAsync(state, (s, x) => Reduced.ContinueAsync(reducer(s, x)), e.Token))
+        ReduceInternal(state, (s, x) => IO.pure(Reduced.Continue(reducer(s, x))))
           .Map(r => r.Value);
 
     /// <summary>
@@ -41,7 +41,7 @@ public abstract record Source<A> :
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Reduced state</returns>
     public IO<S> Reduce<S>(S state, Reducer<A, S> reducer) =>
-        IO.liftVAsync(e => ReduceAsync(state, (s, x) => new(reducer(s, x)), e.Token))
+        ReduceInternal(state, (s, x) => IO.pure(reducer(s, x)))
           .Map(r => r.Value);
 
     /// <summary>
@@ -52,8 +52,8 @@ public abstract record Source<A> :
     /// <param name="reducer">Reducer</param>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Reduced state</returns>
-    public IO<S> ReduceAsync<S>(S state, ReducerAsync<A, S> reducer) =>
-        IO.liftVAsync(e => ReduceAsync(state, reducer, e.Token))
+    public IO<S> ReduceIO<S>(S state, ReducerIO<A, S> reducer) =>
+        ReduceInternal(state, reducer)
           .Map(r => r.Value);
     
     /// <summary>
@@ -64,9 +64,9 @@ public abstract record Source<A> :
     /// <param name="reducer">Reducer</param>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Reduced state</returns>
-    public K<M, S> ReduceAsync<M, S>(S state, ReducerAsync<A, S> reducer) 
+    public K<M, S> ReduceIO<M, S>(S state, ReducerIO<A, S> reducer) 
         where M : MonadIO<M> =>
-        M.LiftIOMaybe(ReduceAsync(state, reducer));
+        M.LiftIOMaybe(ReduceIO(state, reducer));
     
     /// <summary>
     /// Transform with a transducer
@@ -323,8 +323,7 @@ public abstract record Source<A> :
     // Internal
     //
 
-    internal abstract ValueTask<Reduced<S>> ReduceAsync<S>(
+    internal abstract IO<Reduced<S>> ReduceInternal<S>(
         S state, 
-        ReducerAsync<A, S> reducer, 
-        CancellationToken token);
+        ReducerIO<A, S> reducer);
 }

@@ -27,9 +27,12 @@ public class Resources : IDisposable
     
     public Unit DisposeU(EnvIO envIO)
     {
+        if(resources.IsEmpty) return unit;
+        using var source = new CancellationTokenSource();
+        var disposeEnv = new EnvIO(envIO.Resources, CancellationToken.None, source, envIO.SyncContext, null, 0);
         foreach (var item in resources)
         {
-            item.Value.Release().Run(envIO);
+            item.Value.Release().Run(disposeEnv);
         }
         return default;
     }
