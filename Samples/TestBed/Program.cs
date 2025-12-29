@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using LanguageExt;
 using System.Threading.Tasks;
+using Issues;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 using TestBed;
@@ -28,7 +29,8 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        SourceTTests.Run();
+        Discussion1527.Run();
+        //SourceTTests.Run();
         //Issues.Discussion1527.Run();
         //RecurTests.Run();
         //BracketTest.Run();

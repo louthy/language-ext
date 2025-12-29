@@ -11,11 +11,13 @@ public static class Discussion1527
 {
     public static void Run()
     {
-        var res = Think(1000).Run();
+        Console.WriteLine(Think3(1000).Run());
+
+        /*var res = Think(1000).Run();
 
         Console.WriteLine($"Output: {res}");
 
-        /*var sum1 = Source.forever(1)
+        var sum1 = Source.forever(1)
                          .FoldWhile(
                               (s, x) => s + x,
                               (s, _) => s <= 10,
@@ -38,31 +40,27 @@ public static class Discussion1527
                           .Last()
                           .Run();
 
-        Console.WriteLine(sum2);
-
-        var src3 = from x in SourceT.lift<IO, int>(Range(1, 100))
-                   where x % 10 == 0
-                   select x;
-
-        var r3 = src3.Skip(2).Take(5).Collect().Run();
-
-        Console.WriteLine(r3);
-
-        var src4 = +SourceT.lift<IO, int>(Range(1, 100))
-                           .FoldWhile((s, x) => s + x, sv => sv.State.Count < 5, Seq<int>());
-
-        var r4 = src4.Skip(2).Take(5).Collect().Run();
-
-        Console.WriteLine(r4);   */
+        Console.WriteLine(sum2);*/
     }
 
+    public static IO<Seq<IObservation>> Think3(Duration duration)
+    {
+        var empty        = SourceT.pure<IO, Seq<IObservation>>([]);
+        var timeout      = empty.Delay(duration);
+        var observations = Observations.Map(Seq);
+        
+        return +SourceT.merge(observations, timeout)
+                       .Take(1)
+                       .Last();
+    }
+    
     public interface IObservation;
 
     public record Obs(DateTime When) : IObservation;
 
     static IObservation MakeObservation(DateTime dt)
     {
-        Console.WriteLine($"Making observation: {dt}");
+        //Console.WriteLine($"Making observation: {dt.Ticks}");
         return new Obs(dt);
     }
 
@@ -76,8 +74,10 @@ public static class Discussion1527
         {
             while (true)
             {
-                await Task.Delay(TimeSpan.FromMilliseconds(100), token);
-                yield return DateTime.Now;
+                if(token.IsCancellationRequested) yield break;
+                await Task.Delay(TimeSpan.FromMilliseconds(10000), token);
+                var now = DateTime.Now;
+                yield return now;
             }
         }
     }

@@ -13,19 +13,22 @@ record ChooseSource<A>(Seq<Source<A>> Sources) : Source<A>
         let signal   =  new CountdownEvent(Sources.Count)
         let trigger  =  triggerF(signal, writer)
         from forks   in Sources.Map(s => IO.liftAsync(async e =>
-                                                   {
-                                                       try
-                                                       {
-                                                           await s.ReduceIO(unit, (_, ma) => writeAsync(writer, ma))
-                                                                  .RunAsync(e);
-                                                       }
-                                                       finally
-                                                       {
-                                                           trigger();
-                                                       }
+                                           {
+                                               try
+                                               {
+                                                   await s.Reduce(unit, 
+                                                                  (_, a) => e.Token.IsCancellationRequested
+                                                                                ? Reduced.Done(unit) 
+                                                                                : writeAsync(writer, a))
+                                                          .RunAsync(e);
+                                               }
+                                               finally
+                                               {
+                                                   trigger();
+                                               }
 
-                                                       return unit;
-                                                   }))
+                                               return unit;
+                                           }))
                             .Traverse(s => s.Fork())
 
         from nstate in Source.lift(channel).ReduceInternal(state, reducer)
@@ -45,17 +48,8 @@ record ChooseSource<A>(Seq<Source<A>> Sources) : Source<A>
             return default;
         };
 
-    static IO<Reduced<Unit>> writeAsync<X>(ChannelWriter<X> writer, X value) =>
-        IO.liftVAsync(async e =>
-                      {
-                          if (e.Token.IsCancellationRequested)
-                          {
-                              return Reduced.Done(unit);
-                          }
-                          else
-                          {
-                              await writer.WriteAsync(value, e.Token);
-                              return Reduced.Continue(unit);
-                          }
-                      });
+    static Reduced<Unit> writeAsync<X>(ChannelWriter<X> writer, X value) =>
+        writer.TryWrite(value)
+            ? Reduced.Unit
+            : Reduced.Done(unit);
 }

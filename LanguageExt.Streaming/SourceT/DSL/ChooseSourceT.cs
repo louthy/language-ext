@@ -16,28 +16,26 @@ record ChooseSourceT<M, A>(Seq<SourceT<M, A>> Sources) : SourceT<M, A>
         // This gives us K<M, A> that we can't run directly, so we must bind it...
         from signal in Signal.countdown<M>(Sources.Count)
         let trigger =  trigger(signal, writer)
-        from forks  in Sources.Map(s => s.ReduceInternalM(unit, (_, ma) => writeAsync(writer, ma))
+        from forks  in Sources.Map(s => s.ReduceInternalM(unit, (_, ma) => ma.Map(a => writeAsync(writer, a)))
                                          .Bind(_ => trigger)
-                                         .Choose(trigger))
-                              .Traverse(ms => M.ForkIOMaybe(ms))
+                                         .Choose(trigger)
+                                         .ForkIOMaybe())
+                              .Sequence()
 
         // Reduce the merged stream
         from result in SourceT.liftM<M, A>(channel).ReduceInternalM(state, reducer)
         
         // Make sure the forks are shutdown
-        from _      in M.LiftIOMaybe(forks.Traverse(f => f.Cancel))
+        from _      in M.LiftIO(forks.Traverse(f => f.Cancel))
         
         select result;
 
     static K<M, Unit> trigger(CountdownSignal<M> signal, ChannelWriter<K<M, A>> writer) =>
-        from f in signal.Trigger()
-        let _ = !f || writer.TryComplete()  // Mark channel completed if all sources are complete
-        select unit;
-    
-    static K<M, Reduced<Unit>> writeAsync<X>(ChannelWriter<X> writer, X value) =>
-        M.LiftIO(IO.liftVAsync(async e =>
-                               {
-                                    await writer.WriteAsync(value, e.Token);
-                                    return Reduced.Continue(unit);
-                               }));
+        // Mark channel completed if all sources are complete
+        (f => ignore(f && writer.TryComplete())) * signal.Trigger();
+
+    static Reduced<Unit> writeAsync<X>(ChannelWriter<K<M, X>> writer, X value) =>
+        writer.TryWrite(M.Pure(value))
+            ? Reduced.Unit
+            : Reduced.Done(unit);
 }
