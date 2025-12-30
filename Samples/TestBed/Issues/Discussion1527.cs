@@ -12,9 +12,11 @@ public static class Discussion1527
 {
     public static void Run()
     {
-        var r1 = +Think<Eff>(1000);
+        Eff<IObservation> r1 = +Think<Eff>(1000);
+        IO<IObservation>  r2 = +Think<IO>(1000);
 
         Console.WriteLine(r1.Run());
+        Console.WriteLine(r2.Run());
 
         /*var res = Think(1000).Run();
 
@@ -46,6 +48,18 @@ public static class Discussion1527
         Console.WriteLine(sum2);*/
     }
 
+    static IO<Seq<IObservation>> Think2(Duration duration, Func<IObservation, bool>? predicate = null)
+    {
+        var observations = Observations<IO>()
+                                .FoldUntil((s, o) => s + o,
+                                           x => predicate?.Invoke(x.Value) ?? false,
+                                           Seq<IObservation>())
+                                .TakeFor(duration) 
+                         | SourceT.pure<IO, Seq<IObservation>>(Empty);
+
+        return observations.Last().As();
+    }
+
     public static K<M, IObservation> Think<M>(Duration duration)
         where M : MonadIO<M>, Fallible<M>, Alternative<M>
     {
@@ -53,9 +67,9 @@ public static class Discussion1527
         var timeout      = empty.Delay(duration);
         var observations = Observations<M>();
 
-        return SourceT.merge(observations, timeout)
-                      .Take(1)
-                      .Last();
+        return (observations | timeout)
+                   .Take(1)
+                   .Last();
     }
     
     public interface IObservation;

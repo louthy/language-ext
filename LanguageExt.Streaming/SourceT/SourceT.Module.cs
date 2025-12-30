@@ -302,73 +302,84 @@ public partial class SourceT
     public SourceT<M, (A First, B Second, C Third, D Fourth)> zip<M, A, B, C, D>(SourceT<M, A> first, SourceT<M, B> second, SourceT<M, C> third, SourceT<M, D> fourth) 
         where M : MonadUnliftIO<M>, Fallible<Error, M> =>
         new Zip4SourceT<M, A, B, C, D>(first, second, third, fourth);
-    
-    /// <summary>
-    /// Force iteration of the stream, yielding a unit `M` structure.
-    /// </summary>
-    /// <remarks>
-    /// The expectation is that the stream uses `IO` for side effects, so this makes them happen.
-    /// </remarks>
-    [Pure]
-    public static K<M, Unit> iter<M, A>(K<SourceT<M>, A> ma)
-        where M : MonadIO<M> =>
-        ma.As().FoldReduce(unit, (_, _) => unit);
 
     /// <summary>
-    /// Force iteration of the stream, yielding the last structure processed
+    /// Reduce the stream into a unit value.
     /// </summary>
     [Pure]
-    public static K<M, A> last<M, A>(K<SourceT<M>, A> ma)
+    public static K<M, Unit> iter<M, A>(K<SourceT<M>, A> ma) 
+        where M : MonadIO<M> =>
+        ma.Iter();
+
+    /// <summary>
+    /// Reduce the stream by collecting all the values into a `Seq` while the predicate holds.
+    /// </summary>
+    [Pure]
+    public static K<M, Seq<A>> collectWhile<M, A>(K<SourceT<M>, A> ma, Func<(Seq<A> Items, A Item), bool> predicate) 
+        where M : MonadIO<M> =>
+        ma.CollectWhile(predicate);
+
+    /// <summary>
+    /// Reduce the stream by collecting all the values into a `Seq` while the predicate holds.
+    /// </summary>
+    [Pure]
+    public static K<M, Seq<A>> collectUntil<M, A>(K<SourceT<M>, A> ma, Func<(Seq<A> Items, A Item), bool> predicate) 
+        where M : MonadIO<M> =>
+        ma.CollectUntil(predicate);
+
+    /// <summary>
+    /// Reduce the stream by collecting all the values into a `Seq`.
+    /// </summary>
+    [Pure]
+    public static K<M, Seq<A>> collect<M, A>(K<SourceT<M>, A> ma) 
+        where M : MonadIO<M> =>
+        ma.Collect();
+    
+    /// <summary>
+    /// Reduce the stream, yielding the last structure processed, or the `None` if the stream is empty
+    /// </summary>
+    [Pure]
+    public static K<M, Option<A>> lastOrNone<M, A>(K<SourceT<M>, A> ma) 
+        where M : MonadIO<M> =>
+        ma.LastOrNone();
+    
+    /// <summary>
+    /// Reduce the stream, yielding the first structure processed, or the `None` if the stream is empty
+    /// </summary>
+    [Pure]
+    public static K<M, Option<A>> firstOrNone<M, A>(K<SourceT<M>, A> ma) 
+        where M : MonadIO<M> =>
+        ma.FirstOrNone();
+    
+    /// <summary>
+    /// Reduce the stream, yielding the last structure processed, or the default value if the stream is empty
+    /// </summary>
+    [Pure]
+    public static K<M, A> last<M, A>(K<SourceT<M>, A> ma, A defaultValue) 
+        where M : MonadIO<M> =>
+        ma.Last(defaultValue);
+
+    /// <summary>
+    /// Reduce the stream, yielding the first structure processed, or the default value if the stream is empty
+    /// </summary>
+    [Pure]
+    public static K<M, A> first<M, A>(K<SourceT<M>, A> ma, A defaultValue) 
+        where M : MonadIO<M> =>
+        ma.First(defaultValue);
+    
+    /// <summary>
+    /// Reduce the stream, yielding the last structure processed, or `M.Empty` if the stream is empty
+    /// </summary>
+    [Pure]
+    public static K<M, A> last<M, A>(K<SourceT<M>, A> ma) 
         where M : MonadIO<M>, Alternative<M> =>
-        ma.As()
-          .FoldReduce(Option<A>.None, (_, x) => Some(x))
-          .Bind(ma => ma switch
-                      {
-                          { IsSome: true, Case: A value } => M.Pure(value),
-                          _                               => M.Empty<A>()
-                      });
-
-    /// <summary>
-    /// Collect all the values into a `Seq` while the predicate holds.
-    /// </summary>
-    /// <param name="ma"></param>
-    /// <typeparam name="M"></typeparam>
-    /// <typeparam name="A"></typeparam>
-    /// <returns></returns>
-    [Pure]
-    public static K<M, Seq<A>> collectWhile<M, A>(
-        K<SourceT<M>, A> ma, 
-        Func<(Seq<A> Items, A Item), bool> predicate)
-        where M : MonadIO<M> =>
-        ma.As().Reduce<Seq<A>>(
-            [], 
-            (xs, x) => predicate((xs, x))
-                            ? Reduced.Continue(xs.Add(x))
-                            : Reduced.Done(xs));
-
-    /// <summary>
-    /// Collect all the values into a `Seq` while the predicate holds.
-    /// </summary>
-    /// <param name="ma"></param>
-    /// <typeparam name="M"></typeparam>
-    /// <typeparam name="A"></typeparam>
-    /// <returns></returns>
-    [Pure]
-    public static K<M, Seq<A>> collectUntil<M, A>(
-        K<SourceT<M>, A> ma, 
-        Func<(Seq<A> Items, A Item), bool> predicate)
-        where M : MonadIO<M> =>
-        ma.As().Reduce<Seq<A>>(
-            [], 
-            (xs, x) => predicate((xs, x))
-                           ? Reduced.Done(xs)
-                           : Reduced.Continue(xs.Add(x)));
+        ma.Last();
     
     /// <summary>
-    /// Force iteration of the stream and collect all the values into a `Seq`.
+    /// Reduce the stream, yielding the first structure processed, or `M.Empty` if the stream is empty
     /// </summary>
     [Pure]
-    public static K<M, Seq<A>> collect<M, A>(K<SourceT<M>, A> ma)
-        where M : MonadIO<M> =>
-        ma.As().FoldReduce<Seq<A>>([], (xs, x) => xs.Add(x));
+    public static K<M, A> first<M, A>(K<SourceT<M>, A> ma)
+        where M : MonadIO<M>, Alternative<M> =>
+        ma.First();
 }
