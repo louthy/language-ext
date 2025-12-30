@@ -9,7 +9,7 @@ record FoldUntilSourceT<M, A, S>(
     Func<S, A, S> Folder,
     Func<(S State, A Value), bool> Pred,
     S State) : SourceT<M, S>
-    where M : MonadIO<M>, Alternative<M>
+    where M : MonadIO<M>
 {
     // TODO: Schedule
     public override K<M, Reduced<S1>> ReduceInternalM<S1>(S1 state, ReducerM<M, K<M, S>, S1> reducer) =>

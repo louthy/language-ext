@@ -406,7 +406,7 @@ record PipeTYieldAllSource<IN, OUT, M, X, A>(Source<X> Yields, Func<X, PipeT<IN,
 
 record PipeTYieldAllSourceT<IN, OUT, M, X, A>(SourceT<M, X> Yields, Func<X, PipeT<IN, OUT, M, Unit>> F, Func<Unit, PipeT<IN, OUT, M, A>> Next) 
     : PipeT<IN, OUT, M, A>
-    where M : MonadIO<M>, Alternative<M>
+    where M : MonadIO<M>
 {
     public override PipeT<IN, OUT, M, B> Map<B>(Func<A, B> f) => 
         new PipeTYieldAllSourceT<IN, OUT, M, X, B>(Yields, F, x => Next(x).Map(f));

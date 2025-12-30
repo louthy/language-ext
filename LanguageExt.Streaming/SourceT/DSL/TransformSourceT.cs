@@ -3,7 +3,7 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 record TransformSourceT<M, A, B>(SourceT<M, A> Source, TransducerM<M, A, B> Transducer) : SourceT<M, B>
-    where M : MonadIO<M>, Alternative<M>
+    where M : MonadIO<M>
 {
     public override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, B>, S> reducer)
     {

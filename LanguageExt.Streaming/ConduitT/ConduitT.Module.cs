@@ -12,7 +12,7 @@ public static class ConduitT
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Constructed Conduit with an `Sink` and an `Source`</returns>
     public static ConduitT<M, A, A> make<M, A>() 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M>, Fallible<M> =>
         make<M, A>(Buffer<A>.Unbounded);
 
     /// <summary>
@@ -24,7 +24,7 @@ public static class ConduitT
     /// <returns>Constructed Conduit with an `Sink` and an `Source`</returns>
     /// <exception cref="NotSupportedException">Thrown for invalid buffer settings</exception>
     public static ConduitT<M, A, A> make<M, A>(Buffer<A> buffer)
-        where M : MonadIO<M>, Alternative<M> 
+        where M : MonadIO<M>, Fallible<M> 
     {
         var channel = MakeChannel<M, A>(buffer);
         return new ConduitT<M, A, A, A>(TransducerM.identity<M, A>(), channel, TransducerM.identity<M, A>());
@@ -37,7 +37,7 @@ public static class ConduitT
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Constructed Conduit with an `Sink` and an `Source`</returns>
     public static K<M, ConduitT<M, A, A>> makeM<M, A>() 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M>, Fallible<M> =>
         M.Pure(make<M, A>(Buffer<A>.Unbounded));
 
     /// <summary>
@@ -49,11 +49,11 @@ public static class ConduitT
     /// <returns>Constructed Conduit with an `Sink` and an `Source`</returns>
     /// <exception cref="NotSupportedException">Thrown for invalid buffer settings</exception>
     public static K<M, ConduitT<M, A, A>> makeM<M, A>(Buffer<A> buffer)
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M>, Fallible<M> =>
         M.Pure(make<M, A>(Buffer<A>.Unbounded));
     
     static Ch.Channel<K<M, A>> MakeChannel<M, A>(Buffer<A> buffer)
-        where M : Maybe.MonadIO<M>, Monad<M>, Alternative<M> 
+        where M : Maybe.MonadIO<M>, Monad<M>, Fallible<M> 
     {
         Ch.Channel<K<M, A>> channel;
         switch (buffer)

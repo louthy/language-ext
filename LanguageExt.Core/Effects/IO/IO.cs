@@ -418,10 +418,14 @@ public abstract record IO<A> :
                     }, TaskCreationOptions.LongRunning);
 
                 return new ForkIO<A>(
-                        IO.lift<Unit>(() => {
+                        IO.lift<Unit>(_ => {
                                           try
                                           {
                                               tsrc.Cancel();
+                                          }
+                                          catch(OperationCanceledException)
+                                          {
+                                              // ignore if already cancelled
                                           }
                                           catch(ObjectDisposedException)
                                           {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Threading.Channels;
 using LanguageExt.Common;
+using LanguageExt.Pipes;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -15,57 +16,57 @@ public static partial class SourceTExtensions
     /// </summary>
     [Pure]
     public static SourceT<M, A> As<M, A>(this K<SourceT<M>, A> ma) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         (SourceT<M, A>)ma;
     
     [Pure]
     public static SourceT<M, A> AsSourceT<M, A>(this Channel<A> items)
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M>, Fallible<M> =>
         SourceT.lift<M, A>(items);
     
     [Pure]
     public static SourceT<M, A> AsSourceM<M, A>(this Channel<K<M, A>> items)
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M>, Fallible<M> =>
         SourceT.liftM(items);
     
     [Pure]
     public static SourceT<M, A> AsSourceT<M, A>(this Source<A> items)
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         SourceT.lift<M, A>(items);
     
     [Pure]
     public static SourceT<M, A> AsSourceM<M, A>(this Source<K<M, A>> items)
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         SourceT.liftM(items);
     
     [Pure]
     public static SourceT<M, A> AsSourceT<M, A>(this IEnumerable<A> items)
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         SourceT.lift<M, A>(items);
     
     [Pure]
     public static SourceT<M, A> AsSourceM<M, A>(this IEnumerable<K<M, A>> items)
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         SourceT.liftM(items);
     
     [Pure]
     public static SourceT<M, A> AsSourceT<M, A>(this IObservable<A> items)
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         SourceT.lift<M, A>(items);
     
     [Pure]
     public static SourceT<M, A> AsSourceM<M, A>(this IObservable<K<M, A>> items)
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         SourceT.liftM(items);
     
     [Pure]
     public static SourceT<M, A> AsSourceT<M, A>(this IAsyncEnumerable<A> items)
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         SourceT.lift<M, A>(items);
     
     [Pure]
     public static SourceT<M, A> AsSourceM<M, A>(this IAsyncEnumerable<K<M, A>> items)
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         SourceT.liftM(items);
 
     /// <summary>
@@ -73,7 +74,7 @@ public static partial class SourceTExtensions
     /// </summary>
     [Pure]
     public static SourceT<M, B> Bind<M, A, B>(this IO<A> ma, Func<A, SourceT<M, B>> f)
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         SourceT.liftIO<M, A>(ma).Bind(f);
 
     /// <summary>
@@ -81,7 +82,7 @@ public static partial class SourceTExtensions
     /// </summary>
     [Pure]
     public static SourceT<M, B> Bind<M, A, B>(this Pure<A> ma, Func<A, SourceT<M, B>> f)
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         SourceT.pure<M, A>(ma.Value).Bind(f);
 
     /// <summary>
@@ -89,7 +90,7 @@ public static partial class SourceTExtensions
     /// </summary>
     [Pure]
     public static SourceT<M, B> Bind<M, A, B>(this K<M, A> ma, Func<A, SourceT<M, B>> f)
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         SourceT.liftM(ma).Bind(f);    
     
     /// <summary>
@@ -97,7 +98,7 @@ public static partial class SourceTExtensions
     /// </summary>
     [Pure]
     public static SourceT<M, C> SelectMany<M, A, B, C>(this K<M, A> ma, Func<A, SourceT<M, B>> bind, Func<A, B, C> project) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         SourceT.liftM(ma).As().SelectMany(bind, project);
     
     /// <summary>
@@ -105,7 +106,7 @@ public static partial class SourceTExtensions
     /// </summary>
     [Pure]
     public static SourceT<M, C> SelectMany<M, A, B, C>(this IO<A> ma, Func<A, SourceT<M, B>> bind, Func<A, B, C> project) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         SourceT.liftIO<M, A>(ma).As().SelectMany(bind, project);
     
     /// <summary>
@@ -113,7 +114,7 @@ public static partial class SourceTExtensions
     /// </summary>
     [Pure]
     public static SourceT<M, C> SelectMany<M, A, B, C>(this Pure<A> ma, Func<A, SourceT<M, B>> bind, Func<A, B, C> project) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         bind(ma.Value).Map(y => project(ma.Value, y));
     
     /// <summary>
@@ -125,7 +126,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, A> SomeSource<M, A>(this IAsyncEnumerable<OptionT<M, A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from xs in SourceT.lift<M, OptionT<M, A>>(stream)
         from ox in xs.Run()
         where ox.IsSome
@@ -140,7 +141,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, A> SomeSource<M, A>(this IAsyncEnumerable<Option<A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from ox in SourceT.lift<M, Option<A>>(stream)
         where ox.IsSome
         select (A)ox;
@@ -154,7 +155,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, A> SomeSource<M, A>(this IEnumerable<OptionT<M, A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from xs in SourceT.lift<M, OptionT<M, A>>(stream)
         from ox in xs.Run()
         where ox.IsSome
@@ -169,7 +170,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, A> SomeSource<M, A>(this IEnumerable<Option<A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from ox in SourceT.lift<M, Option<A>>(stream)
         where ox.IsSome
         select (A)ox;
@@ -183,7 +184,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, A> RightSource<M, L, A>(this IAsyncEnumerable<EitherT<L, M, A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from xs in SourceT.lift<M, EitherT<L, M, A>>(stream)
         from ox in xs.Run()
         where ox.IsRight
@@ -198,7 +199,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, A> RightSource<M, L, A>(this IAsyncEnumerable<Either<L, A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from ox in SourceT.lift<M, Either<L, A>>(stream)
         where ox.IsRight
         select (A)ox;
@@ -212,7 +213,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, A> RightSource<M, L, A>(this IEnumerable<EitherT<L, M, A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from xs in SourceT.lift<M, EitherT<L, M, A>>(stream)
         from ox in xs.Run()
         where ox.IsRight
@@ -227,7 +228,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, A> RightSource<M, L, A>(this IEnumerable<Either<L, A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from ox in SourceT.lift<M, Either<L, A>>(stream)
         where ox.IsRight
         select (A)ox;
@@ -241,7 +242,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, L> LeftSource<M, L, A>(this IAsyncEnumerable<EitherT<L, M, A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from xs in SourceT.lift<M, EitherT<L, M, A>>(stream)
         from ox in xs.Run()
         where ox.IsLeft
@@ -256,7 +257,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, L> LeftSource<M, L, A>(this IAsyncEnumerable<Either<L, A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from ox in SourceT.lift<M, Either<L, A>>(stream)
         where ox.IsLeft
         select (L)ox;
@@ -270,7 +271,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, L> LeftSource<M, L, A>(this IEnumerable<EitherT<L, M, A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from xs in SourceT.lift<M, EitherT<L, M, A>>(stream)
         from ox in xs.Run()
         where ox.IsLeft
@@ -285,7 +286,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, L> LeftSource<M, L, A>(this IEnumerable<Either<L, A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from ox in SourceT.lift<M, Either<L, A>>(stream)
         where ox.IsLeft
         select (L)ox;
@@ -299,7 +300,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, A> SuccSource<M, A>(this IAsyncEnumerable<FinT<M, A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from xs in SourceT.lift<M, FinT<M, A>>(stream)
         from ox in xs.Run()
         where ox.IsSucc
@@ -314,7 +315,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, A> SuccSource<M, A>(this IAsyncEnumerable<Fin<A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from ox in SourceT.lift<M, Fin<A>>(stream)
         where ox.IsSucc
         select (A)ox;
@@ -328,7 +329,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, A> SuccSource<M, A>(this IEnumerable<FinT<M, A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from xs in SourceT.lift<M, FinT<M, A>>(stream)
         from ox in xs.Run()
         where ox.IsSucc
@@ -343,7 +344,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, A> SuccSource<M, A>(this IEnumerable<Fin<A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from ox in SourceT.lift<M, Fin<A>>(stream)
         where ox.IsSucc
         select (A)ox;
@@ -357,7 +358,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, Error> FailSource<M, A>(this IAsyncEnumerable<FinT<M, A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from xs in SourceT.lift<M, FinT<M, A>>(stream)
         from ox in xs.Run()
         where ox.IsFail
@@ -372,7 +373,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, Error> FailSource<M, A>(this IAsyncEnumerable<Fin<A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from ox in SourceT.lift<M, Fin<A>>(stream)
         where ox.IsFail
         select (Error)ox;
@@ -386,7 +387,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, Error> FailSource<M, A>(this IEnumerable<FinT<M, A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from xs in SourceT.lift<M, FinT<M, A>>(stream)
         from ox in xs.Run()
         where ox.IsFail
@@ -401,7 +402,7 @@ public static partial class SourceTExtensions
     /// <returns>Stream of values</returns>
     [Pure]
     public static SourceT<M, Error> FailSource<M, A>(this IEnumerable<Fin<A>> stream)
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from ox in SourceT.lift<M, Fin<A>>(stream)
         where ox.IsFail
         select (Error)ox;
@@ -416,7 +417,7 @@ public static partial class SourceTExtensions
     [Pure]
     public static SourceT<M, A> SuccSource<M, L, A>(this IAsyncEnumerable<ValidationT<L, M, A>> stream)
         where L : Monoid<L> 
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from xs in SourceT.lift<M, ValidationT<L, M, A>>(stream)
         from ox in xs.Run()
         where ox.IsSuccess
@@ -432,7 +433,7 @@ public static partial class SourceTExtensions
     [Pure]
     public static SourceT<M, A> SuccSource<M, L, A>(this IAsyncEnumerable<Validation<L, A>> stream)
         where L : Monoid<L> 
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from ox in SourceT.lift<M, Validation<L, A>>(stream)
         where ox.IsSuccess
         select (A)ox;
@@ -447,7 +448,7 @@ public static partial class SourceTExtensions
     [Pure]
     public static SourceT<M, A> SuccSource<M, L, A>(this IEnumerable<ValidationT<L, M, A>> stream)
         where L : Monoid<L> 
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from xs in SourceT.lift<M, ValidationT<L, M, A>>(stream)
         from ox in xs.Run()
         where ox.IsSuccess
@@ -463,7 +464,7 @@ public static partial class SourceTExtensions
     [Pure]
     public static SourceT<M, A> SuccSource<M, L, A>(this IEnumerable<Validation<L, A>> stream)
         where L : Monoid<L> 
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from ox in SourceT.lift<M, Validation<L, A>>(stream)
         where ox.IsSuccess
         select (A)ox;
@@ -478,7 +479,7 @@ public static partial class SourceTExtensions
     [Pure]
     public static SourceT<M, L> FailSource<M, L, A>(this IAsyncEnumerable<ValidationT<L, M, A>> stream)
         where L : Monoid<L> 
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from xs in SourceT.lift<M, ValidationT<L, M, A>>(stream)
         from ox in xs.Run()
         where ox.IsFail
@@ -494,7 +495,7 @@ public static partial class SourceTExtensions
     [Pure]
     public static SourceT<M, L> FailsStream<M, L, A>(this IAsyncEnumerable<Validation<L, A>> stream)
         where L : Monoid<L> 
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from ox in SourceT.lift<M, Validation<L, A>>(stream)
         where ox.IsFail
         select (L)ox;
@@ -509,7 +510,7 @@ public static partial class SourceTExtensions
     [Pure]
     public static SourceT<M, L> FailSource<M, L, A>(this IEnumerable<ValidationT<L, M, A>> stream)
         where L : Monoid<L> 
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M>  =>
         from xs in SourceT.lift<M, ValidationT<L, M, A>>(stream)
         from ox in xs.Run()
         where ox.IsFail
@@ -525,7 +526,7 @@ public static partial class SourceTExtensions
     [Pure]
     public static SourceT<M, L> FailSource<M, L, A>(this IEnumerable<Validation<L, A>> stream)
         where L : Monoid<L> 
-        where M : MonadIO<M>, Alternative<M>  =>
+        where M : MonadIO<M> =>
         from ox in SourceT.lift<M, Validation<L, A>>(stream)
         where ox.IsFail
         select (L)ox;

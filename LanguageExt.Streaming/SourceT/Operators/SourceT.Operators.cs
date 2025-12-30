@@ -5,7 +5,7 @@ namespace LanguageExt;
 public static partial class SourceTExtensions
 {
     extension<M, A>(K<SourceT<M>, A> _)
-        where M : MonadIO<M>, Alternative<M>
+        where M : MonadIO<M>
     {
         /// <summary>
         /// Downcast operator

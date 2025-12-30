@@ -179,6 +179,21 @@ public static partial class Prelude
     /// <returns>Acquired resource</returns>
     [Pure]
     [MethodImpl(Opt.Default)]
+    public static K<M, A> useMaybe<M, A>(K<M, A> acquire)
+        where M : MonadIO<M>
+        where A : IDisposable =>
+        acquire.MapIOMaybe(acq => new IOUseDisposable<A, A>(acq, IO.pure));
+
+    /// <summary>
+    /// Acquire a resource and have it tracked by the IO environment.  The resource
+    /// can be released manually using `release` or from wrapping a section of IO
+    /// code with `@using`.
+    /// </summary>
+    /// <param name="acquire">Computation that acquires the resource</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Acquired resource</returns>
+    [Pure]
+    [MethodImpl(Opt.Default)]
     public static IO<A> use<A>(IO<A> acquire)
         where A : IDisposable =>
         new IOUseDisposable<A, A>(acquire, IO.pure);

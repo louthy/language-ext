@@ -2,6 +2,7 @@ using System;
 using LanguageExt.Common;
 using LanguageExt.Pipes;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -12,7 +13,7 @@ namespace LanguageExt;
 public abstract record SourceT<M, A> : 
     K<SourceT<M>, A>, 
     Monoid<SourceT<M, A>>
-    where M : MonadIO<M>, Alternative<M>
+    where M : MonadIO<M>
 {
     /// <summary>
     /// Iterate the stream, flowing values downstream to the reducer, which aggregates a
@@ -135,12 +136,12 @@ public abstract record SourceT<M, A> :
     /// <returns>SourceT where the only values yield are those that pass the predicate</returns>
     public SourceT<M, A> Filter(Func<A, bool> f) =>
         new FilterSourceT<M, A>(this, f);
-    
+
     /// <summary>
     /// Applicative apply
     /// </summary>
     public virtual SourceT<M, B> ApplyBack<B>(SourceT<M, Func<A, B>> ff) =>
-        new ApplySourceT<M, A, B>(ff, this);
+        ff >> Map >> lower;
 
     /// <summary>
     /// Concatenate streams 
@@ -159,37 +160,6 @@ public abstract record SourceT<M, A> :
             (var l, CombineSourceT<M, A> r)                  => new CombineSourceT<M, A>(l.Cons(r.Sources)),
             _                                                => new CombineSourceT<M, A>([this, rhs])
         };
-
-    /// <summary>
-    /// Combine two sources into a single source.  The value streams are both
-    /// merged into a new stream.  Values are yielded as they become available
-    /// regardless of which stream yields it.
-    /// </summary>
-    /// <param name="this">Left-hand side</param>
-    /// <param name="rhs">Right-hand side</param>
-    /// <returns>Merged stream of values</returns>
-    public SourceT<M, A> Choose(SourceT<M, A> rhs) =>
-        (this, rhs) switch
-        {
-            (EmptySourceT<M, A>, EmptySourceT<M, A>)       => EmptySourceT<M, A>.Default,
-            (var l, EmptySourceT<M, A>)                    => l,
-            (EmptySourceT<M, A>, var r)                    => r,
-            (ChooseSourceT<M, A> l, ChooseSourceT<M, A> r) => new ChooseSourceT<M, A>(l.Sources + r.Sources),
-            (ChooseSourceT<M, A> l, var r)                 => new ChooseSourceT<M, A>(l.Sources.Add(r)),
-            (var l, ChooseSourceT<M, A> r)                 => new ChooseSourceT<M, A>(l.Cons(r.Sources)),
-            _                                              => new ChooseSourceT<M, A>([this, rhs])
-        };
-
-    /// <summary>
-    /// Combine two sources into a single source.  The value streams are both
-    /// merged into a new stream.  Values are yielded as they become available
-    /// regardless of which stream yields it.
-    /// </summary>
-    /// <param name="this">Left-hand side</param>
-    /// <param name="rhs">Right-hand side</param>
-    /// <returns>Merged stream of values</returns>
-    public SourceT<M, A> Choose(Memo<SourceT<M>, A> rhs) =>
-        Choose(rhs.Value.As());
 
     /// <summary>
     /// Skip items in the source
@@ -294,56 +264,6 @@ public abstract record SourceT<M, A> :
     /// <returns>`ProducerT`</returns>
     public ProducerT<A, M, Unit> ToProducerT() =>
         ProducerT.yieldAll(this);
-    
-    /// <summary>
-    /// Concatenate streams 
-    /// </summary>
-    /// <param name="lhs">Left-hand side</param>
-    /// <param name="rhs">Right-hand side</param>
-    /// <returns>A stream that concatenates the input streams</returns>
-    public static SourceT<M, A> operator +(SourceT<M, A> lhs, SourceT<M, A> rhs) =>
-        lhs.Combine(rhs);
-
-    /// <summary>
-    /// Combine two sources into a single source.  The value streams are both
-    /// merged into a new stream.  Values are yielded as they become available
-    /// regardless of which stream yields it.
-    /// </summary>
-    /// <param name="lhs">Left-hand side</param>
-    /// <param name="rhs">Right-hand side</param>
-    /// <returns>Merged stream of values</returns>
-    public static SourceT<M, A> operator |(SourceT<M, A> lhs, SourceT<M, A> rhs) =>
-        lhs.Choose(rhs);
-
-    /// <summary>
-    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
-    /// as the semicolon) in C#.
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the second action</returns>
-    public static SourceT<M, A> operator >> (SourceT<M, A> lhs, SourceT<M, A> rhs) =>
-        lhs.Bind(_ => rhs);
-    
-    /// <summary>
-    /// Sequentially compose two actions, discarding any value produced by the first, like sequencing operators (such
-    /// as the semicolon) in C#.
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the second action</returns>
-    public static SourceT<M, A> operator >> (SourceT<M, A> lhs, K<SourceT<M>, A> rhs) =>
-        lhs.Bind(_ => rhs);
-    
-    /// <summary>
-    /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the
-    /// first action is propagated. 
-    /// </summary>
-    /// <param name="lhs">First action to run</param>
-    /// <param name="rhs">Second action to run</param>
-    /// <returns>Result of the first action</returns>
-    public static SourceT<M, A> operator >> (SourceT<M, A> lhs, SourceT<M, Unit> rhs) =>
-        lhs.Bind(x => rhs.Map(_ => x));
     
     /// <summary>
     /// Sequentially compose two actions.  The second action is a unit returning action, so the result of the

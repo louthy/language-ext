@@ -11,7 +11,7 @@ public static partial class SourceTExtensions
     /// <param name="ma">Stream of values to delay the yielding of</param>
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
-    extension<M, A>(K<SourceT<M>, A> ma) where M : MonadIO<M>, Alternative<M>
+    extension<M, A>(K<SourceT<M>, A> ma) where M : MonadIO<M>
     {
         /// <summary>
         /// Delay the yielding of values by the specified duration
@@ -33,7 +33,7 @@ public static partial class SourceTExtensions
     /// <param name="ma">Source</param>
     /// <typeparam name="M">Lifted monad trait</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
-    extension<M, A>(K<SourceT<M>, A> ma) where M : MonadIO<M>, Fallible<Error, M>, Alternative<M>
+    extension<M, A>(K<SourceT<M>, A> ma) where M : MonadIO<M>, Fallible<M>
     {
         /// <summary>
         /// Take values from the source for a period of time 
@@ -52,10 +52,42 @@ public static partial class SourceTExtensions
         [Pure]
         public SourceT<M, A> TakeFor(TimeSpan duration) =>
             new TakeForSourceT<M, A>(+ma, duration);
+        
+
+        /// <summary>
+        /// Combine two sources into a single source.  The value streams are both
+        /// merged into a new stream.  Values are yielded as they become available
+        /// regardless of which stream yields it.
+        /// </summary>
+        /// <param name="this">Left-hand side</param>
+        /// <param name="rhs">Right-hand side</param>
+        /// <returns>Merged stream of values</returns>
+        public SourceT<M, A> Choose(K<SourceT<M>, A> rhs) =>
+            (ma, rhs) switch
+            {
+                (EmptySourceT<M, A>, EmptySourceT<M, A>)       => EmptySourceT<M, A>.Default,
+                (var l, EmptySourceT<M, A>)                    => +l,
+                (EmptySourceT<M, A>, var r)                    => +r,
+                (ChooseSourceT<M, A> l, ChooseSourceT<M, A> r) => new ChooseSourceT<M, A>(l.Sources + r.Sources),
+                (ChooseSourceT<M, A> l, var r)                 => new ChooseSourceT<M, A>(l.Sources.Add(+r)),
+                (var l, ChooseSourceT<M, A> r)                 => new ChooseSourceT<M, A>(l.As().Cons(r.Sources)),
+                var (l, r)                                     => new ChooseSourceT<M, A>([+l, +r])
+            };
+
+        /// <summary>
+        /// Combine two sources into a single source.  The value streams are both
+        /// merged into a new stream.  Values are yielded as they become available
+        /// regardless of which stream yields it.
+        /// </summary>
+        /// <param name="this">Left-hand side</param>
+        /// <param name="rhs">Right-hand side</param>
+        /// <returns>Merged stream of values</returns>
+        public SourceT<M, A> Choose(Memo<SourceT<M>, A> rhs) =>
+            ma.Choose(rhs.Value.As());        
     }
 
     /// <param name="first">Stream to zip</param>
-    extension<M, A>(K<SourceT<M>, A> first) where M : MonadUnliftIO<M>, Alternative<M>
+    extension<M, A>(K<SourceT<M>, A> first) where M : MonadIO<M>, Fallible<Error, M>
     {
         /// <summary>
         /// Zip two sources into one

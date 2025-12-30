@@ -9,7 +9,7 @@ record Reader3SourceT<M, A, B, C>(
     Channel<K<M, A>> ChannelA, 
     Channel<K<M, B>> ChannelB, 
     Channel<K<M, C>> ChannelC) : SourceT<M, (A First, B Second, C Third)>
-    where M : MonadIO<M>, Alternative<M>
+    where M : MonadIO<M>
 {
     public override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, (A First, B Second, C Third)>, S> reducer)
     {

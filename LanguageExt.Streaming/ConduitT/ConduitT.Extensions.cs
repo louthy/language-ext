@@ -6,7 +6,7 @@ namespace LanguageExt;
 public static class ConduitTExtensions
 {
     public static ConduitT<M, A, B> As<M, A, B>(this K<ConduitT<M, A>, B> ma) 
-        where M : MonadIO<M>, Monad<M>, Alternative<M> =>
+        where M : MonadIO<M>, Monad<M>, Fallible<M> =>
         (ConduitT<M, A, B>)ma;
     
     /// <summary>

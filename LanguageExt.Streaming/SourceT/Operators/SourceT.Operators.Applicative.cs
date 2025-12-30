@@ -7,7 +7,7 @@ namespace LanguageExt;
 public static partial class SourceTExtensions
 {
     extension<M, A, B>(K<SourceT<M>, A> self)
-        where M : MonadIO<M>, Alternative<M>
+        where M : MonadIO<M>
     {
         
         /// <summary>
@@ -30,7 +30,7 @@ public static partial class SourceTExtensions
     }
     
     extension<M, A, B, C>(K<SourceT<M>, A> self)
-        where M : MonadIO<M>, Alternative<M>
+        where M : MonadIO<M>
     {
         /// <summary>
         /// Applicative apply operator
@@ -50,7 +50,7 @@ public static partial class SourceTExtensions
     }
         
     extension<M, A, B, C, D>(K<SourceT<M>, A> self)
-        where M : MonadIO<M>, Alternative<M>
+        where M : MonadIO<M>
     {
         /// <summary>
         /// Applicative apply operator
@@ -70,7 +70,7 @@ public static partial class SourceTExtensions
     }
             
     extension<M, A, B, C, D, E>(K<SourceT<M>, A> self)
-        where M : MonadIO<M>, Alternative<M>
+        where M : MonadIO<M>
     {
         /// <summary>
         /// Applicative apply operator
@@ -90,7 +90,7 @@ public static partial class SourceTExtensions
     }
                 
     extension<M, A, B, C, D, E, F>(K<SourceT<M>, A> self)
-        where M : MonadIO<M>, Alternative<M>
+        where M : MonadIO<M>
     {
         /// <summary>
         /// Applicative apply operator
@@ -110,7 +110,7 @@ public static partial class SourceTExtensions
     }
                     
     extension<M, A, B, C, D, E, F, G>(K<SourceT<M>, A> self)
-        where M : MonadIO<M>, Alternative<M>
+        where M : MonadIO<M>
     {
         /// <summary>
         /// Applicative apply operator
@@ -130,7 +130,7 @@ public static partial class SourceTExtensions
     }
                     
     extension<M, A, B, C, D, E, F, G, H>(K<SourceT<M>, A> self)
-        where M : MonadIO<M>, Alternative<M>
+        where M : MonadIO<M>
     {
         /// <summary>
         /// Applicative apply operator
@@ -150,7 +150,7 @@ public static partial class SourceTExtensions
     }
                         
     extension<M, A, B, C, D, E, F, G, H, I>(K<SourceT<M>, A> self)
-        where M : MonadIO<M>, Alternative<M>
+        where M : MonadIO<M>
     {
         /// <summary>
         /// Applicative apply operator
@@ -170,7 +170,7 @@ public static partial class SourceTExtensions
     }
                             
     extension<M, A, B, C, D, E, F, G, H, I, J>(K<SourceT<M>, A> self)
-        where M : MonadIO<M>, Alternative<M>
+        where M : MonadIO<M>
     {
         /// <summary>
         /// Applicative apply operator
@@ -190,7 +190,7 @@ public static partial class SourceTExtensions
     }
                                 
     extension<M, A, B, C, D, E, F, G, H, I, J, K>(K<SourceT<M>, A> self)
-        where M : MonadIO<M>, Alternative<M>
+        where M : MonadIO<M>
     {
         /// <summary>
         /// Applicative apply operator

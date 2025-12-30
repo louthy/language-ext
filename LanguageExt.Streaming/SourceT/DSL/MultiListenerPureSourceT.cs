@@ -1,15 +1,16 @@
 using System;
-using System.Collections.Concurrent;
 using System.Threading;
-using System.Threading.Channels;
-using System.Threading.Tasks;
+using LanguageExt.Common;
 using LanguageExt.Traits;
+using System.Threading.Tasks;
+using System.Threading.Channels;
 using static LanguageExt.Prelude;
+using System.Collections.Concurrent;
 
 namespace LanguageExt;
 
 record MultiListenerPureSourceT<M, A>(Channel<A> Source) : SourceT<M, A>
-    where M : MonadIO<M>, Alternative<M>
+    where M : MonadIO<M>, Fallible<M>
 {
     volatile int count;
     readonly ConcurrentDictionary<Channel<K<M, A>>, Unit> listeners = new();
@@ -20,8 +21,8 @@ record MultiListenerPureSourceT<M, A>(Channel<A> Source) : SourceT<M, A>
         return from channel in mkChannel
                let final    =  final(channel)
                from result  in body(channel, state)
-                                .Bind(final.ConstMap)                          // Run final if we succeed
-                                .Choose(final.ConstMap(Reduced.Done(state)))   // Run final if we fail and keep the original state
+                                .Bind(final.ConstMap)       // Run final if we succeed
+                                .Catch(error<S>(channel))   // Run final if we fail and keep the original state
                select result;
 
         K<M, Reduced<S>> body(Channel<K<M, A>> channel, S state) =>
@@ -87,20 +88,34 @@ record MultiListenerPureSourceT<M, A>(Channel<A> Source) : SourceT<M, A>
         }
     }
 
-    K<M, Reduced<S>> readAll<S>(Channel<K<M, A>> channel, ReducerM<M, K<M, A>, S> reducer, S state)
+    K<M, Reduced<S>> readAll<S>(Channel<K<M, A>> channel, ReducerM<M, K<M, A>, S> reducer, S initialState)
     {
-        return M.LiftIO(IO.liftVAsync(async e => await go(state, reducer, e.Token))).Flatten();
+        return M.Recur(initialState, go);
         
-        async ValueTask<K<M, Reduced<S>>> go(S state, ReducerM<M, K<M, A>, S> reducer, CancellationToken token)
-        {
-            if (token.IsCancellationRequested) return M.Pure(Reduced.Done(state));
-            if (!await channel.Reader.WaitToReadAsync(token)) return M.Pure(Reduced.Done(state));
-            var head = await channel.Reader.ReadAsync(token);
-            return reducer(state, head) >>
-                   (ns => ns.Continue
-                              ? go(ns.Value, reducer, token).GetAwaiter().GetResult()
-                              : M.Pure(ns));
-        }
+        K<M, Next<S, Reduced<S>>> go(S state) =>
+            IO.token >> (t => t.IsCancellationRequested
+                                  ? complete(state)
+                                  : waitToRead() >>
+                                    (available => available
+                                                      ? reduce(state)
+                                                      : complete(state)));               
+
+        K<M, Next<S, Reduced<S>>> reduce(S state) =>
+            read() >> (head => reducer(state, head) >> next);
+
+        K<M, Next<S, Reduced<S>>> next(Reduced<S> reduced) =>
+            reduced.Continue
+                ? M.Pure(Next.Loop<S, Reduced<S>>(reduced.Value))
+                : M.Pure(Next.Done<S, Reduced<S>>(reduced));
+        
+        IO<bool> waitToRead() =>
+            IO.liftVAsync(e => channel.Reader.WaitToReadAsync(e.Token));
+
+        IO<K<M, A>> read() =>
+            IO.liftVAsync(e => channel.Reader.ReadAsync(e.Token));
+
+        K<M, Next<S, Reduced<S>>> complete(S state) =>
+            M.Pure(Next.Done<S, Reduced<S>>(Reduced.Done(state)));
     }
 
     K<M, Unit> final(Channel<K<M, A>> channel) =>
@@ -115,7 +130,11 @@ record MultiListenerPureSourceT<M, A>(Channel<A> Source) : SourceT<M, A>
 
                               return unit;
                           }));
-
+    
+    Func<Error, K<M, Reduced<S>>> error<S>(Channel<K<M, A>> channel) =>
+        err =>
+            final(channel) >> M.Fail<Reduced<S>>(err);
+    
     Task shutdown() =>
         tokenSource.CancelAsync();
 }

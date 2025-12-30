@@ -43,7 +43,7 @@ public class Event<A> : IDisposable
     /// Subscribe to this event
     /// </summary>
     public SourceT<M, A> Subscribe<M>()
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M>, Fallible<M> =>
         from sub in SubscribeInternal()
         from val in SourceT.lift<M, A>(sub.Channel)
         select val;

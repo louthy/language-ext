@@ -4,6 +4,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading.Channels;
 using LanguageExt.Async.Linq;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 namespace LanguageExt;
@@ -20,7 +21,7 @@ public partial class SourceT
     /// <returns>Uninhabited source</returns>
     [Pure]
     public static SourceT<M, A> empty<M, A>() 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         EmptySourceT<M, A>.Default;
     
     /// <summary>
@@ -34,7 +35,7 @@ public partial class SourceT
     /// <returns>Singleton source</returns>
     [Pure]
     public static SourceT<M, A> pure<M, A>(A value) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         new PureSourceT<M, A>(value);
 
     /// <summary>
@@ -46,7 +47,7 @@ public partial class SourceT
     /// <returns></returns>
     [Pure]
     public static SourceT<M, Unit> done<M>() 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         new DoneSourceT<M>();
     
     /// <summary>
@@ -59,7 +60,7 @@ public partial class SourceT
     /// <returns>`SourceT`</returns>
     [Pure]
     public static SourceT<M, A> liftFoldable<F, M, A>(K<F, A> fa)
-        where M : MonadIO<M>, Alternative<M>
+        where M : MonadIO<M>
         where F : Foldable<F> =>
         new FoldablePureSourceT<F, M, A>(fa);
 
@@ -73,7 +74,7 @@ public partial class SourceT
     /// <returns>`SourceT`</returns>
     [Pure]
     public static SourceT<M, A> liftFoldableM<F, M, A>(K<F, K<M, A>> fma)
-        where M : MonadIO<M>, Alternative<M>
+        where M : MonadIO<M>
         where F : Foldable<F> =>
         new FoldableSourceT<F, M, A>(fma);
     
@@ -88,7 +89,7 @@ public partial class SourceT
     /// <returns>Singleton source</returns>
     [Pure]
     public static SourceT<M, A> liftM<M, A>(K<M, A> ma) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         new LiftSourceT<M, A>(ma);
     
     /// <summary>
@@ -102,7 +103,7 @@ public partial class SourceT
     /// <returns>Singleton source</returns>
     [Pure]
     public static SourceT<M, A> liftIO<M, A>(K<IO, A> ma) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         new LiftSourceT<M, A>(M.LiftIO(ma));
     
     /// <summary>
@@ -116,7 +117,7 @@ public partial class SourceT
     /// <returns>Infinite source</returns>
     [Pure]
     public static SourceT<M, A> forever<M, A>(A value) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         new ForeverSourceT<M, A>(M.Pure(value));
     
     /// <summary>
@@ -130,7 +131,7 @@ public partial class SourceT
     /// <returns>Infinite source</returns>
     [Pure]
     public static SourceT<M, A> foreverM<M, A>(K<M, A> ma) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         new ForeverSourceT<M, A>(ma);
 
     /// <summary>
@@ -142,7 +143,7 @@ public partial class SourceT
     /// <returns>Source of values</returns>
     [Pure]
     public static SourceT<M, A> lift<M, A>(Channel<A> channel) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M>, Fallible<M> =>
         new MultiListenerPureSourceT<M, A>(channel);
 
     /// <summary>
@@ -153,7 +154,7 @@ public partial class SourceT
     /// <returns>Source of values</returns>
     [Pure]
     public static SourceT<M, A> liftM<M, A>(Channel<K<M, A>> channel) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M>, Fallible<M> =>
         new MultiListenerSourceT<M, A>(channel);
 
     /// <summary>
@@ -164,7 +165,7 @@ public partial class SourceT
     /// <returns>Source of values</returns>
     [Pure]
     public static SourceT<M, A> lift<M, A>(Source<A> channel) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         new SourcePureSourceT<M, A>(channel);
 
     /// <summary>
@@ -175,7 +176,7 @@ public partial class SourceT
     /// <returns>Source of values</returns>
     [Pure]
     public static SourceT<M, A> liftM<M, A>(Source<K<M, A>> channel) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         new SourceSourceT<M, A>(channel);
 
     /// <summary>
@@ -186,7 +187,7 @@ public partial class SourceT
     /// <returns>Source of values</returns>
     [Pure]
     public static SourceT<M, A> lift<M, A>(IEnumerable<A> items) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         new IteratorSyncSourceT<M, A>(items.Select(M.Pure));
 
     /// <summary>
@@ -197,7 +198,7 @@ public partial class SourceT
     /// <returns>Source of values</returns>
     [Pure]
     public static SourceT<M, A> liftM<M, A>(IEnumerable<K<M, A>> items) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         new IteratorSyncSourceT<M, A>(items);
 
     /// <summary>
@@ -208,7 +209,7 @@ public partial class SourceT
     /// <returns>Source of values</returns>
     [Pure]
     public static SourceT<M, A> lift<M, A>(IObservable<A> items) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         new ObservablePureSourceT<M, A>(items);
 
     /// <summary>
@@ -219,7 +220,7 @@ public partial class SourceT
     /// <returns>Source of values</returns>
     [Pure]
     public static SourceT<M, A> liftM<M, A>(IObservable<K<M, A>> items) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         new ObservableSourceT<M, A>(items);
 
     /// <summary>
@@ -230,7 +231,7 @@ public partial class SourceT
     /// <returns>Source of values</returns>
     [Pure]
     public static SourceT<M, A> lift<M, A>(IAsyncEnumerable<A> items) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         new IteratorAsyncSourceT<M, A>(items.Select(M.Pure));
 
     /// <summary>
@@ -241,7 +242,7 @@ public partial class SourceT
     /// <returns>Source of values</returns>
     [Pure]
     public static SourceT<M, A> liftM<M, A>(IAsyncEnumerable<K<M, A>> items) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         new IteratorAsyncSourceT<M, A>(items);
     
     /// <summary>
@@ -252,7 +253,7 @@ public partial class SourceT
     /// <returns>Source that is the combination of all provided sources</returns>
     [Pure]
     public static SourceT<M, A> merge<M, A>(Seq<SourceT<M, A>> sources) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M>, Fallible<M> =>
         sources.Fold(empty<M, A>(), (s, s2) => s.Choose(s2));
         
     /// <summary>
@@ -263,7 +264,7 @@ public partial class SourceT
     /// <returns>Source that is the combination of all provided sources</returns>
     [Pure]
     public static SourceT<M, A> merge<M, A>(params SourceT<M, A>[] sources) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M>, Fallible<M> =>
         merge(toSeq(sources));
 
     /// <summary>
@@ -274,7 +275,7 @@ public partial class SourceT
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     [Pure]
     public SourceT<M, (A First, B Second)> zip<M, A, B>(SourceT<M, A> first, SourceT<M, B> second) 
-        where M : MonadUnliftIO<M>, Alternative<M> =>
+        where M : MonadUnliftIO<M>, Fallible<Error, M> =>
         new Zip2SourceT<M, A, B>(first, second);
 
     /// <summary>
@@ -286,7 +287,7 @@ public partial class SourceT
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     [Pure]
     public SourceT<M, (A First, B Second, C Third)> zip<M, A, B, C>(SourceT<M, A> first, SourceT<M, B> second, SourceT<M, C> third) 
-        where M : MonadUnliftIO<M>, Alternative<M> =>
+        where M : MonadUnliftIO<M>, Fallible<Error, M> =>
         new Zip3SourceT<M, A, B, C>(first, second, third);
 
     /// <summary>
@@ -299,7 +300,7 @@ public partial class SourceT
     /// <returns>Stream of values where the items from two streams are paired together</returns>
     [Pure]
     public SourceT<M, (A First, B Second, C Third, D Fourth)> zip<M, A, B, C, D>(SourceT<M, A> first, SourceT<M, B> second, SourceT<M, C> third, SourceT<M, D> fourth) 
-        where M : MonadUnliftIO<M>, Alternative<M> =>
+        where M : MonadUnliftIO<M>, Fallible<Error, M> =>
         new Zip4SourceT<M, A, B, C, D>(first, second, third, fourth);
     
     /// <summary>
@@ -310,7 +311,7 @@ public partial class SourceT
     /// </remarks>
     [Pure]
     public static K<M, Unit> iter<M, A>(K<SourceT<M>, A> ma)
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         ma.As().FoldReduce(unit, (_, _) => unit);
 
     /// <summary>
@@ -338,7 +339,7 @@ public partial class SourceT
     public static K<M, Seq<A>> collectWhile<M, A>(
         K<SourceT<M>, A> ma, 
         Func<(Seq<A> Items, A Item), bool> predicate)
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         ma.As().Reduce<Seq<A>>(
             [], 
             (xs, x) => predicate((xs, x))
@@ -356,7 +357,7 @@ public partial class SourceT
     public static K<M, Seq<A>> collectUntil<M, A>(
         K<SourceT<M>, A> ma, 
         Func<(Seq<A> Items, A Item), bool> predicate)
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         ma.As().Reduce<Seq<A>>(
             [], 
             (xs, x) => predicate((xs, x))
@@ -368,6 +369,6 @@ public partial class SourceT
     /// </summary>
     [Pure]
     public static K<M, Seq<A>> collect<M, A>(K<SourceT<M>, A> ma)
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         ma.As().FoldReduce<Seq<A>>([], (xs, x) => xs.Add(x));    
 }

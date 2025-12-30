@@ -6,7 +6,7 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 record Reader2SourceT<M, A, B>(Channel<K<M, A>> ChannelA, Channel<K<M, B>> ChannelB) : SourceT<M, (A First, B Second)>
-    where M : MonadIO<M>, Alternative<M>
+    where M : MonadIO<M>
 {
     public override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, (A First, B Second)>, S> reducer)
     {

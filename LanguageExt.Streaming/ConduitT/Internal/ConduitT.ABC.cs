@@ -10,7 +10,7 @@ using static LanguageExt.Prelude;
 namespace LanguageExt;
 
 class ConduitT<M, A, B, C> : ConduitT<M, A, C>
-    where M : MonadIO<M>, Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Monad<M>, Fallible<M>
 {
     readonly TransducerM<M, A, B> sink;
     readonly Channel<K<M, B>> channel;
@@ -81,7 +81,7 @@ class ConduitT<M, A, B, C> : ConduitT<M, A, C>
                                                                .Bind(s2 => s2.Continue
                                                                             ? go(s2.Value, token)
                                                                             : M.Pure(s2))
-                                                               .Choose(M.Pure(Reduced.Done(s0))))(s0, b));
+                                                               .Catch(M.Pure(Reduced.Done(s0))))(s0, b));       // TODO: Deal with errors?
             }
             else
             {

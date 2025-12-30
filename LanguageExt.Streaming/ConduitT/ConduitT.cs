@@ -39,7 +39,7 @@ namespace LanguageExt;
 /// <typeparam name="A">Input value type</typeparam>
 /// <typeparam name="B">Output value type</typeparam>
 public abstract class ConduitT<M, A, B> : K<ConduitT<M, A>, B>
-    where M : MonadIO<M>, Monad<M>, Alternative<M>
+    where M : MonadIO<M>, Monad<M>, Fallible<M>
 {
     /// <summary>
     /// Post a value to the Sink

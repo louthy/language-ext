@@ -3,7 +3,7 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 record EmptySourceT<M, A> : SourceT<M, A>
-    where M : MonadIO<M>, Alternative<M>
+    where M : MonadIO<M>
 {
     public static readonly SourceT<M, A> Default = new EmptySourceT<M, A>();
 

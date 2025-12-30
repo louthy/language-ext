@@ -101,7 +101,7 @@ public static class PipeT
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
     public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(SourceT<M, OUT> values) 
-        where M : MonadIO<M>, Alternative<M> =>
+        where M : MonadIO<M> =>
         new PipeTYieldAllSourceT<IN, OUT, M, OUT, Unit>(values, yield<M, IN, OUT>, pure<IN, OUT, M, Unit>);
 
     /// <summary>
