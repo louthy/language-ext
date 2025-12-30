@@ -370,5 +370,5 @@ public partial class SourceT
     [Pure]
     public static K<M, Seq<A>> collect<M, A>(K<SourceT<M>, A> ma)
         where M : MonadIO<M> =>
-        ma.As().FoldReduce<Seq<A>>([], (xs, x) => xs.Add(x));    
+        ma.As().FoldReduce<Seq<A>>([], (xs, x) => xs.Add(x));
 }

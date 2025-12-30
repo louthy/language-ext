@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Threading.Channels;
 using LanguageExt.Common;
-using LanguageExt.Pipes;
 using LanguageExt.Traits;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 

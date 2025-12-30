@@ -7,10 +7,10 @@ namespace LanguageExt;
 
 public static partial class SourceTExtensions
 {
-    /// <param name="ma"></param>
+/// <param name="ma"></param>
     /// <typeparam name="M"></typeparam>
     /// <typeparam name="A"></typeparam>
-    extension<M, A>(K<SourceT<M>, A> ma) where M : MonadIO<M>, Alternative<M>
+    extension<M, A>(K<SourceT<M>, A> ma) where M : MonadIO<M>
     {
         /// <summary>
         /// Force iteration of the stream, yielding a unit `M` structure.
@@ -21,20 +21,6 @@ public static partial class SourceTExtensions
         [Pure]
         public K<M, Unit> Iter() =>
             ma.As().FoldReduce(unit, (_, _) => unit);
-
-        /// <summary>
-        /// Force iteration of the stream, yielding the last structure processed
-        /// </summary>
-        [Pure]
-        public K<M, A> Last() =>
-            M.Token.Bind(t =>
-                             ma.As()
-                               .FoldReduce(Option<A>.None, (_, x) => Some(x))
-                               .Bind(ma => ma switch
-                                           {
-                                               { IsSome: true, Case: A value } => M.Pure(value),
-                                               _                               => M.Empty<A>()
-                                           }));
 
         /// <summary>
         /// Collect all the values into a `Seq` while the predicate holds.
@@ -66,5 +52,25 @@ public static partial class SourceTExtensions
         [Pure]
         public K<M, Seq<A>> Collect() =>
             ma.As().FoldReduce<Seq<A>>([], (xs, x) => xs.Add(x));
+    }    
+    
+    /// <param name="ma"></param>
+    /// <typeparam name="M"></typeparam>
+    /// <typeparam name="A"></typeparam>
+    extension<M, A>(K<SourceT<M>, A> ma) where M : MonadIO<M>, Alternative<M>
+    {
+        /// <summary>
+        /// Force iteration of the stream, yielding the last structure processed
+        /// </summary>
+        [Pure]
+        public K<M, A> Last() =>
+            M.Token.Bind(t =>
+                             ma.As()
+                               .FoldReduce(Option<A>.None, (_, x) => Some(x))
+                               .Bind(ma => ma switch
+                                           {
+                                               { IsSome: true, Case: A value } => M.Pure(value),
+                                               _                               => M.Empty<A>()
+                                           }));
     }
 }
