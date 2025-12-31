@@ -97,7 +97,7 @@ public abstract partial class IteratorAsync<A> :
     {
         for (var ma = Clone(); !await ma.IsEmpty; ma = await ma.Tail)
         {
-            if (token.IsCancellationRequested) throw new TaskCanceledException();
+            if (token.IsCancellationRequested) throw new OperationCanceledException();
             yield return await ma.Head;
         }
     }

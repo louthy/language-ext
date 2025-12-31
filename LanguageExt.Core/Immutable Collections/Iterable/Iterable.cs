@@ -71,7 +71,7 @@ public abstract class Iterable<A> :
         var       xs  = AsEnumerableIO().Run();
         foreach (var x in xs)
         {
-            if(env.Token.IsCancellationRequested) throw new TaskCanceledException();
+            if(env.Token.IsCancellationRequested) throw new OperationCanceledException();
             yield return x;
         }
     }
@@ -440,13 +440,13 @@ public abstract class Iterable<A> :
         {
             await foreach (var a in AsAsyncEnumerable(env.Token))
             {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                 var mb = +f(a);
                 if (mb.IsAsync)
                 {
                     await foreach (var b in mb.AsAsyncEnumerable(env.Token))
                     {
-                        if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                        if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                         yield return b;
                     }
                 }
@@ -454,7 +454,7 @@ public abstract class Iterable<A> :
                 {
                     foreach (var b in mb.AsEnumerable(env.Token))
                     {
-                        if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                        if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                         yield return b;
                     }
                 }
@@ -464,13 +464,13 @@ public abstract class Iterable<A> :
         {
             foreach (var a in AsEnumerable(env.Token))
             {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                 var mb = +f(a);
                 if (mb.IsAsync)
                 {
                     await foreach (var b in mb.AsAsyncEnumerable(env.Token))
                     {
-                        if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                        if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                         yield return b;
                     }
                 }
@@ -478,7 +478,7 @@ public abstract class Iterable<A> :
                 {
                     foreach (var b in mb.AsEnumerable(env.Token))
                     {
-                        if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                        if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                         yield return b;
                     }
                 }
@@ -503,13 +503,13 @@ public abstract class Iterable<A> :
         {
             await foreach (var a in AsAsyncEnumerable(env.Token))
             {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                 var mb = f(a);
                 if (mb.IsAsync)
                 {
                     await foreach (var b in mb.AsAsyncEnumerable(env.Token))
                     {
-                        if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                        if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                         yield return b;
                     }
                 }
@@ -517,7 +517,7 @@ public abstract class Iterable<A> :
                 {
                     foreach (var b in mb.AsEnumerable(env.Token))
                     {
-                        if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                        if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                         yield return b;
                     }
                 }
@@ -528,13 +528,13 @@ public abstract class Iterable<A> :
         {
             foreach (var a in AsEnumerable(env.Token))
             {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                 var mb = f(a);
                 if (mb.IsAsync)
                 {
                     await foreach (var b in mb.AsAsyncEnumerable(env.Token))
                     {
-                        if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                        if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                         yield return b;
                     }
                 }
@@ -542,7 +542,7 @@ public abstract class Iterable<A> :
                 {
                     foreach (var b in mb.AsEnumerable(env.Token))
                     {
-                        if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                        if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                         yield return b;
                     }
                 }

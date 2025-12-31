@@ -10,7 +10,7 @@ namespace LanguageExt;
 record ChooseSourceT<M, A>(Seq<SourceT<M, A>> Sources) : SourceT<M, A>
     where M : MonadIO<M>, Fallible<M> 
 {
-    public override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer) =>
+    internal override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer) =>
         M.BracketIOMaybe(
             
             // Get our environment

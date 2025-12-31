@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
@@ -185,5 +186,27 @@ public partial class Seq :
                 state.Bind(
                     bs => f(value).Bind(
                         b => F.Pure(bs.Add(b)))); 
+    }
+    
+    static Fold<A, S> Foldable<Seq>.FoldStep<A, S>(K<Seq, A> ta, S initialState)
+    {
+        // ReSharper disable once GenericEnumeratorNotDisposed
+        var iter = ta.As().GetEnumerator();
+        return go(initialState);
+        Fold<A, S> go(S state) =>
+            iter.MoveNext()
+                ? Fold.Loop(state, iter.Current, go)
+                : Fold.Done<A, S>(state);
+    }   
+        
+    static Fold<A, S> Foldable<Seq>.FoldStepBack<A, S>(K<Seq, A> ta, S initialState)
+    {
+        // ReSharper disable once GenericEnumeratorNotDisposed
+        var iter = ta.As().Reverse().GetEnumerator();
+        return go(initialState);
+        Fold<A, S> go(S state) =>
+            iter.MoveNext()
+                ? Fold.Loop(state, iter.Current, go)
+                : Fold.Done<A, S>(state);
     }
 }

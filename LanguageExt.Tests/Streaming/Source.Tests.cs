@@ -9,7 +9,7 @@ public class SourceTests
     {
         // Arrange
         var source = Source.empty<int>();
-        var value  = source.Reduce(0, (s, _) => s + 1).Run();
+        var value  = source.FoldReduce(0, (s, _) => s + 1).Run();
         Assert.Equal(0, value);
     }
     

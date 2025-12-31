@@ -78,7 +78,7 @@ public static class Foldable
     /// </summary>
     public static K<M, S> foldWhileM<T, A, M, S>(
         Func<A, Func<S, K<M, S>>> f, 
-        Func<A, bool> predicate, 
+        Func<(S State, A Value), bool> predicate, 
         S initialState, 
         K<T, A> ta) 
         where T : Foldable<T>
@@ -92,7 +92,7 @@ public static class Foldable
     /// </summary>
     public static K<M, S> foldWhileM<T, A, M, S>(
         Func<S, A, K<M, S>> f, 
-        Func<A, bool> predicate, 
+        Func<(S State, A Value), bool> predicate, 
         S initialState, 
         K<T, A> ta) 
         where T : Foldable<T>
@@ -106,7 +106,7 @@ public static class Foldable
     /// </summary>
     public static K<M, S> foldBackWhileM<T, A, M, S>(
         Func<S, Func<A, K<M, S>>> f, 
-        Func<A, bool> predicate, 
+        Func<(S State, A Value), bool> predicate, 
         S initialState, 
         K<T, A> ta)
         where T : Foldable<T> 
@@ -120,7 +120,7 @@ public static class Foldable
     /// </summary>
     public static K<M, S> foldBackWhileM<T, A, M, S>(
         Func<S, A, K<M, S>> f, 
-        Func<A, bool> predicate, 
+        Func<(S State, A Value), bool> predicate, 
         S initialState, 
         K<T, A> ta)
         where T : Foldable<T> 
@@ -158,7 +158,7 @@ public static class Foldable
     /// </summary>
     public static K<M, S> foldUntilM<T, A, M, S>(
         Func<A, Func<S, K<M, S>>> f, 
-        Func<A, bool> predicate, 
+        Func<(S State, A Value), bool> predicate, 
         S initialState, 
         K<T, A> ta) 
         where M : Monad<M>
@@ -172,7 +172,7 @@ public static class Foldable
     /// </summary>
     public static K<M, S> foldUntilM<T, A, M, S>(
         Func<S, A, K<M, S>> f, 
-        Func<A, bool> predicate, 
+        Func<(S State, A Value), bool> predicate, 
         S initialState, 
         K<T, A> ta) 
         where M : Monad<M>
@@ -210,7 +210,7 @@ public static class Foldable
     /// </summary>
     public static K<M, S> foldBackUntilM<T, A, M, S>(
         Func<S, Func<A, K<M, S>>> f, 
-        Func<A, bool> predicate, 
+        Func<(S State, A Value), bool> predicate, 
         S initialState, 
         K<T, A> ta)
         where T : Foldable<T> 
@@ -224,7 +224,7 @@ public static class Foldable
     /// </summary>
     public static K<M, S> foldBackUntilM<T, A, M, S>(
         Func<S, A, K<M, S>> f, 
-        Func<A, bool> predicate, 
+        Func<(S State, A Value), bool> predicate, 
         S initialState, 
         K<T, A> ta)
         where T : Foldable<T> 
@@ -451,7 +451,7 @@ public static class Foldable
     public static B foldMapBackWhile<T, A, B>(Func<A, B> f, Func<(B State, A Value), bool> predicate, K<T, A> ta)
         where T : Foldable<T>
         where B : Monoid<B> =>
-        T.FoldMapBackWhile(f, predicate, ta);
+        T.FoldMapWhileBack(f, predicate, ta);
 
     /// <summary>
     /// A left-associative variant of 'FoldMap' that is strict in the
@@ -461,7 +461,7 @@ public static class Foldable
     public static B foldMapBackUntil<T, A, B>(Func<A, B> f, Func<(B State, A Value), bool> predicate, K<T, A> ta)
         where T : Foldable<T> 
         where B : Monoid<B> =>
-        T.FoldMapBackUntil(f, predicate, ta);
+        T.FoldMapUntilBack(f, predicate, ta);
 
     /// <summary>
     /// List of elements of a structure, from left to right
@@ -556,14 +556,14 @@ public static class Foldable
     /// <summary>
     /// Find the elements that match the predicate
     /// </summary>
-    public static Seq<A> findAll<T, A>(Func<A, bool> predicate, K<T, A> ta) 
+    public static Iterable<A> findAll<T, A>(Func<A, bool> predicate, K<T, A> ta) 
         where T : Foldable<T> =>
         T.FindAll(predicate, ta);
 
     /// <summary>
     /// Find the elements that match the predicate
     /// </summary>
-    public static Seq<A> findAllBack<T, A>(Func<A, bool> predicate, K<T, A> ta) 
+    public static Iterable<A> findAllBack<T, A>(Func<A, bool> predicate, K<T, A> ta) 
         where T : Foldable<T> =>
         T.FindAllBack(predicate, ta);
 
@@ -604,7 +604,7 @@ public static class Foldable
     /// </summary>
     public static K<F, Unit> iter<T, A, F, B>(Func<A, K<F, B>> f, K<T, A> ta)
         where T : Foldable<T>
-        where F : Applicative<F> =>
+        where F : Monad<F> =>
         T.Iter(f, ta);
     
     /// <summary>

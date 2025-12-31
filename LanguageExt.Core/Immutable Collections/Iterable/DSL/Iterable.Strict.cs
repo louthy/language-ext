@@ -26,7 +26,7 @@ sealed class IterableStrict<A>(SeqStrict<A> Items) : Iterable<A>
         {
             foreach (var x in Items)
             {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                 yield return x;
             }
         }
@@ -39,7 +39,7 @@ sealed class IterableStrict<A>(SeqStrict<A> Items) : Iterable<A>
         {
             foreach (var x in Items)
             {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                 yield return x;
             }
         }
@@ -60,7 +60,7 @@ sealed class IterableStrict<A>(SeqStrict<A> Items) : Iterable<A>
                           var s  = initialState;
                           foreach (var x in Items)
                           {
-                              if(env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                              if(env.Token.IsCancellationRequested) throw new OperationCanceledException();
                               if (!predicate((s, x)))
                               {
                                   return s;
@@ -76,7 +76,7 @@ sealed class IterableStrict<A>(SeqStrict<A> Items) : Iterable<A>
                           var s  = initialState;
                           foreach (var x in Items)
                           {
-                              if(env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                              if(env.Token.IsCancellationRequested) throw new OperationCanceledException();
                               if (!predicate((s, x)))
                               {
                                   return s;
@@ -93,7 +93,7 @@ sealed class IterableStrict<A>(SeqStrict<A> Items) : Iterable<A>
                           var s  = initialState;
                           foreach (var x in Items)
                           {
-                              if(env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                              if(env.Token.IsCancellationRequested) throw new OperationCanceledException();
                               s = f(x)(s);
                               if (predicate((s, x)))
                               {
@@ -109,7 +109,7 @@ sealed class IterableStrict<A>(SeqStrict<A> Items) : Iterable<A>
                           var s  = initialState;
                           foreach (var x in Items)
                           {
-                              if(env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                              if(env.Token.IsCancellationRequested) throw new OperationCanceledException();
                               s = f(s, x);
                               if (predicate((s, x)))
                               {

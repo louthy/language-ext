@@ -113,4 +113,15 @@ public partial class Option :
 
     static K<Fin, A> Natural<Option, Fin>.Transform<A>(K<Option, A> fa) => 
         fa.As().ToFin();
+    
+    static Fold<A, S> Foldable<Option>.FoldStep<A, S>(K<Option, A> ta, S initialState)
+    {
+        var ma = ta.As();
+        return ma.IsSome
+                   ? Fold.Loop(initialState, ma.Value!, Fold.Done<A, S>)
+                   : Fold.Done<A, S>(initialState);
+    }     
+        
+    static Fold<A, S> Foldable<Option>.FoldStepBack<A, S>(K<Option, A> ta, S initialState) =>
+        ta.FoldStep(initialState);
 }

@@ -48,17 +48,37 @@ public static class Discussion1527
         Console.WriteLine(sum2);*/
     }
 
-    static IO<Seq<IObservation>> Think2(Duration duration, Func<IObservation, bool>? predicate = null)
+    static IO<Seq<IObservation>> Think(Duration duration, Func<IObservation, bool>? predicate = null)
     {
-        var observations = Observations<IO>()
-                                .FoldUntil((s, o) => s + o,
-                                           x => predicate?.Invoke(x.Value) ?? false,
-                                           Seq<IObservation>())
-                                .TakeFor(duration) 
-                         | SourceT.pure<IO, Seq<IObservation>>(Empty);
+        var observe = Observations<IO>()
+                         .FoldUntil((s, o) => s + o,
+                                    x => predicate?.Invoke(x.Value) ?? false,
+                                    Seq<IObservation>())
+                         .TakeFor(duration);
 
-        return observations.Last().As();
+        var timeout = SourceT.pure<IO, Seq<IObservation>>([]).Delay(duration);
+
+        return +(observe | timeout).Last();
     }
+
+    static IO<Option<IObservation>> OneWithTimeout(Duration duration)
+    {
+        var empty        = SourceT.pure<IO, Option<IObservation>>(None);
+        var timeout      = empty.Delay(duration);
+        var observations = Observations<IO>().Map(Some);
+        return +(observations | timeout).Take(1).Last();
+    }
+    
+    static IO<Seq<IObservation>> AllForPeriod(Duration duration) =>
+        +Observations<IO>()
+           .TakeFor(duration)
+           .Collect();
+
+    static IO<Seq<IObservation>> AllForPeriod(Duration duration, Func<IObservation, bool> predicate) =>
+        +Observations<IO>()
+           .Filter(predicate)
+           .TakeFor(duration)
+           .Collect();
 
     public static K<M, IObservation> Think<M>(Duration duration)
         where M : MonadIO<M>, Fallible<M>, Alternative<M>

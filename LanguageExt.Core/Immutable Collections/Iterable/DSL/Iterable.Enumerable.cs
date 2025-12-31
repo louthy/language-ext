@@ -23,7 +23,7 @@ sealed class IterableEnumerable<A>(IO<IEnumerable<A>> runEnumerable) : Iterable<
             var xs = run.Run(env);
             foreach (var x in xs)
             {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                 yield return x;
             }
         }
@@ -48,7 +48,7 @@ sealed class IterableEnumerable<A>(IO<IEnumerable<A>> runEnumerable) : Iterable<
                           var xs = await runEnumerable.RunAsync(env);
                           foreach (var x in xs)
                           {
-                              if(env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                              if(env.Token.IsCancellationRequested) throw new OperationCanceledException();
                               if (!predicate((s, x)))
                               {
                                   return s;
@@ -65,7 +65,7 @@ sealed class IterableEnumerable<A>(IO<IEnumerable<A>> runEnumerable) : Iterable<
                           var xs = await runEnumerable.RunAsync(env);
                           foreach (var x in xs)
                           {
-                              if(env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                              if(env.Token.IsCancellationRequested) throw new OperationCanceledException();
                               if (!predicate((s, x)))
                               {
                                   return s;
@@ -83,7 +83,7 @@ sealed class IterableEnumerable<A>(IO<IEnumerable<A>> runEnumerable) : Iterable<
                           var xs = await runEnumerable.RunAsync(env);
                           foreach (var x in xs)
                           {
-                              if(env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                              if(env.Token.IsCancellationRequested) throw new OperationCanceledException();
                               s = f(x)(s);
                               if (predicate((s, x)))
                               {
@@ -100,7 +100,7 @@ sealed class IterableEnumerable<A>(IO<IEnumerable<A>> runEnumerable) : Iterable<
                           var xs = await runEnumerable.RunAsync(env);
                           foreach (var x in xs)
                           {
-                              if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                              if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                               s = f(s, x);
                               if (predicate((s, x)))
                               {

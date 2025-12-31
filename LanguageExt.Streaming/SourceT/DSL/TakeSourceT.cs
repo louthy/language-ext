@@ -5,7 +5,7 @@ namespace LanguageExt;
 record TakeSourceT<M, A>(SourceT<M, A> Source, int Count) : SourceT<M, A>
     where M : MonadIO<M>
 {
-    public override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer)
+    internal override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer)
     {
         var remaining = Count;
         return Source.ReduceInternalM(state,

@@ -8,7 +8,7 @@ namespace LanguageExt;
 record Reader2SourceT<M, A, B>(Channel<K<M, A>> ChannelA, Channel<K<M, B>> ChannelB) : SourceT<M, (A First, B Second)>
     where M : MonadIO<M>
 {
-    public override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, (A First, B Second)>, S> reducer)
+    internal override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, (A First, B Second)>, S> reducer)
     {
         return M.LiftIO(IO.liftVAsync(e => go(state, e.Token))).Flatten();
         async ValueTask<K<M, Reduced<S>>> go(S state, CancellationToken token)

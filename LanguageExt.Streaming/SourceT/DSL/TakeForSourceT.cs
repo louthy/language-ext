@@ -8,7 +8,7 @@ namespace LanguageExt;
 record TakeForSourceT<M, A>(SourceT<M, A> Source, TimeSpan Duration) : SourceT<M, A>
     where M : MonadIO<M>, Fallible<Error, M>
 {
-    public override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer) =>
+    internal override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer) =>
         from sofar in atomIO(state)
         from value in M.TimeoutIOMaybe(reduce(state, reducer, sofar), Duration)
                         | @catch(ErrorCodes.TimedOut, timedOut(sofar))

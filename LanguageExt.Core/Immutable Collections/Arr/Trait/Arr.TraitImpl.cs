@@ -124,6 +124,48 @@ public partial class Arr :
         return state;
     }
 
+    static Fold<A, S> Foldable<Arr>.FoldStep<A, S>(K<Arr, A> ta, S initialState)
+    {
+        var array = ta.As();
+        var count = array.Length;
+        if(count == 0) return Fold.Done<A, S>(initialState);
+        var index = 0;
+        return go(initialState);
+        
+        Fold<A, S> go(S state)
+        {
+            if (index == count)
+            {
+                return Fold.Done<A, S>(state);
+            }
+            else
+            {
+                return Fold.Loop(state, array[index++], go);
+            }
+        }
+    }
+
+    static Fold<A, S> Foldable<Arr>.FoldStepBack<A, S>(K<Arr, A> ta, S initialState)
+    {
+        var array = ta.As();
+        var count = array.Length;
+        if(count == 0) return Fold.Done<A, S>(initialState);
+        var index = count;
+        return go(initialState);
+        
+        Fold<A, S> go(S state)
+        {
+            if (index == 0)
+            {
+                return Fold.Done<A, S>(state);
+            }
+            else
+            {
+                return Fold.Loop(state, array[--index], go);
+            }
+        }
+    }
+
     static Option<A> Foldable<Arr>.At<A>(K<Arr, A> ta, Index index)
     {
         var arr = ta.As();

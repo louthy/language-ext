@@ -8,7 +8,7 @@ namespace LanguageExt;
 record ObservableSourceT<M, A>(IObservable<K<M, A>> Items) : SourceT<M, A>
     where M : MonadIO<M>
 {
-    public override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer) 
+    internal override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer) 
     {
         return M.LiftIO(IO.liftVAsync(e => go(state, Items.ToAsyncEnumerable(e.Token).GetIteratorAsync(), e.Token))).Flatten();
         async ValueTask<K<M, Reduced<S>>> go(S state, IteratorAsync<K<M, A>> iter, CancellationToken token)

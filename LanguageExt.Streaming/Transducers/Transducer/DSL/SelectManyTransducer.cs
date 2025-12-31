@@ -12,6 +12,9 @@ record SelectManyTransducer1<Env, A, B, C>(
     public override ReducerIO<Env, S> Reduce<S>(ReducerIO<C, S> reducer) =>
         (s, env) => First.Reduce<S>((s1, x) =>
                                         F(x).As().Reduce<S>((s2, y) => reducer(s2, G(x, y)))(s1, env))(s, env);
+    
+    public override TransducerM<M, Env, C> Lift<M>() =>
+        new SelectManyTransducerM1<M, Env, A, B, C>(First.Lift<M>(), x => F(x).As().Lift<M>(), G);
 }
 
 record SelectManyTransducer2<Env, A, B, C>(Transducer<Env, A> First, Func<A, Transducer<Env, B>> F, Func<A, B, C> G) : 
@@ -21,4 +24,7 @@ record SelectManyTransducer2<Env, A, B, C>(Transducer<Env, A> First, Func<A, Tra
         (s, env) => First.Reduce<S>(
             (s1, x) =>
                 F(x).Reduce<S>((s2, y) => reducer(s2, G(x, y)))(s1, env))(s, env);
+    
+    public override TransducerM<M, Env, C> Lift<M>() =>
+        new SelectManyTransducerM2<M, Env, A, B, C>(First.Lift<M>(), x => F(x).Lift<M>(), G);
 }

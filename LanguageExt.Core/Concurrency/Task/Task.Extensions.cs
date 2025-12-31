@@ -77,7 +77,7 @@ public static class TaskExtensions
         var res = pred(resT);
         if (!res)
         {
-            throw new TaskCanceledException();
+            throw new OperationCanceledException();
         }
 
         return resT;
@@ -367,11 +367,11 @@ public static class TaskExtensions
                         
                         if (token.IsCancellationRequested)
                         {
-                            throw new TaskCanceledException();
+                            throw new OperationCanceledException();
                         }
                         else if (task.IsCanceled)
                         {
-                            errors.Add(task.Exception is not null ? task.Exception : new TaskCanceledException());
+                            errors.Add(task.Exception is not null ? task.Exception : new OperationCanceledException());
                         }
                         else if (task.IsFaulted)
                         {

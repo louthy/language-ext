@@ -66,7 +66,13 @@ public partial class Identity :
         if (!predicate((initialState, id.Value))) return initialState;
         return f(initialState)(id.Value);
     }
-
+    
+    static Fold<A, S> Foldable<Identity>.FoldStep<A, S>(K<Identity, A> ta, S initialState) =>
+        Fold.Loop(initialState, ta.As().Value, Fold.Done<A, S>);
+        
+    static Fold<A, S> Foldable<Identity>.FoldStepBack<A, S>(K<Identity, A> ta, S initialState) =>
+        ta.FoldStep(initialState);
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Traversable

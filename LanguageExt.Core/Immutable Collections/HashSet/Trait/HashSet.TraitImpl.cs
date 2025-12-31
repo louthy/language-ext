@@ -152,4 +152,26 @@ public partial class HashSet :
         K<F, HashSet<B>> acc(K<F, HashSet<B>> fys, A x) =>
             fys.Bind(ys => f(x).Map(ys.Add));
     }
+    
+    static Fold<A, S> Foldable<HashSet>.FoldStep<A, S>(K<HashSet, A> ta, S initialState)
+    {
+        // ReSharper disable once GenericEnumeratorNotDisposed
+        var iter = ta.As().GetEnumerator();
+        return go(initialState);
+        Fold<A, S> go(S state) =>
+            iter.MoveNext()
+                ? Fold.Loop(state, iter.Current, go)
+                : Fold.Done<A, S>(state);
+    }
+    
+    static Fold<A, S> Foldable<HashSet>.FoldStepBack<A, S>(K<HashSet, A> ta, S initialState)
+    {
+        // ReSharper disable once GenericEnumeratorNotDisposed
+        var iter = ta.As().Reverse().GetEnumerator();
+        return go(initialState);
+        Fold<A, S> go(S state) =>
+            iter.MoveNext()
+                ? Fold.Loop(state, iter.Current, go)
+                : Fold.Done<A, S>(state);
+    }
 }

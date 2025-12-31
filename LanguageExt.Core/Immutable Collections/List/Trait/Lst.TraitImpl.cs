@@ -165,5 +165,26 @@ public class Lst :
     
     static Seq<A> Foldable<Lst>.ToSeq<A>(K<Lst, A> ta) =>
         new (ta.As());
-
+    
+    static Fold<A, S> Foldable<Lst>.FoldStep<A, S>(K<Lst, A> ta, S initialState)
+    {
+        // ReSharper disable once GenericEnumeratorNotDisposed
+        var iter = ta.As().GetEnumerator();
+        return go(initialState);
+        Fold<A, S> go(S state) =>
+            iter.MoveNext()
+                ? Fold.Loop(state, iter.Current, go)
+                : Fold.Done<A, S>(state);
+    }   
+    
+    static Fold<A, S> Foldable<Lst>.FoldStepBack<A, S>(K<Lst, A> ta, S initialState)
+    {
+        // ReSharper disable once GenericEnumeratorNotDisposed
+        var iter = ta.As().Reverse().GetEnumerator();
+        return go(initialState);
+        Fold<A, S> go(S state) =>
+            iter.MoveNext()
+                ? Fold.Loop(state, iter.Current, go)
+                : Fold.Done<A, S>(state);
+    }   
 }

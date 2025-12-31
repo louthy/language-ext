@@ -9,7 +9,7 @@ namespace LanguageExt;
 record Zip2SourceT<M, A, B>(SourceT<M, A> SourceA, SourceT<M, B> SourceB) : SourceT<M, (A First, B Second)>
     where M : MonadIO<M>, Fallible<Error, M>
 {
-    public override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, (A First, B Second)>, S> reducer) =>
+    internal override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, (A First, B Second)>, S> reducer) =>
         
         // Create channels that receive the values yielded by the two sources
         from channelA in M.Pure(Channel.CreateUnbounded<K<M, A>>())

@@ -5,7 +5,7 @@ namespace LanguageExt;
 record CombineSourceT<M, A>(Seq<SourceT<M, A>> Sources) : SourceT<M, A>
     where M : MonadIO<M>
 {
-    public override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer)  
+    internal override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer)  
     {
         return go(state, Sources);
         K<M, Reduced<S>> go(S state, Seq<SourceT<M, A>> sources) =>

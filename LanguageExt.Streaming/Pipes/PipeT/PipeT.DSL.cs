@@ -395,7 +395,7 @@ record PipeTYieldAllSource<IN, OUT, M, X, A>(Source<X> Yields, Func<X, PipeT<IN,
 
     internal override K<M, A> Run()
     {
-        var comp = Yields.ReduceInternal(
+        var comp = Yields.ReduceIO(
                               PipeT.pure<IN, OUT, M, Unit>(unit),
                               (ms, x) => Reduced.ContinueIO(ms.Bind(_ => F(x))));
 

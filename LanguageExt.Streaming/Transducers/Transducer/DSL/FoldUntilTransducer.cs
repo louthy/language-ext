@@ -35,6 +35,9 @@ record FoldUntilTransducer<A, S>(
                                             }
                                         });
     }
+    
+    public override TransducerM<M, A, S> Lift<M>() =>
+        new FoldUntilTransducerM2<M, A, S>(Schedule.Forever, Folder, Pred, State);
 }
 
 record FoldUntilTransducer2<A, S>(
@@ -81,4 +84,7 @@ record FoldUntilTransducer2<A, S>(
                                      }
                                  });
     }
+    
+    public override TransducerM<M, A, S> Lift<M>() =>
+        new FoldUntilTransducerM2<M, A, S>(Schedule, Folder, Pred, State);
 }

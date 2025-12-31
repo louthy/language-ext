@@ -167,4 +167,15 @@ public partial class Validation<FAIL> :
                     : Validation.FailI<FAIL, A>(e),
             _ => throw new NotSupportedException()
         };
+
+    static Fold<A, S> Foldable<Validation<FAIL>>.FoldStep<A, S>(K<Validation<FAIL>, A> ta, S initialState)
+    {
+        var ma = ta.As();
+        return ma.IsSuccess
+                   ? Fold.Loop(initialState, ma.SuccessValue, Fold.Done<A, S>)
+                   : Fold.Done<A, S>(initialState);
+    }
+        
+    static Fold<A, S> Foldable<Validation<FAIL>>.FoldStepBack<A, S>(K<Validation<FAIL>, A> ta, S initialState) =>
+        ta.FoldStep(initialState);
 }

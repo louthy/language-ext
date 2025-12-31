@@ -106,7 +106,7 @@ public class FoldableDefaultsTests
     public static void FoldWhileMTest()
     {
         var res = FList.New(1, 2, 3, 4, 5)
-                       .FoldWhileM(0, (s, x) => Some(s + x), x => x < 4);
+                       .FoldWhileM(0, (s, x) => Some(s + x), x => x.Value < 4);
         
         Assert.True(res.As() == Some(6));
     }
@@ -115,7 +115,7 @@ public class FoldableDefaultsTests
     public static void FoldBackWhileMTest()
     {
         var res = FList.New(1, 2, 3, 4, 5)
-                       .FoldBackWhileM(15, (s, x) => Some(s - x), x => x > 3);
+                       .FoldBackWhileM(15, (s, x) => Some(s - x), x => x.Value > 3);
         
         Assert.True(res.As() == Some(6));
     }
@@ -152,7 +152,7 @@ public class FoldableDefaultsTests
     public static void FoldUntilMTest()
     {
         var res = FList.New(1, 2, 3, 4, 5)
-                       .FoldUntilM(0, (s, x) => Some(s + x), x => x == 4);
+                       .FoldUntilM(0, (s, x) => Some(s + x), x => x.Value == 4);
         
         Assert.True(res.As() == Some(6));
     }
@@ -161,7 +161,7 @@ public class FoldableDefaultsTests
     public static void FoldBackUntilMTest()
     {
         var res = FList.New(1, 2, 3, 4, 5)
-                       .FoldBackUntilM(15, (s, x) => Some(s - x), x => x == 3);
+                       .FoldBackUntilM(15, (s, x) => Some(s - x), x => x.Value == 3);
         
         Assert.True(res.As() == Some(6));
     }
@@ -317,14 +317,14 @@ public class FoldableDefaultsTests
     public static void FindAllTest()
     {
         var res = FList.New(1, 2, 3, 4, 5).FindAll(x => x > 3);
-        Assert.True(res == Seq(4, 5));
+        Assert.True(res == Iterable(4, 5));
     }
         
     [Fact]
     public static void FindAllBackTest()
     {
         var res = FList.New(1, 2, 3, 4, 5).FindAllBack(x => x > 3);
-        Assert.True(res == Seq(5, 4));
+        Assert.True(res == Iterable(5, 4));
     }
         
     [Fact]
@@ -457,42 +457,32 @@ public class FList : Foldable<FList>
 {
     public static FList<A> New<A>(params A[] values) =>
         new (values);
-    
-    public static S FoldWhile<A, S>(
-        Func<A, Func<S, S>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S state,
-        K<FList, A> ta)
+
+
+    public static Fold<A, S> FoldStep<A, S>(K<FList, A> ta, S initialState)
     {
-        var values = ta.As().Values;
-        for(var i = 0; i < values.Length; i++)
-        {
-            var v = values[i];
-            if (!predicate((state, v)))
-            {
-                return state; 
-            }
-            state = f(v)(state);
-        }
-        return state;
+        var ix    = 0;
+        var ma    = ta.As().Values;
+        var count = ma.Length;
+        return go(initialState);
+
+        Fold<A, S> go(S state) =>
+            ix == count
+                ? Fold.Done<A, S>(state)
+                : Fold.Loop(state, ma[ix++], go);
+        
     }
 
-    public static S FoldBackWhile<A, S>(
-        Func<S, Func<A, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S state,
-        K<FList, A> ta)
+    public static Fold<A, S> FoldStepBack<A, S>(K<FList, A> ta, S initialState)
     {
-        var values = ta.As().Values;
-        for(var i = values.Length - 1; i >= 0; i--)
-        {
-            var v = values[i];
-            if (!predicate((state, v)))
-            {
-                return state; 
-            }
-            state = f(state)(v);
-        }
-        return state;
+        var ma    = ta.As().Values;
+        var count = ma.Length;
+        var ix    = count;
+        return go(initialState);
+
+        Fold<A, S> go(S state) =>
+            ix == 0
+                ? Fold.Done<A, S>(state)
+                : Fold.Loop(state, ma[--ix], go);
     }
 }

@@ -12,7 +12,7 @@ record FoldUntilSourceT<M, A, S>(
     where M : MonadIO<M>
 {
     // TODO: Schedule
-    public override K<M, Reduced<S1>> ReduceInternalM<S1>(S1 state, ReducerM<M, K<M, S>, S1> reducer) =>
+    internal override K<M, Reduced<S1>> ReduceInternalM<S1>(S1 state, ReducerM<M, K<M, S>, S1> reducer) =>
         Source.ReduceInternalM((FState: State, IState: state),
                                (rs, ma) => from a in ma
                                            let ns = Folder(rs.FState, a)

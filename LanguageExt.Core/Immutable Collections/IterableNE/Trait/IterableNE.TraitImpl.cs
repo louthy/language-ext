@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -81,4 +82,26 @@ public partial class IterableNE :
 
     static K<HashSet, A> Natural<IterableNE, HashSet>.Transform<A>(K<IterableNE, A> fa) => 
         toHashSet(fa.As());
+    
+    static Fold<A, S> Foldable<IterableNE>.FoldStep<A, S>(K<IterableNE, A> ta, S initialState)
+    {
+        // ReSharper disable once GenericEnumeratorNotDisposed
+        var iter = ta.As().GetEnumerator();
+        return go(initialState);
+        Fold<A, S> go(S state) =>
+            iter.MoveNext()
+                ? Fold.Loop(state, iter.Current, go)
+                : Fold.Done<A, S>(state);
+    }   
+        
+    static Fold<A, S> Foldable<IterableNE>.FoldStepBack<A, S>(K<IterableNE, A> ta, S initialState)
+    {
+        // ReSharper disable once GenericEnumeratorNotDisposed
+        var iter = ta.As().Reverse().GetEnumerator();
+        return go(initialState);
+        Fold<A, S> go(S state) =>
+            iter.MoveNext()
+                ? Fold.Loop(state, iter.Current, go)
+                : Fold.Done<A, S>(state);
+    }
 }

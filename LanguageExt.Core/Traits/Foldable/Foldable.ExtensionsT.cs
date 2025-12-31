@@ -421,18 +421,18 @@ public static partial class FoldableExtensions
     /// <summary>
     /// Find the the elements that match the predicate
     /// </summary>
-    public static Seq<A> FindAllT<T, U, A>(this K<T, K<U, A>> tua, Func<A, bool> predicate)
+    public static Iterable<A> FindAllT<T, U, A>(this K<T, K<U, A>> tua, Func<A, bool> predicate)
         where T : Foldable<T>
         where U : Foldable<U> =>
-        Foldable.fold(ua => s1 => s1 + Foldable.findAll(predicate, ua), Seq<A>.Empty, tua);
+        Foldable.fold(ua => s1 => s1 + Foldable.findAll(predicate, ua), Iterable<A>.Empty, tua);
 
     /// <summary>
     /// Find the the elements that match the predicate
     /// </summary>
-    public static Seq<A> FindAllBackT<T, U, A>(this K<T, K<U, A>> tua, Func<A, bool> predicate) 
+    public static Iterable<A> FindAllBackT<T, U, A>(this K<T, K<U, A>> tua, Func<A, bool> predicate) 
         where T : Foldable<T>
         where U : Foldable<U> =>
-        Foldable.foldBack(s1 => ua => s1 + Foldable.findAllBack(predicate, ua), Seq<A>.Empty, tua);
+        Foldable.foldBack(s1 => ua => s1 + Foldable.findAllBack(predicate, ua), Iterable<A>.Empty, tua);
     
     /// <summary>
     /// Computes the sum of the numbers of a structure.
@@ -484,7 +484,7 @@ public static partial class FoldableExtensions
     public static K<F, Unit> IterT<T, U, A, F, B>(this K<T, K<U, A>> tua, Func<A, K<F, B>> f)
         where T : Foldable<T>
         where U : Foldable<U>
-        where F : Applicative<F> =>
+        where F : Monad<F> =>
         Foldable.iter(ua => Foldable.iter(f, ua), tua);
     
     /// <summary>

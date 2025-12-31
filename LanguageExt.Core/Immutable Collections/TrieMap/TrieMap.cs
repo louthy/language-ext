@@ -2426,7 +2426,7 @@ internal class TrieMap<EqK, K, V> :
             Items = items;
             Hash = hash;
         }
-
+        
         public (bool Found, K Key, V Value) Read(K key, uint hash, Sec section)
         {
             foreach (var kv in Items)

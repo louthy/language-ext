@@ -16,7 +16,7 @@ record MultiListenerPureSourceT<M, A>(Channel<A> Source) : SourceT<M, A>
     readonly ConcurrentDictionary<Channel<K<M, A>>, Unit> listeners = new();
     readonly CancellationTokenSource tokenSource = new();
 
-    public override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer)
+    internal override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer)
     {
         return from channel in mkChannel
                let final    =  final(channel)
@@ -90,7 +90,7 @@ record MultiListenerPureSourceT<M, A>(Channel<A> Source) : SourceT<M, A>
 
     K<M, Reduced<S>> readAll<S>(Channel<K<M, A>> channel, ReducerM<M, K<M, A>, S> reducer, S initialState)
     {
-        return M.Recur(initialState, go);
+        return Monad.recur(initialState, go);
         
         K<M, Next<S, Reduced<S>>> go(S state) =>
             IO.token >> (t => t.IsCancellationRequested

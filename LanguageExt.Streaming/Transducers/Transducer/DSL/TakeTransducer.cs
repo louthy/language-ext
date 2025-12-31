@@ -20,4 +20,7 @@ record TakeTransducer<A>(int Amount) : Transducer<A, A>
                                      }
                                  });
     }
+    
+    public override TransducerM<M, A, A> Lift<M>() => 
+        new TakeTransducerM<M, A>(Amount);
 }

@@ -73,7 +73,7 @@ public static class ValueTaskExtensions
         var res = pred(resT);
         if (!res)
         {
-            throw new TaskCanceledException();
+            throw new OperationCanceledException();
         }
 
         return resT;

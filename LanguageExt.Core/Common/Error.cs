@@ -251,7 +251,6 @@ public abstract record Error : Monoid<Error>
             WrappedErrorExceptionalException w => w.ToError(),
             WrappedErrorExpectedException w    => w.ToError(),
             ErrorException e                   => e.ToError(),
-            TaskCanceledException              => Errors.Cancelled,
             OperationCanceledException         => Errors.Cancelled,
             TimeoutException                   => Errors.TimedOut,
             AggregateException a               => ManyErrors.FromAggregate(a),

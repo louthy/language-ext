@@ -59,11 +59,12 @@ public partial class IO :
         };
 
     static K<IO, B> Monad<IO>.Recur<A, B>(A value, Func<A, K<IO, Next<A, B>>> f) =>
-        liftVAsync(async env =>
+        liftVAsync(async e =>
                   {
                       while (true)
                       {
-                          var next = await f(value).As().RunAsync(env);
+                          if(e.Token.IsCancellationRequested) throw new OperationCanceledException();
+                          var next = await f(value).As().RunAsync(e);
                           if (next.IsDone) return next.Done;
                           value = next.Loop;
                       }

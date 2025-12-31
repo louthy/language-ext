@@ -27,7 +27,7 @@ public static partial class Prelude
             e =>
             {
                 e.Source.Cancel();
-                throw new TaskCanceledException();
+                throw new OperationCanceledException();
             });
     
     /// <summary>
@@ -195,7 +195,7 @@ public static partial class Prelude
     public static IO<A> awaitAny<A>(Seq<IO<A>> ms) =>
         IO.liftAsync(async eio =>
                      {
-                         if(eio.Token.IsCancellationRequested) throw new TaskCanceledException();
+                         if(eio.Token.IsCancellationRequested) throw new OperationCanceledException();
                          using var lenv = eio.LocalCancel;
                          var result = await await Task.WhenAny(ms.Map(io => io.RunAsync(lenv).AsTask()));
                          await lenv.Source.CancelAsync();
@@ -214,7 +214,7 @@ public static partial class Prelude
     public static IO<A> awaitAny<A>(Seq<ForkIO<A>> forks) =>
         IO.liftAsync(async eio =>
                      {
-                         if(eio.Token.IsCancellationRequested) throw new TaskCanceledException();
+                         if(eio.Token.IsCancellationRequested) throw new OperationCanceledException();
                          using var lenv = eio.LocalCancel;
                          var result = await await Task.WhenAny(forks.Map(f => f.Await.RunAsync(eio).AsTask()));
                          await lenv.Source.CancelAsync();
@@ -233,7 +233,7 @@ public static partial class Prelude
     public static IO<A> awaitAny<A>(Seq<IO<ForkIO<A>>> forks) =>
         IO.liftAsync(async eio =>
                      {
-                         if(eio.Token.IsCancellationRequested) throw new TaskCanceledException();
+                         if(eio.Token.IsCancellationRequested) throw new OperationCanceledException();
                          using var lenv   = eio.LocalCancel;
                          var       forks1 = forks.Map(mf => mf.Run(lenv));
                          var       result = await await Task.WhenAny(forks1.Map(f => f.Await.RunAsync(eio).AsTask()));

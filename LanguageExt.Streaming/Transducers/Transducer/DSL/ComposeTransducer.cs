@@ -11,6 +11,9 @@ record ComposeTransducer<A, B, C>(Transducer<A, B> TF, Transducer<B, C> TG) :
 
     public override Transducer<A, D> Compose<D>(Transducer<C, D> t) =>
         new ComposeTransducer<A, B, C, D>(TF, TG, t);
+
+    public override TransducerM<M, A, C> Lift<M>() =>
+        new ComposeTransducerM<M, A, B, C>(TF.Lift<M>(), TG.Lift<M>());
 }
 
 record ComposeTransducer<A, B, C, D>(Transducer<A, B> TF, Transducer<B, C> TG, Transducer<C, D> TH) : 
@@ -21,6 +24,9 @@ record ComposeTransducer<A, B, C, D>(Transducer<A, B> TF, Transducer<B, C> TG, T
 
     public override Transducer<A, E> Compose<E>(Transducer<D, E> t) =>
         new ComposeTransducer<A, B, C, D, E>(TF, TG, TH, t);
+    
+    public override TransducerM<M, A, D> Lift<M>() =>
+        new ComposeTransducerM<M, A, B, C, D>(TF.Lift<M>(), TG.Lift<M>(), TH.Lift<M>());
 }
 
 record ComposeTransducer<A, B, C, D, E>(
@@ -41,6 +47,9 @@ record ComposeTransducer<A, B, C, D, E>(
 
     public override Transducer<A, F> Compose<F>(Transducer<E, F> t) =>
         new ComposeTransducer<A, B, C, D, E, F>(TF, TG, TH, TI, t);
+    
+    public override TransducerM<M, A, E> Lift<M>() =>
+        new ComposeTransducerM<M, A, B, C, D, E>(TF.Lift<M>(), TG.Lift<M>(), TH.Lift<M>(), TI.Lift<M>());
 }
 
 record ComposeTransducer<A, B, C, D, E, F>(
@@ -64,6 +73,9 @@ record ComposeTransducer<A, B, C, D, E, F>(
 
     public override Transducer<A, G> Compose<G>(Transducer<F, G> t) =>
         new ComposeTransducer<A, B, C, D, E, F, G>(TF, TG, TH, TI, TJ, t);
+    
+    public override TransducerM<M, A, F> Lift<M>() =>
+        new ComposeTransducerM<M, A, B, C, D, E, F>(TF.Lift<M>(), TG.Lift<M>(), TH.Lift<M>(), TI.Lift<M>(), TJ.Lift<M>());
 }
 
 record ComposeTransducer<A, B, C, D, E, F, G>(
@@ -87,4 +99,7 @@ record ComposeTransducer<A, B, C, D, E, F, G>(
                             (s2, w))
                     (s1, v))
             (s, u);
+    
+    public override TransducerM<M, A, G> Lift<M>() =>
+        new ComposeTransducerM<M, A, B, C, D, E, F, G>(TF.Lift<M>(), TG.Lift<M>(), TH.Lift<M>(), TI.Lift<M>(), TJ.Lift<M>(), TK.Lift<M>());
 }

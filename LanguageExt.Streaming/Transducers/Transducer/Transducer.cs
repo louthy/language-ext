@@ -16,6 +16,14 @@ public abstract record Transducer<A, B> :
     public abstract ReducerIO<A, S> Reduce<S>(ReducerIO<B, S> reducer);
 
     /// <summary>
+    /// Lift the pure value transducer into a `M` value transducer
+    /// </summary>
+    /// <typeparam name="M">Lifted space</typeparam>
+    /// <returns>Lifted transducer</returns>
+    public abstract TransducerM<M, A, B> Lift<M>()
+        where M : Applicative<M>;
+    
+    /// <summary>
     /// Compose two transducers together.  The output of the first transducer is the input to the second.
     /// </summary>
     public virtual Transducer<A, C> Compose<C>(Transducer<B, C> tg) =>

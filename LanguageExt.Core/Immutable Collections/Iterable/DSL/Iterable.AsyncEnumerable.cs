@@ -25,7 +25,7 @@ sealed class IterableAsyncEnumerable<A>(IO<IAsyncEnumerable<A>> runEnumerable) :
             var xs = run.Run(env);
             foreach (var x in xs.ToBlockingEnumerable(env.Token))
             {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                 yield return x;
             }
         }

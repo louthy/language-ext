@@ -94,6 +94,15 @@ public abstract record SourceT<M, A> :
     /// <param name="transducer">Transducer to use to transform</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>Transformed source</returns>
+    public SourceT<M, B> Transform<B>(Transducer<A, B> transducer) =>
+        new TransformSourceT2<M, A, B>(this, transducer);
+
+    /// <summary>
+    /// Transform with a transducer
+    /// </summary>
+    /// <param name="transducer">Transducer to use to transform</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>Transformed source</returns>
     public SourceT<M, B> Transform<B>(TransducerM<M, A, B> transducer) =>
         new TransformSourceT<M, A, B>(this, transducer);
     
@@ -344,5 +353,5 @@ public abstract record SourceT<M, A> :
     /// <param name="reducer">Reducer</param>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Lifted aggregate state</returns>
-    public abstract K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer);
+    internal abstract K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer);
 }

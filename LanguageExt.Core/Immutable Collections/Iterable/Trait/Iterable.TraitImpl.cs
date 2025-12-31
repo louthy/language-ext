@@ -103,4 +103,26 @@ public partial class Iterable :
 
     static K<Iterable, A> CoNatural<Iterable, Iterable>.CoTransform<A>(K<Iterable, A> fa) => 
         fa;
+        
+    static Fold<A, S> Foldable<Iterable>.FoldStep<A, S>(K<Iterable, A> ta, S initialState)
+    {
+        // ReSharper disable once GenericEnumeratorNotDisposed
+        var iter = ta.As().GetEnumerator();
+        return go(initialState);
+        Fold<A, S> go(S state) =>
+            iter.MoveNext()
+                ? Fold.Loop(state, iter.Current, go)
+                : Fold.Done<A, S>(state);
+    }
+        
+    static Fold<A, S> Foldable<Iterable>.FoldStepBack<A, S>(K<Iterable, A> ta, S initialState)
+    {
+        // ReSharper disable once GenericEnumeratorNotDisposed
+        var iter = ta.As().Reverse().GetEnumerator();
+        return go(initialState);
+        Fold<A, S> go(S state) =>
+            iter.MoveNext()
+                ? Fold.Loop(state, iter.Current, go)
+                : Fold.Done<A, S>(state);
+    }    
 }

@@ -11,7 +11,7 @@ record Reader3SourceT<M, A, B, C>(
     Channel<K<M, C>> ChannelC) : SourceT<M, (A First, B Second, C Third)>
     where M : MonadIO<M>
 {
-    public override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, (A First, B Second, C Third)>, S> reducer)
+    internal override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, (A First, B Second, C Third)>, S> reducer)
     {
         return M.LiftIO(IO.liftVAsync(e => go(state, e.Token))).Flatten();
         async ValueTask<K<M, Reduced<S>>> go(S state, CancellationToken token)

@@ -26,19 +26,19 @@ sealed class IterableAdd<A>(SeqStrict<A> Prefix, Iterable<A> Source, SeqStrict<A
         {
             foreach (var x in Prefix)
             {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                 yield return x;
             }
 
             foreach (var x in Source.AsEnumerable(env.Token))
             {
-                if(env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                if(env.Token.IsCancellationRequested) throw new OperationCanceledException();
                 yield return x;
             }
 
             foreach (var x in Postfix)
             {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                 yield return x;
             }
         }
@@ -51,7 +51,7 @@ sealed class IterableAdd<A>(SeqStrict<A> Prefix, Iterable<A> Source, SeqStrict<A
         {
             foreach (var x in Prefix)
             {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                 yield return x;
             }
 
@@ -62,7 +62,7 @@ sealed class IterableAdd<A>(SeqStrict<A> Prefix, Iterable<A> Source, SeqStrict<A
 
             foreach (var x in Postfix)
             {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                 yield return x;
             }
         }

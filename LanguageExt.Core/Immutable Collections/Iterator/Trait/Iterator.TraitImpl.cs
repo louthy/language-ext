@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 using G = System.Collections.Generic;
@@ -140,4 +141,26 @@ public partial class Iterator :
     
     static K<Iterable, A> Natural<Iterator, Iterable>.Transform<A>(K<Iterator, A> fa) => 
         Iterable.createRange(fa.As());
+    
+    static Fold<A, S> Foldable<Iterator>.FoldStep<A, S>(K<Iterator, A> ta, S initialState)
+    {
+        // ReSharper disable once GenericEnumeratorNotDisposed
+        var iter = ta.As().GetEnumerator();
+        return go(initialState);
+        Fold<A, S> go(S state) =>
+            iter.MoveNext()
+                ? Fold.Loop(state, iter.Current, go)
+                : Fold.Done<A, S>(state);
+    }   
+        
+    static Fold<A, S> Foldable<Iterator>.FoldStepBack<A, S>(K<Iterator, A> ta, S initialState)
+    {
+        // ReSharper disable once GenericEnumeratorNotDisposed
+        var iter = ta.As().Reverse().GetEnumerator();
+        return go(initialState);
+        Fold<A, S> go(S state) =>
+            iter.MoveNext()
+                ? Fold.Loop(state, iter.Current, go)
+                : Fold.Done<A, S>(state);
+    }
 }

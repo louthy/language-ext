@@ -16,7 +16,7 @@ record MultiListenerSourceT<M, A>(Channel<K<M, A>> Source) : SourceT<M, A>
     readonly ConcurrentDictionary<Channel<K<M, A>>, Unit> listeners = new();
     readonly CancellationTokenSource tokenSource = new();
 
-    public override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer)
+    internal override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer)
     {
         return from channel in mkChannel
                let final    =  final(channel)
@@ -90,7 +90,7 @@ record MultiListenerSourceT<M, A>(Channel<K<M, A>> Source) : SourceT<M, A>
 
     K<M, Reduced<S>> readAll<S>(Channel<K<M, A>> channel, ReducerM<M, K<M, A>, S> reducer, S initialState)
     {
-        return M.Recur(initialState, go);
+        return Monad.recur(initialState, go);
         
         K<M, Next<S, Reduced<S>>> go(S state) =>
             IO.token >> (t => t.IsCancellationRequested
@@ -101,12 +101,12 @@ record MultiListenerSourceT<M, A>(Channel<K<M, A>> Source) : SourceT<M, A>
                                                       : complete(state)));               
 
         K<M, Next<S, Reduced<S>>> reduce(S state) =>
-            read() >> (head => reducer(state, head) >> next);
+            read() >> (head => reducer(state, head) * next);
 
-        K<M, Next<S, Reduced<S>>> next(Reduced<S> reduced) =>
+        Next<S, Reduced<S>> next(Reduced<S> reduced) =>
             reduced.Continue
-                ? M.Pure(Next.Loop<S, Reduced<S>>(reduced.Value))
-                : M.Pure(Next.Done<S, Reduced<S>>(reduced));
+                ? Next.Loop<S, Reduced<S>>(reduced.Value)
+                : Next.Done<S, Reduced<S>>(reduced);
         
         IO<bool> waitToRead() =>
             IO.liftVAsync(e => channel.Reader.WaitToReadAsync(e.Token));

@@ -18,13 +18,13 @@ public partial class Source :
         ma.As().Map(f);
 
     static K<Source, A> Applicative<Source>.Pure<A>(A value) =>
-        new PureSource<A>(value);
+        new Source<A>(SourceT.pure<IO, A>(value));
 
     static K<Source, B> Applicative<Source>.Apply<A, B>(K<Source, Func<A, B>> mf, K<Source, A> ma) => 
         ma.As().ApplyBack(mf.As());
 
     static K<Source, B> Applicative<Source>.Apply<A, B>(K<Source, Func<A, B>> mf, Memo<Source, A> ma) =>
-        new ApplySource2<A, B>(mf.As(), ma);
+        ma.Value.As().ApplyBack(mf.As());
 
     static K<Source, A> SemigroupK<Source>.Combine<A>(K<Source, A> fa, K<Source, A> fb) =>
         fa.As().Combine(fb.As());
@@ -36,8 +36,8 @@ public partial class Source :
         fa.As().Choose(fb);
 
     static K<Source, A> Alternative<Source>.Empty<A>() =>
-        EmptySource<A>.Default;
+        Source<A>.Empty;
 
     static K<Source, A> MonoidK<Source>.Empty<A>() =>
-        EmptySource<A>.Default;
+        Source<A>.Empty;
 }

@@ -20,4 +20,7 @@ record SkipTransducer<A>(int Amount) : Transducer<A, A>
                                      }
                                  });
     }
+    
+    public override TransducerM<M, A, A> Lift<M>() => 
+        new SkipTransducerM<M, A>(Amount);
 }

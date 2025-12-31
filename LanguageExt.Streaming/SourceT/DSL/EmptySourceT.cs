@@ -7,6 +7,6 @@ record EmptySourceT<M, A> : SourceT<M, A>
 {
     public static readonly SourceT<M, A> Default = new EmptySourceT<M, A>();
 
-    public override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer) => 
+    internal override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer) => 
         M.Pure(Reduced.Done(state));
 }

@@ -13,7 +13,7 @@ record Zip3SourceT<M, A, B, C>(
     SourceT<M, (A First, B Second, C Third)>
     where M : MonadIO<M>, Fallible<Error, M>
 {
-    public override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, (A First, B Second, C Third)>, S> reducer) =>
+    internal override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, (A First, B Second, C Third)>, S> reducer) =>
         
         // Create channels that receive the values yielded by the two sources
         from channelA in M.Pure(Channel.CreateUnbounded<K<M, A>>())

@@ -12,7 +12,8 @@ public static partial class FoldableExtensions
     /// <typeparam name="F">Applicative</typeparam>
     /// <typeparam name="A">Input bound value</typeparam>
     /// <typeparam name="B">Mapping bound value</typeparam>
-    extension<T, F, A, B>(Func<A, K<F, B>> f) where T : Foldable<T> where F : Applicative<F>
+    extension<T, F, A, B>(Func<A, K<F, B>> f) 
+        where T : Foldable<T> where F : Applicative<F>
     {
         /// <summary>
         /// Fold the structure: `ta` and pass each element that it yields to `f`, resulting in an `F` applicative-value.
@@ -29,7 +30,9 @@ public static partial class FoldableExtensions
     /// <typeparam name="F">Applicative</typeparam>
     /// <typeparam name="A">Input bound value</typeparam>
     /// <typeparam name="B">Mapping bound value</typeparam>
-    extension<T, F, A, B>(K<T, A> ta) where T : Foldable<T> where F : Applicative<F>
+    extension<T, F, A, B>(K<T, A> ta) 
+        where T : Foldable<T> 
+        where F : Applicative<F>
     {
         /// <summary>
         /// Fold the structure: `ta` and pass each element that it yields to `f`, resulting in an `F` applicative-value.
@@ -43,8 +46,51 @@ public static partial class FoldableExtensions
 
     /// <param name="ta">Foldable structure</param>
     /// <typeparam name="A">Value type</typeparam>
-    extension<T, A>(K<T, A> ta) where T : Foldable<T>
+    extension<T, A>(K<T, A> ta) 
+        where T : Foldable<T>
     {
+        /// <summary>
+        /// Runs a single step of the folding operation. The return value indicates whether the folding
+        /// operation should continue, and if so, what the next step should be.
+        /// </summary>
+        /// <remarks>
+        /// It is up to the consumer of
+        /// this method to implement the actual state-aggregation (the folding) before passing it to the
+        /// continuation function.  
+        /// </remarks>
+        /// <remarks>
+        /// This differs from `FoldStepBack` in that it is a right-associative fold, whereas `FoldStepBack` is a
+        /// left-associative fold.  If that's confusing, think that this works on a list in reverse.
+        /// </remarks>
+        /// <param name="ta">Foldable structure</param>
+        /// <param name="initialState">Initial state value</param>
+        /// <typeparam name="A">Value type</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <returns>A discriminated union that can be either `Done` or `Loop`.</returns>
+        public Fold<A, S> FoldStep<S>(S initialState) =>
+            T.FoldStep(ta, initialState);
+        
+        /// <summary>
+        /// Runs a single step of the folding operation. The return value indicates whether the folding
+        /// operation should continue, and if so, what the next step should be.
+        /// </summary>
+        /// <remarks>
+        /// It is up to the consumer of
+        /// this method to implement the actual state-aggregation (the folding) before passing it to the
+        /// continuation function.  
+        /// </remarks>
+        /// <remarks>
+        /// This differs from `FoldStep` in that it is a left-associative fold, whereas `FoldStepBack` is a
+        /// right-associative fold.  If that's confusing, think that this works on a list in reverse.
+        /// </remarks>
+        /// <param name="ta">Foldable structure</param>
+        /// <param name="initialState">Initial state value</param>
+        /// <typeparam name="A">Value type</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <returns>A discriminated union that can be either `Done` or `Loop`.</returns>
+        public Fold<A, S> FoldStepBack<S>(S initialState) => 
+            T.FoldStep(ta, initialState);
+        
         /// <summary>
         /// Fold until the `Option` returns `None`
         /// </summary>
@@ -52,8 +98,7 @@ public static partial class FoldableExtensions
         /// <param name="initialState">Initial state for the fold</param>
         /// <typeparam name="S">State type</typeparam>
         /// <returns>Aggregated value</returns>
-        public S FoldMaybe<S>(S initialState,
-                              Func<S, Func<A, Option<S>>> f) =>
+        public S FoldMaybe<S>(S initialState, Func<S, Func<A, Option<S>>> f) =>
             T.FoldMaybe(f, initialState, ta);
 
         /// <summary>
@@ -63,8 +108,9 @@ public static partial class FoldableExtensions
         /// <param name="initialState">Initial state for the fold</param>
         /// <typeparam name="S">State type</typeparam>
         /// <returns>Aggregated value</returns>
-        public S FoldMaybe<S>(S initialState,
-                              Func<S, A, Option<S>> f) =>
+        public S FoldMaybe<S>(
+            S initialState,
+            Func<S, A, Option<S>> f) =>
             T.FoldMaybe(s => a => f(s, a), initialState, ta);
 
         /// <summary>
@@ -74,8 +120,9 @@ public static partial class FoldableExtensions
         /// <param name="initialState">Initial state for the fold</param>
         /// <typeparam name="S">State type</typeparam>
         /// <returns>Aggregated value</returns>
-        public S FoldBackMaybe<S>(S initialState,
-                                  Func<A, Func<S, Option<S>>> f) =>
+        public S FoldBackMaybe<S>(
+            S initialState,
+            Func<A, Func<S, Option<S>>> f) =>
             T.FoldBackMaybe(f, initialState, ta);
 
         /// <summary>
@@ -85,44 +132,49 @@ public static partial class FoldableExtensions
         /// <param name="initialState">Initial state for the fold</param>
         /// <typeparam name="S">State type</typeparam>
         /// <returns>Aggregated value</returns>
-        public S FoldBackMaybe<S>(S initialState,
-                                  Func<S, A, Option<S>> f) =>
+        public S FoldBackMaybe<S>(
+            S initialState,
+            Func<S, A, Option<S>> f) =>
             T.FoldBackMaybe(a => s => f(s, a), initialState, ta);
 
         /// <summary>
         /// Same behaviour as `Fold` but allows early exit of the operation once
         /// the predicate function becomes `false` for the state/value pair 
         /// </summary>
-        public S FoldWhile<S>(S initialState,
-                              Func<A, Func<S, S>> f, 
-                              Func<(S State, A Value), bool> predicate) =>
+        public S FoldWhile<S>(
+            S initialState,
+            Func<A, Func<S, S>> f, 
+            Func<(S State, A Value), bool> predicate) =>
             T.FoldWhile(f, predicate, initialState, ta);
 
         /// <summary>
         /// Same behaviour as `Fold` but allows early exit of the operation once
         /// the predicate function becomes `false` for the state/value pair 
         /// </summary>
-        public S FoldWhile<S>(S initialState,
-                              Func<S, A, S> f, 
-                              Func<(S State, A Value), bool> predicate) =>
+        public S FoldWhile<S>(
+            S initialState,
+            Func<S, A, S> f, 
+            Func<(S State, A Value), bool> predicate) =>
             T.FoldWhile(a => s => f(s, a), predicate, initialState, ta);
 
         /// <summary>
         /// Same behaviour as `FoldBack` but allows early exit of the operation once
         /// the predicate function becomes `false` for the state/value pair 
         /// </summary>
-        public S FoldBackWhile<S>(S initialState,
-                                  Func<S, Func<A, S>> f, 
-                                  Func<(S State, A Value), bool> predicate) =>
+        public S FoldBackWhile<S>(
+            S initialState,
+            Func<S, Func<A, S>> f, 
+            Func<(S State, A Value), bool> predicate) =>
             T.FoldBackWhile(f, predicate, initialState, ta);
 
         /// <summary>
         /// Same behaviour as `FoldBack` but allows early exit of the operation once
         /// the predicate function becomes `false` for the state/value pair 
         /// </summary>
-        public S FoldBackWhile<S>(S initialState,
-                                  Func<S, A, S> f, 
-                                  Func<(S State, A Value), bool> predicate) =>
+        public S FoldBackWhile<S>(
+            S initialState,
+            Func<S, A, S> f, 
+            Func<(S State, A Value), bool> predicate) =>
             T.FoldBackWhile(curry(f), predicate, initialState, ta);
 
         /// <summary>
@@ -130,9 +182,10 @@ public static partial class FoldableExtensions
         /// early exit of the operation once the predicate function becomes `false` for the
         /// state/value pair 
         /// </summary>
-        public K<M, S> FoldWhileM<M, S>(S initialState,
-                                        Func<A, Func<S, K<M, S>>> f, 
-                                        Func<A, bool> predicate) where M : Monad<M> =>
+        public K<M, S> FoldWhileM<M, S>(
+            S initialState,
+            Func<A, Func<S, K<M, S>>> f, 
+            Func<(S State, A Value), bool> predicate) where M : Monad<M> =>
             T.FoldWhileM(f, predicate, initialState, ta);
 
         /// <summary>
@@ -140,9 +193,10 @@ public static partial class FoldableExtensions
         /// early exit of the operation once the predicate function becomes `false` for the
         /// state/value pair 
         /// </summary>
-        public K<M, S> FoldWhileM<M, S>(S initialState,
-                                        Func<S, A, K<M, S>> f, 
-                                        Func<A, bool> predicate) where M : Monad<M> =>
+        public K<M, S> FoldWhileM<M, S>(
+            S initialState,
+            Func<S, A, K<M, S>> f, 
+            Func<(S State, A Value), bool> predicate) where M : Monad<M> =>
             T.FoldWhileM<A, M, S>(a => s => f(s, a), predicate, initialState, ta);
 
         /// <summary>
@@ -150,9 +204,10 @@ public static partial class FoldableExtensions
         /// early exit of the operation once the predicate function becomes `false` for the
         /// state/value pair 
         /// </summary>
-        public K<M, S> FoldBackWhileM<M, S>(S initialState,
-                                            Func<S, Func<A, K<M, S>>> f, 
-                                            Func<A, bool> predicate) where M : Monad<M> =>
+        public K<M, S> FoldBackWhileM<M, S>(
+            S initialState,
+            Func<S, Func<A, K<M, S>>> f, 
+            Func<(S State, A Value), bool> predicate) where M : Monad<M> =>
             T.FoldBackWhileM(f, predicate, initialState, ta);
 
         /// <summary>
@@ -160,27 +215,30 @@ public static partial class FoldableExtensions
         /// early exit of the operation once the predicate function becomes `false` for the
         /// state/value pair 
         /// </summary>
-        public K<M, S> FoldBackWhileM<M, S>(S initialState,
-                                            Func<S, A, K<M, S>> f, 
-                                            Func<A, bool> predicate) where M : Monad<M> =>
+        public K<M, S> FoldBackWhileM<M, S>(
+            S initialState,
+            Func<S, A, K<M, S>> f, 
+            Func<(S State, A Value), bool> predicate) where M : Monad<M> =>
             T.FoldBackWhileM(curry(f), predicate, initialState, ta);
 
         /// <summary>
         /// Same behaviour as `Fold` but allows early exit of the operation once
         /// the predicate function becomes `false` for the state/value pair
         /// </summary>
-        public S FoldUntil<S>(S initialState,
-                              Func<A, Func<S, S>> f,
-                              Func<(S State, A Value), bool> predicate) =>
+        public S FoldUntil<S>(
+            S initialState,
+            Func<A, Func<S, S>> f,
+            Func<(S State, A Value), bool> predicate) =>
             T.FoldUntil(f, predicate, initialState, ta);
 
         /// <summary>
         /// Same behaviour as `Fold` but allows early exit of the operation once
         /// the predicate function becomes `false` for the state/value pair
         /// </summary>
-        public S FoldUntil<S>(S initialState,
-                              Func<S, A, S> f,
-                              Func<(S State, A Value), bool> predicate) =>
+        public S FoldUntil<S>(
+            S initialState,
+            Func<S, A, S> f,
+            Func<(S State, A Value), bool> predicate) =>
             T.FoldUntil(a => s => f(s, a), predicate, initialState, ta);
 
         /// <summary>
@@ -188,9 +246,10 @@ public static partial class FoldableExtensions
         /// early exit of the operation once the predicate function becomes `false` for the
         /// state/value pair 
         /// </summary>
-        public K<M, S> FoldUntilM<M, S>(S initialState,
-                                        Func<A, Func<S, K<M, S>>> f, 
-                                        Func<A, bool> predicate) 
+        public K<M, S> FoldUntilM<M, S>(
+            S initialState,
+            Func<A, Func<S, K<M, S>>> f, 
+            Func<(S State, A Value), bool> predicate) 
             where M : Monad<M> => 
             T.FoldUntilM(f, predicate, initialState, ta);
 
@@ -199,9 +258,10 @@ public static partial class FoldableExtensions
         /// early exit of the operation once the predicate function becomes `false` for the
         /// state/value pair 
         /// </summary>
-        public K<M, S> FoldUntilM<M, S>(S initialState,
-                                        Func<S, A, K<M, S>> f, 
-                                        Func<A, bool> predicate) 
+        public K<M, S> FoldUntilM<M, S>(
+            S initialState,
+            Func<S, A, K<M, S>> f, 
+            Func<(S State, A Value), bool> predicate) 
             where M : Monad<M> => 
             T.FoldUntilM<A, M, S>(a => s => f(s, a), predicate, initialState, ta);
 
@@ -209,18 +269,20 @@ public static partial class FoldableExtensions
         /// Same behaviour as `FoldBack` but allows early exit of the operation once
         /// the predicate function becomes `false` for the state/value pair
         /// </summary>
-        public S FoldBackUntil<S>(S initialState,
-                                  Func<S, Func<A, S>> f, 
-                                  Func<(S State, A Value), bool> predicate) =>
+        public S FoldBackUntil<S>(
+            S initialState,
+            Func<S, Func<A, S>> f, 
+            Func<(S State, A Value), bool> predicate) =>
             T.FoldBackUntil(f, predicate, initialState, ta);
 
         /// <summary>
         /// Same behaviour as `FoldBack` but allows early exit of the operation once
         /// the predicate function becomes `false` for the state/value pair
         /// </summary>
-        public S FoldBackUntil<S>(S initialState,
-                                  Func<S, A, S> f, 
-                                  Func<(S State, A Value), bool> predicate) =>
+        public S FoldBackUntil<S>(
+            S initialState,
+            Func<S, A, S> f, 
+            Func<(S State, A Value), bool> predicate) =>
             T.FoldBackUntil(curry(f), predicate, initialState, ta);
 
         /// <summary>
@@ -228,9 +290,11 @@ public static partial class FoldableExtensions
         /// early exit of the operation once the predicate function becomes `false` for the
         /// state/value pair 
         /// </summary>
-        public K<M, S> FoldBackUntilM<M, S>(S initialState,
-                                            Func<S, Func<A, K<M, S>>> f, 
-                                            Func<A, bool> predicate) where M : Monad<M> =>
+        public K<M, S> FoldBackUntilM<M, S>(
+            S initialState,
+            Func<S, Func<A, K<M, S>>> f, 
+            Func<(S State, A Value), bool> predicate) 
+            where M : Monad<M> =>
             T.FoldBackUntilM(f, predicate, initialState, ta);
 
         /// <summary>
@@ -238,9 +302,11 @@ public static partial class FoldableExtensions
         /// early exit of the operation once the predicate function becomes `false` for the
         /// state/value pair 
         /// </summary>
-        public K<M, S> FoldBackUntilM<M, S>(S initialState,
-                                            Func<S, A, K<M, S>> f, 
-                                            Func<A, bool> predicate) where M : Monad<M> =>
+        public K<M, S> FoldBackUntilM<M, S>(
+            S initialState,
+            Func<S, A, K<M, S>> f, 
+            Func<(S State, A Value), bool> predicate) 
+            where M : Monad<M> =>
             T.FoldBackUntilM(curry(f), predicate, initialState, ta);
 
         /// <summary>
@@ -336,8 +402,10 @@ public static partial class FoldableExtensions
         /// entire input list must be traversed.  Like all left-associative folds,
         /// `FoldBack` will diverge if given an infinite list.
         /// </remarks>
-        public K<M, S> FoldBackM<M, S>(S initialState,
-                                       Func<S, Func<A, K<M, S>>> f) where M : Monad<M> =>
+        public K<M, S> FoldBackM<M, S>(
+            S initialState,
+            Func<S, Func<A, K<M, S>>> f) 
+            where M : Monad<M> =>
             T.FoldBackM(f, initialState, ta);
 
         /// <summary>
@@ -355,8 +423,10 @@ public static partial class FoldableExtensions
         /// entire input list must be traversed.  Like all left-associative folds,
         /// `FoldBack` will diverge if given an infinite list.
         /// </remarks>
-        public K<M, S> FoldBackM<M, S>(S initialState,
-                                       Func<S, A, K<M, S>> f) where M : Monad<M> =>
+        public K<M, S> FoldBackM<M, S>(
+            S initialState,
+            Func<S, A, K<M, S>> f) 
+            where M : Monad<M> =>
             T.FoldBackM(curry(f), initialState, ta);
     }
 
@@ -433,7 +503,7 @@ public static partial class FoldableExtensions
         /// results are merged via `Append`.
         /// </summary>
         public B FoldMapBackWhile<B>(Func<A, B> f, Func<(B State, A Value), bool> predicate) where B : Monoid<B> =>
-            T.FoldMapBackWhile(f, predicate, ta);
+            T.FoldMapWhileBack(f, predicate, ta);
 
         /// <summary>
         /// A left-associative variant of 'FoldMap' that is strict in the
@@ -441,7 +511,7 @@ public static partial class FoldableExtensions
         /// results are merged via `Append`.
         /// </summary>
         public B FoldMapBackUntil<B>(Func<A, B> f, Func<(B State, A Value), bool> predicate) where B : Monoid<B> =>
-            T.FoldMapBackUntil(f, predicate, ta);
+            T.FoldMapUntilBack(f, predicate, ta);
 
         /// <summary>
         /// List of elements of a structure, from left to right
@@ -529,17 +599,19 @@ public static partial class FoldableExtensions
         /// <summary>
         /// Find the elements that match the predicate
         /// </summary>
-        public Seq<A> FindAll(Func<A, bool> predicate) =>
+        public Iterable<A> FindAll(Func<A, bool> predicate) =>
             T.FindAll(predicate, ta);
 
         /// <summary>
         /// Find the elements that match the predicate
         /// </summary>
-        public Seq<A> FindAllBack(Func<A, bool> predicate) =>
+        public Iterable<A> FindAllBack(Func<A, bool> predicate) =>
             T.FindAllBack(predicate, ta);
     }
 
-    extension<T, A>(K<T, A> ta) where T : Foldable<T> where A : IAdditionOperators<A, A, A>, IAdditiveIdentity<A, A>
+    extension<T, A>(K<T, A> ta) 
+        where T : Foldable<T> 
+        where A : IAdditionOperators<A, A, A>, IAdditiveIdentity<A, A>
     {
         /// <summary>
         /// Computes the sum of the numbers of a structure.
@@ -548,7 +620,9 @@ public static partial class FoldableExtensions
             T.Sum(ta);
     }
 
-    extension<T, A>(K<T, A> ta) where T : Foldable<T> where A : IMultiplyOperators<A, A, A>, IMultiplicativeIdentity<A, A>
+    extension<T, A>(K<T, A> ta) 
+        where T : Foldable<T> 
+        where A : IMultiplyOperators<A, A, A>, IMultiplicativeIdentity<A, A>
     {
         /// <summary>
         /// Computes the product of the numbers of a structure.
@@ -557,7 +631,8 @@ public static partial class FoldableExtensions
             T.Product(ta);
     }
 
-    extension<T, A>(K<T, A> ta) where T : Foldable<T>
+    extension<T, A>(K<T, A> ta) 
+        where T : Foldable<T>
     {
         /// <summary>
         /// Get the head item in the foldable or `None`
@@ -576,7 +651,8 @@ public static partial class FoldableExtensions
         /// actions from left to right, and ignore the results.  For a version that
         /// doesn't ignore the results see `Traversable.traverse`.
         /// </summary>
-        public K<F, Unit> Iter<F, B>(Func<A, K<F, B>> f) where F : Applicative<F> =>
+        public K<F, Unit> Iter<F, B>(Func<A, K<F, B>> f) 
+            where F : Monad<F> =>
             T.Iter(f, ta);
 
         /// <summary>

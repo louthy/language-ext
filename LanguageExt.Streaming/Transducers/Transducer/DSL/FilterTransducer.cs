@@ -10,4 +10,7 @@ record FilterTransducer<A>(Func<A, bool> Predicate) : Transducer<A, A>
             IO.liftVAsync(async e => !e.Token.IsCancellationRequested && Predicate(x)
                                          ? await reducer(s, x).RunAsync(e.Token)
                                          : Reduced.Continue(s));
+    
+    public override TransducerM<M, A, A> Lift<M>() => 
+        new FilterTransducerM<M, A>(Predicate);
 }

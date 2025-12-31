@@ -146,6 +146,6 @@ public class IO_GeneralTests
         });
 
         // Act & Assert
-        Assert.Throws<TaskCanceledException>(() => io.Timeout(TimeSpan.FromMilliseconds(100)).Run());
+        Assert.ThrowsAny<OperationCanceledException>(() => io.Timeout(TimeSpan.FromMilliseconds(100)).Run());
     }
 }

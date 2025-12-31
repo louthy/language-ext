@@ -38,8 +38,8 @@ public static class Async
     /// </summary>
     /// <param name="operation">Task to await</param>
     /// <typeparam name="A">Bound value type</typeparam>
-    /// <returns>Result of the task, `TaskCanceledException`, or any exception raised by the task</returns>
-    /// <exception cref="TaskCanceledException"></exception>
+    /// <returns>Result of the task, `OperationCanceledException`, or any exception raised by the task</returns>
+    /// <exception cref="OperationCanceledException"></exception>
     public static A await<A>(Task<A> operation)
     {
         SpinWait sw = default;
@@ -47,7 +47,7 @@ public static class Async
         {
             if (operation.IsCanceled)
             {
-                throw new TaskCanceledException();
+                throw new OperationCanceledException();
             }
             else if (operation.IsFaulted)
             {

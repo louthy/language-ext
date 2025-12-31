@@ -188,7 +188,7 @@ public abstract record IO<A> :
     public virtual IO<A> Post() =>
         IO.liftAsync(async env =>
                        {
-                           if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                           if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                            if (env.SyncContext is null) return await RunAsync(env);
 
                            A?         value = default;
@@ -213,7 +213,7 @@ public abstract record IO<A> :
                                                 null);
 
                            await wait.WaitOneAsync(env.Token);
-                           if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                           if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                            if (error is not null) error.Rethrow<A>();
                            return value!;
                        });
@@ -386,7 +386,7 @@ public abstract record IO<A> :
         IO.lift(
             env =>
             {
-                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                if (env.Token.IsCancellationRequested) throw new OperationCanceledException();
                 
                 // Create a new local token-source with its own cancellation token
                 var tsrc  = timeout.Match(Some: to => new CancellationTokenSource(to), 
@@ -702,7 +702,7 @@ public abstract record IO<A> :
     /// </remarks>
     /// <param name="env">IO environment</param>
     /// <returns>Result of the IO operation</returns>
-    /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
+    /// <exception cref="OperationCanceledException">Throws if the operation is cancelled</exception>
     public A Run()
     {
         // RunAsync can run completely synchronously and without the creation of an async/await state-machine, so calling
@@ -730,7 +730,7 @@ public abstract record IO<A> :
     /// </remarks>
     /// <param name="env">IO environment</param>
     /// <returns>Result of the IO operation</returns>
-    /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
+    /// <exception cref="OperationCanceledException">Throws if the operation is cancelled</exception>
     public A Run(EnvIO envIO)
     {
         // RunAsync can run completely synchronously and without the creation of an async/await state-machine, so calling
@@ -759,7 +759,7 @@ public abstract record IO<A> :
     /// other error handling monads to leverage more declarative error handling. 
     /// </remarks>
     /// <returns>Result of the IO operation</returns>
-    /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
+    /// <exception cref="OperationCanceledException">Throws if the operation is cancelled</exception>
     public ValueTask<A> RunAsync()
     {
         var envIO = EnvIO.New();
@@ -797,7 +797,7 @@ public abstract record IO<A> :
     /// </remarks>
     /// <param name="token">Cancellation toke</param>
     /// <returns>Result of the IO operation</returns>
-    /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
+    /// <exception cref="OperationCanceledException">Throws if the operation is cancelled</exception>
     public async ValueTask<A> RunAsync(CancellationToken token)
     {
         using var env = EnvIO.New(token: token);
@@ -831,7 +831,7 @@ public abstract record IO<A> :
     /// other error handling monads to leverage more declarative error handling. 
     /// </remarks>
     /// <returns>Result of the IO operation</returns>
-    /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
+    /// <exception cref="OperationCanceledException">Throws if the operation is cancelled</exception>
     public ValueTask<A> RunAsync(EnvIO envIO)
     {
         if (envIO.Token.IsCancellationRequested) return ValueTask.FromCanceled<A>(envIO.Token);
@@ -989,7 +989,7 @@ public abstract record IO<A> :
             }
         }
 
-        throw new TaskCanceledException();
+        throw new OperationCanceledException();
 
         IO<A> RunCatchHandler(Exception e)
         {
@@ -1014,8 +1014,8 @@ public abstract record IO<A> :
     
     async Task<A> AwaitAsync(Task<A> t, EnvIO envIO, CancellationToken token, CancellationTokenSource source)
     {
-        if (envIO.Token.IsCancellationRequested) throw new TaskCanceledException();
-        if (token.IsCancellationRequested) throw new TaskCanceledException();
+        if (envIO.Token.IsCancellationRequested) throw new OperationCanceledException();
+        if (token.IsCancellationRequested) throw new OperationCanceledException();
         await using var reg = envIO.Token.Register(source.Cancel);
         return await t;        
     }

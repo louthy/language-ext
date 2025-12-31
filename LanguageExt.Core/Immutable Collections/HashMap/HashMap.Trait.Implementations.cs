@@ -53,4 +53,26 @@ public partial class HashMap<Key> :
 
     static K<HashMap<Key>, A> MonoidK<HashMap<Key>>.Empty<A>() =>
         HashMap<Key, A>.Empty;
+    
+    static Fold<A, S> Foldable<HashMap<Key>>.FoldStep<A, S>(K<HashMap<Key>, A> ta, S initialState)
+    {
+        // ReSharper disable once GenericEnumeratorNotDisposed
+        var iter = ta.As().Values.GetEnumerator();
+        return go(initialState);
+        Fold<A, S> go(S state) =>
+            iter.MoveNext()
+                ? Fold.Loop(state, iter.Current, go)
+                : Fold.Done<A, S>(state);
+    }      
+        
+    static Fold<A, S> Foldable<HashMap<Key>>.FoldStepBack<A, S>(K<HashMap<Key>, A> ta, S initialState)
+    {
+        // ReSharper disable once GenericEnumeratorNotDisposed
+        var iter = ta.As().Values.Reverse().GetEnumerator();
+        return go(initialState);
+        Fold<A, S> go(S state) =>
+            iter.MoveNext()
+                ? Fold.Loop(state, iter.Current, go)
+                : Fold.Done<A, S>(state);
+    }
 }
