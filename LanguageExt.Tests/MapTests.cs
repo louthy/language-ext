@@ -629,4 +629,40 @@ public class MapTests
 
         Assert.Equal(expected, actual);
     }
+    
+    [Fact]
+    public void foldStepValuesShouldYieldInOrder()
+    {
+        var expected = Seq("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
+        var map      = Map((1, "1"), (2, "2"), (3, "3"), (4, "4"), (5, "5"), (6, "6"), (7, "7"), (8, "8"), (9, "9"), (10, "10"));
+
+        var step = map.FoldStepValues(Seq<string>());
+
+        while (step is not Fold<string, Seq<string>>.Done)
+        {
+            if (step is Fold<string, Seq<string>>.Loop loop)
+            {
+                step = loop.Next(loop.State.Add(loop.Value));
+            }
+        }
+        Assert.True(expected == step.State);
+    }
+        
+    [Fact]
+    public void foldStepBackValuesShouldYieldInReverseOrder()
+    {
+        var expected = Seq("10", "9", "8", "7", "6", "5", "4", "3", "2", "1");
+        var map      = Map((1, "1"), (2, "2"), (3, "3"), (4, "4"), (5, "5"), (6, "6"), (7, "7"), (8, "8"), (9, "9"), (10, "10"));
+
+        var step = map.FoldStepBackValues(Seq<string>());
+
+        while (step is not Fold<string, Seq<string>>.Done)
+        {
+            if (step is Fold<string, Seq<string>>.Loop loop)
+            {
+                step = loop.Next(loop.State.Add(loop.Value));
+            }
+        }
+        Assert.True(expected == step.State);
+    }
 }

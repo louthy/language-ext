@@ -23,5 +23,3 @@ public record Fold
     public static Fold<A, S> Loop<A, S>(S state, A value, Func<S, Fold<A, S>> next) =>
         new Fold<A, S>.Loop(state, value, next);
 }
-
-

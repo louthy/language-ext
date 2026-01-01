@@ -1433,6 +1433,342 @@ internal class MapInternal<OrdK, K, V> :
     public MapInternal<OrdK, K, V> Filter(Func<V, bool> f) =>
         new(AsIterable().Filter(mi => f(mi.Value)),
             MapModuleM.AddOpt.ThrowOnDuplicate);
+
+    /// <summary>
+    /// Left/Node/Right traversal in stepped form
+    /// </summary>
+    public Fold<(K, V), S> FoldStep<S>(S initialState)
+    {
+        if(IsEmpty) return Fold.Done<(K, V), S>(initialState);
+        var nstack = new MapItem<K, V>[32];
+        var fstack = new int[32];
+        var top    = 1;
+        nstack[0] = Root;
+        fstack[0] = 0;
+
+        return node(initialState);
+
+        Fold<(K, V), S> node(S state)
+        {
+            while (true)
+            {
+                if (top == 0) return Fold.Done<(K, V), S>(state);
+
+                var t = top - 1;
+                var n = nstack[t];
+                var f = fstack[t];
+
+                if (n.IsEmpty)
+                {
+                    top--;
+                    continue;
+                }
+
+                fstack[t]++;
+                switch (f)
+                {
+                    case 0:
+                        nstack[top] = n.Left;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    case 1:
+                        return Fold.Loop(state, n.KeyValue, node);
+
+                    case 2:
+                        nstack[top] = n.Right;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    default:
+                        top--;
+                        continue;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Left/Node/Right traversal (in reverse order) in stepped form
+    /// </summary>
+    public Fold<(K, V), S> FoldStepBack<S>(S initialState)
+    {
+        if(IsEmpty) return Fold.Done<(K, V), S>(initialState);
+        var nstack = new MapItem<K, V>[32];
+        var fstack = new int[32];
+        var top    = 1;
+        nstack[0] = Root;
+        fstack[0] = 0;
+
+        return node(initialState);
+
+        Fold<(K, V), S> node(S state)
+        {
+            while (true)
+            {
+                if (top == 0) return Fold.Done<(K, V), S>(state);
+
+                var t = top - 1;
+                var n = nstack[t];
+                var f = fstack[t];
+
+                if (n.IsEmpty)
+                {
+                    top--;
+                    continue;
+                }
+
+                fstack[t]++;
+                switch (f)
+                {
+                    case 0:
+                        nstack[top] = n.Right;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    case 1:
+                        return Fold.Loop(state, n.KeyValue, node);
+
+                    case 2:
+                        nstack[top] = n.Left;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    default:
+                        top--;
+                        continue;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Left/Node/Right traversal in stepped form
+    /// </summary>
+    public Fold<K, S> FoldStepKeys<S>(S initialState)
+    {
+        if(IsEmpty) return Fold.Done<K, S>(initialState);
+        var nstack = new MapItem<K, V>[32];
+        var fstack = new int[32];
+        var top   = 1;
+        nstack[0] = Root;
+        fstack[0] = 0;
+
+        return node(initialState);
+
+        Fold<K, S> node(S state)
+        {
+            while (true)
+            {
+                if (top == 0) return Fold.Done<K, S>(state);
+
+                var t = top - 1;
+                var n = nstack[t];
+                var f = fstack[t];
+
+                if (n.IsEmpty)
+                {
+                    top--;
+                    continue;
+                }
+
+                fstack[t]++;
+                switch (f)
+                {
+                    case 0:
+                        nstack[top] = n.Left;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    case 1:
+                        return Fold.Loop(state, n.KeyValue.Key, node);
+
+                    case 2:
+                        nstack[top] = n.Right;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    default:
+                        top--;
+                        continue;
+                }
+            }
+        }
+    }    
+
+    /// <summary>
+    /// Left/Node/Right traversal (in reverse order) in stepped form
+    /// </summary>
+    public Fold<K, S> FoldStepBackKeys<S>(S initialState)
+    {
+        if(IsEmpty) return Fold.Done<K, S>(initialState);
+        var nstack = new MapItem<K, V>[32];
+        var fstack = new int[32];
+        var top    = 1;
+        nstack[0] = Root;
+        fstack[0] = 0;
+
+        return node(initialState);
+
+        Fold<K, S> node(S state)
+        {
+            while (true)
+            {
+                if (top == 0) return Fold.Done<K, S>(state);
+
+                var t = top - 1;
+                var n = nstack[t];
+                var f = fstack[t];
+
+                if (n.IsEmpty)
+                {
+                    top--;
+                    continue;
+                }
+
+                fstack[t]++;
+                switch (f)
+                {
+                    case 0:
+                        nstack[top] = n.Right;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    case 1:
+                        return Fold.Loop(state, n.KeyValue.Key, node);
+
+                    case 2:
+                        nstack[top] = n.Left;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    default:
+                        top--;
+                        continue;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Left/Node/Right traversal in stepped form
+    /// </summary>
+    public Fold<V, S> FoldStepValues<S>(S initialState)
+    {
+        if(IsEmpty) return Fold.Done<V, S>(initialState);
+        var nstack = new MapItem<K, V>[32];
+        var fstack = new byte[32];
+        var top    = 1;
+        nstack[0] = Root;
+        fstack[0] = 0;
+
+        return node(initialState);
+
+        Fold<V, S> node(S state)
+        {
+            while (true)
+            {
+                if (top == 0) return Fold.Done<V, S>(state);
+
+                var t = top - 1;
+                var n = nstack[t];
+                var f = fstack[t];
+
+                if (n.IsEmpty)
+                {
+                    top--;
+                    continue;
+                }
+
+                fstack[t]++;
+                switch (f)
+                {
+                    case 0:
+                        nstack[top] = n.Left;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    case 1:
+                        return Fold.Loop(state, n.KeyValue.Value, node);
+
+                    case 2:
+                        nstack[top] = n.Right;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    default:
+                        top--;
+                        continue;
+                }
+            }
+        }
+    }    
+    
+    /// <summary>
+    /// Left/Node/Right traversal (in reverse order) in stepped form
+    /// </summary>
+    public Fold<V, S> FoldStepBackValues<S>(S initialState)
+    {
+        if(IsEmpty) return Fold.Done<V, S>(initialState);
+        var nstack = new MapItem<K, V>[32];
+        var fstack = new byte[32];
+        var top    = 1;
+        nstack[0] = Root;
+        fstack[0] = 0;
+
+        return node(initialState);
+
+        Fold<V, S> node(S state)
+        {
+            while (true)
+            {
+                if (top == 0) return Fold.Done<V, S>(state);
+
+                var t = top - 1;
+                var n = nstack[t];
+                var f = fstack[t];
+
+                if (n.IsEmpty)
+                {
+                    top--;
+                    continue;
+                }
+
+                fstack[t]++;
+                switch (f)
+                {
+                    case 0:
+                        nstack[top] = n.Right;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    case 1:
+                        return Fold.Loop(state, n.KeyValue.Value, node);
+
+                    case 2:
+                        nstack[top] = n.Left;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    default:
+                        top--;
+                        continue;
+                }
+            }
+        }
+    }
 }
 
 internal interface IMapItem<K, V>

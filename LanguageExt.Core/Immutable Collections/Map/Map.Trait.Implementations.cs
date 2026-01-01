@@ -64,25 +64,9 @@ public partial class Map<Key> : Foldable<Map<Key>>, Functor<Map<Key>>, MonoidK<M
     static K<Map<Key>, A> MonoidK<Map<Key>>.Empty<A>() =>
         Map<Key, A>.Empty;
     
-    static Fold<A, S> Foldable<Map<Key>>.FoldStep<A, S>(K<Map<Key>, A> ta, S initialState)
-    {
-        // ReSharper disable once GenericEnumeratorNotDisposed
-        var iter = ta.As().Values.GetEnumerator();
-        return go(initialState);
-        Fold<A, S> go(S state) =>
-            iter.MoveNext()
-                ? Fold.Loop(state, iter.Current, go)
-                : Fold.Done<A, S>(state);
-    }    
+    static Fold<A, S> Foldable<Map<Key>>.FoldStep<A, S>(K<Map<Key>, A> ta, S initialState) =>
+        ta.As().FoldStepValues(initialState);
     
-    static Fold<A, S> Foldable<Map<Key>>.FoldStepBack<A, S>(K<Map<Key>, A> ta, S initialState)
-    {
-        // ReSharper disable once GenericEnumeratorNotDisposed
-        var iter = ta.As().Values.Reverse().GetEnumerator();
-        return go(initialState);
-        Fold<A, S> go(S state) =>
-            iter.MoveNext()
-                ? Fold.Loop(state, iter.Current, go)
-                : Fold.Done<A, S>(state);
-    }
+    static Fold<A, S> Foldable<Map<Key>>.FoldStepBack<A, S>(K<Map<Key>, A> ta, S initialState) =>
+        ta.As().FoldStepBackValues(initialState);
 }
