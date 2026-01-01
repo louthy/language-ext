@@ -105,34 +105,6 @@ public partial class HashSet :
     static bool Foldable<HashSet>.IsEmpty<A>(K<HashSet, A> ta) =>
         ta.As().IsEmpty;
 
-    static S Foldable<HashSet>.FoldWhile<A, S>(
-        Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S state,
-        K<HashSet, A> ta)
-    {
-        foreach (var x in ta.As())
-        {
-            if (!predicate((state, x))) return state;
-            state = f(x)(state);
-        }
-        return state;
-    }
-    
-    static S Foldable<HashSet>.FoldBackWhile<A, S>(
-        Func<S, Func<A, S>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S state, 
-        K<HashSet, A> ta)
-    {
-        foreach (var x in ta.As().Reverse())
-        {
-            if (!predicate((state, x))) return state;
-            state = f(state)(x);
-        }
-        return state;
-    }    
-
     static K<F, K<HashSet, B>> Traversable<HashSet>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<HashSet, A> ta) 
     {
         return F.Map<HashSet<B>, K<HashSet, B>>(
@@ -163,15 +135,9 @@ public partial class HashSet :
                 ? Fold.Loop(state, iter.Current, go)
                 : Fold.Done<A, S>(state);
     }
-    
-    static Fold<A, S> Foldable<HashSet>.FoldStepBack<A, S>(K<HashSet, A> ta, S initialState)
-    {
-        // ReSharper disable once GenericEnumeratorNotDisposed
-        var iter = ta.As().Reverse().GetEnumerator();
-        return go(initialState);
-        Fold<A, S> go(S state) =>
-            iter.MoveNext()
-                ? Fold.Loop(state, iter.Current, go)
-                : Fold.Done<A, S>(state);
-    }
+
+    static Fold<A, S> Foldable<HashSet>.FoldStepBack<A, S>(K<HashSet, A> ta, S initialState) =>
+        // Order is undefined in a HashSet, so reversing the order makes no sense,
+        // so let's take the most efficient option:
+        ta.FoldStep(initialState);
 }

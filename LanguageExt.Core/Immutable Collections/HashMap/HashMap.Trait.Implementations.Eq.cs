@@ -10,34 +10,6 @@ public partial class HashMapEq<EqKey, Key> :
     Functor<HashMapEq<EqKey, Key>>
     where EqKey : Eq<Key>
 {
-    static S Foldable<HashMapEq<EqKey, Key>>.FoldWhile<A, S>(
-        Func<A, Func<S, S>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S state, 
-        K<HashMapEq<EqKey, Key>, A> ta)
-    {
-        foreach (var x in ta.As())
-        {
-            if (!predicate((state, x.Value))) return state;
-            state = f(x.Value)(state);
-        }
-        return state;
-    }
-    
-    static S Foldable<HashMapEq<EqKey, Key>>.FoldBackWhile<A, S>(
-        Func<S, Func<A, S>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S state, 
-        K<HashMapEq<EqKey, Key>, A> ta)
-    {
-        foreach (var x in ta.As().Value.Reverse())
-        {
-            if (!predicate((state, x.Value))) return state;
-            state = f(state)(x.Value);
-        }
-        return state;
-    }
-    
     static int Foldable<HashMapEq<EqKey, Key>>.Count<A>(K<HashMapEq<EqKey, Key>, A> ta) =>
         ta.As().Count;
 
@@ -69,23 +41,11 @@ public partial class HashMapEq<EqKey, Key> :
                 return Fold.Loop(state, iter.Head, go);
             }
         }
-    } 
-    
-    static Fold<A, S> Foldable<HashMapEq<EqKey, Key>>.FoldStepBack<A, S>(K<HashMapEq<EqKey, Key>, A> ta, S initialState)
-    {
-        var iter = ta.As().Values.Reverse().GetIterator();
-        return go(initialState);
-        Fold<A, S> go(S state)
-        {
-            if (iter.IsEmpty)
-            {
-                return Fold.Done<A, S>(state);
-            }
-            else
-            {
-                iter = iter.Tail.Split();
-                return Fold.Loop(state, iter.Head, go);
-            }
-        }
-    } 
+    }
+
+    static Fold<A, S> Foldable<HashMapEq<EqKey, Key>>.FoldStepBack<A, S>(K<HashMapEq<EqKey, Key>, A> ta, S initialState) =>
+        // Order is undefined in a HashMap, so reversing the order makes no sense,
+        // so let's take the most efficient option:
+        ta.FoldStep(initialState);
+
 }

@@ -54,13 +54,8 @@ public static partial class FoldableExtensions
         /// operation should continue, and if so, what the next step should be.
         /// </summary>
         /// <remarks>
-        /// It is up to the consumer of
-        /// this method to implement the actual state-aggregation (the folding) before passing it to the
-        /// continuation function.  
-        /// </remarks>
-        /// <remarks>
-        /// This differs from `FoldStepBack` in that it is a right-associative fold, whereas `FoldStepBack` is a
-        /// left-associative fold.  If that's confusing, think that this works on a list in reverse.
+        /// It is up to the consumer of this method to implement the actual state-aggregation (the folding)
+        /// before passing it to the continuation function.  
         /// </remarks>
         /// <param name="ta">Foldable structure</param>
         /// <param name="initialState">Initial state value</param>
@@ -75,13 +70,8 @@ public static partial class FoldableExtensions
         /// operation should continue, and if so, what the next step should be.
         /// </summary>
         /// <remarks>
-        /// It is up to the consumer of
-        /// this method to implement the actual state-aggregation (the folding) before passing it to the
-        /// continuation function.  
-        /// </remarks>
-        /// <remarks>
-        /// This differs from `FoldStep` in that it is a left-associative fold, whereas `FoldStepBack` is a
-        /// right-associative fold.  If that's confusing, think that this works on a list in reverse.
+        /// It is up to the consumer of this method to implement the actual state-aggregation (the folding)
+        /// before passing it to the continuation function.  
         /// </remarks>
         /// <param name="ta">Foldable structure</param>
         /// <param name="initialState">Initial state value</param>

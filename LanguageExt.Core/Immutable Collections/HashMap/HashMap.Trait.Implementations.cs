@@ -22,26 +22,6 @@ public partial class HashMap<Key> :
         }
     }
     
-    static S Foldable<HashMap<Key>>.FoldWhile<A, S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate, S state, K<HashMap<Key>, A> ta)
-    {
-        foreach (var x in ta.As())
-        {
-            if (!predicate((state, x.Value))) return state;
-            state = f(x.Value)(state);
-        }
-        return state;
-    }
-    
-    static S Foldable<HashMap<Key>>.FoldBackWhile<A, S>(Func<S, Func<A, S>> f, Func<(S State, A Value), bool> predicate, S state, K<HashMap<Key>, A> ta)
-    {
-        foreach (var x in ta.As().Value.Reverse())
-        {
-            if (!predicate((state, x.Value))) return state;
-            state = f(state)(x.Value);
-        }
-        return state;
-    }
-    
     static int Foldable<HashMap<Key>>.Count<A>(K<HashMap<Key>, A> ta) =>
         ta.As().Count;
 
@@ -65,14 +45,8 @@ public partial class HashMap<Key> :
                 : Fold.Done<A, S>(state);
     }      
         
-    static Fold<A, S> Foldable<HashMap<Key>>.FoldStepBack<A, S>(K<HashMap<Key>, A> ta, S initialState)
-    {
-        // ReSharper disable once GenericEnumeratorNotDisposed
-        var iter = ta.As().Values.Reverse().GetEnumerator();
-        return go(initialState);
-        Fold<A, S> go(S state) =>
-            iter.MoveNext()
-                ? Fold.Loop(state, iter.Current, go)
-                : Fold.Done<A, S>(state);
-    }
+    static Fold<A, S> Foldable<HashMap<Key>>.FoldStepBack<A, S>(K<HashMap<Key>, A> ta, S initialState) =>
+        // Order is undefined in a HashMap, so reversing the order makes no sense,
+        // so let's take the most efficient option:
+        ta.FoldStep(initialState);
 }
