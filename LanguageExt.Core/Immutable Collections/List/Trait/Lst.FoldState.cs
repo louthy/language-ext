@@ -74,7 +74,7 @@ public partial class Lst
         {
             var     top   = (state.Top - 1) << 2;
             ref var flags = ref state.FlagStack;
-            var     mask  = FlagMask << (top << 2);
+            var     mask  = FlagMask << top;
             var     val   = (int)((flags & mask) >> top);
             var     one   = 1ul << top;
             flags += one;
@@ -91,7 +91,7 @@ public partial class Lst
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static void Peek<A>(ref FoldState state, out ListItem<A> item)
         {
-            var top  = state.Top;
+            var top  = state.Top - 1;
             var span = MemoryMarshal.CreateSpan(ref state.NodeStack0, StackDepth);
             item = span[top] as ListItem<A> ?? throw new InvalidOperationException("Invalid list item type");
         }

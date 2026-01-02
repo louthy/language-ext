@@ -74,7 +74,7 @@ public partial class Map
         {
             var     top   = (state.Top - 1) << 2;
             ref var flags = ref state.FlagStack;
-            var     mask  = FlagMask << (top << 2);
+            var     mask  = FlagMask << top;
             var     val   = (int)((flags & mask) >> top);
             var     one   = 1ul << top;
             flags += one;
@@ -91,7 +91,7 @@ public partial class Map
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static void Peek<K, V>(ref FoldState state, out MapItem<K, V> item)
         {
-            var top  = state.Top;
+            var top  = state.Top - 1;
             var span = MemoryMarshal.CreateSpan(ref state.NodeStack0, StackDepth);
             item = span[top] as MapItem<K, V> ?? throw new InvalidOperationException("Invalid map item type");
         }
