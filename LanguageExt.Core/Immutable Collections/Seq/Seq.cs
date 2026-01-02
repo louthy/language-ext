@@ -756,32 +756,6 @@ public readonly struct Seq<A> :
         Filter(f);
 
     /// <summary>
-    /// Returns true if the supplied predicate returns true for any
-    /// item in the sequence.  False otherwise.
-    /// </summary>
-    /// <param name="f">Predicate to apply</param>
-    /// <returns>True if the supplied predicate returns true for any
-    /// item in the sequence.  False otherwise.</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Exists(Func<A, bool> f) =>
-        Value.Exists(f);
-
-    /// <summary>
-    /// Returns true if the supplied predicate returns true for all
-    /// items in the sequence.  False otherwise.  If there is an 
-    /// empty sequence then true is returned.
-    /// </summary>
-    /// <param name="f">Predicate to apply</param>
-    /// <returns>True if the supplied predicate returns true for all
-    /// items in the sequence.  False otherwise.  If there is an 
-    /// empty sequence then true is returned.</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool ForAll(Func<A, bool> f) =>
-        Value.ForAll(f);
-
-    /// <summary>
     /// Returns true if the sequence has items in it
     /// </summary>
     /// <returns>True if the sequence has items in it</returns>
@@ -1266,6 +1240,13 @@ public readonly struct Seq<A> :
                    ? new Seq<B>(mb)
                    : new Seq<B>(Yield(this));
     }
+
+    internal void InitFoldState(ref Seq.FoldState state) =>
+        Value.InitFoldState(ref state);
+
+    internal void InitFoldBackState(ref Seq.FoldState state) =>
+        // This forces evaluation of the whole Seq, so we can walk the items in reverse.
+        Seq.FoldState.FromSpanBack(ref state, AsSpan());
 
     public static Seq<A> AdditiveIdentity => 
         Empty;

@@ -6,6 +6,7 @@ using System.Collections;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using LanguageExt.Traits;
+using L = LanguageExt;
 
 namespace LanguageExt;
 
@@ -785,13 +786,125 @@ internal class SetInternal<OrdA, A> :
         return 0;
     }
 
+    /// <summary>
+    /// Left/Node/Right traversal in stepped form
+    /// </summary>
+    public Fold<A, S> FoldStep<S>(S initialState)
+    {
+        if(IsEmpty) return L.Fold.Done<A, S>(initialState);
+        var nstack = new SetItem<A>[32];
+        var fstack = new int[32];
+        var top    = 1;
+        nstack[0] = set;
+        fstack[0] = 0;
+
+        return node(initialState);
+
+        Fold<A, S> node(S state)
+        {
+            while (true)
+            {
+                if (top == 0) return L.Fold.Done<A, S>(state);
+
+                var t = top - 1;
+                var n = nstack[t];
+                var f = fstack[t];
+
+                if (n.IsEmpty)
+                {
+                    top--;
+                    continue;
+                }
+
+                fstack[t]++;
+                switch (f)
+                {
+                    case 0:
+                        nstack[top] = n.Left;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    case 1:
+                        return L.Fold.Loop(state, n.Key, node);
+
+                    case 2:
+                        nstack[top] = n.Right;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    default:
+                        top--;
+                        continue;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Left/Node/Right traversal (in reverse order) in stepped form
+    /// </summary>
+    public Fold<A, S> FoldStepBack<S>(S initialState)
+    {
+        if(IsEmpty) return L.Fold.Done<A, S>(initialState);
+        var nstack = new SetItem<A>[32];
+        var fstack = new int[32];
+        var top    = 1;
+        nstack[0] = set;
+        fstack[0] = 0;
+
+        return node(initialState);
+
+        Fold<A, S> node(S state)
+        {
+            while (true)
+            {
+                if (top == 0) return L.Fold.Done<A, S>(state);
+
+                var t = top - 1;
+                var n = nstack[t];
+                var f = fstack[t];
+
+                if (n.IsEmpty)
+                {
+                    top--;
+                    continue;
+                }
+
+                fstack[t]++;
+                switch (f)
+                {
+                    case 0:
+                        nstack[top] = n.Right;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    case 1:
+                        return L.Fold.Loop(state, n.Key, node);
+
+                    case 2:
+                        nstack[top] = n.Left;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    default:
+                        top--;
+                        continue;
+                }
+            }
+        }
+    }
+    
     IEnumerator IEnumerable.GetEnumerator() =>
         new SetModule.SetEnumerator<A>(set, false, 0);
 }
 
 internal class SetItem<K>
 {
-    public static readonly SetItem<K> Empty = new (0, 0, default!, default!, default!);
+    public static readonly SetItem<K> Empty = new (0, 0, default!, null!, null!);
 
     public bool IsEmpty => Count == 0;
     public int Count;

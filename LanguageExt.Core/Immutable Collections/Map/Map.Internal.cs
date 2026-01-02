@@ -1657,7 +1657,7 @@ internal class MapInternal<OrdK, K, V> :
             }
         }
     }
-
+    
     /// <summary>
     /// Left/Node/Right traversal in stepped form
     /// </summary>
@@ -1771,7 +1771,8 @@ internal class MapInternal<OrdK, K, V> :
     }
 }
 
-internal interface IMapItem<K, V>
+internal interface IMapItem;
+internal interface IMapItem<K, V> : IMapItem
 {
     (K Key, V Value) KeyValue
     {

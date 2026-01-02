@@ -7,7 +7,7 @@ namespace LanguageExt;
 public static class Monoid
 {
     /// <summary>
-    /// The identity of append
+    /// The identity of combine
     /// </summary>
     [Pure]
     public static A empty<A>() where A : Monoid<A> =>
@@ -27,7 +27,7 @@ public static class Monoid
     [Pure]
     public static A combine<A>(A mx, A my, A mz, params A[] xs)
         where A : Monoid<A> =>
-        xs.AsIterable().Fold(combine(combine(mx, my), mz), combine);
+        xs.AsIterable().Fold(combine, combine(combine(mx, my), mz));
 
     /// <summary>
     /// Fold a list using the monoid.
@@ -35,7 +35,7 @@ public static class Monoid
     [Pure]
     public static A combine<A>(IEnumerable<A> xs)
         where A : Monoid<A> =>
-        xs.AsIterable().Fold(A.Empty, combine);
+        xs.AsIterable().Fold(combine, A.Empty);
 
     /// <summary>
     /// Fold a list using the monoid.
@@ -43,7 +43,7 @@ public static class Monoid
     [Pure]
     public static A combine<A>(Seq<A> xs)
         where A : Monoid<A> =>
-        xs.Fold(A.Empty, combine);
+        xs.Fold(combine, A.Empty);
 
     /// <summary>
     /// Get a concrete monoid instance value from a monoid supporting trait-type

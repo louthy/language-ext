@@ -26,5 +26,5 @@ public abstract record Fold<A, S>(S State)
     /// <param name="State">Current state</param>
     /// <param name="Value">Current value</param>
     /// <param name="Next">Continuation function, pass your updated state to this</param>
-    public sealed record Loop(S State, A Value, Func<S, Fold<A, S>> Next) : Fold<A, S>(State);
+    public record Loop(S State, A Value, Func<S, Fold<A, S>> Next) : Fold<A, S>(State);
 }

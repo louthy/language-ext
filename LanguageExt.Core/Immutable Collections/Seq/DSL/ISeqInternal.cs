@@ -24,14 +24,10 @@ internal interface ISeqInternal<A> : IEnumerable<A>
     ISeqInternal<A> Init { get; }
     A Last { get; }
     int Count { get; }
-    S Fold<S>(S state, Func<S, A, S> f);
-    S FoldBack<S>(S state, Func<S, A, S> f);
     ISeqInternal<A> Skip(int amount);
     ISeqInternal<A> Take(int amount);
     ISeqInternal<A> Strict();
-    Unit Iter(Action<A> f);
-    bool Exists(Func<A, bool> f);
-    bool ForAll(Func<A, bool> f);
     int GetHashCode(int offsetBasis);
     ReadOnlySpan<A> AsSpan();
+    void InitFoldState(ref Seq.FoldState state);
 }

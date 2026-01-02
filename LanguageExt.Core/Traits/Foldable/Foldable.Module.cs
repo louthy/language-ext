@@ -21,19 +21,7 @@ public static class Foldable
     public static K<F, Unit> forM<T, F, A, B>(K<T, A> ta, Func<A, K<F, B>> f)
         where F : Applicative<F>
         where T : Foldable<T> =>
-        ta.Fold(pure<F, Unit>(unit), x => f(x).Action);
-    
-    /// <summary>
-    /// Same behaviour as `Fold` but allows early exit of the operation once
-    /// the predicate function becomes `false` for the state/value pair 
-    /// </summary>
-    public static S foldWhile<T, A, S>(
-        Func<A, Func<S, S>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S initialState,
-        K<T, A> ta)
-        where T : Foldable<T> =>
-        T.FoldWhile(f, predicate, initialState, ta);
+        ta.ForM(f);
     
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
@@ -45,19 +33,7 @@ public static class Foldable
         S initialState,
         K<T, A> ta)
         where T : Foldable<T> =>
-        T.FoldWhile(a => s => f(s, a), predicate, initialState, ta);
-
-    /// <summary>
-    /// Same behaviour as `FoldBack` but allows early exit of the operation once
-    /// the predicate function becomes `false` for the state/value pair 
-    /// </summary>
-    public static S foldBackWhile<T, A, S>(
-        Func<S, Func<A, S>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S initialState, 
-        K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.FoldBackWhile(f, predicate, initialState, ta);
+        ta.FoldWhile(f, predicate, initialState);
 
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
@@ -69,21 +45,7 @@ public static class Foldable
         S initialState, 
         K<T, A> ta) 
         where T : Foldable<T> =>
-        T.FoldBackWhile(curry(f), predicate, initialState, ta);
-
-    /// <summary>
-    /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
-    /// early exit of the operation once the predicate function becomes `false` for the
-    /// state/value pair 
-    /// </summary>
-    public static K<M, S> foldWhileM<T, A, M, S>(
-        Func<A, Func<S, K<M, S>>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S initialState, 
-        K<T, A> ta) 
-        where T : Foldable<T>
-        where M : Monad<M> =>
-        T.FoldWhileM(f, predicate, initialState, ta);
+        ta.FoldBackWhile(f, predicate, initialState);
 
     /// <summary>
     /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
@@ -97,21 +59,7 @@ public static class Foldable
         K<T, A> ta) 
         where T : Foldable<T>
         where M : Monad<M> =>
-        T.FoldWhileM<A, M, S>(a => s => f(s, a), predicate, initialState, ta);
-
-    /// <summary>
-    /// Same behaviour as `FoldBack` but the fold operation returns a monadic type and allows
-    /// early exit of the operation once the predicate function becomes `false` for the
-    /// state/value pair 
-    /// </summary>
-    public static K<M, S> foldBackWhileM<T, A, M, S>(
-        Func<S, Func<A, K<M, S>>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S initialState, 
-        K<T, A> ta)
-        where T : Foldable<T> 
-        where M : Monad<M> =>
-        T.FoldBackWhileM(f, predicate, initialState, ta);
+        ta.FoldWhileM(f, predicate, initialState);
 
     /// <summary>
     /// Same behaviour as `FoldBack` but the fold operation returns a monadic type and allows
@@ -125,19 +73,7 @@ public static class Foldable
         K<T, A> ta)
         where T : Foldable<T> 
         where M : Monad<M> =>
-        T.FoldBackWhileM(curry(f), predicate, initialState, ta);
-
-    /// <summary>
-    /// Same behaviour as `Fold` but allows early exit of the operation once
-    /// the predicate function becomes `false` for the state/value pair
-    /// </summary>
-    public static S foldUntil<T, A, S>(
-        Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S initialState, 
-        K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.FoldUntil(f, predicate, initialState, ta);
+        ta.FoldBackWhileM(f, predicate, initialState);
 
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
@@ -149,21 +85,7 @@ public static class Foldable
         S initialState, 
         K<T, A> ta) 
         where T : Foldable<T> =>
-        T.FoldUntil(a => s => f(s, a), predicate, initialState, ta);
-
-    /// <summary>
-    /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
-    /// early exit of the operation once the predicate function becomes `false` for the
-    /// state/value pair 
-    /// </summary>
-    public static K<M, S> foldUntilM<T, A, M, S>(
-        Func<A, Func<S, K<M, S>>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S initialState, 
-        K<T, A> ta) 
-        where M : Monad<M>
-        where T : Foldable<T> => 
-        T.FoldUntilM(f, predicate, initialState, ta);
+        ta.FoldUntil(f, predicate, initialState);
 
     /// <summary>
     /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
@@ -177,19 +99,7 @@ public static class Foldable
         K<T, A> ta) 
         where M : Monad<M>
         where T : Foldable<T> => 
-        T.FoldUntilM<A, M, S>(a => s => f(s, a), predicate, initialState, ta);
-
-    /// <summary>
-    /// Same behaviour as `FoldBack` but allows early exit of the operation once
-    /// the predicate function becomes `false` for the state/value pair
-    /// </summary>
-    public static S foldBackUntil<T, A, S>(
-        Func<S, Func<A, S>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S initialState, 
-        K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.FoldBackUntil(f, predicate, initialState, ta);
+        ta.FoldUntilM(f, predicate, initialState);
 
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
@@ -201,21 +111,7 @@ public static class Foldable
         S initialState, 
         K<T, A> ta) 
         where T : Foldable<T> =>
-        T.FoldBackUntil(curry(f), predicate, initialState, ta);
-
-    /// <summary>
-    /// Same behaviour as `FoldBack` but the fold operation returns a monadic type and allows
-    /// early exit of the operation once the predicate function becomes `false` for the
-    /// state/value pair 
-    /// </summary>
-    public static K<M, S> foldBackUntilM<T, A, M, S>(
-        Func<S, Func<A, K<M, S>>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S initialState, 
-        K<T, A> ta)
-        where T : Foldable<T> 
-        where M : Monad<M> =>
-        T.FoldBackUntilM(f, predicate, initialState, ta);
+        ta.FoldBackUntil(f, predicate, initialState);
 
     /// <summary>
     /// Same behaviour as `FoldBack` but the fold operation returns a monadic type and allows
@@ -229,18 +125,7 @@ public static class Foldable
         K<T, A> ta)
         where T : Foldable<T> 
         where M : Monad<M> =>
-        T.FoldBackUntilM(curry(f), predicate, initialState, ta);
-
-    /// <summary>
-    /// Right-associative fold of a structure, lazy in the accumulator.
-    ///
-    /// In the case of lists, 'Fold', when applied to a binary operator, a
-    /// starting value (typically the right-identity of the operator), and a
-    /// list, reduces the list using the binary operator, from right to left.
-    /// </summary>
-    public static S fold<T, A, S>(Func<A, Func<S, S>> f, S initialState, K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.Fold(f, initialState, ta);
+        ta.FoldBackUntilM(f, predicate, initialState);
 
     /// <summary>
     /// Right-associative fold of a structure, lazy in the accumulator.
@@ -251,22 +136,7 @@ public static class Foldable
     /// </summary>
     public static S fold<T, A, S>(Func<S, A, S> f, S initialState, K<T, A> ta) 
         where T : Foldable<T> =>
-        T.Fold(a => s => f(s, a), initialState, ta);
-
-    /// <summary>
-    /// Right-associative fold of a structure, lazy in the accumulator.
-    ///
-    /// In the case of lists, 'Fold', when applied to a binary operator, a
-    /// starting value (typically the right-identity of the operator), and a
-    /// list, reduces the list using the binary operator, from right to left.
-    /// </summary>
-    public static K<M, S> foldM<T, A, M, S>(
-        Func<A, Func<S, K<M, S>>> f, 
-        S initialState, 
-        K<T, A> ta) 
-        where T : Foldable<T>
-        where M : Monad<M> =>
-        T.FoldM(f, initialState, ta);
+        T.Fold(f, initialState, ta);
 
     /// <summary>
     /// Right-associative fold of a structure, lazy in the accumulator.
@@ -281,26 +151,7 @@ public static class Foldable
         K<T, A> ta) 
         where T : Foldable<T>
         where M : Monad<M> =>
-        T.FoldM<A, M, S>(a => s => f(s, a), initialState, ta);
-    
-    /// <summary>
-    /// Left-associative fold of a structure, lazy in the accumulator.  This
-    /// is rarely what you want, but can work well for structures with efficient
-    /// right-to-left sequencing and an operator that is lazy in its left
-    /// argument.
-    /// 
-    /// In the case of lists, 'FoldLeft', when applied to a binary operator, a
-    /// starting value (typically the left-identity of the operator), and a
-    /// list, reduces the list using the binary operator, from left to right
-    /// </summary>
-    /// <remarks>
-    /// Note that to produce the outermost application of the operator the
-    /// entire input list must be traversed.  Like all left-associative folds,
-    /// `FoldBack' will diverge if given an infinite list.
-    /// </remarks>
-    public static S foldBack<T, A, S>(Func<S, Func<A, S>> f, S initialState, K<T, A> ta) 
-        where T : Foldable<T> =>
-        T.FoldBack(f, initialState, ta);
+        ta.FoldM(f, initialState);
     
     /// <summary>
     /// Left-associative fold of a structure, lazy in the accumulator.  This
@@ -319,30 +170,7 @@ public static class Foldable
     /// </remarks>
     public static S foldBack<T, A, S>(Func<S, A, S> f, S initialState, K<T, A> ta) 
         where T : Foldable<T> =>
-        T.FoldBack(curry(f), initialState, ta);
-
-    /// <summary>
-    /// Left-associative fold of a structure, lazy in the accumulator.  This
-    /// is rarely what you want, but can work well for structures with efficient
-    /// right-to-left sequencing and an operator that is lazy in its left
-    /// argument.
-    /// 
-    /// In the case of lists, 'FoldLeft', when applied to a binary operator, a
-    /// starting value (typically the left-identity of the operator), and a
-    /// list, reduces the list using the binary operator, from left to right
-    /// </summary>
-    /// <remarks>
-    /// Note that to produce the outermost application of the operator the
-    /// entire input list must be traversed.  Like all left-associative folds,
-    /// `FoldBack' will diverge if given an infinite list.
-    /// </remarks>
-    public static K<M, S> foldBackM<T, A, M, S>(
-        Func<S, Func<A, K<M, S>>> f, 
-        S initialState, 
-        K<T, A> ta)
-        where T : Foldable<T>
-        where M : Monad<M> =>
-        T.FoldBackM(f, initialState, ta);
+        ta.FoldBack(f, initialState);
 
     /// <summary>
     /// Left-associative fold of a structure, lazy in the accumulator.  This
@@ -365,18 +193,18 @@ public static class Foldable
         K<T, A> ta)
         where T : Foldable<T>
         where M : Monad<M> =>
-        T.FoldBackM(curry(f), initialState, ta);
-    
+        ta.FoldBackM(f, initialState);
+
     /// <summary>
     /// Given a structure with elements whose type is a `Monoid`, combine them
     /// via the monoid's `Append` operator.  This fold is right-associative and
     /// lazy in the accumulator.  When you need a strict left-associative fold,
     /// use 'foldMap'' instead, with 'id' as the map.
     /// </summary>
-    public static A fold<T, A>(K<T, A> tm) 
+    public static A fold<T, A>(K<T, A> ta)
         where T : Foldable<T>
         where A : Monoid<A> =>
-        T.FoldMap(identity, tm) ;
+        ta.Fold();
 
     /// <summary>
     /// Given a structure with elements whose type is a `Monoid`, combine them
@@ -468,35 +296,35 @@ public static class Foldable
     /// </summary>
     public static Seq<A> toSeq<T, A>(K<T, A> ta) 
         where T : Foldable<T> =>
-        T.ToSeq(ta);
+        ta.ToSeq();
 
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
     public static Lst<A> toLst<T, A>(K<T, A> ta) 
         where T : Foldable<T> =>
-        T.ToLst(ta);
+        ta.ToLst();
 
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
     public static Arr<A> toArr<T, A>(K<T, A> ta)
         where T : Foldable<T> =>
-        T.ToArr(ta);
+        ta.ToArr();
 
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
     public static Iterable<A> toIterable<T, A>(K<T, A> ta) 
         where T : Foldable<T> =>
-        T.ToIterable(ta);
+        ta.ToIterable();
 
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
     public static bool isEmpty<T, A>(K<T, A> ta)
         where T : Foldable<T> =>
-        T.IsEmpty(ta);
+        ta.IsEmpty;
 
     /// <summary>
     /// Returns the size/length of a finite structure as an `int`.  The
@@ -508,7 +336,7 @@ public static class Foldable
     /// </summary>
     public static int count<T, A>(K<T, A> ta) 
         where T : Foldable<T> =>
-        T.Count(ta);
+        ta.Count;
 
     /// <summary>
     /// Does an element that fits the predicate occur in the structure?
@@ -530,7 +358,7 @@ public static class Foldable
     public static bool contains<EqA, T, A>(A value, K<T, A> ta) 
         where EqA : Eq<A> 
         where T : Foldable<T> =>
-        T.Contains<EqA, A>(value, ta);
+        ta.Contains<EqA, T, A>(value);
 
     /// <summary>
     /// Does the element exist in the structure?
@@ -573,7 +401,7 @@ public static class Foldable
     public static A sum<T, A>(K<T, A> ta) 
         where T : Foldable<T> 
         where A : IAdditionOperators<A, A, A>, IAdditiveIdentity<A, A> =>
-        T.Sum(ta);
+        ta.Sum();
 
     /// <summary>
     /// Computes the product of the numbers of a structure.
@@ -581,31 +409,31 @@ public static class Foldable
     public static A product<T, A>(K<T, A> ta) 
         where T : Foldable<T> 
         where A : IMultiplyOperators<A, A, A>, IMultiplicativeIdentity<A, A> =>
-        T.Product(ta);
+        ta.Product();
 
     /// <summary>
     /// Get the head item in the foldable or `None`
     /// </summary>
     public static Option<A> head<T, A>(K<T, A> ta) 
         where T : Foldable<T> =>
-        T.Head(ta);
+        ta.Head;
 
     /// <summary>
     /// Get the head item in the foldable or `None`
     /// </summary>
     public static Option<A> last<T, A>(K<T, A> ta) 
         where T : Foldable<T> =>
-        T.Last(ta);
+        ta.Last;
 
     /// <summary>
     /// Map each element of a structure to an 'Applicative' action, evaluate these
     /// actions from left to right, and ignore the results.  For a version that
     /// doesn't ignore the results see `Traversable.traverse`.
     /// </summary>
-    public static K<F, Unit> iter<T, A, F, B>(Func<A, K<F, B>> f, K<T, A> ta)
+    public static K<F, Unit> iterM<T, A, F, B>(Func<A, K<F, B>> f, K<T, A> ta)
         where T : Foldable<T>
         where F : Monad<F> =>
-        T.Iter(f, ta);
+        ta.IterM(f);
     
     /// <summary>
     /// Map each element of a structure to an action, evaluate these
@@ -614,7 +442,7 @@ public static class Foldable
     /// </summary>
     public static Unit iter<T, A>(Action<int, A> f, K<T, A> ta) 
         where T : Foldable<T> =>
-        T.Iter(f, ta);
+        ta.Iter(f);
     
     /// <summary>
     /// Map each element of a structure to an action, evaluate these
@@ -631,7 +459,7 @@ public static class Foldable
     public static Option<A> min<OrdA, T, A>(K<T, A> ta)
         where T : Foldable<T>
         where OrdA : Ord<A> =>
-        T.Min<OrdA, A>(ta);
+        ta.Min<OrdA, T, A>();
 
     /// <summary>
     /// Find the minimum value in the structure
@@ -639,7 +467,7 @@ public static class Foldable
     public static Option<A> min<T, A>(K<T, A> ta)
         where T : Foldable<T>
         where A : IComparable<A> =>
-        T.Min(ta);
+        ta.Min();
 
     /// <summary>
     /// Find the maximum value in the structure
@@ -647,7 +475,7 @@ public static class Foldable
     public static Option<A> max<OrdA, T, A>(K<T, A> ta)
         where T : Foldable<T>
         where OrdA : Ord<A> =>
-        T.Max<OrdA, A>(ta);
+        ta.Max<OrdA, T, A>();
 
     /// <summary>
     /// Find the maximum value in the structure
@@ -655,7 +483,7 @@ public static class Foldable
     public static Option<A> max<T, A>(K<T, A> ta)
         where T : Foldable<T>
         where A : IComparable<A> =>
-        T.Max(ta);
+        ta.Max();
     
     /// <summary>
     /// Find the minimum value in the structure
@@ -663,7 +491,7 @@ public static class Foldable
     public static A min<OrdA, T, A>(K<T, A> ta, A initialMin)
         where T : Foldable<T>
         where OrdA : Ord<A> =>
-        T.Min<OrdA, A>(ta, initialMin);
+        ta.Min<OrdA, T, A>(initialMin);
 
     /// <summary>
     /// Find the minimum value in the structure
@@ -671,7 +499,7 @@ public static class Foldable
     public static A min<T, A>(K<T, A> ta, A initialMin)
         where T : Foldable<T>
         where A : IComparable<A> =>
-        T.Min(ta, initialMin);
+        ta.Min(initialMin);
 
     /// <summary>
     /// Find the maximum value in the structure
@@ -679,7 +507,7 @@ public static class Foldable
     public static A max<OrdA, T, A>(K<T, A> ta, A initialMax)
         where T : Foldable<T>
         where OrdA : Ord<A> =>
-        T.Max<OrdA, A>(ta, initialMax);
+        ta.Max<OrdA, T, A>(initialMax);
 
     /// <summary>
     /// Find the maximum value in the structure
@@ -687,7 +515,7 @@ public static class Foldable
     public static A max<T, A>(K<T, A> ta, A initialMax)
         where T : Foldable<T>
         where A : IComparable<A> =>
-        T.Max(ta, initialMax);
+        ta.Max(initialMax);
 
     /// <summary>
     /// Find the average of all the values in the structure
@@ -695,7 +523,7 @@ public static class Foldable
     public static A average<T, A>(K<T, A> ta)
         where T : Foldable<T>
         where A : INumber<A> =>
-        T.Average(ta);
+        ta.Average();
 
     /// <summary>
     /// Find the average of all the values in the structure
@@ -710,7 +538,7 @@ public static class Foldable
     /// </summary>
     public static Option<A> at<T, A>(K<T, A> ta, Index index)
         where T : Foldable<T> =>
-        T.At(ta, index);
+        ta.At(index);
 
     /// <summary>
     /// Partition a foldable into two sequences based on a predicate
@@ -722,5 +550,4 @@ public static class Foldable
     public static (Seq<A> True, Seq<A> False) partition<T, A>(Func<A, bool> f, K<T, A> ta)
         where T : Foldable<T> =>
         T.Partition(f, ta);
-
 }

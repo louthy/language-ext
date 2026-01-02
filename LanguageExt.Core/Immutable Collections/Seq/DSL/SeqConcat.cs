@@ -117,18 +117,6 @@ internal class SeqConcat<A>(Seq<ISeqInternal<A>> ms) : ISeqInternal<A>
         return new SeqConcat<A>(head.Cons(ms.Skip(1)));
     }
 
-    public bool Exists(Func<A, bool> f) =>
-        ms.Exists(s => s.Exists(f));
-        
-    public S Fold<S>(S state, Func<S, A, S> f) =>
-        ms.Fold(state, (s, x) => x.Fold(s, f));
-
-    public S FoldBack<S>(S state, Func<S, A, S> f) =>
-        ms.FoldBack(state, (s, x) => x.FoldBack(s, f));
-
-    public bool ForAll(Func<A, bool> f) =>
-        ms.ForAll(s => s.ForAll(f));
-
     public IEnumerator<A> GetEnumerator()
     {
         foreach(var s in ms)
@@ -176,6 +164,11 @@ internal class SeqConcat<A>(Seq<ISeqInternal<A>> ms) : ISeqInternal<A>
         }
         return new SeqLazy<A>(Yield());
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void InitFoldState(ref Seq.FoldState state) =>
+        // ReSharper disable once GenericEnumeratorNotDisposed
+        Seq.FoldState.FromEnumerator(ref state, GetEnumerator());
 
     IEnumerator IEnumerable.GetEnumerator()
     {

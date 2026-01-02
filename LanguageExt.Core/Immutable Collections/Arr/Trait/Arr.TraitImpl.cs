@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using LanguageExt.Traits;
 using System.Collections.Generic;
-using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -16,7 +15,8 @@ public partial class Arr :
     Natural<Arr, Iterable>,
     Natural<Arr, Lst>,
     Natural<Arr, Set>,
-    Natural<Arr, HashSet>
+    Natural<Arr, HashSet>,
+    Foldable<Arr, Arr.FoldState>
 {
     static K<Arr, B> Monad<Arr>.Bind<A, B>(K<Arr, A> ma, Func<A, K<Arr, B>> f)
     {
@@ -95,36 +95,25 @@ public partial class Arr :
     static K<Arr, A> Choice<Arr>.Choose<A>(K<Arr, A> ma, Memo<Arr, A> mb) => 
         ma.IsEmpty ? mb.Value : ma;
 
-    static int Foldable<Arr>.Count<A>(K<Arr, A> ta) =>
+    static int Foldable<Arr>.Count<TA, A>(in TA ta) =>
         ta.As().Count;
 
-    static bool Foldable<Arr>.IsEmpty<A>(K<Arr, A> ta) =>
+    static bool Foldable<Arr>.IsEmpty<TA, A>(in TA ta) =>
         ta.As().IsEmpty;
 
-    static S Foldable<Arr>.FoldWhile<A, S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate, S state, K<Arr, A> ta)
-    {
-        var arr = ta.As();
-        foreach (var x in arr)
-        {
-            if (!predicate((state, x))) return state;
-            state = f(x)(state);
-        }
-        return state;
-    }
+    static void Foldable<Arr, FoldState>.FoldStepInit<TA, A>(in TA ta, ref FoldState state) =>
+        FoldState.Init(ref state, ta.As().AsSpan());
 
-    static S Foldable<Arr>.FoldBackWhile<A, S>(Func<S, Func<A, S>> f, Func<(S State, A Value), bool> predicate, S state, K<Arr, A> ta) 
-    {
-        var arr = ta.As();
-        for (var i = arr.Length - 1; i >= 0; i--)
-        {
-            var x = arr[i];
-            if (!predicate((state, x))) return state;
-            state = f(state)(x);
-        }
-        return state;
-    }
+    static void Foldable<Arr, FoldState>.FoldStepBackInit<TA, A>(in TA ta, ref FoldState state) =>
+        FoldState.InitBack(ref state, ta.As().AsSpan());
 
-    static Fold<A, S> Foldable<Arr>.FoldStep<A, S>(K<Arr, A> ta, S initialState)
+    static bool Foldable<Arr, FoldState>.FoldStep<TA, A>(in TA ta, ref FoldState state, out A value) =>
+        FoldState.MoveNext(ref state, out value);
+
+    static bool Foldable<Arr, FoldState>.FoldStepBack<TA, A>(in TA ta, ref FoldState state, out A value) =>
+        FoldState.MovePrev(ref state, out value);
+
+    static Fold<A, S> Foldable<Arr>.FoldStep<TA, A, S>(in TA ta, in S initialState)
     {
         var array = ta.As();
         var count = array.Length;
@@ -145,7 +134,7 @@ public partial class Arr :
         }
     }
 
-    static Fold<A, S> Foldable<Arr>.FoldStepBack<A, S>(K<Arr, A> ta, S initialState)
+    static Fold<A, S> Foldable<Arr>.FoldStepBack<TA, A, S>(in TA ta, in S initialState)
     {
         var array = ta.As();
         var count = array.Length;
@@ -166,7 +155,7 @@ public partial class Arr :
         }
     }
 
-    static Option<A> Foldable<Arr>.At<A>(K<Arr, A> ta, Index index)
+    static Option<A> Foldable<Arr>.At<TA, A>(Index index, in TA ta)
     {
         var arr = ta.As();
         return index.Value >= 0 && index.Value < arr.Length
@@ -174,16 +163,16 @@ public partial class Arr :
                    : Option<A>.None;
     }
 
-    static Arr<A> Foldable<Arr>.ToArr<A>(K<Arr, A> ta) =>
+    static Arr<A> Foldable<Arr>.ToArr<TA, A>(in TA ta) =>
         ta.As();
 
-    static Lst<A> Foldable<Arr>.ToLst<A>(K<Arr, A> ta) =>
+    static Lst<A> Foldable<Arr>.ToLst<TA, A>(in TA ta) =>
         new(ta.As());
 
-    static Iterable<A> Foldable<Arr>.ToIterable<A>(K<Arr, A> ta) =>
+    static Iterable<A> Foldable<Arr>.ToIterable<TA, A>(in TA ta) =>
         ta.As().AsIterable();
     
-    static Seq<A> Foldable<Arr>.ToSeq<A>(K<Arr, A> ta) =>
+    static Seq<A> Foldable<Arr>.ToSeq<TA, A>(in TA ta) =>
         Seq.FromArray(ta.As().ToArray());
     
     static K<F, K<Arr, B>> Traversable<Arr>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Arr, A> ta)
@@ -191,9 +180,8 @@ public partial class Arr :
         return Foldable.fold(addItem, F.Pure(new SeqStrict<B>(new B[ta.As().Count], 0, 0, 0, 0)), ta)
                        .Map(bs => new Arr<B>(bs.data.AsSpan().Slice(bs.start, bs.Count)).Kind());
 
-        Func<K<F, SeqStrict<B>>, K<F, SeqStrict<B>>> addItem(A value) =>
-            state =>
-                Applicative.lift((bs, b) => (SeqStrict<B>)bs.Add(b), state, f(value));                                            
+        K<F, SeqStrict<B>> addItem(K<F, SeqStrict<B>> state, A value) =>
+            Applicative.lift((bs, b) => (SeqStrict<B>)bs.Add(b), state, f(value));                                            
     }
 
     static K<F, K<Arr, B>> Traversable<Arr>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Arr, A> ta) 
@@ -201,11 +189,8 @@ public partial class Arr :
         return Foldable.fold(addItem, F.Pure(new SeqStrict<B>(new B[ta.As().Count], 0, 0, 0, 0)), ta)
                        .Map(bs => new Arr<B>(bs.data.AsSpan().Slice(bs.start, bs.Count)).Kind());
 
-        Func<K<F, SeqStrict<B>>, K<F, SeqStrict<B>>> addItem(A value) =>
-            state =>
-                state.Bind(
-                    bs => f(value).Bind(
-                        b => F.Pure((SeqStrict<B>)bs.Add(b)))); 
+        K<F, SeqStrict<B>> addItem(K<F, SeqStrict<B>> state, A value) =>
+            state.Bind(bs => f(value).Bind(b => F.Pure((SeqStrict<B>)bs.Add(b)))); 
     }
 
     static K<Seq, A> Natural<Arr, Seq>.Transform<A>(K<Arr, A> fa) => 

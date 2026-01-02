@@ -69,6 +69,13 @@ public readonly struct Lst<A> :
     internal Lst(ListItem<A> root) =>
         value = new LstInternal<A>(root);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Lst<A> FromFoldable<FA, F, FS>(FA items)
+        where F : Foldable<F, FS>
+        where FS : allows ref struct
+        where FA : K<F, A> =>
+        Wrap(LstInternal<A>.FromFoldable<FA, F, FS>(items));
+    
     ListItem<A> Root
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -312,6 +319,22 @@ public readonly struct Lst<A> :
     public ListEnumerator<A> GetEnumerator() =>
         new (Root, false, 0);
 
+    /// <summary>
+    /// Left/Node/Right traversal in stepped form
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Fold<A, S> FoldStep<S>(S initialState) =>
+        Value.FoldStep(initialState);
+
+    /// <summary>
+    /// Left/Node/Right traversal (in reverse order) in stepped form
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Fold<A, S> FoldStepBack<S>(S initialState) =>
+        Value.FoldStepBack(initialState);
+    
     /// <summary>
     /// Find the index of an item
     /// </summary>

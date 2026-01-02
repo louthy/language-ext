@@ -111,34 +111,6 @@ public class Lst :
                     bs => f(value).Bind(
                         b => F.Pure(bs.Add(b)))); 
     }    
-    
-    static S Foldable<Lst>.FoldWhile<A, S>(
-        Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S state,
-        K<Lst, A> ta)
-    {
-        foreach (var x in ta.As())
-        {
-            if (!predicate((state, x))) return state;
-            state = f(x)(state);
-        }
-        return state;
-    }
-    
-    static S Foldable<Lst>.FoldBackWhile<A, S>(
-        Func<S, Func<A, S>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S state, 
-        K<Lst, A> ta)
-    {
-        foreach (var x in ta.As().Reverse())
-        {
-            if (!predicate((state, x))) return state;
-            state = f(state)(x);
-        }
-        return state;
-    }
 
     static int Foldable<Lst>.Count<A>(K<Lst, A> ta) =>
         ta.As().Count;
@@ -166,25 +138,9 @@ public class Lst :
     static Seq<A> Foldable<Lst>.ToSeq<A>(K<Lst, A> ta) =>
         new (ta.As());
     
-    static Fold<A, S> Foldable<Lst>.FoldStep<A, S>(K<Lst, A> ta, S initialState)
-    {
-        // ReSharper disable once GenericEnumeratorNotDisposed
-        var iter = ta.As().GetEnumerator();
-        return go(initialState);
-        Fold<A, S> go(S state) =>
-            iter.MoveNext()
-                ? Fold.Loop(state, iter.Current, go)
-                : Fold.Done<A, S>(state);
-    }   
+    static Fold<A, S> Foldable<Lst>.FoldStep<A, S>(K<Lst, A> ta, S initialState) =>
+        ta.As().FoldStep(initialState);
     
-    static Fold<A, S> Foldable<Lst>.FoldStepBack<A, S>(K<Lst, A> ta, S initialState)
-    {
-        // ReSharper disable once GenericEnumeratorNotDisposed
-        var iter = ta.As().Reverse().GetEnumerator();
-        return go(initialState);
-        Fold<A, S> go(S state) =>
-            iter.MoveNext()
-                ? Fold.Loop(state, iter.Current, go)
-                : Fold.Done<A, S>(state);
-    }   
+    static Fold<A, S> Foldable<Lst>.FoldStepBack<A, S>(K<Lst, A> ta, S initialState) =>
+        ta.As().FoldStepBack(initialState);
 }

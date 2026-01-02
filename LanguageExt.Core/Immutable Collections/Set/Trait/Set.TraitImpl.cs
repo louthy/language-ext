@@ -158,25 +158,9 @@ public partial class Set :
     static Option<A> Foldable<Set>.Max<A>(K<Set, A> ta) =>
         ta.As().Max;
     
-    static Fold<A, S> Foldable<Set>.FoldStep<A, S>(K<Set, A> ta, S initialState)
-    {
-        // ReSharper disable once GenericEnumeratorNotDisposed
-        var iter = ta.As().GetEnumerator();
-        return go(initialState);
-        Fold<A, S> go(S state) =>
-            iter.MoveNext()
-                ? Fold.Loop(state, iter.Current, go)
-                : Fold.Done<A, S>(state);
-    }   
+    static Fold<A, S> Foldable<Set>.FoldStep<A, S>(K<Set, A> ta, S initialState) =>
+        ta.As().FoldStep(initialState);
         
-    static Fold<A, S> Foldable<Set>.FoldStepBack<A, S>(K<Set, A> ta, S initialState)
-    {
-        // ReSharper disable once GenericEnumeratorNotDisposed
-        var iter = ta.As().Reverse().GetEnumerator();
-        return go(initialState);
-        Fold<A, S> go(S state) =>
-            iter.MoveNext()
-                ? Fold.Loop(state, iter.Current, go)
-                : Fold.Done<A, S>(state);
-    }
+    static Fold<A, S> Foldable<Set>.FoldStepBack<A, S>(K<Set, A> ta, S initialState) =>
+        ta.As().FoldStepBack(initialState);
 }

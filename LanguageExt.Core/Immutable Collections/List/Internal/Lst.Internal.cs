@@ -7,6 +7,7 @@ using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances;
 using System.Runtime.CompilerServices;
+using L = LanguageExt;
 
 namespace LanguageExt;
 
@@ -17,8 +18,7 @@ namespace LanguageExt;
 [Serializable]
 internal class LstInternal<A> : 
     IReadOnlyList<A>,
-    IEquatable<LstInternal<A>>,
-    ListInfo 
+    IEquatable<LstInternal<A>>
 {
     /// <summary>
     /// Empty list
@@ -51,11 +51,10 @@ internal class LstInternal<A> :
         root = ListModuleM.InsertMany<A>(root, items, 0);
     }
 
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static LstInternal<A> Wrap(ListItem<A> list) =>
         new (list);
-
+    
     /// <summary>
     /// Ctor
     /// </summary>
@@ -75,6 +74,13 @@ internal class LstInternal<A> :
         hashCode = 0;
         this.root = root;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static LstInternal<A> FromFoldable<FA, F, FS>(FA items)
+        where F : Foldable<F, FS>
+        where FS : allows ref struct
+        where FA : K<F, A> =>
+        Wrap(ListModuleM.BuildSubTree<FA, F, FS, A>(items));
 
     internal ListItem<A> Root
     {
@@ -482,6 +488,121 @@ internal class LstInternal<A> :
         }
         return 0;
     }
+
+    public bool IsEmpty =>
+        Root.Count == 0; 
+    
+    /// <summary>
+    /// Left/Node/Right traversal in stepped form
+    /// </summary>
+    public Fold<A, S> FoldStep<S>(S initialState)
+    {
+        if(IsEmpty) return L.Fold.Done<A, S>(initialState);
+        var nstack = new ListItem<A>[32];
+        var fstack = new int[32];
+        var top    = 1;
+        nstack[0] = Root;
+        fstack[0] = 0;
+
+        return node(initialState);
+
+        Fold<A, S> node(S state)
+        {
+            while (true)
+            {
+                if (top == 0) return L.Fold.Done<A, S>(state);
+
+                var t = top - 1;
+                var n = nstack[t];
+                var f = fstack[t];
+
+                if (n.IsEmpty)
+                {
+                    top--;
+                    continue;
+                }
+
+                fstack[t]++;
+                switch (f)
+                {
+                    case 0:
+                        nstack[top] = n.Left;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    case 1:
+                        return L.Fold.Loop(state, n.Key, node);
+
+                    case 2:
+                        nstack[top] = n.Right;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    default:
+                        top--;
+                        continue;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Left/Node/Right traversal (in reverse order) in stepped form
+    /// </summary>
+    public Fold<A, S> FoldStepBack<S>(S initialState)
+    {
+        if(IsEmpty) return L.Fold.Done<A, S>(initialState);
+        var nstack = new ListItem<A>[32];
+        var fstack = new int[32];
+        var top    = 1;
+        nstack[0] = Root;
+        fstack[0] = 0;
+
+        return node(initialState);
+
+        Fold<A, S> node(S state)
+        {
+            while (true)
+            {
+                if (top == 0) return L.Fold.Done<A, S>(state);
+
+                var t = top - 1;
+                var n = nstack[t];
+                var f = fstack[t];
+
+                if (n.IsEmpty)
+                {
+                    top--;
+                    continue;
+                }
+
+                fstack[t]++;
+                switch (f)
+                {
+                    case 0:
+                        nstack[top] = n.Right;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    case 1:
+                        return L.Fold.Loop(state, n.Key, node);
+
+                    case 2:
+                        nstack[top] = n.Left;
+                        fstack[top] = 0;
+                        top++;
+                        continue;
+
+                    default:
+                        top--;
+                        continue;
+                }
+            }
+        }
+    }
 }
 
 [Serializable]
@@ -552,6 +673,24 @@ internal static class ListModuleM
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ListItem<A> InsertMany<A>(ListItem<A> node, ReadOnlySpan<A> items, int index) =>
         Insert(node, BuildSubTree(items), index);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ListItem<A> BuildSubTree<FA, F, FS, A>(FA items)
+        where F : Foldable<F, FS>
+        where FS : allows ref struct
+        where FA : K<F, A>
+    {
+        var root      = ListItem<A>.EmptyM;
+        var subIndex  = 0;
+        FS  foldState = default!;
+        F.FoldStepInit<FA, A>(items, ref foldState);
+        while (F.FoldStep<FA, A>(items, ref foldState, out var item))
+        {
+            root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
+            subIndex++;
+        }
+        return root;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ListItem<A> BuildSubTree<A>(IEnumerable<A> items)

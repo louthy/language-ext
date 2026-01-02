@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
@@ -327,43 +328,6 @@ internal class SeqStrict<A> : ISeqInternal<A>
     }
 
     /// <summary>
-    /// Fold the sequence from the first item to the last
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="f">Fold function</param>
-    /// <returns>Aggregated state</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public S Fold<S>(S state, Func<S, A, S> f)
-    {
-        var end = start + count;
-        for(var i = start; i < end; i++)
-        {
-            state = f(state, data[i]);
-        }
-        return state;
-    }
-
-    /// <summary>
-    /// Fold the sequence from the last item to the first.  For 
-    /// sequences that are not lazy and are less than 5000 items
-    /// long, FoldBackRec is called instead, because it is faster.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="f">Fold function</param>
-    /// <returns>Aggregated state</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public S FoldBack<S>(S state, Func<S, A, S> f)
-    {
-        for (var i = start + count - 1; i >= start; i--)
-        {
-            state = f(state, data[i]);
-        }
-        return state;
-    }
-
-    /// <summary>
     /// Skip count items
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -554,4 +518,8 @@ internal class SeqStrict<A> : ISeqInternal<A>
         }
         return new SeqStrict<A>(ndata, start, ncount, 0, 0);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void InitFoldState(ref Seq.FoldState state) =>
+        Seq.FoldState.FromSpan(ref state, AsSpan());        
 }

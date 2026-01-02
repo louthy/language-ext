@@ -51,7 +51,12 @@ internal class SeqLazy<A> : ISeqInternal<A>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlySpan<A> AsSpan() =>
         Strict().AsSpan();
-    
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void InitFoldState(ref Seq.FoldState state) =>
+        // ReSharper disable once GenericEnumeratorNotDisposed
+        Seq.FoldState.FromEnumerator(ref state, GetEnumerator());
+
     /// <summary>
     /// Constructor
     /// </summary>
@@ -540,4 +545,7 @@ internal class SeqLazy<A> : ISeqInternal<A>
         }
         return hash;
     }
+    
+    
+    
 }
