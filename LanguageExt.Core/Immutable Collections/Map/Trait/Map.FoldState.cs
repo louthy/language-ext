@@ -7,7 +7,7 @@ namespace LanguageExt;
 public partial class Map
 {
     /// <summary>
-    /// Readonly ref struct used to track the state of a fold operation.
+    /// ref struct used to track the state of a fold operation.
     /// </summary>
     public ref struct FoldState
     {
