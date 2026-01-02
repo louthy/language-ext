@@ -24,11 +24,11 @@ public partial class Arr
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Init<A>(ref FoldState state, ReadOnlySpan<A> span) =>
+        public static void Setup<A>(ref FoldState state, ReadOnlySpan<A> span) =>
             state = new FoldState(ref Unsafe.As<A, object>(ref MemoryMarshal.GetReference(span)), -1, span.Length);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void InitBack<A>(ref FoldState state, ReadOnlySpan<A> span) =>
+        public static void SetupBack<A>(ref FoldState state, ReadOnlySpan<A> span) =>
             state = new FoldState(ref Unsafe.As<A, object>(ref MemoryMarshal.GetReference(span)), span.Length, span.Length);
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

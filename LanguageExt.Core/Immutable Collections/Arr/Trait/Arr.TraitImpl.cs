@@ -102,10 +102,10 @@ public partial class Arr :
         ta.As().IsEmpty;
 
     static void Foldable<Arr, FoldState>.FoldStepSetup<A>(K<Arr, A> ta, ref FoldState state) =>
-        FoldState.Init(ref state, ta.As().AsSpan());
+        FoldState.Setup(ref state, ta.As().AsSpan());
 
     static void Foldable<Arr, FoldState>.FoldStepBackSetup<A>(K<Arr, A> ta, ref FoldState state) =>
-        FoldState.InitBack(ref state, ta.As().AsSpan());
+        FoldState.SetupBack(ref state, ta.As().AsSpan());
 
     static bool Foldable<Arr, FoldState>.FoldStep<A>(K<Arr, A> ta, ref FoldState state, out A value) =>
         FoldState.MoveNext(ref state, out value);

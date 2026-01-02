@@ -51,12 +51,12 @@ public partial class Map<Key> : Foldable<Map<Key>, Map.FoldState>, Functor<Map<K
     static void Foldable<Map<Key>, Map.FoldState>.FoldStepSetup<A>(
         K<Map<Key>, A> ta,
         ref Map.FoldState refState) =>
-        Map.FoldState.Push(ref refState, ta.As().Value.Root);
+        Map.FoldState.Setup(ref refState, ta.As().Value.Root);
 
     static void Foldable<Map<Key>, Map.FoldState>.FoldStepBackSetup<A>(
         K<Map<Key>, A> ta, 
         ref Map.FoldState refState) =>
-        Map.FoldState.Push(ref refState, ta.As().Value.Root);
+        Map.FoldState.Setup(ref refState, ta.As().Value.Root);
 
     static bool Foldable<Map<Key>, Map.FoldState>.FoldStep<A>(
         K<Map<Key>, A> ta, 

@@ -133,7 +133,7 @@ public partial class Lst :
         Iterable.createRange (ta.As());
 
     static void Foldable<Lst, FoldState>.FoldStepSetup<A>(K<Lst, A> ta, ref FoldState refState) => 
-        FoldState.Init(ref refState, ta.As().Value.Root);
+        FoldState.Setup(ref refState, ta.As().Value.Root);
 
     static bool Foldable<Lst, FoldState>.FoldStep<A>(K<Lst, A> ta, ref FoldState refState, out A value)
     {
@@ -150,7 +150,7 @@ public partial class Lst :
     }
 
     static void Foldable<Lst, FoldState>.FoldStepBackSetup<A>(K<Lst, A> ta, ref FoldState refState) => 
-        FoldState.Init(ref refState, ta.As().Value.Root);
+        FoldState.Setup(ref refState, ta.As().Value.Root);
 
     static bool Foldable<Lst, FoldState>.FoldStepBack<A>(K<Lst, A> ta, ref FoldState refState, out A value) 
     {

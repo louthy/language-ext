@@ -49,6 +49,10 @@ public partial class Map
 
         const ulong FlagMask = 3;
         const int StackDepth = 32;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void Setup<K, V>(ref FoldState state, MapItem<K, V> root) => 
+            Push(ref state, root);
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Push<K, V>(ref FoldState state, MapItem<K, V> item)
@@ -95,10 +99,6 @@ public partial class Map
             var span = MemoryMarshal.CreateSpan(ref state.NodeStack0, StackDepth);
             item = span[top] as MapItem<K, V> ?? throw new InvalidOperationException("Invalid map item type");
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void Init<K, V>(ref FoldState state, MapItem<K, V> root) => 
-            Push(ref state, root);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool Step<K, V>(ref FoldState state, out MapItem<K, V> node)

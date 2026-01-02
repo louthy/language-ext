@@ -49,6 +49,10 @@ public partial class Lst
 
         const ulong FlagMask = 3;
         const int StackDepth = 32;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void Setup<A>(ref FoldState state, ListItem<A> root) => 
+            Push(ref state, root);
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Push<A>(ref FoldState state, ListItem<A> item)
@@ -95,10 +99,6 @@ public partial class Lst
             var span = MemoryMarshal.CreateSpan(ref state.NodeStack0, StackDepth);
             item = span[top] as ListItem<A> ?? throw new InvalidOperationException("Invalid list item type");
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void Init<A>(ref FoldState state, ListItem<A> root) => 
-            Push(ref state, root);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool Step<A>(ref FoldState state, out ListItem<A> node)
