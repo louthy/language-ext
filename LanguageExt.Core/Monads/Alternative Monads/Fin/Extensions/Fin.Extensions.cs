@@ -98,14 +98,14 @@ public static partial class FinExtensions
         /// <returns>A pair containing the sequences of partitioned values</returns>
         [Pure]
         public (Seq<Error> Fails, Seq<A> Succs) Partition() =>
-            self.Fold((Fail: Seq<Error>.Empty, Succ: Seq<A>.Empty),
-                      (s, ma) =>
+            self.Fold((s, ma) =>
                           ma switch
                           {
                               Fin<A>.Succ (var r) => (s.Fail, s.Succ.Add(r)),
                               Fin<A>.Fail (var l) => (s.Fail.Add(l), s.Succ),
                               _                   => throw new NSE()
-                          });
+                          },
+                      (Fail: Seq<Error>.Empty, Succ: Seq<A>.Empty));
 
         /// <summary>
         /// Partitions a foldable of `Fin` into two lists and returns the `Fail` items only.
@@ -113,13 +113,13 @@ public static partial class FinExtensions
         /// <returns>A sequence of partitioned items</returns>
         [Pure]
         public Seq<Error> Fails() =>
-            self.Fold(Seq<Error>.Empty,
-                      (s, ma) =>
+            self.Fold((s, ma) =>
                           ma switch
                           {
                               Fin<A>.Fail (var l) => s.Add(l),
                               _                   => throw new NSE()
-                          });
+                          },
+                      Seq<Error>.Empty);
 
         /// <summary>
         /// Partitions a foldable of `Fin` into two lists and returns the `Succ` items only.
@@ -127,12 +127,12 @@ public static partial class FinExtensions
         /// <returns>A sequence of partitioned items</returns>
         [Pure]
         public Seq<A> Succs() =>
-            self.Fold(Seq<A>.Empty,
-                      (s, ma) =>
+            self.Fold((s, ma) =>
                           ma switch
                           {
                               Fin<A>.Succ (var r) => s.Add(r),
                               _                   => throw new NSE()
-                          });
+                          },
+                      Seq<A>.Empty);
     }
 }

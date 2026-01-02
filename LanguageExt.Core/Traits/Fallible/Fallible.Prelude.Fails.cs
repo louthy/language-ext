@@ -19,10 +19,7 @@ public static partial class Prelude
         K<F, K<M, A>> fma)
         where M : Monad<M>, Fallible<M>
         where F : Foldable<F> =>
-        fma.Fold(M.Pure(LanguageExt.Seq.empty<Error>()),
-                 ma => ms => ms.Bind(
-                           s => ma.Bind(_ => M.Pure(s))
-                                  .Catch(e => M.Pure(s.Add(e)))));
+        fma.Fails();
     
     /// <summary>
     /// Partitions a collection of effects into successes and failures,

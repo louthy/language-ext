@@ -18,7 +18,7 @@ public partial class Arr
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FoldState(ref object span, int index, int length)
         {
-            Span = span;
+            Span = ref span;
             Index = index;
             Length = length;
         }

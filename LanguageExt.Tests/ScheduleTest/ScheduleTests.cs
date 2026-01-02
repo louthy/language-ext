@@ -242,11 +242,12 @@ public sealed class ScheduleTests
 
     [Pure]
     static Seq<DateTime> FromDurations(Seq<Duration> durations) =>
-        durations.Fold(Seq(DateTime.Now), (times, duration) =>
-                                           {
-                                               var last = times.Head;
-                                               return times.Add(last.ValueUnsafe() + (TimeSpan)duration);
-                                           });
+        durations.Fold((times, duration) =>
+                       {
+                           var last = times.Head;
+                           return times.Add(last.ValueUnsafe() + (TimeSpan)duration);
+                       },
+                       Seq(DateTime.Now));
 
     [Pure]
     static Func<DateTime> FromDates(Seq<DateTime> dates) =>

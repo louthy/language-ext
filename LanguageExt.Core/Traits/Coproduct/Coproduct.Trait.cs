@@ -97,8 +97,8 @@ public interface Coproduct<F> : CoproductCons<F>
     /// <typeparam name="B">Right value type</typeparam>
     /// <returns>Either the left value or provided `Right` value</returns>
     public static virtual A IfRight<A, B>(A Right, K<F, A, B> fab) => 
-        F.Match(identity, _ => Right, fab);    
-    
+        F.Match(identity, _ => Right, fab);
+
     /// <summary>
     /// Partition the foldable of coproducts into two left and right sequences.
     /// </summary>
@@ -107,9 +107,9 @@ public interface Coproduct<F> : CoproductCons<F>
     /// <returns>Two left and right sequences</returns>
     public static virtual (Seq<A> Lefts, Seq<B> Rights) Partition<FF, A, B>(K<FF, K<F, A, B>> fabs)
         where FF : Foldable<FF> =>
-        fabs.Fold((Lefts: Seq<A>(), Rights: Seq<B>()), 
-                  (s, fab) => fab.Match(Left: l => s with { Lefts = s.Lefts.Add(l) },
-                                        Right: r => s with { Rights = s.Rights.Add(r) }));
+        fabs.Fold((s, fab) => fab.Match(Left: l => s with { Lefts = s.Lefts.Add(l) },
+                                        Right: r => s with { Rights = s.Rights.Add(r) }),
+                  (Lefts: Seq<A>(), Rights: Seq<B>()));
     
     /// <summary>
     /// Partition the foldable of coproducts into two left and right sequences, then return the left sequence.
@@ -119,7 +119,7 @@ public interface Coproduct<F> : CoproductCons<F>
     /// <returns>Left sequence</returns>
     public static virtual Seq<A> Lefts<G, A, B>(K<G, K<F, A, B>> fabs)
         where G : Foldable<G> =>
-        fabs.Fold(Seq<A>(), (s, fab) => fab.Match(Left: s.Add, Right: s));
+        fabs.Fold((s, fab) => fab.Match(Left: s.Add, Right: s), Seq<A>());
     
     /// <summary>
     /// Partition the foldable of coproducts into two left and right sequences, then return the right sequence.
@@ -129,5 +129,5 @@ public interface Coproduct<F> : CoproductCons<F>
     /// <returns>Right sequence</returns>
     public static virtual Seq<B> Rights<G, A, B>(K<G, K<F, A, B>> fabs)
         where G : Foldable<G> =>
-        fabs.Fold(Seq<B>(), (s, fab) => fab.Match(Left: s, Right: s.Add));
+        fabs.Fold((s, fab) => fab.Match(Left: s, Right: s.Add), Seq<B>());
 }

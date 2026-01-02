@@ -98,34 +98,6 @@ public partial class Set :
     static bool Foldable<Set>.IsEmpty<A>(K<Set, A> ta) =>
         ta.As().IsEmpty;
 
-    static S Foldable<Set>.FoldWhile<A, S>(
-        Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S state,
-        K<Set, A> ta)
-    {
-        foreach (var x in ta.As())
-        {
-            if (!predicate((state, x))) return state;
-            state = f(x)(state);
-        }
-        return state;
-    }
-    
-    static S Foldable<Set>.FoldBackWhile<A, S>(
-        Func<S, Func<A, S>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S state, 
-        K<Set, A> ta)
-    {
-        foreach (var x in ta.As().Reverse())
-        {
-            if (!predicate((state, x))) return state;
-            state = f(state)(x);
-        }
-        return state;
-    }    
-
     static K<F, K<Set, B>> Traversable<Set>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Set, A> ta) 
     {
         return F.Map<Set<B>, K<Set, B>>(
@@ -158,9 +130,9 @@ public partial class Set :
     static Option<A> Foldable<Set>.Max<A>(K<Set, A> ta) =>
         ta.As().Max;
     
-    static Fold<A, S> Foldable<Set>.FoldStep<A, S>(K<Set, A> ta, S initialState) =>
+    static Fold<A, S> Foldable<Set>.FoldStep<A, S>(K<Set, A> ta, in S initialState) =>
         ta.As().FoldStep(initialState);
         
-    static Fold<A, S> Foldable<Set>.FoldStepBack<A, S>(K<Set, A> ta, S initialState) =>
+    static Fold<A, S> Foldable<Set>.FoldStepBack<A, S>(K<Set, A> ta, in S initialState) =>
         ta.As().FoldStepBack(initialState);
 }

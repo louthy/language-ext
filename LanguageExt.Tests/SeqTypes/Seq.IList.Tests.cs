@@ -176,8 +176,8 @@ namespace LanguageExt.Tests
         {
             var seq = toSeq(new List<int>() { 1, 2, 3, 4, 5 });
 
-            var res1 = seq.Fold(1, (s, x) => s * x);
-            var res2 = seq.FoldBack(1, (s, x) => s * x);
+            var res1 = seq.Fold((s, x) => s * x, 1);
+            var res2 = seq.FoldBack((s, x) => s * x, 1);
 
             Assert.True(res1 == 120);
             Assert.True(res2 == 120);
@@ -186,10 +186,10 @@ namespace LanguageExt.Tests
         [Fact]
         public void FoldTest2()
         {
-            var seq = toSeq(new List<string>() { "a", "b", "c", "d", "e" });
+            var seq = toSeq(new List<string> { "a", "b", "c", "d", "e" });
 
-            var res1 = seq.Fold("", (s, x) => s + x);
-            var res2 = seq.FoldBack("", (s, x) => s + x);
+            var res1 = seq.Fold((s, x) => s     + x, "");
+            var res2 = seq.FoldBack((s, x) => s + x, "");
 
             Assert.True(res1 == "abcde");
             Assert.True(res2 == "edcba");
@@ -204,8 +204,8 @@ namespace LanguageExt.Tests
             var ex1 = Seq.Exists(x => x == 'd');
             var ex2 = seq2.Exists(x => x == 'd');
 
-            var fa1 = Seq.ForAll(Char.IsLetter);
-            var fa2 = seq2.ForAll(Char.IsLetter);
+            var fa1 = Seq.ForAll(char.IsLetter);
+            var fa2 = seq2.ForAll(char.IsLetter);
 
             Assert.True(ex1);
             Assert.False(ex2);

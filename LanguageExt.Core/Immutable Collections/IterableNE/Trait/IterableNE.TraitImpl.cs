@@ -39,20 +39,6 @@ public partial class IterableNE :
     static K<IterableNE, A> SemigroupK<IterableNE>.Combine<A>(K<IterableNE, A> ma, K<IterableNE, A> mb) =>
         ma.As().Concat(mb.As());
     
-    static S Foldable<IterableNE>.FoldWhile<A, S>(
-        Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S state,
-        K<IterableNE, A> ta) =>
-        ta.As().FoldWhile(f, predicate, state);
-    
-    static S Foldable<IterableNE>.FoldBackWhile<A, S>(
-        Func<S, Func<A, S>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S state, 
-        K<IterableNE, A> ta) =>
-        throw new NotSupportedException("FoldBack* is currently not supported for IterableNE");
-    
     static Arr<A> Foldable<IterableNE>.ToArr<A>(K<IterableNE, A> ta) =>
         new(ta.As());
 
@@ -83,7 +69,7 @@ public partial class IterableNE :
     static K<HashSet, A> Natural<IterableNE, HashSet>.Transform<A>(K<IterableNE, A> fa) => 
         toHashSet(fa.As());
     
-    static Fold<A, S> Foldable<IterableNE>.FoldStep<A, S>(K<IterableNE, A> ta, S initialState)
+    static Fold<A, S> Foldable<IterableNE>.FoldStep<A, S>(K<IterableNE, A> ta, in S initialState)
     {
         // ReSharper disable once GenericEnumeratorNotDisposed
         var iter = ta.As().GetEnumerator();
@@ -94,7 +80,7 @@ public partial class IterableNE :
                 : Fold.Done<A, S>(state);
     }   
         
-    static Fold<A, S> Foldable<IterableNE>.FoldStepBack<A, S>(K<IterableNE, A> ta, S initialState)
+    static Fold<A, S> Foldable<IterableNE>.FoldStepBack<A, S>(K<IterableNE, A> ta, in S initialState)
     {
         // ReSharper disable once GenericEnumeratorNotDisposed
         var iter = ta.As().Reverse().GetEnumerator();

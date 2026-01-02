@@ -81,8 +81,7 @@ public partial class Iterator :
         return Foldable.foldBack(add, F.Pure(Iterator<B>.Empty), ta)
                        .Map(bs => bs.Kind());
 
-        Func<A, K<F, Iterator<B>>> add(K<F, Iterator<B>> state) =>
-            value =>
+        K<F, Iterator<B>> add(K<F, Iterator<B>> state, A value) =>
               Applicative.lift((bs, b) => b.Cons(bs), state, f(value));                                            
     }
 
@@ -91,26 +90,9 @@ public partial class Iterator :
         return Foldable.foldBack(add, F.Pure(Iterator<B>.Empty), ta)
                        .Map(bs => bs.Kind());
 
-        Func<A, K<F, Iterator<B>>> add(K<F, Iterator<B>> state) =>
-            value =>
-                state.Bind(
-                    bs => f(value).Bind(
-                        b => F.Pure(b.Cons(bs)))); 
+        K<F, Iterator<B>> add(K<F, Iterator<B>> state, A value) =>
+            state.Bind(bs => f(value).Bind(b => F.Pure(b.Cons(bs)))); 
     }
-
-    static S Foldable<Iterator>.FoldWhile<A, S>(
-        Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S state,
-        K<Iterator, A> ta) =>
-        ta.As().FoldWhile(state, f, predicate);
-    
-    static S Foldable<Iterator>.FoldBackWhile<A, S>(
-        Func<S, Func<A, S>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S state, 
-        K<Iterator, A> ta) =>
-        ta.As().FoldBackWhile(state, f, predicate);
     
     static Arr<A> Foldable<Iterator>.ToArr<A>(K<Iterator, A> ta) =>
         new(ta.As());
@@ -142,7 +124,7 @@ public partial class Iterator :
     static K<Iterable, A> Natural<Iterator, Iterable>.Transform<A>(K<Iterator, A> fa) => 
         Iterable.createRange(fa.As());
     
-    static Fold<A, S> Foldable<Iterator>.FoldStep<A, S>(K<Iterator, A> ta, S initialState)
+    static Fold<A, S> Foldable<Iterator>.FoldStep<A, S>(K<Iterator, A> ta, in S initialState)
     {
         // ReSharper disable once GenericEnumeratorNotDisposed
         var iter = ta.As().GetEnumerator();
@@ -153,7 +135,7 @@ public partial class Iterator :
                 : Fold.Done<A, S>(state);
     }   
         
-    static Fold<A, S> Foldable<Iterator>.FoldStepBack<A, S>(K<Iterator, A> ta, S initialState)
+    static Fold<A, S> Foldable<Iterator>.FoldStepBack<A, S>(K<Iterator, A> ta, in S initialState)
     {
         // ReSharper disable once GenericEnumeratorNotDisposed
         var iter = ta.As().Reverse().GetEnumerator();

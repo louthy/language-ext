@@ -6,11 +6,12 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public class Lst : 
+public partial class Lst : 
     Monad<Lst>, 
     MonoidK<Lst>,
     Alternative<Lst>, 
-    Traversable<Lst>
+    Traversable<Lst>,
+    Foldable<Lst, Lst.FoldState>
 {
     static K<Lst, B> Monad<Lst>.Recur<A, B>(A value, Func<A, K<Lst, Next<A, B>>> f) =>
         List.createRange(Monad.enumerableRecur(value, x =>f(x).As().AsEnumerable()));
@@ -95,9 +96,8 @@ public class Lst :
         return Foldable.fold(add, F.Pure(Lst<B>.Empty), ta)
                        .Map(bs => bs.Kind());
 
-        Func<K<F, Lst<B>>, K<F, Lst<B>>> add(A value) =>
-            state =>
-                Applicative.lift((bs, b) => bs.Add(b), state, f(value));                                            
+        K<F, Lst<B>> add(K<F, Lst<B>> state, A value) =>
+            Applicative.lift((bs, b) => bs.Add(b), state, f(value));                                            
     }
 
     static K<F, K<Lst, B>> Traversable<Lst>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Lst, A> ta) 
@@ -105,11 +105,8 @@ public class Lst :
         return Foldable.fold(add, F.Pure(Lst<B>.Empty), ta)
                        .Map(bs => bs.Kind());
 
-        Func<K<F, Lst<B>>, K<F, Lst<B>>> add(A value) =>
-            state =>
-                state.Bind(
-                    bs => f(value).Bind(
-                        b => F.Pure(bs.Add(b)))); 
+        K<F, Lst<B>> add(K<F, Lst<B>> state, A value) =>
+            state.Bind(bs => f(value).Bind(b => F.Pure(bs.Add(b)))); 
     }    
 
     static int Foldable<Lst>.Count<A>(K<Lst, A> ta) =>
@@ -118,7 +115,7 @@ public class Lst :
     static bool Foldable<Lst>.IsEmpty<A>(K<Lst, A> ta) =>
         ta.As().IsEmpty;
 
-    static Option<A> Foldable<Lst>.At<A>(K<Lst, A> ta, Index index)
+    static Option<A> Foldable<Lst>.At<A>(Index index, K<Lst, A> ta)
     {
         var list = ta.As().Value;
         return index.Value >= 0 && index.Value < list.Count
@@ -134,13 +131,47 @@ public class Lst :
 
     static Iterable<A> Foldable<Lst>.ToIterable<A>(K<Lst, A> ta) =>
         Iterable.createRange (ta.As());
-    
+
+    static void Foldable<Lst, FoldState>.FoldStepSetup<A>(K<Lst, A> ta, ref FoldState refState) => 
+        FoldState.Init(ref refState, ta.As().Value.Root);
+
+    static bool Foldable<Lst, FoldState>.FoldStep<A>(K<Lst, A> ta, ref FoldState refState, out A value)
+    {
+        if (FoldState.Step<A>(ref refState, out var item))
+        {
+            value = item.Key;
+            return true;
+        }
+        else
+        {
+            value = default!;
+            return false;
+        }
+    }
+
+    static void Foldable<Lst, FoldState>.FoldStepBackSetup<A>(K<Lst, A> ta, ref FoldState refState) => 
+        FoldState.Init(ref refState, ta.As().Value.Root);
+
+    static bool Foldable<Lst, FoldState>.FoldStepBack<A>(K<Lst, A> ta, ref FoldState refState, out A value) 
+    {
+        if (FoldState.StepBack<A>(ref refState, out var item))
+        {
+            value = item.Key;
+            return true;
+        }
+        else
+        {
+            value = default!;
+            return false;
+        }
+    }
+
     static Seq<A> Foldable<Lst>.ToSeq<A>(K<Lst, A> ta) =>
         new (ta.As());
     
-    static Fold<A, S> Foldable<Lst>.FoldStep<A, S>(K<Lst, A> ta, S initialState) =>
+    static Fold<A, S> Foldable<Lst>.FoldStep<A, S>(K<Lst, A> ta, in S initialState) =>
         ta.As().FoldStep(initialState);
     
-    static Fold<A, S> Foldable<Lst>.FoldStepBack<A, S>(K<Lst, A> ta, S initialState) =>
+    static Fold<A, S> Foldable<Lst>.FoldStepBack<A, S>(K<Lst, A> ta, in S initialState) =>
         ta.As().FoldStepBack(initialState);
 }

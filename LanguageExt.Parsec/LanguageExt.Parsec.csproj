@@ -46,9 +46,6 @@
         <None Remove="obj\**" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="System.ValueTuple" Version="[4.5.0,)" />
-    </ItemGroup>
-    <ItemGroup>
         <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
         <ProjectReference Include="..\LanguageExt.Streaming\LanguageExt.Streaming.csproj" />
     </ItemGroup>

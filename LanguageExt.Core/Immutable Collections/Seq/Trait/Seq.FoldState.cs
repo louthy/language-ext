@@ -19,17 +19,17 @@ public partial class Seq
 
         public FoldState(ref object span, int index, int length, IEnumerator? @enum)
         {
-            Span = span;
+            Span = ref span;
             Index = index;
             Length = length;
             Enum = @enum;
         }
 
         public static void FromSpan<A>(ref FoldState state, ReadOnlySpan<A> span) =>
-            state = new FoldState(ref state.Span, -1, span.Length, null);
+            state = new FoldState(ref Unsafe.As<A, object>(ref MemoryMarshal.GetReference(span)), -1, span.Length, null);
 
         public static void FromSpanBack<A>(ref FoldState state, ReadOnlySpan<A> span) =>
-            state = new FoldState(ref state.Span, span.Length, span.Length, null);
+            state = new FoldState(ref Unsafe.As<A, object>(ref MemoryMarshal.GetReference(span)), span.Length, span.Length, null);
 
         public static void FromEnumerator(ref FoldState state, IEnumerator @enum) =>
             state = new FoldState(ref Unsafe.NullRef<object>(), 0, -1, @enum);

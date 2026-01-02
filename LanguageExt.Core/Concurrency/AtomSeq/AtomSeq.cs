@@ -26,7 +26,8 @@ public class AtomSeq<A> :
     IComparable<Seq<A>>, 
     IEquatable<Seq<A>>,
     IEnumerable<A>,
-    IComparable
+    IComparable,
+    K<AtomSeq, A>
 {
     /// <summary>
     /// Empty sequence
@@ -679,16 +680,6 @@ public class AtomSeq<A> :
     }
 
     /// <summary>
-    /// Impure iteration of the bound values in the structure
-    /// </summary>
-    /// <returns>
-    /// Returns the original unmodified structure
-    /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Unit Iter(Action<A> f) =>
-        items.Iter(f);
-
-    /// <summary>
     /// Map the sequence using the function provided
     /// </summary>
     /// <typeparam name="B"></typeparam>
@@ -878,58 +869,6 @@ public class AtomSeq<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<A> Where(Func<A, bool> f) =>
         Filter(f);
-
-    /// <summary>
-    /// Fold the sequence from the first item to the last
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="f">Fold function</param>
-    /// <returns>Aggregated state</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public S Fold<S>(S state, Func<S, A, S> f) =>
-        items.Fold(state, f);
-
-    /// <summary>
-    /// Fold the sequence from the last item to the first.  For 
-    /// sequences that are not lazy and are less than 5000 items
-    /// long, FoldBackRec is called instead, because it is faster.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="f">Fold function</param>
-    /// <returns>Aggregated state</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public S FoldBack<S>(S state, Func<S, A, S> f) =>
-        items.FoldBack(state, f);
-
-    /// <summary>
-    /// Returns true if the supplied predicate returns true for any
-    /// item in the sequence.  False otherwise.
-    /// </summary>
-    /// <param name="f">Predicate to apply</param>
-    /// <returns>True if the supplied predicate returns true for any
-    /// item in the sequence.  False otherwise.</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Exists(Func<A, bool> f) =>
-        items.Exists(f);
-
-    /// <summary>
-    /// Returns true if the supplied predicate returns true for all
-    /// items in the sequence.  False otherwise.  If there is an 
-    /// empty sequence then true is returned.
-    /// </summary>
-    /// <param name="f">Predicate to apply</param>
-    /// <returns>True if the supplied predicate returns true for all
-    /// items in the sequence.  False otherwise.  If there is an 
-    /// empty sequence then true is returned.</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool ForAll(Func<A, bool> f) =>
-        items.ForAll(f);
 
     /// <summary>
     /// Returns true if the sequence has items in it
@@ -1425,94 +1364,4 @@ public class AtomSeq<A> :
     [Pure]
     public Seq<B> Cast<B>() =>
         ToSeq().Cast<B>();
-}
-
-public static class AtomSeqExtensions
-{
-    /// <summary>
-    /// Last item in sequence.
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Validation<F, A> LastOrInvalid<F, A>(this AtomSeq<A> ma, F Fail)
-        where F : Monoid<F>
-    {
-        var xs = ma.ToSeq();
-        return xs.IsEmpty
-                   ? Validation.Fail<F, A>(Fail)
-                   : Validation.Success<F, A>((A)xs.Last);
-    }
-
-    /// <summary>
-    /// Head of the sequence if this node isn't the empty node or fail
-    /// </summary>
-    /// <returns>Head of the sequence or fail</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Validation<F, A> HeadOrInvalid<F, A>(this AtomSeq<A> ma, F Fail)
-        where F : Monoid<F>
-    {
-        var xs = ma.ToSeq();
-        return xs.IsEmpty
-                   ? Validation.Fail<F, A>(Fail)
-                   : Pure((A)xs.Head);
-    }
-    
-    /// <summary>
-    /// Last item in sequence.
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Validation<F, A> LastOrInvalid<F, A>(this AtomSeq<A> ma, Func<F> Fail)
-        where F : Monoid<F>
-    {
-        var xs = ma.ToSeq();
-        return xs.IsEmpty
-                   ? Validation.Fail<F, A>(Fail())
-                   : Pure((A)xs.Last);
-    }
-
-    /// <summary>
-    /// Head of the sequence if this node isn't the empty node or fail
-    /// </summary>
-    /// <returns>Head of the sequence or fail</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Validation<F, A> HeadOrInvalid<F, A>(this AtomSeq<A> ma, Func<F> Fail)
-        where F : Monoid<F>
-    {
-        var xs = ma.ToSeq();
-        return xs.IsEmpty
-                   ? Validation.Fail<F, A>(Fail())
-                   : Pure((A)xs.Head);
-    }
-    
-    /// <summary>
-    /// Last item in sequence.
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Validation<F, A> LastOrInvalid<F, A>(this AtomSeq<A> ma)
-        where F : Monoid<F>
-    {
-        var xs = ma.ToSeq();
-        return xs.IsEmpty
-                   ? Fail(F.Empty)
-                   : Pure((A)xs.Last);
-    }
-
-    /// <summary>
-    /// Head of the sequence if this node isn't the empty node or fail
-    /// </summary>
-    /// <returns>Head of the sequence or fail</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Validation<F, A> HeadOrInvalid<F, A>(this AtomSeq<A> ma)
-        where F : Monoid<F>
-    {
-        var xs = ma.ToSeq();
-        return xs.IsEmpty
-                   ? Fail(F.Empty)
-                   : Pure((A)xs.Head);
-    }
 }

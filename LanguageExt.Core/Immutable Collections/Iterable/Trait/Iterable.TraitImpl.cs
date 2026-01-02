@@ -56,20 +56,6 @@ public partial class Iterable :
 
     static K<F, K<Iterable, B>> Traversable<Iterable>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Iterable, A> ta) => 
         ta.As().TraverseM(f).Map(mb => mb.Kind());
-
-    static S Foldable<Iterable>.FoldWhile<A, S>(
-        Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S state,
-        K<Iterable, A> ta) =>
-        ta.As().FoldWhile(f, predicate, state);
-    
-    static S Foldable<Iterable>.FoldBackWhile<A, S>(
-        Func<S, Func<A, S>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S state, 
-        K<Iterable, A> ta) =>
-        ta.As().Reverse().FoldWhile((a, s) => f(a)(s), predicate, state);
     
     static Arr<A> Foldable<Iterable>.ToArr<A>(K<Iterable, A> ta) =>
         new(ta.As());
@@ -104,7 +90,7 @@ public partial class Iterable :
     static K<Iterable, A> CoNatural<Iterable, Iterable>.CoTransform<A>(K<Iterable, A> fa) => 
         fa;
         
-    static Fold<A, S> Foldable<Iterable>.FoldStep<A, S>(K<Iterable, A> ta, S initialState)
+    static Fold<A, S> Foldable<Iterable>.FoldStep<A, S>(K<Iterable, A> ta, in S initialState)
     {
         // ReSharper disable once GenericEnumeratorNotDisposed
         var iter = ta.As().GetEnumerator();
@@ -115,7 +101,7 @@ public partial class Iterable :
                 : Fold.Done<A, S>(state);
     }
         
-    static Fold<A, S> Foldable<Iterable>.FoldStepBack<A, S>(K<Iterable, A> ta, S initialState)
+    static Fold<A, S> Foldable<Iterable>.FoldStepBack<A, S>(K<Iterable, A> ta, in S initialState)
     {
         // ReSharper disable once GenericEnumeratorNotDisposed
         var iter = ta.As().Reverse().GetEnumerator();

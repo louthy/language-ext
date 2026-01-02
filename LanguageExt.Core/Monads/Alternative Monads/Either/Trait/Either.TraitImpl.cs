@@ -67,28 +67,6 @@ public class Either<L> :
             _                          => throw new NotSupportedException()
         };
 
-    static S Foldable<Either<L>>.FoldWhile<A, S>(
-        Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S state,
-        K<Either<L>, A> ta) =>
-        ta switch
-        {
-            Either<L, A>.Right (var r) => predicate((state, r)) ? f(r)(state) : state,
-            _                          => state
-        };
-
-    static S Foldable<Either<L>>.FoldBackWhile<A, S>(
-        Func<S, Func<A, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S state,
-        K<Either<L>, A> ta) =>
-        ta switch
-        {
-            Either<L, A>.Right (var r) => predicate((state, r)) ? f(state)(r) : state,
-            _                          => state
-        };
-
     static K<Either<L>, B> Functor<Either<L>>.Map<A, B>(Func<A, B> f, K<Either<L>, A> ma) =>
         ma switch
         {
@@ -124,7 +102,7 @@ public class Either<L> :
             _                          => Option<A>.None
         };
     
-    static Fold<A, S> Foldable<Either<L>>.FoldStep<A, S>(K<Either<L>, A> ta, S initialState)
+    static Fold<A, S> Foldable<Either<L>>.FoldStep<A, S>(K<Either<L>, A> ta, in S initialState)
     {
         var ma = ta.As();
         return ma.IsRight
@@ -132,6 +110,6 @@ public class Either<L> :
                    : Fold.Done<A, S>(initialState);
     }    
         
-    static Fold<A, S> Foldable<Either<L>>.FoldStepBack<A, S>(K<Either<L>, A> ta, S initialState) =>
+    static Fold<A, S> Foldable<Either<L>>.FoldStepBack<A, S>(K<Either<L>, A> ta, in S initialState) =>
         ta.FoldStep(initialState);
 }

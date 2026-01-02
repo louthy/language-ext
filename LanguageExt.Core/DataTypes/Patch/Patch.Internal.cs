@@ -40,7 +40,7 @@ internal static class PatchInternal
     static A minimumBy<A>(Func<A, A, int> compare, Lst<A> list) =>
         list.Count == 0
             ? throw new Exception("List is empty")
-            : list.Fold(list[0], (x, y) => compare(x, y) > 0 ? y : x);
+            : list.Fold((x, y) => compare(x, y) > 0 ? y : x, list[0]);
 
     static SpanArray<A> constructN<A>(int n, Func<SpanArray<A>, A> f)
     {

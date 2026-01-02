@@ -1,3 +1,4 @@
+using System;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -26,7 +27,9 @@ record FoldablePureSourceT<F, M, A>(K<F, A> Items) : SourceT<M, A>
                                              reducer(s, M.Pure(a)) *
                                              (ns => ns.Continue
                                                         ? next(n(ns.Value))
-                                                        : reduced(ns))
+                                                        : reduced(ns)),
+                                         
+                                         _ => throw new NotSupportedException()
                                      });
 
         K<M, Next<Fold<A, S>, Reduced<S>>> done(S state) =>

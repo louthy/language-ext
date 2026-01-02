@@ -18,10 +18,7 @@ public static partial class FallibleExtensionsE
         K<F, K<M, A>> fma)
         where M : Monad<M>, Fallible<E, M>
         where F : Foldable<F> =>
-        fma.Fold(M.Pure(Seq.empty<A>()),
-                 ma => ms => ms.Bind(
-                           s => ma.Bind(a => M.Pure(s.Add(a)))
-                                  .Catch((E _) => M.Pure(s))));
+        fma.Succs<E, F, M, A>();
     
     /// <summary>
     /// Partitions a collection of effects into successes and failures,

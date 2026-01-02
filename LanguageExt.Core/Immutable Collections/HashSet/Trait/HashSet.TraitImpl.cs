@@ -125,7 +125,7 @@ public partial class HashSet :
             fys.Bind(ys => f(x).Map(ys.Add));
     }
     
-    static Fold<A, S> Foldable<HashSet>.FoldStep<A, S>(K<HashSet, A> ta, S initialState)
+    static Fold<A, S> Foldable<HashSet>.FoldStep<A, S>(K<HashSet, A> ta, in S initialState)
     {
         // ReSharper disable once GenericEnumeratorNotDisposed
         var iter = ta.As().GetEnumerator();
@@ -136,7 +136,7 @@ public partial class HashSet :
                 : Fold.Done<A, S>(state);
     }
 
-    static Fold<A, S> Foldable<HashSet>.FoldStepBack<A, S>(K<HashSet, A> ta, S initialState) =>
+    static Fold<A, S> Foldable<HashSet>.FoldStepBack<A, S>(K<HashSet, A> ta, in S initialState) =>
         // Order is undefined in a HashSet, so reversing the order makes no sense,
         // so let's take the most efficient option:
         ta.FoldStep(initialState);

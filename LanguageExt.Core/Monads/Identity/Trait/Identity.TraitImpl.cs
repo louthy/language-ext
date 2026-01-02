@@ -3,12 +3,10 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-/// <summary>
-/// Identity trait implementation
-/// </summary>
 public partial class Identity : 
     Monad<Identity>, 
-    Traversable<Identity>
+    Traversable<Identity>,
+    Foldable<Identity, Identity.FoldState>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -44,33 +42,11 @@ public partial class Identity :
     //
     //  Foldable
     //
-
-    static S Foldable<Identity>.FoldWhile<A, S>(
-        Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S initialState,
-        K<Identity, A> ta)
-    {
-        var id = ta.As();
-        if (!predicate((initialState, id.Value))) return initialState;
-        return f(id.Value)(initialState);
-    }
     
-    static S Foldable<Identity>.FoldBackWhile<A, S>(
-        Func<S, Func<A, S>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S initialState, 
-        K<Identity, A> ta)
-    {
-        var id = ta.As();
-        if (!predicate((initialState, id.Value))) return initialState;
-        return f(initialState)(id.Value);
-    }
-    
-    static Fold<A, S> Foldable<Identity>.FoldStep<A, S>(K<Identity, A> ta, S initialState) =>
+    static Fold<A, S> Foldable<Identity>.FoldStep<A, S>(K<Identity, A> ta, in S initialState) =>
         Fold.Loop(initialState, ta.As().Value, Fold.Done<A, S>);
         
-    static Fold<A, S> Foldable<Identity>.FoldStepBack<A, S>(K<Identity, A> ta, S initialState) =>
+    static Fold<A, S> Foldable<Identity>.FoldStepBack<A, S>(K<Identity, A> ta, in S initialState) =>
         ta.FoldStep(initialState);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,4 +56,40 @@ public partial class Identity :
     
     static K<F, K<Identity, B>> Traversable<Identity>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Identity, A> ta) =>
         F.Map(PureK, f(ta.As().Value));
+
+    static void Foldable<Identity, FoldState>.FoldStepSetup<A>(K<Identity, A> ta, ref FoldState refState) =>
+        refState = new FoldState(false);
+
+    static bool Foldable<Identity, FoldState>.FoldStep<A>(K<Identity, A> ta, ref FoldState refState, out A value)
+    {
+        if (refState.HasRun)
+        {
+            value = default!;
+            return false;
+        }
+        else
+        {
+            value = ta.As().Value;
+            refState = new FoldState(true);
+            return true;
+        }
+    }
+
+    static void Foldable<Identity, FoldState>.FoldStepBackSetup<A>(K<Identity, A> ta, ref FoldState refState) =>
+        refState = new FoldState(false);
+
+    static bool Foldable<Identity, FoldState>.FoldStepBack<A>(K<Identity, A> ta, ref FoldState refState, out A value)
+    {
+        if (refState.HasRun)
+        {
+            value = default!;
+            return false;
+        }
+        else
+        {
+            value = ta.As().Value;
+            refState = new FoldState(true);
+            return true;
+        }
+    }
 }

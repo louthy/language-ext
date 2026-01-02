@@ -83,7 +83,7 @@ public record VectorClock<A>(Seq<(A, long)> Entries)
     /// Insert each entry in the list one at a time.
     /// </summary>
     public static VectorClock<A> fromList(Seq<(A x, long y)> list) =>
-        list.Fold(Empty, (vc, pair) => vc.Insert(pair.x, pair.y));
+        list.Fold((vc, pair) => vc.Insert(pair.x, pair.y), Empty);
 
     /// <summary>
     /// All the entries in the vector clock.  Note that this is /not/ the inverse of 'fromList'

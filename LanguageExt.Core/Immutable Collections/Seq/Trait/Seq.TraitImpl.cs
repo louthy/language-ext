@@ -126,13 +126,13 @@ public partial class Seq :
     static K<Seq, A> SemigroupK<Seq>.Combine<A>(K<Seq, A> ma, K<Seq, A> mb) =>
         ma.As() + mb.As();
 
-    static int Foldable<Seq>.Count<TA, A>(in TA ta) =>
+    static int Foldable<Seq>.Count<A>(K<Seq, A> ta) =>
         ta.As().Count;
 
-    static void Foldable<Seq, FoldState>.FoldStepInit<TA, A>(in TA ta, ref FoldState refState) => 
+    static void Foldable<Seq, FoldState>.FoldStepSetup<A>(K<Seq, A> ta, ref FoldState refState) => 
         ta.As().InitFoldState(ref refState);
 
-    static bool Foldable<Seq, FoldState>.FoldStep<TA, A>(in TA ta, ref FoldState refState, out A value)
+    static bool Foldable<Seq, FoldState>.FoldStep<A>(K<Seq, A> ta, ref FoldState refState, out A value)
     {
         if (FoldState.MoveNext<A>(ref refState, out var v))
         {
@@ -146,10 +146,10 @@ public partial class Seq :
         }
     }
 
-    static void Foldable<Seq, FoldState>.FoldStepBackInit<TA, A>(in TA ta, ref FoldState refState) => 
+    static void Foldable<Seq, FoldState>.FoldStepBackSetup<A>(K<Seq, A> ta, ref FoldState refState) => 
         ta.As().InitFoldBackState(ref refState);
 
-    static bool Foldable<Seq, FoldState>.FoldStepBack<TA, A>(in TA ta, ref FoldState refState, out A value) 
+    static bool Foldable<Seq, FoldState>.FoldStepBack<A>(K<Seq, A> ta, ref FoldState refState, out A value) 
     {
         if (FoldState.MovePrev<A>(ref refState, out var v))
         {
@@ -163,10 +163,10 @@ public partial class Seq :
         }
     }
 
-    static bool Foldable<Seq>.IsEmpty<TA, A>(in TA ta) =>
+    static bool Foldable<Seq>.IsEmpty<A>(K<Seq, A> ta) =>
         ta.As().IsEmpty;
 
-    static Option<A> Foldable<Seq>.At<TA, A>(Index index, in TA ta)
+    static Option<A> Foldable<Seq>.At<A>(Index index, K<Seq, A> ta)
     {
         var list = ta.As();
         return index.Value >= 0 && index.Value < list.Count
@@ -174,10 +174,10 @@ public partial class Seq :
                    : Option<A>.None;
     }
 
-    static Option<A> Foldable<Seq>.Head<TA, A>(in TA ta) =>
+    static Option<A> Foldable<Seq>.Head<A>(K<Seq, A> ta) =>
         ta.As().Head;
 
-    static Option<A> Foldable<Seq>.Last<TA, A>(in TA ta) =>
+    static Option<A> Foldable<Seq>.Last<A>(K<Seq, A> ta) =>
         ta.As().Last;
     
     static K<F, K<Seq, B>> Traversable<Seq>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Seq, A> ta)
@@ -198,7 +198,7 @@ public partial class Seq :
             state.Bind(bs => f(value).Bind(b => F.Pure(bs.Add(b)))); 
     }
     
-    static Fold<A, S> Foldable<Seq>.FoldStep<TA, A, S>(in TA ta, in S initialState)
+    static Fold<A, S> Foldable<Seq>.FoldStep<A, S>(K<Seq, A> ta, in S initialState)
     {
         // ReSharper disable once GenericEnumeratorNotDisposed
         var iter = ta.As().GetEnumerator();
@@ -209,7 +209,7 @@ public partial class Seq :
                 : Fold.Done<A, S>(state);
     }   
         
-    static Fold<A, S> Foldable<Seq>.FoldStepBack<TA, A, S>(in TA ta, in S initialState)
+    static Fold<A, S> Foldable<Seq>.FoldStepBack<A, S>(K<Seq, A> ta, in S initialState)
     {
         // ReSharper disable once GenericEnumeratorNotDisposed
         var iter = ta.As().Reverse().GetEnumerator();

@@ -221,8 +221,8 @@ public class SeqArrTests
     {
         var seq = toSeq(Arr.create(1, 2, 3, 4, 5));
 
-        var res1 = seq.Fold(1, (s, x) => s     * x);
-        var res2 = seq.FoldBack(1, (s, x) => s * x);
+        var res1 = seq.Fold( (s, x) => s    * x, 1);
+        var res2 = seq.FoldBack((s, x) => s * x, 1);
 
         Assert.True(res1 == 120);
         Assert.True(res2 == 120);
@@ -233,8 +233,8 @@ public class SeqArrTests
     {
         var seq = toSeq(Arr.create("a", "b", "c", "d", "e"));
 
-        var res1 = seq.Fold("", (s, x) => s     + x);
-        var res2 = seq.FoldBack("", (s, x) => s + x);
+        var res1 = seq.Fold((s, x) => s     + x, "");
+        var res2 = seq.FoldBack((s, x) => s + x, "");
 
         Assert.True(res1 == "abcde");
         Assert.True(res2 == "edcba");

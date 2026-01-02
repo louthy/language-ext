@@ -104,36 +104,6 @@ public partial class Validation<FAIL> :
                                                _ => ma
                                            }
         };
-    
-    static S Foldable<Validation<FAIL>>.FoldWhile<A, S>(
-        Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S initialState,
-        K<Validation<FAIL>, A> ta) =>
-        ta switch
-        {
-            Validation<FAIL, A>.Success (var x) =>
-                predicate((initialState, x))
-                    ? f(x)(initialState)
-                    : initialState,
-
-            _ => initialState
-        };
-
-    static S Foldable<Validation<FAIL>>.FoldBackWhile<A, S>(
-        Func<S, Func<A, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S initialState,
-        K<Validation<FAIL>, A> ta) =>
-        ta switch
-        {
-            Validation<FAIL, A>.Success (var x) =>
-                predicate((initialState, x))
-                    ? f(initialState)(x)
-                    : initialState,
-
-            _ => initialState
-        };
 
     static K<F, K<Validation<FAIL>, B>> Traversable<Validation<FAIL>>.Traverse<F, A, B>(
         Func<A, K<F, B>> f,
@@ -168,7 +138,7 @@ public partial class Validation<FAIL> :
             _ => throw new NotSupportedException()
         };
 
-    static Fold<A, S> Foldable<Validation<FAIL>>.FoldStep<A, S>(K<Validation<FAIL>, A> ta, S initialState)
+    static Fold<A, S> Foldable<Validation<FAIL>>.FoldStep<A, S>(K<Validation<FAIL>, A> ta, in S initialState)
     {
         var ma = ta.As();
         return ma.IsSuccess
@@ -176,6 +146,6 @@ public partial class Validation<FAIL> :
                    : Fold.Done<A, S>(initialState);
     }
         
-    static Fold<A, S> Foldable<Validation<FAIL>>.FoldStepBack<A, S>(K<Validation<FAIL>, A> ta, S initialState) =>
+    static Fold<A, S> Foldable<Validation<FAIL>>.FoldStepBack<A, S>(K<Validation<FAIL>, A> ta, in S initialState) =>
         ta.FoldStep(initialState);
 }

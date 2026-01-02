@@ -727,8 +727,8 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     /// <returns>Folded state</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public S Fold<S>(S state, Func<S, K, V, S> folder) =>
-        AsIterable().Fold(state, (s, x) => folder(s, x.Key, x.Value));
+    public S Fold<S>(Func<S, K, V, S> folder, S state) =>
+        AsIterable().Fold((s, x) => folder(s, x.Key, x.Value), state);
 
     /// <summary>
     /// Atomically folds all items in the map (in order) using the folder function provided.
@@ -739,6 +739,6 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     /// <returns>Folded state</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public S Fold<S>(S state, Func<S, V, S> folder) =>
-        AsIterable().Map(static x => x.Value).Fold(state, folder);
+    public S Fold<S>(Func<S, V, S> folder, S state) =>
+        AsIterable().Map(static x => x.Value).Fold(folder, state);
 }

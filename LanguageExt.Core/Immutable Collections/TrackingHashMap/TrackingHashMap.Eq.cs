@@ -1177,8 +1177,8 @@ public readonly struct TrackingHashMap<EqK, K, V> :
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
     [Pure]
-    public S Fold<S>(S state, Func<S, K, V, S> folder) =>
-        AsEnumerable().Fold(state, (s, x) => folder(s, x.Key, x.Value));
+    public S Fold<S>(Func<S, K, V, S> folder, S state) =>
+        AsEnumerable().Fold((s, x) => folder(s, x.Key, x.Value), state);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1223,8 +1223,8 @@ public readonly struct TrackingHashMap<EqK, K, V> :
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
     [Pure]
-    public S Fold<S>(S state, Func<S, V, S> folder) =>
-        Values.Fold(state, folder);
+    public S Fold<S>(Func<S, V, S> folder, S state) =>
+        Values.Fold(folder, state);
 
     [Pure]
     [Obsolete(Change.UseCollectionIntialiser)]

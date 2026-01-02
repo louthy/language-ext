@@ -131,14 +131,14 @@ public static partial class EitherTExtensions
     public static K<M, (Seq<L> Lefts, Seq<R> Rights)> Partition<F, L, M, R>(this K<F, EitherT<L, M, R>> self)
         where F : Foldable<F>
         where M : Monad<M> =>
-        self.Fold(M.Pure((Left: Seq<L>.Empty, Right: Seq<R>.Empty)),
-                  (ms, ma) =>
+        self.Fold((ms, ma) =>
                       ms.Bind(s => ma.Run().Map(a => a switch
                                                      {
                                                          Either<L, R>.Right (var r) => (s.Left, s.Right.Add(r)),
                                                          Either<L, R>.Left (var l)  => (s.Left.Add(l), s.Right),
                                                          _                          => throw new NSE()
-                                                     })));
+                                                     })),
+                  M.Pure((Left: Seq<L>.Empty, Right: Seq<R>.Empty)));
 
     /// <summary>
     /// Partitions a foldable of `EitherT` into two lists and returns the `Left` items only.
@@ -148,13 +148,13 @@ public static partial class EitherTExtensions
     public static K<M, Seq<L>> Lefts<F, L, M, R>(this K<F, EitherT<L, M, R>> self)
         where F : Foldable<F>
         where M : Monad<M> =>
-        self.Fold(M.Pure(Seq<L>.Empty),
-                  (ms, ma) =>
+        self.Fold((ms, ma) =>
                       ms.Bind(s => ma.Run().Map(a => a switch
                                                      {
                                                          Either<L, R>.Left (var l)  => s.Add(l),
                                                          _                          => throw new NSE()
-                                                     })));
+                                                     })),
+                  M.Pure(Seq<L>.Empty));
 
     /// <summary>
     /// Partitions a foldable of `EitherT` into two lists and returns the `Right` items only.
@@ -164,11 +164,11 @@ public static partial class EitherTExtensions
     public static K<M, Seq<R>> Rights<F, L, M, R>(this K<F, EitherT<L, M, R>> self)
         where F : Foldable<F>
         where M : Monad<M> =>
-        self.Fold(M.Pure(Seq<R>.Empty),
-                  (ms, ma) =>
+        self.Fold((ms, ma) =>
                       ms.Bind(s => ma.Run().Map(a => a switch
                                                      {
                                                          Either<L, R>.Right (var r) => s.Add(r),
                                                          _                          => throw new NSE()
-                                                     })));
+                                                     })),
+                  M.Pure(Seq<R>.Empty));
 }

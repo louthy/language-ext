@@ -70,11 +70,10 @@ public readonly struct Lst<A> :
         value = new LstInternal<A>(root);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Lst<A> FromFoldable<FA, F, FS>(FA items)
-        where F : Foldable<F, FS>
-        where FS : allows ref struct
-        where FA : K<F, A> =>
-        Wrap(LstInternal<A>.FromFoldable<FA, F, FS>(items));
+    public static Lst<A> FromFoldable<T, FS>(K<T, A> items)
+        where T : Foldable<T, FS>
+        where FS : allows ref struct =>
+        Wrap(LstInternal<A>.FromFoldable<T, FS>(items));
     
     ListItem<A> Root
     {

@@ -43,22 +43,6 @@ public partial class Option :
         }
     }
 
-    static S Foldable<Option>.FoldWhile<A, S>(
-        Func<A, Func<S, S>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S initialState,
-        K<Option, A> ta) =>
-        ta.As().Match(Some: a => predicate((initialState, a)) ? f(a)(initialState) : initialState,
-                      None: initialState);
-
-    static S Foldable<Option>.FoldBackWhile<A, S>(
-        Func<S, Func<A, S>> f, 
-        Func<(S State, A Value), bool> predicate, 
-        S initialState, 
-        K<Option, A> ta) => 
-        ta.As().Match(Some: a => predicate((initialState, a)) ? f(initialState)(a) : initialState,
-                      None: initialState);
-
     static K<F, K<Option, B>> Traversable<Option>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Option, A> ta) =>
         ta.As().Match(Some: a => F.Map(Prelude.pure<Option, B>, f(a)),
                       None: F.Pure(Alternative.empty<Option, B>()));
@@ -114,7 +98,7 @@ public partial class Option :
     static K<Fin, A> Natural<Option, Fin>.Transform<A>(K<Option, A> fa) => 
         fa.As().ToFin();
     
-    static Fold<A, S> Foldable<Option>.FoldStep<A, S>(K<Option, A> ta, S initialState)
+    static Fold<A, S> Foldable<Option>.FoldStep<A, S>(K<Option, A> ta, in S initialState)
     {
         var ma = ta.As();
         return ma.IsSome
@@ -122,6 +106,6 @@ public partial class Option :
                    : Fold.Done<A, S>(initialState);
     }     
         
-    static Fold<A, S> Foldable<Option>.FoldStepBack<A, S>(K<Option, A> ta, S initialState) =>
+    static Fold<A, S> Foldable<Option>.FoldStepBack<A, S>(K<Option, A> ta, in S initialState) =>
         ta.FoldStep(initialState);
 }

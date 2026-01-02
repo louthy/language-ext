@@ -509,13 +509,13 @@ public static class IL
         // Implement FNV 1a hashing algorithm - [Fowler–Noll–Vo hash function](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash)
         var expr = Fields()
                   .AsIterable()
-                  .Fold(fnvOffsetBasis as Expression,
-                        (state, field) =>
+                  .Fold((state, field) =>
                             Expression.Multiply(
                                 fnvPrime,
                                 Expression.ExclusiveOr(
                                     state,
-                                    field)));
+                                    field)),
+                        fnvOffsetBasis as Expression);
 
         var lambda = Expression.Lambda<Func<A, int>>(
             typeof(A).GetTypeInfo().IsValueType
@@ -575,15 +575,15 @@ public static class IL
             typesEqual,
             fields
                .AsIterable()
-               .Fold(True as Expression,
-                        (state, field) =>
-                            Expression.AndAlso(
-                                state,
-                                Expression.Call(
-                                    null,
-                                    Resolver.GetEqualsMethodAlways(field.FieldType),
-                                    Expression.PropertyOrField(self, field.Name),
-                                    Expression.PropertyOrField(otherCast, field.Name)))));
+               .Fold((state, field) =>
+                         Expression.AndAlso(
+                             state,
+                             Expression.Call(
+                                 null,
+                                 Resolver.GetEqualsMethodAlways(field.FieldType),
+                                 Expression.PropertyOrField(self, field.Name),
+                                 Expression.PropertyOrField(otherCast, field.Name))),
+                     True as Expression));
 
         var orExpr = Expression.OrElse(refEq, Expression.AndAlso(notNullX, Expression.AndAlso(notNullY, expr)));
 
@@ -640,14 +640,15 @@ public static class IL
             typesEqual,
             fields
                .AsIterable()
-               .Fold(True as Expression, (state, field) =>
-                            Expression.AndAlso(
-                                state,
-                                Expression.Call(
-                                        null, 
-                                        Resolver.GetEqualsMethodAlways(field.FieldType),
-                                        Expression.PropertyOrField(self, field.Name),
-                                        Expression.PropertyOrField(other, field.Name)))));
+               .Fold((state, field) =>
+                         Expression.AndAlso(
+                             state,
+                             Expression.Call(
+                                 null,
+                                 Resolver.GetEqualsMethodAlways(field.FieldType),
+                                 Expression.PropertyOrField(self, field.Name),
+                                 Expression.PropertyOrField(other, field.Name))),
+                     True as Expression));
 
         var orExpr = Expression.OrElse(refEq,  Expression.AndAlso(notNullX, Expression.AndAlso(notNullY, expr)));
 

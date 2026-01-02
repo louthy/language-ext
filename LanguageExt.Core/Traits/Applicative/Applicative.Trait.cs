@@ -223,7 +223,7 @@ public interface Applicative<F> : Functor<F>
     [Pure]
     public static virtual K<F, A> Actions<A>(IterableNE<K<F, A>> fas) =>
         // TODO: Consider ways to make this not be blocking as a sensible default implementation
-        fas.Tail.Fold(fas.Head, (h, t) => h.Action(t));
+        fas.Tail.Fold((h, t) => h.Action(t), fas.Head);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

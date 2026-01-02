@@ -26,28 +26,28 @@ public static partial class TheseExtensions
         /// </summary>
         /// <returns>Partitioned sequences</returns>
         public (Seq<A> This, Seq<B> That, Seq<(A, B)> Both) Partition() =>
-            theses.Fold((This: Seq<A>(), That: Seq<B>(), Both: Seq<(A First, B Second)>()),
-                        (s, ts) => ts switch
+            theses.Fold((s, ts) => ts switch
                                    {
                                        These<A, B>.This (var x)        => (s.This.Add(x), s.That, s.Both),
                                        These<A, B>.That (var y)        => (s.This, s.That.Add(y), s.Both),
                                        These<A, B>.Both (var x, var y) => (s.This, s.That, s.Both.Add((x, y))),
                                        _                               => throw new NSE()
-                                   });
+                                   },
+                        (This: Seq<A>(), That: Seq<B>(), Both: Seq<(A First, B Second)>()));
 
         /// <summary>
         /// Select each constructor and partition them into separate lists.
         /// </summary>
         /// <returns>Partitioned sequences</returns>
         public (Seq<A> This, Seq<B> That) Partition2() =>
-            theses.Fold((This: Seq<A>(), That: Seq<B>()),
-                        (state, these) => these switch
+            theses.Fold((state, these) => these switch
                                           {
                                               These<A, B>.This (var x)        => (state.This.Add(x), state.That),
                                               These<A, B>.That (var y)        => (state.This, state.That.Add(y)),
                                               These<A, B>.Both (var x, var y) => (state.This.Add(x), state.That.Add(y)),
                                               _                               => throw new NSE()
-                                          });
+                                          },
+                        (This: Seq<A>(), That: Seq<B>()));
     }
 
 

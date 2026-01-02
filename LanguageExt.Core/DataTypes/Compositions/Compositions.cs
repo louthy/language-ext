@@ -167,13 +167,13 @@ public struct Compositions<A> :
     /// Convert to a sequence
     /// </summary>
     public Seq<A> ToSeq() =>
-        FoldCompositions<A>.Fold(this, Seq<A>(), (s, x) => x.Cons(s))(unit);
+        FoldCompositions<A>.Fold((s, x) => x.Cons(s), Seq<A>(), this)(unit);
 
     /// <summary>
     /// Convert to an enumerable
     /// </summary>
     public Iterable<A> AsIterable() =>
-        FoldCompositions<A>.Fold(this, Seq<A>(), (s, x) => x.Cons(s))(unit).AsIterable();
+        FoldCompositions<A>.Fold((s, x) => x.Cons(s), Seq<A>(), this)(unit).AsIterable();
 
     /// <summary>
     /// Get enumerator

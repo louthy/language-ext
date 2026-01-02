@@ -22,11 +22,7 @@ public static partial class Prelude
         K<F, K<M, A>> fma)
         where M : Monad<M>, Fallible<E, M>
         where F : Foldable<F> =>
-        fma.Fold(M.Pure((Fails: LanguageExt.Seq.empty<E>(), Succs: LanguageExt.Seq.empty<A>())),
-                 ma => ms => from s in ms 
-                             from r in ma.Map(a => (s.Fails, s.Succs.Add(a)))
-                                         .Catch((E e) => M.Pure((s.Fails.Add(e), s.Succs)))
-                             select r);
+        fma.PartitionFallible<E, F, M, A>();
     
     /// <summary>
     /// Partitions a collection of effects into two lists.

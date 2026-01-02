@@ -13,7 +13,7 @@ sealed class IterableConcat<A>(Seq<Iterable<A>> Items) : Iterable<A>
         Items.Exists(x => x.IsAsync);
     
     public override IO<int> CountIO() =>
-        +Items.FoldM(0, (s, iter) => iter.CountIO().Map(c => c + s));
+        +Items.FoldM((s, iter) => iter.CountIO().Map(c => c + s), 0);
 
     public override IO<IEnumerable<A>> AsEnumerableIO()
     {

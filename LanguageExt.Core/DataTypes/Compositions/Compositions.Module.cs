@@ -143,7 +143,7 @@ public static class Compositions
     /// </summary>
     public static A composed<A>(Compositions<A> compositions)
         where A : Monoid<A> =>
-        FoldCompositions<A>.Fold(compositions, A.Empty, (x, y) => x.Combine(y))(unit);
+        FoldCompositions<A>.Fold((x, y) => x.Combine(y), A.Empty, compositions)(unit);
 
     /// <summary>
     /// Construct a compositions list containing just one element.
@@ -172,5 +172,5 @@ public static class Compositions
     /// </summary>
     public static Compositions<A> fromList<A>(IEnumerable<A> ma)
         where A : Monoid<A> =>
-        ma.AsIterable().Fold(Compositions<A>.Empty, (s, x) => s.Combine(singleton(x)));
+        ma.AsIterable().Fold((s, x) => s.Combine(singleton(x)), Compositions<A>.Empty);
 }

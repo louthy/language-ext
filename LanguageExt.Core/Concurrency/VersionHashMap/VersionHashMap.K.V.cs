@@ -561,8 +561,8 @@ namespace LanguageExt
         /// <returns>Folded state</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public S Fold<S>(S state, Func<S, K, V, S> folder) =>
-            Items.Fold(state, folder);
+        public S Fold<S>(Func<S, K, V, S> folder, S state) =>
+            Items.Fold(folder, state);
 
         /// <summary>
         /// Atomically folds all items in the map (in order) using the folder function provided.
@@ -573,7 +573,7 @@ namespace LanguageExt
         /// <returns>Folded state</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public S Fold<S>(S state, Func<S, V, S> folder) =>
-            Items.Fold(state, folder);
+        public S Fold<S>(Func<S, V, S> folder, S state) =>
+            Items.Fold(folder, state);
     }
 }

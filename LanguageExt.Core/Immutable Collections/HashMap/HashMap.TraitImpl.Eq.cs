@@ -25,7 +25,7 @@ public partial class HashMapEq<EqKey, Key> :
     public static K<HashMapEq<EqKey, Key>, B> Map<A, B>(Func<A, B> f, K<HashMapEq<EqKey, Key>, A> ma) =>
         new HashMap<EqKey, Key, B>(ma.As().Value.Select(kv => (kv.Key, f(kv.Value))));
     
-    static Fold<A, S> Foldable<HashMapEq<EqKey, Key>>.FoldStep<A, S>(K<HashMapEq<EqKey, Key>, A> ta, S initialState)
+    static Fold<A, S> Foldable<HashMapEq<EqKey, Key>>.FoldStep<A, S>(K<HashMapEq<EqKey, Key>, A> ta, in S initialState)
     {
         var iter = ta.As().Values.GetIterator();
         return go(initialState);
@@ -43,7 +43,7 @@ public partial class HashMapEq<EqKey, Key> :
         }
     }
 
-    static Fold<A, S> Foldable<HashMapEq<EqKey, Key>>.FoldStepBack<A, S>(K<HashMapEq<EqKey, Key>, A> ta, S initialState) =>
+    static Fold<A, S> Foldable<HashMapEq<EqKey, Key>>.FoldStepBack<A, S>(K<HashMapEq<EqKey, Key>, A> ta, in S initialState) =>
         // Order is undefined in a HashMap, so reversing the order makes no sense,
         // so let's take the most efficient option:
         ta.FoldStep(initialState);

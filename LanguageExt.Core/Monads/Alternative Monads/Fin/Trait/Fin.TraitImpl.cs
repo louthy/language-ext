@@ -67,28 +67,6 @@ public partial class Fin :
             _                                                     => throw new NotSupportedException()
         };
 
-    static S Foldable<Fin>.FoldWhile<A, S>(
-        Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S state,
-        K<Fin, A> ta) =>
-        ta switch
-        {
-            Fin<A>.Succ (var r) => predicate((state, r)) ? f(r)(state) : state,
-            _                   => state
-        };
-
-    static S Foldable<Fin>.FoldBackWhile<A, S>(
-        Func<S, Func<A, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S state,
-        K<Fin, A> ta) =>
-        ta switch
-        {
-            Fin<A>.Succ (var r) => predicate((state, r)) ? f(state)(r) : state,
-            _                   => state
-        };
-
     static K<F, K<Fin, B>> Traversable<Fin>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Fin, A> ta) =>
         ta switch
         {
@@ -184,7 +162,7 @@ public partial class Fin :
             _                   => throw new NotSupportedException()
         };
     
-    static Fold<A, S> Foldable<Fin>.FoldStep<A, S>(K<Fin, A> ta, S initialState)
+    static Fold<A, S> Foldable<Fin>.FoldStep<A, S>(K<Fin, A> ta, in S initialState)
     {
         var ma = ta.As();
         return ma.IsSucc
@@ -192,6 +170,6 @@ public partial class Fin :
                    : Fold.Done<A, S>(initialState);
     }    
         
-    static Fold<A, S> Foldable<Fin>.FoldStepBack<A, S>(K<Fin, A> ta, S initialState) =>
+    static Fold<A, S> Foldable<Fin>.FoldStepBack<A, S>(K<Fin, A> ta, in S initialState) =>
         ta.FoldStep(initialState);
 }

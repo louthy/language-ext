@@ -36,10 +36,10 @@ public static class CoproductK
     public static K<F, A, (Seq<A> Left, Seq<B> Right)> partition<FF, F, A, B>(K<FF, K<F, A, B>> fabs)
         where F : CoproductK<F>, Bimonad<F>
         where FF : Foldable<FF> =>
-        fabs.Fold(F.Right<A, (Seq<A> Left, Seq<B> Right)>((Left: Seq<A>(), Right: Seq<B>())),
-                  (fs, fab) =>
+        fabs.Fold((fs, fab) =>
                       fs.BindSecond(s => fab.Match(l => s with { Left = s.Left.Add(l) },
-                                                   r => s with { Right = s.Right.Add(r) })));
+                                                   r => s with { Right = s.Right.Add(r) })),
+                  F.Right<A, (Seq<A> Left, Seq<B> Right)>((Left: Seq<A>(), Right: Seq<B>())));
 
     /// <summary>
     /// Partition the foldable of coproducts into two left and right sequences.

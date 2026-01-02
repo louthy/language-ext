@@ -41,7 +41,7 @@ public class ArrayTests
         var res = Array(1, 2, 3, 4, 5)
                  .Map(x => x * 10)
                  .Filter(x => x > 20)
-                 .Fold(0, (x, s) => s + x);
+                 .Fold((x, s) => s + x, 0);
 
         Assert.True(res == 120);
     }

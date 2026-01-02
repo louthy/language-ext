@@ -58,8 +58,8 @@ public static class ExprIO
         Operator<I, O>[][] operators,
         Parser<I, O> simpleExpr) =>
         operators.AsIterable().FoldBack(
-            simpleExpr, 
-            (term, ops) => makeParser(ops, term));
+            (term, ops) => makeParser(ops, term),
+            simpleExpr);
 
     static Parser<I, O> makeParser<I, O>(
         Operator<I, O>[] ops,
@@ -69,7 +69,7 @@ public static class ExprIO
         var e2 = Seq.empty<Parser<I, Func<O,O>>>();
 
         return ops.AsIterable()
-                  .Fold((e3, e3, e3, e2, e2), (state, op) => op.SplitOp(state))
+                  .Fold((state, op) => op.SplitOp(state), (e3, e3, e3, e2, e2))
                   .Map((rassoc, lassoc, nassoc, prefix, postfix) =>
                        {
                            var rassocOp  = choice(rassoc);

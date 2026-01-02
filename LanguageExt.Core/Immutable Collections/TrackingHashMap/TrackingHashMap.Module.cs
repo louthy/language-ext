@@ -535,8 +535,8 @@ public static partial class TrackingHashMap
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
     [Pure]
-    public static S fold<S, K, V>(TrackingHashMap<K, V> map, S state, Func<S, K, V, S> folder) =>
-        map.Fold(state, folder);
+    public static S fold<S, K, V>(Func<S, K, V, S> folder, S state, TrackingHashMap<K, V> map) =>
+        map.Fold(folder, state);
 
     /// <summary>
     /// Atomically folds all items in the map (in order) using the folder function provided.
@@ -546,8 +546,8 @@ public static partial class TrackingHashMap
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
     [Pure]
-    public static S fold<S, K, V>(TrackingHashMap<K, V> map, S state, Func<S, V, S> folder) =>
-        map.Fold(state, folder);
+    public static S fold<S, K, V>(Func<S, V, S> folder, S state, TrackingHashMap<K, V> map) =>
+        map.Fold(folder, state);
 
     /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied

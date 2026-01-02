@@ -108,14 +108,14 @@ public static partial class FinTExtensions
     public static K<M, (Seq<Error> Fails, Seq<A> Succs)> Partition<F, M, A>(this K<F, FinT<M, A>> self)
         where F : Foldable<F>
         where M : Monad<M> =>
-        self.Fold(M.Pure((Fail: Seq<Error>.Empty, Succ: Seq<A>.Empty)),
-                  (ms, ma) =>
+        self.Fold((ms, ma) =>
                       ms.Bind(s => ma.Run().Map(a => a switch
                                                      {
                                                          Fin<A>.Succ (var r) => (s.Fail, s.Succ.Add(r)),
                                                          Fin<A>.Fail (var l) => (s.Fail.Add(l), s.Succ),
                                                          _                   => throw new NSE()
-                                                     })));
+                                                     })),
+                  M.Pure((Fail: Seq<Error>.Empty, Succ: Seq<A>.Empty)));
 
     /// <summary>
     /// Partitions a foldable of `FinT` into two lists and returns the `Fail` items only.
@@ -125,13 +125,13 @@ public static partial class FinTExtensions
     public static K<M, Seq<Error>> Fails<F, M, A>(this K<F, FinT<M, A>> self)
         where F : Foldable<F>
         where M : Monad<M> =>
-        self.Fold(M.Pure(Seq<Error>.Empty),
-                  (ms, ma) =>
+        self.Fold((ms, ma) =>
                       ms.Bind(s => ma.Run().Map(a => a switch
                                                      {
                                                          Fin<A>.Fail(var l) => s.Add(l),
                                                          _                  => throw new NSE()
-                                                     })));
+                                                     })),
+                  M.Pure(Seq<Error>.Empty));
 
     /// <summary>
     /// Partitions a foldable of `FinT` into two lists and returns the `Succ` items only.
@@ -141,11 +141,11 @@ public static partial class FinTExtensions
     public static K<M, Seq<A>> Succs<F, M, A>(this K<F, FinT<M, A>> self)
         where F : Foldable<F>
         where M : Monad<M> =>
-        self.Fold(M.Pure(Seq<A>.Empty),
-                  (ms, ma) =>
+        self.Fold((ms, ma) =>
                       ms.Bind(s => ma.Run().Map(a => a switch
                                                      {
                                                          Fin<A>.Succ (var r) => s.Add(r),
                                                          _                   => throw new NSE()
-                                                     })));
+                                                     })),
+                  M.Pure(Seq<A>.Empty));
 }

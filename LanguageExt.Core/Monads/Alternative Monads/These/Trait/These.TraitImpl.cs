@@ -45,7 +45,7 @@ public class These<A> : Traversable<These<A>>
             _                               => throw new NotSupportedException()
         };
 
-    static Fold<B, S> Foldable<These<A>>.FoldStep<B, S>(K<These<A>, B> ta, S initialState)
+    static Fold<B, S> Foldable<These<A>>.FoldStep<B, S>(K<These<A>, B> ta, in S initialState)
     {
         var ma = ta.As();
         return ma switch
@@ -56,7 +56,7 @@ public class These<A> : Traversable<These<A>>
                };
     }
         
-    static Fold<B, S> Foldable<These<A>>.FoldStepBack<B, S>(K<These<A>, B> ta, S initialState) =>
+    static Fold<B, S> Foldable<These<A>>.FoldStepBack<B, S>(K<These<A>, B> ta, in S initialState) =>
         ta.FoldStep(initialState);
     
 }

@@ -178,40 +178,6 @@ public partial class HashSet
         set.Filter(pred);
 
     /// <summary>
-    /// Applies a function 'folder' to each element of the collection, threading an accumulator 
-    /// argument through the computation. The fold function takes the state argument, and 
-    /// applies the function 'folder' to it and the first element of the set. Then, it feeds this 
-    /// result into the function 'folder' along with the second element, and so on. It returns the 
-    /// final result. (Aggregate in LINQ)
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <typeparam name="T">Set element type</typeparam>
-    /// <param name="set">Set to fold</param>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Fold function</param>
-    /// <returns>Aggregate value</returns>
-    [Pure]
-    public static S fold<T, S>(HashSet<T> set, S state, Func<S, T, S> folder) =>
-        set.Fold(state, folder);
-
-    /// <summary>
-    /// Applies a function 'folder' to each element of the collection (from last element to first), 
-    /// threading an aggregate state through the computation. The fold function takes the state 
-    /// argument, and applies the function 'folder' to it and the first element of the set. Then, 
-    /// it feeds this result into the function 'folder' along with the second element, and so on. It 
-    /// returns the final result.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <typeparam name="T">Set element type</typeparam>
-    /// <param name="set">Set to fold</param>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Fold function</param>
-    /// <returns>Aggregate value</returns>
-    [Pure]
-    public static S foldBack<T, S>(HashSet<T> set, S state, Func<S, T, S> folder) =>
-        set.FoldBack(state, folder);
-
-    /// <summary>
     /// Returns the elements that are in both setA and setB
     /// </summary>
     [Pure]

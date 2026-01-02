@@ -95,25 +95,25 @@ public partial class Arr :
     static K<Arr, A> Choice<Arr>.Choose<A>(K<Arr, A> ma, Memo<Arr, A> mb) => 
         ma.IsEmpty ? mb.Value : ma;
 
-    static int Foldable<Arr>.Count<TA, A>(in TA ta) =>
+    static int Foldable<Arr>.Count<A>(K<Arr, A> ta) =>
         ta.As().Count;
 
-    static bool Foldable<Arr>.IsEmpty<TA, A>(in TA ta) =>
+    static bool Foldable<Arr>.IsEmpty<A>(K<Arr, A> ta) =>
         ta.As().IsEmpty;
 
-    static void Foldable<Arr, FoldState>.FoldStepInit<TA, A>(in TA ta, ref FoldState state) =>
+    static void Foldable<Arr, FoldState>.FoldStepSetup<A>(K<Arr, A> ta, ref FoldState state) =>
         FoldState.Init(ref state, ta.As().AsSpan());
 
-    static void Foldable<Arr, FoldState>.FoldStepBackInit<TA, A>(in TA ta, ref FoldState state) =>
+    static void Foldable<Arr, FoldState>.FoldStepBackSetup<A>(K<Arr, A> ta, ref FoldState state) =>
         FoldState.InitBack(ref state, ta.As().AsSpan());
 
-    static bool Foldable<Arr, FoldState>.FoldStep<TA, A>(in TA ta, ref FoldState state, out A value) =>
+    static bool Foldable<Arr, FoldState>.FoldStep<A>(K<Arr, A> ta, ref FoldState state, out A value) =>
         FoldState.MoveNext(ref state, out value);
 
-    static bool Foldable<Arr, FoldState>.FoldStepBack<TA, A>(in TA ta, ref FoldState state, out A value) =>
+    static bool Foldable<Arr, FoldState>.FoldStepBack<A>(K<Arr, A> ta, ref FoldState state, out A value) =>
         FoldState.MovePrev(ref state, out value);
 
-    static Fold<A, S> Foldable<Arr>.FoldStep<TA, A, S>(in TA ta, in S initialState)
+    static Fold<A, S> Foldable<Arr>.FoldStep<A, S>(K<Arr, A> ta, in S initialState)
     {
         var array = ta.As();
         var count = array.Length;
@@ -134,7 +134,7 @@ public partial class Arr :
         }
     }
 
-    static Fold<A, S> Foldable<Arr>.FoldStepBack<TA, A, S>(in TA ta, in S initialState)
+    static Fold<A, S> Foldable<Arr>.FoldStepBack<A, S>(K<Arr, A> ta, in S initialState)
     {
         var array = ta.As();
         var count = array.Length;
@@ -155,7 +155,7 @@ public partial class Arr :
         }
     }
 
-    static Option<A> Foldable<Arr>.At<TA, A>(Index index, in TA ta)
+    static Option<A> Foldable<Arr>.At<A>(Index index, K<Arr, A> ta)
     {
         var arr = ta.As();
         return index.Value >= 0 && index.Value < arr.Length
@@ -163,16 +163,16 @@ public partial class Arr :
                    : Option<A>.None;
     }
 
-    static Arr<A> Foldable<Arr>.ToArr<TA, A>(in TA ta) =>
+    static Arr<A> Foldable<Arr>.ToArr<A>(K<Arr, A> ta) =>
         ta.As();
 
-    static Lst<A> Foldable<Arr>.ToLst<TA, A>(in TA ta) =>
+    static Lst<A> Foldable<Arr>.ToLst<A>(K<Arr, A> ta) =>
         new(ta.As());
 
-    static Iterable<A> Foldable<Arr>.ToIterable<TA, A>(in TA ta) =>
+    static Iterable<A> Foldable<Arr>.ToIterable<A>(K<Arr, A> ta) =>
         ta.As().AsIterable();
     
-    static Seq<A> Foldable<Arr>.ToSeq<TA, A>(in TA ta) =>
+    static Seq<A> Foldable<Arr>.ToSeq<A>(K<Arr, A> ta) =>
         Seq.FromArray(ta.As().ToArray());
     
     static K<F, K<Arr, B>> Traversable<Arr>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Arr, A> ta)

@@ -137,7 +137,7 @@ public static partial class Prelude
     /// </summary>
     public static S fold<T, A, S>(Func<S, A, S> f, S initialState, K<T, A> ta) 
         where T : Foldable<T> =>
-        T.Fold(f, initialState, ta);
+        ta.Fold(f, initialState);
 
     /// <summary>
     /// Right-associative fold of a structure, lazy in the accumulator.
@@ -213,10 +213,10 @@ public static partial class Prelude
     /// lazy in the accumulator.  When you need a strict left-associative fold,
     /// use 'foldMap'' instead, with 'id' as the map.
     /// </summary>
-    public static A foldWhile<T, A>(Func<(A State, A Value), bool> predicate, K<T, A> tm) 
+    public static A foldWhile<T, A>(Func<(A State, A Value), bool> predicate, K<T, A> ta) 
         where T : Foldable<T>
         where A : Monoid<A> =>
-        T.FoldMapWhile(identity, predicate, tm) ;
+        ta.FoldWhile(predicate) ;
 
     /// <summary>
     /// Given a structure with elements whose type is a `Monoid`, combine them
@@ -224,83 +224,34 @@ public static partial class Prelude
     /// lazy in the accumulator.  When you need a strict left-associative fold,
     /// use 'foldMap'' instead, with 'id' as the map.
     /// </summary>
-    public static A foldUntil<T, A>(Func<(A State, A Value), bool> predicate, K<T, A> tm) 
+    public static A foldUntil<T, A>(Func<(A State, A Value), bool> predicate, K<T, A> ta) 
         where T : Foldable<T>
         where A : Monoid<A> =>
-        T.FoldMapUntil(identity, predicate, tm) ;
+        ta.FoldUntil(predicate) ;
 
     /// <summary>
-    /// Map each element of the structure into a monoid, and combine the
-    /// results with `Append`.  This fold is right-associative and lazy in the
-    /// accumulator.  For strict left-associative folds consider `FoldMapBack`
-    /// instead.
+    /// Does an element that fits the predicate occur in the structure?
     /// </summary>
-    public static B foldMap<T, A, B>(Func<A, B> f, K<T, A> ta)
-        where T : Foldable<T>
-        where B : Monoid<B> =>
-        T.FoldMap(f, ta);
+    public static bool exists<T, A>(Func<A, bool> predicate, K<T, A> ta) 
+        where T : Foldable<T> =>
+        ta.Exists(predicate);
 
     /// <summary>
-    /// Map each element of the structure into a monoid, and combine the
-    /// results with `Append`.  This fold is right-associative and lazy in the
-    /// accumulator.  For strict left-associative folds consider `FoldMapBack`
-    /// instead.
+    /// Does the predicate hold for all elements in the structure?
     /// </summary>
-    public static B foldMapWhile<T, A, B>(Func<A, B> f, Func<(B State, A Value), bool> predicate, K<T, A> ta)
-        where T : Foldable<T>
-        where B : Monoid<B> =>
-        T.FoldMapWhile(f, predicate, ta);
-
-    /// <summary>
-    /// Map each element of the structure into a monoid, and combine the
-    /// results with `Append`.  This fold is right-associative and lazy in the
-    /// accumulator.  For strict left-associative folds consider `FoldMapBack`
-    /// instead.
-    /// </summary>
-    public static B foldMapUntil<T, A, B>(Func<A, B> f, Func<(B State, A Value), bool> predicate, K<T, A> ta)
-        where T : Foldable<T>
-        where B : Monoid<B> =>
-        T.FoldMapUntil(f, predicate, ta);
-
-    /// <summary>
-    /// A left-associative variant of 'FoldMap' that is strict in the
-    /// accumulator.  Use this method for strict reduction when partial
-    /// results are merged via `Append`.
-    /// </summary>
-    public static B foldMapBack<T, A, B>(Func<A, B> f, K<T, A> ta)
-        where T : Foldable<T>
-        where B : Monoid<B> =>
-        T.FoldMapBack(f, ta);
-
-    /// <summary>
-    /// A left-associative variant of 'FoldMap' that is strict in the
-    /// accumulator.  Use this method for strict reduction when partial
-    /// results are merged via `Append`.
-    /// </summary>
-    public static B foldMapBackWhile<T, A, B>(Func<A, B> f, Func<(B State, A Value), bool> predicate, K<T, A> ta)
-        where T : Foldable<T>
-        where B : Monoid<B> =>
-        T.FoldMapWhileBack(f, predicate, ta);
-
-    /// <summary>
-    /// A left-associative variant of 'FoldMap' that is strict in the
-    /// accumulator.  Use this method for strict reduction when partial
-    /// results are merged via `Append`.
-    /// </summary>
-    public static B foldMapBackUntil<T, A, B>(Func<A, B> f, Func<(B State, A Value), bool> predicate, K<T, A> ta)
-        where T : Foldable<T> 
-        where B : Monoid<B> =>
-        T.FoldMapUntilBack(f, predicate, ta);
+    public static bool forAll<T, A>(Func<A, bool> predicate, K<T, A> ta) 
+        where T : Foldable<T> =>
+        ta.ForAll(predicate);
 
     /// <summary>
     /// Map each element of a structure to an 'Applicative' action, evaluate these
     /// actions from left to right, and ignore the results.  For a version that
     /// doesn't ignore the results see `Traversable.traverse`.
     /// </summary>
-    public static K<F, Unit> iter<T, A, F, B>(Func<A, K<F, B>> f, K<T, A> ta)
+    public static K<F, Unit> iterM<T, A, F, B>(Func<A, K<F, B>> f, K<T, A> ta)
         where T : Foldable<T>
         where F : Monad<F> =>
-        ta.Iter(f);
+        ta.IterM(f);
     
     /// <summary>
     /// Map each element of a structure to an action, evaluate these
@@ -318,7 +269,7 @@ public static partial class Prelude
     /// </summary>
     public static Unit iter<T, A>(Action<A> f, K<T, A> ta)
         where T : Foldable<T> =>
-        T.Iter(f, ta);
+        ta.Iter(f);
 
     /// <summary>
     /// Partition a foldable into two sequences based on a predicate
@@ -329,5 +280,5 @@ public static partial class Prelude
     /// <returns>Partitioned structure</returns>
     public static (Seq<A> True, Seq<A> False) partition<T, A>(Func<A, bool> f, K<T, A> ta)
         where T : Foldable<T> =>
-        T.Partition(f, ta);
+        ta.Partition(f);
 }

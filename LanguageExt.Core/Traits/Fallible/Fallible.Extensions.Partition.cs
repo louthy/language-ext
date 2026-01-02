@@ -21,10 +21,10 @@ public static partial class FallibleExtensions
         this K<F, K<M, A>> fma)
         where M : Monad<M>, Fallible<M>
         where F : Foldable<F> =>
-        fma.Fold(M.Pure((Fails: Seq.empty<Error>(), Succs: Seq.empty<A>())),
-                 ma => ms => ms.Bind(
-                           s => ma.Bind(a => M.Pure((s.Fails, s.Succs.Add(a))))
-                                  .Catch(e => M.Pure((s.Fails.Add(e), s.Succs)))));
+        fma.Fold((ms, ma) => ms.Bind(
+                     s => ma.Bind(a => M.Pure((s.Fails, s.Succs.Add(a))))
+                            .Catch(e => M.Pure((s.Fails.Add(e), s.Succs)))),
+                 M.Pure((Fails: Seq.empty<Error>(), Succs: Seq.empty<A>())));
     
     /// <summary>
     /// Partitions a collection of effects into two lists.

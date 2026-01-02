@@ -24,7 +24,8 @@ public class AtomHashMap<EqK, K, V> :
     IEnumerable<(K Key, V Value)>,
     IEquatable<HashMap<EqK, K, V>>,
     IEquatable<AtomHashMap<EqK, K, V>>,
-    IReadOnlyDictionary<K, V>
+    IReadOnlyDictionary<K, V>,
+    K<AtomHashMapEq<EqK, K>, V>
     where EqK : Eq<K>
 {
     internal volatile TrieMap<EqK, K, V> Items;
@@ -2113,7 +2114,7 @@ public class AtomHashMap<EqK, K, V> :
     /// <returns>Folded state</returns>
     [Pure]
     public S Fold<S>(S state, Func<S, K, V, S> folder) =>
-        AsIterable().Fold(state, (s, x) => folder(s, x.Key, x.Value));
+        AsIterable().Fold((s, x) => folder(s, x.Key, x.Value), state);
 
     /// <summary>
     /// Atomically folds all items in the map (in order) using the folder function provided.
@@ -2123,8 +2124,8 @@ public class AtomHashMap<EqK, K, V> :
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
     [Pure]
-    public S Fold<S>(S state, Func<S, V, S> folder) =>
-        Values.Fold(state, folder);
+    public S Fold<S>(Func<S, V, S> folder, S state) =>
+        Values.Fold(folder, state);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void AnnounceChange(TrieMap<EqK, K, V> prev, TrieMap<EqK, K, V> current, K key, Change<V>? change)

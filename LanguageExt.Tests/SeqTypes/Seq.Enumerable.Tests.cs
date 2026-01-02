@@ -3,23 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using static LanguageExt.Prelude;
+using Array = System.Array;
 
 namespace LanguageExt.Tests
 {
     public class SeqEnumerableTests
     {
-        IEnumerable<int> EmptyList = new int[0];
-        IEnumerable<int> OneItem = new int[] { 1 };
-        IEnumerable<int> FiveItems = new int[] { 1, 2, 3, 4, 5 };
-        IEnumerable<int> TenHundred = new int[] { 10, 100 };
-        IEnumerable<int> DoubleFiveItems = new int[] { 2, 4, 6, 8, 10 };
-        IEnumerable<int> EvenItems = new int[] { 2, 4 };
-        IEnumerable<int> BoundItems = new int[] { 10, 20, 30, 40, 50, 100, 200, 300, 400, 500 };
-        IEnumerable<char> abcdeChars = new char[] { 'a', 'b', 'c', 'd', 'e' };
-        IEnumerable<char> abc_eChars = new char[] { 'a', 'b', 'c', '_', 'e' };
-        IEnumerable<char> edcbaChars = new char[] { 'e', 'd', 'c', 'b', 'a' };
-        IEnumerable<string> abcdeStrs = new string[] { "a", "b", "c", "d", "e" };
-        IEnumerable<string> edcbaStrs = new string[] { "e", "d", "c", "b", "a" };
+        readonly IEnumerable<int> EmptyList = Array.Empty<int>();
+        readonly IEnumerable<int> OneItem = [1];
+        readonly IEnumerable<int> FiveItems = [1, 2, 3, 4, 5];
+        readonly IEnumerable<int> TenHundred = [10, 100];
+        readonly IEnumerable<int> DoubleFiveItems = [2, 4, 6, 8, 10];
+        readonly IEnumerable<int> EvenItems = [2, 4];
+        readonly IEnumerable<int> BoundItems = [10, 20, 30, 40, 50, 100, 200, 300, 400, 500];
+        readonly IEnumerable<char> abcdeChars = ['a', 'b', 'c', 'd', 'e'];
+        readonly IEnumerable<char> abc_eChars = ['a', 'b', 'c', '_', 'e'];
+        readonly IEnumerable<char> edcbaChars = ['e', 'd', 'c', 'b', 'a'];
+        readonly IEnumerable<string> abcdeStrs = ["a", "b", "c", "d", "e"];
+        readonly IEnumerable<string> edcbaStrs = ["e", "d", "c", "b", "a"];
 
         [Fact]
         public void TestEmpty()
@@ -208,8 +209,8 @@ namespace LanguageExt.Tests
         {
             var seq = toSeq(FiveItems);
 
-            var res1 = seq.Fold(1, (s, x) => s * x);
-            var res2 = seq.FoldBack(1, (s, x) => s * x);
+            var res1 = seq.Fold((s, x) => s     * x, 1);
+            var res2 = seq.FoldBack((s, x) => s * x, 1);
 
             Assert.True(res1 == 120);
             Assert.True(res2 == 120);
@@ -220,8 +221,8 @@ namespace LanguageExt.Tests
         {
             var seq = toSeq(abcdeStrs);
 
-            var res1 = seq.Fold("", (s, x) => s + x);
-            var res2 = seq.FoldBack("", (s, x) => s + x);
+            var res1 = seq.Fold((s, x) => s     + x, "");
+            var res2 = seq.FoldBack((s, x) => s + x, "");
 
             Assert.True(res1 == "abcde");
             Assert.True(res2 == "edcba");

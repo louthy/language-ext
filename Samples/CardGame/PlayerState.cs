@@ -18,11 +18,11 @@ public record PlayerState(Seq<Card> Cards, bool StickState)
 
     public Seq<int> Scores =>
         Cards.Map(c => c.FaceValues)
-             .Fold(Seq(Seq<int>()),
-                   (s, vs) =>
+             .Fold((s, vs) =>
                        from x in s
                        from v in vs
-                       select x.Add(v))
+                       select x.Add(v),
+                   Seq(Seq<int>()))
              .Map(s => s.Sum<Seq, int>())
              .Distinct() 
              .OrderBy(s => s)

@@ -300,7 +300,7 @@ public static class DocAnn
     public static Doc<A> HorizSep<A>(Seq<Doc<A>> docs) =>
         docs.IsEmpty
             ? DocEmpty<A>.Default
-            : docs.Tail.Fold(docs.Head.Value!, (s, d) => s + d);
+            : docs.Tail.Fold((s, d) => s + d, docs.Head.Value!);
 
     /// <summary>
     /// VertSep concatenates all documents above each other. If a
@@ -320,7 +320,7 @@ public static class DocAnn
     public static Doc<A> VertSep<A>(Seq<Doc<A>> docs) =>
         docs.IsEmpty
             ? DocEmpty<A>.Default
-            : docs.Tail.Fold(docs.Head.Value!, (s, d) => s | LineOrSpace<A>() | d);
+            : docs.Tail.Fold((s, d) => s | LineOrSpace<A>() | d, docs.Head.Value!);
 
     /// <summary>
     /// Sep tries laying out the documents separated with 'space's,
@@ -341,7 +341,7 @@ public static class DocAnn
     public static Doc<A> FillSep<A>(Seq<Doc<A>> docs) =>
         docs.IsEmpty
             ? DocEmpty<A>.Default
-            : docs.Tail.Fold(docs.Head.Value!, (s, d) => s | SoftLineOrSpace<A>() | d);
+            : docs.Tail.Fold((s, d) => s | SoftLineOrSpace<A>() | d, docs.Head.Value!);
 
     /// <summary>
     /// Hard line separator
@@ -349,13 +349,14 @@ public static class DocAnn
     public static Doc<A> HardSep<A>(Seq<Doc<A>> docs) =>
         docs.IsEmpty
             ? DocEmpty<A>.Default
-            : docs.Tail.Fold(docs.Head.Value!, (s, d) => (s, d) switch
-                                                         {
-                                                             (DocLine<A>, DocLine<A>) => s,
-                                                             (DocLine<A>, _)          => d,
-                                                             (_, DocLine<A>)          => s,
-                                                             _                        => s | HardLine<A>() | d
-                                                         });
+            : docs.Tail.Fold((s, d) => (s, d) switch
+                                       {
+                                           (DocLine<A>, DocLine<A>) => s,
+                                           (DocLine<A>, _)          => d,
+                                           (_, DocLine<A>)          => s,
+                                           _                        => s | HardLine<A>() | d
+                                       },
+                             docs.Head.Value!);
          
     /// <summary>
     /// HorizCat concatenates all documents horizontally with |
@@ -366,7 +367,7 @@ public static class DocAnn
     public static Doc<A> HorizCat<A>(Seq<Doc<A>> docs) =>
         docs.IsEmpty
             ? DocEmpty<A>.Default
-            : docs.Tail.Fold(docs.Head.Value!, (s, d) => s | d);
+            : docs.Tail.Fold((s, d) => s | d, docs.Head.Value!);
 
     /// <summary>
     /// VertCat vertically concatenates the documents. If it is
@@ -378,7 +379,7 @@ public static class DocAnn
     public static Doc<A> VertCat<A>(Seq<Doc<A>> docs) =>
         docs.IsEmpty
             ? DocEmpty<A>.Default
-            : docs.Tail.Fold(docs.Head.Value!, (s, d) => s | LineOrEmpty<A>() | d);
+            : docs.Tail.Fold((s, d) => s | LineOrEmpty<A>() | d, docs.Head.Value!);
 
     /// <summary>
     /// Width lays out the document 'doc', and makes the column width
