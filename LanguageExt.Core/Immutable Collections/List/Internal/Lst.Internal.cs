@@ -76,11 +76,10 @@ internal class LstInternal<A> :
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static LstInternal<A> FromFoldable<FA, F, FS>(FA items)
-        where F : Foldable<F, FS>
-        where FS : allows ref struct
-        where FA : K<F, A> =>
-        Wrap(ListModuleM.BuildSubTree<FA, F, FS, A>(items));
+    public static LstInternal<A> FromFoldable<TA, FS>(TA items)
+        where TA : Folding<TA, A, FS>
+        where FS : allows ref struct =>
+        Wrap(ListModuleM.BuildSubTree<TA, FS, A>(items));
 
     internal ListItem<A> Root
     {
@@ -605,8 +604,10 @@ internal class LstInternal<A> :
     }
 }
 
+interface IListItem;
+
 [Serializable]
-class ListItem<T>
+class ListItem<T> : IListItem
 {
     public static ListItem<T> EmptyM => new (0, 0, null!, default!, null!);
     public static readonly ListItem<T> Empty = new(0, 0, null!, default!, null!);
@@ -675,16 +676,15 @@ internal static class ListModuleM
         Insert(node, BuildSubTree(items), index);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ListItem<A> BuildSubTree<FA, F, FS, A>(FA items)
-        where F : Foldable<F, FS>
+    public static ListItem<A> BuildSubTree<TA, FS, A>(TA items)
+        where TA : Folding<TA, A, FS>
         where FS : allows ref struct
-        where FA : K<F, A>
     {
         var root      = ListItem<A>.EmptyM;
         var subIndex  = 0;
         FS  foldState = default!;
-        F.FoldStepInit<FA, A>(items, ref foldState);
-        while (F.FoldStep<FA, A>(items, ref foldState, out var item))
+        TA.FoldStepInit(items, ref foldState);
+        while (TA.FoldStep(items, ref foldState, out var item))
         {
             root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
             subIndex++;

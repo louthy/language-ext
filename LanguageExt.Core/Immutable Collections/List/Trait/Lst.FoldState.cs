@@ -4,53 +4,54 @@ using System.Runtime.InteropServices;
 
 namespace LanguageExt;
 
-public partial class Map
+public partial class Lst
 {
     /// <summary>
     /// Readonly ref struct used to track the state of a fold operation.
     /// </summary>
     public ref struct FoldState
     {
-        ulong FlagStack; 
-        IMapItem NodeStack0; 
-        IMapItem NodeStack1; 
-        IMapItem NodeStack2; 
-        IMapItem NodeStack3; 
-        IMapItem NodeStack4; 
-        IMapItem NodeStack5; 
-        IMapItem NodeStack6; 
-        IMapItem NodeStack7; 
-        IMapItem NodeStack8; 
-        IMapItem NodeStack9; 
-        IMapItem NodeStack10; 
-        IMapItem NodeStack11; 
-        IMapItem NodeStack12; 
-        IMapItem NodeStack13; 
-        IMapItem NodeStack14; 
-        IMapItem NodeStack15; 
-        IMapItem NodeStack16; 
-        IMapItem NodeStack17; 
-        IMapItem NodeStack18; 
-        IMapItem NodeStack19; 
-        IMapItem NodeStack20; 
-        IMapItem NodeStack21; 
-        IMapItem NodeStack22; 
-        IMapItem NodeStack23; 
-        IMapItem NodeStack24; 
-        IMapItem NodeStack25; 
-        IMapItem NodeStack26; 
-        IMapItem NodeStack27; 
-        IMapItem NodeStack28; 
-        IMapItem NodeStack29; 
-        IMapItem NodeStack30; 
-        IMapItem NodeStack31; 
+        #pragma warning disable CS0169 // Field is never used
         int Top;
+        ulong FlagStack; 
+        IListItem NodeStack0; 
+        IListItem NodeStack1; 
+        IListItem NodeStack2; 
+        IListItem NodeStack3; 
+        IListItem NodeStack4; 
+        IListItem NodeStack5; 
+        IListItem NodeStack6; 
+        IListItem NodeStack7; 
+        IListItem NodeStack8; 
+        IListItem NodeStack9; 
+        IListItem NodeStack10; 
+        IListItem NodeStack11; 
+        IListItem NodeStack12; 
+        IListItem NodeStack13; 
+        IListItem NodeStack14; 
+        IListItem NodeStack15; 
+        IListItem NodeStack16; 
+        IListItem NodeStack17; 
+        IListItem NodeStack18; 
+        IListItem NodeStack19; 
+        IListItem NodeStack20; 
+        IListItem NodeStack21; 
+        IListItem NodeStack22; 
+        IListItem NodeStack23; 
+        IListItem NodeStack24; 
+        IListItem NodeStack25; 
+        IListItem NodeStack26; 
+        IListItem NodeStack27; 
+        IListItem NodeStack28; 
+        IListItem NodeStack29; 
+        IListItem NodeStack30; 
+        IListItem NodeStack31; 
 
         const ulong FlagMask = 3;
         const int StackDepth = 32;
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void Push<K, V>(ref FoldState state, MapItem<K, V> item)
+        internal static void Push<A>(ref FoldState state, ListItem<A> item)
         {
             ref var top   = ref state.Top;
             ref var flags = ref state.FlagStack;
@@ -88,19 +89,19 @@ public partial class Map
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void Peek<K, V>(ref FoldState state, out MapItem<K, V> item)
+        static void Peek<A>(ref FoldState state, out ListItem<A> item)
         {
             var top  = state.Top;
             var span = MemoryMarshal.CreateSpan(ref state.NodeStack0, StackDepth);
-            item = span[top] as MapItem<K, V> ?? throw new InvalidOperationException("Invalid map item type");
+            item = span[top] as ListItem<A> ?? throw new InvalidOperationException("Invalid list item type");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void Init<K, V>(ref FoldState state, MapItem<K, V> root) => 
+        internal static void Init<A>(ref FoldState state, ListItem<A> root) => 
             Push(ref state, root);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool Step<K, V>(ref FoldState state, out MapItem<K, V> node)
+        internal static bool Step<A>(ref FoldState state, out ListItem<A> node)
         {
             ref var top = ref state.Top;
             while (true)
@@ -111,7 +112,7 @@ public partial class Map
                     return false;
                 }
 
-                Peek<K, V>(ref state, out var n);
+                Peek<A>(ref state, out var n);
 
                 if (n.IsEmpty)
                 {
@@ -142,7 +143,7 @@ public partial class Map
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool StepBack<K, V>(ref FoldState state, out MapItem<K, V> node)
+        internal static bool StepBack<A>(ref FoldState state, out ListItem<A> node)
         {
             ref var top = ref state.Top;
             while (true)
@@ -153,7 +154,7 @@ public partial class Map
                     return false;
                 }
 
-                Peek<K, V>(ref state, out var n);
+                Peek<A>(ref state, out var n);
 
                 if (n.IsEmpty)
                 {
