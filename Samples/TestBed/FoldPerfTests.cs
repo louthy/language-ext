@@ -17,10 +17,16 @@ public class FoldPerfTests
         var       array = arr.ToArray();
 
         Bench([
+                  ("ForeachSum", () => ForeachSum(arr)),
+                  ("ArraySum", () => ArraySum(array)),
+                  ("FoldableSum", () => FoldableSum(arr))
+              ]);
+
+        /*Bench([
                   ("ForeachCount", () => ForeachCount(arr)),
                   ("ArrayCount", () => ArrayCount(array)),
-                  ("FoldableCount", () => FoldableCount(arr)),
-              ]);
+                  ("FoldableCount", () => FoldableCount(arr))
+              ]);*/
     }
     
     static int FoldableCount(Arr<int> arr) =>
@@ -45,7 +51,30 @@ public class FoldPerfTests
         }
         return t;
     }
-     
+
+    static int FoldableSum(Arr<int> arr) =>
+        Sum<Arr, Arr.FoldState>(arr);
+
+    static int ForeachSum(Arr<int> arr)
+    {
+        var t = 0;
+        foreach (var x in arr)
+        {
+            t += x;
+        }
+        return t;
+    }
+
+    static int ArraySum(int[] arr)
+    {
+        var t = 0;
+        foreach (var x in arr)
+        {
+            t += x;
+        }
+        return t;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     static int Count<T, A, FS>(K<T, A> ta)
         where T : Foldable<T, FS>
@@ -57,6 +86,21 @@ public class FoldPerfTests
         while (T.FoldStep(ta, ref foldState, out _))
         {
             state++;
+        }
+        return state;
+    }    
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    static int Sum<T, FS>(K<T, int> ta)
+        where T : Foldable<T, FS>
+        where FS : allows ref struct
+    {
+        FS foldState = default!;
+        T.FoldStepSetup(ta, ref foldState);
+        var state = 0;
+        while (T.FoldStep(ta, ref foldState, out var x))
+        {
+            state += x;
         }
         return state;
     }    

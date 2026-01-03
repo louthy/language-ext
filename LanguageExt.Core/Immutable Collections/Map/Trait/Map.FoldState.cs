@@ -47,7 +47,8 @@ public partial class Map
         IMapItem NodeStack30; 
         IMapItem NodeStack31; 
 
-        const ulong FlagMask = 3;
+        const int FlagWidth = 2; // 2 bits wide
+        const ulong FlagMask = (1 << FlagWidth) - 1;
         const int StackDepth = 32;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -59,13 +60,14 @@ public partial class Map
         {
             ref var top   = ref state.Top;
             ref var flags = ref state.FlagStack;
-            
+            if (top == StackDepth) throw new StackOverflowException("Map.FoldState stack-overflow");
+
             // Add node
             var span  = MemoryMarshal.CreateSpan(ref state.NodeStack0, StackDepth);
             span[top] = item;
             
             // Clear the flags
-            var mask = FlagMask << (top << 2);
+            var mask = FlagMask << (top * FlagWidth);
             flags &= ~mask;
             top++;
         }
@@ -76,7 +78,7 @@ public partial class Map
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static int IncrFlags(ref FoldState state)
         {
-            var     top   = (state.Top - 1) << 2;
+            var     top   = (state.Top - 1) * FlagWidth;
             ref var flags = ref state.FlagStack;
             var     mask  = FlagMask << top;
             var     val   = (int)((flags & mask) >> top);

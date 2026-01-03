@@ -22,6 +22,13 @@ internal class TrieMap<EqK, K, V> :
     IEquatable<TrieMap<EqK, K, V>>
     where EqK : Eq<K>
 {
+    public static readonly TrieMap<EqK, K, V> Empty = new (EmptyNode.Default, 0);
+    internal static TrieMap<EqK, K, V> EmptyForMutating => new (new EmptyNode(), 0);
+
+    internal readonly Node Root;
+    readonly int count;
+    int hash;
+
     internal enum UpdateType
     {
         Add,
@@ -30,20 +37,6 @@ internal class TrieMap<EqK, K, V> :
         SetItem,
         TrySetItem
     }
-
-    internal enum Tag
-    {
-        Entries,
-        Collision,
-        Empty
-    }
-
-    public static readonly TrieMap<EqK, K, V> Empty = new (EmptyNode.Default, 0);
-    internal static TrieMap<EqK, K, V> EmptyForMutating => new (new EmptyNode(), 0);
-
-    readonly Node Root;
-    readonly int count;
-    int hash;
 
     /// <summary>
     /// Ctor
@@ -2122,9 +2115,8 @@ internal class TrieMap<EqK, K, V> :
     ///     Collision - keeps track of items that have different keys but the same hash
     /// 
     /// </summary>
-    internal interface Node : IEnumerable<(K, V)>
+    internal interface Node : IEnumerable<(K, V)>, ITrieNode
     {
-        Tag Type { get; }
         (bool Found, K Key, V? Value) Read(K key, uint hash, Sec section);
         (int CountDelta, Node Node, V? Old, bool Changed) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section);
         (int CountDelta, Node Node, V? Old) Remove(K key, uint hash, Sec section);
@@ -2147,7 +2139,7 @@ internal class TrieMap<EqK, K, V> :
         public readonly (K Key, V Value)[] Items;
         public readonly Node[] Nodes;
 
-        public Tag Type => Tag.Entries;
+        public TrieNodeTag Type => TrieNodeTag.Entries;
 
         public Entries(uint entryMap, uint nodeMap, (K, V)[] items, Node[] nodes)
         {
@@ -2200,7 +2192,7 @@ internal class TrieMap<EqK, K, V> :
 
                 switch (subNode.Type)
                 {
-                    case Tag.Entries:
+                    case TrieNodeTag.Entries:
 
                         var subEntries = (Entries)subNode;
 
@@ -2237,7 +2229,7 @@ internal class TrieMap<EqK, K, V> :
                             return (cd, new Entries(EntryMap, NodeMap, Items, nodeCopy), v);
                         }
 
-                    case Tag.Collision:
+                    case TrieNodeTag.Collision:
                         var nodeCopy2 = Clone(Nodes);
                         nodeCopy2[ind] = subNode;
                         return (cd, new Entries(EntryMap, NodeMap, Items, nodeCopy2), v);
@@ -2419,7 +2411,7 @@ internal class TrieMap<EqK, K, V> :
         public readonly (K Key, V Value)[] Items;
         public readonly uint Hash;
 
-        public Tag Type => Tag.Collision;
+        public TrieNodeTag Type => TrieNodeTag.Collision;
 
         public Collision((K Key, V Value)[] items, uint hash)
         {
@@ -2538,7 +2530,7 @@ internal class TrieMap<EqK, K, V> :
     {
         public static readonly EmptyNode Default = new EmptyNode();
 
-        public Tag Type => Tag.Empty;
+        public TrieNodeTag Type => TrieNodeTag.Empty;
 
         public (bool Found, K Key, V Value) Read(K key, uint hash, Sec section) =>
             default;

@@ -381,7 +381,7 @@ public readonly struct Arr<A> :
         internal Enumerator(in Arr<A> arr)
         {
             this.arr = arr.Value;
-            index = arr.start -1;
+            index = arr.start - 1;
             end = arr.start   + arr.length;
         }
 
