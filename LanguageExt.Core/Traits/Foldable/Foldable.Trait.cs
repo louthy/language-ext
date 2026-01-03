@@ -83,7 +83,7 @@ public interface Foldable<out T> where T : Foldable<T>
     /// <typeparam name="A">Value type</typeparam>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>A discriminated union that can be either `Done` or `Loop`.</returns>
-    static abstract Fold<A, S> FoldStepBack<A, S>(K<T, A> ta, in S initialState);    
+    static abstract Fold<A, S> FoldStepBack<A, S>(K<T, A> ta, in S initialState);
     
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once

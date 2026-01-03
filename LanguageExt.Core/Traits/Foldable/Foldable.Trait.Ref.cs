@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 
@@ -179,80 +180,6 @@ public interface Foldable<out T, FS> : Foldable<T>
         }
         return state;
     }
-    
-    /// <summary>
-    /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
-    /// early exit of the operation once the predicate function becomes `false` for the
-    /// state/value pair 
-    /// </summary>
-    static MS Foldable<T>.FoldWhileM<MS, M, A, S>(
-        Func<S, A, MS> f, 
-        Func<(S State, A Value), bool> predicate, 
-        in S initialState, 
-        K<T, A> ta)
-    {
-        var step = T.FoldStep(ta, initialState);
-        return (MS)Monad.recur(step, go); 
-
-        K<M, Next<Fold<A, S>, S>> go(Fold<A, S> step)
-        {
-            switch (step)
-            {
-                case Fold<A, S>.Done(var state):
-                    return M.Pure(Next.Done<Fold<A, S>, S>(state));
-
-                case Fold<A, S>.Loop(var state, var value, var next):
-                    if (predicate((state, value)))
-                    {
-                        return f(state, value).Map(s => Next.Loop<Fold<A, S>, S>(next(s)));
-                    }
-                    else
-                    {
-                        return M.Pure(Next.Done<Fold<A, S>, S>(state));
-                    }
-
-                default: 
-                    throw new NotSupportedException();
-            }
-        }
-    }
-
-    /// <summary>
-    /// Same behaviour as `FoldBack` but the fold operation returns a monadic type and allows
-    /// early exit of the operation once the predicate function becomes `false` for the
-    /// state/value pair 
-    /// </summary>
-    static MS Foldable<T>.FoldBackWhileM<MS, M, A, S>(
-        Func<S, A, MS> f, 
-        Func<(S State, A Value), bool> predicate, 
-        in S initialState, 
-        K<T, A> ta)
-    {
-        var step = T.FoldStepBack(ta, initialState);
-        return (MS)Monad.recur(step, go); 
-
-        K<M, Next<Fold<A, S>, S>> go(Fold<A, S> step)
-        {
-            switch (step)
-            {
-                case Fold<A, S>.Done(var state):
-                    return M.Pure(Next.Done<Fold<A, S>, S>(state));
-
-                case Fold<A, S>.Loop(var state, var value, var next):
-                    if (predicate((state, value)))
-                    {
-                        return f(state, value).Map(s => Next.Loop<Fold<A, S>, S>(next(s)));
-                    }
-                    else
-                    {
-                        return M.Pure(Next.Done<Fold<A, S>, S>(state));
-                    }
-
-                default: 
-                    throw new NotSupportedException();
-            }
-        }        
-    }
 
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
@@ -281,44 +208,7 @@ public interface Foldable<out T, FS> : Foldable<T>
         }
         return state;
     }
-    
-    /// <summary>
-    /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
-    /// early exit of the operation once the predicate function becomes `false` for the
-    /// state/value pair 
-    /// </summary>
-    static MS Foldable<T>.FoldUntilM<MS, M, A, S>(
-        Func<S, A, MS> f, 
-        Func<(S State, A Value), bool> predicate, 
-        in S initialState, 
-        K<T, A> ta) 
-    {
-        var step = T.FoldStep(ta, initialState);
-        return (MS)Monad.recur(step, go); 
 
-        K<M, Next<Fold<A, S>, S>> go(Fold<A, S> step)
-        {
-            switch (step)
-            {
-                case Fold<A, S>.Done(var state):
-                    return M.Pure(Next.Done<Fold<A, S>, S>(state));
-
-                case Fold<A, S>.Loop(var state, var value, var next):
-                    if (predicate((state, value)))
-                    {
-                        return M.Pure(Next.Done<Fold<A, S>, S>(state));
-                    }
-                    else
-                    {
-                        return f(state, value).Map(s => Next.Loop<Fold<A, S>, S>(next(s)));
-                    }
-
-                default: 
-                    throw new NotSupportedException();
-            }
-        }
-    }
-    
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair
@@ -348,43 +238,6 @@ public interface Foldable<out T, FS> : Foldable<T>
     }
 
     /// <summary>
-    /// Same behaviour as `FoldBack` but the fold operation returns a monadic type and allows
-    /// early exit of the operation once the predicate function becomes `false` for the
-    /// state/value pair 
-    /// </summary>
-    static MS Foldable<T>.FoldBackUntilM<MS, M, A, S>(
-        Func<S, A, MS> f, 
-        Func<(S State, A Value), bool> predicate, 
-        in S initialState, 
-        K<T, A> ta)
-    {
-        var step = T.FoldStepBack(ta, initialState);
-        return (MS)Monad.recur(step, go); 
-
-        K<M, Next<Fold<A, S>, S>> go(Fold<A, S> step)
-        {
-            switch (step)
-            {
-                case Fold<A, S>.Done(var state):
-                    return M.Pure(Next.Done<Fold<A, S>, S>(state));
-
-                case Fold<A, S>.Loop(var state, var value, var next):
-                    if (predicate((state, value)))
-                    {
-                        return M.Pure(Next.Done<Fold<A, S>, S>(state));
-                    }
-                    else
-                    {
-                        return f(state, value).Map(s => Next.Loop<Fold<A, S>, S>(next(s)));
-                    }
-
-                default: 
-                    throw new NotSupportedException();
-            }
-        }   
-    }
-
-    /// <summary>
     /// Right-associative fold of a structure, lazy in the accumulator.
     ///
     /// In the case of lists, 'Fold', when applied to a binary operator, a
@@ -401,37 +254,6 @@ public interface Foldable<out T, FS> : Foldable<T>
             state = f(state, value);
         }
         return state;
-    }
-    
-    /// <summary>
-    /// Right-associative fold of a structure, lazy in the accumulator.
-    ///
-    /// In the case of lists, 'Fold', when applied to a binary operator, a
-    /// starting value (typically the right-identity of the operator), and a
-    /// list, reduces the list using the binary operator, from right to left.
-    /// </summary>
-    static MS Foldable<T>.FoldM<MS, M, A, S>(
-        Func<S, A, MS> f, 
-        in S initialState, 
-        K<T, A> ta) 
-    {
-        var step = T.FoldStep(ta, initialState);
-        return (MS)Monad.recur(step, go); 
-
-        K<M, Next<Fold<A, S>, S>> go(Fold<A, S> step)
-        {
-            switch (step)
-            {
-                case Fold<A, S>.Done(var state):
-                    return M.Pure(Next.Done<Fold<A, S>, S>(state));
-
-                case Fold<A, S>.Loop(var state, var value, var next):
-                    return f(state, value).Map(s => Next.Loop<Fold<A, S>, S>(next(s)));
-
-                default: 
-                    throw new NotSupportedException();
-            }
-        }
     }
     
     /// <summary>
@@ -459,77 +281,6 @@ public interface Foldable<out T, FS> : Foldable<T>
             state = f(state, value);
         }
         return state;
-    }
-
-    /// <summary>
-    /// Left-associative fold of a structure, lazy in the accumulator.  This
-    /// is rarely what you want, but can work well for structures with efficient
-    /// right-to-left sequencing and an operator that is lazy in its left
-    /// argument.
-    /// 
-    /// In the case of lists, 'FoldLeft', when applied to a binary operator, a
-    /// starting value (typically the left-identity of the operator), and a
-    /// list, reduces the list using the binary operator, from left to right
-    /// </summary>
-    /// <remarks>
-    /// Note that to produce the outermost application of the operator the
-    /// entire input list must be traversed.  Like all left-associative folds,
-    /// `FoldBack` will diverge if given an infinite list.
-    /// </remarks>
-    static MS Foldable<T>.FoldBackM<MS, M, A, S>(
-        Func<S, A, MS> f, 
-        in S initialState, 
-        K<T, A> ta)
-    {
-        var step = T.FoldStepBack(ta, initialState);
-        return (MS)Monad.recur(step, go); 
-
-        K<M, Next<Fold<A, S>, S>> go(Fold<A, S> step)
-        {
-            switch (step)
-            {
-                case Fold<A, S>.Done(var state):
-                    return M.Pure(Next.Done<Fold<A, S>, S>(state));
-
-                case Fold<A, S>.Loop(var state, var value, var next):
-                    return f(state, value).Map(s => Next.Loop<Fold<A, S>, S>(next(s)));
-
-                default: 
-                    throw new NotSupportedException();
-            }
-        }
-    }
-    
-    /// <summary>
-    /// List of elements of a structure, from left to right
-    /// </summary>
-    /// <remarks>
-    /// The sequence is lazy
-    /// </remarks>
-    static Seq<A> Foldable<T>.ToSeq<A>(K<T, A> ta)
-    {
-        return new Seq<A>(go(ta));
-
-        IEnumerable<A> go(K<T, A> ta)
-        {
-            var step = T.FoldStep(ta, unit);
-            while (true)
-            {
-                switch (step)
-                {
-                    case Fold<A, Unit>.Done(_):
-                        yield break;
-
-                    case Fold<A, Unit>.Loop(_, var value, var next):
-                        yield return value;
-                        step = next(default);
-                        break;
-
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-        }
     }
 
     /// <summary>
@@ -566,38 +317,6 @@ public interface Foldable<out T, FS> : Foldable<T>
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
-    /// <remarks>
-    /// The sequence is lazy
-    /// </remarks>
-    static Iterable<A> Foldable<T>.ToIterable<A>(K<T, A> ta)
-    {
-        return go(ta).AsIterable();
-
-        IEnumerable<A> go(K<T, A> ta)
-        {
-            var step = T.FoldStep(ta, unit);
-            while (true)
-            {
-                switch (step)
-                {
-                    case Fold<A, Unit>.Done(_):
-                        yield break;
-
-                    case Fold<A, Unit>.Loop(_, var value, var next):
-                        yield return value;
-                        step = next(default);
-                        break;
-
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-        }
-    }
-
-    /// <summary>
-    /// List of elements of a structure, from left to right
-    /// </summary>
     static bool Foldable<T>.IsEmpty<A>(K<T, A> ta)
     {
         FS foldState = default!;
@@ -613,6 +332,7 @@ public interface Foldable<out T, FS> : Foldable<T>
     /// than via element-by-element counting, should provide a specialised
     /// implementation.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static int Foldable<T>.Count<A>(K<T, A> ta)
     {
         FS foldState = default!;
@@ -710,75 +430,6 @@ public interface Foldable<out T, FS> : Foldable<T>
     }
 
     /// <summary>
-    /// Find the elements that match the predicate
-    /// </summary>
-    /// <remarks>
-    /// The sequence is lazy
-    /// </remarks>
-    static Iterable<A> Foldable<T>.FindAll<A>(Func<A, bool> predicate, K<T, A> ta)
-    {
-        return go(ta).AsIterable();
-        IEnumerable<A> go(K<T, A> ta)
-        {
-            var step = T.FoldStep(ta, unit);
-            while (true)
-            {
-                switch (step)
-                {
-                    case Fold<A, Unit>.Done(_):
-                        yield break;
-
-                    case Fold<A, Unit>.Loop(_, var value, var next):
-                        if (predicate(value))
-                        {
-                            yield return value;
-                        }
-                        step = next(default);
-                        break;
-
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-        }
-    }
-
-    /// <summary>
-    /// Find the elements that match the predicate
-    /// </summary>
-    /// <remarks>
-    /// The sequence is lazy, but note, if the original foldable structure is lazy,
-    /// then it will need to be consumed in its entirety before the values are yielded.
-    /// </remarks>
-    static Iterable<A> Foldable<T>.FindAllBack<A>(Func<A, bool> predicate, K<T, A> ta)
-    {
-        return go(ta).AsIterable();
-        IEnumerable<A> go(K<T, A> ta)
-        {
-            var step = T.FoldStepBack(ta, unit);
-            while (true)
-            {
-                switch (step)
-                {
-                    case Fold<A, Unit>.Done(_):
-                        yield break;
-
-                    case Fold<A, Unit>.Loop(_, var value, var next):
-                        if (predicate(value))
-                        {
-                            yield return value;
-                        }
-                        step = next(default);
-                        break;
-
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-        }
-    }
-
-    /// <summary>
     /// Get the head item in the foldable or `None`
     /// </summary>
     static Option<A> Foldable<T>.Head<A>(K<T, A> ta)
@@ -809,31 +460,6 @@ public interface Foldable<out T, FS> : Foldable<T>
         else
         {
             return default;
-        }
-    }
-    
-    /// <summary>
-    /// Map each element of a structure to a monadic action, evaluate these
-    /// actions from left to right, and ignore the results. 
-    /// </summary>
-    static K<M, Unit> Foldable<T>.IterM<MB, M, A, B>(Func<A, MB> f, K<T, A> ta)
-    {
-        var step = T.FoldStep(ta, unit);
-        return Monad.recur(step, go); 
-
-        K<M, Next<Fold<A, Unit>, Unit>> go(Fold<A, Unit> step)
-        {
-            switch (step)
-            {
-                case Fold<A, Unit>.Done(_):
-                    return M.Pure(Next.Done<Fold<A, Unit>, Unit>(default));
-
-                case Fold<A, Unit>.Loop(_, var value, var next):
-                    return f(value).Map(_ => Next.Loop<Fold<A, Unit>, Unit>(next(default)));
-
-                default: 
-                    throw new NotSupportedException();
-            }
         }
     }
     

@@ -29,7 +29,8 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        Discussion1527.Run();
+        FoldPerfTests.Run();
+        //Discussion1527.Run();
         //SourceTTests.Run();
         //Issues.Discussion1527.Run();
         //RecurTests.Run();
