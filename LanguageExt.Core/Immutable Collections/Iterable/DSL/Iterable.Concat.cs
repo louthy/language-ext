@@ -48,39 +48,6 @@ sealed class IterableConcat<A>(Seq<Iterable<A>> Items) : Iterable<A>
     public override Iterable<A> Filter(Func<A, bool> f) =>
         new IterableConcat<A>(Items.Map(xs => xs.Filter(f)));
 
-    public override IO<S> FoldWhileIO<S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate, S initialState) => 
-        IO.liftVAsync(async env =>
-                      {
-                          var s  = initialState;
-                          foreach (var xxs in Items)
-                          {
-                              if (xxs.IsAsync)
-                              {
-                                  await foreach (var x in xxs.AsAsyncEnumerable(env.Token))
-                                  {
-                                      if (!predicate((s, x)))
-                                      {
-                                          return s;
-                                      }
-
-                                      s = f(x)(s);
-                                  }
-                              }
-                              else
-                              {
-                                  foreach (var x in xxs.AsEnumerable(env.Token))
-                                  {
-                                      if (!predicate((s, x)))
-                                      {
-                                          return s;
-                                      }
-                                      s = f(x)(s);
-                                  }
-                              }
-                          }
-                          return s;
-                      });
-
     public override IO<S> FoldWhileIO<S>(Func<S, A, S> f, Func<(S State, A Value), bool> predicate, S initialState) => 
         IO.liftVAsync(async env =>
                       {
@@ -107,39 +74,6 @@ sealed class IterableConcat<A>(Seq<Iterable<A>> Items) : Iterable<A>
                                           return s;
                                       }
                                       s = f(s, x);
-                                  }
-                              }
-                          }
-                          return s;
-                      });
-        
-
-    public override IO<S> FoldUntilIO<S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate, S initialState) => 
-        IO.liftVAsync(async env =>
-                      {
-                          var s  = initialState;
-                          foreach (var xxs in Items)
-                          {
-                              if (xxs.IsAsync)
-                              {
-                                  await foreach (var x in xxs.AsAsyncEnumerable(env.Token))
-                                  {
-                                      s = f(x)(s);
-                                      if (predicate((s, x)))
-                                      {
-                                          return s;
-                                      }
-                                  }
-                              }
-                              else
-                              {
-                                  foreach (var x in xxs.AsEnumerable(env.Token))
-                                  {
-                                      s = f(x)(s);
-                                      if (predicate((s, x)))
-                                      {
-                                          return s;
-                                      }
                                   }
                               }
                           }

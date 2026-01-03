@@ -373,9 +373,8 @@ public abstract class Iterable<A> :
         where F : Applicative<F>
     {
         return FoldIO(add, F.Pure(Iterable<B>.Empty)).Run();
-        Func<K<F, Iterable<B>>, K<F, Iterable<B>>> add(A value) =>
-            state =>
-                Applicative.lift((bs, b) => bs.Add(b), state, f(value));                                            
+        K<F, Iterable<B>> add(K<F, Iterable<B>> state, A value) =>
+            Applicative.lift((bs, b) => bs.Add(b), state, f(value));                                            
         
     }
 
@@ -396,9 +395,8 @@ public abstract class Iterable<A> :
         where M : Monad<M>
     {
         return FoldIO(add, M.Pure(Iterable<B>.Empty)).Run();
-
-        Func<K<M, Iterable<B>>, K<M, Iterable<B>>> add(A value) =>
-            state => state.Bind(bs => f(value).Map(bs.Add)); 
+        K<M, Iterable<B>> add(K<M, Iterable<B>> state, A value) =>
+            state.Bind(bs => f(value).Map(bs.Add)); 
     }    
 
     /// <summary>
@@ -416,11 +414,8 @@ public abstract class Iterable<A> :
         var ta = +kta;
         return F.LiftIO(ta.FoldIO(add, F.Pure(Iterable<B>.Empty))).Flatten();
 
-        Func<K<F, Iterable<B>>, K<F, Iterable<B>>> add(A value) =>
-            state =>
-                state.Bind(
-                    bs => f(value).Bind(
-                        b => F.Pure(bs.Add(b)))); 
+        K<F, Iterable<B>> add(K<F, Iterable<B>> state, A value) =>
+            state.Bind(bs => f(value).Bind(b => F.Pure(bs.Add(b)))); 
     }
 
     /// <summary>
@@ -561,22 +556,6 @@ public abstract class Iterable<A> :
     /// <typeparam name="S">State value type</typeparam>
     /// <returns>Resulting state</returns>
     public S FoldWhile<S>(
-        Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S initialState) =>
-        FoldWhileIO(f, predicate, initialState).Run();
-
-    /// <summary>
-    /// Fold over the sequence from the left, accumulating state in `f`
-    /// </summary>
-    /// <param name="f">Fold function to apply to each item in the sequence</param>
-    /// <param name="predicate">Continue while the predicate returns true for any pair of value and state.
-    /// This is tested before the value is processed and the state is updated. So, use `FoldWhile*` for pre-assertions.
-    /// </param>
-    /// <param name="initialState">Initial state value</param>
-    /// <typeparam name="S">State value type</typeparam>
-    /// <returns>Resulting state</returns>
-    public S FoldWhile<S>(
         Func<S, A, S> f,
         Func<(S State, A Value), bool> predicate,
         S initialState) =>
@@ -593,40 +572,9 @@ public abstract class Iterable<A> :
     /// <typeparam name="S">State value type</typeparam>
     /// <returns>Resulting state</returns>
     public abstract IO<S> FoldWhileIO<S>(
-        Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S initialState);
-
-    /// <summary>
-    /// Fold over the sequence from the left, accumulating state in `f`
-    /// </summary>
-    /// <param name="f">Fold function to apply to each item in the sequence</param>
-    /// <param name="predicate">Continue while the predicate returns true for any pair of value and state.
-    /// This is tested before the value is processed and the state is updated. So, use `FoldWhile*` for pre-assertions.
-    /// </param>
-    /// <param name="initialState">Initial state value</param>
-    /// <typeparam name="S">State value type</typeparam>
-    /// <returns>Resulting state</returns>
-    public abstract IO<S> FoldWhileIO<S>(
         Func<S, A, S> f,
         Func<(S State, A Value), bool> predicate,
         S initialState);
-
-    /// <summary>
-    /// Fold over the sequence from the left, accumulating state in `f`
-    /// </summary>
-    /// <param name="f">Fold function to apply to each item in the sequence</param>
-    /// <param name="predicate">Continue while the predicate returns true for any pair of value and state.
-    /// This is tested before the value is processed and the state is updated. So, use `FoldWhile*` for pre-assertions.
-    /// </param>
-    /// <param name="initialState">Initial state value</param>
-    /// <typeparam name="S">State value type</typeparam>
-    /// <returns>Resulting state</returns>
-    public S FoldUntil<S>(
-        Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S initialState) =>
-        FoldUntilIO(f, predicate, initialState).Run();
 
     /// <summary>
     /// Fold over the sequence from the left, accumulating state in `f`
@@ -655,37 +603,9 @@ public abstract class Iterable<A> :
     /// <typeparam name="S">State value type</typeparam>
     /// <returns>Resulting state</returns>
     public abstract IO<S> FoldUntilIO<S>(
-        Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate,
-        S initialState);
-
-    /// <summary>
-    /// Fold over the sequence from the left, accumulating state in `f`
-    /// </summary>
-    /// <param name="f">Fold function to apply to each item in the sequence</param>
-    /// <param name="predicate">Continue while the predicate returns true for any pair of value and state.
-    /// This is tested before the value is processed and the state is updated. So, use `FoldWhile*` for pre-assertions.
-    /// </param>
-    /// <param name="initialState">Initial state value</param>
-    /// <typeparam name="S">State value type</typeparam>
-    /// <returns>Resulting state</returns>
-    public abstract IO<S> FoldUntilIO<S>(
         Func<S, A, S> f,
         Func<(S State, A Value), bool> predicate,
         S initialState);
-
-    /// <summary>
-    /// Fold until the `Option` returns `None`
-    /// </summary>
-    /// <param name="f">Fold function</param>
-    /// <param name="initialState">Initial state for the fold</param>
-    /// <param name="ta">Foldable structure</param>
-    /// <typeparam name="S">State type</typeparam>
-    /// <returns>Aggregated value</returns>
-    public S FoldMaybe<S>(
-        Func<S, Func<A, Option<S>>> f,
-        S initialState) =>
-        FoldMaybeIO(f, initialState).Run();
 
     /// <summary>
     /// Fold until the `Option` returns `None`
@@ -699,27 +619,6 @@ public abstract class Iterable<A> :
         Func<S, A, Option<S>> f,
         S initialState) =>
         FoldMaybeIO(f, initialState).Run();
-
-    /// <summary>
-    /// Fold until the `Option` returns `None`
-    /// </summary>
-    /// <param name="f">Fold function</param>
-    /// <param name="initialState">Initial state for the fold</param>
-    /// <param name="ta">Foldable structure</param>
-    /// <typeparam name="S">State type</typeparam>
-    /// <returns>Aggregated value</returns>
-    public IO<S> FoldMaybeIO<S>(
-        Func<S, Func<A, Option<S>>> f,
-        S initialState) =>
-        FoldWhileIO<(bool IsSome, S Value)>(
-                a => s => f(s.Value)(a) switch
-                          {
-                              { IsSome: true, Case: S value } => (true, value),
-                              _                               => (false, s.Value)
-                          },
-                s => s.State.IsSome,
-                (true, initialState))
-           .Map(s => s.Value);
 
     /// <summary>
     /// Fold until the `Option` returns `None`
@@ -748,24 +647,6 @@ public abstract class Iterable<A> :
     /// state/value pair 
     /// </summary>
     public K<M, S> FoldWhileM<M, S>(
-        Func<A, Func<S, K<M, S>>> f, 
-        Func<A, bool> predicate, 
-        S initialState) 
-        where M : MonadIO<M>
-    {
-        return FoldWhileIO(acc, s => predicate(s.Value), Monad.pure<M, S>)
-                  .Bind(f1 => f1(initialState));
-
-        Func<Func<S, K<M, S>>, Func<S, K<M, S>>> acc(A value) =>
-            bind => state => Monad.bind(f(value)(state), bind);
-    }
-
-    /// <summary>
-    /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
-    /// early exit of the operation once the predicate function becomes `false` for the
-    /// state/value pair 
-    /// </summary>
-    public K<M, S> FoldWhileM<M, S>(
         Func<S, A, K<M, S>> f, 
         Func<A, bool> predicate, 
         S initialState) 
@@ -774,8 +655,8 @@ public abstract class Iterable<A> :
         return FoldWhileIO(acc, s => predicate(s.Value), Monad.pure<M, S>)
            .Bind(f1 => f1(initialState));
 
-        Func<Func<S, K<M, S>>, Func<S, K<M, S>>> acc(A value) =>
-            bind => state => Monad.bind(f(state, value), bind);
+        Func<S, K<M, S>> acc(Func<S, K<M, S>> bind, A value) =>
+            state => Monad.bind(f(state, value), bind);
     }
 
     /// <summary>
@@ -791,8 +672,8 @@ public abstract class Iterable<A> :
     {
         return FoldUntilIO(acc, s => predicate(s.Value), Monad.pure<M, S>).Bind(f1 => f1(initialState));
 
-        Func<Func<S, K<M, S>>, Func<S, K<M, S>>> acc(A value) =>
-            bind => state => Monad.bind(f(value)(state), bind);
+        Func<S, K<M, S>> acc(Func<S, K<M, S>> bind, A value) =>
+            state => Monad.bind(f(value)(state), bind);
     }
 
     /// <summary>
@@ -808,19 +689,9 @@ public abstract class Iterable<A> :
     {
         return FoldUntilIO(acc, s => predicate(s.Value), Monad.pure<M, S>).Bind(f1 => f1(initialState));
 
-        Func<Func<S, K<M, S>>, Func<S, K<M, S>>> acc(A value) =>
-            bind => state => Monad.bind(f(state, value), bind);
+        Func<S, K<M, S>> acc(Func<S, K<M, S>> bind, A value) =>
+            state => Monad.bind(f(state, value), bind);
     }
-
-    /// <summary>
-    /// Right-associative fold of a structure, lazy in the accumulator.
-    ///
-    /// In the case of lists, 'Fold', when applied to a binary operator, a
-    /// starting value (typically the right-identity of the operator), and a
-    /// list, reduces the list using the binary operator, from right to left.
-    /// </summary>
-    public S Fold<S>(Func<A, Func<S, S>> f, S initialState) =>
-        FoldIO(f, initialState).Run();
 
     /// <summary>
     /// Right-associative fold of a structure, lazy in the accumulator.
@@ -831,16 +702,6 @@ public abstract class Iterable<A> :
     /// </summary>
     public S Fold<S>(Func<S, A, S> f, S initialState) =>
         FoldIO(f, initialState).Run();
-
-    /// <summary>
-    /// Right-associative fold of a structure, lazy in the accumulator.
-    ///
-    /// In the case of lists, 'Fold', when applied to a binary operator, a
-    /// starting value (typically the right-identity of the operator), and a
-    /// list, reduces the list using the binary operator, from right to left.
-    /// </summary>
-    public IO<S> FoldIO<S>(Func<A, Func<S, S>> f, S initialState) =>
-        FoldWhileIO(f, _ => true, initialState);
 
     /// <summary>
     /// Right-associative fold of a structure, lazy in the accumulator.
@@ -860,93 +721,15 @@ public abstract class Iterable<A> :
     /// list, reduces the list using the binary operator, from right to left.
     /// </summary>
     public K<M, S> FoldM<M, S>(
-        Func<A, Func<S, K<M, S>>> f, 
-        S initialState) 
-        where M : MonadIO<M>
-    {
-        return FoldIO(acc, Monad.pure<M, S>).Bind(f => f(initialState));
-
-        Func<Func<S, K<M, S>>, Func<S, K<M, S>>> acc(A value) =>
-            bind => state => Monad.bind(f(value)(state), bind);
-    }
-
-    /// <summary>
-    /// Right-associative fold of a structure, lazy in the accumulator.
-    ///
-    /// In the case of lists, 'Fold', when applied to a binary operator, a
-    /// starting value (typically the right-identity of the operator), and a
-    /// list, reduces the list using the binary operator, from right to left.
-    /// </summary>
-    public K<M, S> FoldM<M, S>(
         Func<S, A, K<M, S>> f, 
         S initialState) 
         where M : MonadIO<M>
     {
         return FoldIO(acc, Monad.pure<M, S>).Bind(f => f(initialState));
 
-        Func<Func<S, K<M, S>>, Func<S, K<M, S>>> acc(A value) =>
-            bind => state => Monad.bind(f(state, value), bind);
+        Func<S, K<M, S>> acc(Func<S, K<M, S>> bind, A value) =>
+            state => Monad.bind(f(state, value), bind);
     }
-
-    /// <summary>
-    /// Map each element of the structure into a monoid, and combine the
-    /// results with `Append`.  This fold is right-associative and lazy in the
-    /// accumulator.  For strict left-associative folds consider `FoldMapBack`
-    /// instead.
-    /// </summary>
-    public B FoldMap<B>(Func<A, B> f)
-        where B : Monoid<B> =>
-        FoldMapIO(f).Run();
-
-    /// <summary>
-    /// Map each element of the structure into a monoid, and combine the
-    /// results with `Append`.  This fold is right-associative and lazy in the
-    /// accumulator.  For strict left-associative folds consider `FoldMapBack`
-    /// instead.
-    /// </summary>
-    public IO<B> FoldMapIO<B>(Func<A, B> f)
-        where B : Monoid<B> =>
-        FoldIO(x => a => f(x).Combine(a), B.Empty);
-
-    /// <summary>
-    /// Map each element of the structure into a monoid, and combine the
-    /// results with `Append`.  This fold is right-associative and lazy in the
-    /// accumulator.  For strict left-associative folds consider `FoldMapBack`
-    /// instead.
-    /// </summary>
-    public B FoldMapWhile<B>(Func<A, B> f, Func<(B State, A Value), bool> predicate)
-        where B : Monoid<B> =>
-        FoldMapWhileIO(f, predicate).Run();
-
-    /// <summary>
-    /// Map each element of the structure into a monoid, and combine the
-    /// results with `Append`.  This fold is right-associative and lazy in the
-    /// accumulator.  For strict left-associative folds consider `FoldMapBack`
-    /// instead.
-    /// </summary>
-    public IO<B> FoldMapWhileIO<B>(Func<A, B> f, Func<(B State, A Value), bool> predicate)
-        where B : Monoid<B> =>
-        FoldWhileIO(x => a => f(x).Combine(a), predicate, B.Empty);
-
-    /// <summary>
-    /// Map each element of the structure into a monoid, and combine the
-    /// results with `Append`.  This fold is right-associative and lazy in the
-    /// accumulator.  For strict left-associative folds consider `FoldMapBack`
-    /// instead.
-    /// </summary>
-    public B FoldMapUntil<B>(Func<A, B> f, Func<(B State, A Value), bool> predicate)
-        where B : Monoid<B> =>
-        FoldMapUntilIO(f, predicate).Run();
-
-    /// <summary>
-    /// Map each element of the structure into a monoid, and combine the
-    /// results with `Append`.  This fold is right-associative and lazy in the
-    /// accumulator.  For strict left-associative folds consider `FoldMapBack`
-    /// instead.
-    /// </summary>
-    public IO<B> FoldMapUntilIO<B>(Func<A, B> f, Func<(B State, A Value), bool> predicate)
-        where B : Monoid<B> =>
-        FoldUntilIO(x => a => f(x).Combine(a), predicate, B.Empty);
     
     /// <summary>
     /// Returns true if the sequence has items in it

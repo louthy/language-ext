@@ -32,16 +32,8 @@ sealed class IterableSingleton<A>(A Value) : Iterable<A>
     public override Iterable<A> Filter(Func<A, bool> f) =>
         f(Value) ? this : Empty;
 
-    public override IO<S> FoldWhileIO<S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate,
-                                         S initialState) =>
-        IO.lift(_ => predicate((initialState, Value)) ? f(Value)(initialState) : initialState);
-
     public override IO<S> FoldWhileIO<S>(Func<S, A, S> f, Func<(S State, A Value), bool> predicate, S initialState) =>
         IO.lift(_ => predicate((initialState, Value)) ? f(initialState, Value) : initialState);
-
-    public override IO<S> FoldUntilIO<S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate,
-                                         S initialState) =>
-        IO.lift(_ => f(Value)(initialState));
 
     public override IO<S> FoldUntilIO<S>(Func<S, A, S> f, Func<(S State, A Value), bool> predicate, S initialState) =>
         IO.lift(_ => f(initialState, Value));

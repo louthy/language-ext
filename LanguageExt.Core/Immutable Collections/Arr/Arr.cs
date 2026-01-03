@@ -8,7 +8,6 @@ using static LanguageExt.Prelude;
 using LanguageExt.Traits;
 using LanguageExt.ClassInstances;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace LanguageExt;
 
@@ -372,6 +371,20 @@ public readonly struct Arr<A> :
     public Enumerator GetEnumerator() =>
         new (this);
 
+    /// <summary>
+    /// Get enumerator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public IEnumerable<A> AsEnumerable()
+    {
+        var iter = new Enumerator(this);
+        while (iter.MoveNext())
+        {
+            yield return iter.Current;
+        }
+    }
+    
     public struct Enumerator
     {
         readonly A[] arr;
@@ -382,12 +395,13 @@ public readonly struct Arr<A> :
         {
             this.arr = arr.Value;
             index = arr.start - 1;
-            end = arr.start   + arr.length;
+            end = arr.start + arr.length;
         }
 
         public readonly A Current => arr[index];
 
-        public bool MoveNext() => ++index < end;
+        public bool MoveNext() => 
+            ++index < end;
     }
 
     /// <summary>
@@ -643,14 +657,25 @@ public readonly struct Arr<A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    IEnumerator IEnumerable.GetEnumerator() =>
-        Value.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        var iter = new Enumerator(this);
+        while(iter.MoveNext())
+        {
+            yield return iter.Current;
+        }
+    }
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
-        // ReSharper disable once NotDisposedResourceIsReturned
-        Value.AsEnumerable().GetEnumerator();
+    IEnumerator<A> IEnumerable<A>.GetEnumerator()
+    {
+        var iter = new Enumerator(this);
+        while(iter.MoveNext())
+        {
+            yield return iter.Current;
+        }
+    }
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

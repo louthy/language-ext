@@ -62,7 +62,7 @@ public static partial class IterableExtensions
         /// use 'foldMap'' instead, with 'id' as the map.
         /// </summary>
         public IO<A> FoldIO() =>
-            list.FoldMapIO(identity); 
+            list.FoldIO(Monoid.combine, A.Empty);
 
         /// <summary>
         /// Given a structure with elements whose type is a `Monoid`, combine them
@@ -80,7 +80,7 @@ public static partial class IterableExtensions
         /// use 'foldMap'' instead, with 'id' as the map.
         /// </summary>
         public IO<A> FoldWhileIO(Func<(A State, A Value), bool> predicate) =>
-            list.FoldMapWhileIO(identity, predicate);
+            list.FoldWhileIO(Monoid.combine, predicate, A.Empty);
 
         /// <summary>
         /// Given a structure with elements whose type is a `Monoid`, combine them
@@ -98,6 +98,6 @@ public static partial class IterableExtensions
         /// use 'foldMap'' instead, with 'id' as the map.
         /// </summary>
         public IO<A> FoldUntilIO(Func<(A State, A Value), bool> predicate) =>
-            list.FoldMapUntilIO(identity, predicate);
+            list.FoldUntilIO(Monoid.combine, predicate, A.Empty);
     }
 }

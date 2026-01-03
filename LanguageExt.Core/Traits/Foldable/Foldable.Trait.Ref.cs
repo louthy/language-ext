@@ -135,7 +135,7 @@ public interface Foldable<out T, FS> : Foldable<T>
         
         while (T.FoldStep(ta, ref foldState, out var value))
         {
-            var option = f(initialState, value);
+            var option = f(state, value);
             if (option.IsSome)
             {
                 state = (S)option;
@@ -168,7 +168,7 @@ public interface Foldable<out T, FS> : Foldable<T>
         
         while (T.FoldStepBack(ta, ref foldState, out var value))
         {
-            var option = f(initialState, value);
+            var option = f(state, value);
             if (option.IsSome)
             {
                 state = (S)option;

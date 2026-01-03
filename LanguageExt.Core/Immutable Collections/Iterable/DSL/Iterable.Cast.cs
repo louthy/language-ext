@@ -49,14 +49,8 @@ sealed class IterableCast<X, A>(Iterable<X> Items) : Iterable<A>
     public override Iterable<A> Filter(Func<A, bool> f) =>
         Make().Filter(f);
 
-    public override IO<S> FoldWhileIO<S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate, S initialState) => 
-        Make().FoldWhileIO(f, predicate, initialState);
-
     public override IO<S> FoldWhileIO<S>(Func<S, A, S> f, Func<(S State, A Value), bool> predicate, S initialState) => 
         Make().FoldWhileIO(f, predicate, initialState);
-
-    public override IO<S> FoldUntilIO<S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate, S initialState) => 
-        Make().FoldUntilIO(f, predicate, initialState);
 
     public override IO<S> FoldUntilIO<S>(Func<S, A, S> f, Func<(S State, A Value), bool> predicate, S initialState) => 
         Make().FoldUntilIO(f, predicate, initialState);

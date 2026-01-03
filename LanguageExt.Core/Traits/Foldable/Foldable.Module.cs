@@ -474,4 +474,36 @@ public static class Foldable
     public static (Seq<A> True, Seq<A> False) partition<T, A>(Func<A, bool> f, K<T, A> ta)
         where T : Foldable<T> =>
         ta.Partition(f);
+
+    /// <summary>
+    /// Low-level interface for folding using stack-based primitives.
+    /// </summary>
+    public static void stepSetup<T, FS, A>(K<T, A> ta, ref FS refState)
+        where T : Foldable<T, FS> 
+        where FS : allows ref struct =>
+        T.FoldStepSetup(ta, ref refState);
+
+    /// <summary>
+    /// Low-level interface for folding using stack-based primitives.
+    /// </summary>
+    public static bool step<T, FS, A>(K<T, A> ta, ref FS refState, out A value)
+        where T : Foldable<T, FS> 
+        where FS : allows ref struct =>
+        T.FoldStep(ta, ref refState, out value);
+
+    /// <summary>
+    /// Low-level interface for folding using stack-based primitives.
+    /// </summary>
+    public static void stepBackSetup<T, FS, A>(K<T, A> ta, ref FS refState)
+        where T : Foldable<T, FS> 
+        where FS : allows ref struct =>
+        T.FoldStepBackSetup(ta, ref refState);
+
+    /// <summary>
+    /// Low-level interface for folding using stack-based primitives.
+    /// </summary>
+    public static bool stepBack<T, FS, A>(K<T, A> ta, ref FS refState, out A value)
+        where T : Foldable<T, FS> 
+        where FS : allows ref struct =>
+        T.FoldStepBack(ta, ref refState, out value);
 }

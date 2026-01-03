@@ -5,13 +5,47 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 public partial class HashMapEq<EqKey, Key> : 
-    Foldable<HashMapEq<EqKey, Key>>, 
+    Foldable<HashMapEq<EqKey, Key>, TrieMap.FoldState>, 
     MonoidK<HashMapEq<EqKey, Key>>,
     Functor<HashMapEq<EqKey, Key>>
     where EqKey : Eq<Key>
 {
     static int Foldable<HashMapEq<EqKey, Key>>.Count<A>(K<HashMapEq<EqKey, Key>, A> ta) =>
         ta.As().Count;
+
+    static void Foldable<HashMapEq<EqKey, Key>, TrieMap.FoldState>.FoldStepSetup<A>(K<HashMapEq<EqKey, Key>, A> ta, ref TrieMap.FoldState refState) => 
+        TrieMap.FoldState.Setup(ref refState, ta.As().Value.Root);
+
+    static bool Foldable<HashMapEq<EqKey, Key>, TrieMap.FoldState>.FoldStep<A>(K<HashMapEq<EqKey, Key>, A> ta, ref TrieMap.FoldState refState, out A value) 
+    {
+        if (TrieMap.FoldState.Step<EqKey, Key, A>(ref refState, out var kv))
+        {
+            value = kv.Value;
+            return true;
+        }
+        else
+        {
+            value = default!;
+            return false;
+        }
+    }
+
+    static void Foldable<HashMapEq<EqKey, Key>, TrieMap.FoldState>.FoldStepBackSetup<A>(K<HashMapEq<EqKey, Key>, A> ta, ref TrieMap.FoldState refState) => 
+        TrieMap.FoldState.Setup(ref refState, ta.As().Value.Root);
+
+    static bool Foldable<HashMapEq<EqKey, Key>, TrieMap.FoldState>.FoldStepBack<A>(K<HashMapEq<EqKey, Key>, A> ta, ref TrieMap.FoldState refState, out A value) 
+    {
+        if (TrieMap.FoldState.Step<EqKey, Key, A>(ref refState, out var kv))
+        {
+            value = kv.Value;
+            return true;
+        }
+        else
+        {
+            value = default!;
+            return false;
+        }
+    }
 
     static bool Foldable<HashMapEq<EqKey, Key>>.IsEmpty<A>(K<HashMapEq<EqKey, Key>, A> ta) =>
         ta.As().IsEmpty;

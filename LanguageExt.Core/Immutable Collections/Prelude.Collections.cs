@@ -932,13 +932,8 @@ public static partial class Prelude
         }
     }
         
-    /// <summary>
-    /// Construct a sequence from an Enumerable
-    /// Deals with `value == null` by returning `[]` and also memoizes the
-    /// items in the enumerable as they're being consumed.
-    /// </summary>
     [Pure]
-    public static Iterable<A> Iterable<A>(IEnumerable<A>? value) =>
+    public static Iterable<A> toIterable<A>(IEnumerable<A>? value) =>
         value switch
         {
             null                => LanguageExt.Iterable<A>.Empty,
@@ -950,7 +945,7 @@ public static partial class Prelude
         };
     
     [Pure]
-    public static Iterable<A> Iterable<A>(IAsyncEnumerable<A>? value) =>
+    public static Iterable<A> toIterable<A>(IAsyncEnumerable<A>? value) =>
         value switch
         {
             null             => LanguageExt.Iterable<A>.Empty,

@@ -54,22 +54,6 @@ sealed class IterableStrict<A>(SeqStrict<A> Items) : Iterable<A>
     public override Iterable<A> Filter(Func<A, bool> f) =>
         new IterableStrict<A>(Items.Filter(f));
 
-    public override IO<S> FoldWhileIO<S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate, S initialState) => 
-        IO.liftVAsync(async env =>
-                      {
-                          var s  = initialState;
-                          foreach (var x in Items)
-                          {
-                              if(env.Token.IsCancellationRequested) throw new OperationCanceledException();
-                              if (!predicate((s, x)))
-                              {
-                                  return s;
-                              }
-                              s = f(x)(s);
-                          }
-                          return s;
-                      });
-
     public override IO<S> FoldWhileIO<S>(Func<S, A, S> f, Func<(S State, A Value), bool> predicate, S initialState) => 
         IO.liftVAsync(async env =>
                       {
@@ -82,23 +66,6 @@ sealed class IterableStrict<A>(SeqStrict<A> Items) : Iterable<A>
                                   return s;
                               }
                               s = f(s, x);
-                          }
-                          return s;
-                      });
-
-
-    public override IO<S> FoldUntilIO<S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate, S initialState) => 
-        IO.liftVAsync(async env =>
-                      {
-                          var s  = initialState;
-                          foreach (var x in Items)
-                          {
-                              if(env.Token.IsCancellationRequested) throw new OperationCanceledException();
-                              s = f(x)(s);
-                              if (predicate((s, x)))
-                              {
-                                  return s;
-                              }
                           }
                           return s;
                       });

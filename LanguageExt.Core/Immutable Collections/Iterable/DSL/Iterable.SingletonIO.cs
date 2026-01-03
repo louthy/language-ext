@@ -38,14 +38,8 @@ sealed class IterableSingletonIO<A>(IO<A> Value) : Iterable<A>
     public override Iterable<A> Filter(Func<A, bool> f) =>
         new IterableEnumerable<A>(AsEnumerableIO().Map(xs => xs.Where(f)));
 
-    public override IO<S> FoldWhileIO<S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate, S initialState) =>
-        Value.Map(x => predicate((initialState, x)) ? f(x)(initialState) : initialState);
-
     public override IO<S> FoldWhileIO<S>(Func<S, A, S> f, Func<(S State, A Value), bool> predicate, S initialState) =>
         Value.Map(x => predicate((initialState, x)) ? f(initialState, x) : initialState);
-
-    public override IO<S> FoldUntilIO<S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate, S initialState) =>
-        Value.Map(x => f(x)(initialState));
 
     public override IO<S> FoldUntilIO<S>(Func<S, A, S> f, Func<(S State, A Value), bool> predicate, S initialState) =>
         Value.Map(x => f(initialState, x));

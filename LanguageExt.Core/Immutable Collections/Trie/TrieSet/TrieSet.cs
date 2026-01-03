@@ -30,16 +30,9 @@ internal class TrieSet<EqK, K> :
         TrySetItem
     }
 
-    internal enum Tag
-    {
-        Entries,
-        Collision,
-        Empty
-    }
-
     public static readonly TrieSet<EqK, K> Empty = new (EmptyNode.Default, 0);
 
-    readonly Node Root;
+    internal readonly Node Root;
     readonly int count;
     int hash;
 
@@ -618,9 +611,8 @@ internal class TrieSet<EqK, K> :
     ///     Collision - keeps track of items that have different keys but the same hash
     /// 
     /// </summary>
-    internal interface Node : IEnumerable<K>
+    internal interface Node : IEnumerable<K>, ITrieNode
     {
-        Tag Type { get; }
         (bool Found, K Key) Read(K key, uint hash, Sec section);
         (int CountDelta, Node Node) Update((UpdateType Type, bool Mutate) env, K change, uint hash, Sec section);
         (int CountDelta, Node Node) Remove(K key, uint hash, Sec section);
@@ -643,7 +635,7 @@ internal class TrieSet<EqK, K> :
         public readonly K[] Items;
         public readonly Node[] Nodes;
 
-        public Tag Type => Tag.Entries;
+        public TrieNodeTag Type => TrieNodeTag.Entries;
 
         public Entries(uint entryMap, uint nodeMap, K[] items, Node[] nodes)
         {
@@ -693,7 +685,7 @@ internal class TrieSet<EqK, K> :
 
                 switch (subNode.Type)
                 {
-                    case Tag.Entries:
+                    case TrieNodeTag.Entries:
 
                         var subEntries = (Entries)subNode;
 
@@ -727,7 +719,7 @@ internal class TrieSet<EqK, K> :
                             return (cd, new Entries(EntryMap, NodeMap, Items, nodeCopy));
                         }
 
-                    case Tag.Collision:
+                    case TrieNodeTag.Collision:
                         var nodeCopy2 = Clone(Nodes);
                         nodeCopy2[ind] = subNode;
                         return (cd, new Entries(EntryMap, NodeMap, Items, nodeCopy2));
@@ -913,7 +905,7 @@ internal class TrieSet<EqK, K> :
         public readonly K[] Items;
         public readonly uint Hash;
 
-        public Tag Type => Tag.Collision;
+        public TrieNodeTag Type => TrieNodeTag.Collision;
 
         public Collision(K[] items, uint hash)
         {
@@ -1027,7 +1019,7 @@ internal class TrieSet<EqK, K> :
     {
         public static readonly EmptyNode Default = new EmptyNode();
 
-        public Tag Type => Tag.Empty;
+        public TrieNodeTag Type => TrieNodeTag.Empty;
 
         public (bool Found, K Key) Read(K key, uint hash, Sec section) =>
             default;

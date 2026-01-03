@@ -59,4 +59,65 @@ public static partial class IterableNEExtensions
         public Iterable<B> Choose<B>(Func<A, Option<B>> selector) =>
             IterableNE.choose(list, selector);
     }
+    
+    
+    /// <param name="list">sequence</param>
+    /// <typeparam name="A">sequence item type</typeparam>
+    extension<A>(IterableNE<A> list)
+        where A : Monoid<A>
+    {
+        /// <summary>
+        /// Given a structure with elements whose type is a `Monoid`, combine them
+        /// via the monoid's `Append` operator.  This fold is right-associative and
+        /// lazy in the accumulator.  When you need a strict left-associative fold,
+        /// use 'foldMap'' instead, with 'id' as the map.
+        /// </summary>
+        public A Fold() =>
+            list.FoldIO().Run();
+
+        /// <summary>
+        /// Given a structure with elements whose type is a `Monoid`, combine them
+        /// via the monoid's `Append` operator.  This fold is right-associative and
+        /// lazy in the accumulator.  When you need a strict left-associative fold,
+        /// use 'foldMap'' instead, with 'id' as the map.
+        /// </summary>
+        public IO<A> FoldIO() =>
+            list.FoldIO(Monoid.combine, A.Empty);
+
+        /// <summary>
+        /// Given a structure with elements whose type is a `Monoid`, combine them
+        /// via the monoid's `Append` operator.  This fold is right-associative and
+        /// lazy in the accumulator.  When you need a strict left-associative fold,
+        /// use 'foldMap'' instead, with 'id' as the map.
+        /// </summary>
+        public A FoldWhile(Func<(A State, A Value), bool> predicate) =>
+            list.FoldWhileIO(predicate).Run();
+
+        /// <summary>
+        /// Given a structure with elements whose type is a `Monoid`, combine them
+        /// via the monoid's `Append` operator.  This fold is right-associative and
+        /// lazy in the accumulator.  When you need a strict left-associative fold,
+        /// use 'foldMap'' instead, with 'id' as the map.
+        /// </summary>
+        public IO<A> FoldWhileIO(Func<(A State, A Value), bool> predicate) =>
+            list.FoldWhileIO(Monoid.combine, predicate, A.Empty);
+
+        /// <summary>
+        /// Given a structure with elements whose type is a `Monoid`, combine them
+        /// via the monoid's `Append` operator.  This fold is right-associative and
+        /// lazy in the accumulator.  When you need a strict left-associative fold,
+        /// use 'foldMap'' instead, with 'id' as the map.
+        /// </summary>
+        public A FoldUntil(Func<(A State, A Value), bool> predicate) =>
+            list.FoldUntilIO(predicate).Run();
+
+        /// <summary>
+        /// Given a structure with elements whose type is a `Monoid`, combine them
+        /// via the monoid's `Append` operator.  This fold is right-associative and
+        /// lazy in the accumulator.  When you need a strict left-associative fold,
+        /// use 'foldMap'' instead, with 'id' as the map.
+        /// </summary>
+        public IO<A> FoldUntilIO(Func<(A State, A Value), bool> predicate) =>
+            list.FoldUntilIO(Monoid.combine, predicate, A.Empty);
+    }
 }

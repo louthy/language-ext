@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using LanguageExt.Common;
+using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -11,7 +10,8 @@ public partial class HashSet :
     Monad<HashSet>, 
     MonoidK<HashSet>,
     Alternative<HashSet>, 
-    Traversable<HashSet>
+    Traversable<HashSet>,
+    Foldable<HashSet, TrieSet.FoldState> 
 {
     static K<HashSet, B> Monad<HashSet>.Recur<A, B>(A value, Func<A, K<HashSet, Next<A, B>>> f) =>
         createRange(Monad.enumerableRecur(value, x =>f(x).As().AsEnumerable()));
@@ -101,6 +101,18 @@ public partial class HashSet :
 
     static int Foldable<HashSet>.Count<A>(K<HashSet, A> ta) =>
         ta.As().Count;
+
+    static void Foldable<HashSet, TrieSet.FoldState>.FoldStepSetup<A>(K<HashSet, A> ta, ref TrieSet.FoldState refState) => 
+        TrieSet.FoldState.Setup(ref refState, ta.As().Value.Root);
+
+    static bool Foldable<HashSet, TrieSet.FoldState>.FoldStep<A>(K<HashSet, A> ta, ref TrieSet.FoldState refState, out A value) =>
+        TrieSet.FoldState.Step<EqDefault<A>, A>(ref refState, out value);
+    
+    static void Foldable<HashSet, TrieSet.FoldState>.FoldStepBackSetup<A>(K<HashSet, A> ta, ref TrieSet.FoldState refState) => 
+        TrieSet.FoldState.Setup(ref refState, ta.As().Value.Root);
+
+    static bool Foldable<HashSet, TrieSet.FoldState>.FoldStepBack<A>(K<HashSet, A> ta, ref TrieSet.FoldState refState, out A value) => 
+        TrieSet.FoldState.Step<EqDefault<A>, A>(ref refState, out value);
 
     static bool Foldable<HashSet>.IsEmpty<A>(K<HashSet, A> ta) =>
         ta.As().IsEmpty;

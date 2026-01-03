@@ -94,14 +94,8 @@ sealed class IterableZip<A, B>(Iterable<A> First, Iterable<B> Second) : Iterable
     public override Iterable<(A First, B Second)> Filter(Func<(A First, B Second), bool> f) => 
         Make().Filter(f);
 
-    public override IO<S> FoldWhileIO<S>(Func<(A First, B Second), Func<S, S>> f, Func<(S State, (A First, B Second) Value), bool> predicate, S initialState) => 
-        Make().FoldWhileIO(f, predicate, initialState);
-
     public override IO<S> FoldWhileIO<S>(Func<S, (A First, B Second), S> f, Func<(S State, (A First, B Second) Value), bool> predicate, S initialState) => 
         Make().FoldWhileIO(f, predicate, initialState);
-
-    public override IO<S> FoldUntilIO<S>(Func<(A First, B Second), Func<S, S>> f, Func<(S State, (A First, B Second) Value), bool> predicate, S initialState) => 
-        Make().FoldUntilIO(f, predicate, initialState);
 
     public override IO<S> FoldUntilIO<S>(Func<S, (A First, B Second), S> f, Func<(S State, (A First, B Second) Value), bool> predicate, S initialState) => 
         Make().FoldUntilIO(f, predicate, initialState);

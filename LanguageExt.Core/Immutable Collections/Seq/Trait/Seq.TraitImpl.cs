@@ -186,17 +186,12 @@ public partial class Seq :
                        .Map(bs => bs.Kind());
 
         K<F, Seq<B>> add(K<F, Seq<B>> state, A value) =>
-            Applicative.lift((bs, b) => bs.Add(b), state, f(value));                                            
+            Applicative.lift((bs, b) => bs.Add(b), state, f(value));
     }
 
-    static K<F, K<Seq, B>> Traversable<Seq>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Seq, A> ta) 
-    {
-        return Foldable.fold(add, F.Pure(Seq<B>.Empty), ta)
-                       .Map(bs => bs.Kind());
-
-        K<F, Seq<B>> add(K<F, Seq<B>> state, A value) =>
-            state.Bind(bs => f(value).Bind(b => F.Pure(bs.Add(b)))); 
-    }
+    static K<F, K<Seq, B>> Traversable<Seq>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Seq, A> ta) =>
+        ta.FoldM((bs, a) => f(a).Map(bs.Add), Seq<B>.Empty)
+          .Map(bs => bs.Kind());
     
     static Fold<A, S> Foldable<Seq>.FoldStep<A, S>(K<Seq, A> ta, in S initialState)
     {

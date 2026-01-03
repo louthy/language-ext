@@ -29,13 +29,7 @@ sealed class IterableNil<A> : Iterable<A>
     public override Iterable<A> Filter(Func<A, bool> f) =>
         this;
 
-    public override IO<S> FoldWhileIO<S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate, S initialState) => 
-        IO.pure(initialState);
-
     public override IO<S> FoldWhileIO<S>(Func<S, A, S> f, Func<(S State, A Value), bool> predicate, S initialState) => 
-        IO.pure(initialState);
-
-    public override IO<S> FoldUntilIO<S>(Func<A, Func<S, S>> f, Func<(S State, A Value), bool> predicate, S initialState) => 
         IO.pure(initialState);
 
     public override IO<S> FoldUntilIO<S>(Func<S, A, S> f, Func<(S State, A Value), bool> predicate, S initialState) => 

@@ -133,8 +133,8 @@ public partial class TrieMap
                             var nodes = e.Nodes;
                             if (index == nodes.Length)
                             {
-                                node = default!;
-                                return false;
+                                Pop(ref state);
+                                continue;
                             }
                             else
                             {
@@ -159,7 +159,7 @@ public partial class TrieMap
                     }
    
                     case TrieMap<EqK, K, V>.EmptyNode:
-                        top--;
+                        Pop(ref state);
                         continue;
 
                     case TrieMap<EqK, K, V>.Collision c:
@@ -168,8 +168,8 @@ public partial class TrieMap
                         var (_, index) = IncrIndex(ref state);
                         if (index == items.Length)
                         {
-                            node = default!;
-                            return true;
+                            Pop(ref state);
+                            continue;
                         }
                         else
                         {
