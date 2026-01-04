@@ -22,6 +22,12 @@ public readonly struct Expiry(Base12 Value) :
     public static Expiry AdditiveIdentity { get; } =
         new (Base12.Zero);
 
+    public static Expiry One { get; } = 
+        new(new Base12(1, 0));
+
+    public static Expiry MinusOne { get; } = 
+        new(new Base12(-1, 0));
+    
     public static Expiry Now
     {
         get
@@ -32,7 +38,7 @@ public readonly struct Expiry(Base12 Value) :
     }
 
     public static Range<Expiry> NextTenYears =>
-        new (Now, Now + MonthSpan.TenYears, default, NextTenYears1);
+        new (Now, Now + MonthSpan.TenYears, One, MinusOne, NextTenYears1, NextTenYears1Rev);
 
     static Fin<Expiry> DomainType<Expiry, Base12>.From(Base12 repr) => 
         new Expiry(repr);
@@ -66,6 +72,9 @@ public readonly struct Expiry(Base12 Value) :
     public static Expiry operator +(Expiry left, MonthSpan right) =>
         new(left.To() + Base12.From(right.To()));
 
+    public static Expiry operator -(Expiry left, MonthSpan right) =>
+        new(left.To() - Base12.From(right.To()));
+
     public static MonthSpan operator -(Expiry left, Expiry right) =>
         new(left.To().ToBase10() - right.To().ToBase10());
 
@@ -96,6 +105,19 @@ public readonly struct Expiry(Base12 Value) :
             {
                 yield return current;
                 current += MonthSpan.OneYear;
+            }
+        }
+    }
+    
+    static IEnumerable<Expiry> NextTenYears1Rev
+    {
+        get
+        {
+            var current = Now;
+            for (var i = 9; i >= 0; i--)
+            {
+                yield return current;
+                current -= MonthSpan.OneYear;
             }
         }
     }

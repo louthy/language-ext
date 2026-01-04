@@ -11,7 +11,7 @@ public partial class Range
     /// </summary>
     public static Range<A> zero<A>() 
         where A : IAdditiveIdentity<A, A> =>
-        new(A.AdditiveIdentity, A.AdditiveIdentity, A.AdditiveIdentity, Iterable<A>.Empty);
+        new(A.AdditiveIdentity, A.AdditiveIdentity, A.AdditiveIdentity, A.AdditiveIdentity, Iterable<A>.Empty, Iterable<A>.Empty);
 
     /// <summary>
     /// Construct a new range
@@ -38,11 +38,12 @@ public partial class Range
     public static Range<A> fromMinMax<A>(A min, A max, A step)
         where A : 
         IAdditionOperators<A, A, A>, 
-        IComparisonOperators<A, A, bool>
+        IComparisonOperators<A, A, bool>,
+        IUnaryNegationOperators<A, A> 
     {
         return min > max
-                   ? new(min, max, step, Backward())
-                   : new(min, max, step, Forward());
+                   ? new(min, max, step, -step, Backward(), Forward())
+                   : new(min, max, step, -step, Forward(), Backward());
 
         IEnumerable<A> Forward()
         {
@@ -85,7 +86,7 @@ public partial class Range
                   IComparisonOperators<A, A, bool>
     {
         var max = min + (count * step - step);
-        return new(min, max, step, Go());
+        return new(min, max, step, -step, Go(), GoBack());
 
         IEnumerable<A> Go()
         {
@@ -96,5 +97,15 @@ public partial class Range
                 if (x == max) yield break;
             }
         }
+        
+        IEnumerable<A> GoBack()
+        {
+            var c = count;
+            for (var x = max; c != A.Zero; x -= step, c -= A.One)
+            {
+                yield return x;
+                if (x == min) yield break;
+            }
+        }
     }
-}
+ }

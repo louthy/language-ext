@@ -11,7 +11,7 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="A">Bound values type</typeparam>
 [Serializable]
-public record Range<A>(A From, A To, A Step, IEnumerable<A> runRange) : 
+public record Range<A>(A From, A To, A Step, A BackStep, IEnumerable<A> runRange, IEnumerable<A> runRangeBack) : 
     IEnumerable<A>, 
     K<Range, A>
 {
@@ -30,13 +30,6 @@ public record Range<A>(A From, A To, A Step, IEnumerable<A> runRange) :
     public Iterable<A> AsIterable() =>
         runRange.AsIterable();
 
-    /*
-    [Pure]
-    public StreamT<M, A> AsStream<M>() 
-        where M : Monad<M> =>
-        StreamT<M>.lift(runRange);
-        */
-
     [Pure]
     public IEnumerator<A> GetEnumerator() => 
         // ReSharper disable once NotDisposedResourceIsReturned
@@ -46,4 +39,8 @@ public record Range<A>(A From, A To, A Step, IEnumerable<A> runRange) :
     IEnumerator IEnumerable.GetEnumerator() =>
         // ReSharper disable once NotDisposedResourceIsReturned
         runRange.GetEnumerator();
+
+    [Pure]
+    public Range<A> Reverse() =>
+        new(To, From, BackStep, Step, runRangeBack, runRange);
 }
