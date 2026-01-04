@@ -537,7 +537,7 @@ public readonly struct Option<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<A> ToList() =>
         isSome
-            ? List.create(Value!)
+            ? Lst.create(Value!)
             : [];
 
     /// <summary>

@@ -58,7 +58,7 @@ public partial class IterableNE :
         toArray(fa.As());
 
     static K<Lst, A> Natural<IterableNE, Lst>.Transform<A>(K<IterableNE, A> fa) => 
-        toList(fa.As());
+        toLst(fa.As());
 
     static K<Set, A> Natural<IterableNE, Set>.Transform<A>(K<IterableNE, A> fa) => 
         toSet(fa.As());

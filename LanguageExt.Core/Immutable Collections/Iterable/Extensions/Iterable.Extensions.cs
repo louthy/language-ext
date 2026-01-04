@@ -16,7 +16,7 @@ public static partial class IterableExtensions
     public static Iterable<A> AsIterable<A>(this IEnumerable<A> xs) =>
         new IterableEnumerable<A>(IO.pure(xs));
     
-    public static Iterable<A> AsIterable<A>(this IAsyncEnumerable<A> xs) =>
+    public static Iterable<A> AsIterableAsync<A>(this IAsyncEnumerable<A> xs) =>
         new IterableAsyncEnumerable<A>(IO.pure(xs));
 
     public static Iterable<A> Flatten<A>(this Iterable<Iterable<A>> ma) =>

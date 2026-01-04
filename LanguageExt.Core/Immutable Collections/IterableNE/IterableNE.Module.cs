@@ -118,7 +118,7 @@ public partial class IterableNE
                           var iter = IteratorAsync.from(items);
                           if (await iter.IsEmpty) throw new ArgumentException("Can't create an IterableNE from an empty sequence");
                           var head = await iter.Head;
-                          var tail = (await iter.Tail).AsIterable();
+                          var tail = (await iter.Tail).AsIterableAsync();
                           return new IterableNE<A>(head, tail);
                       });
 
@@ -140,7 +140,7 @@ public partial class IterableNE
             var iter = IteratorAsync.from(items);
             if (await iter.IsEmpty) throw new ArgumentException("Can't create an IterableNE from an empty sequence");
             var head = await iter.Head;
-            var tail = (await iter.Tail).AsIterable();
+            var tail = (await iter.Tail).AsIterableAsync();
             return new IterableNE<A>(head, tail);
         }
 

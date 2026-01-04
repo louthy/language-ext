@@ -92,7 +92,7 @@ public static class Query
         headOrNone(filter(list, pred));
 
     public static Lst<T> freeze<T>(IQueryable<T> list) =>
-        toList(list);
+        toLst(list);
 
     public static IQueryable<V> zip<T, U, V>(IQueryable<T> list, IEnumerable<U> other, Expression<Func<T, U, V>> zipper) =>
         Queryable.Zip(list, other, zipper);

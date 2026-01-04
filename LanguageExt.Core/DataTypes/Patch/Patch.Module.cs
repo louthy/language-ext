@@ -235,7 +235,7 @@ public static class Patch
     /// Apply a patch to a document, returning the transformed document.
     /// </summary>
     public static Lst<A> apply<EqA, A>(Patch<EqA, A> patch, Lst<A> va) where EqA : Eq<A> =>
-        toList(apply(patch, va.AsIterable()));
+        toLst(apply(patch, va.AsIterable()));
 
     /// <summary>
     /// Apply a patch to a document, returning the transformed document.

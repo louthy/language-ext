@@ -14,37 +14,47 @@ public partial class Lst :
     Foldable<Lst, Lst.FoldState>
 {
     static K<Lst, B> Monad<Lst>.Recur<A, B>(A value, Func<A, K<Lst, Next<A, B>>> f) =>
-        List.createRange(Monad.enumerableRecur(value, x =>f(x).As().AsEnumerable()));
+        createRange(Monad.enumerableRecur(value, x =>f(x).As().AsEnumerable()));
     
     static K<Lst, B> Monad<Lst>.Bind<A, B>(K<Lst, A> ma, Func<A, K<Lst, B>> f)
     {
-        return new Lst<B>(go());
-        IEnumerable<B> go()
+        var       root     = ListItem<B>.EmptyM;
+        var       subIndex = 0;
+        FoldState fsa      = default!;
+        FoldState fsb      = default!;
+        
+        Foldable.stepSetup(ma, ref fsa);
+        while (Foldable.step(ma, ref fsa, out var a))
         {
-            foreach (var x in ma.As())
+            var mb = +f(a);
+            Foldable.stepSetup(mb, ref fsb);
+            while (Foldable.step(mb, ref fsb, out var b))
             {
-                foreach (var y in f(x).As())
-                {
-                    yield return y;
-                }
+                root = ListModuleM.Insert(root, new ListItem<B>(1, 1, ListItem<B>.Empty, b, ListItem<B>.Empty), subIndex);
+                subIndex++;
             }
         }
+        return new Lst<B>(root);
     }
 
     static K<Lst, B> Functor<Lst>.Map<A, B>(Func<A, B> f, K<Lst, A> ma)
     {
-        return new Lst<B>(go());
-        IEnumerable<B> go()
+        var       root     = ListItem<B>.EmptyM;
+        var       subIndex = 0;
+        FoldState fsa      = default!;
+        
+        Foldable.stepSetup(ma, ref fsa);
+        while (Foldable.step(ma, ref fsa, out var a))
         {
-            foreach (var x in ma.As())
-            {
-                yield return f(x);
-            }
+            var b = f(a);
+            root = ListModuleM.Insert(root, new ListItem<B>(1, 1, ListItem<B>.Empty, b, ListItem<B>.Empty), subIndex);
+            subIndex++;
         }
+        return new Lst<B>(root);
     }
 
     static K<Lst, A> Applicative<Lst>.Pure<A>(A value) =>
-        List.singleton(value);
+        singleton(value);
 
     static K<Lst, B> Applicative<Lst>.Apply<A, B>(K<Lst, Func<A, B>> mf, K<Lst, A> ma)
     {
@@ -139,7 +149,7 @@ public partial class Lst :
     {
         if (FoldState.Step<A>(ref refState, out var item))
         {
-            value = item.Key;
+            value = item;
             return true;
         }
         else
@@ -156,7 +166,7 @@ public partial class Lst :
     {
         if (FoldState.StepBack<A>(ref refState, out var item))
         {
-            value = item.Key;
+            value = item;
             return true;
         }
         else

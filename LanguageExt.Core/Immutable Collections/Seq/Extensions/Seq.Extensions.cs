@@ -14,6 +14,13 @@ public static partial class SeqExtensions
 {
     public static Seq<A> As<A>(this K<Seq, A> xs) =>
         (Seq<A>)xs;
+
+    /// <summary>
+    /// Convert an IEnumerable to a Seq
+    /// </summary>
+    [Pure]
+    public static Seq<A> AsSeq<A>(this IEnumerable<A> xs) =>
+        Seq.createRange(xs);
     
     /// <summary>
     /// Monadic join

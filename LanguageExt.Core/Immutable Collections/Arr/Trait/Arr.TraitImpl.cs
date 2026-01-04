@@ -180,19 +180,9 @@ public partial class Arr :
             Applicative.lift((bs, b) => (SeqStrict<B>)bs.Add(b), state, f(value));                                            
     }
 
-    static K<F, K<Arr, B>> Traversable<Arr>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Arr, A> ta)
-    {
-        return ta.FoldM((bs, a) => f(a).Map(bs.Add), Seq<B>.Empty)
-                 .Map(bs => create(bs.AsSpan()).Kind());
-        
-        /*
-        return Foldable.fold(addItem, F.Pure(new SeqStrict<B>(new B[ta.As().Count], 0, 0, 0, 0)), ta)
-                       .Map(bs => new Arr<B>(bs.data.AsSpan().Slice(bs.start, bs.Count)).Kind());
-
-        K<F, SeqStrict<B>> addItem(K<F, SeqStrict<B>> state, A value) =>
-            state.Bind(bs => f(value).Map(b => (SeqStrict<B>)bs.Add(b))); 
-    */
-    }
+    static K<F, K<Arr, B>> Traversable<Arr>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Arr, A> ta) =>
+        ta.FoldM((bs, a) => f(a).Map(bs.Add), Seq<B>.Empty)
+          .Map(bs => create(bs.AsSpan()).Kind());
 
     static K<Seq, A> Natural<Arr, Seq>.Transform<A>(K<Arr, A> fa) => 
         toSeq(fa.As().ToSeq());
@@ -201,7 +191,7 @@ public partial class Arr :
         fa.As().AsIterable();
 
     static K<Lst, A> Natural<Arr, Lst>.Transform<A>(K<Arr, A> fa) => 
-        toList(fa.As());
+        toLst(fa.As());
 
     static K<Set, A> Natural<Arr, Set>.Transform<A>(K<Arr, A> fa) => 
         toSet(fa.As());

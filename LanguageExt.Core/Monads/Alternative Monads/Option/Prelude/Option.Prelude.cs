@@ -406,49 +406,12 @@ public static partial class Prelude
         option.Bind(binder);
 
     /// <summary>
-    /// Match the two states of the list of Options
-    /// </summary>
-    /// <param name="Some">Some match operation</param>
-    /// <param name="None">None match operation</param>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IEnumerable<R> match<T, R>(
-        IEnumerable<Option<T>> list,
-        Func<T, IEnumerable<R>> Some,
-        Func<IEnumerable<R>> None) =>
-        list.Match(
-            None,
-            opt     => match(opt, Some, None),
-            (x, xs) => match(x,   Some, None).ConcatFast(match(xs, Some, None)));
-
-    /// <summary>
-    /// Match the two states of the list of Options
-    /// </summary>
-    /// <param name="Some">Some match operation</param>
-    /// <param name="None">None match operation</param>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IEnumerable<R> match<T, R>(IEnumerable<Option<T>> list,
-                                             Func<T, IEnumerable<R>> Some,
-                                             IEnumerable<R> None) =>
-        match(list, Some, () => None);
-
-    /// <summary>
-    /// Extracts from a list of 'Option' all the 'Some' elements.
-    /// All the 'Some' elements are extracted in order.
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IEnumerable<T> somes<T>(IEnumerable<Option<T>> list) =>
-        list.Somes();
-
-    /// <summary>
     /// Convert the Option to an immutable list of zero or one items
     /// </summary>
     /// <returns>An immutable list of zero or one items</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Lst<T> toList<T>(Option<T> option) =>
+    public static Lst<T> toLst<T>(Option<T> option) =>
         option.ToList();
 
     /// <summary>

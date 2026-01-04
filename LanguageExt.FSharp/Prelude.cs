@@ -26,7 +26,7 @@ public static class FSharp
     /// Convert an F# List into an IEnumerable T
     /// </summary>
     public static Lst<T> fs<T>(FSharpList<T> fsList) =>
-        List.createRange(fsList);
+        Lst.createRange(fsList);
 
     /// <summary>
     /// Convert a LanguageExt List (Lst T) into an F# List
@@ -38,7 +38,7 @@ public static class FSharp
     /// Convert an F# Map into a LanguageExt Map (Map K V)
     /// </summary>
     public static Map<K, V> fs<K, V>(FSharpMap<K, V> fsMap) =>
-        Map.addRange( Map<K, V>(), List.map(fsMap, identity) );
+        Map.addRange(Map<K, V>(), Iterable.map(fsMap, identity));
 
     /// <summary>
     /// Convert a LanguageExt Map (Map K V) into an F# Map

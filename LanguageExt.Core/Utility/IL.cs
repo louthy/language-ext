@@ -1242,10 +1242,12 @@ public static class IL
     }
 
     static string PrettyFieldName(FieldInfo field) =>
-        field.Name.Split('<', '>').Match(
-            ()      => "",
-            x       => x,
-            (_, xs) => xs.Head.Value!);
+        field.Name.Split('<', '>').AsSeq() switch
+        {
+            []          => "",
+            [var x]     => x,
+            var (_, xs) => xs.Head.Value!
+        };
 }
     
 public static class ILCapability

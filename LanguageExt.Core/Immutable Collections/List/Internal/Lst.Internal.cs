@@ -39,7 +39,7 @@ internal class LstInternal<A> :
         else
         {
             root = ListItem<A>.EmptyM;
-            root = ListModuleM.InsertMany<A>(root, items, 0);
+            root = ListModuleM.InsertMany(root, items, 0);
         }
     }
 
@@ -48,7 +48,7 @@ internal class LstInternal<A> :
     {
         hashCode = 0;
         root = ListItem<A>.EmptyM;
-        root = ListModuleM.InsertMany<A>(root, items, 0);
+        root = ListModuleM.InsertMany(root, items, 0);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

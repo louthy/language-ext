@@ -123,7 +123,7 @@ internal static class PatchInternal
 
                     var compare = OrdTupleFirst<OrdC, C, Seq<Option<O>>>.Compare;
 
-                    return minimumBy(compare, List(item1, item2, item3));
+                    return minimumBy(compare, Lst(item1, item2, item3));
                 }
             }
         }

@@ -7,6 +7,7 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -18,7 +19,8 @@ namespace LanguageExt;
 [CollectionBuilder(typeof(Queue), nameof(Queue.createRange))]
 public readonly struct Que<A> : 
     IEnumerable<A>, 
-    IEquatable<Que<A>>
+    IEquatable<Que<A>>,
+    K<Que, A>
 {
     public static readonly Que<A> Empty = new (QueInternal<A>.Empty);
 

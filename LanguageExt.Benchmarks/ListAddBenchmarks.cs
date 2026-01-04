@@ -39,7 +39,7 @@ namespace LanguageExt.Benchmarks
         [Benchmark]
         public Lst<T> LangExtLst()
         {
-            var collection = List<T>();
+            var collection = Lst<T>();
             foreach (var value in values)
             {
                 collection = collection.Add(value);

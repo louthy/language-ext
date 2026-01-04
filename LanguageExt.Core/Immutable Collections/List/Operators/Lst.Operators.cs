@@ -2,7 +2,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public static partial class SeqExtensions
+public static partial class LstExtensions
 {
     extension<A>(K<Lst, A> _)
     {

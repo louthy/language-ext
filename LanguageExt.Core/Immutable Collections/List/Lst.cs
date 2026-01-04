@@ -16,7 +16,7 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="A">Value type</typeparam>
 [Serializable]
-[CollectionBuilder(typeof(List), nameof(List.createRange))]
+[CollectionBuilder(typeof(Lst), nameof(Lst.createRange))]
 public readonly struct Lst<A> :
     IComparable<Lst<A>>,
     IComparable,

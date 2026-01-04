@@ -1,7 +1,8 @@
 ﻿using Xunit;
 using System;
 using System.Linq;
-using static LanguageExt.List;
+using static LanguageExt.Lst;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests;
 
@@ -24,7 +25,7 @@ public class ListTests
     [Fact]
     public void ListConstruct()
     {
-        var test = List(1, 2, 3, 4, 5);
+        var test = Lst(1, 2, 3, 4, 5);
 
         var array = test.ToArray();
 
@@ -39,30 +40,14 @@ public class ListTests
     public void MapTest()
     {
         // Generates 10,20,30,40,50
-        var input   = List(1, 2, 3, 4, 5);
-        var output1 = map(input, x => x * 10);
+        var input   = Lst(1, 2, 3, 4, 5);
+        var output1 = +map(x => x * 10, input);
 
         // Generates 30,40,50
-        var output2 = filter(output1, x => x > 20);
+        var output2 = MonoidK.filter(output1, x => x > 20);
 
         // Generates 120
-        var output3 = fold(output2, 0, (x, s) => s + x);
-
-        Assert.True(output3 == 120);
-    }
-
-    [Fact]
-    public void ReduceTest()
-    {
-        // Generates 10,20,30,40,50
-        var input   = List(1, 2, 3, 4, 5);
-        var output1 = map(input, x => x * 10);
-
-        // Generates 30,40,50
-        var output2 = filter(output1, x => x > 20);
-
-        // Generates 120
-        var output3 = reduce(output2, (x, s) => s + x);
+        var output3 = Foldable.fold((x, s) => s + x, 0, output2);
 
         Assert.True(output3 == 120);
     }
@@ -70,7 +55,7 @@ public class ListTests
     [Fact]
     public void MapTestFluent()
     {
-        var res = List(1, 2, 3, 4, 5)
+        var res = Lst(1, 2, 3, 4, 5)
                  .Map(x => x * 10)
                  .Filter(x => x > 20)
                  .Fold((x, s) => s + x, 0);
@@ -79,21 +64,10 @@ public class ListTests
     }
 
     [Fact]
-    public void ReduceTestFluent()
-    {
-        var res = List(1, 2, 3, 4, 5)
-                 .Map(x => x * 10)
-                 .Filter(x => x > 20)
-                 .Reduce((x, s) => s + x);
-
-        Assert.True(res == 120);
-    }
-
-    [Fact]
     public void RangeTest1()
     {
         var r = Range(0, 10).AsIterable();
-        for (int i = 0; i < 10; i++)
+        for (var i = 0; i < 10; i++)
         {
             Assert.True(r.First() == i);
             r = r.Skip(1);
@@ -104,7 +78,7 @@ public class ListTests
     public void RangeTest2()
     {
         var r = Range(0, 100, 10).AsIterable();
-        for (int i = 0; i < 10; i+=10)
+        for (var i = 0; i < 10; i+=10)
         {
             Assert.True(r.First() == i);
             r = r.Skip(1);
@@ -115,20 +89,20 @@ public class ListTests
     public void RangeTest4()
     {
         var r = Range('a', 'f');
-        Assert.True(String.Join("", r) == "abcdef");
+        Assert.True(string.Join("", r) == "abcdef");
     }
 
     [Fact]
     public void RangeTest5()
     {
         var r = Range('f', 'a');
-        Assert.True(String.Join("", r) == "fedcba");
+        Assert.True(string.Join("", r) == "fedcba");
     }
 
     [Fact]
     public void RepeatTest()
     {
-        var r = repeat("Hello", 10);
+        var r = Iterable.repeat("Hello", 10);
 
         foreach (var item in r)
         {
@@ -140,7 +114,7 @@ public class ListTests
     [Fact]
     public void GenerateTest()
     {
-        var r = generate(10, i => "Hello " + i );
+        var r = Iterable.generate(10, i => "Hello " + i );
 
         for (int i = 0; i < 10; i++)
         {
@@ -152,9 +126,9 @@ public class ListTests
     [Fact]
     public void UnfoldTest()
     {
-        var test = List(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181);
+        var test = Lst(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181);
 
-        var fibs = take(unfold((0, 1), tup => map(tup, (a, b) => Some((a, (b, a + b))))), 20);
+        var fibs = Iterable.take(Iterable.unfold((0, 1), tup => map(tup, (a, b) => Some((a, (b, a + b))))), 20);
 
         Assert.True( test.SequenceEqual(fibs) );
     }
@@ -162,9 +136,9 @@ public class ListTests
     [Fact]
     public void UnfoldTupleTest()
     {
-        var test = List(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181);
+        var test = Lst(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181);
 
-        var fibs = take( unfold( (0, 1), (a, b) => Some((a, b, a + b)) ), 20);
+        var fibs = Iterable.take(Iterable.unfold( (0, 1), (a, b) => Some((a, b, a + b)) ), 20);
 
         Assert.True(test.SequenceEqual(fibs));
     }
@@ -174,11 +148,7 @@ public class ListTests
     {
         var e = new Exception("Outer", new Exception("Inner"));
 
-        var list = unfold(e, (state) =>
-                                 state == null
-                                     ? None
-                                     : Optional(state.InnerException)
-        );
+        var list = Iterable.unfold(e, state => Optional(state.InnerException));
 
         var res = list.ToList();
 
@@ -188,8 +158,8 @@ public class ListTests
     [Fact]
     public void ReverseListTest1()
     {
-        var list = List(1, 2, 3, 4, 5);
-        var rev  = list.Rev();
+        var list = Lst(1, 2, 3, 4, 5);
+        var rev  = list.Reverse();
 
         Assert.True(rev[0] == 5);
         Assert.True(rev[4] == 1);
@@ -198,8 +168,8 @@ public class ListTests
     [Fact]
     public void ReverseListTest2()
     {
-        var list = List(1, 2, 3, 4, 5);
-        var rev  = list.Rev();
+        var list = Lst(1, 2, 3, 4, 5);
+        var rev  = list.Reverse();
 
         Assert.True(rev.IndexOf(1) == 4, "Should have been 4, actually is: " + rev.IndexOf(1));
         Assert.True(rev.IndexOf(5) == 0, "Should have been 0, actually is: " + rev.IndexOf(5));
@@ -208,8 +178,8 @@ public class ListTests
     [Fact]
     public void ReverseListTest3()
     {
-        var list = List(1, 1, 2, 2, 2);
-        var rev  = list.Rev();
+        var list = Lst(1, 1, 2, 2, 2);
+        var rev  = list.Reverse();
 
         Assert.True(rev.LastIndexOf(1) == 4, "Should have been 4, actually is: " + rev.LastIndexOf(1));
         Assert.True(rev.LastIndexOf(2) == 2, "Should have been 2, actually is: " + rev.LastIndexOf(5));
@@ -218,14 +188,11 @@ public class ListTests
     [Fact]
     public void OpEqualTest()
     {
-        var goodOnes = List(
-            (List(1, 2, 3), List(1, 2, 3)),
-            (Lst<int>.Empty, Lst<int>.Empty)
-        );
-        var badOnes = List(
-            (List(1, 2, 3), List(1, 2, 4)),
-            (List(1, 2, 3), Lst<int>.Empty)
-        );
+        var goodOnes = Lst((Lst(1, 2, 3), Lst(1, 2, 3)),
+                           (Lst<int>.Empty, Lst<int>.Empty));
+        
+        var badOnes = Lst((Lst(1, 2, 3), Lst(1, 2, 4)),
+                          (Lst(1, 2, 3), Lst<int>.Empty));
 
         goodOnes.Iter(t => t.Iter((fst, snd) =>
                                   {
@@ -245,7 +212,7 @@ public class ListTests
     {
         var embeddedSideEffectResult = 0;
         var expression = from dummy in Some(unit).ToIterable()
-                         from i in List(2, 3, 5)
+                         from i in Lst(2, 3, 5)
                          let _ = fun(() => embeddedSideEffectResult += i)()
                          select i;
 
@@ -263,7 +230,7 @@ public class ListTests
     {
         var embeddedSideEffectResult = 0;
         var expression = from dummy in Some(unit).ToIterable()
-                         from i in List(2, 3, 5)
+                         from i in Lst(2, 3, 5)
                          let _ = fun(() => embeddedSideEffectResult += i)()
                          select i;
 
@@ -281,7 +248,7 @@ public class ListTests
     {
         var embeddedSideEffectResult = 0;
         System.Collections.Generic.IEnumerable<int> expression = from dummy in Some(unit).ToIterable()
-                                                                 from i in List(2, 3, 5)
+                                                                 from i in Lst(2, 3, 5)
                                                                  let _ = fun(() => embeddedSideEffectResult += i)()
                                                                  select i;
 
@@ -289,41 +256,21 @@ public class ListTests
         expression.Consume();
         Assert.Equal(2 + 3 + 5, embeddedSideEffectResult);
     }
-        
-    [Fact]
-    public void SkipLastTest1()
-    {
-        var list = List(1, 2, 3, 4, 5);
-
-        var skipped = list.SkipLast().AsIterable().ToLst();
-
-        Assert.True(skipped == List(1, 2, 3, 4));
-    }
-
-    [Fact]
-    public void SkipLastTest2()
-    {
-        var list = List<int>();
-
-        var skipped = list.SkipLast().AsIterable().ToLst();
-
-        Assert.True(skipped == list);
-    }
 
     [Fact]
     public void SkipLastTest3()
     {
-        var list = List(1, 2, 3, 4, 5);
+        var list = Lst(1, 2, 3, 4, 5);
 
         var skipped = list.SkipLast(2).AsIterable().ToLst();
 
-        Assert.True(skipped == List(1, 2, 3));
+        Assert.True(skipped == Lst(1, 2, 3));
     }
 
     [Fact]
     public void SkipLastTest4()
     {
-        var list = List<int>();
+        var list = Lst<int>();
 
         var skipped = list.SkipLast(2).AsIterable().ToLst();
 
@@ -333,7 +280,7 @@ public class ListTests
     [Fact]
     public void SetItemTest()
     {
-        Lst<int> lint = new Lst<int>();
+        var lint = new Lst<int>();
         lint = lint.Insert(0, 0).Insert(1, 1).Insert(2, 2).Insert(3, 3);
 
         Assert.True(lint[0] == 0);
@@ -352,8 +299,8 @@ public class ListTests
     [Fact]
     public void RemoveAllTest()
     {
-        var test = List(1, 2, 3, 4, 5);
-        Assert.True(test.RemoveAll(x => x % 2 == 0) == List(1, 3, 5));
+        var test = Lst(1, 2, 3, 4, 5);
+        Assert.True(test.RemoveAll(x => x % 2 == 0) == Lst(1, 3, 5));
     }
 
     [Fact]
@@ -384,9 +331,9 @@ public class ListTests
     [Fact]
     public void RemoveRange()
     {
-        var list = List(1, 2, 3, 4);
+        var list = Lst(1, 2, 3, 4);
 
-        Assert.Equal(list.RemoveRange(2, 2), List(1, 2));
+        Assert.Equal(list.RemoveRange(2, 2), Lst(1, 2));
         Assert.Throws<IndexOutOfRangeException>(() => list.RemoveRange(2, 3));
     }
 
@@ -394,7 +341,7 @@ public class ListTests
     public void SetItemManyTest()
     {
         var range = IterableExtensions.AsIterable(Range(0, 100)).ToLst();
-        for (int i = 0; i < 100; i++)
+        for (var i = 0; i < 100; i++)
         {
             range = range.SetItem(i, i * 2);
             Assert.True(range[i] == i  * 2);
@@ -413,7 +360,7 @@ public class ListTests
     public void RemoveAtInsertManyTest()
     {
         var range = IterableExtensions.AsIterable(Range(0, 100)).ToLst();
-        for (int i = 0; i < 100; i++)
+        for (var i = 0; i < 100; i++)
         {
             range = range.RemoveAt(i);
             Assert.True(range.Count == 99);
@@ -433,22 +380,22 @@ public class ListTests
     [Fact]
     public void EqualsTest()
     {
-        Assert.False(List(1, 2, 3).Equals(List<int>()));
-        Assert.False(List<int>().Equals(List<int>(1, 2, 3)));
-        Assert.True(List<int>().Equals(List<int>()));
-        Assert.True(List<int>(1).Equals(List<int>(1)));
-        Assert.True(List<int>(1, 2).Equals(List<int>(1, 2)));
-        Assert.False(List<int>(1, 2).Equals(List<int>(1, 2, 3)));
-        Assert.False(List<int>(1, 2, 3).Equals(List<int>(1, 2)));
+        Assert.False(Lst(1, 2, 3).Equals(Lst<int>()));
+        Assert.False(Lst<int>().Equals(Lst(1, 2, 3)));
+        Assert.True(Lst<int>().Equals(Lst<int>()));
+        Assert.True(Lst(1).Equals(Lst(1)));
+        Assert.True(Lst(1, 2).Equals(Lst(1, 2)));
+        Assert.False(Lst(1, 2).Equals(Lst(1, 2, 3)));
+        Assert.False(Lst(1, 2, 3).Equals(Lst(1, 2)));
     }
 
     [Fact]
     public void ListShouldRemoveByReference()
     {
-        var o0 = new Object();
-        var o1 = new Object();
-        var o2 = new Object();
-        var l  = List(o0, o1);
+        var o0 = new object();
+        var o1 = new object();
+        var o2 = new object();
+        var l  = Lst(o0, o1);
         l = l.Remove(o2);
         Assert.Equal(2, l.Count);
         l = l.Remove(o0);
@@ -463,7 +410,7 @@ public class ListTests
         var o0 = new Object();
         var o1 = new Object();
         var o2 = new Object();
-        var l  = List(o0, o1).Reverse();
+        var l  = Lst(o0, o1).Reverse();
         l = l.Remove(o2);
         Assert.Equal(2, l.Count);
         l = l.Remove(o0);
@@ -473,98 +420,10 @@ public class ListTests
     }
 
     [Fact]
-    public void FoldTest()
-    {
-        var input   = List(1, 2, 3, 4, 5);
-        var output1 = fold(input, "", (s, x) => s + x.ToString());
-        Assert.Equal("12345", output1);
-    }
-
-    [Fact]
-    public void FoldBackTest()
-    {
-        var input   = List(1, 2, 3, 4, 5);
-        var output1 = foldBack(input, "", (s, x) => s + x.ToString());
-        Assert.Equal("54321", output1);
-    }
-
-    [Fact]
-    public void FoldWhileTest()
-    {
-        var input = List(10, 20, 30, 40, 50);
-
-        var output1 = foldWhile(input, "", (s, x) => s + x.ToString(), x => x < 40);
-        Assert.Equal("102030", output1);
-
-        var output2 = foldWhile(input, "", (s, x) => s + x.ToString(), (string s) => s.Length < 6);
-        Assert.Equal("102030", output2);
-
-        var output3 = foldWhile(input, 0, (s, x) => s + x, preditem: x => x < 40);
-        Assert.Equal(60, output3);
-
-        var output4 = foldWhile(input, 0, (s, x) => s + x, predstate: s => s < 60);
-        Assert.Equal(60, output4);
-    }
-
-    [Fact]
-    public void FoldBackWhileTest()
-    {
-        var input = List(10, 20, 30, 40, 50);
-
-        var output1 = foldBackWhile(input, "", (s, x) => s + x.ToString(), x => x >= 40);
-        Assert.Equal("5040", output1);
-
-        var output2 = foldBackWhile(input, "", (s, x) => s + x.ToString(), (string s) => s.Length < 4);
-        Assert.Equal("5040", output2);
-
-        var output3 = foldBackWhile(input, 0, (s, x) => s + x, preditem: x => x >= 40);
-        Assert.Equal(90, output3);
-
-        var output4 = foldBackWhile(input, 0, (s, x) => s + x, predstate: s => s < 90);
-        Assert.Equal(90, output4);
-    }
-
-    [Fact]
-    public void FoldUntilTest()
-    {
-        var input = List(10, 20, 30, 40, 50);
-
-        var output1 = foldUntil(input, "", (s, x) => s + x.ToString(), x => x >= 40);
-        Assert.Equal("102030", output1);
-
-        var output2 = foldUntil(input, "", (s, x) => s + x.ToString(), (string s) => s.Length >= 6);
-        Assert.Equal("102030", output2);
-
-        var output3 = foldUntil(input, 0, (s, x) => s + x, preditem: x => x >= 40);
-        Assert.Equal(60, output3);
-
-        var output4 = foldUntil(input, 0, (s, x) => s + x, predstate: s => s >= 60);
-        Assert.Equal(60, output4);
-    }
-
-    [Fact]
-    public void FoldBackUntilTest()
-    {
-        var input = List(10, 20, 30, 40, 50);
-
-        var output1 = foldBackUntil(input, "", (s, x) => s + x.ToString(), x => x < 40);
-        Assert.Equal("5040", output1);
-
-        var output2 = foldBackUntil(input, "", (s, x) => s + x.ToString(), (string s) => s.Length >= 4);
-        Assert.Equal("5040", output2);
-
-        var output3 = foldBackUntil(input, 0, (s, x) => s + x, preditem: x => x < 40);
-        Assert.Equal(90, output3);
-
-        var output4 = foldBackUntil(input, 0, (s, x) => s + x, predstate: s => s >= 90);
-        Assert.Equal(90, output4);
-    }
-
-    [Fact]
     public void itemLensGetShouldGetExistingValue()
     {
         var expected = "3";
-        var list     = List("0","1", "2", "3", "4", "5");
+        var list     = Lst("0","1", "2", "3", "4", "5");
         var actual   = Lst<string>.item(3).Get(list);
 
         Assert.Equal(expected, actual);
@@ -575,7 +434,7 @@ public class ListTests
     {
         Assert.Throws<IndexOutOfRangeException>(() =>
                                                 {
-                                                    var list   = List("0", "1", "2", "3", "4", "5");
+                                                    var list   = Lst("0", "1", "2", "3", "4", "5");
                                                     var actual = Lst<string>.item(10).Get(list);
                                                 });
     }
@@ -584,7 +443,7 @@ public class ListTests
     public void itemOrNoneLensGetShouldGetExistingValue()
     {
         var expected = "3";
-        var list     = List("0", "1", "2", "3", "4", "5");
+        var list     = Lst("0", "1", "2", "3", "4", "5");
         var actual   = Lst<string>.itemOrNone(3).Get(list);
 
         Assert.Equal(expected, actual);
@@ -594,7 +453,7 @@ public class ListTests
     public void itemOrNoneLensGetShouldReturnNoneForNonExistingValue()
     {
         var expected = Option<string>.None;
-        var list     = List("0", "1", "2", "3", "4", "5");
+        var list     = Lst("0", "1", "2", "3", "4", "5");
         var actual   = Lst<string>.itemOrNone(10).Get(list);
 
         Assert.Equal(expected, actual);

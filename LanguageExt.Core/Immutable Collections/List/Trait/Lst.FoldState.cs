@@ -59,6 +59,8 @@ public partial class Lst
         {
             ref var top   = ref state.Top;
             ref var flags = ref state.FlagStack;
+
+            if (top == StackDepth) throw new StackOverflowException("Lst.FoldState stack overflow");
             
             // Add node
             var span  = MemoryMarshal.CreateSpan(ref state.NodeStack0, StackDepth);
@@ -101,14 +103,14 @@ public partial class Lst
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool Step<A>(ref FoldState state, out ListItem<A> node)
+        internal static bool Step<A>(ref FoldState state, out A node)
         {
             ref var top = ref state.Top;
             while (true)
             {
                 if (top == 0)
                 {
-                    node = null!;
+                    node = default!;
                     return false;
                 }
 
@@ -128,7 +130,7 @@ public partial class Lst
                         continue;
 
                     case 1:
-                        node = n;
+                        node = n.Key;
                         return true;
 
                     case 2:
@@ -143,14 +145,14 @@ public partial class Lst
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool StepBack<A>(ref FoldState state, out ListItem<A> node)
+        internal static bool StepBack<A>(ref FoldState state, out A node)
         {
             ref var top = ref state.Top;
             while (true)
             {
                 if (top == 0)
                 {
-                    node = null!;
+                    node = default!;
                     return false;
                 }
 
@@ -170,7 +172,7 @@ public partial class Lst
                         continue;
 
                     case 1:
-                        node = n;
+                        node = n.Key;
                         return true;
 
                     case 2:

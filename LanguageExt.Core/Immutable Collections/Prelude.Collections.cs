@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using LanguageExt.Traits;
 using LSeq = LanguageExt.Seq;
+using L = LanguageExt;
 #pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
 
 namespace LanguageExt;
@@ -530,14 +531,14 @@ public static partial class Prelude
     /// Create an immutable list
     /// </summary>
     [Pure]
-    public static Lst<T> List<T>() =>
-        Lst<T>.Empty;
+    public static Lst<T> Lst<T>() =>
+        L.Lst<T>.Empty;
 
     /// <summary>
     /// Create an immutable list
     /// </summary>
     [Pure]
-    public static Lst<T> List<T>(T x, params T[] xs)
+    public static Lst<T> Lst<T>(T x, params T[] xs)
     {
         return new Lst<T>(Yield());
 
@@ -555,14 +556,14 @@ public static partial class Prelude
     /// Create an immutable list
     /// </summary>
     [Pure]
-    public static Lst<T> toList<T>(Arr<T> items) =>
+    public static Lst<T> toLst<T>(Arr<T> items) =>
         new (items.AsSpan());
 
     /// <summary>
     /// Create an immutable list
     /// </summary>
     [Pure]
-    public static Lst<T> toList<T>(IEnumerable<T> items) =>
+    public static Lst<T> toLst<T>(IEnumerable<T> items) =>
         items is Lst<T> lst
             ? lst
             : new Lst<T>(items);
@@ -571,7 +572,7 @@ public static partial class Prelude
     /// Create an immutable list
     /// </summary>
     [Pure]
-    public static Lst<T> toList<T>(ReadOnlySpan<T> items) =>
+    public static Lst<T> toLst<T>(ReadOnlySpan<T> items) =>
         new (items);
 
 
@@ -823,10 +824,7 @@ public static partial class Prelude
     /// </summary>
     [Pure]
     public static HashSet<EqT, T> toHashSet<EqT, T>(ReadOnlySpan<T> items) where EqT : Eq<T> =>
-        LanguageExt.HashSet.createRange<EqT, T>(items);
-
-
-
+        [..items];
 
     /// <summary>
     /// Create a queryable
