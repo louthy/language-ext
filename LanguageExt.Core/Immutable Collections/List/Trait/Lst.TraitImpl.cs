@@ -169,9 +169,42 @@ public partial class Lst :
     static Seq<A> Foldable<Lst>.ToSeq<A>(K<Lst, A> ta) =>
         new (ta.As());
     
-    static Fold<A, S> Foldable<Lst>.FoldStep<A, S>(K<Lst, A> ta, in S initialState) =>
-        ta.As().FoldStep(initialState);
+    static Fold<A, S> Foldable<Lst>.FoldStep<A, S>(K<Lst, A> ta, in S initialState)
+    {
+        var items = ta.As();
+        return go(items.GetIterator())(initialState);
+
+        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
+            state =>
+            {
+                if (iter.IsEmpty)
+                {
+                    return Fold.Done<A, S>(state);
+                }
+                else
+                {
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                }
+            };
+    }
     
-    static Fold<A, S> Foldable<Lst>.FoldStepBack<A, S>(K<Lst, A> ta, in S initialState) =>
-        ta.As().FoldStepBack(initialState);
+    static Fold<A, S> Foldable<Lst>.FoldStepBack<A, S>(K<Lst, A> ta, in S initialState) 
+    {
+        var items = ta.As();
+        return go(items.Reverse().GetIterator())(initialState);
+
+        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
+            state =>
+            {
+                if (iter.IsEmpty)
+                {
+                    return Fold.Done<A, S>(state);
+                }
+                else
+                {
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                }
+            };
+    }
+
 }

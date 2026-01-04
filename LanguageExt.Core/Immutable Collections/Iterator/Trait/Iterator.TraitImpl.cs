@@ -126,23 +126,40 @@ public partial class Iterator :
     
     static Fold<A, S> Foldable<Iterator>.FoldStep<A, S>(K<Iterator, A> ta, in S initialState)
     {
-        // ReSharper disable once GenericEnumeratorNotDisposed
-        var iter = ta.As().GetEnumerator();
-        return go(initialState);
-        Fold<A, S> go(S state) =>
-            iter.MoveNext()
-                ? Fold.Loop(state, iter.Current, go)
-                : Fold.Done<A, S>(state);
-    }   
+        return go(ta.As())(initialState);
+
+        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
+            state =>
+            {
+                if (iter.IsEmpty)
+                {
+                    return Fold.Done<A, S>(state);
+                }
+                else
+                {
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                }
+            };
+    }
+ 
         
     static Fold<A, S> Foldable<Iterator>.FoldStepBack<A, S>(K<Iterator, A> ta, in S initialState)
     {
-        // ReSharper disable once GenericEnumeratorNotDisposed
-        var iter = ta.As().Reverse().GetEnumerator();
-        return go(initialState);
-        Fold<A, S> go(S state) =>
-            iter.MoveNext()
-                ? Fold.Loop(state, iter.Current, go)
-                : Fold.Done<A, S>(state);
+        var items = ta.As();
+        return go(items.Reverse().GetIterator())(initialState);
+
+        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
+            state =>
+            {
+                if (iter.IsEmpty)
+                {
+                    return Fold.Done<A, S>(state);
+                }
+                else
+                {
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                }
+            };
     }
+
 }

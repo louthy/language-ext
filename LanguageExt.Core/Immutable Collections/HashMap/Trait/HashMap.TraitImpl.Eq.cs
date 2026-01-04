@@ -61,25 +61,43 @@ public partial class HashMapEq<EqKey, Key> :
     
     static Fold<A, S> Foldable<HashMapEq<EqKey, Key>>.FoldStep<A, S>(K<HashMapEq<EqKey, Key>, A> ta, in S initialState)
     {
-        var iter = ta.As().Values.GetIterator();
-        return go(initialState);
-        Fold<A, S> go(S state)
-        {
-            if (iter.IsEmpty)
+        var items = ta.As();
+        return go(items.Values.GetIterator())(initialState);
+
+        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
+            state =>
             {
-                return Fold.Done<A, S>(state);
-            }
-            else
-            {
-                iter = iter.Tail.Split();
-                return Fold.Loop(state, iter.Head, go);
-            }
-        }
+                if (iter.IsEmpty)
+                {
+                    return Fold.Done<A, S>(state);
+                }
+                else
+                {
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                }
+            };
     }
 
-    static Fold<A, S> Foldable<HashMapEq<EqKey, Key>>.FoldStepBack<A, S>(K<HashMapEq<EqKey, Key>, A> ta, in S initialState) =>
+    static Fold<A, S> Foldable<HashMapEq<EqKey, Key>>.FoldStepBack<A, S>(K<HashMapEq<EqKey, Key>, A> ta, in S initialState)
+    {
         // Order is undefined in a HashMap, so reversing the order makes no sense,
         // so let's take the most efficient option:
-        ta.FoldStep(initialState);
+        var items = ta.As();
+        return go(items.Values.GetIterator())(initialState);
+
+        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
+            state =>
+            {
+                if (iter.IsEmpty)
+                {
+                    return Fold.Done<A, S>(state);
+                }
+                else
+                {
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                }
+            };
+    }
+
 
 }

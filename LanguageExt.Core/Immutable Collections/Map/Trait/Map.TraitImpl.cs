@@ -42,11 +42,43 @@ public partial class Map<Key> : Foldable<Map<Key>, Map.FoldState>, Functor<Map<K
     static K<Map<Key>, A> MonoidK<Map<Key>>.Empty<A>() =>
         Map<Key, A>.Empty;
     
-    static Fold<A, S> Foldable<Map<Key>>.FoldStep<A, S>(K<Map<Key>, A> ta, in S initialState) =>
-        ta.As().FoldStepValues(initialState);
+    static Fold<A, S> Foldable<Map<Key>>.FoldStep<A, S>(K<Map<Key>, A> ta, in S initialState)
+    {
+        var items = ta.As();
+        return go(items.Values.GetIterator())(initialState);
+
+        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
+            state =>
+            {
+                if (iter.IsEmpty)
+                {
+                    return Fold.Done<A, S>(state);
+                }
+                else
+                {
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                }
+            };
+    }
     
-    static Fold<A, S> Foldable<Map<Key>>.FoldStepBack<A, S>(K<Map<Key>, A> ta, in S initialState) =>
-        ta.As().FoldStepBackValues(initialState);
+    static Fold<A, S> Foldable<Map<Key>>.FoldStepBack<A, S>(K<Map<Key>, A> ta, in S initialState) 
+    {
+        var items = ta.As();
+        return go(items.Values.Reverse().GetIterator())(initialState);
+
+        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
+            state =>
+            {
+                if (iter.IsEmpty)
+                {
+                    return Fold.Done<A, S>(state);
+                }
+                else
+                {
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                }
+            };
+    }
 
     static void Foldable<Map<Key>, Map.FoldState>.FoldStepSetup<A>(
         K<Map<Key>, A> ta,

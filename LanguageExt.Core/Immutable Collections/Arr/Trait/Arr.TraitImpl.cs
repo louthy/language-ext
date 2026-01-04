@@ -34,7 +34,7 @@ public partial class Arr :
     }
 
     static K<Arr, B> Monad<Arr>.Recur<A, B>(A value, Func<A, K<Arr, Next<A, B>>> f) =>
-        createRange(Monad.enumerableRecur(value, x =>f(x).As().AsEnumerable()));
+        createRange(Monad.enumerableRecur(value, x => f(x).As().AsEnumerable()));
 
     static K<Arr, B> Functor<Arr>.Map<A, B>(Func<A, B> f, K<Arr, A> ma) => 
         ma.As().Map(f);
@@ -116,43 +116,39 @@ public partial class Arr :
     static Fold<A, S> Foldable<Arr>.FoldStep<A, S>(K<Arr, A> ta, in S initialState)
     {
         var array = ta.As();
-        var count = array.Length;
-        if(count == 0) return Fold.Done<A, S>(initialState);
-        var index = 0;
-        return go(initialState);
-        
-        Fold<A, S> go(S state)
-        {
-            if (index == count)
+        return go(array.GetIterator())(initialState);
+
+        static Func<S, Fold<A, S>> go(Iterator<A> iterA) =>
+            state =>
             {
-                return Fold.Done<A, S>(state);
-            }
-            else
-            {
-                return Fold.Loop(state, array[index++], go);
-            }
-        }
+                if (iterA.IsEmpty)
+                {
+                    return Fold.Done<A, S>(state);
+                }
+                else
+                {
+                    return Fold.Loop(state, iterA.Head, go(iterA.Tail.Clone()));
+                }
+            };
     }
 
     static Fold<A, S> Foldable<Arr>.FoldStepBack<A, S>(K<Arr, A> ta, in S initialState)
     {
         var array = ta.As();
-        var count = array.Length;
-        if(count == 0) return Fold.Done<A, S>(initialState);
-        var index = count;
-        return go(initialState);
-        
-        Fold<A, S> go(S state)
-        {
-            if (index == 0)
+        return go(array.Reverse().GetIterator())(initialState);
+
+        static Func<S, Fold<A, S>> go(Iterator<A> iterA) =>
+            state =>
             {
-                return Fold.Done<A, S>(state);
-            }
-            else
-            {
-                return Fold.Loop(state, array[--index], go);
-            }
-        }
+                if (iterA.IsEmpty)
+                {
+                    return Fold.Done<A, S>(state);
+                }
+                else
+                {
+                    return Fold.Loop(state, iterA.Head, go(iterA.Tail.Clone()));
+                }
+            };
     }
 
     static Option<A> Foldable<Arr>.At<A>(Index index, K<Arr, A> ta)
@@ -184,13 +180,18 @@ public partial class Arr :
             Applicative.lift((bs, b) => (SeqStrict<B>)bs.Add(b), state, f(value));                                            
     }
 
-    static K<F, K<Arr, B>> Traversable<Arr>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Arr, A> ta) 
+    static K<F, K<Arr, B>> Traversable<Arr>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Arr, A> ta)
     {
+        return ta.FoldM((bs, a) => f(a).Map(bs.Add), Seq<B>.Empty)
+                 .Map(bs => create(bs.AsSpan()).Kind());
+        
+        /*
         return Foldable.fold(addItem, F.Pure(new SeqStrict<B>(new B[ta.As().Count], 0, 0, 0, 0)), ta)
                        .Map(bs => new Arr<B>(bs.data.AsSpan().Slice(bs.start, bs.Count)).Kind());
 
         K<F, SeqStrict<B>> addItem(K<F, SeqStrict<B>> state, A value) =>
-            state.Bind(bs => f(value).Bind(b => F.Pure((SeqStrict<B>)bs.Add(b)))); 
+            state.Bind(bs => f(value).Map(b => (SeqStrict<B>)bs.Add(b))); 
+    */
     }
 
     static K<Seq, A> Natural<Arr, Seq>.Transform<A>(K<Arr, A> fa) => 

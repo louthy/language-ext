@@ -8,21 +8,39 @@ public class AtomQue : Foldable<AtomQue>
 {
     static Fold<A, S> Foldable<AtomQue>.FoldStep<A, S>(K<AtomQue, A> ta, in S initialState)
     {
-        var iter = ta.As().GetEnumerator();
-        return go(initialState);
-        Fold<A, S> go(S state) =>
-            iter.MoveNext()
-                ? Fold.Loop(state, iter.Current, go)
-                : Fold.Done<A, S>(state);
+        var items = ta.As();
+        return go(items.GetIterator())(initialState);
+
+        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
+            state =>
+            {
+                if (iter.IsEmpty)
+                {
+                    return Fold.Done<A, S>(state);
+                }
+                else
+                {
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                }
+            };
     }
     
     static Fold<A, S> Foldable<AtomQue>.FoldStepBack<A, S>(K<AtomQue, A> ta, in S initialState) 
     {
-        var iter = ta.As().Reverse().GetEnumerator();
-        return go(initialState);
-        Fold<A, S> go(S state) =>
-            iter.MoveNext()
-                ? Fold.Loop(state, iter.Current, go)
-                : Fold.Done<A, S>(state);
-    }    
+        var items = ta.As();
+        return go(items.Reverse().GetIterator())(initialState);
+
+        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
+            state =>
+            {
+                if (iter.IsEmpty)
+                {
+                    return Fold.Done<A, S>(state);
+                }
+                else
+                {
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                }
+            };
+    }
 }

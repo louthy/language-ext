@@ -325,7 +325,6 @@ public static partial class Monad
         }
     }
     
-    
     /// <summary>
     /// When the predicate evaluates to `true`, compute `Then`
     /// </summary>
