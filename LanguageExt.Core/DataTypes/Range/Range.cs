@@ -44,3 +44,6 @@ public record Range<A>(A From, A To, A Step, A BackStep, IEnumerable<A> runRange
     public Range<A> Reverse() =>
         new(To, From, BackStep, Step, runRangeBack, runRange);
 }
+
+record CharRange(char From, char To, IEnumerable<char> runRange, IEnumerable<char> runRangeBack) : 
+    Range<char>(From, To, char.MinValue, char.MinValue, runRange, runRangeBack);

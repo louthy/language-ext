@@ -33,17 +33,60 @@ public partial class Range
     /// </summary>
     /// <param name="from">The minimum value in the range</param>
     /// <param name="to">The maximum value in the range</param>
+    [Pure]
+    public static Range<char> fromMinMax(char min, char max)
+    {
+        if (max > min)
+        {
+            return new CharRange(min, max, Forward(), Backward());
+        }
+        else
+        {
+            (min, max) = (max, min);
+            return new CharRange(min, max, Backward(), Forward());
+        }
+
+        IEnumerable<char> Forward()
+        {
+            for (var x = min; x <= max; x++)
+            {
+                yield return x;
+            }
+        }
+
+        IEnumerable<char> Backward()
+        {
+            for (var x = max; x >= min; x--)
+            {
+                yield return x;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Construct a new range
+    /// </summary>
+    /// <param name="from">The minimum value in the range</param>
+    /// <param name="to">The maximum value in the range</param>
     /// <param name="step">The size of each step in the range</param>
     [Pure]
     public static Range<A> fromMinMax<A>(A min, A max, A step)
         where A : 
         IAdditionOperators<A, A, A>, 
+        ISubtractionOperators<A, A, A>,
         IComparisonOperators<A, A, bool>,
-        IUnaryNegationOperators<A, A> 
+        IUnaryNegationOperators<A, A>
     {
-        return min > max
-                   ? new(min, max, step, -step, Backward(), Forward())
-                   : new(min, max, step, -step, Forward(), Backward());
+        if (max > min)
+        {
+            return new(min, max, step, -step, Forward(), Backward());
+        }
+        else
+        {
+            (min, max) = (max, min);
+            step = -step;
+            return new(min, max, step, -step, Backward(), Forward());
+        }
 
         IEnumerable<A> Forward()
         {
@@ -55,7 +98,7 @@ public partial class Range
 
         IEnumerable<A> Backward()
         {
-            for (var x = min; x >= max; x += step)
+            for (var x = max; x >= min; x += -step)
             {
                 yield return x;
             }

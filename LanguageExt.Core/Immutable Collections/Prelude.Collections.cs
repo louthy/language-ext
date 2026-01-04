@@ -268,12 +268,7 @@ public static partial class Prelude
     /// </summary>
     [Pure]
     public static Range<char> Range(char from, char to) =>
-        to >= from
-            ? LanguageExt.Range.fromMinMax(from, to, (char)1)
-            : LanguageExt.Range.fromMinMax(to, from, (char)1) switch
-              {
-                  var r => r with { runRange = r.runRange.Reverse() }
-              };
+        LanguageExt.Range.fromMinMax(from, to);
 
     /// <summary>
     /// Create an immutable map
