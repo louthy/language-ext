@@ -20,7 +20,7 @@ namespace LanguageExt;
 /// <typeparam name="A">Value type</typeparam>
 [Serializable]
 [CollectionBuilder(typeof(Arr), nameof(Arr.create))]
-public readonly struct Arr<A> :
+public readonly partial struct Arr<A> :
     IReadOnlyList<A>,
     IEquatable<Arr<A>>,
     IComparable<Arr<A>>,
@@ -178,6 +178,16 @@ public readonly struct Arr<A> :
         var t = Math.Max(0, Math.Min(count, length - start));
         return new Arr<A>(arr, this.start + start, t);   
     }
+    
+    /// <summary>
+    /// Operations like `Take` or `Skip` can result in a lot of unused backing buffers, so this method
+    /// allows you to make a copy of just the active buffer and create a new instance with it.  The old
+    /// reference can then be nulled, allowing the GC to collect it. 
+    /// </summary>
+    /// <returns>A copy of this instance but with any fat trimmed</returns>
+    [Pure]
+    public Arr<A> Clone() =>
+        new(AsSpan().ToArray());
     
     [Pure]
     public Arr<A> Tail =>
@@ -383,25 +393,6 @@ public readonly struct Arr<A> :
         {
             yield return iter.Current;
         }
-    }
-    
-    public struct Enumerator
-    {
-        readonly A[] arr;
-        int index;
-        int end;
-
-        internal Enumerator(in Arr<A> arr)
-        {
-            this.arr = arr.Value;
-            index = arr.start - 1;
-            end = arr.start + arr.length;
-        }
-
-        public readonly A Current => arr[index];
-
-        public bool MoveNext() => 
-            ++index < end;
     }
 
     /// <summary>
@@ -716,38 +707,42 @@ public readonly struct Arr<A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Iterable<A> Skip(int amount)
-    {
-        var s = start;
-        var e = start + length;
-        return Iterable.createRange(Go(s, e, Value));
-        static IEnumerable<A> Go(int s, int e, A[] v)
-        {
-            for (var i = s; i < e; i++)
-            {
-                yield return v[i];
-            }
-        }
-    }
-        //Value.Skip(start + amount).AsIterable();
+    public Arr<A> Skip(int amount) =>
+        Splice(amount);
 
     /// <summary>
     /// Reverse the order of the items in the array
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Arr<A> Reverse()
+    public IEnumerable<A> Reverse()
     {
         var l = Count;
-        var n = new A[l];
         var v = Value;
-        var i = 0;
-        var j = l - 1;
-        for (; i < l; i++, j--)
+        var s = start;
+        for (var j = s + l - 1; j >= s; j--)
         {
-            n[i] = v[j + start];
+            yield return v[j];
         }
-        return new Arr<A>(n);
+    }
+
+    /// <summary>
+    /// Reverse the order of the items in the array
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Arr<A> ReverseArray()
+    {
+        var l = Count;
+        var v = Value;
+        var s = start;
+        var m = new A[l];
+        var i = 0;
+        for (var j = s + l - 1; j >= s; j--, i++)
+        {
+            m[i] = v[j];
+        }
+        return new Arr<A>(m);
     }
 
     /// <summary>

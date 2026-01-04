@@ -100,43 +100,6 @@ public partial class Arr
         array.RemoveAt(index);
 
     /// <summary>
-    /// Reverses the array (Reverse in LINQ)
-    /// </summary>
-    /// <typeparam name="T">Array item type</typeparam>
-    /// <param name="array">Array to reverse</param>
-    /// <returns>Reversed list</returns>
-    [Pure]
-    public static T[] rev<T>(T[] array)
-    {
-        var l = array.Length;
-        var n = new T[l];
-        var i = 0;
-        var j = l - 1;
-        for (; i < l; i++, j--)
-        {
-            n[i] = array[j];
-        }
-        return n;
-    }
-
-    /// <summary>
-    /// Reverses the array (Reverse in LINQ)
-    /// </summary>
-    /// <typeparam name="T">Array item type</typeparam>
-    /// <param name="array">Array to reverse</param>
-    /// <returns>Reversed list</returns>
-    [Pure]
-    public static Arr<T> rev<T>(Arr<T> array) =>
-        array.Reverse();
-
-    /// <summary>
-    /// Monadic join
-    /// </summary>
-    [Pure]
-    public static A[] flatten<A>(A[][] ma) =>
-        ma.Bind(identity).ToArray();
-
-    /// <summary>
     /// Monadic join
     /// </summary>
     [Pure]

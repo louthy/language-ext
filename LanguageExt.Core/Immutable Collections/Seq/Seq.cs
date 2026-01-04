@@ -91,38 +91,44 @@ public readonly struct Seq<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlySpan<A> AsSpan() =>
         Value.AsSpan();
+    
+    /// <summary>
+    /// Operations like `Take` or `Skip` can result in a lot of unused backing buffers, so this method
+    /// allows you to make a copy of just the active buffer and create a new instance with it.  The old
+    /// reference can then be nulled, allowing the GC to collect it. 
+    /// </summary>
+    /// <returns>A copy of this instance but with any fat trimmed</returns>
+    [Pure]
+    public Seq<A> Clone() =>
+        new(AsSpan().ToArray());
 
     /// <summary>
     /// Head lens
     /// </summary>
     public static Lens<Seq<A>, A> head => Lens<Seq<A>, A>.New(
         Get: la => la.IsEmpty ? throw new IndexOutOfRangeException() : la[0],
-        Set: a => la => la.IsEmpty ? throw new IndexOutOfRangeException() : a.Cons(la.Tail)
-    );
+       Set: a => la => la.IsEmpty ? throw new IndexOutOfRangeException() : a.Cons(la.Tail));
 
     /// <summary>
     /// Head or none lens
     /// </summary>
     public static Lens<Seq<A>, Option<A>> headOrNone => Lens<Seq<A>, Option<A>>.New(
         Get: la => la.Head,
-        Set: a => la => la.IsEmpty || a.IsNone ? la : a.Value.Cons(la.Tail!)!
-    );
+        Set: a => la => la.IsEmpty || a.IsNone ? la : a.Value.Cons(la.Tail!)!);
 
     /// <summary>
     /// Tail lens
     /// </summary>
     public static Lens<Seq<A>, Seq<A>> tail => Lens<Seq<A>, Seq<A>>.New(
         Get: la => la.IsEmpty ? Empty : la.Tail,
-        Set: a => la => la.IsEmpty ? a : ((A)la.Head).Cons(a)
-    );
+        Set: a => la => la.IsEmpty ? a : ((A)la.Head).Cons(a));
 
     /// <summary>
     /// Last lens
     /// </summary>
     public static Lens<Seq<A>, A> last => Lens<Seq<A>, A>.New(
         Get: la => la.IsEmpty ? throw new IndexOutOfRangeException() : (A)la.Last,
-        Set: a => la => la.IsEmpty ? throw new IndexOutOfRangeException() : la.Take(la.Count - 1).Add(a)
-    );
+        Set: a => la => la.IsEmpty ? throw new IndexOutOfRangeException() : la.Take(la.Count - 1).Add(a));
 
     /// <summary>
     /// Last or none lens
@@ -130,15 +136,13 @@ public readonly struct Seq<A> :
     public static Lens<Seq<A>, Option<A>> lastOrNone => Lens<Seq<A>, Option<A>>.New(
         Get: la => la.Last,
         Set: a => la => la.IsEmpty || a.IsNone ? la : la.Take(la.Count - 1).Add(a.Value!));
-
     /// <summary>
     /// Lens map
     /// </summary>
     [Pure]
     public static Lens<Seq<A>, Seq<B>> map<B>(Lens<A, B> lens) => Lens<Seq<A>, Seq<B>>.New(
         Get: la => la.Map(lens.Get),
-        Set: lb => la => la.Zip(lb).Map(ab => lens.Set(ab.Item2, ab.Item1))
-    );
+        Set: lb => la => la.Zip(lb).Map(ab => lens.Set(ab.Item2, ab.Item1)));
 
     /// <summary>
     /// Indexer
@@ -477,16 +481,6 @@ public readonly struct Seq<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<A> AsEnumerable() => 
         this;
-
-    /*
-    /// <summary>
-    /// Stream as an enumerable
-    /// </summary>
-    [Pure]
-    public StreamT<M, A> AsStream<M>()
-        where M : Monad<M> =>
-        StreamT<M, A>.Lift(AsEnumerable());
-        */
 
     /// <summary>
     /// Stream as an enumerable

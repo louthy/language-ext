@@ -61,7 +61,7 @@ public class ArrayTests
     public void ReverseListTest1()
     {
         var list = Array(1, 2, 3, 4, 5);
-        var rev  = list.Reverse();
+        var rev  = list.ReverseArray();
 
         Assert.True(rev[0] == 5);
         Assert.True(rev[4] == 1);
@@ -71,7 +71,7 @@ public class ArrayTests
     public void ReverseListTest2()
     {
         var list = Array(1, 2, 3, 4, 5);
-        var rev  = list.Reverse();
+        var rev  = list.ReverseArray();
 
         Assert.True(rev.IndexOf(1) == 4, "Should have been 4, actually is: " + rev.IndexOf(1));
         Assert.True(rev.IndexOf(5) == 0, "Should have been 0, actually is: " + rev.IndexOf(5));
@@ -81,7 +81,7 @@ public class ArrayTests
     public void ReverseListTest3()
     {
         var list = Array(1, 1, 2, 2, 2);
-        var rev  = list.Reverse();
+        var rev  = list.ReverseArray();
 
         Assert.True(rev.LastIndexOf(1) == 4, "Should have been 4, actually is: " + rev.LastIndexOf(1));
         Assert.True(rev.LastIndexOf(2) == 2, "Should have been 2, actually is: " + rev.LastIndexOf(5));
