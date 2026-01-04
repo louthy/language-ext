@@ -190,7 +190,7 @@ public readonly struct Lst<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lens<Lst<A>, Lst<B>> map<B>(Lens<A, B> lens) => Lens<Lst<A>, Lst<B>>.New(
-        Get: la => la.Map(lens.Get),
+        Get: la => la.Map(lens.Get).ToLst(),
         Set: lb => la => la.Zip(lb).Map(ab => lens.Set(ab.Item2, ab.Item1)).ToLst()
     );
 
@@ -236,16 +236,6 @@ public readonly struct Lst<A> :
         get => Count;
     }
 
-    /*
-    /// <summary>
-    /// Stream as an enumerable
-    /// </summary>
-    [Pure]
-    public StreamT<M, A> AsStream<M>()
-        where M : Monad<M> =>
-        StreamT<M, A>.Lift(this);
-        */
-
     [Pure]
     A IReadOnlyList<A>.this[int index]
     {
@@ -255,6 +245,50 @@ public readonly struct Lst<A> :
             if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
             return ListModule.GetItem(Root, index);
         }
+    }
+
+    /// <summary>
+    /// Lazily reverse the order of the items in the list
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public IEnumerable<A> ReverseEnumerable()
+    {
+        using var iter = GetEnumeratorBack();
+        while (iter.MoveNext())
+        {
+            yield return iter.Current;
+        }
+    }
+
+    /// <summary>
+    /// Lazily reverse the order of the items in the list
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public IEnumerable<A> ReverseIterable() =>
+        ReverseEnumerable().AsIterable();
+
+    /// <summary>
+    /// Reverse the order of the items in the list
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Lst<A> Reverse()
+    {
+        Lst.FoldState foldState = default!;
+        var           root      = ListItem<A>.EmptyM;
+        var           subIndex  = 0;
+        var           fa        = (K<Lst, A>)this;
+        
+        Foldable.stepBackSetup(fa, ref foldState);
+        while (Foldable.stepBack(fa, ref foldState, out var item))
+        {
+            root = ListModuleM.Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
+            subIndex++;
+        }
+        
+        return new Lst<A>(new LstInternal<A>(root));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -309,14 +343,6 @@ public readonly struct Lst<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<A> Clear() =>
         Empty;
-
-    /// <summary>
-    /// Get enumerator
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ListEnumerator<A> GetEnumerator() =>
-        new (Root, false, 0);
     
     /// <summary>
     /// Find the index of an item
@@ -415,12 +441,22 @@ public readonly struct Lst<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator IEnumerable.GetEnumerator() =>
-        new ListEnumerator<A>(Root, false, 0);
+        new ListEnumerator<A>(Root, 0);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
-        new ListEnumerator<A>(Root, false, 0);
+        new ListEnumerator<A>(Root, 0);
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ListEnumerator<A> GetEnumerator() =>
+        new (Root, 0);
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ListEnumeratorBack<A> GetEnumeratorBack() =>
+        new (Root, 0);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -461,16 +497,8 @@ public readonly struct Lst<A> :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Iterable<A> Skip(int amount) =>
+    public Lst<A> Skip(int amount) =>
         Value.Skip(amount);
-
-    /// <summary>
-    /// Reverse the order of the items in the list
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Lst<A> Reverse() =>
-        Wrap(Value.Reverse());
 
     /// <summary>
     /// Impure iteration of the bound values in the structure
@@ -491,7 +519,7 @@ public readonly struct Lst<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<U> Map<U>(Func<A, U> map) =>
-        Wrap(Value.Map(map));
+        Value.Map(map);
     
     /// <summary>
     /// Map each element of a structure to an action, evaluate these actions from
@@ -525,7 +553,7 @@ public readonly struct Lst<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<A> Filter(Func<A, bool> pred) =>
-        Wrap(Value.Filter(pred));
+        Value.Filter(pred);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

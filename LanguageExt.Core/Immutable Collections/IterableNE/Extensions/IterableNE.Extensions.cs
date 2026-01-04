@@ -36,7 +36,7 @@ public static partial class IterableNEExtensions
     public static Option<IterableNE<A>> AsIterableNE<A>(this Lst<A> xs) =>
         xs.IsEmpty
             ? None
-            : new IterableNE<A>(xs[0], xs.Skip(1));
+            : new IterableNE<A>(xs[0], xs.Skip(1).AsIterable());
     
     /// <summary>
     /// Monadic join

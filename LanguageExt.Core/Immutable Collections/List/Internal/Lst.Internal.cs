@@ -145,7 +145,7 @@ internal class LstInternal<A> :
     public LstInternal<A> AddRange(IEnumerable<A> items)
     {
         if (Count == 0) return new LstInternal<A>(items);
-        return Wrap(ListModule.AddRange<A>(Root, items));
+        return Wrap(ListModule.AddRange(Root, items));
     }
 
     /// <summary>
@@ -162,7 +162,15 @@ internal class LstInternal<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ListEnumerator<A> GetEnumerator() =>
-        new (Root, false, 0);
+        new (Root, 0);
+
+    /// <summary>
+    /// Get enumerator
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ListEnumeratorBack<A> GetEnumeratorBack() =>
+        new (Root, 0);
 
     /// <summary>
     /// Find the index of an item
@@ -220,6 +228,7 @@ internal class LstInternal<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int LastIndexOf(A item, int index = 0, int count = -1, IEqualityComparer<A>? equalityComparer = null) =>
+        // TODO: Use FoldSteps
         Count - Reverse().IndexOf(item, index, count, equalityComparer) - 1;
 
     /// <summary>
@@ -292,21 +301,21 @@ internal class LstInternal<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator IEnumerable.GetEnumerator() =>
-        new ListEnumerator<A>(Root, false, 0);
+        new ListEnumerator<A>(Root, 0);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
-        new ListEnumerator<A>(Root, false, 0);
+        new ListEnumerator<A>(Root, 0);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Iterable<A> Skip(int amount)
+    public Lst<A> Skip(int amount)
     {
-        return Iterable.createRange(Go());
+        return new Lst<A>(Go());
         IEnumerable<A> Go()
         {
-            var iter = new ListEnumerator<A>(Root, false, amount);
+            var iter = new ListEnumerator<A>(Root, amount);
             while (iter.MoveNext())
             {
                 yield return iter.Current;
@@ -323,25 +332,11 @@ internal class LstInternal<A> :
         new (this.AsEnumerable().Reverse());
 
     /// <summary>
-    /// Fold
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public S Fold<S>(S state, Func<S, A, S> folder)
-    {
-        foreach (var item in this)
-        {
-            state = folder(state, item);
-        }
-        return state;
-    }
-
-    /// <summary>
     /// Map
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LstInternal<U> Map<U>(Func<A, U> map) =>
+    public Lst<B> Map<B>(Func<A, B> map) =>
         new (this.AsEnumerable().Select(map));
 
     [Pure]
@@ -354,7 +349,7 @@ internal class LstInternal<A> :
 
         IEnumerable<A> Go()
         {
-            var iter = new ListEnumerator<A>(Root, false, index, count);
+            var iter = new ListEnumerator<A>(Root, index, count);
             while (iter.MoveNext())
             {
                 yield return iter.Current;
@@ -367,7 +362,7 @@ internal class LstInternal<A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public LstInternal<A> Filter(Func<A, bool> pred)
+    public Lst<A> Filter(Func<A, bool> pred)
     {
         IEnumerable<A> Yield()
         {
@@ -379,7 +374,7 @@ internal class LstInternal<A> :
                 }
             }
         }
-        return new LstInternal<A>(Yield());
+        return new Lst<A>(Yield());
     }
 
     [Pure]
@@ -1083,131 +1078,4 @@ static class ListModule
         node.IsEmpty
             ? node
             : RotLeft(Make(node.Key, node.Left, RotRight(node.Right)));
-}
-
-public struct ListEnumerator<T> : IEnumerator<T>
-{
-    internal struct NewStack : New<ListItem<T>[]>
-    {
-        public ListItem<T>[] New() =>
-            new ListItem<T>[32];
-    }
-
-    ListItem<T>[] stack;
-    int stackDepth;
-    readonly ListItem<T> map;
-    int left;
-    readonly bool rev;
-    readonly int start;
-    int count;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal ListEnumerator(ListItem<T> root, bool rev, int start, int count = int.MaxValue)
-    {
-        this.rev = rev;
-        this.start = start;
-        map = root;
-        stack = Pool<NewStack, ListItem<T>[]>.Pop();
-        this.count = count;
-        stackDepth = default;
-        left = default;
-        NodeCurrent = default!;
-        Reset();
-    }
-
-    private ListItem<T> NodeCurrent
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get;
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        set;
-    }
-
-    public readonly T Current
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => NodeCurrent.Key;
-    }
-
-    object IEnumerator.Current
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => NodeCurrent.Key!;
-    }
-
-    public void Dispose()
-    {
-        if (stack != null)
-        {
-            Pool<NewStack, ListItem<T>[]>.Push(stack);
-            stack = null!;
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ListItem<T> Next(ListItem<T> node) =>
-        rev ? node.Left : node.Right;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ListItem<T> Prev(ListItem<T> node) =>
-        rev ? node.Right : node.Left;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Push(ListItem<T> node)
-    {
-        while (!node.IsEmpty)
-        {
-            stack[stackDepth] = node;
-            stackDepth++;
-            node = Prev(node);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool MoveNext()
-    {
-        if (count > 0 && left > 0 && stackDepth > 0)
-        {
-            stackDepth--;
-            NodeCurrent = stack[stackDepth];
-            Push(Next(NodeCurrent));
-            left--;
-            count--;
-            return true;
-        }
-
-        NodeCurrent = default!;
-        return false;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Reset()
-    {
-        var skip = rev ? map.Count - start - 1 : start;
-
-        stackDepth = 0;
-        NodeCurrent = map;
-        left = map.Count;
-
-        while (!NodeCurrent.IsEmpty && skip != Prev(NodeCurrent).Count)
-        {
-            if (skip < Prev(NodeCurrent).Count)
-            {
-                stack[stackDepth] = NodeCurrent;
-                stackDepth++;
-                NodeCurrent = Prev(NodeCurrent);
-            }
-            else
-            {
-                skip -= Prev(NodeCurrent).Count + 1;
-                NodeCurrent = Next(NodeCurrent);
-            }
-        }
-
-        if (!NodeCurrent.IsEmpty)
-        {
-            stack[stackDepth] = NodeCurrent;
-            stackDepth++;
-        }
-    }
 }

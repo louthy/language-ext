@@ -135,7 +135,7 @@ public partial class Arr :
     static Fold<A, S> Foldable<Arr>.FoldStepBack<A, S>(K<Arr, A> ta, in S initialState)
     {
         var array = ta.As();
-        return go(array.Reverse().GetIterator())(initialState);
+        return go(array.ReverseEnumerable().GetIterator())(initialState);
 
         static Func<S, Fold<A, S>> go(Iterator<A> iterA) =>
             state =>

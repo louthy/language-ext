@@ -711,11 +711,11 @@ public readonly partial struct Arr<A> :
         Splice(amount);
 
     /// <summary>
-    /// Reverse the order of the items in the array
+    /// Lazily reverse the order of the items in the array
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<A> Reverse()
+    public IEnumerable<A> ReverseEnumerable()
     {
         var l = Count;
         var v = Value;
@@ -727,11 +727,19 @@ public readonly partial struct Arr<A> :
     }
 
     /// <summary>
+    /// Lazily reverse the order of the items in the array
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public IEnumerable<A> ReverseIterable() =>
+        ReverseEnumerable().AsIterable();
+
+    /// <summary>
     /// Reverse the order of the items in the array
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Arr<A> ReverseArray()
+    public Arr<A> Reverse()
     {
         var l = Count;
         var v = Value;

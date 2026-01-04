@@ -191,7 +191,7 @@ public partial class Lst :
     static Fold<A, S> Foldable<Lst>.FoldStepBack<A, S>(K<Lst, A> ta, in S initialState) 
     {
         var items = ta.As();
-        return go(items.Reverse().GetIterator())(initialState);
+        return go(items.ReverseEnumerable().GetIterator())(initialState);
 
         static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
             state =>
