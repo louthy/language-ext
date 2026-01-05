@@ -8,6 +8,21 @@ namespace LanguageExt;
 
 public static class StackExtensions
 {
+    extension<A>(A top)
+    {
+        public Stck<A> Top(Stck<A> tail) =>
+            new Stck<A>.Top(top, tail);
+    }
+    
+    extension<A>(K<Stck, A> ma)
+    {
+        /// <summary>
+        /// Downcast operator
+        /// </summary>
+        public Stck<A> As() =>
+            (Stck<A>)ma;
+    }
+    
     /// <summary>
     /// Projects the values in the stack using a map function into a new enumerable (Select in LINQ).
     /// </summary>

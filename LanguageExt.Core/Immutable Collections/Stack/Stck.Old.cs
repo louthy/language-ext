@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -17,18 +18,23 @@ namespace LanguageExt;
 /// <typeparam name="A">Stack element type</typeparam>
 [Serializable]
 [CollectionBuilder(typeof(Stack), nameof(Stack.createRange))]
-public abstract partial record Stck<A> : 
+public readonly struct Stck<A> : 
     IEnumerable<A>, 
     IEquatable<Stck<A>>,
     Monoid<Stck<A>>,
     K<Stck, A>
 {
+    public static Stck<A> Empty { get; } = new(StckInternal<A>.Empty);
+
+    readonly StckInternal<A> value;
+    StckInternal<A> Value => value ?? StckInternal<A>.Empty;
+
     /// <summary>
-    /// Empty stack
+    /// Default ctor
     /// </summary>
-    public static Stck<A> Empty { get; } = new Nil();
-    
-    /*
+    internal Stck(StckInternal<A> value) =>
+        this.value = value;
+
     /// <summary>
     /// Ctor that takes an initial state as an IEnumerable T
     /// </summary>
@@ -45,7 +51,6 @@ public abstract partial record Stck<A> :
         value = initial.IsEmpty
                     ? StckInternal<A>.Empty
                     : new StckInternal<A>(initial);
-    */
 
     /// <summary>
     /// Reference version for use in pattern-matching
@@ -76,15 +81,8 @@ public abstract partial record Stck<A> :
     /// </summary>
     /// <returns></returns>
     [Pure]
-    public Stck<A> Reverse()
-    {
-        var stack = Empty;
-        foreach (var item in this)
-        {
-            stack = item.Top(stack);
-        }
-        return stack;
-    }
+    public Stck<A> Reverse() =>
+        new (Value.Reverse());
 
     /// <summary>
     /// Is the stack empty
@@ -356,3 +354,4 @@ public abstract partial record Stck<A> :
         GetHashCode() == other.GetHashCode() &&
         EqEnumerable<A>.Equals(Value, other.Value);
 }
+*/

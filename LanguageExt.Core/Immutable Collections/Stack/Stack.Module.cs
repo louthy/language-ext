@@ -20,15 +20,21 @@ public static class Stack
     /// <returns>Constructed stack collection</returns>
     public static Stck<A> singleton<A>(A item) =>
         [item];
-    
+
     /// <summary>
     /// Create a new stack from an existing span
     /// </summary>
     /// <param name="items">Items to populate the stack</param>
     /// <typeparam name="A">Type of the items</typeparam>
     /// <returns>Constructed stack collection</returns>
-    public static Stck<A> createRange<A>(IEnumerable<A> items) =>
-        new (items);
+    public static Stck<A> createRange<A>(IEnumerable<A> items)
+    {
+        var stack = Stck<A>.Empty;
+        foreach (var item in items)
+        {
+            item = item.Top(stack);
+        }
+    }
     
     /// <summary>
     /// Create a new stack from an existing span

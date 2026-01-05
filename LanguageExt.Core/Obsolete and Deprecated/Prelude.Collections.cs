@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using LanguageExt.Traits;
-using LSeq = LanguageExt.Seq;
 using L = LanguageExt;
 #pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
 

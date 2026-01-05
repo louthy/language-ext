@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -19,13 +20,6 @@ namespace LanguageExt
         readonly A? value;
         readonly StckInternal<A>? tail;
         int hashCode;
-
-        /// <summary>
-        /// Default ctor
-        /// </summary>
-        internal StckInternal()
-        {
-        }
 
         /// <summary>
         /// Ctor for Push
@@ -328,3 +322,4 @@ namespace LanguageExt
                 : hashCode;
     }
 }
+*/

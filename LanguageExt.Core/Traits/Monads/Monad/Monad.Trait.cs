@@ -59,8 +59,6 @@ public interface Monad<M> :
 
     static K<M, A> Applicative<M>.Actions<A>(IterableNE<K<M, A>> mas)
     {
-        // TODO: Check if this implementation is valid
-        
         return M.Recur(mas.GetIterator(), go).Flatten();
         K<M, Next<Iterator<K<M, A>>, K<M, A>>> go(Iterator<K<M, A>> iter) =>
             iter switch
