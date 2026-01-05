@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -18,30 +19,35 @@ public partial class FoldableExtensions
         where T : Foldable<T>
     {
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public S FoldMaybe<S>(
             S initialState,
             Func<S, Func<A, Option<S>>> f) =>
             T.FoldMaybe((s, a) => f(s)(a), initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public S FoldMaybe<S>(
             S initialState,
             Func<S, A, Option<S>> f) =>
             T.FoldMaybe(f, initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public S FoldBackMaybe<S>(
             S initialState,
             Func<A, Func<S, Option<S>>> f) =>
             T.FoldBackMaybe((s, a) => f(a)(s), initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public S FoldBackMaybe<S>(
             S initialState,
             Func<A, S, Option<S>> f) =>
             T.FoldBackMaybe((s, a) => f(a, s), initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public S FoldWhile<S>(
             S initialState,
             Func<S, Func<A, S>> f,
@@ -49,6 +55,7 @@ public partial class FoldableExtensions
             T.FoldWhile((s, a) => f(s)(a), predicate, initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public S FoldWhile<S>(
             S initialState,
             Func<S, A, S> f,
@@ -56,6 +63,7 @@ public partial class FoldableExtensions
             T.FoldWhile(f, predicate, initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public S FoldBackWhile<S>(
             S initialState,
             Func<A, Func<S, S>> f,
@@ -63,6 +71,7 @@ public partial class FoldableExtensions
             T.FoldBackWhile((s, a) => f(a)(s), predicate, initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public S FoldBackWhile<S>(
             S initialState,
             Func<A, S, S> f,
@@ -70,6 +79,7 @@ public partial class FoldableExtensions
             T.FoldBackWhile((s, a) => f(a, s), predicate, initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public K<M, S> FoldWhileM<M, S>(
             S initialState,
             Func<S, Func<A, K<M, S>>> f,
@@ -78,6 +88,7 @@ public partial class FoldableExtensions
             T.FoldWhileM<K<M, S>, M, A, S>((s, a) => f(s)(a), predicate, initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public K<M, S> FoldWhileM<M, S>(
             S initialState,
             Func<S, A, K<M, S>> f,
@@ -86,6 +97,7 @@ public partial class FoldableExtensions
             T.FoldWhileM<K<M, S>, M, A, S>(f, predicate, initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public K<M, S> FoldBackWhileM<M, S>(
             S initialState,
             Func<A, Func<S, K<M, S>>> f,
@@ -94,6 +106,7 @@ public partial class FoldableExtensions
             T.FoldBackWhileM<K<M, S>, M, A, S>((s, a) => f(a)(s), predicate, initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public K<M, S> FoldBackWhileM<M, S>(
             S initialState,
             Func<A, S, K<M, S>> f,
@@ -102,6 +115,7 @@ public partial class FoldableExtensions
             T.FoldBackWhileM<K<M, S>, M, A, S>((s, a) => f(a, s), predicate, initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public S FoldUntil<S>(
             S initialState,
             Func<S, Func<A, S>> f,
@@ -109,6 +123,7 @@ public partial class FoldableExtensions
             T.FoldUntil((s, a) => f(s)(a), predicate, initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public S FoldUntil<S>(
             S initialState,
             Func<S, A, S> f,
@@ -116,6 +131,7 @@ public partial class FoldableExtensions
             T.FoldUntil(f, predicate, initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public K<M, S> FoldUntilM<M, S>(
             S initialState,
             Func<S, Func<A, K<M, S>>> f,
@@ -124,6 +140,7 @@ public partial class FoldableExtensions
             T.FoldUntilM<K<M, S>, M, A, S>((s, a) => f(s)(a), predicate, initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public K<M, S> FoldUntilM<M, S>(
             S initialState,
             Func<S, A, K<M, S>> f,
@@ -132,6 +149,7 @@ public partial class FoldableExtensions
             T.FoldUntilM<K<M, S>, M, A, S>(f, predicate, initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public S FoldBackUntil<S>(
             S initialState,
             Func<A, Func<S, S>> f,
@@ -139,6 +157,7 @@ public partial class FoldableExtensions
             T.FoldBackUntil((s, a) => f(a)(s), predicate, initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public S FoldBackUntil<S>(
             S initialState,
             Func<A, S, S> f,
@@ -146,6 +165,7 @@ public partial class FoldableExtensions
             T.FoldBackUntil((s, a) => f(a, s), predicate, initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public K<M, S> FoldBackUntilM<M, S>(
             S initialState,
             Func<A, Func<S, K<M, S>>> f,
@@ -154,6 +174,7 @@ public partial class FoldableExtensions
             T.FoldBackUntilM<K<M, S>, M, A, S>((s, a) => f(a)(s), predicate, initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public K<M, S> FoldBackUntilM<M, S>(
             S initialState,
             Func<A, S, K<M, S>> f,
@@ -162,18 +183,21 @@ public partial class FoldableExtensions
             T.FoldBackUntilM<K<M, S>, M, A, S>((s, a) => f(a, s), predicate, initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public S Fold<S>(
             S initialState,
             Func<S, Func<A, S>> f) =>
             T.Fold((s, a) => f(s)(a), initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public S Fold<S>(
             S initialState,
             Func<S, A, S> f) =>
             T.Fold((s, a) => f(s, a), initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public K<M, S> FoldM<M, S>(
             S initialState,
             Func<S, A, K<M, S>> f)
@@ -181,18 +205,21 @@ public partial class FoldableExtensions
             T.FoldM<K<M, S>, M, A, S>(f, initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public S FoldBack<S>(            
             S initialState,
             Func<A, Func<S, S>> f) =>
             T.FoldBack((s, a) => f(a)(s), initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public S FoldBack<S>(            
             S initialState,
             Func<A, S, S> f) =>
             T.FoldBack((s, a) => f(a, s), initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public K<M, S> FoldBackM<M, S>(
             S initialState,
             Func<A, Func<S, K<M, S>>> f)
@@ -200,6 +227,7 @@ public partial class FoldableExtensions
             T.FoldBackM<K<M, S>, M, A, S>((s, a) => f(a)(s), initialState, ta);
 
         [Obsolete(FoldChangesMessage)]
+        [OverloadResolutionPriority(Change.Priority)]
         public K<M, S> FoldBackM<M, S>(
             S initialState,
             Func<A, S, K<M, S>> f)

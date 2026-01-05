@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
 using LSeq = LanguageExt.Seq;
 using L = LanguageExt;
@@ -12,10 +13,12 @@ namespace LanguageExt;
 public static partial class Prelude
 {
     [Obsolete("Use Lst instead")]
+    [OverloadResolutionPriority(Change.Priority)]
     public static Lst<T> List<T>() =>
         L.Lst<T>.Empty;
 
     [Obsolete("Use Lst instead")]
+    [OverloadResolutionPriority(Change.Priority)]
     public static Lst<T> List<T>(T x, params T[] xs)
     {
         return new Lst<T>(Yield());
@@ -31,16 +34,19 @@ public static partial class Prelude
     }
 
     [Obsolete("Use toLst instead")]
+    [OverloadResolutionPriority(Change.Priority)]
     public static Lst<T> toList<T>(Arr<T> items) =>
         new (items.AsSpan());
 
     [Obsolete("Use toLst instead")]
+    [OverloadResolutionPriority(Change.Priority)]
     public static Lst<T> toList<T>(IEnumerable<T> items) =>
         items is Lst<T> lst
             ? lst
             : new Lst<T>(items);
 
     [Obsolete("Use toLst instead")]
+    [OverloadResolutionPriority(Change.Priority)]
     public static Lst<T> toList<T>(ReadOnlySpan<T> items) =>
         new (items);
 }

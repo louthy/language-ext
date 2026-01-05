@@ -2,6 +2,8 @@
 
 internal class Change
 {
+    public const int Priority = int.MinValue;
+    
     public const string UseCollectionIntialiser =
         "Use collection intialiser instead.  So, instead of: (x, y, z), you should now call [x, y, z]";
 

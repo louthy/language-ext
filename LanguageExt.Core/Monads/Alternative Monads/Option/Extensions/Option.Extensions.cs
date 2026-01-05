@@ -160,36 +160,4 @@ public static partial class OptionExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static R Match<R>(this Option<bool> ma, Func<R> True, Func<R> False, Func<R> None) =>
         ma.Match(Some: x => x ? True() : False(), None: None());
-
-    /// <summary>
-    /// Match over a list of options
-    /// </summary>
-    /// <typeparam name="T">Type of the bound values</typeparam>
-    /// <typeparam name="R">Result type</typeparam>
-    /// <param name="list">List of options to match against</param>
-    /// <param name="Some">Operation to perform when an Option is in the Some state</param>
-    /// <param name="None">Operation to perform when an Option is in the None state</param>
-    /// <returns>An enumerable of results of the match operations</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IEnumerable<R> Match<T, R>(this IEnumerable<Option<T>> list,
-        Func<T, IEnumerable<R>> Some,
-        Func<IEnumerable<R>> None) =>
-        match(list, Some, None);
-
-    /// <summary>
-    /// Match over a list of options
-    /// </summary>
-    /// <typeparam name="T">Type of the bound values</typeparam>
-    /// <typeparam name="R">Result type</typeparam>
-    /// <param name="list">List of options to match against</param>
-    /// <param name="Some">Operation to perform when an Option is in the Some state</param>
-    /// <param name="None">Default if the list is empty</param>
-    /// <returns>An enumerable of results of the match operations</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IEnumerable<R> Match<T, R>(this IEnumerable<Option<T>> list,
-        Func<T, IEnumerable<R>> Some,
-        IEnumerable<R> None) =>
-        match(list, Some, () => None);
 }
