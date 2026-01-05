@@ -645,31 +645,31 @@ public static partial class Prelude
     /// Create an immutable stack
     /// </summary>
     [Pure]
-    public static Stck<T> Stack<T>() =>
-        new ();
+    public static Stck<A> Stck<A>() =>
+        L.Stck<A>.Empty;
 
     /// <summary>
     /// Create an immutable stack
     /// </summary>
     [Pure]
-    public static Stck<T> Stack<T>(params T[] items) =>
-        new (items.AsSpan());
+    public static Stck<A> Stck<A>(A top, params A[] rest) =>
+        top.Top(Stck(rest.AsSpan()));
 
     /// <summary>
     /// Create an immutable stack
     /// </summary>
     [Pure]
-    public static Stck<T> toStack<T>(IEnumerable<T> items) =>
-        items is Stck<T> s
+    public static Stck<A> Stck<A>(ReadOnlySpan<A> items) =>
+        [..items];
+
+    /// <summary>
+    /// Create an immutable stack
+    /// </summary>
+    [Pure]
+    public static Stck<A> toStck<A>(IEnumerable<A> items) =>
+        items is Stck<A> s
             ? s
-            : new Stck<T>(items);
-
-    /// <summary>
-    /// Create an immutable stack
-    /// </summary>
-    [Pure]
-    public static Stck<T> toStackRev<T>(IEnumerable<T> items) =>
-        new (items.Reverse());
+            : L.Stck.createRange(items);
 
     /// <summary>
     /// Create an immutable map, updating duplicates so that the final value of any key is retained

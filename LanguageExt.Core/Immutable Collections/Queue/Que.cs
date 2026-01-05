@@ -124,8 +124,17 @@ public readonly struct Que<A> :
     /// <exception cref="ExpectedException">Throws if the queue is empty</exception>
     /// <returns>The item at the front of the queue, or throw an exception if none exists</returns>
     [Pure]
-    public A Peek() =>
+    public Option<A> Peek() =>
         Value.Peek();
+
+    /// <summary>
+    /// Look at the item at the front of the queue
+    /// </summary>
+    /// <exception cref="ExpectedException">Throws if the queue is empty</exception>
+    /// <returns>The item at the front of the queue, or throw an exception if none exists</returns>
+    [Pure]
+    public A PeekUnsafe() =>
+        Value.PeekUnsafe();
 
     /// <summary>
     /// Removes the item from the front of the queue
@@ -136,29 +145,12 @@ public readonly struct Que<A> :
         new (Value.Dequeue());
 
     /// <summary>
-    /// Removes the item from the front of the queue
-    /// </summary>
-    /// <exception cref="ExpectedException">Throws if the queue is empty</exception>
-    /// <returns>A tuple containing the new `Que` with the first item removed and the first item</returns>
-    [Pure]
-    public (Que<A> Queue, A Value) DequeueUnsafe() =>
-        (Dequeue(), Peek());
-
-    /// <summary>
-    /// Removes the item from the front of the queue
-    /// </summary>
-    /// <returns>A tuple containing the new `Que` with the first item removed and optionally the first item</returns>
-    [Pure]
-    public (Que<A> Queue, Option<A> Value) TryDequeue() =>
-        Value.TryDequeue().MapFirst(qi => new Que<A>(qi));
-
-    /// <summary>
     /// Look at the item at the front of the queue, if it exists.  
     /// </summary>
-    /// <returns>The item at the front of the queue, if it exists.  `None` otherwise.</returns>
+    /// <returns>The item at the front of the queue, if it exists. `false` otherwise.</returns>
     [Pure]
-    public Option<A> TryPeek() =>
-        Value.TryPeek();
+    public bool TryPeek(out A value) =>
+        Value.TryPeek(out value);
 
     /// <summary>
     /// Add an item to the end of the queue

@@ -1,26 +1,35 @@
 using System.Diagnostics.Contracts;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
 public abstract partial record Stck<A>
 {
     /// <summary>
-    /// Terminating/empty stack
+    /// Value on top of the stack that has a reference to the rest of the stack
     /// </summary>
-    public sealed record Nil : Stck<A>
+    /// <param name="Value">Value on the top of the stack</param>
+    /// <param name="Rest">The rest of the stack</param>
+    public sealed record Top(A Value, Stck<A> Rest) 
+        : Stck<A>
     {
+        /// <summary>
+        /// Rest of the stack underneath the top item 
+        /// </summary>
+        public Stck<A> Rest { get; internal set; } = Rest;
+
         /// <summary>
         /// Reference version for use in pattern-matching
         /// </summary>
         [Pure]
-        public override object? Case => null;
+        public override object? Case => Value;
 
         /// <summary>
         /// Is the stack empty?
         /// </summary>
         [Pure]
         public override bool IsEmpty =>
-            true;
+            false;
 
         /// <summary>
         /// Return the item on the top of the stack without affecting the stack itself.
@@ -28,22 +37,22 @@ public abstract partial record Stck<A>
         /// <returns>Top item value or None if the stack is empty.</returns>
         [Pure]
         public override Option<A> Peek() =>
-            default;
+            Value;
 
         /// <summary>
         /// Pop an item off the top of the stack. 
         /// </summary>
         /// <remarks>
-        /// If there's nothing on the stack this does nothing.  Use pattern-matching, `IsEmpty`, or `Peek` to know
+        /// If there's nothing on the stack, this does nothing.  Use pattern-matching, `IsEmpty`, or `Peek` to know
         /// whether `Pop` will have an effect.
         /// </remarks>
         /// <returns>Stack with the top item popped</returns>
         [Pure]
         public override Stck<A> Pop() =>
-            this;
+            Rest;
 
         [Pure]
         public override string ToString()=>
-            "[]";
+            CollectionFormat.ToShortArrayString(this);
     }
 }

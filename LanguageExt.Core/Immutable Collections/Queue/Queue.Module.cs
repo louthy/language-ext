@@ -27,20 +27,16 @@ public static class Queue
         queue.Enqueue(value);
 
     [Pure]
-    public static (Que<T> Queue, T Value) deqUnsafe<T>(Que<T> queue) =>
-        queue.DequeueUnsafe();
-
-    [Pure]
-    public static (Que<T> Queue, Option<T> Value) deq<T>(Que<T> queue) =>
-        queue.TryDequeue();
-
-    [Pure]
     public static T peekUnsafe<T>(Que<T> queue) =>
-        queue.Peek();
+        queue.PeekUnsafe();
 
     [Pure]
     public static Option<T> peek<T>(Que<T> queue) =>
-        queue.TryPeek();
+        queue.Peek();
+
+    [Pure]
+    public static bool tryPeek<T>(Que<T> queue, out T value) =>
+        queue.TryPeek(out value);
 
     [Pure]
     public static Que<T> clear<T>(Que<T> queue) =>

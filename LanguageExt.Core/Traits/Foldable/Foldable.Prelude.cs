@@ -1,8 +1,5 @@
 using System;
-using System.Numerics;
-using System.Threading.Tasks;
 using LanguageExt.Traits;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 

@@ -1,6 +1,7 @@
 using LanguageExt;
 using LanguageExt.UnsafeValueAccess;
 using static LanguageExt.Prelude;
+using L = LanguageExt;
 
 namespace CardGame;
 
@@ -55,7 +56,7 @@ public record Deck(Seq<Card> Cards)
         IO.lift(() =>
         {
             var random = new Random((int)DateTime.Now.Ticks);
-            var array  = LanguageExt.List.generate(52, ix => new Card(ix)).ToArray();
+            var array  = L.Iterable.generate(52, ix => new Card(ix)).ToArray();
             random.Shuffle(array);
             return new Deck(array.ToSeqUnsafe());
         });

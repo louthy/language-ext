@@ -16,10 +16,17 @@ using static LanguageExt.Prelude;
 namespace LanguageExt;
 
 /// <summary>
-/// Cons sequence
-/// Represents a sequence of values in a similar way to IEnumerable, but without the
-/// issues of multiple evaluation for key LINQ operators like Skip, Count, etc.
+/// A list type that can be lazy or strict.  When the lazy items are consumed, they are cached. The cached and strict
+/// items fill a contiguous block of memory.  This allows for efficient random access and iteration.  The performance
+/// is close to that of a regular array, but with the ability to lazily generate items on demand.
 /// </summary>
+/// <remarks>
+/// When certain operators create sublists, like `Take`, `Skip`, `Tail`.  The backing-array is shared.  That
+/// means that space-leaks can occur where the backing-array still holds no-longer-available items.  This is very
+/// unlikely to be a concern most of the time. However, you could imagine a situation where you called `Take(1)` on a
+/// billion-item list and the billion-item backing array is still hanging around.  In that situation you can call
+/// `Clone()` to trim the backing-array to only what has been taken. 
+/// </remarks>
 /// <typeparam name="A">Type of the values in the sequence</typeparam>
 [CollectionBuilder(typeof(Seq), nameof(Seq.createRange))]
 public readonly struct Seq<A> :

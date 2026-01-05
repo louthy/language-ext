@@ -487,7 +487,7 @@ public partial class Seq
     [Pure]
     public static (Seq<T>, Seq<T>) span<T>(Seq<T> self, Func<T, bool> pred)
     {
-        int index = 0;
+        var index = 0;
         foreach (var item in self)
         {
             if (!pred(item))

@@ -13,12 +13,12 @@ namespace LanguageExt
     internal static class FNV32
     {
         /// <summary>
-        /// Offset basis for a FNV-1 or FNV-1a 32 bit hash
+        /// Offset basis for an FNV-1 or FNV-1a 32-bit hash
         /// </summary>
         public const int OffsetBasis = -2128831035;
 
         /// <summary>
-        /// Prime for FNV-1 or FNV-1a 32 bit hash
+        /// Prime for FNV-1 or FNV-1a 32-bit hash
         /// </summary>
         public const int Prime = 16777619;
 

@@ -170,7 +170,7 @@ public class AtomQue<A> :
         {
             var oitems = items;
             if (oitems.IsEmpty) return default;
-            var top = oitems.Peek();
+            var top    = oitems.PeekUnsafe();
             var nitems = oitems.Dequeue();
             if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
             {
@@ -196,7 +196,7 @@ public class AtomQue<A> :
         {
             var oitems = items;
             if (oitems.IsEmpty) throw Exceptions.SequenceEmpty;
-            var top = oitems.Peek();
+            var top    = oitems.PeekUnsafe();
             var nitems = oitems.Dequeue();
             if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
             {

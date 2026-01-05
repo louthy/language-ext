@@ -12,15 +12,15 @@ internal class QueInternal<A> : IEnumerable<A>
 {
     public static readonly QueInternal<A> Empty = new ();
 
-    readonly StckInternal<A> forward;
-    readonly StckInternal<A> backward;
-    StckInternal<A>? backwardRev;
+    readonly Stck<A> forward;
+    readonly Stck<A> backward;
+    Stck<A>? backwardRev;
     int hashCode;
 
     internal QueInternal()
     {
-        forward = StckInternal<A>.Empty;
-        backward = StckInternal<A>.Empty;
+        forward = Stck<A>.Empty;
+        backward = Stck<A>.Empty;
     }
 
     internal QueInternal(IEnumerable<A> items)
@@ -47,13 +47,13 @@ internal class QueInternal<A> : IEnumerable<A>
         backwardRev = q.backwardRev;
     }
 
-    private QueInternal(StckInternal<A> f, StckInternal<A> b)
+    private QueInternal(Stck<A> f, Stck<A> b)
     {
         forward = f;
         backward = b;
     }
 
-    private StckInternal<A> BackwardRev =>
+    private Stck<A> BackwardRev =>
         backwardRev ??= backward.Reverse();
 
     [Pure]
@@ -69,8 +69,12 @@ internal class QueInternal<A> : IEnumerable<A>
         Empty;
 
     [Pure]
-    public A Peek() =>
+    public Option<A> Peek() =>
         forward.Peek();
+
+    [Pure]
+    public A PeekUnsafe() =>
+        forward.PeekUnsafe();
 
     [Pure]
     public QueInternal<A> Dequeue()
@@ -84,31 +88,38 @@ internal class QueInternal<A> : IEnumerable<A>
         {
             return Empty;
         }
-        return new QueInternal<A>(BackwardRev, StckInternal<A>.Empty);
+        return new QueInternal<A>(BackwardRev, Stck<A>.Empty);
     }
 
     [Pure]
     public QueInternal<A> Dequeue(out A outValue)
     {
-        outValue = Peek();
-        return Dequeue();
+        var ov = Peek();
+        if (ov.IsSome)
+        {
+            outValue = (A)ov.Value!;
+            return Dequeue();
+        }
+        else
+        {
+            throw new InvalidOperationException("Queue is empty");
+        }
     }
 
     [Pure]
     public (QueInternal<A>, Option<A>) TryDequeue() =>
-        forward.TryPeek().Match(
-            Some: x => (Dequeue(), Some(x)),
-            None: () => (this, Option<A>.None)
-        );
+        forward.TryPeek(out var x)
+            ? (Dequeue(), Some(x))
+            : (this, Option<A>.None);
 
     [Pure]
-    public Option<A> TryPeek() =>
-        forward.TryPeek();
+    public bool TryPeek(out A value) =>
+        forward.TryPeek(out value);
 
     [Pure]
     public QueInternal<A> Enqueue(A value) =>
         IsEmpty
-            ? new QueInternal<A>(StckInternal<A>.Empty.Push(value), StckInternal<A>.Empty)
+            ? new QueInternal<A>(Stck<A>.Empty.Push(value), Stck<A>.Empty)
             : new QueInternal<A>(forward, backward.Push(value));
 
     [Pure]
@@ -117,7 +128,7 @@ internal class QueInternal<A> : IEnumerable<A>
 
     [Pure]
     public Iterable<A> AsIterable() =>
-        forward.AsIterable().ConcatFast(BackwardRev);
+        forward.AsIterable().ConcatFast(BackwardRev).AsIterable();
 
     [Pure]
     public IEnumerator<A> GetEnumerator() =>

@@ -19,18 +19,6 @@ public static partial class QueExtensions
     extension<T>(Que<T> queue)
     {
         [Pure]
-        public (Que<T>, T) PopUnsafe() =>
-            Queue.deqUnsafe(queue);
-
-        [Pure]
-        public (Que<T>, Option<T>) Pop() =>
-            Queue.deq(queue);
-
-        [Pure]
-        public T PeekUnsafe() =>
-            Queue.peekUnsafe(queue);
-
-        [Pure]
         public Option<T> Peek() =>
             Queue.peek(queue);
 

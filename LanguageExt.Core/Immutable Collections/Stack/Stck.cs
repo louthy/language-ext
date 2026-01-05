@@ -2,12 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.Traits;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -16,10 +13,9 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="A">Stack element type</typeparam>
 [Serializable]
-[CollectionBuilder(typeof(Stack), nameof(Stack.createRange))]
+[CollectionBuilder(typeof(Stck), nameof(Stck.createRange))]
 public abstract partial record Stck<A> : 
     IEnumerable<A>, 
-    IEquatable<Stck<A>>,
     Monoid<Stck<A>>,
     K<Stck, A>
 {
@@ -27,54 +23,17 @@ public abstract partial record Stck<A> :
     /// Empty stack
     /// </summary>
     public static Stck<A> Empty { get; } = new Nil();
-    
-    /*
-    /// <summary>
-    /// Ctor that takes an initial state as an IEnumerable T
-    /// </summary>
-    public Stck(IEnumerable<A> initial)
-    {
-        var xs = initial.ToArray();
-        value = xs.Length == 0 ? StckInternal<A>.Empty : new StckInternal<A>(xs);
-    }
-
-    /// <summary>
-    /// Ctor that takes an initial state as an IEnumerable T
-    /// </summary>
-    public Stck(ReadOnlySpan<A> initial) =>
-        value = initial.IsEmpty
-                    ? StckInternal<A>.Empty
-                    : new StckInternal<A>(initial);
-    */
 
     /// <summary>
     /// Reference version for use in pattern-matching
     /// </summary>
-    /// <remarks>
-    ///
-    ///     Empty collection     = null
-    ///     Singleton collection = A
-    ///     More                 = (A, Seq〈A〉)   -- head and tail
-    ///
-    ///     var res = stack.Case switch
-    ///     {
-    ///       
-    ///        (var x, var xs) => ...,
-    ///        A value         => ...,
-    ///        _               => ...
-    ///     }
-    /// 
-    /// </remarks>
     [Pure]
-    public object? Case =>
-        IsEmpty
-            ? null
-            : toSeq(Value).Case;
+    public abstract object? Case { get; }
 
     /// <summary>
     /// Reverses the order of the items in the stack
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Reversed stack</returns>
     [Pure]
     public Stck<A> Reverse()
     {
@@ -87,60 +46,59 @@ public abstract partial record Stck<A> :
     }
 
     /// <summary>
-    /// Is the stack empty
+    /// Is the stack empty?
     /// </summary>
     [Pure]
-    public bool IsEmpty
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.IsEmpty ?? true;
-    }
-
-    /// <summary>
-    /// Number of items in the stack
-    /// </summary>
-    [Pure]
-    public int Count
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.Count ?? 0;
-    }
-
-    /// <summary>
-    /// Alias of Count
-    /// </summary>
-    [Pure]
-    public int Length
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.Count ?? 0;
-    }
-        
-    /// <summary>
-    /// Clear the stack (returns Empty)
-    /// </summary>
-    /// <returns>Stck.Empty of T</returns>
-    [Pure]
-    public Stck<A> Clear() =>
-        Empty;
+    public abstract bool IsEmpty { get; }
 
     /// <summary>
     /// Get enumerator
     /// </summary>
-    /// <returns>IEnumerator of T</returns>
+    /// <remarks>From top to bottom</remarks>
+    /// <returns>Stack enumerator</returns>
     [Pure]
-    public IEnumerator<A> GetEnumerator() =>
-        // ReSharper disable once NotDisposedResourceIsReturned
-        AsIterable().GetEnumerator();
+    public IEnumerator<A> GetEnumerator()
+    {
+        var stack = this;
+        while (stack is Top top)
+        {
+            yield return top.Value;
+            stack = top.Rest;
+        }
+    }
 
     /// <summary>
-    /// Returns the stack as a Seq.  The first item in the sequence
-    /// will be the item at the top of the stack.
+    /// Convert this type to a lazy sequence
     /// </summary>
-    /// <returns>IEnumerable of T</returns>
+    /// <remarks>From top to bottom</remarks>
+    /// <returns>Enumerable</returns>
+    [Pure]
+    public IEnumerable<A> AsEnumerable()
+    {
+        var stack = this;
+        while (stack is Top top)
+        {
+            yield return top.Value;
+            stack = top.Rest;
+        }
+    }
+
+    /// <summary>
+    /// Convert this type to a lazy sequence
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public IEnumerable<A> AsIterable() =>
+        AsEnumerable().AsIterable();
+
+    /// <summary>
+    /// Convert this type to a lazy sequence
+    /// </summary>
+    /// <remarks>From top to bottom</remarks>
+    /// <returns>Iterable</returns>
     [Pure]
     public Seq<A> ToSeq() =>
-        toSeq(Value);
+        AsEnumerable().AsSeq();
 
     /// <summary>
     /// Format the collection as `[a, b, c, ...]`
@@ -150,7 +108,7 @@ public abstract partial record Stck<A> :
     /// </summary>
     [Pure]
     public override string ToString() =>
-        CollectionFormat.ToShortArrayString(this, Count);
+        CollectionFormat.ToShortArrayString(this);
 
     /// <summary>
     /// Format the collection as `a, b, c, ...`
@@ -167,15 +125,6 @@ public abstract partial record Stck<A> :
         CollectionFormat.ToFullArrayString(this, separator);
 
     /// <summary>
-    /// Returns the stack as an IEnumerable.  The first item in the enumerable
-    /// will be the item at the top of the stack.
-    /// </summary>
-    /// <returns>IEnumerable of T</returns>
-    [Pure]
-    public Iterable<A> AsIterable() =>
-        Iterable.createRange(Value);
-
-    /// <summary>
     /// Impure iteration of the bound value in the structure
     /// </summary>
     /// <returns>
@@ -189,81 +138,50 @@ public abstract partial record Stck<A> :
 
     /// <summary>
     /// Return the item on the top of the stack without affecting the stack itself
-    /// NOTE: Will throw an ExpectedException if the stack is empty
     /// </summary>
-    /// <exception cref="ExpectedException">Stack is empty</exception>
-    /// <returns>Top item value</returns>
+    /// <returns>Top item value or None if the stack is empty.</returns>
     [Pure]
-    public A Peek() =>
-        Value.Peek();
+    public abstract Option<A> Peek();
 
     /// <summary>
-    /// Peek and match
+    /// Return the item on the top of the stack without affecting the stack itself
     /// </summary>
-    /// <param name="Some">Handler if there is a value on the top of the stack</param>
-    /// <param name="None">Handler if the stack is empty</param>
-    /// <returns>Untouched stack (this)</returns>
+    /// <exception cref="ExpectedException">`Errors.SequenceEmpty` is thrown when the stack is empty</exception>   
+    /// <returns>Top item value or None if the stack is empty.</returns>
     [Pure]
-    public Stck<A> Peek(Action<A> Some, Action None) =>
-        new (Value.Peek(Some, None));
+    public A PeekUnsafe() =>
+        Peek().IfNone(() => throw Errors.SequenceEmpty);
 
     /// <summary>
-    /// Peek and match
+    /// Return the item on the top of the stack without affecting the stack itself
     /// </summary>
-    /// <typeparam name="R">Return type</typeparam>
-    /// <param name="Some">Handler if there is a value on the top of the stack</param>
-    /// <param name="None">Handler if the stack is empty</param>
-    /// <returns>Return value from Some or None</returns>
+    /// <returns>True if `value` has been updated with the top value on the stack</returns>
     [Pure]
-    public R Peek<R>(Func<A, R> Some, Func<R> None) =>
-        Value.Peek(Some, None);
+    public bool TryPeek(out A value)
+    {
+        var top = Peek();
+        if (top.IsSome)
+        {
+            value = top.Value!;
+            return true;
+        }
+        else
+        {
+            value = default!;
+            return false;       
+        }
+    }
 
     /// <summary>
-    /// Safely return the item on the top of the stack without affecting the stack itself
+    /// Pop an item off the top of the stack. 
     /// </summary>
-    /// <returns>Returns the top item value, or None</returns>
-    [Pure]
-    public Option<A> TryPeek() =>
-        Value.TryPeek();
-
-    /// <summary>
-    /// Pop an item off the top of the stack
-    /// NOTE: Will throw an ExpectedException if the stack is empty
-    /// </summary>
-    /// <exception cref="ExpectedException">Stack is empty</exception>
+    /// <remarks>
+    /// If there's nothing on the stack, this does nothing.  Use pattern-matching, `IsEmpty`, or `Peek` to know
+    /// whether `Pop` will have an effect.
+    /// </remarks>
     /// <returns>Stack with the top item popped</returns>
     [Pure]
-    public Stck<A> Pop() =>
-        new (Value.Pop());
-
-    /// <summary>
-    /// Safe pop
-    /// </summary>
-    /// <returns>Tuple of popped stack and optional top-of-stack value</returns>
-    [Pure]
-    public (Stck<A> Stack, Option<A> Value) TryPop() =>
-        Value.TryPop().MapFirst(x => new Stck<A>(x));
-
-    /// <summary>
-    /// Pop and match
-    /// </summary>
-    /// <param name="Some">Handler if there is a value on the top of the stack</param>
-    /// <param name="None">Handler if the stack is empty</param>
-    /// <returns>Popped stack</returns>
-    [Pure]
-    public Stck<A> Pop(Action<A> Some, Action None) =>
-        new (Value.Pop(Some, None));
-
-    /// <summary>
-    /// Pop and match
-    /// </summary>
-    /// <typeparam name="R">Return type</typeparam>
-    /// <param name="Some">Handler if there is a value on the top of the stack</param>
-    /// <param name="None">Handler if the stack is empty</param>
-    /// <returns>Return value from Some or None</returns>
-    [Pure]
-    public R Pop<R>(Func<Stck<A>, A, R> Some, Func<R> None) =>
-        Value.Pop((s, t) => Some(new Stck<A>(s), t), None);
+    public abstract Stck<A> Pop();
 
     /// <summary>
     /// Push an item onto the stack
@@ -272,17 +190,23 @@ public abstract partial record Stck<A> :
     /// <returns>New stack with the pushed item on top</returns>
     [Pure]
     public Stck<A> Push(A value) =>
-        new (Value.Push(value));
+        new Top(value, this);
 
     /// <summary>
     /// Get enumerator
     /// </summary>
     /// <returns>IEnumerator of T</returns>
     [Pure]
-    IEnumerator IEnumerable.GetEnumerator() =>
-        // ReSharper disable once NotDisposedResourceIsReturned
-        AsIterable().GetEnumerator();
-        
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        var stack = this;
+        while (stack is Top top)
+        {
+            yield return top.Value;
+            stack = top.Rest;
+        }
+    }
+    
     /// <summary>
     /// Implicit conversion from an untyped empty list
     /// </summary>
@@ -299,8 +223,8 @@ public abstract partial record Stck<A> :
     /// will be under the 'rhs' stack.
     /// </summary>
     [Pure]
-    public static Stck<A> operator +(Stck<A> lhs, Stck<A> rhs) =>
-        lhs.Combine(rhs);
+    public static Stck<A> operator +(Stck<A> lhs, K<Stck, A> rhs) =>
+        lhs.Combine(rhs.As());
 
     /// <summary>
     /// Append another stack to the top of this stack
@@ -312,47 +236,13 @@ public abstract partial record Stck<A> :
     /// <param name="rhs">Stack to append</param>
     /// <returns>Appended stacks</returns>
     [Pure]
-    public Stck<A> Combine(Stck<A> rhs) =>
-        new (Value.Combine(rhs.Value));
-
-    /// <summary>
-    /// Subtract one stack from another: lhs except rhs
-    /// </summary>
-    [Pure]
-    public static Stck<A> operator -(Stck<A> lhs, Stck<A> rhs) =>
-        lhs.Subtract(rhs);
-
-    /// <summary>
-    /// Append another stack to the top of this stack
-    /// The rhs will be reversed and pushed onto 'this' stack.  That will
-    /// maintain the order of the items in the resulting stack.  So the top
-    /// of 'rhs' will be the top of the newly created stack.  'this' stack
-    /// will be under the 'rhs' stack.
-    /// </summary>
-    /// <param name="rhs">Stack to append</param>
-    /// <returns>Appended stacks</returns>
-    [Pure]
-    public Stck<A> Subtract(Stck<A> rhs) =>
-        new (Enumerable.Except(this, rhs));
-
-    [Pure]
-    public static bool operator ==(Stck<A> lhs, Stck<A> rhs) =>
-        lhs.Equals(rhs);
-
-    [Pure]
-    public static bool operator !=(Stck<A> lhs, Stck<A> rhs) =>
-        !(lhs == rhs);
-
-    [Pure]
-    public override int GetHashCode() =>
-        Value.GetHashCode();
-
-    [Pure]
-    public override bool Equals(object? obj) =>
-        obj is Stck<A> @as && Equals(@as);
-
-    [Pure]
-    public bool Equals(Stck<A> other) =>
-        GetHashCode() == other.GetHashCode() &&
-        EqEnumerable<A>.Equals(Value, other.Value);
+    public Stck<A> Combine(Stck<A> rhs)
+    {
+        var self = this;
+        foreach (var item in rhs.As().Reverse())
+        {
+            self = self.Push(item);
+        }
+        return self;
+    }
 }
