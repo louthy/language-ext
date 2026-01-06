@@ -108,7 +108,7 @@ internal static class PatchInternal
                 var left = get(v, x, y + 1);
                 if (p.equivalent(s, d))
                 {
-                    return (tl.Item1, Prelude.Cons(None, tl.Item2));
+                    return (tl.Item1, Option<O>.None.Cons(tl.Item2));
                 }
                 else
                 {

@@ -229,7 +229,7 @@ public readonly struct Que<A> :
     /// <returns>lhs - rhs</returns>
     [Pure]
     public Que<A> Subtract(Que<A> rhs) =>
-        new (Enumerable.Except(Value.AsIterable(), rhs.Value.AsIterable()));
+        new (Value.AsIterable().Except(rhs.Value.AsIterable()));
 
     /// <summary>
     /// Queue equality

@@ -25,7 +25,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void Popping1()
         {
-            var test = Stck(1, 2, 3, 4, 5);
+            var test = Stck(5, 4, 3, 2, 1);
             Popping5(test);
         }
 
