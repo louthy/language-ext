@@ -82,41 +82,6 @@ public static partial class ArrExtensions
     
     extension<A>(Arr<A> ma)
     {
-        [Pure]
-        public Arr<A> Where(Func<A, bool> f) =>
-            ma.Filter(f);
 
-        [Pure]
-        public Arr<B> Select<B>(Func<A, B> f) =>
-            ma.Map(f);
-
-        [Pure]
-        public Arr<C> SelectMany<B, C>(Func<A, K<Arr, B>> bind, Func<A, B, C> project)
-        {
-            var writer = ArrayWriter<C>.Init();
-        
-            Arr.FoldState astate = default!;
-            Foldable.stepSetup(ma, ref astate);
-            while (Foldable.step(ma, ref astate, out var a))
-            {
-                var           mb     = +bind(a);
-                Arr.FoldState bstate = default!;
-                Foldable.stepSetup(mb, ref bstate);
-                while (Foldable.step(mb, ref bstate, out var b))
-                {
-                    ArrayWriter<C>.Add(ref writer, project(a, b));
-                }
-            }
-            return writer.ToArr();
-        }
-
-        /// <summary>
-        /// Convert to a queryable 
-        /// </summary>
-        [Pure]
-        public IQueryable<A> AsQueryable() =>
-            // NOTE TO FUTURE ME: Don't delete this thinking it's not needed!
-            // NOTE FROM FUTURE ME: Next time you leave a message for your future self, explain your reasoning.
-            ma.AsEnumerable().AsQueryable();
     }
 }

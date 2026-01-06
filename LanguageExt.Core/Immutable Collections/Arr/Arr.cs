@@ -1,22 +1,30 @@
 ﻿using System;
 using System.Linq;
+using System.Numerics;
+using LanguageExt.Traits;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Numerics;
 using static LanguageExt.Prelude;
-using LanguageExt.Traits;
 using LanguageExt.ClassInstances;
 using System.Runtime.CompilerServices;
 
 namespace LanguageExt;
 
 /// <summary>
-/// Immutable array
-/// Native array O(1) read performance.  Modifications require copying of the entire 
-/// array to generate the newly mutated version.  This is will be very expensive 
-/// for large arrays.
+/// An immutable array
 /// </summary>
+/// <remarks>
+/// Native array O(1) read performance.  Modifications require copying of the entire backing array to generate the
+/// newly transformed collection. This will be expensive for large collections but potentially much faster than any
+/// other data structure for smaller collections: use `Seq` if you need array-like performance and the ability to
+/// transform larger collections efficiently.</remarks>
+/// <remarks>
+/// Two methods that don't suffer this fate are `Take` and `Skip` which will do splicing of the backing array, like
+/// splicing of `Span` and `ReadOnlySpan`.  That makes those operations incredibly fast, but be aware that can mean
+/// old data behind held longer than you may like (a space leak). If that's the case, use `Clone` to just take the
+/// snapshot/view data you want so the old references can be collected by the GC.
+/// </remarks>
 /// <typeparam name="A">Value type</typeparam>
 [Serializable]
 [CollectionBuilder(typeof(Arr), nameof(Arr.create))]
@@ -189,11 +197,23 @@ public readonly partial struct Arr<A> :
     public Arr<A> Clone() =>
         new(AsSpan().ToArray());
     
+    /// <summary>
+    /// Equivalent to `Splice(1, length - 1)`
+    /// </summary>
     [Pure]
     public Arr<A> Tail =>
         IsEmpty
             ? this
             : Splice(1, length - 1);
+    
+    /// <summary>
+    /// Equivalent to `Splice(0, length - 1)`
+    /// </summary>
+    [Pure]
+    public Arr<A> Init =>
+        IsEmpty
+            ? this
+            : Splice(0, length - 1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Arr<A>(A[] xs) =>
@@ -705,11 +725,6 @@ public readonly partial struct Arr<A> :
     public string ToFullArrayString(string separator = ", ") =>
         CollectionFormat.ToFullArrayString(this, separator);
 
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Arr<A> Skip(int amount) =>
-        Splice(amount);
-
     /// <summary>
     /// Lazily reverse the order of the items in the array
     /// </summary>
@@ -940,6 +955,62 @@ public readonly partial struct Arr<A> :
         }
         return new Arr<B>(res);
     }
+
+    [Pure]
+    public Arr<A> Take(int amount) =>
+        amount switch
+        {
+            0                      => [],
+            _ when amount >= Count => this,
+            _                      => Splice(0, amount)
+        };
+
+    [Pure]
+    public Arr<A> Skip(int amount) =>
+        amount switch
+        {
+            0                      => this,
+            _ when amount >= Count => [],
+            _                      => Splice(amount, Count - amount)
+        };
+
+    [Pure]
+    public Arr<A> Where(Func<A, bool> f) =>
+        Filter(f);
+
+    [Pure]
+    public Arr<B> Select<B>(Func<A, B> f) =>
+        Map(f);
+
+    [Pure]
+    public Arr<C> SelectMany<B, C>(Func<A, K<Arr, B>> bind, Func<A, B, C> project)
+    {
+        var ma     = this;
+        var writer = ArrayWriter<C>.Init();
+        
+        Arr.FoldState astate = default!;
+        Foldable.stepSetup(ma, ref astate);
+        while (Foldable.step(ma, ref astate, out var a))
+        {
+            var           mb     = +bind(a);
+            Arr.FoldState bstate = default!;
+            Foldable.stepSetup(mb, ref bstate);
+            while (Foldable.step(mb, ref bstate, out var b))
+            {
+                ArrayWriter<C>.Add(ref writer, project(a, b));
+            }
+        }
+        return writer.ToArr();
+    }
+
+    /// <summary>
+    /// Convert to a queryable 
+    /// </summary>
+    [Pure]
+    public IQueryable<A> AsQueryable() =>
+        // NOTE TO FUTURE ME: Don't delete this thinking it's not needed!
+        // NOTE FROM FUTURE ME: Next time you leave a message for your future self, explain your reasoning.
+        AsEnumerable().AsQueryable();    
 
     /// <summary>
     /// Implicit conversion from an untyped empty list
