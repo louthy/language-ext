@@ -18,4 +18,11 @@ internal class Change
 
     public const string UseToSeqInstead =
         "Use ToList() instead";
+    
+    public const string NullableMessage =
+        "Before Seq was an actual data-type, it was a conversion function from either 'potentially nullable things' " +
+        "or 'types that may or may not yield a value' into a sequence. With the advent of nullable references " +
+        "and better pattern matching features, this is now deprecated.  Please use a null/no-value check instead.";
+
+
 }

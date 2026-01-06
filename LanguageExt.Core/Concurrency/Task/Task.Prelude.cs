@@ -129,7 +129,7 @@ public static partial class Prelude
     /// <returns>The first computation that succeeds</returns>
     [Pure]
     public static Task<A> choice<A>(Task<A> ma, params Task<A>[] tail) =>
-        choice(Cons(ma, tail));
+        choice(ma.Cons(tail));
 
     /// <summary>
     /// Returns the first successful computation 
