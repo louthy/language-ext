@@ -13,9 +13,9 @@ public struct ListEnumerator<T> : IEnumerator<T>
     }
 
     ListItem<T>[] stack;
-    int stackDepth;
+    int top;
     readonly ListItem<T> map;
-    int left;
+    int remaining;
     readonly int start;
     int count;
 
@@ -26,9 +26,9 @@ public struct ListEnumerator<T> : IEnumerator<T>
         map = root;
         stack = Pool<NewStack, ListItem<T>[]>.Pop();
         this.count = count;
-        stackDepth = default;
-        left = default;
-        NodeCurrent = default!;
+        top = 0;
+        remaining = 0;
+        NodeCurrent = null!;
         Reset();
     }
 
@@ -74,8 +74,8 @@ public struct ListEnumerator<T> : IEnumerator<T>
     {
         while (!node.IsEmpty)
         {
-            stack[stackDepth] = node;
-            stackDepth++;
+            stack[top] = node;
+            top++;
             node = Prev(node);
         }
     }
@@ -83,17 +83,17 @@ public struct ListEnumerator<T> : IEnumerator<T>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool MoveNext()
     {
-        if (count > 0 && left > 0 && stackDepth > 0)
+        if (count > 0 && remaining > 0 && top > 0)
         {
-            stackDepth--;
-            NodeCurrent = stack[stackDepth];
+            top--;
+            NodeCurrent = stack[top];
             Push(Next(NodeCurrent));
-            left--;
+            remaining--;
             count--;
             return true;
         }
 
-        NodeCurrent = default!;
+        NodeCurrent = null!;
         return false;
     }
 
@@ -102,16 +102,16 @@ public struct ListEnumerator<T> : IEnumerator<T>
     {
         var skip = start;
 
-        stackDepth = 0;
+        top = 0;
         NodeCurrent = map;
-        left = map.Count;
+        remaining = map.Count;
 
         while (!NodeCurrent.IsEmpty && skip != Prev(NodeCurrent).Count)
         {
             if (skip < Prev(NodeCurrent).Count)
             {
-                stack[stackDepth] = NodeCurrent;
-                stackDepth++;
+                stack[top] = NodeCurrent;
+                top++;
                 NodeCurrent = Prev(NodeCurrent);
             }
             else
@@ -123,8 +123,8 @@ public struct ListEnumerator<T> : IEnumerator<T>
 
         if (!NodeCurrent.IsEmpty)
         {
-            stack[stackDepth] = NodeCurrent;
-            stackDepth++;
+            stack[top] = NodeCurrent;
+            top++;
         }
     }
 }
