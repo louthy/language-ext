@@ -1357,7 +1357,7 @@ public class AtomHashMap<K, V> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator AtomHashMap<K, V>(SeqEmpty _) =>
+    public static implicit operator AtomHashMap<K, V>(UnitCollection _) =>
         Empty;
 
     /// <summary>

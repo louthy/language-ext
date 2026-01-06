@@ -705,7 +705,7 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator HashMap<EqK, K, V>(SeqEmpty _) =>
+    public static implicit operator HashMap<EqK, K, V>(UnitCollection _) =>
         Empty;
 
     /// <summary>

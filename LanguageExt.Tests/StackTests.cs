@@ -33,13 +33,7 @@ namespace LanguageExt.Tests
         public void Popping2()
         {
             var test = Stck<int>();
-
-            test = test.Push(1);
-            test = test.Push(2);
-            test = test.Push(3);
-            test = test.Push(4);
-            test = test.Push(5);
-
+            test = test.Push(1).Push(2).Push(3).Push(4).Push(5);
             Popping5(test);
         }
 

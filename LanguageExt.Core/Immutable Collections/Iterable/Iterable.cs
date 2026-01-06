@@ -1206,7 +1206,7 @@ public abstract class Iterable<A> :
     /// Implicit conversion from an untyped empty list
     /// </summary>
     [Pure]
-    public static implicit operator Iterable<A>(SeqEmpty _) =>
+    public static implicit operator Iterable<A>(UnitCollection _) =>
         Empty;
 
     /// <summary>

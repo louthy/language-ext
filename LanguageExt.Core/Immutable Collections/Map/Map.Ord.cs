@@ -1200,7 +1200,7 @@ public readonly struct Map<OrdK, K, V> :
     /// <summary>
     /// Implicit conversion from an untyped empty list
     /// </summary>
-    public static implicit operator Map<OrdK, K, V>(SeqEmpty _) =>
+    public static implicit operator Map<OrdK, K, V>(UnitCollection _) =>
         Empty;
 
     /// <summary>

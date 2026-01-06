@@ -444,7 +444,7 @@ public readonly struct HashSet<EqA, A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator HashSet<EqA, A>(SeqEmpty _) =>
+    public static implicit operator HashSet<EqA, A>(UnitCollection _) =>
         Empty;
 
     [Pure]

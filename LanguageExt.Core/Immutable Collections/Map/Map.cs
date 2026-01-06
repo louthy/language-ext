@@ -1432,7 +1432,7 @@ public readonly struct Map<K, V> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Map<K, V>(SeqEmpty _) =>
+    public static implicit operator Map<K, V>(UnitCollection _) =>
         Empty;
 
     /// <summary>

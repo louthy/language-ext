@@ -720,7 +720,7 @@ public readonly struct TrackingHashMap<EqK, K, V> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator TrackingHashMap<EqK, K, V>(SeqEmpty _) =>
+    public static implicit operator TrackingHashMap<EqK, K, V>(UnitCollection _) =>
         Empty;
 
     /// <summary>

@@ -1223,7 +1223,7 @@ public readonly struct Seq<A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Seq<A>(SeqEmpty _) =>
+    public static implicit operator Seq<A>(UnitCollection _) =>
         Empty;
 
     [Pure]

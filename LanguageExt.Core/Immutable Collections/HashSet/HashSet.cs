@@ -462,7 +462,7 @@ public readonly struct HashSet<A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator HashSet<A>(SeqEmpty _) =>
+    public static implicit operator HashSet<A>(UnitCollection _) =>
         Empty;
         
     [Pure]

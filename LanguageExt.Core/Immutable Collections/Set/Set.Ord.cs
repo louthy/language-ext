@@ -665,7 +665,7 @@ public readonly struct Set<OrdA, A> :
     /// <summary>
     /// Implicit conversion from an untyped empty list
     /// </summary>
-    public static implicit operator Set<OrdA, A>(SeqEmpty _) =>
+    public static implicit operator Set<OrdA, A>(UnitCollection _) =>
         Empty;
 
     /// <summary>

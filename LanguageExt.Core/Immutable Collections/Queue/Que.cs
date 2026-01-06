@@ -281,6 +281,6 @@ public readonly struct Que<A> :
     /// <summary>
     /// Implicit conversion from an untyped empty list
     /// </summary>
-    public static implicit operator Que<A>(SeqEmpty _) =>
+    public static implicit operator Que<A>(UnitCollection _) =>
         Empty;
 }

@@ -770,7 +770,7 @@ public readonly struct Set<A> :
     /// Implicit conversion from an untyped empty list
     /// </summary>
     [Pure]
-    public static implicit operator Set<A>(SeqEmpty _) =>
+    public static implicit operator Set<A>(UnitCollection _) =>
         Empty;
 
     /// <summary>

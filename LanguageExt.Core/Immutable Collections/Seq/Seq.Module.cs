@@ -231,92 +231,7 @@ public partial class Seq
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<T> rev<T>(Seq<T> list) =>
-        toSeq(list.Reverse());
-
-    /// <summary>
-    /// Concatenate two sequences (Concat in LINQ)
-    /// </summary>
-    /// <typeparam name="T">sequence item type</typeparam>
-    /// <param name="lhs">First sequence</param>
-    /// <param name="rhs">Second sequence</param>
-    /// <returns>Concatenated sequence</returns>
-    [Pure]
-    public static Seq<T> append<T>(Seq<T> lhs, Seq<T> rhs) =>
-        lhs.Concat(rhs);
-
-    /// <summary>
-    /// Concatenate a sequence and a sequence of sequences
-    /// </summary>
-    /// <typeparam name="T">List item type</typeparam>
-    /// <param name="lhs">First list</param>
-    /// <param name="rhs">Second list</param>
-    /// <returns>Concatenated list</returns>
-    [Pure]
-    public static Seq<T> append<T>(Seq<T> x, Seq<Seq<T>> xs) =>
-        head(xs).IsNone
-            ? x
-            : append(x, append((Seq<T>)xs.Head, xs.Skip(1)));
-
-    /// <summary>
-    /// Concatenate N sequences
-    /// </summary>
-    /// <typeparam name="T">sequence type</typeparam>
-    /// <param name="lists">sequences to concatenate</param>
-    /// <returns>A single sequence with all of the items concatenated</returns>
-    [Pure]
-    public static Seq<T> append<T>(params Seq<T>[] lists) =>
-        lists.Length switch
-        {
-            0 => Seq<T>.Empty,
-            1 => lists[0],
-            _ => append(lists[0], toSeq(lists).Skip(1))
-        };
-
-    /// <summary>
-    /// Applies a function to each element of the sequence, threading an accumulator argument 
-    /// through the computation. This function takes the state argument, and applies the function 
-    /// to it and the first element of the sequence. Then, it passes this result into the function 
-    /// along with the second element, and so on. Finally, it returns the list of intermediate 
-    /// results and the final result.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <typeparam name="T">sequence item type</typeparam>
-    /// <param name="list">sequence to fold</param>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Folding function</param>
-    /// <returns>Aggregate state</returns>
-    [Pure]
-    public static Seq<S> scan<S, T>(Seq<T> list, S state, Func<S, T, S> folder)
-    {
-        IEnumerable<S> Yield()
-        {
-            yield return state;
-            foreach (var item in list)
-            {
-                state = folder(state, item);
-                yield return state;
-            }
-        }
-        return toSeq(Yield());
-    }
-
-    /// <summary>
-    /// Applies a function to each element of the sequence (from last element to first), 
-    /// threading an accumulator argument through the computation. This function takes the state 
-    /// argument, and applies the function to it and the first element of the sequence. Then, it 
-    /// passes this result into the function along with the second element, and so on. Finally, 
-    /// it returns the list of intermediate results and the final result.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <param name="list">Enumerable to fold</param>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Folding function</param>
-    /// <returns>Aggregate state</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Seq<S> scanBack<S, T>(Seq<T> list, S state, Func<S, T, S> folder) =>
-        scan(rev(list), state, folder);
+        toSeq(list.AsEnumerable().Reverse());
 
     /// <summary>
     /// Joins two sequences together either into a single sequence using the join 
@@ -448,23 +363,6 @@ public partial class Seq
         }
         return rev(res);
     }
-
-    /// <summary>
-    /// The tailsr function returns all final segments of the argument, longest first. For example:
-    /// 
-    ///     tails(['a','b','c']) == [['a','b','c'], ['b','c'], ['c'],[]]
-    /// </summary>
-    /// <remarks>Differs from `tails` in implementation only.  The `tailsr` uses recursive processing
-    /// whereas `tails` uses a while loop aggregation followed by a reverse.  For small sequences 
-    /// `tailsr` is probably more efficient. </remarks>
-    /// <typeparam name="A">Seq item type</typeparam>
-    /// <param name="self">Seq</param>
-    /// <returns>Seq of Seq of A</returns>
-    [Pure]
-    public static Seq<Seq<A>> tailsr<A>(Seq<A> self) =>
-        self.Match(
-            () => Seq<Seq<A>>.Empty,
-            xs => xs.Cons(tailsr(xs.Tail)));
 
     /// <summary>
     /// Span, applied to a predicate 'pred' and a list, returns a tuple where first element is 

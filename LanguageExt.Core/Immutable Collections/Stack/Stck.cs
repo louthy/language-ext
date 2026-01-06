@@ -212,7 +212,7 @@ public abstract partial record Stck<A> :
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Stck<A>(SeqEmpty _) =>
+    public static implicit operator Stck<A>(UnitCollection _) =>
         Empty;
 
     /// <summary>

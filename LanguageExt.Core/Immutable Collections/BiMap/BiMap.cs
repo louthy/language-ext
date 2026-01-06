@@ -423,6 +423,6 @@ public readonly struct BiMap<A, B> :
     /// <summary>
     /// Implicit conversion from an untyped empty list
     /// </summary>
-    public static implicit operator BiMap<A, B>(SeqEmpty _) =>
+    public static implicit operator BiMap<A, B>(UnitCollection _) =>
         default;
 }

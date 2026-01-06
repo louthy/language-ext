@@ -3,7 +3,6 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using LanguageExt.Traits;
-using LSeq = LanguageExt.Seq;
 using L = LanguageExt;
 #pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
 
@@ -14,77 +13,7 @@ public static partial class Prelude
     /// <summary>
     /// Represents an empty sequence
     /// </summary>
-    public static readonly SeqEmpty Empty = new();
-
-    /// <summary>
-    /// Construct a sequence from any value
-    /// </summary>
-    /// <typeparam name="A">Type of the items in the sequence</typeparam>
-    /// <param name="head">Head item in the sequence</param>
-    /// <returns></returns>
-    [Pure]
-    public static Seq<A> Cons<A>(this A head) =>
-        LSeq.FromSingleValue(head);
-
-    /// <summary>
-    /// Construct a sequence from any value
-    /// </summary>
-    /// <typeparam name="A">Type of the items in the sequence</typeparam>
-    /// <param name="head">Head item in the sequence</param>
-    /// <returns></returns>
-    [Pure]
-    public static Seq<A> Cons<A>(this A head, SeqEmpty empty) =>
-        LSeq.FromSingleValue(head);
-
-    /// <summary>
-    /// Construct a list from head and tail; head becomes the first item in 
-    /// the list.  
-    /// </summary>
-    /// <typeparam name="A">Type of the items in the sequence</typeparam>
-    /// <param name="head">Head item in the sequence</param>
-    /// <param name="tail">Tail of the sequence</param>
-    /// <returns></returns>
-    [Pure]
-    public static Seq<A> Cons<A>(this A head, Seq<A> tail) =>
-        tail.Cons(head);
-
-    /// <summary>
-    /// Construct a list from head and tail; head becomes the first item in 
-    /// the list.  
-    /// </summary>
-    /// <typeparam name="A">Type of the items in the sequence</typeparam>
-    /// <param name="head">Head item in the sequence</param>
-    /// <param name="tail">Tail of the sequence</param>
-    /// <returns></returns>
-    [Pure]
-    public static Seq<A> Cons<A>(this A head, A[] tail)
-    {
-        if (tail.Length == 0)
-        {
-            return LSeq.FromSingleValue(head);
-        }
-        else
-        {
-            var data = new A[tail.Length + 1];
-            System.Array.Copy(tail, 0, data, 1, tail.Length);
-            data[0] = head;
-            return LSeq.FromArray(data);
-        }
-    }
-
-    /// <summary>
-    /// Construct a list from head and tail; head becomes the first item in 
-    /// the list.  
-    /// </summary>
-    /// <typeparam name="A">Type of the items in the sequence</typeparam>
-    /// <param name="head">Head item in the sequence</param>
-    /// <param name="tail">Tail of the sequence</param>
-    /// <returns></returns>
-    [Pure]
-    public static Seq<A> Cons<A>(this A head, IEnumerable<A> tail) =>
-        tail is Seq<A> seq 
-            ? head.Cons(seq)
-            : new Seq<A>(tail).Cons(head);
+    public static readonly UnitCollection Empty = new();
 
     /// <summary>
     /// Construct a list from head and tail; head becomes the first item in 
@@ -640,36 +569,6 @@ public static partial class Prelude
     [Pure]
     public static Que<T> toQueue<T>(ReadOnlySpan<T> items) =>
         new (items);
-
-    /// <summary>
-    /// Create an immutable stack
-    /// </summary>
-    [Pure]
-    public static Stck<A> Stck<A>() =>
-        L.Stck<A>.Empty;
-
-    /// <summary>
-    /// Create an immutable stack
-    /// </summary>
-    [Pure]
-    public static Stck<A> Stck<A>(A top, params A[] rest) =>
-        top.Top(Stck(rest.AsSpan()));
-
-    /// <summary>
-    /// Create an immutable stack
-    /// </summary>
-    [Pure]
-    public static Stck<A> Stck<A>(ReadOnlySpan<A> items) =>
-        [..items];
-
-    /// <summary>
-    /// Create an immutable stack
-    /// </summary>
-    [Pure]
-    public static Stck<A> toStck<A>(IEnumerable<A> items) =>
-        items is Stck<A> s
-            ? s
-            : L.Stck.createRange(items);
 
     /// <summary>
     /// Create an immutable map, updating duplicates so that the final value of any key is retained

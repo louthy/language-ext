@@ -11,7 +11,7 @@ namespace LanguageExt.Tests.SeqTypes
         {
             var seq    = toSeq(new List<int> { 0 });
             var actual = seq.Take(0);
-            Assert.Equal(actual, SeqEmpty.Default);
+            Assert.Equal(actual, UnitCollection.Default);
         }
 
         [Fact]
@@ -19,7 +19,7 @@ namespace LanguageExt.Tests.SeqTypes
         {
             var seq    = toSeq(new List<int> { 0 });
             var actual = seq.Take(-1);
-            Assert.Equal(actual, SeqEmpty.Default);
+            Assert.Equal(actual, UnitCollection.Default);
         }
 
         [Fact]

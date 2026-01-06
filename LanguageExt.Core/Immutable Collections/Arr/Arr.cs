@@ -945,7 +945,7 @@ public readonly partial struct Arr<A> :
     /// Implicit conversion from an untyped empty list
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Arr<A>(SeqEmpty _) =>
+    public static implicit operator Arr<A>(UnitCollection _) =>
         Empty;
     
     public static bool operator >(Arr<A> left, Arr<A> right) =>

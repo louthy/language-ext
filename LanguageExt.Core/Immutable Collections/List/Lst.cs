@@ -684,7 +684,7 @@ public readonly struct Lst<A> :
     /// Implicit conversion from an untyped empty list
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Lst<A>(SeqEmpty _) =>
+    public static implicit operator Lst<A>(UnitCollection _) =>
         Empty;
 
     public static Lst<A> AdditiveIdentity => 
