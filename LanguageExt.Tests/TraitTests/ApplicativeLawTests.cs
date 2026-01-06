@@ -28,6 +28,10 @@ public class ApplicativeFunctorLawTests
         ApplicativeLaw<Seq>.assert();
     
     [Fact]
+    public void Stck() =>
+        ApplicativeLaw<Stck>.assert();
+    
+    [Fact]
     public void EffRT()
     {
         bool eq(K<Eff<Unit>, int> vx, K<Eff<Unit>, int> vy) => 

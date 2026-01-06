@@ -29,6 +29,10 @@ public class MonadLawsTest
         MonadLaw<Seq>.assert();
     
     [Fact]
+    public void Stck() =>
+        MonadLaw<Stck>.assert();
+    
+    [Fact]
     public void EffRT()
     {
         bool eq(K<Eff<Unit>, int> vx, K<Eff<Unit>, int> vy) => 

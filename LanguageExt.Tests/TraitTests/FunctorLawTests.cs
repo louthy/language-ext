@@ -60,8 +60,15 @@ public class FunctorLawTests
     {
         Seq<int> fa = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         FunctorLaw<Seq>.assert(fa);
-    }    
-    
+    }
+
+    [Fact]
+    public void Stck()
+    {
+        Stck<int> fa = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        FunctorLaw<Stck>.assert(fa);
+    }
+
     [Fact]
     public void EffRT()
     {

@@ -18,12 +18,16 @@ public class FoldableCollections
         FoldableNonEmptyOrderedCollectionsTestSuite<IterableNE>.RunAll(xs => (IterableNE<int>)IterableNE.createRange(xs));
 
     [Fact]
+    public static void StckTests() =>
+        FoldableOrderedCollectionsTestSuite<Stck>.RunAll(Stck.createRange);
+
+    [Fact]
     public static void SeqTests() =>
         FoldableOrderedCollectionsTestSuite<Seq>.RunAll(xs => Seq.createRange(xs));
 
     [Fact]
     public static void LstTests() =>
-        FoldableOrderedCollectionsTestSuite<Seq>.RunAll(xs => Seq.createRange(xs));
+        FoldableOrderedCollectionsTestSuite<Lst>.RunAll(xs => Lst.createRange(xs));
 
     [Fact]
     public static void SetTests() =>
