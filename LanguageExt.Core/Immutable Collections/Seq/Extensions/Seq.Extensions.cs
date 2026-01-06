@@ -5,6 +5,7 @@ using System.Linq;
 using LanguageExt.Traits;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 
@@ -150,54 +151,6 @@ public static partial class SeqExtensions
             Seq.choose(+list, f);
 
         /// <summary>
-        /// Reverses the sequence (Reverse in LINQ)
-        /// </summary>
-        /// <returns>Reversed sequence</returns>
-        [Pure]
-        public Seq<A> Reverse() =>
-            Seq.rev(+list);
-
-        /// <summary>
-        /// Joins two sequences together either into a single sequence using the join 
-        /// function provided
-        /// </summary>
-        /// <param name="other">Second sequence to join</param>
-        /// <param name="zipper">Join function</param>
-        /// <returns>Joined sequence</returns>
-        [Pure]
-        public Seq<V> Zip<U, V>(Seq<U> other, Func<A, U, V> zipper) =>
-            toSeq(Enumerable.Zip(+list, other, zipper));
-
-        /// <summary>
-        /// Joins two sequences together either into a sequence of tuples
-        /// </summary>
-        /// <param name="other">Second sequence to join</param>
-        /// <param name="zipper">Join function</param>
-        /// <returns>Joined sequence of tuples</returns>
-        [Pure]
-        public Seq<(A First, U Second)> Zip<U>(Seq<U> other) =>
-            toSeq(Enumerable.Zip(+list, other, (t, u) => (t, u)));
-
-        /// <summary>
-        /// Return a new sequence with all duplicate values removed
-        /// </summary>
-        /// <returns>A new sequence with all duplicate values removed</returns>
-        [Pure]
-        public Seq<A> Distinct() =>
-            toSeq(Enumerable.Distinct(+list));
-
-        /// <summary>
-        /// Return a new sequence with all duplicate values removed
-        /// </summary>
-        /// <returns>A new sequence with all duplicate values removed</returns>
-        [Pure]
-        public Seq<A> Distinct<K>(Func<A, K> keySelector, Option<Func<K, K, bool>> compare = default) =>
-            toSeq(list.As().Distinct(new EqCompare<A>(
-                                         (a, b) => compare.IfNone(EqDefault<K>.Equals)(keySelector(a), keySelector(b)),
-                                         a => compare.Match(Some: _ => 0,
-                                                            None: () => EqDefault<K>.GetHashCode(keySelector(a))))));
-
-        /// <summary>
         /// The tails function returns all final segments of the argument, the longest first.
         ///
         ///     tails(['a','b','c']) == [['a','b','c'], ['b','c'], ['c'], []]
@@ -227,6 +180,60 @@ public static partial class SeqExtensions
         [Pure]
         public (Seq<A>, Seq<A>) Span(Func<A, bool> pred) =>
             Seq.span(+list, pred);
+    }
+
+
+    /// <param name="list">sequence</param>
+    /// <typeparam name="A">sequence item type</typeparam>
+    extension<A>(Seq<A> list)
+    {
+        /// <summary>
+        /// Reverses the sequence (Reverse in LINQ)
+        /// </summary>
+        /// <returns>Reversed sequence</returns>
+        [Pure]
+        public Seq<A> Reverse() =>
+            Seq.rev(list);
+
+        /// <summary>
+        /// Joins two sequences together either into a single sequence using the join 
+        /// function provided
+        /// </summary>
+        /// <param name="other">Second sequence to join</param>
+        /// <param name="zipper">Join function</param>
+        /// <returns>Joined sequence</returns>
+        [Pure]
+        public Seq<V> Zip<U, V>(Seq<U> other, Func<A, U, V> zipper) =>
+            toSeq(Enumerable.Zip(+list, other, zipper));
+
+        /// <summary>
+        /// Joins two sequences together either into a sequence of tuples
+        /// </summary>
+        /// <param name="other">Second sequence to join</param>
+        /// <param name="zipper">Join function</param>
+        /// <returns>Joined sequence of tuples</returns>
+        [Pure]
+        public Seq<(A First, U Second)> Zip<U>(Seq<U> other) =>
+            toSeq(Enumerable.Zip(list, other, (t, u) => (t, u)));
+
+        /// <summary>
+        /// Return a new sequence with all duplicate values removed
+        /// </summary>
+        /// <returns>A new sequence with all duplicate values removed</returns>
+        [Pure]
+        public Seq<A> Distinct() =>
+            toSeq(Enumerable.Distinct(list));
+
+        /// <summary>
+        /// Return a new sequence with all duplicate values removed
+        /// </summary>
+        /// <returns>A new sequence with all duplicate values removed</returns>
+        [Pure]
+        public Seq<A> Distinct<K>(Func<A, K> keySelector, Option<Func<K, K, bool>> compare = default) =>
+            toSeq(list.Distinct(new EqCompare<A>(
+                                    (a, b) => compare.IfNone(EqDefault<K>.Equals)(keySelector(a), keySelector(b)),
+                                    a => compare.Match(Some: _ => 0,
+                                                       None: () => EqDefault<K>.GetHashCode(keySelector(a))))));
 
         /// <summary>
         /// Convert to a queryable 
@@ -235,9 +242,10 @@ public static partial class SeqExtensions
         [Pure]
         public IQueryable<A> AsQueryable() =>
             // NOTE TO FUTURE ME: Don't delete this thinking it's not needed!
-            list.As().Value.AsQueryable();
+            list.Value.AsQueryable();
     }
-
+    
+    
     /// <summary>
     /// Return a new sequence with all duplicate values removed
     /// </summary>

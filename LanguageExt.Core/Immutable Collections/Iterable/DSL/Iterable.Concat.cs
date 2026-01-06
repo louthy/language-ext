@@ -40,7 +40,7 @@ sealed class IterableConcat<A>(Seq<Iterable<A>> Items) : Iterable<A>
     }
 
     public override Iterable<A> Reverse() =>
-        new IterableConcat<A>(Items.Map(xs => xs.Reverse()).Rev());
+        new IterableConcat<A>(Items.Map(xs => xs.Reverse()).Reverse());
 
     public override Iterable<B> Map<B>(Func<A, B> f) =>
         new IterableConcat<B>(Items.Map(xs => xs.Map(f)));

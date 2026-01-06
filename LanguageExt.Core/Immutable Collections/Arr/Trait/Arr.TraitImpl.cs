@@ -20,17 +20,21 @@ public partial class Arr :
 {
     static K<Arr, B> Monad<Arr>.Bind<A, B>(K<Arr, A> ma, Func<A, K<Arr, B>> f)
     {
-        return new Arr<B>(Go());
-        IEnumerable<B> Go()
+        var writer = ArrayWriter<B>.Init();
+        
+        FoldState astate = default!;
+        Foldable.stepSetup(ma, ref astate);
+        while (Foldable.step(ma, ref astate, out var a))
         {
-            foreach (var x in ma.As())
+            var       mb     = +f(a);
+            FoldState bstate = default!;
+            Foldable.stepSetup(mb, ref bstate);
+            while (Foldable.step(mb, ref bstate, out var b))
             {
-                foreach (var y in f(x).As())
-                {
-                    yield return y;
-                }
+                ArrayWriter<B>.Add(ref writer, b);
             }
         }
+        return writer.ToArr();
     }
 
     static K<Arr, B> Monad<Arr>.Recur<A, B>(A value, Func<A, K<Arr, Next<A, B>>> f) =>
@@ -42,43 +46,42 @@ public partial class Arr :
     static K<Arr, A> Applicative<Arr>.Pure<A>(A value) =>
         singleton(value);
 
-    static K<Arr, B> Applicative<Arr>.Apply<A, B>(K<Arr, Func<A, B>> mf, K<Arr, A> ma) 
+    static K<Arr, B> Applicative<Arr>.Apply<A, B>(K<Arr, Func<A, B>> mf, K<Arr, A> ma)
     {
-        var ff   = mf.As();
-        if(ff.IsEmpty) return Arr<B>.Empty;
-        var fa   = ma.As();
-        var size = ff.Count * fa.Count;
-        var bs   = new B[size];
-        var ix   = 0;
-        foreach (var f in ff)
+        var writer = ArrayWriter<B>.Init();
+        
+        FoldState fstate = default!;
+        Foldable.stepSetup(mf, ref fstate);
+        while (Foldable.step(mf, ref fstate, out var f))
         {
-            foreach (var a in fa)
+            FoldState astate = default!;
+            Foldable.stepSetup(ma, ref astate);
+            while (Foldable.step(ma, ref astate, out var a))
             {
-                bs[ix] = f(a);
-                ix++;
+                ArrayWriter<B>.Add(ref writer, f(a));
             }
         }
-        return new Arr<B>(bs);
+        return writer.ToArr();
     }    
 
     static K<Arr, B> Applicative<Arr>.Apply<A, B>(K<Arr, Func<A, B>> mf, Memo<Arr, A> ma)
     {
-        var ff   = mf.As();
-        if(ff.IsEmpty) return Arr<B>.Empty;
-        var fa   = ma.Value.As();
-        var size = ff.Count * fa.Count;
-        var bs   = new B[size];
-        var ix   = 0;
-        foreach (var f in ff)
+        var writer = ArrayWriter<B>.Init();
+        
+        FoldState fstate = default!;
+        Foldable.stepSetup(mf, ref fstate);
+        while (Foldable.step(mf, ref fstate, out var f))
         {
-            foreach (var a in fa)
+            var       fa     = ma.Value;
+            FoldState astate = default!;
+            Foldable.stepSetup(fa, ref astate);
+            while (Foldable.step(fa, ref astate, out var a))
             {
-                bs[ix] = f(a);
-                ix++;
+                ArrayWriter<B>.Add(ref writer, f(a));
             }
         }
-        return new Arr<B>(bs);
-    }    
+        return writer.ToArr();
+    }
 
     static K<Arr, A> MonoidK<Arr>.Empty<A>() =>
         Arr<A>.Empty;
@@ -86,8 +89,15 @@ public partial class Arr :
     static K<Arr, A> Alternative<Arr>.Empty<A>() =>
         Arr<A>.Empty;
 
-    static K<Arr, A> SemigroupK<Arr>.Combine<A>(K<Arr, A> ma, K<Arr, A> mb) =>
-        ma.As() + mb.As();
+    static K<Arr, A> SemigroupK<Arr>.Combine<A>(K<Arr, A> ma, K<Arr, A> mb)
+    {
+        var fa     = +ma;
+        var fb     = +mb;
+        var writer = ArrayWriter<A>.Init(fa.Length + fb.Length);
+        ArrayWriter<A>.AddRange(ref writer, fa.AsSpan());
+        ArrayWriter<A>.AddRange(ref writer, fb.AsSpan());
+        return writer.ToArr();
+    }    
     
     static K<Arr, A> Choice<Arr>.Choose<A>(K<Arr, A> ma, K<Arr, A> mb) => 
         ma.IsEmpty ? mb : ma;
