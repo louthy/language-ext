@@ -193,7 +193,7 @@ public partial class Lst :
                 }
                 else
                 {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
                 }
             };
     }
@@ -212,7 +212,7 @@ public partial class Lst :
                 }
                 else
                 {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
                 }
             };
     }

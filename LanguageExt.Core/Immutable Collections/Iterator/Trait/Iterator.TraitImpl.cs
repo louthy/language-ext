@@ -137,7 +137,7 @@ public partial class Iterator :
                 }
                 else
                 {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
                 }
             };
     }
@@ -157,7 +157,7 @@ public partial class Iterator :
                 }
                 else
                 {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
                 }
             };
     }

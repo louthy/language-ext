@@ -207,7 +207,7 @@ public partial class Seq :
                 }
                 else
                 {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
                 }
             };
     }
@@ -226,7 +226,7 @@ public partial class Seq :
                 }
                 else
                 {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
                 }
             };
     }

@@ -10,17 +10,8 @@ public partial class HashMap<Key> :
     Functor<HashMap<Key>>, 
     MonoidK<HashMap<Key>>
 {
-    static K<HashMap<Key>, B> Functor<HashMap<Key>>.Map<A, B>(Func<A, B> f, K<HashMap<Key>, A> ma)
-    {
-        return new HashMap<Key, B>(Go());
-        IEnumerable<(Key, B)> Go()
-        {
-            foreach (var x in ma.As())
-            {
-                yield return (x.Key, f(x.Value));
-            }
-        }
-    }
+    static K<HashMap<Key>, B> Functor<HashMap<Key>>.Map<A, B>(Func<A, B> f, K<HashMap<Key>, A> ma) =>
+        ma.As().Map(f);
     
     static int Foldable<HashMap<Key>>.Count<A>(K<HashMap<Key>, A> ta) =>
         ta.As().Count;
@@ -86,7 +77,7 @@ public partial class HashMap<Key> :
                 }
                 else
                 {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
                 }
             };
     }
@@ -107,7 +98,7 @@ public partial class HashMap<Key> :
                 }
                 else
                 {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
                 }
             };
     }

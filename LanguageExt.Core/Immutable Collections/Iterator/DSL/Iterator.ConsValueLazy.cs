@@ -1,12 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Threading;
-using LanguageExt.ClassInstances;
 using LanguageExt.Common;
-using LanguageExt.Traits;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt;
 
@@ -15,7 +10,7 @@ public abstract partial class Iterator<A>
     internal sealed class ConsValueLazy : Cons
     {
         long count;
-        A head;
+        readonly A head;
         Exception? error;
         Iterator<A>? tail;
         Func<Iterator<A>>? tailF;

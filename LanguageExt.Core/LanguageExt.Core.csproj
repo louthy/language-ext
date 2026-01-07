@@ -47,4 +47,7 @@
   <ItemGroup>
     <None Include="README.md" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Performance\" />
+  </ItemGroup>
 </Project>

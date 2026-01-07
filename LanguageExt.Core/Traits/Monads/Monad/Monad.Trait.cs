@@ -64,7 +64,7 @@ public interface Monad<M> :
             iter switch
             {
                 (var head, { IsEmpty : true }) => M.Pure(Next.Done<Iterator<K<M, A>>, K<M, A>>(head)),
-                var (head, tail)               => head.Map(_ => Next.Loop<Iterator<K<M, A>>, K<M, A>>(tail.Clone()))
+                var (head, tail)               => head.Map(_ => Next.Loop<Iterator<K<M, A>>, K<M, A>>(tail.Split()))
             };
     }   
 }

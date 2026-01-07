@@ -532,7 +532,7 @@ public static partial class FoldableExtensions
 
 
     extension<T, A, FS>(K<T, A> ta)
-        where T : Foldable<T, FS>
+        where T : Foldable<T, FS>?
         where FS : allows ref struct
     {
         /// <summary>

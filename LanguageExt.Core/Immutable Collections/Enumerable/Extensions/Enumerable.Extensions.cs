@@ -22,10 +22,6 @@ public static partial class EnumerableExtensions
             ma.BindFast(binder);
 
         [Pure]
-        public IEnumerable<A> Init() =>
-            Iterable.init(ma);
-
-        [Pure]
         public Iterable<A> Tail() =>
             Iterable.tail(ma);
         

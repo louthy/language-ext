@@ -20,7 +20,7 @@ public class AtomHashMap<Key> : Foldable<AtomHashMap<Key>>
                 }
                 else
                 {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
                 }
             };
     }
@@ -40,7 +40,7 @@ public class AtomHashMap<Key> : Foldable<AtomHashMap<Key>>
                 }
                 else
                 {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
                 }
             };
     }
@@ -64,7 +64,7 @@ public class AtomHashMapEq<EqKey, Key> : Foldable<AtomHashMapEq<EqKey, Key>>
                 }
                 else
                 {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
                 }
             };
     }
@@ -84,7 +84,7 @@ public class AtomHashMapEq<EqKey, Key> : Foldable<AtomHashMapEq<EqKey, Key>>
                 }
                 else
                 {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
                 }
             };
     }

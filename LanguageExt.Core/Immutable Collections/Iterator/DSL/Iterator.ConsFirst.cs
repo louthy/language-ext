@@ -1,12 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Threading;
-using LanguageExt.ClassInstances;
-using LanguageExt.Common;
-using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -14,7 +9,7 @@ public abstract partial class Iterator<A>
 {
     internal sealed class ConsFirst : Cons
     {
-        IEnumerable<A> enumerable;
+        readonly IEnumerable<A> enumerable;
         int firstAcquired;
         Iterator<A>? firstValue;
 

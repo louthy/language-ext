@@ -56,7 +56,7 @@ public partial class Map<Key> : Foldable<Map<Key>, Map.FoldState>, Functor<Map<K
                 }
                 else
                 {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
                 }
             };
     }
@@ -75,7 +75,7 @@ public partial class Map<Key> : Foldable<Map<Key>, Map.FoldState>, Functor<Map<K
                 }
                 else
                 {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Clone()));
+                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
                 }
             };
     }

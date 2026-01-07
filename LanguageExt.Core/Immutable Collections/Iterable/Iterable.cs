@@ -545,7 +545,7 @@ public abstract class Iterable<A> :
         }
     }
 
-    /// <summary>
+    /*/// <summary>
     /// Fold over the sequence from the left, accumulating state in `f`
     /// </summary>
     /// <param name="f">Fold function to apply to each item in the sequence</param>
@@ -559,7 +559,7 @@ public abstract class Iterable<A> :
         Func<S, A, S> f,
         Func<(S State, A Value), bool> predicate,
         S initialState) =>
-        FoldWhileIO(f, predicate, initialState).Run();
+        FoldWhileIO(f, predicate, initialState).Run();*/
 
     /// <summary>
     /// Fold over the sequence from the left, accumulating state in `f`
@@ -576,6 +576,7 @@ public abstract class Iterable<A> :
         Func<(S State, A Value), bool> predicate,
         S initialState);
 
+    /*
     /// <summary>
     /// Fold over the sequence from the left, accumulating state in `f`
     /// </summary>
@@ -590,7 +591,7 @@ public abstract class Iterable<A> :
         Func<S, A, S> f,
         Func<(S State, A Value), bool> predicate,
         S initialState) =>
-        FoldUntilIO(f, predicate, initialState).Run();
+        FoldUntilIO(f, predicate, initialState).Run();*/
 
     /// <summary>
     /// Fold over the sequence from the left, accumulating state in `f`
@@ -607,6 +608,7 @@ public abstract class Iterable<A> :
         Func<(S State, A Value), bool> predicate,
         S initialState);
 
+    /*
     /// <summary>
     /// Fold until the `Option` returns `None`
     /// </summary>
@@ -619,6 +621,7 @@ public abstract class Iterable<A> :
         Func<S, A, Option<S>> f,
         S initialState) =>
         FoldMaybeIO(f, initialState).Run();
+        */
 
     /// <summary>
     /// Fold until the `Option` returns `None`
@@ -640,16 +643,17 @@ public abstract class Iterable<A> :
                 s => s.State.IsSome,
                 (true, initialState))
            .Map(s => s.Value);
+    /*
 
     /// <summary>
     /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
-    /// state/value pair 
+    /// state/value pair
     /// </summary>
     public K<M, S> FoldWhileM<M, S>(
-        Func<S, A, K<M, S>> f, 
-        Func<A, bool> predicate, 
-        S initialState) 
+        Func<S, A, K<M, S>> f,
+        Func<A, bool> predicate,
+        S initialState)
         where M : MonadIO<M>
     {
         return FoldWhileIO(acc, s => predicate(s.Value), Monad.pure<M, S>)
@@ -662,12 +666,12 @@ public abstract class Iterable<A> :
     /// <summary>
     /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
-    /// state/value pair 
+    /// state/value pair
     /// </summary>
     public K<M, S> FoldUntilM<M, S>(
-        Func<A, Func<S, K<M, S>>> f, 
-        Func<A, bool> predicate, 
-        S initialState) 
+        Func<A, Func<S, K<M, S>>> f,
+        Func<A, bool> predicate,
+        S initialState)
         where M : MonadIO<M>
     {
         return FoldUntilIO(acc, s => predicate(s.Value), Monad.pure<M, S>).Bind(f1 => f1(initialState));
@@ -679,12 +683,12 @@ public abstract class Iterable<A> :
     /// <summary>
     /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
     /// early exit of the operation once the predicate function becomes `false` for the
-    /// state/value pair 
+    /// state/value pair
     /// </summary>
     public K<M, S> FoldUntilM<M, S>(
-        Func<S, A, K<M, S>> f, 
-        Func<A, bool> predicate, 
-        S initialState) 
+        Func<S, A, K<M, S>> f,
+        Func<A, bool> predicate,
+        S initialState)
         where M : MonadIO<M>
     {
         return FoldUntilIO(acc, s => predicate(s.Value), Monad.pure<M, S>).Bind(f1 => f1(initialState));
@@ -702,6 +706,7 @@ public abstract class Iterable<A> :
     /// </summary>
     public S Fold<S>(Func<S, A, S> f, S initialState) =>
         FoldIO(f, initialState).Run();
+        */
 
     /// <summary>
     /// Right-associative fold of a structure, lazy in the accumulator.
@@ -713,6 +718,7 @@ public abstract class Iterable<A> :
     public IO<S> FoldIO<S>(Func<S, A, S> f, S initialState) =>
         FoldWhileIO(f, _ => true, initialState);
 
+    /*
     /// <summary>
     /// Right-associative fold of a structure, lazy in the accumulator.
     ///
@@ -730,6 +736,7 @@ public abstract class Iterable<A> :
         Func<S, K<M, S>> acc(Func<S, K<M, S>> bind, A value) =>
             state => Monad.bind(f(state, value), bind);
     }
+    */
     
     /// <summary>
     /// Returns true if the sequence has items in it

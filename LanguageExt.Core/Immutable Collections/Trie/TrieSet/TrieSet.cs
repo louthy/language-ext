@@ -21,15 +21,6 @@ internal class TrieSet<EqK, K> :
     IReadOnlyCollection<K>
     where EqK : Eq<K>
 {
-    internal enum UpdateType
-    {
-        Add,
-        TryAdd,
-        AddOrUpdate,
-        SetItem,
-        TrySetItem
-    }
-
     public static readonly TrieSet<EqK, K> Empty = new (EmptyNode.Default, 0);
 
     internal readonly Node Root;
@@ -49,7 +40,7 @@ internal class TrieSet<EqK, K> :
     public TrieSet(ReadOnlySpan<K> items, bool tryAdd = true)
     {
         Root = EmptyNode.Default;
-        var type = tryAdd ? UpdateType.TryAdd : UpdateType.AddOrUpdate;
+        var type = tryAdd ? TrieUpdateType.TryAdd : TrieUpdateType.AddOrUpdate;
         foreach (var item in items)
         {
             var hash    = (uint)EqK.GetHashCode(item);
@@ -63,7 +54,7 @@ internal class TrieSet<EqK, K> :
     public TrieSet(IEnumerable<K> items, bool tryAdd = true)
     {
         Root = EmptyNode.Default;
-        var type = tryAdd ? UpdateType.TryAdd : UpdateType.AddOrUpdate;
+        var type = tryAdd ? TrieUpdateType.TryAdd : TrieUpdateType.AddOrUpdate;
         foreach (var item in items)
         {
             var hash    = (uint)EqK.GetHashCode(item);
@@ -97,7 +88,7 @@ internal class TrieSet<EqK, K> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieSet<EqK, K> Add(K key) =>
-        Update(key, UpdateType.Add, false);
+        Update(key, TrieUpdateType.Add, false);
 
     /// <summary>
     /// Try to add an item to the map.  If it already exists, do
@@ -105,14 +96,14 @@ internal class TrieSet<EqK, K> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieSet<EqK, K> TryAdd(K key) =>
-        Update(key, UpdateType.TryAdd, false);
+        Update(key, TrieUpdateType.TryAdd, false);
 
     /// <summary>
     /// Add an item to the map, if it exists update the value
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieSet<EqK, K> AddOrUpdate(K key) =>
-        Update(key, UpdateType.AddOrUpdate, false);
+        Update(key, TrieUpdateType.AddOrUpdate, false);
 
     /// <summary>
     /// Add a range of values to the map
@@ -189,7 +180,7 @@ internal class TrieSet<EqK, K> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieSet<EqK, K> SetItem(K key) =>
-        Update(key, UpdateType.SetItem, false);
+        Update(key, TrieUpdateType.SetItem, false);
 
     /// <summary>
     /// Try to set an item that already exists in the map.  If none
@@ -197,14 +188,14 @@ internal class TrieSet<EqK, K> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieSet<EqK, K> TrySetItem(K key) =>
-        Update(key, UpdateType.TrySetItem, false);
+        Update(key, TrieUpdateType.TrySetItem, false);
 
     /// <summary>
     /// Update an item in the map
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieSet<EqK, K> Update(K key) =>
-        Update(key, UpdateType.Add, false);
+        Update(key, TrieUpdateType.Add, false);
 
     /// <summary>
     /// Remove an item from the map
@@ -380,7 +371,7 @@ internal class TrieSet<EqK, K> :
     /// Update an item in the map - can mutate if needed
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    TrieSet<EqK, K> Update(K key, UpdateType type, bool mutate)
+    TrieSet<EqK, K> Update(K key, TrieUpdateType type, bool mutate)
     {
         var hash    = (uint)EqK.GetHashCode(key);
         Sec section = default;
@@ -614,7 +605,7 @@ internal class TrieSet<EqK, K> :
     internal interface Node : IEnumerable<K>, ITrieNode
     {
         (bool Found, K Key) Read(K key, uint hash, Sec section);
-        (int CountDelta, Node Node) Update((UpdateType Type, bool Mutate) env, K change, uint hash, Sec section);
+        (int CountDelta, Node Node) Update((TrieUpdateType Type, bool Mutate) env, K change, uint hash, Sec section);
         (int CountDelta, Node Node) Remove(K key, uint hash, Sec section);
     }
 
@@ -768,7 +759,7 @@ internal class TrieSet<EqK, K> :
             }
         }
 
-        public (int CountDelta, Node Node) Update((UpdateType Type, bool Mutate) env, K change, uint hash, Sec section)
+        public (int CountDelta, Node Node) Update((TrieUpdateType Type, bool Mutate) env, K change, uint hash, Sec section)
         {
             // var hashIndex = Bit.Get(hash, section);
             // var mask = Mask(hashIndex);
@@ -783,12 +774,12 @@ internal class TrieSet<EqK, K> :
 
                 if (EqK.Equals(currentEntry, change))
                 {
-                    if (env.Type == UpdateType.Add)
+                    if (env.Type == TrieUpdateType.Add)
                     {
                         // Key already exists - so it's an error to add again
                         throw new ArgumentException($"Key already exists in map: {change}");
                     }
-                    else if (env.Type == UpdateType.TryAdd)
+                    else if (env.Type == TrieUpdateType.TryAdd)
                     {
                         // Already added, so we don't continue to try
                         return (0, this);
@@ -799,12 +790,12 @@ internal class TrieSet<EqK, K> :
                 }
                 else
                 {
-                    if (env.Type == UpdateType.SetItem)
+                    if (env.Type == TrieUpdateType.SetItem)
                     {
                         // Key must already exist to set it
                         throw new ArgumentException($"Key already exists in map: {change}");
                     }
-                    else if (env.Type == UpdateType.TrySetItem)
+                    else if (env.Type == TrieUpdateType.TrySetItem)
                     {
                         // Key doesn't exist, so there's nothing to set
                         return (0, this);
@@ -855,12 +846,12 @@ internal class TrieSet<EqK, K> :
             }
             else
             {
-                if (env.Type == UpdateType.SetItem)
+                if (env.Type == TrieUpdateType.SetItem)
                 {
                     // Key must already exist to set it
                     throw new ArgumentException($"Key doesn't exist in map: {change}");
                 }
-                else if (env.Type == UpdateType.TrySetItem)
+                else if (env.Type == TrieUpdateType.TrySetItem)
                 {
                     // Key doesn't exist, so there's nothing to set
                     return (0, this);
@@ -933,8 +924,8 @@ internal class TrieSet<EqK, K> :
             else if (len == 2)
             {
                 var (_, n) = EqK.Equals(Items[0], key)
-                                 ? EmptyNode.Default.Update((UpdateType.Add, false), Items[1], hash, default)
-                                 : EmptyNode.Default.Update((UpdateType.Add, false), Items[0], hash, default);
+                                 ? EmptyNode.Default.Update((TrieUpdateType.Add, false), Items[1], hash, default)
+                                 : EmptyNode.Default.Update((TrieUpdateType.Add, false), Items[0], hash, default);
 
                 return (-1, n);
             }
@@ -957,7 +948,7 @@ internal class TrieSet<EqK, K> :
             }
         }
 
-        public (int CountDelta, Node Node) Update((UpdateType Type, bool Mutate) env, K change, uint hash, Sec section)
+        public (int CountDelta, Node Node) Update((TrieUpdateType Type, bool Mutate) env, K change, uint hash, Sec section)
         {
             var index = -1;
             for (var i = 0; i < Items.Length; i++)
@@ -971,12 +962,12 @@ internal class TrieSet<EqK, K> :
 
             if (index >= 0)
             {
-                if (env.Type == UpdateType.Add)
+                if (env.Type == TrieUpdateType.Add)
                 {
                     // Key already exists - so it's an error to add again
                     throw new ArgumentException($"Key already exists in map: {change}");
                 }
-                else if (env.Type == UpdateType.TryAdd)
+                else if (env.Type == TrieUpdateType.TryAdd)
                 {
                     // Already added, so we don't continue to try
                     return (0, this);
@@ -987,12 +978,12 @@ internal class TrieSet<EqK, K> :
             }
             else
             {
-                if (env.Type == UpdateType.SetItem)
+                if (env.Type == TrieUpdateType.SetItem)
                 {
                     // Key must already exist to set it
                     throw new ArgumentException($"Key doesn't exist in map: {change}");
                 }
-                else if (env.Type == UpdateType.TrySetItem)
+                else if (env.Type == TrieUpdateType.TrySetItem)
                 {
                     // Key doesn't exist, so there's nothing to set
                     return (0, this);
@@ -1027,14 +1018,14 @@ internal class TrieSet<EqK, K> :
         public (int CountDelta, Node Node) Remove(K key, uint hash, Sec section) =>
             (0, this);
 
-        public (int CountDelta, Node Node) Update((UpdateType Type, bool Mutate) env, K change, uint hash, Sec section)
+        public (int CountDelta, Node Node) Update((TrieUpdateType Type, bool Mutate) env, K change, uint hash, Sec section)
         {
-            if (env.Type == UpdateType.SetItem)
+            if (env.Type == TrieUpdateType.SetItem)
             {
                 // Key must already exist to set it
                 throw new ArgumentException($"Key doesn't exist in map: {change}");
             }
-            else if (env.Type == UpdateType.TrySetItem)
+            else if (env.Type == TrieUpdateType.TrySetItem)
             {
                 // Key doesn't exist, so there's nothing to set
                 return (0, this);

@@ -136,7 +136,7 @@ public partial class Arr :
                 }
                 else
                 {
-                    return Fold.Loop(state, iterA.Head, go(iterA.Tail.Clone()));
+                    return Fold.Loop(state, iterA.Head, go(iterA.Tail.Split()));
                 }
             };
     }
@@ -155,7 +155,7 @@ public partial class Arr :
                 }
                 else
                 {
-                    return Fold.Loop(state, iterA.Head, go(iterA.Tail.Clone()));
+                    return Fold.Loop(state, iterA.Head, go(iterA.Tail.Split()));
                 }
             };
     }

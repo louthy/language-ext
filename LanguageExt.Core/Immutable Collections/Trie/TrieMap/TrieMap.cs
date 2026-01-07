@@ -29,15 +29,6 @@ internal class TrieMap<EqK, K, V> :
     readonly int count;
     int hash;
 
-    internal enum UpdateType
-    {
-        Add,
-        TryAdd,
-        AddOrUpdate,
-        SetItem,
-        TrySetItem
-    }
-
     /// <summary>
     /// Ctor
     /// </summary>
@@ -51,12 +42,12 @@ internal class TrieMap<EqK, K, V> :
     public TrieMap(IEnumerable<(K Key, V Value)> items, bool tryAdd = true)
     {
         Root = EmptyNode.Default;
-        var type = tryAdd ? UpdateType.TryAdd : UpdateType.AddOrUpdate;
+        var type = tryAdd ? TrieUpdateType.TryAdd : TrieUpdateType.AddOrUpdate;
         foreach (var item in items)
         {
-            var h       = (uint)EqK.GetHashCode(item.Key);
-            Sec section = default;
-            var (countDelta, newRoot, _, _) = Root.Update((type, true), item, h, section);
+            var hashCode = (uint)EqK.GetHashCode(item.Key);
+            Sec section  = default;
+            var (countDelta, newRoot, _, _) = Root.Update((type, true), item, hashCode, section);
             count += countDelta;
             Root = newRoot;
         }
@@ -65,15 +56,39 @@ internal class TrieMap<EqK, K, V> :
     public TrieMap(ReadOnlySpan<(K Key, V Value)> items, bool tryAdd = true)
     {
         Root = EmptyNode.Default;
-        var type = tryAdd ? UpdateType.TryAdd : UpdateType.AddOrUpdate;
+        var type = tryAdd ? TrieUpdateType.TryAdd : TrieUpdateType.AddOrUpdate;
         foreach (var item in items)
         {
-            var h       = (uint)EqK.GetHashCode(item.Key);
-            Sec section = default;
-            var (countDelta, newRoot, _, _) = Root.Update((type, true), item, h, section);
+            var hashCode = (uint)EqK.GetHashCode(item.Key);
+            Sec section  = default;
+            var (countDelta, newRoot, _, _) = Root.Update((type, true), item, hashCode, section);
             count += countDelta;
             Root = newRoot;
         }
+    }
+
+    /// <summary>
+    /// Creates a TrieMap from a foldable with support for ref-struct state
+    /// </summary>
+    public static TrieMap<EqK, K, V> fromFoldable<F, FS>(K<F, (K Key, V Value)> items, bool tryAdd = true)
+        where F : Foldable<F, FS>
+        where FS : struct, allows ref struct
+    {
+        var state = default(FS);
+        items.StepSetup(ref state);
+        
+        var root  = EmptyNode.Default;
+        var count = 0;
+        var type  = tryAdd ? TrieUpdateType.TryAdd : TrieUpdateType.AddOrUpdate;
+        while(items.Step(ref state, out var item))
+        {
+            var hashCode = (uint)EqK.GetHashCode(item.Key);
+            Sec section  = default;
+            var (countDelta, newRoot, _, _) = root.Update((type, true), item, hashCode, section);
+            count += countDelta;
+            root = newRoot;
+        }
+        return new TrieMap<EqK, K, V>(root, count);
     }
 
     /// <summary>
@@ -99,14 +114,14 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, V> Add(K key, V value) =>
-        Update(key, value, UpdateType.Add, false);
+        Update(key, value, TrieUpdateType.Add, false);
 
     /// <summary>
     /// Add an item to the map
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (TrieMap<EqK, K, V> Map, Change<V> Change) AddWithLog(K key, V value) =>
-        UpdateWithLog(key, value, UpdateType.Add, false);
+        UpdateWithLog(key, value, TrieUpdateType.Add, false);
 
     /// <summary>
     /// Try to add an item to the map.  If it already exists, do
@@ -114,7 +129,7 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, V> TryAdd(K key, V value) =>
-        Update(key, value, UpdateType.TryAdd, false);
+        Update(key, value, TrieUpdateType.TryAdd, false);
 
     /// <summary>
     /// Try to add an item to the map.  If it already exists, do
@@ -122,28 +137,28 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (TrieMap<EqK, K, V> Map, Change<V> Change) TryAddWithLog(K key, V value) =>
-        UpdateWithLog(key, value, UpdateType.TryAdd, false);
+        UpdateWithLog(key, value, TrieUpdateType.TryAdd, false);
 
     /// <summary>
-    /// Add an item to the map, if it exists update the value
+    /// Add an item to the map, if it exists, update the value
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, V> AddOrUpdate(K key, V value) =>
-        Update(key, value, UpdateType.AddOrUpdate, false);
+        Update(key, value, TrieUpdateType.AddOrUpdate, false);
 
     /// <summary>
-    /// Add an item to the map, if it exists update the value
+    /// Add an item to the map, if it exists, update the value
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal TrieMap<EqK, K, V> AddOrUpdateInPlace(K key, V value) =>
-        Update(key, value, UpdateType.AddOrUpdate, true);
+        Update(key, value, TrieUpdateType.AddOrUpdate, true);
 
     /// <summary>
-    /// Add an item to the map, if it exists update the value
+    /// Add an item to the map, if it exists, update the value
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (TrieMap<EqK, K, V> Map, Change<V> Change) AddOrUpdateWithLog(K key, V value) =>
-        UpdateWithLog(key, value, UpdateType.AddOrUpdate, false);
+        UpdateWithLog(key, value, TrieUpdateType.AddOrUpdate, false);
 
     /// <summary>
     /// Add an item to the map, if it exists update the value
@@ -152,9 +167,8 @@ internal class TrieMap<EqK, K, V> :
     public TrieMap<EqK, K, V> AddOrUpdate(K key, Func<V, V> Some, Func<V> None)
     {
         var (found, _, value) = FindInternal(key);
-        return found
-                   ? AddOrUpdate(key, Some(value!))
-                   : AddOrUpdate(key, None());
+        return found ? AddOrUpdate(key, Some(value!))
+                     : AddOrUpdate(key, None());
     }
 
     /// <summary>
@@ -164,9 +178,8 @@ internal class TrieMap<EqK, K, V> :
     public (TrieMap<EqK, K, V> Map, Change<V> Change) AddOrUpdateWithLog(K key, Func<V, V> Some, Func<V> None)
     {
         var (found, _, value) = FindInternal(key);
-        return found
-                   ? AddOrUpdateWithLog(key, Some(value!))
-                   : AddOrUpdateWithLog(key, None());
+        return found ? AddOrUpdateWithLog(key, Some(value!)) 
+                     : AddOrUpdateWithLog(key, None());
     }
 
     /// <summary>
@@ -176,9 +189,8 @@ internal class TrieMap<EqK, K, V> :
     public TrieMap<EqK, K, V> AddOrMaybeUpdate(K key, Func<V, V> Some, Func<Option<V>> None)
     {
         var (found, _, value) = FindInternal(key);
-        return found
-                   ? AddOrUpdate(key, Some(value!))
-                   : None().Map(x => AddOrUpdate(key, x)).IfNone(this);
+        return found ? AddOrUpdate(key, Some(value!))
+                     : None().Map(x => AddOrUpdate(key, x)).IfNone(this);
     }
 
     /// <summary>
@@ -188,9 +200,8 @@ internal class TrieMap<EqK, K, V> :
     public (TrieMap<EqK, K, V> Map, Change<V> Change) AddOrMaybeUpdateWithLog(K key, Func<V, V> Some, Func<Option<V>> None)
     {
         var (found, _, value) = FindInternal(key);
-        return found
-                   ? AddOrUpdateWithLog(key, Some(value!))
-                   : None().Map(x => AddOrUpdateWithLog(key, x)).IfNone((this, Change<V>.None));
+        return found ? AddOrUpdateWithLog(key, Some(value!))
+                     : None().Map(x => AddOrUpdateWithLog(key, x)).IfNone((this, Change<V>.None));
     }
 
     /// <summary>
@@ -200,9 +211,8 @@ internal class TrieMap<EqK, K, V> :
     public TrieMap<EqK, K, V> AddOrUpdate(K key, Func<V, V> Some, V None)
     {
         var (found, _, value) = FindInternal(key);
-        return found
-                   ? AddOrUpdate(key, Some(value!))
-                   : AddOrUpdate(key, None);
+        return found ? AddOrUpdate(key, Some(value!))
+                     : AddOrUpdate(key, None);
     }
 
     /// <summary>
@@ -212,9 +222,8 @@ internal class TrieMap<EqK, K, V> :
     public (TrieMap<EqK, K, V> Map, Change<V> Change) AddOrUpdateWithLog(K key, Func<V, V> Some, V None)
     {
         var (found, _, value) = FindInternal(key);
-        return found
-                   ? AddOrUpdateWithLog(key, Some(value!))
-                   : AddOrUpdateWithLog(key, None);
+        return found ? AddOrUpdateWithLog(key, Some(value!))
+                     : AddOrUpdateWithLog(key, None);
     }
 
     /// <summary>
@@ -770,14 +779,14 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, V> SetItem(K key, V value) =>
-        Update(key, value, UpdateType.SetItem, false);
+        Update(key, value, TrieUpdateType.SetItem, false);
 
     /// <summary>
     /// Set an item that already exists in the map
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (TrieMap<EqK, K, V> Map, Change<V> Change) SetItemWithLog(K key, V value) =>
-        UpdateWithLog(key, value, UpdateType.SetItem, false);
+        UpdateWithLog(key, value, TrieUpdateType.SetItem, false);
         
     /// <summary>
     /// Set an item that already exists in the map
@@ -805,7 +814,7 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, V> TrySetItem(K key, V value) =>
-        Update(key, value, UpdateType.TrySetItem, false);
+        Update(key, value, TrieUpdateType.TrySetItem, false);
 
     /// <summary>
     /// Try to set an item that already exists in the map.  If none
@@ -813,7 +822,7 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (TrieMap<EqK, K, V> Map, Change<V> Change) TrySetItemWithLog(K key, V value) =>
-        UpdateWithLog(key, value, UpdateType.TrySetItem, false);
+        UpdateWithLog(key, value, TrieUpdateType.TrySetItem, false);
 
     /// <summary>
     /// Set an item that already exists in the map
@@ -1184,8 +1193,25 @@ internal class TrieMap<EqK, K, V> :
     /// Map from V to U
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TrieMap<EqK, K, U> Map<U>(Func<V, U> f) =>
-        new (AsIterable().Select(kv => (kv.Key, f(kv.Value))), false);
+    public TrieMap<EqK, K, U> Map<U>(Func<V, U> f)
+    {
+        TrieMap.FoldState state = default!;
+        TrieMap.FoldState.Setup(ref state, Root);
+        
+        var root  = TrieMap<EqK, K, U>.EmptyNode.Default;
+        var count = 0;
+        while(TrieMap.FoldState.Step<EqK, K, V>(ref state, out var kv))
+        {
+            var value = f(kv.Value);
+            var hashCode = (uint)EqK.GetHashCode(kv.Key);
+            Sec section  = default;
+            var (countDelta, newRoot, _, _) = root.Update((TrieUpdateType.Add , true), (kv.Key, value), hashCode, section);
+            count += countDelta;
+            root = newRoot;
+        }
+
+        return new TrieMap<EqK, K, U>(root, count);
+    }
 
     /// <summary>
     /// Map from V to U
@@ -1209,8 +1235,24 @@ internal class TrieMap<EqK, K, V> :
     /// Map from V to U
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TrieMap<EqK, K, U> Map<U>(Func<K, V, U> f) =>
-        new (AsIterable().Select(kv => (kv.Key, f(kv.Key, kv.Value))), false);
+    public TrieMap<EqK, K, U> Map<U>(Func<K, V, U> f)
+    {
+        TrieMap.FoldState state = default!;
+        TrieMap.FoldState.Setup(ref state, Root);
+        
+        var root  = TrieMap<EqK, K, U>.EmptyNode.Default;
+        var count = 0;
+        while(TrieMap.FoldState.Step<EqK, K, V>(ref state, out var kv))
+        {
+            var value    = f(kv.Key, kv.Value);
+            var hashCode = (uint)EqK.GetHashCode(kv.Key);
+            Sec section  = default;
+            var (countDelta, newRoot, _, _) = root.Update((TrieUpdateType.Add , true), (kv.Key, value), hashCode, section);
+            count += countDelta;
+            root = newRoot;
+        }
+        return new TrieMap<EqK, K, U>(root, count);
+    }
 
     /// <summary>
     /// Map from V to U
@@ -1234,8 +1276,24 @@ internal class TrieMap<EqK, K, V> :
     /// Filter
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TrieMap<EqK, K, V> Filter(Func<V, bool> f) =>
-        new (AsIterable().Filter(kv => f(kv.Value)), false);
+    public TrieMap<EqK, K, V> Filter(Func<V, bool> f)
+    {
+        TrieMap.FoldState state = default!;
+        TrieMap.FoldState.Setup(ref state, Root);
+        
+        var root  = EmptyNode.Default;
+        var count = 0;
+        while(TrieMap.FoldState.Step<EqK, K, V>(ref state, out var kv))
+        {
+            if (!f(kv.Value)) continue;
+            var hashCode = (uint)EqK.GetHashCode(kv.Key);
+            Sec section  = default;
+            var (countDelta, newRoot, _, _) = root.Update((TrieUpdateType.Add, true), kv, hashCode, section);
+            count += countDelta;
+            root = newRoot;
+        }
+        return new TrieMap<EqK, K, V>(root, count);
+    }
 
     /// <summary>
     /// Map from V to U
@@ -1265,8 +1323,24 @@ internal class TrieMap<EqK, K, V> :
     /// Filter
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TrieMap<EqK, K, V> Filter(Func<K, V, bool> f) =>
-        new (AsIterable().Filter(kv => f(kv.Key, kv.Value)), false);
+    public TrieMap<EqK, K, V> Filter(Func<K, V, bool> f)
+    {
+        TrieMap.FoldState state = default!;
+        TrieMap.FoldState.Setup(ref state, Root);
+        
+        var root  = EmptyNode.Default;
+        var count = 0;
+        while(TrieMap.FoldState.Step<EqK, K, V>(ref state, out var kv))
+        {
+            if (!f(kv.Key, kv.Value)) continue;
+            var hashCode = (uint)EqK.GetHashCode(kv.Key);
+            Sec section  = default;
+            var (countDelta, newRoot, _, _) = root.Update((TrieUpdateType.Add, true), kv, hashCode, section);
+            count += countDelta;
+            root = newRoot;
+        }
+        return new TrieMap<EqK, K, V>(root, count);
+    }
 
     /// <summary>
     /// Map from V to U
@@ -1411,20 +1485,20 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, V> Update(K key, V value) =>
-        Update(key, value, UpdateType.Add, false);
+        Update(key, value, TrieUpdateType.Add, false);
 
     /// <summary>
     /// Update an item in the map
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (TrieMap<EqK, K, V> Map, Change<V> Change) UpdateWithLog(K key, V value) =>
-        UpdateWithLog(key, value, UpdateType.Add, false);
+        UpdateWithLog(key, value, TrieUpdateType.Add, false);
         
     /// <summary>
     /// Update an item in the map - can mutate if needed
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    TrieMap<EqK, K, V> Update(K key, V value, UpdateType type, bool mutate)
+    TrieMap<EqK, K, V> Update(K key, V value, TrieUpdateType type, bool mutate)
     {
         var h       = (uint)EqK.GetHashCode(key);
         Sec section = default;
@@ -1438,7 +1512,7 @@ internal class TrieMap<EqK, K, V> :
     /// Update an item in the map - can mutate if needed
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    (TrieMap<EqK, K, V> Map, Change<V> Change) UpdateWithLog(K key, V value, UpdateType type, bool mutate)
+    (TrieMap<EqK, K, V> Map, Change<V> Change) UpdateWithLog(K key, V value, TrieUpdateType type, bool mutate)
     {
         var h       = (uint)EqK.GetHashCode(key);
         Sec section = default;
@@ -2118,7 +2192,7 @@ internal class TrieMap<EqK, K, V> :
     internal interface Node : IEnumerable<(K, V)>, ITrieNode
     {
         (bool Found, K Key, V? Value) Read(K key, uint hash, Sec section);
-        (int CountDelta, Node Node, V? Old, bool Changed) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section);
+        (int CountDelta, Node Node, V? Old, bool Changed) Update((TrieUpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section);
         (int CountDelta, Node Node, V? Old) Remove(K key, uint hash, Sec section);
     }
 
@@ -2278,7 +2352,7 @@ internal class TrieMap<EqK, K, V> :
             }
         }
 
-        public (int CountDelta, Node Node, V? Old, bool Changed) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section)
+        public (int CountDelta, Node Node, V? Old, bool Changed) Update((TrieUpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section)
         {
             // var hashIndex = Bit.Get(hash, section);
             // var mask = Mask(hashIndex);
@@ -2293,12 +2367,12 @@ internal class TrieMap<EqK, K, V> :
 
                 if (EqK.Equals(currentEntry.Key, change.Key))
                 {
-                    if (env.Type == UpdateType.Add)
+                    if (env.Type == TrieUpdateType.Add)
                     {
                         // Key already exists - so it's an error to add again
                         throw new ArgumentException($"Key already exists in map: {change.Key}");
                     }
-                    else if (env.Type == UpdateType.TryAdd)
+                    else if (env.Type == TrieUpdateType.TryAdd)
                     {
                         // Already added, so we don't continue to try
                         return (0, this, default, false);
@@ -2309,12 +2383,12 @@ internal class TrieMap<EqK, K, V> :
                 }
                 else
                 {
-                    if (env.Type == UpdateType.SetItem)
+                    if (env.Type == TrieUpdateType.SetItem)
                     {
                         // Key must already exist to set it
                         throw new ArgumentException($"Key already exists in map: {change.Key}");
                     }
-                    else if (env.Type == UpdateType.TrySetItem)
+                    else if (env.Type == TrieUpdateType.TrySetItem)
                     {
                         // Key doesn't exist, so there's nothing to set
                         return (0, this, default, false);
@@ -2361,12 +2435,12 @@ internal class TrieMap<EqK, K, V> :
             }
             else
             {
-                if (env.Type == UpdateType.SetItem)
+                if (env.Type == TrieUpdateType.SetItem)
                 {
                     // Key must already exist to set it
                     throw new ArgumentException($"Key doesn't exist in map: {change.Key}");
                 }
-                else if (env.Type == UpdateType.TrySetItem)
+                else if (env.Type == TrieUpdateType.TrySetItem)
                 {
                     // Key doesn't exist, so there's nothing to set
                     return (0, this, default, false);
@@ -2439,8 +2513,8 @@ internal class TrieMap<EqK, K, V> :
             else if (len == 2)
             {
                 var ((_, n, _, _), ov) = EqK.Equals(Items[0].Key, key)
-                                          ? (EmptyNode.Default.Update((UpdateType.Add, false), Items[1], hash, default), Items[0].Value)
-                                          : (EmptyNode.Default.Update((UpdateType.Add, false), Items[0], hash, default), Items[1].Value);
+                                          ? (EmptyNode.Default.Update((TrieUpdateType.Add, false), Items[1], hash, default), Items[0].Value)
+                                          : (EmptyNode.Default.Update((TrieUpdateType.Add, false), Items[0], hash, default), Items[1].Value);
 
                 return (-1, n, ov);
             }
@@ -2468,7 +2542,7 @@ internal class TrieMap<EqK, K, V> :
             }
         }
 
-        public (int CountDelta, Node Node, V? Old, bool Changed) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section)
+        public (int CountDelta, Node Node, V? Old, bool Changed) Update((TrieUpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section)
         {
             var index = -1;
             for (var i = 0; i < Items.Length; i++)
@@ -2482,12 +2556,12 @@ internal class TrieMap<EqK, K, V> :
 
             if (index >= 0)
             {
-                if (env.Type == UpdateType.Add)
+                if (env.Type == TrieUpdateType.Add)
                 {
                     // Key already exists - so it's an error to add again
                     throw new ArgumentException($"Key already exists in map: {change.Key}");
                 }
-                else if (env.Type == UpdateType.TryAdd)
+                else if (env.Type == TrieUpdateType.TryAdd)
                 {
                     // Already added, so we don't continue to try
                     return (0, this, default, false);
@@ -2498,12 +2572,12 @@ internal class TrieMap<EqK, K, V> :
             }
             else
             {
-                if (env.Type == UpdateType.SetItem)
+                if (env.Type == TrieUpdateType.SetItem)
                 {
                     // Key must already exist to set it
                     throw new ArgumentException($"Key doesn't exist in map: {change.Key}");
                 }
-                else if (env.Type == UpdateType.TrySetItem)
+                else if (env.Type == TrieUpdateType.TrySetItem)
                 {
                     // Key doesn't exist, so there's nothing to set
                     return (0, this, default, false);
@@ -2528,7 +2602,7 @@ internal class TrieMap<EqK, K, V> :
     /// </summary>
     internal class EmptyNode : Node
     {
-        public static readonly EmptyNode Default = new EmptyNode();
+        public static readonly Node Default = new EmptyNode();
 
         public TrieNodeTag Type => TrieNodeTag.Empty;
 
@@ -2538,14 +2612,14 @@ internal class TrieMap<EqK, K, V> :
         public (int CountDelta, Node Node, V? Old) Remove(K key, uint hash, Sec section) =>
             (0, this, default);
 
-        public (int CountDelta, Node Node, V? Old, bool Changed) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section)
+        public (int CountDelta, Node Node, V? Old, bool Changed) Update((TrieUpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section)
         {
-            if (env.Type == UpdateType.SetItem)
+            if (env.Type == TrieUpdateType.SetItem)
             {
                 // Key must already exist to set it
                 throw new ArgumentException($"Key doesn't exist in map: {change.Key}");
             }
-            else if (env.Type == UpdateType.TrySetItem)
+            else if (env.Type == TrieUpdateType.TrySetItem)
             {
                 // Key doesn't exist, so there's nothing to set
                 return (0, this, default, false);
