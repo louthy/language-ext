@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using LanguageExt.Traits;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -17,10 +14,10 @@ public static partial class ArrExtensions
     {
         var writer = ArrayWriter<A>.Init();
         Arr.FoldState state = default!;
-        Foldable.stepSetup(mma, ref state);
-        while (Foldable.step(mma, ref state, out var ma))
+        mma.StepSetup(ref state);
+        while (mma.Step(ref state, out var ma))
         {
-            ArrayWriter<A>.AddRange(ref writer, ma.AsSpan());
+            writer.AddRange(ma.AsSpan());
         }
         return writer.ToArr();
     }
@@ -33,10 +30,10 @@ public static partial class ArrExtensions
             var writer = ArrayWriter<A>.Init(ma.Count);
         
             Arr.FoldState state = default!;
-            Foldable.stepSetup(ma, ref state);
-            while (Foldable.step(ma, ref state, out var a))
+            ma.StepSetup(ref state);
+            while (ma.Step(ref state, out var a))
             {
-                if(f(a)) ArrayWriter<A>.Add(ref writer, a);
+                if(f(a)) writer.Add(a);
             }
             return writer.ToArr();
         }
@@ -47,10 +44,10 @@ public static partial class ArrExtensions
             var writer = ArrayWriter<B>.Init(ma.Count);
         
             Arr.FoldState state = default!;
-            Foldable.stepSetup(ma, ref state);
-            while (Foldable.step(ma, ref state, out var a))
+            ma.StepSetup(ref state);
+            while (ma.Step(ref state, out var a))
             {
-                ArrayWriter<B>.Add(ref writer, f(a));
+                writer.Add(f(a));
             }
             return writer.ToArr();
         }
@@ -61,15 +58,15 @@ public static partial class ArrExtensions
             var writer = ArrayWriter<B>.Init();
         
             Arr.FoldState astate = default!;
-            Foldable.stepSetup(ma, ref astate);
-            while (Foldable.step(ma, ref astate, out var a))
+            ma.StepSetup(ref astate);
+            while (ma.Step(ref astate, out var a))
             {
                 var           mb     = +f(a);
                 Arr.FoldState bstate = default!;
-                Foldable.stepSetup(mb, ref bstate);
-                while (Foldable.step(mb, ref bstate, out var b))
+                mb.StepSetup(ref bstate);
+                while (mb.Step(ref bstate, out var b))
                 {
-                    ArrayWriter<B>.Add(ref writer, b);
+                    writer.Add(b);
                 }
             }
             return writer.ToArr();
@@ -79,9 +76,4 @@ public static partial class ArrExtensions
         public Arr<A> As() =>
             (Arr<A>)ma;
     }    
-    
-    extension<A>(Arr<A> ma)
-    {
-
-    }
 }

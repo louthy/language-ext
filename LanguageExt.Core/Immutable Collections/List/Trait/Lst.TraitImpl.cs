@@ -23,12 +23,12 @@ public partial class Lst :
         FoldState fsa      = default!;
         FoldState fsb      = default!;
         
-        Foldable.stepSetup(ma, ref fsa);
-        while (Foldable.step(ma, ref fsa, out var a))
+        ma.StepSetup(ref fsa);
+        while (ma.Step(ref fsa, out var a))
         {
             var mb = +f(a);
-            Foldable.stepSetup(mb, ref fsb);
-            while (Foldable.step(mb, ref fsb, out var b))
+            mb.StepSetup(ref fsb);
+            while (mb.Step(ref fsb, out var b))
             {
                 root = ListModuleM.Insert(root, new ListItem<B>(1, 1, ListItem<B>.Empty, b, ListItem<B>.Empty), subIndex);
                 subIndex++;
@@ -43,8 +43,8 @@ public partial class Lst :
         var       subIndex = 0;
         FoldState fsa      = default!;
         
-        Foldable.stepSetup(ma, ref fsa);
-        while (Foldable.step(ma, ref fsa, out var a))
+        ma.StepSetup(ref fsa);
+        while (ma.Step(ref fsa, out var a))
         {
             var b = f(a);
             root = ListModuleM.Insert(root, new ListItem<B>(1, 1, ListItem<B>.Empty, b, ListItem<B>.Empty), subIndex);

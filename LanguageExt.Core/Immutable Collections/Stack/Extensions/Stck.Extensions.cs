@@ -103,10 +103,10 @@ public static partial class StckExtensions
         public Stck<A> Filter(Func<A, bool> f)
         {
             Stck.FoldState state = default;
-            Foldable.stepSetup(ma, ref state);
+            ma.StepSetup(ref state);
             var stack = new Stck<A>.Top(default!, Stck<A>.Empty);
             var top   = stack;
-            while (Foldable.step(ma, ref state, out var x))
+            while (ma.Step(ref state, out var x))
             {
                 if (f(x))
                 {
@@ -126,10 +126,10 @@ public static partial class StckExtensions
         public Stck<B> Choose<B>(Func<A, Option<B>> f)
         {
             Stck.FoldState state = default;
-            Foldable.stepSetup(ma, ref state);
+            ma.StepSetup(ref state);
             var stack = new Stck<B>.Top(default!, Stck<B>.Empty);
             var top   = stack;
-            while (Foldable.step(ma, ref state, out var x))
+            while (ma.Step(ref state, out var x))
             {
                 var ox = f(x);
                 if (ox.IsSome)
@@ -150,10 +150,10 @@ public static partial class StckExtensions
         public Stck<A> Take(int amount)
         {
             Stck.FoldState state = default;
-            Foldable.stepSetup(ma, ref state);
+            ma.StepSetup(ref state);
             var stack = new Stck<A>.Top(default!, Stck<A>.Empty);
             var top   = stack;
-            while (Foldable.step(ma, ref state, out var x))
+            while (ma.Step(ref state, out var x))
             {
                 if(amount == 0) return top.Rest;
                 var nstack = new Stck<A>.Top(x, Stck<A>.Empty);

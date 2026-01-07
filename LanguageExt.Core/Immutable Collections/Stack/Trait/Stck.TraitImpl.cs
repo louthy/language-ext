@@ -45,10 +45,10 @@ public partial class Stck :
     static K<Stck, B> Functor<Stck>.Map<A, B>(Func<A, B> f, K<Stck, A> ma)
     {
         FoldState state = default;
-        Foldable.stepSetup(ma, ref state);
+        ma.StepSetup(ref state);
         var stack = new Stck<B>.Top(default!, Stck<B>.Empty);
         var top   = stack;
-        while (Foldable.step(ma, ref state, out var x))
+        while (ma.Step(ref state, out var x))
         {
             var nstack = new Stck<B>.Top(f(x), Stck<B>.Empty);
             stack.Rest = nstack;
@@ -81,14 +81,14 @@ public partial class Stck :
     static K<Stck, B> Applicative<Stck>.Apply<A, B>(K<Stck, Func<A, B>> mf, K<Stck, A> ma)
     {
         FoldState mfs = default;
-        Foldable.stepSetup(mf, ref mfs);
+        mf.StepSetup(ref mfs);
         var stack = new Stck<B>.Top(default!, Stck<B>.Empty);
         var top   = stack;
-        while (Foldable.step(mf, ref mfs, out var f))
+        while (mf.Step(ref mfs, out var f))
         {
             FoldState mas = default;
-            Foldable.stepSetup(ma.As(), ref mas);
-            while (Foldable.step(ma, ref mas, out var a))
+            ma.StepSetup(ref mas);
+            while (ma.Step(ref mas, out var a))
             {
                 var nstack = new Stck<B>.Top(f(a), Stck<B>.Empty);
                 stack.Rest = nstack;
@@ -101,15 +101,15 @@ public partial class Stck :
     static K<Stck, B> Applicative<Stck>.Apply<A, B>(K<Stck, Func<A, B>> mf, Memo<Stck, A> ma) 
     {
         FoldState mfs = default;
-        Foldable.stepSetup(mf, ref mfs);
+        mf.StepSetup(ref mfs);
         var stack = new Stck<B>.Top(default!, Stck<B>.Empty);
         var top = stack;
-        while (Foldable.step(mf, ref mfs, out var f))
+        while (mf.Step(ref mfs, out var f))
         {
             var       ka  = ma.Value.As();
             FoldState mas = default;
-            Foldable.stepSetup(ka, ref mas);
-            while (Foldable.step(ka, ref mas, out var a))
+            ka.StepSetup(ref mas);
+            while (ka.Step(ref mas, out var a))
             {
                 var nstack = new Stck<B>.Top(f(a), Stck<B>.Empty);
                 stack.Rest = nstack;
@@ -122,15 +122,15 @@ public partial class Stck :
     static K<Stck, B> Monad<Stck>.Bind<A, B>(K<Stck, A> ma, Func<A, K<Stck, B>> f) 
     {
         FoldState mas = default;
-        Foldable.stepSetup(ma, ref mas);
+        ma.StepSetup(ref mas);
         var stack = new Stck<B>.Top(default!, Stck<B>.Empty);
         var top   = stack;
-        while (Foldable.step(ma, ref mas, out var a))
+        while (ma.Step(ref mas, out var a))
         {
             var mb = f(a);
             FoldState mbs = default;
-            Foldable.stepSetup(mb.As(), ref mbs);
-            while (Foldable.step(mb, ref mbs, out var b))
+            mb.StepSetup(ref mbs);
+            while (mb.Step(ref mbs, out var b))
             {
                 var nstack = new Stck<B>.Top(b, Stck<B>.Empty);
                 stack.Rest = nstack;

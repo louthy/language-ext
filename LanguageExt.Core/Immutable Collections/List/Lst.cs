@@ -281,8 +281,8 @@ public readonly struct Lst<A> :
         var           subIndex  = 0;
         var           fa        = (K<Lst, A>)this;
         
-        Foldable.stepBackSetup(fa, ref foldState);
-        while (Foldable.stepBack(fa, ref foldState, out var item))
+        fa.StepBackSetup(ref foldState);
+        while (fa.StepBack(ref foldState, out var item))
         {
             root = ListModuleM.Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
             subIndex++;

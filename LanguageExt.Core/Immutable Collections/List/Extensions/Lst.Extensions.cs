@@ -40,8 +40,8 @@ public static partial class LstExtensions
             var           subIndex = 0;
             Lst.FoldState fsa      = default!;
         
-            Foldable.stepSetup(list, ref fsa);
-            while (Foldable.step(list, ref fsa, out var a))
+            list.StepSetup(ref fsa);
+            while (list.Step(ref fsa, out var a))
             {
                 var b = f(a);
                 root = ListModuleM.Insert(root, new ListItem<B>(1, 1, ListItem<B>.Empty, b, ListItem<B>.Empty), subIndex);
@@ -61,12 +61,12 @@ public static partial class LstExtensions
             Lst.FoldState fsa      = default!;
             Lst.FoldState fsb      = default!;
         
-            Foldable.stepSetup(list, ref fsa);
-            while (Foldable.step(list, ref fsa, out var a))
+            list.StepSetup(ref fsa);
+            while (list.Step(ref fsa, out var a))
             {
                 var mb = +f(a);
-                Foldable.stepSetup(mb, ref fsb);
-                while (Foldable.step(mb, ref fsb, out var b))
+                mb.StepSetup(ref fsb);
+                while (mb.Step(ref fsb, out var b))
                 {
                     root = ListModuleM.Insert(root, new ListItem<B>(1, 1, ListItem<B>.Empty, b, ListItem<B>.Empty), subIndex);
                     subIndex++;
@@ -86,12 +86,12 @@ public static partial class LstExtensions
             Lst.FoldState fsa      = default!;
             Lst.FoldState fsb      = default!;
         
-            Foldable.stepSetup(list, ref fsa);
-            while (Foldable.step(list, ref fsa, out var a))
+            list.StepSetup(ref fsa);
+            while (list.Step(ref fsa, out var a))
             {
                 var mb = +f(a);
-                Foldable.stepSetup(mb, ref fsb);
-                while (Foldable.step(mb, ref fsb, out var b))
+                mb.StepSetup(ref fsb);
+                while (mb.Step(ref fsb, out var b))
                 {
                     root = ListModuleM.Insert(root, new ListItem<B>(1, 1, ListItem<B>.Empty, b, ListItem<B>.Empty), subIndex);
                     subIndex++;
@@ -119,12 +119,12 @@ public static partial class LstExtensions
             Lst.FoldState fsa      = default!;
             Lst.FoldState fsb      = default!;
         
-            Foldable.stepSetup(list, ref fsa);
-            while (Foldable.step(list, ref fsa, out var a))
+            list.StepSetup(ref fsa);
+            while (list.Step(ref fsa, out var a))
             {
                 var mb = +bind(a);
-                Foldable.stepSetup(mb, ref fsb);
-                while (Foldable.step(mb, ref fsb, out var b))
+                mb.StepSetup(ref fsb);
+                while (mb.Step(ref fsb, out var b))
                 {
                     root = ListModuleM.Insert(root, new ListItem<C>(1, 1, ListItem<C>.Empty, project(a, b), ListItem<C>.Empty), subIndex);
                     subIndex++;

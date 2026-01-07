@@ -989,15 +989,15 @@ public readonly partial struct Arr<A> :
         var writer = ArrayWriter<C>.Init();
         
         Arr.FoldState astate = default!;
-        Foldable.stepSetup(ma, ref astate);
-        while (Foldable.step(ma, ref astate, out var a))
+        ma.StepSetup(ref astate);
+        while (ma.Step(ref astate, out var a))
         {
             var           mb     = +bind(a);
             Arr.FoldState bstate = default!;
-            Foldable.stepSetup(mb, ref bstate);
-            while (Foldable.step(mb, ref bstate, out var b))
+            mb.StepSetup(ref bstate);
+            while (mb.Step(ref bstate, out var b))
             {
-                ArrayWriter<C>.Add(ref writer, project(a, b));
+                writer.Add(project(a, b));
             }
         }
         return writer.ToArr();
