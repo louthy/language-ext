@@ -14,7 +14,8 @@ public partial class Fin :
     Natural<Fin, Option>,
     Natural<Fin, Eff>,
     Natural<Fin, Try>,
-    Natural<Fin, IO>
+    Natural<Fin, IO>,
+    Foldable<Fin, SingletonFoldState>
 {
     static K<Fin, B> Monad<Fin>.Bind<A, B>(K<Fin, A> ma, Func<A, K<Fin, B>> f) =>
         ma switch
@@ -168,4 +169,23 @@ public partial class Fin :
             Fin<A>.Succ (var r) => Iterator.singleton(r),
             _                   => Iterator<A>.Empty
         };
+
+    static void Foldable<Fin, SingletonFoldState>.FoldStepSetup<A>(K<Fin, A> ta, ref SingletonFoldState refState)
+    {
+        // Nothing to do
+    }
+
+    static bool Foldable<Fin, SingletonFoldState>.FoldStep<A>(K<Fin, A> ta, ref SingletonFoldState refState, out A value) 
+    {
+        if (refState.ShouldYield() && ta is Fin<A>.Succ(var bound))
+        {
+            value = bound;
+            return true;
+        }
+        else
+        {
+            value = default!;
+            return false;
+        }
+    }
 }

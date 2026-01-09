@@ -3,10 +3,10 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public partial class Option : 
-    Monad<Option>, 
+public partial class Option :
+    Monad<Option>,
     Fallible<Unit, Option>,
-    Traversable<Option>, 
+    Traversable<Option>,
     Alternative<Option>,
     Natural<Option, Arr>,
     Natural<Option, Lst>,
@@ -14,12 +14,13 @@ public partial class Option :
     Natural<Option, Iterable>,
     Natural<Option, Eff>,
     Natural<Option, OptionT<IO>>,
-    Natural<Option, Fin>
+    Natural<Option, Fin>,
+    Foldable<Option, SingletonFoldState>
 {
     static K<Option, B> Monad<Option>.Bind<A, B>(K<Option, A> ma, Func<A, K<Option, B>> f) =>
         ma.As().Bind(f);
 
-    static K<Option, B> Functor<Option>.Map<A, B>(Func<A, B> f, K<Option, A> ma) => 
+    static K<Option, B> Functor<Option>.Map<A, B>(Func<A, B> f, K<Option, A> ma) =>
         ma.As().Map(f);
 
     static K<Option, A> Applicative<Option>.Pure<A>(A value) =>
@@ -38,7 +39,7 @@ public partial class Option :
             var mr = +f(value);
             if (mr.IsNone) return Option<B>.None;
             var mnext = (Next<A, B>)mr;
-            if(mnext.IsDone) return Some(mnext.Done);
+            if (mnext.IsDone) return Some(mnext.Done);
             value = mnext.Loop;
         }
     }
@@ -57,7 +58,7 @@ public partial class Option :
             _                => mb
         };
 
-    static K<Option, A> Choice<Option>.Choose<A>(K<Option, A> ma, Memo<Option, A> mb) => 
+    static K<Option, A> Choice<Option>.Choose<A>(K<Option, A> ma, Memo<Option, A> mb) =>
         ma.As() switch
         {
             { IsSome: true } => ma,
@@ -71,41 +72,57 @@ public partial class Option :
         Option<A>.None;
 
     static K<Option, A> Fallible<Unit, Option>.Catch<A>(
-        K<Option, A> fa, 
-        Func<Unit, bool> Predicate, 
-        Func<Unit, K<Option, A>> Fail) => 
-        fa.As().Match(Some: Some, 
+        K<Option, A> fa,
+        Func<Unit, bool> Predicate,
+        Func<Unit, K<Option, A>> Fail) =>
+        fa.As().Match(Some: Some,
                       None: () => Predicate(default) ? Fail(default).As() : Option<A>.None);
 
-    static K<Arr, A> Natural<Option, Arr>.Transform<A>(K<Option, A> fa) => 
+    static K<Arr, A> Natural<Option, Arr>.Transform<A>(K<Option, A> fa) =>
         fa.As().ToArr();
 
-    static K<Lst, A> Natural<Option, Lst>.Transform<A>(K<Option, A> fa) => 
+    static K<Lst, A> Natural<Option, Lst>.Transform<A>(K<Option, A> fa) =>
         fa.As().ToLst();
 
-    static K<Seq, A> Natural<Option, Seq>.Transform<A>(K<Option, A> fa) => 
+    static K<Seq, A> Natural<Option, Seq>.Transform<A>(K<Option, A> fa) =>
         fa.As().ToSeq();
 
-    static K<Iterable, A> Natural<Option, Iterable>.Transform<A>(K<Option, A> fa) => 
+    static K<Iterable, A> Natural<Option, Iterable>.Transform<A>(K<Option, A> fa) =>
         FoldableExtensions.ToIterable(fa.As());
 
-    static K<Eff, A> Natural<Option, Eff>.Transform<A>(K<Option, A> fa) => 
+    static K<Eff, A> Natural<Option, Eff>.Transform<A>(K<Option, A> fa) =>
         fa.As().ToEff();
 
-    static K<OptionT<IO>, A> Natural<Option, OptionT<IO>>.Transform<A>(K<Option, A> fa) => 
+    static K<OptionT<IO>, A> Natural<Option, OptionT<IO>>.Transform<A>(K<Option, A> fa) =>
         fa.As().ToIO();
 
-    static K<Fin, A> Natural<Option, Fin>.Transform<A>(K<Option, A> fa) => 
+    static K<Fin, A> Natural<Option, Fin>.Transform<A>(K<Option, A> fa) =>
         fa.As().ToFin();
-    
-    static Fold<A, S> Foldable<Option>.FoldStep<A, S>(K<Option, A> ta, in S initialState)
+
+    static Iterator<A> IterableK<Option>.ForwardIterator<A>(K<Option, A> fa)
     {
-        var ma = ta.As();
+        var ma = fa.As();
         return ma.IsSome
-                   ? Fold.Loop(initialState, ma.Value!, Fold.Done<A, S>)
-                   : Fold.Done<A, S>(initialState);
-    }     
-        
-    static Fold<A, S> Foldable<Option>.FoldStepBack<A, S>(K<Option, A> ta, in S initialState) =>
-        ta.FoldStep(initialState);
+                   ? Iterator.singleton((A)ma)
+                   : Iterator.empty<A>();
+    }
+
+    static void Foldable<Option, SingletonFoldState>.FoldStepSetup<A>(K<Option, A> ta, ref SingletonFoldState refState)
+    {
+        // Nothing to do
+    }
+
+    static bool Foldable<Option, SingletonFoldState>.FoldStep<A>(K<Option, A> ta, ref SingletonFoldState refState, out A value)
+    {
+        if (refState.ShouldYield() && ta.As() is { IsSome: true } ma)
+        {
+            value = (A)ma;
+            return true;
+        }
+        else
+        {
+            value = default!;
+            return false;
+        }
+    }
 }

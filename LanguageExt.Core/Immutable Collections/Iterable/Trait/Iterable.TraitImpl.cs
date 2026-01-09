@@ -80,6 +80,6 @@ public partial class Iterable :
     static K<Iterable, A> CoNatural<Iterable, Iterable>.CoTransform<A>(K<Iterable, A> fa) => 
         fa;
 
-    public static Iterator<A> ForwardIterator<A>(K<Iterable, A> fa) => 
+    static Iterator<A> IterableK<Iterable>.ForwardIterator<A>(K<Iterable, A> fa) => 
         fa.As().ForwardIterator();
 }

@@ -13,7 +13,8 @@ public class Either<L> :
     Fallible<L, Either<L>>,
     Traversable<Either<L>>,
     Natural<Either<L>, Option>,
-    Choice<Either<L>>
+    Choice<Either<L>>,
+    Foldable<Either<L>, SingletonFoldState>
 {
     static K<Either<L>, B> Applicative<Either<L>>.Apply<A, B>(
         K<Either<L>, Func<A, B>> mf,
@@ -108,4 +109,23 @@ public class Either<L> :
             Either<L, A>.Right (var r) => Iterator.singleton(r),
             _                          => Iterator<A>.Empty
         };
+
+    static void Foldable<Either<L>, SingletonFoldState>.FoldStepSetup<A>(K<Either<L>, A> ta, ref SingletonFoldState refState)
+    {
+        // Nothing to do
+    }
+
+    static bool Foldable<Either<L>, SingletonFoldState>.FoldStep<A>(K<Either<L>, A> ta, ref SingletonFoldState refState, out A value) 
+    {
+        if (refState.ShouldYield() && ta is Either<L, A>.Right(var bound))
+        {
+            value = bound;
+            return true;
+        }
+        else
+        {
+            value = default!;
+            return false;
+        }
+    }
 }

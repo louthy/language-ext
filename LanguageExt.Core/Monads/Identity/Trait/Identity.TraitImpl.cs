@@ -6,7 +6,7 @@ namespace LanguageExt;
 public partial class Identity : 
     Monad<Identity>, 
     Traversable<Identity>,
-    Foldable<Identity, Identity.FoldState>
+    Foldable<Identity, SingletonFoldState>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -42,27 +42,26 @@ public partial class Identity :
     //
     //  Foldable
     //
-    
-    static Fold<A, S> Foldable<Identity>.FoldStep<A, S>(K<Identity, A> ta, in S initialState) =>
-        Fold.Loop(initialState, ta.As().Value, Fold.Done<A, S>);
 
-    static void Foldable<Identity, FoldState>.FoldStepSetup<A>(K<Identity, A> ta, ref FoldState refState) =>
-        refState = new FoldState(false);
-
-    static bool Foldable<Identity, FoldState>.FoldStep<A>(K<Identity, A> ta, ref FoldState refState, out A value)
+    static void Foldable<Identity, SingletonFoldState>.FoldStepSetup<A>(K<Identity, A> ta, ref SingletonFoldState refState)
     {
-        if (refState.HasRun)
+        // Nothing to do
+    }
+
+    static bool Foldable<Identity, SingletonFoldState>.FoldStep<A>(K<Identity, A> ta, ref SingletonFoldState refState, out A value)
+    {
+        if (refState.ShouldYield())
+        {
+            value = ta.As().Value;
+            return true;
+        }
+        else
         {
             value = default!;
             return false;
         }
-        else
-        {
-            value = ta.As().Value;
-            refState = new FoldState(true);
-            return true;
-        }
-    }    
+    }
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Traversable

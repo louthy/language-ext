@@ -12,7 +12,8 @@ public partial class Validation<FAIL> :
     MonoidK<Validation<FAIL>>,
     Alternative<Validation<FAIL>>,
     Traversable<Validation<FAIL>>,
-    Fallible<FAIL, Validation<FAIL>>
+    Fallible<FAIL, Validation<FAIL>>,
+    Foldable<Validation<FAIL>, SingletonFoldState>
 {
     static K<Validation<FAIL>, B> Monad<Validation<FAIL>>.Bind<A, B>(
         K<Validation<FAIL>, A> ma,
@@ -138,14 +139,35 @@ public partial class Validation<FAIL> :
             _ => throw new NotSupportedException()
         };
 
-    static Fold<A, S> Foldable<Validation<FAIL>>.FoldStep<A, S>(K<Validation<FAIL>, A> ta, in S initialState)
+    static Iterator<A> IterableK<Validation<FAIL>>.ForwardIterator<A>(K<Validation<FAIL>, A> fa) =>
+        fa switch
+        {
+            Validation<FAIL, A>.Success (var x) => Iterator.singleton(x),
+            Validation<FAIL, A>.Fail            => Iterator.empty<A>(),
+            _                                   => throw new NotSupportedException()
+        };
+
+    static void Foldable<Validation<FAIL>, SingletonFoldState>.FoldStepSetup<A>(
+        K<Validation<FAIL>, A> ta, 
+        ref SingletonFoldState refState) 
     {
-        var ma = ta.As();
-        return ma.IsSuccess
-                   ? Fold.Loop(initialState, ma.SuccessValue, Fold.Done<A, S>)
-                   : Fold.Done<A, S>(initialState);
+        // Nothing to do
     }
-        
-    static Fold<A, S> Foldable<Validation<FAIL>>.FoldStepBack<A, S>(K<Validation<FAIL>, A> ta, in S initialState) =>
-        ta.FoldStep(initialState);
+
+    static bool Foldable<Validation<FAIL>, SingletonFoldState>.FoldStep<A>(
+        K<Validation<FAIL>, A> ta, 
+        ref SingletonFoldState refState, out A value) 
+    {
+        if (refState.ShouldYield() && ta is Validation<FAIL, A>.Success(var bound))
+        {
+            value = bound;
+            return true;
+        }
+        else
+        {
+            value = default!;
+            return false;
+        }
+    }
+
 }
