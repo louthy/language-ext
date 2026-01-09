@@ -14,7 +14,7 @@ class Program
     {
         // NOTE: This should be run in Release mode, otherwise you might get a space leak
         
-        for(var iter = Naturals.GetIterator(); !iter.IsEmpty; iter = iter.Tail)
+        for(var iter = Naturals.ForwardIterator(); !iter.IsEmpty; iter = iter.Tail)
         {
             if (iter.Head % 10000 == 0)
             {

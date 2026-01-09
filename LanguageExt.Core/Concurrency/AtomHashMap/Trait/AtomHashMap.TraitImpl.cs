@@ -9,7 +9,7 @@ public class AtomHashMap<Key> : Foldable<AtomHashMap<Key>>
     static Fold<A, S> Foldable<AtomHashMap<Key>>.FoldStep<A, S>(K<AtomHashMap<Key>, A> ta, in S initialState)
     {
         var items = ta.As();
-        return go(items.Values.GetIterator())(initialState);
+        return go(items.Values.ForwardIterator())(initialState);
 
         static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
             state =>
@@ -29,7 +29,7 @@ public class AtomHashMap<Key> : Foldable<AtomHashMap<Key>>
     static Fold<A, S> Foldable<AtomHashMap<Key>>.FoldStepBack<A, S>(K<AtomHashMap<Key>, A> ta, in S initialState)
     {
         var items = ta.As();
-        return go(items.Values.GetIterator())(initialState);
+        return go(items.Values.ForwardIterator())(initialState);
 
         static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
             state =>
@@ -53,7 +53,7 @@ public class AtomHashMapEq<EqKey, Key> : Foldable<AtomHashMapEq<EqKey, Key>>
     static Fold<A, S> Foldable<AtomHashMapEq<EqKey, Key>>.FoldStep<A, S>(K<AtomHashMapEq<EqKey, Key>, A> ta, in S initialState)
     {
         var items = ta.As();
-        return go(items.Values.GetIterator())(initialState);
+        return go(items.Values.ForwardIterator())(initialState);
 
         static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
             state =>
@@ -73,7 +73,7 @@ public class AtomHashMapEq<EqKey, Key> : Foldable<AtomHashMapEq<EqKey, Key>>
     static Fold<A, S> Foldable<AtomHashMapEq<EqKey, Key>>.FoldStepBack<A, S>(K<AtomHashMapEq<EqKey, Key>, A> ta, in S initialState)
     {
         var items = ta.As();
-        return go(items.Values.GetIterator())(initialState);
+        return go(items.Values.ForwardIterator())(initialState);
 
         static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
             state =>

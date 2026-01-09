@@ -68,44 +68,11 @@ public partial class IterableNE :
 
     static K<HashSet, A> Natural<IterableNE, HashSet>.Transform<A>(K<IterableNE, A> fa) => 
         toHashSet(fa.As());
-    
-    static Fold<A, S> Foldable<IterableNE>.FoldStep<A, S>(K<IterableNE, A> ta, in S initialState)
-    {
-        var items = ta.As();
-        return go(items.GetIterator())(initialState);
 
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
+    static Iterator<A> IterableK<IterableNE>.ForwardIterator<A>(K<IterableNE, A> fa)
+    {
+        var ne = fa.As();
+        return ne.Head.Cons(ne.Tail.ForwardIterator());
     }
- 
         
-    static Fold<A, S> Foldable<IterableNE>.FoldStepBack<A, S>(K<IterableNE, A> ta, in S initialState)
-    {
-        var items = ta.As();
-        return go(items.Reverse().GetIterator())(initialState);
-
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
-    }
-
 }

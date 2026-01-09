@@ -220,56 +220,12 @@ sealed class IterableAdd<A>(SeqStrict<A> Prefix, Iterable<A> Source, SeqStrict<A
                           return s;
                       });
 
-    public override Iterable<A> Choose(Iterable<A> rhs)
-    {
-        if (!Prefix.IsEmpty) return this;
-        return new IterableAsyncEnumerable<A>(
-            IO.liftVAsync(async env =>
-                          {
-                              var ls   = AsAsyncEnumerable(env.Token);
-                              var iter = ls.GetIteratorAsync();
-                              if (await iter.IsEmpty)
-                              {
-                                  return rhs.AsAsyncEnumerable(env.Token);
-                              }
-                              else
-                              {
-                                  // This has already been evaluated by `IsEmpty`
-                                  var head = await iter.Head;
-                                  var tail = (await iter.Tail).Split().AsEnumerable(env.Token);
-                                  return tail.Prepend(head);
-                              }
-                          }));
-    }
-
-    public override Iterable<A> Choose(Memo<Iterable, A> rhs) 
-    {
-        if (!Prefix.IsEmpty) return this;
-        return new IterableAsyncEnumerable<A>(
-            IO.liftVAsync(async env =>
-                          {
-                              var ls   = AsAsyncEnumerable(env.Token);
-                              var iter = ls.GetIteratorAsync();
-                              if (await iter.IsEmpty)
-                              {
-                                  return rhs.Value.As().AsAsyncEnumerable(env.Token);
-                              }
-                              else
-                              {
-                                  // This has already been evaluated by `IsEmpty`
-                                  var head = await iter.Head;
-                                  var tail = (await iter.Tail).Split().AsEnumerable(env.Token);
-                                  return tail.Prepend(head);
-                              }
-                          }));
-    }
-
-    public override Iterator<A> GetIterator() =>
+    public override Iterator<A> ForwardIterator() =>
         (Prefix.Count, Postfix.Count) switch
         {
-            (0, 0) => Source.ForwardIterator(),
-            (_, 0) => new Seq<A>(Prefix).ForwardIterator() + Source.ForwardIterator(),
-            (0, _) => Source.ForwardIterator() + new Seq<A>(Postfix).ForwardIterator(),
-            _ => new Seq<A>(Prefix).ForwardIterator() + Source.ForwardIterator() + new Seq<A>(Postfix).ForwardIterator()
+            (0, 0) => IterableKExtensions.ForwardIterator(Source),
+            (_, 0) => new Seq<A>(Prefix).ForwardIterator()        + IterableKExtensions.ForwardIterator(Source),
+            (0, _) => IterableKExtensions.ForwardIterator(Source) + new Seq<A>(Postfix).ForwardIterator(),
+            _      => new Seq<A>(Prefix).ForwardIterator()        + IterableKExtensions.ForwardIterator(Source) + new Seq<A>(Postfix).ForwardIterator()
         };
 }

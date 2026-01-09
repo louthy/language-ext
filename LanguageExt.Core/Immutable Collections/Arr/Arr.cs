@@ -1132,12 +1132,12 @@ public readonly partial struct Arr<A> :
     public Iterator<A> GetIterator()
     {
         return Count <= 0
-                   ? Iterator.Nil<A>()
+                   ? Iterator.empty<A>()
                    : go(Value, start, Count)();
         
         Func<Iterator<A>> go(A[] array, int index, int remaining) =>
             () => remaining == 0 
-                      ? Iterator.Nil<A>() 
-                      : Iterator.Cons(array[index], go(array, index + 1, remaining - 1));
+                      ? Iterator.empty<A>() 
+                      : Iterator.cons(array[index], go(array, index + 1, remaining - 1));
     }
 }

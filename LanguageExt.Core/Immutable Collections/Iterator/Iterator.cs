@@ -266,7 +266,7 @@ public abstract partial class Iterator<A> :
     /// Combine two sequences
     /// </summary>
     public static Iterator<A> operator +(A ma, Iterator<A> mb) =>
-        Iterator.ConsStrict(ma, mb);
+        Iterator.cons(ma, mb);
 
     /// <summary>
     /// Combine two sequences

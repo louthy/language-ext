@@ -64,13 +64,6 @@ sealed class IterableIterator<A>(Iterator<A> iterator) : Iterable<A>
                     return s;
                 });
 
-    public override Iterable<A> Choose(Iterable<A> rhs) =>
-        iterator is (Exist<A> h, var t)
-            ? new IterableIterator<A>(h.Value.Cons(t))
-            : rhs;
-
-    public override Iterable<A> Choose(Memo<Iterable, A> rhs) =>
-        iterator is (Exist<A> h, var t)
-            ? new IterableIterator<A>(h.Value.Cons(t))
-            : +rhs.Value;
+    public override Iterator<A> ForwardIterator() =>
+        iterator;
 }

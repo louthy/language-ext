@@ -352,7 +352,7 @@ public static class PipeT
     public static PipeT<IN, OUT, M, A> repeat<IN, OUT, M, A>(Schedule schedule, PipeT<IN, OUT, M, A> ma)
         where M : MonadIO<M>
     {
-        return from s in pure<IN, OUT, M, Iterator<Duration>>(schedule.Run().GetIterator())
+        return from s in pure<IN, OUT, M, Iterator<Duration>>(schedule.Run().ForwardIterator())
                from r in ma
                from t in go(s, ma, r)
                select t;
@@ -409,14 +409,14 @@ public static class PipeT
         where M : MonadIO<M>
     {
         var state = Init;
-        var sch   = Time.Run().GetIterator();
+        var sch   = Time.Run().ForwardIterator();
         return Item.Bind(
             x =>
             {
                 if (sch.IsEmpty)
                 {
                     sch.Dispose();
-                    sch = Time.Run().GetIterator();
+                    sch = Time.Run().ForwardIterator();
                     var nstate = state;
                     state = Init;
                     return yield<M, IN, OUT>(nstate);
@@ -492,14 +492,14 @@ public static class PipeT
         where M : MonadIO<M>
     {
         var state = Init;
-        var sch   = Time.Run().GetIterator();
+        var sch   = Time.Run().ForwardIterator();
         return Item.Bind(
             x =>
             {
                 if (sch.IsEmpty || Pred((state, x)))
                 {
                     sch.Dispose();
-                    sch = Time.Run().GetIterator();
+                    sch = Time.Run().ForwardIterator();
                     var nstate = state;
                     state = Init;
                     return yield<M, IN, OUT>(nstate);
@@ -575,14 +575,14 @@ public static class PipeT
         where M : MonadIO<M>
     {
         var state = Init;
-        var sch   = Time.Run().GetIterator();
+        var sch   = Time.Run().ForwardIterator();
         return Item.Bind(
             x =>
             {
                 if (sch.IsEmpty || !Pred((state, x)))
                 {
                     sch.Dispose();
-                    sch = Time.Run().GetIterator();
+                    sch = Time.Run().ForwardIterator();
                     var nstate = state;
                     state = Init;
                     return yield<M, IN, OUT>(nstate);

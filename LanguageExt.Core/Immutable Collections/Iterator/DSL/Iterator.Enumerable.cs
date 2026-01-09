@@ -9,13 +9,8 @@ public abstract partial class Iterator<A>
     /// <summary>
     /// Enumerable iterator
     /// </summary>
-    internal class Enumerable : Iterator<A>
+    internal class Enumerable(IEnumerable<A> enumerable) : Iterator<A>
     {
-        readonly IEnumerable<A> enumerable;
-
-        public Enumerable(IEnumerable<A> enumerable) => 
-            this.enumerable = enumerable;
-
         public override (Head<A> Head, Iterator<A> Tail) Next()
         {
             var enumerator = enumerable.GetEnumerator();
@@ -37,17 +32,8 @@ public abstract partial class Iterator<A>
     /// <summary>
     /// Enumerator iterator
     /// </summary>
-    internal class Enumerator : Iterator<A>, IDisposable
+    internal class Enumerator(A head, En enumerator) : Iterator<A>, IDisposable
     {
-        readonly A head; 
-        readonly En enumerator;
-
-        public Enumerator(A head, En enumerator)
-        {
-            this.head = head;
-            this.enumerator = enumerator;
-        }
-
         public override (Head<A> Head, Iterator<A> Tail) Next()
         {
             if (!enumerator.Disposed && enumerator.Enumerator.MoveNext())
@@ -70,17 +56,14 @@ public abstract partial class Iterator<A>
     /// called many times (because there could be umpteen references to it, so let the
     /// devs be overzealous with their clean-up)
     /// </summary>
-    internal class En : IDisposable
+    internal class En(IEnumerator<A> enumerator) : IDisposable
     {
         int disposed;
-        public readonly IEnumerator<A> Enumerator;
+        public readonly IEnumerator<A> Enumerator = enumerator;
 
         public bool Disposed =>
-            disposed == 1; 
-        
-        public En(IEnumerator<A> enumerator) => 
-            Enumerator = enumerator;
-        
+            disposed == 1;
+
         public void Dispose()
         {
             if (Interlocked.CompareExchange(ref disposed, 1, 0) == 0)

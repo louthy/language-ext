@@ -25,7 +25,7 @@ public static partial class IteratorExtensions
         /// <returns></returns>
         [Pure]
         public Iterator<A> Cons(Iterator<A> tail) =>
-            Iterator.ConsStrict(head, +tail);
+            Iterator.cons(head, +tail);
 
         /// <summary>
         /// Construct a list from head and tail; head becomes the first item in 
@@ -35,7 +35,7 @@ public static partial class IteratorExtensions
         /// <returns></returns>
         [Pure]
         public Iterator<A> Cons(Func<Iterator<A>> tail) =>
-            Iterator.Cons(head, tail);
+            Iterator.cons(head, tail);
     }
 
     /*

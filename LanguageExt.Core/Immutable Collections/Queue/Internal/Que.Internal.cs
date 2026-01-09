@@ -56,27 +56,21 @@ internal class QueInternal<A> : IEnumerable<A>
     private Stck<A> BackwardRev =>
         backwardRev ??= backward.Reverse();
 
-    [Pure]
     public int Count =>
         forward.Count + backward.Count;
 
-    [Pure]
     public bool IsEmpty =>
         forward.IsEmpty && backward.IsEmpty;
 
-    [Pure]
     public QueInternal<A> Clear() =>
         Empty;
 
-    [Pure]
     public Option<A> Peek() =>
         forward.Peek();
 
-    [Pure]
     public A PeekUnsafe() =>
         forward.PeekUnsafe();
 
-    [Pure]
     public QueInternal<A> Dequeue()
     {
         var f = forward.Pop();
@@ -91,7 +85,6 @@ internal class QueInternal<A> : IEnumerable<A>
         return new QueInternal<A>(BackwardRev, Stck<A>.Empty);
     }
 
-    [Pure]
     public QueInternal<A> Dequeue(out A outValue)
     {
         var ov = Peek();
@@ -106,43 +99,37 @@ internal class QueInternal<A> : IEnumerable<A>
         }
     }
 
-    [Pure]
     public (QueInternal<A>, Option<A>) TryDequeue() =>
         forward.TryPeek(out var x)
             ? (Dequeue(), Some(x))
             : (this, Option<A>.None);
 
-    [Pure]
     public bool TryPeek(out A value) =>
         forward.TryPeek(out value);
 
-    [Pure]
     public QueInternal<A> Enqueue(A value) =>
         IsEmpty
             ? new QueInternal<A>(Stck<A>.Empty.Push(value), Stck<A>.Empty)
             : new QueInternal<A>(forward, backward.Push(value));
 
-    [Pure]
     public Seq<A> ToSeq() =>
         toSeq(forward.AsIterable().ConcatFast(BackwardRev));
 
-    [Pure]
     public Iterable<A> AsIterable() =>
         forward.AsIterable().ConcatFast(BackwardRev).AsIterable();
 
-    [Pure]
     public IEnumerator<A> GetEnumerator() =>
         forward.AsIterable().ConcatFast(BackwardRev).GetEnumerator();
 
-    [Pure]
     IEnumerator IEnumerable.GetEnumerator() =>
         forward.AsIterable().ConcatFast(BackwardRev).GetEnumerator();
 
-    [Pure]
+    public Iterator<A> GetIterator() =>
+        forward.ForwardIterator() + backward.Reverse().ForwardIterator();
+
     public static QueInternal<A> operator +(QueInternal<A> lhs, QueInternal<A> rhs) =>
         lhs.Combine(rhs);
 
-    [Pure]
     public QueInternal<A> Combine(QueInternal<A> rhs)
     {
         var self = this;
@@ -153,7 +140,6 @@ internal class QueInternal<A> : IEnumerable<A>
         return self;
     }
 
-    [Pure]
     public override int GetHashCode() =>
         hashCode == 0
             ? hashCode = FNV32.Hash<HashableDefault<A>, A>(this)

@@ -88,52 +88,7 @@ sealed class IterableAsyncEnumerable<A>(IO<IAsyncEnumerable<A>> runEnumerable) :
                           return s;
                       });
 
-
-    public override Iterable<A> Choose(Iterable<A> rhs) =>
-        new IterableAsyncEnumerable<A>(
-            IO.liftVAsync(async env =>
-                          {
-                              var ls   = AsAsyncEnumerable(env.Token);
-                              var iter = ls.GetIteratorAsync();
-                              if (await iter.IsEmpty)
-                              {
-                                  return rhs.AsAsyncEnumerable(env.Token);
-                              }
-                              else
-                              {
-                                  // This has already been evaluated by `IsEmpty`
-                                  var head = await iter.Head;
-                                  var tail = (await iter.Tail).Split().AsEnumerable(env.Token);
-                                  return tail.Prepend(head);
-                              }
-                          }));
-
-    /// <summary>
-    /// If this sequence is empty, return the other sequence, otherwise return this sequence.
-    /// </summary>
-    /// <param name="rhs">Right hand side of the operator</param>
-    /// <returns>A choice between two sequences based</returns>
-    [Pure]
-    public override Iterable<A> Choose(Memo<Iterable, A> rhs) =>
-        new IterableAsyncEnumerable<A>(
-            IO.liftVAsync(async env =>
-                          {
-                              var ls   = AsAsyncEnumerable(env.Token);
-                              var iter = ls.GetIteratorAsync();
-                              if (await iter.IsEmpty)
-                              {
-                                  return rhs.Value.As().AsAsyncEnumerable(env.Token);
-                              }
-                              else
-                              {
-                                  // This has already been evaluated by `IsEmpty`
-                                  var head = await iter.Head;
-                                  var tail = (await iter.Tail).Split().AsEnumerable(env.Token);
-                                  return tail.Prepend(head);
-                              }
-                          }));
-
-    public override Iterator<A> GetIterator()
+    public override Iterator<A> ForwardIterator()
     {
         var enumerable = AsEnumerableIO().Run();
         return Iterator.forward(enumerable);

@@ -9,7 +9,6 @@ namespace LanguageExt;
 public partial class Iterable : 
     Monad<Iterable>, 
     MonoidK<Iterable>,
-    Alternative<Iterable>, 
     Traversable<Iterable>,
     NaturalEpi<Iterable, Iterable>,
     NaturalMono<Iterable, Arr>,
@@ -38,18 +37,9 @@ public partial class Iterable :
 
     static K<Iterable, A> MonoidK<Iterable>.Empty<A>() =>
         Iterable<A>.Empty;
-
-    static K<Iterable, A> Alternative<Iterable>.Empty<A>() => 
-        Iterable<A>.Empty;
     
     static K<Iterable, A> SemigroupK<Iterable>.Combine<A>(K<Iterable, A> ma, K<Iterable, A> mb) =>
         ma.As().Concat(+mb);
-
-    static K<Iterable, A> Choice<Iterable>.Choose<A>(K<Iterable, A> ma, K<Iterable, A> mb) =>
-        ma.As().Choose(+mb);
-    
-    static K<Iterable, A> Choice<Iterable>.Choose<A>(K<Iterable, A> ma, Memo<Iterable, A> mb) => 
-        ma.As().Choose(mb);
 
     static K<F, K<Iterable, B>> Traversable<Iterable>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Iterable, A> ta) =>
         ta.As().Traverse(f).Map(mb => mb.Kind());
@@ -91,5 +81,5 @@ public partial class Iterable :
         fa;
 
     public static Iterator<A> ForwardIterator<A>(K<Iterable, A> fa) => 
-        fa.As().GetIterator();
+        fa.As().ForwardIterator();
 }

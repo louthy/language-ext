@@ -43,11 +43,8 @@ sealed class IterableSingletonIO<A>(IO<A> Value) : Iterable<A>
 
     public override IO<S> FoldUntilIO<S>(Func<S, A, S> f, Func<(S State, A Value), bool> predicate, S initialState) =>
         Value.Map(x => f(initialState, x));
-
-    public override Iterable<A> Choose(Iterable<A> rhs) =>
-        this;
-
-    public override Iterable<A> Choose(Memo<Iterable, A> rhs) =>
-        this;
+    
+    public override Iterator<A> ForwardIterator() =>
+        Iterator.lazy(() => Iterator.singleton(Value.Run()));
 }
      

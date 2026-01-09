@@ -34,10 +34,7 @@ sealed class IterableNil<A> : Iterable<A>
 
     public override IO<S> FoldUntilIO<S>(Func<S, A, S> f, Func<(S State, A Value), bool> predicate, S initialState) => 
         IO.pure(initialState);
-
-    public override Iterable<A> Choose(Iterable<A> rhs) =>
-        rhs;
-
-    public override Iterable<A> Choose(Memo<Iterable, A> rhs) => 
-        rhs.Value.As();
+    
+    public override Iterator<A> ForwardIterator() =>
+         Iterator.empty<A>();
 }

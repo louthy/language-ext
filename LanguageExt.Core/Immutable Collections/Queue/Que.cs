@@ -22,6 +22,8 @@ public readonly struct Que<A> :
     IEquatable<Que<A>>,
     K<Que, A>
 {
+    // TODO: This type hasn't had a refresh since it was written in 2017 - It needs an overhaul
+    
     public static readonly Que<A> Empty = new (QueInternal<A>.Empty);
 
     readonly QueInternal<A> value;
@@ -31,14 +33,14 @@ public readonly struct Que<A> :
         this.value = value;
 
     /// <summary>
-    /// Construct from a enumerable of items
+    /// Construct from an enumerable of items
     /// </summary>
     /// <param name="items">Items to construct the queue from</param>
     public Que(IEnumerable<A> items) =>
         value = new QueInternal<A>(items);
 
     /// <summary>
-    /// Construct from a enumerable of items
+    /// Construct from an enumerable of items
     /// </summary>
     /// <param name="items">Items to construct the queue from</param>
     public Que(ReadOnlySpan<A> items) =>

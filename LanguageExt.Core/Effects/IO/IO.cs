@@ -527,7 +527,7 @@ public abstract record IO<A> :
         Schedule schedule,
         Func<A, bool> predicate)
     {
-        return go(schedule.PrependZero.Run().GetIterator(), default);
+        return go(schedule.PrependZero.Run().ForwardIterator(), default);
 
         IO<A> go(Iterator<Duration> iter, A? value) =>
             iter switch
@@ -643,7 +643,7 @@ public abstract record IO<A> :
     /// </remarks>
     public virtual IO<A> RetryUntil(Schedule schedule, Func<Error, bool> predicate)
     {
-        return go(schedule.PrependZero.Run().GetIterator(), Errors.None);
+        return go(schedule.PrependZero.Run().ForwardIterator(), Errors.None);
 
         IO<A> go(Iterator<Duration> iter, Error error) =>
             iter switch

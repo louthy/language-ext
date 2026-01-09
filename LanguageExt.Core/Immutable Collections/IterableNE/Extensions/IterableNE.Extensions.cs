@@ -15,34 +15,18 @@ public static partial class IterableNEExtensions
         (IterableNE<A>)xs;
 
     [Pure]
-    public static Option<IterableNE<A>> AsIterableNE<A>(this IEnumerable<A> xs) =>
-        IterableNE.createRange(xs);
+    public static IterableNE<A> AsIterableNE<A>(this IEnumerable<A> xs, A head) =>
+        IterableNE.create(head, xs);
 
     [Pure]
-    public static IO<IterableNE<A>> AsIterableNE<A>(this IAsyncEnumerable<A> xs) =>
-        IterableNE.createRange(xs);
-
-    [Pure]
-    public static Option<IterableNE<A>> AsIterableNE<A>(this Seq<A> xs) =>
-        xs.Head.Map(h => new IterableNE<A>(h, xs.Tail.AsIterable()));
-
-    [Pure]
-    public static Option<IterableNE<A>> AsIterableNE<A>(this Arr<A> xs) =>
-        xs.IsEmpty
-            ? None
-            : new IterableNE<A>(xs[0], xs.Splice(1).AsIterable());
-
-    [Pure]
-    public static Option<IterableNE<A>> AsIterableNE<A>(this Lst<A> xs) =>
-        xs.IsEmpty
-            ? None
-            : new IterableNE<A>(xs[0], xs.Skip(1).AsIterable());
+    public static IterableNE<A> AsIterableNE<A>(this IAsyncEnumerable<A> xs, A head) =>
+        IterableNE.create(head, xs);
     
     /// <summary>
     /// Monadic join
     /// </summary>
     [Pure]
-    public static Option<IterableNE<A>> Flatten<A>(this IterableNE<IterableNE<A>> ma) =>
+    public static IterableNE<A> Flatten<A>(this IterableNE<IterableNE<A>> ma) =>
         ma.Bind(identity);
 
     /// <param name="list">sequence</param>

@@ -11,6 +11,6 @@ public abstract partial class Iterator<A>
             $"{Value}";
 
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
-            (new Exist<A>(Value), Iterator.Nil<A>());
+            (new Exist<A>(Value), Iterator.empty<A>());
     }
 }

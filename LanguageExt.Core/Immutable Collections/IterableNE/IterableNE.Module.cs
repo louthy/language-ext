@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace LanguageExt;
 
@@ -21,7 +20,7 @@ public partial class IterableNE
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<IterableNE<A>> flatten<A>(IterableNE<IterableNE<A>> ma) =>
+    public static IterableNE<A> flatten<A>(IterableNE<IterableNE<A>> ma) =>
         ma.Bind(identity);
 
     /// <summary>
@@ -30,7 +29,7 @@ public partial class IterableNE
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IterableNE<A> singleton<A>(A value) =>
-        IterableNE<A>.FromSpan([value]);
+        IterableNE<A>.FromSpan(value, []);
 
     /// <summary>
     /// Create a sequence from an initial set of items
@@ -77,82 +76,6 @@ public partial class IterableNE
     public static IterableNE<A> create<A>(A head, IterableNE<A> tail) =>
         new (head, tail.AsIterable());
 
-    /// <summary>
-    /// Create a sequence from an initial set of items
-    /// </summary>
-    /// <param name="items">Items</param>
-    /// <returns>sequence</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<IterableNE<A>> createRange<A>(ReadOnlySpan<A> items) =>
-        items.Length == 0 
-            ? None
-            : IterableNE<A>.FromSpan(items);
-
-    /// <summary>
-    /// Create a sequence from an initial set of items
-    /// </summary>
-    /// <param name="items">Items</param>
-    /// <returns>sequence</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<IterableNE<A>> createRange<A>(IEnumerable<A> items)
-    {
-        var iter = Iterator.forward(items);
-        if (iter.IsEmpty) return None;
-        var head = iter.Head;
-        var tail = iter.Tail.AsIterable();
-        return new IterableNE<A>(head, tail);
-    }
-
-    /// <summary>
-    /// Create a sequence from an initial set of items
-    /// </summary>
-    /// <param name="items">Items</param>
-    /// <returns>sequence</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IO<IterableNE<A>> createRange<A>(IAsyncEnumerable<A> items) =>
-        IO.liftVAsync(async _ =>
-                      {
-                          var iter = IteratorAsync.from(items);
-                          if (await iter.IsEmpty) throw new ArgumentException("Can't create an IterableNE from an empty sequence");
-                          var head = await iter.Head;
-                          var tail = (await iter.Tail).AsIterableAsync();
-                          return new IterableNE<A>(head, tail);
-                      });
-
-    /// <summary>
-    /// Create a sequence from an initial set of items
-    /// </summary>
-    /// <param name="items">Items</param>
-    /// <returns>sequence</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IO<IterableNE<A>> createRange<A>(Iterable<A> items)
-    {
-        return IO.liftVAsync(_ => items.IsAsync
-                                      ? async()
-                                      : sync());
-    
-        async ValueTask<IterableNE<A>> async()
-        {
-            var iter = IteratorAsync.from(items);
-            if (await iter.IsEmpty) throw new ArgumentException("Can't create an IterableNE from an empty sequence");
-            var head = await iter.Head;
-            var tail = (await iter.Tail).AsIterableAsync();
-            return new IterableNE<A>(head, tail);
-        }
-
-        ValueTask<IterableNE<A>> sync()
-        {
-            var iter = Iterator.forward(items);
-            if (iter.IsEmpty) throw new ArgumentException("Can't create an IterableNE from an empty sequence");
-            var head = iter.Head;
-            var tail = iter.Tail.AsIterable();
-            return ValueTask.FromResult(new IterableNE<A>(head, tail));
-        }
-    }
 
     /// <summary>
     /// Generates a sequence of A using the provided delegate to initialise
@@ -163,7 +86,7 @@ public partial class IterableNE
     public static Option<IterableNE<A>> generate<A>(int count, Func<int, A> generator) =>
         count < 1
             ? None
-            : createRange(Range(0, count).Select(generator));
+            : create(generator(0), Range(1, count).Select(generator));
 
     /// <summary>
     /// Generates a sequence that contains one repeated value.
@@ -173,7 +96,7 @@ public partial class IterableNE
     public static Option<IterableNE<A>> repeat<A>(A item, int count) =>
         count < 1
             ? None
-            : createRange(Range(0, count).Select(_ => item));
+            : create(item, Range(1, count).Select(_ => item));
 
     /// <summary>
     /// Get the item at the head (first) of the sequence

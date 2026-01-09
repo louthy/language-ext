@@ -85,14 +85,7 @@ sealed class IterableStrict<A>(SeqStrict<A> Items) : Iterable<A>
                           }
                           return s;
                       });
-
-    public override Iterable<A> Choose(Iterable<A> rhs) => 
-        Items.IsEmpty
-            ? rhs
-            : this;
-
-    public override Iterable<A> Choose(Memo<Iterable, A> rhs) => 
-        Items.IsEmpty
-            ? rhs.Value.As()
-            : this;
+    
+    public override Iterator<A> ForwardIterator() =>
+        Iterator.forward(new Seq<A>(Items));
 }

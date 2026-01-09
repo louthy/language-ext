@@ -55,46 +55,11 @@ sealed class IterableCast<X, A>(Iterable<X> Items) : Iterable<A>
     public override IO<S> FoldUntilIO<S>(Func<S, A, S> f, Func<(S State, A Value), bool> predicate, S initialState) => 
         Make().FoldUntilIO(f, predicate, initialState);
 
-    public override Iterable<A> Choose(Iterable<A> rhs) =>
-        new IterableAsyncEnumerable<A>(
-            IO.liftVAsync(async env =>
-                          {
-                              var ls   = AsAsyncEnumerable(env.Token);
-                              var iter = ls.GetIteratorAsync();
-                              if (await iter.IsEmpty)
-                              {
-                                  return rhs.AsAsyncEnumerable(env.Token);
-                              }
-                              else
-                              {
-                                  // This has already been evaluated by `IsEmpty`
-                                  var head = await iter.Head;
-                                  var tail = (await iter.Tail).Split().AsEnumerable(env.Token);
-                                  return tail.Prepend(head);
-                              }
-                          }));
-
-    public override Iterable<A> Choose(Memo<Iterable, A> rhs) => 
-        new IterableAsyncEnumerable<A>(
-            IO.liftVAsync(async env =>
-                          {
-                              var ls   = AsAsyncEnumerable(env.Token);
-                              var iter = ls.GetIteratorAsync();
-                              if (await iter.IsEmpty)
-                              {
-                                  return rhs.Value.As().AsAsyncEnumerable(env.Token);
-                              }
-                              else
-                              {
-                                  // This has already been evaluated by `IsEmpty`
-                                  var head = await iter.Head;
-                                  var tail = (await iter.Tail).Split().AsEnumerable(env.Token);
-                                  return tail.Prepend(head);
-                              }
-                          }));
-
     Iterable<A> Make() =>
         IsAsync
             ? new IterableEnumerable<A>(AsEnumerableIO())
             : new IterableAsyncEnumerable<A>(AsAsyncEnumerableIO());
+
+    public override Iterator<A> ForwardIterator() =>
+        IterableKExtensions.ForwardIterator(Items).Cast<A>();
 }

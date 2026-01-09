@@ -99,48 +99,12 @@ sealed class IterableZip<A, B>(Iterable<A> First, Iterable<B> Second) : Iterable
 
     public override IO<S> FoldUntilIO<S>(Func<S, (A First, B Second), S> f, Func<(S State, (A First, B Second) Value), bool> predicate, S initialState) => 
         Make().FoldUntilIO(f, predicate, initialState);
-    
-    public override Iterable<(A First, B Second)> Choose(Iterable<(A First, B Second)> rhs) =>
-        new IterableAsyncEnumerable<(A First, B Second)>(
-            IO.liftVAsync(async env =>
-                          {
-                              var ls   = AsAsyncEnumerable(env.Token);
-                              var iter = ls.GetIteratorAsync();
-                              if (await iter.IsEmpty)
-                              {
-                                  return rhs.AsAsyncEnumerable(env.Token);
-                              }
-                              else
-                              {
-                                  // This has already been evaluated by `IsEmpty`
-                                  var head = await iter.Head;
-                                  var tail = (await iter.Tail).Split().AsEnumerable(env.Token);
-                                  return tail.Prepend(head);
-                              }
-                          }));
-
-    public override Iterable<(A First, B Second)> Choose(Memo<Iterable, (A First, B Second)> rhs) => 
-        new IterableAsyncEnumerable<(A First, B Second)>(
-            IO.liftVAsync(async env =>
-                          {
-                              var ls   = AsAsyncEnumerable(env.Token);
-                              var iter = ls.GetIteratorAsync();
-                              if (await iter.IsEmpty)
-                              {
-                                  return rhs.Value.As().AsAsyncEnumerable(env.Token);
-                              }
-                              else
-                              {
-                                  // This has already been evaluated by `IsEmpty`
-                                  var head = await iter.Head;
-                                  var tail = (await iter.Tail).Split().AsEnumerable(env.Token);
-                                  return tail.Prepend(head);
-                              }
-                          }));
 
     Iterable<(A First, B Second)> Make() =>
         IsAsync
             ? new IterableAsyncEnumerable<(A First, B Second)>(AsAsyncEnumerableIO())
             : new IterableEnumerable<(A First, B Second)>(AsEnumerableIO());
-    
+
+    public override Iterator<(A First, B Second)> ForwardIterator() => 
+        First.ForwardIterator().Zip(Second.ForwardIterator());
 }

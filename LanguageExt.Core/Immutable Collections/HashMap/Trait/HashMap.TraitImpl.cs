@@ -66,7 +66,7 @@ public partial class HashMap<Key> :
     static Fold<A, S> Foldable<HashMap<Key>>.FoldStep<A, S>(K<HashMap<Key>, A> ta, in S initialState)
     {
         var items = ta.As();
-        return go(items.Values.GetIterator())(initialState);
+        return go(items.Values.ForwardIterator())(initialState);
 
         static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
             state =>
@@ -87,7 +87,7 @@ public partial class HashMap<Key> :
         // Order is undefined in a HashMap, so reversing the order makes no sense,
         // so let's take the most efficient option:
         var items = ta.As();
-        return go(items.Values.GetIterator())(initialState);
+        return go(items.Values.ForwardIterator())(initialState);
 
         static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
             state =>

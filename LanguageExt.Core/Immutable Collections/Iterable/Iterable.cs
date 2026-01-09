@@ -1140,47 +1140,7 @@ public abstract class Iterable<A> :
     [Pure]
     public static Iterable<A> operator +(Iterable<A> x, A y) =>
         x.Add(y);
-
-    /// <summary>
-    /// If this sequence is empty, return the other sequence, otherwise return this sequence.
-    /// </summary>
-    /// <param name="rhs">Right hand side of the operator</param>
-    /// <returns>A choice between two sequences based</returns>
-    [Pure]
-    public abstract Iterable<A> Choose(Iterable<A> rhs);
-
-    /// <summary>
-    /// If this sequence is empty, return the other sequence, otherwise return this sequence.
-    /// </summary>
-    /// <param name="rhs">Right hand side of the operator</param>
-    /// <returns>A choice between two sequences based</returns>
-    [Pure]
-    public abstract Iterable<A> Choose(Memo<Iterable, A> rhs);
     
-    /// <summary>
-    /// Choice operator
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Iterable<A> operator |(Iterable<A> x, K<Iterable, A> y) =>
-        x.Choose(+y);
-
-    /// <summary>
-    /// Choice operator
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Iterable<A> operator |(K<Iterable, A> x, Iterable<A> y) =>
-        x.As().Choose(y);
-    
-    /// <summary>
-    /// Choice operator
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Iterable<A> operator |(Iterable<A> x, Memo<Iterable, A> y) =>
-        x.Choose(y);
-
     /// <summary>
     /// Ordering operator
     /// </summary>
@@ -1309,5 +1269,5 @@ public abstract class Iterable<A> :
     IEnumerator IEnumerable.GetEnumerator() => 
         GetEnumerator();
 
-    public abstract Iterator<A> GetIterator();
+    public abstract Iterator<A> ForwardIterator();
 }

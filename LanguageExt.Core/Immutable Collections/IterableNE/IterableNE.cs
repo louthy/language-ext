@@ -29,11 +29,10 @@ public record IterableNE<A>(A Head, Iterable<A> Tail) :
 {
     int? hashCode;
 
-    public static IterableNE<A> FromSpan(ReadOnlySpan<A> ma)
-    {
-        if (ma.IsEmpty) throw new ArgumentException("Cannot create an IterableNE from an empty span");
-        return new IterableNE<A>(ma[0], Iterable<A>.FromSpan(ma.Slice(1)));
-    }
+    public static IterableNE<A> FromSpan(A head, ReadOnlySpan<A> tail) =>
+        tail.IsEmpty
+            ? new(head, Iterable<A>.Empty)
+            : new(head, Iterable<A>.FromSpan(tail));
     
     [Pure]
     internal bool IsAsync =>
