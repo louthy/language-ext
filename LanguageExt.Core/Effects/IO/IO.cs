@@ -192,7 +192,7 @@ public abstract record IO<A> :
                            if (env.SyncContext is null) return await RunAsync(env);
 
                            A?         value = default;
-                           Exception? error = default;
+                           Exception? error = null;
                            using var  wait  = new AutoResetEvent(false);
 
                            env.SyncContext.Post(_ =>
@@ -207,6 +207,7 @@ public abstract record IO<A> :
                                                     }
                                                     finally
                                                     {
+                                                        // ReSharper disable once AccessToDisposedClosure
                                                         wait.Set();
                                                     }
                                                 },
@@ -527,22 +528,19 @@ public abstract record IO<A> :
         Schedule schedule,
         Func<A, bool> predicate)
     {
-        return go(schedule.PrependZero.Run().ForwardIterator(), default);
+        return go(schedule.PrependZero.Run().ForwardIterator(), default!);
 
-        IO<A> go(Iterator<Duration> iter, A? value) =>
+        IO<A> go(Iterator<Duration> iter, A value) =>
             iter switch
             {
-                Iterator<Duration>.Nil =>
-                    IO.pure<A>(value!),
-
-                Iterator<Duration>.Cons(var head, var tail) =>
+                (Exist<Duration> (var head), var tail) =>
                     IO.yieldFor(head)
                       .Bind(_ => Bracket()
-                               .Bind(v => predicate(v) 
-                                              ? IO.pure(v) 
+                               .Bind(v => predicate(v)
+                                              ? IO.pure(v)
                                               : go(tail, v))),
-                
-                _ => throw new InvalidOperationException("Invalid iterator")
+
+                _ => IO.pure(value)
             };
     }
     
@@ -646,20 +644,13 @@ public abstract record IO<A> :
         return go(schedule.PrependZero.Run().ForwardIterator(), Errors.None);
 
         IO<A> go(Iterator<Duration> iter, Error error) =>
-            iter switch
-            {
-                Iterator<Duration>.Nil =>
-                    IO.fail<A>(error),
-
-                Iterator<Duration>.Cons(var head, var tail) =>
-                    IO.yieldFor(head)
-                      .Bind(_ => BracketFail()
-                                   .Catch(e => predicate(e)
-                                                   ? IO.fail<A>(e)
-                                                   : go(tail, e))),
-                     
-                _ => throw new InvalidOperationException("Invalid iterator")
-            };
+            iter is (Exist<Duration> (var head), var tail)
+                ? IO.yieldFor(head)
+                    .Bind(_ => BracketFail()
+                             .Catch(e => predicate(e)
+                                             ? IO.fail<A>(e)
+                                             : go(tail, e)))
+                : IO.fail<A>(error);
     }
 
     /// <summary>

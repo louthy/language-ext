@@ -24,17 +24,6 @@ public static partial class Deriving
             Subtype.FoldWhile(f, predicate, initialState, Supertype.Transform(ta));
 
         /// <summary>
-        /// Same behaviour as `FoldBack` but allows early exit of the operation once
-        /// the predicate function becomes `false` for the state/value pair 
-        /// </summary>
-        static S Foldable<Supertype>.FoldBackWhile<A, S>(
-            Func<S, A, S> f,
-            Func<(S State, A Value), bool> predicate,
-            in S initialState,
-            K<Supertype, A> ta) =>
-            Subtype.FoldBackWhile(f, predicate, initialState, Supertype.Transform(ta));
-
-        /// <summary>
         /// Fold until the `Option` returns `None`
         /// </summary>
         /// <param name="f">Fold function</param>
@@ -50,21 +39,6 @@ public static partial class Deriving
             Subtype.FoldMaybe(f, initialState, Supertype.Transform(ta));
 
         /// <summary>
-        /// Fold until the `Option` returns `None`
-        /// </summary>
-        /// <param name="f">Fold function</param>
-        /// <param name="initialState">Initial state for the fold</param>
-        /// <param name="ta">Foldable structure</param>
-        /// <typeparam name="A">Value type</typeparam>
-        /// <typeparam name="S">State type</typeparam>
-        /// <returns>Aggregated value</returns>
-        static S Foldable<Supertype>.FoldBackMaybe<A, S>(
-            Func<S, A, Option<S>> f,
-            in S initialState,
-            K<Supertype, A> ta) =>
-            Subtype.FoldBackMaybe(f, initialState, Supertype.Transform(ta));
-
-        /// <summary>
         /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
         /// early exit of the operation once the predicate function becomes `false` for the
         /// state/value pair 
@@ -75,18 +49,6 @@ public static partial class Deriving
             in S initialState,
             K<Supertype, A> ta) =>
             Subtype.FoldWhileM<MS, M, A, S>(f, predicate, initialState, Supertype.Transform(ta));
-
-        /// <summary>
-        /// Same behaviour as `FoldBack` but the fold operation returns a monadic type and allows
-        /// early exit of the operation once the predicate function becomes `false` for the
-        /// state/value pair 
-        /// </summary>
-        static MS Foldable<Supertype>.FoldBackWhileM<MS, M, A, S>(
-            Func<S, A, MS> f,
-            Func<(S State, A Value), bool> predicate,
-            in S initialState,
-            K<Supertype, A> ta) =>
-            Subtype.FoldBackWhileM<MS, M, A, S>(f, predicate, initialState, Supertype.Transform(ta));
 
         /// <summary>
         /// Same behaviour as `Fold` but allows early exit of the operation once
@@ -112,29 +74,6 @@ public static partial class Deriving
             Subtype.FoldUntilM<MS, M, A, S>(f, predicate, initialState, Supertype.Transform(ta));
 
         /// <summary>
-        /// Same behaviour as `FoldBack` but allows early exit of the operation once
-        /// the predicate function becomes `false` for the state/value pair
-        /// </summary>
-        static S Foldable<Supertype>.FoldBackUntil<A, S>(
-            Func<S, A, S> f,
-            Func<(S State, A Value), bool> predicate,
-            in S initialState,
-            K<Supertype, A> ta) =>
-            Subtype.FoldBackUntil(f, predicate, initialState, Supertype.Transform(ta));
-
-        /// <summary>
-        /// Same behaviour as `FoldBack` but the fold operation returns a monadic type and allows
-        /// early exit of the operation once the predicate function becomes `false` for the
-        /// state/value pair 
-        /// </summary>
-        static MS Foldable<Supertype>.FoldBackUntilM<MS, M, A, S>(
-            Func<S, A, MS> f,
-            Func<(S State, A Value), bool> predicate,
-            in S initialState,
-            K<Supertype, A> ta) =>
-            Subtype.FoldBackUntilM<MS, M, A, S>(f, predicate, initialState, Supertype.Transform(ta));
-
-        /// <summary>
         /// Right-associative fold of a structure, lazy in the accumulator.
         ///
         /// In the case of lists, 'Fold', when applied to a binary operator, a
@@ -156,45 +95,6 @@ public static partial class Deriving
             in S initialState,
             K<Supertype, A> ta) =>
             Subtype.FoldM<MS, M, A, S>(f, initialState, Supertype.Transform(ta));
-
-        /// <summary>
-        /// Left-associative fold of a structure, lazy in the accumulator.  This
-        /// is rarely what you want, but can work well for structures with efficient
-        /// right-to-left sequencing and an operator that is lazy in its left
-        /// argument.
-        /// 
-        /// In the case of lists, 'FoldLeft', when applied to a binary operator, a
-        /// starting value (typically the left-identity of the operator), and a
-        /// list, reduces the list using the binary operator, from left to right
-        /// </summary>
-        /// <remarks>
-        /// Note that to produce the outermost application of the operator the
-        /// entire input list must be traversed.  Like all left-associative folds,
-        /// `FoldBack` will diverge if given an infinite list.
-        /// </remarks>
-        static S Foldable<Supertype>.FoldBack<A, S>(Func<S, A, S> f, in S initialState, K<Supertype, A> ta) =>
-            Subtype.FoldBack(f, initialState, Supertype.Transform(ta));
-
-        /// <summary>
-        /// Left-associative fold of a structure, lazy in the accumulator.  This
-        /// is rarely what you want, but can work well for structures with efficient
-        /// right-to-left sequencing and an operator that is lazy in its left
-        /// argument.
-        /// 
-        /// In the case of lists, 'FoldLeft', when applied to a binary operator, a
-        /// starting value (typically the left-identity of the operator), and a
-        /// list, reduces the list using the binary operator, from left to right
-        /// </summary>
-        /// <remarks>
-        /// Note that to produce the outermost application of the operator the
-        /// entire input list must be traversed.  Like all left-associative folds,
-        /// `FoldBack` will diverge if given an infinite list.
-        /// </remarks>
-        static MS Foldable<Supertype>.FoldBackM<MS, M, A, S>(
-            Func<S, A, MS> f,
-            in S initialState,
-            K<Supertype, A> ta) =>
-            Subtype.FoldBackM<MS, M, A, S>(f, initialState, Supertype.Transform(ta));
 
         /// <summary>
         /// List of elements of a structure, from left to right
@@ -268,34 +168,16 @@ public static partial class Deriving
             Subtype.Find(predicate, Supertype.Transform(ta));
 
         /// <summary>
-        /// Find the last element that match the predicate
-        /// </summary>
-        static Option<A> Foldable<Supertype>.FindBack<A>(Func<A, bool> predicate, K<Supertype, A> ta) =>
-            Subtype.FindBack(predicate, Supertype.Transform(ta));
-
-        /// <summary>
         /// Find the elements that match the predicate
         /// </summary>
         static Iterable<A> Foldable<Supertype>.FindAll<A>(Func<A, bool> predicate, K<Supertype, A> ta) =>
             Subtype.FindAll(predicate, Supertype.Transform(ta));
 
         /// <summary>
-        /// Find the elements that match the predicate
-        /// </summary>
-        static Iterable<A> Foldable<Supertype>.FindAllBack<A>(Func<A, bool> predicate, K<Supertype, A> ta) =>
-            Subtype.FindAllBack(predicate, Supertype.Transform(ta));
-
-        /// <summary>
         /// Get the head item in the foldable or `None`
         /// </summary>
         static Option<A> Foldable<Supertype>.Head<A>(K<Supertype, A> ta) =>
             Subtype.Head(Supertype.Transform(ta));
-
-        /// <summary>
-        /// Get the head item in the foldable or `None`
-        /// </summary>
-        static Option<A> Foldable<Supertype>.Last<A>(K<Supertype, A> ta) =>
-            Subtype.Last(Supertype.Transform(ta));
 
         /// <summary>
         /// Map each element of a structure to an 'Applicative' action, evaluate these
@@ -372,7 +254,7 @@ public static partial class Deriving
         /// <summary>
         /// Find the element at the specified index or `None` if out of range
         /// </summary>
-        static Option<A> Foldable<Supertype>.At<A>(Index index, K<Supertype, A> ta) =>
+        static Option<A> Foldable<Supertype>.At<A>(int index, K<Supertype, A> ta) =>
             Subtype.At(index, Supertype.Transform(ta));
 
         /// <summary>
@@ -382,7 +264,10 @@ public static partial class Deriving
         /// <param name="ta">Foldable structure</param>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Partitioned structure</returns>
-        static (Seq<A> True, Seq<A> False) Foldable<Supertype>.Partition<A>(Func<A, bool> f, K<Supertype, A> ta) =>
+        static (Arr<A> True, Arr<A> False) Foldable<Supertype>.Partition<A>(Func<A, bool> f, K<Supertype, A> ta) =>
             Subtype.Partition(f, Supertype.Transform(ta));
+
+        static Iterator<A> IterableK<Supertype>.ForwardIterator<A>(K<Supertype, A> fa) => 
+            Subtype.ForwardIterator(Supertype.Transform(fa));
     }
 }

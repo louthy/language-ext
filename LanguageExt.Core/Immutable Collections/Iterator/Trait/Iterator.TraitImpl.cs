@@ -8,7 +8,7 @@ public partial class Iterator :
     Monad<Iterator>,
     MonoidK<Iterator>,
     Alternative<Iterator>, 
-    Traversable<Iterator>,
+  //Traversable<Iterator>,
     Natural<Iterator, Arr>,
     Natural<Iterator, Seq>,
     Natural<Iterator, Lst>,
@@ -49,6 +49,10 @@ public partial class Iterator :
     static K<Iterator, A> Choice<Iterator>.Choose<A>(K<Iterator, A> ma, Memo<Iterator, A> mb) => 
         new Iterator<A>.OpAltMemo(+ma, mb);
     
+    /*
+     
+     TODO: Consider putting this back after fixing up all the issues, but be aware, your issues are users' issues too!
+     
     static K<F, K<Iterator, B>> Traversable<Iterator>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Iterator, A> ta)
     {
         return Foldable.fold(add, F.Pure(Iterator<B>.Empty), ta)
@@ -78,6 +82,10 @@ public partial class Iterator :
     
     static Seq<A> Foldable<Iterator>.ToSeq<A>(K<Iterator, A> ta) =>
         new(ta.As());
+        
+    static Iterator<A> IterableK<Iterator>.ForwardIterator<A>(K<Iterator, A> fa) => 
+        +fa;
+        */
 
     static K<Seq, A> Natural<Iterator, Seq>.Transform<A>(K<Iterator, A> fa) => 
         toSeq(fa.As());
@@ -96,7 +104,4 @@ public partial class Iterator :
     
     static K<Iterable, A> Natural<Iterator, Iterable>.Transform<A>(K<Iterator, A> fa) => 
         new IterableIterator<A>(fa.As());
-
-    static Iterator<A> IterableK<Iterator>.ForwardIterator<A>(K<Iterator, A> fa) => 
-        +fa;
 }
