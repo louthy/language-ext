@@ -72,7 +72,7 @@ public partial class Iterable
     /// <returns>sequence</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Iterable<A> createRange<A>(ReadOnlySpan<A> items) =>
+    public static Iterable<A> create<A>(ReadOnlySpan<A> items) =>
         items.Length == 0 ? Iterable<A>.Empty : Iterable<A>.FromSpan(items);
 
     /// <summary>

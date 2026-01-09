@@ -2,36 +2,54 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
 
 /// <summary>
-/// Wrapper for `IEnumerator` that makes it work like an immutable sequence.
-/// 
-/// It is thread-safe and impossible for any item in the sequence to be enumerated more than once.
+/// Iterators are lazy, immutable sequences that can be consumed one item at a time.  These are functionally pure
+/// unlike `IEnumerator` in the .NET framework.  
 /// </summary>
 /// <remarks>
-/// `IEnumerator` from the .NET BCL has several problems: 
-///
-///    * It's very imperative
-///    * It's not thread-safe, two enumerators can't be shared
-/// 
-/// The lack of support for sharing of enumerators means that it's problematic using it internally
-/// in types like `StreamT`, or anything that needs to keep an `IEnumerator` alive for any period
-/// of time.
-///
-/// NOTE: There is a per-item allocation to hold the state of the iterator.  These are discarded as
-/// you enumerate the sequence.  However, technically it is possible to hold the initial `Iterator`
-/// value and subsequently gain a cached sequence of every item encountered in the enumerator.
-///
-/// That may well be valuable for circumstances where re-evaluation would be expensive.  However,
-/// for infinite-streams this would be extremely problematic.  So, make sure you discard any
-/// previous `Iterator` values as you walk the sequence. 
+/// <para>
+/// All the language-ext collection types are written to support `Iterator` as a first-class citizen. That means
+/// you don't have to worry about the mutability problems of `IEnumerator`.  You can just use them as you would any
+/// other collection type and you can hold on to references mid-iteration, pass them around to different threads, or
+/// anything you like, like regular immutable data-types.
+/// </para>
+/// <para>
+/// The only time you need to be careful is if you construct an `Iterator` from a regular `IEnumerable`.  The reference
+/// you get back is completely safe to pass around and use as normal.  But as soon as you try to consume the first
+/// element, the `IEnumerable` will have to generate an `IEnumerator`, which is mutable and not guaranteed to be
+/// thread-safe. 
+/// </para>
+/// <para>
+/// In that situation you need to make sure you're not passing intermediate `Iterator` values around, and instead you
+/// simply consume the iterable in one pass.  
+/// </para>
+/// <para>
+/// This is the normal usage of enumerators, so it's not a big constraint, but it's worth understanding the limitation. 
+/// </para>
+/// <para>
+/// NOTE: This type supports `IDisposable`, but it only needs disposing if you have constructed the `Iterator` from a
+/// regular `IEnumerable`. And even then, only if the `IEnumerable` holds onto some resource during its yielding phase.
+/// </para>
+/// <para>
+/// An example might be if you were iterating a set of results from a database or file system.  In that case, you would
+/// want to dispose of the `Iterator` so that it can free up any underlying `IEnumerator`.
+/// </para>
+/// <para>
+/// Calling `Dispose` on the `Iterator` when the `Iterator` hasn't been constructed from an `IEnumerable` will have no
+/// effect. 
+/// </para>
+/// <para>
+/// It may not be obvious which `Iterator` instance to `Dispose` as we create a new one for every tail during the
+/// iteration process: in fact, any one of the instances can be disposed, and it will find the underlying `IEnumerator`
+/// to `Dispose` and will do so only once.  
+/// </para>
 /// </remarks>
-/// <typeparam name="A">Item value type</typeparam>
+/// <typeparam name="A">Value type</typeparam>
 public abstract partial class Iterator<A> : 
     IEnumerable<A>,
     IEquatable<Iterator<A>>,
@@ -42,53 +60,65 @@ public abstract partial class Iterator<A> :
     /// Empty iterator
     /// </summary>
     public static readonly Iterator<A> Empty = new Nil();
-    
-    /// <summary>
-    /// Head element
-    /// </summary>
-    [Pure]
-    public abstract A Head { get; }
 
     /// <summary>
-    /// Tail of the sequence
-    /// </summary>
-    [Pure]
-    public abstract Iterator<A> Tail { get; }
-    
-    /// <summary>
-    /// Return true if there are no elements in the sequence.
-    /// </summary>
-    [Pure]
-    public abstract bool IsEmpty  { get; }
-    
-    /// <summary>
-    /// Return the number of items in the sequence.
+    /// Consume the next item in the sequence
     /// </summary>
     /// <remarks>
-    /// Requires all items to be evaluated, this will happen only once however.
+    /// <para>
+    /// This will lazily consume the next item in the iterator. `Head` will be `Exist〈A〉` if the iterator
+    /// is not empty, otherwise it will be `Nil〈A〉`.  `Tail` will be the remainder of the iterator.
+    /// </para> 
     /// </remarks>
-    [Pure]
-    public abstract long Count  { get; }
+    /// <example>
+    /// It is possible to use the deconstructor in a for-loop to repeatedly consume the iterable thing:
+    /// <code>
+    ///     for (var i = iter; i is (Exist&lt;A&gt; h, var t); i = t)
+    ///     {
+    ///         yield return h.Value;
+    ///     }
+    /// </code>
+    /// </example>
+    public void Deconstruct(out Head<A> head, out Iterator<A> tail)
+    {
+        var (h, t) = Next();
+        head = h;
+        tail = t;
+    }
 
     /// <summary>
-    /// Clone the iterator so that we can consume it without having the head item referenced.
-    /// This will stop any GC pressure when processing large or infinite sequences.
-    /// </summary>
-    [Pure]
-    public abstract Iterator<A> Clone();
-
-    /// <summary>
-    /// When iterating a sequence, it is possible (before evaluation of the `Tail`) to Terminate the current
-    /// iterator and to take a new iterator that continues on from the current location.  The reasons for doing
-    /// this are to break the linked-list chain so that there isn't a big linked-list of objects in memory that
-    /// can't be garbage collected. 
+    /// Consume the next item in the sequence
     /// </summary>
     /// <remarks>
-    /// Any other iterator references that came before this one will terminate at this point.  Splitting the
-    /// previous and subsequent iterators here. 
+    /// <para>
+    /// This will lazily consume the next item in the iterator. `Head` will be `Exist〈A〉` if the iterator
+    /// is not empty, otherwise it will be `Nil〈A〉`.  `Tail` will be the remainder of the iterator.
+    /// </para> 
     /// </remarks>
-    /// <returns>New iterator that starts from the current iterator position.</returns>
-    public abstract Iterator<A> Split();
+    /// <example>
+    /// It is possible to use the deconstructor in a for-loop to repeatedly consume the iterable thing. The
+    /// deconstructor simply calls `Next` to extract the head and tail of the iterator:
+    /// <code>
+    ///     for (var i = iter; i is (Exist&lt;A&gt; h, var t); i = t)
+    ///     {
+    ///         yield return h.Value;
+    ///     }
+    /// </code>
+    /// </example>
+    protected abstract (Head<A> Head, Iterator<A> Tail) Next();
+    
+    /// <summary>
+    /// Consume the next item in the sequence but return only its tail, ignoring the head.
+    /// </summary>
+    [Pure]
+    public Iterator<A> Tail
+    {
+        get
+        {
+            var (_, tail) = this;
+            return tail;
+        }
+    }
 
     /// <summary>
     /// Create an `IEnumerable` from an `Iterator`
@@ -96,10 +126,10 @@ public abstract partial class Iterator<A> :
     [Pure]
     public IEnumerable<A> AsEnumerable()
     {
-        for (var ma = Clone(); !ma.IsEmpty; ma = ma.Tail)
-        {
-            yield return  ma.Head;
-        }
+         for (var i = this; i is (Exist<A> head, var tail); i = tail)
+         {
+             yield return head.Value;
+         }
     }
 
     /// <summary>
@@ -108,15 +138,6 @@ public abstract partial class Iterator<A> :
     [Pure]
     public Iterable<A> AsIterable() =>
         Iterable.createRange(AsEnumerable());
-
-    /// <summary>
-    /// Deconstructor
-    /// </summary>
-    public void Deconstruct(out A head, out Iterator<A> tail)
-    {
-        head = Head;
-        tail = Tail;
-    }
     
     /// <summary>
     /// Functor map
@@ -129,334 +150,121 @@ public abstract partial class Iterator<A> :
     /// Functor map
     /// </summary>
     [Pure]
-    public Iterator<B> Map<B>(Func<A, B> f)
-    {
-        return Go(this, f).GetIterator();
-        static IEnumerable<B> Go(Iterator<A> ma, Func<A, B> f)
-        {
-            for (var a = ma.Clone(); !a.IsEmpty; a = a.Tail)
-            {
-                yield return f(a.Head);
-            }
-        }
-    }
+    public Iterator<B> Map<B>(Func<A, B> f) =>
+        this is (Exist<A> (var h), var t)
+            ? Iterator.Cons(f(h), () => t.Map(f))
+            : Iterator.Nil<B>();
+
+    /// <summary>
+    /// Functor map
+    /// </summary>
+    [Pure]
+    public Iterator<A> Filter(Func<A, bool> f) =>
+        this is (Exist<A> (var h), var t)
+            ? f(h) ? Iterator.Cons(h, () => t.Filter(f))
+                   : Iterator.Lazy(() => t.Filter(f)) 
+            : Iterator.Nil<A>();
 
     /// <summary>
     /// Monad bind
     /// </summary>
     [Pure]
-    public Iterator<B> Bind<B>(Func<A, Iterator<B>> f)
-    {
-        return Go(this, f).GetIterator();
-        static IEnumerable<B> Go(Iterator<A> ma, Func<A, Iterator<B>> f)
-        {
-            for (var a = ma.Clone(); !a.IsEmpty; a = a.Tail)
-            {
-                for (var b = f(a.Head); !b.IsEmpty; b = b.Tail)
-                {
-                    yield return b.Head;
-                }
-            }
-        }
-    }
+    public Iterator<B> Bind<B>(Func<A, Iterator<B>> f) =>
+        Map(f).Flatten();
 
     /// <summary>
     /// Monad bind
     /// </summary>
     [Pure]
-    public Iterator<C> SelectMany<B, C>(Func<A, Iterator<B>> bind, Func<A, B, C> project)
-    {
-        return Go(this, bind, project).GetIterator();
-        static IEnumerable<C> Go(Iterator<A> ma, Func<A, Iterator<B>> bind, Func<A, B, C> project)
-        {
-            for (var a = ma.Clone(); !a.IsEmpty; a = a.Tail)
-            {
-                for (var b = bind(a.Head); !b.IsEmpty; b = b.Tail)
-                {
-                    yield return project(a.Head, b.Head);
-                }
-            }
-        }
-    }
+    public Iterator<B> Bind<B>(Func<A, K<Iterator, B>> f) =>
+        Map(x => +f(x)).Flatten();
+
+    /// <summary>
+    /// Monad bind
+    /// </summary>
+    [Pure]
+    public Iterator<C> SelectMany<B, C>(Func<A, Iterator<B>> bind, Func<A, B, C> project) =>
+        Bind(x => bind(x).Map(y => project(x, y)));
 
     /// <summary>
     /// Applicative apply
     /// </summary>
     [Pure]
-    public Iterator<B> Apply<B>(Iterator<Func<A, B>> ff, Iterator<A> fa)
-    {
-        return Go(ff, fa).GetIterator();
-        static IEnumerable<B> Go(Iterator<Func<A, B>> ff, Iterator<A> fa)
-        {
-            for (var f = ff.Clone(); !f.IsEmpty; f = f.Tail)
-            {
-                for (var a = fa.Clone(); !a.IsEmpty; a = a.Tail)
-                {
-                    yield return f.Head(a.Head);
-                }
-            }
-        }
-    }
-    
+    public Iterator<B> ApplyBack<B>(Iterator<Func<A, B>> ff) =>
+        ff.Bind(Map);
+
     /// <summary>
     /// Concatenate two iterators
     /// </summary>
     [Pure]
-    public Iterator<A> Concat(Iterator<A> other)
-    {
-        return Go(this, other).GetIterator();
-        static IEnumerable<A> Go(Iterator<A> ma, Iterator<A> mb)
-        {
-            for (var a = ma.Clone(); !a.IsEmpty; a = a.Tail)
-            {
-                yield return ma.Head;
-            }
-            for (var b = mb.Clone(); !b.IsEmpty; b = b.Tail)
-            {
-                yield return mb.Head;
-            }
-        }
-    }
+    public Iterator<A> Combine(Iterator<A> other) =>
+        this is (Exist<A> (var h), var t)
+            ? Iterator.Cons(h, () => t.Combine(other))
+            : other;
 
     /// <summary>
-    /// Fold the sequence while there are more items remaining
+    /// Reverse the sequence of the iterator
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The entire stream must be consumed before the elements, in reverse order, can be yielded.
+    /// </para>
+    /// <para>
+    /// For infinite streams
+    /// this will just fill up memory and will therefore kill your application, so be sure you understand the cost
+    /// of reversing an iterator stream.
+    /// </para>
+    /// <para>
+    /// To avoid this, you can use an ordered data-structure that can support reversal without having to process
+    /// every forward element first, like: `Arr`, `Lst`, `Map`, and `Set`.  
+    /// </para> 
+    /// </remarks>
+    /// <returns>Reversed iterator</returns>
     [Pure]
-    public S Fold<S>(
-        S state,
-        Func<A, Func<S, S>> f)
+    public Iterator<A> Reverse()
     {
-        for(var xs = Clone(); !xs.IsEmpty; xs = xs.Tail)
-        {
-            state = f(xs.Head)(state);
-        }
-        return state;
-    }
+        var writer  = ArrayWriter<A>.Init();
 
-    /// <summary>
-    /// Fold the sequence while there are more items remaining
-    /// </summary>
-    [Pure]
-    public S Fold<S>(        
-        S state,
-        Func<S, A, S> f)
-    {
-        for(var xs = Clone(); !xs.IsEmpty; xs = xs.Tail)
+        for (var i = this; i is (Exist<A> (var head), var tail); i = tail)
         {
-            state = f(state, xs.Head);
+            writer.Add(head);
         }
-        return state;
-    }
 
-    /// <summary>
-    /// Fold the sequence in reverse while there are more items remaining
-    /// </summary>
-    [Pure]
-    public S FoldBack<S>(
-        S state,
-        Func<A, Func<S, S>> f)
-    {
-        foreach(var x in Clone().AsEnumerable().Reverse())
-        {
-            state = f(x)(state);
-        }
-        return state;
-    }
+        var (array, start, count) = writer.ToArrayBack();
+        return go(start, count);
 
-    /// <summary>
-    /// Fold the sequence in reverse while there are more items remaining
-    /// </summary>
-    [Pure]
-    public S FoldBack<S>(        
-        S state,
-        Func<S, A, S> f)
-    {
-        foreach(var x in Clone().AsEnumerable().Reverse())
-        {
-            state = f(state, x);
-        }
-        return state;
-    }
-
-    /// <summary>
-    /// Fold the sequence while the predicate returns `true` and there are more items remaining
-    /// </summary>
-    [Pure]
-    public S FoldWhile<S>(
-        S state,
-        Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate)
-    {
-        for(var xs = Clone(); !xs.IsEmpty; xs = xs.Tail)
-        {
-            if (!predicate((state, xs.Head))) return state;
-            state = f(xs.Head)(state);
-        }
-        return state;
-    }
-
-    /// <summary>
-    /// Fold the sequence while the predicate returns `true` and there are more items remaining
-    /// </summary>
-    [Pure]
-    public S FoldWhile<S>(
-        S state,
-        Func<S, A, S> f,
-        Func<(S State, A Value), bool> predicate)
-    {
-        for(var xs = Clone(); !xs.IsEmpty; xs = xs.Tail)
-        {
-            if (!predicate((state, xs.Head))) return state;
-            state = f(state, xs.Head);
-        }
-        return state;
-    }
-    
-    /// <summary>
-    /// Fold the sequence in reverse while the predicate returns `true` and there are more items remaining
-    /// </summary>
-    [Pure]
-    public S FoldBackWhile<S>(
-        S state,
-        Func<S, Func<A, S>> f, 
-        Func<(S State, A Value), bool> predicate) 
-    {
-        foreach(var x in Clone().AsEnumerable().Reverse())
-        {
-            if (!predicate((state, x))) return state;
-            state = f(state)(x);
-        }
-        return state;
-    }
-    
-    /// <summary>
-    /// Fold the sequence in reverse while the predicate returns `true` and there are more items remaining
-    /// </summary>
-    [Pure]
-    public S FoldBackWhile<S>(
-        S state,
-        Func<S, A, S> f, 
-        Func<(S State, A Value), bool> predicate)
-    {
-        foreach(var x in Clone().AsEnumerable().Reverse())
-        {
-            if (!predicate((state, x))) return state;
-            state = f(state, x);
-        }
-        return state;
-    }
-    
-    /// <summary>
-    /// Fold the sequence until the predicate returns `true` or the sequence ends
-    /// </summary>
-    [Pure]
-    public S FoldUntil<S>(
-        S state,
-        Func<A, Func<S, S>> f,
-        Func<(S State, A Value), bool> predicate)
-    {
-        for(var xs = Clone(); !xs.IsEmpty; xs = xs.Tail)
-        {
-            state = f(xs.Head)(state);
-            if (predicate((state, xs.Head))) return state;
-        }
-        return state;
-    }
-
-    /// <summary>
-    /// Fold the sequence until the predicate returns `true` or the sequence ends
-    /// </summary>
-    [Pure]
-    public S FoldUntil<S>(
-        S state,
-        Func<S, A, S> f,
-        Func<(S State, A Value), bool> predicate)
-    {
-        for(var xs = Clone(); !xs.IsEmpty; xs = xs.Tail)
-        {
-            state = f(state, xs.Head);
-            if (predicate((state, xs.Head))) return state;
-        }
-        return state;
-    }
-    
-    /// <summary>
-    /// Fold the sequence in reverse until the predicate returns `true` or the sequence ends
-    /// </summary>
-    [Pure]
-    public S FoldBackUntil<S>(
-        S state,
-        Func<S, Func<A, S>> f, 
-        Func<(S State, A Value), bool> predicate) 
-    {
-        foreach(var x in Clone().AsEnumerable().Reverse())
-        {
-            state = f(state)(x);
-            if (predicate((state, x))) return state;
-        }
-        return state;
-    }
-    
-    /// <summary>
-    /// Fold the sequence in reverse until the predicate returns `true` or the sequence ends
-    /// </summary>
-    [Pure]
-    public S FoldBackUntil<S>(
-        S state,
-        Func<S, A, S> f, 
-        Func<(S State, A Value), bool> predicate)
-    {
-        foreach(var x in Clone().AsEnumerable().Reverse())
-        {
-            state = f(state, x);
-            if (predicate((state, x))) return state;
-        }
-        return state;
+        Iterator<A> go(int index, int remaining) =>
+            remaining == 0
+                ? Iterator.Nil<A>()
+                : Iterator.Cons(array[index], () => go(index + 1, remaining - 1));
     }
 
     /// <summary>
     /// Interleave two iterator sequences together
     /// </summary>
     /// <remarks>
-    /// Whilst there are items in both sequences, each is yielded after the other.  Once one sequence
-    /// runs out of items, the remaining items of the other sequence is yielded alone.
+    /// Whilst there are items in both sequences, each is yielded, one after the other. Once one sequence runs
+    /// out of items, the items that are remaining in the other sequence are yielded alone.
     /// </remarks>
     [Pure]
     public Iterator<A> Merge(Iterator<A> other)
     {
-        return Go(this, other).GetIterator();        
-        static IEnumerable<A> Go(Iterator<A> ma, Iterator<A> mb)
+        switch (this, other)
         {
-            var a = ma.Clone();
-            var b = mb.Clone();
-
-            while (!a.IsEmpty && !b.IsEmpty)
-            {
-                yield return a.Head;
-                yield return b.Head;
-                a = a.Tail;
-                b = b.Tail;
-            }
-
-            if (a.IsEmpty)
-            {
-                while (!b.IsEmpty)
-                {
-                    yield return b.Head;
-                    b = b.Tail;
-                }
-            }
-            else
-            {
-                while (!a.IsEmpty)
-                {
-                    yield return a.Head;
-                    a = a.Tail;
-                }
-            }
+            case ((Exist<A> (var lh), var lt) , (Exist<A> (var rh), var rt)):
+                return lh.Cons(rh.Cons(() => lt.Merge(rt)));
+            
+            case ((Exist<A>, _) left, _):
+                return left;
+            
+            case (_, (Exist<A>, _) right):
+                return right;
+            
+            default:
+                return Iterator.Nil<A>();
         }
     }
-    
+
     /// <summary>
     /// Zips the items of two sequences together
     /// </summary>
@@ -464,20 +272,15 @@ public abstract partial class Iterator<A> :
     /// The output sequence will be as long as the shortest input sequence.
     /// </remarks>
     [Pure]
-    public Iterator<(A First , A Second)> Zip(Iterator<A> other)
+    public Iterator<(A First, A Second)> Zip(Iterator<A> other)
     {
-        return Go(this, other).GetIterator();        
-        static IEnumerable<(A First , A Second)> Go(Iterator<A> ma, Iterator<A> mb)
+        switch (this, other)
         {
-            var a = ma.Clone();
-            var b = mb.Clone();
+            case ((Exist<A> (var lh), var lt), (Exist<A> (var rh), var rt)):
+                return (lh, rh).Cons(() => lt.Zip(rt));
 
-            while (!a.IsEmpty && !b.IsEmpty)
-            {
-                yield return (a.Head, b.Head);
-                a = a.Tail;
-                b = b.Tail;
-            }
+            default:
+                return Iterator.Nil<(A, A)>();
         }
     }
 
@@ -485,12 +288,37 @@ public abstract partial class Iterator<A> :
     /// Combine two sequences
     /// </summary>
     public static Iterator<A> operator +(Iterator<A> ma, Iterator<A> mb) =>
-        ma.Concat(mb);
+        ma.Combine(mb);
+
+    /// <summary>
+    /// Combine two sequences
+    /// </summary>
+    public static Iterator<A> operator +(A ma, Iterator<A> mb) =>
+        Iterator.ConsStrict(ma, mb);
+
+    /// <summary>
+    /// Combine two sequences
+    /// </summary>
+    public static Iterator<A> operator +(Iterator<A> ma, A mb) =>
+        ma switch
+        {
+            Add add => add.More(mb),
+            _       => new Add(ma, [mb])
+        };
+
+    /// <summary>
+    /// Merge two sequences
+    /// </summary>
+    public static Iterator<A> operator |(Iterator<A> ma, Iterator<A> mb) =>
+        +ma.Choose(mb);
 
     /// <summary>
     /// Dispose
     /// </summary>
-    public abstract void Dispose();
+    public virtual void Dispose()
+    {
+        
+    }
 
     /// <summary>
     /// Equality test
@@ -509,33 +337,44 @@ public abstract partial class Iterator<A> :
     [Pure]
     public bool Equals(Iterator<A>? rhs)
     {
-        if (rhs is null) return false;
-        var iterA = Clone();
-        var iterB = rhs.Clone();
+        if(rhs is null) return false;
+        var lhs = this;
         while (true)
         {
-            if(iterA.IsEmpty && iterB.IsEmpty) return true; 
-            if(iterA.IsEmpty || iterB.IsEmpty) return false;
-            if(!EqDefault<A>.Equals(iterA.Head, iterB.Head)) return false;
-            iterA = iterA.Tail;
-            iterB = iterB.Tail;
+            switch (lhs, rhs)
+            {
+                case ((Exist<A> (var lh), var lt), (Exist<A> (var rh), var rt)):
+                    if (!EqDefault<A>.Equals(lh, rh))
+                    {
+                        return false;
+                    }
+                    lhs = lt;
+                    rhs = rt;
+                    break;
+
+                case ((Exist<A>, _), _):
+                case (_, (Exist<A>, _)):
+                    return false;
+
+                default:
+                    return true;
+            }
         }
     }
 
     [Pure]
     public override int GetHashCode()
     {
-        if(IsEmpty) return 0;
-        var iter = Clone();
+        var iter = this;
         var hash = OffsetBasis;
-        while(!iter.IsEmpty)
+        while (iter is (Exist<A> (var head), var tail))
         {
-            var itemHash = iter.Head?.GetHashCode() ?? 0;
+            var itemHash = head?.GetHashCode() ?? 0;
             unchecked
             {
                 hash = (hash ^ itemHash) * Prime;
             }
-            iter = iter.Tail;
+            iter = tail;
         }
         return hash;
     }

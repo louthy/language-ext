@@ -39,7 +39,7 @@ namespace LanguageExt.Traits;
 /// </summary>
 /// <typeparam name="T">This foldable type</typeparam>
 /// <typeparam name="FS">Folding state type.  Used to hold state for the duration of a fold</typeparam>
-public interface Foldable<out T, FS> : Foldable<T> 
+public interface Foldable<T, FS> : Foldable<T> 
     where T : Foldable<T, FS>
     where FS : allows ref struct
 {
@@ -50,9 +50,6 @@ public interface Foldable<out T, FS> : Foldable<T>
 
     public static abstract void FoldStepSetup<A>(K<T, A> ta, ref FS refState);
     public static abstract bool FoldStep<A>(K<T, A> ta, ref FS refState, out A value);
-
-    public static abstract void FoldStepBackSetup<A>(K<T, A> ta, ref FS refState);
-    public static abstract bool FoldStepBack<A>(K<T, A> ta, ref FS refState, out A value);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -74,34 +71,6 @@ public interface Foldable<out T, FS> : Foldable<T>
         var state = initialState;
         
         while (T.FoldStep(ta, ref foldState, out var value))
-        {
-            if (predicate((state, value)))
-            {
-                state = f(state, value);
-            }
-            else
-            {
-                return state;
-            }
-        }
-        return state;
-    }
-
-    /// <summary>
-    /// Same behaviour as `FoldBack` but allows early exit of the operation once
-    /// the predicate function becomes `false` for the state/value pair 
-    /// </summary>
-    static S Foldable<T>.FoldBackWhile<A, S>(
-        Func<S, A, S> f,
-        Func<(S State, A Value), bool> predicate,
-        in S initialState,
-        K<T, A> ta)
-    {
-        FS foldState = default!;
-        T.FoldStepBackSetup(ta, ref foldState);
-        var state = initialState;
-        
-        while (T.FoldStepBack(ta, ref foldState, out var value))
         {
             if (predicate((state, value)))
             {
@@ -149,39 +118,6 @@ public interface Foldable<out T, FS> : Foldable<T>
     }
 
     /// <summary>
-    /// Fold until the `Option` returns `None`
-    /// </summary>
-    /// <param name="f">Fold function</param>
-    /// <param name="initialState">Initial state for the fold</param>
-    /// <param name="ta">Foldable structure</param>
-    /// <typeparam name="A">Value type</typeparam>
-    /// <typeparam name="S">State type</typeparam>
-    /// <returns>Aggregated value</returns>
-    static S Foldable<T>.FoldBackMaybe<A, S>(
-        Func<S, A, Option<S>> f,
-        in S initialState,
-        K<T, A> ta)
-    {
-        FS foldState = default!;
-        T.FoldStepBackSetup(ta, ref foldState);
-        var state = initialState;
-        
-        while (T.FoldStepBack(ta, ref foldState, out var value))
-        {
-            var option = f(state, value);
-            if (option.IsSome)
-            {
-                state = (S)option;
-            }
-            else
-            {
-                return state;
-            }
-        }
-        return state;
-    }
-
-    /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair
     /// </summary>
@@ -196,34 +132,6 @@ public interface Foldable<out T, FS> : Foldable<T>
         var state = initialState;
         
         while (T.FoldStep(ta, ref foldState, out var value))
-        {
-            if (predicate((state, value)))
-            {
-                return state;
-            }
-            else
-            {
-                state = f(state, value);
-            }
-        }
-        return state;
-    }
-
-    /// <summary>
-    /// Same behaviour as `FoldBack` but allows early exit of the operation once
-    /// the predicate function becomes `false` for the state/value pair
-    /// </summary>
-    static S Foldable<T>.FoldBackUntil<A, S>(
-        Func<S, A, S> f, 
-        Func<(S State, A Value), bool> predicate, 
-        in S initialState, 
-        K<T, A> ta)
-    {
-        FS foldState = default!;
-        T.FoldStepBackSetup(ta, ref foldState);
-        var state = initialState;
-        
-        while (T.FoldStepBack(ta, ref foldState, out var value))
         {
             if (predicate((state, value)))
             {
@@ -257,33 +165,6 @@ public interface Foldable<out T, FS> : Foldable<T>
     }
     
     /// <summary>
-    /// Left-associative fold of a structure, lazy in the accumulator.  This
-    /// is rarely what you want but can work well for structures with efficient
-    /// right-to-left sequencing and an operator that is lazy in its left
-    /// argument.
-    /// 
-    /// In the case of lists, 'FoldLeft', when applied to a binary operator, a
-    /// starting value (typically the left-identity of the operator), and a
-    /// list, reduces the list using the binary operator, from left to right
-    /// </summary>
-    /// <remarks>
-    /// Note that to produce the outermost application of the operator, the
-    /// entire input list must be traversed.  Like all left-associative folds,
-    /// `FoldBack` will diverge if given an infinite list.
-    /// </remarks>
-    static S Foldable<T>.FoldBack<A, S>(Func<S, A, S> f, in S initialState, K<T, A> ta)
-    {
-        FS foldState = default!;
-        T.FoldStepBackSetup(ta, ref foldState);
-        var state = initialState;
-        while (T.FoldStepBack(ta, ref foldState, out var value))
-        {
-            state = f(state, value);
-        }
-        return state;
-    }
-
-    /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
     static Lst<A> Foldable<T>.ToLst<A>(K<T, A> ta) =>
@@ -297,6 +178,8 @@ public interface Foldable<out T, FS> : Foldable<T>
         var buffer = new A[32];
         var max    = buffer.Length;
         var length = 0;
+        
+        // TODO: Use ArrayWriter
         
         FS foldState = default!;
         T.FoldStepSetup(ta, ref foldState);
@@ -416,20 +299,6 @@ public interface Foldable<out T, FS> : Foldable<T>
     }
 
     /// <summary>
-    /// Find the last element that match the predicate
-    /// </summary>
-    static Option<A> Foldable<T>.FindBack<A>(Func<A, bool> predicate, K<T, A> ta)
-    {
-        FS foldState = default!;
-        T.FoldStepBackSetup(ta, ref foldState);
-        while (T.FoldStepBack(ta, ref foldState, out var value))
-        {
-            if(predicate(value)) return value;
-        }
-        return default;
-    }
-
-    /// <summary>
     /// Get the head item in the foldable or `None`
     /// </summary>
     static Option<A> Foldable<T>.Head<A>(K<T, A> ta)
@@ -437,23 +306,6 @@ public interface Foldable<out T, FS> : Foldable<T>
         FS foldState = default!;
         T.FoldStepSetup(ta, ref foldState);
         if (T.FoldStep(ta, ref foldState, out var value))
-        {
-            return value;
-        }
-        else
-        {
-            return default;
-        }
-    }
-
-    /// <summary>
-    /// Get the last item in the foldable or `None`
-    /// </summary>
-    static Option<A> Foldable<T>.Last<A>(K<T, A> ta)
-    {
-        FS foldState = default!;
-        T.FoldStepBackSetup(ta, ref foldState);
-        if (T.FoldStepBack(ta, ref foldState, out var value))
         {
             return value;
         }
@@ -617,30 +469,17 @@ public interface Foldable<out T, FS> : Foldable<T>
     /// <summary>
     /// Find the element at the specified index or `None` if out of range
     /// </summary>
-    static Option<A> Foldable<T>.At<A>(Index index, K<T, A> ta)
+    static Option<A> Foldable<T>.At<A>(int index, K<T, A> ta)
     {
         var ix        = 0;
         FS  foldState = default!;
-        if (index.IsFromEnd)
+        T.FoldStepSetup(ta, ref foldState);
+        while (T.FoldStep(ta, ref foldState, out var value))
         {
-            T.FoldStepBackSetup(ta, ref foldState);
-            while (T.FoldStepBack(ta, ref foldState, out var value))
-            {
-                if (ix == index.Value) return value;
-                ix++;
-            }
-            return default;
+            if (ix == index) return value;
+            ix++;
         }
-        else
-        {
-            T.FoldStepSetup(ta, ref foldState);
-            while (T.FoldStep(ta, ref foldState, out var value))
-            {
-                if (ix == index.Value) return value;
-                ix++;
-            }
-            return default;
-        }        
+        return default;
     }
 
     /// <summary>

@@ -79,9 +79,9 @@ public ref struct ArrayWriter<A>
     }
 
     /// <summary>
-    /// Get a span of the values written so far.  This is a snapshot of the values only.
+    /// Get a read-only span of the values written so far.  This is a snapshot of the values only.
     /// </summary>
-    public ReadOnlySpan<A> Span =>
+    public ReadOnlySpan<A> View =>
         new (buffer, start, count);
     
     /// <summary>

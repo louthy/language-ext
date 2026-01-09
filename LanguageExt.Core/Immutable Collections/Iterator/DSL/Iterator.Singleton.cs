@@ -3,18 +3,14 @@ namespace LanguageExt;
 public abstract partial class Iterator<A>
 {
     /// <summary>
-    /// Nil iterator case
-    ///
-    /// The end of the sequence.
+    /// Single item list
     /// </summary>
-    public sealed class Nil : Iterator<A>
+    public sealed class Singleton(A Value) : Iterator<A>
     {
-        public static readonly Iterator<A> Default = new Nil();
-
         public override string ToString() => 
-            "Nil";
+            $"{Value}";
 
         protected override (Head<A> Head, Iterator<A> Tail) Next() =>
-            (Nil<A>.Default, Default);
+            (new Exist<A>(Value), Iterator.Nil<A>());
     }
 }

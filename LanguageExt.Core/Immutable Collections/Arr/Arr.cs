@@ -288,7 +288,7 @@ public readonly partial struct Arr<A> :
         get => index.IsFromEnd switch
                {
                    false => Value[start          + index.Value],
-                   true  => Value[start + length - index.Value - 1]
+                   true  => Value[start + length - index.Value]
                };
     }
 
@@ -1127,5 +1127,17 @@ public readonly partial struct Arr<A> :
         }
         head = stream;
         tail = Empty;
-    }    
+    }
+
+    public Iterator<A> GetIterator()
+    {
+        return Count <= 0
+                   ? Iterator.Nil<A>()
+                   : go(Value, start, Count)();
+        
+        Func<Iterator<A>> go(A[] array, int index, int remaining) =>
+            () => remaining == 0 
+                      ? Iterator.Nil<A>() 
+                      : Iterator.Cons(array[index], go(array, index + 1, remaining - 1));
+    }
 }

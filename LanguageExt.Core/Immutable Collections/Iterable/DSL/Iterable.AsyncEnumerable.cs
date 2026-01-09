@@ -132,4 +132,14 @@ sealed class IterableAsyncEnumerable<A>(IO<IAsyncEnumerable<A>> runEnumerable) :
                                   return tail.Prepend(head);
                               }
                           }));
+
+    public override Iterator<A> GetIterator()
+    {
+        var enumerable = AsEnumerableIO().Run();
+        foreach (var x in enumerable)
+        {
+            
+        }
+    }
+            
 }

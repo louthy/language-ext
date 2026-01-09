@@ -15,7 +15,9 @@ public partial class Arr :
     Natural<Arr, Lst>,
     Natural<Arr, Set>,
     Natural<Arr, HashSet>,
-    Foldable<Arr, Arr.FoldState>
+    Foldable<Arr, Arr.FoldState>,
+    IterableK<Arr>,
+    IterableBackK<Arr>
 {
     static K<Arr, B> Monad<Arr>.Bind<A, B>(K<Arr, A> ma, Func<A, K<Arr, B>> f)
     {
@@ -125,26 +127,18 @@ public partial class Arr :
     static Fold<A, S> Foldable<Arr>.FoldStep<A, S>(K<Arr, A> ta, in S initialState)
     {
         var array = ta.As();
-        return go(array.GetIterator())(initialState);
+        return go(array.ForwardIterator())(initialState);
 
         static Func<S, Fold<A, S>> go(Iterator<A> iterA) =>
-            state =>
-            {
-                if (iterA.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iterA.Head, go(iterA.Tail.Split()));
-                }
-            };
+            state => iterA is (Exist<A> head, var tail)
+                         ? Fold.Loop(state, head.Value, go(tail))
+                         : Fold.Done<A, S>(state);
     }
 
     static Fold<A, S> Foldable<Arr>.FoldStepBack<A, S>(K<Arr, A> ta, in S initialState)
     {
         var array = ta.As();
-        return go(array.ReverseEnumerable().GetIterator())(initialState);
+        return go(array.BackwardIterator())(initialState);
 
         static Func<S, Fold<A, S>> go(Iterator<A> iterA) =>
             state =>
@@ -207,4 +201,24 @@ public partial class Arr :
 
     static K<HashSet, A> Natural<Arr, HashSet>.Transform<A>(K<Arr, A> fa) => 
         toHashSet(fa.As());
+
+    public static Iterator<A> ForwardIterator<A>(K<Arr, A> fa)
+    {
+        var xs = +fa;
+        return go(xs, 0, xs.Count);
+        static Iterator<A> go(Arr<A> xs, int ix, int remain) =>
+            remain == 0
+                ? Iterator.Nil<A>()
+                : Iterator.Cons(xs[ix], () => go(xs, ix + 1, remain - 1));
+    }
+    
+    public static Iterator<A> BackwardIterator<A>(K<Arr, A> fa)
+    {
+        var xs = +fa;
+        return go(xs, xs.Count - 1, xs.Count);
+        static Iterator<A> go(Arr<A> xs, int ix, int remain) =>
+            remain == 0
+                ? Iterator.Nil<A>()
+                : Iterator.Cons(xs[ix], () => go(xs, ix - 1, remain - 1));
+    }
 }

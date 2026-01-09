@@ -1308,4 +1308,6 @@ public abstract class Iterable<A> :
     
     IEnumerator IEnumerable.GetEnumerator() => 
         GetEnumerator();
+
+    public abstract Iterator<A> GetIterator();
 }

@@ -81,6 +81,12 @@ internal class LstInternal<A> :
         where FS : allows ref struct =>
         Wrap(ListModuleM.BuildSubTree<T, FS, A>(items));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static LstInternal<A> FromFoldableBack<T, FS>(K<T, A> items)
+        where T : FoldableBack<T, FS>
+        where FS : allows ref struct =>
+        Wrap(ListModuleM.BuildSubTreeBack<T, FS, A>(items));
+
     internal ListItem<A> Root
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -568,6 +574,23 @@ internal static class ListModuleM
         FS  foldState = default!;
         T.FoldStepSetup(items, ref foldState);
         while (T.FoldStep(items, ref foldState, out var item))
+        {
+            root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
+            subIndex++;
+        }
+        return root;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ListItem<A> BuildSubTreeBack<T, FS, A>(K<T, A> items)
+        where T : FoldableBack<T, FS>
+        where FS : allows ref struct
+    {
+        var root      = ListItem<A>.EmptyM;
+        var subIndex  = 0;
+        FS  foldState = default!;
+        T.FoldStepBackSetup(items, ref foldState);
+        while (T.FoldStepBack(items, ref foldState, out var item))
         {
             root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
             subIndex++;

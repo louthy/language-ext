@@ -1,8 +1,5 @@
 using System;
-using System.Linq;
-using LanguageExt.Common;
 using LanguageExt.Traits;
-using G = System.Collections.Generic;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -29,37 +26,13 @@ public partial class Iterator :
         ma.As().Map(f);
 
     static K<Iterator, A> Applicative<Iterator>.Pure<A>(A value) =>
-        Cons(value, Nil<A>());
+        singleton(value);
 
-    static K<Iterator, B> Applicative<Iterator>.Apply<A, B>(K<Iterator, Func<A, B>> mf, K<Iterator, A> ma)
-    {
-        return go().GetIterator();
-        G.IEnumerable<B> go()
-        {
-            for (var f = mf.As().Clone(); !f.IsEmpty; f = f.Tail)
-            {
-                for (var a = ma.As().Clone(); !a.IsEmpty; a = a.Tail)
-                {
-                    yield return f.Head(a.Head);
-                }
-            }
-        }
-    }
+    static K<Iterator, B> Applicative<Iterator>.Apply<A, B>(K<Iterator, Func<A, B>> mf, K<Iterator, A> ma) =>
+        ma.As().ApplyBack(+mf);
 
-    static K<Iterator, B> Applicative<Iterator>.Apply<A, B>(K<Iterator, Func<A, B>> mf, Memo<Iterator, A> ma)
-    {
-        return go().GetIterator();
-        G.IEnumerable<B> go()
-        {
-            for (var f = mf.As().Clone(); !f.IsEmpty; f = f.Tail)
-            {
-                for (var a = ma.Value.As().Clone(); !a.IsEmpty; a = a.Tail)
-                {
-                    yield return f.Head(a.Head);
-                }
-            }
-        }
-    }
+    static K<Iterator, B> Applicative<Iterator>.Apply<A, B>(K<Iterator, Func<A, B>> mf, Memo<Iterator, A> ma) =>
+        ma.Value.As().ApplyBack(+mf);
 
     static K<Iterator, A> MonoidK<Iterator>.Empty<A>() =>
         Iterator<A>.Empty;
@@ -68,30 +41,34 @@ public partial class Iterator :
         Iterator<A>.Empty;
 
     static K<Iterator, A> SemigroupK<Iterator>.Combine<A>(K<Iterator, A> ma, K<Iterator, A> mb) =>
-        ma.As().Concat(mb.As());
+        ma.As().Combine(mb.As());
 
-    static K<Iterator, A> Choice<Iterator>.Choose<A>(K<Iterator, A> ma, K<Iterator, A> mb) => 
-        ma.IsEmpty ? mb : ma;
+    static K<Iterator, A> Choice<Iterator>.Choose<A>(K<Iterator, A> ma, K<Iterator, A> mb) =>
+        +ma is (Exist<A> (var h), var t)
+            ? h.Cons(t)
+            : mb;
     
     static K<Iterator, A> Choice<Iterator>.Choose<A>(K<Iterator, A> ma, Memo<Iterator, A> mb) => 
-        ma.IsEmpty ? mb.Value : ma;
+        +ma is (Exist<A> (var h), var t)
+            ? h.Cons(t)
+            : mb.Value;
     
     static K<F, K<Iterator, B>> Traversable<Iterator>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Iterator, A> ta)
     {
-        return Foldable.foldBack(add, F.Pure(Iterator<B>.Empty), ta)
+        return Foldable.fold(add, F.Pure(Iterator<B>.Empty), ta)
                        .Map(bs => bs.Kind());
 
         K<F, Iterator<B>> add(K<F, Iterator<B>> state, A value) =>
-              Applicative.lift((bs, b) => b.Cons(bs), state, f(value));                                            
+              Applicative.lift((bs, b) => bs + b, state, f(value));                                            
     }
 
     static K<F, K<Iterator, B>> Traversable<Iterator>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Iterator, A> ta) 
     {
-        return Foldable.foldBack(add, F.Pure(Iterator<B>.Empty), ta)
+        return Foldable.fold(add, F.Pure(Iterator<B>.Empty), ta)
                        .Map(bs => bs.Kind());
 
         K<F, Iterator<B>> add(K<F, Iterator<B>> state, A value) =>
-            state.Bind(bs => f(value).Bind(b => F.Pure(b.Cons(bs)))); 
+            state.Bind(bs => f(value).Bind(b => F.Pure(bs + b))); 
     }
     
     static Arr<A> Foldable<Iterator>.ToArr<A>(K<Iterator, A> ta) =>
@@ -123,43 +100,7 @@ public partial class Iterator :
     
     static K<Iterable, A> Natural<Iterator, Iterable>.Transform<A>(K<Iterator, A> fa) => 
         Iterable.createRange(fa.As());
-    
-    static Fold<A, S> Foldable<Iterator>.FoldStep<A, S>(K<Iterator, A> ta, in S initialState)
-    {
-        return go(ta.As())(initialState);
 
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
-    }
- 
-        
-    static Fold<A, S> Foldable<Iterator>.FoldStepBack<A, S>(K<Iterator, A> ta, in S initialState)
-    {
-        var items = ta.As();
-        return go(items.Reverse().GetIterator())(initialState);
-
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
-    }
-
+    public static Iterator<A> ForwardIterator<A>(K<Iterator, A> fa) => 
+        +fa;
 }
