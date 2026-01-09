@@ -20,13 +20,13 @@ public static partial class FoldableExtensions
         /// Fold the structure: `ta` and pass each element that it yields to `f`, resulting in an `F` applicative-value.
         /// The fold operator is applicative `Action`, which causes each applicative-value to be sequenced.      
         /// </summary>
-        /// <param name="ta">Foldable structure - TODO: Change the argument to T when this feature lands in C#: https://github.com/dotnet/csharplang/issues/9453</param>
+        /// <param name="ta">Foldable structure</param>
         /// <returns></returns>
         public K<F, Unit> ForM(K<T, A> ta) =>
             ta.Fold((fs, x) => fs.BackAction(f(x)), pure<F, Unit>(unit));
     }
 
-    /// <param name="ta">Foldable structure - TODO: Change the argument to T when this feature lands in C#: https://github.com/dotnet/csharplang/issues/9453</param>
+    /// <param name="ta">Foldable structure</param>
     /// <typeparam name="T">Foldable</typeparam>
     /// <typeparam name="F">Applicative</typeparam>
     /// <typeparam name="A">Input bound value</typeparam>
@@ -45,27 +45,11 @@ public static partial class FoldableExtensions
             T.Fold((fs, x) => fs.BackAction(f(x)), pure<F, Unit>(unit), ta);
     }
 
-    /// <param name="ta">Foldable structure - TODO: Change the argument to T when this feature lands in C#: https://github.com/dotnet/csharplang/issues/9453</param>
+    /// <param name="ta">Foldable structure</param>
     /// <typeparam name="A">Value type</typeparam>
     extension<T, A>(K<T, A> ta)
         where T : Foldable<T>
     {
-        /// <summary>
-        /// Runs a single step of the folding operation. The return value indicates whether the folding
-        /// operation should continue, and if so, what the next step should be.
-        /// </summary>
-        /// <remarks>
-        /// It is up to the consumer of this method to implement the actual state-aggregation (the folding)
-        /// before passing it to the continuation function.  
-        /// </remarks>
-        /// <param name="ta">Foldable structure</param>
-        /// <param name="initialState">Initial state value</param>
-        /// <typeparam name="A">Value type</typeparam>
-        /// <typeparam name="S">State type</typeparam>
-        /// <returns>A discriminated union that can be either `Done` or `Loop`.</returns>
-        public Fold<A, S> FoldStep<S>(S initialState) =>
-            T.FoldStep(ta, initialState);
-
         /// <summary>
         /// Fold until the `Option` returns `None`
         /// </summary>
@@ -271,11 +255,11 @@ public static partial class FoldableExtensions
         /// <param name="ta">Foldable structure</param>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Partitioned structure</returns>
-        public (Seq<A> True, Seq<A> False) Partition(Func<A, bool> f) =>
+        public (Arr<A> True, Arr<A> False) Partition(Func<A, bool> f) =>
             T.Partition(f, ta);
     }
     
-    /// <param name="ta">Foldable structure - TODO: Change the argument to T when this feature lands in C#: https://github.com/dotnet/csharplang/issues/9453</param>
+    /// <param name="ta">Foldable structure</param>
     /// <typeparam name="A">Value type</typeparam>
     extension<EqA, T, A>(K<T, A> ta)
         where T : Foldable<T>
@@ -288,7 +272,7 @@ public static partial class FoldableExtensions
             T.Contains<EqA, A>(value, ta);
     }
     
-    /// <param name="ta">Foldable structure - TODO: Change the argument to T when this feature lands in C#: https://github.com/dotnet/csharplang/issues/9453</param>
+    /// <param name="ta">Foldable structure</param>
     /// <typeparam name="A">Value type</typeparam>
     extension<OrdA, T, A>(K<T, A> ta)
         where T : Foldable<T>
@@ -320,7 +304,7 @@ public static partial class FoldableExtensions
             T.Max<OrdA, A>(initialMax, ta);
     }
     
-    /// <param name="ta">Foldable structure - TODO: Change the argument to T when this feature lands in C#: https://github.com/dotnet/csharplang/issues/9453</param>
+    /// <param name="ta">Foldable structure</param>
     /// <typeparam name="T">Foldable type</typeparam>
     /// <typeparam name="A">Bound values</typeparam>
     extension<T, A>(K<T, A> ta)
@@ -355,7 +339,7 @@ public static partial class FoldableExtensions
             T.FoldUntil((s, x) => s + x, predicate, A.Empty, ta);
     }
 
-    /// <param name="ta">Foldable structure - TODO: Change the argument to T when this feature lands in C#: https://github.com/dotnet/csharplang/issues/9453</param>
+    /// <param name="ta">Foldable structure</param>
     /// <typeparam name="T">Foldable type</typeparam>
     /// <typeparam name="A">Bound values</typeparam>
     extension<T, A>(K<T, A> ta)
@@ -369,7 +353,7 @@ public static partial class FoldableExtensions
             T.Fold((s, x) => s + x, A.AdditiveIdentity, ta);
     }
 
-    /// <param name="ta">Foldable structure - TODO: Change the argument to T when this feature lands in C#: https://github.com/dotnet/csharplang/issues/9453</param>
+    /// <param name="ta">Foldable structure</param>
     /// <typeparam name="T">Foldable type</typeparam>
     /// <typeparam name="A">Bound values</typeparam>
     extension<T, A>(K<T, A> ta)
@@ -383,7 +367,7 @@ public static partial class FoldableExtensions
             T.Fold((s, x) => s * x, A.MultiplicativeIdentity, ta);
     }
     
-    /// <param name="ta">Foldable structure - TODO: Change the argument to T when this feature lands in C#: https://github.com/dotnet/csharplang/issues/9453</param>
+    /// <param name="ta">Foldable structure</param>
     /// <typeparam name="T">Foldable type</typeparam>
     /// <typeparam name="A">Bound values</typeparam>
     extension<T, A>(K<T, A> ta)

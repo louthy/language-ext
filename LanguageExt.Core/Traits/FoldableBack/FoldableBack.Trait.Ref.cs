@@ -293,30 +293,17 @@ public interface FoldableBack<T, FS> : FoldableBack<T>
     /// <summary>
     /// Find the element at the specified index or `None` if out of range
     /// </summary>
-    static Option<A> FoldableBack<T>.At<A>(Index index, K<T, A> ta)
+    static Option<A> FoldableBack<T>.AtBack<A>(int index, K<T, A> ta)
     {
         var ix        = 0;
         FS  foldState = default!;
-        if (index.IsFromEnd)
+        T.FoldStepBackSetup(ta, ref foldState);
+        while (T.FoldStepBack(ta, ref foldState, out var value))
         {
-            T.FoldStepBackSetup(ta, ref foldState);
-            while (T.FoldStepBack(ta, ref foldState, out var value))
-            {
-                if (ix == index.Value) return value;
-                ix++;
-            }
-            return default;
+            if (ix == index) return value;
+            ix++;
         }
-        else
-        {
-            T.FoldStepSetup(ta, ref foldState);
-            while (T.FoldStep(ta, ref foldState, out var value))
-            {
-                if (ix == index.Value) return value;
-                ix++;
-            }
-            return default;
-        }        
+        return default;
     }
 
     /// <summary>
@@ -326,10 +313,10 @@ public interface FoldableBack<T, FS> : FoldableBack<T>
     /// <param name="ta">Foldable structure</param>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Partitioned structure</returns>
-    static (Seq<A> True, Seq<A> False) FoldableBack<T>.PartitionBack<A>(Func<A, bool> f, K<T, A> ta)
+    static (Arr<A> True, Arr<A> False) FoldableBack<T>.PartitionBack<A>(Func<A, bool> f, K<T, A> ta)
     {
-        var @true  = Seq<A>();
-        var @false = Seq<A>();
+        var @true = ArrayWriter<A>.Init();
+        var @false = ArrayWriter<A>.Init();
 
         FS foldState = default!;
         T.FoldStepBackSetup(ta, ref foldState);
@@ -337,13 +324,13 @@ public interface FoldableBack<T, FS> : FoldableBack<T>
         {
             if (f(value))
             {
-                @true = @true.Add(value);
+                @true.Add(value);
             }
             else
             {
-                @false = @false.Add(value);
+                @false.Add(value);
             }
         }
-        return (@true, @false);
+        return (@true.ToArr(), @false.ToArr());
     }
 }

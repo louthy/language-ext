@@ -107,12 +107,6 @@ public partial class HashSet :
 
     static bool Foldable<HashSet, TrieSet.FoldState>.FoldStep<A>(K<HashSet, A> ta, ref TrieSet.FoldState refState, out A value) =>
         TrieSet.FoldState.Step<EqDefault<A>, A>(ref refState, out value);
-    
-    static void Foldable<HashSet, TrieSet.FoldState>.FoldStepBackSetup<A>(K<HashSet, A> ta, ref TrieSet.FoldState refState) => 
-        TrieSet.FoldState.Setup(ref refState, ta.As().Value.Root);
-
-    static bool Foldable<HashSet, TrieSet.FoldState>.FoldStepBack<A>(K<HashSet, A> ta, ref TrieSet.FoldState refState, out A value) => 
-        TrieSet.FoldState.Step<EqDefault<A>, A>(ref refState, out value);
 
     static bool Foldable<HashSet>.IsEmpty<A>(K<HashSet, A> ta) =>
         ta.As().IsEmpty;
@@ -136,44 +130,7 @@ public partial class HashSet :
         K<F, HashSet<B>> acc(K<F, HashSet<B>> fys, A x) =>
             fys.Bind(ys => f(x).Map(ys.Add));
     }
-    
-    static Fold<A, S> Foldable<HashSet>.FoldStep<A, S>(K<HashSet, A> ta, in S initialState)
-    {
-        var items = ta.As();
-        return go(items.GetIterator())(initialState);
 
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
-    }
-
-    static Fold<A, S> Foldable<HashSet>.FoldStepBack<A, S>(K<HashSet, A> ta, in S initialState)
-    {
-        // Order is undefined in a HashSet, so reversing the order makes no sense,
-        // so let's take the most efficient option:
-        var items = ta.As();
-        return go(items.GetIterator())(initialState);
-
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
-    }
+    static Iterator<A> IterableK<HashSet>.ForwardIterator<A>(K<HashSet, A> fa) => 
+        throw new NotImplementedException();
 }

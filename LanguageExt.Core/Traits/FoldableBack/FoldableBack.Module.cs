@@ -15,7 +15,7 @@ public static class FoldableBack
     /// <typeparam name="A">Input bound value</typeparam>
     /// <typeparam name="B">Mapping bound value</typeparam>
     /// <returns></returns>
-    public static K<F, Unit> forBackM<T, F, A, B>(K<T, A> ta, Func<A, K<F, B>> f)
+    public static K<F, Unit> forM<T, F, A, B>(K<T, A> ta, Func<A, K<F, B>> f)
         where F : Applicative<F>
         where T : FoldableBack<T> =>
         ta.ForBackM(f);
@@ -24,7 +24,7 @@ public static class FoldableBack
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
     /// </summary>
-    public static S foldBackWhile<T, A, S>(
+    public static S foldWhile<T, A, S>(
         Func<S, A, S> f, 
         Func<(S State, A Value), bool> predicate, 
         S initialState, 
@@ -37,7 +37,7 @@ public static class FoldableBack
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
     /// </summary>
-    public static K<M, S> foldBackWhileM<T, A, M, S>(
+    public static K<M, S> foldWhileM<T, A, M, S>(
         Func<S, A, K<M, S>> f, 
         Func<(S State, A Value), bool> predicate, 
         S initialState, 
@@ -50,7 +50,7 @@ public static class FoldableBack
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair
     /// </summary>
-    public static S foldBackUntil<T, A, S>(
+    public static S foldUntil<T, A, S>(
         Func<S, A, S> f, 
         Func<(S State, A Value), bool> predicate, 
         S initialState, 
@@ -63,7 +63,7 @@ public static class FoldableBack
     /// early exit of the operation once the predicate function becomes `false` for the
     /// state/value pair 
     /// </summary>
-    public static K<M, S> foldBackUntilM<T, A, M, S>(
+    public static K<M, S> foldUntilM<T, A, M, S>(
         Func<S, A, K<M, S>> f, 
         Func<(S State, A Value), bool> predicate, 
         S initialState, 
@@ -87,7 +87,7 @@ public static class FoldableBack
     /// entire input list must be traversed.  Like all left-associative folds,
     /// `FoldBack' will diverge if given an infinite list.
     /// </remarks>
-    public static S foldBack<T, A, S>(Func<S, A, S> f, S initialState, K<T, A> ta) 
+    public static S fold<T, A, S>(Func<S, A, S> f, S initialState, K<T, A> ta) 
         where T : FoldableBack<T> =>
         ta.FoldBack(f, initialState);
 
@@ -106,7 +106,7 @@ public static class FoldableBack
     /// entire input list must be traversed.  Like all left-associative folds,
     /// `FoldBack' will diverge if given an infinite list.
     /// </remarks>
-    public static K<M, S> foldBackM<T, A, M, S>(
+    public static K<M, S> foldM<T, A, M, S>(
         Func<S, A, K<M, S>> f, 
         S initialState, 
         K<T, A> ta)
@@ -117,49 +117,49 @@ public static class FoldableBack
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
-    public static Seq<A> toSeqBack<T, A>(K<T, A> ta) 
+    public static Seq<A> toSeq<T, A>(K<T, A> ta) 
         where T : FoldableBack<T> =>
-        ta.ToSeq();
+        ta.ToSeqBack();
 
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
-    public static Lst<A> toLstBack<T, A>(K<T, A> ta) 
+    public static Lst<A> toLst<T, A>(K<T, A> ta) 
         where T : FoldableBack<T> =>
-        ta.ToLst();
+        ta.ToLstBack();
 
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
-    public static Arr<A> toArrBack<T, A>(K<T, A> ta)
+    public static Arr<A> toArr<T, A>(K<T, A> ta)
         where T : FoldableBack<T> =>
-        ta.ToArr();
+        ta.ToArrBack();
 
     /// <summary>
     /// List of elements of a structure, from left to right
     /// </summary>
-    public static Iterable<A> toIterableBack<T, A>(K<T, A> ta) 
+    public static Iterable<A> toIterable<T, A>(K<T, A> ta) 
         where T : FoldableBack<T> =>
-        ta.ToIterable();
+        ta.ToIterableBack();
 
     /// <summary>
     /// Does an element that fits the predicate occur in the structure?
     /// </summary>
-    public static bool existsBack<T, A>(Func<A, bool> predicate, K<T, A> ta) 
+    public static bool exists<T, A>(Func<A, bool> predicate, K<T, A> ta) 
         where T : FoldableBack<T> =>
         ta.ExistsBack(predicate);
 
     /// <summary>
     /// Does the predicate hold for all elements in the structure?
     /// </summary>
-    public static bool forAllBack<T, A>(Func<A, bool> predicate, K<T, A> ta) 
+    public static bool forAll<T, A>(Func<A, bool> predicate, K<T, A> ta) 
         where T : FoldableBack<T> =>
         ta.ForAllBack(predicate);
 
     /// <summary>
     /// Does the element exist in the structure?
     /// </summary>
-    public static bool containsBack<EqA, T, A>(A value, K<T, A> ta) 
+    public static bool contains<EqA, T, A>(A value, K<T, A> ta) 
         where EqA : Eq<A> 
         where T : FoldableBack<T> =>
         T.ContainsBack<EqA, A>(value, ta);
@@ -167,21 +167,21 @@ public static class FoldableBack
     /// <summary>
     /// Does the element exist in the structure?
     /// </summary>
-    public static bool containsBack<T, A>(A value, K<T, A> ta)
+    public static bool contains<T, A>(A value, K<T, A> ta)
         where T : FoldableBack<T> =>
         ta.ContainsBack(value);
 
     /// <summary>
     /// Find the last element that match the predicate
     /// </summary>
-    public static Option<A> findBack<T, A>(Func<A, bool> predicate, K<T, A> ta) 
+    public static Option<A> find<T, A>(Func<A, bool> predicate, K<T, A> ta) 
         where T : FoldableBack<T> =>
         ta.FindBack(predicate);
 
     /// <summary>
     /// Find the elements that match the predicate
     /// </summary>
-    public static Iterable<A> findAllBack<T, A>(Func<A, bool> predicate, K<T, A> ta) 
+    public static Iterable<A> findAll<T, A>(Func<A, bool> predicate, K<T, A> ta) 
         where T : FoldableBack<T> =>
         ta.FindAllBack(predicate);
 
@@ -195,9 +195,9 @@ public static class FoldableBack
     /// <summary>
     /// Find the element at the specified index or `None` if out of range
     /// </summary>
-    public static Option<A> at<T, A>(K<T, A> ta, Index index)
+    public static Option<A> at<T, A>(K<T, A> ta, int index)
         where T : FoldableBack<T> =>
-        ta.At(index);
+        ta.AtBack(index);
 
     /// <summary>
     /// Partition a foldable into two sequences based on a predicate
@@ -206,14 +206,14 @@ public static class FoldableBack
     /// <param name="ta">Foldable structure</param>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Partitioned structure</returns>
-    public static (Seq<A> True, Seq<A> False) partitionBack<T, A>(Func<A, bool> f, K<T, A> ta)
+    public static (Arr<A> True, Arr<A> False) partition<T, A>(Func<A, bool> f, K<T, A> ta)
         where T : FoldableBack<T> =>
         ta.PartitionBack(f);
 
     /// <summary>
     /// Low-level interface for folding using stack-based primitives.
     /// </summary>
-    public static void stepBackSetup<T, FS, A>(K<T, A> ta, ref FS refState)
+    public static void stepSetup<T, FS, A>(K<T, A> ta, ref FS refState)
         where T : FoldableBack<T, FS> 
         where FS : allows ref struct =>
         T.FoldStepBackSetup(ta, ref refState);
@@ -221,7 +221,7 @@ public static class FoldableBack
     /// <summary>
     /// Low-level interface for folding using stack-based primitives.
     /// </summary>
-    public static bool stepBack<T, FS, A>(K<T, A> ta, ref FS refState, out A value)
+    public static bool step<T, FS, A>(K<T, A> ta, ref FS refState, out A value)
         where T : FoldableBack<T, FS> 
         where FS : allows ref struct =>
         T.FoldStepBack(ta, ref refState, out value);

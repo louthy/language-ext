@@ -136,7 +136,7 @@ public static partial class Prelude
     /// <param name="ta">Foldable structure</param>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Partitioned structure</returns>
-    public static (Seq<A> True, Seq<A> False) partitionBack<T, A>(Func<A, bool> f, K<T, A> ta)
+    public static (Arr<A> True, Arr<A> False) partitionBack<T, A>(Func<A, bool> f, K<T, A> ta)
         where T : FoldableBack<T> =>
         ta.PartitionBack(f);
 }

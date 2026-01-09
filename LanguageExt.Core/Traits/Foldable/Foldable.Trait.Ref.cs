@@ -489,24 +489,24 @@ public interface Foldable<T, FS> : Foldable<T>
     /// <param name="ta">Foldable structure</param>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Partitioned structure</returns>
-    static (Seq<A> True, Seq<A> False) Foldable<T>.Partition<A>(Func<A, bool> f, K<T, A> ta)
+    static (Arr<A> True, Arr<A> False) Foldable<T>.Partition<A>(Func<A, bool> f, K<T, A> ta)
     {
-        var @true  = Seq<A>();
-        var @false = Seq<A>();
-
+        var @true  = ArrayWriter<A>.Init();
+        var @false = ArrayWriter<A>.Init();
+        
         FS foldState = default!;
         T.FoldStepSetup(ta, ref foldState);
         while (T.FoldStep(ta, ref foldState, out var value))
         {
             if (f(value))
             {
-                @true = @true.Add(value);
+                @true.Add(value);
             }
             else
             {
-                @false = @false.Add(value);
+                @false.Add(value);
             }
         }
-        return (@true, @false);
+        return (@true.ToArr(), @false.ToArr());
     }
 }

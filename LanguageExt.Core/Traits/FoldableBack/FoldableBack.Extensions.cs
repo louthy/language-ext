@@ -41,7 +41,7 @@ public static partial class FoldableBackExtensions
         /// <param name="f">Mapping operation</param>
         /// <returns></returns>
         public K<F, Unit> ForBackM(Func<A, K<F, B>> f) =>
-            T.Fold((fs, x) => fs.BackAction(f(x)), pure<F, Unit>(unit), ta);
+            T.FoldBack((fs, x) => fs.BackAction(f(x)), pure<F, Unit>(unit), ta);
     }
 
     /// <param name="ta">Foldable structure</param>
@@ -49,22 +49,6 @@ public static partial class FoldableBackExtensions
     extension<T, A>(K<T, A> ta)
         where T : FoldableBack<T>
     {
-        /// <summary>
-        /// Runs a single step of the folding operation. The return value indicates whether the folding
-        /// operation should continue, and if so, what the next step should be.
-        /// </summary>
-        /// <remarks>
-        /// It is up to the consumer of this method to implement the actual state-aggregation (the folding)
-        /// before passing it to the continuation function.  
-        /// </remarks>
-        /// <param name="ta">Foldable structure</param>
-        /// <param name="initialState">Initial state value</param>
-        /// <typeparam name="A">Value type</typeparam>
-        /// <typeparam name="S">State type</typeparam>
-        /// <returns>A discriminated union that can be either `Done` or `Loop`.</returns>
-        public Fold<A, S> FoldStepBack<S>(S initialState) =>
-            T.FoldStepBack(ta, initialState);
-
         /// <summary>
         /// Fold until the `Option` returns `None`
         /// </summary>
@@ -223,8 +207,8 @@ public static partial class FoldableBackExtensions
         /// <summary>
         /// Find the element at the specified index or `None` if out of range
         /// </summary>
-        public Option<A> At(Index index) =>
-            T.At(index, ta);
+        public Option<A> AtBack(int index) =>
+            T.AtBack(index, ta);
 
         /// <summary>
         /// Partition a foldable into two sequences based on a predicate
@@ -233,7 +217,7 @@ public static partial class FoldableBackExtensions
         /// <param name="ta">Foldable structure</param>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Partitioned structure</returns>
-        public (Seq<A> True, Seq<A> False) PartitionBack(Func<A, bool> f) =>
+        public (Arr<A> True, Arr<A> False) PartitionBack(Func<A, bool> f) =>
             T.PartitionBack(f, ta);
     }
     
@@ -250,7 +234,7 @@ public static partial class FoldableBackExtensions
             T.ContainsBack<EqA, A>(value, ta);
     }
     
-    /// <param name="ta">Foldable structure - TODO: Change the argument to T when this feature lands in C#: https://github.com/dotnet/csharplang/issues/9453</param>
+    /// <param name="ta">Foldable structure</param>
     /// <typeparam name="T">Foldable type</typeparam>
     /// <typeparam name="A">Bound values</typeparam>
     extension<T, A>(K<T, A> ta)
