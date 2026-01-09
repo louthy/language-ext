@@ -108,8 +108,12 @@ public class Either<L> :
         return ma.IsRight
                    ? Fold.Loop(initialState, ma.RightValue, Fold.Done<A, S>)
                    : Fold.Done<A, S>(initialState);
-    }    
-        
-    static Fold<A, S> Foldable<Either<L>>.FoldStepBack<A, S>(K<Either<L>, A> ta, in S initialState) =>
-        ta.FoldStep(initialState);
+    }
+
+    static Iterator<A> IterableK<Either<L>>.ForwardIterator<A>(K<Either<L>, A> fa) =>
+        fa switch
+        {
+            Either<L, A>.Right (var r) => Iterator.singleton(r),
+            _                          => Iterator<A>.Empty
+        };
 }

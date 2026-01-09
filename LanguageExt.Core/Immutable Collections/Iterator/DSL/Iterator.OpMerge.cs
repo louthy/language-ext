@@ -7,7 +7,7 @@ public abstract partial class Iterator<A>
         public override string ToString() => 
             $"Merge({xs}, {ys})";
 
-        protected override (Head<A> Head, Iterator<A> Tail) Next() =>
+        public override (Head<A> Head, Iterator<A> Tail) Next() =>
             (xs, ys) switch
             {
                 ((Exist<A> lh, var lt), (Exist<A> (var rh), var rt)) =>

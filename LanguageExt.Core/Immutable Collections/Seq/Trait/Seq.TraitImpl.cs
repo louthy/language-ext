@@ -146,39 +146,19 @@ public partial class Seq :
         }
     }
 
-    static void Foldable<Seq, FoldState>.FoldStepBackSetup<A>(K<Seq, A> ta, ref FoldState refState) => 
-        ta.As().InitFoldBackState(ref refState);
-
-    static bool Foldable<Seq, FoldState>.FoldStepBack<A>(K<Seq, A> ta, ref FoldState refState, out A value) 
-    {
-        if (FoldState.MovePrev<A>(ref refState, out var v))
-        {
-            value = v;
-            return true;
-        }
-        else
-        {
-            value = default!;
-            return false;
-        }
-    }
-
     static bool Foldable<Seq>.IsEmpty<A>(K<Seq, A> ta) =>
         ta.As().IsEmpty;
 
-    static Option<A> Foldable<Seq>.At<A>(Index index, K<Seq, A> ta)
+    static Option<A> Foldable<Seq>.At<A>(int index, K<Seq, A> ta)
     {
         var list = ta.As();
-        return index.Value >= 0 && index.Value < list.Count
+        return index >= 0 && index < list.Count
                    ? Some(list[index])
                    : Option<A>.None;
     }
 
     static Option<A> Foldable<Seq>.Head<A>(K<Seq, A> ta) =>
         ta.As().Head;
-
-    static Option<A> Foldable<Seq>.Last<A>(K<Seq, A> ta) =>
-        ta.As().Last;
     
     static K<F, K<Seq, B>> Traversable<Seq>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Seq, A> ta)
     {
@@ -192,42 +172,7 @@ public partial class Seq :
     static K<F, K<Seq, B>> Traversable<Seq>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Seq, A> ta) =>
         ta.FoldM((bs, a) => f(a).Map(bs.Add), Seq<B>.Empty)
           .Map(bs => bs.Kind());
-    
-    static Fold<A, S> Foldable<Seq>.FoldStep<A, S>(K<Seq, A> ta, in S initialState)
-    {
-        var items = ta.As();
-        return go(items.GetIterator())(initialState);
 
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
-    }
-        
-    static Fold<A, S> Foldable<Seq>.FoldStepBack<A, S>(K<Seq, A> ta, in S initialState)
-    {
-        var items = ta.As();
-        return go(items.Reverse().GetIterator())(initialState);
-
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
-    }
+    static Iterator<A> IterableK<Seq>.ForwardIterator<A>(K<Seq, A> fa) =>
+        new Iterator<A>.IterSeq(+fa);
 }

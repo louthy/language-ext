@@ -10,7 +10,7 @@ public abstract partial class Iterator<A>
         public override string ToString() => 
             $"{Value}";
 
-        protected override (Head<A> Head, Iterator<A> Tail) Next() =>
+        public override (Head<A> Head, Iterator<A> Tail) Next() =>
             (new Exist<A>(Value), Iterator.Nil<A>());
     }
 }

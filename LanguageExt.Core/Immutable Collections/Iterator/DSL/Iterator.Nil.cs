@@ -14,7 +14,7 @@ public abstract partial class Iterator<A>
         public override string ToString() => 
             "Nil";
 
-        protected override (Head<A> Head, Iterator<A> Tail) Next() =>
+        public override (Head<A> Head, Iterator<A> Tail) Next() =>
             (Nil<A>.Default, Default);
     }
 }

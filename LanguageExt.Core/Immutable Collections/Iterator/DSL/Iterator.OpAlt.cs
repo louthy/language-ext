@@ -7,7 +7,7 @@ public abstract partial class Iterator<A>
         public override string ToString() => 
             $"{xs} | {ys}";
 
-        protected override (Head<A> Head, Iterator<A> Tail) Next() =>
+        public override (Head<A> Head, Iterator<A> Tail) Next() =>
             xs is (Exist<A> h, var t)
                 ? (h, t)
                 : ys.Next();
@@ -18,7 +18,7 @@ public abstract partial class Iterator<A>
         public override string ToString() => 
             $"{xs} | {ys}";
 
-        protected override (Head<A> Head, Iterator<A> Tail) Next() =>
+        public override (Head<A> Head, Iterator<A> Tail) Next() =>
             xs is (Exist<A> h, var t)
                 ? (h, t)
                 : ys.Value.As().Next();

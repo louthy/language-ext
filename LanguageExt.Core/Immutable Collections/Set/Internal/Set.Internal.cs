@@ -24,22 +24,20 @@ internal class SetInternal<OrdA, A> :
     where OrdA : Ord<A>
 {
     public static readonly SetInternal<OrdA, A> Empty = new ();
-    readonly SetItem<A> set;
+    internal readonly SetItem<A> Root;
     int hashCode;
 
     /// <summary>
     /// Default ctor
     /// </summary>
-    internal SetInternal() => set = SetItem<A>.Empty;
+    internal SetInternal() => Root = SetItem<A>.Empty;
 
     /// <summary>
     /// Ctor that takes a root element
     /// </summary>
     /// <param name="root"></param>
-    internal SetInternal(SetItem<A> root)
-    {
-        set = root;
-    }
+    internal SetInternal(SetItem<A> root) => 
+        Root = root;
 
     /// <summary>
     /// Ctor from an enumerable 
@@ -71,7 +69,7 @@ internal class SetInternal<OrdA, A> :
         return Iterable.createRange(Go());
         IEnumerable<A> Go()
         {
-            using var iter = new SetModule.SetEnumerator<A>(set, false, amount);
+            using var iter = new SetModule.SetEnumerator<A>(Root, false, amount);
             while (iter.MoveNext())
             {
                 yield return iter.Current;
@@ -85,11 +83,11 @@ internal class SetInternal<OrdA, A> :
     /// <param name="items"></param>
     internal SetInternal(IEnumerable<A> items, SetModuleM.AddOpt option)
     {
-        set = SetItem<A>.Empty;
+        Root = SetItem<A>.Empty;
 
         foreach (var item in items)
         {
-            set = SetModuleM.Add<OrdA, A>(set, item, option);
+            Root = SetModuleM.Add<OrdA, A>(Root, item, option);
         }
     }
 
@@ -99,11 +97,11 @@ internal class SetInternal<OrdA, A> :
     /// <param name="items"></param>
     internal SetInternal(ReadOnlySpan<A> items, SetModuleM.AddOpt option)
     {
-        set = SetItem<A>.Empty;
+        Root = SetItem<A>.Empty;
 
         foreach (var item in items)
         {
-            set = SetModuleM.Add<OrdA, A>(set, item, option);
+            Root = SetModuleM.Add<OrdA, A>(Root, item, option);
         }
     }
 
@@ -112,19 +110,19 @@ internal class SetInternal<OrdA, A> :
     /// </summary>
     [Pure]
     public int Count =>
-        set.Count;
+        Root.Count;
 
     [Pure]
     public Option<A> Min => 
-        set.IsEmpty
+        Root.IsEmpty
             ? None
-            : SetModule.Min(set);
+            : SetModule.Min(Root);
 
     [Pure]
     public Option<A> Max =>
-        set.IsEmpty
+        Root.IsEmpty
             ? None
-            : SetModule.Max(set);
+            : SetModule.Max(Root);
 
     /// <summary>
     /// Add an item to the set
@@ -133,7 +131,7 @@ internal class SetInternal<OrdA, A> :
     /// <returns>New set with the item added</returns>
     [Pure]
     public SetInternal<OrdA, A> Add(A value) =>
-        new (SetModule.Add<OrdA, A>(set,value));
+        new (SetModule.Add<OrdA, A>(Root,value));
 
     /// <summary>
     /// Attempt to add an item to the set.  If an item already
@@ -155,7 +153,7 @@ internal class SetInternal<OrdA, A> :
     /// <returns>New set with the item maybe added</returns>
     [Pure]
     public SetInternal<OrdA, A> AddOrUpdate(A value) =>
-        new (SetModule.AddOrUpdate<OrdA, A>(set, value));
+        new (SetModule.AddOrUpdate<OrdA, A>(Root, value));
 
     [Pure]
     public SetInternal<OrdA, A> AddRange(IEnumerable<A> xs)
@@ -220,7 +218,7 @@ internal class SetInternal<OrdA, A> :
     /// <returns>Some(T) if found, None otherwise</returns>
     [Pure]
     public Option<A> Find(A value) =>
-        SetModule.TryFind<OrdA, A>(set, value);
+        SetModule.TryFind<OrdA, A>(Root, value);
 
     /// <summary>
     /// Retrieve the value from predecessor item to specified key
@@ -228,7 +226,7 @@ internal class SetInternal<OrdA, A> :
     /// <param name="key">Key to find</param>
     /// <returns>Found key</returns>
     [Pure]
-    public Option<A> FindPredecessor(A key) => SetModule.TryFindPredecessor<OrdA, A>(set, key);
+    public Option<A> FindPredecessor(A key) => SetModule.TryFindPredecessor<OrdA, A>(Root, key);
 
     /// <summary>
     /// Retrieve the value from exact key, or if not found, the predecessor item 
@@ -236,7 +234,7 @@ internal class SetInternal<OrdA, A> :
     /// <param name="key">Key to find</param>
     /// <returns>Found key</returns>
     [Pure]
-    public Option<A> FindOrPredecessor(A key) => SetModule.TryFindOrPredecessor<OrdA, A>(set, key);
+    public Option<A> FindOrPredecessor(A key) => SetModule.TryFindOrPredecessor<OrdA, A>(Root, key);
 
     /// <summary>
     /// Retrieve the value from next item to specified key
@@ -244,7 +242,7 @@ internal class SetInternal<OrdA, A> :
     /// <param name="key">Key to find</param>
     /// <returns>Found key</returns>
     [Pure]
-    public Option<A> FindSuccessor(A key) => SetModule.TryFindSuccessor<OrdA, A>(set, key);
+    public Option<A> FindSuccessor(A key) => SetModule.TryFindSuccessor<OrdA, A>(Root, key);
 
     /// <summary>
     /// Retrieve the value from exact key, or if not found, the next item 
@@ -252,7 +250,7 @@ internal class SetInternal<OrdA, A> :
     /// <param name="key">Key to find</param>
     /// <returns>Found key</returns>
     [Pure]
-    public Option<A> FindOrSuccessor(A key) => SetModule.TryFindOrSuccessor<OrdA, A>(set, key);
+    public Option<A> FindOrSuccessor(A key) => SetModule.TryFindOrSuccessor<OrdA, A>(Root, key);
 
     /// <summary>
     /// Retrieve a range of values 
@@ -267,8 +265,8 @@ internal class SetInternal<OrdA, A> :
         if (isnull(keyFrom)) throw new ArgumentNullException(nameof(keyFrom));
         if (isnull(keyTo)) throw new ArgumentNullException(nameof(keyTo));
         return OrdA.Compare(keyFrom, keyTo) > 0
-                   ? SetModule.FindRange<OrdA, A>(set, keyTo, keyFrom).AsIterable()
-                   : SetModule.FindRange<OrdA, A>(set, keyFrom, keyTo).AsIterable();
+                   ? SetModule.FindRange<OrdA, A>(Root, keyTo, keyFrom).AsIterable()
+                   : SetModule.FindRange<OrdA, A>(Root, keyFrom, keyTo).AsIterable();
     }
 
 
@@ -389,7 +387,7 @@ internal class SetInternal<OrdA, A> :
     /// <returns>IEnumerator T</returns>
     [Pure]
     public IEnumerator<A> GetEnumerator() =>
-        new SetModule.SetEnumerator<A>(set, false, 0);
+        new SetModule.SetEnumerator<A>(Root, false, 0);
 
     /// <summary>
     /// Removes an item from the set (if it exists)
@@ -398,7 +396,7 @@ internal class SetInternal<OrdA, A> :
     /// <returns>New set with item removed</returns>
     [Pure]
     public SetInternal<OrdA, A> Remove(A value) =>
-        new (SetModule.Remove<OrdA, A>(set, value));
+        new (SetModule.Remove<OrdA, A>(Root, value));
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection, threading an accumulator 
@@ -413,7 +411,7 @@ internal class SetInternal<OrdA, A> :
     /// <returns>Aggregate value</returns>
     [Pure]
     public S Fold<S>(S state, Func<S, A, S> folder) =>
-        SetModule.Fold(set,state,folder);
+        SetModule.Fold(Root,state,folder);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection (from last element to first), 
@@ -428,7 +426,7 @@ internal class SetInternal<OrdA, A> :
     /// <returns>Aggregate value</returns>
     [Pure]
     public S FoldBack<S>(S state, Func<S, A, S> folder) =>
-        SetModule.FoldBack(set, state, folder);
+        SetModule.FoldBack(Root, state, folder);
 
     /// <summary>
     /// Maps the values of this set into a new set of values using the
@@ -472,7 +470,7 @@ internal class SetInternal<OrdA, A> :
     /// <returns>True if predicate returns true for any item</returns>
     [Pure]
     public bool Exists(Func<A, bool> pred) =>
-        SetModule.Exists(set, pred);
+        SetModule.Exists(Root, pred);
 
     /// <summary>
     /// Returns True if the value is in the set
@@ -481,7 +479,7 @@ internal class SetInternal<OrdA, A> :
     /// <returns>True if the item 'value' is in the Set 'set'</returns>
     [Pure]
     public bool Contains(A value) =>
-        SetModule.Contains<OrdA, A>(set, value);
+        SetModule.Contains<OrdA, A>(Root, value);
 
     /// <summary>
     /// Returns true if both sets contain the same elements
@@ -795,7 +793,7 @@ internal class SetInternal<OrdA, A> :
         var nstack = new SetItem<A>[32];
         var fstack = new int[32];
         var top    = 1;
-        nstack[0] = set;
+        nstack[0] = Root;
         fstack[0] = 0;
 
         return node(initialState);
@@ -851,7 +849,7 @@ internal class SetInternal<OrdA, A> :
         var nstack = new SetItem<A>[32];
         var fstack = new int[32];
         var top    = 1;
-        nstack[0] = set;
+        nstack[0] = Root;
         fstack[0] = 0;
 
         return node(initialState);
@@ -899,723 +897,5 @@ internal class SetInternal<OrdA, A> :
     }
     
     IEnumerator IEnumerable.GetEnumerator() =>
-        new SetModule.SetEnumerator<A>(set, false, 0);
-}
-
-internal class SetItem<K>
-{
-    public static readonly SetItem<K> Empty = new (0, 0, default!, null!, null!);
-
-    public bool IsEmpty => Count == 0;
-    public int Count;
-    public byte Height;
-    public SetItem<K> Left;
-    public SetItem<K> Right;
-
-    /// <summary>
-    /// Ctor
-    /// </summary>
-    internal SetItem(byte height, int count, K key, SetItem<K> left, SetItem<K> right)
-    {
-        Count = count;
-        Height = height;
-        Key = key;
-        Left = left;
-        Right = right;
-    }
-
-    [Pure]
-    internal int BalanceFactor =>
-        Count == 0
-            ? 0
-            : Right.Height - Left.Height;
-
-    [Pure]
-    public K Key
-    {
-        get;
-        internal set;
-    }
-}
-
-internal static class SetModuleM
-{
-    public enum AddOpt
-    {
-        ThrowOnDuplicate,
-        TryAdd,
-        TryUpdate
-    }
-
-    public static SetItem<K> Add<OrdK, K>(SetItem<K> node, K key, AddOpt option)
-        where OrdK : Ord<K>
-    {
-        if (node.IsEmpty)
-        {
-            return new SetItem<K>(1, 1, key, SetItem<K>.Empty, SetItem<K>.Empty);
-        }
-        var cmp = OrdK.Compare(key, node.Key);
-        if (cmp < 0)
-        {
-            node.Left = Add<OrdK, K>(node.Left, key, option);
-            return Balance(node);
-        }
-        else if (cmp > 0)
-        {
-            node.Right = Add<OrdK, K>(node.Right, key, option);
-            return Balance(node);
-        }
-        else if (option == AddOpt.TryAdd)
-        {
-            // Already exists, but we don't care
-            return node;
-        }
-        else if (option == AddOpt.TryUpdate)
-        {
-            // Already exists, and we want to update the content
-            node.Key = key;
-            return node;
-        }
-        else
-        {
-            throw new ArgumentException("An element with the same key already exists in the Map");
-        }
-    }
-
-    public static SetItem<K> Balance<K>(SetItem<K> node)
-    {
-        node.Height = (byte)(1 + Math.Max(node.Left.Height, node.Right.Height));
-        node.Count = 1 + node.Left.Count + node.Right.Count;
-
-        return node.BalanceFactor >= 2
-                   ? node.Right.BalanceFactor < 0
-                         ? DblRotLeft(node)
-                         : RotLeft(node)
-                   : node.BalanceFactor <= -2
-                       ? node.Left.BalanceFactor > 0
-                             ? DblRotRight(node)
-                             : RotRight(node)
-                       : node;
-    }
-
-    public static SetItem<K> DblRotRight<K>(SetItem<K> node)
-    {
-        node.Left = RotLeft(node.Left);
-        return RotRight(node);
-    }
-
-    public static SetItem<K> DblRotLeft<K>(SetItem<K> node)
-    {
-        node.Right = RotRight(node.Right);
-        return RotLeft(node);
-    }
-
-    public static SetItem<K> RotRight<K>(SetItem<K> node)
-    {
-        if (node.IsEmpty || node.Left.IsEmpty) return node;
-
-        var y  = node;
-        var x  = y.Left;
-        var t2 = x.Right;
-        x.Right = y;
-        y.Left = t2;
-        y.Height = (byte)(1 + Math.Max(y.Left.Height, y.Right.Height));
-        x.Height = (byte)(1 + Math.Max(x.Left.Height, x.Right.Height));
-        y.Count = 1 + y.Left.Count + y.Right.Count;
-        x.Count = 1 + x.Left.Count + x.Right.Count;
-
-        return x;
-    }
-
-    public static SetItem<K> RotLeft<K>(SetItem<K> node)
-    {
-        if (node.IsEmpty || node.Right.IsEmpty) return node;
-
-        var x  = node;
-        var y  = x.Right;
-        var t2 = y.Left;
-        y.Left = x;
-        x.Right = t2;
-        x.Height = (byte)(1 + Math.Max(x.Left.Height, x.Right.Height));
-        y.Height = (byte)(1 + Math.Max(y.Left.Height, y.Right.Height));
-        x.Count = 1 + x.Left.Count + x.Right.Count;
-        y.Count = 1 + y.Left.Count + y.Right.Count;
-
-        return y;
-    }
-}
-
-internal static class SetModule
-{
-    [Pure]
-    public static S Fold<S, K>(SetItem<K> node, S state, Func<S, K, S> folder)
-    {
-        if (node.IsEmpty)
-        {
-            return state;
-        }
-        state = Fold(node.Left, state, folder);
-        state = folder(state, node.Key);
-        state = Fold(node.Right, state, folder);
-        return state;
-    }
-
-    [Pure]
-    public static S FoldBack<S, K>(SetItem<K> node, S state, Func<S, K, S> folder)
-    {
-        if (node.IsEmpty)
-        {
-            return state;
-        }
-        state = FoldBack(node.Right, state, folder);
-        state = folder(state, node.Key);
-        state = FoldBack(node.Left, state, folder);
-        return state;
-    }
-
-    [Pure]
-    public static bool ForAll<K>(SetItem<K> node, Func<K, bool> pred) =>
-        node.IsEmpty || pred(node.Key) && ForAll(node.Left, pred) && ForAll(node.Right, pred);
-
-    [Pure]
-    public static bool Exists<K>(SetItem<K> node, Func<K, bool> pred) =>
-        !node.IsEmpty && (pred(node.Key) || Exists(node.Left, pred) || Exists(node.Right, pred));
-
-    [Pure]
-    public static SetItem<K> Add<OrdK, K>(SetItem<K> node, K key) where OrdK : Ord<K>
-    {
-        if (node.IsEmpty)
-        {
-            return new SetItem<K>(1, 1, key, SetItem<K>.Empty, SetItem<K>.Empty);
-        }
-        var cmp = OrdK.Compare(key, node.Key);
-        if (cmp < 0)
-        {
-            return Balance(Make(node.Key, Add<OrdK, K>(node.Left, key), node.Right));
-        }
-        else if (cmp > 0)
-        {
-            return Balance(Make(node.Key, node.Left, Add<OrdK, K>(node.Right, key)));
-        }
-        else
-        {
-            throw new ArgumentException("An element with the same key already exists in the set");
-        }
-    }
-
-    [Pure]
-    public static SetItem<K> TryAdd<OrdK, K>(SetItem<K> node, K key) where OrdK : Ord<K>
-    {
-        if (node.IsEmpty)
-        {
-            return new SetItem<K>(1, 1, key, SetItem<K>.Empty, SetItem<K>.Empty);
-        }
-        var cmp = OrdK.Compare(key, node.Key);
-        if (cmp < 0)
-        {
-            return Balance(Make(node.Key, TryAdd<OrdK, K>(node.Left, key), node.Right));
-        }
-        else if (cmp > 0)
-        {
-            return Balance(Make(node.Key, node.Left, TryAdd<OrdK, K>(node.Right, key)));
-        }
-        else
-        {
-            return node;
-        }
-    }
-
-    [Pure]
-    public static SetItem<K> AddOrUpdate<OrdK, K>(SetItem<K> node, K key) where OrdK : Ord<K>
-    {
-        if (node.IsEmpty)
-        {
-            return new SetItem<K>(1, 1, key, SetItem<K>.Empty, SetItem<K>.Empty);
-        }
-        var cmp = OrdK.Compare(key, node.Key);
-        if (cmp < 0)
-        {
-            return Balance(Make(node.Key, TryAdd<OrdK, K>(node.Left, key), node.Right));
-        }
-        else if (cmp > 0)
-        {
-            return Balance(Make(node.Key, node.Left, TryAdd<OrdK, K>(node.Right, key)));
-        }
-        else
-        {
-            return new SetItem<K>(node.Height, node.Count, key, node.Left, node.Right);
-        }
-    }
-
-    [Pure]
-    public static SetItem<K> AddTreeToRight<K>(SetItem<K> node, SetItem<K> toAdd) =>
-        node.IsEmpty
-            ? toAdd
-            : Balance(Make(node.Key, node.Left, AddTreeToRight(node.Right, toAdd)));
-
-    [Pure]
-    public static SetItem<K> Remove<OrdK, K>(SetItem<K> node, K key) where OrdK : Ord<K>
-    {
-        if (node.IsEmpty)
-        {
-            return node;
-        }
-        var cmp = OrdK.Compare(key, node.Key);
-        if (cmp < 0)
-        {
-            return Balance(Make(node.Key, Remove<OrdK, K>(node.Left, key), node.Right));
-        }
-        else if (cmp > 0)
-        {
-            return Balance(Make(node.Key, node.Left, Remove<OrdK, K>(node.Right, key)));
-        }
-        else
-        {
-            return Balance(AddTreeToRight(node.Left, node.Right));
-        }
-    }
-
-    [Pure]
-    public static bool Contains<OrdK, K>(SetItem<K> node, K key) where OrdK : Ord<K>
-    {
-        if (node.IsEmpty)
-        {
-            return false;
-        }
-        var cmp = OrdK.Compare(key, node.Key);
-        if (cmp < 0)
-        {
-            return Contains<OrdK, K>(node.Left, key);
-        }
-        else if (cmp > 0)
-        {
-            return Contains<OrdK, K>(node.Right, key);
-        }
-        else
-        {
-            return true;
-        }
-    }
-
-    [Pure]
-    public static K Find<OrdK, K>(SetItem<K> node, K key) where OrdK : Ord<K>
-    {
-        if (node.IsEmpty)
-        {
-            throw new ArgumentException("Key not found in set");
-        }
-        var cmp = OrdK.Compare(key, node.Key);
-        if (cmp < 0)
-        {
-            return Find<OrdK, K>(node.Left, key);
-        }
-        else if (cmp > 0)
-        {
-            return Find<OrdK, K>(node.Right, key);
-        }
-        else
-        {
-            return node.Key;
-        }
-    }
-
-    /// <summary>
-    /// TODO: I suspect this is suboptimal, it would be better with a custom Enumerator 
-    /// that maintains a stack of nodes to retrace.
-    /// </summary>
-    [Pure]
-    public static IEnumerable<K> FindRange<OrdK, K>(SetItem<K> node, K a, K b) where OrdK : Ord<K>
-    {
-        if (node.IsEmpty)
-        {
-            yield break;
-        }
-        if (OrdK.Compare(node.Key, a) < 0)
-        {
-            foreach (var item in FindRange<OrdK, K>(node.Right, a, b))
-            {
-                yield return item;
-            }
-        }
-        else if (OrdK.Compare(node.Key, b) > 0)
-        {
-            foreach (var item in FindRange<OrdK, K>(node.Left, a, b))
-            {
-                yield return item;
-            }
-        }
-        else
-        {
-            foreach (var item in FindRange<OrdK, K>(node.Left, a, b))
-            {
-                yield return item;
-            }
-            yield return node.Key;
-            foreach (var item in FindRange<OrdK, K>(node.Right, a, b))
-            {
-                yield return item;
-            }
-        }
-    }
-
-    [Pure]
-    public static Option<K> TryFind<OrdK, K>(SetItem<K> node, K key) where OrdK : Ord<K>
-    {
-        if (node.IsEmpty)
-        {
-            return None;
-        }
-        var cmp = OrdK.Compare(key, node.Key);
-        if (cmp < 0)
-        {
-            return TryFind<OrdK, K>(node.Left, key);
-        }
-        else if (cmp > 0)
-        {
-            return TryFind<OrdK, K>(node.Right, key);
-        }
-        else
-        {
-            return Some(node.Key);
-        }
-    }
-
-    [Pure]
-    public static SetItem<K> Skip<K>(SetItem<K> node, int amount)
-    {
-        if (amount == 0 || node.IsEmpty)
-        {
-            return node;
-        }
-        if (amount >= node.Count)
-        {
-            return SetItem<K>.Empty;
-        }
-        if (!node.Left.IsEmpty && node.Left.Count == amount)
-        {
-            return Balance(Make(node.Key, SetItem<K>.Empty, node.Right));
-        }
-        if (!node.Left.IsEmpty && node.Left.Count == amount - 1)
-        {
-            return node.Right;
-        }
-        if (node.Left.IsEmpty)
-        {
-            return Skip(node.Right, amount - 1);
-        }
-
-        var newleft   = Skip(node.Left, amount);
-        var remaining = amount - node.Left.Count - newleft.Count;
-        if (remaining > 0)
-        {
-            return Skip(Balance(Make(node.Key, newleft, node.Right)), remaining);
-        }
-        else
-        {
-            return Balance(Make(node.Key, newleft, node.Right));
-        }
-    }
-
-    [Pure]
-    public static SetItem<K> Make<K>(K k, SetItem<K> l, SetItem<K> r) =>
-        new ((byte)(1 + Math.Max(l.Height, r.Height)), l.Count + r.Count + 1, k, l, r);
-
-    [Pure]
-    public static SetItem<K> Balance<K>(SetItem<K> node) =>
-        node.BalanceFactor >= 2
-            ? node.Right.BalanceFactor < 0
-                  ? DblRotLeft(node)
-                  : RotLeft(node)
-            : node.BalanceFactor <= -2
-                ? node.Left.BalanceFactor > 0
-                      ? DblRotRight(node)
-                      : RotRight(node)
-                : node;
-
-    [Pure]
-    public static SetItem<K> RotRight<K>(SetItem<K> node) =>
-        node.IsEmpty || node.Left.IsEmpty
-            ? node
-            : Make(node.Left.Key, node.Left.Left, Make(node.Key, node.Left.Right, node.Right));
-
-    [Pure]
-    public static SetItem<K> RotLeft<K>(SetItem<K> node) =>
-        node.IsEmpty || node.Right.IsEmpty
-            ? node
-            : Make(node.Right.Key, Make(node.Key, node.Left, node.Right.Left), node.Right.Right);
-
-    [Pure]
-    public static SetItem<K> DblRotRight<K>(SetItem<K> node) =>
-        node.IsEmpty
-            ? node
-            : RotRight(Make(node.Key, RotLeft(node.Left), node.Right));
-
-    [Pure]
-    public static SetItem<K> DblRotLeft<K>(SetItem<K> node) =>
-        node.IsEmpty
-            ? node
-            : RotLeft(Make(node.Key, node.Left, RotRight(node.Right)));
-
-    internal static Option<A> Max<A>(SetItem<A> node) =>
-        node.Right.IsEmpty
-            ? node.Key
-            : Max(node.Right);
-
-    internal static Option<A> Min<A>(SetItem<A> node) =>
-        node.Left.IsEmpty
-            ? node.Key
-            : Min(node.Left);
-
-    internal static Option<A> TryFindPredecessor<OrdA, A>(SetItem<A> root, A key) where OrdA : Ord<A>
-    {
-        Option<A> predecessor = None;
-        var       current     = root;
-
-        if (root.IsEmpty)
-        {
-            return None;
-        }
-
-        do
-        {
-            var cmp = OrdA.Compare(key, current.Key);
-            if (cmp < 0)
-            {
-                current = current.Left;
-            }
-            else if (cmp > 0)
-            {
-                predecessor = current.Key;
-                current = current.Right;
-            }
-            else
-            {
-                break;
-            }
-        }
-        while (!current.IsEmpty);
-
-        if(!current.IsEmpty && !current.Left.IsEmpty)
-        {
-            predecessor = Max(current.Left);
-        }
-
-        return predecessor;
-    }
-
-    internal static Option<A> TryFindOrPredecessor<OrdA, A>(SetItem<A> root, A key) where OrdA : Ord<A>
-    {
-        Option<A> predecessor = None;
-        var       current     = root;
-
-        if (root.IsEmpty)
-        {
-            return None;
-        }
-
-        do
-        {
-            var cmp = OrdA.Compare(key, current.Key);
-            if (cmp < 0)
-            {
-                current = current.Left;
-            }
-            else if (cmp > 0)
-            {
-                predecessor = current.Key;
-                current = current.Right;
-            }
-            else
-            {
-                return current.Key;
-            }
-        }
-        while (!current.IsEmpty);
-
-        if (!current.IsEmpty && !current.Left.IsEmpty)
-        {
-            predecessor = Max(current.Left);
-        }
-
-        return predecessor;
-    }
-
-    internal static Option<A> TryFindSuccessor<OrdA, A>(SetItem<A> root, A key) where OrdA : Ord<A>
-    {
-        Option<A> successor = None;
-        var       current   = root;
-
-        if (root.IsEmpty)
-        {
-            return None;
-        }
-
-        do
-        {
-            var cmp = OrdA.Compare(key, current.Key);
-            if (cmp < 0)
-            {
-                successor = current.Key;
-                current = current.Left;
-            }
-            else if (cmp > 0)
-            {
-                current = current.Right;
-            }
-            else
-            {
-                break;
-            }
-        }
-        while (!current.IsEmpty);
-
-        if (!current.IsEmpty && !current.Right.IsEmpty)
-        {
-            successor = Min(current.Right);
-        }
-
-        return successor;
-    }
-
-    internal static Option<A> TryFindOrSuccessor<OrdA, A>(SetItem<A> root, A key) where OrdA : Ord<A>
-    {
-        Option<A> successor = None;
-        var       current   = root;
-
-        if (root.IsEmpty)
-        {
-            return None;
-        }
-
-        do
-        {
-            var cmp = OrdA.Compare(key, current.Key);
-            if (cmp < 0)
-            {
-                successor = current.Key;
-                current = current.Left;
-            }
-            else if (cmp > 0)
-            {
-                current = current.Right;
-            }
-            else
-            {
-                return current.Key;
-            }
-        }
-        while (!current.IsEmpty);
-
-        if (!current.IsEmpty && !current.Right.IsEmpty)
-        {
-            successor = Min(current.Right);
-        }
-
-        return successor;
-    }
-
-    public class SetEnumerator<K> : IEnumerator<K>
-    {
-        internal struct NewStack : New<SetItem<K>[]>
-        {
-            public SetItem<K>[] New() =>
-                new SetItem<K>[32];
-        }
-
-        int stackDepth;
-        SetItem<K>[]? stack;
-        readonly SetItem<K> map;
-        int left;
-        readonly bool rev;
-        readonly int start;
-
-        public SetEnumerator(SetItem<K> root, bool rev, int start)
-        {
-            this.rev = rev;
-            this.start = start;
-            map = root;
-            stack = Pool<NewStack, SetItem<K>[]>.Pop();
-            NodeCurrent = default!;
-            Reset();
-        }
-
-        private SetItem<K> NodeCurrent
-        {
-            get;
-            set;
-        }
-
-        public K Current => NodeCurrent.Key;
-        object IEnumerator.Current => NodeCurrent.Key!;
-
-        public void Dispose()
-        {
-            if (stack is not null)
-            {
-                Pool<NewStack, SetItem<K>[]>.Push(stack);
-                stack = default!;
-            }
-        }
-
-        private SetItem<K> Next(SetItem<K> node) =>
-            rev ? node.Left : node.Right;
-
-        private SetItem<K> Prev(SetItem<K> node) =>
-            rev ? node.Right : node.Left;
-
-        private void Push(SetItem<K> node)
-        {
-            while (!node.IsEmpty)
-            {
-                stack![stackDepth] = node;
-                stackDepth++;
-                node = Prev(node);
-            }
-        }
-
-        public bool MoveNext()
-        {
-            if (left > 0 && stackDepth > 0)
-            {
-                stackDepth--;
-                NodeCurrent = stack![stackDepth];
-                Push(Next(NodeCurrent));
-                left--;
-                return true;
-            }
-
-            NodeCurrent = default!;
-            return false;
-        }
-
-        public void Reset()
-        {
-            var skip = rev ? map.Count - start - 1 : start;
-
-            stackDepth = 0;
-            NodeCurrent = map;
-            left = map.Count;
-
-            while (!NodeCurrent.IsEmpty && skip != Prev(NodeCurrent).Count)
-            {
-                if (skip < Prev(NodeCurrent).Count)
-                {
-                    stack![stackDepth] = NodeCurrent;
-                    stackDepth++;
-                    NodeCurrent = Prev(NodeCurrent);
-                }
-                else
-                {
-                    skip -= Prev(NodeCurrent).Count + 1;
-                    NodeCurrent = Next(NodeCurrent);
-                }
-            }
-
-            if (!NodeCurrent.IsEmpty)
-            {
-                stack![stackDepth] = NodeCurrent;
-                stackDepth++;
-            }
-        }
-    }
+        new SetModule.SetEnumerator<A>(Root, false, 0);
 }

@@ -1,5 +1,3 @@
-using System;
-
 namespace LanguageExt.Traits;
 
 /// <summary>
@@ -16,7 +14,7 @@ public interface IterableK<F>
 /// Allows the acquisition of an iterator that iterates from end to beginning 
 /// </summary>
 /// <typeparam name="F">Trait implementation type</typeparam>
-public interface IterableBackK<F> : IterableK<F>
+public interface IterableBackK<F>
     where F : IterableBackK<F>
 {
     static abstract Iterator<A> BackwardIterator<A>(K<F, A> fa);

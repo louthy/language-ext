@@ -14,7 +14,7 @@ public abstract partial class Iterator<A>
         public Cont(Func<(A Head, Iterator<A> Tail)> next) =>
             this.next = next;
 
-        protected override (Head<A> Head, Iterator<A> Tail) Next()
+        public override (Head<A> Head, Iterator<A> Tail) Next()
         {
             switch (next())
             {

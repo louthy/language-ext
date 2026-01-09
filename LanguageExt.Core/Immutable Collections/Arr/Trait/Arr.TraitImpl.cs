@@ -16,8 +16,7 @@ public partial class Arr :
     Natural<Arr, Set>,
     Natural<Arr, HashSet>,
     Foldable<Arr, Arr.FoldState>,
-    IterableK<Arr>,
-    IterableBackK<Arr>
+    FoldableBack<Arr, Arr.FoldState>
 {
     static K<Arr, B> Monad<Arr>.Bind<A, B>(K<Arr, A> ma, Func<A, K<Arr, B>> f)
     {
@@ -115,50 +114,28 @@ public partial class Arr :
     static void Foldable<Arr, FoldState>.FoldStepSetup<A>(K<Arr, A> ta, ref FoldState state) =>
         FoldState.Setup(ref state, ta.As().AsSpan());
 
-    static void Foldable<Arr, FoldState>.FoldStepBackSetup<A>(K<Arr, A> ta, ref FoldState state) =>
+    static void FoldableBack<Arr, FoldState>.FoldStepBackSetup<A>(K<Arr, A> ta, ref FoldState state) =>
         FoldState.SetupBack(ref state, ta.As().AsSpan());
 
     static bool Foldable<Arr, FoldState>.FoldStep<A>(K<Arr, A> ta, ref FoldState state, out A value) =>
         FoldState.MoveNext(ref state, out value);
 
-    static bool Foldable<Arr, FoldState>.FoldStepBack<A>(K<Arr, A> ta, ref FoldState state, out A value) =>
+    static bool FoldableBack<Arr, FoldState>.FoldStepBack<A>(K<Arr, A> ta, ref FoldState state, out A value) =>
         FoldState.MovePrev(ref state, out value);
 
-    static Fold<A, S> Foldable<Arr>.FoldStep<A, S>(K<Arr, A> ta, in S initialState)
-    {
-        var array = ta.As();
-        return go(array.ForwardIterator())(initialState);
-
-        static Func<S, Fold<A, S>> go(Iterator<A> iterA) =>
-            state => iterA is (Exist<A> head, var tail)
-                         ? Fold.Loop(state, head.Value, go(tail))
-                         : Fold.Done<A, S>(state);
-    }
-
-    static Fold<A, S> Foldable<Arr>.FoldStepBack<A, S>(K<Arr, A> ta, in S initialState)
-    {
-        var array = ta.As();
-        return go(array.BackwardIterator())(initialState);
-
-        static Func<S, Fold<A, S>> go(Iterator<A> iterA) =>
-            state =>
-            {
-                if (iterA.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iterA.Head, go(iterA.Tail.Split()));
-                }
-            };
-    }
-
-    static Option<A> Foldable<Arr>.At<A>(Index index, K<Arr, A> ta)
+    static Option<A> Foldable<Arr>.At<A>(int index, K<Arr, A> ta)
     {
         var arr = ta.As();
-        return index.Value >= 0 && index.Value < arr.Length
+        return index >= 0 && index < arr.Length
                    ? Some(arr[index])
+                   : Option<A>.None;
+    }
+
+    static Option<A> FoldableBack<Arr>.AtBack<A>(int index, K<Arr, A> ta)
+    {
+        var arr = ta.As();
+        return index > 0 && index <= arr.Length
+                   ? Some(arr[^index])
                    : Option<A>.None;
     }
 
@@ -204,21 +181,13 @@ public partial class Arr :
 
     public static Iterator<A> ForwardIterator<A>(K<Arr, A> fa)
     {
-        var xs = +fa;
-        return go(xs, 0, xs.Count);
-        static Iterator<A> go(Arr<A> xs, int ix, int remain) =>
-            remain == 0
-                ? Iterator.Nil<A>()
-                : Iterator.Cons(xs[ix], () => go(xs, ix + 1, remain - 1));
+        var items = +fa;
+        return new Iterator<A>.IterArr(items, items.Count - 1, items.Count);
     }
     
     public static Iterator<A> BackwardIterator<A>(K<Arr, A> fa)
     {
-        var xs = +fa;
-        return go(xs, xs.Count - 1, xs.Count);
-        static Iterator<A> go(Arr<A> xs, int ix, int remain) =>
-            remain == 0
-                ? Iterator.Nil<A>()
-                : Iterator.Cons(xs[ix], () => go(xs, ix - 1, remain - 1));
+        var items = +fa;
+        return new Iterator<A>.IterArrBkwd(items, items.Count - 1, items.Count);
     }
 }

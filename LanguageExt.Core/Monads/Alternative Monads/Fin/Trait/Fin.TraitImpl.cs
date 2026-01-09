@@ -161,15 +161,11 @@ public partial class Fin :
             Fin<A>.Fail (var e) => IO.fail<A>(e),
             _                   => throw new NotSupportedException()
         };
-    
-    static Fold<A, S> Foldable<Fin>.FoldStep<A, S>(K<Fin, A> ta, in S initialState)
-    {
-        var ma = ta.As();
-        return ma.IsSucc
-                   ? Fold.Loop(initialState, ma.SuccValue, Fold.Done<A, S>)
-                   : Fold.Done<A, S>(initialState);
-    }    
-        
-    static Fold<A, S> Foldable<Fin>.FoldStepBack<A, S>(K<Fin, A> ta, in S initialState) =>
-        ta.FoldStep(initialState);
+
+    static Iterator<A> IterableK<Fin>.ForwardIterator<A>(K<Fin, A> fa) =>
+        fa switch
+        {
+            Fin<A>.Succ (var r) => Iterator.singleton(r),
+            _                   => Iterator<A>.Empty
+        };
 }

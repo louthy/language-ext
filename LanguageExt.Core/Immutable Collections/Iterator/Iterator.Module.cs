@@ -1,3 +1,4 @@
+#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
 using System;
 using System.Collections.Generic;
 
@@ -11,7 +12,7 @@ public partial class Iterator
     /// <param name="items">Collection to iterate</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Iterator of the collection</returns>
-    public static Iterator<A> from<A>(IEnumerable<A> items) =>
+    public static Iterator<A> forward<A>(IEnumerable<A> items) =>
         new Iterator<A>.Enumerable(items);
 
     /// <summary>
@@ -20,8 +21,53 @@ public partial class Iterator
     /// <param name="items">Collection to iterate</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Iterator of the collection</returns>
-    public static Iterator<A> from<A>(Arr<A> items) =>
-        new Iterator<A>.IterArr(items, 0, items.Count);
+    public static Iterator<A> forward<A>(Arr<A> items) =>
+        items.ForwardIterator();
+
+    /// <summary>
+    /// Create an iterator from an `Arr` collection
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Iterator of the collection</returns>
+    public static Iterator<A> backward<A>(Arr<A> items) =>
+        items.BackwardIterator();
+
+    /// <summary>
+    /// Create an iterator from a `Set` collection
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Iterator of the collection</returns>
+    public static Iterator<A> forward<A>(Lst<A> items) =>
+        items.ForwardIterator();
+
+    /// <summary>
+    /// Create an iterator from a `Set` collection
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Iterator of the collection</returns>
+    public static Iterator<A> backward<A>(Lst<A> items) =>
+        items.BackwardIterator();
+
+    /// <summary>
+    /// Create an iterator from a `Set` collection
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Iterator of the collection</returns>
+    public static Iterator<(K Key, V Value)> forward<K, V>(Map<K, V> items) =>
+        new IterMapFwd<K, V>(new Map.IteratorState<K, V>(items.Value.Root));
+
+    /// <summary>
+    /// Create an iterator from a `Set` collection
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Iterator of the collection</returns>
+    public static Iterator<(K Key, V Value)> backward<K, V>(Map<K, V> items) =>
+        new IterMapBkwd<K, V>(new Map.IteratorState<K, V>(items.Value.Root));
 
     /// <summary>
     /// Create an iterator from a `Seq` collection
@@ -29,8 +75,26 @@ public partial class Iterator
     /// <param name="items">Collection to iterate</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Iterator of the collection</returns>
-    public static Iterator<A> from<A>(Seq<A> items) =>
-        new Iterator<A>.IterSeq(items);
+    public static Iterator<A> forward<A>(Seq<A> items) =>
+        items.ForwardIterator();
+
+    /// <summary>
+    /// Create an iterator from a `Set` collection
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Iterator of the collection</returns>
+    public static Iterator<A> forward<A>(Set<A> items) =>
+        items.ForwardIterator();
+
+    /// <summary>
+    /// Create an iterator from a `Set` collection
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Iterator of the collection</returns>
+    public static Iterator<A> backward<A>(Set<A> items) =>
+        items.BackwardIterator();
     
     /// <summary>
     /// Create an iterator from a continuation function.  This function

@@ -11,7 +11,8 @@ public partial class Lst :
     MonoidK<Lst>,
     Alternative<Lst>, 
     Traversable<Lst>,
-    Foldable<Lst, Lst.FoldState>
+    Foldable<Lst, Lst.FoldState>,
+    FoldableBack<Lst, Lst.FoldState>
 {
     static K<Lst, B> Monad<Lst>.Recur<A, B>(A value, Func<A, K<Lst, Next<A, B>>> f) =>
         createRange(Monad.enumerableRecur(value, x =>f(x).As().AsEnumerable()));
@@ -125,11 +126,19 @@ public partial class Lst :
     static bool Foldable<Lst>.IsEmpty<A>(K<Lst, A> ta) =>
         ta.As().IsEmpty;
 
-    static Option<A> Foldable<Lst>.At<A>(Index index, K<Lst, A> ta)
+    static Option<A> Foldable<Lst>.At<A>(int index, K<Lst, A> ta)
     {
         var list = ta.As().Value;
-        return index.Value >= 0 && index.Value < list.Count
+        return index >= 0 && index < list.Count
                    ? Some(list[index])
+                   : Option<A>.None;
+    }
+
+    static Option<A> FoldableBack<Lst>.AtBack<A>(int index, K<Lst, A> ta)
+    {
+        var list = ta.As().Value;
+        return index > 0 && index <= list.Count
+                   ? Some(list[^index])
                    : Option<A>.None;
     }
         
@@ -159,10 +168,10 @@ public partial class Lst :
         }
     }
 
-    static void Foldable<Lst, FoldState>.FoldStepBackSetup<A>(K<Lst, A> ta, ref FoldState refState) => 
+    static void FoldableBack<Lst, FoldState>.FoldStepBackSetup<A>(K<Lst, A> ta, ref FoldState refState) => 
         FoldState.Setup(ref refState, ta.As().Value.Root);
 
-    static bool Foldable<Lst, FoldState>.FoldStepBack<A>(K<Lst, A> ta, ref FoldState refState, out A value) 
+    static bool FoldableBack<Lst, FoldState>.FoldStepBack<A>(K<Lst, A> ta, ref FoldState refState, out A value) 
     {
         if (FoldState.StepBack<A>(ref refState, out var item))
         {
@@ -178,43 +187,10 @@ public partial class Lst :
 
     static Seq<A> Foldable<Lst>.ToSeq<A>(K<Lst, A> ta) =>
         new (ta.As());
-    
-    static Fold<A, S> Foldable<Lst>.FoldStep<A, S>(K<Lst, A> ta, in S initialState)
-    {
-        var items = ta.As();
-        return go(items.GetIterator())(initialState);
 
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
-    }
-    
-    static Fold<A, S> Foldable<Lst>.FoldStepBack<A, S>(K<Lst, A> ta, in S initialState) 
-    {
-        var items = ta.As();
-        return go(items.ReverseEnumerable().GetIterator())(initialState);
+    static Iterator<A> IterableK<Lst>.ForwardIterator<A>(K<Lst, A> fa) => 
+        throw new NotImplementedException();
 
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
-    }
-
+    static Iterator<A> IterableBackK<Lst>.BackwardIterator<A>(K<Lst, A> fa) => 
+        throw new NotImplementedException();
 }

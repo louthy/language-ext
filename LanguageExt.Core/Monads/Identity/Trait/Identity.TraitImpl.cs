@@ -45,17 +45,6 @@ public partial class Identity :
     
     static Fold<A, S> Foldable<Identity>.FoldStep<A, S>(K<Identity, A> ta, in S initialState) =>
         Fold.Loop(initialState, ta.As().Value, Fold.Done<A, S>);
-        
-    static Fold<A, S> Foldable<Identity>.FoldStepBack<A, S>(K<Identity, A> ta, in S initialState) =>
-        ta.FoldStep(initialState);
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Traversable
-    //
-    
-    static K<F, K<Identity, B>> Traversable<Identity>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Identity, A> ta) =>
-        F.Map(PureK, f(ta.As().Value));
 
     static void Foldable<Identity, FoldState>.FoldStepSetup<A>(K<Identity, A> ta, ref FoldState refState) =>
         refState = new FoldState(false);
@@ -73,23 +62,16 @@ public partial class Identity :
             refState = new FoldState(true);
             return true;
         }
-    }
+    }    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Traversable
+    //
+    
+    static K<F, K<Identity, B>> Traversable<Identity>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Identity, A> ta) =>
+        F.Map(PureK, f(ta.As().Value));
 
-    static void Foldable<Identity, FoldState>.FoldStepBackSetup<A>(K<Identity, A> ta, ref FoldState refState) =>
-        refState = new FoldState(false);
 
-    static bool Foldable<Identity, FoldState>.FoldStepBack<A>(K<Identity, A> ta, ref FoldState refState, out A value)
-    {
-        if (refState.HasRun)
-        {
-            value = default!;
-            return false;
-        }
-        else
-        {
-            value = ta.As().Value;
-            refState = new FoldState(true);
-            return true;
-        }
-    }
+    static Iterator<A> IterableK<Identity>.ForwardIterator<A>(K<Identity, A> fa) =>
+        Iterator.singleton(fa.As().Value);
 }

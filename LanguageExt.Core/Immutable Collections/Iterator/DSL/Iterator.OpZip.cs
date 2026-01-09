@@ -7,7 +7,7 @@ public partial class Iterator
         public override string ToString() => 
             $"Zip({xs}, {ys})";
 
-        protected override (Head<(A First, B Second)> Head, Iterator<(A First, B Second)> Tail) Next() =>
+        public override (Head<(A First, B Second)> Head, Iterator<(A First, B Second)> Tail) Next() =>
             (xs, ys) switch
             {
                 ((Exist<A> (var lh), var lt), (Exist<B> (var rh), var rt)) =>

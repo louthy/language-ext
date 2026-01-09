@@ -18,7 +18,7 @@ public abstract partial class Iterator<A>
             this.tail = tail;
         }
 
-        protected override (Head<A> Head, Iterator<A> Tail) Next() =>
+        public override (Head<A> Head, Iterator<A> Tail) Next() =>
             (new Exist<A>(head), tail());
 
         public override string ToString() => 
@@ -39,7 +39,7 @@ public abstract partial class Iterator<A>
             this.tail = tail;
         }
 
-        protected override (Head<A> Head, Iterator<A> Tail) Next() =>
+        public override (Head<A> Head, Iterator<A> Tail) Next() =>
             (new Exist<A>(head), tail);
 
         public override string ToString() => 

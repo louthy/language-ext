@@ -21,7 +21,7 @@ namespace LanguageExt;
 /// that make it play nice with other types in this library: Monad, Traversable, etc. 
 /// </remarks>
 /// <typeparam name="A">Type of the values in the sequence</typeparam>
-[CollectionBuilder(typeof(Iterable), nameof(Iterable.createRange))]
+[CollectionBuilder(typeof(Iterable), nameof(Iterable.create))]
 public abstract class Iterable<A> :
     IEnumerable<A>,
     IAsyncEnumerable<A>,

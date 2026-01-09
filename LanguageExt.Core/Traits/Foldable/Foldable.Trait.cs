@@ -41,7 +41,7 @@ namespace LanguageExt.Traits;
 public interface Foldable<T> : IterableK<T> 
     where T : Foldable<T>
 {
-    /// <summary>
+    /*/// <summary>
     /// Runs a single step of the folding operation. The return value indicates whether the folding
     /// operation should continue, and if so, what the next step should be.
     /// </summary>
@@ -65,7 +65,7 @@ public interface Foldable<T> : IterableK<T>
     static virtual Fold<A, S> FoldStep<A, S>(K<T, A> ta, in S initialState) =>
         ta.ForwardIterator() is (Exist<A> head, var tail)
             ? L.Fold.Loop(initialState, head.Value, s => tail.FoldStep(s))
-            : L.Fold.Done<A, S>(initialState);
+            : L.Fold.Done<A, S>(initialState);*/
     
     /// <summary>
     /// Same behaviour as `Fold` but allows early exit of the operation once
@@ -213,22 +213,22 @@ public interface Foldable<T> : IterableK<T>
     }
 
     /// <summary>
-    /// List of elements of a structure, from left to right
+    /// List of elements of a structure
     /// </summary>
     /// <remarks>
     /// The sequence is lazy
     /// </remarks>
     static virtual Seq<A> ToSeq<A>(K<T, A> ta) =>
-        new(T.ForwardIterator(ta).AsEnumerable());
+        new(T.ForwardIterator(ta));
 
     /// <summary>
-    /// List of elements of a structure, from left to right
+    /// List of elements of a structure
     /// </summary>
     static virtual Lst<A> ToLst<A>(K<T, A> ta) =>
-        new (T.ForwardIterator(ta).AsEnumerable());
+        new (T.ForwardIterator(ta));
 
     /// <summary>
-    /// List of elements of a structure, from left to right
+    /// List of elements of a structure
     /// </summary>
     static virtual Arr<A> ToArr<A>(K<T, A> ta)
     {
@@ -241,13 +241,13 @@ public interface Foldable<T> : IterableK<T>
     }
 
     /// <summary>
-    /// List of elements of a structure, from left to right
+    /// List of elements of a structure
     /// </summary>
     /// <remarks>
     /// The sequence is lazy
     /// </remarks>
     static virtual Iterable<A> ToIterable<A>(K<T, A> ta) =>
-        Iterable.createRange(T.ForwardIterator(ta).AsEnumerable());
+        Iterable.createRange(T.ForwardIterator(ta));
 
     /// <summary>
     /// List of elements of a structure, from left to right
@@ -334,52 +334,20 @@ public interface Foldable<T> : IterableK<T>
     /// <remarks>
     /// The sequence is lazy
     /// </remarks>
-    static virtual Iterable<A> FindAll<A>(Func<A, bool> predicate, K<T, A> ta)
-    {
-        return go(ta).AsIterable();
-        IEnumerable<A> go(K<T, A> ta)
-        {
-            var step = T.FoldStep(ta, unit);
-            while (true)
-            {
-                switch (step)
-                {
-                    case Fold<A, Unit>.Done(_):
-                        yield break;
-
-                    case Fold<A, Unit>.Loop(_, var value, var next):
-                        if (predicate(value))
-                        {
-                            yield return value;
-                        }
-                        step = next(default);
-                        break;
-
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-        }
-    }
+    static virtual Iterable<A> FindAll<A>(Func<A, bool> predicate, K<T, A> ta) =>
+        T.ForwardIterator(ta)
+         .Filter(predicate)
+         .AsIterable();
 
     /// <summary>
     /// Get the head item in the foldable or `None`
     /// </summary>
-    static virtual Option<A> Head<A>(K<T, A> ta)
-    {
-        var step = T.FoldStep(ta, unit);
-        switch (step)
+    static virtual Option<A> Head<A>(K<T, A> ta) =>
+        T.ForwardIterator(ta) switch
         {
-            case Fold<A, Unit>.Done(_):
-                return default;
-
-            case Fold<A, Unit>.Loop(_, var value, _):
-                return value;
-
-            default:
-                throw new NotSupportedException();
-        }
-    }
+            (Exist<A>(var head), _) => Some(head),
+            _                       => None
+        };
     
     /// <summary>
     /// Map each element of a structure to a monadic action, evaluate these
@@ -404,24 +372,11 @@ public interface Foldable<T> : IterableK<T>
     /// </summary>
     static virtual Unit Iter<A>(Action<A> f, K<T, A> ta)
     {
-        var step = T.FoldStep(ta, unit);
-        
-        while (true)
+        for (var i = T.ForwardIterator(ta); i is (Exist<A>(var head), var tail); i = tail)
         {
-            switch (step)
-            {
-                case Fold<A, Unit>.Done(_):
-                    return default;
-
-                case Fold<A, Unit>.Loop(_, var value, var next):
-                    f(value);
-                    step = next(default);
-                    break;
-
-                default:
-                    throw new NotSupportedException();
-            }
+            f(head);
         }
+        return default;
     }
     
     /// <summary>
@@ -431,25 +386,12 @@ public interface Foldable<T> : IterableK<T>
     /// </summary>
     static virtual Unit Iter<A>(Action<int, A> f, K<T, A> ta)
     {
-        var step = T.FoldStep(ta, unit);
-        var ix   = 0;
-        
-        while (true)
+        var ix = 0;
+        for (var i = T.ForwardIterator(ta); i is (Exist<A>(var head), var tail); i = tail)
         {
-            switch (step)
-            {
-                case Fold<A, Unit>.Done(_):
-                    return default;
-
-                case Fold<A, Unit>.Loop(_, var value, var next):
-                    f(ix, value);
-                    step = next(default);
-                    break;
-
-                default:
-                    throw new NotSupportedException();
-            }
+            f(ix++, head);
         }
+        return default;
     }
 
     /// <summary>
@@ -458,42 +400,24 @@ public interface Foldable<T> : IterableK<T>
     static virtual Option<A> Min<OrdA, A>(K<T, A> ta)
         where OrdA : Ord<A>
     {
-        var step = T.FoldStep(ta, unit);
         A   current;
+        var iter = T.ForwardIterator(ta);
+        if (iter is (Exist<A> (var h), var t))
+        {
+            current = h;
+        }
+        else
+        {
+            return None;
+        }
+
+        iter = t;
         
-        switch (step)
+        for (var i = iter; i is (Exist<A>(var head), var tail); i = tail)
         {
-            case Fold<A, Unit>.Done(_):
-                return default;
-
-            case Fold<A, Unit>.Loop(_, var value, var next):
-                current = value;
-                step = next(default);
-                break;
-
-            default:
-                throw new NotSupportedException();
+            if(OrdA.Compare(head, current) < 0) current = head;
         }
-
-        while (true)
-        {
-            switch (step)
-            {
-                case Fold<A, Unit>.Done(_):
-                    return current;
-
-                case Fold<A, Unit>.Loop(_, var value, var next):
-                    if (OrdA.Compare(value, current) < 0)
-                    {
-                        current = value;
-                    }
-                    step = next(default);
-                    break;
-
-                default:
-                    throw new NotSupportedException();
-            }
-        }
+        return current;
     }
 
     /// <summary>
@@ -508,42 +432,23 @@ public interface Foldable<T> : IterableK<T>
     static virtual Option<A> Max<OrdA, A>(K<T, A> ta)
         where OrdA : Ord<A> 
     {
-        var step = T.FoldStep(ta, unit);
         A   current;
-        
-        switch (step)
+        var iter = T.ForwardIterator(ta);
+        if (iter is (Exist<A> (var h), var t))
         {
-            case Fold<A, Unit>.Done(_):
-                return default;
-
-            case Fold<A, Unit>.Loop(_, var value, var next):
-                current = value;
-                step = next(default);
-                break;
-
-            default:
-                throw new NotSupportedException();
+            current = h;
+        }
+        else
+        {
+            return None;
         }
 
-        while (true)
+        iter = t;
+        for (var i = iter; i is (Exist<A>(var head), var tail); i = tail)
         {
-            switch (step)
-            {
-                case Fold<A, Unit>.Done(_):
-                    return current;
-
-                case Fold<A, Unit>.Loop(_, var value, var next):
-                    if (OrdA.Compare(value, current) > 0)
-                    {
-                        current = value;
-                    }
-                    step = next(default);
-                    break;
-
-                default:
-                    throw new NotSupportedException();
-            }
+            if(OrdA.Compare(head, current) > 0) current = head;
         }
+        return current;
     }
 
     /// <summary>
@@ -583,27 +488,13 @@ public interface Foldable<T> : IterableK<T>
     /// </summary>
     static virtual Option<A> At<A>(int index, K<T, A> ta)
     {
-        var step = T.FoldStep(ta, unit);
         var ix = 0;
-        while (true)
+        for (var i = ta.ForwardIterator(); i is (Exist<A>(var head), var tail); i = tail)
         {
-            switch (step)
-            {
-                case Fold<A, Unit>.Done(_):
-                    return default;
-
-                case Fold<A, Unit>.Loop(_, var value, _) when ix == index:
-                    return value;
-
-                case Fold<A, Unit>.Loop(_, _, var next):
-                    ix++;
-                    step = next(default);
-                    break;
-
-                default:
-                    throw new NotSupportedException();
-            }
+            if(ix == index) return head;
+            ix++;
         }
+        return default;
     }
 
     /// <summary>
@@ -613,34 +504,21 @@ public interface Foldable<T> : IterableK<T>
     /// <param name="ta">Foldable structure</param>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Partitioned structure</returns>
-    static virtual (Seq<A> True, Seq<A> False) Partition<A>(Func<A, bool> f, K<T, A> ta)
+    static virtual (Arr<A> True, Arr<A> False) Partition<A>(Func<A, bool> f, K<T, A> ta)
     {
-        var step   = T.FoldStep(ta, unit);
-        var @true  = Seq<A>();
-        var @false = Seq<A>();
-    
-        while (true)
+        var @true  = ArrayWriter<A>.Init();
+        var @false = ArrayWriter<A>.Init();
+        for (var i = ta.ForwardIterator(); i is (Exist<A>(var head), var tail); i = tail)
         {
-            switch (step)
+            if (f(head))
             {
-                case Fold<A, Unit>.Done(_):
-                    return (@true, @false);
-
-                case Fold<A, Unit>.Loop(_, var value, var next):
-                    if (f(value))
-                    {
-                        @true = @true.Add(value);
-                    }
-                    else
-                    {
-                        @false = @false.Add(value);
-                    }
-                    step = next(default);
-                    break;
-
-                default:
-                    throw new NotSupportedException();
+                @true.Add(head);
+            }
+            else
+            {
+                @false.Add(head);
             }
         }
+        return (@true.ToArr(), @false.ToArr());
     }
 }

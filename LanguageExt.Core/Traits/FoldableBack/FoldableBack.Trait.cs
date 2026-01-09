@@ -38,9 +38,10 @@ namespace LanguageExt.Traits;
 /// </para>
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public interface FoldableBack<T> : IterableBackK<T>, Foldable<T>
+public interface FoldableBack<T> : IterableBackK<T>
     where T : FoldableBack<T>
 {
+    /*
     /// <summary>
     /// Runs a single step of the folding operation. The return value indicates whether the folding
     /// operation should continue, and if so, what the next step should be.
@@ -66,6 +67,7 @@ public interface FoldableBack<T> : IterableBackK<T>, Foldable<T>
         ta.BackwardIterator() is (Exist<A> head, var tail)
             ? L.Fold.Loop(initialState, head.Value, tail.FoldStep)
             : L.Fold.Done<A, S>(initialState);
+            */
 
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
@@ -153,29 +155,13 @@ public interface FoldableBack<T> : IterableBackK<T>, Foldable<T>
         in S initialState, 
         K<T, A> ta)
     {
-        var step = T.FoldStepBack(ta, initialState);
-        while(true)
+        var state = initialState;
+        for (var i = T.BackwardIterator(ta); i is (Exist<A> head, var tail); i = tail)
         {
-            switch (step)
-            {
-                case Fold<A, S>.Done(var state):
-                    return state;
-                
-                case Fold<A, S>.Loop(var state, var value, var next):
-                    if (predicate((state, value)))
-                    {
-                        return state;
-                    }
-                    else
-                    {
-                        step = next(f(state, value));
-                    }                    
-                    break;
-
-                default: 
-                    throw new NotSupportedException();
-            }
+            state = f(state, head.Value);
+            if (predicate((state, head.Value))) return state;
         }
+        return state;
     }
 
     /// <summary>
@@ -218,22 +204,12 @@ public interface FoldableBack<T> : IterableBackK<T>, Foldable<T>
     /// </remarks>
     static virtual S FoldBack<A, S>(Func<S, A, S> f, in S initialState, K<T, A> ta)
     {
-        var step = T.FoldStepBack(ta, initialState);
-        while(true)
+        var state = initialState;
+        for (var i = T.BackwardIterator(ta); i is (Exist<A> head, var tail); i = tail)
         {
-            switch (step)
-            {
-                case Fold<A, S>.Done(var state):
-                    return state;
-                
-                case Fold<A, S>.Loop(var state, var value, var next):
-                    step = next(f(state, value));
-                    break;
-
-                default: 
-                    throw new NotSupportedException();
-            }
+            state = f(state, head.Value);
         }
+        return state;
     }
 
     /// <summary>
@@ -267,147 +243,52 @@ public interface FoldableBack<T> : IterableBackK<T>, Foldable<T>
     }    
     
     /// <summary>
-    /// List of elements of a structure, from left to right
+    /// List of elements of a structure
     /// </summary>
     /// <remarks>
     /// The sequence is lazy
     /// </remarks>
-    static virtual Seq<A> ToSeqBack<A>(K<T, A> ta)
-    {
-        return new Seq<A>(go(ta));
-
-        static IEnumerable<A> go(K<T, A> ta)
-        {
-            var step = T.FoldStepBack(ta, unit);
-            while (true)
-            {
-                switch (step)
-                {
-                    case Fold<A, Unit>.Done(_):
-                        yield break;
-
-                    case Fold<A, Unit>.Loop(_, var value, var next):
-                        yield return value;
-                        step = next(default);
-                        break;
-
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-        }
-    }
+    static virtual Seq<A> ToSeqBack<A>(K<T, A> ta) =>
+        new(T.BackwardIterator(ta));    
 
     /// <summary>
-    /// List of elements of a structure, from left to right
+    /// List of elements of a structure
     /// </summary>
-    static virtual Lst<A> ToLstBack<A>(K<T, A> ta)
-    {
-        return new Lst<A>(go(ta));
-
-        static IEnumerable<A> go(K<T, A> ta)
-        {
-            var step = T.FoldStepBack(ta, unit);
-            while (true)
-            {
-                switch (step)
-                {
-                    case Fold<A, Unit>.Done(_):
-                        yield break;
-
-                    case Fold<A, Unit>.Loop(_, var value, var next):
-                        yield return value;
-                        step = next(default);
-                        break;
-
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-        }
-    }
+    static virtual Lst<A> ToLstBack<A>(K<T, A> ta) =>
+        new (T.BackwardIterator(ta));
 
     /// <summary>
-    /// List of elements of a structure, from left to right
+    /// List of elements of a structure
     /// </summary>
     static virtual Arr<A> ToArrBack<A>(K<T, A> ta)
     {
-        return new Arr<A>(go(ta));
-        IEnumerable<A> go(K<T, A> ta)
+        var writer = ArrayWriter<A>.Init();
+        for (var i = T.BackwardIterator(ta); i is (Exist<A>(var head), var tail); i = tail)
         {
-            var step = T.FoldStepBack(ta, unit);
-            while (true)
-            {
-                switch (step)
-                {
-                    case Fold<A, Unit>.Done(_):
-                        yield break;
-
-                    case Fold<A, Unit>.Loop(_, var value, var next):
-                        yield return value;
-                        step = next(default);
-                        break;
-
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
+            writer.Add(head);
         }
+        return writer.ToArr();
     }
 
     /// <summary>
-    /// List of elements of a structure, from left to right
+    /// List of elements of a structure
     /// </summary>
     /// <remarks>
     /// The sequence is lazy
     /// </remarks>
-    static virtual Iterable<A> ToIterableBack<A>(K<T, A> ta)
-    {
-        return go(ta).AsIterable();
-        IEnumerable<A> go(K<T, A> ta)
-        {
-            var step = T.FoldStepBack(ta, unit);
-            while (true)
-            {
-                switch (step)
-                {
-                    case Fold<A, Unit>.Done(_):
-                        yield break;
-
-                    case Fold<A, Unit>.Loop(_, var value, var next):
-                        yield return value;
-                        step = next(default);
-                        break;
-
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-        }
-    }
+    static virtual Iterable<A> ToIterableBack<A>(K<T, A> ta) =>
+        Iterable.createRange(T.BackwardIterator(ta));
 
     /// <summary>
     /// Does an element that fits the predicate occur in the structure?
     /// </summary>
     static virtual bool ExistsBack<A>(Func<A, bool> predicate, K<T, A> ta)
     {
-        var step  = T.FoldStepBack(ta, unit);
-        while (true)
+        for (var i = T.BackwardIterator(ta); i is (Exist<A>(var head), var tail); i = tail)
         {
-            switch (step)
-            {
-                case Fold<A, Unit>.Done(_):
-                    return false;
-
-                case Fold<A, Unit>.Loop(_, var value, var next):
-                    if(predicate(value)) return true;
-                    step = next(default);
-                    break;
-
-                default:
-                    throw new NotSupportedException();
-            }
+            if(predicate(head)) return true;
         }
+        return false;
     }
 
     /// <summary>
@@ -415,23 +296,11 @@ public interface FoldableBack<T> : IterableBackK<T>, Foldable<T>
     /// </summary>
     static virtual bool ForAllBack<A>(Func<A, bool> predicate, K<T, A> ta)
     {
-        var step  = T.FoldStepBack(ta, unit);
-        while (true)
+        for (var i = T.BackwardIterator(ta); i is (Exist<A>(var head), var tail); i = tail)
         {
-            switch (step)
-            {
-                case Fold<A, Unit>.Done(_):
-                    return true;
-
-                case Fold<A, Unit>.Loop(_, var value, var next):
-                    if(!predicate(value)) return false;
-                    step = next(default);
-                    break;
-
-                default:
-                    throw new NotSupportedException();
-            }
+            if(!predicate(head)) return false;
         }
+        return true;
     }
 
     /// <summary>
@@ -440,23 +309,11 @@ public interface FoldableBack<T> : IterableBackK<T>, Foldable<T>
     static virtual bool ContainsBack<EqA, A>(A value, K<T, A> ta) 
         where EqA : Eq<A>
     {
-        var step  = T.FoldStepBack(ta, unit);
-        while (true)
+        for (var i = T.BackwardIterator(ta); i is (Exist<A>(var head), var tail); i = tail)
         {
-            switch (step)
-            {
-                case Fold<A, Unit>.Done(_):
-                    return false;
-
-                case Fold<A, Unit>.Loop(_, var x, var next):
-                    if(EqA.Equals(value, x)) return true;
-                    step = next(default);
-                    break;
-
-                default:
-                    throw new NotSupportedException();
-            }
+            if(EqA.Equals(value, head)) return true;
         }
+        return false;
     }
 
     /// <summary>
@@ -470,23 +327,11 @@ public interface FoldableBack<T> : IterableBackK<T>, Foldable<T>
     /// </summary>
     static virtual Option<A> FindBack<A>(Func<A, bool> predicate, K<T, A> ta)
     {
-        var step  = T.FoldStepBack(ta, unit);
-        while (true)
+        for (var i = T.BackwardIterator(ta); i is (Exist<A>(var head), var tail); i = tail)
         {
-            switch (step)
-            {
-                case Fold<A, Unit>.Done(_):
-                    return default;
-
-                case Fold<A, Unit>.Loop(_, var value, var next):
-                    if(predicate(value)) return Some(value);
-                    step = next(default);
-                    break;
-
-                default:
-                    throw new NotSupportedException();
-            }
+            if(predicate(head)) return Some(head);
         }
+        return default;
     }
 
     /// <summary>
@@ -496,83 +341,33 @@ public interface FoldableBack<T> : IterableBackK<T>, Foldable<T>
     /// The sequence is lazy, but note, if the original foldable structure is lazy,
     /// then it will need to be consumed in its entirety before the values are yielded.
     /// </remarks>
-    static virtual Iterable<A> FindAllBack<A>(Func<A, bool> predicate, K<T, A> ta)
-    {
-        return go(ta).AsIterable();
-        IEnumerable<A> go(K<T, A> ta)
-        {
-            var step = T.FoldStepBack(ta, unit);
-            while (true)
-            {
-                switch (step)
-                {
-                    case Fold<A, Unit>.Done(_):
-                        yield break;
-
-                    case Fold<A, Unit>.Loop(_, var value, var next):
-                        if (predicate(value))
-                        {
-                            yield return value;
-                        }
-                        step = next(default);
-                        break;
-
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-        }
-    }
+    static virtual Iterable<A> FindAllBack<A>(Func<A, bool> predicate, K<T, A> ta) =>
+        T.BackwardIterator(ta)
+         .Filter(predicate)
+         .AsIterable();
 
     /// <summary>
     /// Get the last item in the foldable or `None`
     /// </summary>
-    static virtual Option<A> Last<A>(K<T, A> ta)
-    {
-        var step = T.FoldStepBack(ta, unit);
-        switch (step)
+    static virtual Option<A> Last<A>(K<T, A> ta) =>
+        T.BackwardIterator(ta) switch
         {
-            case Fold<A, Unit>.Done(_):
-                return default;
-
-            case Fold<A, Unit>.Loop(_, var value, _):
-                return value;
-
-            default:
-                throw new NotSupportedException();
-        }
-    }
+            (Exist<A>(var last), _) => Some(last),
+            _                       => None
+        };
     
     /// <summary>
-    /// Find the element at the specified index or `None` if out of range
+    /// Find the element at the specified index (from the end) or `None` if out of range
     /// </summary>
-    static virtual Option<A> At<A>(Index index, K<T, A> ta)
+    static virtual Option<A> AtBack<A>(int index, K<T, A> ta)
     {
-        var step = index.IsFromEnd
-                       ? T.FoldStepBack(ta, unit)
-                       : T.FoldStep(ta, unit);
-
         var ix = 0;
-
-        while (true)
+        for (var i = ta.BackwardIterator(); i is (Exist<A>(var head), var tail); i = tail)
         {
-            switch (step)
-            {
-                case Fold<A, Unit>.Done(_):
-                    return default;
-
-                case Fold<A, Unit>.Loop(_, var value, _) when ix == index.Value:
-                    return value;
-
-                case Fold<A, Unit>.Loop(_, _, var next):
-                    ix++;
-                    step = next(default);
-                    break;
-
-                default:
-                    throw new NotSupportedException();
-            }
+            if(ix == index) return head;
+            ix++;
         }
+        return default;
     }
 
     /// <summary>
@@ -582,34 +377,21 @@ public interface FoldableBack<T> : IterableBackK<T>, Foldable<T>
     /// <param name="ta">Foldable structure</param>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Partitioned structure</returns>
-    static virtual (Seq<A> True, Seq<A> False) PartitionBack<A>(Func<A, bool> f, K<T, A> ta)
+    static virtual (Arr<A> True, Arr<A> False) PartitionBack<A>(Func<A, bool> f, K<T, A> ta)
     {
-        var step   = T.FoldStepBack(ta, unit);
-        var @true  = Seq<A>();
-        var @false = Seq<A>();
-    
-        while (true)
+        var @true  = ArrayWriter<A>.Init();
+        var @false = ArrayWriter<A>.Init();
+        for (var i = ta.BackwardIterator(); i is (Exist<A>(var head), var tail); i = tail)
         {
-            switch (step)
+            if (f(head))
             {
-                case Fold<A, Unit>.Done(_):
-                    return (@true, @false);
-
-                case Fold<A, Unit>.Loop(_, var value, var next):
-                    if (f(value))
-                    {
-                        @true = @true.Add(value);
-                    }
-                    else
-                    {
-                        @false = @false.Add(value);
-                    }
-                    step = next(default);
-                    break;
-
-                default:
-                    throw new NotSupportedException();
+                @true.Add(head);
+            }
+            else
+            {
+                @false.Add(head);
             }
         }
+        return (@true.ToArr(), @false.ToArr());
     }
 }

@@ -98,7 +98,7 @@ public partial class IterableNE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<IterableNE<A>> createRange<A>(IEnumerable<A> items)
     {
-        var iter = Iterator.from(items);
+        var iter = Iterator.forward(items);
         if (iter.IsEmpty) return None;
         var head = iter.Head;
         var tail = iter.Tail.AsIterable();
@@ -146,7 +146,7 @@ public partial class IterableNE
 
         ValueTask<IterableNE<A>> sync()
         {
-            var iter = Iterator.from(items);
+            var iter = Iterator.forward(items);
             if (iter.IsEmpty) throw new ArgumentException("Can't create an IterableNE from an empty sequence");
             var head = iter.Head;
             var tail = iter.Tail.AsIterable();

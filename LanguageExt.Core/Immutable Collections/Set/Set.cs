@@ -35,7 +35,8 @@ public readonly struct Set<A> :
 
     readonly SetInternal<OrdDefault<A>, A> value;
 
-    internal SetInternal<OrdDefault<A>, A> Value => value ?? Empty.Value;
+    internal SetInternal<OrdDefault<A>, A> Value => 
+        value ?? Empty.Value;
 
     /// <summary>
     /// Ctor from an enumerable 
@@ -323,7 +324,7 @@ public readonly struct Set<A> :
     [Pure]
     public Set<A> Clear() =>
         Empty;
-
+    
     /// <summary>
     /// Get enumerator
     /// </summary>

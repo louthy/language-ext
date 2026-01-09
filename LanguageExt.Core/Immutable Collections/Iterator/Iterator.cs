@@ -9,15 +9,16 @@ using static LanguageExt.Prelude;
 namespace LanguageExt;
 
 /// <summary>
-/// Iterators are lazy, immutable sequences that can be consumed one item at a time.  These are functionally pure
+/// Iterators are lazy, immutable sequences that can be consumed one item at a time.  They are functionally pure
 /// unlike `IEnumerator` in the .NET framework.  
 /// </summary>
 /// <remarks>
 /// <para>
-/// All the language-ext collection types are written to support `Iterator` as a first-class citizen. That means
-/// you don't have to worry about the mutability problems of `IEnumerator`.  You can just use them as you would any
-/// other collection type and you can hold on to references mid-iteration, pass them around to different threads, or
-/// anything you like, like regular immutable data-types.
+/// All the language-ext collection types are written to support `Iterator` as a first-class citizen (by implementing 
+/// the `IterableK` and/or the `IterableBackK` trait). That means you don't have to worry about the mutability problems
+/// of `IEnumerator`.  You can just use them as you would any other collection type, and you can hold on to references 
+/// mid-iteration, pass those references around to different threads, or anything you like, in the same way as any
+/// regular immutable data-types.
 /// </para>
 /// <para>
 /// The only time you need to be careful is if you construct an `Iterator` from a regular `IEnumerable`.  The reference
@@ -106,7 +107,7 @@ public abstract partial class Iterator<A> :
     ///     }
     /// </code>
     /// </example>
-    protected abstract (Head<A> Head, Iterator<A> Tail) Next();
+    public abstract (Head<A> Head, Iterator<A> Tail) Next();
     
     /// <summary>
     /// Consume the next item in the sequence but return only its tail, ignoring the head.
@@ -138,7 +139,7 @@ public abstract partial class Iterator<A> :
     /// </summary>
     [Pure]
     public Iterable<A> AsIterable() =>
-        Iterable.createRange(AsEnumerable());
+        new IterableIterator<A>(this);
     
     /// <summary>
     /// Functor map
@@ -281,7 +282,7 @@ public abstract partial class Iterator<A> :
     /// Merge two sequences
     /// </summary>
     public static Iterator<A> operator |(Iterator<A> ma, Iterator<A> mb) =>
-        +ma.Choose(mb);
+        new OpAlt(ma, mb);
 
     /// <summary>
     /// Dispose

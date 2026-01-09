@@ -7,7 +7,7 @@ public abstract partial class Iterator<A>
         public override string ToString() => 
             $"Reverse({iter})";
 
-        protected override (Head<A> Head, Iterator<A> Tail) Next()
+        public override (Head<A> Head, Iterator<A> Tail) Next()
         {
             return go().Next();
             Iterator<A> go()
@@ -21,7 +21,7 @@ public abstract partial class Iterator<A>
 
                 var (array, start, count) = writer.ToArrayBack();
                 var arr = new Arr<A>(array, start, count);
-                return Iterator.from(arr);
+                return Iterator.forward(arr);
             }
         }
     }

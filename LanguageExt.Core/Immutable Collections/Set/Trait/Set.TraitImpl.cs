@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -9,7 +8,9 @@ public partial class Set :
     Monad<Set>,
     MonoidK<Set>,
     Alternative<Set>, 
-    Traversable<Set>
+    Traversable<Set>,
+    Foldable<Set, Set.FoldState>,
+    FoldableBack<Set, Set.FoldState>
 {
     static K<Set, B> Monad<Set>.Recur<A, B>(A value, Func<A, K<Set, Next<A, B>>> f) =>
         createRange(Monad.enumerableRecur(value, x =>f(x).As().AsEnumerable()));
@@ -95,6 +96,40 @@ public partial class Set :
     static int Foldable<Set>.Count<A>(K<Set, A> ta) =>
         ta.As().Count;
 
+    static void Foldable<Set, FoldState>.FoldStepSetup<A>(K<Set, A> ta, ref FoldState refState) => 
+        FoldState.Setup(ref refState, ta.As().Value.Root);
+
+    static bool Foldable<Set, FoldState>.FoldStep<A>(K<Set, A> ta, ref FoldState refState, out A value) 
+    {
+        if (FoldState.Step<A>(ref refState, out var node))
+        {
+            value = node.Key;
+            return true;
+        }
+        else
+        {
+            value = default!;
+            return false;
+        }
+    }
+
+    static void FoldableBack<Set, FoldState>.FoldStepBackSetup<A>(K<Set, A> ta, ref FoldState refState) => 
+        FoldState.Setup(ref refState, ta.As().Value.Root);
+
+    static bool FoldableBack<Set, FoldState>.FoldStepBack<A>(K<Set, A> ta, ref FoldState refState, out A value) 
+    {
+        if (FoldState.StepBack<A>(ref refState, out var node))
+        {
+            value = node.Key;
+            return true;
+        }
+        else
+        {
+            value = default!;
+            return false;
+        }
+    }
+
     static bool Foldable<Set>.IsEmpty<A>(K<Set, A> ta) =>
         ta.As().IsEmpty;
 
@@ -121,7 +156,7 @@ public partial class Set :
     static Option<A> Foldable<Set>.Head<A>(K<Set, A> ta) =>
         ta.As().Min;
 
-    static Option<A> Foldable<Set>.Last<A>(K<Set, A> ta) =>
+    static Option<A> FoldableBack<Set>.Last<A>(K<Set, A> ta) =>
         ta.As().Max;
 
     static Option<A> Foldable<Set>.Min<A>(K<Set, A> ta) =>
@@ -129,42 +164,10 @@ public partial class Set :
 
     static Option<A> Foldable<Set>.Max<A>(K<Set, A> ta) =>
         ta.As().Max;
-    
-    static Fold<A, S> Foldable<Set>.FoldStep<A, S>(K<Set, A> ta, in S initialState)
-    {
-        var items = ta.As();
-        return go(items.GetIterator())(initialState);
 
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
-    }
-        
-    static Fold<A, S> Foldable<Set>.FoldStepBack<A, S>(K<Set, A> ta, in S initialState)
-    {
-        var items = ta.As();
-        return go(items.Reverse().GetIterator())(initialState);
+    static Iterator<A> IterableK<Set>.ForwardIterator<A>(K<Set, A> fa) =>
+        new Iterator<A>.IterSetFwd(new IteratorState<A>(fa.As().Value.Root));
 
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
-    }
+    static Iterator<A> IterableBackK<Set>.BackwardIterator<A>(K<Set, A> fa) => 
+        new Iterator<A>.IterSetBkwd(new IteratorState<A>(fa.As().Value.Root));
 }

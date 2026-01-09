@@ -7,7 +7,7 @@ public abstract partial class Iterator<A>
         public override string ToString() => 
             $"Flatten({iter})";
 
-        protected override (Head<A> Head, Iterator<A> Tail) Next() =>
+        public override (Head<A> Head, Iterator<A> Tail) Next() =>
             iter is (Exist<Iterator<A>> (var hs), var t)
                 ? hs.Combine(t.Flatten()).Next()
                 : (Nil<A>.Default, Nil.Default);

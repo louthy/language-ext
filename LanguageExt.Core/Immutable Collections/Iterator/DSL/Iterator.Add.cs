@@ -18,7 +18,7 @@ public abstract partial class Iterator<A>
             this.second = second;
         }
 
-        protected override (Head<A> Head, Iterator<A> Tail) Next() =>
+        public override (Head<A> Head, Iterator<A> Tail) Next() =>
             first is (Exist<A> (var head), var tail) 
                 ? (new Exist<A>(head), new Add(tail, second))
                 : second.ForwardIterator().Next();

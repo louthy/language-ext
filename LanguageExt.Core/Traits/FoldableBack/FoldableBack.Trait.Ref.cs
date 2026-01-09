@@ -37,7 +37,7 @@ namespace LanguageExt.Traits;
 /// </summary>
 /// <typeparam name="T">This foldable type</typeparam>
 /// <typeparam name="FS">Folding state type.  Used to hold state for the duration of a fold</typeparam>
-public interface FoldableBack<T, FS> : FoldableBack<T>, Foldable<T, FS> 
+public interface FoldableBack<T, FS> : FoldableBack<T> 
     where T : FoldableBack<T, FS>
     where FS : allows ref struct
 {

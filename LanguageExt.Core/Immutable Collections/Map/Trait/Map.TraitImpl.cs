@@ -4,7 +4,11 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public partial class Map<Key> : Foldable<Map<Key>, Map.FoldState>, Functor<Map<Key>>, MonoidK<Map<Key>>
+public partial class Map<Key> : 
+    Foldable<Map<Key>, Map.FoldState>,
+    FoldableBack<Map<Key>, Map.FoldState>,
+    Functor<Map<Key>>, 
+    MonoidK<Map<Key>>
 {
     static K<Map<Key>, B> Functor<Map<Key>>.Map<A, B>(Func<A, B> f, K<Map<Key>, A> ma)
     {
@@ -27,7 +31,7 @@ public partial class Map<Key> : Foldable<Map<Key>, Map.FoldState>, Functor<Map<K
     static Option<A> Foldable<Map<Key>>.Head<A>(K<Map<Key>, A> ta) =>
         ta.As().Min.Map(kv => kv.Value);
 
-    static Option<A> Foldable<Map<Key>>.Last<A>(K<Map<Key>, A> ta) =>
+    static Option<A> FoldableBack<Map<Key>>.Last<A>(K<Map<Key>, A> ta) =>
         ta.As().Max.Map(kv => kv.Value);
 
     static Option<A> Foldable<Map<Key>>.Min<A>(K<Map<Key>, A> ta) =>
@@ -41,51 +45,13 @@ public partial class Map<Key> : Foldable<Map<Key>, Map.FoldState>, Functor<Map<K
 
     static K<Map<Key>, A> MonoidK<Map<Key>>.Empty<A>() =>
         Map<Key, A>.Empty;
-    
-    static Fold<A, S> Foldable<Map<Key>>.FoldStep<A, S>(K<Map<Key>, A> ta, in S initialState)
-    {
-        var items = ta.As();
-        return go(items.Values.GetIterator())(initialState);
-
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
-    }
-    
-    static Fold<A, S> Foldable<Map<Key>>.FoldStepBack<A, S>(K<Map<Key>, A> ta, in S initialState) 
-    {
-        var items = ta.As();
-        return go(items.Values.Reverse().GetIterator())(initialState);
-
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
-    }
 
     static void Foldable<Map<Key>, Map.FoldState>.FoldStepSetup<A>(
         K<Map<Key>, A> ta,
         ref Map.FoldState refState) =>
         Map.FoldState.Setup(ref refState, ta.As().Value.Root);
 
-    static void Foldable<Map<Key>, Map.FoldState>.FoldStepBackSetup<A>(
+    static void FoldableBack<Map<Key>, Map.FoldState>.FoldStepBackSetup<A>(
         K<Map<Key>, A> ta, 
         ref Map.FoldState refState) =>
         Map.FoldState.Setup(ref refState, ta.As().Value.Root);
@@ -107,7 +73,7 @@ public partial class Map<Key> : Foldable<Map<Key>, Map.FoldState>, Functor<Map<K
         }
     }
 
-    static bool Foldable<Map<Key>, Map.FoldState>.FoldStepBack<A>(
+    static bool FoldableBack<Map<Key>, Map.FoldState>.FoldStepBack<A>(
         K<Map<Key>, A> ta, 
         ref Map.FoldState refState, 
         out A value)  
@@ -124,4 +90,9 @@ public partial class Map<Key> : Foldable<Map<Key>, Map.FoldState>, Functor<Map<K
         }
     }
 
+    static Iterator<A> IterableK<Map<Key>>.ForwardIterator<A>(K<Map<Key>, A> fa) => 
+        new Iterator.IterMapValueFwd<Key, A>(new Map.IteratorState<Key, A>(fa.As().Value.Root));
+
+    static Iterator<A> IterableBackK<Map<Key>>.BackwardIterator<A>(K<Map<Key>, A> fa) => 
+        new Iterator.IterMapValueBkwd<Key, A>(new Map.IteratorState<Key, A>(fa.As().Value.Root));
 }

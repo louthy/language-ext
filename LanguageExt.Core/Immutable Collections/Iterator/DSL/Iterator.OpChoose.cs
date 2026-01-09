@@ -9,7 +9,7 @@ public abstract partial class Iterator<A>
         public override string ToString() => 
             $"Choose({iter})";
 
-        protected override (Head<A> Head, Iterator<A> Tail) Next()
+        public override (Head<A> Head, Iterator<A> Tail) Next()
         {
             for (var i = iter; i is (Exist<X> (var h), var t); i = t)
             {

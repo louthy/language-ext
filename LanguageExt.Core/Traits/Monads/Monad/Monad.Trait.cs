@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Traits;
@@ -59,12 +57,14 @@ public interface Monad<M> :
 
     static K<M, A> Applicative<M>.Actions<A>(IterableNE<K<M, A>> mas)
     {
-        return M.Recur(mas.GetIterator(), go).Flatten();
+        return M.Recur(mas.ForwardIterator(), go).Flatten();
+
         K<M, Next<Iterator<K<M, A>>, K<M, A>>> go(Iterator<K<M, A>> iter) =>
             iter switch
             {
-                (var head, { IsEmpty : true }) => M.Pure(Next.Done<Iterator<K<M, A>>, K<M, A>>(head)),
-                var (head, tail)               => head.Map(_ => Next.Loop<Iterator<K<M, A>>, K<M, A>>(tail.Split()))
+                (Exist<K<M, A>> (var head), Nil<K<M, A>>) => M.Pure(Next.Done<Iterator<K<M, A>>, K<M, A>>(head)),
+                (Exist<K<M, A>> (var head), var tail)     => head * (_ => Next.Loop<Iterator<K<M, A>>, K<M, A>>(tail)),
+                _                                         => throw new NotSupportedException()
             };
     }   
 }

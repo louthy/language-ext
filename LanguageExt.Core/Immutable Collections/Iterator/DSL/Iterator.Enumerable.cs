@@ -16,7 +16,7 @@ public abstract partial class Iterator<A>
         public Enumerable(IEnumerable<A> enumerable) => 
             this.enumerable = enumerable;
 
-        protected override (Head<A> Head, Iterator<A> Tail) Next()
+        public override (Head<A> Head, Iterator<A> Tail) Next()
         {
             var enumerator = enumerable.GetEnumerator();
             if (enumerator.MoveNext())
@@ -48,7 +48,7 @@ public abstract partial class Iterator<A>
             this.enumerator = enumerator;
         }
 
-        protected override (Head<A> Head, Iterator<A> Tail) Next()
+        public override (Head<A> Head, Iterator<A> Tail) Next()
         {
             if (!enumerator.Disposed && enumerator.Enumerator.MoveNext())
             {
