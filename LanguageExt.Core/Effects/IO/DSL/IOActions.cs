@@ -18,93 +18,87 @@ record IOActions<A, B>(IterableNE<K<IO, A>> Fas, Func<A, IO<B>> Next) : InvokeSy
 
     public override IO<B> Invoke(EnvIO envIO)
     {
-        var iter = Fas.GetIterator();
-        var head = iter.Head;
-        var task = head.RunAsync(envIO);
-        if (task.IsCompleted)
+        if (Fas.ForwardIterator() is (Exist<K<IO, A>> (var head), var tail))
         {
-            return new IOActionsSync<A, B>(task.Result, iter.Tail.Split(), Next);
+            var task = head.RunAsync(envIO);
+            if (task.IsCompleted)
+            {
+                return new IOActionsSync<A, B>(task.Result, tail, Next);
+            }
+            else
+            {
+                return new IOActionsAsync<A, B>(task, tail, Next);
+            }
         }
         else
         {
-            return new IOActionsAsync<A, B>(task, iter.Tail.Split(), Next);
+            throw new NotSupportedException("IterableNE can't be empty, so we will never get here");
         }
     }
 }
 
-record IOActions2<A, B>(Iterator<K<IO, A>> Fas, Func<A, IO<B>> Next) : InvokeSyncIO<B>
+record IOActionsSync<A, B>(A Head, Iterator<K<IO, A>> Tail, Func<A, IO<B>> Next) : InvokeSyncIO<B>
 {
     public override IO<C> Map<C>(Func<B, C> f) => 
-        new IOActions2<A, C>(Fas, x => Next(x).Map(f));
+        new IOActionsSync<A, C>(Head, Tail, x => Next(x).Map(f));
 
     public override IO<C> Bind<C>(Func<B, K<IO, C>> f) => 
-        new IOActions2<A, C>(Fas, x => Next(x).Bind(f));
+        new IOActionsSync<A, C>(Head, Tail, x => Next(x).Bind(f));
 
     public override IO<C> BindAsync<C>(Func<B, ValueTask<K<IO, C>>> f) => 
-        new IOActions2<A, C>(Fas, x => Next(x).BindAsync(f));
+        new IOActionsSync<A, C>(Head, Tail, x => Next(x).BindAsync(f));
 
     public override IO<B> Invoke(EnvIO envIO)
     {
-        var iter = Fas.GetIterator();
-        var head = iter.Head;
-        var task = head.RunAsync(envIO);
-        if (task.IsCompleted)
+        if (Tail is (Exist<K<IO, A>> (var head), var tail))
         {
-            return new IOActionsSync<A, B>(task.Result, iter.Tail.Split(), Next);
+            var th = head.RunAsync(envIO);
+            if (th.IsCompleted)
+            {
+                return new IOActionsSync<A, B>(th.Result, tail, Next);
+            }
+            else
+            {
+                return new IOActionsAsync<A, B>(th, tail, Next);
+            }
         }
         else
         {
-            return new IOActionsAsync<A, B>(task, iter.Tail.Split(), Next);
+            return Next(Head);
         }
     }
 }
 
-record IOActionsSync<A, B>(A Value, Iterator<K<IO, A>> Fas, Func<A, IO<B>> Next) : InvokeSyncIO<B>
+record IOActionsAsync<A, B>(ValueTask<A> Head, Iterator<K<IO, A>> Tail, Func<A, IO<B>> Next) : InvokeAsyncIO<B>
 {
     public override IO<C> Map<C>(Func<B, C> f) => 
-        new IOActionsSync<A, C>(Value, Fas, x => Next(x).Map(f));
+        new IOActionsAsync<A, C>(Head, Tail, x => Next(x).Map(f));
 
     public override IO<C> Bind<C>(Func<B, K<IO, C>> f) => 
-        new IOActionsSync<A, C>(Value, Fas, x => Next(x).Bind(f));
+        new IOActionsAsync<A, C>(Head, Tail, x => Next(x).Bind(f));
 
     public override IO<C> BindAsync<C>(Func<B, ValueTask<K<IO, C>>> f) => 
-        new IOActionsSync<A, C>(Value, Fas, x => Next(x).BindAsync(f));
-
-    public override IO<B> Invoke(EnvIO envIO)
-    {
-        if (Fas.IsEmpty)
-        {
-            return Next(Value);
-        }
-        else
-        {
-            return new IOActions2<A, B>(Fas.Clone(), Next);
-        }
-    }
-}
-
-record IOActionsAsync<A, B>(ValueTask<A> Value, Iterator<K<IO, A>> Fas, Func<A, IO<B>> Next) : InvokeAsyncIO<B>
-{
-    public override IO<C> Map<C>(Func<B, C> f) => 
-        new IOActionsAsync<A, C>(Value, Fas, x => Next(x).Map(f));
-
-    public override IO<C> Bind<C>(Func<B, K<IO, C>> f) => 
-        new IOActionsAsync<A, C>(Value, Fas, x => Next(x).Bind(f));
-
-    public override IO<C> BindAsync<C>(Func<B, ValueTask<K<IO, C>>> f) => 
-        new IOActionsAsync<A, C>(Value, Fas, x => Next(x).BindAsync(f));
+        new IOActionsAsync<A, C>(Head, Tail, x => Next(x).BindAsync(f));
 
     public override async ValueTask<IO<B>> Invoke(EnvIO envIO)
     {
-        var value = await Value;
+        var value = await Head;
         
-        if (Fas.IsEmpty)
+        if (Tail is (Exist<K<IO, A>> (var head), var tail))
         {
-            return Next(value);
+            var th = head.RunAsync(envIO);
+            if (th.IsCompleted)
+            {
+                return new IOActionsSync<A, B>(th.Result, tail, Next);
+            }
+            else
+            {
+                return new IOActionsAsync<A, B>(th, tail, Next);
+            }
         }
         else
         {
-            return new IOActions2<A, B>(Fas.Clone(), Next);
+            return Next(value);
         }
     }
 }
