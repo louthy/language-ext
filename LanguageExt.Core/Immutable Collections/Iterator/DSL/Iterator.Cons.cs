@@ -20,6 +20,9 @@ public abstract partial class Iterator<A>
 
         protected override (Head<A> Head, Iterator<A> Tail) Next() =>
             (new Exist<A>(head), tail());
+
+        public override string ToString() => 
+            $"{head}...";
     }
     
     /// <summary>
@@ -38,5 +41,8 @@ public abstract partial class Iterator<A>
 
         protected override (Head<A> Head, Iterator<A> Tail) Next() =>
             (new Exist<A>(head), tail);
+
+        public override string ToString() => 
+            $"{head}, {tail}";
     }    
 }

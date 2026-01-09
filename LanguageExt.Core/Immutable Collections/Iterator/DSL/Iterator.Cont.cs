@@ -25,5 +25,8 @@ public abstract partial class Iterator<A>
                     return (new Exist<A>(h), t);
             }
         }
+
+        public override string ToString() => 
+            "...";
     }
 }

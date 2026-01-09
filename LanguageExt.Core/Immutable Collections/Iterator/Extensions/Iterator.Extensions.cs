@@ -54,9 +54,7 @@ public static partial class IteratorExtensions
     /// </summary>
     [Pure]
     public static Iterator<A> Flatten<A>(this Iterator<Iterator<A>> ma) =>
-        ma is (Exist<Iterator<A>> (var hs), var t)
-            ? hs.Combine(t.Flatten())
-            : Iterator.Nil<A>();
+        new Iterator<A>.OpFlatten(ma);
     
     extension<A, B>(Func<Iterator<A>> iter)
     {

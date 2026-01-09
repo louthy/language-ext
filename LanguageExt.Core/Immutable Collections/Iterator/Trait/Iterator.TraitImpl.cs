@@ -44,14 +44,10 @@ public partial class Iterator :
         ma.As().Combine(mb.As());
 
     static K<Iterator, A> Choice<Iterator>.Choose<A>(K<Iterator, A> ma, K<Iterator, A> mb) =>
-        +ma is (Exist<A> (var h), var t)
-            ? h.Cons(t)
-            : mb;
+        new Iterator<A>.OpAlt(+ma, +mb);
     
     static K<Iterator, A> Choice<Iterator>.Choose<A>(K<Iterator, A> ma, Memo<Iterator, A> mb) => 
-        +ma is (Exist<A> (var h), var t)
-            ? h.Cons(t)
-            : mb.Value;
+        new Iterator<A>.OpAltMemo(+ma, mb);
     
     static K<F, K<Iterator, B>> Traversable<Iterator>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Iterator, A> ta)
     {
@@ -99,8 +95,8 @@ public partial class Iterator :
         toHashSet(fa.As());
     
     static K<Iterable, A> Natural<Iterator, Iterable>.Transform<A>(K<Iterator, A> fa) => 
-        Iterable.createRange(fa.As());
+        new IterableIterator<A>(fa.As());
 
-    public static Iterator<A> ForwardIterator<A>(K<Iterator, A> fa) => 
+    static Iterator<A> IterableK<Iterator>.ForwardIterator<A>(K<Iterator, A> fa) => 
         +fa;
 }

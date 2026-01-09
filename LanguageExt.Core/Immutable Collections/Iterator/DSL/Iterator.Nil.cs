@@ -7,7 +7,7 @@ public abstract partial class Iterator<A>
     ///
     /// The end of the sequence.
     /// </summary>
-    public sealed class Nil : Iterator<A>
+    internal sealed class Nil : Iterator<A>
     {
         public static readonly Iterator<A> Default = new Nil();
 

@@ -136,10 +136,6 @@ sealed class IterableAsyncEnumerable<A>(IO<IAsyncEnumerable<A>> runEnumerable) :
     public override Iterator<A> GetIterator()
     {
         var enumerable = AsEnumerableIO().Run();
-        foreach (var x in enumerable)
-        {
-            
-        }
+        return Iterator.from(enumerable);
     }
-            
 }

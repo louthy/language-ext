@@ -25,5 +25,8 @@ public abstract partial class Iterator<A>
         
         public Add More(A value) =>
             new (first, second.Add(value));
+
+        public override string ToString() => 
+            $"{first}, {second.ToFullString()}";
     }
 }

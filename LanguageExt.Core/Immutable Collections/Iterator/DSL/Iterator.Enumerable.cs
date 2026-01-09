@@ -29,6 +29,9 @@ public abstract partial class Iterator<A>
                 return (Nil<A>.Default, Nil.Default);
             }
         }
+
+        public override string ToString() => 
+            "...";
     }
     
     /// <summary>
@@ -57,6 +60,9 @@ public abstract partial class Iterator<A>
                 return (Nil<A>.Default, Nil.Default);
             }
         }
+
+        public override string ToString() => 
+            $"{head}, ...";
     }
 
     /// <summary>

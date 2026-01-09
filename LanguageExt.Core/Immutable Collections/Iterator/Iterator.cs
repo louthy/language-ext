@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -151,19 +152,30 @@ public abstract partial class Iterator<A> :
     /// </summary>
     [Pure]
     public Iterator<B> Map<B>(Func<A, B> f) =>
-        this is (Exist<A> (var h), var t)
-            ? Iterator.Cons(f(h), () => t.Map(f))
-            : Iterator.Nil<B>();
+        new Iterator<B>.OpMap<A>(this, f);
+
+    /// <summary>
+    /// Map and filtering
+    /// </summary>
+    [Pure]
+    public Iterator<B> Choose<B>(Func<A, Option<B>> f) =>
+        new Iterator<B>.OpChoose<A>(this, f);
+
+    /// <summary>
+    /// Casts each value to the generic-type provided.  If the type-cast fails, the value is skipped.
+    /// </summary>
+    /// <typeparam name="B">Type to cast to</typeparam>
+    /// <returns>Iterator with the values that were successfully cast.</returns>
+    [Pure]
+    public Iterator<B> Cast<B>() =>
+        Choose(x => x is B b ? Some(b) : None);
 
     /// <summary>
     /// Functor map
     /// </summary>
     [Pure]
     public Iterator<A> Filter(Func<A, bool> f) =>
-        this is (Exist<A> (var h), var t)
-            ? f(h) ? Iterator.Cons(h, () => t.Filter(f))
-                   : Iterator.Lazy(() => t.Filter(f)) 
-            : Iterator.Nil<A>();
+        new OpFilter(this, f);
 
     /// <summary>
     /// Monad bind
@@ -198,9 +210,7 @@ public abstract partial class Iterator<A> :
     /// </summary>
     [Pure]
     public Iterator<A> Combine(Iterator<A> other) =>
-        this is (Exist<A> (var h), var t)
-            ? Iterator.Cons(h, () => t.Combine(other))
-            : other;
+        new OpCombine(this, other);
 
     /// <summary>
     /// Reverse the sequence of the iterator
@@ -221,23 +231,8 @@ public abstract partial class Iterator<A> :
     /// </remarks>
     /// <returns>Reversed iterator</returns>
     [Pure]
-    public Iterator<A> Reverse()
-    {
-        var writer  = ArrayWriter<A>.Init();
-
-        for (var i = this; i is (Exist<A> (var head), var tail); i = tail)
-        {
-            writer.Add(head);
-        }
-
-        var (array, start, count) = writer.ToArrayBack();
-        return go(start, count);
-
-        Iterator<A> go(int index, int remaining) =>
-            remaining == 0
-                ? Iterator.Nil<A>()
-                : Iterator.Cons(array[index], () => go(index + 1, remaining - 1));
-    }
+    public Iterator<A> Reverse() =>
+        new OpReverse(this);
 
     /// <summary>
     /// Interleave two iterator sequences together
@@ -247,23 +242,8 @@ public abstract partial class Iterator<A> :
     /// out of items, the items that are remaining in the other sequence are yielded alone.
     /// </remarks>
     [Pure]
-    public Iterator<A> Merge(Iterator<A> other)
-    {
-        switch (this, other)
-        {
-            case ((Exist<A> (var lh), var lt) , (Exist<A> (var rh), var rt)):
-                return lh.Cons(rh.Cons(() => lt.Merge(rt)));
-            
-            case ((Exist<A>, _) left, _):
-                return left;
-            
-            case (_, (Exist<A>, _) right):
-                return right;
-            
-            default:
-                return Iterator.Nil<A>();
-        }
-    }
+    public Iterator<A> Merge(Iterator<A> other) =>
+        new OpMerge(this, other);
 
     /// <summary>
     /// Zips the items of two sequences together
@@ -272,17 +252,8 @@ public abstract partial class Iterator<A> :
     /// The output sequence will be as long as the shortest input sequence.
     /// </remarks>
     [Pure]
-    public Iterator<(A First, A Second)> Zip(Iterator<A> other)
-    {
-        switch (this, other)
-        {
-            case ((Exist<A> (var lh), var lt), (Exist<A> (var rh), var rt)):
-                return (lh, rh).Cons(() => lt.Zip(rt));
-
-            default:
-                return Iterator.Nil<(A, A)>();
-        }
-    }
+    public Iterator<(A First, B Second)> Zip<B>(Iterator<B> other) =>
+        new Iterator.OpZip<A, B>(this, other);
 
     /// <summary>
     /// Combine two sequences
@@ -317,7 +288,7 @@ public abstract partial class Iterator<A> :
     /// </summary>
     public virtual void Dispose()
     {
-        
+        // Only the Iterator.Enumerator uses Dispose
     }
 
     /// <summary>

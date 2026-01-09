@@ -19,5 +19,8 @@ public abstract partial class Iterator<A>
             {
                 var (h, t) => (h, t)
             };
+    
+        public override string ToString() => 
+            "...";
     }
 }
