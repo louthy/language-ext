@@ -52,9 +52,13 @@ public partial class Map
         const int StackDepth = 32;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void Setup<K, V>(ref FoldState state, MapItem<K, V> root) => 
-            Push(ref state, root);
-        
+        internal static FoldState Setup<K, V>(MapItem<K, V> root)
+        {
+            FoldState fs = default!;
+            Push(ref fs, root);
+            return fs;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Push<K, V>(ref FoldState state, MapItem<K, V> item)
         {

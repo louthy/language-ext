@@ -6,8 +6,12 @@ public partial class Stck
     {
         object Top;
 
-        internal static void Setup<A>(Stck<A> top, ref FoldState state) => 
+        internal static FoldState Setup<A>(Stck<A> top)
+        {
+            FoldState state = default;
             state.Top = top;
+            return state;
+        }
 
         internal static bool Step<A>(ref FoldState state, out A value)
         {

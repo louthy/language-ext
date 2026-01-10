@@ -11,6 +11,15 @@ public abstract partial class Iterator<A>
             xs is (Exist<A> h, var t)
                 ? (h, t)
                 : ys.Next();
+
+        public override void Dispose()
+        {
+            xs.Dispose();
+            ys.Dispose();
+        }
+
+        public override Iterator<A> Using() =>
+            new OpAlt(xs.Using(), ys.Using());
     }
     
     internal sealed class OpAltMemo(Iterator<A> xs, Memo<Iterator, A> ys) : Iterator<A>
@@ -22,5 +31,11 @@ public abstract partial class Iterator<A>
             xs is (Exist<A> h, var t)
                 ? (h, t)
                 : ys.Value.As().Next();
+
+        public override void Dispose() =>
+            xs.Dispose();
+        
+        public override Iterator<A> Using() =>
+            new OpAltMemo(xs.Using(), ys);
     }
 }

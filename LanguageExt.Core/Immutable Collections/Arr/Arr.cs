@@ -987,15 +987,11 @@ public readonly partial struct Arr<A> :
     {
         var ma     = this;
         var writer = ArrayWriter<C>.Init();
-        
-        Arr.FoldState astate = default!;
-        ma.StepSetup(ref astate);
-        while (ma.Step(ref astate, out var a))
+
+        foreach (var a in ma.ForwardIteratorRef<Arr, Arr.FoldState, A>())
         {
-            var           mb     = +bind(a);
-            Arr.FoldState bstate = default!;
-            mb.StepSetup(ref bstate);
-            while (mb.Step(ref bstate, out var b))
+            var mb     = +bind(a);
+            foreach (var b in mb.ForwardIteratorRef<Arr, Arr.FoldState, B>())
             {
                 writer.Add(project(a, b));
             }

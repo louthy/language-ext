@@ -166,9 +166,9 @@ internal class SeqConcat<A>(Seq<ISeqInternal<A>> ms) : ISeqInternal<A>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void InitFoldState(ref Seq.FoldState state) =>
+    public Seq.FoldState InitFoldState() =>
         // ReSharper disable once GenericEnumeratorNotDisposed
-        Seq.FoldState.FromEnumerator(ref state, GetEnumerator());
+        Seq.FoldState.FromEnumerator(GetEnumerator());
 
     IEnumerator IEnumerable.GetEnumerator()
     {

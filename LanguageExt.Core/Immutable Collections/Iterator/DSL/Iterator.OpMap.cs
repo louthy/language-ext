@@ -13,5 +13,11 @@ public abstract partial class Iterator<A>
             iter is (Exist<X> (var Value), var next)
                 ? (new Exist<A>(f(Value)), next.Map(f))
                 : (Nil<A>.Default, Nil.Default);
+
+        public override void Dispose() =>
+            iter.Dispose();
+        
+        public override Iterator<A> Using() =>
+            new OpMap<X>(iter.Using(), f);
     }
 }

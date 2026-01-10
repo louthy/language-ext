@@ -46,17 +46,13 @@ public partial class Map<Key> :
     static K<Map<Key>, A> MonoidK<Map<Key>>.Empty<A>() =>
         Map<Key, A>.Empty;
 
-    static void Foldable<Map<Key>, Map.FoldState>.FoldStepSetup<A>(
-        K<Map<Key>, A> ta,
-        ref Map.FoldState refState) =>
-        Map.FoldState.Setup(ref refState, ta.As().Value.Root);
+    static Map.FoldState IterableK<Map<Key>, Map.FoldState>.StepSetup<A>(K<Map<Key>, A> ta) =>
+        Map.FoldState.Setup(ta.As().Value.Root);
 
-    static void FoldableBack<Map<Key>, Map.FoldState>.FoldStepBackSetup<A>(
-        K<Map<Key>, A> ta, 
-        ref Map.FoldState refState) =>
-        Map.FoldState.Setup(ref refState, ta.As().Value.Root);
+    static Map.FoldState IterableBackK<Map<Key>, Map.FoldState>.StepBackSetup<A>(K<Map<Key>, A> ta) =>
+        Map.FoldState.Setup(ta.As().Value.Root);
 
-    static bool Foldable<Map<Key>, Map.FoldState>.FoldStep<A>(
+    static bool IterableK<Map<Key>, Map.FoldState>.Step<A>(
         K<Map<Key>, A> ta, 
         ref Map.FoldState refState, 
         out A value) 
@@ -73,7 +69,7 @@ public partial class Map<Key> :
         }
     }
 
-    static bool FoldableBack<Map<Key>, Map.FoldState>.FoldStepBack<A>(
+    static bool IterableBackK<Map<Key>, Map.FoldState>.StepBack<A>(
         K<Map<Key>, A> ta, 
         ref Map.FoldState refState, 
         out A value)  

@@ -11,5 +11,11 @@ public abstract partial class Iterator<A>
             iter is (Exist<Iterator<A>> (var hs), var t)
                 ? hs.Combine(t.Flatten()).Next()
                 : (Nil<A>.Default, Nil.Default);
+
+        public override void Dispose() =>
+            iter.Dispose();
+        
+        public override Iterator<A> Using() =>
+            new OpFlatten(iter.Using());
     }
 }

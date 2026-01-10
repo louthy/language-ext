@@ -13,7 +13,16 @@ public partial class Iterator
                 ((Exist<A> (var lh), var lt), (Exist<B> (var rh), var rt)) =>
                     (new Exist<(A First, B Second)>((lh, rh)), lt.Zip(rt)),
 
-                _ => (LanguageExt.Nil<(A, B)>.Default, Nil.Default)
+                _ => (Nil<(A, B)>.Default, Nil.Default)
             };
+
+        public override void Dispose()
+        {
+            xs.Dispose();
+            ys.Dispose();
+        }
+        
+        public override Iterator<(A First, B Second)> Using() =>
+            new OpZip<A, B>(xs.Using(), ys.Using());
     }
 }

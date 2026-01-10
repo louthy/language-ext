@@ -282,12 +282,11 @@ public readonly struct Lst<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<A> Reverse()
     {
-        Lst.FoldState foldState = default!;
         var           root      = ListItem<A>.EmptyM;
         var           subIndex  = 0;
         var           fa        = (K<Lst, A>)this;
-        
-        fa.StepBackSetup(ref foldState);
+
+        var foldState = fa.StepBackSetup<Lst, Lst.FoldState, A>();
         while (fa.StepBack(ref foldState, out var item))
         {
             root = ListModuleM.Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);

@@ -8,7 +8,7 @@ using LanguageExt.Common;
 
 namespace LanguageExt;
 
-internal class SeqLazy<A> : ISeqInternal<A>
+internal class SeqIterator<A> : ISeqInternal<A>, IDisposable
 {
     const int DefaultCapacity = 8;
     const int NoCons = 1;
@@ -36,7 +36,7 @@ internal class SeqLazy<A> : ISeqInternal<A>
     /// <summary>
     /// Lazy sequence
     /// </summary>
-    readonly Enum<A> seq;
+    readonly Iter<A> seq;
 
     /// <summary>
     /// Start position in sequence
@@ -58,8 +58,15 @@ internal class SeqLazy<A> : ISeqInternal<A>
     /// <summary>
     /// Constructor
     /// </summary>
-    internal SeqLazy(IEnumerable<A> ma) : this(new A[DefaultCapacity], DefaultCapacity, 0, 0, new Enum<A>(ma), 0)
+    internal SeqIterator(Iterator<A> ma) : 
+        this(new A[DefaultCapacity], DefaultCapacity, 0, 0, new Iter<A>(ma.Using()), 0)
     { }
+
+    public void Dispose() => 
+        seq.Dispose();
+    
+    public SeqIterator<A> Using() =>
+        new (data, start, count, consDisallowed, seq.Using(), lazyStart);
 
     /// <summary>
     /// Constructor
@@ -70,7 +77,7 @@ internal class SeqLazy<A> : ISeqInternal<A>
     /// <param name="noCons">1 if the Seq doesn't support consing - because another instance is sharing the backing buffer and is using it</param>
     /// <param name="seq">The lazy iterator</param>
     /// <param name="lazyStart">The start position for the lazy items as they come in</param>
-    SeqLazy(A[] data, int start, int count, int noCons, Enum<A> seq, int lazyStart)
+    SeqIterator(A[] data, int start, int count, int noCons, Iter<A> seq, int lazyStart)
     {
         this.data = data;
         this.start = start;
@@ -146,18 +153,18 @@ internal class SeqLazy<A> : ISeqInternal<A>
         {
             if(count > 0)
             {
-                return new SeqLazy<A>(data, start + 1, count - 1, NoCons, seq, lazyStart);
+                return new SeqIterator<A>(data, start + 1, count - 1, NoCons, seq, lazyStart);
             }
             else if(seq.Count > lazyStart)
             {
-                return new SeqLazy<A>(data, start, count, NoCons, seq, lazyStart + 1);
+                return new SeqIterator<A>(data, start, count, NoCons, seq, lazyStart + 1);
             }
             else
             {
                 var (succ, _) = StreamTo(seq.Count);
                 if(succ)
                 {
-                    return new SeqLazy<A>(data, start, count, NoCons, seq, lazyStart + 1);
+                    return new SeqIterator<A>(data, start, count, NoCons, seq, lazyStart + 1);
                 }
                 else
                 {
@@ -239,11 +246,11 @@ internal class SeqLazy<A> : ISeqInternal<A>
         {
             var nstart = start - 1;
             data[nstart] = value;
-            return new SeqLazy<A>(data, start - 1, count + 1, 0, seq, lazyStart);
+            return new SeqIterator<A>(data, start - 1, count + 1, 0, seq, lazyStart);
         }
     }
 
-    SeqLazy<A> CloneCons(A value)
+    SeqIterator<A> CloneCons(A value)
     {
         if (start == 0)
         {
@@ -269,7 +276,7 @@ internal class SeqLazy<A> : ISeqInternal<A>
             ndata[nstart] = value;
 
             // Return everything 
-            return new SeqLazy<A>(ndata, nstart, ncount, 0, seq, lazyStart);
+            return new SeqIterator<A>(ndata, nstart, ncount, 0, seq, lazyStart);
         }
         else
         {
@@ -284,7 +291,7 @@ internal class SeqLazy<A> : ISeqInternal<A>
 
             ndata[nstart] = value;
 
-            return new SeqLazy<A>(ndata, nstart, count + 1, 0, seq, lazyStart);
+            return new SeqIterator<A>(ndata, nstart, count + 1, 0, seq, lazyStart);
         }
     }
 
@@ -336,11 +343,11 @@ internal class SeqLazy<A> : ISeqInternal<A>
     {
         if(amount < count)
         {
-            return new SeqLazy<A>(data, start + amount, count - amount, NoCons, seq, lazyStart);
+            return new SeqIterator<A>(data, start + amount, count - amount, NoCons, seq, lazyStart);
         }
         else if (amount == count)
         {
-            return new SeqLazy<A>(new A[DefaultCapacity], DefaultCapacity, 0, 0, seq, lazyStart);
+            return new SeqIterator<A>(new A[DefaultCapacity], DefaultCapacity, 0, 0, seq, lazyStart);
         }
         else
         {
@@ -356,7 +363,7 @@ internal class SeqLazy<A> : ISeqInternal<A>
 
             if(seq.Count >= end)
             {
-                return new SeqLazy<A>(new A[DefaultCapacity], DefaultCapacity, 0, 0, seq, end);
+                return new SeqIterator<A>(new A[DefaultCapacity], DefaultCapacity, 0, 0, seq, end);
             }
             else
             {
@@ -545,7 +552,4 @@ internal class SeqLazy<A> : ISeqInternal<A>
         }
         return hash;
     }
-    
-    
-    
 }

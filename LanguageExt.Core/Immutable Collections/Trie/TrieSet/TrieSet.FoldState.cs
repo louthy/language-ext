@@ -36,13 +36,17 @@ public partial class TrieSet
         const ulong EntryMask = (1 << EntryWidth) - 1; // 1111 1111 
         const int IndexMask = (int)EntryMask >> 1;     // 0111 1111
         const int NodesMask = 1 << (EntryWidth - 1);   // 1000 0000
-        private const int StackDepth = 8;                          
+        const int StackDepth = 8;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void Setup<EqK, K>(ref FoldState state, TrieSet<EqK, K>.Node root) 
-            where EqK : Eq<K> =>
+        internal static FoldState Setup<EqK, K>(TrieSet<EqK, K>.Node root)
+            where EqK : Eq<K>
+        {
+            var state = new FoldState();
             Push(ref state, root);
-        
+            return state;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Push<EqK, K>(ref FoldState state, TrieSet<EqK, K>.Node item)
             where EqK : Eq<K>

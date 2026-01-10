@@ -52,9 +52,13 @@ public partial class Set
         const int StackDepth = 32;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void Setup<A>(ref FoldState state, SetItem<A> root) => 
+        internal static FoldState Setup<A>(SetItem<A> root)
+        {
+            FoldState state = default;
             Push(ref state, root);
-        
+            return state;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Push<A>(ref FoldState state, SetItem<A> item)
         {

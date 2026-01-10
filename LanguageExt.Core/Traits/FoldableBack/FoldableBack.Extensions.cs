@@ -269,20 +269,4 @@ public static partial class FoldableBackExtensions
             T.FoldBackUntil((s, x) => s + x, predicate, A.Empty, ta);
     }
 
-    extension<T, A, FS>(K<T, A> ta)
-        where T : FoldableBack<T, FS>?
-        where FS : allows ref struct
-    {
-        /// <summary>
-        /// Low-level interface for folding using stack-based primitives.
-        /// </summary>
-        public void StepBackSetup(ref FS refState) =>
-            T.FoldStepBackSetup(ta, ref refState);
-
-        /// <summary>
-        /// Low-level interface for folding using stack-based primitives.
-        /// </summary>
-        public bool StepBack(ref FS refState, out A value) =>
-            T.FoldStepBack(ta, ref refState, out value);
-    }
 }

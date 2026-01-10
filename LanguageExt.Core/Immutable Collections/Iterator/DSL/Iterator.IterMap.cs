@@ -16,6 +16,9 @@ public abstract partial class Iterator
 
         public override string ToString() =>
             $"Map{items.ToString()}";
+
+        public override Iterator<(K, V)> Using() =>
+            this;
     }
 
     /// <summary>
@@ -30,6 +33,9 @@ public abstract partial class Iterator
 
         public override string ToString() =>
             $"Map{items.ToString()}";
+
+        public override Iterator<K> Using() =>
+            this;
     }
 
     /// <summary>
@@ -40,10 +46,13 @@ public abstract partial class Iterator
         public override (Head<V> Head, Iterator<V> Tail) Next() =>
             items.Step(out var head, out var tail)
                 ? (new Exist<V>(head.KeyValue.Value), new IterMapValueFwd<K, V>(tail))
-                : (LanguageExt.Nil<V>.Default, Nil.Default);
+                : (Nil<V>.Default, Nil.Default);
 
         public override string ToString() =>
             $"Map{items.ToString()}";
+
+        public override Iterator<V> Using() =>
+            this;
     }
 
     /// <summary>
@@ -54,10 +63,13 @@ public abstract partial class Iterator
         public override (Head<(K Key, V Value)> Head, Iterator<(K Key, V Value)> Tail) Next() =>
             items.StepBack(out var head, out var tail)
                 ? (new Exist<(K Key, V Value)>(head.KeyValue), new IterMapFwd<K, V>(tail))
-                : (LanguageExt.Nil<(K Key, V Value)>.Default, Nil.Default);
+                : (Nil<(K Key, V Value)>.Default, Nil.Default);
 
         public override string ToString() =>
             $"Map{items.ToString()}";
+
+        public override Iterator<(K, V)> Using() =>
+            this;
     }
 
     /// <summary>
@@ -68,10 +80,13 @@ public abstract partial class Iterator
         public override (Head<K> Head, Iterator<K> Tail) Next() =>
             items.StepBack(out var head, out var tail)
                 ? (new Exist<K>(head.KeyValue.Key), new IterMapKeyFwd<K, V>(tail))
-                : (LanguageExt.Nil<K>.Default, Nil.Default);
+                : (Nil<K>.Default, Nil.Default);
 
         public override string ToString() =>
             $"Map{items.ToString()}";
+
+        public override Iterator<K> Using() =>
+            this;
     }
 
     /// <summary>
@@ -82,9 +97,12 @@ public abstract partial class Iterator
         public override (Head<V> Head, Iterator<V> Tail) Next() =>
             items.StepBack(out var head, out var tail)
                 ? (new Exist<V>(head.KeyValue.Value), new IterMapValueFwd<K, V>(tail))
-                : (LanguageExt.Nil<V>.Default, Nil.Default);
+                : (Nil<V>.Default, Nil.Default);
 
         public override string ToString() =>
             $"Map{items.ToString()}";
+
+        public override Iterator<V> Using() =>
+            this;
     }
 }

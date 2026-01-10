@@ -22,13 +22,11 @@ public partial class Arr :
     {
         var writer = ArrayWriter<B>.Init();
         
-        FoldState astate = default!;
-        ma.StepSetup(ref astate);
+        var astate = ma.StepSetup<Arr, FoldState, A>();
         while (ma.Step(ref astate, out var a))
         {
-            var       mb     = +f(a);
-            FoldState bstate = default!;
-            mb.StepSetup(ref bstate);
+            var mb     = +f(a);
+            var bstate = mb.StepSetup<Arr, FoldState, B>();
             while (mb.Step(ref bstate, out var b))
             {
                 writer.Add(b);
@@ -50,12 +48,10 @@ public partial class Arr :
     {
         var writer = ArrayWriter<B>.Init();
         
-        FoldState fstate = default!;
-        mf.StepSetup(ref fstate);
+        var fstate = mf.StepSetup<Arr, FoldState, Func<A, B>>();
         while (mf.Step(ref fstate, out var f))
         {
-            FoldState astate = default!;
-            ma.StepSetup(ref astate);
+            var astate = ma.StepSetup<Arr, FoldState, A>();
             while (ma.Step(ref astate, out var a))
             {
                 writer.Add(f(a));
@@ -68,13 +64,11 @@ public partial class Arr :
     {
         var writer = ArrayWriter<B>.Init();
         
-        FoldState fstate = default!;
-        mf.StepSetup(ref fstate);
+        var fstate = mf.StepSetup<Arr, FoldState, Func<A, B>>();
         while (mf.Step(ref fstate, out var f))
         {
-            var       fa     = ma.Value;
-            FoldState astate = default!;
-            fa.StepSetup(ref astate);
+            var fa     = ma.Value;
+            var astate = fa.StepSetup<Arr, FoldState, A>();
             while (fa.Step(ref astate, out var a))
             {
                 writer.Add(f(a));
@@ -111,16 +105,16 @@ public partial class Arr :
     static bool Foldable<Arr>.IsEmpty<A>(K<Arr, A> ta) =>
         ta.As().IsEmpty;
 
-    static void Foldable<Arr, FoldState>.FoldStepSetup<A>(K<Arr, A> ta, ref FoldState state) =>
-        FoldState.Setup(ref state, ta.As().AsSpan());
+    static FoldState IterableK<Arr, FoldState>.StepSetup<A>(K<Arr, A> ta) =>
+        FoldState.Setup(ta.As().AsSpan());
 
-    static void FoldableBack<Arr, FoldState>.FoldStepBackSetup<A>(K<Arr, A> ta, ref FoldState state) =>
-        FoldState.SetupBack(ref state, ta.As().AsSpan());
+    static FoldState IterableBackK<Arr, FoldState>.StepBackSetup<A>(K<Arr, A> ta) =>
+        FoldState.SetupBack(ta.As().AsSpan());
 
-    static bool Foldable<Arr, FoldState>.FoldStep<A>(K<Arr, A> ta, ref FoldState state, out A value) =>
+    static bool IterableK<Arr, FoldState>.Step<A>(K<Arr, A> ta, ref FoldState state, out A value) =>
         FoldState.MoveNext(ref state, out value);
 
-    static bool FoldableBack<Arr, FoldState>.FoldStepBack<A>(K<Arr, A> ta, ref FoldState state, out A value) =>
+    static bool IterableBackK<Arr, FoldState>.StepBack<A>(K<Arr, A> ta, ref FoldState state, out A value) =>
         FoldState.MovePrev(ref state, out value);
 
     static Option<A> Foldable<Arr>.At<A>(int index, K<Arr, A> ta)

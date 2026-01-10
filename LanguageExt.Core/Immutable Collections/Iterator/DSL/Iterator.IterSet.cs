@@ -16,6 +16,9 @@ public abstract partial class Iterator<A>
     
         public override string ToString() => 
             $"Set{items.ToString()}";
+
+        public override Iterator<A> Using() =>
+            this;
     }
     
     /// <summary>
@@ -30,5 +33,8 @@ public abstract partial class Iterator<A>
     
         public override string ToString() => 
             $"Set{items.ToString()}";
+
+        public override Iterator<A> Using() =>
+            this;
     }
 }

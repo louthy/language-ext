@@ -24,5 +24,11 @@ public abstract partial class Iterator<A>
                 return Iterator.forward(arr);
             }
         }
+
+        public override void Dispose() => 
+            iter.Dispose();
+        
+        public override Iterator<A> Using() =>
+            new OpReverse(iter.Using());
     }
 }

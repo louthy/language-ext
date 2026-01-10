@@ -12,5 +12,8 @@ public abstract partial class Iterator<A>
 
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             (new Exist<A>(Value), Iterator.empty<A>());
+
+        public override Iterator<A> Using() =>
+            this;
     }
 }

@@ -18,5 +18,11 @@ public abstract partial class Iterator<A>
             }
             return (Nil<A>.Default, Nil.Default);
         }
+
+        public override void Dispose() =>
+            iter.Dispose();
+        
+        public override Iterator<A> Using() =>
+            new OpChoose<X>(iter.Using(), f);
     }
 }

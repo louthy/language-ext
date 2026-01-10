@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
+using System.Collections.Generic;
 
 namespace LanguageExt;
 
@@ -129,10 +128,10 @@ public partial class Seq :
     static int Foldable<Seq>.Count<A>(K<Seq, A> ta) =>
         ta.As().Count;
 
-    static void Foldable<Seq, FoldState>.FoldStepSetup<A>(K<Seq, A> ta, ref FoldState refState) => 
-        ta.As().InitFoldState(ref refState);
+    static FoldState IterableK<Seq, FoldState>.StepSetup<A>(K<Seq, A> ta) => 
+        ta.As().InitFoldState();
 
-    static bool Foldable<Seq, FoldState>.FoldStep<A>(K<Seq, A> ta, ref FoldState refState, out A value)
+    static bool IterableK<Seq, FoldState>.Step<A>(K<Seq, A> ta, ref FoldState refState, out A value)
     {
         if (FoldState.MoveNext<A>(ref refState, out var v))
         {

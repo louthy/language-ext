@@ -40,8 +40,8 @@ public partial class Iterator
     /// <param name="items">Collection to iterate</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Iterator of the collection</returns>
-    public static Iterator<V> forward<K, V>(HashMap<K, V> items) =>
-        new IterHashMapValueFwd<EqDefault<K>, K, V>(
+    public static Iterator<V> unordered<K, V>(HashMap<K, V> items) =>
+        new IterHashMapValue<EqDefault<K>, K, V>(
             TrieMap.IteratorState<EqDefault<K>, K, V>.Setup(items.Value.Root));
 
     /// <summary>
@@ -50,9 +50,9 @@ public partial class Iterator
     /// <param name="items">Collection to iterate</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Iterator of the collection</returns>
-    public static Iterator<V> forward<EqK, K, V>(HashMap<EqK, K, V> items) 
+    public static Iterator<V> unordered<EqK, K, V>(HashMap<EqK, K, V> items) 
         where EqK : Eq<K> =>
-        new IterHashMapValueFwd<EqK, K, V>(
+        new IterHashMapValue<EqK, K, V>(
             TrieMap.IteratorState<EqK, K, V>.Setup(items.Value.Root));
 
     /// <summary>

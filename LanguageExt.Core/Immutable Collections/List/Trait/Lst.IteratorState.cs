@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 namespace LanguageExt;
 
 public partial class Lst
@@ -37,11 +35,9 @@ public partial class Lst
             NodeStack = nodeStack;
         }
         
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IteratorState<A> Setup(ListItem<A> root) => 
             new (root);
         
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal IteratorState<A> Push(ListItem<A> item)
         {
             var top   = Top;
@@ -60,7 +56,6 @@ public partial class Lst
         /// <summary>
         /// Increments the flags stack and returns the previous value
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IteratorState<A> IncrFlags(out int value)
         {
             var top   = (Top - 1) * FlagWidth;
@@ -73,15 +68,12 @@ public partial class Lst
             return new IteratorState<A>(flags, NodeStack, Top);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IteratorState<A> Pop() =>
             new (FlagStack, NodeStack.Pop(), Top - 1);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         ListItem<A> Peek() =>
             NodeStack.PeekUnsafe();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool Step(out ListItem<A> head, out IteratorState<A> tail)
         {
             var top = Top;
@@ -124,7 +116,6 @@ public partial class Lst
             }
         }
         
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool StepBack(out ListItem<A> head, out IteratorState<A> tail)
         {
             var top = Top;

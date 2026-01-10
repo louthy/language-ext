@@ -36,13 +36,17 @@ public partial class TrieMap
         const ulong EntryMask = (1 << EntryWidth) - 1; // 1111 1111 
         const int IndexMask = (int)EntryMask >> 1;     // 0111 1111
         const int NodesMask = 1 << (EntryWidth - 1);   // 1000 0000
-        private const int StackDepth = 8;                          
+        private const int StackDepth = 8;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void Setup<EqK, K, V>(ref FoldState state, TrieMap<EqK, K, V>.Node root) 
-            where EqK : Eq<K> =>
+        internal static FoldState Setup<EqK, K, V>(TrieMap<EqK, K, V>.Node root)
+            where EqK : Eq<K>
+        {
+            FoldState state = default;
             Push(ref state, root);
-        
+            return state;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Push<EqK, K, V>(ref FoldState state, TrieMap<EqK, K, V>.Node item)
             where EqK : Eq<K>

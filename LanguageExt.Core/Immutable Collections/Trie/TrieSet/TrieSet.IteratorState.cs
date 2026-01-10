@@ -1,29 +1,27 @@
 #pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
 using System;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public partial class TrieMap
+public partial class TrieSet
 {
     /// <summary>
     /// Used to track the state of an iteration
     /// </summary>
-    public class IteratorState<EqK, K, V>
+    public class IteratorState<EqK, K>
         where EqK : Eq<K>
     {
         readonly int Top;
         
         /// <summary>
         /// 8 x 8 bits of index (64 bits total)
-        /// We use 8 bits per index to allow for 128 children per node + 1 status bit.  The TrieMap only uses
+        /// We use 8 bits per index to allow for 128 children per node + 1 status bit.  The TrieSet only uses
         /// 32 children per node; this just gives us a bit of a buffer for future growth and possible overflow
         /// issues.
         /// </summary>
         readonly ulong EntryIndex;
-        readonly Stck<TrieMap<EqK, K, V>.Node> NodeStack;
+        readonly Stck<TrieSet<EqK, K>.Node> NodeStack;
 
         const int EntryWidth = 8;                      // bit-width of an entry
         const ulong EntryMask = (1 << EntryWidth) - 1; // 1111 1111 
@@ -32,26 +30,26 @@ public partial class TrieMap
         const int StackDepth = 8;
 
         IteratorState() => 
-            NodeStack = Stck<TrieMap<EqK, K, V>.Node>.Empty;
+            NodeStack = Stck<TrieSet<EqK, K>.Node>.Empty;
 
-        IteratorState(int top, ulong entryIndex, Stck<TrieMap<EqK, K, V>.Node> nodeStack)
+        IteratorState(int top, ulong entryIndex, Stck<TrieSet<EqK, K>.Node> nodeStack)
         {
             Top = top;
             EntryIndex = entryIndex;
             NodeStack = nodeStack;
         }
 
-        IteratorState(TrieMap<EqK, K, V>.Node root)
+        IteratorState(TrieSet<EqK, K>.Node root)
         {
             Top = 1;
             EntryIndex = 0;
             NodeStack = Stck.singleton(root);
         }
 
-        internal static IteratorState<EqK, K, V> Setup(TrieMap<EqK, K, V>.Node root) =>
+        internal static IteratorState<EqK, K> Setup(TrieSet<EqK, K>.Node root) =>
             new (root);
         
-        internal IteratorState<EqK, K, V> Push(TrieMap<EqK, K, V>.Node item)
+        internal IteratorState<EqK, K> Push(TrieSet<EqK, K>.Node item)
         {
             var top   = Top;
             var index = EntryIndex;
@@ -67,7 +65,7 @@ public partial class TrieMap
         /// <summary>
         /// Increments the index and returns the previous value
         /// </summary>
-        IteratorState<EqK, K, V> IncrIndex(out bool Nodes, out int Index)
+        IteratorState<EqK, K> IncrIndex(out bool Nodes, out int Index)
         {
             var top   = (Top - 1) * EntryWidth;
             var index = EntryIndex;
@@ -87,7 +85,7 @@ public partial class TrieMap
         /// <summary>
         /// Clears the index and sets the flag to process nodes instead of items
         /// </summary>
-        IteratorState<EqK, K, V> ProcessNodes()
+        IteratorState<EqK, K> ProcessNodes()
         {
             var top   = (Top - 1) * EntryWidth;
             var index = EntryIndex;
@@ -99,16 +97,16 @@ public partial class TrieMap
             return new (Top, index, NodeStack);
         }
 
-        IteratorState<EqK, K, V> Pop() =>
+        IteratorState<EqK, K> Pop() =>
             new (Top - 1, EntryIndex, NodeStack.Pop());
 
-        bool Peek(out TrieMap<EqK, K, V>.Node item) =>
+        bool Peek(out TrieSet<EqK, K>.Node item) =>
             NodeStack.TryPeek(out item);
 
-        internal bool Step(out (K Key, V Value) node, out IteratorState<EqK, K, V> tail) =>
+        internal bool Step(out K node, out IteratorState<EqK, K> tail) =>
             Step(this, out node, out tail);
         
-        static bool Step(IteratorState<EqK, K, V> state, out (K Key, V Value) node, out IteratorState<EqK, K, V> tail)
+        static bool Step(IteratorState<EqK, K> state, out K node, out IteratorState<EqK, K> tail)
         {
             var top = state.Top;
             while (true)
@@ -124,7 +122,7 @@ public partial class TrieMap
 
                 switch (n)
                 {
-                    case TrieMap<EqK, K, V>.Entries e:
+                    case TrieSet<EqK, K>.Entries e:
                     {
                         state = state.IncrIndex(out var isNodes, out var index);
                         if (isNodes)
@@ -158,11 +156,11 @@ public partial class TrieMap
                         }
                     }
    
-                    case TrieMap<EqK, K, V>.EmptyNode:
+                    case TrieSet<EqK, K>.EmptyNode:
                         state = state.Pop();
                         continue;
 
-                    case TrieMap<EqK, K, V>.Collision c:
+                    case TrieSet<EqK, K>.Collision c:
                     {
                         var items = c.Items;
                         state = state.IncrIndex(out _, out var index);

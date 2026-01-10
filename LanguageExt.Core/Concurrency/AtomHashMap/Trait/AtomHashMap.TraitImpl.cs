@@ -1,92 +1,53 @@
-﻿using System;
-using System.Linq;
+﻿using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public class AtomHashMap<Key> : Foldable<AtomHashMap<Key>>
+public class AtomHashMap<Key> : Foldable<AtomHashMap<Key>, TrieMap.FoldState>
 {
-    static Fold<A, S> Foldable<AtomHashMap<Key>>.FoldStep<A, S>(K<AtomHashMap<Key>, A> ta, in S initialState)
+    static Iterator<A> IterableK<AtomHashMap<Key>>.ForwardIterator<A>(K<AtomHashMap<Key>, A> fa) =>
+        new Iterator.IterHashMapValue<EqDefault<Key>, Key, A>(
+            TrieMap.IteratorState<EqDefault<Key>, Key, A>.Setup(fa.As().ToHashMap().Value.Root));
+
+    static void Foldable<AtomHashMap<Key>, TrieMap.FoldState>.FoldStepSetup<A>(K<AtomHashMap<Key>, A> ta, ref TrieMap.FoldState refState) => 
+        TrieMap.FoldState.Setup(ref refState, ta.As().ToHashMap().Value.Root);
+
+    static bool Foldable<AtomHashMap<Key>, TrieMap.FoldState>.FoldStep<A>(K<AtomHashMap<Key>, A> ta, ref TrieMap.FoldState refState, out A value) 
     {
-        var items = ta.As();
-        return go(items.Values.ForwardIterator())(initialState);
-
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
+        if (TrieMap.FoldState.Step<EqDefault<Key>, Key, A>(ref refState, out var kv))
+        {
+            value = kv.Value;
+            return true;
+        }
+        else
+        {
+            value = default!;
+            return false;
+        }
     }
-
-    
-    static Fold<A, S> Foldable<AtomHashMap<Key>>.FoldStepBack<A, S>(K<AtomHashMap<Key>, A> ta, in S initialState)
-    {
-        var items = ta.As();
-        return go(items.Values.ForwardIterator())(initialState);
-
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
-    }
-
 }
 
-public class AtomHashMapEq<EqKey, Key> : Foldable<AtomHashMapEq<EqKey, Key>>
+public class AtomHashMapEq<EqKey, Key> : Foldable<AtomHashMapEq<EqKey, Key>, TrieMap.FoldState>
     where EqKey : Eq<Key>
 {
-    static Fold<A, S> Foldable<AtomHashMapEq<EqKey, Key>>.FoldStep<A, S>(K<AtomHashMapEq<EqKey, Key>, A> ta, in S initialState)
+    static Iterator<A> IterableK<AtomHashMapEq<EqKey, Key>>.ForwardIterator<A>(K<AtomHashMapEq<EqKey, Key>, A> fa) => 
+        new Iterator.IterHashMapValue<EqKey, Key, A>(
+            TrieMap.IteratorState<EqKey, Key, A>.Setup(fa.As().ToHashMap().Value.Root));
+
+    static void Foldable<AtomHashMapEq<EqKey, Key>, TrieMap.FoldState>.FoldStepSetup<A>(K<AtomHashMapEq<EqKey, Key>, A> ta, ref TrieMap.FoldState refState) => 
+        TrieMap.FoldState.Setup(ref refState, ta.As().ToHashMap().Value.Root);
+
+    static bool Foldable<AtomHashMapEq<EqKey, Key>, TrieMap.FoldState>.FoldStep<A>(K<AtomHashMapEq<EqKey, Key>, A> ta, ref TrieMap.FoldState refState, out A value) 
     {
-        var items = ta.As();
-        return go(items.Values.ForwardIterator())(initialState);
-
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
+        if (TrieMap.FoldState.Step<EqKey, Key, A>(ref refState, out var kv))
+        {
+            value = kv.Value;
+            return true;
+        }
+        else
+        {
+            value = default!;
+            return false;
+        }
     }
-
-    
-    static Fold<A, S> Foldable<AtomHashMapEq<EqKey, Key>>.FoldStepBack<A, S>(K<AtomHashMapEq<EqKey, Key>, A> ta, in S initialState)
-    {
-        var items = ta.As();
-        return go(items.Values.ForwardIterator())(initialState);
-
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
-    }
-
 }

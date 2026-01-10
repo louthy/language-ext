@@ -102,8 +102,7 @@ public static partial class StckExtensions
         /// <returns>Stack</returns>
         public Stck<A> Filter(Func<A, bool> f)
         {
-            Stck.FoldState state = default;
-            ma.StepSetup(ref state);
+            var state = ma.StepSetup<Stck, Stck.FoldState, A>();
             var stack = new Stck<A>.Top(default!, Stck<A>.Empty);
             var top   = stack;
             while (ma.Step(ref state, out var x))
@@ -125,8 +124,7 @@ public static partial class StckExtensions
         /// <returns>Stack</returns>
         public Stck<B> Choose<B>(Func<A, Option<B>> f)
         {
-            Stck.FoldState state = default;
-            ma.StepSetup(ref state);
+            var state = ma.StepSetup<Stck, Stck.FoldState, A>();
             var stack = new Stck<B>.Top(default!, Stck<B>.Empty);
             var top   = stack;
             while (ma.Step(ref state, out var x))
@@ -149,8 +147,7 @@ public static partial class StckExtensions
         /// <returns>Taken items</returns>
         public Stck<A> Take(int amount)
         {
-            Stck.FoldState state = default;
-            ma.StepSetup(ref state);
+            var state = ma.StepSetup<Stck, Stck.FoldState, A>();
             var stack = new Stck<A>.Top(default!, Stck<A>.Empty);
             var top   = stack;
             while (ma.Step(ref state, out var x))

@@ -21,14 +21,12 @@ public partial class Lst :
     {
         var       root     = ListItem<B>.EmptyM;
         var       subIndex = 0;
-        FoldState fsa      = default!;
-        FoldState fsb      = default!;
         
-        ma.StepSetup(ref fsa);
+        var fsa = ma.StepSetup<Lst, FoldState, A>();
         while (ma.Step(ref fsa, out var a))
         {
             var mb = +f(a);
-            mb.StepSetup(ref fsb);
+            var fsb = mb.StepSetup<Lst, FoldState, B>();
             while (mb.Step(ref fsb, out var b))
             {
                 root = ListModuleM.Insert(root, new ListItem<B>(1, 1, ListItem<B>.Empty, b, ListItem<B>.Empty), subIndex);
@@ -42,9 +40,8 @@ public partial class Lst :
     {
         var       root     = ListItem<B>.EmptyM;
         var       subIndex = 0;
-        FoldState fsa      = default!;
         
-        ma.StepSetup(ref fsa);
+        var fsa = ma.StepSetup<Lst, FoldState, A>();
         while (ma.Step(ref fsa, out var a))
         {
             var b = f(a);
@@ -151,10 +148,10 @@ public partial class Lst :
     static Iterable<A> Foldable<Lst>.ToIterable<A>(K<Lst, A> ta) =>
         Iterable.createRange (ta.As());
 
-    static void Foldable<Lst, FoldState>.FoldStepSetup<A>(K<Lst, A> ta, ref FoldState refState) => 
-        FoldState.Setup(ref refState, ta.As().Value.Root);
+    static FoldState IterableK<Lst, FoldState>.StepSetup<A>(K<Lst, A> ta) => 
+        FoldState.Setup(ta.As().Value.Root);
 
-    static bool Foldable<Lst, FoldState>.FoldStep<A>(K<Lst, A> ta, ref FoldState refState, out A value)
+    static bool IterableK<Lst, FoldState>.Step<A>(K<Lst, A> ta, ref FoldState refState, out A value)
     {
         if (FoldState.Step<A>(ref refState, out var item))
         {
@@ -168,10 +165,10 @@ public partial class Lst :
         }
     }
 
-    static void FoldableBack<Lst, FoldState>.FoldStepBackSetup<A>(K<Lst, A> ta, ref FoldState refState) => 
-        FoldState.Setup(ref refState, ta.As().Value.Root);
+    static FoldState IterableBackK<Lst, FoldState>.StepBackSetup<A>(K<Lst, A> ta) => 
+        FoldState.Setup(ta.As().Value.Root);
 
-    static bool FoldableBack<Lst, FoldState>.FoldStepBack<A>(K<Lst, A> ta, ref FoldState refState, out A value) 
+    static bool IterableBackK<Lst, FoldState>.StepBack<A>(K<Lst, A> ta, ref FoldState refState, out A value) 
     {
         if (FoldState.StepBack<A>(ref refState, out var item))
         {

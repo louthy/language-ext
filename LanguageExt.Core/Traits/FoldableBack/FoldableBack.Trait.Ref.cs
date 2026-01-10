@@ -37,23 +37,10 @@ namespace LanguageExt.Traits;
 /// </summary>
 /// <typeparam name="T">This foldable type</typeparam>
 /// <typeparam name="FS">Folding state type.  Used to hold state for the duration of a fold</typeparam>
-public interface FoldableBack<T, FS> : FoldableBack<T> 
+public interface FoldableBack<T, FS> : FoldableBack<T>, IterableBackK<T, FS> 
     where T : FoldableBack<T, FS>
     where FS : allows ref struct
 {
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Abstract members
-    //
-
-    public static abstract void FoldStepBackSetup<A>(K<T, A> ta, ref FS refState);
-    public static abstract bool FoldStepBack<A>(K<T, A> ta, ref FS refState, out A value);
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Default implementations
-    //
-
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
@@ -64,11 +51,10 @@ public interface FoldableBack<T, FS> : FoldableBack<T>
         in S initialState,
         K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepBackSetup(ta, ref foldState);
+        var foldState = T.StepBackSetup(ta);
         var state = initialState;
         
-        while (T.FoldStepBack(ta, ref foldState, out var value))
+        while (T.StepBack(ta, ref foldState, out var value))
         {
             if (predicate((state, value)))
             {
@@ -96,11 +82,10 @@ public interface FoldableBack<T, FS> : FoldableBack<T>
         in S initialState,
         K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepBackSetup(ta, ref foldState);
-        var state = initialState;
+        var foldState = T.StepBackSetup(ta);
+        var state     = initialState;
         
-        while (T.FoldStepBack(ta, ref foldState, out var value))
+        while (T.StepBack(ta, ref foldState, out var value))
         {
             var option = f(state, value);
             if (option.IsSome)
@@ -125,11 +110,10 @@ public interface FoldableBack<T, FS> : FoldableBack<T>
         in S initialState, 
         K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepBackSetup(ta, ref foldState);
-        var state = initialState;
+        var foldState = T.StepBackSetup(ta);
+        var state     = initialState;
         
-        while (T.FoldStepBack(ta, ref foldState, out var value))
+        while (T.StepBack(ta, ref foldState, out var value))
         {
             if (predicate((state, value)))
             {
@@ -160,10 +144,9 @@ public interface FoldableBack<T, FS> : FoldableBack<T>
     /// </remarks>
     static S FoldableBack<T>.FoldBack<A, S>(Func<S, A, S> f, in S initialState, K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepBackSetup(ta, ref foldState);
-        var state = initialState;
-        while (T.FoldStepBack(ta, ref foldState, out var value))
+        var foldState = T.StepBackSetup(ta);
+        var state     = initialState;
+        while (T.StepBack(ta, ref foldState, out var value))
         {
             state = f(state, value);
         }
@@ -187,9 +170,8 @@ public interface FoldableBack<T, FS> : FoldableBack<T>
         
         // TODO: Use ArrayWriter
         
-        FS foldState = default!;
-        T.FoldStepBackSetup(ta, ref foldState);
-        while (T.FoldStepBack(ta, ref foldState, out var value))
+        var foldState = T.StepBackSetup(ta);
+        while (T.StepBack(ta, ref foldState, out var value))
         {
             if (length == max)
             {
@@ -208,9 +190,8 @@ public interface FoldableBack<T, FS> : FoldableBack<T>
     /// </summary>
     static bool FoldableBack<T>.ExistsBack<A>(Func<A, bool> predicate, K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepBackSetup(ta, ref foldState);
-        while (T.FoldStepBack(ta, ref foldState, out var value))
+        var foldState = T.StepBackSetup(ta);
+        while (T.StepBack(ta, ref foldState, out var value))
         {
             if(predicate(value)) return true;
         }
@@ -222,9 +203,8 @@ public interface FoldableBack<T, FS> : FoldableBack<T>
     /// </summary>
     static bool FoldableBack<T>.ForAllBack<A>(Func<A, bool> predicate, K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepBackSetup(ta, ref foldState);
-        while (T.FoldStepBack(ta, ref foldState, out var value))
+        var foldState = T.StepBackSetup(ta);
+        while (T.StepBack(ta, ref foldState, out var value))
         {
             if(!predicate(value)) return false;
         }
@@ -236,9 +216,8 @@ public interface FoldableBack<T, FS> : FoldableBack<T>
     /// </summary>
     static bool FoldableBack<T>.ContainsBack<EqA, A>(A value, K<T, A> ta) 
     {
-        FS foldState = default!;
-        T.FoldStepBackSetup(ta, ref foldState);
-        while (T.FoldStepBack(ta, ref foldState, out var v))
+        var foldState = T.StepBackSetup(ta);
+        while (T.StepBack(ta, ref foldState, out var v))
         {
             if(EqA.Equals(value, v)) return true;
         }
@@ -250,9 +229,8 @@ public interface FoldableBack<T, FS> : FoldableBack<T>
     /// </summary>
     static bool FoldableBack<T>.ContainsBack<A>(A value, K<T, A> ta) 
     {
-        FS foldState = default!;
-        T.FoldStepBackSetup(ta, ref foldState);
-        while (T.FoldStepBack(ta, ref foldState, out var v))
+        var foldState = T.StepBackSetup(ta);
+        while (T.StepBack(ta, ref foldState, out var v))
         {
             if(EqualityComparer<A>.Default.Equals(value, v)) return true;
         }
@@ -264,9 +242,8 @@ public interface FoldableBack<T, FS> : FoldableBack<T>
     /// </summary>
     static Option<A> FoldableBack<T>.FindBack<A>(Func<A, bool> predicate, K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepBackSetup(ta, ref foldState);
-        while (T.FoldStepBack(ta, ref foldState, out var value))
+        var foldState = T.StepBackSetup(ta);
+        while (T.StepBack(ta, ref foldState, out var value))
         {
             if(predicate(value)) return value;
         }
@@ -278,9 +255,8 @@ public interface FoldableBack<T, FS> : FoldableBack<T>
     /// </summary>
     static Option<A> FoldableBack<T>.Last<A>(K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepBackSetup(ta, ref foldState);
-        if (T.FoldStepBack(ta, ref foldState, out var value))
+        var foldState = T.StepBackSetup(ta);
+        if (T.StepBack(ta, ref foldState, out var value))
         {
             return value;
         }
@@ -296,9 +272,8 @@ public interface FoldableBack<T, FS> : FoldableBack<T>
     static Option<A> FoldableBack<T>.AtBack<A>(int index, K<T, A> ta)
     {
         var ix        = 0;
-        FS  foldState = default!;
-        T.FoldStepBackSetup(ta, ref foldState);
-        while (T.FoldStepBack(ta, ref foldState, out var value))
+        var foldState = T.StepBackSetup(ta);
+        while (T.StepBack(ta, ref foldState, out var value))
         {
             if (ix == index) return value;
             ix++;
@@ -318,9 +293,8 @@ public interface FoldableBack<T, FS> : FoldableBack<T>
         var @true = ArrayWriter<A>.Init();
         var @false = ArrayWriter<A>.Init();
 
-        FS foldState = default!;
-        T.FoldStepBackSetup(ta, ref foldState);
-        while (T.FoldStepBack(ta, ref foldState, out var value))
+        var foldState = T.StepBackSetup(ta);
+        while (T.StepBack(ta, ref foldState, out var value))
         {
             if (f(value))
             {

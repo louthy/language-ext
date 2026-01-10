@@ -28,5 +28,8 @@ public abstract partial class Iterator<A>
 
         public override string ToString() => 
             "...";
+
+        public override Iterator<A> Using() =>
+            this;
     }
 }

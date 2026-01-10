@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Traits;
 
@@ -39,18 +38,10 @@ namespace LanguageExt.Traits;
 /// </summary>
 /// <typeparam name="T">This foldable type</typeparam>
 /// <typeparam name="FS">Folding state type.  Used to hold state for the duration of a fold</typeparam>
-public interface Foldable<T, FS> : Foldable<T> 
+public interface Foldable<T, FS> : Foldable<T>, IterableK<T, FS> 
     where T : Foldable<T, FS>
     where FS : allows ref struct
 {
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Abstract members
-    //
-
-    public static abstract void FoldStepSetup<A>(K<T, A> ta, ref FS refState);
-    public static abstract bool FoldStep<A>(K<T, A> ta, ref FS refState, out A value);
-    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Default implementations
@@ -66,11 +57,9 @@ public interface Foldable<T, FS> : Foldable<T>
         in S initialState,
         K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        var state = initialState;
-        
-        while (T.FoldStep(ta, ref foldState, out var value))
+        var foldState = T.StepSetup(ta);
+        var state     = initialState;
+        while (T.Step(ta, ref foldState, out var value))
         {
             if (predicate((state, value)))
             {
@@ -98,11 +87,10 @@ public interface Foldable<T, FS> : Foldable<T>
         in S initialState,
         K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        var state = initialState;
+        var foldState = T.StepSetup(ta);
+        var state     = initialState;
         
-        while (T.FoldStep(ta, ref foldState, out var value))
+        while (T.Step(ta, ref foldState, out var value))
         {
             var option = f(state, value);
             if (option.IsSome)
@@ -127,11 +115,10 @@ public interface Foldable<T, FS> : Foldable<T>
         in S initialState,
         K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        var state = initialState;
+        var foldState = T.StepSetup(ta);
+        var state     = initialState;
         
-        while (T.FoldStep(ta, ref foldState, out var value))
+        while (T.Step(ta, ref foldState, out var value))
         {
             if (predicate((state, value)))
             {
@@ -154,10 +141,9 @@ public interface Foldable<T, FS> : Foldable<T>
     /// </summary>
     static S Foldable<T>.Fold<A, S>(Func<S, A, S> f, in S initialState, K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        var state = initialState;
-        while (T.FoldStep(ta, ref foldState, out var value))
+        var foldState = T.StepSetup(ta);
+        var state     = initialState;
+        while (T.Step(ta, ref foldState, out var value))
         {
             state = f(state, value);
         }
@@ -181,9 +167,8 @@ public interface Foldable<T, FS> : Foldable<T>
         
         // TODO: Use ArrayWriter
         
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        while (T.FoldStep(ta, ref foldState, out var value))
+        var foldState = T.StepSetup(ta);
+        while (T.Step(ta, ref foldState, out var value))
         {
             if (length == max)
             {
@@ -202,9 +187,8 @@ public interface Foldable<T, FS> : Foldable<T>
     /// </summary>
     static bool Foldable<T>.IsEmpty<A>(K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        return !T.FoldStep(ta, ref foldState, out _);
+        var foldState = T.StepSetup(ta);
+        return !T.Step(ta, ref foldState, out _);
     }
 
     /// <summary>
@@ -218,10 +202,9 @@ public interface Foldable<T, FS> : Foldable<T>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static int Foldable<T>.Count<A>(K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        var state = 0;
-        while (T.FoldStep(ta, ref foldState, out _))
+        var foldState = T.StepSetup(ta);
+        var state     = 0;
+        while (T.Step(ta, ref foldState, out _))
         {
             state++;
         }
@@ -233,9 +216,8 @@ public interface Foldable<T, FS> : Foldable<T>
     /// </summary>
     static bool Foldable<T>.Exists<A>(Func<A, bool> predicate, K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        while (T.FoldStep(ta, ref foldState, out var value))
+        var foldState = T.StepSetup(ta);
+        while (T.Step(ta, ref foldState, out var value))
         {
             if(predicate(value)) return true;
         }
@@ -247,9 +229,8 @@ public interface Foldable<T, FS> : Foldable<T>
     /// </summary>
     static bool Foldable<T>.ForAll<A>(Func<A, bool> predicate, K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        while (T.FoldStep(ta, ref foldState, out var value))
+        var foldState = T.StepSetup(ta);
+        while (T.Step(ta, ref foldState, out var value))
         {
             if(!predicate(value)) return false;
         }
@@ -261,9 +242,8 @@ public interface Foldable<T, FS> : Foldable<T>
     /// </summary>
     static bool Foldable<T>.Contains<EqA, A>(A value, K<T, A> ta) 
     {
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        while (T.FoldStep(ta, ref foldState, out var v))
+        var foldState = T.StepSetup(ta);
+        while (T.Step(ta, ref foldState, out var v))
         {
             if(EqA.Equals(value, v)) return true;
         }
@@ -275,9 +255,8 @@ public interface Foldable<T, FS> : Foldable<T>
     /// </summary>
     static bool Foldable<T>.Contains<A>(A value, K<T, A> ta) 
     {
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        while (T.FoldStep(ta, ref foldState, out var v))
+        var foldState = T.StepSetup(ta);
+        while (T.Step(ta, ref foldState, out var v))
         {
             if(EqualityComparer<A>.Default.Equals(value, v)) return true;
         }
@@ -289,9 +268,8 @@ public interface Foldable<T, FS> : Foldable<T>
     /// </summary>
     static Option<A> Foldable<T>.Find<A>(Func<A, bool> predicate, K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        while (T.FoldStep(ta, ref foldState, out var value))
+        var foldState = T.StepSetup(ta);
+        while (T.Step(ta, ref foldState, out var value))
         {
             if(predicate(value)) return value;
         }
@@ -303,9 +281,8 @@ public interface Foldable<T, FS> : Foldable<T>
     /// </summary>
     static Option<A> Foldable<T>.Head<A>(K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        if (T.FoldStep(ta, ref foldState, out var value))
+        var foldState = T.StepSetup(ta);
+        if (T.Step(ta, ref foldState, out var value))
         {
             return value;
         }
@@ -322,9 +299,8 @@ public interface Foldable<T, FS> : Foldable<T>
     /// </summary>
     static Unit Foldable<T>.Iter<A>(Action<A> f, K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        while (T.FoldStep(ta, ref foldState, out var value))
+        var foldState = T.StepSetup(ta);
+        while (T.Step(ta, ref foldState, out var value))
         {
             f(value);
         }
@@ -338,10 +314,9 @@ public interface Foldable<T, FS> : Foldable<T>
     /// </summary>
     static Unit Foldable<T>.Iter<A>(Action<int, A> f, K<T, A> ta)
     {
-        FS  foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        var ix = 0;
-        while (T.FoldStep(ta, ref foldState, out var value))
+        var foldState = T.StepSetup(ta);
+        var ix        = 0;
+        while (T.Step(ta, ref foldState, out var value))
         {
             f(ix++, value);
         }
@@ -353,11 +328,10 @@ public interface Foldable<T, FS> : Foldable<T>
     /// </summary>
     static Option<A> Foldable<T>.Min<OrdA, A>(K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        A current;
+        var foldState = T.StepSetup(ta);
+        A   current;
 
-        if (T.FoldStep(ta, ref foldState, out var head))
+        if (T.Step(ta, ref foldState, out var head))
         {
             current = head;
         }
@@ -366,7 +340,7 @@ public interface Foldable<T, FS> : Foldable<T>
             return default;
         }
         
-        while (T.FoldStep(ta, ref foldState, out var value))
+        while (T.Step(ta, ref foldState, out var value))
         {
             if (OrdA.Compare(value, current) < 0)
             {
@@ -387,11 +361,10 @@ public interface Foldable<T, FS> : Foldable<T>
     /// </summary>
     static Option<A> Foldable<T>.Max<OrdA, A>(K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        A current;
+        var foldState = T.StepSetup(ta);
+        A   current;
 
-        if (T.FoldStep(ta, ref foldState, out var head))
+        if (T.Step(ta, ref foldState, out var head))
         {
             current = head;
         }
@@ -400,7 +373,7 @@ public interface Foldable<T, FS> : Foldable<T>
             return default;
         }
         
-        while (T.FoldStep(ta, ref foldState, out var value))
+        while (T.Step(ta, ref foldState, out var value))
         {
             if (OrdA.Compare(value, current) > 0)
             {
@@ -421,11 +394,10 @@ public interface Foldable<T, FS> : Foldable<T>
     /// </summary>
     static A Foldable<T>.Min<OrdA, A>(A initialMin, K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        var current = initialMin;
+        var foldState = T.StepSetup(ta);
+        var current   = initialMin;
         
-        while (T.FoldStep(ta, ref foldState, out var value))
+        while (T.Step(ta, ref foldState, out var value))
         {
             if (OrdA.Compare(value, current) < 0)
             {
@@ -446,11 +418,10 @@ public interface Foldable<T, FS> : Foldable<T>
     /// </summary>
     static A Foldable<T>.Max<OrdA, A>(A initialMax, K<T, A> ta)
     {
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        var current = initialMax;
+        var foldState = T.StepSetup(ta);
+        var current   = initialMax;
         
-        while (T.FoldStep(ta, ref foldState, out var value))
+        while (T.Step(ta, ref foldState, out var value))
         {
             if (OrdA.Compare(value, current) > 0)
             {
@@ -472,9 +443,8 @@ public interface Foldable<T, FS> : Foldable<T>
     static Option<A> Foldable<T>.At<A>(int index, K<T, A> ta)
     {
         var ix        = 0;
-        FS  foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        while (T.FoldStep(ta, ref foldState, out var value))
+        var foldState = T.StepSetup(ta);
+        while (T.Step(ta, ref foldState, out var value))
         {
             if (ix == index) return value;
             ix++;
@@ -494,9 +464,8 @@ public interface Foldable<T, FS> : Foldable<T>
         var @true  = ArrayWriter<A>.Init();
         var @false = ArrayWriter<A>.Init();
         
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        while (T.FoldStep(ta, ref foldState, out var value))
+        var foldState = T.StepSetup(ta);
+        while (T.Step(ta, ref foldState, out var value))
         {
             if (f(value))
             {

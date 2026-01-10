@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Threading;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 
@@ -114,6 +113,28 @@ internal class SeqStrict<A> : ISeqInternal<A>
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ISeqInternal<A> Add(A value)
+    {
+        var end = start + count;
+        if (1 == Interlocked.Exchange(ref addDisallowed, 1) || end == data.Length)
+        {
+            return CloneAdd(value);
+        }
+        else
+        {
+            data[end] = value;
+            return new SeqStrict<A>(data, start, count + 1);
+        }
+    }
+
+    /// <summary>
+    /// Add an item to the end of the sequence
+    /// </summary>
+    /// <remarks>
+    /// Forces evaluation of the entire lazy sequence so the item 
+    /// can be appended
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public SeqStrict<A> Add2(A value)
     {
         var end = start + count;
         if (1 == Interlocked.Exchange(ref addDisallowed, 1) || end == data.Length)
@@ -346,6 +367,24 @@ internal class SeqStrict<A> : ISeqInternal<A>
     }
 
     /// <summary>
+    /// Skip count items
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public SeqStrict<A> Skip2(int amount)
+    {
+        if (amount < 1)
+        {
+            return this;
+        }
+
+        var end      = start + count;
+        var newStart = start + amount;
+        return newStart < end
+                   ? new SeqStrict<A>(data, newStart, count - amount, NoCons, NoAdd)
+                   : Empty;
+    }
+
+    /// <summary>
     /// Take count items
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -520,6 +559,6 @@ internal class SeqStrict<A> : ISeqInternal<A>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void InitFoldState(ref Seq.FoldState state) =>
-        Seq.FoldState.FromSpan(ref state, AsSpan());        
+    public Seq.FoldState InitFoldState() =>
+        Seq.FoldState.FromSpan(AsSpan());        
 }

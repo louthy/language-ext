@@ -21,5 +21,14 @@ public abstract partial class Iterator<A>
 
                 _ => (Nil<A>.Default, Nil.Default)
             };
+
+        public override void Dispose()
+        {
+            xs.Dispose();
+            ys.Dispose();
+        }
+        
+        public override Iterator<A> Using() =>
+            new OpMerge(xs.Using(), ys.Using());
     }
 }

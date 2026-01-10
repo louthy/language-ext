@@ -29,5 +29,5 @@ internal interface ISeqInternal<A> : IEnumerable<A>
     ISeqInternal<A> Strict();
     int GetHashCode(int offsetBasis);
     ReadOnlySpan<A> AsSpan();
-    void InitFoldState(ref Seq.FoldState state);
+    Seq.FoldState InitFoldState();
 }

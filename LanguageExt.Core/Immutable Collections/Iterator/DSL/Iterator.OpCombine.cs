@@ -11,5 +11,14 @@ public abstract partial class Iterator<A>
             xs is (Exist<A> h, var t)
                 ? (h, t.Combine(ys))
                 : ys.Next();
+
+        public override void Dispose()
+        {
+            xs.Dispose();
+            ys.Dispose();
+        }
+        
+        public override Iterator<A> Using() =>
+            new OpCombine(xs.Using(), ys.Using());
     }
 }

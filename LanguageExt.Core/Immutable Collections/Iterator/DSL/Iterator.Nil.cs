@@ -16,5 +16,8 @@ public abstract partial class Iterator<A>
 
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             (Nil<A>.Default, Default);
+
+        public override Iterator<A> Using() =>
+            this;
     }
 }

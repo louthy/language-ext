@@ -16,6 +16,9 @@ public abstract partial class Iterator<A>
     
         public override string ToString() => 
             $"Arr{array}";
+
+        public override Iterator<A> Using() =>
+            this;
     }
     
     /// <summary>
@@ -30,5 +33,8 @@ public abstract partial class Iterator<A>
     
         public override string ToString() => 
             $"Arr{array}";
+
+        public override Iterator<A> Using() =>
+            this;
     }
 }

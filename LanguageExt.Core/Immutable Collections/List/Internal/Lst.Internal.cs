@@ -571,9 +571,8 @@ internal static class ListModuleM
     {
         var root      = ListItem<A>.EmptyM;
         var subIndex  = 0;
-        FS  foldState = default!;
-        T.FoldStepSetup(items, ref foldState);
-        while (T.FoldStep(items, ref foldState, out var item))
+        var foldState = T.StepSetup(items);
+        while (T.Step(items, ref foldState, out var item))
         {
             root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
             subIndex++;
@@ -588,9 +587,8 @@ internal static class ListModuleM
     {
         var root      = ListItem<A>.EmptyM;
         var subIndex  = 0;
-        FS  foldState = default!;
-        T.FoldStepBackSetup(items, ref foldState);
-        while (T.FoldStepBack(items, ref foldState, out var item))
+        var foldState = T.StepBackSetup(items);
+        while (T.StepBack(items, ref foldState, out var item))
         {
             root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
             subIndex++;

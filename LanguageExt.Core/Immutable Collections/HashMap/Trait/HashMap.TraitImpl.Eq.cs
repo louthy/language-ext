@@ -13,10 +13,10 @@ public partial class HashMapEq<EqKey, Key> :
     static int Foldable<HashMapEq<EqKey, Key>>.Count<A>(K<HashMapEq<EqKey, Key>, A> ta) =>
         ta.As().Count;
 
-    static void Foldable<HashMapEq<EqKey, Key>, TrieMap.FoldState>.FoldStepSetup<A>(K<HashMapEq<EqKey, Key>, A> ta, ref TrieMap.FoldState refState) => 
-        TrieMap.FoldState.Setup(ref refState, ta.As().Value.Root);
+    static TrieMap.FoldState IterableK<HashMapEq<EqKey, Key>, TrieMap.FoldState>.StepSetup<A>(K<HashMapEq<EqKey, Key>, A> ta) => 
+        TrieMap.FoldState.Setup(ta.As().Value.Root);
 
-    static bool Foldable<HashMapEq<EqKey, Key>, TrieMap.FoldState>.FoldStep<A>(K<HashMapEq<EqKey, Key>, A> ta, ref TrieMap.FoldState refState, out A value) 
+    static bool IterableK<HashMapEq<EqKey, Key>, TrieMap.FoldState>.Step<A>(K<HashMapEq<EqKey, Key>, A> ta, ref TrieMap.FoldState refState, out A value) 
     {
         if (TrieMap.FoldState.Step<EqKey, Key, A>(ref refState, out var kv))
         {
@@ -43,7 +43,6 @@ public partial class HashMapEq<EqKey, Key> :
         new HashMap<EqKey, Key, B>(ma.As().Value.Select(kv => (kv.Key, f(kv.Value))));
 
     public static Iterator<A> ForwardIterator<A>(K<HashMapEq<EqKey, Key>, A> fa) => 
-        new Iterator.IterHashMapValueFwd<EqKey, Key, A>(
+        new Iterator.IterHashMapValue<EqKey, Key, A>(
             TrieMap.IteratorState<EqKey, Key, A>.Setup(fa.As().Value.Root));
-
 }

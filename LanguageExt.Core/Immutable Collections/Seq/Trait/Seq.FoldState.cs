@@ -27,16 +27,16 @@ public partial class Seq
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void FromSpan<A>(ref FoldState state, ReadOnlySpan<A> span) =>
-            state = new FoldState(ref Unsafe.As<A, object>(ref MemoryMarshal.GetReference(span)), span.Length, -1, null);
+        public static FoldState FromSpan<A>(ReadOnlySpan<A> span) =>
+            new FoldState(ref Unsafe.As<A, object>(ref MemoryMarshal.GetReference(span)), span.Length, -1, null);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void FromSpanBack<A>(ref FoldState state, ReadOnlySpan<A> span) =>
-            state = new FoldState(ref Unsafe.As<A, object>(ref MemoryMarshal.GetReference(span)), span.Length, span.Length, null);
+        public static FoldState FromSpanBack<A>(ReadOnlySpan<A> span) =>
+            new FoldState(ref Unsafe.As<A, object>(ref MemoryMarshal.GetReference(span)), span.Length, span.Length, null);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void FromEnumerator(ref FoldState state, IEnumerator @enum) =>
-            state = new FoldState(ref Unsafe.NullRef<object>(), 0, -1, @enum);
+        public static FoldState FromEnumerator(IEnumerator @enum) =>
+            new FoldState(ref Unsafe.NullRef<object>(), 0, -1, @enum);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool MoveNext<A>(ref FoldState state, out A value)

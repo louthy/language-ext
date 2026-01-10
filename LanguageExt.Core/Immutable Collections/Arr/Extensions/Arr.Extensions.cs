@@ -13,8 +13,7 @@ public static partial class ArrExtensions
     public static Arr<A> Flatten<A>(this Arr<Arr<A>> mma)
     {
         var writer = ArrayWriter<A>.Init();
-        Arr.FoldState state = default!;
-        mma.StepSetup(ref state);
+        var state = mma.StepSetup<Arr, Arr.FoldState, Arr<A>>();
         while (mma.Step(ref state, out var ma))
         {
             writer.AddRange(ma.AsSpan());
@@ -29,8 +28,7 @@ public static partial class ArrExtensions
         {
             var writer = ArrayWriter<A>.Init(ma.Count);
         
-            Arr.FoldState state = default!;
-            ma.StepSetup(ref state);
+            var state = ma.StepSetup<Arr, Arr.FoldState, A>();
             while (ma.Step(ref state, out var a))
             {
                 if(f(a)) writer.Add(a);
@@ -43,8 +41,7 @@ public static partial class ArrExtensions
         {
             var writer = ArrayWriter<B>.Init(ma.Count);
         
-            Arr.FoldState state = default!;
-            ma.StepSetup(ref state);
+            var state = ma.StepSetup<Arr, Arr.FoldState, A>();
             while (ma.Step(ref state, out var a))
             {
                 writer.Add(f(a));
@@ -57,13 +54,11 @@ public static partial class ArrExtensions
         {
             var writer = ArrayWriter<B>.Init();
         
-            Arr.FoldState astate = default!;
-            ma.StepSetup(ref astate);
+            var astate = ma.StepSetup<Arr, Arr.FoldState, A>();
             while (ma.Step(ref astate, out var a))
             {
-                var           mb     = +f(a);
-                Arr.FoldState bstate = default!;
-                mb.StepSetup(ref bstate);
+                var mb     = +f(a);
+                var bstate = mb.StepSetup<Arr, Arr.FoldState, B>();
                 while (mb.Step(ref bstate, out var b))
                 {
                     writer.Add(b);

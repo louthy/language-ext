@@ -1242,12 +1242,12 @@ public readonly struct Seq<A> :
                    : new Seq<B>(Yield(this));
     }
 
-    internal void InitFoldState(ref Seq.FoldState state) =>
-        Value.InitFoldState(ref state);
+    internal Seq.FoldState InitFoldState() =>
+        Value.InitFoldState();
 
-    internal void InitFoldBackState(ref Seq.FoldState state) =>
+    internal Seq.FoldState InitFoldBackState() =>
         // This forces evaluation of the whole Seq, so we can walk the items in reverse.
-        Seq.FoldState.FromSpanBack(ref state, AsSpan());
+        Seq.FoldState.FromSpanBack(AsSpan());
 
     public static Seq<A> AdditiveIdentity => 
         Empty;

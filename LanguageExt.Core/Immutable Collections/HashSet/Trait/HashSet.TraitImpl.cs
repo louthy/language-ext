@@ -102,10 +102,10 @@ public partial class HashSet :
     static int Foldable<HashSet>.Count<A>(K<HashSet, A> ta) =>
         ta.As().Count;
 
-    static void Foldable<HashSet, TrieSet.FoldState>.FoldStepSetup<A>(K<HashSet, A> ta, ref TrieSet.FoldState refState) => 
-        TrieSet.FoldState.Setup(ref refState, ta.As().Value.Root);
+    static TrieSet.FoldState IterableK<HashSet, TrieSet.FoldState>.StepSetup<A>(K<HashSet, A> ta) => 
+        TrieSet.FoldState.Setup(ta.As().Value.Root);
 
-    static bool Foldable<HashSet, TrieSet.FoldState>.FoldStep<A>(K<HashSet, A> ta, ref TrieSet.FoldState refState, out A value) =>
+    static bool IterableK<HashSet, TrieSet.FoldState>.Step<A>(K<HashSet, A> ta, ref TrieSet.FoldState refState, out A value) =>
         TrieSet.FoldState.Step<EqDefault<A>, A>(ref refState, out value);
 
     static bool Foldable<HashSet>.IsEmpty<A>(K<HashSet, A> ta) =>
@@ -131,6 +131,7 @@ public partial class HashSet :
             fys.Bind(ys => f(x).Map(ys.Add));
     }
 
-    static Iterator<A> IterableK<HashSet>.ForwardIterator<A>(K<HashSet, A> fa) => 
-        throw new NotImplementedException();
+    static Iterator<A> IterableK<HashSet>.ForwardIterator<A>(K<HashSet, A> fa) =>
+        new Iterator.IterHashSet<EqDefault<A>, A>(
+            TrieSet.IteratorState<EqDefault<A>, A>.Setup(fa.As().Value.Root));
 }

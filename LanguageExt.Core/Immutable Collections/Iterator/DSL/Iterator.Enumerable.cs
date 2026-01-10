@@ -16,7 +16,7 @@ public abstract partial class Iterator<A>
             var enumerator = enumerable.GetEnumerator();
             if (enumerator.MoveNext())
             {
-                return new Enumerator(enumerator.Current, new En(enumerator)).Next();
+                return (new Exist<A>(enumerator.Current), new EnumeratorTail(new En(enumerator)));
             }
             else
             {
@@ -25,20 +25,26 @@ public abstract partial class Iterator<A>
             }
         }
 
-        public override string ToString() => 
+        public override string ToString() =>
             "...";
+
+        public override Iterator<A> Using()
+        {
+            var enumerator = enumerable.GetEnumerator();
+            return new EnumeratorTail(new En(enumerator));
+        }
     }
     
     /// <summary>
     /// Enumerator iterator
     /// </summary>
-    internal class Enumerator(A head, En enumerator) : Iterator<A>, IDisposable
+    internal class EnumeratorTail(En enumerator) : Iterator<A>
     {
         public override (Head<A> Head, Iterator<A> Tail) Next()
         {
             if (!enumerator.Disposed && enumerator.Enumerator.MoveNext())
             {
-                return new Enumerator(enumerator.Enumerator.Current, enumerator).Next();
+                return (new Exist<A>(enumerator.Enumerator.Current), new EnumeratorTail(enumerator));
             }
             else
             {
@@ -47,8 +53,14 @@ public abstract partial class Iterator<A>
             }
         }
 
+        public override Iterator<A> Using() => 
+            this;
+
+        public override void Dispose() =>
+            enumerator.Dispose();
+
         public override string ToString() => 
-            $"{head}, ...";
+            "...";
     }
 
     /// <summary>

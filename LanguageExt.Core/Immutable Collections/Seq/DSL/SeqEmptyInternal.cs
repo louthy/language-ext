@@ -14,8 +14,8 @@ internal class SeqEmptyInternal<A> : ISeqInternal<A>
     public ReadOnlySpan<A> AsSpan() =>
         ReadOnlySpan<A>.Empty;
 
-    public void InitFoldState(ref Seq.FoldState state) => 
-        Seq.FoldState.FromSpan(ref state, AsSpan());
+    public Seq.FoldState InitFoldState() => 
+        Seq.FoldState.FromSpan(AsSpan());
 
     public A this[int index] => 
         throw new IndexOutOfRangeException();

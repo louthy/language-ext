@@ -74,9 +74,7 @@ internal class TrieMap<EqK, K, V> :
         where F : Foldable<F, FS>
         where FS : struct, allows ref struct
     {
-        var state = default(FS);
-        items.StepSetup(ref state);
-        
+        var state = items.StepSetup<F, FS, (K Key, V Value)>();
         var root  = EmptyNode.Default;
         var count = 0;
         var type  = tryAdd ? TrieUpdateType.TryAdd : TrieUpdateType.AddOrUpdate;
@@ -1195,9 +1193,7 @@ internal class TrieMap<EqK, K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, U> Map<U>(Func<V, U> f)
     {
-        TrieMap.FoldState state = default!;
-        TrieMap.FoldState.Setup(ref state, Root);
-        
+        var state = TrieMap.FoldState.Setup(Root);
         var root  = TrieMap<EqK, K, U>.EmptyNode.Default;
         var count = 0;
         while(TrieMap.FoldState.Step<EqK, K, V>(ref state, out var kv))
@@ -1237,9 +1233,7 @@ internal class TrieMap<EqK, K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, U> Map<U>(Func<K, V, U> f)
     {
-        TrieMap.FoldState state = default!;
-        TrieMap.FoldState.Setup(ref state, Root);
-        
+        var state = TrieMap.FoldState.Setup(Root);
         var root  = TrieMap<EqK, K, U>.EmptyNode.Default;
         var count = 0;
         while(TrieMap.FoldState.Step<EqK, K, V>(ref state, out var kv))
@@ -1278,9 +1272,7 @@ internal class TrieMap<EqK, K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, V> Filter(Func<V, bool> f)
     {
-        TrieMap.FoldState state = default!;
-        TrieMap.FoldState.Setup(ref state, Root);
-        
+        var state = TrieMap.FoldState.Setup(Root);
         var root  = EmptyNode.Default;
         var count = 0;
         while(TrieMap.FoldState.Step<EqK, K, V>(ref state, out var kv))
@@ -1325,9 +1317,7 @@ internal class TrieMap<EqK, K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieMap<EqK, K, V> Filter(Func<K, V, bool> f)
     {
-        TrieMap.FoldState state = default!;
-        TrieMap.FoldState.Setup(ref state, Root);
-        
+        var state = TrieMap.FoldState.Setup(Root);
         var root  = EmptyNode.Default;
         var count = 0;
         while(TrieMap.FoldState.Step<EqK, K, V>(ref state, out var kv))

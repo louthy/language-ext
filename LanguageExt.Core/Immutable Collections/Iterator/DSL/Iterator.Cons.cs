@@ -23,6 +23,9 @@ public abstract partial class Iterator<A>
 
         public override string ToString() => 
             $"{head}...";
+
+        public override Iterator<A> Using() =>
+            this;
     }
     
     /// <summary>
@@ -44,5 +47,14 @@ public abstract partial class Iterator<A>
 
         public override string ToString() => 
             $"{head}, {tail}";
+
+        public override void Dispose() =>
+            tail.Dispose();
+
+        public override Iterator<A> Using() =>
+            new ConsStrict(head, tail.Using());
+        
+        public override Iterator<A> Strict() => 
+            new ConsStrict(head, tail.Strict());
     }    
 }

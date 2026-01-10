@@ -80,7 +80,7 @@ public interface FoldableBack<T> : IterableBackK<T>
         K<T, A> ta)
     {
         var state = initialState;
-        for (var i = T.BackwardIterator(ta); i is (Exist<A> (var value), var tail); i = tail)
+        foreach(var value in T.BackwardIterator(ta).Using())
         {
             if (predicate((state, value)))
             {
@@ -109,7 +109,7 @@ public interface FoldableBack<T> : IterableBackK<T>
         K<T, A> ta)
     {
         var state = initialState;
-        for (var i = T.BackwardIterator(ta); i is (Exist<A> (var value), var tail); i = tail)
+        foreach(var value in T.BackwardIterator(ta).Using())
         {
             var option = f(state, value);
             if (option.IsSome)
@@ -156,10 +156,10 @@ public interface FoldableBack<T> : IterableBackK<T>
         K<T, A> ta)
     {
         var state = initialState;
-        for (var i = T.BackwardIterator(ta); i is (Exist<A> head, var tail); i = tail)
+        foreach(var head in T.BackwardIterator(ta).Using())
         {
-            state = f(state, head.Value);
-            if (predicate((state, head.Value))) return state;
+            state = f(state, head);
+            if (predicate((state, head))) return state;
         }
         return state;
     }
@@ -191,7 +191,7 @@ public interface FoldableBack<T> : IterableBackK<T>
     /// Left-associative fold of a structure, lazy in the accumulator.  This
     /// is rarely what you want but can work well for structures with efficient
     /// right-to-left sequencing and an operator that is lazy in its left
-    /// argumenTA.
+    /// argument.
     /// 
     /// In the case of lists, 'FoldLeft', when applied to a binary operator, a
     /// starting value (typically the left-identity of the operator), and a
@@ -205,9 +205,9 @@ public interface FoldableBack<T> : IterableBackK<T>
     static virtual S FoldBack<A, S>(Func<S, A, S> f, in S initialState, K<T, A> ta)
     {
         var state = initialState;
-        for (var i = T.BackwardIterator(ta); i is (Exist<A> head, var tail); i = tail)
+        foreach (var head in ta.BackwardIterator().Using())
         {
-            state = f(state, head.Value);
+            state = f(state, head);
         }
         return state;
     }
@@ -216,7 +216,7 @@ public interface FoldableBack<T> : IterableBackK<T>
     /// Left-associative fold of a structure, lazy in the accumulator.  This
     /// is rarely what you want, but can work well for structures with efficient
     /// right-to-left sequencing and an operator that is lazy in its left
-    /// argumenTA.
+    /// argument.
     /// 
     /// In the case of lists, 'FoldLeft', when applied to a binary operator, a
     /// starting value (typically the left-identity of the operator), and a
@@ -263,7 +263,7 @@ public interface FoldableBack<T> : IterableBackK<T>
     static virtual Arr<A> ToArrBack<A>(K<T, A> ta)
     {
         var writer = ArrayWriter<A>.Init();
-        for (var i = T.BackwardIterator(ta); i is (Exist<A>(var head), var tail); i = tail)
+        foreach(var head in T.BackwardIterator(ta).Using())
         {
             writer.Add(head);
         }
@@ -277,14 +277,14 @@ public interface FoldableBack<T> : IterableBackK<T>
     /// The sequence is lazy
     /// </remarks>
     static virtual Iterable<A> ToIterableBack<A>(K<T, A> ta) =>
-        Iterable.createRange(T.BackwardIterator(ta));
+        new IterableIterator<A>(T.BackwardIterator(ta));
 
     /// <summary>
     /// Does an element that fits the predicate occur in the structure?
     /// </summary>
     static virtual bool ExistsBack<A>(Func<A, bool> predicate, K<T, A> ta)
     {
-        for (var i = T.BackwardIterator(ta); i is (Exist<A>(var head), var tail); i = tail)
+        foreach(var head in T.BackwardIterator(ta).Using())
         {
             if(predicate(head)) return true;
         }
@@ -296,7 +296,7 @@ public interface FoldableBack<T> : IterableBackK<T>
     /// </summary>
     static virtual bool ForAllBack<A>(Func<A, bool> predicate, K<T, A> ta)
     {
-        for (var i = T.BackwardIterator(ta); i is (Exist<A>(var head), var tail); i = tail)
+        foreach(var head in T.BackwardIterator(ta).Using())
         {
             if(!predicate(head)) return false;
         }
@@ -309,7 +309,7 @@ public interface FoldableBack<T> : IterableBackK<T>
     static virtual bool ContainsBack<EqA, A>(A value, K<T, A> ta) 
         where EqA : Eq<A>
     {
-        for (var i = T.BackwardIterator(ta); i is (Exist<A>(var head), var tail); i = tail)
+        foreach(var head in T.BackwardIterator(ta).Using())
         {
             if(EqA.Equals(value, head)) return true;
         }
@@ -327,7 +327,7 @@ public interface FoldableBack<T> : IterableBackK<T>
     /// </summary>
     static virtual Option<A> FindBack<A>(Func<A, bool> predicate, K<T, A> ta)
     {
-        for (var i = T.BackwardIterator(ta); i is (Exist<A>(var head), var tail); i = tail)
+        foreach(var head in T.BackwardIterator(ta).Using())
         {
             if(predicate(head)) return Some(head);
         }
@@ -349,20 +349,23 @@ public interface FoldableBack<T> : IterableBackK<T>
     /// <summary>
     /// Get the last item in the foldable or `None`
     /// </summary>
-    static virtual Option<A> Last<A>(K<T, A> ta) =>
-        T.BackwardIterator(ta) switch
-        {
-            (Exist<A>(var last), _) => Some(last),
-            _                       => None
-        };
-    
+    static virtual Option<A> Last<A>(K<T, A> ta)
+    {
+        using var iter = T.BackwardIterator(ta).Using();
+        return iter switch
+               {
+                   (Exist<A>(var last), _) => Some(last),
+                   _                       => None
+               };
+    }
+
     /// <summary>
     /// Find the element at the specified index (from the end) or `None` if out of range
     /// </summary>
     static virtual Option<A> AtBack<A>(int index, K<T, A> ta)
     {
         var ix = 0;
-        for (var i = ta.BackwardIterator(); i is (Exist<A>(var head), var tail); i = tail)
+        foreach(var head in T.BackwardIterator(ta).Using())
         {
             if(ix == index) return head;
             ix++;
@@ -381,7 +384,7 @@ public interface FoldableBack<T> : IterableBackK<T>
     {
         var @true  = ArrayWriter<A>.Init();
         var @false = ArrayWriter<A>.Init();
-        for (var i = ta.BackwardIterator(); i is (Exist<A>(var head), var tail); i = tail)
+        foreach(var head in T.BackwardIterator(ta).Using())
         {
             if (f(head))
             {

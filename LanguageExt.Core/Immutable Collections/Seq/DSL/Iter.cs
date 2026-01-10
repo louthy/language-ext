@@ -12,20 +12,30 @@ namespace LanguageExt;
 /// enumerable by index, which allows this type to be
 /// shared.
 /// </summary>
-internal class Enum<A>(IEnumerable<A> ma) : IDisposable
+internal class Iter<A>(Iterator<A> ma) : IDisposable
 {
     const int DefaultCapacity = 32;
     A[] data = new A[DefaultCapacity];
     int count;
     int ncount = -1;
     
-    IEnumerator<A>? iter = ma.GetEnumerator();
+    Iterator<A>? iter = ma;
 
     public int Count =>
         count;
 
     public A[] Data =>
         data;
+
+    public Iter<A> Using()
+    {
+        iter?.Dispose();
+        iter = null;
+        data = Array.Empty<A>();
+        count = 0;
+        ncount = -1;
+        return new(ma.Using());
+    }
 
     public (bool Success, A? Value) Get(int index)
     {
@@ -45,11 +55,11 @@ internal class Enum<A>(IEnumerable<A> ma) : IDisposable
             // gatekeeper to moving along the iterator.  
             if (Interlocked.CompareExchange(ref ncount, index, lcount) == lcount)
             {
-                if (liter != null && liter.MoveNext())
+                if (liter is (Exist<A>(var value), var tail))
                 {
-                    // Get the next value
-                    var value = liter.Current;
-
+                    // Next
+                    iter = tail;
+                    
                     // If we've run out of space, double it and copy.  
                     // Note, this operation is atomic 
                     if (index >= data.Length)

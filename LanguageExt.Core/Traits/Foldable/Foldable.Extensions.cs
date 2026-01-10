@@ -384,22 +384,4 @@ public static partial class FoldableExtensions
                 var (count, total)                  => total / count
             };
     }
-
-
-    extension<T, A, FS>(K<T, A> ta)
-        where T : Foldable<T, FS>?
-        where FS : allows ref struct
-    {
-        /// <summary>
-        /// Low-level interface for folding using stack-based primitives.
-        /// </summary>
-        public void StepSetup(ref FS refState) =>
-            T.FoldStepSetup(ta, ref refState);
-
-        /// <summary>
-        /// Low-level interface for folding using stack-based primitives.
-        /// </summary>
-        public bool Step(ref FS refState, out A value) =>
-            T.FoldStep(ta, ref refState, out value);
-    }
 }

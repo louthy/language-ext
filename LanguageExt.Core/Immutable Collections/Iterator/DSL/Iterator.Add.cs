@@ -28,5 +28,14 @@ public abstract partial class Iterator<A>
 
         public override string ToString() => 
             $"{first}, {second.ToFullString()}";
+
+        public override void Dispose() =>
+            first.Dispose();
+
+        public override Iterator<A> Using() =>
+            new Add(first.Using(), second);
+
+        public override Iterator<A> Strict() => 
+            new Add(first.Strict(), second.Strict());
     }
 }

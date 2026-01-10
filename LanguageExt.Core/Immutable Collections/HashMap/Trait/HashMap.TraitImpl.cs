@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
 
@@ -16,12 +15,10 @@ public partial class HashMap<Key> :
     static int Foldable<HashMap<Key>>.Count<A>(K<HashMap<Key>, A> ta) =>
         ta.As().Count;
 
-    static void Foldable<HashMap<Key>, TrieMap.FoldState>.FoldStepSetup<A>(
-        K<HashMap<Key>, A> ta, 
-        ref TrieMap.FoldState refState) =>
-        TrieMap.FoldState.Setup(ref refState, ta.As().Value.Root);
+    static TrieMap.FoldState IterableK<HashMap<Key>, TrieMap.FoldState>.StepSetup<A>(K<HashMap<Key>, A> ta) =>
+        TrieMap.FoldState.Setup(ta.As().Value.Root);
 
-    static bool Foldable<HashMap<Key>, TrieMap.FoldState>.FoldStep<A>(
+    static bool IterableK<HashMap<Key>, TrieMap.FoldState>.Step<A>(
         K<HashMap<Key>, A> ta, ref TrieMap.FoldState refState, 
         out A value)
     {
@@ -47,6 +44,6 @@ public partial class HashMap<Key> :
         HashMap<Key, A>.Empty;
 
     static Iterator<A> IterableK<HashMap<Key>>.ForwardIterator<A>(K<HashMap<Key>, A> fa) =>
-        new Iterator.IterHashMapValueFwd<EqDefault<Key>, Key, A>(
+        new Iterator.IterHashMapValue<EqDefault<Key>, Key, A>(
             TrieMap.IteratorState<EqDefault<Key>, Key, A>.Setup(fa.As().Value.Root));
 }

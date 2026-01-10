@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
@@ -36,6 +35,7 @@ namespace LanguageExt;
 /// <para>
 /// NOTE: This type supports `IDisposable`, but it only needs disposing if you have constructed the `Iterator` from a
 /// regular `IEnumerable`. And even then, only if the `IEnumerable` holds onto some resource during its yielding phase.
+/// See <see cref="Using"/> for more details.
 /// </para>
 /// <para>
 /// An example might be if you were iterating a set of results from a database or file system.  In that case, you would
@@ -45,15 +45,9 @@ namespace LanguageExt;
 /// Calling `Dispose` on the `Iterator` when the `Iterator` hasn't been constructed from an `IEnumerable` will have no
 /// effect. 
 /// </para>
-/// <para>
-/// It may not be obvious which `Iterator` instance to `Dispose` as we create a new one for every tail during the
-/// iteration process: in fact, any one of the instances can be disposed, and it will find the underlying `IEnumerator`
-/// to `Dispose` and will do so only once.  
-/// </para>
 /// </remarks>
 /// <typeparam name="A">Value type</typeparam>
 public abstract partial class Iterator<A> : 
-    IEnumerable<A>,
     IEquatable<Iterator<A>>,
     IDisposable,
     K<Iterator, A>
@@ -73,14 +67,25 @@ public abstract partial class Iterator<A> :
     /// </para> 
     /// </remarks>
     /// <example>
-    /// It is possible to use the deconstructor in a for-loop to repeatedly consume the iterable thing:
+    /// It is possible to use the deconstructor in a for-loop to repeatedly consume the iterable thing. The
+    /// deconstructor simply calls `Next` to extract the head and tail of the iterator:
     /// <code>
     ///     for (var i = iter; i is (Exist&lt;A&gt; h, var t); i = t)
     ///     {
     ///         yield return h.Value;
     ///     }
     /// </code>
+    /// Or, use `foreach`, which will also deal with the disposal properly:
+    /// <code>
+    ///     foreach (var value in iter.Using())
+    ///     {
+    ///         yield return value;
+    ///     }
+    /// </code>
     /// </example>
+    /// <remarks>
+    /// See <see cref="Using" /> documentation for best `IDisposable` practices.
+    /// </remarks>
     public void Deconstruct(out Head<A> head, out Iterator<A> tail)
     {
         var (h, t) = Next();
@@ -106,8 +111,68 @@ public abstract partial class Iterator<A> :
     ///         yield return h.Value;
     ///     }
     /// </code>
+    /// Or, use `foreach`, which will also deal with the disposal properly:
+    /// <code>
+    ///     foreach (var value in iter.Using())
+    ///     {
+    ///         yield return value;
+    ///     }
+    /// </code>
     /// </example>
+    /// <remarks>
+    /// See <see cref="Using" /> documentation for best `IDisposable` practices.
+    /// </remarks>
     public abstract (Head<A> Head, Iterator<A> Tail) Next();
+
+    /// <summary>
+    /// This will 'prime' an iterator so that calling `Dispose` on the `Iterator` returned from this method will
+    /// correctly release any backing resources. 
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// You only need to use this if your `Iterator` has been constructed from an `IEnumerable`.  
+    /// </para>
+    /// <para>
+    /// If you don't know whether your `Iterator` has been constructed from an `IEnumerable`, invoke this method on
+    /// your `Iterator` just in case.
+    /// </para>
+    /// <para>
+    /// For other `Iterator` types, this method will have no effect.  If your `Iterator` is a composition of other
+    /// iterators (like if you zip two iterators, or you map, filter, etc.), then you can still call `Using` on the
+    /// composed `Iterator` and it will flow through to the underlying iterator(s). 
+    /// </para>
+    /// <para>
+    /// For a deeper understanding, imagine that when an `IEnumerable` is lifted into an `Iterator`, it hasn't yet
+    /// generated its `IEnumerator` (using `GetEnumerator()`), and so the `Iterator` that contains the `IEnumerable`
+    /// has no resources to release yet.  But this is the `Iterator` that we give to `foreach`, and so the
+    /// auto-disposal mechanism of `foreach` won't know how to clean anything up! 
+    /// </para>
+    /// <para>
+    /// When you start consuming the items from the `Iterator`, the first `(head, tail)` pair you get back will have
+    /// the tail as an `Iterator` that is carrying the enumerable's newly generated`IEnumerator`. That means the
+    /// original `Iterator` that carried the `IEnumerable` is not the `Iterator` you want to call `Dispose` on.  It's
+    /// the very first tail-`Iterator`.
+    /// </para>
+    /// <para>
+    /// In that situation, it's quite difficult to stop, mid-iteration, to grab a reference to the first tail
+    /// `Iterator`, and then somehow track that value until the end of the iteration, and then dispose of it!
+    /// </para>
+    /// <para>
+    /// So, instead the `Using` method makes the 'first move' and generates the `IEnumerator`. That means the `Iterator`
+    /// that you pass to a `foreach` will have a reference to the `IEnumerator` and can therefore dispose of it at the
+    /// end of the iteration.
+    /// </para>
+    /// <para>
+    /// NOTE: If you're manually iterating over the `Iterator` using the deconstructor or `(head, tail) = Next()`, you
+    /// can still call `Using` to get an initial disposable `Iterator`, but you don't have to, you can call `Dispose`
+    /// manually on any of the subsequent tail `Iterator` instances you receive. 
+    /// </para>
+    /// <para>
+    /// This is most convenient when you're recursively iterating, and you only have the current `Iterator` instance.
+    /// </para>
+    /// </remarks>
+    /// <returns></returns>
+    public abstract Iterator<A> Using();
     
     /// <summary>
     /// Consume the next item in the sequence but return only its tail, ignoring the head.
@@ -140,6 +205,48 @@ public abstract partial class Iterator<A> :
     [Pure]
     public Iterable<A> AsIterable() =>
         new IterableIterator<A>(this);
+
+    /// <summary>
+    /// Wrap this iterator in an iterator that will cache the values as they're processed so
+    /// that subsequent iterations use the cached values rather than the underlying iterator.
+    /// </summary>
+    /// <remarks>The cache needs to retain the items in memory, so this should be used where there's a performance
+    /// benefit to doing so: a trade-off between memory usage and the cost of re-running the iterator.</remarks>
+    /// <remarks>
+    /// This is similar to `Strict` in that it caches the results, but `Strict` forces the entire sequence to
+    /// evaluate immediately, whereas `OnceOnly` caches as it goes.
+    /// </remarks>
+    /// <returns>An iterator that only iterates once</returns>
+    [Pure]
+    public Iterator<A> OnceOnly() =>
+        new Iterator.OnceOnly<A>(this);
+
+    /// <summary>
+    /// Forces evaluation of every item in the iterator and then caches them as a backing array which can be
+    /// iterated.  
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This is similar to `OnceOnly` in that it caches the results, but `OnceOnly` caches as it goes, rather than
+    /// forcing the entire sequence to evaluate immediately.
+    /// </para>
+    /// <para>
+    /// Any backing structure that has already been evaluated/is already strict, like if you lift an `Arr`, `HashMap`,
+    /// `HashSet`, `Lst`, `Map`, or `Set` into an `Iterator`, will be returned as-is. 
+    /// </para>
+    /// </remarks>
+    /// <returns></returns>
+    [Pure]
+    public virtual Iterator<A> Strict()
+    {
+        var writer = ArrayWriter<A>.Init();
+        foreach (var head in Using())
+        {
+            writer.Add(head);
+        }
+        var arr = writer.ToArr();
+        return new IterArr(arr, 0, arr.Count);
+    }
     
     /// <summary>
     /// Functor map
@@ -356,12 +463,8 @@ public abstract partial class Iterator<A> :
     /// </summary>
     /// <returns></returns>
     [Pure]
-    public IEnumerator<A> GetEnumerator() => 
-        AsEnumerable().GetEnumerator();
-
-    [Pure]
-    IEnumerator IEnumerable.GetEnumerator() => 
-        GetEnumerator();
+    public IteratorEnumerator<A> GetEnumerator() => 
+        new (this);
 
     [Pure]
     public override string ToString() =>

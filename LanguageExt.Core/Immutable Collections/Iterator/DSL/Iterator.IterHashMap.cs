@@ -6,47 +6,56 @@ namespace LanguageExt;
 public abstract partial class Iterator
 {
     /// <summary>
-    /// HashMap iterator (forward)
+    /// HashMap iterator
     /// </summary>
-    internal class IterHashMapFwd<EqK, K, V>(TrieMap.IteratorState<EqK, K, V> items) : Iterator<(K Key, V Value)>
+    internal class IterHashMap<EqK, K, V>(TrieMap.IteratorState<EqK, K, V> items) : Iterator<(K Key, V Value)>
         where EqK : Eq<K>
     {
         public override (Head<(K Key, V Value)> Head, Iterator<(K Key, V Value)> Tail) Next() =>
             items.Step(out var head, out var tail)
-                ? (new Exist<(K Key, V Value)>(head), new IterHashMapFwd<EqK, K, V>(tail))
+                ? (new Exist<(K Key, V Value)>(head), new IterHashMap<EqK, K, V>(tail))
                 : (Nil<(K Key, V Value)>.Default, Nil.Default);
 
         public override string ToString() =>
             $"HashMap{items}";
+
+        public override Iterator<(K, V)> Using() =>
+            this;
     }
 
     /// <summary>
-    /// HashMap iterator keys (forward)
+    /// HashMap iterator keys
     /// </summary>
-    internal class IterHashMapKeyFwd<EqK, K, V>(TrieMap.IteratorState<EqK, K, V> items) : Iterator<K>
+    internal class IterHashMapKey<EqK, K, V>(TrieMap.IteratorState<EqK, K, V> items) : Iterator<K>
         where EqK : Eq<K>
     {
         public override (Head<K> Head, Iterator<K> Tail) Next() =>
             items.Step(out var head, out var tail)
-                ? (new Exist<K>(head.Key), new IterHashMapKeyFwd<EqK, K, V>(tail))
+                ? (new Exist<K>(head.Key), new IterHashMapKey<EqK, K, V>(tail))
                 : (Nil<K>.Default, Nil.Default);
 
         public override string ToString() =>
             $"HashMap{items}";
+
+        public override Iterator<K> Using() =>
+            this;
     }
 
     /// <summary>
-    /// HashMap iterator values (forward)
+    /// HashMap iterator values
     /// </summary>
-    internal class IterHashMapValueFwd<EqK, K, V>(TrieMap.IteratorState<EqK, K, V> items) : Iterator<V>
+    internal class IterHashMapValue<EqK, K, V>(TrieMap.IteratorState<EqK, K, V> items) : Iterator<V>
         where EqK : Eq<K>
     {
         public override (Head<V> Head, Iterator<V> Tail) Next() =>
             items.Step(out var head, out var tail)
-                ? (new Exist<V>(head.Value), new IterHashMapValueFwd<EqK, K, V>(tail))
+                ? (new Exist<V>(head.Value), new IterHashMapValue<EqK, K, V>(tail))
                 : (Nil<V>.Default, Nil.Default);
 
         public override string ToString() =>
             $"HashMap{items}";
+
+        public override Iterator<V> Using() =>
+            this;
     }
 }

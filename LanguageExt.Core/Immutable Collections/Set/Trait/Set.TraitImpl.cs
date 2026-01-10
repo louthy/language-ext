@@ -96,10 +96,10 @@ public partial class Set :
     static int Foldable<Set>.Count<A>(K<Set, A> ta) =>
         ta.As().Count;
 
-    static void Foldable<Set, FoldState>.FoldStepSetup<A>(K<Set, A> ta, ref FoldState refState) => 
-        FoldState.Setup(ref refState, ta.As().Value.Root);
+    static FoldState IterableK<Set, FoldState>.StepSetup<A>(K<Set, A> ta) => 
+        FoldState.Setup( ta.As().Value.Root);
 
-    static bool Foldable<Set, FoldState>.FoldStep<A>(K<Set, A> ta, ref FoldState refState, out A value) 
+    static bool IterableK<Set, FoldState>.Step<A>(K<Set, A> ta, ref FoldState refState, out A value) 
     {
         if (FoldState.Step<A>(ref refState, out var node))
         {
@@ -113,10 +113,10 @@ public partial class Set :
         }
     }
 
-    static void FoldableBack<Set, FoldState>.FoldStepBackSetup<A>(K<Set, A> ta, ref FoldState refState) => 
-        FoldState.Setup(ref refState, ta.As().Value.Root);
+    static FoldState IterableBackK<Set, FoldState>.StepBackSetup<A>(K<Set, A> ta) => 
+        FoldState.Setup(ta.As().Value.Root);
 
-    static bool FoldableBack<Set, FoldState>.FoldStepBack<A>(K<Set, A> ta, ref FoldState refState, out A value) 
+    static bool IterableBackK<Set, FoldState>.StepBack<A>(K<Set, A> ta, ref FoldState refState, out A value) 
     {
         if (FoldState.StepBack<A>(ref refState, out var node))
         {
