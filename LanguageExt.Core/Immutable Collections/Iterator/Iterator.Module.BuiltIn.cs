@@ -1,5 +1,7 @@
 #pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
 using System.Collections.Generic;
+using LanguageExt.ClassInstances;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -31,6 +33,27 @@ public partial class Iterator
     /// <returns>Iterator of the collection</returns>
     public static Iterator<A> backward<A>(Arr<A> items) =>
         items.BackwardIterator();
+
+    /// <summary>
+    /// Create an iterator from an `HashMap` collection
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Iterator of the collection</returns>
+    public static Iterator<V> forward<K, V>(HashMap<K, V> items) =>
+        new IterHashMapValueFwd<EqDefault<K>, K, V>(
+            TrieMap.IteratorState<EqDefault<K>, K, V>.Setup(items.Value.Root));
+
+    /// <summary>
+    /// Create an iterator from an `HashMap` collection
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Iterator of the collection</returns>
+    public static Iterator<V> forward<EqK, K, V>(HashMap<EqK, K, V> items) 
+        where EqK : Eq<K> =>
+        new IterHashMapValueFwd<EqK, K, V>(
+            TrieMap.IteratorState<EqK, K, V>.Setup(items.Value.Root));
 
     /// <summary>
     /// Create an iterator from a `Set` collection

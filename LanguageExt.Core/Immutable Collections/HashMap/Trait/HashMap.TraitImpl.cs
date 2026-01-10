@@ -37,23 +37,6 @@ public partial class HashMap<Key> :
         }
     }
 
-    static void Foldable<HashMap<Key>, TrieMap.FoldState>.FoldStepBackSetup<A>(K<HashMap<Key>, A> ta, ref TrieMap.FoldState refState) => 
-        TrieMap.FoldState.Setup(ref refState, ta.As().Value.Root);
-
-    static bool Foldable<HashMap<Key>, TrieMap.FoldState>.FoldStepBack<A>(K<HashMap<Key>, A> ta, ref TrieMap.FoldState refState, out A value) 
-    {
-        if (TrieMap.FoldState.Step<EqDefault<Key>, Key, A>(ref refState, out var kv))
-        {
-            value = kv.Value;
-            return true;
-        }
-        else
-        {
-            value = default!;
-            return false;
-        }
-    }
-
     static bool Foldable<HashMap<Key>>.IsEmpty<A>(K<HashMap<Key>, A> ta) =>
         ta.As().IsEmpty;
 
@@ -62,44 +45,8 @@ public partial class HashMap<Key> :
 
     static K<HashMap<Key>, A> MonoidK<HashMap<Key>>.Empty<A>() =>
         HashMap<Key, A>.Empty;
-    
-    static Fold<A, S> Foldable<HashMap<Key>>.FoldStep<A, S>(K<HashMap<Key>, A> ta, in S initialState)
-    {
-        var items = ta.As();
-        return go(items.Values.ForwardIterator())(initialState);
 
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
-    }
-        
-    static Fold<A, S> Foldable<HashMap<Key>>.FoldStepBack<A, S>(K<HashMap<Key>, A> ta, in S initialState)
-    {
-        // Order is undefined in a HashMap, so reversing the order makes no sense,
-        // so let's take the most efficient option:
-        var items = ta.As();
-        return go(items.Values.ForwardIterator())(initialState);
-
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
-    }
+    static Iterator<A> IterableK<HashMap<Key>>.ForwardIterator<A>(K<HashMap<Key>, A> fa) =>
+        new Iterator.IterHashMapValueFwd<EqDefault<Key>, Key, A>(
+            TrieMap.IteratorState<EqDefault<Key>, Key, A>.Setup(fa.As().Value.Root));
 }
