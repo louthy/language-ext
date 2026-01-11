@@ -176,7 +176,7 @@ public partial class Arr :
     public static Iterator<A> ForwardIterator<A>(K<Arr, A> fa)
     {
         var items = +fa;
-        return new Iterator<A>.IterArr(items, items.Count - 1, items.Count);
+        return new Iterator<A>.IterArr(items, 0, items.Count);
     }
     
     public static Iterator<A> BackwardIterator<A>(K<Arr, A> fa)

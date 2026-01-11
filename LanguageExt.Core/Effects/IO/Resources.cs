@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Threading;
 using static LanguageExt.Prelude;
 
@@ -9,8 +11,9 @@ namespace LanguageExt;
 /// </summary>
 public class Resources : IDisposable
 {
-    readonly AtomHashMap<object, TrackedResource> resources = AtomHashMap<object, TrackedResource>();
+    ConcurrentDictionary<object, TrackedResource> resources = new (ReferenceEqualityComparer.Instance);
     readonly Resources? parent;
+    readonly object sync = new();
 
     public Resources(Resources? parent) =>
         this.parent = parent;
@@ -21,7 +24,7 @@ public class Resources : IDisposable
     public void Dispose()
     {
         var s = new CancellationTokenSource();
-        var e = EnvIO.New(this, default, s, SynchronizationContext.Current);
+        var e = EnvIO.New(this, CancellationToken.None, s, SynchronizationContext.Current);
         DisposeU(e);
     }
     
@@ -34,6 +37,7 @@ public class Resources : IDisposable
         {
             item.Value.Release().Run(disposeEnv);
         }
+        resources.Clear();
         return default;
     }
 
@@ -50,55 +54,45 @@ public class Resources : IDisposable
     {
         var obj = (object?)value;
         if (obj is null) throw new InvalidCastException();
-        return resources.TryAdd(obj, new TrackedResourceDisposable<A>(value));
+        resources.TryAdd(obj, new TrackedResourceDisposable<A>(value));
+        return default;
     }
 
     public Unit AcquireAsync<A>(A value) where A : IAsyncDisposable
     {
         var obj = (object?)value;
         if (obj is null) throw new InvalidCastException();
-        return resources.TryAdd(obj, new TrackedResourceAsyncDisposable<A>(value));
+        resources.TryAdd(obj, new TrackedResourceAsyncDisposable<A>(value));
+        return default;
     }
 
     public Unit Acquire<A>(A value, Func<A, IO<Unit>> release) 
     {
         var obj = (object?)value;
         if (obj is null) throw new InvalidCastException();
-        return resources.TryAdd(obj, new TrackedResourceWithFree<A>(value, release));
+        resources.TryAdd(obj, new TrackedResourceWithFree<A>(value, release));
+        return default;
     }
 
-    public IO<Unit> Release<A>(A value)
-    {
-        var obj = (object?)value;
-        if (obj is null) throw new InvalidCastException();
-        return resources.Find(obj)
-                        .Match(Some: f =>
-                                     {
-                                         resources.Remove(obj);
-                                         return f.Release();
-                                     },
-                               None: () => parent is null 
-                                               ? unitIO
-                                               : parent.Release(value));
-    }
+    public IO<Unit> Release<A>(A value) =>
+        IO.liftVAsync(async e =>
+                      {
+                          var obj = (object?)value;
+                          if (obj is null) throw new InvalidCastException();
 
-    public IO<Unit> ReleaseAll() =>
-        IO.lift(envIO =>
-                {
-                    resources.Swap(
-                        r =>
-                        {
-                            foreach (var kv in r)
-                            {
-                                kv.Value.Release().Run(envIO);
-                            }
-                            return [];
-                        });
-                    return unit;
-                });
-    
-    internal Unit Merge(Resources rhs) =>
-        resources.Swap(r => r.AddRange(rhs.resources.AsIterable()));
+                          if (resources.TryRemove(obj, out var f))
+                          {
+                              return await f.Release().RunAsync(e);
+                          }
+                          else
+                          {
+                              if (parent is not null)
+                              {
+                                  return await parent.Release(value).RunAsync(e);
+                              }
+                          }
+                          return default;
+                      });
 }
 
 abstract record TrackedResource

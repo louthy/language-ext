@@ -78,6 +78,15 @@ public partial class Source
         new(SourceT.lift<IO, A>(items));
 
     /// <summary>
+    /// Make an `Iterable` into a source of values
+    /// </summary>
+    /// <param name="items">`IEnumerable` to lift</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
+    public static Source<A> lift<A>(params ReadOnlySpan<A> items) =>
+        new(SourceT.lift<IO, A>(Arr.create(items).ForwardIterator()));
+
+    /// <summary>
     /// Make an `IObservable` into a source of values
     /// </summary>
     /// <param name="items">`IObservable` to lift</param>

@@ -186,6 +186,28 @@ public partial class SourceT
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     [Pure]
+    public static SourceT<M, A> liftS<M, A>(params ReadOnlySpan<A> items) 
+        where M : MonadIO<M> =>
+        new IteratorSyncSourceT<M, A>(Arr.create(items).Map(M.Pure).ForwardIterator());
+
+    /// <summary>
+    /// Make an `Iterable` into a source of values
+    /// </summary>
+    /// <param name="items">Iterable to lift</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
+    [Pure]
+    public static SourceT<M, A> liftSM<M, A>(params ReadOnlySpan<K<M, A>> items) 
+        where M : MonadIO<M> =>
+        new IteratorSyncSourceT<M, A>(Arr.create(items).ForwardIterator());
+
+    /// <summary>
+    /// Make an `Iterable` into a source of values
+    /// </summary>
+    /// <param name="items">Iterable to lift</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
+    [Pure]
     public static SourceT<M, A> lift<M, A>(Iterable<A> items) 
         where M : MonadIO<M> =>
         new IteratorSyncSourceT<M, A>(items.Map(M.Pure).ForwardIterator());

@@ -24,20 +24,19 @@ public class ArrArr
     [Fact]
     public void ArrArrCrossProduct()
     {
-        var ma = Array(Array(1, 2), Array(10, 20, 30));
+        var ma = Arr(Arr(1, 2), Arr(10, 20, 30));
 
         var mb = ma.KindT<Arr, Arr, Arr<int>, int>()
                    .SequenceM()
                    .AsT<Arr, Arr, Arr<int>, int>()
                    .As();
 
-        var mc = Array(
-            Array(1, 10),
-            Array(1, 20),
-            Array(1, 30),
-            Array(2, 10),
-            Array(2, 20),
-            Array(2, 30));
+        var mc = Arr(Arr(1, 10),
+                     Arr(1, 20),
+                     Arr(1, 30),
+                     Arr(2, 10),
+                     Arr(2, 20),
+                     Arr(2, 30));
 
         Assert.True(mb == mc);
     }
@@ -45,7 +44,7 @@ public class ArrArr
     [Fact]
     public void ArrOfEmptiesAndNonEmptiesIsEmpty()
     {
-        var ma = Array(Array<int>(), Array(1, 2, 3));
+        var ma = Arr(Arr<int>(), Arr(1, 2, 3));
 
         var mb = ma.KindT<Arr, Arr, Arr<int>, int>()
                    .SequenceM()
@@ -60,7 +59,7 @@ public class ArrArr
     [Fact]
     public void ArrOfEmptiesIsEmpty()
     {
-        var ma = Array(Array<int>(), Array<int>());
+        var ma = Arr(Arr<int>(), Arr<int>());
 
         var mb = ma.KindT<Arr, Arr, Arr<int>, int>()
                    .SequenceM()
