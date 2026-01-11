@@ -80,10 +80,9 @@ public class FoldPerfTests
         where T : Foldable<T, FS>
         where FS : allows ref struct
     {
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
+        var foldState = T.StepSetup(ta);
         var state = 0;
-        while (T.FoldStep(ta, ref foldState, out _))
+        while (T.Step(ta, ref foldState, out _))
         {
             state++;
         }
@@ -95,10 +94,9 @@ public class FoldPerfTests
         where T : Foldable<T, FS>
         where FS : allows ref struct
     {
-        FS foldState = default!;
-        T.FoldStepSetup(ta, ref foldState);
-        var state = 0;
-        while (T.FoldStep(ta, ref foldState, out var x))
+        var foldState = T.StepSetup(ta);
+        var state     = 0;
+        while (T.Step(ta, ref foldState, out var x))
         {
             state += x;
         }

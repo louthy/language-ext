@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using System.Net.Sockets;
 using LanguageExt;
 using LanguageExt.Common;
 using LanguageExt.Pipes;
@@ -9,7 +7,7 @@ using static LanguageExt.Pipes.PipeT;
 using static LanguageExt.Pipes.ConsumerT;
 using static LanguageExt.Prelude;
 
-var prod = yieldAll<IO, int>(Range(1, 100));
+var prod = yieldAll<IO, int>(Range(1, 100).ForwardIterator());
 
 var pipe = from x in awaiting<IO, int, int>()
            from _ in x == 10

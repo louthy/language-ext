@@ -680,7 +680,7 @@ public readonly struct Lst<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Arr<A> ToArr() =>
-        toArray(this);
+        toArr(this);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -15,12 +15,12 @@ public static class Zipping
         select unit;
 
     static SourceT<IO, int> evens(int n) =>
-        from x in Range(0, n).AsSourceT<IO, int>()
+        from x in Range(0, n).AsIterable().AsSourceT<IO, int>()
         where isEven(x)
         select x;
 
     static SourceT<IO, int> odds(int n) =>
-        from x in Range(0, n).AsSourceT<IO, int>()
+        from x in Range(0, n).AsIterable().AsSourceT<IO, int>()
         where isOdd(x)
         select x;
     

@@ -39,7 +39,7 @@ public static class PipesTestBed
 
     static Producer<Runtime, int, Unit> producer =>
         from _1 in Console<Runtime>.writeLine("before")
-        from _2 in yieldAll<Runtime, int>(Range(1, 5))
+        from _2 in yieldAll<Runtime, int>(Range(1, 5).AsIterable())
         from _3 in Console<Runtime>.writeLine("after")
         select unit;
 

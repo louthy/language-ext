@@ -8,9 +8,9 @@ public class ListMatchingTests
     [Fact]
     public void RecursiveMatchSumTest()
     {
-        var list0 = List<int>();
-        var list1 = List(10);
-        var list5 = List(10,20,30,40,50);
+        var list0 = Lst<int>();
+        var list1 = Lst(10);
+        var list5 = Lst(10,20,30,40,50);
 
         Assert.True(Sum(list0) == 0);
         Assert.True(Sum(list1) == 10);
@@ -26,9 +26,9 @@ public class ListMatchingTests
     [Fact]
     public void RecursiveMatchMultiplyTest()
     {
-        var list0 = List<int>();
-        var list1 = List(10);
-        var list5 = List(10, 20, 30, 40, 50);
+        var list0 = Lst<int>();
+        var list1 = Lst(10);
+        var list5 = Lst(10, 20, 30, 40, 50);
 
         Assert.True(Multiply(list0) == 0);
         Assert.True(Multiply(list1) == 10);
@@ -44,9 +44,9 @@ public class ListMatchingTests
     [Fact]
     public void AnotherRecursiveMatchSumTest()
     {
-        var list0 = List<int>();
-        var list1 = List(10);
-        var list5 = List(10, 20, 30, 40, 50);
+        var list0 = Lst<int>();
+        var list1 = Lst(10);
+        var list5 = Lst(10, 20, 30, 40, 50);
 
         Assert.True(AnotherSum(list0) == 0);
         Assert.True(AnotherSum(list1) == 10);
@@ -61,9 +61,9 @@ public class ListMatchingTests
     [Fact]
     public void AnotherRecursiveMatchMultiplyTest()
     {
-        var list0 = List<int>();
-        var list1 = List(10);
-        var list5 = List(10, 20, 30, 40, 50);
+        var list0 = Lst<int>();
+        var list1 = Lst(10);
+        var list5 = Lst(10, 20, 30, 40, 50);
 
         Assert.True(AnotherMultiply(list0) == 1);
         Assert.True(AnotherMultiply(list1) == 10);

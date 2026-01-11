@@ -10,7 +10,7 @@ public static class Folding
         example(1000).Iter().As();
 
     static SourceT<IO, int> naturals(int n) =>
-        Range(0, n).AsSourceT<IO, int>();
+        Range(0, n).AsIterable().AsSourceT<IO, int>();
     
     static SourceT<IO, Unit> example(int n) =>
         from v in naturals(n).FoldUntil((s, x) => s + x, s => s.State % 4 == 0, 0)

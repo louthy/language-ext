@@ -1,4 +1,8 @@
+/*
+ TODO: Restore
 using LanguageExt;
+using LanguageExt.Pipes;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace Streams;
@@ -12,7 +16,7 @@ public static class OptionalItems
         select unit;
 
     static SourceT<OptionT<IO>, Unit> example1(int n) =>
-        from x in SourceT.liftM(asyncStream(n))
+        from x in SourceT.liftM(stream(n))
         from _ in Console.write($"{x} ")
         where false
         select unit;    
@@ -25,7 +29,10 @@ public static class OptionalItems
 
     static bool isAllowed(int x) =>
         (x & 1) == 1;
-    
+
+    static Iterable<K<OptionT<IO>, int>> stream(int n) =>
+        asyncStream(n).AsIterableAsync().Map(xs => xs.Kind());
+
     static async IAsyncEnumerable<OptionT<IO, int>> asyncStream(int n) 
     {
         foreach (var x in Range(1, n))
@@ -39,3 +46,4 @@ public static class OptionalItems
         }
     }
 }
+*/

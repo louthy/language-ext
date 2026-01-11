@@ -50,7 +50,7 @@ public class Vector<D, A> :
     public virtual bool Equals(Vector<D, A>? other)
     {
         var ia = Values.GetEnumerator();
-        var ib = (other?.To() ?? Arr.empty<A>()).GetEnumerator();
+        var ib = (other?.To() ?? []).GetEnumerator();
         while (ia.MoveNext() && ib.MoveNext())
         {
             if (!ia.Current.Equals(ib.Current)) 
@@ -76,7 +76,7 @@ public class Vector<D, A> :
         {
             vector[ix++] = -x;
         }
-        return new(Arr.create(vector));
+        return new(toArr(vector));
     }
 
     public static Vector<D, A> operator +(Vector<D, A> left, Vector<D, A> right) 
@@ -100,7 +100,7 @@ public class Vector<D, A> :
         {
             vector[i] = left.Values[i] + right.Values[i];
         }        
-        return new(Arr.create(vector));
+        return new(toArr(vector));
     }
     
     public static Vector<D, A> operator -(Vector<D, A> left, Vector<D, A> right) 
@@ -124,7 +124,7 @@ public class Vector<D, A> :
         {
             vector[i] = left.Values[i] - right.Values[i];
         }        
-        return new(Arr.create(vector));
+        return new(toArr(vector));
     }
     
     /// <summary>
@@ -151,7 +151,7 @@ public class Vector<D, A> :
         {
             vector[i] = left.Values[i] * right.Values[i];
         }        
-        return new(Arr.create(vector));
+        return new(toArr(vector));
     }
 
     public static Vector<D, A> operator *(Vector<D, A> left, A right) 
@@ -173,7 +173,7 @@ public class Vector<D, A> :
         {
             vector[i] = left.Values[i] * right;
         }        
-        return new(Arr.create(vector));
+        return new(toArr(vector));
     }
 
     public static Vector<D, A> operator /(Vector<D, A> left, A right) 
@@ -195,7 +195,7 @@ public class Vector<D, A> :
         {
             vector[i] = left.Values[i] / right;
         }        
-        return new(Arr.create(vector));
+        return new(toArr(vector));
     }
 
     /// <summary>

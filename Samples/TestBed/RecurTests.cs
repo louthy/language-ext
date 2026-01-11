@@ -105,13 +105,6 @@ public class RecurTests
             };
 
         
-        K<M, Next<(int Total, Seq<int> Values), int>> sumTail2((int Total, Seq<int> Values) pair) =>
-            pair.Values switch
-            {
-                []          => M.Done<(int, Seq<int>), int>(pair.Total),
-                var (x, xs) => M.Loop<(int, Seq<int>), int>((pair.Total + x, xs)) 
-            };
-        
         K<M, int> sumNoTail(int total, Seq<int> values) =>
             values switch
             {

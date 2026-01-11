@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -106,10 +107,10 @@ public static class Discussion1527
         where M : MonadIO<M>, Alternative<M>
     {
         return from token in M.LiftIO(IO.token)
-               from value in SourceT.lift<M, DateTime>(go(token))
+               from value in SourceT.lift<M, DateTime>(go(token).AsIterableAsync())
                select value;
         
-        static async IAsyncEnumerable<DateTime> go(CancellationToken token)
+        static async IAsyncEnumerable<DateTime> go([EnumeratorCancellation] CancellationToken token)
         {
             while (true)
             {

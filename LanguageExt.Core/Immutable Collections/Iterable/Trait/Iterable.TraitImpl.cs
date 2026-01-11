@@ -63,7 +63,7 @@ public partial class Iterable :
         toSeq(fa.As());
 
     static K<Arr, A> Natural<Iterable, Arr>.Transform<A>(K<Iterable, A> fa) => 
-        toArray(fa.As());
+        toArr(fa.As());
 
     static K<Lst, A> Natural<Iterable, Lst>.Transform<A>(K<Iterable, A> fa) => 
         toLst(fa.As());

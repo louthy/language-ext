@@ -12,13 +12,11 @@ class Program
 
     static void infiniteIterator()
     {
-        // NOTE: This should be run in Release mode, otherwise you might get a space leak
-        
-        for(var iter = Naturals.ForwardIterator(); !iter.IsEmpty; iter = iter.Tail)
+        foreach(var head in Naturals.ForwardIterator())
         {
-            if (iter.Head % 10000 == 0)
+            if (head % 10000 == 0)
             {
-                Console.WriteLine(iter.Head);
+                Console.WriteLine(head);
             }
         }
     }

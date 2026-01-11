@@ -44,7 +44,7 @@ public static partial class QueExtensions
 
         [Pure]
         public Que<T> Reverse() =>
-            toQueue(toArray(queue).Reverse());
+            toQueue(toArr(queue).Reverse());
 
         [Pure]
         public Que<T> Append(IEnumerable<T> rhs) =>

@@ -13,7 +13,7 @@ public static class CountForeverAsync
         select unit;
 
     static SourceT<IO, long> naturals =>
-        SourceT.lift<IO, long>(naturalsEnum());
+        SourceT.lift<IO, long>(naturalsEnum().AsIterableAsync());
     
     static SourceT<IO, Unit> example =>
         from v in naturals

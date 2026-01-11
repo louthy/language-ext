@@ -180,9 +180,9 @@ public partial class SourceT
         new SourceSourceT<M, A>(channel);
 
     /// <summary>
-    /// Make an `IEnumerable` into a source of values
+    /// Make an `Iterable` into a source of values
     /// </summary>
-    /// <param name="items">Enumerable to lift</param>
+    /// <param name="items">Iterable to lift</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     [Pure]
@@ -191,9 +191,20 @@ public partial class SourceT
         new IteratorSyncSourceT<M, A>(items.Map(M.Pure).ForwardIterator());
 
     /// <summary>
-    /// Make an `IEnumerable` into a source of values
+    /// Make an `Iterable` into a source of values
     /// </summary>
-    /// <param name="items">Enumerable to lift</param>
+    /// <param name="items">Iterable to lift</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
+    [Pure]
+    public static SourceT<M, A> liftM<M, A>(Iterable<K<M, A>> items) 
+        where M : MonadIO<M> =>
+        new IteratorSyncSourceT<M, A>(items.ForwardIterator());
+
+    /// <summary>
+    /// Make an `IterableNE` into a source of values
+    /// </summary>
+    /// <param name="items">IterableNE to lift</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     [Pure]
@@ -202,9 +213,20 @@ public partial class SourceT
         new IteratorSyncSourceT<M, A>(items.Map(M.Pure).ForwardIterator());
 
     /// <summary>
-    /// Make an `IEnumerable` into a source of values
+    /// Make an `IterableNE` into a source of values
     /// </summary>
-    /// <param name="items">Enumerable to lift</param>
+    /// <param name="items">IterableNE to lift</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
+    [Pure]
+    public static SourceT<M, A> liftM<M, A>(IterableNE<K<M, A>> items) 
+        where M : MonadIO<M> =>
+        new IteratorSyncSourceT<M, A>(items.ForwardIterator());
+
+    /// <summary>
+    /// Make an `Iterator` into a source of values
+    /// </summary>
+    /// <param name="items">Iterator to lift</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     [Pure]
@@ -213,9 +235,9 @@ public partial class SourceT
         new IteratorSyncSourceT<M, A>(items.Map(M.Pure));
 
     /// <summary>
-    /// Make an `IEnumerable` into a source of values
+    /// Make an `Iterator` into a source of values
     /// </summary>
-    /// <param name="items">Enumerable to lift</param>
+    /// <param name="items">Iterator to lift</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     [Pure]

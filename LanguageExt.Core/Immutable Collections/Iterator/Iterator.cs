@@ -311,7 +311,7 @@ public abstract partial class Iterator<A> :
     /// </summary>
     [Pure]
     public Iterator<B> ApplyBack<B>(Iterator<Func<A, B>> ff) =>
-        ff.Bind(Map);
+        +ff.Bind(Map);
 
     /// <summary>
     /// Concatenate two iterators
