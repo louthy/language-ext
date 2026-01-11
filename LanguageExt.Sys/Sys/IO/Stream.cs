@@ -16,7 +16,7 @@ public static class Stream<M> where M : MonadIO<M>
     public static PipeT<Stream, SeqLoan<byte>, M, Unit> read(int chunkSize)
     {
         return from fs in PipeT.awaiting<M, Stream, SeqLoan<byte>>()
-               from _  in PipeT.yieldAll<M, Stream, SeqLoan<byte>>(chunks(fs, chunkSize))
+               from _  in PipeT.yieldAll<M, Stream, SeqLoan<byte>>(Iterable.createRange(chunks(fs, chunkSize)))
                select unit;
 
         static async IAsyncEnumerable<SeqLoan<byte>> chunks(Stream fs, int chunkSize)

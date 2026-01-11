@@ -1,5 +1,4 @@
-﻿using System;
-using Xunit;
+﻿using Xunit;
 
 namespace LanguageExt.Tests
 {
@@ -8,7 +7,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestEmpty()
         {
-            var arr = List.empty<int>();
+            var arr = Lst.empty<int>();
 
             var seq = toSeq(arr);
 
@@ -39,7 +38,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestOne()
         {
-            var arr = List.create(1);
+            var arr = Lst.create(1);
 
             var seq = toSeq(arr);
 
@@ -121,7 +120,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void MapTest()
         {
-            var arr = List.create(1, 2, 3, 4, 5);
+            var arr = Lst.create(1, 2, 3, 4, 5);
 
             var Seq  = toSeq(arr);
             var seq2 = Seq.Map(x => x * 2);
@@ -129,7 +128,7 @@ namespace LanguageExt.Tests
             var seq4 = from x in Seq
                        select x * 2;
 
-            var expected = toSeq(List.create(2, 4, 6, 8, 10));
+            var expected = toSeq(Lst.create(2, 4, 6, 8, 10));
 
             Assert.True(expected == seq2);
             Assert.True(expected == seq3);
@@ -139,7 +138,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void FilterTest()
         {
-            var arr = List.create(1, 2, 3, 4, 5);
+            var arr = Lst.create(1, 2, 3, 4, 5);
 
             var Seq  = toSeq(arr);
             var seq2 = Seq.Filter(x => x % 2 == 0);
@@ -148,7 +147,7 @@ namespace LanguageExt.Tests
                        where x % 2 == 0
                        select x;
 
-            var expected = toSeq(List.create(2, 4));
+            var expected = toSeq(Lst.create(2, 4));
 
             Assert.True(expected == seq2);
             Assert.True(expected == seq3);
@@ -158,8 +157,8 @@ namespace LanguageExt.Tests
         [Fact]
         public void BindTest()
         {
-            var seq1 = toSeq(List.create(10, 100));
-            var seq2 = toSeq(List.create(1, 2, 3, 4, 5));
+            var seq1 = toSeq(Lst.create(10, 100));
+            var seq2 = toSeq(Lst.create(1, 2, 3, 4, 5));
 
             var seq3 = seq1.Bind(x => seq2.Map(y => x * y));
 
@@ -171,38 +170,30 @@ namespace LanguageExt.Tests
         [Fact]
         public void FoldTest1()
         {
-            var seq = toSeq(List.create(1, 2, 3, 4, 5));
-
+            var seq = toSeq(Lst.create(1, 2, 3, 4, 5));
             var res1 = seq.Fold((s, x) => s     * x, 1);
-            var res2 = seq.FoldBack((s, x) => s * x, 1);
-
             Assert.True(res1 == 120);
-            Assert.True(res2 == 120);
         }
 
         [Fact]
         public void FoldTest2()
         {
-            var seq = toSeq(List.create("a", "b", "c", "d", "e"));
-
+            var seq = toSeq(Lst.create("a", "b", "c", "d", "e"));
             var res1 = seq.Fold((s, x) => s     + x, "");
-            var res2 = seq.FoldBack((s, x) => s + x, "");
-
             Assert.True(res1 == "abcde");
-            Assert.True(res2 == "edcba");
         }
 
         [Fact]
         public void Existential()
         {
-            var Seq  = toSeq(List.create('a', 'b', 'c', 'd', 'e'));
-            var seq2 = toSeq(List.create('a', 'b', 'c', '_', 'e'));
+            var Seq  = toSeq(Lst.create('a', 'b', 'c', 'd', 'e'));
+            var seq2 = toSeq(Lst.create('a', 'b', 'c', '_', 'e'));
 
             var ex1 = Seq.Exists(x => x == 'd');
             var ex2 = seq2.Exists(x => x == 'd');
 
-            var fa1 = Seq.ForAll(Char.IsLetter);
-            var fa2 = seq2.ForAll(Char.IsLetter);
+            var fa1 = Seq.ForAll(char.IsLetter);
+            var fa2 = seq2.ForAll(char.IsLetter);
 
             Assert.True(ex1);
             Assert.False(ex2);

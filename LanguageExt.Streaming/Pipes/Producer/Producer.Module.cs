@@ -24,7 +24,7 @@ public static class Producer
     /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <returns></returns>
-    public static Producer<RT, OUT, Unit> yieldAll<RT, OUT>(IEnumerable<OUT> values) =>
+    public static Producer<RT, OUT, Unit> yieldAll<RT, OUT>(Iterator<OUT> values) =>
         PipeT.yieldAll<Eff<RT>, Unit, OUT>(values);
 
     /// <summary>
@@ -33,7 +33,16 @@ public static class Producer
     /// <typeparam name="RT">Effect runtime type</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <returns></returns>
-    public static Producer<RT, OUT, Unit> yieldAll<RT, OUT>(IAsyncEnumerable<OUT> values) =>
+    public static Producer<RT, OUT, Unit> yieldAll<RT, OUT>(Iterable<OUT> values) =>
+        PipeT.yieldAll<Eff<RT>, Unit, OUT>(values);
+
+    /// <summary>
+    /// Yield all values downstream
+    /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <returns></returns>
+    public static Producer<RT, OUT, Unit> yieldAll<RT, OUT>(IterableNE<OUT> values) =>
         PipeT.yieldAll<Eff<RT>, Unit, OUT>(values);
     
     /// <summary>

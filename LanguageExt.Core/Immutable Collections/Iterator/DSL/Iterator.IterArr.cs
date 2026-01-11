@@ -9,6 +9,8 @@ public abstract partial class Iterator<A>
     /// </summary>
     internal class IterArr(Arr<A> array, int index, int remaining) : Iterator<A>
     {
+        public Arr<A> Array => new (array.AsSpan(index, remaining));
+        
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             remaining == 0
                 ? (Nil<A>.Default, Nil.Default)

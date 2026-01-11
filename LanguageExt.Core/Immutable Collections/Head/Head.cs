@@ -12,7 +12,8 @@ public abstract record Head<A>
     /// </summary>
     /// <param name="value">The value that exists</param>
     /// <returns>Head in an 'exists' state</returns>
-    public static Head<A> Exist(A value) => new Exist<A>(value);
+    public static Head<A> Exist(A value) => 
+        new Exist<A>(value);
 
     /// <summary>
     /// A non-existent value

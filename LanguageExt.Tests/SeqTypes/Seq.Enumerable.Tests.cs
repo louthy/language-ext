@@ -51,6 +51,7 @@ namespace LanguageExt.Tests
             var skipped = seq.Skip(1);
             Assert.True(skipped.IsEmpty);
             Assert.True(skipped.Count == 0);
+            // ReSharper disable once UseMethodAny.2
             Assert.True(skipped.Count() == 0);
             Assert.True(skipped.Head.IsNone);
         }
@@ -208,24 +209,16 @@ namespace LanguageExt.Tests
         public void FoldTest1()
         {
             var seq = toSeq(FiveItems);
-
             var res1 = seq.Fold((s, x) => s     * x, 1);
-            var res2 = seq.FoldBack((s, x) => s * x, 1);
-
             Assert.True(res1 == 120);
-            Assert.True(res2 == 120);
         }
 
         [Fact]
         public void FoldTest2()
         {
             var seq = toSeq(abcdeStrs);
-
             var res1 = seq.Fold((s, x) => s     + x, "");
-            var res2 = seq.FoldBack((s, x) => s + x, "");
-
             Assert.True(res1 == "abcde");
-            Assert.True(res2 == "edcba");
         }
 
         [Fact]

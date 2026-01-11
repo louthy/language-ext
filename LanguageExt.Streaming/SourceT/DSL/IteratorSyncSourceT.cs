@@ -1,32 +1,39 @@
-using System.Collections.Generic;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-record IteratorSyncSourceT<M, A>(IEnumerable<K<M, A>> Items) : SourceT<M, A>
+record IteratorSyncSourceT<M, A>(Iterator<K<M, A>> Items) : SourceT<M, A>
     where M : MonadIO<M>
 {
     internal override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer)
     {
-        return Monad.recur((state, Items.GetIterator()), go);
+        return from i in steps()
+               from r in Monad.recur((Iter: i, State: state), go)
+               from _ in release(i)
+               select r;
 
-        K<M, Next<(S state, Iterator<K<M, A>> iter), Reduced<S>>> go((S state, Iterator<K<M, A>> iter) self) =>
-            isDone(self) >> (d => d ? done(self.state)
-                                    : reducer(state, self.iter.Head) >>
-                                      (ns => ns.Continue
-                                                 ? next(ns.Value, self.iter.Tail)
-                                                 : reduced(ns)));
+        IO<Iterator<K<M, A>>> steps() =>
+            use(() => Items.Using());
 
-        IO<bool> isDone((S state, Iterator<K<M, A>> iter) self) =>
-            IO.lift(e => e.Token.IsCancellationRequested || self.iter.IsEmpty);
+        K<M, Next<(Iterator<K<M, A>> iter, S state), Reduced<S>>> go((Iterator<K<M, A>> iter, S state) self) =>
+            isCancel() >> (c => c ? done(self.state)
+                                  : self.iter is (Exist<K<M, A>>(var head), var tail)
+                                        ? reducer(state, head) >> (ns => ns.Continue
+                                                                             ? next(tail, ns.Value)
+                                                                             : reduced(ns))
+                                        : done(self.state));
 
-        K<M, Next<(S state, Iterator<K<M, A>> iter), Reduced<S>>> done(S state) =>
+        static IO<bool> isCancel() =>
+            IO.lift(e => e.Token.IsCancellationRequested);
+
+        K<M, Next<(Iterator<K<M, A>> iter, S state), Reduced<S>>> done(S state) =>
             reduced(Reduced.Done(state));
 
-        K<M, Next<(S state, Iterator<K<M, A>> iter), Reduced<S>>> reduced(Reduced<S> reduced) =>
-            M.Pure(Next.Done<(S state, Iterator<K<M, A>> iter), Reduced<S>>(reduced));
+        K<M, Next<(Iterator<K<M, A>> iter, S state), Reduced<S>>> reduced(Reduced<S> reduced) =>
+            M.Pure(Next.Done<(Iterator<K<M, A>> iter, S state), Reduced<S>>(reduced));
 
-        K<M, Next<(S state, Iterator<K<M, A>> iter), Reduced<S>>> next(S state, Iterator<K<M, A>> tail) =>
-            M.Pure(Next.Loop<(S state, Iterator<K<M, A>> iter), Reduced<S>>((state, tail.Split())));
+        K<M, Next<(Iterator<K<M, A>> iter, S state), Reduced<S>>> next(Iterator<K<M, A>> tail, S state) =>
+            M.Pure(Next.Loop<(Iterator<K<M, A>> iter, S state), Reduced<S>>((tail, state)));
     }
 }

@@ -464,20 +464,6 @@ public readonly struct Set<A> :
     [Pure]
     public bool Contains(A value) =>
         Value.Contains(value);
-
-    /// <summary>
-    /// Left/Node/Right traversal in stepped form
-    /// </summary>
-    [Pure]
-    public Fold<A, S> FoldStep<S>(S initialState) =>
-        Value.FoldStep(initialState);
-
-    /// <summary>
-    /// Left/Node/Right traversal (in reverse order) in stepped form
-    /// </summary>
-    [Pure]
-    public Fold<A, S> FoldStepBack<S>(S initialState) =>
-        Value.FoldStepBack(initialState);
     
     /// <summary>
     /// Returns true if both sets contain the same elements

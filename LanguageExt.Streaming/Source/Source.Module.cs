@@ -51,21 +51,30 @@ public partial class Source
         new(SourceT.lift<IO, A>(channel));
 
     /// <summary>
-    /// Make an `IEnumerable` into a source of values
+    /// Make an `Iterator` into a source of values
     /// </summary>
     /// <param name="items">`IEnumerable` to lift</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
-    public static Source<A> lift<A>(IEnumerable<A> items) =>
+    public static Source<A> lift<A>(Iterator<A> items) =>
         new(SourceT.lift<IO, A>(items));
 
     /// <summary>
-    /// Make an `IAsyncEnumerable` into a source of values
+    /// Make an `Iterable` into a source of values
     /// </summary>
-    /// <param name="items">`IAsyncEnumerable` to lift</param>
+    /// <param name="items">`IEnumerable` to lift</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
-    public static Source<A> lift<A>(IAsyncEnumerable<A> items) =>
+    public static Source<A> lift<A>(Iterable<A> items) =>
+        new(SourceT.lift<IO, A>(items));
+
+    /// <summary>
+    /// Make an `IterableNE` into a source of values
+    /// </summary>
+    /// <param name="items">`IEnumerable` to lift</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
+    public static Source<A> lift<A>(IterableNE<A> items) =>
         new(SourceT.lift<IO, A>(items));
 
     /// <summary>

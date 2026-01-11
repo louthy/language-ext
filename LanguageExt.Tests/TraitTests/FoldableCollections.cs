@@ -15,7 +15,8 @@ public class FoldableCollections
 
     [Fact]
     public static void IterableNETests() =>
-        FoldableNonEmptyOrderedCollectionsTestSuite<IterableNE>.RunAll(xs => (IterableNE<int>)IterableNE.createRange(xs));
+        // ReSharper disable once PossibleMultipleEnumeration
+        FoldableNonEmptyOrderedCollectionsTestSuite<IterableNE>.RunAll(xs => IterableNE.create(xs.Take(1).Single(), xs.Skip(1)));
 
     [Fact]
     public static void StckTests() =>
@@ -35,10 +36,12 @@ public class FoldableCollections
 
     [Fact]
     public static void MapTests() =>
+        // ReSharper disable once PossibleMultipleEnumeration
         FoldableOrderedCollectionsTestSuite<Map<int>>.RunAll(xs => Map.createRange(xs.Zip(xs)));
     
     [Fact]
     public static void HashMapTests() =>
+        // ReSharper disable once PossibleMultipleEnumeration
         FoldableUnorderedCollectionsTestSuite<HashMap<int>>.RunAll(xs => HashMap.createRange(xs.Zip(xs)));
     
     [Fact]

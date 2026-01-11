@@ -26,7 +26,7 @@ public static class ProducerT
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
-    public static ProducerT<OUT, M, Unit> yieldAll<M, OUT>(IEnumerable<OUT> values)
+    public static ProducerT<OUT, M, Unit> yieldAll<M, OUT>(Iterator<OUT> values)
         where M : MonadIO<M> =>
         PipeT.yieldAll<M, Unit, OUT>(values);
 
@@ -36,7 +36,17 @@ public static class ProducerT
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
-    public static ProducerT<OUT, M, Unit> yieldAll<M, OUT>(IAsyncEnumerable<OUT> values)
+    public static ProducerT<OUT, M, Unit> yieldAll<M, OUT>(Iterable<OUT> values)
+        where M : MonadIO<M> =>
+        PipeT.yieldAll<M, Unit, OUT>(values);
+
+    /// <summary>
+    /// Yield all values downstream
+    /// </summary>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static ProducerT<OUT, M, Unit> yieldAll<M, OUT>(IterableNE<OUT> values)
         where M : MonadIO<M> =>
         PipeT.yieldAll<M, Unit, OUT>(values);
 

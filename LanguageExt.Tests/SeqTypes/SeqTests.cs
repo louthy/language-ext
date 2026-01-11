@@ -80,14 +80,6 @@ public class SeqTests
     }
 
     [Fact]
-    public void FoldBackTest()
-    {
-        var input   = Seq(1, 2, 3, 4, 5);
-        var output1 = Foldable.foldBack((s, x) => s + x, "", input);
-        Assert.Equal("54321", output1);
-    }
-
-    [Fact]
     public void FoldWhileTest()
     {
         var input = Seq(10, 20, 30, 40, 50);
@@ -103,24 +95,6 @@ public class SeqTests
 
         var output4 = Foldable.foldWhile((s, x) => s + x, s => s.State < 60, 0, input);
         Assert.Equal(60, output4);
-    }
-
-    [Fact]
-    public void FoldBackWhileTest()
-    {
-        var input = Seq(10, 20, 30, 40, 50);
-
-        var output1 = Foldable.foldBackWhile((s, x) => s + x, x => x.Value >= 40, "", input);
-        Assert.Equal("5040", output1);
-
-        var output2 = Foldable.foldBackWhile((s, x) => s + x, s => s.State.Length < 4, "", input);
-        Assert.Equal("5040", output2);
-
-        var output3 = Foldable.foldBackWhile((s, x) => s + x, x => x.Value >= 40, 0, input);
-        Assert.Equal(90, output3);
-
-        var output4 = Foldable.foldBackWhile((s, x) => s + x, s => s.State < 90, 0, input);
-        Assert.Equal(90, output4);
     }
 
     [Fact]
@@ -142,24 +116,6 @@ public class SeqTests
     }
 
     [Fact]
-    public void FoldBackUntilTest()
-    {
-        var input = Seq(10, 20, 30, 40, 50);
-
-        var output1 = Foldable.foldBackUntil((s, x) => s + x, x => x.Value < 40, "", input);
-        Assert.Equal("5040", output1);
-
-        var output2 = Foldable.foldBackUntil((s, x) => s + x, s => s.State.Length >= 4, "", input);
-        Assert.Equal("5040", output2);
-
-        var output3 = Foldable.foldBackUntil((s, x) => s + x, x => x.Value < 40, 0, input);
-        Assert.Equal(90, output3);
-
-        var output4 = Foldable.foldBackUntil((s, x) => s + x, s => s.State >= 90, 0, input);
-        Assert.Equal(90, output4);
-    }
-
-    [Fact]
     public void EqualityTest_BothNull()
     {
         Seq<int> x = default;
@@ -174,7 +130,7 @@ public class SeqTests
     public void EqualityTest_LeftNull()
     {
         Seq<int> x = default;
-        Seq<int> y = Seq(1, 2, 3);
+        var y = Seq(1, 2, 3);
 
         var eq = x == y;
 
@@ -184,7 +140,7 @@ public class SeqTests
     [Fact]
     public void EqualityTest_RightNull()
     {
-        Seq<int> x = Seq(1, 2, 3);
+        var x = Seq(1, 2, 3);
         Seq<int> y = default;
 
         var eq = x == y;
@@ -195,8 +151,8 @@ public class SeqTests
     [Fact]
     public void EqualityTest()
     {
-        Seq<int> x = Seq(1, 2, 3);
-        Seq<int> y = Seq(1, 2, 3);
+        var x = Seq(1, 2, 3);
+        var y = Seq(1, 2, 3);
 
         var eq = x == y;
 

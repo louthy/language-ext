@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Traits;
@@ -30,7 +29,19 @@ public static class PipeT
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
-    public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(IterableNE<OUT> values)
+    public static PipeT<IN, OUT, M, Unit> yieldAll<F, M, IN, OUT>(K<F, OUT> values)
+        where F : IterableK<F>
+        where M : MonadIO<M> =>
+        yieldAll<M, IN, OUT>(values.ForwardIterator());
+
+    /// <summary>
+    /// Yield all values downstream
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(Iterator<OUT> values)
         where M : MonadIO<M> =>
         new PipeTYieldAll<IN, OUT, M, Unit>(values.Select(yield<M, IN, OUT>), pure<IN, OUT, M, Unit>);
 
@@ -43,12 +54,7 @@ public static class PipeT
     /// <returns></returns>
     public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(Iterable<OUT> values)
         where M : MonadIO<M> =>
-        liftIO<IN, OUT, M, Option<IterableNE<OUT>>>(IterableNE.createRange(values).Map(Some)) >> 
-            (opt => opt switch
-                {
-                    { IsSome: true, Case: IterableNE<OUT> xs } => yieldAll<M, IN, OUT>(xs),
-                    _                                          => pure<IN, OUT, M, Unit>(unit)
-                }) >> lower;
+        yieldAll<Iterable, M, IN, OUT>(values);
 
     /// <summary>
     /// Yield all values downstream
@@ -57,30 +63,9 @@ public static class PipeT
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
-    public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(IEnumerable<OUT> values)
+    public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(IterableNE<OUT> values)
         where M : MonadIO<M> =>
-        IterableNE.createRange(values) switch
-        {
-            { IsSome: true, Case: IterableNE<OUT> xs } => yieldAll<M, IN, OUT>(xs),
-            _                                          => pure<IN, OUT, M, Unit>(unit)
-        };
-
-    /// <summary>
-    /// Yield all values downstream
-    /// </summary>
-    /// <typeparam name="IN">Stream value to consume</typeparam>
-    /// <typeparam name="OUT">Stream value to produce</typeparam>
-    /// <typeparam name="M">Lifted monad type</typeparam>
-    /// <returns></returns>
-    public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(IAsyncEnumerable<OUT> values)
-        where M : MonadIO<M> =>
-        from opt in liftIO<IN, OUT, M, Option<IterableNE<OUT>>>(IterableNE.createRange(values).Map(Some))
-        from res in opt switch
-                    {
-                        { IsSome: true, Case: IterableNE<OUT> xs } => yieldAll<M, IN, OUT>(xs),
-                        _                                          => pure<IN, OUT, M, Unit>(unit)
-                    }
-        select res;
+        yieldAll<IterableNE, M, IN, OUT>(values);
     
     /// <summary>
     /// Yield all values downstream
@@ -113,7 +98,9 @@ public static class PipeT
     /// <returns></returns>
     public static PipeT<IN, OUT, M, Unit> yieldRepeat<M, IN, OUT>(K<M, OUT> ma)
         where M : MonadIO<M> =>
-        new PipeTYieldAll<IN, OUT, M, Unit>(Units.Select(_ => ma.Bind(yield<M, IN, OUT>)), pure<IN, OUT, M, Unit>);
+        new PipeTYieldAll<IN, OUT, M, Unit>(
+            Units.Map(_ => ma.Bind(yield<M, IN, OUT>)).ForwardIterator(), 
+            pure<IN, OUT, M, Unit>);
 
     /// <summary>
     /// Evaluate the `IO` monad repeatedly, yielding its bound values downstream
@@ -124,7 +111,9 @@ public static class PipeT
     /// <returns></returns>
     public static PipeT<IN, OUT, M, Unit> yieldRepeatIO<M, IN, OUT>(IO<OUT> ma)
         where M : MonadIO<M> =>
-        new PipeTYieldAll<IN, OUT, M, Unit>(Units.Select(_ => ma.Bind(yield<M, IN, OUT>).As()), pure<IN, OUT, M, Unit>);
+        new PipeTYieldAll<IN, OUT, M, Unit>(
+            Units.Map(_ => ma.Bind(yield<M, IN, OUT>)).ForwardIterator(), 
+            pure<IN, OUT, M, Unit>);
     
     /// <summary>
     /// Await a value from upstream
@@ -358,10 +347,9 @@ public static class PipeT
                select t;
 
         static PipeT<IN, OUT, M, A> go(Iterator<Duration> schedule, PipeT<IN, OUT, M, A> ma, A latest) =>
-            schedule.IsEmpty
-                ? pure<IN, OUT, M, A>(latest)
-                : liftIO<IN, OUT, M, Unit>(IO.yieldFor(schedule.Head))
-                   .Bind(_ => ma.Bind(x => go(schedule.Tail, ma, x))); 
+            schedule is (Exist<Duration> (var head), var tail)
+                ? liftIO<IN, OUT, M, Unit>(IO.yieldFor(head)) >> (_ => ma >> (x => go(tail, ma, x))) >> lower
+                : pure<IN, OUT, M, A>(latest); 
     }
 
     /// <summary>
@@ -413,20 +401,20 @@ public static class PipeT
         return Item.Bind(
             x =>
             {
-                if (sch.IsEmpty)
+                if (sch is (Exist<Duration> (var head), var tail))
+                {
+                    state = Fold(state, x);
+                    var delay = head;
+                    sch = tail;
+                    return liftIO<IN, OUT, M, Unit>(IO.yieldFor(delay));
+                }
+                else
                 {
                     sch.Dispose();
                     sch = Time.Run().ForwardIterator();
                     var nstate = state;
                     state = Init;
                     return yield<M, IN, OUT>(nstate);
-                }
-                else
-                {
-                    state = Fold(state, x);
-                    var delay = sch.Head;
-                    sch = sch.Tail;
-                    return liftIO<IN, OUT, M, Unit>(IO.yieldFor(delay));
                 }
             });
     }
@@ -496,20 +484,20 @@ public static class PipeT
         return Item.Bind(
             x =>
             {
-                if (sch.IsEmpty || Pred((state, x)))
+                if (sch is (Exist<Duration> (var head), var tail) && !Pred((state, x)))
+                {
+                    state = Fold(state, x);
+                    var delay = head;
+                    sch = tail;
+                    return liftIO<IN, OUT, M, Unit>(IO.yieldFor(delay));
+                }
+                else
                 {
                     sch.Dispose();
                     sch = Time.Run().ForwardIterator();
                     var nstate = state;
                     state = Init;
                     return yield<M, IN, OUT>(nstate);
-                }
-                else
-                {
-                    state = Fold(state, x);
-                    var delay = sch.Head;
-                    sch = sch.Tail;
-                    return liftIO<IN, OUT, M, Unit>(IO.yieldFor(delay));
                 }
             });
     }
@@ -579,20 +567,20 @@ public static class PipeT
         return Item.Bind(
             x =>
             {
-                if (sch.IsEmpty || !Pred((state, x)))
+                if (sch is (Exist<Duration> (var head), var tail) && Pred((state, x)))
+                {
+                    state = Fold(state, x);
+                    var delay = head;
+                    sch = tail;
+                    return liftIO<IN, OUT, M, Unit>(IO.yieldFor(delay));
+                }
+                else
                 {
                     sch.Dispose();
                     sch = Time.Run().ForwardIterator();
                     var nstate = state;
                     state = Init;
                     return yield<M, IN, OUT>(nstate);
-                }
-                else
-                {
-                    state = Fold(state, x);
-                    var delay = sch.Head;
-                    sch = sch.Tail;
-                    return liftIO<IN, OUT, M, Unit>(IO.yieldFor(delay));
                 }
             });
     }

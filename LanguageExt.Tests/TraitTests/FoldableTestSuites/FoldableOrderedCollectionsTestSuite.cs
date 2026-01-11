@@ -47,25 +47,15 @@ public class FoldableOrderedCollectionsTestSuite<F>
     {
         var suite = new FoldableOrderedCollectionsTestSuite<F>(construct);
         suite.FoldTest();
-        suite.FoldBackTest();
         suite.FoldMNoneTest();
-        suite.FoldBackNoneMTest();
         suite.FoldMSomeTest();
-        suite.FoldBackSomeMTest();
         suite.FoldWhileStateTest();
         suite.FoldWhileValueTest();
-        suite.FoldBackWhileStateTest();
-        suite.FoldBackWhileValueTest();
         suite.FoldMaybeTest();
-        suite.FoldBackMaybeTest();
         suite.FoldWhileMTest();
-        suite.FoldBackWhileMTest();
         suite.FoldUntilStateTest();
         suite.FoldUntilValueTest();
-        suite.FoldBackUntilStateTest();
-        suite.FoldBackUntilValueTest();
         suite.FoldUntilMTest();
-        suite.FoldBackUntilMTest();
         suite.PartitionTest();
         suite.AtTest();
         suite.AverageTest();
@@ -80,10 +70,7 @@ public class FoldableOrderedCollectionsTestSuite<F>
         suite.HeadSomeTest();
         suite.ProductTest();
         suite.SumTest();
-        suite.FindAllBackTest();
         suite.FindAllTest();
-        suite.FindBackFalseTest();
-        suite.FindBackTrueTest();
         suite.FindFalseTest();
         suite.FindTrueTest();
         suite.ContainsEqFalseTest();
@@ -111,34 +98,16 @@ public class FoldableOrderedCollectionsTestSuite<F>
         Assert.True(res == ItemsSum, $"{typeof(F).Name} | FoldTest failed");
     }
 
-    void FoldBackTest()
-    {
-        var res = Construct(Items).FoldBack((s, x) => s + x, 0);
-        Assert.True(res == ItemsSum, $"{typeof(F).Name} | FoldBackTest failed");
-    }
-
     void FoldMNoneTest()
     {
         var res = Construct(Items).FoldM((s, x) => x == 4 ? None : Some(s + x), 0);
         Assert.True(res.As() == None, $"{typeof(F).Name} | FoldMNoneTest failed");
     }
 
-    void FoldBackNoneMTest()
-    {
-        var res = Construct(Items).FoldBackM((s, x) => x == 4 ? None : Some(s + x), 0);
-        Assert.True(res.As() == None, $"{typeof(F).Name} | FoldBackNoneMTest failed");
-    }
-
     void FoldMSomeTest()
     {
         var res = Construct(Items).FoldM((s, x) => Some(s + x), 0);
         Assert.True(res.As() == Some(ItemsSum), $"{typeof(F).Name} | FoldMSomeTest failed");
-    }
-
-    void FoldBackSomeMTest()
-    {
-        var res = Construct(Items).FoldBackM((s, x) => Some(s + x), 0);
-        Assert.True(res.As() == Some(ItemsSum), $"{typeof(F).Name} | FoldBackSomeMTest failed");
     }
 
     void FoldWhileStateTest()
@@ -153,18 +122,6 @@ public class FoldableOrderedCollectionsTestSuite<F>
         Assert.True(res == 6, $"{typeof(F).Name} | FoldWhileValueTest failed");
     }
 
-    void FoldBackWhileStateTest()
-    {
-        var res    = Construct(Items).FoldBackWhile((s, x) => s + x, s => s.State < EndItemsSum, 0);
-        Assert.True(res == EndItemsSum, $"{typeof(F).Name} | FoldBackWhileStateTest failed");
-    }
-
-    void FoldBackWhileValueTest()
-    {
-        var res    = Construct(Items).FoldBackWhile((s, x) => s + x, s => s.Value >= EndItemCutOff, 0);
-        Assert.True(res == EndItemsSum, $"{typeof(F).Name} | FoldBackWhileValueTest failed");
-    }
-
     void FoldMaybeTest()
     {
         var res = Construct(Items).FoldMaybe((s, x) => x == 4 ? None : Some(s + x), 0);
@@ -172,25 +129,11 @@ public class FoldableOrderedCollectionsTestSuite<F>
         Assert.True(res == 6, $"{typeof(F).Name} | FoldMaybeTest failed");
     }
 
-    void FoldBackMaybeTest()
-    {
-        var res = Construct(Items).FoldBackMaybe((s, x) => x < EndItemCutOff ? None : Some(s + x), 0);
-
-        Assert.True(res == EndItemsSum, $"{typeof(F).Name} | FoldBackMaybeTest failed");
-    }
-
     void FoldWhileMTest()
     {
         var res = Construct(Items).FoldWhileM((s, x) => Some(s + x), x => x.Value < 4, 0);
 
         Assert.True(res.As() == Some(6), $"{typeof(F).Name} | FoldWhileMTest failed");
-    }
-
-    void FoldBackWhileMTest()
-    {
-        var res    = Construct(Items).FoldBackWhileM((s, x) => Some(s + x), x => x.Value >= EndItemCutOff, 0);
-
-        Assert.True(res.As() == EndItemsSum, $"{typeof(F).Name} | FoldBackWhileTest failed");
     }
 
     void FoldUntilStateTest()
@@ -205,29 +148,10 @@ public class FoldableOrderedCollectionsTestSuite<F>
         Assert.True(res == 6, $"{typeof(F).Name} | FoldUntilValueTest failed");
     }
 
-    void FoldBackUntilStateTest()
-    {
-        var res = Construct(Items).FoldBackUntil((s, x) => s + x, s => s.State == EndItemsSum, 0);
-        Assert.True(res == EndItemsSum, $"{typeof(F).Name} | FoldBackUntilStateTest failed");
-    }
-
-    void FoldBackUntilValueTest()
-    {
-        var res    = Construct(Items).FoldBackUntil((s, x) => s + x, s => s.Value < EndItemCutOff, 0);
-        Assert.True(res == EndItemsSum, $"{typeof(F).Name} | FoldBackUntilValueTest failed");
-    }
-
     void FoldUntilMTest()
     {
         var res = Construct(Items).FoldUntilM((s, x) => Some(s + x), x => x.Value == 4, 0);
         Assert.True(res.As() == Some(6), $"{typeof(F).Name} | FoldUntilMTest failed");
-    }
-
-    void FoldBackUntilMTest()
-    {
-        var res = Construct(Items).FoldBackUntilM((s, x) => Some(s + x), x => x.Value < EndItemCutOff, 0);
-
-        Assert.True(res.As() == Some(EndItemsSum), $"{typeof(F).Name} | FoldBackUntilMTest failed");
     }
 
     void ToSeqTest()
@@ -239,13 +163,13 @@ public class FoldableOrderedCollectionsTestSuite<F>
     void ToLstTest()
     {
         var res = Construct(Items).ToLst();
-        Assert.True(res == toList(Items), $"{typeof(F).Name} | ToLstTest failed");
+        Assert.True(res == toLst(Items), $"{typeof(F).Name} | ToLstTest failed");
     }
 
     void ToArrTest()
     {
         var res = Construct(Items).ToArr();
-        Assert.True(res == toArray(Items), $"{typeof(F).Name} | ToArrTest failed");
+        Assert.True(res == toArr(Items), $"{typeof(F).Name} | ToArrTest failed");
     }
 
     void ToIterableTest()
@@ -354,30 +278,10 @@ public class FoldableOrderedCollectionsTestSuite<F>
         Assert.True(res == None, $"{typeof(F).Name} | FindFalseTest failed");
     }
 
-    void FindBackTrueTest()
-    {
-        var expect = ItemsCount / 2;
-        var res    = Construct(Items).FindBack(x => x == expect);
-        Assert.True(res == Some(expect), $"{typeof(F).Name} | FindBackTrueTest failed");
-    }
-
-    void FindBackFalseTest()
-    {
-        var notExpect = ItemsCount * 2;
-        var res       = Construct(Items).FindBack(x => x == notExpect);
-        Assert.True(res == None, $"{typeof(F).Name} | FindBackFalseTest failed");
-    }
-
     void FindAllTest()
     {
         var res = Construct(Items).FindAll(x => x > 97);
         Assert.True(res == Iterable(98, 99), $"{typeof(F).Name} | FindAllTest failed");
-    }
-
-    void FindAllBackTest()
-    {
-        var res = Construct(Items).FindAllBack(x => x > 97);
-        Assert.True(res == Iterable(99, 98), $"{typeof(F).Name} | FindAllBackTest failed");
     }
 
     void SumTest()
@@ -489,7 +393,7 @@ public class FoldableOrderedCollectionsTestSuite<F>
     {
         var res = Construct(Items).Partition(x => (x & 1) == 0);
 
-        Assert.True(res.True  == toSeq(Range(0, ItemsCount / 2, 2)), $"{typeof(F).Name} | PartitionTest True failed");
-        Assert.True(res.False == toSeq(Range(1, ItemsCount / 2, 2)), $"{typeof(F).Name} | PartitionTest False failed");
+        Assert.True(res.True  == toArr(Range(0, ItemsCount / 2, 2)), $"{typeof(F).Name} | PartitionTest True failed");
+        Assert.True(res.False == toArr(Range(1, ItemsCount / 2, 2)), $"{typeof(F).Name} | PartitionTest False failed");
     }
 }

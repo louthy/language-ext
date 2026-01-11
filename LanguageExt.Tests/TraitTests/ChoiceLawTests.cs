@@ -14,10 +14,6 @@ public class ChoiceLawTests
         ChoiceLaw<HashSet>.assert(HashSet<int>.Empty);
     
     [Fact]
-    public void Iterable() =>
-        ChoiceLaw<Iterable>.assert(Iterable<int>.Empty);
-    
-    [Fact]
     public void Lst() =>
         ChoiceLaw<Lst>.assert(Lst<int>.Empty);
     

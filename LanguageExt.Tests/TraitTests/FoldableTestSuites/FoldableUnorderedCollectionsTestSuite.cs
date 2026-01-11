@@ -47,10 +47,7 @@ public class FoldableUnorderedCollectionsTestSuite<F>
         suite.IterTest();
         suite.ProductTest();
         suite.SumTest();
-        suite.FindAllBackTest();
         suite.FindAllTest();
-        suite.FindBackFalseTest();
-        suite.FindBackTrueTest();
         suite.FindFalseTest();
         suite.FindTrueTest();
         suite.ContainsEqFalseTest();
@@ -214,30 +211,10 @@ public class FoldableUnorderedCollectionsTestSuite<F>
         Assert.True(res == None, $"{typeof(F).Name} | FindFalseTest failed");
     }
 
-    void FindBackTrueTest()
-    {
-        var expect = ItemsCount / 2;
-        var res    = Construct(Items).FindBack(x => x == expect);
-        Assert.True(res == Some(expect), $"{typeof(F).Name} | FindBackTrueTest failed");
-    }
-
-    void FindBackFalseTest()
-    {
-        var notExpect = ItemsCount * 2;
-        var res       = Construct(Items).FindBack(x => x == notExpect);
-        Assert.True(res == None, $"{typeof(F).Name} | FindBackFalseTest failed");
-    }
-
     void FindAllTest()
     {
         var res = Construct(Items).FindAll(x => x > 97);
         Assert.True(res == Iterable(99, 98) || res == Iterable(98, 99), $"{typeof(F).Name} | FindAllTest failed");
-    }
-
-    void FindAllBackTest()
-    {
-        var res = Construct(Items).FindAllBack(x => x > 97);
-        Assert.True(res == Iterable(99, 98) || res == Iterable(98, 99) , $"{typeof(F).Name} | FindAllBackTest failed");
     }
 
     void SumTest()

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Xunit;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests
 {
@@ -175,24 +173,16 @@ namespace LanguageExt.Tests
         public void FoldTest1()
         {
             var seq = toSeq(new List<int>() { 1, 2, 3, 4, 5 });
-
             var res1 = seq.Fold((s, x) => s * x, 1);
-            var res2 = seq.FoldBack((s, x) => s * x, 1);
-
             Assert.True(res1 == 120);
-            Assert.True(res2 == 120);
         }
 
         [Fact]
         public void FoldTest2()
         {
             var seq = toSeq(new List<string> { "a", "b", "c", "d", "e" });
-
             var res1 = seq.Fold((s, x) => s     + x, "");
-            var res2 = seq.FoldBack((s, x) => s + x, "");
-
             Assert.True(res1 == "abcde");
-            Assert.True(res2 == "edcba");
         }
 
         [Fact]

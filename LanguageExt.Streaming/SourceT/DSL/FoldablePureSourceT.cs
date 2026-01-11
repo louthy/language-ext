@@ -1,44 +1,39 @@
-using System;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
 record FoldablePureSourceT<F, M, A>(K<F, A> Items) : SourceT<M, A>
     where M : MonadIO<M>
-    where F : Foldable<F>
+    where F : IterableK<F>
 {
     internal override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer)
     {
-        return steps() >> (f => Monad.recur(f, go));
+        return from i in steps()
+               from r in Monad.recur((Iter: i, State: state), go)
+               from _ in release(i)
+               select r;
 
-        IO<Fold<A, S>> steps() =>
-            // Needs to remain lazy
-            IO.lift(e => Items.FoldStep(state));
-        
-        K<M, Next<Fold<A, S>, Reduced<S>>> go(Fold<A, S> fold) =>
-            IO.token.Bind(t => t.IsCancellationRequested
-                                   ? done(state)
-                                   : fold switch
-                                     {
-                                         Fold<A, S>.Done(var s) =>
-                                             done(s),
+        IO<Iterator<A>> steps() =>
+            use(() => Items.ForwardIterator().Using());
 
-                                         Fold<A, S>.Loop(var s, var a, var n) =>
-                                             reducer(s, M.Pure(a)) *
-                                             (ns => ns.Continue
-                                                        ? next(n(ns.Value))
-                                                        : reduced(ns)),
-                                         
-                                         _ => throw new NotSupportedException()
-                                     });
+        K<M, Next<(Iterator<A> Iter, S State), Reduced<S>>> go((Iterator<A> Iter, S State) step) =>
+            IO.token >> (t => t.IsCancellationRequested
+                                  ? done(state)
+                                  : step.Iter is (Exist<A> (var head), var tail)
+                                      ? reducer(step.State, M.Pure(head)) *
+                                        (ns => ns.Continue
+                                                   ? next(tail, ns.Value)
+                                                   : reduced(ns))
+                                      : done(step.State));
 
-        K<M, Next<Fold<A, S>, Reduced<S>>> done(S state) =>
+        K<M, Next<(Iterator<A> Iter, S State), Reduced<S>>> done(S state) =>
             M.Pure(reduced(Reduced.Done(state)));
 
-        Next<Fold<A, S>, Reduced<S>> reduced(Reduced<S> reduced) =>
-            Next.Done<Fold<A, S>, Reduced<S>>(reduced);
+        Next<(Iterator<A> Iter, S State), Reduced<S>> reduced(Reduced<S> reduced) =>
+            Next.Done<(Iterator<A> Iter, S State), Reduced<S>>(reduced);
 
-        Next<Fold<A, S>, Reduced<S>> next(Fold<A, S> tail) =>
-            Next.Loop<Fold<A, S>, Reduced<S>>(tail);
+        Next<(Iterator<A> Iter, S State), Reduced<S>> next(Iterator<A> iter, S state) =>
+            Next.Loop<(Iterator<A> Iter, S State), Reduced<S>>((iter, state));
     }
 }

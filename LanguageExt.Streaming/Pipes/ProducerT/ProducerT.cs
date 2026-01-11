@@ -61,7 +61,19 @@ public readonly record struct ProducerT<OUT, M, A>(PipeT<Unit, OUT, M, A> Proxy)
     [Pure]
     public ProducerT<OUT, M, B> Select<B>(Func<A, B> f) =>
         Map(f);
+      
+    [Pure]
+    public ProducerT<OUT, M, C> SelectMany<C>(Func<A, Iterator<OUT>> f, Func<A, Unit, C> g) =>
+        Bind(x => ProducerT.yieldAll<M, OUT>(f(x)).Map(_ => g(x, default)));
    
+    [Pure]
+    public ProducerT<OUT, M, C> SelectMany<C>(Func<A, Iterable<OUT>> f, Func<A, Unit, C> g) =>
+        Bind(x => ProducerT.yieldAll<M, OUT>(f(x)).Map(_ => g(x, default)));
+   
+    [Pure]
+    public ProducerT<OUT, M, C> SelectMany<C>(Func<A, IterableNE<OUT>> f, Func<A, Unit, C> g) =>
+        Bind(x => ProducerT.yieldAll<M, OUT>(f(x)).Map(_ => g(x, default)));
+
     [Pure]
     public ProducerT<OUT, M, C> SelectMany<B, C>(Func<A, ProducerT<OUT, M, B>> f, Func<A, B, C> g) =>
         Proxy.SelectMany(x => f(x).Proxy, g);

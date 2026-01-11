@@ -89,6 +89,18 @@ public abstract record PipeT<IN, OUT, M, A> : K<PipeT<IN, OUT, M>, A>
         Bind(x => f(x).Map(y => g(x, y)));
    
     [Pure]
+    public PipeT<IN, OUT, M, C> SelectMany<C>(Func<A, Iterator<OUT>> f, Func<A, Unit, C> g) =>
+        Bind(x => PipeT.yieldAll<M, IN, OUT>(f(x)).Map(_ => g(x, default)));
+   
+    [Pure]
+    public PipeT<IN, OUT, M, C> SelectMany<C>(Func<A, Iterable<OUT>> f, Func<A, Unit, C> g) =>
+        Bind(x => PipeT.yieldAll<M, IN, OUT>(f(x)).Map(_ => g(x, default)));
+   
+    [Pure]
+    public PipeT<IN, OUT, M, C> SelectMany<C>(Func<A, IterableNE<OUT>> f, Func<A, Unit, C> g) =>
+        Bind(x => PipeT.yieldAll<M, IN, OUT>(f(x)).Map(_ => g(x, default)));
+   
+    [Pure]
     public PipeT<IN, OUT, M, C> SelectMany<B, C>(Func<A, K<M, B>> f, Func<A, B, C> g) =>
         Bind(x => f(x).Map(y => g(x, y)));
    

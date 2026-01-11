@@ -54,7 +54,7 @@ public readonly record struct ConsumerT<IN, M, A>(PipeT<IN, Void, M, A> Proxy) :
     [Pure]
     public ConsumerT<IN, M, B> Select<B>(Func<A, B> f) =>
         Proxy.Map(f);
-   
+
     [Pure]
     public ConsumerT<IN, M, C> SelectMany<B, C>(Func<A, ConsumerT<IN, M, B>> f, Func<A, B, C> g) =>
         Proxy.SelectMany(x => f(x).Proxy, g);

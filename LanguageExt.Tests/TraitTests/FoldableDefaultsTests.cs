@@ -12,13 +12,6 @@ public class FoldableDefaultsTests
         var res = FList.New(1, 2, 3, 4, 5).Fold((s, x) => s + x, 0);
         Assert.True(res == 15);
     }
-    
-    [Fact]
-    public static void FoldBackTest()
-    {
-        var res = FList.New(1, 2, 3, 4, 5).FoldBack((s, x) => s + x, 0);
-        Assert.True(res == 15);
-    }
         
     [Fact]
     public static void FoldMNoneTest()
@@ -30,28 +23,10 @@ public class FoldableDefaultsTests
     }
         
     [Fact]
-    public static void FoldBackNoneMTest()
-    {
-        var res = FList.New(1, 2, 3, 4, 5)
-                       .FoldBackM((s, x) => x == 4 ? None : Some(s + x), 0);
-        
-        Assert.True(res.As() == None);
-    }
-        
-    [Fact]
     public static void FoldMSomeTest()
     {
         var res = FList.New(1, 2, 3, 4, 5)
                        .FoldM((s, x) => Some(s + x), 0);
-        
-        Assert.True(res.As() == Some(15));
-    }
-        
-    [Fact]
-    public static void FoldBackSomeMTest()
-    {
-        var res = FList.New(1, 2, 3, 4, 5)
-                       .FoldBackM((s, x) => Some(s + x), 0);
         
         Assert.True(res.As() == Some(15));
     }
@@ -71,20 +46,6 @@ public class FoldableDefaultsTests
     }
     
     [Fact]
-    public static void FoldBackWhileStateTest()
-    {
-        var res = FList.New(1, 2, 3, 4, 5).FoldBackWhile((s, x) => s - x, s => s.State > 3, 15);
-        Assert.True(res == 3);
-    }
-    
-    [Fact]
-    public static void FoldBackWhileValueTest()
-    {
-        var res = FList.New(1, 2, 3, 4, 5).FoldBackWhile((s, x) => s + x, s => s.Value > 3, 0);
-        Assert.True(res == 9);
-    }
-    
-    [Fact]
     public static void FoldMaybeTest()
     {
         var res = FList.New(1, 2, 3, 4, 5)
@@ -94,28 +55,10 @@ public class FoldableDefaultsTests
     }
     
     [Fact]
-    public static void FoldBackMaybeTest()
-    {
-        var res = FList.New(1, 2, 3, 4, 5)
-                       .FoldBackMaybe((s, x) => x == 2 ? None : Some(s + x), 0);
-        
-        Assert.True(res == 12);
-    }
-    
-    [Fact]
     public static void FoldWhileMTest()
     {
         var res = FList.New(1, 2, 3, 4, 5)
                        .FoldWhileM((s, x) => Some(s + x), x => x.Value < 4, 0);
-        
-        Assert.True(res.As() == Some(6));
-    }
-    
-    [Fact]
-    public static void FoldBackWhileMTest()
-    {
-        var res = FList.New(1, 2, 3, 4, 5)
-                       .FoldBackWhileM((s, x) => Some(s - x), x => x.Value > 3, 15);
         
         Assert.True(res.As() == Some(6));
     }
@@ -133,35 +76,12 @@ public class FoldableDefaultsTests
         var res = FList.New(1, 2, 3, 4, 5).FoldUntil((s, x) => s + x, s => s.Value == 4, 0);
         Assert.True(res == 6);
     }
-    
-    [Fact]
-    public static void FoldBackUntilStateTest()
-    {
-        var res = FList.New(1, 2, 3, 4, 5).FoldBackUntil((s, x) => s - x, s => s.State == 3, 15);
-        Assert.True(res == 3);
-    }
-    
-    [Fact]
-    public static void FoldBackUntilValueTest()
-    {
-        var res = FList.New(1, 2, 3, 4, 5).FoldBackUntil((s, x) => s + x, s => s.Value == 3, 0);
-        Assert.True(res == 9);
-    }
-    
+
     [Fact]
     public static void FoldUntilMTest()
     {
         var res = FList.New(1, 2, 3, 4, 5)
                        .FoldUntilM((s, x) => Some(s + x), x => x.Value == 4, 0);
-        
-        Assert.True(res.As() == Some(6));
-    }
-    
-    [Fact]
-    public static void FoldBackUntilMTest()
-    {
-        var res = FList.New(1, 2, 3, 4, 5)
-                       .FoldBackUntilM((s, x) => Some(s - x), x => x.Value == 3, 15);
         
         Assert.True(res.As() == Some(6));
     }
@@ -177,7 +97,7 @@ public class FoldableDefaultsTests
     public static void ToLstTest()
     {
         var res = FList.New(1, 2, 3, 4, 5).ToLst();
-        Assert.True(res == List(1, 2, 3, 4, 5));
+        Assert.True(res == Lst(1, 2, 3, 4, 5));
     }
 
     [Fact]
@@ -300,33 +220,12 @@ public class FoldableDefaultsTests
     }
         
     [Fact]
-    public static void FindBackTrueTest()
-    {
-        var res = FList.New(1, 2, 3, 4, 5).FindBack(x => x == 3);
-        Assert.True(res == Some(3));
-    }
-    
-    [Fact]
-    public static void FindBackFalseTest()
-    {
-        var res = FList.New(1, 2, 3, 4, 5).FindBack(x => x == 6);
-        Assert.True(res == None);
-    }
-        
-    [Fact]
     public static void FindAllTest()
     {
         var res = FList.New(1, 2, 3, 4, 5).FindAll(x => x > 3);
         Assert.True(res == Iterable(4, 5));
     }
-        
-    [Fact]
-    public static void FindAllBackTest()
-    {
-        var res = FList.New(1, 2, 3, 4, 5).FindAllBack(x => x > 3);
-        Assert.True(res == Iterable(5, 4));
-    }
-        
+
     [Fact]
     public static void SumTest()
     {
@@ -440,49 +339,7 @@ public class FoldableDefaultsTests
     {
         var res = FList.New(1, 2, 3, 4, 5).Partition(x => (x & 1) == 0);
         
-        Assert.True(res.True == Seq(2, 4));
-        Assert.True(res.False == Seq(1, 3, 5));
-    }
-}
-
-public record FList<A>(A[] Values) : K<FList, A>;
-
-public static class FListExtensions
-{
-    public static FList<A> As<A>(this K<FList, A> self) =>
-        (FList<A>)self;
-}
-
-public class FList : Foldable<FList>
-{
-    public static FList<A> New<A>(params A[] values) =>
-        new (values);
-
-
-    public static Fold<A, S> FoldStep<A, S>(K<FList, A> ta, in S initialState)
-    {
-        var ix    = 0;
-        var ma    = ta.As().Values;
-        var count = ma.Length;
-        return go(initialState);
-
-        Fold<A, S> go(S state) =>
-            ix == count
-                ? Fold.Done<A, S>(state)
-                : Fold.Loop(state, ma[ix++], go);
-        
-    }
-
-    public static Fold<A, S> FoldStepBack<A, S>(K<FList, A> ta, in S initialState)
-    {
-        var ma    = ta.As().Values;
-        var count = ma.Length;
-        var ix    = count;
-        return go(initialState);
-
-        Fold<A, S> go(S state) =>
-            ix == 0
-                ? Fold.Done<A, S>(state)
-                : Fold.Loop(state, ma[--ix], go);
+        Assert.True(res.True == [2, 4]);
+        Assert.True(res.False == [1, 3, 5]);
     }
 }

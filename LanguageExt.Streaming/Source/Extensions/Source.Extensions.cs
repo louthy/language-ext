@@ -19,11 +19,15 @@ public static partial class SourceExtensions
         Source.lift(items);
 
     [Pure]
-    public static Source<A> AsSource<A>(this IEnumerable<A> items) =>
+    public static Source<A> AsSource<A>(this Iterator<A> items) =>
         Source.lift(items);
     
     [Pure]
-    public static Source<A> AsSource<A>(this IAsyncEnumerable<A> items) =>
+    public static Source<A> AsSource<A>(this Iterable<A> items) =>
+        Source.lift(items);
+    
+    [Pure]
+    public static Source<A> AsSource<A>(this IterableNE<A> items) =>
         Source.lift(items);
     
     [Pure]

@@ -581,7 +581,7 @@ public readonly struct Map<K, V> :
     public Iterable<(K Key, V Value)> Skip(int amount) => Value.Skip(amount);
 
     /// <summary>
-    /// Checks for existence of a key in the map
+    /// Checks for the existence of a key in the map
     /// </summary>
     /// <param name="key">Key to check</param>
     /// <returns>True if an item with the key supplied is in the map</returns>
@@ -590,7 +590,7 @@ public readonly struct Map<K, V> :
     public bool ContainsKey(K key) => Value.ContainsKey(key);
 
     /// <summary>
-    /// Checks for existence of a key in the map
+    /// Checks for the existence of a key in the map
     /// </summary>
     /// <param name="key">Key to check</param>
     /// <returns>True if an item with the key supplied is in the map</returns>
@@ -707,54 +707,6 @@ public readonly struct Map<K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains(KeyValuePair<K, V> pair) => 
         Value.Contains(pair);
-
-    /// <summary>
-    /// Left/Node/Right traversal in stepped form
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Fold<(K, V), S> FoldStep<S>(S initialState) =>
-        Value.FoldStep(initialState);
-
-    /// <summary>
-    /// Left/Node/Right traversal in stepped form
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Fold<(K, V), S> FoldStepBack<S>(S initialState) =>
-        Value.FoldStepBack(initialState);
-
-    /// <summary>
-    /// Left/Node/Right traversal in stepped form
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Fold<K, S> FoldStepKeys<S>(S initialState) =>
-        Value.FoldStepKeys(initialState);
-
-    /// <summary>
-    /// Left/Node/Right traversal in stepped form
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Fold<K, S> FoldStepBackKeys<S>(S initialState) =>
-        Value.FoldStepBackKeys(initialState);
-
-    /// <summary>
-    /// Left/Node/Right traversal in stepped form
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Fold<V, S> FoldStepValues<S>(S initialState) =>
-        Value.FoldStepValues(initialState);
-
-    /// <summary>
-    /// Left/Node/Right traversal in stepped form
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Fold<V, S> FoldStepBackValues<S>(S initialState) =>
-        Value.FoldStepBackValues(initialState);
 
     /// <summary>
     /// Enumerable of map keys

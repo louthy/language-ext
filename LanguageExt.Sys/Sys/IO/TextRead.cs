@@ -30,7 +30,7 @@ public static class TextRead<M, RT>
         get
         {
             return from tr in awaiting<M, TextReader, string>()
-                   from _  in yieldAll<M, TextReader, string>(go(tr))
+                   from _  in Iterable.createRange(go(tr))
                    select unit;
 
             static async IAsyncEnumerable<string> go(TextReader reader)
@@ -54,7 +54,7 @@ public static class TextRead<M, RT>
         get
         {
             return from tr in awaiting<M, TextReader, char>()
-                   from _  in yieldAll<M, TextReader, char>(go(tr))
+                   from _  in Iterable.createRange(go(tr))
                    select unit;
 
             static async IAsyncEnumerable<char> go(TextReader reader)
@@ -87,7 +87,7 @@ public static class TextRead<M, RT>
     public static PipeT<TextReader, SeqLoan<char>, M, Unit> readChars(int charCount)
     {
         return from tr in awaiting<M, TextReader, SeqLoan<char>>()
-               from _  in yieldAll<M, TextReader, SeqLoan<char>>(go(tr, charCount))
+               from _  in Iterable.createRange(go(tr, charCount))
                select unit;
 
         static async IAsyncEnumerable<SeqLoan<char>> go(TextReader reader, int count)
@@ -110,7 +110,7 @@ public static class TextRead<M, RT>
     public static PipeT<TextReader, string, M, Unit> read(int charCount)
     {
         return from tr in awaiting<M, TextReader, string>()
-               from _  in yieldAll<M, TextReader, string>(go(tr, charCount))
+               from _  in Iterable.createRange(go(tr, charCount))
                select unit;
 
         static async IAsyncEnumerable<string> go(TextReader reader, int count)

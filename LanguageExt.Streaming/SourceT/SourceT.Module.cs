@@ -51,31 +51,31 @@ public partial class SourceT
         new DoneSourceT<M>();
     
     /// <summary>
-    /// Lift a foldable of pure values into a `SourceT`
+    /// Lift an iterable of pure values into a `SourceT`
     /// </summary>
-    /// <param name="fa">Foldable of pure values</param>
-    /// <typeparam name="F">Foldable trait type</typeparam>
+    /// <param name="fa">Iterable of pure values</param>
+    /// <typeparam name="F">IterableK trait type</typeparam>
     /// <typeparam name="M">Monad trait type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>`SourceT`</returns>
     [Pure]
-    public static SourceT<M, A> liftFoldable<F, M, A>(K<F, A> fa)
+    public static SourceT<M, A> liftIterable<F, M, A>(K<F, A> fa)
         where M : MonadIO<M>
-        where F : Foldable<F> =>
+        where F : IterableK<F> =>
         new FoldablePureSourceT<F, M, A>(fa);
 
     /// <summary>
-    /// Lift a foldable of monadic values into a `SourceT`
+    /// Lift an iterable of monadic values into a `SourceT`
     /// </summary>
-    /// <param name="fma">Foldable of monadic values</param>
-    /// <typeparam name="F">Foldable trait type</typeparam>
+    /// <param name="fma">Iterable of monadic values</param>
+    /// <typeparam name="F">IterableK trait type</typeparam>
     /// <typeparam name="M">Monad trait type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>`SourceT`</returns>
     [Pure]
-    public static SourceT<M, A> liftFoldableM<F, M, A>(K<F, K<M, A>> fma)
+    public static SourceT<M, A> liftIterableM<F, M, A>(K<F, K<M, A>> fma)
         where M : MonadIO<M>
-        where F : Foldable<F> =>
+        where F : IterableK<F> =>
         new FoldableSourceT<F, M, A>(fma);
     
     /// <summary>
@@ -186,9 +186,9 @@ public partial class SourceT
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     [Pure]
-    public static SourceT<M, A> lift<M, A>(IEnumerable<A> items) 
+    public static SourceT<M, A> lift<M, A>(Iterable<A> items) 
         where M : MonadIO<M> =>
-        new IteratorSyncSourceT<M, A>(items.Select(M.Pure));
+        new IteratorSyncSourceT<M, A>(items.Map(M.Pure).ForwardIterator());
 
     /// <summary>
     /// Make an `IEnumerable` into a source of values
@@ -197,7 +197,29 @@ public partial class SourceT
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     [Pure]
-    public static SourceT<M, A> liftM<M, A>(IEnumerable<K<M, A>> items) 
+    public static SourceT<M, A> lift<M, A>(IterableNE<A> items) 
+        where M : MonadIO<M> =>
+        new IteratorSyncSourceT<M, A>(items.Map(M.Pure).ForwardIterator());
+
+    /// <summary>
+    /// Make an `IEnumerable` into a source of values
+    /// </summary>
+    /// <param name="items">Enumerable to lift</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
+    [Pure]
+    public static SourceT<M, A> lift<M, A>(Iterator<A> items) 
+        where M : MonadIO<M> =>
+        new IteratorSyncSourceT<M, A>(items.Map(M.Pure));
+
+    /// <summary>
+    /// Make an `IEnumerable` into a source of values
+    /// </summary>
+    /// <param name="items">Enumerable to lift</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
+    [Pure]
+    public static SourceT<M, A> liftM<M, A>(Iterator<K<M, A>> items) 
         where M : MonadIO<M> =>
         new IteratorSyncSourceT<M, A>(items);
 
@@ -222,28 +244,6 @@ public partial class SourceT
     public static SourceT<M, A> liftM<M, A>(IObservable<K<M, A>> items) 
         where M : MonadIO<M> =>
         new ObservableSourceT<M, A>(items);
-
-    /// <summary>
-    /// Make an `IAsyncEnumerable` into a source of values
-    /// </summary>
-    /// <param name="items">`IAsyncEnumerable` to lift</param>
-    /// <typeparam name="A">Value type</typeparam>
-    /// <returns>Source of values</returns>
-    [Pure]
-    public static SourceT<M, A> lift<M, A>(IAsyncEnumerable<A> items) 
-        where M : MonadIO<M> =>
-        new IteratorAsyncSourceT<M, A>(items.Select(M.Pure));
-
-    /// <summary>
-    /// Make an `IAsyncEnumerable` into a source of values
-    /// </summary>
-    /// <param name="items">`IAsyncEnumerable` to lift</param>
-    /// <typeparam name="A">Value type</typeparam>
-    /// <returns>Source of values</returns>
-    [Pure]
-    public static SourceT<M, A> liftM<M, A>(IAsyncEnumerable<K<M, A>> items) 
-        where M : MonadIO<M> =>
-        new IteratorAsyncSourceT<M, A>(items);
     
     /// <summary>
     /// Merge sources into a single source

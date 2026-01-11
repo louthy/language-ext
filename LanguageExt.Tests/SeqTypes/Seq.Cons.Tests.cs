@@ -173,24 +173,16 @@ namespace LanguageExt.Tests
         public void FoldTest1()
         {
             var seq = 1.Cons(2.Cons(3.Cons(4.Cons(5.Cons()))));
-
             var res1 = seq.Fold((s, x) => s     * x, 1);
-            var res2 = seq.FoldBack((s, x) => s * x, 1);
-
             Assert.True(res1 == 120);
-            Assert.True(res2 == 120);
         }
 
         [Fact]
         public void FoldTest2()
         {
             var seq = "a".Cons("b".Cons("c".Cons("d".Cons("e".Cons()))));
-
             var res1 = seq.Fold((s, x) => s     + x, "");
-            var res2 = seq.FoldBack((s, x) => s + x, "");
-
             Assert.True(res1 == "abcde");
-            Assert.True(res2 == "edcba");
         }
 
         [Fact]
@@ -202,8 +194,8 @@ namespace LanguageExt.Tests
             var ex1 = Seq.Exists(x => x == 'd');
             var ex2 = seq2.Exists(x => x == 'd');
 
-            var fa1 = Seq.ForAll(Char.IsLetter);
-            var fa2 = seq2.ForAll(Char.IsLetter);
+            var fa1 = Seq.ForAll(char.IsLetter);
+            var fa2 = seq2.ForAll(char.IsLetter);
 
             Assert.True(ex1);
             Assert.False(ex2);

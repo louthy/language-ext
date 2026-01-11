@@ -13,7 +13,7 @@ public class IteratorTests
     {
         // Arrange
         var numbers = new List<int> { 1, 2, 3, 4 };
-        var iterator = numbers.GetIterator();
+        var iterator = Iterable.createRange(numbers);
 
         // Act and Assert
         Assert.False(iterator.IsEmpty);                             // Iterator should not be empty
@@ -29,18 +29,16 @@ public class IteratorTests
     {
         // Arrange
         var numbers = Enumerable.Range(1, 1000).ToList();
-        var iterator = numbers.GetIterator();
+        var iterator = Iterable.createRange(numbers).ForwardIterator();
 
         // Act
         var tasks = Enumerable.Range(0, 5).Select(
             _ =>
                 Task.Run(() =>
                          {
-                             var current = iterator;
-                             while (!current.IsEmpty)
+                             foreach (var current in iterator)
                              {
-                                 ignore(current.Head);   // Access the head
-                                 current = current.Tail; // Access the tail
+                                 ignore(current);   // Access the head
                              }
                          })).ToArray();
 
@@ -49,22 +47,10 @@ public class IteratorTests
     }
 
     [Fact]
-    public void Iterator_Nil_Test()
-    {
-        // Arrange
-        var iterator = Iterator<int>.Nil.Default;
-
-        // Act and Assert
-        Assert.True(iterator.IsEmpty);                              // Nil should be empty
-        Assert.Throws<InvalidOperationException>(() => iterator.Head); // Accessing the Head should throw
-        Assert.Same(iterator, iterator.Tail);                       // The Tail of Nil should be itself
-    }
-
-    [Fact]
     public void Iterator_MultipleEnumerationPrevention_Test()
     {
         // Arrange
-        var enumerator = "Lazy Evaluation".GetIterator();
+        var enumerator = Iterable.createRange("Lazy Evaluation").ForwardIterator();
 
         // Act
         var head1 = enumerator.Head;
@@ -81,7 +67,7 @@ public class IteratorTests
     public void Iterator_EmptyEnumerable_Test()
     {
         // Arrange
-        var iterator = Enumerable.Empty<int>().GetIterator();
+        var iterator = Iterable.empty<int>().ForwardIterator();
 
         // Act and Assert
         Assert.True(iterator.IsEmpty);                              // Empty iterator should be empty
@@ -94,8 +80,8 @@ public class IteratorTests
     {
         // Arrange
         var threads        = 5;
-        var numbers        = Enumerable.Range(1, 1000).ToList();
-        var iterator       = numbers.GetIterator();
+        var numbers        = Enumerable.Range(1, 1000).AsIterable();
+        var iterator       = numbers.ForwardIterator();
         var resultingLists = new List<List<int>>();
 
         for (var i = 0; i < threads; i++)
@@ -106,15 +92,12 @@ public class IteratorTests
         // Act
         Parallel.ForEach(Enumerable.Range(0, 5), ix =>
         {
-            var current = iterator;
-            while (!current.IsEmpty)
+            foreach (var current in iterator)
             {
                 lock (resultingLists[ix])
                 {
-                    resultingLists[ix].Add(current.Head); // Safely add the emitted value into the list
+                    resultingLists[ix].Add(current); // Safely add the emitted value into the list
                 }
-
-                current = current.Tail;
             }
         });
 

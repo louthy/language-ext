@@ -28,9 +28,9 @@ public static class Pipe
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <returns></returns>
-    public static Pipe<RT, IN, OUT, Unit> yieldAll<RT, IN, OUT>(IEnumerable<OUT> values) =>
+    public static Pipe<RT, IN, OUT, Unit> yieldAll<RT, IN, OUT>(Iterator<OUT> values) =>
         PipeT.yieldAll<Eff<RT>, IN, OUT>(values);
-    
+
     /// <summary>
     /// Yield all values downstream
     /// </summary>
@@ -38,7 +38,17 @@ public static class Pipe
     /// <typeparam name="IN">Stream value to consume</typeparam>
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <returns></returns>
-    public static Pipe<RT, IN, OUT, Unit> yieldAll<RT, IN, OUT>(IAsyncEnumerable<OUT> values) =>
+    public static Pipe<RT, IN, OUT, Unit> yieldAll<RT, IN, OUT>(Iterable<OUT> values) =>
+        PipeT.yieldAll<Eff<RT>, IN, OUT>(values);
+
+    /// <summary>
+    /// Yield all values downstream
+    /// </summary>
+    /// <typeparam name="RT">Effect runtime type</typeparam>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <returns></returns>
+    public static Pipe<RT, IN, OUT, Unit> yieldAll<RT, IN, OUT>(IterableNE<OUT> values) =>
         PipeT.yieldAll<Eff<RT>, IN, OUT>(values);
     
     /// <summary>

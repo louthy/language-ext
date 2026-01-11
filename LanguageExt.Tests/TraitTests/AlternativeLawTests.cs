@@ -15,10 +15,6 @@ public class AlternativeLawTests
         AlternativeLaw<HashSet>.assert();
     
     [Fact]
-    public void Iterable() =>
-        AlternativeLaw<Iterable>.assert();
-    
-    [Fact]
     public void Lst() =>
         AlternativeLaw<Lst>.assert();
     

@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
+using L  = LanguageExt;
 
 namespace LanguageExt.Pipes;
 
@@ -313,7 +314,7 @@ record PipeTAwait<IN, OUT, M, A>(Func<IN, PipeT<IN, OUT, M, A>> Await) : PipeT<I
         throw new InvalidOperationException("closed");
 }
 
-record PipeTYieldAll<IN, OUT, M, A>(IterableNE<PipeT<IN, OUT, M, Unit>> Yields, Func<Unit, PipeT<IN, OUT, M, A>> Next) 
+record PipeTYieldAll<IN, OUT, M, A>(Iterator<PipeT<IN, OUT, M, Unit>> Yields, Func<Unit, PipeT<IN, OUT, M, A>> Next) 
     : PipeT<IN, OUT, M, A>
     where M : MonadIO<M>
 {
@@ -348,12 +349,19 @@ record PipeTYieldAll<IN, OUT, M, A>(IterableNE<PipeT<IN, OUT, M, Unit>> Yields, 
             Yields.Select(x => x.PairEachYieldWithAwait(o => consumer(o).Map(_ => Unit.Default))), 
             x => Next(x).PairEachYieldWithAwait(consumer));
 
-    internal override K<M, A> Run() =>
-        Yields.Map(y => y.Kind())
-              .Actions()
-              .Bind(_ => Next(default))
-              .As()
-              .Run();
+    internal override K<M, A> Run()
+    {
+        return from ys in use(() => Yields.Using())
+               from r in Monad.recur(ys, go)
+               from _ in release(ys)
+               select r;
+                
+        K<M, Next<Iterator<PipeT<IN, OUT, M, Unit>>, A>> go(Iterator<PipeT<IN, OUT, M, Unit>> ys) =>
+            ys is (Exist<PipeT<IN, OUT, M, Unit>> (var head), var tail)
+                ? head.Run().Map(_ => L.Next.Loop<Iterator<PipeT<IN, OUT, M, Unit>>, A>(tail))
+                : Next(unit).Run().Map(L.Next.Done<Iterator<PipeT<IN, OUT, M, Unit>>, A>);
+        
+    }
 }
 
 record PipeTYieldAllSource<IN, OUT, M, X, A>(Source<X> Yields, Func<X, PipeT<IN, OUT, M, Unit>> F, Func<Unit, PipeT<IN, OUT, M, A>> Next) 

@@ -119,6 +119,18 @@ public record Pipe<RT, IN, OUT, A>(PipeT<IN, OUT, Eff<RT>, A> Proxy) : K<Pipe<RT
         Map(f);
    
     [Pure]
+    public Pipe<RT, IN, OUT, C> SelectMany<C>(Func<A, Iterator<OUT>> f, Func<A, Unit, C> g) =>
+        Bind(x => Pipe.yieldAll<RT, IN, OUT>(f(x)).Map(_ => g(x, default)));
+   
+    [Pure]
+    public Pipe<RT, IN, OUT, C> SelectMany<C>(Func<A, Iterable<OUT>> f, Func<A, Unit, C> g) =>
+        Bind(x => Pipe.yieldAll<RT, IN, OUT>(f(x)).Map(_ => g(x, default)));
+   
+    [Pure]
+    public Pipe<RT, IN, OUT, C> SelectMany<C>(Func<A, IterableNE<OUT>> f, Func<A, Unit, C> g) =>
+        Bind(x => Pipe.yieldAll<RT, IN, OUT>(f(x)).Map(_ => g(x, default)));
+    
+    [Pure]
     public Pipe<RT, IN, OUT, C> SelectMany<B, C>(Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> g) =>
         Proxy.SelectMany(x => f(x).Proxy, g);
    
