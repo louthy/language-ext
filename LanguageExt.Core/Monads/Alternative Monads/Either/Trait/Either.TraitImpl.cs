@@ -110,12 +110,10 @@ public class Either<L> :
             _                          => Iterator<A>.Empty
         };
 
-    static void Foldable<Either<L>, SingletonFoldState>.FoldStepSetup<A>(K<Either<L>, A> ta, ref SingletonFoldState refState)
-    {
-        // Nothing to do
-    }
+    static SingletonFoldState IterableK<Either<L>, SingletonFoldState>.StepSetup<A>(K<Either<L>, A> ta) =>
+        default;
 
-    static bool Foldable<Either<L>, SingletonFoldState>.FoldStep<A>(K<Either<L>, A> ta, ref SingletonFoldState refState, out A value) 
+    static bool IterableK<Either<L>, SingletonFoldState>.Step<A>(K<Either<L>, A> ta, ref SingletonFoldState refState, out A value) 
     {
         if (refState.ShouldYield() && ta is Either<L, A>.Right(var bound))
         {

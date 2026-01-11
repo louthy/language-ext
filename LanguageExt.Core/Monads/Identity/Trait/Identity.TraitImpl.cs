@@ -43,12 +43,13 @@ public partial class Identity :
     //  Foldable
     //
 
-    static void Foldable<Identity, SingletonFoldState>.FoldStepSetup<A>(K<Identity, A> ta, ref SingletonFoldState refState)
-    {
-        // Nothing to do
-    }
+    static SingletonFoldState IterableK<Identity, SingletonFoldState>.StepSetup<A>(K<Identity, A> ta) =>
+        default;
 
-    static bool Foldable<Identity, SingletonFoldState>.FoldStep<A>(K<Identity, A> ta, ref SingletonFoldState refState, out A value)
+    static bool IterableK<Identity, SingletonFoldState>.Step<A>(
+        K<Identity, A> ta, 
+        ref SingletonFoldState refState, 
+        out A value)
     {
         if (refState.ShouldYield())
         {

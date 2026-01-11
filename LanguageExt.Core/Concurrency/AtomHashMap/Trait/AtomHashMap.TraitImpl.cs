@@ -9,10 +9,10 @@ public class AtomHashMap<Key> : Foldable<AtomHashMap<Key>, TrieMap.FoldState>
         new Iterator.IterHashMapValue<EqDefault<Key>, Key, A>(
             TrieMap.IteratorState<EqDefault<Key>, Key, A>.Setup(fa.As().ToHashMap().Value.Root));
 
-    static void Foldable<AtomHashMap<Key>, TrieMap.FoldState>.FoldStepSetup<A>(K<AtomHashMap<Key>, A> ta, ref TrieMap.FoldState refState) => 
-        TrieMap.FoldState.Setup(ref refState, ta.As().ToHashMap().Value.Root);
+    static TrieMap.FoldState IterableK<AtomHashMap<Key>, TrieMap.FoldState>.StepSetup<A>(K<AtomHashMap<Key>, A> ta) => 
+        TrieMap.FoldState.Setup(ta.As().ToHashMap().Value.Root);
 
-    static bool Foldable<AtomHashMap<Key>, TrieMap.FoldState>.FoldStep<A>(K<AtomHashMap<Key>, A> ta, ref TrieMap.FoldState refState, out A value) 
+    static bool IterableK<AtomHashMap<Key>, TrieMap.FoldState>.Step<A>(K<AtomHashMap<Key>, A> ta, ref TrieMap.FoldState refState, out A value) 
     {
         if (TrieMap.FoldState.Step<EqDefault<Key>, Key, A>(ref refState, out var kv))
         {
@@ -34,10 +34,10 @@ public class AtomHashMapEq<EqKey, Key> : Foldable<AtomHashMapEq<EqKey, Key>, Tri
         new Iterator.IterHashMapValue<EqKey, Key, A>(
             TrieMap.IteratorState<EqKey, Key, A>.Setup(fa.As().ToHashMap().Value.Root));
 
-    static void Foldable<AtomHashMapEq<EqKey, Key>, TrieMap.FoldState>.FoldStepSetup<A>(K<AtomHashMapEq<EqKey, Key>, A> ta, ref TrieMap.FoldState refState) => 
-        TrieMap.FoldState.Setup(ref refState, ta.As().ToHashMap().Value.Root);
+    static TrieMap.FoldState IterableK<AtomHashMapEq<EqKey, Key>, TrieMap.FoldState>.StepSetup<A>(K<AtomHashMapEq<EqKey, Key>, A> ta) => 
+        TrieMap.FoldState.Setup(ta.As().ToHashMap().Value.Root);
 
-    static bool Foldable<AtomHashMapEq<EqKey, Key>, TrieMap.FoldState>.FoldStep<A>(K<AtomHashMapEq<EqKey, Key>, A> ta, ref TrieMap.FoldState refState, out A value) 
+    static bool IterableK<AtomHashMapEq<EqKey, Key>, TrieMap.FoldState>.Step<A>(K<AtomHashMapEq<EqKey, Key>, A> ta, ref TrieMap.FoldState refState, out A value) 
     {
         if (TrieMap.FoldState.Step<EqKey, Key, A>(ref refState, out var kv))
         {

@@ -236,6 +236,10 @@ public class AtomQue<A> :
     [Pure]
     public Seq<A> ToSeq() =>
         items.ToSeq();
+    
+    [Pure]
+    public Que<A> ToQueue() =>
+        new (items);
 
     [Pure]
     public Iterable<A> AsIterable() =>

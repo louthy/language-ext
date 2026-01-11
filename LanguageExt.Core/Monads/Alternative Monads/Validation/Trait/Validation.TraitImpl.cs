@@ -147,14 +147,10 @@ public partial class Validation<FAIL> :
             _                                   => throw new NotSupportedException()
         };
 
-    static void Foldable<Validation<FAIL>, SingletonFoldState>.FoldStepSetup<A>(
-        K<Validation<FAIL>, A> ta, 
-        ref SingletonFoldState refState) 
-    {
-        // Nothing to do
-    }
+    static SingletonFoldState IterableK<Validation<FAIL>, SingletonFoldState>.StepSetup<A>(K<Validation<FAIL>, A> ta) =>
+        default;
 
-    static bool Foldable<Validation<FAIL>, SingletonFoldState>.FoldStep<A>(
+    static bool IterableK<Validation<FAIL>, SingletonFoldState>.Step<A>(
         K<Validation<FAIL>, A> ta, 
         ref SingletonFoldState refState, out A value) 
     {

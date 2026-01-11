@@ -107,12 +107,10 @@ public partial class Option :
                    : Iterator.empty<A>();
     }
 
-    static void Foldable<Option, SingletonFoldState>.FoldStepSetup<A>(K<Option, A> ta, ref SingletonFoldState refState)
-    {
-        // Nothing to do
-    }
+    static SingletonFoldState IterableK<Option, SingletonFoldState>.StepSetup<A>(K<Option, A> ta) =>
+        default;
 
-    static bool Foldable<Option, SingletonFoldState>.FoldStep<A>(K<Option, A> ta, ref SingletonFoldState refState, out A value)
+    static bool IterableK<Option, SingletonFoldState>.Step<A>(K<Option, A> ta, ref SingletonFoldState refState, out A value)
     {
         if (refState.ShouldYield() && ta.As() is { IsSome: true } ma)
         {

@@ -170,12 +170,10 @@ public partial class Fin :
             _                   => Iterator<A>.Empty
         };
 
-    static void Foldable<Fin, SingletonFoldState>.FoldStepSetup<A>(K<Fin, A> ta, ref SingletonFoldState refState)
-    {
-        // Nothing to do
-    }
+    static SingletonFoldState IterableK<Fin, SingletonFoldState>.StepSetup<A>(K<Fin, A> ta) =>
+        default;
 
-    static bool Foldable<Fin, SingletonFoldState>.FoldStep<A>(K<Fin, A> ta, ref SingletonFoldState refState, out A value) 
+    static bool IterableK<Fin, SingletonFoldState>.Step<A>(K<Fin, A> ta, ref SingletonFoldState refState, out A value) 
     {
         if (refState.ShouldYield() && ta is Fin<A>.Succ(var bound))
         {

@@ -1,48 +1,15 @@
-﻿using System;
-using System.Linq;
-using LanguageExt.Traits;
+﻿using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public class AtomSeq : Foldable<AtomSeq>
+public class AtomSeq : Foldable<AtomSeq, Seq.FoldState>
 {
-    static Fold<A, S> Foldable<AtomSeq>.FoldStep<A, S>(K<AtomSeq, A> ta, in S initialState)
-    {
-        var items = ta.As();
-        return go(items.GetIterator())(initialState);
+    public static Iterator<A> ForwardIterator<A>(K<AtomSeq, A> fa) => 
+        fa.As().ToSeq().ForwardIterator();
 
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
-    }
+    public static Seq.FoldState StepSetup<A>(K<AtomSeq, A> ta) => 
+        ta.As().ToSeq().StepSetup<Seq, Seq.FoldState, A>();
 
-    
-    static Fold<A, S> Foldable<AtomSeq>.FoldStepBack<A, S>(K<AtomSeq, A> ta, in S initialState)
-    {
-        var items = ta.As();
-        return go(items.Reverse().GetIterator())(initialState);
-
-        static Func<S, Fold<A, S>> go(Iterator<A> iter) =>
-            state =>
-            {
-                if (iter.IsEmpty)
-                {
-                    return Fold.Done<A, S>(state);
-                }
-                else
-                {
-                    return Fold.Loop(state, iter.Head, go(iter.Tail.Split()));
-                }
-            };
-    }
-
+    public static bool Step<A>(K<AtomSeq, A> ta, ref Seq.FoldState refState, out A value) =>
+        IterableK.step(ta.As().ToSeq(), ref refState, out value);
 }

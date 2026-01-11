@@ -57,7 +57,7 @@ public static class ExprIO
     public static Parser<I, O> buildExpressionParser<I, O>(
         Operator<I, O>[][] operators,
         Parser<I, O> simpleExpr) =>
-        operators.AsIterable().FoldBack(
+        operators.AsIterable().Reverse().Fold(
             (term, ops) => makeParser(ops, term),
             simpleExpr);
 

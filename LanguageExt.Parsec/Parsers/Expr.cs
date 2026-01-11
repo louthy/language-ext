@@ -56,13 +56,10 @@ public static class Expr
     /// </example>
     public static Parser<T> buildExpressionParser<T>(
         Operator<T>[][] operators,
-        Parser<T> simpleExpr
-        )
-    {
-        return operators.AsIterable().FoldBack(
+        Parser<T> simpleExpr) =>
+        operators.AsIterable().Reverse().Fold(
             (term, ops) => makeParser(ops, term),
             simpleExpr);
-    }
 
     static Parser<T> makeParser<T>(
         Operator<T>[] ops,
