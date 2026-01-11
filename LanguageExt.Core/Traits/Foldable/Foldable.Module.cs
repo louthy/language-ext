@@ -218,7 +218,7 @@ public static class Foldable
     /// <summary>
     /// Find the elements that match the predicate
     /// </summary>
-    public static Iterable<A> findAll<T, A>(Func<A, bool> predicate, K<T, A> ta) 
+    public static Iterator<A> findAll<T, A>(Func<A, bool> predicate, K<T, A> ta) 
         where T : Foldable<T> =>
         ta.FindAll(predicate);
 

@@ -131,11 +131,13 @@ public partial class TrieSet
                             if (index == nodes.Length)
                             {
                                 state = state.Pop();
+                                top--;
                                 continue;
                             }
                             else
                             {
                                 state = state.Push(e.Nodes[index]);
+                                top++;
                                 continue;
                             }
                         }
@@ -158,6 +160,7 @@ public partial class TrieSet
    
                     case TrieSet<EqK, K>.EmptyNode:
                         state = state.Pop();
+                        top--;
                         continue;
 
                     case TrieSet<EqK, K>.Collision c:
@@ -167,6 +170,7 @@ public partial class TrieSet
                         if (index == items.Length)
                         {
                             state = state.Pop();
+                            top--;
                             continue;
                         }
                         else

@@ -11,8 +11,6 @@ public class FoldableNonEmptyOrderedCollectionsTestSuite<F>
     const int ItemsCount = 100;
     readonly int[] Items;
     readonly int ItemsSum;
-    readonly int EndItemsSum;
-    readonly int EndItemCutOff;
     readonly int ItemsProduct;
     readonly Func<IEnumerable<int>, K<F, int>> Construct;
 
@@ -28,18 +26,8 @@ public class FoldableNonEmptyOrderedCollectionsTestSuite<F>
             product *= i;
         }
 
-        var start    = ItemsCount - 1;
-        var end      = start      - 10;
-        var endTotal = 0;
-        for (var i = ItemsCount - 1; i >= end; i--)
-        {
-            endTotal += i;
-        }
-
         ItemsSum = total;
         ItemsProduct = product;
-        EndItemCutOff = end;
-        EndItemsSum = endTotal;
         Construct = construct;
     }
 
@@ -64,7 +52,6 @@ public class FoldableNonEmptyOrderedCollectionsTestSuite<F>
         suite.MinOrdTest();
         suite.MinTest();
         suite.IterTest();
-        suite.LastSomeTest();
         suite.HeadSomeTest();
         suite.ProductTest();
         suite.SumTest();
@@ -258,7 +245,7 @@ public class FoldableNonEmptyOrderedCollectionsTestSuite<F>
     void FindAllTest()
     {
         var res = Construct(Items).FindAll(x => x > 97);
-        Assert.True(res == Iterable(98, 99), $"{typeof(F).Name} | FindAllTest failed");
+        Assert.True(res.AsIterable() == Iterable(98, 99), $"{typeof(F).Name} | FindAllTest failed");
     }
 
     void SumTest()
@@ -277,12 +264,6 @@ public class FoldableNonEmptyOrderedCollectionsTestSuite<F>
     {
         var res = Construct(Items).Head;
         Assert.True(res == Some(0), $"{typeof(F).Name} | HeadSomeTest failed");
-    }
-
-    void LastSomeTest()
-    {
-        var res = Construct(Items).Last;
-        Assert.True(res == Some(ItemsCount - 1), $"{typeof(F).Name} | LastSomeTest failed");
     }
 
     void IterTest()

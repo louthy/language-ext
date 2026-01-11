@@ -202,7 +202,7 @@ public class FoldableBackDefaultsTests
     public static void FindAllBackTest()
     {
         var res = FList.New(1, 2, 3, 4, 5).FindAllBack(x => x > 3);
-        Assert.True(res == Iterable(5, 4));
+        Assert.True(res.AsIterable() == Iterable(5, 4));
     }
         
     [Fact]

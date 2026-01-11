@@ -195,7 +195,7 @@ public static partial class FoldableBackExtensions
         /// <summary>
         /// Find the elements that match the predicate
         /// </summary>
-        public Iterable<A> FindAllBack(Func<A, bool> predicate) =>
+        public Iterator<A> FindAllBack(Func<A, bool> predicate) =>
             T.FindAllBack(predicate, ta);
 
         /// <summary>

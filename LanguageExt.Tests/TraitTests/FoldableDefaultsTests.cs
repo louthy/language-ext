@@ -223,7 +223,7 @@ public class FoldableDefaultsTests
     public static void FindAllTest()
     {
         var res = FList.New(1, 2, 3, 4, 5).FindAll(x => x > 3);
-        Assert.True(res == Iterable(4, 5));
+        Assert.True(res.AsIterable() == Iterable(4, 5));
     }
 
     [Fact]

@@ -70,9 +70,9 @@ public class IteratorTests
         var iterator = Iterable.empty<int>().ForwardIterator();
 
         // Act and Assert
-        Assert.True(iterator.IsEmpty);                              // Empty iterator should be empty
-        Assert.Throws<InvalidOperationException>(() => iterator.Head);
-        Assert.Equal(iterator, iterator.Tail);                       // Tail of an empty iterator should be itself
+        Assert.True(iterator.IsEmpty); // Empty iterator should be empty
+        Assert.True(iterator.Head.IsNone);
+        Assert.Equal(iterator, iterator.Tail); // Tail of an empty iterator should be itself
     }
 
     [Fact]

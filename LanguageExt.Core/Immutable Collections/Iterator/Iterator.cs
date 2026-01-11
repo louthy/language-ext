@@ -239,13 +239,22 @@ public abstract partial class Iterator<A> :
     [Pure]
     public virtual Iterator<A> Strict()
     {
+        var arr = ToArr();
+        return new IterArr(arr, 0, arr.Count);
+    }
+
+    /// <summary>
+    /// Forces evaluation of every item in the iterator and then writes them to an `Arr` structure
+    /// </summary>
+    [Pure]
+    public virtual Arr<A> ToArr()
+    {
         var writer = ArrayWriter<A>.Init();
         foreach (var head in Using())
         {
             writer.Add(head);
         }
-        var arr = writer.ToArr();
-        return new IterArr(arr, 0, arr.Count);
+        return writer.ToArr();
     }
     
     /// <summary>

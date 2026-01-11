@@ -341,10 +341,9 @@ public interface FoldableBack<T> : IterableBackK<T>
     /// The sequence is lazy, but note, if the original foldable structure is lazy,
     /// then it will need to be consumed in its entirety before the values are yielded.
     /// </remarks>
-    static virtual Iterable<A> FindAllBack<A>(Func<A, bool> predicate, K<T, A> ta) =>
+    static virtual Iterator<A> FindAllBack<A>(Func<A, bool> predicate, K<T, A> ta) =>
         T.BackwardIterator(ta)
-         .Filter(predicate)
-         .AsIterable();
+         .Filter(predicate);
 
     /// <summary>
     /// Get the last item in the foldable or `None`

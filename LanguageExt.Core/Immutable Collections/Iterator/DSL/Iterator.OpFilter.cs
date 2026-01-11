@@ -13,7 +13,7 @@ public abstract partial class Iterator<A>
         {
             for (var i = iter; i is (Exist<A> h, var t); i = t)
             {
-                if (f(h.Value)) return (h, t);
+                if (f(h.Value)) return (h, t.Filter(f));
             }
             return (Nil<A>.Default, Nil.Default);
         }

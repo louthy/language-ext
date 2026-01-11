@@ -190,7 +190,7 @@ public static partial class FoldableExtensions
         /// <summary>
         /// Find the elements that match the predicate
         /// </summary>
-        public Iterable<A> FindAll(Func<A, bool> predicate) =>
+        public Iterator<A> FindAll(Func<A, bool> predicate) =>
             T.FindAll(predicate, ta);
 
         /// <summary>

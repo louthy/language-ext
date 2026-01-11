@@ -21,6 +21,9 @@ public abstract partial class Iterator<A>
 
         public override Iterator<A> Using() =>
             this;
+
+        public override Arr<A> ToArr() =>
+            array.Splice(index, remaining);
     }
     
     /// <summary>
@@ -38,5 +41,8 @@ public abstract partial class Iterator<A>
 
         public override Iterator<A> Using() =>
             this;
+
+        public override Arr<A> ToArr() =>
+            array.Splice(index - remaining, remaining).Reverse();
     }
 }

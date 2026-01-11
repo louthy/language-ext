@@ -15,19 +15,16 @@ public class FoldableBackOrderedCollectionsTestSuite<F>
     readonly int ItemsSum;
     readonly int EndItemsSum;
     readonly int EndItemCutOff;
-    readonly int ItemsProduct;
     readonly Func<IEnumerable<int>, K<F, int>> Construct;
 
     FoldableBackOrderedCollectionsTestSuite(Func<IEnumerable<int>, K<F, int>> construct)
     {
         Items = new int[ItemsCount];
         var total = 0;
-        var product  = 1;
         for (var i = 0; i < ItemsCount; i++)
         {
             total += i;
             Items[i] = i;
-            product *= i;
         }
 
         var start    = ItemsCount - 1;
@@ -39,7 +36,6 @@ public class FoldableBackOrderedCollectionsTestSuite<F>
         }
 
         ItemsSum = total;
-        ItemsProduct = product;
         EndItemCutOff = end;
         EndItemsSum = endTotal;
         Construct = construct;
@@ -76,7 +72,6 @@ public class FoldableBackOrderedCollectionsTestSuite<F>
         suite.ExistsEmptyIsFalseTest();
         suite.ExistsFalseTest();
         suite.ExistsTrueTest();
-        suite.CountTest();
         suite.ToIterableTest();
         suite.ToArrTest();
         suite.ToLstTest();
@@ -170,12 +165,6 @@ public class FoldableBackOrderedCollectionsTestSuite<F>
         Assert.True(res == toIterable(Items), $"{typeof(F).Name} | ToIterableTest failed");
     }
 
-    void CountTest()
-    {
-        var res = Construct(ItemsR).Count;
-        Assert.True(res == ItemsCount, $"{typeof(F).Name} | CountTest failed");
-    }
-
     void ExistsTrueTest()
     {
         var expect = ItemsCount / 2;
@@ -261,7 +250,7 @@ public class FoldableBackOrderedCollectionsTestSuite<F>
     void FindAllBackTest()
     {
         var res = Construct(ItemsR).FindAllBack(x => x > 97);
-        Assert.True(res == Iterable(99, 98), $"{typeof(F).Name} | FindAllBackTest failed");
+        Assert.True(res.AsIterable() == Iterable(99, 98), $"{typeof(F).Name} | FindAllBackTest failed");
     }
 
     void LastSomeTest()

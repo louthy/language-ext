@@ -68,9 +68,7 @@ public partial class Iterator :
     }
     
     static Arr<A> Foldable<Iterator>.ToArr<A>(K<Iterator, A> ta) =>
-        ta is Iterator<A>.IterArr arr 
-            ? arr.Array
-            : ta.As().ToArr();
+        ta.As().ToArr();
 
     static Lst<A> Foldable<Iterator>.ToLst<A>(K<Iterator, A> ta) =>
         new(ta.As());
@@ -85,10 +83,10 @@ public partial class Iterator :
         +fa;
 
     static K<Seq, A> Natural<Iterator, Seq>.Transform<A>(K<Iterator, A> fa) => 
-        toSeq(fa.As());
+        new Seq<A>(fa.As());
 
     static K<Arr, A> Natural<Iterator, Arr>.Transform<A>(K<Iterator, A> fa) => 
-        toArr(fa.As());
+        fa.As().ToArr();
 
     static K<Lst, A> Natural<Iterator, Lst>.Transform<A>(K<Iterator, A> fa) => 
         toLst(fa.As());

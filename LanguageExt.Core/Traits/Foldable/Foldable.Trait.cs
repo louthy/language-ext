@@ -306,10 +306,9 @@ public interface Foldable<T> : IterableK<T>
     /// <remarks>
     /// The sequence is lazy
     /// </remarks>
-    static virtual Iterable<A> FindAll<A>(Func<A, bool> predicate, K<T, A> ta) =>
+    static virtual Iterator<A> FindAll<A>(Func<A, bool> predicate, K<T, A> ta) =>
         T.ForwardIterator(ta)
-         .Filter(predicate)
-         .AsIterable();
+         .Filter(predicate);
 
     /// <summary>
     /// Get the head item in the foldable or `None`

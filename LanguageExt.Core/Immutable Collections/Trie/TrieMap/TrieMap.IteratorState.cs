@@ -53,6 +53,7 @@ public partial class TrieMap
         
         internal IteratorState<EqK, K, V> Push(TrieMap<EqK, K, V>.Node item)
         {
+            if(item == null) throw new ArgumentNullException(nameof(item));
             var top   = Top;
             var index = EntryIndex;
             if (top == StackDepth) throw new StackOverflowException("TriMap.IteratorState stack-overflow");
@@ -120,7 +121,10 @@ public partial class TrieMap
                     return false;
                 }
 
-                state.Peek(out var n);
+                if (!state.Peek(out var n))
+                {
+                    throw new InvalidOperationException("IteratorState stack is empty");
+                }
 
                 switch (n)
                 {
@@ -133,11 +137,13 @@ public partial class TrieMap
                             if (index == nodes.Length)
                             {
                                 state = state.Pop();
+                                top--;
                                 continue;
                             }
                             else
                             {
                                 state = state.Push(e.Nodes[index]);
+                                top++;
                                 continue;
                             }
                         }
@@ -160,6 +166,7 @@ public partial class TrieMap
    
                     case TrieMap<EqK, K, V>.EmptyNode:
                         state = state.Pop();
+                        top--;
                         continue;
 
                     case TrieMap<EqK, K, V>.Collision c:
@@ -169,6 +176,7 @@ public partial class TrieMap
                         if (index == items.Length)
                         {
                             state = state.Pop();
+                            top--;
                             continue;
                         }
                         else

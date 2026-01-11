@@ -96,13 +96,13 @@ public class FoldableUnorderedCollectionsTestSuite<F>
     void ToLstTest()
     {
         var res = Construct(Items).ToLst().OrderBy(x => x).AsIterable().ToLst();
-        Assert.True(res == toList(Items), $"{typeof(F).Name} | ToLstTest failed");
+        Assert.True(res == toLst(Items), $"{typeof(F).Name} | ToLstTest failed");
     }
 
     void ToArrTest()
     {
         var res = Construct(Items).ToArr().OrderBy(x => x).AsIterable().ToArr();
-        Assert.True(res == toArray(Items), $"{typeof(F).Name} | ToArrTest failed");
+        Assert.True(res == toArr(Items), $"{typeof(F).Name} | ToArrTest failed");
     }
 
     void ToIterableTest()
@@ -214,7 +214,9 @@ public class FoldableUnorderedCollectionsTestSuite<F>
     void FindAllTest()
     {
         var res = Construct(Items).FindAll(x => x > 97);
-        Assert.True(res == Iterable(99, 98) || res == Iterable(98, 99), $"{typeof(F).Name} | FindAllTest failed");
+        var array = res.ToArr();
+        
+        Assert.True(array == Arr(99, 98) || array == Arr(98, 99), $"{typeof(F).Name} | FindAllTest failed");
     }
 
     void SumTest()

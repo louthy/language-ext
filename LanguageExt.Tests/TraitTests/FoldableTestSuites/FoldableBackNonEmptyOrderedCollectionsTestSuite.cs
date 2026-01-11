@@ -235,7 +235,7 @@ public class FoldableBackNonEmptyOrderedCollectionsTestSuite<F>
     void FindAllBackTest()
     {
         var res = Construct(ItemsR).FindAllBack(x => x > 97);
-        Assert.True(res == Iterable(99, 98), $"{typeof(F).Name} | FindAllBackTest failed");
+        Assert.True(res.AsIterable() == Iterable(99, 98), $"{typeof(F).Name} | FindAllBackTest failed");
     }
 
     void LastSomeTest()

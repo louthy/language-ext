@@ -169,7 +169,7 @@ public static partial class Deriving
         /// <summary>
         /// Find the elements that match the predicate
         /// </summary>
-        static Iterable<A> FoldableBack<Supertype>.FindAllBack<A>(Func<A, bool> predicate, K<Supertype, A> ta) =>
+        static Iterator<A> FoldableBack<Supertype>.FindAllBack<A>(Func<A, bool> predicate, K<Supertype, A> ta) =>
             Subtype.FindAllBack(predicate, Supertype.Transform(ta));
 
         /// <summary>
