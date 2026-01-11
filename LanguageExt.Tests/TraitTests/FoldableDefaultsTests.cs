@@ -73,7 +73,7 @@ public class FoldableDefaultsTests
     [Fact]
     public static void FoldUntilValueTest()
     {
-        var res = FList.New(1, 2, 3, 4, 5).FoldUntil((s, x) => s + x, s => s.Value == 4, 0);
+        var res = FList.New(1, 2, 3, 4, 5).FoldUntil((s, x) => s + x, s => s.Value == 3, 0);
         Assert.True(res == 6);
     }
 
@@ -81,7 +81,7 @@ public class FoldableDefaultsTests
     public static void FoldUntilMTest()
     {
         var res = FList.New(1, 2, 3, 4, 5)
-                       .FoldUntilM((s, x) => Some(s + x), x => x.Value == 4, 0);
+                       .FoldUntilM((s, x) => Some(s + x), x => x.Value == 3, 0);
         
         Assert.True(res.As() == Some(6));
     }
@@ -104,7 +104,7 @@ public class FoldableDefaultsTests
     public static void ToArrTest()
     {
         var res = FList.New(1, 2, 3, 4, 5).ToArr();
-        Assert.True(res == Array(1, 2, 3, 4, 5));
+        Assert.True(res == Arr(1, 2, 3, 4, 5));
     }
 
     [Fact]
