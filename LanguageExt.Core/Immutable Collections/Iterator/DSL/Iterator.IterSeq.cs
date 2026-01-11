@@ -9,6 +9,8 @@ public abstract partial class Iterator<A>
     /// </summary>
     internal class IterSeq(Seq<A> items) : Iterator<A>
     {
+        public Seq<A> Items => items;
+        
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             items.IsEmpty
                 ?(Nil<A>.Default, Nil.Default)

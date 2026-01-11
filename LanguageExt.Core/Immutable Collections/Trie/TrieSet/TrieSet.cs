@@ -65,6 +65,20 @@ internal class TrieSet<EqK, K> :
         }
     }
 
+    public TrieSet(Iterator<K> items, bool tryAdd = true)
+    {
+        Root = EmptyNode.Default;
+        var type = tryAdd ? TrieUpdateType.TryAdd : TrieUpdateType.AddOrUpdate;
+        foreach (var item in items)
+        {
+            var hash    = (uint)EqK.GetHashCode(item);
+            Sec section = default;
+            var (countDelta, newRoot) = Root.Update((type, true), item, hash, section);
+            count += countDelta;
+            Root = newRoot;
+        }
+    }
+
     /// <summary>
     /// True if no items in the map
     /// </summary>

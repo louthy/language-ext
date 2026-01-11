@@ -48,6 +48,13 @@ public readonly struct Set<A> :
     /// <summary>
     /// Ctor from an enumerable 
     /// </summary>
+    public Set(Iterator<A> items) : this(items, true)
+    {
+    }
+
+    /// <summary>
+    /// Ctor from an enumerable 
+    /// </summary>
     public Set(ReadOnlySpan<A> items) : this(items, true)
     {
     }
@@ -70,6 +77,17 @@ public readonly struct Set<A> :
     /// </summary>
     /// <param name="items"></param>
     public Set(IEnumerable<A> items, bool tryAdd) =>
+        value = new SetInternal<OrdDefault<A>, A>(
+            items, 
+            tryAdd
+                ? SetModuleM.AddOpt.TryAdd
+                : SetModuleM.AddOpt.ThrowOnDuplicate);
+
+    /// <summary>
+    /// Ctor that takes an initial (distinct) set of items
+    /// </summary>
+    /// <param name="items"></param>
+    public Set(Iterator<A> items, bool tryAdd) =>
         value = new SetInternal<OrdDefault<A>, A>(
             items, 
             tryAdd

@@ -53,18 +53,6 @@ public static partial class Prelude
         IteratorAsync.Cons(head, tail);
 
     /// <summary>
-    /// Construct a list from head and tail; head becomes the first item in 
-    /// the list.  
-    /// </summary>
-    /// <typeparam name="A">Type of the items in the sequence</typeparam>
-    /// <param name="head">Head item in the sequence</param>
-    /// <param name="tail">Tail of the sequence</param>
-    /// <returns></returns>
-    [Pure]
-    public static Lst<A> Cons<A>(this A head, Lst<A> tail) =>
-        tail.Insert(0, head);
-
-    /// <summary>
     /// Provide a sorted enumerable
     /// </summary>
     [Pure]
@@ -77,27 +65,6 @@ public static partial class Prelude
     [Pure]
     public static Seq<A> Sort<OrdA, A>(this Seq<A> xs) where OrdA : Ord<A> =>
         xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).AsIterable().ToSeq();
-
-    /// <summary>
-    /// Provide a sorted Lst
-    /// </summary>
-    [Pure]
-    public static Lst<A> Sort<OrdA, A>(this Lst<A> xs) where OrdA : Ord<A> =>
-        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).AsIterable().ToLst();
-
-    /// <summary>
-    /// Provide a sorted Arr
-    /// </summary>
-    [Pure]
-    public static Arr<A> Sort<OrdA, A>(this Arr<A> xs) where OrdA : Ord<A> =>
-        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).AsIterable().ToArr();
-
-    /// <summary>
-    /// Provide a sorted array
-    /// </summary>
-    [Pure]
-    public static A[] Sort<OrdA, A>(this A[] xs) where OrdA : Ord<A> =>
-        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).ToArray();
 
     /// <summary>
     /// Forever sequence of units
@@ -434,85 +401,6 @@ public static partial class Prelude
         LanguageExt.HashMap.createRange<EqK, K, V>(items).ToAtom();
 
     /// <summary>
-    /// Create an immutable list
-    /// </summary>
-    [Pure]
-    public static Lst<T> Lst<T>() =>
-        L.Lst<T>.Empty;
-
-    /// <summary>
-    /// Create an immutable list
-    /// </summary>
-    [Pure]
-    public static Lst<T> Lst<T>(T x, params T[] xs)
-    {
-        return new Lst<T>(Yield());
-
-        IEnumerable<T> Yield()
-        {
-            yield return x;
-            foreach(var item in xs)
-            {
-                yield return item;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Create an immutable list
-    /// </summary>
-    [Pure]
-    public static Lst<T> toLst<T>(Arr<T> items) =>
-        new (items.AsSpan());
-
-    /// <summary>
-    /// Create an immutable list
-    /// </summary>
-    [Pure]
-    public static Lst<T> toLst<T>(IEnumerable<T> items) =>
-        items is Lst<T> lst
-            ? lst
-            : new Lst<T>(items);
-
-    /// <summary>
-    /// Create an immutable list
-    /// </summary>
-    [Pure]
-    public static Lst<T> toLst<T>(ReadOnlySpan<T> items) =>
-        new (items);
-
-
-    /// <summary>
-    /// Create an immutable array
-    /// </summary>
-    [Pure]
-    public static Arr<T> Array<T>() =>
-        Arr<T>.Empty;
-
-    /// <summary>
-    /// Create an immutable array
-    /// </summary>
-    [Pure]
-    public static Arr<T> Array<T>(T x, params T[] xs) =>
-        new (x.Cons(xs).ToArray());
-
-    /// <summary>
-    /// Create an immutable array
-    /// </summary>
-    [Pure]
-    public static Arr<T> toArray<T>(IEnumerable<T> items) =>
-        items is Arr<T> arr
-            ? arr
-            : new Arr<T>(items);
-
-    /// <summary>
-    /// Create an immutable array
-    /// </summary>
-    [Pure]
-    public static Arr<T> toArray<T>(ReadOnlySpan<T> items) =>
-        new (items);
-
-    /// <summary>
     /// Create an immutable queue
     /// </summary>
     [Pure]
@@ -574,133 +462,6 @@ public static partial class Prelude
     [Pure]
     public static Map<K, V> toMapTry<K, V>(ReadOnlySpan<(K, V)> keyValues) =>
         new(keyValues, false);
-
-
-
-    /// <summary>
-    /// Create an immutable set
-    /// </summary>
-    [Pure]
-    public static Set<T> Set<T>() =>
-        LanguageExt.Set.create<T>();
-
-    /// <summary>
-    /// Create an immutable set
-    /// </summary>
-    [Pure]
-    public static Set<T> Set<T>(T head, params T[] tail) =>
-        LanguageExt.Set.createRange(head.Cons(tail));
-
-    /// <summary>
-    /// Create an immutable set
-    /// </summary>
-    [Pure]
-    public static Set<T> toSet<T>(IEnumerable<T> items) =>
-        items is Set<T> s
-            ? s
-            : LanguageExt.Set.createRange(items);
-
-    /// <summary>
-    /// Create an immutable set
-    /// </summary>
-    [Pure]
-    public static Set<T> toSet<T>(ReadOnlySpan<T> items) =>
-        LanguageExt.Set.createRange(items);
-
-
-
-    /// <summary>
-    /// Create an immutable set
-    /// </summary>
-    [Pure]
-    public static Set<OrdT, T> Set<OrdT, T>() where OrdT : Ord<T> =>
-        LanguageExt.Set.create<OrdT, T>();
-
-    /// <summary>
-    /// Create an immutable set
-    /// </summary>
-    [Pure]
-    public static Set<OrdT, T> Set<OrdT, T>(T head, params T[] tail) where OrdT : Ord<T> =>
-        LanguageExt.Set.createRange<OrdT, T>(head.Cons(tail));
-
-    /// <summary>
-    /// Create an immutable set
-    /// </summary>
-    [Pure]
-    public static Set<OrdT, T> toSet<OrdT, T>(IEnumerable<T> items) where OrdT : Ord<T> =>
-        items is Set<OrdT, T> s
-            ? s
-            : LanguageExt.Set.createRange<OrdT, T>(items);
-
-    /// <summary>
-    /// Create an immutable set
-    /// </summary>
-    [Pure]
-    public static Set<OrdT, T> toSet<OrdT, T>(ReadOnlySpan<T> items) where OrdT : Ord<T> =>
-        LanguageExt.Set.createRange<OrdT, T>(items);
-
-
-    /// <summary>
-    /// Create an immutable hash-set
-    /// </summary>
-    [Pure]
-    public static HashSet<T> HashSet<T>() =>
-        LanguageExt.HashSet.create<T>();
-
-    /// <summary>
-    /// Create an immutable hash-set
-    /// </summary>
-    [Pure]
-    public static HashSet<T> HashSet<T>(T head, params T[] tail) =>
-        LanguageExt.HashSet.createRange(head.Cons(tail));
-
-    /// <summary>
-    /// Create an immutable hash-set
-    /// </summary>
-    [Pure]
-    public static HashSet<T> toHashSet<T>(IEnumerable<T> items) =>
-        items is HashSet<T> hs
-            ? hs
-            : LanguageExt.HashSet.createRange(items);
-
-    /// <summary>
-    /// Create an immutable hash-set
-    /// </summary>
-    [Pure]
-    public static HashSet<T> toHashSet<T>(ReadOnlySpan<T> items) =>
-        LanguageExt.HashSet.createRange(items);
-
-
-
-    /// <summary>
-    /// Create an immutable hash-set
-    /// </summary>
-    [Pure]
-    public static HashSet<EqT, T> HashSet<EqT, T>() where EqT : Eq<T> =>
-        LanguageExt.HashSet.create<EqT, T>();
-
-    /// <summary>
-    /// Create an immutable hash-set
-    /// </summary>
-    [Pure]
-    public static HashSet<EqT, T> HashSet<EqT, T>(T head, params T[] tail) where EqT : Eq<T> =>
-        LanguageExt.HashSet.createRange<EqT, T>(head.Cons(tail));
-
-    /// <summary>
-    /// Create an immutable hash-set
-    /// </summary>
-    [Pure]
-    public static HashSet<EqT, T> toHashSet<EqT, T>(IEnumerable<T> items) where EqT : Eq<T> =>
-        items is HashSet<EqT, T> hs
-            ? hs
-            : LanguageExt.HashSet.createRange<EqT, T>(items);
-
-    /// <summary>
-    /// Create an immutable hash-set
-    /// </summary>
-    [Pure]
-    public static HashSet<EqT, T> toHashSet<EqT, T>(ReadOnlySpan<T> items) where EqT : Eq<T> =>
-        [..items];
 
     /// <summary>
     /// Create a queryable

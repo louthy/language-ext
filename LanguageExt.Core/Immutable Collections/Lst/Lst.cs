@@ -52,6 +52,13 @@ public readonly struct Lst<A> :
     /// Ctor
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Lst(Iterator<A> initial) =>
+        value = new LstInternal<A>(initial);
+
+    /// <summary>
+    /// Ctor
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst(ReadOnlySpan<A> initial) =>
         value = new LstInternal<A>(initial);
 

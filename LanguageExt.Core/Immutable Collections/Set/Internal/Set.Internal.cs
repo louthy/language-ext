@@ -95,6 +95,20 @@ internal class SetInternal<OrdA, A> :
     /// Ctor that takes an initial (distinct) set of items
     /// </summary>
     /// <param name="items"></param>
+    internal SetInternal(Iterator<A> items, SetModuleM.AddOpt option)
+    {
+        Root = SetItem<A>.Empty;
+
+        foreach (var item in items)
+        {
+            Root = SetModuleM.Add<OrdA, A>(Root, item, option);
+        }
+    }
+
+    /// <summary>
+    /// Ctor that takes an initial (distinct) set of items
+    /// </summary>
+    /// <param name="items"></param>
     internal SetInternal(ReadOnlySpan<A> items, SetModuleM.AddOpt option)
     {
         Root = SetItem<A>.Empty;

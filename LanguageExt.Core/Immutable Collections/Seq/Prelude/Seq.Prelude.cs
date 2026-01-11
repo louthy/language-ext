@@ -211,6 +211,20 @@ public static partial class Prelude
     /// items in the enumerable as they're being consumed.
     /// </summary>
     [Pure]
+    public static Seq<A> toSeq<A>(Iterator<A>? value) =>
+        value switch
+        {
+            null                  => Empty,
+            Iterator<A>.IterSeq s => s.Items,
+            _                     => new Seq<A>(value)
+        };
+
+    /// <summary>
+    /// Construct a sequence from an Enumerable
+    /// Deals with `value == null` by returning `[]` and also memoizes the
+    /// items in the enumerable as they're being consumed.
+    /// </summary>
+    [Pure]
     public static Seq<A> toSeq<A>(IEnumerable<A>? value) =>
         value switch
         {

@@ -69,6 +69,12 @@ public readonly struct Seq<A> :
     /// Constructor from lazy sequence
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Seq(Iterator<A> ma) : this(new SeqIterator<A>(ma)) { }
+
+    /// <summary>
+    /// Constructor from lazy sequence
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq(ReadOnlySpan<A> ma) : this(Seq.FromArray(ma.ToArray())) { }
 
     /// <summary>

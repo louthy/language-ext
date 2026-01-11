@@ -11,6 +11,8 @@ public abstract partial class Iterator
     internal class IterHashSet<EqK, K>(TrieSet.IteratorState<EqK, K> items) : Iterator<K>
         where EqK : Eq<K>
     {
+        public TrieSet.IteratorState<EqK, K> Items => items;
+        
         public override (Head<K> Head, Iterator<K> Tail) Next() =>
             items.Step(out var head, out var tail)
                 ? (new Exist<K>(head), new IterHashSet<EqK, K>(tail))

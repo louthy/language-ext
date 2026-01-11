@@ -48,7 +48,21 @@ public readonly struct HashSet<EqA, A> :
     /// <summary>
     /// Ctor that takes an initial (distinct) set of items
     /// </summary>
+    /// <param name="items"></param>
+    public HashSet(Iterator<A> items) : this(items, true)
+    {
+    }
+
+    /// <summary>
+    /// Ctor that takes an initial (distinct) set of items
+    /// </summary>
     public HashSet(IEnumerable<A> items, bool tryAdd) =>
+        value = new TrieSet<EqA, A>(items, tryAdd);
+
+    /// <summary>
+    /// Ctor that takes an initial (distinct) set of items
+    /// </summary>
+    public HashSet(Iterator<A> items, bool tryAdd) =>
         value = new TrieSet<EqA, A>(items, tryAdd);
 
     /// <summary>

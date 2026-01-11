@@ -9,6 +9,8 @@ public abstract partial class Iterator<A>
     /// </summary>
     internal class IterSetFwd(Set.IteratorState<A> items) : Iterator<A>
     {
+        public Set.IteratorState<A> Items => items;
+        
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             items.Step(out var head, out var tail)
                 ? (new Exist<A>(head.Key), new IterSetFwd(tail))
@@ -26,6 +28,8 @@ public abstract partial class Iterator<A>
     /// </summary>
     internal class IterSetBkwd(Set.IteratorState<A> items) : Iterator<A>
     {
+        public Set.IteratorState<A> Items => items;
+        
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             items.StepBack(out var head, out var tail)
                 ? (new Exist<A>(head.Key), new IterSetFwd(tail))

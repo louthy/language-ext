@@ -3,6 +3,7 @@ using System.Linq;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -15,6 +16,21 @@ public static partial class LstExtensions
     public static Lst<A> Flatten<A>(this Lst<Lst<A>> ma) =>
         ma.Bind(identity);
 
+    extension<A>(A head)
+    {
+        /// <summary>
+        /// Construct a list from head and tail; head becomes the first item in 
+        /// the list.  
+        /// </summary>
+        /// <typeparam name="A">Type of the items in the sequence</typeparam>
+        /// <param name="head">Head item in the sequence</param>
+        /// <param name="tail">Tail of the sequence</param>
+        /// <returns></returns>
+        [Pure]
+        public Lst<A> Cons(Lst<A> tail) =>
+            tail.Insert(0, head);
+    }
+
     extension<A>(K<Lst, A> list)
     {
         /// <summary>
@@ -23,6 +39,13 @@ public static partial class LstExtensions
         public Lst<A> As() =>
             (Lst<A>)list;
 
+        /// <summary>
+        /// Provide a sorted Lst
+        /// </summary>
+        [Pure]
+        public Lst<A> Sort<OrdA>() where OrdA : Ord<A> =>
+            list.As().OrderBy(identity, OrdComparer<OrdA, A>.Default).AsIterable().ToLst();
+        
         /// <summary>
         /// Reverse the list
         /// </summary>

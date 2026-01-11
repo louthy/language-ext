@@ -28,7 +28,6 @@ internal class LstInternal<A> :
     internal ListItem<A> root;
     internal int hashCode;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal LstInternal(IEnumerable<A> items)
     {
         hashCode = 0;
@@ -43,7 +42,13 @@ internal class LstInternal<A> :
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal LstInternal(Iterator<A> items)
+    {
+        hashCode = 0;
+        root = ListItem<A>.EmptyM;
+        root = ListModuleM.InsertMany(root, items, 0);
+    }
+
     internal LstInternal(ReadOnlySpan<A> items)
     {
         hashCode = 0;
@@ -559,6 +564,10 @@ internal static class ListModuleM
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index) =>
         Insert(node, BuildSubTree(items), index);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ListItem<A> InsertMany<A>(ListItem<A> node, Iterator<A> items, int index) =>
+        Insert(node, BuildSubTree(items), index);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ListItem<A> InsertMany<A>(ListItem<A> node, ReadOnlySpan<A> items, int index) =>
@@ -573,6 +582,19 @@ internal static class ListModuleM
         var subIndex  = 0;
         var foldState = T.StepSetup(items);
         while (T.Step(items, ref foldState, out var item))
+        {
+            root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
+            subIndex++;
+        }
+        return root;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ListItem<A> BuildSubTree<A>(Iterator<A> items)
+    {
+        var root      = ListItem<A>.EmptyM;
+        var subIndex  = 0;
+        foreach(var item in items)
         {
             root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
             subIndex++;

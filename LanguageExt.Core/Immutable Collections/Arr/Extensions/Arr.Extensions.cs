@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Diagnostics.Contracts;
 using LanguageExt.Traits;
 
@@ -23,6 +24,13 @@ public static partial class ArrExtensions
 
     extension<A>(K<Arr, A> ma)
     {
+        /// <summary>
+        /// Provide a sorted Arr
+        /// </summary>
+        [Pure]
+        public  Arr<A> Sort<OrdA>() where OrdA : Ord<A> =>
+            ma.As().OrderBy(x => x, OrdComparer<OrdA, A>.Default).AsIterable().ToArr();
+        
         [Pure]
         public Arr<A> Filter(Func<A, bool> f)
         {

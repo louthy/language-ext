@@ -14,20 +14,20 @@ public partial class HashSet
     /// <summary>
     /// True if the set has no elements
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <returns>True if the set has no elements</returns>
     [Pure]
-    public static bool isEmpty<EqT, T>(HashSet<EqT, T> set) where EqT : Eq<T> =>
+    public static bool isEmpty<EqA, A>(HashSet<EqA, A> set) where EqA : Eq<A> =>
         set.IsEmpty;
 
     /// <summary>
     /// Create a new empty set
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <returns>Empty HSet</returns>
     [Pure]
-    public static HashSet<EqT, T> create<EqT, T>() where EqT : Eq<T> =>
-        HashSet<EqT, T>.Empty;
+    public static HashSet<EqA, A> create<EqA, A>() where EqA : Eq<A> =>
+        HashSet<EqA, A>.Empty;
 
     /// <summary>
     /// Create a singleton collection
@@ -53,66 +53,76 @@ public partial class HashSet
     /// <summary>
     /// Create a new set pre-populated with the items in range
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <param name="range">Range of items</param>
     /// <returns>HSet</returns>
     [Pure]
-    public static HashSet<EqT, T> createRange<EqT, T>(IEnumerable<T> range) where EqT : Eq<T> =>
+    public static HashSet<EqA, A> createRange<EqA, A>(IEnumerable<A> range) where EqA : Eq<A> =>
+        new (range);
+
+    /// <summary>
+    /// Create a new set pre-populated with the items in range
+    /// </summary>
+    /// <typeparam name="A">Element type</typeparam>
+    /// <param name="range">Range of items</param>
+    /// <returns>HSet</returns>
+    [Pure]
+    public static HashSet<EqA, A> createRange<EqA, A>(Iterator<A> range) where EqA : Eq<A> =>
         new (range);
 
     /// <summary>
     /// Create a new empty set
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <returns>Empty HSet</returns>
     [Pure]
-    public static HashSet<EqT, T> empty<EqT, T>() where EqT : Eq<T> =>
-        HashSet<EqT, T>.Empty;
+    public static HashSet<EqA, A> empty<EqA, A>() where EqA : Eq<A> =>
+        HashSet<EqA, A>.Empty;
 
     /// <summary>
     /// Add an item to the set
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <param name="set">Set to add item to</param>
     /// <param name="value">Value to add to the HSet</param>
     /// <returns>New set with the item added</returns>
     [Pure]
-    public static HashSet<EqT, T> add<EqT, T>(HashSet<EqT, T> set, T value) where EqT : Eq<T> =>
+    public static HashSet<EqA, A> add<EqA, A>(HashSet<EqA, A> set, A value) where EqA : Eq<A> =>
         set.Add(value);
 
     /// <summary>
     /// Attempt to add an item to the set.  If an item already
     /// exists then return the Set as-is.
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <param name="set">Set to add item to</param>
     /// <param name="value">Value to add to the HSet</param>
     /// <returns>New set with the item maybe added</returns>
     [Pure]
-    public static HashSet<EqT, T> tryAdd<EqT, T>(HashSet<EqT, T> set, T value) where EqT : Eq<T> =>
+    public static HashSet<EqA, A> tryAdd<EqA, A>(HashSet<EqA, A> set, A value) where EqA : Eq<A> =>
         set.TryAdd(value);
 
     /// <summary>
     /// Add an item to the set.  If an item already
     /// exists then replace it.
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <param name="set">Set to add item to</param>
     /// <param name="value">Value to add to the HSet</param>
     /// <returns>New set with the item maybe added</returns>
     [Pure]
-    public static HashSet<EqT, T> addOrUpdate<EqT, T>(HashSet<EqT, T> set, T value) where EqT : Eq<T> =>
+    public static HashSet<EqA, A> addOrUpdate<EqA, A>(HashSet<EqA, A> set, A value) where EqA : Eq<A> =>
         set.AddOrUpdate(value);
 
     /// <summary>
     /// Attempts to find an item in the set.  
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <param name="set">HSet</param>
     /// <param name="value">Value to find</param>
     /// <returns>Some(T) if found, None otherwise</returns>
     [Pure]
-    public static Option<T> find<EqT, T>(HashSet<EqT, T> set, T value) where EqT : Eq<T> =>
+    public static Option<A> find<EqA, A>(HashSet<EqA, A> set, A value) where EqA : Eq<A> =>
         set.Find(value);
 
     /// <summary>
@@ -120,29 +130,29 @@ public partial class HashSet
     /// predicate.
     /// </summary>
     /// <remarks>Note this scans the entire set.</remarks>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <param name="set">HSet</param>
     /// <param name="pred">Predicate</param>
     /// <returns>True if predicate returns true for any item</returns>
     [Pure]
-    public static bool exists<EqT, T>(HashSet<EqT, T> set, Func<T, bool> pred) where EqT : Eq<T> =>
+    public static bool exists<EqA, A>(HashSet<EqA, A> set, Func<A, bool> pred) where EqA : Eq<A> =>
         set.AsIterable().Exists(pred);
 
     /// <summary>
     /// Returns true if both sets contain the same elements
     /// </summary>
     [Pure]
-    public static bool equals<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
+    public static bool equals<EqA, A>(HashSet<EqA, A> setA, HashSet<EqA, A> setB) where EqA : Eq<A> =>
         setA.Equals(setB);
 
     /// <summary>
     /// Get the number of elements in the set
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <param name="set">HSet</param>
     /// <returns>Number of elements</returns>
     [Pure]
-    public static int length<EqT, T>(HashSet<EqT, T> set) where EqT : Eq<T> =>
+    public static int length<EqA, A>(HashSet<EqA, A> set) where EqA : Eq<A> =>
         set.Count();
 
     /// <summary>
@@ -150,19 +160,19 @@ public partial class HashSet
     /// setB will be returned.
     /// </summary>
     [Pure]
-    public static HashSet<EqT, T> subtract<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
+    public static HashSet<EqA, A> subtract<EqA, A>(HashSet<EqA, A> setA, HashSet<EqA, A> setB) where EqA : Eq<A> =>
         setA.Except(setB);
 
     /// <summary>
     /// Finds the union of two sets and produces a new set with 
     /// the results
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <param name="setA">Set A</param>
     /// <param name="setB">Set A</param>
     /// <returns>A set which contains all items from both sets</returns>
     [Pure]
-    public static HashSet<EqT, T> union<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
+    public static HashSet<EqA, A> union<EqA, A>(HashSet<EqA, A> setA, HashSet<EqA, A> setB) where EqA : Eq<A> =>
         setA.Union(setB);
 
     /// <summary>
@@ -170,26 +180,26 @@ public partial class HashSet
     /// returns True for any item then it remains in the set, otherwise
     /// it's dropped.
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <param name="set">HSet</param>
     /// <param name="pred">Predicate</param>
     /// <returns>Filtered enumerable</returns>
     [Pure]
-    public static HashSet<EqT, T> filter<EqT, T>(HashSet<EqT, T> set, Func<T, bool> pred) where EqT : Eq<T> =>
+    public static HashSet<EqA, A> filter<EqA, A>(HashSet<EqA, A> set, Func<A, bool> pred) where EqA : Eq<A> =>
         set.Filter(pred);
 
     /// <summary>
     /// Returns the elements that are in both setA and setB
     /// </summary>
     [Pure]
-    public static HashSet<EqT, T> intersect<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
+    public static HashSet<EqA, A> intersect<EqA, A>(HashSet<EqA, A> setA, HashSet<EqA, A> setB) where EqA : Eq<A> =>
         setA.Intersect(setB);
 
     /// <summary>
     /// Returns the elements that are in both setA and setB
     /// </summary>
     [Pure]
-    public static HashSet<EqT, T> except<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
+    public static HashSet<EqA, A> except<EqA, A>(HashSet<EqA, A> setA, HashSet<EqA, A> setB) where EqA : Eq<A> =>
         setA.Except(setB);
 
     /// <summary>
@@ -197,111 +207,111 @@ public partial class HashSet
     /// If an item is in both, it is dropped.
     /// </summary>
     [Pure]
-    public static HashSet<EqT, T> symmetricExcept<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
+    public static HashSet<EqA, A> symmetricExcept<EqA, A>(HashSet<EqA, A> setA, HashSet<EqA, A> setB) where EqA : Eq<A> =>
         setA.SymmetricExcept(setB);
 
     /// <summary>
     /// Maps the values of this set into a new set of values using the
     /// mapper function to transform the source values.
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
-    /// <typeparam name="R">Mapped element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
+    /// <typeparam name="B">Mapped element type</typeparam>
     /// <param name="set">HSet</param>
     /// <param name="mapper">Mapping function</param>
     /// <returns>Mapped enumerable</returns>
     [Pure]
-    public static HashSet<EqR, R> map<EqT, EqR, T, R>(HashSet<EqT, T> set, Func<T, R> mapper) 
-        where EqT : Eq<T>
-        where EqR : Eq<R>  =>
-        set.Map<EqR, R>(mapper);
+    public static HashSet<EqB, B> map<EqA, EqB, A, B>(HashSet<EqA, A> set, Func<A, B> mapper) 
+        where EqA : Eq<A>
+        where EqB : Eq<B>  =>
+        set.Map<EqB, B>(mapper);
 
     /// <summary>
     /// Maps the values of this set into a new set of values using the
     /// mapper function to tranform the source values.
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <typeparam name="R">Mapped element type</typeparam>
     /// <param name="set">HSet</param>
     /// <param name="mapper">Mapping function</param>
     /// <returns>Mapped enumerable</returns>
     [Pure]
-    public static HashSet<EqT, T> map<EqT, T>(HashSet<EqT, T> set, Func<T, T> mapper) where EqT : Eq<T> =>
+    public static HashSet<EqA, A> map<EqA, A>(HashSet<EqA, A> set, Func<A, A> mapper) where EqA : Eq<A> =>
         set.Map(mapper);
 
     /// <summary>
     /// Returns True if the value is in the set
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <param name="set">HSet</param>
     /// <param name="value">Value to check</param>
     /// <returns>True if the item 'value' is in the Set 'set'</returns>
     [Pure]
-    public static bool contains<EqT, T>(HashSet<EqT, T> set, T value) where EqT : Eq<T> =>
+    public static bool contains<EqA, A>(HashSet<EqA, A> set, A value) where EqA : Eq<A> =>
         set.Contains(value);
 
     /// <summary>
     /// Removes an item from the set (if it exists)
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <param name="set">HSet</param>
     /// <param name="value">Value to check</param>
     /// <returns>New set with item removed</returns>
     [Pure]
-    public static HashSet<EqT, T> remove<EqT, T>(HashSet<EqT, T> set, T value) where EqT : Eq<T> =>
+    public static HashSet<EqA, A> remove<EqA, A>(HashSet<EqA, A> set, A value) where EqA : Eq<A> =>
         set.Remove(value);
 
     /// <summary>
     /// Returns True if setB is a subset of setA
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <param name="setA">Set A</param>
     /// <param name="setB">Set B</param>
     /// <returns>True is setB is a subset of setA</returns>
     [Pure]
-    public static bool isSubHSet<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
+    public static bool isSubset<EqA, A>(HashSet<EqA, A> setA, HashSet<EqA, A> setB) where EqA : Eq<A> =>
         setA.IsSubsetOf(setB);
 
     /// <summary>
     /// Returns True if setB is a superset of setA
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <param name="setA">Set A</param>
     /// <param name="setB">Set B</param>
     /// <returns>True is setB is a superset of setA</returns>
     [Pure]
-    public static bool isSuperHSet<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
+    public static bool isSuperset<EqA, A>(HashSet<EqA, A> setA, HashSet<EqA, A> setB) where EqA : Eq<A> =>
         setA.IsSupersetOf(setB);
 
     /// <summary>
     /// Returns True if setB is a proper subset of setA
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <param name="setA">Set A</param>
     /// <param name="setB">Set B</param>
     /// <returns>True is setB is a proper subset of setA</returns>
     [Pure]
-    public static bool isProperSubHSet<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
+    public static bool isProperSubset<EqA, A>(HashSet<EqA, A> setA, HashSet<EqA, A> setB) where EqA : Eq<A> =>
         setA.IsProperSubsetOf(setB);
 
     /// <summary>
     /// Returns True if setB is a proper superset of setA
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <param name="setA">Set A</param>
     /// <param name="setB">Set B</param>
     /// <returns>True is setB is a proper subset of setA</returns>
     [Pure]
-    public static bool isProperSuperHSet<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
+    public static bool isProperSuperset<EqA, A>(HashSet<EqA, A> setA, HashSet<EqA, A> setB) where EqA : Eq<A> =>
         setA.IsProperSupersetOf(setB);
 
     /// <summary>
     /// Returns True if setA overlaps setB
     /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
+    /// <typeparam name="A">Element type</typeparam>
     /// <param name="setA">Set A</param>
     /// <param name="setB">Set B</param>
     /// <returns>True if setA overlaps setB</returns>
     [Pure]
-    public static bool overlaps<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
+    public static bool overlaps<EqA, A>(HashSet<EqA, A> setA, HashSet<EqA, A> setB) where EqA : Eq<A> =>
         setA.Overlaps(setB);
 }
