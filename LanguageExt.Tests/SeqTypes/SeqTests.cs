@@ -102,13 +102,13 @@ public class SeqTests
     {
         var input = Seq(10, 20, 30, 40, 50);
 
-        var output1 = Foldable.foldUntil((s, x) => s + x, x => x.Value >= 40, "", input);
+        var output1 = Foldable.foldUntil((s, x) => s + x, x => x.Value >= 30, "", input);
         Assert.Equal("102030", output1);
 
         var output2 = Foldable.foldUntil((s, x) => s + x, s => s.State.Length >= 6, "", input);
         Assert.Equal("102030", output2);
 
-        var output3 = Foldable.foldUntil((s, x) => s + x, x => x.Value >= 40, 0, input);
+        var output3 = Foldable.foldUntil((s, x) => s + x, x => x.Value >= 30, 0, input);
         Assert.Equal(60, output3);
 
         var output4 = Foldable.foldUntil((s, x) => s + x, s => s.State >= 60, 0, input);
