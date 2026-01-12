@@ -8,6 +8,7 @@
 using LanguageExt;
 using LanguageExt.Common;
 using LanguageExt.Traits.Domain;
+using L = LanguageExt;
 
 namespace CreditCardValidation.Data;
 
@@ -38,7 +39,7 @@ public readonly struct Expiry(Base12 Value) :
     }
 
     public static Range<Expiry> NextTenYears =>
-        new (Now, Now + MonthSpan.TenYears, One, MinusOne, NextTenYears1, NextTenYears1Rev);
+        L.Range.fromMinMax(Now, Now + MonthSpan.TenYears, e => e + MonthSpan.OneYear, (ex, ey) => ex == ey);
 
     static Fin<Expiry> DomainType<Expiry, Base12>.From(Base12 repr) => 
         new Expiry(repr);

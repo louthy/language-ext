@@ -121,30 +121,6 @@ public static partial class Prelude
     }
 
     /// <summary>
-    /// Lazily generate a range of integers.  
-    /// </summary>
-    [Pure]
-    public static Range<long> Range(long from, long count, long step = 1) =>
-        LanguageExt.Range.fromCount(from, count, step);
-
-    /// <summary>
-    /// Lazily generate a range of integers.  
-    /// </summary>
-    [Pure]
-    public static Range<int> Range(int from, int count, int step = 1) =>
-        LanguageExt.Range.fromCount(from, count, step);
-
-    /// <summary>
-    /// Lazily generate a range of chars.  
-    /// 
-    ///   Remarks:
-    ///     Can go in a positive direction ('a'..'z') as well as negative ('z'..'a')
-    /// </summary>
-    [Pure]
-    public static Range<char> Range(char from, char to) =>
-        LanguageExt.Range.fromMinMax(from, to);
-
-    /// <summary>
     /// Create an immutable map
     /// </summary>
     [Pure]

@@ -102,7 +102,9 @@ public partial class Seq
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> generate<A>(int count, Func<int, A> generator) =>
-        IterableExtensions.AsIterable(Range(0, count)).Map(generator).ToSeq();
+        Range(0, count)
+           .ForwardIterator()
+           .Map(generator).ToSeq();
 
     /// <summary>
     /// Generates a sequence that contains one repeated value.
@@ -110,7 +112,7 @@ public partial class Seq
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> repeat<A>(A item, int count) =>
-        IterableExtensions.AsIterable(Range(0, count)).Map(_ => item).ToSeq();
+        Range(0, count).ForwardIterator().Map(_ => item).ToSeq();
 
     /// <summary>
     /// Get the item at the head (first) of the sequence
@@ -181,7 +183,7 @@ public partial class Seq
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<B> map<A, B>(Seq<A> list, Func<int, A, B> map) =>
-        toSeq(zip(list, toSeq(Range(0, int.MaxValue)), (t, i) => map(i, t)));
+        toSeq(zip(list, Range(0, int.MaxValue).ForwardIterator().ToSeq(), (t, i) => map(i, t)));
 
     /// <summary>
     /// Removes items from the sequence that do not match the given predicate (Where in LINQ)

@@ -20,17 +20,17 @@ public static partial class List
     [Obsolete("Use Iterable.generate")]
     [OverloadResolutionPriority(Change.Priority)]
     public static Iterable<T> generate<T>(int count, Func<int, T> generator) =>
-        IterableExtensions.AsIterable(Range(0, count)).Map(generator);
+        Range(0, count).ForwardIterator().Map(generator).AsIterable();
 
     [Obsolete("Use Iterable.generate")]
     [OverloadResolutionPriority(Change.Priority)]
     public static Iterable<T> generate<T>(Func<int, T> generator) =>
-        IterableExtensions.AsIterable(Range(0, int.MaxValue)).Map(generator);
+        Range(0, int.MaxValue).ForwardIterator().Map(generator).AsIterable();
 
     [Obsolete("Use Iterable.repeat")]
     [OverloadResolutionPriority(Change.Priority)]
     public static Iterable<T> repeat<T>(T item, int count) =>
-        IterableExtensions.AsIterable(Range(0, count)).Map(_ => item);
+        Range(0, count).ForwardIterator().Map(_ => item).AsIterable();
 
     [Obsolete("Use Iterable.head")]
     [OverloadResolutionPriority(Change.Priority)]
@@ -123,7 +123,7 @@ public static partial class List
     [Obsolete("Use Iterable.map")]
     [OverloadResolutionPriority(Change.Priority)]
     public static Iterable<R> map<T, R>(IEnumerable<T> list, Func<int, T, R> map) =>
-        zip(list, Range(0, int.MaxValue), (t, i) => map(i, t)).AsIterable();
+        zip(list, Range(0, int.MaxValue).ForwardIterator().AsIterable(), (t, i) => map(i, t)).AsIterable();
 
     [Obsolete("Use Iterable.filter")]
     [OverloadResolutionPriority(Change.Priority)]
