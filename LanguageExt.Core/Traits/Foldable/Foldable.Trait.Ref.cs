@@ -120,14 +120,8 @@ public interface Foldable<T, FS> : Foldable<T>, IterableK<T, FS>
         
         while (T.Step(ta, ref foldState, out var value))
         {
-            if (predicate((state, value)))
-            {
-                return state;
-            }
-            else
-            {
-                state = f(state, value);
-            }
+            state = f(state, value);
+            if (predicate((state, value))) return state;
         }
         return state;
     }

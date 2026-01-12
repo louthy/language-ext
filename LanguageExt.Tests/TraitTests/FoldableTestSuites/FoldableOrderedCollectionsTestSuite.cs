@@ -130,13 +130,13 @@ public class FoldableOrderedCollectionsTestSuite<F>
 
     void FoldUntilValueTest()
     {
-        var res = Construct(Items).FoldUntil((s, x) => s + x, s => s.Value == 4, 0);
+        var res = Construct(Items).FoldUntil((s, x) => s + x, s => s.Value == 3, 0);
         Assert.True(res == 6, $"{typeof(F).Name} | FoldUntilValueTest failed");
     }
 
     void FoldUntilMTest()
     {
-        var res = Construct(Items).FoldUntilM((s, x) => Some(s + x), x => x.Value == 4, 0);
+        var res = Construct(Items).FoldUntilM((s, x) => Some(s + x), x => x.Value == 3, 0);
         Assert.True(res.As() == Some(6), $"{typeof(F).Name} | FoldUntilMTest failed");
     }
 

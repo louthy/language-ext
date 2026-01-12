@@ -186,8 +186,8 @@ public partial class Lst :
         new (ta.As());
 
     static Iterator<A> IterableK<Lst>.ForwardIterator<A>(K<Lst, A> fa) => 
-        throw new NotImplementedException();
+        new Iterator<A>.IterLstFwd(new IteratorState<A>(fa.As().Value.Root));
 
     static Iterator<A> IterableBackK<Lst>.BackwardIterator<A>(K<Lst, A> fa) => 
-        throw new NotImplementedException();
+        new Iterator<A>.IterLstBkwd(new IteratorState<A>(fa.As().Value.Root));
 }

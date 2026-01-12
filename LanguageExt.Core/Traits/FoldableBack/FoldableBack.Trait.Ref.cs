@@ -115,14 +115,8 @@ public interface FoldableBack<T, FS> : FoldableBack<T>, IterableBackK<T, FS>
         
         while (T.StepBack(ta, ref foldState, out var value))
         {
-            if (predicate((state, value)))
-            {
-                return state;
-            }
-            else
-            {
-                state = f(state, value);
-            }
+            state = f(state, value);
+            if (predicate((state, value))) return state;
         }
         return state;
     }

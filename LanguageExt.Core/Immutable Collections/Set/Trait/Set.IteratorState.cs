@@ -107,6 +107,7 @@ public partial class Set
                 {
                     case 0:
                         tail = tail.Push(n.Left);
+                        top++;
                         continue;
 
                     case 1:
@@ -115,10 +116,12 @@ public partial class Set
 
                     case 2:
                         tail = tail.Push(n.Right);
+                        top++;
                         continue;
 
                     default:
                         tail = tail.Pop();
+                        top--;
                         continue;
                 }
             }
@@ -150,6 +153,7 @@ public partial class Set
                 {
                     case 0:
                         tail = tail.Push(n.Right);
+                        top++;
                         continue;
 
                     case 1:
@@ -158,10 +162,12 @@ public partial class Set
 
                     case 2:
                         tail = tail.Push(n.Left);
+                        top++;
                         continue;
 
                     default:
                         tail = tail.Pop();
+                        top--;
                         continue;
                 }
             }
