@@ -74,7 +74,7 @@ public class FoldableBackDefaultsTests
     public static void FoldBackUntilValueTest()
     {
         var res = FList.New(1, 2, 3, 4, 5).FoldBackUntil((s, x) => s + x, s => s.Value == 3, 0);
-        Assert.True(res == 9);
+        Assert.True(res == 12);
     }
     
     [Fact]
@@ -90,28 +90,28 @@ public class FoldableBackDefaultsTests
     public static void ToSeqTest()
     {
         var res = FList.New(1, 2, 3, 4, 5).ToSeqBack();
-        Assert.True(res == Seq(1, 2, 3, 4, 5));
+        Assert.True(res == [5, 4, 3, 2, 1]);
     }
 
     [Fact]
     public static void ToLstTest()
     {
         var res = FList.New(1, 2, 3, 4, 5).ToLstBack();
-        Assert.True(res == Lst(1, 2, 3, 4, 5));
+        Assert.True(res == [5, 4, 3, 2, 1]);
     }
 
     [Fact]
     public static void ToArrTest()
     {
         var res = FList.New(1, 2, 3, 4, 5).ToArrBack();
-        Assert.True(res == Array(1, 2, 3, 4, 5));
+        Assert.True(res == [5, 4, 3, 2, 1]);
     }
 
     [Fact]
     public static void ToIterableTest()
     {
         var res = FList.New(1, 2, 3, 4, 5).ToIterableBack();
-        Assert.True(res == Iterable(1, 2, 3, 4, 5));
+        Assert.True(res == [5, 4, 3, 2, 1]);
     }
 
     [Fact]
@@ -243,7 +243,7 @@ public class FoldableBackDefaultsTests
     {
         var res = FList.New(1, 2, 3, 4, 5).PartitionBack(x => (x & 1) == 0);
         
-        Assert.True(res.True == [2, 4]);
-        Assert.True(res.False == [1, 3, 5]);
+        Assert.True(res.True == [4, 2]);
+        Assert.True(res.False == [5, 3, 1]);
     }
 }

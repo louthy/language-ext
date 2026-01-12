@@ -31,6 +31,6 @@ public class FList : Foldable<FList>, FoldableBack<FList>
                                     Iterator.empty<A>(),
 
                                 { Values: var items } =>
-                                    Iterator.cons(items[^1], new FList<A>(items.Take(items.Length - 1).ToArray()).ForwardIterator())
+                                    Iterator.cons(items[^1], new FList<A>(items.Take(items.Length - 1).ToArray()).BackwardIterator())
                             });
 }

@@ -82,92 +82,86 @@ public partial class Map
             NodeStack.PeekUnsafe();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool Step(out MapItem<K, V> head, out IteratorState<K, V> tail)
+        internal bool Step(out MapItem<K, V> value, out IteratorState<K, V> state)
         {
-            var top = Top;
-            tail = this;
+            state = this;
             while (true)
             {
+                var top = state.Top;
                 if (top == 0)
                 {
-                    head = null!;
+                    value = null!;
                     return false;
                 }
 
-                var n = tail.Peek();
+                var n = state.Peek();
 
                 if (n.IsEmpty)
                 {
-                    top--;
+                    state = state.Pop();
                     continue;
                 }
 
-                tail = IncrFlags(out var f);
+                state = state.IncrFlags(out var f);
                 switch (f)
                 {
                     case 0:
-                        tail = tail.Push(n.Left);
-                        top++;
+                        state = state.Push(n.Left);
                         continue;
 
                     case 1:
-                        head = n;
+                        value = n;
                         return true;
 
                     case 2:
-                        tail = tail.Push(n.Right);
-                        top++;
+                        state = state.Push(n.Right);
                         continue;
 
                     default:
-                        tail = tail.Pop();
-                        top--;
+                        state = state.Pop();
                         continue;
                 }
             }
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool StepBack(out MapItem<K, V> head, out IteratorState<K, V> tail)
+        internal bool StepBack(out MapItem<K, V> value, out IteratorState<K, V> state)
         {
-            var top = Top;
-            tail = this;
+            state = this;
             while (true)
             {
+                var top = state.Top;
                 if (top == 0)
                 {
-                    head = null!;
+                    value = null!;
                     return false;
                 }
 
-                var n = tail.Peek();
+                var n = state.Peek();
 
                 if (n.IsEmpty)
                 {
-                    top--;
+                    state = state.Pop();
                     continue;
                 }
 
-                tail = IncrFlags(out var f);
+                state = state.IncrFlags(out var f);
                 switch (f)
                 {
                     case 0:
-                        tail = tail.Push(n.Right);
-                        top++;
+                        state = state.Push(n.Right);
                         continue;
 
                     case 1:
-                        head = n;
+                        value = n;
                         return true;
 
                     case 2:
-                        tail = tail.Push(n.Left);
-                        top++;
+                        state = state.Push(n.Left);
                         continue;
 
                     default:
-                        tail = tail.Pop();
-                        top--;
+                        state = state.Pop();
                         continue;
                 }
             }

@@ -74,91 +74,85 @@ public partial class Lst
         ListItem<A> Peek() =>
             NodeStack.PeekUnsafe();
 
-        internal bool Step(out ListItem<A> head, out IteratorState<A> tail)
+        internal bool Step(out ListItem<A> value, out IteratorState<A> state)
         {
-            var top = Top;
-            tail = this;
+            state = this;
             while (true)
             {
+                var top = state.Top;
                 if (top == 0)
                 {
-                    head = null!;
+                    value = null!;
                     return false;
                 }
 
-                var n = tail.Peek();
+                var n = state.Peek();
 
                 if (n.IsEmpty)
                 {
-                    top--;
+                    state = state.Pop();
                     continue;
                 }
 
-                tail = IncrFlags(out var f);
+                state = state.IncrFlags(out var f);
                 switch (f)
                 {
                     case 0:
-                        tail = tail.Push(n.Left);
-                        top++;
+                        state = state.Push(n.Left);
                         continue;
 
                     case 1:
-                        head = n;
+                        value = n;
                         return true;
 
                     case 2:
-                        tail = tail.Push(n.Right);
-                        top++;
+                        state = state.Push(n.Right);
                         continue;
 
                     default:
-                        tail = tail.Pop();
-                        top--;
+                        state = state.Pop();
                         continue;
                 }
             }
         }
         
-        internal bool StepBack(out ListItem<A> head, out IteratorState<A> tail)
+        internal bool StepBack(out ListItem<A> value, out IteratorState<A> state)
         {
-            var top = Top;
-            tail = this;
+            state = this;
             while (true)
             {
+                var top = state.Top;
                 if (top == 0)
                 {
-                    head = null!;
+                    value = null!;
                     return false;
                 }
 
-                var n = tail.Peek();
+                var n = state.Peek();
 
                 if (n.IsEmpty)
                 {
-                    top--;
+                    state = state.Pop();
                     continue;
                 }
 
-                tail = IncrFlags(out var f);
+                state = state.IncrFlags(out var f);
                 switch (f)
                 {
                     case 0:
-                        tail = tail.Push(n.Right);
-                        top++;
+                        state = state.Push(n.Right);
                         continue;
 
                     case 1:
-                        head = n;
+                        value = n;
                         return true;
 
                     case 2:
-                        tail = tail.Push(n.Left);
-                        top++;
+                        state = state.Push(n.Left);
                         continue;
 
                     default:
-                        tail = tail.Pop();
-                        top--;
+                        state = state.Pop();
                         continue;
                 }
             }
