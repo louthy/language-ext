@@ -27,7 +27,7 @@ public record Chars(char From, char To, int Step) : Range<Chars, char, int>
 
     public static Range<char> FromCount(char from, long count, int step) =>
         count == (char)0
-            ? VoidRange<char>.Default
+            ? VoidRange<char, int>.Default
             : FromMinMax(from, (char)(from + (count - 1) * step), step);
 
     public bool InRange(char value)
@@ -55,20 +55,22 @@ public record Chars(char From, char To, int Step) : Range<Chars, char, int>
             : (To, From);
 
     public Iterator<char> ForwardIterator() =>
-        new Iter(From, From, To, Step);
+        From <= To
+            ? new Iter(From, From, To, Step)
+            : new Iter(From, To, From, Step);
 
     public override string ToString() =>
         $"['{From}'..'{To}']";
 
-    class Iter(char Current, char From, char To, int Step) : Iterator<char>
+    class Iter(char Current, char Min, char Max, int Step) : Iterator<char>
     {
         public override (Head<char> Head, Iterator<char> Tail) Next()
         {
             var head = Current;
             var next = (char)(head + Step);
-            return next < From || next > To
+            return next < Min || next > Max
                        ? (new Exist<char>(head), Iterator.empty<char>())
-                       : (new Exist<char>(head), new Iter(next, From, To, Step));
+                       : (new Exist<char>(head), new Iter(next, Min, Max, Step));
         }
 
         public override Iterator<char> Using() =>

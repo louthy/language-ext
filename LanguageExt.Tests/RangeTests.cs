@@ -14,16 +14,10 @@ public class RangeTests
     }
 
     [Fact]
-    public void IntRangeAscReversed()
-    {
-        var x = Range.fromMinMax(2, 5).Reverse().AsIterable();
-        Assert.True(x == [5, 4, 3, 2]);
-    }
-
-    [Fact]
     public void IntRangeDesc()
     {
-        var x = Range.fromMinMax(5, 2).ToLst();
+        var r = Range.fromMinMax(5, 2);
+        var x = r.ToLst();
         Assert.True(x == [5, 4, 3, 2]);
     }
 

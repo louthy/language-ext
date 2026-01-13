@@ -58,20 +58,23 @@ public record Numbers<N>(N From, N To, N Step) : Range<Numbers<N>, N, N>
             : (To, From);
 
     public Iterator<N> ForwardIterator() =>
-        new Iter(From, From, To, Step);
+        From <= To
+            ? new Iter(From, From, To, Step)
+            : new Iter(From, To, From, Step);
+
 
     public override string ToString() =>
         $"[{From}..{To}]";
 
-    class Iter(N Current, N From, N To, N Step) : Iterator<N>
+    class Iter(N Current, N Min, N Max, N Step) : Iterator<N>
     {
         public override (Head<N> Head, Iterator<N> Tail) Next()
         {
             var head = Current;
             var next = head + Step;
-            return next < From || next > To
+            return next < Min || next > Max
                        ? (new Exist<N>(head), Iterator.empty<N>())
-                       : (new Exist<N>(head), new Iter(next, From, To, Step));
+                       : (new Exist<N>(head), new Iter(next, Min, Max, Step));
         }
 
         public override Iterator<N> Using() =>
