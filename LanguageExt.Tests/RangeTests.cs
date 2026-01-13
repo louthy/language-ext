@@ -1,5 +1,4 @@
 ﻿using Xunit;
-using System.Linq;
 
 namespace LanguageExt.Tests;
 
@@ -61,5 +60,13 @@ public class RangeTests
     {
         var x = Range.fromMinMax('e', 'a').ToLst();
         Assert.True(x == ['e', 'd', 'c', 'b', 'a']);
+    }
+
+    [Fact]
+    public void IntFoldRangeAsc()
+    {
+        var r = Range.fromMinMax(1, 5);
+        var x = r.Fold((s, i) => s + i, 0);
+        Assert.True(x == 15);
     }
 }

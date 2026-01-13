@@ -50,7 +50,7 @@ public interface Foldable<T> : IterableK<T>
         K<T, A> ta)
     {
         var state = initialState;
-        foreach(var head in T.ForwardIterator(ta).Using())
+        foreach(var head in T.ForwardIterator(ta))
         {
             if (!predicate((state, head))) return state;
             state = f(state, head);
@@ -73,7 +73,7 @@ public interface Foldable<T> : IterableK<T>
         K<T, A> ta)
     {
         var state = initialState;
-        foreach(var head in T.ForwardIterator(ta).Using())
+        foreach(var head in T.ForwardIterator(ta))
         {
             var option = f(state, head);
             if(option.IsNone) return state;
@@ -114,7 +114,7 @@ public interface Foldable<T> : IterableK<T>
         K<T, A> ta)
     {
         var state = initialState;
-        foreach(var head in T.ForwardIterator(ta).Using())
+        foreach(var head in T.ForwardIterator(ta))
         {
             state = f(state, head);
             if (predicate((state, head))) return state;
@@ -155,7 +155,7 @@ public interface Foldable<T> : IterableK<T>
     static virtual S Fold<A, S>(Func<S, A, S> f, in S initialState, K<T, A> ta)
     {
         var state = initialState;
-        foreach(var head in T.ForwardIterator(ta).Using())
+        foreach(var head in T.ForwardIterator(ta))
         {
             state = f(state, head);
         }
@@ -205,7 +205,7 @@ public interface Foldable<T> : IterableK<T>
     static virtual Arr<A> ToArr<A>(K<T, A> ta)
     {
         var writer = ArrayWriter<A>.Init();
-        foreach(var head in T.ForwardIterator(ta).Using())
+        foreach(var head in T.ForwardIterator(ta))
         {
             writer.Add(head);
         }
@@ -238,7 +238,7 @@ public interface Foldable<T> : IterableK<T>
     static virtual int Count<A>(K<T, A> ta)
     {
         var count = 0;
-        foreach(var _ in T.ForwardIterator(ta).Using())
+        foreach(var _ in T.ForwardIterator(ta))
         {
             count++;
         }
@@ -250,7 +250,7 @@ public interface Foldable<T> : IterableK<T>
     /// </summary>
     static virtual bool Exists<A>(Func<A, bool> predicate, K<T, A> ta)
     {
-        foreach(var head in T.ForwardIterator(ta).Using())
+        foreach(var head in T.ForwardIterator(ta))
         {
             if(predicate(head)) return true;
         }
@@ -262,7 +262,7 @@ public interface Foldable<T> : IterableK<T>
     /// </summary>
     static virtual bool ForAll<A>(Func<A, bool> predicate, K<T, A> ta)
     {
-        foreach(var head in T.ForwardIterator(ta).Using())
+        foreach(var head in T.ForwardIterator(ta))
         {
             if(!predicate(head)) return false;
         }
@@ -275,7 +275,7 @@ public interface Foldable<T> : IterableK<T>
     static virtual bool Contains<EqA, A>(A value, K<T, A> ta) 
         where EqA : Eq<A>
     {
-        foreach(var head in T.ForwardIterator(ta).Using())
+        foreach(var head in T.ForwardIterator(ta))
         {
             if(EqA.Equals(value, head)) return true;
         }
@@ -293,7 +293,7 @@ public interface Foldable<T> : IterableK<T>
     /// </summary>
     static virtual Option<A> Find<A>(Func<A, bool> predicate, K<T, A> ta)
     {
-        foreach(var head in T.ForwardIterator(ta).Using())
+        foreach(var head in T.ForwardIterator(ta))
         {
             if(predicate(head)) return Some(head);
         }
@@ -315,7 +315,7 @@ public interface Foldable<T> : IterableK<T>
     /// </summary>
     static virtual Option<A> Head<A>(K<T, A> ta)
     {
-        using var iter = T.ForwardIterator(ta).Using();
+        using var iter = T.ForwardIterator(ta);
         return iter switch
         {
             (Exist<A>(var head), _) => Some(head),
@@ -346,7 +346,7 @@ public interface Foldable<T> : IterableK<T>
     /// </summary>
     static virtual Unit Iter<A>(Action<A> f, K<T, A> ta)
     {
-        foreach(var head in T.ForwardIterator(ta).Using())
+        foreach(var head in T.ForwardIterator(ta))
         {
             f(head);
         }
@@ -361,7 +361,7 @@ public interface Foldable<T> : IterableK<T>
     static virtual Unit Iter<A>(Action<int, A> f, K<T, A> ta)
     {
         var ix = 0;
-        foreach(var head in T.ForwardIterator(ta).Using())
+        foreach(var head in T.ForwardIterator(ta))
         {
             f(ix++, head);
         }
@@ -375,7 +375,7 @@ public interface Foldable<T> : IterableK<T>
         where OrdA : Ord<A>
     {
         A current;
-        using var iter = T.ForwardIterator(ta).Using();
+        using var iter = T.ForwardIterator(ta);
         if (iter is (Exist<A> (var h), var t))
         {
             current = h;
@@ -405,7 +405,7 @@ public interface Foldable<T> : IterableK<T>
         where OrdA : Ord<A> 
     {
         A current;
-        using var iter = T.ForwardIterator(ta).Using();
+        using var iter = T.ForwardIterator(ta);
         if (iter is (Exist<A> (var h), var t))
         {
             current = h;
@@ -460,7 +460,7 @@ public interface Foldable<T> : IterableK<T>
     static virtual Option<A> At<A>(int index, K<T, A> ta)
     {
         var ix = 0;
-        foreach(var head in T.ForwardIterator(ta).Using())
+        foreach(var head in T.ForwardIterator(ta))
         {
             if(ix == index) return head;
             ix++;
@@ -479,7 +479,7 @@ public interface Foldable<T> : IterableK<T>
     {
         var @true  = ArrayWriter<A>.Init();
         var @false = ArrayWriter<A>.Init();
-        foreach(var head in T.ForwardIterator(ta).Using())
+        foreach(var head in T.ForwardIterator(ta))
         {
             if (f(head))
             {

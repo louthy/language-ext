@@ -41,4 +41,31 @@ public interface Range<A> : IEnumerable<A>, K<Range, A>
 
     IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
         ForwardIterator().GetEnumerator().GetEnumerator();
+
+    /// <summary>
+    /// Return true if the range supports fast iteration.  
+    /// </summary>
+    /// <remarks>
+    /// This is to support to-the-metal iteration. Make sure you know what you're doing if you set this to true.  
+    /// </remarks>
+    bool SupportsFastIteration { get; }
+    
+    /// <summary>
+    /// Setup the fast iteration state.  
+    /// </summary>
+    /// <remarks>
+    /// This is to support to-the-metal iteration. Make sure you know what you're doing if you use this.
+    /// </remarks>
+    /// <param name="state">State to set</param>
+    void FastIterationSetup(ref Range.IteratorState state);
+    
+    /// <summary>
+    /// Setup the fast iteration state.  
+    /// </summary>
+    /// <remarks>
+    /// This is to support to-the-metal iteration. Make sure you know what you're doing if you use this.
+    /// </remarks>
+    /// <param name="state">State to set</param>
+    bool FastIterationStep(ref Range.IteratorState state, out A value);
+    
 }

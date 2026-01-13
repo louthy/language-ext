@@ -18,6 +18,20 @@ internal class VoidRange<A, S> : Range<VoidRange<A, S>, A, S>
     public Iterator<A> ForwardIterator() => 
         Iterator<A>.Empty;
 
+    public bool SupportsFastIteration =>
+        true;
+    
+    public void FastIterationSetup(ref Range.IteratorState state)
+    {
+        // Nothing to do
+    }
+
+    public bool FastIterationStep(ref Range.IteratorState state, out A value)
+    {
+        value = default!;
+        return false;
+    }
+
     public static Range<A> FromMinMax(A from, A to) => 
         Default;
 

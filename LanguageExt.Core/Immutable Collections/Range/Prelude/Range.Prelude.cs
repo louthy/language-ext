@@ -16,7 +16,7 @@ public static partial class Prelude
     /// <returns>Range</returns>
     [Pure]
     public static Range<A> Range<A>(A from, long count)
-        where A : INumber<A> =>
+        where A : struct, INumber<A> =>
         L.Range.fromCount<Numbers<A>, A, A>(from, count);
     
     /// <summary>
@@ -29,7 +29,7 @@ public static partial class Prelude
     /// <returns>Range</returns>
     [Pure]
     public static Range<A> Range<A>(A from, long count, A step) 
-        where A : INumber<A> =>
+        where A : struct, INumber<A> =>
         L.Range.fromCount<Numbers<A>, A, A>(from, count, step);
 
     /// <summary>

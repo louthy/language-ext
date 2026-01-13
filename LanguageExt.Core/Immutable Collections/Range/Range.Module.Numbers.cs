@@ -14,7 +14,7 @@ public partial class Range
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Range that will yield a single value</returns>
     public static Range<A> singleton<A>(A value)
-        where A : INumber<A> =>
+        where A : struct, INumber<A> =>
         singleton<Numbers<A>, A, A>(value);
     
     /// <summary>
@@ -24,7 +24,7 @@ public partial class Range
     /// <param name="to">The maximum value in the range</param>
     [Pure]
     public static Range<A> fromMinMax<A>(A from, A to) 
-        where A : INumber<A> =>
+        where A : struct, INumber<A> =>
         fromMinMax<Numbers<A>, A, A>(from, to);
    
     /// <summary>
@@ -35,7 +35,7 @@ public partial class Range
     /// <param name="step">The size of each step in the range</param>
     [Pure]
     public static Range<A> fromMinMax<A>(A from, A to, A step) 
-        where A : INumber<A> =>
+        where A : struct, INumber<A> =>
         fromMinMax<Numbers<A>, A, A>(from, to, to);
 
     /// <summary>
@@ -45,7 +45,7 @@ public partial class Range
     /// <param name="count">The number of items in the range</param>
     [Pure]
     public static Range<A> fromCount<A>(A from, long count) 
-        where A : INumber<A> =>
+        where A : struct, INumber<A> =>
         fromCount<Numbers<A>, A, A>(from, count);
         
     /// <summary>
@@ -56,6 +56,6 @@ public partial class Range
     /// <param name="step">The size of each step in the range</param>
     [Pure]
     public static Range<A> fromCount<A>(A from, long count, A step) 
-        where A : INumber<A> =>
+        where A : struct, INumber<A> =>
         fromCount<Numbers<A>, A, A>(from, count, step);
 }

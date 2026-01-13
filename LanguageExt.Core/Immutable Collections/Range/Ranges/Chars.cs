@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Ranges;
@@ -61,6 +62,31 @@ public record Chars(char From, char To, int Step) : Range<Chars, char, int>
 
     public override string ToString() =>
         $"['{From}'..'{To}']";
+    
+    public bool SupportsFastIteration => 
+        true;
+
+    public void FastIterationSetup(ref Range.IteratorState state)
+    {
+        var s = default(IteratorState);
+        if (From <= To)
+        {
+            IteratorState.Setup(ref s, From, From, To, Step);
+        }
+        else
+        {
+            IteratorState.Setup(ref s, From, To, From, Step);
+        }
+        state = Unsafe.ReadUnaligned<Range.IteratorState>(ref Unsafe.As<IteratorState, byte>(ref s));
+    }
+
+    public bool FastIterationStep(ref Range.IteratorState state, out char value)
+    {
+        var s = Unsafe.ReadUnaligned<IteratorState>(ref Unsafe.As<Range.IteratorState, byte>(ref state));
+        var c = IteratorState.Next(ref s, out value);
+        state = Unsafe.ReadUnaligned<Range.IteratorState>(ref Unsafe.As<IteratorState, byte>(ref s));
+        return c;
+    }    
 
     class Iter(char Current, char Min, char Max, int Step) : Iterator<char>
     {
@@ -76,4 +102,53 @@ public record Chars(char From, char To, int Step) : Range<Chars, char, int>
         public override Iterator<char> Using() =>
             this;
     }
+    
+    ref struct IteratorState
+    {
+        char Current;
+        char Min;
+        char Max;
+        int Step;
+
+        public IteratorState(char current, char min, char max, int step)
+        { 
+            Current = current;
+            Min = min;
+            Max = max;
+            Step = step;
+        }
+
+        public static void Setup(ref IteratorState state, char current, char min, char max, int step)
+        {
+            ref var scurrent = ref state.Current;
+            ref var smin     = ref state.Min;
+            ref var smax     = ref state.Max;
+            ref var sstep    = ref state.Step;
+
+            scurrent = current;
+            smin     = min;
+            smax     = max;
+            sstep    = step;
+        }
+        
+        public static bool Next(ref IteratorState state, out char head)
+        {
+            ref var          current = ref state.Current;
+            ref readonly var min     = ref state.Min; 
+            ref readonly var max     = ref state.Max;
+            ref readonly var step    = ref state.Step;
+
+            if (current < min || current > max)
+            {
+                head = default!;
+                return false;
+            }
+            else
+            {
+                head = current;
+                current = (char)(current + step);
+                return true;
+            }
+        }
+    }    
 }
