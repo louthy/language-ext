@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
@@ -47,7 +48,8 @@ namespace LanguageExt;
 /// </para>
 /// </remarks>
 /// <typeparam name="A">Value type</typeparam>
-public abstract partial class Iterator<A> : 
+public abstract partial class Iterator<A> :
+    IEnumerable<A>,
     IEquatable<Iterator<A>>,
     IDisposable,
     K<Iterator, A>
@@ -123,6 +125,22 @@ public abstract partial class Iterator<A> :
     /// See <see cref="Using" /> documentation for best `IDisposable` practices.
     /// </remarks>
     public abstract (Head<A> Head, Iterator<A> Tail) Next();
+
+
+    /// <summary>
+    /// Get the next value in the range for any type that supports `Alternative`.
+    /// </summary>
+    /// <remarks>`Alternative.Empty` means 'end of range'</remarks>
+    /// <typeparam name="M"></typeparam>
+    /// <returns></returns>
+    public K<M, (A Head, Iterator<A> Tail)> Next<M>()
+        where M : Alternative<M>
+    {
+        var (h, t) = Next();
+        return h is Exist<A> (var x)
+                   ? M.Pure((x, t))
+                   : M.Empty<(A, Iterator<A>)>();
+    }
 
     /// <summary>
     /// This will 'prime' an iterator so that calling `Dispose` on the `Iterator` returned from this method will
@@ -305,13 +323,6 @@ public abstract partial class Iterator<A> :
     /// Monad bind
     /// </summary>
     [Pure]
-    public Iterator<B> Bind<B>(Func<A, K<Iterator, B>> f) =>
-        Map(x => +f(x)).Flatten();
-
-    /// <summary>
-    /// Monad bind
-    /// </summary>
-    [Pure]
     public Iterator<C> SelectMany<B, C>(Func<A, Iterator<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
@@ -320,7 +331,7 @@ public abstract partial class Iterator<A> :
     /// </summary>
     [Pure]
     public Iterator<B> ApplyBack<B>(Iterator<Func<A, B>> ff) =>
-        +ff.Bind(Map);
+        ff.Bind(f => Map(f));
 
     /// <summary>
     /// Concatenate two iterators
@@ -474,6 +485,12 @@ public abstract partial class Iterator<A> :
     [Pure]
     public IteratorEnumerator<A> GetEnumerator() => 
         new (this);
+
+    IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
+        GetEnumerator().GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => 
+        GetEnumerator().GetEnumerator();
 
     [Pure]
     public override string ToString() =>

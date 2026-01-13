@@ -1,10 +1,17 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                    //
+//                                                                                                    //
+//     NOTE: This is just my scratch pad for quickly testing stuff, not for human consumption         //
+//                                                                                                    //
+//                                                                                                    //
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 using System;
 using System.Diagnostics;
 using LanguageExt;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
-
 
 namespace TestBed;
 

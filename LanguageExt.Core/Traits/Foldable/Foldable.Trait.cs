@@ -492,4 +492,23 @@ public interface Foldable<T> : IterableK<T>
         }
         return (@true.ToArr(), @false.ToArr());
     }
+    
+    /// <summary>
+    /// Inject a value in between each item in the enumerable 
+    /// </summary>
+    /// <param name="sep">Item to inject</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <returns>An iterable with the values injected</returns>
+    static virtual Iterator<A> Intersperse<A>(A sep, K<T, A> ta)
+    {
+        var iter = T.ForwardIterator(ta);
+        return iter is (Exist<A> (var head), var tail)
+                   ? Iterator.cons(head, prependToAll(tail))
+                   : Iterator.empty<A>(); 
+
+        Iterator<A> prependToAll(Iterator<A> iter) =>
+            iter is (Exist<A> (var h), var t)
+                ? Iterator.cons(sep, Iterator.cons(h, () => prependToAll(t)))
+                : Iterator.empty<A>();
+    }
 }

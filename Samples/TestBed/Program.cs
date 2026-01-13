@@ -7,15 +7,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Collections.Generic;
-using LanguageExt;
-using System.Threading.Tasks;
-using Issues;
-using LanguageExt.Common;
-using LanguageExt.Traits;
 using TestBed;
+using LanguageExt;
 using static LanguageExt.Prelude;
-
 
 public class Program
 {
@@ -29,7 +23,8 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        FoldStepTests.Run();
+        RangeTests.Run();
+        //FoldStepTests.Run();
         //FoldPerfTests.Run();
         //Discussion1527.Run();
         //SourceTTests.Run();

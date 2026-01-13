@@ -12,11 +12,6 @@ namespace LanguageExt;
 
 public static partial class List
 {
-    [Obsolete("Use Iterable.flatten or SelectMany(x => x)")]
-    [OverloadResolutionPriority(Change.Priority)]
-    public static Iterable<A> flatten<A>(IEnumerable<IEnumerable<A>> ma) =>
-        ma.Bind(identity).AsIterable();
-
     [Obsolete("Use Iterable.generate")]
     [OverloadResolutionPriority(Change.Priority)]
     public static Iterable<T> generate<T>(int count, Func<int, T> generator) =>

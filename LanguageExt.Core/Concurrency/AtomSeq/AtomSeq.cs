@@ -893,14 +893,14 @@ public class AtomSeq<A> :
         SpinWait sw = default;
         while (true)
         {
-            var oitems = items;
+            var oitems = new Seq<A>(items);
             var nitems = new SeqLazy<A>(oitems.Intersperse(value));
             if(ReferenceEquals(oitems, nitems))
             {
                 // no change
                 return default;
             }
-            if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+            if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems.Value), oitems))
             {
                 return default;
             }

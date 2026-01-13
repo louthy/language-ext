@@ -359,4 +359,14 @@ public static class Foldable
     public static (Arr<A> True, Arr<A> False) partition<T, A>(Func<A, bool> f, K<T, A> ta)
         where T : Foldable<T> =>
         ta.Partition(f);
+    
+    /// <summary>
+    /// Inject a value in between each item in the enumerable 
+    /// </summary>
+    /// <param name="sep">Item to inject</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <returns>An iterable with the values injected</returns>
+    public static Iterator<A> intersperse<T, A>(A sep, K<T, A> ta)
+        where T : Foldable<T> =>
+        ta.Intersperse(sep);
 }

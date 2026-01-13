@@ -65,7 +65,7 @@ internal record SchBind2(Schedule Schedule, Func<Duration, Schedule> BindF, Func
 internal record SchTail(Schedule Schedule) : Schedule
 {
     public override Iterable<Duration> Run() =>
-        Schedule.Run().Tail();
+        Schedule.Run().Tail;
 }    
 
 /// <summary>

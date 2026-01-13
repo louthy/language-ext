@@ -774,14 +774,13 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Inject a value in between each item in the sequence 
     /// </summary>
-    /// <param name="ma">Sequence to inject values into</param>
-    /// <param name="value">Item to inject</param>
+    /// <param name="sep">Item to inject</param>
     /// <typeparam name="A">Bound type</typeparam>
     /// <returns>A sequence with the values injected</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Seq<A> Intersperse(A value) =>
-        toSeq(Value.Intersperse(value));
+    public Seq<A> Intersperse(A sep) =>
+        this.ForwardIterator().Intersperse(sep).ToSeq();
 
     /// <summary>
     /// Get the hash code for all of the items in the sequence, or 0 if empty

@@ -1,4 +1,12 @@
-﻿using LanguageExt;
+﻿////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                    //
+//                                                                                                    //
+//     NOTE: This is just my scratch pad for quickly testing stuff, not for human consumption         //
+//                                                                                                    //
+//                                                                                                    //
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.UnitsOfMeasure;
 using System;

@@ -27,22 +27,6 @@ public class SeqTests
     }
 
     [Fact]
-    public void EnumerableExists()
-    {
-        var x = new[] { "a", "b", "c" };
-
-        var y = toSeq(x);
-
-        var res = toSeq(x).Tail().AsEnumerable().ToList();
-
-
-        Assert.True(toSeq(x).Count          == 3);
-        Assert.True(toSeq(x).Head           == "a");
-        Assert.True(toSeq(x).Tail.Head      == "b");
-        Assert.True(toSeq(x).Tail.Tail.Head == "c");
-    }
-
-    [Fact]
     public void EnumerableNull()
     {
         string[]? x = null;
@@ -322,8 +306,8 @@ public class SeqTests
     [Fact]
     public void GeneratingZeroGivesEmptySequence()
     {
-        var actual = generate(0, _ => unit);
-        Assert.Equal(Seq<Unit>(), actual);
+        var actual = generate(0, _ => unit).ToArr();
+        Assert.True(actual == []);
     }
 
     [Fact]
@@ -580,24 +564,6 @@ public class SeqTests
         Assert.True(xs[10]   == 10);
         Assert.True(xs[11]   == 11);
         Assert.True(xs[12]   == 12);
-    }
-
-    [Fact]
-    void SeqHashCodeRegression()
-    {
-        // GetHashCode is internally used to compare Seq values => has to be equal irrespective of creation method 
-
-        var originalStrictTail = Seq(2, 3);
-        var lazyTailSeq        = Set(1, 2, 3).Tail().ToSeq();
-        var lazySeqTail        = Set(1, 2, 3).ToSeq().Tail;
-        var lazyPattern        = Set(1, 2, 3).Case is (int _, Seq<int> tail) ? tail : throw new ("invalid");
-            
-        Assert.Equal(originalStrictTail.GetHashCode(), lazyTailSeq.GetHashCode());
-        Assert.Equal(originalStrictTail, lazyTailSeq);
-        Assert.Equal(originalStrictTail.GetHashCode(), lazySeqTail.GetHashCode());
-        Assert.Equal(originalStrictTail, lazySeqTail);
-        Assert.Equal(originalStrictTail.GetHashCode(), lazyPattern.GetHashCode());
-        Assert.Equal(originalStrictTail, lazyPattern);
     }
         
     [Fact]

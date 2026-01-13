@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                    //
+//                                                                                                    //
+//     NOTE: This is just my scratch pad for quickly testing stuff, not for human consumption         //
+//                                                                                                    //
+//                                                                                                    //
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;

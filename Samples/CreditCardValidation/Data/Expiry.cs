@@ -7,6 +7,7 @@
 
 using LanguageExt;
 using LanguageExt.Common;
+using LanguageExt.DSL;
 using LanguageExt.Traits.Domain;
 using L = LanguageExt;
 
@@ -39,7 +40,7 @@ public readonly struct Expiry(Base12 Value) :
     }
 
     public static Range<Expiry> NextTenYears =>
-        L.Range.fromMinMax(Now, Now + MonthSpan.TenYears, e => e + MonthSpan.OneYear, (ex, ey) => ex == ey);
+        L.Range.fromCount<Expiries, Expiry, MonthSpan>(Now, 12 * 10, MonthSpan.OneYear);
 
     static Fin<Expiry> DomainType<Expiry, Base12>.From(Base12 repr) => 
         new Expiry(repr);

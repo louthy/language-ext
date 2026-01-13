@@ -257,6 +257,14 @@ public static partial class FoldableExtensions
         /// <returns>Partitioned structure</returns>
         public (Arr<A> True, Arr<A> False) Partition(Func<A, bool> f) =>
             T.Partition(f, ta);
+    
+        /// <summary>
+        /// Inject a value in between each item in the enumerable 
+        /// </summary>
+        /// <param name="sep">Item to inject</param>
+        /// <returns>An iterable with the values injected</returns>
+        public Iterator<A> Intersperse(A sep) =>
+            T.Intersperse(sep, ta);
     }
     
     /// <param name="ta">Foldable structure</param>

@@ -6,20 +6,19 @@
 //                                                                                                    //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using static LanguageExt.Prelude;
+using System;
 using LanguageExt;
+using static LanguageExt.Prelude;
 
 namespace TestBed;
 
-public static class FoldStepTests
+public static class RangeTests
 {
     public static void Run()
     {
-        var xs = Range(1, 1000000000).AsIterable();
-        var rs = +xs.FoldM((_, x) => x % 10000 == 0 ? writeLine(x) : IO.pure(unit), unit);
-        rs.Run();
+        var r = Range(0, 0);
+        var a = r.ToArr();
+        
+        Console.WriteLine(a);
     }
-
-    static IO<Unit> writeLine<A>(A value) =>
-        IO.lift(() => System.Console.WriteLine(value));
 }

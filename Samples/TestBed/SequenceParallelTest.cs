@@ -1,4 +1,12 @@
-﻿using System.Diagnostics;
+﻿////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                    //
+//                                                                                                    //
+//     NOTE: This is just my scratch pad for quickly testing stuff, not for human consumption         //
+//                                                                                                    //
+//                                                                                                    //
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+using System.Diagnostics;
 using System.Threading.Tasks;
 using LanguageExt;
 using LanguageExt.Sys;

@@ -1,4 +1,12 @@
-﻿using LanguageExt.Common;
+﻿////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                    //
+//                                                                                                    //
+//     NOTE: This is just my scratch pad for quickly testing stuff, not for human consumption         //
+//                                                                                                    //
+//                                                                                                    //
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+using LanguageExt.Common;
 
 namespace TestBed;
 

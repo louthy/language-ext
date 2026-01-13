@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Runtime.Serialization;
@@ -861,7 +862,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     internal static Error FromAggregate(AggregateException? e)
     {
         if (e is null) return Common.Errors.None;
-        var errs = e.InnerExceptions.Bind(x => New(x).AsIterable()).AsIterable().ToSeq();
+        var errs = e.InnerExceptions.SelectMany(x => New(x).AsIterable()).AsIterable().ToSeq();
         if (errs.Count == 0) return Common.Errors.None;
         if (errs.Count == 1) return (Error)errs.Head;
         return Many(errs);

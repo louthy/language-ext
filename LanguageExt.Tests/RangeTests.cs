@@ -8,7 +8,8 @@ public class RangeTests
     [Fact]
     public void IntRangeAsc()
     {
-        var x = Range.fromMinMax(2, 5).ToLst();
+        var r = Range.fromMinMax(2, 5);
+        var x = r.ToLst();
         Assert.True(x == [2, 3, 4, 5]);
     }
 

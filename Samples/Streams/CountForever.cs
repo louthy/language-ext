@@ -14,7 +14,7 @@ public static class CountForever
         select unit;
 
     static SourceT<IO, long> naturals =>
-        SourceT.lift<IO, long>(Range(0, long.MaxValue).AsIterable());
+        SourceT.lift<IO, long>(Range(0L, long.MaxValue).AsIterable());
     
     static SourceT<IO, Unit> example =>
         from v in naturals

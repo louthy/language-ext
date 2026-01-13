@@ -47,7 +47,7 @@ public static class CreditCard
         where A : IComparisonOperators<A, A, bool> =>
         range.InRange(value)
             ? Pure(value)
-            : Fail(Error.New($"expected value in range of {range.From} to {range.To}, but got: {value}"));
+            : Fail(Error.New($"expected value in range of {range.GetExtents().Min} to {range.GetExtents().Max}, but got: {value}"));
 
     static Validation<Error, CVV> ValidateCVV(string cvv) =>
         fun<int, string, CVV>((code, _) => new CVV(code))

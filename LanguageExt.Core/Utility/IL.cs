@@ -753,16 +753,17 @@ public static class IL
             }
         }
 
-        var block =  Expression.Block(
-            new [] { ord },
-            new[] {
-                      Expression.IfThen(refEq, Expression.Return(returnTarget, Zero)),
-                      Expression.IfThen(xIsNull, Expression.Return(returnTarget, Minus1)),
-                      Expression.IfThen(yIsNull, Expression.Return(returnTarget, Plus1)),
-                      Expression.IfThen(typesNotEqual, Expression.Return(returnTarget, Minus1))
-                  }
-               .Concat( Fields().Bind(identity))
-               .Concat( new [] { Expression.Label(returnTarget, Zero) as Expression }));
+        var block = Expression.Block(
+            [ord],
+            new[]
+                {
+                    Expression.IfThen(refEq, Expression.Return(returnTarget, Zero)),
+                    Expression.IfThen(xIsNull, Expression.Return(returnTarget, Minus1)),
+                    Expression.IfThen(yIsNull, Expression.Return(returnTarget, Plus1)),
+                    Expression.IfThen(typesNotEqual, Expression.Return(returnTarget, Minus1))
+                }
+               .Concat(Fields().SelectMany(identity))
+               .Concat([Expression.Label(returnTarget, Zero)]));
 
         var lambda = Expression.Lambda<Func<A, A, int>>(block, self, other);
 
@@ -809,7 +810,7 @@ public static class IL
         }
 
         var inner = Expression.Block(
-            fields.Select(fieldExpr).Intersperse(Expression.Call(sb, appendString, Expression.Constant(", "))));
+            fields.Select(fieldExpr).AsIterable().Intersperse(Expression.Call(sb, appendString, Expression.Constant(", "))));
             
         var outer = Expression.Block(
             Expression.Assign(sb, Expression.New(stringBuilder)),

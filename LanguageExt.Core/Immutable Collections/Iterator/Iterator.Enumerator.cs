@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace LanguageExt;
 
 public struct IteratorEnumerator<A>
@@ -26,6 +28,14 @@ public struct IteratorEnumerator<A>
         else
         {
             return false;
+        }
+    }
+    
+    public IEnumerator<A> GetEnumerator()
+    {
+        foreach (var x in iter)
+        {
+            yield return x;
         }
     }
 

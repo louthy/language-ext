@@ -20,7 +20,7 @@ public partial class Range
             State = state;
 
         public static IteratorState<A> Setup(A start, A stop, Func<A, A> step, Func<A, A, bool> eq) =>
-            new (new State<A>(start, false, stop, step, eq));
+            new (new State<A>(start, eq(start, stop), stop, step, eq));
     }    
     public readonly ref struct IteratorState
     {
@@ -29,7 +29,7 @@ public partial class Range
             State = state;
 
         public static IteratorState Setup<A>(A start, A stop, Func<A, A> step, Func<A, A, bool> eq) =>
-            new (new State<A>(start, false, stop, step, eq));
+            new (new State<A>(start, eq(start, stop), stop, step, eq));
     }
 }
 
@@ -41,10 +41,16 @@ public static class RangeIteratorStateExtensions
         {
             var state = (Range.State<A>)self.State;
             value = state.Current;
-            var oldLastWasEnd = state.LastWasEnd;
-            state.LastWasEnd = state.Eq(state.Current, state.Stop);
-            state.Current = state.Step(state.Current);
-            return !oldLastWasEnd;
+            if (state.LastWasEnd)
+            {
+                return false;
+            }
+            else
+            {
+                state.LastWasEnd = state.Eq(state.Current, state.Stop);
+                state.Current = state.Step(state.Current);
+                return true;
+            }
         }
     }
     
@@ -54,10 +60,16 @@ public static class RangeIteratorStateExtensions
         {
             var state = (Range.State<A>)self.State;
             value = state.Current;
-            var oldLastWasEnd = state.LastWasEnd;
-            state.LastWasEnd = state.Eq(state.Current, state.Stop);
-            state.Current = state.Step(state.Current);
-            return !oldLastWasEnd;
+            if (state.LastWasEnd)
+            {
+                return false;
+            }
+            else
+            {
+                state.LastWasEnd = state.Eq(state.Current, state.Stop);
+                state.Current = state.Step(state.Current);
+                return true;
+            }
         }
     }    
 }
