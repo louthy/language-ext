@@ -6,6 +6,20 @@ namespace LanguageExt;
 
 public static partial class FoldableBackExtensions
 {
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Value type</typeparam>
+    extension<T, A>(K<T, A> ta)
+        where T : Foldable<T>, FoldableBack<T>
+    {
+        /// <summary>
+        /// Find the element at the specified index or `None` if out of range
+        /// </summary>
+        public Option<A> At(Index index) =>
+            index.IsFromEnd
+                ? T.AtBack(index.Value - 1, ta)
+                : T.At(index.Value, ta);
+    }
+    
     /// <param name="f">Mapping operation</param>
     /// <typeparam name="T">Foldable</typeparam>
     /// <typeparam name="F">Applicative</typeparam>
