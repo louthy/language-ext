@@ -41,34 +41,6 @@ namespace LanguageExt.Traits;
 public interface FoldableBack<T> : IterableBackK<T>
     where T : FoldableBack<T>
 {
-    /*
-    /// <summary>
-    /// Runs a single step of the folding operation. The return value indicates whether the folding
-    /// operation should continue, and if so, what the next step should be.
-    /// </summary>
-    /// <remarks>
-    /// Mostly, consumers of `Foldable` shouldn't use `FoldStep` or `FoldStepBack` - these methods are the
-    /// building blocks of every other method in the `Foldable` trait. It's more idiomatically functional
-    /// to use the other methods that are built with `FoldStep` or `FoldStepBack` than to use them directly.
-    ///
-    /// Also, the return type `Fold〈A, S〉` is not guaranteed to be pure - it very likely won't be - and
-    /// so should be used with care (usually in a tight folding loop) and definitely not shared.
-    /// </remarks>
-    /// <remarks>
-    /// It is up to the consumer of this method to implement the actual state-aggregation (the folding)
-    /// before passing it to the continuation function. 
-    /// </remarks>
-    /// <param name="ta">Foldable structure</param>
-    /// <param name="initialState">Initial state value</param>
-    /// <typeparam name="A">Value type</typeparam>
-    /// <typeparam name="S">State type</typeparam>
-    /// <returns>A discriminated union that can be either `Done` or `Loop`.</returns>
-    static virtual Fold<A, S> FoldStepBack<A, S>(K<T, A> ta, in S initialState) =>
-        ta.BackwardIterator() is (Exist<A> head, var tail)
-            ? L.Fold.Loop(initialState, head.Value, tail.FoldStep)
-            : L.Fold.Done<A, S>(initialState);
-            */
-
     /// <summary>
     /// Same behaviour as `FoldBack` but allows early exit of the operation once
     /// the predicate function becomes `false` for the state/value pair 
