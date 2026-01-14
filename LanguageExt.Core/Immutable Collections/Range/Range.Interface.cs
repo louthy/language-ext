@@ -52,13 +52,12 @@ public interface Range<A> : IEnumerable<A>, K<Range, A>
     /// </para>
     /// <para>
     /// Fast iteration is a low-level, high-performance iteration mechanism that bypasses the standard IEnumerator
-    /// interface. It uses a mutable state structure (IteratorState) to enable efficient iteration without allocating
-    /// enumerator objects or using virtual dispatch.
+    /// interface. It uses a mutable state structure (Range.IteratorState) to enable efficient iteration without
+    /// allocating enumerator objects - everything is on the stack.
     /// </para>
     /// <para>
-    /// This is useful for performance-critical code paths where allocation overhead and virtual method calls would
-    /// be problematic. Typical use cases include tight loops, LINQ optimisations, and scenarios where maximum
-    /// throughput is required.
+    /// This is useful for performance-critical code paths where allocation overhead and would be problematic. Typical
+    /// use cases include tight loops, LINQ optimisations, and scenarios where maximum throughput is required.
     /// </para>
     /// <para>
     /// To use fast iteration:
@@ -69,6 +68,9 @@ public interface Range<A> : IEnumerable<A>, K<Range, A>
     /// <para>
     /// WARNING: This is an advanced feature. Incorrect usage can lead to undefined behaviour. Only use this if you
     /// understand the implications and have measured that standard iteration is a bottleneck.
+    /// </para>
+    /// <para>
+    /// For range implementors: you can throw a `NotSupportedException` here if `SupportsFastIteration` is false.
     /// </para>
     /// </remarks>
     bool SupportsFastIteration =>
@@ -83,13 +85,12 @@ public interface Range<A> : IEnumerable<A>, K<Range, A>
     /// </para>
     /// <para>
     /// Fast iteration is a low-level, high-performance iteration mechanism that bypasses the standard IEnumerator
-    /// interface. It uses a mutable state structure (IteratorState) to enable efficient iteration without allocating
-    /// enumerator objects or using virtual dispatch.
+    /// interface. It uses a mutable state structure (Range.IteratorState) to enable efficient iteration without
+    /// allocating enumerator objects - everything is on the stack.
     /// </para>
     /// <para>
-    /// This is useful for performance-critical code paths where allocation overhead and virtual method calls would
-    /// be problematic. Typical use cases include tight loops, LINQ optimisations, and scenarios where maximum
-    /// throughput is required.
+    /// This is useful for performance-critical code paths where allocation overhead and would be problematic. Typical
+    /// use cases include tight loops, LINQ optimisations, and scenarios where maximum throughput is required.
     /// </para>
     /// <para>
     /// To use fast iteration:
@@ -100,6 +101,9 @@ public interface Range<A> : IEnumerable<A>, K<Range, A>
     /// <para>
     /// WARNING: This is an advanced feature. Incorrect usage can lead to undefined behaviour. Only use this if you
     /// understand the implications and have measured that standard iteration is a bottleneck.
+    /// </para>
+    /// <para>
+    /// For range implementors: you can throw a `NotSupportedException` here if `SupportsFastIteration` is false.
     /// </para>
     /// </remarks>
     /// <param name="state">State to set</param>
@@ -115,13 +119,12 @@ public interface Range<A> : IEnumerable<A>, K<Range, A>
     /// </para>
     /// <para>
     /// Fast iteration is a low-level, high-performance iteration mechanism that bypasses the standard IEnumerator
-    /// interface. It uses a mutable state structure (IteratorState) to enable efficient iteration without allocating
-    /// enumerator objects or using virtual dispatch.
+    /// interface. It uses a mutable state structure (Range.IteratorState) to enable efficient iteration without
+    /// allocating enumerator objects - everything is on the stack.
     /// </para>
     /// <para>
-    /// This is useful for performance-critical code paths where allocation overhead and virtual method calls would
-    /// be problematic. Typical use cases include tight loops, LINQ optimisations, and scenarios where maximum
-    /// throughput is required.
+    /// This is useful for performance-critical code paths where allocation overhead and would be problematic. Typical
+    /// use cases include tight loops, LINQ optimisations, and scenarios where maximum throughput is required.
     /// </para>
     /// <para>
     /// To use fast iteration:
