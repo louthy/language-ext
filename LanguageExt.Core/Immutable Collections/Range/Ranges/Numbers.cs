@@ -66,6 +66,9 @@ public record Numbers<N>(N From, N To, N Step) : Range<Numbers<N>, N, N>
     public bool SupportsFastIteration => 
         true;
 
+    public int FastIterationStateSizeInBytes { get; } = 
+        Unsafe.SizeOf<IteratorState>();
+    
     public void FastIterationSetup(ref Range.IteratorState state)
     {
         var s = default(IteratorState);
@@ -77,14 +80,14 @@ public record Numbers<N>(N From, N To, N Step) : Range<Numbers<N>, N, N>
         {
             IteratorState.Setup(ref s, From, To, From, Step);
         }
-        state = Unsafe.ReadUnaligned<Range.IteratorState>(ref Unsafe.As<IteratorState, byte>(ref s));
+        state = Range.IteratorState.From(ref s);
     }
 
     public bool FastIterationStep(ref Range.IteratorState state, out N value)
     {
-        var s = Unsafe.ReadUnaligned<IteratorState>(ref Unsafe.As<Range.IteratorState, byte>(ref state));
+        var s = Range.IteratorState.To<IteratorState>(ref state);
         var c = IteratorState.Next(ref s, out value);
-        state = Unsafe.ReadUnaligned<Range.IteratorState>(ref Unsafe.As<IteratorState, byte>(ref s));
+        state = Range.IteratorState.From(ref s);
         return c;
     }
 

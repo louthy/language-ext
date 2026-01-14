@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using LanguageExt.Traits;
@@ -41,31 +42,103 @@ public interface Range<A> : IEnumerable<A>, K<Range, A>
 
     IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
         ForwardIterator().GetEnumerator().GetEnumerator();
-
+    
     /// <summary>
     /// Return true if the range supports fast iteration.  
     /// </summary>
     /// <remarks>
-    /// This is to support to-the-metal iteration. Make sure you know what you're doing if you set this to true.  
+    /// <para>
+    /// Fast Iteration Support
+    /// </para>
+    /// <para>
+    /// Fast iteration is a low-level, high-performance iteration mechanism that bypasses the standard IEnumerator
+    /// interface. It uses a mutable state structure (IteratorState) to enable efficient iteration without allocating
+    /// enumerator objects or using virtual dispatch.
+    /// </para>
+    /// <para>
+    /// This is useful for performance-critical code paths where allocation overhead and virtual method calls would
+    /// be problematic. Typical use cases include tight loops, LINQ optimisations, and scenarios where maximum
+    /// throughput is required.
+    /// </para>
+    /// <para>
+    /// To use fast iteration:
+    /// 1. Check SupportsFastIteration returns true
+    /// 2. Call FastIterationSetup() to initialise the state
+    /// 3. Repeatedly call FastIterationStep() until it returns false
+    /// </para>
+    /// <para>
+    /// WARNING: This is an advanced feature. Incorrect usage can lead to undefined behaviour. Only use this if you
+    /// understand the implications and have measured that standard iteration is a bottleneck.
+    /// </para>
     /// </remarks>
-    bool SupportsFastIteration { get; }
-    
+    bool SupportsFastIteration =>
+        false;
+
     /// <summary>
-    /// Setup the fast iteration state.  
+    /// Set up the fast iteration state.  
     /// </summary>
     /// <remarks>
-    /// This is to support to-the-metal iteration. Make sure you know what you're doing if you use this.
+    /// <para>
+    /// Fast Iteration Support
+    /// </para>
+    /// <para>
+    /// Fast iteration is a low-level, high-performance iteration mechanism that bypasses the standard IEnumerator
+    /// interface. It uses a mutable state structure (IteratorState) to enable efficient iteration without allocating
+    /// enumerator objects or using virtual dispatch.
+    /// </para>
+    /// <para>
+    /// This is useful for performance-critical code paths where allocation overhead and virtual method calls would
+    /// be problematic. Typical use cases include tight loops, LINQ optimisations, and scenarios where maximum
+    /// throughput is required.
+    /// </para>
+    /// <para>
+    /// To use fast iteration:
+    /// 1. Check SupportsFastIteration returns true
+    /// 2. Call FastIterationSetup() to initialise the state
+    /// 3. Repeatedly call FastIterationStep() until it returns false
+    /// </para>
+    /// <para>
+    /// WARNING: This is an advanced feature. Incorrect usage can lead to undefined behaviour. Only use this if you
+    /// understand the implications and have measured that standard iteration is a bottleneck.
+    /// </para>
     /// </remarks>
     /// <param name="state">State to set</param>
-    void FastIterationSetup(ref Range.IteratorState state);
+    void FastIterationSetup(ref Range.IteratorState state) =>
+        throw new NotSupportedException("Fast iteration is not supported for this range");
     
     /// <summary>
-    /// Setup the fast iteration state.  
+    /// Single step of the fast iteration state.  
     /// </summary>
     /// <remarks>
-    /// This is to support to-the-metal iteration. Make sure you know what you're doing if you use this.
+    /// <para>
+    /// Fast Iteration Support
+    /// </para>
+    /// <para>
+    /// Fast iteration is a low-level, high-performance iteration mechanism that bypasses the standard IEnumerator
+    /// interface. It uses a mutable state structure (IteratorState) to enable efficient iteration without allocating
+    /// enumerator objects or using virtual dispatch.
+    /// </para>
+    /// <para>
+    /// This is useful for performance-critical code paths where allocation overhead and virtual method calls would
+    /// be problematic. Typical use cases include tight loops, LINQ optimisations, and scenarios where maximum
+    /// throughput is required.
+    /// </para>
+    /// <para>
+    /// To use fast iteration:
+    /// 1. Check SupportsFastIteration returns true
+    /// 2. Call FastIterationSetup() to initialise the state
+    /// 3. Repeatedly call FastIterationStep() until it returns false
+    /// </para>
+    /// <para>
+    /// WARNING: This is an advanced feature. Incorrect usage can lead to undefined behaviour. Only use this if you
+    /// understand the implications and have measured that standard iteration is a bottleneck.
+    /// </para>
+    /// <para>
+    /// For range implementors: you can throw a `NotSupportedException` here if `SupportsFastIteration` is false.
+    /// </para>
     /// </remarks>
     /// <param name="state">State to set</param>
-    bool FastIterationStep(ref Range.IteratorState state, out A value);
-    
+    /// <returns>True if the iteration is returning a `value` and should continue</returns>
+    bool FastIterationStep(ref Range.IteratorState state, out A value) =>
+        throw new NotSupportedException("Fast iteration is not supported for this range");
 }

@@ -34,7 +34,7 @@ public record Expiries(Expiry From, Expiry To, MonthSpan Step) : Range<Expiries,
 
     public static Range<Expiry> FromCount(Expiry from, long count, MonthSpan step) => 
         new Expiries(from, from + step * (int)(count - 1), step);
-    
+
     class Iter(Expiry Current, Expiry From, Expiry To, MonthSpan Step) : Iterator<Expiry>
     {
         public override (Head<Expiry> Head, Iterator<Expiry> Tail) Next()

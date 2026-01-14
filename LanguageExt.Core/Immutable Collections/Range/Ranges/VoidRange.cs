@@ -32,6 +32,9 @@ internal class VoidRange<A, S> : Range<VoidRange<A, S>, A, S>
         return false;
     }
 
+    public int FastIterationStateSizeInBytes => 
+        0;
+
     public static Range<A> FromMinMax(A from, A to) => 
         Default;
 

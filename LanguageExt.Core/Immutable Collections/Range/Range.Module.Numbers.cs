@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using LanguageExt.Ranges;
-using LanguageExt.Traits;
 using System.Diagnostics.Contracts;
 
 namespace LanguageExt;

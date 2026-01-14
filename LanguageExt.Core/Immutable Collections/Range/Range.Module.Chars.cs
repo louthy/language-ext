@@ -1,5 +1,4 @@
 ﻿using LanguageExt.Ranges;
-using LanguageExt.Traits;
 using System.Diagnostics.Contracts;
 
 namespace LanguageExt;
@@ -40,7 +39,7 @@ public partial class Range
     /// <param name="from">The minimum value in the range</param>
     /// <param name="count">The number of items in the range</param>
     [Pure]
-    public static Range<char> fromCount(char from, long count) =>
+    public static Range<char> fromCount(char from, int count) =>
         fromCount<Chars, char, int>(from, count);
 
     /// <summary>
@@ -50,6 +49,6 @@ public partial class Range
     /// <param name="count">The number of items in the range</param>
     /// <param name="step">The size of each step in the range</param>
     [Pure]
-    public static Range<char> fromCount(char from, long count, char step) =>
+    public static Range<char> fromCount(char from, int count, char step) =>
         fromCount<Chars, char, int>(from, count, step);
 }
