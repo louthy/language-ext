@@ -78,14 +78,14 @@ public static partial class RangeExtensions
         /// </summary>
         [Pure]
         public bool Any(Func<A, bool> predicate) =>
-            ma.As().Exists(predicate);
+            Foldable.exists(predicate, ma);
 
         /// <summary>
         /// Determines whether all elements of a range satisfy a condition.
         /// </summary>
         [Pure]
         public bool All(Func<A, bool> predicate) =>
-            ma.As().ForAll(predicate);
+            Foldable.forAll(predicate, ma);
 
         /// <summary>
         /// Returns the first element of a range.

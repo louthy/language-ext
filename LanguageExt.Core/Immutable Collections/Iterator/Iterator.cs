@@ -313,6 +313,13 @@ public abstract partial class Iterator<A> :
         new OpFilter(this, f);
 
     /// <summary>
+    /// Functor map
+    /// </summary>
+    [Pure]
+    public Iterator<A> Where(Func<A, bool> f) =>
+        new OpFilter(this, f);
+
+    /// <summary>
     /// Monad bind
     /// </summary>
     [Pure]

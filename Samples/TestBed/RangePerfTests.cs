@@ -10,9 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using LanguageExt;
-using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace TestBed;
@@ -28,11 +26,10 @@ public class RangePerfTests
         /*
         Bench([
                   ("ForeachSum", () => ForeachSum(sysRange)),
-                  ("LinqSum", () => LinqSum(sysRange)),
+              //  ("LinqSum", () => LinqSum(sysRange)),
                   ("FoldableSum", () => FoldableSum(range))
               ]);
-              */
-
+        */
         Bench([
                   ("ForeachCount", () => ForeachCount(sysRange)),
                   ("LinqCount", () => LinqCount(sysRange)),
@@ -79,38 +76,10 @@ public class RangePerfTests
  
     static int LinqSum(IEnumerable<int> range) =>
         range.Sum();
-
-    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    static int Count<T, A, FS>(K<T, A> ta)
-        where T : Foldable<T, FS>
-        where FS : allows ref struct
-    {
-        var foldState = T.StepSetup(ta);
-        var state = 0;
-        while (T.Step(ta, ref foldState, out _))
-        {
-            state++;
-        }
-        return state;
-    }    
-
-    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    static int Sum<T, FS>(K<T, int> ta)
-        where T : Foldable<T, FS>
-        where FS : allows ref struct
-    {
-        var foldState = T.StepSetup(ta);
-        var state     = 0;
-        while (T.Step(ta, ref foldState, out var x))
-        {
-            state += x;
-        }
-        return state;
-    }    
     
     public static void Bench(Seq<(string Name, Action Action)> actions)
     {
-        for (var warmup = 0; warmup < 1000; warmup++)
+        for (var warmup = 0; warmup < 2000; warmup++)
         {
             if(warmup % 100 == 0) Console.WriteLine($"Warmup #{warmup}");
             foreach (var action in actions) action.Action();
@@ -118,7 +87,7 @@ public class RangePerfTests
 
         Seq<Seq<(string Name, TimeSpan Duration)>> runs = [];
         
-        for(var run = 0; run < 1000; run++)
+        for(var run = 0; run < 2000; run++)
         {
             if(run % 100 == 0) Console.WriteLine($"Live run #{run}");
             var durations = Seq<(string Name, TimeSpan Duration)>();
