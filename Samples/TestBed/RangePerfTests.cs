@@ -72,10 +72,10 @@ public class RangePerfTests
         range.Count();
 
     static int FoldableCount(Range<int> range) =>
-        Foldable.count(range);
+        (int)range.Count();
 
     static int FoldableSum(Range<int> range) =>
-        Foldable.sum(range);
+        range.Sum();
  
     static int LinqSum(IEnumerable<int> range) =>
         range.Sum();

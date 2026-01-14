@@ -27,7 +27,7 @@ public static class Query
         var paramT = Expression.Parameter(typeof(T), "t");
         var paramI = Expression.Parameter(typeof(int), "i");
 
-        return zip(list, Range(0, Int32.MaxValue),
+        return zip(list, Range(0, int.MaxValue).AsEnumerable(),
             Expression.Lambda<Func<T, int, R>>(
                 Expression.Invoke(map, paramI, paramT),
                 paramT,

@@ -334,6 +334,20 @@ public abstract partial class Iterator<A> :
         ff.Bind(f => Map(f));
 
     /// <summary>
+    /// Skip a specified number of items from the start of the iterator. 
+    /// </summary>
+    [Pure]
+    public Iterator<A> Skip(int amount) =>
+        new OpSkip(this, amount);
+
+    /// <summary>
+    /// Take a specified number of items from the start of the iterator. 
+    /// </summary>
+    [Pure]
+    public Iterator<A> Take(int amount) =>
+        new OpTake(this, amount);
+
+    /// <summary>
     /// Concatenate two iterators
     /// </summary>
     [Pure]
