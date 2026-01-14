@@ -1,5 +1,5 @@
 `Option` monads support either an `A` (success) value, or a `None` (no-value) option.  You can think of this as an alternative to using
-`null` to represent a lack of a value.  `null` unfortunately still allows you to `.` into the interface of the decalred type, which means
+`null` to represent a lack of a value.  `null` unfortunately still allows you to `.` into the interface of the declared type, which means
 there's a ticking time-bomb in every reference type.  
 
 C# does now have the nullable references feature, which goes some way to removing the need for an optional type, however there's still edge
