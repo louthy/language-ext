@@ -71,7 +71,7 @@ public record Chars(char From, char To, int Step) : Range<Chars, char, int>
 
     public void FastIterationSetup(ref Range.IteratorState state)
     {
-        var s = default(IteratorState);
+        ref var s = ref Range.IteratorState.To<IteratorState>(ref state);
         if (From <= To)
         {
             IteratorState.Setup(ref s, From, From, To, Step);
@@ -85,8 +85,8 @@ public record Chars(char From, char To, int Step) : Range<Chars, char, int>
 
     public bool FastIterationStep(ref Range.IteratorState state, out char value)
     {
-        var s = Range.IteratorState.To<IteratorState>(ref state);
-        var c = IteratorState.Next(ref s, out value);
+        ref var s = ref Range.IteratorState.To<IteratorState>(ref state);
+        var     c = IteratorState.Next(ref s, out value);
         state = Range.IteratorState.From(ref s);
         return c;
     }    

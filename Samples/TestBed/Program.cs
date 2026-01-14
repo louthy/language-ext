@@ -23,7 +23,8 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        RangeTests.Run();
+        RangePerfTests.Run();
+        //RangeTests.Run();
         //FoldStepTests.Run();
         //FoldPerfTests.Run();
         //Discussion1527.Run();

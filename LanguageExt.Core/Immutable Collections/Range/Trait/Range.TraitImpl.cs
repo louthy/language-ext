@@ -73,27 +73,28 @@ public partial class Range : Foldable<Range, Range.IteratorState>
         long state6;
         long state7;        //   Note: we check that they're not going to overflow the struct.
         long state8;        //   But a poorly behaved Range could lie about its usage and
-        long state9;        //   cause an overflow. 
+        long state9;        //   cause an overflow.
         long stateA;
         long stateB;        //   We can't use 0xDeadBeef in the normal way, so some thought
         long stateC;        //   is needed to how we can verify that ranges are well-behaved
         long stateD;        //   without incurring additional overhead.
         long stateE;
         long stateF;
+
         internal IDisposable backup = backup;
 
-        public static S To<S>(scoped ref IteratorState from)
+        public static ref S To<S>(ref IteratorState to)
             where S : struct, allows ref struct
         {
             Debug.Assert(Unsafe.SizeOf<S>() <= Unsafe.SizeOf<IteratorState>());
-            return Unsafe.ReadUnaligned<S>(ref Unsafe.As<IteratorState, byte>(ref from));
+            return ref Unsafe.As<IteratorState, S>(ref to);
         }
         
-        public static IteratorState From<S>(scoped ref S from)
+        public static ref IteratorState From<S>(ref S from)
             where S : struct, allows ref struct
         {
             Debug.Assert(Unsafe.SizeOf<S>() <= Unsafe.SizeOf<IteratorState>());
-            return Unsafe.ReadUnaligned<IteratorState>(ref Unsafe.As<S, byte>(ref from));
+            return ref Unsafe.As<S, IteratorState>(ref from);
         }
     }
 }
