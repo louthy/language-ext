@@ -13,6 +13,20 @@ public static partial class IteratorExtensions
     public static Iterator<A> As<A>(this K<Iterator, A> ma) =>
         (Iterator<A>)ma;
 
+    /// <summary>
+    /// Monadic join
+    /// </summary>
+    [Pure]
+    public static Iterator<A> Flatten<A>(this Iterator<Iterator<A>> ma) =>
+        new Iterator<A>.OpFlatten(ma);
+
+    /// <summary>
+    /// Monadic join
+    /// </summary>
+    [Pure]
+    public static Iterator<A> Flatten<A>(this Iterator<K<Iterator, A>> ma) =>
+        new Iterator<A>.OpFlatten2(ma);
+
     /// <param name="head">Head item in the sequence</param>
     /// <typeparam name="A">Type of the items in the sequence</typeparam>
     extension<A>(A head)
@@ -37,23 +51,6 @@ public static partial class IteratorExtensions
         public Iterator<A> Cons(Func<Iterator<A>> tail) =>
             Iterator.cons(head, tail);
     }
-
-    /*
-    /// <summary>
-    /// Get an iterator for any `IEnumerable` 
-    /// </summary>
-    [Pure]
-    public static Iterator<A> GetIterator<A>(this IEnumerable<A> enumerable) =>
-        Iterator.from(enumerable);
-        */
-
-
-    /// <summary>
-    /// Monadic join
-    /// </summary>
-    [Pure]
-    public static Iterator<A> Flatten<A>(this Iterator<Iterator<A>> ma) =>
-        new Iterator<A>.OpFlatten(ma);
     
     extension<A, B>(Func<Iterator<A>> iter)
     {

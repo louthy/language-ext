@@ -148,48 +148,48 @@ public abstract partial class Iterator<A> :
     /// </summary>
     /// <remarks>
     /// <para>
-    /// You only need to use this if your `Iterator` has been constructed from an `IEnumerable`.  
+    /// You only need to use this if your `Iterator` has been constructed from an `IEnumerable`.  And only if you're
+    /// not consuming this iterator using `foreach`.
     /// </para>
     /// <para>
     /// If you don't know whether your `Iterator` has been constructed from an `IEnumerable`, invoke this method on
-    /// your `Iterator` just in case.
+    /// your `Iterator` just in case: for other `Iterator` types, this method will have no effect.  
     /// </para>
     /// <para>
-    /// For other `Iterator` types, this method will have no effect.  If your `Iterator` is a composition of other
+    /// If your `Iterator` is a composition of other
     /// iterators (like if you zip two iterators, or you map, filter, etc.), then you can still call `Using` on the
     /// composed `Iterator` and it will flow through to the underlying iterator(s). 
     /// </para>
     /// <para>
-    /// For a deeper understanding, imagine that when an `IEnumerable` is lifted into an `Iterator`, it hasn't yet
+    /// For a deeper understanding: imagine that when an `IEnumerable` is lifted into an `Iterator`, it hasn't yet
     /// generated its `IEnumerator` (using `GetEnumerator()`), and so the `Iterator` that contains the `IEnumerable`
-    /// has no resources to release yet.  But this is the `Iterator` that we give to `foreach`, and so the
-    /// auto-disposal mechanism of `foreach` won't know how to clean anything up! 
+    /// has no resources to release yet.  
     /// </para>
     /// <para>
-    /// When you start consuming the items from the `Iterator`, the first `(head, tail)` pair you get back will have
-    /// the tail as an `Iterator` that is carrying the enumerable's newly generated`IEnumerator`. That means the
-    /// original `Iterator` that carried the `IEnumerable` is not the `Iterator` you want to call `Dispose` on.  It's
-    /// the very first tail-`Iterator`.
+    /// When you start consuming the items from the `Iterator`, the first `(head, tail)` pair you get will have
+    /// the tail `Iterator` carrying an `IEnumerator` that has been newly generated from the original lifted
+    /// `IEnumerable`.
+    /// </para>
+    /// <para>
+    /// That means the original `Iterator` that carried the `IEnumerable` is not the `Iterator` you want to call
+    /// `Dispose` on.  It's the very first tail-`Iterator`.
     /// </para>
     /// <para>
     /// In that situation, it's quite difficult to stop, mid-iteration, to grab a reference to the first tail
     /// `Iterator`, and then somehow track that value until the end of the iteration, and then dispose of it!
     /// </para>
     /// <para>
-    /// So, instead the `Using` method makes the 'first move' and generates the `IEnumerator`. That means the `Iterator`
-    /// that you pass to a `foreach` will have a reference to the `IEnumerator` and can therefore dispose of it at the
-    /// end of the iteration.
+    /// So, instead the `Using` method makes the 'first move' and generates the `IEnumerator`, which makes tracking
+    /// which `Iterator` to dispose much simpler (and can be passed to a `using` expression).
     /// </para>
     /// <para>
     /// NOTE: If you're manually iterating over the `Iterator` using the deconstructor or `(head, tail) = Next()`, you
     /// can still call `Using` to get an initial disposable `Iterator`, but you don't have to, you can call `Dispose`
-    /// manually on any of the subsequent tail `Iterator` instances you receive. 
-    /// </para>
-    /// <para>
-    /// This is most convenient when you're recursively iterating, and you only have the current `Iterator` instance.
+    /// manually on any of the subsequent tail `Iterator` instances you receive. This is most convenient when you're
+    /// recursively iterating, and you only have the current `Iterator` instance. 
     /// </para>
     /// </remarks>
-    /// <returns></returns>
+    /// <returns>Disposable `Iterator`</returns>
     public abstract Iterator<A> Using();
     
     /// <summary>
@@ -306,7 +306,7 @@ public abstract partial class Iterator<A> :
         Choose(x => x is B b ? Some(b) : None);
 
     /// <summary>
-    /// Functor map
+    /// Filtering by predicate
     /// </summary>
     [Pure]
     public Iterator<A> Filter(Func<A, bool> f) =>
@@ -324,6 +324,13 @@ public abstract partial class Iterator<A> :
     /// </summary>
     [Pure]
     public Iterator<B> Bind<B>(Func<A, Iterator<B>> f) =>
+        Map(f).Flatten();
+
+    /// <summary>
+    /// Monad bind
+    /// </summary>
+    [Pure]
+    public Iterator<B> Bind<B>(Func<A, K<Iterator, B>> f) =>
         Map(f).Flatten();
 
     /// <summary>
