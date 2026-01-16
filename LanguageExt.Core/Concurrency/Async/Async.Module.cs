@@ -3,31 +3,37 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
 
-namespace LanguageExt.Async;
+namespace LanguageExt;
 
 /// <summary>
+/// <para>
 /// The `Async` module helps transition away from the `Task` / `async` / `await` world and into one
 /// where awaiting is the default setting for concurrent programming and branching/forking is the
 /// thing we do the least.
-///
+/// </para>
+/// <para>
 /// The `Async.await` function will convert a `Task〈A〉` into an `A` by waiting for the `Task` to
 /// complete; it will yield the thread whilst it's waiting (to play nice with other tasks in the
 /// task-pool).  This is just like the regular `await` keyword without all the ceremony and
 /// colouring of methods.
-///
+/// </para>
+/// <para>
 /// `Async.fork` lifts a function into an IO monad, forks it, and then runs the IO monad returning
 /// a `ForkIO` object.  The forked operation continues to run in parallel.  The `ForkIO` object
 /// contains two properties: `Await` and `Cancel` that be used to either await the result or
 /// cancel the operation.
-///
+/// </para>
+/// <para>
 /// These two functions remove the need for methods that are 'tainted' with `Task` or `async` /
 /// `await` mechanics and assume that the thing we will do the most with asynchronous code is to
 /// await it.
-///
+/// </para>
+/// <para>
 /// This module shouldn't be needed too much, as the IO monad is where most of the asynchrony
 /// should be. But, when converting from existing async/await code, or if you're coming from
 /// language-ext v4, or earlier, where there was lots of `*Async` methods in the key types, then
 /// this module will help ease the transition.
+/// </para>
 /// </summary>
 public static class Async
 {
@@ -40,25 +46,49 @@ public static class Async
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>Result of the task, `OperationCanceledException`, or any exception raised by the task</returns>
     /// <exception cref="OperationCanceledException"></exception>
-    public static A await<A>(Task<A> operation)
+    public static A await<A>(Task<A> operation) =>
+        operation.GetAwaiter().GetResult();
+    
+    /// <summary>
+    /// Simple awaiter that yields the thread whilst waiting.  Allows for the `Task` to
+    /// be used with synchronous code without blocking any threads for concurrent
+    /// processing.
+    /// </summary>
+    /// <param name="operation">Task to await</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Result of the task, `OperationCanceledException`, or any exception raised by the task</returns>
+    /// <exception cref="OperationCanceledException"></exception>
+    public static Unit await(Task operation)
     {
-        SpinWait sw = default;
-        while (true)
-        {
-            if (operation.IsCanceled)
-            {
-                throw new OperationCanceledException();
-            }
-            else if (operation.IsFaulted)
-            {
-                operation.Exception.Rethrow();
-            }
-            else if (operation.IsCompleted)
-            {
-                return operation.Result;
-            }
-            sw.SpinOnce();
-        }
+        operation.GetAwaiter().GetResult();
+        return default;
+    }
+
+    /// <summary>
+    /// Simple awaiter that yields the thread whilst waiting.  Allows for the `Task` to
+    /// be used with synchronous code without blocking any threads for concurrent
+    /// processing.
+    /// </summary>
+    /// <param name="operation">Task to await</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Result of the task, `OperationCanceledException`, or any exception raised by the task</returns>
+    /// <exception cref="OperationCanceledException"></exception>
+    public static A await<A>(ValueTask<A> operation) =>
+        operation.GetAwaiter().GetResult();
+
+    /// <summary>
+    /// Simple awaiter that yields the thread whilst waiting.  Allows for the `Task` to
+    /// be used with synchronous code without blocking any threads for concurrent
+    /// processing.
+    /// </summary>
+    /// <param name="operation">Task to await</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Result of the task, `OperationCanceledException`, or any exception raised by the task</returns>
+    /// <exception cref="OperationCanceledException"></exception>
+    public static Unit await(ValueTask operation)
+    {
+        operation.GetAwaiter().GetResult();
+        return default;
     }
 
     /// <summary>

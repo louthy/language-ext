@@ -1,16 +1,12 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT License.
-// See the LICENSE file in the project root for more information. 
-
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using LanguageExt.Async.Linq;
 
 namespace LanguageExt.LinqExtensionInternal;
 
-public static class AsyncEnumerableEx
+public static partial class AsyncEnumerableEx
 {
     /// <summary>
     /// Merges elements from all the specified async-enumerable sequences into a single async-enumerable sequence.
@@ -19,7 +15,7 @@ public static class AsyncEnumerableEx
     /// <param name="sources">Async-enumerable sequences.</param>
     /// <returns>The async-enumerable sequence that merges the elements of the async-enumerable sequences.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="sources"/> is null.</exception>
-    public static IAsyncEnumerable<TSource> Merge<TSource>(params IAsyncEnumerable<TSource>[] sources)
+    public static IAsyncEnumerable<TSource> Flatten<TSource>(params IAsyncEnumerable<TSource>[] sources)
     {
         return Core(sources);
 
@@ -121,7 +117,7 @@ public static class AsyncEnumerableEx
     /// <param name="sources">Async-enumerable sequence of inner async-enumerable sequences.</param>
     /// <returns>The async-enumerable sequence that merges the elements of the inner sequences.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="sources"/> is null.</exception>
-    public static IAsyncEnumerable<TSource> Merge<TSource>(
+    public static IAsyncEnumerable<TSource> Flatten<TSource>(
         this IAsyncEnumerable<IAsyncEnumerable<TSource>> sources) =>
-        sources.SelectMany(source => source);
+        sources.SelectMany(source => source);    
 }

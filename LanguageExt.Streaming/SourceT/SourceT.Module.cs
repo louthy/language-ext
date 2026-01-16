@@ -1,9 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Threading.Channels;
-using LanguageExt.Async.Linq;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;

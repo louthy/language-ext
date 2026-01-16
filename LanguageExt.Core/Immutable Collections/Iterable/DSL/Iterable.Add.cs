@@ -223,9 +223,9 @@ sealed class IterableAdd<A>(SeqStrict<A> Prefix, Iterable<A> Source, SeqStrict<A
     public override Iterator<A> ForwardIterator() =>
         (Prefix.Count, Postfix.Count) switch
         {
-            (0, 0) => IterableKExtensions.ForwardIterator(Source),
-            (_, 0) => new Seq<A>(Prefix).ForwardIterator()        + IterableKExtensions.ForwardIterator(Source),
-            (0, _) => IterableKExtensions.ForwardIterator(Source) + new Seq<A>(Postfix).ForwardIterator(),
-            _      => new Seq<A>(Prefix).ForwardIterator()        + IterableKExtensions.ForwardIterator(Source) + new Seq<A>(Postfix).ForwardIterator()
+            (0, 0) => Source.ForwardIterator(),
+            (_, 0) => new Seq<A>(Prefix).ForwardIterator() + Source.ForwardIterator(),
+            (0, _) => Source.ForwardIterator() + new Seq<A>(Postfix).ForwardIterator(),
+            _ => new Seq<A>(Prefix).ForwardIterator() + Source.ForwardIterator() + new Seq<A>(Postfix).ForwardIterator()
         };
 }

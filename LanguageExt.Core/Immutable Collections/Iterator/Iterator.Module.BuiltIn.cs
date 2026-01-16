@@ -17,6 +17,15 @@ public partial class Iterator
         new Iterator<A>.Enumerable(items);
 
     /// <summary>
+    /// Create an iterator from an `IAsyncEnumerable` collection
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Iterator of the collection</returns>
+    public static Iterator<A> forward<A>(IAsyncEnumerable<A> items) =>
+        new Iterator<A>.AsyncEnumerable(items);
+
+    /// <summary>
     /// Create an iterator from an `Arr` collection
     /// </summary>
     /// <param name="items">Collection to iterate</param>

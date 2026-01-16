@@ -158,21 +158,6 @@ public abstract partial class Iterator<A> :
     public abstract IO<(Head<A> Head, Iterator<A> Tail)> NextIO();
 
     /// <summary>
-    /// Get the next value in the range for any type that supports `Alternative`.
-    /// </summary>
-    /// <remarks>`Alternative.Empty` means 'end of range'</remarks>
-    /// <typeparam name="M"></typeparam>
-    /// <returns></returns>
-    public K<M, (A Head, Iterator<A> Tail)> Next<M>()
-        where M : Alternative<M>
-    {
-        var (h, t) = Next();
-        return h is Exist<A> (var x)
-                   ? M.Pure((x, t))
-                   : M.Empty<(A, Iterator<A>)>();
-    }
-
-    /// <summary>
     /// This will 'prime' an iterator so that calling `Dispose` on the `Iterator` returned from this method will
     /// correctly release any backing resources. 
     /// </summary>
@@ -221,19 +206,6 @@ public abstract partial class Iterator<A> :
     /// </remarks>
     /// <returns>Disposable `Iterator`</returns>
     public abstract Iterator<A> Using();
-    
-    /// <summary>
-    /// Consume the next item in the sequence but return only its tail, ignoring the head.
-    /// </summary>
-    [Pure]
-    public Iterator<A> Tail
-    {
-        get
-        {
-            var (_, tail) = this;
-            return tail;
-        }
-    }
 
     /// <summary>
     /// Create an `IEnumerable` from an `Iterator`
@@ -241,10 +213,43 @@ public abstract partial class Iterator<A> :
     [Pure]
     public IEnumerable<A> AsEnumerable()
     {
-         for (var i = this; i is (Exist<A> head, var tail); i = tail)
+         using var iter = Using();
+         for (var i = iter; i is (Exist<A> head, var tail); i = tail)
          {
              yield return head.Value;
          }
+    }
+
+    /// <summary>
+    /// Create an `AsyncEnumerable` from an `Iterator`
+    /// </summary>
+    [Pure]
+    public IO<IAsyncEnumerable<A>> AsAsyncEnumerable()
+    {
+        return IO.lift(go);
+
+        async IAsyncEnumerable<A> go(EnvIO e)
+        {
+            using var iter = Using();
+            for (var i = iter; await i.NextIO().RunAsync(e) is (Exist<A> (var head), var tail); i = tail)
+            {
+                yield return head;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Forces evaluation of every item in the iterator and then writes them to an `Arr` structure
+    /// </summary>
+    [Pure]
+    public virtual Arr<A> ToArr()
+    {
+        var writer = ArrayWriter<A>.Init();
+        foreach (var head in this)
+        {
+            writer.Add(head);
+        }
+        return writer.ToArr();
     }
 
     /// <summary>
@@ -289,20 +294,6 @@ public abstract partial class Iterator<A> :
     {
         var arr = ToArr();
         return new IterArr(arr, 0, arr.Count);
-    }
-
-    /// <summary>
-    /// Forces evaluation of every item in the iterator and then writes them to an `Arr` structure
-    /// </summary>
-    [Pure]
-    public virtual Arr<A> ToArr()
-    {
-        var writer = ArrayWriter<A>.Init();
-        foreach (var head in Using())
-        {
-            writer.Add(head);
-        }
-        return writer.ToArr();
     }
     
     /// <summary>
@@ -474,13 +465,13 @@ public abstract partial class Iterator<A> :
     /// </summary>
     public virtual void Dispose()
     {
-        // Only the Iterator.Enumerator uses Dispose
+        // Only the Iterator.Enumerator and Iterator.AsyncEnumerator uses Dispose
     }
 
     /// <summary>
     /// Equality test
     /// </summary>
-    /// <param name="obj">Other iterator to compare against</param>
+    /// <param name="obj">The other iterator to compare against</param>
     /// <returns>True if equal</returns>
     [Pure]
     public override bool Equals(object? obj) =>
@@ -489,7 +480,7 @@ public abstract partial class Iterator<A> :
     /// <summary>
     /// Equality test
     /// </summary>
-    /// <param name="other">Other iterator to compare against</param>
+    /// <param name="other">The other iterator to compare against</param>
     /// <returns>True if equal</returns>
     [Pure]
     public bool Equals(Iterator<A>? rhs)
@@ -566,7 +557,7 @@ public abstract partial class Iterator<A> :
     /// </summary>
     [Pure]
     public string ToFullArrayString(string separator = ", ") =>
-        CollectionFormat.ToFullArrayString(this.AsEnumerable(), separator);
+        CollectionFormat.ToFullArrayString(AsEnumerable(), separator);
 
     const int OffsetBasis = -2128831035;
     const int Prime = 16777619;

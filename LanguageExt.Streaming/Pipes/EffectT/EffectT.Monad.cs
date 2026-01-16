@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using LanguageExt.Async.Linq;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
