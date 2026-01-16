@@ -7,19 +7,13 @@ public abstract partial class Iterator<A>
     /// <summary>
     /// Cons iterator
     /// </summary>
-    internal class Cons : Iterator<A>
+    internal class Cons(A head, Func<Iterator<A>> tail) : Iterator<A>
     {
-        readonly A head;
-        readonly Func<Iterator<A>> tail;
-
-        public Cons(A head, Func<Iterator<A>> tail)
-        {
-            this.head = head;
-            this.tail = tail;
-        }
-
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
-            (new Exist<A>(head), tail());
+            Head.Exist(head, tail());
+
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
+            IO.lift(tail) * (t => Head.Exist(head, t));
 
         public override string ToString() => 
             $"{head}...";
@@ -31,19 +25,13 @@ public abstract partial class Iterator<A>
     /// <summary>
     /// Cons iterator
     /// </summary>
-    internal class ConsStrict : Iterator<A>
+    internal class ConsStrict(A head, Iterator<A> tail) : Iterator<A>
     {
-        readonly A head;
-        readonly Iterator<A> tail;
-
-        public ConsStrict(A head, Iterator<A> tail)
-        {
-            this.head = head;
-            this.tail = tail;
-        }
-
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
-            (new Exist<A>(head), tail);
+            Head.Exist(head, tail);
+
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
+            IO.pure(Head.Exist(head, tail));
 
         public override string ToString() => 
             $"{head}, {tail}";

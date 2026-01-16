@@ -13,9 +13,12 @@ public abstract partial class Iterator<A>
         
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             items.Step(out var head, out var tail)
-                ? (new Exist<A>(head.Key), new IterSetFwd(tail))
-                : (Nil<A>.Default, Nil.Default);
-    
+                ? Head.Exist(head.Key, new IterSetFwd(tail))
+                : Head.Nil<A>();
+
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
+            IO.pure(Next());
+
         public override string ToString() => 
             $"Set{items.ToString()}";
 
@@ -32,9 +35,12 @@ public abstract partial class Iterator<A>
         
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             items.StepBack(out var head, out var tail)
-                ? (new Exist<A>(head.Key), new IterSetFwd(tail))
-                : (Nil<A>.Default, Nil.Default);
-    
+                ? Head.Exist(head.Key, new IterSetBkwd(tail))
+                : Head.Nil<A>();
+
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
+            IO.pure(Next());
+
         public override string ToString() => 
             $"Set{items.ToString()}";
 

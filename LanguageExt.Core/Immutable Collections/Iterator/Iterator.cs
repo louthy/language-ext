@@ -126,6 +126,36 @@ public abstract partial class Iterator<A> :
     /// </remarks>
     public abstract (Head<A> Head, Iterator<A> Tail) Next();
 
+    /// <summary>
+    /// Consume the next item in the sequence
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This will lazily consume the next item in the iterator. `Head` will be `Exist〈A〉` if the iterator
+    /// is not empty, otherwise it will be `Nil〈A〉`.  `Tail` will be the remainder of the iterator.
+    /// </para> 
+    /// </remarks>
+    /// <example>
+    /// It is possible to use the deconstructor in a for-loop to repeatedly consume the iterable thing. The
+    /// deconstructor simply calls `Next` to extract the head and tail of the iterator:
+    /// <code>
+    ///     for (var i = iter; i is (Exist&lt;A&gt; h, var t); i = t)
+    ///     {
+    ///         yield return h.Value;
+    ///     }
+    /// </code>
+    /// Or, use `foreach`, which will also deal with the disposal properly:
+    /// <code>
+    ///     foreach (var value in iter.Using())
+    ///     {
+    ///         yield return value;
+    ///     }
+    /// </code>
+    /// </example>
+    /// <remarks>
+    /// See <see cref="Using" /> documentation for best `IDisposable` practices.
+    /// </remarks>
+    public abstract IO<(Head<A> Head, Iterator<A> Tail)> NextIO();
 
     /// <summary>
     /// Get the next value in the range for any type that supports `Alternative`.

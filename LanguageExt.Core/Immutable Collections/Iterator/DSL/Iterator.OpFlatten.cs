@@ -12,7 +12,12 @@ public abstract partial class Iterator<A>
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             iter is (Exist<Iterator<A>> (var hs), var t)
                 ? hs.Combine(t.Flatten()).Next()
-                : (Nil<A>.Default, Nil.Default);
+                : Head.Nil<A>();
+
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() =>
+            iter.NextIO() >> (n => n is (Exist<Iterator<A>> (var hs), var t)
+                                       ? hs.Combine(t.Flatten()).NextIO()
+                                       : IO.pure(Head.Nil<A>()));
 
         public override void Dispose() =>
             iter.Dispose();
@@ -29,7 +34,12 @@ public abstract partial class Iterator<A>
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             iter is (Exist<K<Iterator, A>> (var hs), var t)
                 ? hs.As().Combine(t.Flatten()).Next()
-                : (Nil<A>.Default, Nil.Default);
+                : Head.Nil<A>();
+
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
+            iter.NextIO() >> (n => n is (Exist<K<Iterator, A>> (var hs), var t)
+                                       ? hs.Combine(t.Flatten()).As().NextIO()
+                                       : IO.pure(Head.Nil<A>()));
 
         public override void Dispose() =>
             iter.Dispose();

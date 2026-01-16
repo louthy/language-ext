@@ -12,11 +12,14 @@ public abstract partial class Iterator
         where EqK : Eq<K>
     {
         public TrieSet.IteratorState<EqK, K> Items => items;
-        
+
         public override (Head<K> Head, Iterator<K> Tail) Next() =>
             items.Step(out var head, out var tail)
-                ? (new Exist<K>(head), new IterHashSet<EqK, K>(tail))
-                : (Nil<K>.Default, Nil.Default);
+                ? Head.Exist(head, new IterHashSet<EqK, K>(tail))
+                : Head.Nil<K>();
+
+        public override IO<(Head<K> Head, Iterator<K> Tail)> NextIO() => 
+            IO.pure(Next());
 
         public override string ToString() =>
             $"HashSet{items}";

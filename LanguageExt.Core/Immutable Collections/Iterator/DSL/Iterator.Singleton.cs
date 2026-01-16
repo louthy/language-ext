@@ -11,8 +11,11 @@ public abstract partial class Iterator<A>
             $"{Value}";
 
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
-            (new Exist<A>(Value), Iterator.empty<A>());
+            Head.Exist(Value);
 
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() =>
+            IO.pure(Head.Exist(Value));
+        
         public override Iterator<A> Using() =>
             this;
     }

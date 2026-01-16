@@ -12,6 +12,11 @@ public abstract partial class Iterator<A>
                 ? (h, t.Combine(ys))
                 : ys.Next();
 
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
+            xs.NextIO() >> (x => x is (Exist<A> h, var t)
+                                     ? IO.pure(((Head<A>)h, t.Combine(ys)))
+                                     : ys.NextIO());
+
         public override void Dispose()
         {
             xs.Dispose();

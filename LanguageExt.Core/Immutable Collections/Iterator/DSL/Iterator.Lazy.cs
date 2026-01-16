@@ -7,19 +7,17 @@ public abstract partial class Iterator<A>
     /// <summary>
     /// Lazy iterator
     /// </summary>
-    internal class Lazy : Iterator<A>
+    internal class Lazy(Func<Iterator<A>> next) : Iterator<A>
     {
-        readonly Func<Iterator<A>> next;
-
-        public Lazy(Func<Iterator<A>> next) =>
-            this.next = next;
-
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             next() switch
             {
                 var (h, t) => (h, t)
             };
-    
+
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() =>
+            IO.lift(_ => next().NextIO()).Flatten();
+
         public override string ToString() => 
             "...";
 

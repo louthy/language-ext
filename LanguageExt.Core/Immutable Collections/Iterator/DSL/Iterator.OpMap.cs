@@ -10,10 +10,16 @@ public abstract partial class Iterator<A>
             $"Map({iter})";
 
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
-            iter is (Exist<X> (var Value), var next)
-                ? (new Exist<A>(f(Value)), next.Map(f))
-                : (Nil<A>.Default, Nil.Default);
+            go(iter.Next(), f);
 
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() =>
+            iter.NextIO().Map(p => go(p, f));
+
+        static (Head<A> Head, Iterator<A> Tail) go((Head<X> Head, Iterator<X> Tail) input, Func<X, A> f) =>
+            input is (Exist<X>(var value), var next)
+                ? Head.Exist(f(value), next.Map(f))
+                : Head.Nil<A>();
+        
         public override void Dispose() =>
             iter.Dispose();
         

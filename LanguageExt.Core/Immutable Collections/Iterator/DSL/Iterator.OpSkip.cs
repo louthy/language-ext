@@ -1,5 +1,3 @@
-using System;
-
 namespace LanguageExt;
 
 public abstract partial class Iterator<A>
@@ -21,8 +19,20 @@ public abstract partial class Iterator<A>
 
             return remain == 0 && i is (Exist<A> head, var tail)
                        ? (head, tail)
-                       : (Nil<A>.Default, Nil.Default);
+                       : Head.Nil<A>();
         }
+
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() =>
+            iter.NextIO() >> (n => go(n, amount));
+
+        static IO<(Head<A> Head, Iterator<A> Tail)> go((Head<A> Head, Iterator<A> Tail) ht, int remain) =>
+            remain > 0
+                ? ht switch
+                  {
+                      (Exist<A>, var tail) => tail.NextIO() >> (n => go(n, remain - 1)),
+                      _                    => IO.pure(ht)
+                  }
+                : IO.pure(ht);
 
         public override void Dispose() =>
             iter.Dispose();

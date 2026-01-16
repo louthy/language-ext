@@ -9,10 +9,19 @@ public abstract partial class Iterator<A>
 
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             remain <= 0
-                ? (Nil<A>.Default, Nil.Default)
+                ? Head.Nil<A>()
                 : iter is (Exist<A> head, var tail)
                     ? (head, new OpTake(tail, remain - 1))
-                    : (Nil<A>.Default, Nil.Default);
+                    : Head.Nil<A>();
+
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() =>
+            remain <= 0
+                ? IO.pure(Head.Nil<A>())
+                : iter.NextIO() * (ht => ht switch
+                                          {
+                                              (Exist<A> head, var tail) => (head, new OpTake(tail, remain - 1)),
+                                              _                         => Head.Nil<A>()
+                                          });
 
         public override void Dispose() =>
             iter.Dispose();

@@ -13,8 +13,20 @@ public partial class Iterator
                 ((Exist<A> (var lh), var lt), (Exist<B> (var rh), var rt)) =>
                     (new Exist<(A First, B Second)>((lh, rh)), lt.Zip(rt)),
 
-                _ => (Nil<(A, B)>.Default, Nil.Default)
+                _ => Head.Nil<(A, B)>()
             };
+        
+        public override IO<(Head<(A First, B Second)> Head, Iterator<(A First, B Second)> Tail)> NextIO() =>
+            (((Head<A> Head, Iterator<A> Tail) x, (Head<B> Head, Iterator<B> Tail) y) =>
+                 (x, y) switch
+                 {
+                     ((Exist<A> (var lh), var lt), (Exist<B> (var rh), var rt)) =>
+                         (new Exist<(A First, B Second)>((lh, rh)), lt.Zip(rt)),
+
+                     _ => Head.Nil<(A First, B Second)>()
+                 })
+              * xs.NextIO()
+              * ys.NextIO();        
 
         public override void Dispose()
         {

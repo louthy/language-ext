@@ -13,9 +13,12 @@ public abstract partial class Iterator<A>
         
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             remaining == 0
-                ? (Nil<A>.Default, Nil.Default)
-                : (new Exist<A>(array[index]), new IterArr(array, index + 1, remaining - 1));
-    
+                ? Head.Nil<A>()
+                : Head.Exist(array[index], new IterArr(array, index + 1, remaining - 1));
+
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
+            IO.pure(Next());
+
         public override string ToString() => 
             $"Arr{array}";
 
@@ -33,8 +36,11 @@ public abstract partial class Iterator<A>
     {
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             remaining == 0
-                ? (Nil<A>.Default, Nil.Default)
-                : (new Exist<A>(array[index]), new IterArr(array, index - 1, remaining - 1));
+                ? Head.Nil<A>()
+                : Head.Exist(array[index], new IterArr(array, index - 1, remaining - 1));
+
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
+            IO.pure(Next());
     
         public override string ToString() => 
             $"Arr{array}";

@@ -13,8 +13,11 @@ public abstract partial class Iterator
     {
         public override (Head<(K Key, V Value)> Head, Iterator<(K Key, V Value)> Tail) Next() =>
             items.Step(out var head, out var tail)
-                ? (new Exist<(K Key, V Value)>(head), new IterHashMap<EqK, K, V>(tail))
-                : (Nil<(K Key, V Value)>.Default, Nil.Default);
+                ? Head.Exist(head, new IterHashMap<EqK, K, V>(tail))
+                : Head.Nil<(K Key, V Value)>();
+
+        public override IO<(Head<(K Key, V Value)> Head, Iterator<(K Key, V Value)> Tail)> NextIO() => 
+            IO.pure(Next());
 
         public override string ToString() =>
             $"HashMap{items}";
@@ -31,8 +34,11 @@ public abstract partial class Iterator
     {
         public override (Head<K> Head, Iterator<K> Tail) Next() =>
             items.Step(out var head, out var tail)
-                ? (new Exist<K>(head.Key), new IterHashMapKey<EqK, K, V>(tail))
-                : (Nil<K>.Default, Nil.Default);
+                ? Head.Exist(head.Key, new IterHashMapKey<EqK, K, V>(tail))
+                : Head.Nil<K>();
+
+        public override IO<(Head<K> Head, Iterator<K> Tail)> NextIO() => 
+            IO.pure(Next());
 
         public override string ToString() =>
             $"HashMap{items}";
@@ -49,8 +55,11 @@ public abstract partial class Iterator
     {
         public override (Head<V> Head, Iterator<V> Tail) Next() =>
             items.Step(out var head, out var tail)
-                ? (new Exist<V>(head.Value), new IterHashMapValue<EqK, K, V>(tail))
-                : (Nil<V>.Default, Nil.Default);
+                ? Head.Exist(head.Value, new IterHashMapValue<EqK, K, V>(tail))
+                : Head.Nil<V>();
+
+        public override IO<(Head<V> Head, Iterator<V> Tail)> NextIO() =>
+            IO.pure(Next());
 
         public override string ToString() =>
             $"HashMap{items}";

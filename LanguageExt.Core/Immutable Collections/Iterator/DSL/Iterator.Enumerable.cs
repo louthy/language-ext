@@ -1,6 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace LanguageExt;
 
@@ -16,14 +16,17 @@ public abstract partial class Iterator<A>
             var enumerator = enumerable.GetEnumerator();
             if (enumerator.MoveNext())
             {
-                return (new Exist<A>(enumerator.Current), new EnumeratorTail(new En(enumerator)));
+                return Head.Exist(enumerator.Current, new EnumeratorTail(new En(enumerator)));
             }
             else
             {
                 enumerator.Dispose();
-                return (Nil<A>.Default, Nil.Default);
+                return Head.Nil<A>();
             }
         }
+
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
+            IO.lift(Next);
 
         public override string ToString() =>
             "...";
@@ -44,14 +47,17 @@ public abstract partial class Iterator<A>
         {
             if (!enumerator.Disposed && enumerator.Enumerator.MoveNext())
             {
-                return (new Exist<A>(enumerator.Enumerator.Current), new EnumeratorTail(enumerator));
+                return Head.Exist(enumerator.Enumerator.Current, new EnumeratorTail(enumerator));
             }
             else
             {
                 enumerator.Dispose();
-                return (Nil<A>.Default, Nil.Default);
+                return Head.Nil<A>();
             }
         }
+
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() =>
+            IO.lift(Next);
 
         public override Iterator<A> Using() => 
             this;

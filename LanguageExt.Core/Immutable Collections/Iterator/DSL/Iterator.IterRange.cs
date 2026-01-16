@@ -10,9 +10,12 @@ public abstract partial class Iterator
     {
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             LastWasEnd
-                ? (Nil<A>.Default, Nil.Default)
-                : (new Exist<A>(Current), new IterRange<A>(Step(Current), Eq(Current, Stop), Stop, Step, Eq));
-    
+                ? Head.Nil<A>()
+                : Head.Exist(Current, new IterRange<A>(Step(Current), Eq(Current, Stop), Stop, Step, Eq));
+
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
+            IO.pure(Next());
+
         public override string ToString() => 
             $"Range({Current}..{Stop})";
 

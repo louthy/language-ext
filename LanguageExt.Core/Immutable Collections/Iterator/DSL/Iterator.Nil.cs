@@ -15,7 +15,10 @@ public abstract partial class Iterator<A>
             "Nil";
 
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
-            (Nil<A>.Default, Default);
+            Head.Nil<A>();
+
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() =>
+            IO.pure(Head.Nil<A>());
 
         public override Iterator<A> Using() =>
             this;

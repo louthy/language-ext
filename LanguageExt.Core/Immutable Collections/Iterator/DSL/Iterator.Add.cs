@@ -7,21 +7,17 @@ public abstract partial class Iterator<A>
     /// <summary>
     /// Add iterator
     /// </summary>
-    internal class Add : Iterator<A>
+    internal class Add(Iterator<A> first, Seq<A> second) : Iterator<A>
     {
-        readonly Iterator<A> first;
-        readonly Seq<A> second;
-
-        public Add(Iterator<A> first, Seq<A> second)
-        {
-            this.first = first;
-            this.second = second;
-        }
-
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
-            first is (Exist<A> (var head), var tail) 
-                ? (new Exist<A>(head), new Add(tail, second))
+            first.Next() is (Exist<A> (var head), var tail) 
+                ? Head.Exist(head, new Add(tail, second))
                 : second.ForwardIterator().Next();
+
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() =>
+            first.NextIO() >> (f => f is (Exist<A> (var head), var tail)
+                                        ? IO.pure(Head.Exist(head, new Add(tail, second)))
+                                        : second.ForwardIterator().NextIO());
         
         public Add More(A value) =>
             new (first, second.Add(value));

@@ -1,4 +1,6 @@
 using System;
+using LanguageExt.Traits;
+using L = LanguageExt;
 
 namespace LanguageExt;
 
@@ -14,9 +16,27 @@ public abstract partial class Iterator<A>
             for (var i = iter; i is (Exist<X> (var h), var t); i = t)
             {
                 var option = f(h);
-                if (option.IsSome) return (new Exist<A>(option.Value!), t.Choose(f));
+                if (option.IsSome) return Head.Exist(option.Value!, t.Choose(f));
             }
-            return (Nil<A>.Default, Nil.Default);
+            return Head.Nil<A>();
+        }
+
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO()
+        {
+            return +Monad.recur(iter, go);
+
+            IO<Next<Iterator<X>, (Head<A> Head, Iterator<A> Tail)>> go(Iterator<X> xs) =>
+                xs is (Exist<X> (var head), var tail)
+                    ? f(head) switch
+                      {
+                          { IsSome: true, Case: A value } =>
+                              IO.pure(L.Next.Done<Iterator<X>, (Head<A> Head, Iterator<A> Tail)>(
+                                          Head.Exist(value, new OpChoose<X>(tail, f)))),
+
+                          _ =>
+                              IO.pure(L.Next.Loop<Iterator<X>, (Head<A> Head, Iterator<A> Tail)>(tail))
+                      }
+                    : IO.pure(L.Next.Done<Iterator<X>, (Head<A> Head, Iterator<A> Tail)>(Head.Nil<A>()));
         }
 
         public override void Dispose() =>

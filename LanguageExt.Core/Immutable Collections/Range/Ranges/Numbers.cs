@@ -103,6 +103,9 @@ public record Numbers<N>(N From, N To, N Step) : Range<Numbers<N>, N, N>
                        : (new Exist<N>(head), new Iter(next, Min, Max, Step));
         }
 
+        public override IO<(Head<N> Head, Iterator<N> Tail)> NextIO() => 
+            IO.pure(Next());
+
         public override Iterator<N> Using() =>
             this;
     }

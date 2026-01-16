@@ -7,24 +7,22 @@ public abstract partial class Iterator<A>
     /// <summary>
     /// Continuation iterator
     /// </summary>
-    internal class Cont : Iterator<A>
+    internal class Cont(Func<(A Head, Iterator<A> Tail)> next) : Iterator<A>
     {
-        readonly Func<(A Head, Iterator<A> Tail)> next;
-
-        public Cont(Func<(A Head, Iterator<A> Tail)> next) =>
-            this.next = next;
-
         public override (Head<A> Head, Iterator<A> Tail) Next()
         {
             switch (next())
             {
                 case (Nil<A>, _):
-                    return (Nil<A>.Default, Nil.Default);
+                    return Head.Nil<A>();
 
                 case var (h, t):
-                    return (new Exist<A>(h), t);
+                    return Head.Exist(h, t);
             }
         }
+
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
+            IO.lift(Next);
 
         public override string ToString() => 
             "...";

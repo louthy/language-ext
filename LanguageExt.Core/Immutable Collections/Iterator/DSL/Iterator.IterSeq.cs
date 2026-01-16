@@ -1,5 +1,3 @@
-using System;
-
 namespace LanguageExt;
 
 public abstract partial class Iterator<A> 
@@ -13,9 +11,12 @@ public abstract partial class Iterator<A>
         
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             items.IsEmpty
-                ?(Nil<A>.Default, Nil.Default)
-                : (new Exist<A>(items[0]), new IterSeq(items.Tail));
-    
+                ? Head.Nil<A>()
+                : Head.Exist(items[0], new IterSeq(items.Tail));
+
+        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
+            IO.lift(Next);
+
         public override string ToString() => 
             $"Seq{items.ToString()}";
 
