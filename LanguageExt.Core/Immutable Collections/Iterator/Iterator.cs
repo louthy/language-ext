@@ -433,26 +433,36 @@ public abstract partial class Iterator<A> :
         new Iterator.OpZip<A, B>(this, other);
 
     /// <summary>
+    /// Prepend an item to the beginning of the iterable sequence
+    /// </summary>
+    [Pure]
+    public virtual Iterator<A> Prepend(A value) =>
+        Iterator.cons(value, this);
+
+    /// <summary>
+    /// Append an item to the end of the iterable sequence
+    /// </summary>
+    [Pure]
+    public virtual Iterator<A> Append(A value) =>
+        new Iterator.Add<A>(this, [value]);
+
+    /// <summary>
     /// Combine two sequences
     /// </summary>
     public static Iterator<A> operator +(Iterator<A> ma, Iterator<A> mb) =>
         ma.Combine(mb);
 
     /// <summary>
-    /// Combine two sequences
+    /// Prepend an item to the beginning of the iterable sequence
     /// </summary>
-    public static Iterator<A> operator +(A ma, Iterator<A> mb) =>
-        Iterator.cons(ma, mb);
+    public static Iterator<A> operator +(A value, Iterator<A> mb) =>
+        Iterator.cons(value, mb);
 
     /// <summary>
-    /// Combine two sequences
+    /// Append an item to the end of the iterable sequence
     /// </summary>
-    public static Iterator<A> operator +(Iterator<A> ma, A mb) =>
-        ma switch
-        {
-            Add add => add.More(mb),
-            _       => new Add(ma, [mb])
-        };
+    public static Iterator<A> operator +(Iterator<A> ma, A value) =>
+        ma.Append(value);
 
     /// <summary>
     /// Merge two sequences
