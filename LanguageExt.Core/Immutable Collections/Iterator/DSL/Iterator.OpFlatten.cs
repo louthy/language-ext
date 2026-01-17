@@ -38,7 +38,7 @@ public abstract partial class Iterator<A>
 
         public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
             iter.NextIO() >> (n => n is (Exist<K<Iterator, A>> (var hs), var t)
-                                       ? hs.Combine(t.Flatten()).As().NextIO()
+                                       ? hs.As().Combine(t.Flatten()).NextIO()
                                        : IO.pure(Head.Nil<A>()));
 
         public override void Dispose() =>

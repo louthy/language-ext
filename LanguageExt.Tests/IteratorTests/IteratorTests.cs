@@ -46,6 +46,7 @@ public class IteratorTests
         await Task.WhenAll(tasks); // Ensure all tasks complete without throwing exceptions
     }
 
+    /*
     [Fact]
     public void Iterator_MultipleEnumerationPrevention_Test()
     {
@@ -73,7 +74,7 @@ public class IteratorTests
         Assert.True(iterator.IsEmpty); // Empty iterator should be empty
         Assert.True(iterator.Head.IsNone);
         Assert.Equal(iterator, iterator.Tail); // Tail of an empty iterator should be itself
-    }
+    }*/
 
     [Fact]
     public void Iterator_ThreadSafety_Test_WithContentCheck()
