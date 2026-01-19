@@ -7,23 +7,17 @@ public abstract partial class Iterator<A>
     /// <summary>
     /// Array iterator
     /// </summary>
-    internal class IterArr(Arr<A> array, int index, int remaining) : Iterator<A>
+    internal class IterArr(Arr<A> array, long index, long remaining) : Iterator<A>
     {
-        public Arr<A> Array => new (array.AsSpan(index, remaining));
+        public Arr<A> Array => array.Splice(index, remaining);
         
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             remaining == 0
                 ? Head.Nil<A>()
                 : Head.Exist(array[index], new IterArr(array, index + 1, remaining - 1));
 
-        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
-            IO.pure(Next());
-
         public override string ToString() => 
             $"Arr{array}";
-
-        public override Iterator<A> Using() =>
-            this;
 
         public override Arr<A> ToArr() =>
             array.Splice(index, remaining);
@@ -32,21 +26,15 @@ public abstract partial class Iterator<A>
     /// <summary>
     /// Array iterator
     /// </summary>
-    internal class IterArrBkwd(Arr<A> array, int index, int remaining) : Iterator<A>
+    internal class IterArrBkwd(Arr<A> array, long index, long remaining) : Iterator<A>
     {
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             remaining == 0
                 ? Head.Nil<A>()
                 : Head.Exist(array[index], new IterArr(array, index - 1, remaining - 1));
-
-        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
-            IO.pure(Next());
     
         public override string ToString() => 
             $"Arr{array}";
-
-        public override Iterator<A> Using() =>
-            this;
 
         public override Arr<A> ToArr() =>
             array.Splice(index - remaining, remaining).Reverse();

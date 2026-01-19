@@ -18,6 +18,21 @@ public abstract partial class IteratorIO<A>
         public override IteratorIO<A> Using() =>
             this;
     }
+
+    /// <summary>
+    /// Cons IteratorIO
+    /// </summary>
+    internal class ConsIO(A head, IO<IteratorIO<A>> tail) : IteratorIO<A>
+    {
+        public override IO<(Head<A> Head, IteratorIO<A> Tail)> NextIO() => 
+            tail * (t => Head.ExistIO(head, t));
+
+        public override string ToString() => 
+            $"{head}...";
+
+        public override IteratorIO<A> Using() =>
+            this;
+    }
     
     /// <summary>
     /// Cons IteratorIO

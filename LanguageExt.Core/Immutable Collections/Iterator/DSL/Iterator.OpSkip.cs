@@ -1,8 +1,10 @@
+using System;
+
 namespace LanguageExt;
 
 public abstract partial class Iterator<A>
 {
-    internal sealed class OpSkip(Iterator<A> iter, int amount) : Iterator<A>
+    internal sealed class OpSkip(Iterator<A> iter, long amount) : Iterator<A>
     {
         public override string ToString() => 
             $"Skip({amount}:{iter})";
@@ -21,23 +23,45 @@ public abstract partial class Iterator<A>
                        ? (head, tail)
                        : Head.Nil<A>();
         }
+    }
+    
+    internal sealed class OpSkipWhile(Iterator<A> iter, Func<A, bool> predicate) : Iterator<A>
+    {
+        public override string ToString() => 
+            $"SkipWhile({iter})";
 
-        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() =>
-            iter.NextIO() >> (n => go(n, amount));
+        public override (Head<A> Head, Iterator<A> Tail) Next()
+        {
+            var i = iter;
 
-        static IO<(Head<A> Head, Iterator<A> Tail)> go((Head<A> Head, Iterator<A> Tail) ht, int remain) =>
-            remain > 0
-                ? ht switch
-                  {
-                      (Exist<A>, var tail) => tail.NextIO() >> (n => go(n, remain - 1)),
-                      _                    => IO.pure(ht)
-                  }
-                : IO.pure(ht);
+            for (; i is (Exist<A> (var h), var t) && predicate(h); i = t)
+            {
+                // loop
+            }
 
-        public override void Dispose() =>
-            iter.Dispose();
+            return i is (Exist<A> head, var tail)
+                       ? (head, tail)
+                       : Head.Nil<A>();
+        }
+    }
         
-        public override Iterator<A> Using() =>
-            new OpSkip(iter.Using(), amount);
+    internal sealed class OpSkipUntil(Iterator<A> iter, Func<A, bool> predicate) : Iterator<A>
+    {
+        public override string ToString() => 
+            $"SkipUntil({iter})";
+
+        public override (Head<A> Head, Iterator<A> Tail) Next()
+        {
+            var i = iter;
+
+            for (; i is (Exist<A> (var h), var t) && !predicate(h); i = t)
+            {
+                // loop
+            }
+
+            return i is (Exist<A> head, var tail)
+                       ? (head, tail)
+                       : Head.Nil<A>();
+        }
     }
 }

@@ -194,10 +194,10 @@ public interface Foldable<T, FS> : Foldable<T>, IterableK<T, FS>
     /// implementation.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static int Foldable<T>.Count<A>(K<T, A> ta)
+    static long Foldable<T>.Count<A>(K<T, A> ta)
     {
         var foldState = T.StepSetup(ta);
-        var state     = 0;
+        var state     = 0L;
         while (T.Step(ta, ref foldState, out _))
         {
             state++;

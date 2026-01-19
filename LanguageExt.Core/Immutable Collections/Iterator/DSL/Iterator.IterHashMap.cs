@@ -16,14 +16,8 @@ public abstract partial class Iterator
                 ? Head.Exist(head, new IterHashMap<EqK, K, V>(tail))
                 : Head.Nil<(K Key, V Value)>();
 
-        public override IO<(Head<(K Key, V Value)> Head, Iterator<(K Key, V Value)> Tail)> NextIO() => 
-            IO.pure(Next());
-
         public override string ToString() =>
             $"HashMap{items}";
-
-        public override Iterator<(K, V)> Using() =>
-            this;
     }
 
     /// <summary>
@@ -37,14 +31,8 @@ public abstract partial class Iterator
                 ? Head.Exist(head.Key, new IterHashMapKey<EqK, K, V>(tail))
                 : Head.Nil<K>();
 
-        public override IO<(Head<K> Head, Iterator<K> Tail)> NextIO() => 
-            IO.pure(Next());
-
         public override string ToString() =>
             $"HashMap{items}";
-
-        public override Iterator<K> Using() =>
-            this;
     }
 
     /// <summary>
@@ -58,13 +46,7 @@ public abstract partial class Iterator
                 ? Head.Exist(head.Value, new IterHashMapValue<EqK, K, V>(tail))
                 : Head.Nil<V>();
 
-        public override IO<(Head<V> Head, Iterator<V> Tail)> NextIO() =>
-            IO.pure(Next());
-
         public override string ToString() =>
             $"HashMap{items}";
-
-        public override Iterator<V> Using() =>
-            this;
     }
 }

@@ -12,14 +12,8 @@ public abstract partial class Iterator<A>
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             Head.Exist(head, tail());
 
-        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
-            IO.lift(tail) * (t => Head.Exist(head, t));
-
         public override string ToString() => 
             $"{head}...";
-
-        public override Iterator<A> Using() =>
-            this;
     }
     
     /// <summary>
@@ -30,17 +24,8 @@ public abstract partial class Iterator<A>
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             Head.Exist(head, tail);
 
-        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
-            IO.pure(Head.Exist(head, tail));
-
         public override string ToString() => 
             $"{head}, {tail}";
-
-        public override void Dispose() =>
-            tail.Dispose();
-
-        public override Iterator<A> Using() =>
-            new ConsStrict(head, tail.Using());
         
         public override Iterator<A> Strict() => 
             new ConsStrict(head, tail.Strict());

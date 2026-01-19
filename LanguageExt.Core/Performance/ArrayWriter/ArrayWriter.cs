@@ -37,17 +37,17 @@ public ref struct ArrayWriter<A>
     /// <summary>
     /// Start offset into the backing array
     /// </summary>
-    internal int start;
+    internal long start;
     
     /// <summary>
     /// Number of items written so far
     /// </summary>
-    internal int count;
+    internal long count;
     
     /// <summary>
     /// Length of the backing array
     /// </summary>
-    internal int length;
+    internal long length;
     
     /// <summary>
     /// Backing array.  This can be rented from the ArrayPool, or it can be pre-allocated. 
@@ -70,7 +70,7 @@ public ref struct ArrayWriter<A>
     /// <param name="buffer">Backing buffer</param>
     /// <param name="start">Start offset</param>
     /// <param name="count">Number of items written</param>
-    ArrayWriter(A[] buffer, int start, bool rented)
+    ArrayWriter(A[] buffer, long start, bool rented)
     {
         this.start = start;
         this.buffer = buffer;
@@ -82,13 +82,21 @@ public ref struct ArrayWriter<A>
     /// Get a read-only span of the values written so far.  This is a snapshot of the values only.
     /// </summary>
     public ReadOnlySpan<A> View =>
-        new (buffer, start, count);
+        start > int.MaxValue
+            ? throw new InvalidOperationException("Backing collection is too big to return a view")
+            : count > int.MaxValue
+                ? throw new InvalidOperationException("Backing collection is too big to return a view")
+                : new (buffer, (int)start, (int)count);
     
     /// <summary>
     /// Get a span of values of the empty remaining space in the buffer
     /// </summary>
     Span<A> Top =>
-        new (buffer, start + count, length - start - count);
+        start + count > int.MaxValue
+            ? throw new InvalidOperationException("Backing collection is too big to return a view")
+            : length - start - count > int.MaxValue
+                ? throw new InvalidOperationException("Backing collection is too big to return a view")
+                : new (buffer, (int)(start + count), (int)(length - start - count));
 
     /// <summary>
     /// Create a new ArrayWriter
@@ -129,8 +137,8 @@ public ref struct ArrayWriter<A>
     /// </remarks>
     /// <param name="initialCapacity">The initial capacity of the backing array.  Use this if you have an idea ahead of
     /// time of what the space requirements will be.  If you don't know, use the other `Init` overload.</param>
-    public static ArrayWriter<A> Init(int initialCapacity) =>
-        new (new A[PowerOf2(AssertMinOwnedSize(initialCapacity))], 0, false);
+    public static ArrayWriter<A> Init(long initialCapacity) =>
+        new (new A[PowerOf2(AssertMinOwnedSize(initialCapacity))], 0L, false);
 
     /// <summary>
     /// Create a new ArrayWriter
@@ -154,10 +162,14 @@ public ref struct ArrayWriter<A>
     /// <param name="offset">The offset into the array. Sometimes you may want to leave some space
     /// at the start of the array, so you have a pre-buffer, use this to reserve some capacity at the start.</param>
     /// <returns>ArrayWriter</returns>
-    public static ArrayWriter<A> InitOffset(int offset) =>
+    public static ArrayWriter<A> InitOffset(long offset) =>
         // We use the offset for the size here in case the initialOffset is bigger than the 
         // minimum rented size.  This is to avoid having to resize the array immediately.
-        new (ArrayPool<A>.Shared.Rent(PowerOf2(AssertMinRentedSize(offset))), offset, true);
+        PowerOf2(AssertMinRentedSize(offset)) switch
+        {
+            var s and > int.MaxValue => new(new A[s], offset, false),
+            var s                    => new(ArrayPool<A>.Shared.Rent((int)s), offset, true)
+        };
 
     /// <summary>
     /// Create a new ArrayWriter
@@ -181,7 +193,7 @@ public ref struct ArrayWriter<A>
     /// at the start of the array, so you have a pre-buffer, use this to reserve some capacity at the start.</param>
     /// <returns>ArrayWriter</returns>
     /// <exception cref="ArgumentOutOfRangeException">If the initialOffset is greater than the initialCapacity</exception>
-    public static ArrayWriter<A> InitOffset(int initialCapacity, int offset) =>
+    public static ArrayWriter<A> InitOffset(long initialCapacity, long offset) =>
         offset > initialCapacity
             ? throw new ArgumentOutOfRangeException(nameof(offset))
             : new (new A[PowerOf2(AssertMinOwnedSize(initialCapacity))], offset, false);
@@ -225,17 +237,27 @@ public ref struct ArrayWriter<A>
         if (start + count != length) return;
         var obuffer = buffer;
         var nlength = length << 1;
-        var nbuffer = ArrayPool<A>.Shared.Rent(nlength);
-        var nspan   = new Span<A>(nbuffer, start, count);
-        var ospan   = new Span<A>(buffer, start, count);
-        ospan.CopyTo(nspan);
+        var nbuffer = nlength > int.MaxValue
+                        ? new A[nlength]
+                        : ArrayPool<A>.Shared.Rent((int)nlength);
+
+        if (start > int.MaxValue || count > int.MaxValue)
+        {
+            Array.Copy(buffer, start, nbuffer, 0, count);
+        }
+        else
+        {
+            var ospan = new Span<A>(buffer, (int)start, (int)count);
+            var nspan = new Span<A>(nbuffer, (int)start, (int)count);
+            ospan.CopyTo(nspan);
+        }
         buffer = nbuffer;
         length = nlength;
         if (rented) ArrayPool<A>.Shared.Return(obuffer);
-        rented = true;
+        rented = nlength <= int.MaxValue;
     }
 
-    static void Expand(ref ArrayWriter<A> writer, int needed)
+    static void Expand(ref ArrayWriter<A> writer, long needed)
     {
         var     start  = writer.start;
         ref var count  = ref writer.count;
@@ -243,24 +265,35 @@ public ref struct ArrayWriter<A>
         ref var length = ref writer.length;
         ref var rented = ref writer.rented;
 
-        var toAdd =  needed - (length - start - count);
+        var toAdd = needed - (length - start - count);
         if (toAdd <= 0) return;
-        
+
         var nlength = length << 1;
         while (needed - (nlength - start - count) > 0)
         {
             nlength <<= 1;
         }
-        
+
         var obuffer = buffer;
-        var nbuffer = ArrayPool<A>.Shared.Rent(nlength);
-        var nspan   = new Span<A>(nbuffer, start, count);
-        var ospan   = new Span<A>(buffer, start, count);
-        ospan.CopyTo(nspan);
+        var nbuffer = nlength > int.MaxValue
+                          ? new A[nlength]
+                          : ArrayPool<A>.Shared.Rent((int)nlength);
+
+        if (start > int.MaxValue || count > int.MaxValue)
+        {
+            Array.Copy(buffer, start, nbuffer, 0, count);
+        }
+        else
+        {
+            var nspan = new Span<A>(nbuffer, (int)start, (int)count);
+            var ospan = new Span<A>(buffer, (int)start, (int)count);
+            ospan.CopyTo(nspan);
+        }
+
         buffer = nbuffer;
         length = nlength;
         if (rented) ArrayPool<A>.Shared.Return(obuffer);
-        rented = true;
+        rented = nlength <= int.MaxValue;
     }
 
     public void Dispose()
@@ -271,18 +304,18 @@ public ref struct ArrayWriter<A>
         }
     }
 
-    static int AssertMinRentedSize(int size) =>
+    static long AssertMinRentedSize(long size) =>
         size < MinimumRentedSize 
             ? MinimumRentedSize 
             : size;
 
 
-    static int AssertMinOwnedSize(int size) =>
+    static long AssertMinOwnedSize(long size) =>
         size < MinimumOwnedSize 
             ? MinimumOwnedSize 
             : size;
     
-    static int PowerOf2(int size)
+    static long PowerOf2(long size)
     {
         size--;
         size |= size >> 1;
@@ -290,6 +323,7 @@ public ref struct ArrayWriter<A>
         size |= size >> 4;
         size |= size >> 8;
         size |= size >> 16;
+        size |= size >> 32;
         size++;
         return size;
     }

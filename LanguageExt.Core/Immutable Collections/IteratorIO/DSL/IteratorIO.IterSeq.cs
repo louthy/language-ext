@@ -20,17 +20,7 @@ public abstract partial class IteratorIO<A>
         public override string ToString() => 
             $"Seq{items.ToString()}";
 
-        public override void Dispose()
-        {
-            if (items.Value is SeqIterator<A> s)
-            {
-                s.Dispose();
-            }
-        }
-
         public override IteratorIO<A> Using() =>
-            items.Value is SeqIterator<A> s
-                ? new IterSeq(new Seq<A>(s.Using()))
-                : this;
+            this;
     }
 }

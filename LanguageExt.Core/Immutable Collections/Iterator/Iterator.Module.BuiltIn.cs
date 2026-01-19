@@ -1,4 +1,5 @@
 #pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
+using System;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
@@ -17,13 +18,22 @@ public partial class Iterator
         new Iterator<A>.Enumerable(items);
 
     /// <summary>
-    /// Create an iterator from an `IAsyncEnumerable` collection
+    /// Create an iterator from a `ReadOnlySpan` collection
     /// </summary>
     /// <param name="items">Collection to iterate</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Iterator of the collection</returns>
-    public static Iterator<A> forward<A>(IAsyncEnumerable<A> items) =>
-        new Iterator<A>.AsyncEnumerable(items);
+    public static Iterator<A> forward<A>(ReadOnlySpan<A> items) =>
+        forward(Arr.create(items));
+
+    /// <summary>
+    /// Create an iterator from a `ReadOnlySpan` collection
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Iterator of the collection</returns>
+    public static Iterator<A> backward<A>(ReadOnlySpan<A> items) =>
+        backward(Arr.create(items));
 
     /// <summary>
     /// Create an iterator from an `Arr` collection

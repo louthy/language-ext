@@ -20,7 +20,7 @@ namespace LanguageExt;
 public readonly struct Lst<A> :
     IComparable<Lst<A>>,
     IComparable,
-    IReadOnlyList<A>,
+    IEnumerable<A>,
     IEquatable<Lst<A>>,
     IComparisonOperators<Lst<A>, Lst<A>, bool>,
     IAdditionOperators<Lst<A>, Lst<A>, Lst<A>>,
@@ -44,45 +44,38 @@ public readonly struct Lst<A> :
     /// <summary>
     /// Ctor
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst(IEnumerable<A> initial) =>
         value = new LstInternal<A>(initial);
 
     /// <summary>
     /// Ctor
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst(Iterator<A> initial) =>
         value = new LstInternal<A>(initial);
 
     /// <summary>
     /// Ctor
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst(ReadOnlySpan<A> initial) =>
         value = new LstInternal<A>(initial);
 
     /// <summary>
     /// Ctor
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     Lst(LstInternal<A> initial) =>
         value = initial;
 
     /// <summary>
     /// Ctor
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal Lst(ListItem<A> root) =>
         value = new LstInternal<A>(root);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lst<A> FromFoldable<T, FS>(K<T, A> items)
         where T : Foldable<T, FS>
         where FS : allows ref struct =>
         Wrap(LstInternal<A>.FromFoldable<T, FS>(items));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lst<A> FromFoldableBack<T, FS>(K<T, A> items)
         where T : FoldableBack<T, FS>
         where FS : allows ref struct =>
@@ -95,129 +88,79 @@ public readonly struct Lst<A> :
     }
 
     [Pure]
-    public bool IsEmpty
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Count == 0;
-    }
-
-    /// <summary>
-    /// Reference version for use in pattern-matching
-    /// </summary>
-    /// <remarks>
-    ///
-    ///     Empty collection     = null
-    ///     Singleton collection = A
-    ///     More                 = (A, Seq〈A〉)   -- head and tail
-    ///
-    ///  Example:
-    ///
-    ///     var res = list.Case switch
-    ///     {
-    ///       
-    ///        A value         => ...,
-    ///        (var x, var xs) => ...,
-    ///        _               => ...
-    ///     }
-    ///
-    /// </remarks>
-    [Pure]
-    public object? Case =>
-        IsEmpty 
-            ? null
-            : Count == 1
-                ? this[0]
-                : toSeq(this).Case;
+    public bool IsEmpty =>
+        Count == 0;
 
     /// <summary>
     /// Head lens
     /// </summary>
     [Pure]
-    public static Lens<Lst<A>, A> head
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Lens<Lst<A>, A>.New(
+    public static Lens<Lst<A>, A> head =>
+        Lens<Lst<A>, A>.New(
             Get: la => la.Count == 0 ? throw new IndexOutOfRangeException() : la[0],
             Set: a => la => la.Count == 0 ? throw new IndexOutOfRangeException() : la.SetItem(0, a));
-    }
 
     /// <summary>
     /// Head or none lens
     /// </summary>
     [Pure]
-    public static Lens<Lst<A>, Option<A>> headOrNone
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Lens<Lst<A>, Option<A>>.New(
+    public static Lens<Lst<A>, Option<A>> headOrNone =>
+        Lens<Lst<A>, Option<A>>.New(
             Get: la => la.Count == 0 ? None : Some(la[0]),
             Set: a => la => la.Count == 0 || a.IsNone ? la : la.SetItem(0, a.Value!));
-    }
 
     /// <summary>
     /// Tail lens
     /// </summary>
     [Pure]
-    public static Lens<Lst<A>, A> tail
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Lens<Lst<A>, A>.New(
-            Get: la => la.Count == 0 ? throw new IndexOutOfRangeException() : la[^1],
+    public static Lens<Lst<A>, A> tail =>
+        Lens<Lst<A>, A>.New(
+            Get: la => la.Count == 0 ? throw new IndexOutOfRangeException() : la[la.Count - 1],
             Set: a => la => la.Count == 0 ? throw new IndexOutOfRangeException() : la.SetItem(la.Count - 1, a));
-    }
 
     /// <summary>
     /// Tail or none lens
     /// </summary>
     [Pure]
-    public static Lens<Lst<A>, Option<A>> tailOrNone
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Lens<Lst<A>, Option<A>>.New(
+    public static Lens<Lst<A>, Option<A>> tailOrNone =>
+        Lens<Lst<A>, Option<A>>.New(
             Get: la => la.Count == 0 ? None : Some(la[la.Count - 1]),
             Set: a => la => la.Count == 0 || a.IsNone ? la : la.SetItem(la.Count - 1, a.Value!));
-    }
 
     /// <summary>
     /// Item at index lens
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lens<Lst<A>, A> item(int index) => Lens<Lst<A>, A>.New(
         Get: la => la.Count == 0 ? throw new IndexOutOfRangeException() : la[index],
-        Set: a => la => la.Count == 0 ? throw new IndexOutOfRangeException() : la.SetItem(index, a)
-    );
+        Set: a => la => la.Count == 0 ? throw new IndexOutOfRangeException() : la.SetItem(index, a));
 
     /// <summary>
     /// Item or none at index lens
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lens<Lst<A>, Option<A>> itemOrNone(int index) => Lens<Lst<A>, Option<A>>.New(
         Get: la => la.Count < index - 1 ? None : Some(la[index]),
-        Set: a => la => la.Count < index - 1 || a.IsSome ? la : la.SetItem(index, a.Value!)
-    );
+        Set: a => la => la.Count < index - 1 || a.IsSome ? la : la.SetItem(index, a.Value!));
 
     /// <summary>
     /// Lens map
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lens<Lst<A>, Lst<B>> map<B>(Lens<A, B> lens) => Lens<Lst<A>, Lst<B>>.New(
         Get: la => la.Map(lens.Get).ToLst(),
-        Set: lb => la => la.Zip(lb).Map(ab => lens.Set(ab.Item2, ab.Item1)).ToLst()
-    );
+        Set: lb => la => la.Zip(lb).Map(ab => lens.Set(ab.Second, ab.First)).ToLst());
 
     /// <summary>
     /// Index accessor
     /// </summary>
     [Pure]
-    public A this[Index index]
+    public A this[long index]
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
         {
-            if (index.Value < 0 || index.Value >= Root.Count) throw new IndexOutOfRangeException();
-            return ListModule.GetItem(Root, index.GetOffset(Count));
+            if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
+            return ListModule.GetItem(Root, index);
         }
     }
 
@@ -225,8 +168,7 @@ public readonly struct Lst<A> :
     /// Safe index accessor
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Option<A> At(int index)
+    public Option<A> At(long index)
     {
         if (index < 0 || index >= Root.Count) return default;
         return ListModule.GetItem(Root, index);
@@ -236,61 +178,17 @@ public readonly struct Lst<A> :
     /// Number of items in the list
     /// </summary>
     [Pure]
-    public int Count
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Root.Count;
-    }
-
-    [Pure]
-    int IReadOnlyCollection<A>.Count
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Count;
-    }
-
-    [Pure]
-    A IReadOnlyList<A>.this[int index]
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get
-        {
-            if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
-            return ListModule.GetItem(Root, index);
-        }
-    }
-
-    /// <summary>
-    /// Lazily reverse the order of the items in the list
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<A> ReverseEnumerable()
-    {
-        using var iter = GetEnumeratorBack();
-        while (iter.MoveNext())
-        {
-            yield return iter.Current;
-        }
-    }
-
-    /// <summary>
-    /// Lazily reverse the order of the items in the list
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<A> ReverseIterable() =>
-        ReverseEnumerable().AsIterable();
+    public long Count =>
+        Root.Count;
 
     /// <summary>
     /// Reverse the order of the items in the list
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<A> Reverse()
     {
         var           root      = ListItem<A>.EmptyM;
-        var           subIndex  = 0;
+        var           subIndex  = 0L;
         var           fa        = (K<Lst, A>)this;
 
         var foldState = fa.StepBackSetup<Lst, Lst.FoldState, A>();
@@ -303,11 +201,9 @@ public readonly struct Lst<A> :
         return new Lst<A>(new LstInternal<A>(root));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     Lst<A> Wrap(LstInternal<A> list) =>
         new (list);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static Lst<X> Wrap<X>(LstInternal<X> list) =>
         new (list);
 
@@ -317,7 +213,6 @@ public readonly struct Lst<A> :
     /// <param name="value">Value to test</param>
     /// <returns>True if collection contains value</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains(A value) =>
         Value.AsIterable().Find(a => EqDefault<A>.Equals(a, value)).IsSome;
 
@@ -328,7 +223,6 @@ public readonly struct Lst<A> :
     /// <param name="value">Value to test</param>
     /// <returns>True if collection contains value</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains<EqA>(A value) where EqA : Eq<A> =>
         Value.AsIterable().Find(a => EqA.Equals(a, value)).IsSome;
 
@@ -336,7 +230,6 @@ public readonly struct Lst<A> :
     /// Add an item to the end of the list
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<A> Add(A value) =>
         Wrap(Value.Add(value));
 
@@ -344,7 +237,6 @@ public readonly struct Lst<A> :
     /// Add a range of items to the end of the list
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<A> AddRange(IEnumerable<A> items) =>
         Wrap(Value.AddRange(items));
 
@@ -352,7 +244,6 @@ public readonly struct Lst<A> :
     /// Clear the list
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<A> Clear() =>
         Empty;
     
@@ -360,39 +251,34 @@ public readonly struct Lst<A> :
     /// Find the index of an item
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int IndexOf(A item, int index = 0, int count = -1, IEqualityComparer<A>? equalityComparer = null) =>
+    public long IndexOf(A item, long index = 0, long count = -1, IEqualityComparer<A>? equalityComparer = null) =>
         Value.IndexOf(item, index, count, equalityComparer);
 
     /// <summary>
     /// Insert value at specified index
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Lst<A> Insert(int index, A value) =>
+    public Lst<A> Insert(long index, A value) =>
         Wrap(Value.Insert(index, value));
 
     /// <summary>
     /// Insert range of values at specified index
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Lst<A> InsertRange(int index, IEnumerable<A> items) =>
+    public Lst<A> InsertRange(long index, IEnumerable<A> items) =>
         Wrap(Value.InsertRange(index, items));
 
     /// <summary>
     /// Find the last index of an item in the list
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int LastIndexOf(A item, int index = 0, int count = -1, IEqualityComparer<A>? equalityComparer = null) =>
+    public long LastIndexOf(A item, long index = 0, long count = -1, IEqualityComparer<A>? equalityComparer = null) =>
         Value.LastIndexOf(item, index, count, equalityComparer);
 
     /// <summary>
     /// Remove all items that match the value from the list
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<A> Remove(A value) =>
         Wrap(Value.Remove(value));
 
@@ -400,7 +286,6 @@ public readonly struct Lst<A> :
     /// Remove all items that match the value from the list
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<A> Remove(A value, IEqualityComparer<A> equalityComparer) =>
         Wrap(Value.Remove(value, equalityComparer));
 
@@ -408,7 +293,6 @@ public readonly struct Lst<A> :
     /// Remove all items that match a predicate
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<A> RemoveAll(Func<A, bool> pred) =>
         Wrap(Value.RemoveAll(pred));
 
@@ -418,24 +302,21 @@ public readonly struct Lst<A> :
     /// <param name="index"></param>
     /// <returns></returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Lst<A> RemoveAt(int index) =>
+    public Lst<A> RemoveAt(long index) =>
         Wrap(Value.RemoveAt(index));
 
     /// <summary>
     /// Remove a range of items
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Lst<A> RemoveRange(int index, int count) =>
+    public Lst<A> RemoveRange(long index, long count) =>
         Wrap(Value.RemoveRange(index, count));
 
     /// <summary>
     /// Set an item at the specified index
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Lst<A> SetItem(int index, A value) =>
+    public Lst<A> SetItem(long index, A value) =>
         Wrap(Value.SetItem(index, value));
 
     /// <summary>
@@ -446,32 +327,26 @@ public readonly struct Lst<A> :
     /// <param name="count">Number of items to find</param>
     /// <returns>IEnumerable of items</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Iterable<A> FindRange(int index, int count) =>
+    public Iterable<A> FindRange(long index, long count) =>
         Value.FindRange(index, count);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator IEnumerable.GetEnumerator() =>
         new ListEnumerator<A>(Root, 0);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
         new ListEnumerator<A>(Root, 0);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ListEnumerator<A> GetEnumerator() =>
         new (Root, 0);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ListEnumeratorBack<A> GetEnumeratorBack() =>
         new (Root, 0);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<A> ToSeq() =>
         toSeq(this);
 
@@ -482,7 +357,6 @@ public readonly struct Lst<A> :
     /// or `ToFullArrayString`.
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override string ToString() =>
         CollectionFormat.ToShortArrayString(this, Count);
 
@@ -490,7 +364,6 @@ public readonly struct Lst<A> :
     /// Format the collection as `a, b, c, ...`
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ToFullString(string separator = ", ") =>
         CollectionFormat.ToFullString(this, separator);
 
@@ -498,18 +371,15 @@ public readonly struct Lst<A> :
     /// Format the collection as `[a, b, c, ...]`
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ToFullArrayString(string separator = ", ") =>
         CollectionFormat.ToFullArrayString(this, separator);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Iterable<A> AsIterable() =>
         Iterable.createRange(this);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Lst<A> Skip(int amount) =>
+    public Lst<A> Skip(long amount) =>
         Value.Skip(amount);
 
     /// <summary>
@@ -518,7 +388,6 @@ public readonly struct Lst<A> :
     /// <returns>
     /// Returns the original unmodified structure
     /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<A> Do(Action<A> f)
     {
         this.Iter(f);
@@ -529,7 +398,6 @@ public readonly struct Lst<A> :
     /// Map
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<U> Map<U>(Func<A, U> map) =>
         Value.Map(map);
     
@@ -563,22 +431,18 @@ public readonly struct Lst<A> :
     /// Filter
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<A> Filter(Func<A, bool> pred) =>
         Value.Filter(pred);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lst<A> operator +(Lst<A> lhs, A rhs) =>
         lhs.Add(rhs);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lst<A> operator +(A lhs, Lst<A> rhs) =>
         lhs.Cons(rhs);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lst<A> operator +(Lst<A> lhs, Lst<A> rhs) =>
         lhs.Combine(rhs);
 
@@ -586,7 +450,6 @@ public readonly struct Lst<A> :
     /// Choice operator
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lst<A> operator |(Lst<A> x, K<Lst, A> y) =>
         x.Choose(y).As();
 
@@ -594,27 +457,22 @@ public readonly struct Lst<A> :
     /// Choice operator
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lst<A> operator |(K<Lst, A> x, Lst<A> y) =>
         x.Choose(y).As();
     
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<A> Combine(Lst<A> rhs) =>
         new (Value.Combine(rhs.Value));
     
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lst<A> operator -(Lst<A> lhs, Lst<A> rhs) =>
         lhs.Subtract(rhs);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<A> Subtract(Lst<A> rhs) =>
         Wrap(Value.Subtract(rhs.Value));
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool Equals(object? obj) =>
         obj switch
         {
@@ -629,7 +487,6 @@ public readonly struct Lst<A> :
     /// Empty list hash == 0
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode() =>
         Value.GetHashCode();
 
@@ -643,59 +500,48 @@ public readonly struct Lst<A> :
         };
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(Lst<A> other) =>
         Value.Equals(other.Value);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(Lst<A> lhs, Lst<A> rhs) =>
         lhs.Value.Equals(rhs.Value);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(Lst<A> lhs, Lst<A> rhs) =>
         !(lhs == rhs);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(Lst<A> lhs, Lst<A> rhs) =>
         lhs.CompareTo(rhs) < 0;
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <=(Lst<A> lhs, Lst<A> rhs) =>
         lhs.CompareTo(rhs) <= 0;
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >(Lst<A> lhs, Lst<A> rhs) =>
         lhs.CompareTo(rhs) > 0;
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >=(Lst<A> lhs, Lst<A> rhs) =>
         lhs.CompareTo(rhs) >= 0;
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Arr<A> ToArr() =>
         toArr(this);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal A[] ToArray() =>
         Value.ToArray();
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int CompareTo(Lst<A> other) =>
         Value.CompareTo(other.Value);
 
     /// <summary>
     /// Implicit conversion from an untyped empty list
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Lst<A>(UnitCollection _) =>
         Empty;
 

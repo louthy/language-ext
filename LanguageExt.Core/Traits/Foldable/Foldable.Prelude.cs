@@ -161,7 +161,7 @@ public static partial class Prelude
     /// actions from left to right, and ignore the results.  For a version that
     /// doesn't ignore the results see `Traversable.traverse`.
     /// </summary>
-    public static Unit iter<T, A>(Action<int, A> f, K<T, A> ta) 
+    public static Unit iter<T, A>(Action<long, A> f, K<T, A> ta) 
         where T : Foldable<T> =>
         ta.Iter(f);
     

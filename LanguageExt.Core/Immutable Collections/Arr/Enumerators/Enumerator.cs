@@ -8,8 +8,8 @@ public readonly partial struct Arr<A>
     public struct Enumerator
     {
         readonly A[] arr;
-        int index;
-        int end;
+        long index;
+        long end;
 
         internal Enumerator(in Arr<A> arr)
         {

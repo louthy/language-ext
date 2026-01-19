@@ -148,9 +148,12 @@ public readonly struct HashSet<EqA, A> :
     /// <returns>
     /// Returns the original unmodified structure
     /// </returns>
-    public HashSet<EqA, A> Do(Action<A> f)
+    public HashSet<EqA, A> Do(Action<A> f) 
     {
-        IterableExtensions.AsIterable(this).Iter(f);
+        foreach (var x in this)
+        {
+            f(x);
+        }
         return this;
     }
 

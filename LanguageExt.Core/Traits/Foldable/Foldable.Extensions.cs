@@ -160,7 +160,7 @@ public static partial class FoldableExtensions
         /// <summary>
         /// Return the number of items in a foldable structure
         /// </summary>
-        public int Count =>
+        public long Count =>
             T.Count(ta);
 
         /// <summary>
@@ -198,7 +198,7 @@ public static partial class FoldableExtensions
         /// </summary>
         public Option<A> Head =>
             T.Head(ta);
-
+        
         /// <summary>
         /// Iterate over the structure from left to right, applying the monadic action to each element.
         /// </summary>
@@ -215,8 +215,8 @@ public static partial class FoldableExtensions
         /// <summary>
         /// Iterate over the structure from left to right, applying the action to each element.
         /// </summary>
-        public Unit Iter(Action<int, A> f) =>
-            T.Iter(f, ta);
+        public Unit Iter(Action<long, A> f, long initialIndex = 0) =>
+            T.Iter(f, initialIndex, ta);
 
         /// <summary>
         /// Find the minimum value in the structure
@@ -265,6 +265,17 @@ public static partial class FoldableExtensions
         /// <returns>An iterable with the values injected</returns>
         public Iterator<A> Intersperse(A sep) =>
             T.Intersperse(sep, ta);
+    }
+
+    extension<T, M, A>(K<T, A> ta)
+        where T : Foldable<T>
+        where M : Alternative<M>
+    {
+        /// <summary>
+        /// Get the head item in the `FoldableIO` or `Alternative.Empty`
+        /// </summary>
+        public K<M, A> HeadM() =>
+            T.HeadM<M, A>(ta);
     }
     
     /// <param name="ta">Foldable structure</param>

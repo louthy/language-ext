@@ -27,30 +27,6 @@ public static partial class Prelude
     [Pure]
     public static Iterable<A> Cons<A>(this A head, Iterable<A> tail) =>
         tail.Cons(head);
-    
-    /// <summary>
-    /// Construct a list from head and tail; head becomes the first item in 
-    /// the list.  
-    /// </summary>
-    /// <typeparam name="A">Type of the items in the sequence</typeparam>
-    /// <param name="head">Head item in the sequence</param>
-    /// <param name="tail">Tail of the sequence</param>
-    /// <returns></returns>
-    [Pure]
-    public static IteratorAsync<A> Cons<A>(this A head, IteratorAsync<A> tail) =>
-        IteratorAsync.Cons(head, tail);
-
-    /// <summary>
-    /// Construct a list from head and tail; head becomes the first item in 
-    /// the list.  
-    /// </summary>
-    /// <typeparam name="A">Type of the items in the sequence</typeparam>
-    /// <param name="head">Head item in the sequence</param>
-    /// <param name="tail">Tail of the sequence</param>
-    /// <returns></returns>
-    [Pure]
-    public static IteratorAsync<A> Cons<A>(this A head, Func<IteratorAsync<A>> tail) =>
-        IteratorAsync.Cons(head, tail);
 
     /// <summary>
     /// Provide a sorted enumerable

@@ -52,7 +52,7 @@ public interface FoldableBack<T> : IterableBackK<T>
         K<T, A> ta)
     {
         var state = initialState;
-        foreach(var value in T.BackwardIterator(ta).Using())
+        foreach(var value in T.BackwardIterator(ta))
         {
             if (predicate((state, value)))
             {
@@ -81,7 +81,7 @@ public interface FoldableBack<T> : IterableBackK<T>
         K<T, A> ta)
     {
         var state = initialState;
-        foreach(var value in T.BackwardIterator(ta).Using())
+        foreach(var value in T.BackwardIterator(ta))
         {
             var option = f(state, value);
             if (option.IsSome)
@@ -128,7 +128,7 @@ public interface FoldableBack<T> : IterableBackK<T>
         K<T, A> ta)
     {
         var state = initialState;
-        foreach(var head in T.BackwardIterator(ta).Using())
+        foreach(var head in T.BackwardIterator(ta))
         {
             state = f(state, head);
             if (predicate((state, head))) return state;
@@ -177,7 +177,7 @@ public interface FoldableBack<T> : IterableBackK<T>
     static virtual S FoldBack<A, S>(Func<S, A, S> f, in S initialState, K<T, A> ta)
     {
         var state = initialState;
-        foreach (var head in ta.BackwardIterator().Using())
+        foreach (var head in ta.BackwardIterator())
         {
             state = f(state, head);
         }
@@ -235,7 +235,7 @@ public interface FoldableBack<T> : IterableBackK<T>
     static virtual Arr<A> ToArrBack<A>(K<T, A> ta)
     {
         var writer = ArrayWriter<A>.Init();
-        foreach(var head in T.BackwardIterator(ta).Using())
+        foreach(var head in T.BackwardIterator(ta))
         {
             writer.Add(head);
         }
@@ -256,7 +256,7 @@ public interface FoldableBack<T> : IterableBackK<T>
     /// </summary>
     static virtual bool ExistsBack<A>(Func<A, bool> predicate, K<T, A> ta)
     {
-        foreach(var head in T.BackwardIterator(ta).Using())
+        foreach(var head in T.BackwardIterator(ta))
         {
             if(predicate(head)) return true;
         }
@@ -268,7 +268,7 @@ public interface FoldableBack<T> : IterableBackK<T>
     /// </summary>
     static virtual bool ForAllBack<A>(Func<A, bool> predicate, K<T, A> ta)
     {
-        foreach(var head in T.BackwardIterator(ta).Using())
+        foreach(var head in T.BackwardIterator(ta))
         {
             if(!predicate(head)) return false;
         }
@@ -281,7 +281,7 @@ public interface FoldableBack<T> : IterableBackK<T>
     static virtual bool ContainsBack<EqA, A>(A value, K<T, A> ta) 
         where EqA : Eq<A>
     {
-        foreach(var head in T.BackwardIterator(ta).Using())
+        foreach(var head in T.BackwardIterator(ta))
         {
             if(EqA.Equals(value, head)) return true;
         }
@@ -299,7 +299,7 @@ public interface FoldableBack<T> : IterableBackK<T>
     /// </summary>
     static virtual Option<A> FindBack<A>(Func<A, bool> predicate, K<T, A> ta)
     {
-        foreach(var head in T.BackwardIterator(ta).Using())
+        foreach(var head in T.BackwardIterator(ta))
         {
             if(predicate(head)) return Some(head);
         }
@@ -322,7 +322,7 @@ public interface FoldableBack<T> : IterableBackK<T>
     /// </summary>
     static virtual Option<A> Last<A>(K<T, A> ta)
     {
-        using var iter = T.BackwardIterator(ta).Using();
+        var iter = T.BackwardIterator(ta);
         return iter switch
                {
                    (Exist<A>(var last), _) => Some(last),
@@ -333,10 +333,10 @@ public interface FoldableBack<T> : IterableBackK<T>
     /// <summary>
     /// Find the element at the specified index (from the end) or `None` if out of range
     /// </summary>
-    static virtual Option<A> AtBack<A>(int index, K<T, A> ta)
+    static virtual Option<A> AtBack<A>(long index, K<T, A> ta)
     {
-        var ix = 0;
-        foreach(var head in T.BackwardIterator(ta).Using())
+        var ix = 0L;
+        foreach(var head in T.BackwardIterator(ta))
         {
             if(ix == index) return head;
             ix++;
@@ -355,7 +355,7 @@ public interface FoldableBack<T> : IterableBackK<T>
     {
         var @true  = ArrayWriter<A>.Init();
         var @false = ArrayWriter<A>.Init();
-        foreach(var head in T.BackwardIterator(ta).Using())
+        foreach(var head in T.BackwardIterator(ta))
         {
             if (f(head))
             {

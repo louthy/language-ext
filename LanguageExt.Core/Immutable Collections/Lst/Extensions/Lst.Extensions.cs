@@ -59,7 +59,7 @@ public static partial class LstExtensions
         public Lst<B> Select<B>(Func<A, B> f)
         {
             var           root     = ListItem<B>.EmptyM;
-            var           subIndex = 0;
+            var           subIndex = 0L;
         
             var fsa = list.StepSetup<Lst, Lst.FoldState, A>();
             while (list.Step(ref fsa, out var a))
@@ -78,7 +78,7 @@ public static partial class LstExtensions
         public Lst<B> Bind<B>(Func<A, Lst<B>> f)
         {
             var           root     = ListItem<B>.EmptyM;
-            var           subIndex = 0;
+            var           subIndex = 0L;
         
             var fsa = list.StepSetup<Lst, Lst.FoldState, A>();
             while (list.Step(ref fsa, out var a))
@@ -101,7 +101,7 @@ public static partial class LstExtensions
         public Lst<B> Bind<B>(Func<A, K<Lst, B>> f)
         {
             var           root     = ListItem<B>.EmptyM;
-            var           subIndex = 0;
+            var           subIndex = 0L;
         
             var fsa = list.StepSetup<Lst, Lst.FoldState, A>();
             while (list.Step(ref fsa, out var a))
@@ -122,7 +122,7 @@ public static partial class LstExtensions
         /// </summary>
         /// <returns>The number of items in the list</returns>
         [Pure]
-        public int Count =>
+        public long Count =>
             list.As().Count;
 
         /// <summary>
@@ -132,7 +132,7 @@ public static partial class LstExtensions
         public Lst<C> SelectMany<B, C>(Func<A, Lst<B>> bind, Func<A, B, C> project)
         {
             var           root     = ListItem<C>.EmptyM;
-            var           subIndex = 0;
+            var           subIndex = 0L;
         
             var fsa = list.StepSetup<Lst, Lst.FoldState, A>();
             while (list.Step(ref fsa, out var a))

@@ -98,5 +98,5 @@ public partial class Iterator :
         toHashSet(fa.As());
     
     static K<Iterable, A> Natural<Iterator, Iterable>.Transform<A>(K<Iterator, A> fa) => 
-        new IterableIterator<A>(fa.As());
+        new Iterable<A>(+fa);
 }

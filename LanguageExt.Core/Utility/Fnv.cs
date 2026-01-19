@@ -42,10 +42,10 @@ namespace LanguageExt
 
             unchecked
             {
-                Span<A> span = items;
-                foreach (var item in span)
+                var length = items.LongLength;
+                for (var current = 0L; current < length; current++)
                 {
-                    hash = Next(HashA.GetHashCode(item), hash);
+                    hash = Next(HashA.GetHashCode(items[current]), hash);
                 }
                 return hash;
             }
@@ -55,17 +55,16 @@ namespace LanguageExt
         /// Calculate the hash code for an array slice
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Hash<HashA, A>(A[]? items, int start, int length, int offsetBasis = OffsetBasis) where HashA : Hashable<A>
+        public static int Hash<HashA, A>(A[]? items, long start, long length, int offsetBasis = OffsetBasis) where HashA : Hashable<A>
         {
             int hash = offsetBasis;
             if (items == null) return hash;
 
             unchecked
             {
-                var span = new Span<A>(items, start, length);
-                foreach (var item in span)
+                for (var current = start; current < start + length; current++)
                 {
-                    hash = Next(HashA.GetHashCode(item), hash);
+                    hash = Next(HashA.GetHashCode(items[current]), hash);
                 }
                 return hash;
             }

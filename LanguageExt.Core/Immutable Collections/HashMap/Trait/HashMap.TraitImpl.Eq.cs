@@ -10,7 +10,7 @@ public partial class HashMapEq<EqKey, Key> :
     Functor<HashMapEq<EqKey, Key>>
     where EqKey : Eq<Key>
 {
-    static int Foldable<HashMapEq<EqKey, Key>>.Count<A>(K<HashMapEq<EqKey, Key>, A> ta) =>
+    static long Foldable<HashMapEq<EqKey, Key>>.Count<A>(K<HashMapEq<EqKey, Key>, A> ta) =>
         ta.As().Count;
 
     static TrieMap.FoldState IterableK<HashMapEq<EqKey, Key>, TrieMap.FoldState>.StepSetup<A>(K<HashMapEq<EqKey, Key>, A> ta) => 

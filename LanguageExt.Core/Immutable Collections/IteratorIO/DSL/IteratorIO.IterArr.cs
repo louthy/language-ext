@@ -7,9 +7,9 @@ public abstract partial class IteratorIO<A>
     /// <summary>
     /// Array IteratorIO
     /// </summary>
-    internal class IterArr(Arr<A> array, int index, int remaining) : IteratorIO<A>
+    internal class IterArr(Arr<A> array, long index, long remaining) : IteratorIO<A>
     {
-        public Arr<A> Array => new (array.AsSpan(index, remaining));
+        public Arr<A> Array => array.Splice(index, remaining);
         
         (Head<A> Head, IteratorIO<A> Tail) Next() =>
             remaining == 0
@@ -25,14 +25,14 @@ public abstract partial class IteratorIO<A>
         public override IteratorIO<A> Using() =>
             this;
 
-        public override Arr<A> ToArr() =>
-            array.Splice(index, remaining);
+        public override IO<Arr<A>> ToArr() =>
+            IO.pure(array.Splice(index, remaining));
     }
     
     /// <summary>
     /// Array IteratorIO
     /// </summary>
-    internal class IterArrBkwd(Arr<A> array, int index, int remaining) : IteratorIO<A>
+    internal class IterArrBkwd(Arr<A> array, long index, long remaining) : IteratorIO<A>
     {
         (Head<A> Head, IteratorIO<A> Tail) Next() =>
             remaining == 0
@@ -48,7 +48,7 @@ public abstract partial class IteratorIO<A>
         public override IteratorIO<A> Using() =>
             this;
 
-        public override Arr<A> ToArr() =>
-            array.Splice(index - remaining, remaining).Reverse();
+        public override IO<Arr<A>> ToArr() =>
+            IO.pure(array.Splice(index - remaining, remaining).Reverse());
     }
 }

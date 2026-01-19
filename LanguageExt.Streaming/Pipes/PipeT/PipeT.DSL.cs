@@ -351,18 +351,66 @@ record PipeTYieldAll<IN, OUT, M, A>(Iterator<PipeT<IN, OUT, M, Unit>> Yields, Fu
 
     internal override K<M, A> Run()
     {
-        return from ys in use(() => Yields.Using())
-               from r in Monad.recur(ys, go)
-               from _ in release(ys)
-               select r;
+        return Monad.recur(Yields, go);
                 
         K<M, Next<Iterator<PipeT<IN, OUT, M, Unit>>, A>> go(Iterator<PipeT<IN, OUT, M, Unit>> ys) =>
             ys is (Exist<PipeT<IN, OUT, M, Unit>> (var head), var tail)
                 ? head.Run().Map(_ => L.Next.Loop<Iterator<PipeT<IN, OUT, M, Unit>>, A>(tail))
                 : Next(unit).Run().Map(L.Next.Done<Iterator<PipeT<IN, OUT, M, Unit>>, A>);
-        
     }
 }
+
+
+record PipeTYieldAllIO<IN, OUT, M, A>(IteratorIO<PipeT<IN, OUT, M, Unit>> Yields, Func<Unit, PipeT<IN, OUT, M, A>> Next) 
+    : PipeT<IN, OUT, M, A>
+    where M : MonadIO<M>
+{
+    public override PipeT<IN, OUT, M, B> Map<B>(Func<A, B> f) => 
+        new PipeTYieldAllIO<IN, OUT, M, B>(Yields, x => Next(x).Map(f));
+
+    public override PipeT<IN, OUT, M, B> MapM<B>(Func<K<M, A>, K<M, B>> f) => 
+        new PipeTYieldAllIO<IN, OUT, M, B>(Yields, x => Next(x).MapM(f));
+
+    public override PipeT<IN, OUT, M, B> ApplyBack<B>(PipeT<IN, OUT, M, Func<A, B>> ff) => 
+        new PipeTYieldAllIO<IN, OUT, M, B>(Yields, x => Next(x).ApplyBack(ff));
+
+    public override PipeT<IN, OUT, M, B> Action<B>(PipeT<IN, OUT, M, B> fb) => 
+        new PipeTYieldAllIO<IN, OUT, M, B>(Yields, x => Next(x).Action(fb));
+
+    public override PipeT<IN, OUT, M, B> Bind<B>(Func<A, PipeT<IN, OUT, M, B>> f) => 
+        new PipeTYieldAllIO<IN, OUT, M, B>(Yields, x => Next(x).Bind(f));
+
+    internal override PipeT<IN1, OUT, M, A> ReplaceAwait<IN1>(Func<PipeT<IN1, OUT, M, IN>> producer) =>
+        new PipeTYieldAllIO<IN1, OUT, M, A>(Yields.Select(x => x.ReplaceAwait(producer)), x => Next(x).ReplaceAwait(producer));
+    
+    internal override PipeT<IN, OUT1, M, A> ReplaceYield<OUT1>(Func<OUT, PipeT<IN, OUT1, M, Unit>> consumer) =>
+        new PipeTYieldAllIO<IN, OUT1, M, A>(Yields.Select(x => x.ReplaceYield(consumer)), x => Next(x).ReplaceYield(consumer));
+
+    internal override PipeT<IN1, OUT, M, A> PairEachAwaitWithYield<IN1>(Func<Unit, PipeT<IN1, IN, M, A>> producer) =>
+        new PipeTYieldAllIO<IN1, OUT, M, A>(
+            Yields.Select(x => x.PairEachAwaitWithYield(_ => producer(default).Map(_ => Unit.Default))),
+            x => Next(x).PairEachAwaitWithYield(producer));
+
+    internal override PipeT<IN, OUT1, M, A> PairEachYieldWithAwait<OUT1>(Func<OUT, PipeT<OUT, OUT1, M, A>> consumer) =>
+        new PipeTYieldAllIO<IN, OUT1, M, A>(
+            Yields.Select(x => x.PairEachYieldWithAwait(o => consumer(o).Map(_ => Unit.Default))), 
+            x => Next(x).PairEachYieldWithAwait(consumer));
+
+    internal override K<M, A> Run()
+    {
+        return from ys in use(() => Yields.Using())
+               from r  in Monad.recur(ys, go)
+               from _  in release(ys)
+               select r;
+
+        K<M, Next<IteratorIO<PipeT<IN, OUT, M, Unit>>, A>> go(IteratorIO<PipeT<IN, OUT, M, Unit>> ys) =>
+            ys.NextIO() >> (n => n is (Exist<PipeT<IN, OUT, M, Unit>> (var head), var tail)
+                                     ? head.Run().Map(_ => L.Next.Loop<IteratorIO<PipeT<IN, OUT, M, Unit>>, A>(tail))
+                                     : Next(unit).Run().Map(L.Next.Done<IteratorIO<PipeT<IN, OUT, M, Unit>>, A>));
+    }
+}
+
+
 
 record PipeTYieldAllSource<IN, OUT, M, X, A>(Source<X> Yields, Func<X, PipeT<IN, OUT, M, Unit>> F, Func<Unit, PipeT<IN, OUT, M, A>> Next) 
     : PipeT<IN, OUT, M, A>

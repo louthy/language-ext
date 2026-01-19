@@ -99,7 +99,7 @@ public partial class HashSet :
     static bool Foldable<HashSet>.Contains<EqA, A>(A value, K<HashSet, A> ta) =>
         ta.As().Contains(value);
 
-    static int Foldable<HashSet>.Count<A>(K<HashSet, A> ta) =>
+    static long Foldable<HashSet>.Count<A>(K<HashSet, A> ta) =>
         ta.As().Count;
 
     static TrieSet.FoldState IterableK<HashSet, TrieSet.FoldState>.StepSetup<A>(K<HashSet, A> ta) => 

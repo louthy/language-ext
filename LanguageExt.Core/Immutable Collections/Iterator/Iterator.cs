@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Numerics;
 using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
@@ -20,38 +21,13 @@ namespace LanguageExt;
 /// mid-iteration, pass those references around to different threads, or anything you like, in the same way as any
 /// regular immutable data-types.
 /// </para>
-/// <para>
-/// The only time you need to be careful is if you construct an `Iterator` from a regular `IEnumerable`.  The reference
-/// you get back is completely safe to pass around and use as normal.  But as soon as you try to consume the first
-/// element, the `IEnumerable` will have to generate an `IEnumerator`, which is mutable and not guaranteed to be
-/// thread-safe. 
-/// </para>
-/// <para>
-/// In that situation you need to make sure you're not passing intermediate `Iterator` values around, and instead you
-/// simply consume the iterable in one pass.  
-/// </para>
-/// <para>
-/// This is the normal usage of enumerators, so it's not a big constraint, but it's worth understanding the limitation. 
-/// </para>
-/// <para>
-/// NOTE: This type supports `IDisposable`, but it only needs disposing if you have constructed the `Iterator` from a
-/// regular `IEnumerable`. And even then, only if the `IEnumerable` holds onto some resource during its yielding phase.
-/// See <see cref="Using"/> for more details.
-/// </para>
-/// <para>
-/// An example might be if you were iterating a set of results from a database or file system.  In that case, you would
-/// want to dispose of the `Iterator` so that it can free up any underlying `IEnumerator`.
-/// </para>
-/// <para>
-/// Calling `Dispose` on the `Iterator` when the `Iterator` hasn't been constructed from an `IEnumerable` will have no
-/// effect. 
-/// </para>
 /// </remarks>
 /// <typeparam name="A">Value type</typeparam>
 public abstract partial class Iterator<A> :
     IEnumerable<A>,
+    IComparable<Iterator<A>>,
+    IComparisonOperators<Iterator<A>, Iterator<A>, bool>,
     IEquatable<Iterator<A>>,
-    IDisposable,
     K<Iterator, A>
 {
     /// <summary>
@@ -64,8 +40,8 @@ public abstract partial class Iterator<A> :
     /// </summary>
     /// <remarks>
     /// <para>
-    /// This will lazily consume the next item in the iterator. `Head` will be `Exist〈A〉` if the iterator
-    /// is not empty, otherwise it will be `Nil〈A〉`.  `Tail` will be the remainder of the iterator.
+    /// This will lazily consume the next item in the iterator. `head` will be `Exist〈A〉` if the iterator
+    /// is not-empty, otherwise it will be `Nil〈A〉`.  `tail` will be the remainder of the iterator.
     /// </para> 
     /// </remarks>
     /// <example>
@@ -77,17 +53,14 @@ public abstract partial class Iterator<A> :
     ///         yield return h.Value;
     ///     }
     /// </code>
-    /// Or, use `foreach`, which will also deal with the disposal properly:
+    /// Or, use `foreach`:
     /// <code>
-    ///     foreach (var value in iter.Using())
+    ///     foreach (var value in iter)
     ///     {
     ///         yield return value;
     ///     }
     /// </code>
     /// </example>
-    /// <remarks>
-    /// See <see cref="Using" /> documentation for best `IDisposable` practices.
-    /// </remarks>
     public void Deconstruct(out Head<A> head, out Iterator<A> tail)
     {
         var (h, t) = Next();
@@ -100,112 +73,28 @@ public abstract partial class Iterator<A> :
     /// </summary>
     /// <remarks>
     /// <para>
-    /// This will lazily consume the next item in the iterator. `Head` will be `Exist〈A〉` if the iterator
-    /// is not empty, otherwise it will be `Nil〈A〉`.  `Tail` will be the remainder of the iterator.
+    /// This will lazily consume the next item in the iterator. `head` will be `Exist〈A〉` if the iterator
+    /// is not-empty, otherwise it will be `Nil〈A〉`.  `tail` will be the remainder of the iterator.
     /// </para> 
     /// </remarks>
     /// <example>
     /// It is possible to use the deconstructor in a for-loop to repeatedly consume the iterable thing. The
     /// deconstructor simply calls `Next` to extract the head and tail of the iterator:
     /// <code>
-    ///     for (var i = iter; i is (Exist&lt;A&gt; h, var t); i = t)
+    ///     for (var i = iter; i.Next() is (Exist&lt;A&gt; h, var t); i = t)
     ///     {
     ///         yield return h.Value;
     ///     }
     /// </code>
-    /// Or, use `foreach`, which will also deal with the disposal properly:
+    /// Or, use `foreach`:
     /// <code>
-    ///     foreach (var value in iter.Using())
+    ///     foreach (var value in iter)
     ///     {
     ///         yield return value;
     ///     }
     /// </code>
     /// </example>
-    /// <remarks>
-    /// See <see cref="Using" /> documentation for best `IDisposable` practices.
-    /// </remarks>
     public abstract (Head<A> Head, Iterator<A> Tail) Next();
-
-    /// <summary>
-    /// Consume the next item in the sequence
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// This will lazily consume the next item in the iterator. `Head` will be `Exist〈A〉` if the iterator
-    /// is not empty, otherwise it will be `Nil〈A〉`.  `Tail` will be the remainder of the iterator.
-    /// </para> 
-    /// </remarks>
-    /// <example>
-    /// It is possible to use the deconstructor in a for-loop to repeatedly consume the iterable thing. The
-    /// deconstructor simply calls `Next` to extract the head and tail of the iterator:
-    /// <code>
-    ///     for (var i = iter; i is (Exist&lt;A&gt; h, var t); i = t)
-    ///     {
-    ///         yield return h.Value;
-    ///     }
-    /// </code>
-    /// Or, use `foreach`, which will also deal with the disposal properly:
-    /// <code>
-    ///     foreach (var value in iter.Using())
-    ///     {
-    ///         yield return value;
-    ///     }
-    /// </code>
-    /// </example>
-    /// <remarks>
-    /// See <see cref="Using" /> documentation for best `IDisposable` practices.
-    /// </remarks>
-    public abstract IO<(Head<A> Head, Iterator<A> Tail)> NextIO();
-
-    /// <summary>
-    /// This will 'prime' an iterator so that calling `Dispose` on the `Iterator` returned from this method will
-    /// correctly release any backing resources. 
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// You only need to use this if your `Iterator` has been constructed from an `IEnumerable`.  And only if you're
-    /// not consuming this iterator using `foreach`.
-    /// </para>
-    /// <para>
-    /// If you don't know whether your `Iterator` has been constructed from an `IEnumerable`, invoke this method on
-    /// your `Iterator` just in case: for other `Iterator` types, this method will have no effect.  
-    /// </para>
-    /// <para>
-    /// If your `Iterator` is a composition of other
-    /// iterators (like if you zip two iterators, or you map, filter, etc.), then you can still call `Using` on the
-    /// composed `Iterator` and it will flow through to the underlying iterator(s). 
-    /// </para>
-    /// <para>
-    /// For a deeper understanding: imagine that when an `IEnumerable` is lifted into an `Iterator`, it hasn't yet
-    /// generated its `IEnumerator` (using `GetEnumerator()`), and so the `Iterator` that contains the `IEnumerable`
-    /// has no resources to release yet.  
-    /// </para>
-    /// <para>
-    /// When you start consuming the items from the `Iterator`, the first `(head, tail)` pair you get will have
-    /// the tail `Iterator` carrying an `IEnumerator` that has been newly generated from the original lifted
-    /// `IEnumerable`.
-    /// </para>
-    /// <para>
-    /// That means the original `Iterator` that carried the `IEnumerable` is not the `Iterator` you want to call
-    /// `Dispose` on.  It's the very first tail-`Iterator`.
-    /// </para>
-    /// <para>
-    /// In that situation, it's quite difficult to stop, mid-iteration, to grab a reference to the first tail
-    /// `Iterator`, and then somehow track that value until the end of the iteration, and then dispose of it!
-    /// </para>
-    /// <para>
-    /// So, instead the `Using` method makes the 'first move' and generates the `IEnumerator`, which makes tracking
-    /// which `Iterator` to dispose much simpler (and can be passed to a `using` expression).
-    /// </para>
-    /// <para>
-    /// NOTE: If you're manually iterating over the `Iterator` using the deconstructor or `(head, tail) = Next()`, you
-    /// can still call `Using` to get an initial disposable `Iterator`, but you don't have to, you can call `Dispose`
-    /// manually on any of the subsequent tail `Iterator` instances you receive. This is most convenient when you're
-    /// recursively iterating, and you only have the current `Iterator` instance. 
-    /// </para>
-    /// </remarks>
-    /// <returns>Disposable `Iterator`</returns>
-    public abstract Iterator<A> Using();
 
     /// <summary>
     /// Create an `IEnumerable` from an `Iterator`
@@ -213,29 +102,10 @@ public abstract partial class Iterator<A> :
     [Pure]
     public IEnumerable<A> AsEnumerable()
     {
-         using var iter = Using();
-         for (var i = iter; i is (Exist<A> head, var tail); i = tail)
+         for (var i = this; i is (Exist<A> head, var tail); i = tail)
          {
              yield return head.Value;
          }
-    }
-
-    /// <summary>
-    /// Create an `AsyncEnumerable` from an `Iterator`
-    /// </summary>
-    [Pure]
-    public IO<IAsyncEnumerable<A>> AsAsyncEnumerable()
-    {
-        return IO.lift(go);
-
-        async IAsyncEnumerable<A> go(EnvIO e)
-        {
-            using var iter = Using();
-            for (var i = iter; await i.NextIO().RunAsync(e) is (Exist<A> (var head), var tail); i = tail)
-            {
-                yield return head;
-            }
-        }
     }
 
     /// <summary>
@@ -257,7 +127,7 @@ public abstract partial class Iterator<A> :
     /// </summary>
     [Pure]
     public Iterable<A> AsIterable() =>
-        new IterableIterator<A>(this);
+        new (this);
 
     /// <summary>
     /// Wrap this iterator in an iterator that will cache the values as they're processed so
@@ -309,6 +179,13 @@ public abstract partial class Iterator<A> :
     [Pure]
     public Iterator<B> Map<B>(Func<A, B> f) =>
         new Iterator<B>.OpMap<A>(this, f);
+
+    /// <summary>
+    /// Functor map
+    /// </summary>
+    [Pure]
+    public Iterator<B> Map<B>(Func<A, long, B> f, long offset = 0) =>
+        new Iterator<B>.OpMap2<A>(this, f, offset);
 
     /// <summary>
     /// Map and filtering
@@ -369,18 +246,69 @@ public abstract partial class Iterator<A> :
         ff.Bind(f => Map(f));
 
     /// <summary>
-    /// Skip a specified number of items from the start of the iterator. 
+    /// Skip a specified number of items from the start of the IteratorIO. 
     /// </summary>
     [Pure]
-    public Iterator<A> Skip(int amount) =>
+    public Iterator<A> Skip(long amount) =>
         new OpSkip(this, amount);
 
     /// <summary>
-    /// Take a specified number of items from the start of the iterator. 
+    /// Skip items at the start of the sequence whilst the predicate returns true. 
     /// </summary>
     [Pure]
-    public Iterator<A> Take(int amount) =>
+    public Iterator<A> SkipWhile(Func<A, bool> predicate) =>
+        new OpSkipWhile(this, predicate);
+
+    /// <summary>
+    /// Skip items at the start of the sequence until the predicate returns true. 
+    /// </summary>
+    [Pure]
+    public Iterator<A> SkipUntil(Func<A, bool> predicate) =>
+        new OpSkipUntil(this, predicate);
+
+    /// <summary>
+    /// Take a specified number of items from the start of the IteratorIO. 
+    /// </summary>
+    [Pure]
+    public Iterator<A> Take(long amount) =>
         new OpTake(this, amount);
+
+    /// <summary>
+    /// Take items from the sequence whilst the predicate returns true.   
+    /// </summary>
+    [Pure]
+    public Iterator<A> TakeWhile(Func<A, bool> predicate) =>
+        new OpTakeWhile(this, predicate);
+
+    /// <summary>
+    /// Take items from the sequence until the predicate returns true.   
+    /// </summary>
+    [Pure]
+    public Iterator<A> TakeUntil(Func<A, bool> predicate) =>
+        new OpTakeUntil(this, predicate);
+
+    /// <summary>
+    /// Make sure no element in the sequence appears more than once
+    /// </summary>
+    [Pure]
+    public Iterator<A> Distinct() =>
+        Distinct<EqDefault<A>>();
+
+    /// <summary>
+    /// Make sure no element in the sequence appears more than once
+    /// </summary>
+    [Pure]
+    public Iterator<A> Distinct<EqA>()
+        where EqA : Eq<A> =>
+        new Iterator.OpDistinct<EqA, A>(this, []);
+
+    /// <summary>
+    /// Make sure no element in the sequence appears more than once
+    /// </summary>
+    [Pure]
+    internal Iterator<A> Distinct<EqA>(ReadOnlySpan<A> seen)
+        where EqA : Eq<A> =>
+        new Iterator.OpDistinct<EqA, A>(this, toHashSet<EqA, A>(seen));
 
     /// <summary>
     /// Concatenate two iterators
@@ -433,6 +361,16 @@ public abstract partial class Iterator<A> :
         new Iterator.OpZip<A, B>(this, other);
 
     /// <summary>
+    /// Zips the items of two sequences together
+    /// </summary>
+    /// <remarks>
+    /// The output sequence will be as long as the shortest input sequence.
+    /// </remarks>
+    [Pure]
+    public Iterator<C> Zip<B, C>(Iterator<B> other, Func<A, B, C> join) =>
+        new Iterator.OpZip<A, B, C>(this, other, join);
+
+    /// <summary>
     /// Prepend an item to the beginning of the iterable sequence
     /// </summary>
     [Pure]
@@ -444,7 +382,7 @@ public abstract partial class Iterator<A> :
     /// </summary>
     [Pure]
     public virtual Iterator<A> Append(A value) =>
-        new Iterator.Add<A>(this, [value]);
+        new Iterator.Add<A>([], this, [value]);
 
     /// <summary>
     /// Combine two sequences
@@ -470,14 +408,46 @@ public abstract partial class Iterator<A> :
     public static Iterator<A> operator |(Iterator<A> ma, Iterator<A> mb) =>
         new OpAlt(ma, mb);
 
-    /// <summary>
-    /// Dispose
-    /// </summary>
-    public virtual void Dispose()
-    {
-        // Only the Iterator.Enumerator and Iterator.AsyncEnumerator uses Dispose
-    }
+    public int CompareTo(Iterator<A>? other) =>
+        CompareTo<OrdDefault<A>>(other);
 
+    public int CompareTo<OrdA>(Iterator<A>? rhs) 
+        where OrdA : Ord<A>
+    {
+        if(rhs is null) return 1;
+        var lhs = this;
+        while (true)
+        {
+            switch (lhs, rhs)
+            {
+                case ((Exist<A> (var lh), var lt), (Exist<A> (var rh), var rt)):
+                    switch(OrdA.Compare(lh, rh))
+                    {
+                        case 0:
+                            lhs = lt;
+                            rhs = rt;
+                            break;
+                        
+                        case > 0:
+                            return 1;
+                        
+                        default:
+                            return -1;
+                    }
+                    break;
+
+                case ((Exist<A>, _), _):
+                    return 1;
+                    
+                case (_, (Exist<A>, _)):
+                    return -1;
+
+                default:
+                    return 0; // end of sequence
+            }
+        }
+    }
+    
     /// <summary>
     /// Equality test
     /// </summary>
@@ -493,7 +463,17 @@ public abstract partial class Iterator<A> :
     /// <param name="other">The other iterator to compare against</param>
     /// <returns>True if equal</returns>
     [Pure]
-    public bool Equals(Iterator<A>? rhs)
+    public bool Equals(Iterator<A>? rhs) =>
+        Equals<EqDefault<A>>(rhs);
+
+    /// <summary>
+    /// Equality test
+    /// </summary>
+    /// <param name="other">The other iterator to compare against</param>
+    /// <returns>True if equal</returns>
+    [Pure]
+    public bool Equals<EqA>(Iterator<A>? rhs)
+        where EqA : Eq<A>
     {
         if(rhs is null) return false;
         var lhs = this;
@@ -502,7 +482,7 @@ public abstract partial class Iterator<A> :
             switch (lhs, rhs)
             {
                 case ((Exist<A> (var lh), var lt), (Exist<A> (var rh), var rt)):
-                    if (!EqDefault<A>.Equals(lh, rh))
+                    if (!EqA.Equals(lh, rh))
                     {
                         return false;
                     }
@@ -569,6 +549,24 @@ public abstract partial class Iterator<A> :
     public string ToFullArrayString(string separator = ", ") =>
         CollectionFormat.ToFullArrayString(AsEnumerable(), separator);
 
+    public static bool operator ==(Iterator<A>? left, Iterator<A>? right) => 
+        left?.Equals(right) ?? right is null;
+
+    public static bool operator !=(Iterator<A>? left, Iterator<A>? right) =>
+        !(left == right);
+
+    public static bool operator >(Iterator<A> left, Iterator<A> right) => 
+        left.CompareTo(right) > 0;
+
+    public static bool operator >=(Iterator<A> left, Iterator<A> right) => 
+        left.CompareTo(right) >= 0;
+
+    public static bool operator <(Iterator<A> left, Iterator<A> right) => 
+        left.CompareTo(right) < 0;
+
+    public static bool operator <=(Iterator<A> left, Iterator<A> right) => 
+        left.CompareTo(right) <= 0;
+    
     const int OffsetBasis = -2128831035;
     const int Prime = 16777619;
 }

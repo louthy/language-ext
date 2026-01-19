@@ -12,7 +12,7 @@ public partial class HashMap<Key> :
     static K<HashMap<Key>, B> Functor<HashMap<Key>>.Map<A, B>(Func<A, B> f, K<HashMap<Key>, A> ma) =>
         ma.As().Map(f);
     
-    static int Foldable<HashMap<Key>>.Count<A>(K<HashMap<Key>, A> ta) =>
+    static long Foldable<HashMap<Key>>.Count<A>(K<HashMap<Key>, A> ta) =>
         ta.As().Count;
 
     static TrieMap.FoldState IterableK<HashMap<Key>, TrieMap.FoldState>.StepSetup<A>(K<HashMap<Key>, A> ta) =>

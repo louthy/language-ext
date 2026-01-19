@@ -59,7 +59,7 @@ public partial class Lst
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void Push<A>(ref FoldState state, ListItem<A> item)
+        static void Push<A>(ref FoldState state, ListItem<A> item)
         {
             ref var top   = ref state.Top;
             ref var flags = ref state.FlagStack;
@@ -134,7 +134,7 @@ public partial class Lst
                         continue;
 
                     case 1:
-                        node = n.Key;
+                        node = n.Value;
                         return true;
 
                     case 2:
@@ -176,7 +176,7 @@ public partial class Lst
                         continue;
 
                     case 1:
-                        node = n.Key;
+                        node = n.Value;
                         return true;
 
                     case 2:

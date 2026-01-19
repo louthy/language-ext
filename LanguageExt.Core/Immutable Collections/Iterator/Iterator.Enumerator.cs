@@ -11,7 +11,7 @@ public struct IteratorEnumerator<A>
     public IteratorEnumerator(Iterator<A> iter)
     {
         this.reset = iter;
-        this.iter = reset.Using();
+        this.iter = reset;
     }
     
     public readonly A Current => 
@@ -33,18 +33,12 @@ public struct IteratorEnumerator<A>
     
     public IEnumerator<A> GetEnumerator()
     {
-        foreach (var x in iter)
+        foreach (var x in reset)
         {
             yield return x;
         }
     }
 
-    public void Reset()
-    {
-        iter.Dispose();
-        iter = reset.Using();
-    }
-
-    public void Dispose() =>
-        iter.Dispose();
+    public void Reset() => 
+        iter = reset;
 }

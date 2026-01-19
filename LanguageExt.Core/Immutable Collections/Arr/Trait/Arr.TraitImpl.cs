@@ -87,7 +87,7 @@ public partial class Arr :
     {
         var fa     = +ma;
         var fb     = +mb;
-        var writer = ArrayWriter<A>.Init(fa.Length + fb.Length);
+        var writer = ArrayWriter<A>.Init(fa.Count + fb.Count);
         writer.AddRange(fa.AsSpan());
         writer.AddRange(fb.AsSpan());
         return writer.ToArr();
@@ -99,7 +99,7 @@ public partial class Arr :
     static K<Arr, A> Choice<Arr>.Choose<A>(K<Arr, A> ma, Memo<Arr, A> mb) => 
         ma.IsEmpty ? mb.Value : ma;
 
-    static int Foldable<Arr>.Count<A>(K<Arr, A> ta) =>
+    static long Foldable<Arr>.Count<A>(K<Arr, A> ta) =>
         ta.As().Count;
 
     static bool Foldable<Arr>.IsEmpty<A>(K<Arr, A> ta) =>
@@ -117,19 +117,19 @@ public partial class Arr :
     static bool IterableBackK<Arr, FoldState>.StepBack<A>(K<Arr, A> ta, ref FoldState state, out A value) =>
         FoldState.MovePrev(ref state, out value);
 
-    static Option<A> Foldable<Arr>.At<A>(int index, K<Arr, A> ta)
+    static Option<A> Foldable<Arr>.At<A>(long index, K<Arr, A> ta)
     {
         var arr = ta.As();
-        return index >= 0 && index < arr.Length
+        return index >= 0 && index < arr.Count
                    ? Some(arr[index])
                    : Option<A>.None;
     }
 
-    static Option<A> FoldableBack<Arr>.AtBack<A>(int index, K<Arr, A> ta)
+    static Option<A> FoldableBack<Arr>.AtBack<A>(long index, K<Arr, A> ta)
     {
         var arr = ta.As();
-        return index > 0 && index <= arr.Length
-                   ? Some(arr[^index])
+        return index > 0 && index <= arr.Count
+                   ? Some(arr[arr.Count - 1 - index])
                    : Option<A>.None;
     }
 

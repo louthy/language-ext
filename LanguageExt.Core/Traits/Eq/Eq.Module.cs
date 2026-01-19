@@ -2,7 +2,7 @@
 using LanguageExt.Traits;
 using System.Diagnostics.Contracts;
 
-namespace LanguageExt;
+namespace LanguageExt.Traits;
 
 public static partial class Eq
 {

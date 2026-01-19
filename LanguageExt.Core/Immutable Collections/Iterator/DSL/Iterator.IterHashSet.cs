@@ -18,13 +18,7 @@ public abstract partial class Iterator
                 ? Head.Exist(head, new IterHashSet<EqK, K>(tail))
                 : Head.Nil<K>();
 
-        public override IO<(Head<K> Head, Iterator<K> Tail)> NextIO() => 
-            IO.pure(Next());
-
         public override string ToString() =>
             $"HashSet{items}";
-
-        public override Iterator<K> Using() =>
-            this;
     }
 }

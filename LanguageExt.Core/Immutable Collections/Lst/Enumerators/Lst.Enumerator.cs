@@ -13,14 +13,14 @@ public struct ListEnumerator<T> : IEnumerator<T>
     }
 
     ListItem<T>[] stack;
-    int top;
+    long top;
     readonly ListItem<T> map;
-    int remaining;
-    readonly int start;
-    int count;
+    long remaining;
+    readonly long start;
+    long count;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal ListEnumerator(ListItem<T> root, int start, int count = int.MaxValue)
+    internal ListEnumerator(ListItem<T> root, long start, long count = long.MaxValue)
     {
         this.start = start;
         map = root;
@@ -43,13 +43,13 @@ public struct ListEnumerator<T> : IEnumerator<T>
     public readonly T Current
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => NodeCurrent.Key;
+        get => NodeCurrent.Value;
     }
 
     object IEnumerator.Current
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => NodeCurrent.Key!;
+        get => NodeCurrent.Value!;
     }
 
     public void Dispose()
@@ -62,15 +62,15 @@ public struct ListEnumerator<T> : IEnumerator<T>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ListItem<T> Next(ListItem<T> node) =>
+    ListItem<T> Next(ListItem<T> node) =>
         node.Right;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ListItem<T> Prev(ListItem<T> node) =>
+    ListItem<T> Prev(ListItem<T> node) =>
         node.Left;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Push(ListItem<T> node)
+    void Push(ListItem<T> node)
     {
         while (!node.IsEmpty)
         {
@@ -121,10 +121,8 @@ public struct ListEnumerator<T> : IEnumerator<T>
             }
         }
 
-        if (!NodeCurrent.IsEmpty)
-        {
-            stack[top] = NodeCurrent;
-            top++;
-        }
+        if (NodeCurrent.IsEmpty) return;
+        stack[top] = NodeCurrent;
+        top++;
     }
 }

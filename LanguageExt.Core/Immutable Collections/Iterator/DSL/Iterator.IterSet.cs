@@ -16,14 +16,8 @@ public abstract partial class Iterator<A>
                 ? Head.Exist(head.Key, new IterSetFwd(tail))
                 : Head.Nil<A>();
 
-        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
-            IO.pure(Next());
-
         public override string ToString() => 
             $"Set{items.ToString()}";
-
-        public override Iterator<A> Using() =>
-            this;
     }
     
     /// <summary>
@@ -38,13 +32,7 @@ public abstract partial class Iterator<A>
                 ? Head.Exist(head.Key, new IterSetBkwd(tail))
                 : Head.Nil<A>();
 
-        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
-            IO.pure(Next());
-
         public override string ToString() => 
             $"Set{items.ToString()}";
-
-        public override Iterator<A> Using() =>
-            this;
     }
 }

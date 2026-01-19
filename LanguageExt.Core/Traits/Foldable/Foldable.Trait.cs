@@ -235,9 +235,9 @@ public interface Foldable<T> : IterableK<T>
     /// than via element-by-element counting, should provide a specialised
     /// implementation.
     /// </summary>
-    static virtual int Count<A>(K<T, A> ta)
+    static virtual long Count<A>(K<T, A> ta)
     {
-        var count = 0;
+        var count = 0L;
         foreach(var _ in T.ForwardIterator(ta))
         {
             count++;
@@ -313,15 +313,19 @@ public interface Foldable<T> : IterableK<T>
     /// <summary>
     /// Get the head item in the foldable or `None`
     /// </summary>
-    static virtual Option<A> Head<A>(K<T, A> ta)
-    {
-        using var iter = T.ForwardIterator(ta);
-        return iter switch
-        {
-            (Exist<A>(var head), _) => Some(head),
-            _                       => None
-        };
-    }
+    static virtual Option<A> Head<A>(K<T, A> ta) =>
+        T.ForwardIterator(ta) is (Exist<A> (var head), _)
+            ? Some(head)
+            : None;
+
+    /// <summary>
+    /// Get the head item in the `FoldableIO` or `Alternative.Empty`
+    /// </summary>
+    static virtual K<M, A> HeadM<M, A>(K<T, A> ta)
+        where M : Alternative<M> =>
+        T.ForwardIterator(ta) is (Exist<A> (var head), _)
+            ? M.Pure(head)
+            : M.Empty<A>();
 
     /// <summary>
     /// Map each element of a structure to a monadic action, evaluate these
@@ -358,9 +362,9 @@ public interface Foldable<T> : IterableK<T>
     /// actions from left to right, and ignore the results.  For a version that
     /// doesn't ignore the results see `Traversable.traverse`.
     /// </summary>
-    static virtual Unit Iter<A>(Action<int, A> f, K<T, A> ta)
+    static virtual Unit Iter<A>(Action<long, A> f, long initialIndex, K<T, A> ta)
     {
-        var ix = 0;
+        var ix = initialIndex;
         foreach(var head in T.ForwardIterator(ta))
         {
             f(ix++, head);
@@ -375,7 +379,7 @@ public interface Foldable<T> : IterableK<T>
         where OrdA : Ord<A>
     {
         A current;
-        using var iter = T.ForwardIterator(ta);
+        var iter = T.ForwardIterator(ta);
         if (iter is (Exist<A> (var h), var t))
         {
             current = h;
@@ -405,7 +409,7 @@ public interface Foldable<T> : IterableK<T>
         where OrdA : Ord<A> 
     {
         A current;
-        using var iter = T.ForwardIterator(ta);
+        var iter = T.ForwardIterator(ta);
         if (iter is (Exist<A> (var h), var t))
         {
             current = h;
@@ -457,9 +461,9 @@ public interface Foldable<T> : IterableK<T>
     /// <summary>
     /// Find the element at the specified index or `None` if out of range
     /// </summary>
-    static virtual Option<A> At<A>(int index, K<T, A> ta)
+    static virtual Option<A> At<A>(long index, K<T, A> ta)
     {
-        var ix = 0;
+        var ix = 0L;
         foreach(var head in T.ForwardIterator(ta))
         {
             if(ix == index) return head;
@@ -502,9 +506,9 @@ public interface Foldable<T> : IterableK<T>
     static virtual Iterator<A> Intersperse<A>(A sep, K<T, A> ta)
     {
         var iter = T.ForwardIterator(ta);
-        return iter is (Exist<A> (var head), var tail)
-                   ? Iterator.cons(head, prependToAll(tail))
-                   : Iterator.empty<A>(); 
+        return Iterator.lazy(() => iter is (Exist<A> (var head), var tail)
+                                       ? Iterator.cons(head, prependToAll(tail))
+                                       : Iterator.empty<A>()); 
 
         Iterator<A> prependToAll(Iterator<A> iter) =>
             iter is (Exist<A> (var h), var t)

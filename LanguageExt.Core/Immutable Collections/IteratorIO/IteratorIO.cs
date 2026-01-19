@@ -1,7 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Numerics;
+using System.Threading;
+using System.Threading.Tasks;
+using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -48,7 +51,8 @@ namespace LanguageExt;
 /// </remarks>
 /// <typeparam name="A">Value type</typeparam>
 public abstract partial class IteratorIO<A> :
-    IEnumerable<A>,
+    IAsyncEnumerable<A>,
+    IComparisonOperators<IteratorIO<A>, IteratorIO<A>, IO<bool>>,
     IDisposable,
     K<IteratorIO, A>
 {
@@ -177,17 +181,29 @@ public abstract partial class IteratorIO<A> :
     }
 
     /// <summary>
+    /// Create an `Iterable` from an `Iterator`
+    /// </summary>
+    [Pure]
+    public IterableIO<A> AsIterable() =>
+        new (this);
+
+    /// <summary>
     /// Forces evaluation of every item in the IteratorIO and then writes them to an `Arr` structure
     /// </summary>
     [Pure]
-    public virtual Arr<A> ToArr()
+    public virtual IO<Arr<A>> ToArr()
     {
-        var writer = ArrayWriter<A>.Init();
-        foreach (var head in this)
+        return IO.liftVAsync(go);
+        async ValueTask<Arr<A>> go()
         {
-            writer.Add(head);
+            var writer = ArrayWriter<A>.Init();
+            await foreach (var head in this)
+            {
+                writer.Add(head);
+            }
+
+            return writer.ToArr();
         }
-        return writer.ToArr();
     }
 
     /// <summary>
@@ -223,8 +239,8 @@ public abstract partial class IteratorIO<A> :
     [Pure]
     public virtual IteratorIO<A> Strict()
     {
-        var arr = ToArr();
-        return new IterArr(arr, 0, arr.Count);
+        var arr = ToArr().Run();
+        return IteratorIO.forward(arr);
     }
     
     /// <summary>
@@ -240,6 +256,13 @@ public abstract partial class IteratorIO<A> :
     [Pure]
     public IteratorIO<B> Map<B>(Func<A, B> f) =>
         new IteratorIO<B>.OpMap<A>(this, f);
+
+    /// <summary>
+    /// Functor map
+    /// </summary>
+    [Pure]
+    public IteratorIO<B> Map<B>(Func<A, long, B> f, long start = 0) =>
+        new IteratorIO<B>.OpMap2<A>(this, f, start);
 
     /// <summary>
     /// Map and filtering
@@ -303,15 +326,58 @@ public abstract partial class IteratorIO<A> :
     /// Skip a specified number of items from the start of the IteratorIO. 
     /// </summary>
     [Pure]
-    public IteratorIO<A> Skip(int amount) =>
+    public IteratorIO<A> Skip(long amount) =>
         new OpSkip(this, amount);
+
+    /// <summary>
+    /// Skip items at the start of the sequence whilst the predicate returns true. 
+    /// </summary>
+    [Pure]
+    public IteratorIO<A> SkipWhile(Func<A, bool> predicate) =>
+        new OpSkipWhile(this, predicate);
+
+    /// <summary>
+    /// Skip items at the start of the sequence until the predicate returns true. 
+    /// </summary>
+    [Pure]
+    public IteratorIO<A> SkipUntil(Func<A, bool> predicate) =>
+        new OpSkipUntil(this, predicate);
 
     /// <summary>
     /// Take a specified number of items from the start of the IteratorIO. 
     /// </summary>
     [Pure]
-    public IteratorIO<A> Take(int amount) =>
+    public IteratorIO<A> Take(long amount) =>
         new OpTake(this, amount);
+
+    /// <summary>
+    /// Take items from the sequence whilst the predicate returns true.   
+    /// </summary>
+    [Pure]
+    public IteratorIO<A> TakeWhile(Func<A, bool> predicate) =>
+        new OpTakeWhile(this, predicate);
+
+    /// <summary>
+    /// Take items from the sequence until the predicate returns true.   
+    /// </summary>
+    [Pure]
+    public IteratorIO<A> TakeUntil(Func<A, bool> predicate) =>
+        new OpTakeUntil(this, predicate);
+
+    /// <summary>
+    /// Make sure no element in the sequence appears more than once
+    /// </summary>
+    [Pure]
+    public IteratorIO<A> Distinct() =>
+        new IteratorIO.OpDistinct<EqDefault<A>, A>(this, []);
+
+    /// <summary>
+    /// Make sure no element in the sequence appears more than once
+    /// </summary>
+    [Pure]
+    public IteratorIO<A> Distinct<EqA>()
+        where EqA : Eq<A> =>
+        new IteratorIO.OpDistinct<EqDefault<A>, A>(this, []);
 
     /// <summary>
     /// Concatenate two IteratorIOs
@@ -364,6 +430,16 @@ public abstract partial class IteratorIO<A> :
         new IteratorIO.OpZip<A, B>(this, other);
 
     /// <summary>
+    /// Zips the items of two sequences together
+    /// </summary>
+    /// <remarks>
+    /// The output sequence will be as long as the shortest input sequence.
+    /// </remarks>
+    [Pure]
+    public IteratorIO<C> Zip<B, C>(IteratorIO<B> other, Func<A, B, C> join) =>
+        new IteratorIO.OpZip<A, B, C>(this, other, join);
+
+    /// <summary>
     /// Prepend an item to the beginning of the iterable sequence
     /// </summary>
     [Pure]
@@ -380,24 +456,28 @@ public abstract partial class IteratorIO<A> :
     /// <summary>
     /// Combine two sequences
     /// </summary>
+    [Pure]
     public static IteratorIO<A> operator +(IteratorIO<A> ma, IteratorIO<A> mb) =>
         ma.Combine(mb);
 
     /// <summary>
     /// Prepend an item to the beginning of the iterable sequence
     /// </summary>
+    [Pure]
     public static IteratorIO<A> operator +(A value, IteratorIO<A> mb) =>
         IteratorIO.cons(value, mb);
 
     /// <summary>
     /// Append an item to the end of the iterable sequence
     /// </summary>
+    [Pure]
     public static IteratorIO<A> operator +(IteratorIO<A> ma, A value) =>
         ma.Append(value);
 
     /// <summary>
     /// Merge two sequences
     /// </summary>
+    [Pure]
     public static IteratorIO<A> operator |(IteratorIO<A> ma, IteratorIO<A> mb) =>
         new OpAlt(ma, mb);
 
@@ -408,20 +488,123 @@ public abstract partial class IteratorIO<A> :
     {
         // Only the IteratorIO.Enumerator and IteratorIO.AsyncEnumerator uses Dispose
     }
+    
+    /// <summary>
+    /// Equality comparison
+    /// </summary>
+    [Pure]
+    public static IO<bool> operator==(IteratorIO<A>? lhs, IteratorIO<A>? rhs) =>
+        lhs?.Equals(rhs) ?? IO.pure(false);
+    
+    /// <summary>
+    /// Non-equality comparison
+    /// </summary>
+    [Pure]
+    public static IO<bool> operator!=(IteratorIO<A>? lhs, IteratorIO<A>? rhs) =>
+        (lhs?.Equals(rhs) ?? IO.pure(false)).Map(not);
+
+    [Pure]
+    public static IO<bool> operator >(IteratorIO<A> left, IteratorIO<A> right) => 
+        left.CompareTo(right).Map(c => c > 0);
+
+    [Pure]
+    public static IO<bool> operator >=(IteratorIO<A> left, IteratorIO<A> right) => 
+        left.CompareTo(right).Map(c => c >= 0);
+
+    [Pure]
+    public static IO<bool> operator <(IteratorIO<A> left, IteratorIO<A> right) => 
+        left.CompareTo(right).Map(c => c < 0);
+
+    [Pure]
+    public static IO<bool> operator <=(IteratorIO<A> left, IteratorIO<A> right) => 
+        left.CompareTo(right).Map(c => c <= 0);
+    
+    /// <summary>
+    /// Equality comparison
+    /// </summary>
+    [Pure]
+    public IO<bool> Equals(IteratorIO<A>? rhs) =>
+        Equals<EqDefault<A>>(rhs);
 
     /// <summary>
-    /// Get enumerator
+    /// Equality comparison
     /// </summary>
-    /// <returns></returns>
     [Pure]
-    public IteratorEnumeratorIO<A> GetEnumerator() => 
-        new (this);
+    public IO<bool> Equals<EqA>(IteratorIO<A>? rhs)
+        where EqA : Eq<A>
+    {
+        return rhs is null
+                     ? IO.pure(false)
+                     : +Monad.recur((this, rhs), go);
 
-    IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
-        GetEnumerator().GetEnumerator();
+        K<IO, Next<(IteratorIO<A> lhs, IteratorIO<A> rhs), bool>> go((IteratorIO<A> lhs, IteratorIO<A> rhs) pair) =>
+            (((Head<A> Head, IteratorIO<A> Tail) left, (Head<A> Head, IteratorIO<A> Tail) right) =>
+                 (left.Head, right.Head) switch
+                 {
+                     (Exist<A> (var lh), Exist<A> (var rh)) =>
+                         EqA.Equals(lh, rh)
+                             ? Next.Loop<(IteratorIO<A> lhs, IteratorIO<A> rhs), bool>((left.Tail, right.Tail))
+                             : Next.Done<(IteratorIO<A> lhs, IteratorIO<A> rhs), bool>(false),
 
-    IEnumerator IEnumerable.GetEnumerator() => 
-        GetEnumerator().GetEnumerator();
+                     (Exist<A>, _) or (_, Exist<A>) =>
+                         Next.Done<(IteratorIO<A> lhs, IteratorIO<A> rhs), bool>(false),
+
+                     _ => Next.Done<(IteratorIO<A> lhs, IteratorIO<A> rhs), bool>(true)
+                 })
+          * pair.lhs.NextIO()
+          * pair.rhs.NextIO();
+    }    
+
+    [Pure]
+    public IO<int> CompareTo(IteratorIO<A>? rhs) => 
+        CompareTo<OrdDefault<A>>(rhs);
+
+    [Pure]
+    public IO<int> CompareTo<OrdA>(IteratorIO<A>? rhs)
+        where OrdA : Ord<A>
+    {
+        return rhs is null
+                   ? IO.pure(1)
+                   : +Monad.recur((this, rhs), go);
+
+        K<IO, Next<(IteratorIO<A> lhs, IteratorIO<A> rhs), int>> go((IteratorIO<A> lhs, IteratorIO<A> rhs) pair) =>
+            (((Head<A> Head, IteratorIO<A> Tail) left, (Head<A> Head, IteratorIO<A> Tail) right) =>
+                 (left.Head, right.Head) switch
+                 {
+                     (Exist<A> (var lh), Exist<A> (var rh)) =>
+                         OrdA.Compare(lh, rh) switch
+                         {
+                             0   => Next.Loop<(IteratorIO<A> lhs, IteratorIO<A> rhs), int>((left.Tail, right.Tail)),
+                             < 0 => Next.Done<(IteratorIO<A> lhs, IteratorIO<A> rhs), int>(-1),
+                             > 0 => Next.Done<(IteratorIO<A> lhs, IteratorIO<A> rhs), int>(1),
+                         },
+
+                     (Exist<A>, _) =>
+                         Next.Done<(IteratorIO<A> lhs, IteratorIO<A> rhs), int>(1),
+
+                     (_, Exist<A>) =>
+                         Next.Done<(IteratorIO<A> lhs, IteratorIO<A> rhs), int>(-1),
+
+                     _ => Next.Done<(IteratorIO<A> lhs, IteratorIO<A> rhs), int>(0)
+                 })
+          * pair.lhs.NextIO()
+          * pair.rhs.NextIO();
+    }
+
+    [Pure]
+    public IteratorAsyncEnumeratorIO<A> GetAsyncEnumerator(CancellationToken cancellationToken = new()) =>
+        new (this, EnvIO.New(token: cancellationToken));
+
+    [Pure]
+    public IteratorAsyncEnumeratorIO<A> GetAsyncEnumerator(EnvIO env) =>
+        new (this, env.Local);
+
+    [Pure]
+    IAsyncEnumerator<A> IAsyncEnumerable<A>.GetAsyncEnumerator(CancellationToken cancellationToken)
+    {
+        using var env = EnvIO.New(token: cancellationToken);
+        return GetAsyncEnumerator(env);
+    }
 
     [Pure]
     public override string ToString() =>

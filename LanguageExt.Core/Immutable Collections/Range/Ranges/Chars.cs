@@ -101,12 +101,6 @@ public record Chars(char From, char To, int Step) : Range<Chars, char, int>
                        ? (new Exist<char>(head), Iterator.empty<char>())
                        : (new Exist<char>(head), new Iter(next, Min, Max, Step));
         }
-
-        public override IO<(Head<char> Head, Iterator<char> Tail)> NextIO() => 
-            IO.pure(Next());
-
-        public override Iterator<char> Using() =>
-            this;
     }
     
     ref struct IteratorState

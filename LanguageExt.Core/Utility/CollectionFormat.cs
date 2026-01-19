@@ -28,7 +28,7 @@ namespace LanguageExt
         /// <summary>
         /// Turn an enumerable into a string in the format `a, b, c, ...`
         /// </summary>
-        public static string ToShortString<A>(IEnumerable<A> ma, int count, string separator = ", ") =>
+        public static string ToShortString<A>(IEnumerable<A> ma, long count, string separator = ", ") =>
             count <= MaxShortItems
                 ? $"{string.Join(separator, ma)}"
                 : $"{string.Join(separator, ma.Take(MaxShortItems))} ... {count - MaxShortItems} more";
@@ -42,7 +42,7 @@ namespace LanguageExt
         /// <summary>
         /// Turn an enumerable into a string in the format `[a, b, c, ...]`
         /// </summary>
-        public static string ToShortArrayString<A>(IEnumerable<A> ma, int count, string separator = ", ") =>
+        public static string ToShortArrayString<A>(IEnumerable<A> ma, long count, string separator = ", ") =>
             $"[{ToShortString(ma, count, separator)}]";
 
         /// <summary>

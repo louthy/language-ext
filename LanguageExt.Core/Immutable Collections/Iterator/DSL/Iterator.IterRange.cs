@@ -13,13 +13,7 @@ public abstract partial class Iterator
                 ? Head.Nil<A>()
                 : Head.Exist(Current, new IterRange<A>(Step(Current), Eq(Current, Stop), Stop, Step, Eq));
 
-        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
-            IO.pure(Next());
-
         public override string ToString() => 
             $"Range({Current}..{Stop})";
-
-        public override Iterator<A> Using() =>
-            this;
     }
 }

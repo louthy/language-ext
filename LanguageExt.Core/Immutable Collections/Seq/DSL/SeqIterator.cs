@@ -8,7 +8,7 @@ using LanguageExt.Common;
 
 namespace LanguageExt;
 
-internal class SeqIterator<A> : ISeqInternal<A>, IDisposable
+class SeqIterator<A> : ISeqInternal<A>
 {
     const int DefaultCapacity = 8;
     const int NoCons = 1;
@@ -59,14 +59,8 @@ internal class SeqIterator<A> : ISeqInternal<A>, IDisposable
     /// Constructor
     /// </summary>
     internal SeqIterator(Iterator<A> ma) : 
-        this(new A[DefaultCapacity], DefaultCapacity, 0, 0, new Iter<A>(ma.Using()), 0)
+        this(new A[DefaultCapacity], DefaultCapacity, 0, 0, new Iter<A>(ma), 0)
     { }
-
-    public void Dispose() => 
-        seq.Dispose();
-    
-    public SeqIterator<A> Using() =>
-        new (data, start, count, consDisallowed, seq.Using(), lazyStart);
 
     /// <summary>
     /// Constructor

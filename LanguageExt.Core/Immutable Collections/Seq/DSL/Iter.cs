@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 
 namespace LanguageExt;
@@ -12,7 +11,7 @@ namespace LanguageExt;
 /// enumerable by index, which allows this type to be
 /// shared.
 /// </summary>
-internal class Iter<A>(Iterator<A> ma) : IDisposable
+class Iter<A>(Iterator<A> ma)
 {
     const int DefaultCapacity = 32;
     A[] data = new A[DefaultCapacity];
@@ -26,16 +25,6 @@ internal class Iter<A>(Iterator<A> ma) : IDisposable
 
     public A[] Data =>
         data;
-
-    public Iter<A> Using()
-    {
-        iter?.Dispose();
-        iter = null;
-        data = Array.Empty<A>();
-        count = 0;
-        ncount = -1;
-        return new(ma.Using());
-    }
 
     public (bool Success, A? Value) Get(int index)
     {
@@ -82,7 +71,6 @@ internal class Iter<A>(Iterator<A> ma) : IDisposable
                 else
                 {
                     // End of the iterator, so let's dispose
-                    liter?.Dispose();
                     iter = null;
                     ncount = count - 1;
                     return (false, default);
@@ -94,7 +82,4 @@ internal class Iter<A>(Iterator<A> ma) : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode() =>
         FNV32.Hash<HashableDefault<A>, A>(data, 0, count);
-
-    public void Dispose() => 
-        iter?.Dispose();
 }

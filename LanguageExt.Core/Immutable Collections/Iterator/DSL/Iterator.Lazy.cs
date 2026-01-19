@@ -15,13 +15,7 @@ public abstract partial class Iterator<A>
                 var (h, t) => (h, t)
             };
 
-        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() =>
-            IO.lift(_ => next().NextIO()).Flatten();
-
         public override string ToString() => 
             "...";
-
-        public override Iterator<A> Using() =>
-            this;
     }
 }

@@ -1,8 +1,10 @@
+using System;
+
 namespace LanguageExt;
 
 public abstract partial class Iterator<A>
 {
-    internal sealed class OpTake(Iterator<A> iter, int remain) : Iterator<A>
+    internal sealed class OpTake(Iterator<A> iter, long remain) : Iterator<A>
     {
         public override string ToString() => 
             $"Take({remain}:{iter})";
@@ -13,20 +15,27 @@ public abstract partial class Iterator<A>
                 : iter is (Exist<A> head, var tail)
                     ? (head, new OpTake(tail, remain - 1))
                     : Head.Nil<A>();
+    }
+    
+    internal sealed class OpTakeWhile(Iterator<A> iter, Func<A, bool> pred) : Iterator<A>
+    {
+        public override string ToString() => 
+            $"TakeWhile({iter})";
 
-        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() =>
-            remain <= 0
-                ? IO.pure(Head.Nil<A>())
-                : iter.NextIO() * (ht => ht switch
-                                          {
-                                              (Exist<A> head, var tail) => (head, new OpTake(tail, remain - 1)),
-                                              _                         => Head.Nil<A>()
-                                          });
+        public override (Head<A> Head, Iterator<A> Tail) Next() =>
+            iter is (Exist<A> head, var tail) && pred(head.Value)
+                ? (head, new OpTakeWhile(tail, pred))
+                : Head.Nil<A>();
+    }
+        
+    internal sealed class OpTakeUntil(Iterator<A> iter, Func<A, bool> pred) : Iterator<A>
+    {
+        public override string ToString() => 
+            $"TakeWhile({iter})";
 
-        public override void Dispose() =>
-            iter.Dispose();
-
-        public override Iterator<A> Using() =>
-            new OpTake(iter.Using(), remain);
+        public override (Head<A> Head, Iterator<A> Tail) Next() =>
+            iter is (Exist<A> head, var tail) && !pred(head.Value)
+                ? (head, new OpTakeWhile(tail, pred))
+                : Head.Nil<A>();
     }
 }

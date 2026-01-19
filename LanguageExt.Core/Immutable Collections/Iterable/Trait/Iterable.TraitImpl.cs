@@ -47,17 +47,8 @@ public partial class Iterable :
     static K<F, K<Iterable, B>> Traversable<Iterable>.TraverseM<F, A, B>(Func<A, K<F, B>> f, K<Iterable, A> ta) => 
         ta.As().TraverseM(f).Map(mb => mb.Kind());
     
-    static Arr<A> Foldable<Iterable>.ToArr<A>(K<Iterable, A> ta) =>
-        new(ta.As());
-
-    static Lst<A> Foldable<Iterable>.ToLst<A>(K<Iterable, A> ta) =>
-        new(ta.As());
-
     static Iterable<A> Foldable<Iterable>.ToIterable<A>(K<Iterable, A> ta) =>
         ta.As();
-    
-    static Seq<A> Foldable<Iterable>.ToSeq<A>(K<Iterable, A> ta) =>
-        new(ta.As());
 
     static K<Seq, A> Natural<Iterable, Seq>.Transform<A>(K<Iterable, A> fa) => 
         toSeq(fa.As());

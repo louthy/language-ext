@@ -117,13 +117,13 @@ public partial class Lst :
             state.Bind(bs => f(value).Bind(b => F.Pure(bs.Add(b)))); 
     }    
 
-    static int Foldable<Lst>.Count<A>(K<Lst, A> ta) =>
+    static long Foldable<Lst>.Count<A>(K<Lst, A> ta) =>
         ta.As().Count;
 
     static bool Foldable<Lst>.IsEmpty<A>(K<Lst, A> ta) =>
         ta.As().IsEmpty;
 
-    static Option<A> Foldable<Lst>.At<A>(int index, K<Lst, A> ta)
+    static Option<A> Foldable<Lst>.At<A>(long index, K<Lst, A> ta)
     {
         var list = ta.As().Value;
         return index >= 0 && index < list.Count
@@ -131,11 +131,11 @@ public partial class Lst :
                    : Option<A>.None;
     }
 
-    static Option<A> FoldableBack<Lst>.AtBack<A>(int index, K<Lst, A> ta)
+    static Option<A> FoldableBack<Lst>.AtBack<A>(long index, K<Lst, A> ta)
     {
         var list = ta.As().Value;
-        return index > 0 && index <= list.Count
-                   ? Some(list[^index])
+        return index >= 0 && index < list.Count
+                   ? Some(list[list.Count - 1 - index])
                    : Option<A>.None;
     }
         

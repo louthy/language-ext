@@ -7,31 +7,25 @@ public abstract partial class Iterator
     /// <summary>
     /// Add iterator
     /// </summary>
-    internal class Add<A>(Iterator<A> first, Seq<A> second) : Iterator<A>
+    internal class Add<A>(Seq<A> first, Iterator<A> second, Seq<A> third) : Iterator<A>
     {
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
-            first.Next() is (Exist<A> (var head), var tail) 
-                ? Head.Exist(head, new Add<A>(tail, second))
-                : second.ForwardIterator().Next();
+            first.IsEmpty
+                ? second.Next() is (Exist<A> (var head), var tail) 
+                      ? Head.Exist(head, new Add<A>([], tail, third))
+                      : third.ForwardIterator().Next()
+                : Head.Exist(first[0], new Add<A>(first.Tail, second, third));
 
-        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() =>
-            first.NextIO() >> (f => f is (Exist<A> (var head), var tail)
-                                        ? IO.pure(Head.Exist(head, new Add<A>(tail, second)))
-                                        : second.ForwardIterator().NextIO());
-        
         public override string ToString() => 
             $"{first}, {second.ToFullString()}";
 
-        public override void Dispose() =>
-            first.Dispose();
-
-        public override Iterator<A> Using() =>
-            new Add<A>(first.Using(), second);
-
         public override Iterator<A> Strict() => 
-            new Add<A>(first.Strict(), second.Strict());
+            new Add<A>(first.Strict(), second.Strict(), third.Strict());
 
         public override Iterator<A> Append(A value) => 
-            new Add<A>(first, second.Add(value));
+            new Add<A>(first, second, third.Add(value));
+
+        public override Iterator<A> Prepend(A value) => 
+            new Add<A>(value.Cons(first), second, third);
     }
 }

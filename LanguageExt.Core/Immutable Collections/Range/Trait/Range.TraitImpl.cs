@@ -54,14 +54,13 @@ public partial class Range : Foldable<Range, Range.IteratorState>
             }
             else
             {
-                disp.Dispose();
                 value = default!;
                 return false;
             }
         }
     }
     
-    public ref struct IteratorState(IDisposable backup)
+    public ref struct IteratorState(object backup)
     {
         #pragma warning disable CS0169 // Field is never used
         long state0;
@@ -81,7 +80,7 @@ public partial class Range : Foldable<Range, Range.IteratorState>
         long stateE;
         long stateF;
 
-        internal IDisposable backup = backup;
+        internal object backup = backup;
 
         public static ref S To<S>(ref IteratorState to)
             where S : struct, allows ref struct

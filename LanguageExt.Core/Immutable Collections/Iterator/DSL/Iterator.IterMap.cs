@@ -14,14 +14,8 @@ public abstract partial class Iterator
                 ? Head.Exist(head.KeyValue, new IterMapFwd<K, V>(tail))
                 : Head.Nil<(K, V)>();
 
-        public override IO<(Head<(K Key, V Value)> Head, Iterator<(K Key, V Value)> Tail)> NextIO() => 
-            IO.pure(Next());
-
         public override string ToString() =>
             $"Map{items.ToString()}";
-
-        public override Iterator<(K, V)> Using() =>
-            this;
     }
 
     /// <summary>
@@ -34,14 +28,8 @@ public abstract partial class Iterator
                 ? Head.Exist(head.KeyValue.Key, new IterMapKeyFwd<K, V>(tail))
                 : Head.Nil<K>();
 
-        public override IO<(Head<K> Head, Iterator<K> Tail)> NextIO() => 
-            IO.pure(Next());
-
         public override string ToString() =>
             $"Map{items.ToString()}";
-
-        public override Iterator<K> Using() =>
-            this;
     }
 
     /// <summary>
@@ -54,14 +42,8 @@ public abstract partial class Iterator
                 ? Head.Exist(head.KeyValue.Value, new IterMapValueFwd<K, V>(tail))
                 : Head.Nil<V>();
 
-        public override IO<(Head<V> Head, Iterator<V> Tail)> NextIO() => 
-            IO.pure(Next());
-
         public override string ToString() =>
             $"Map{items.ToString()}";
-
-        public override Iterator<V> Using() =>
-            this;
     }
 
     /// <summary>
@@ -74,14 +56,8 @@ public abstract partial class Iterator
                 ? Head.Exist(head.KeyValue, new IterMapBkwd<K, V>(tail))
                 : Head.Nil<(K, V)>();
 
-        public override IO<(Head<(K Key, V Value)> Head, Iterator<(K Key, V Value)> Tail)> NextIO() => 
-            IO.pure(Next());
-
         public override string ToString() =>
             $"Map{items.ToString()}";
-
-        public override Iterator<(K, V)> Using() =>
-            this;
     }
 
     /// <summary>
@@ -94,14 +70,8 @@ public abstract partial class Iterator
                 ? Head.Exist(head.KeyValue.Key, new IterMapKeyBkwd<K, V>(tail))
                 : Head.Nil<K>();
 
-        public override IO<(Head<K> Head, Iterator<K> Tail)> NextIO() => 
-            IO.pure(Next());
-
         public override string ToString() =>
             $"Map{items.ToString()}";
-
-        public override Iterator<K> Using() =>
-            this;
     }
 
     /// <summary>
@@ -114,13 +84,7 @@ public abstract partial class Iterator
                 ? Head.Exist(head.KeyValue.Value, new IterMapValueBkwd<K, V>(tail))
                 : Head.Nil<V>();
 
-        public override IO<(Head<V> Head, Iterator<V> Tail)> NextIO() => 
-            IO.pure(Next());
-
         public override string ToString() =>
             $"Map{items.ToString()}";
-
-        public override Iterator<V> Using() =>
-            this;
     }
 }

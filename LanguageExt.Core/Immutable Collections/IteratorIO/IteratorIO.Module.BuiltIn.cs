@@ -1,4 +1,5 @@
 #pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
+using System;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
@@ -26,6 +27,24 @@ public partial class IteratorIO
         new IteratorIO<A>.AsyncEnumerable(items);
 
     /// <summary>
+    /// Create an IteratorIO from a `ReadOnlySpan` collection
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>IteratorIO of the collection</returns>
+    public static IteratorIO<A> forward<A>(ReadOnlySpan<A> items) =>
+        forward(Arr.create(items));
+
+    /// <summary>
+    /// Create an IteratorIO from a `ReadOnlySpan` collection
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>IteratorIO of the collection</returns>
+    public static IteratorIO<A> backward<A>(ReadOnlySpan<A> items) =>
+        backward(Arr.create(items));
+
+    /// <summary>
     /// Create an IteratorIO from an `Arr` collection
     /// </summary>
     /// <param name="items">Collection to iterate</param>
@@ -41,7 +60,7 @@ public partial class IteratorIO
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>IteratorIO of the collection</returns>
     public static IteratorIO<A> backward<A>(Arr<A> items) =>
-        new IteratorIO<A>.IterArrBkwd(items, items.Count - 1, items.Count);
+        new IteratorIO<A>.IterArrBkwd(items, items.Count - 1L, items.Count);
 
     /// <summary>
     /// Create an IteratorIO from an `HashMap` collection

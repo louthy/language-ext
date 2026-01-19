@@ -461,7 +461,7 @@ public readonly struct HashSet<A> :
 
     [Pure]
     public Iterable<A> AsIterable() =>
-        IterableExtensions.AsIterable(this);
+        new (Iterator.forward(this));
 
     /// <summary>
     /// Implicit conversion from an untyped empty list

@@ -21,13 +21,7 @@ public abstract partial class Iterator<A>
             }
         }
 
-        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
-            IO.lift(Next);
-
         public override string ToString() => 
             "...";
-
-        public override Iterator<A> Using() =>
-            this;
     }
 }

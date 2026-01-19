@@ -13,17 +13,6 @@ public abstract partial class Iterator<A>
             iter is (Exist<Iterator<A>> (var hs), var t)
                 ? hs.Combine(t.Flatten()).Next()
                 : Head.Nil<A>();
-
-        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() =>
-            iter.NextIO() >> (n => n is (Exist<Iterator<A>> (var hs), var t)
-                                       ? hs.Combine(t.Flatten()).NextIO()
-                                       : IO.pure(Head.Nil<A>()));
-
-        public override void Dispose() =>
-            iter.Dispose();
-        
-        public override Iterator<A> Using() =>
-            new OpFlatten(iter.Using());
     }
     
     internal sealed class OpFlatten2(Iterator<K<Iterator, A>> iter) : Iterator<A>
@@ -35,16 +24,5 @@ public abstract partial class Iterator<A>
             iter is (Exist<K<Iterator, A>> (var hs), var t)
                 ? hs.As().Combine(t.Flatten()).Next()
                 : Head.Nil<A>();
-
-        public override IO<(Head<A> Head, Iterator<A> Tail)> NextIO() => 
-            iter.NextIO() >> (n => n is (Exist<K<Iterator, A>> (var hs), var t)
-                                       ? hs.As().Combine(t.Flatten()).NextIO()
-                                       : IO.pure(Head.Nil<A>()));
-
-        public override void Dispose() =>
-            iter.Dispose();
-        
-        public override Iterator<A> Using() =>
-            new OpFlatten2(iter.Using());
     }
 }

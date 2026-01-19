@@ -11,7 +11,7 @@ public abstract partial class IteratorIO<A>
     {
         (Head<A> Head, IteratorIO<A> Tail) Next() =>
             items.Step(out var head, out var tail)
-                ? Head.ExistIO(head.Key, new IterLstFwd(tail))
+                ? Head.ExistIO(head.Value, new IterLstFwd(tail))
                 : Head.NilIO<A>();
 
         public override IO<(Head<A> Head, IteratorIO<A> Tail)> NextIO() => 
@@ -31,7 +31,7 @@ public abstract partial class IteratorIO<A>
     {
         (Head<A> Head, IteratorIO<A> Tail) Next() =>
             items.StepBack(out var head, out var tail)
-                ? Head.ExistIO(head.Key, new IterLstFwd(tail))
+                ? Head.ExistIO(head.Value, new IterLstFwd(tail))
                 : Head.NilIO<A>();
 
         public override IO<(Head<A> Head, IteratorIO<A> Tail)> NextIO() => 
