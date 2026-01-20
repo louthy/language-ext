@@ -29,7 +29,7 @@ public static class MapOrdExtensions
     /// Number of items in the map
     /// </summary>
     [Pure]
-    public static int Count<OrdK, K, V>(this Map<OrdK, K, V> self) where OrdK : Ord<K> =>
+    public static long Count<OrdK, K, V>(this Map<OrdK, K, V> self) where OrdK : Ord<K> =>
         self.Count;
 
     [Pure]

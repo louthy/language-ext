@@ -8,7 +8,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-internal static class SetModule
+static class SetModule
 {
     [Pure]
     public static S Fold<S, K>(SetItem<K> node, S state, Func<S, K, S> folder)
@@ -51,19 +51,12 @@ internal static class SetModule
         {
             return new SetItem<K>(1, 1, key, SetItem<K>.Empty, SetItem<K>.Empty);
         }
-        var cmp = OrdK.Compare(key, node.Key);
-        if (cmp < 0)
-        {
-            return Balance(Make(node.Key, Add<OrdK, K>(node.Left, key), node.Right));
-        }
-        else if (cmp > 0)
-        {
-            return Balance(Make(node.Key, node.Left, Add<OrdK, K>(node.Right, key)));
-        }
-        else
-        {
-            throw new ArgumentException("An element with the same key already exists in the set");
-        }
+        return OrdK.Compare(key, node.Key) switch
+               {
+                   < 0 => Balance(Make(node.Key, Add<OrdK, K>(node.Left, key), node.Right)),
+                   > 0 => Balance(Make(node.Key, node.Left, Add<OrdK, K>(node.Right, key))),
+                   _   => throw new ArgumentException("An element with the same key already exists in the set")
+               };
     }
 
     [Pure]
@@ -73,19 +66,12 @@ internal static class SetModule
         {
             return new SetItem<K>(1, 1, key, SetItem<K>.Empty, SetItem<K>.Empty);
         }
-        var cmp = OrdK.Compare(key, node.Key);
-        if (cmp < 0)
-        {
-            return Balance(Make(node.Key, TryAdd<OrdK, K>(node.Left, key), node.Right));
-        }
-        else if (cmp > 0)
-        {
-            return Balance(Make(node.Key, node.Left, TryAdd<OrdK, K>(node.Right, key)));
-        }
-        else
-        {
-            return node;
-        }
+        return OrdK.Compare(key, node.Key) switch
+               {
+                   < 0 => Balance(Make(node.Key, TryAdd<OrdK, K>(node.Left, key), node.Right)),
+                   > 0 => Balance(Make(node.Key, node.Left, TryAdd<OrdK, K>(node.Right, key))),
+                   _   => node
+               };
     }
 
     [Pure]
@@ -95,23 +81,16 @@ internal static class SetModule
         {
             return new SetItem<K>(1, 1, key, SetItem<K>.Empty, SetItem<K>.Empty);
         }
-        var cmp = OrdK.Compare(key, node.Key);
-        if (cmp < 0)
-        {
-            return Balance(Make(node.Key, TryAdd<OrdK, K>(node.Left, key), node.Right));
-        }
-        else if (cmp > 0)
-        {
-            return Balance(Make(node.Key, node.Left, TryAdd<OrdK, K>(node.Right, key)));
-        }
-        else
-        {
-            return new SetItem<K>(node.Height, node.Count, key, node.Left, node.Right);
-        }
+        return OrdK.Compare(key, node.Key) switch
+               {
+                   < 0 => Balance(Make(node.Key, TryAdd<OrdK, K>(node.Left, key), node.Right)),
+                   > 0 => Balance(Make(node.Key, node.Left, TryAdd<OrdK, K>(node.Right, key))),
+                   _   => new SetItem<K>(node.Height, node.Count, key, node.Left, node.Right)
+               };
     }
 
     [Pure]
-    public static SetItem<K> AddTreeToRight<K>(SetItem<K> node, SetItem<K> toAdd) =>
+    static SetItem<K> AddTreeToRight<K>(SetItem<K> node, SetItem<K> toAdd) =>
         node.IsEmpty
             ? toAdd
             : Balance(Make(node.Key, node.Left, AddTreeToRight(node.Right, toAdd)));
@@ -123,62 +102,59 @@ internal static class SetModule
         {
             return node;
         }
-        var cmp = OrdK.Compare(key, node.Key);
-        if (cmp < 0)
-        {
-            return Balance(Make(node.Key, Remove<OrdK, K>(node.Left, key), node.Right));
-        }
-        else if (cmp > 0)
-        {
-            return Balance(Make(node.Key, node.Left, Remove<OrdK, K>(node.Right, key)));
-        }
-        else
-        {
-            return Balance(AddTreeToRight(node.Left, node.Right));
-        }
+        return OrdK.Compare(key, node.Key) switch
+               {
+                   < 0 => Balance(Make(node.Key, Remove<OrdK, K>(node.Left, key), node.Right)),
+                   > 0 => Balance(Make(node.Key, node.Left, Remove<OrdK, K>(node.Right, key))),
+                   _   => Balance(AddTreeToRight(node.Left, node.Right))
+               };
     }
 
     [Pure]
     public static bool Contains<OrdK, K>(SetItem<K> node, K key) where OrdK : Ord<K>
     {
-        if (node.IsEmpty)
+        while (true)
         {
-            return false;
-        }
-        var cmp = OrdK.Compare(key, node.Key);
-        if (cmp < 0)
-        {
-            return Contains<OrdK, K>(node.Left, key);
-        }
-        else if (cmp > 0)
-        {
-            return Contains<OrdK, K>(node.Right, key);
-        }
-        else
-        {
-            return true;
+            if (node.IsEmpty)
+            {
+                return false;
+            }
+
+            switch (OrdK.Compare(key, node.Key))
+            {
+                case < 0:
+                    node = node.Left;
+                    break;
+                case > 0:
+                    node = node.Right;
+                    break;
+                default:
+                    return true;
+            }
         }
     }
 
     [Pure]
     public static K Find<OrdK, K>(SetItem<K> node, K key) where OrdK : Ord<K>
     {
-        if (node.IsEmpty)
+        while (true)
         {
-            throw new ArgumentException("Key not found in set");
-        }
-        var cmp = OrdK.Compare(key, node.Key);
-        if (cmp < 0)
-        {
-            return Find<OrdK, K>(node.Left, key);
-        }
-        else if (cmp > 0)
-        {
-            return Find<OrdK, K>(node.Right, key);
-        }
-        else
-        {
-            return node.Key;
+            if (node.IsEmpty)
+            {
+                throw new ArgumentException("Key not found in set");
+            }
+
+            switch (OrdK.Compare(key, node.Key))
+            {
+                case < 0:
+                    node = node.Left;
+                    break;
+                case > 0:
+                    node = node.Right;
+                    break;
+                default:
+                    return node.Key;
+            }
         }
     }
 
@@ -189,34 +165,30 @@ internal static class SetModule
     [Pure]
     public static IEnumerable<K> FindRange<OrdK, K>(SetItem<K> node, K a, K b) where OrdK : Ord<K>
     {
-        if (node.IsEmpty)
+        while (true)
         {
-            yield break;
-        }
-        if (OrdK.Compare(node.Key, a) < 0)
-        {
-            foreach (var item in FindRange<OrdK, K>(node.Right, a, b))
+            if (node.IsEmpty)
             {
-                yield return item;
+                yield break;
             }
-        }
-        else if (OrdK.Compare(node.Key, b) > 0)
-        {
-            foreach (var item in FindRange<OrdK, K>(node.Left, a, b))
+
+            if (OrdK.Compare(node.Key, a) < 0)
             {
-                yield return item;
+                node = node.Right;
             }
-        }
-        else
-        {
-            foreach (var item in FindRange<OrdK, K>(node.Left, a, b))
+            else if (OrdK.Compare(node.Key, b) > 0)
             {
-                yield return item;
+                node = node.Left;
             }
-            yield return node.Key;
-            foreach (var item in FindRange<OrdK, K>(node.Right, a, b))
+            else
             {
-                yield return item;
+                foreach (var item in FindRange<OrdK, K>(node.Left, a, b))
+                {
+                    yield return item;
+                }
+
+                yield return node.Key;
+                node = node.Right;
             }
         }
     }
@@ -224,67 +196,70 @@ internal static class SetModule
     [Pure]
     public static Option<K> TryFind<OrdK, K>(SetItem<K> node, K key) where OrdK : Ord<K>
     {
-        if (node.IsEmpty)
+        while (true)
         {
-            return None;
-        }
-        var cmp = OrdK.Compare(key, node.Key);
-        if (cmp < 0)
-        {
-            return TryFind<OrdK, K>(node.Left, key);
-        }
-        else if (cmp > 0)
-        {
-            return TryFind<OrdK, K>(node.Right, key);
-        }
-        else
-        {
-            return Some(node.Key);
+            if (node.IsEmpty)
+            {
+                return None;
+            }
+
+            switch (OrdK.Compare(key, node.Key))
+            {
+                case < 0:
+                    node = node.Left;
+                    break;
+                case > 0:
+                    node = node.Right;
+                    break;
+                default:
+                    return Some(node.Key);
+            }
         }
     }
 
     [Pure]
-    public static SetItem<K> Skip<K>(SetItem<K> node, int amount)
+    public static SetItem<K> Skip<K>(SetItem<K> node, long amount)
     {
-        if (amount == 0 || node.IsEmpty)
+        while (true)
         {
-            return node;
-        }
-        if (amount >= node.Count)
-        {
-            return SetItem<K>.Empty;
-        }
-        if (!node.Left.IsEmpty && node.Left.Count == amount)
-        {
-            return Balance(Make(node.Key, SetItem<K>.Empty, node.Right));
-        }
-        if (!node.Left.IsEmpty && node.Left.Count == amount - 1)
-        {
-            return node.Right;
-        }
-        if (node.Left.IsEmpty)
-        {
-            return Skip(node.Right, amount - 1);
-        }
+            if (amount == 0 || node.IsEmpty)
+            {
+                return node;
+            }
 
-        var newleft   = Skip(node.Left, amount);
-        var remaining = amount - node.Left.Count - newleft.Count;
-        if (remaining > 0)
-        {
-            return Skip(Balance(Make(node.Key, newleft, node.Right)), remaining);
-        }
-        else
-        {
-            return Balance(Make(node.Key, newleft, node.Right));
+            if (amount >= node.Count)
+            {
+                return SetItem<K>.Empty;
+            }
+
+            switch (node.Left.IsEmpty)
+            {
+                case false when node.Left.Count == amount:
+                    return Balance(Make(node.Key, SetItem<K>.Empty, node.Right));
+                
+                case false when node.Left.Count == amount - 1:
+                    return node.Right;
+                
+                case true:
+                    node = node.Right;
+                    amount -= 1;
+                    continue;
+            }
+
+            var newleft   = Skip(node.Left, amount);
+            var remaining = amount - node.Left.Count - newleft.Count;
+            return remaining > 0 
+                       ? Skip(Balance(Make(node.Key, newleft, node.Right)), remaining) 
+                       : Balance(Make(node.Key, newleft, node.Right));
         }
     }
 
     [Pure]
-    public static SetItem<K> Make<K>(K k, SetItem<K> l, SetItem<K> r) =>
+    static SetItem<K> Make<K>(K k, SetItem<K> l, SetItem<K> r) =>
         new ((byte)(1 + Math.Max(l.Height, r.Height)), l.Count + r.Count + 1, k, l, r);
 
     [Pure]
-    public static SetItem<K> Balance<K>(SetItem<K> node) =>
+    static SetItem<K> Balance<K>(SetItem<K> node) =>
         node.BalanceFactor >= 2
             ? node.Right.BalanceFactor < 0
                   ? DblRotLeft(node)
@@ -296,25 +271,25 @@ internal static class SetModule
                 : node;
 
     [Pure]
-    public static SetItem<K> RotRight<K>(SetItem<K> node) =>
+    static SetItem<K> RotRight<K>(SetItem<K> node) =>
         node.IsEmpty || node.Left.IsEmpty
             ? node
             : Make(node.Left.Key, node.Left.Left, Make(node.Key, node.Left.Right, node.Right));
 
     [Pure]
-    public static SetItem<K> RotLeft<K>(SetItem<K> node) =>
+    static SetItem<K> RotLeft<K>(SetItem<K> node) =>
         node.IsEmpty || node.Right.IsEmpty
             ? node
             : Make(node.Right.Key, Make(node.Key, node.Left, node.Right.Left), node.Right.Right);
 
     [Pure]
-    public static SetItem<K> DblRotRight<K>(SetItem<K> node) =>
+    static SetItem<K> DblRotRight<K>(SetItem<K> node) =>
         node.IsEmpty
             ? node
             : RotRight(Make(node.Key, RotLeft(node.Left), node.Right));
 
     [Pure]
-    public static SetItem<K> DblRotLeft<K>(SetItem<K> node) =>
+    static SetItem<K> DblRotLeft<K>(SetItem<K> node) =>
         node.IsEmpty
             ? node
             : RotLeft(Make(node.Key, node.Left, RotRight(node.Right)));
@@ -358,7 +333,7 @@ internal static class SetModule
         }
         while (!current.IsEmpty);
 
-        if(!current.IsEmpty && !current.Left.IsEmpty)
+        if(current is { IsEmpty: false, Left.IsEmpty: false })
         {
             predecessor = Max(current.Left);
         }
@@ -379,23 +354,24 @@ internal static class SetModule
         do
         {
             var cmp = OrdA.Compare(key, current.Key);
-            if (cmp < 0)
+            switch (cmp)
             {
-                current = current.Left;
-            }
-            else if (cmp > 0)
-            {
-                predecessor = current.Key;
-                current = current.Right;
-            }
-            else
-            {
-                return current.Key;
+                case < 0:
+                    current = current.Left;
+                    break;
+                
+                case > 0:
+                    predecessor = current.Key;
+                    current = current.Right;
+                    break;
+                
+                default:
+                    return current.Key;
             }
         }
         while (!current.IsEmpty);
 
-        if (!current.IsEmpty && !current.Left.IsEmpty)
+        if (current is { IsEmpty: false, Left.IsEmpty: false })
         {
             predecessor = Max(current.Left);
         }
@@ -432,7 +408,7 @@ internal static class SetModule
         }
         while (!current.IsEmpty);
 
-        if (!current.IsEmpty && !current.Right.IsEmpty)
+        if (current is { IsEmpty: false, Right.IsEmpty: false })
         {
             successor = Min(current.Right);
         }
@@ -453,23 +429,22 @@ internal static class SetModule
         do
         {
             var cmp = OrdA.Compare(key, current.Key);
-            if (cmp < 0)
+            switch (cmp)
             {
-                successor = current.Key;
-                current = current.Left;
-            }
-            else if (cmp > 0)
-            {
-                current = current.Right;
-            }
-            else
-            {
-                return current.Key;
+                case < 0:
+                    successor = current.Key;
+                    current = current.Left;
+                    break;
+                case > 0:
+                    current = current.Right;
+                    break;
+                default:
+                    return current.Key;
             }
         }
         while (!current.IsEmpty);
 
-        if (!current.IsEmpty && !current.Right.IsEmpty)
+        if (current is { IsEmpty: false, Right.IsEmpty: false })
         {
             successor = Min(current.Right);
         }
@@ -479,7 +454,7 @@ internal static class SetModule
 
     public class SetEnumerator<K> : IEnumerator<K>
     {
-        internal struct NewStack : New<SetItem<K>[]>
+        struct NewStack : New<SetItem<K>[]>
         {
             public SetItem<K>[] New() =>
                 new SetItem<K>[32];
@@ -488,21 +463,21 @@ internal static class SetModule
         int stackDepth;
         SetItem<K>[]? stack;
         readonly SetItem<K> map;
-        int left;
+        long left;
         readonly bool rev;
-        readonly int start;
+        readonly long start;
 
-        public SetEnumerator(SetItem<K> root, bool rev, int start)
+        public SetEnumerator(SetItem<K> root, bool rev, long start)
         {
             this.rev = rev;
             this.start = start;
             map = root;
             stack = Pool<NewStack, SetItem<K>[]>.Pop();
-            NodeCurrent = default!;
+            NodeCurrent = null!;
             Reset();
         }
 
-        private SetItem<K> NodeCurrent
+        SetItem<K> NodeCurrent
         {
             get;
             set;
@@ -516,17 +491,17 @@ internal static class SetModule
             if (stack is not null)
             {
                 Pool<NewStack, SetItem<K>[]>.Push(stack);
-                stack = default!;
+                stack = null!;
             }
         }
 
-        private SetItem<K> Next(SetItem<K> node) =>
+        SetItem<K> Next(SetItem<K> node) =>
             rev ? node.Left : node.Right;
 
-        private SetItem<K> Prev(SetItem<K> node) =>
+        SetItem<K> Prev(SetItem<K> node) =>
             rev ? node.Right : node.Left;
 
-        private void Push(SetItem<K> node)
+        void Push(SetItem<K> node)
         {
             while (!node.IsEmpty)
             {
@@ -547,7 +522,7 @@ internal static class SetModule
                 return true;
             }
 
-            NodeCurrent = default!;
+            NodeCurrent = null!;
             return false;
         }
 

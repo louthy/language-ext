@@ -93,7 +93,7 @@ public partial class Set :
     static bool Foldable<Set>.Contains<EqA, A>(A value, K<Set, A> ta) =>
         ta.As().Contains(value);
 
-    static int Foldable<Set>.Count<A>(K<Set, A> ta) =>
+    static long Foldable<Set>.Count<A>(K<Set, A> ta) =>
         ta.As().Count;
 
     static FoldState IterableK<Set, FoldState>.StepSetup<A>(K<Set, A> ta) => 

@@ -187,7 +187,7 @@ public readonly struct Map<OrdK, K, V> :
     public Map<OrdK, K, V> AddRange(IEnumerable<(K, V)> range) => Wrap(Value.AddRange(range));
 
     /// <summary>
-    /// Atomically adds a range of items to the map.  If any of the keys exist already
+    /// Atomically adds a range of items to the map.  If any of the keys exist already,
     /// then they're ignored.
     /// </summary>
     /// <remarks>Null is not allowed for a Key or a Value</remarks>

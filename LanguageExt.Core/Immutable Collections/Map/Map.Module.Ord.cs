@@ -601,13 +601,6 @@ public static partial class Map
         map.Choose(selector);
 
     /// <summary>
-    /// Number of items in the map
-    /// </summary>
-    [Pure]
-    public static int length<OrdK, K, T>(Map<OrdK, K, T> map) where OrdK : Ord<K> =>
-        map.Count;
-
-    /// <summary>
     /// Atomically folds all items in the map (in order) using the folder function provided.
     /// </summary>
     /// <typeparam name="S">State type</typeparam>

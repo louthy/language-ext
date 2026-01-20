@@ -23,11 +23,11 @@ public readonly struct Set<A> :
     IEquatable<Set<A>>,
     IComparable<Set<A>>,
     IComparable,
+    IEnumerable<A>,
     IComparisonOperators<Set<A>, Set<A>, bool>,
     IAdditionOperators<Set<A>, Set<A>, Set<A>>,
     ISubtractionOperators<Set<A>, Set<A>, Set<A>>,
     IAdditiveIdentity<Set<A>, Set<A>>,
-    IReadOnlyCollection<A>,
     Monoid<Set<A>>,
     K<Set, A>
 {
@@ -157,16 +157,6 @@ public readonly struct Set<A> :
         IsEmpty
             ? null
             : toSeq(Value).Case;
-
-    /*
-    /// <summary>
-    /// Stream as an enumerable
-    /// </summary>
-    [Pure]
-    public StreamT<M, A> AsStream<M>()
-        where M : Monad<M> =>
-        StreamT<M, A>.Lift(AsEnumerable());
-        */
 
     /// <summary>
     /// Add an item to the set
@@ -478,32 +468,16 @@ public readonly struct Set<A> :
     /// Is the set empty
     /// </summary>
     [Pure]
-    public bool IsEmpty
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.IsEmpty ?? true;
-    }
+    public bool IsEmpty => 
+        value?.IsEmpty ?? true;
 
     /// <summary>
     /// Number of items in the set
     /// </summary>
     [Pure]
-    public int Count
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.Count ?? 0;
-    }
+    public long Count => 
+        value?.Count ?? 0;
 
-    /// <summary>
-    /// Alias of Count
-    /// </summary>
-    [Pure]
-    public int Length
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.Count ?? 0;
-    }
-        
     /// <summary>
     /// Returns True if 'other' is a proper subset of this set
     /// </summary>

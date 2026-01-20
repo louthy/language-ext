@@ -1,9 +1,10 @@
+#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
 using System;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-internal static class SetModuleM
+static class SetModuleM
 {
     public enum AddOpt
     {
@@ -20,30 +21,31 @@ internal static class SetModuleM
             return new SetItem<K>(1, 1, key, SetItem<K>.Empty, SetItem<K>.Empty);
         }
         var cmp = OrdK.Compare(key, node.Key);
-        if (cmp < 0)
+        switch (cmp)
         {
-            node.Left = Add<OrdK, K>(node.Left, key, option);
-            return Balance(node);
-        }
-        else if (cmp > 0)
-        {
-            node.Right = Add<OrdK, K>(node.Right, key, option);
-            return Balance(node);
-        }
-        else if (option == AddOpt.TryAdd)
-        {
-            // Already exists, but we don't care
-            return node;
-        }
-        else if (option == AddOpt.TryUpdate)
-        {
-            // Already exists, and we want to update the content
-            node.Key = key;
-            return node;
-        }
-        else
-        {
-            throw new ArgumentException("An element with the same key already exists in the Map");
+            case < 0:
+                node.Left = Add<OrdK, K>(node.Left, key, option);
+                return Balance(node);
+            case > 0:
+                node.Right = Add<OrdK, K>(node.Right, key, option);
+                return Balance(node);
+            default:
+            {
+                switch (option)
+                {
+                    case AddOpt.TryAdd:
+                        // Already exists, but we don't care
+                        return node;
+                    
+                    case AddOpt.TryUpdate:
+                        // Already exists, and we want to update the content
+                        node.Key = key;
+                        return node;
+                    
+                    default:
+                        throw new ArgumentException("An element with the same key already exists in the Map");
+                }
+            }
         }
     }
 

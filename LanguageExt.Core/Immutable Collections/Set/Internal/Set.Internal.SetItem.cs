@@ -1,18 +1,18 @@
 namespace LanguageExt;
 
-internal interface ISetItem;
+interface ISetItem;
 
-internal class SetItem<K> : ISetItem
+class SetItem<K> : ISetItem
 {
     public static readonly SetItem<K> Empty = new (0, 0, default!, null!, null!);
 
     public bool IsEmpty => Count == 0;
-    public int Count;
+    public long Count;
     public byte Height;
     public SetItem<K> Left;
     public SetItem<K> Right;
 
-    internal SetItem(byte height, int count, K key, SetItem<K> left, SetItem<K> right)
+    internal SetItem(byte height, long count, K key, SetItem<K> left, SetItem<K> right)
     {
         Count = count;
         Height = height;

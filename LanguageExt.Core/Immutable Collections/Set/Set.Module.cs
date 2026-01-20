@@ -164,16 +164,6 @@ public partial class Set
         setA.SetEquals(setB);
 
     /// <summary>
-    /// Get the number of elements in the set
-    /// </summary>
-    /// <typeparam name="T">Element type</typeparam>
-    /// <param name="set">Set</param>
-    /// <returns>Number of elements</returns>
-    [Pure]
-    public static int length<T>(Set<T> set) =>
-        set.Count;
-
-    /// <summary>
     /// Returns setA - setB.  Only the items in setA that are not in 
     /// setB will be returned.
     /// </summary>

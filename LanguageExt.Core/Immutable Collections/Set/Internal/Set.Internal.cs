@@ -123,7 +123,7 @@ internal class SetInternal<OrdA, A> :
     /// Number of items in the set
     /// </summary>
     [Pure]
-    public int Count =>
+    public long Count =>
         Root.Count;
 
     [Pure]
@@ -216,14 +216,6 @@ internal class SetInternal<OrdA, A> :
         }
         return set;
     }
-
-    /// <summary>
-    /// Get the number of elements in the set
-    /// </summary>
-    /// <returns>Number of elements</returns>
-    [Pure]
-    public int Length() =>
-        Count;
 
     /// <summary>
     /// Attempts to find an item in the set.  
