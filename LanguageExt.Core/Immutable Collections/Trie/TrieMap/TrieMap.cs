@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using LanguageExt.ClassInstances;
 using Array = System.Array;
 
@@ -26,14 +27,14 @@ internal class TrieMap<EqK, K, V> :
     internal static TrieMap<EqK, K, V> EmptyForMutating => new (new EmptyNode(), 0);
 
     internal readonly Node Root;
-    readonly int count;
+    readonly long count;
     int hash;
 
     /// <summary>
     /// Ctor
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    TrieMap(Node root, int count)
+    TrieMap(Node root, long count)
     {
         Root = root;
         this.count = count;
@@ -76,7 +77,7 @@ internal class TrieMap<EqK, K, V> :
     {
         var state = items.StepSetup<F, FS, (K Key, V Value)>();
         var root  = EmptyNode.Default;
-        var count = 0;
+        var count = 0L;
         var type  = tryAdd ? TrieUpdateType.TryAdd : TrieUpdateType.AddOrUpdate;
         while(items.Step(ref state, out var item))
         {
@@ -101,7 +102,7 @@ internal class TrieMap<EqK, K, V> :
     /// <summary>
     /// Number of items in the map
     /// </summary>
-    public int Count
+    public long Count
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => count;
@@ -1195,7 +1196,7 @@ internal class TrieMap<EqK, K, V> :
     {
         var state = TrieMap.FoldState.Setup(Root);
         var root  = TrieMap<EqK, K, U>.EmptyNode.Default;
-        var count = 0;
+        var count = 0L;
         while(TrieMap.FoldState.Step<EqK, K, V>(ref state, out var kv))
         {
             var value = f(kv.Value);
@@ -1235,7 +1236,7 @@ internal class TrieMap<EqK, K, V> :
     {
         var state = TrieMap.FoldState.Setup(Root);
         var root  = TrieMap<EqK, K, U>.EmptyNode.Default;
-        var count = 0;
+        var count = 0L;
         while(TrieMap.FoldState.Step<EqK, K, V>(ref state, out var kv))
         {
             var value    = f(kv.Key, kv.Value);
@@ -1274,7 +1275,7 @@ internal class TrieMap<EqK, K, V> :
     {
         var state = TrieMap.FoldState.Setup(Root);
         var root  = EmptyNode.Default;
-        var count = 0;
+        var count = 0L;
         while(TrieMap.FoldState.Step<EqK, K, V>(ref state, out var kv))
         {
             if (!f(kv.Value)) continue;
@@ -1319,7 +1320,7 @@ internal class TrieMap<EqK, K, V> :
     {
         var state = TrieMap.FoldState.Setup(Root);
         var root  = EmptyNode.Default;
-        var count = 0;
+        var count = 0L;
         while(TrieMap.FoldState.Step<EqK, K, V>(ref state, out var kv))
         {
             if (!f(kv.Key, kv.Value)) continue;
@@ -1535,7 +1536,7 @@ internal class TrieMap<EqK, K, V> :
             return other.Any();
         }
 
-        var matches    = 0;
+        var matches    = 0L;
         var extraFound = false;
         foreach (var item in other)
         {
@@ -1575,7 +1576,7 @@ internal class TrieMap<EqK, K, V> :
             return false;
         }
 
-        var matchCount = 0;
+        var matchCount = 0L;
         foreach (var item in other)
         {
             matchCount++;
@@ -1599,7 +1600,7 @@ internal class TrieMap<EqK, K, V> :
             return true;
         }
 
-        var matches = 0;
+        var matches = 0L;
         foreach (var item in other)
         {
             if (ContainsKey(item.Key))
@@ -1621,7 +1622,7 @@ internal class TrieMap<EqK, K, V> :
             return true;
         }
 
-        var matches = 0;
+        var matches = 0L;
         foreach (var item in other)
         {
             if (ContainsKey(item))
@@ -2170,6 +2171,43 @@ internal class TrieMap<EqK, K, V> :
 
         return (t, c);
     }
+    
+    public IReadOnlyDictionary<K, V> ToReadOnlyDictionary() =>
+        new ReadOnlyDict(this);
+
+    /// <summary>
+    /// Proxy object that maps the underlying `TrieMap` to an `IReadOnlyDictionary`
+    /// </summary>
+    /// <param name="Data"></param>
+    class ReadOnlyDict(TrieMap<EqK, K, V> Data) : IReadOnlyDictionary<K, V>
+    {
+        public IEnumerator<KeyValuePair<K, V>> GetEnumerator() => 
+            Data.AsEnumerable().Select(kv => new KeyValuePair<K, V>(kv.Key, kv.Value)).GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => 
+            GetEnumerator();
+
+        public int Count { get; } =
+            Data.Count > int.MaxValue
+                ? throw new ValueOutOfRangeException(nameof(Data.Count), Data.Count, int.MaxValue)
+                : (int)Data.Count;
+        
+        public bool ContainsKey(K key) => 
+            Data.ContainsKey(key);
+
+        public bool TryGetValue(K key, [MaybeNullWhen(false)] out V value) =>
+            Data.TryGetValue(key, out value);
+
+        public V this[K key] => 
+            Data[key];
+
+        public IEnumerable<K> Keys => Data.Keys;
+        public IEnumerable<V> Values => Data.Values;
+    }
+    
+    class ValueOutOfRangeException(string valueName, long value, int maxValue)
+        : Exception($"{valueName} ({value}) exceeds maximum value ({maxValue}), consider moving away from using "+
+                    "ToReadOnlyDictionary, its Count property is limited to an `int`");    
         
     /// <summary>
     /// Nodes in the CHAMP hash trie map can be in one of three states:

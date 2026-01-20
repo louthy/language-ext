@@ -461,7 +461,7 @@ public readonly struct HashSet<A> :
 
     [Pure]
     public Iterable<A> AsIterable() =>
-        new (Iterator.forward(this));
+        new (Iterator.unordered(this));
 
     /// <summary>
     /// Implicit conversion from an untyped empty list

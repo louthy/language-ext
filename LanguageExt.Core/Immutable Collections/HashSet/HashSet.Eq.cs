@@ -27,14 +27,12 @@ public readonly struct HashSet<EqA, A> :
     public static HashSet<EqA, A> Empty { get; } = new (TrieSet<EqA, A>.Empty);
 
     readonly TrieSet<EqA, A> value;
-    TrieSet<EqA, A> Value => value ?? TrieSet<EqA, A>.Empty;
+    internal TrieSet<EqA, A> Value => value ?? TrieSet<EqA, A>.Empty;
 
-    internal HashSet(TrieSet<EqA, A> value)
-    {
+    HashSet(TrieSet<EqA, A> value) => 
         this.value = value;
-    }
 
-    HashSet<EqA, A> Wrap(TrieSet<EqA, A> value) =>
+    static HashSet<EqA, A> Wrap(TrieSet<EqA, A> value) =>
         new (value);
 
     /// <summary>

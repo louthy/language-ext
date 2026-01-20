@@ -20,7 +20,6 @@ namespace LanguageExt;
 /// <typeparam name="V">Value</typeparam>
 [CollectionBuilder(typeof(HashMap), nameof(HashMap.createRange))]
 public readonly struct HashMap<EqK, K, V> :
-    IReadOnlyDictionary<K, V>,
     IEnumerable<(K Key, V Value)>,
     IEquatable<HashMap<EqK, K, V>>,
     Monoid<HashMap<EqK, K, V>>,
@@ -39,23 +38,18 @@ public readonly struct HashMap<EqK, K, V> :
     internal TrieMap<EqK, K, V> Value => 
         value ?? TrieMap<EqK, K, V>.Empty;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal HashMap(TrieMap<EqK, K, V> value) =>
         this.value = value;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap(IEnumerable<(K Key, V Value)> items) : this(items, true)
     { }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap(IEnumerable<(K Key, V Value)> items, bool tryAdd) =>
         value = new TrieMap<EqK, K, V>(items, tryAdd);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static HashMap<EqK, K, V> Wrap(TrieMap<EqK, K, V> value) =>
         new (value);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static HashMap<EqK, K, U> Wrap<U>(TrieMap<EqK, K, U> value) =>
         new (value);
 
@@ -67,7 +61,6 @@ public readonly struct HashMap<EqK, K, V> :
     [Pure]
     public V this[K key]
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Value[key];
     }
 
@@ -77,7 +70,6 @@ public readonly struct HashMap<EqK, K, V> :
     [Pure]
     public bool IsEmpty
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => value?.IsEmpty ?? true;
     }
 
@@ -85,9 +77,8 @@ public readonly struct HashMap<EqK, K, V> :
     /// Number of items in the map
     /// </summary>
     [Pure]
-    public int Count
+    public long Count
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => value?.Count ?? 0;
     }
 
@@ -95,9 +86,8 @@ public readonly struct HashMap<EqK, K, V> :
     /// Alias of Count
     /// </summary>
     [Pure]
-    public int Length
+    public long Length
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => value?.Count ?? 0;
     }
 
@@ -107,7 +97,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="pred">Predicate</param>
     /// <returns>New map with items filtered</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> Filter(Func<V, bool> pred) =>
         Wrap(Value.Filter(pred));
 
@@ -117,7 +106,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="pred">Predicate</param>
     /// <returns>New map with items filtered</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> Filter(Func<K, V, bool> pred) =>
         Wrap(Value.Filter(pred));
 
@@ -126,7 +114,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     /// <returns>Mapped items in a new map</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, U> Map<U>(Func<V, U> mapper) =>
         Wrap(Value.Map(mapper));
 
@@ -135,7 +122,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     /// <returns>Mapped items in a new map</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, U> Map<U>(Func<K, V, U> mapper) =>
         Wrap(Value.Map(mapper));
 
@@ -149,7 +135,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
     /// <returns>New Map with the item added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> Add(K key, V value) =>
         Wrap(Value.Add(key, value));
 
@@ -163,7 +148,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
     /// <returns>New Map with the item added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> TryAdd(K key, V value) =>
         Wrap(Value.TryAdd(key, value));
 
@@ -177,7 +161,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
     /// <returns>New Map with the item added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> AddOrUpdate(K key, V value) =>
         Wrap(Value.AddOrUpdate(key, value));
 
@@ -190,7 +173,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="Exception">Throws Exception if Some returns null</exception>
     /// <returns>New map with the mapped value</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> AddOrUpdate(K key, Func<V, V> Some, Func<V> None) =>
         Wrap(Value.AddOrUpdate(key, Some, None));
 
@@ -203,7 +185,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="Exception">Throws Exception if Some returns null</exception>
     /// <returns>New map with the mapped value</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> AddOrUpdate(K key, Func<V, V> Some, V None) =>
         Wrap(Value.AddOrUpdate(key, Some, None));
 
@@ -216,7 +197,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
     /// <returns>New Map with the items added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> AddRange(IEnumerable<Tuple<K, V>> range) =>
         Wrap(Value.AddRange(range));
 
@@ -229,7 +209,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
     /// <returns>New Map with the items added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> AddRange(IEnumerable<(K, V)> range) =>
         Wrap(Value.AddRange(range));
 
@@ -242,7 +221,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
     /// <returns>New Map with the items added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> TryAddRange(IEnumerable<Tuple<K, V>> range) =>
         Wrap(Value.TryAddRange(range));
 
@@ -255,7 +233,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
     /// <returns>New Map with the items added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> TryAddRange(IEnumerable<(K, V)> range) =>
         Wrap(Value.TryAddRange(range));
 
@@ -268,7 +245,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
     /// <returns>New Map with the items added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> TryAddRange(IEnumerable<KeyValuePair<K, V>> range) =>
         Wrap(Value.TryAddRange(range));
 
@@ -281,7 +257,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
     /// <returns>New Map with the items added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> AddOrUpdateRange(IEnumerable<Tuple<K, V>> range) =>
         Wrap(Value.AddOrUpdateRange(range));
 
@@ -294,7 +269,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
     /// <returns>New Map with the items added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> AddOrUpdateRange(IEnumerable<(K, V)> range) =>
         Wrap(Value.AddOrUpdateRange(range));
 
@@ -307,7 +281,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
     /// <returns>New Map with the items added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> AddOrUpdateRange(IEnumerable<KeyValuePair<K, V>> range) =>
         Wrap(Value.AddOrUpdateRange(range));
 
@@ -318,7 +291,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="key">Key</param>
     /// <returns>New map with the item removed</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> Remove(K key) =>
         Wrap(Value.Remove(key));
 
@@ -328,7 +300,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="key">Key to find</param>
     /// <returns>Found value</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Option<V> Find(K key) =>
         Value.Find(key);
 
@@ -338,7 +309,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="key">Key to find</param>
     /// <returns>Found value</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<V> FindSeq(K key) =>
         Value.FindAll(key);
 
@@ -349,7 +319,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="key">Key to find</param>
     /// <returns>Found value</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public R Find<R>(K key, Func<V, R> Some, Func<R> None) =>
         Value.Find(key,Some,None);
 
@@ -361,7 +330,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="None">Delegate to get the value</param>
     /// <returns>Updated map and added value</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (HashMap<EqK, K, V> Map, V Value) FindOrAdd(K key, Func<V> None) =>
         Value.FindOrAdd(key, None).Map((x, y) => (Wrap(x), y));
 
@@ -373,7 +341,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="value">Delegate to get the value</param>
     /// <returns>Updated map and added value</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (HashMap<EqK, K, V>, V Value) FindOrAdd(K key, V value) =>
         Value.FindOrAdd(key, value).Map((x, y) => (Wrap(x), y));
 
@@ -385,7 +352,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="None">Delegate to get the value</param>
     /// <returns>Updated map and added value</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (HashMap<EqK, K, V> Map, Option<V> Value) FindOrMaybeAdd(K key, Func<Option<V>> None) =>
         Value.FindOrMaybeAdd(key, None).Map((x, y) => (Wrap(x), y));
 
@@ -397,7 +363,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="None">Delegate to get the value</param>
     /// <returns>Updated map and added value</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (HashMap<EqK, K, V> Map, Option<V> Value) FindOrMaybeAdd(K key, Option<V> None) =>
         Value.FindOrMaybeAdd(key, None).Map((x, y) => (Wrap(x), y));
 
@@ -410,7 +375,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
     /// <returns>New Map with the item added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> SetItem(K key, V value) =>
         Wrap(Value.SetItem(key, value));
 
@@ -423,7 +387,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="Exception">Throws Exception if Some returns null</exception>
     /// <returns>New map with the mapped value</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> SetItem(K key, Func<V, V> Some) =>
         Wrap(Value.SetItem(key, Some));
 
@@ -437,7 +400,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the value is null</exception>
     /// <returns>New Map with the item added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> TrySetItem(K key, V value) =>
         Wrap(Value.TrySetItem(key, value));
 
@@ -451,7 +413,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
     /// <returns>New map with the item set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> TrySetItem(K key, Func<V, V> Some) =>
         Wrap(Value.SetItem(key, Some));
 
@@ -461,7 +422,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="key">Key to check</param>
     /// <returns>True if an item with the key supplied is in the map</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ContainsKey(K key) =>
         Value.ContainsKey(key);
 
@@ -471,7 +431,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="key">Key to check</param>
     /// <returns>True if an item with the key supplied is in the map</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains(K key, V value) =>
         Value.Contains(key, value);
 
@@ -481,7 +440,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="key">Key to check</param>
     /// <returns>True if an item with the key supplied is in the map</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains<EqV>(K key, V value) where EqV : Eq<V> =>
         Value.Contains<EqV>(key, value);
 
@@ -491,7 +449,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <remarks>Functionally equivalent to calling Map.empty as the original structure is untouched</remarks>
     /// <returns>Empty map</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> Clear() =>
         Wrap(Value.Clear());
 
@@ -502,7 +459,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
     /// <returns>New Map with the items added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> AddRange(IEnumerable<KeyValuePair<K, V>> pairs) =>
         Wrap(Value.AddRange(pairs));
 
@@ -513,7 +469,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
     /// <returns>New map with the items set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> SetItems(IEnumerable<KeyValuePair<K, V>> items) =>
         Wrap(Value.SetItems(items));
 
@@ -524,7 +479,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
     /// <returns>New map with the items set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> SetItems(IEnumerable<Tuple<K, V>> items) =>
         Wrap(Value.SetItems(items));
 
@@ -535,7 +489,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
     /// <returns>New map with the items set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> SetItems(IEnumerable<(K, V)> items) =>
         Wrap(Value.SetItems(items));
 
@@ -546,7 +499,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="items">Items to set</param>
     /// <returns>New map with the items set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> TrySetItems(IEnumerable<KeyValuePair<K, V>> items) =>
         Wrap(Value.TrySetItems(items));
 
@@ -557,7 +509,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="items">Items to set</param>
     /// <returns>New map with the items set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> TrySetItems(IEnumerable<Tuple<K, V>> items) =>
         Wrap(Value.TrySetItems(items));
 
@@ -568,7 +519,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="items">Items to set</param>
     /// <returns>New map with the items set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> TrySetItems(IEnumerable<(K, V)> items) =>
         Wrap(Value.TrySetItems(items));
 
@@ -581,7 +531,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="Some">Function map the existing item to a new one</param>
     /// <returns>New map with the items set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> TrySetItems(IEnumerable<K> keys, Func<V, V> Some) =>
         Wrap(Value.TrySetItems(keys, Some));
 
@@ -591,7 +540,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="keys">Keys to remove</param>
     /// <returns>New map with the items removed</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> RemoveRange(IEnumerable<K> keys) =>
         Wrap(Value.RemoveRange(keys));
 
@@ -601,7 +549,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="pair">Pair to find</param>
     /// <returns>True if exists, false otherwise</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains(KeyValuePair<K, V> pair) =>
         Value.Contains(pair.Key, pair.Value);
 
@@ -611,7 +558,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="pair">Pair to find</param>
     /// <returns>True if exists, false otherwise</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains<EqV>(KeyValuePair<K, V> pair) where EqV : Eq<V> =>
         Value.Contains<EqV>(pair.Key, pair.Value);
 
@@ -621,7 +567,6 @@ public readonly struct HashMap<EqK, K, V> :
     [Pure]
     public Iterable<K> Keys
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Value.Keys;
     }
 
@@ -631,7 +576,6 @@ public readonly struct HashMap<EqK, K, V> :
     [Pure]
     public Iterable<V> Values
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Value.Values;
     }
 
@@ -646,7 +590,6 @@ public readonly struct HashMap<EqK, K, V> :
         where KR : notnull =>
         Value.AsIterable().ToDictionary(keySelector, valueSelector);
 
-    #region IEnumerable interface
     /// <summary>
     /// GetEnumerator - IEnumerable interface
     /// </summary>
@@ -697,14 +640,11 @@ public readonly struct HashMap<EqK, K, V> :
     [Pure]
     public Iterable<(K Key, V Value)> AsEnumerable() =>
         Value.AsIterable();
-
-    #endregion
         
     /// <summary>
     /// Implicit conversion from an untyped empty list
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator HashMap<EqK, K, V>(UnitCollection _) =>
         Empty;
 
@@ -712,7 +652,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(HashMap<EqK, K, V> lhs, HashMap<EqK, K, V> rhs) =>
         lhs.Equals(rhs);
 
@@ -720,27 +659,22 @@ public readonly struct HashMap<EqK, K, V> :
     /// In-equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(HashMap<EqK, K, V> lhs, HashMap<EqK, K, V> rhs) =>
         !(lhs == rhs);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> operator +(HashMap<EqK, K, V> lhs, HashMap<EqK, K, V> rhs) =>
         lhs.Combine(rhs);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> Combine(HashMap<EqK, K, V> rhs) =>
         Wrap(Value.Append(rhs.Value));
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> operator -(HashMap<EqK, K, V> lhs, HashMap<EqK, K, V> rhs) =>
         lhs.Subtract(rhs);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> Subtract(HashMap<EqK, K, V> rhs) =>
         Wrap(Value.Subtract(rhs.Value));
 
@@ -749,7 +683,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     /// <returns>True if 'other' is a proper subset of this set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsProperSubsetOf(IEnumerable<(K Key, V Value)> other) =>
         Value.IsProperSubsetOf(other);
 
@@ -758,7 +691,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     /// <returns>True if 'other' is a proper subset of this set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsProperSubsetOf(IEnumerable<K> other) =>
         Value.IsProperSubsetOf(other);
 
@@ -767,7 +699,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     /// <returns>True if 'other' is a proper superset of this set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsProperSupersetOf(IEnumerable<(K Key, V Value)> other) =>
         Value.IsProperSupersetOf(other);
 
@@ -776,7 +707,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     /// <returns>True if 'other' is a proper superset of this set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsProperSupersetOf(IEnumerable<K> other) =>
         Value.IsProperSupersetOf(other);
 
@@ -785,7 +715,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     /// <returns>True if 'other' is a superset of this set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsSubsetOf(IEnumerable<(K Key, V Value)> other) =>
         Value.IsSubsetOf(other);
 
@@ -794,7 +723,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     /// <returns>True if 'other' is a superset of this set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsSubsetOf(IEnumerable<K> other) =>
         Value.IsSubsetOf(other);
 
@@ -803,7 +731,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     /// <returns>True if 'other' is a superset of this set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsSubsetOf(HashMap<EqK, K, V> other) =>
         Value.IsSubsetOf(other.Value);
 
@@ -812,7 +739,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     /// <returns>True if 'other' is a superset of this set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsSupersetOf(IEnumerable<(K Key, V Value)> other) =>
         Value.IsSupersetOf(other);
 
@@ -821,7 +747,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     /// <returns>True if 'other' is a superset of this set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsSupersetOf(IEnumerable<K> rhs) =>
         Value.IsSupersetOf(rhs);
 
@@ -829,7 +754,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// Returns True if other overlaps this set
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Overlaps(IEnumerable<(K Key, V Value)> other) =>
         Value.Overlaps(other);
 
@@ -837,7 +761,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// Returns True if other overlaps this set
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Overlaps(IEnumerable<K> other) =>
         Value.Overlaps(other);
 
@@ -845,7 +768,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// Returns the elements that are in both this and other
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> Intersect(IEnumerable<K> rhs) =>
         Wrap(Value.Intersect(rhs));
 
@@ -853,7 +775,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// Returns the elements that are in both this and other
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> Intersect(IEnumerable<(K Key, V Value)> rhs) =>
         Wrap(Value.Intersect(rhs));
 
@@ -861,7 +782,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// Returns the elements that are in both this and other
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> Intersect(IEnumerable<(K Key, V Value)> rhs, WhenMatched<K, V, V, V> Merge) =>
         Wrap(Value.Intersect(rhs, Merge));
 
@@ -870,7 +790,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// other will be returned.
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> Except(IEnumerable<K> rhs) =>
         Wrap(Value.Except(rhs));
 
@@ -879,7 +798,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// other will be returned.
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> Except(IEnumerable<(K Key, V Value)> rhs) =>
         Wrap(Value.Except(rhs));
 
@@ -888,7 +806,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// If an item is in both, it is dropped.
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> SymmetricExcept(HashMap<EqK, K, V> rhs) =>
         Wrap(Value.SymmetricExcept(rhs.Value));
 
@@ -897,7 +814,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// If an item is in both, it is dropped.
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> SymmetricExcept(IEnumerable<(K Key, V Value)> rhs) =>
         Wrap(Value.SymmetricExcept(rhs));
 
@@ -908,7 +824,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="other">Other set to union with</param>
     /// <returns>A set which contains all items from both sets</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> Union(IEnumerable<(K, V)> rhs) =>
         this.TryAddRange(rhs);
         
@@ -920,7 +835,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// sensible value.
     /// </remarks>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> Union(IEnumerable<(K, V)> other, WhenMatched<K, V, V, V> Merge) =>
         Wrap(Value.Union(other, static (_, v) => v, static (_, v) => v, Merge));
 
@@ -936,7 +850,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// This allows the `V2` value-type to be mapped to the target `V` value-type. 
     /// </remarks>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> Union<W>(
         IEnumerable<(K, W)> other, 
         WhenMissing<K, W, V> MapRight, 
@@ -955,7 +868,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// This allows the `V` value-type to be mapped to the target `V2` value-type. 
     /// </remarks>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, W> Union<W>(
         IEnumerable<(K, W)> other, 
         WhenMissing<K, V, W> MapLeft, 
@@ -978,7 +890,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// left-hand-side.   This allows the `V2` value-type to be mapped to the target `R` value-type. 
     /// </remarks>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, R> Union<W, R>(
         IEnumerable<(K, W)> other, 
         WhenMissing<K, V, R> MapLeft, 
@@ -990,7 +901,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// Equality of keys
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool Equals(object? obj) =>
         obj is HashMap<EqK, K, V> hm && Equals(hm);
 
@@ -998,7 +908,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// Equality of keys and values with `EqDefault〈V〉` used for values
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(HashMap<EqK, K, V> other) =>
         Value.Equals<EqDefault<V>>(other.Value);
 
@@ -1006,7 +915,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// Equality of keys and values
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals<EqV>(HashMap<EqK, K, V> other) where EqV : Eq<V> =>
         Value.Equals<EqV>(other.Value);
 
@@ -1014,12 +922,10 @@ public readonly struct HashMap<EqK, K, V> :
     /// Equality of keys only
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool EqualKeys(HashMap<EqK, K, V> other) =>
         Value.Equals<EqTrue<V>>(other.Value);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode() =>
         Value.GetHashCode();
 
@@ -1029,7 +935,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <returns>
     /// Returns the original unmodified structure
     /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> Do(Action<V> f)
     {
         this.Iter(f);
@@ -1041,7 +946,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     /// <returns>Mapped items in a new map</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, U> Select<U>(Func<V, U> mapper) =>
         Map(mapper);
 
@@ -1050,7 +954,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     /// <returns>Mapped items in a new map</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, U> Select<U>(Func<K, V, U> mapper) =>
         Map(mapper);
 
@@ -1060,8 +963,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="pred">Predicate</param>
     /// <returns>New map with items filtered</returns>
     [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> Where(Func<V, bool> pred) =>
         Filter(pred);
 
@@ -1071,8 +972,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="pred">Predicate</param>
     /// <returns>New map with items filtered</returns>
     [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<EqK, K, V> Where(Func<K, V, bool> pred) =>
         Filter(pred);
 
@@ -1082,7 +981,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ForAll(Func<K, V, bool> pred)
     {
         foreach (var item in AsEnumerable())
@@ -1098,7 +996,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ForAll(Func<(K Key, V Value), bool> pred) =>
         AsEnumerable().Map(kv => (kv.Key, kv.Value)).ForAll(pred);
 
@@ -1108,7 +1005,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ForAll(Func<V, bool> pred) =>
         Values.ForAll(pred);
 
@@ -1117,7 +1013,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Exists(Func<K, V, bool> pred)
     {
         foreach (var item in AsEnumerable())
@@ -1133,7 +1028,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Exists(Func<(K Key, V Value), bool> pred) =>
         AsEnumerable().Map(kv => (kv.Key, kv.Value)).Exists(pred);
 
@@ -1143,7 +1037,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Exists(Func<V, bool> pred) =>
         Values.Exists(pred);
 
@@ -1153,7 +1046,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     /// <param name="action">Action to execute</param>
     /// <returns>Unit</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Unit Iter(Action<K, V> action)
     {
         foreach (var item in this)
@@ -1169,7 +1061,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     /// <param name="action">Action to execute</param>
     /// <returns>Unit</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Unit Iter(Action<V> action)
     {
         foreach (var item in this)
@@ -1185,7 +1076,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     /// <param name="action">Action to execute</param>
     /// <returns>Unit</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Unit Iter(Action<Tuple<K, V>> action)
     {
         foreach (var item in this)
@@ -1201,7 +1091,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     /// <param name="action">Action to execute</param>
     /// <returns>Unit</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Unit Iter(Action<(K Key, V Value)> action)
     {
         foreach (var item in this)
@@ -1217,7 +1106,6 @@ public readonly struct HashMap<EqK, K, V> :
     /// </summary>
     /// <param name="action">Action to execute</param>
     /// <returns>Unit</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Unit Iter(Action<KeyValuePair<K, V>> action)
     {
         foreach (var item in this)
@@ -1226,25 +1114,13 @@ public readonly struct HashMap<EqK, K, V> :
         }
         return unit;
     }
-    
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
-        AsEnumerable().Map(p => new KeyValuePair<K, V>(p.Key, p.Value)).GetEnumerator();
-    
-    [Pure]
-    IEnumerable<K> IReadOnlyDictionary<K, V>.Keys => Keys;
-    
-    [Pure]
-    IEnumerable<V> IReadOnlyDictionary<K, V>.Values => Values;
 
     /// <summary>
-    /// Get a IReadOnlyDictionary for this map.  No mapping is required, so this is very fast.
+    /// Get an `IReadOnlyDictionary` for this map.  No mapping is required, so this is very fast.
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IReadOnlyDictionary<K, V> ToReadOnlyDictionary() =>
-        this;
+        Value.ToReadOnlyDictionary();
 
     [Pure]
     public bool TryGetValue(K key, out V value)

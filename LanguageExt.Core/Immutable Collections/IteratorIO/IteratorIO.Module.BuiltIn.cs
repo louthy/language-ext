@@ -84,6 +84,27 @@ public partial class IteratorIO
             TrieMap.IteratorState<EqK, K, V>.Setup(items.Value.Root));
 
     /// <summary>
+    /// Create an iterator from an `HashSet` collection
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Iterator of the collection</returns>
+    public static IteratorIO<A> unordered<A>(HashSet<A> items) =>
+        new IterHashSet<EqDefault<A>, A>(
+            TrieSet.IteratorState<EqDefault<A>, A>.Setup(items.Value.Root));
+
+    /// <summary>
+    /// Create an iterator from an `HashSet` collection
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Iterator of the collection</returns>
+    public static IteratorIO<A> unordered<EqA, A>(HashSet<EqA, A> items) 
+        where EqA : Eq<A> =>
+        new IterHashSet<EqA, A>(
+            TrieSet.IteratorState<EqA, A>.Setup(items.Value.Root));
+
+    /// <summary>
     /// Create an IteratorIO from a `Set` collection
     /// </summary>
     /// <param name="items">Collection to iterate</param>
