@@ -1350,7 +1350,7 @@ public class AtomHashMap<K, V> :
 
     [Pure]
     public Iterable<(K Key, V Value)> AsIterable() =>
-        IterableExtensions.AsIterable(Items);
+        Items.AsIterable();
 
     /// <summary>
     /// Implicit conversion from an untyped empty list

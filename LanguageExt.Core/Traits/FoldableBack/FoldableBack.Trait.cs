@@ -249,7 +249,7 @@ public interface FoldableBack<T> : IterableBackK<T>
     /// The sequence is lazy
     /// </remarks>
     static virtual Iterable<A> ToIterableBack<A>(K<T, A> ta) =>
-        new IterableIterator<A>(T.BackwardIterator(ta));
+        new (T.BackwardIterator(ta));
 
     /// <summary>
     /// Does an element that fits the predicate occur in the structure?

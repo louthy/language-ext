@@ -18,7 +18,7 @@ public abstract partial record Schedule
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(params Duration[] durations) =>
-        new SchItems(durations.AsIterable());
+        new SchItems(toArr(durations).ForwardIterator());
 
     /// <summary>
     /// `Schedule` constructor that recurs for the specified durations
@@ -26,7 +26,7 @@ public abstract partial record Schedule
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(Arr<Duration> durations) =>
-        new SchItems(durations.AsIterable());
+        new SchItems(durations.ForwardIterator());
 
     /// <summary>
     /// `Schedule` constructor that recurs for the specified durations
@@ -34,7 +34,7 @@ public abstract partial record Schedule
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(Seq<Duration> durations) =>
-        new SchItems(durations.AsIterable());
+        new SchItems(durations.ForwardIterator());
 
     /// <summary>
     /// `Schedule` constructor that recurs for the specified durations
@@ -42,7 +42,7 @@ public abstract partial record Schedule
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(Lst<Duration> durations) =>
-        new SchItems(durations.AsIterable());
+        new SchItems(durations.ForwardIterator());
 
     /// <summary>
     /// `Schedule` constructor that recurs for the specified durations
@@ -50,7 +50,7 @@ public abstract partial record Schedule
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(Set<Duration> durations) =>
-        new SchItems(IterableExtensions.AsIterable(durations.Value));
+        new SchItems(durations.ForwardIterator());
 
     /// <summary>
     /// `Schedule` constructor that recurs for the specified durations
@@ -58,7 +58,7 @@ public abstract partial record Schedule
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(HashSet<Duration> durations) =>
-        new SchItems(durations.AsIterable());
+        new SchItems(durations.ForwardIterator());
     
     /// <summary>
     /// `ScheduleTransformer` constructor which provides mapping capabilities for `Schedule` instances

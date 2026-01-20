@@ -33,14 +33,14 @@ record IOFoldUntil<S, A, B>(
             var state = Folder(InitialState, value);
             return Predicate((state, value))
                        ? Next(state).As()
-                       : new IOFoldingUntilSync<S, A, B>(Operation, Schedule.Run().GetEnumerator(), state, Folder, Predicate, Next);
+                       : new IOFoldingUntilSync<S, A, B>(Operation, Schedule.Run(), state, Folder, Predicate, Next);
         }
         else
         {
             return new IOFoldingUntilInitialAsync<S, A, B>(
                 task, 
                 Operation, 
-                Schedule.Run().GetEnumerator(), InitialState, Folder, Predicate, Next);
+                Schedule.Run(), InitialState, Folder, Predicate, Next);
         }
     }
     
@@ -51,7 +51,7 @@ record IOFoldUntil<S, A, B>(
 record IOFoldingUntilInitialAsync<S, A, B>(
     ValueTask<A> First,
     IO<A> Operation,
-    IEnumerator<Duration> Schedule,
+    Iterator<Duration> Schedule,
     S State,
     Func<S, A, S> Folder,
     Func<(S State, A Value), bool> Predicate,
@@ -76,14 +76,14 @@ record IOFoldingUntilInitialAsync<S, A, B>(
             return Next(state).As();
         }
             
-        if (Schedule.MoveNext())
+        if (Schedule is (Exist<Duration> (var duration), var tail))
         {
-            await Task.Delay((TimeSpan)Schedule.Current, envIO.Token);
+            await Task.Delay((TimeSpan)duration, envIO.Token);
             value = await Operation.RunAsync(envIO);
             state = Folder(State, value);
             return Predicate((state, value))
                        ? Next(state).As()
-                       : new IOFoldingUntilAsync<S, A, B>(Operation, Schedule, state, Folder, Predicate, Next);
+                       : new IOFoldingUntilAsync<S, A, B>(Operation, tail, state, Folder, Predicate, Next);
         }
         else
         {
@@ -97,7 +97,7 @@ record IOFoldingUntilInitialAsync<S, A, B>(
 
 record IOFoldingUntilAsync<S, A, B>(
     IO<A> Operation,
-    IEnumerator<Duration> Schedule,
+    Iterator<Duration> Schedule,
     S State,
     Func<S, A, S> Folder,
     Func<(S State, A Value), bool> Predicate,
@@ -115,14 +115,14 @@ record IOFoldingUntilAsync<S, A, B>(
 
     public override async ValueTask<IO<B>> Invoke(EnvIO envIO) 
     {
-        if (Schedule.MoveNext())
+        if (Schedule is (Exist<Duration> (var duration), var tail))
         {
-            await Task.Delay((TimeSpan)Schedule.Current, envIO.Token);
+            await Task.Delay((TimeSpan)duration, envIO.Token);
             var value = await Operation.RunAsync(envIO);
             var state = Folder(State, value);
             return Predicate((state, value))
                        ? Next(state).As()
-                       : new IOFoldingUntilAsync<S, A, B>(Operation, Schedule, state, Folder, Predicate, Next);
+                       : new IOFoldingUntilAsync<S, A, B>(Operation, tail, state, Folder, Predicate, Next);
         }
         else
         {
@@ -136,7 +136,7 @@ record IOFoldingUntilAsync<S, A, B>(
 
 record IOFoldingUntilSync<S, A, B>(
     IO<A> Operation,
-    IEnumerator<Duration> Schedule,
+    Iterator<Duration> Schedule,
     S State,
     Func<S, A, S> Folder,
     Func<(S State, A Value), bool> Predicate,
@@ -154,14 +154,14 @@ record IOFoldingUntilSync<S, A, B>(
 
     public override IO<B> Invoke(EnvIO envIO) 
     {
-        if (Schedule.MoveNext())
+        if (Schedule is (Exist<Duration> (var duration), var tail))
         {
-            Task.Delay((TimeSpan)Schedule.Current, envIO.Token).GetAwaiter().GetResult();
+            Task.Delay((TimeSpan)duration, envIO.Token).GetAwaiter().GetResult();
             var value = Operation.Run(envIO);
             var state = Folder(State, value);
             return Predicate((state, value))
                        ? Next(state).As()
-                       : new IOFoldingUntilSync<S, A, B>(Operation, Schedule, state, Folder, Predicate, Next);
+                       : new IOFoldingUntilSync<S, A, B>(Operation, tail, state, Folder, Predicate, Next);
         }
         else
         {

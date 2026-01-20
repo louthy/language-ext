@@ -306,10 +306,10 @@ public interface Foldable<T, FS> : Foldable<T>, IterableK<T, FS>
     /// actions from left to right, and ignore the results.  For a version that
     /// doesn't ignore the results see `Traversable.traverse`.
     /// </summary>
-    static Unit Foldable<T>.Iter<A>(Action<int, A> f, K<T, A> ta)
+    static Unit Foldable<T>.Iter<A>(Action<long, A> f, long initialIndex, K<T, A> ta)
     {
         var foldState = T.StepSetup(ta);
-        var ix        = 0;
+        var ix        = initialIndex;
         while (T.Step(ta, ref foldState, out var value))
         {
             f(ix++, value);
@@ -434,9 +434,9 @@ public interface Foldable<T, FS> : Foldable<T>, IterableK<T, FS>
     /// <summary>
     /// Find the element at the specified index or `None` if out of range
     /// </summary>
-    static Option<A> Foldable<T>.At<A>(int index, K<T, A> ta)
+    static Option<A> Foldable<T>.At<A>(long index, K<T, A> ta)
     {
-        var ix        = 0;
+        var ix        = 0L;
         var foldState = T.StepSetup(ta);
         while (T.Step(ta, ref foldState, out var value))
         {

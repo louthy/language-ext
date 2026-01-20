@@ -181,7 +181,7 @@ public static partial class Deriving
         /// <summary>
         /// Find the element at the specified index or `None` if out of range
         /// </summary>
-        static Option<A> FoldableBack<Supertype>.AtBack<A>(int index, K<Supertype, A> ta) =>
+        static Option<A> FoldableBack<Supertype>.AtBack<A>(long index, K<Supertype, A> ta) =>
             Subtype.AtBack(index, Supertype.Transform(ta));
 
         /// <summary>

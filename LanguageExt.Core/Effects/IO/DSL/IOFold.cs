@@ -30,14 +30,17 @@ record IOFold<S, A, B>(
         {
             var value = task.Result;
             var state = Folder(InitialState, value);
-            return new IOFoldingSync<S, A, B>(Operation, Schedule.Run().GetEnumerator(), state, Folder, Next);
+            return new IOFoldingSync<S, A, B>(Operation, Schedule.Run(), state, Folder, Next);
         }
         else
         {
             return new IOFoldingInitialAsync<S, A, B>(
                 task, 
                 Operation, 
-                Schedule.Run().GetEnumerator(), InitialState, Folder, Next);
+                Schedule.Run(), 
+                InitialState, 
+                Folder, 
+                Next);
         }
     }
     
@@ -48,7 +51,7 @@ record IOFold<S, A, B>(
 record IOFoldingInitialAsync<S, A, B>(
     ValueTask<A> First,
     IO<A> Operation,
-    IEnumerator<Duration> Schedule,
+    Iterator<Duration> Schedule,
     S State,
     Func<S, A, S> Folder,
     Func<S, K<IO, B>> Next)
@@ -68,12 +71,12 @@ record IOFoldingInitialAsync<S, A, B>(
         var value = await First;
         var state = Folder(State, value);
             
-        if (Schedule.MoveNext())
+        if (Schedule is (Exist<Duration> (var duration), var tail))
         {
-            await Task.Delay((TimeSpan)Schedule.Current, envIO.Token);
+            await Task.Delay((TimeSpan)duration, envIO.Token);
             value = await Operation.RunAsync(envIO);
             state = Folder(State, value);
-            return new IOFoldingAsync<S, A, B>(Operation, Schedule, state, Folder, Next);
+            return new IOFoldingAsync<S, A, B>(Operation, tail, state, Folder, Next);
         }
         else
         {
@@ -87,7 +90,7 @@ record IOFoldingInitialAsync<S, A, B>(
 
 record IOFoldingAsync<S, A, B>(
     IO<A> Operation,
-    IEnumerator<Duration> Schedule,
+    Iterator<Duration> Schedule,
     S State,
     Func<S, A, S> Folder,
     Func<S, K<IO, B>> Next)
@@ -104,12 +107,12 @@ record IOFoldingAsync<S, A, B>(
 
     public override async ValueTask<IO<B>> Invoke(EnvIO envIO) 
     {
-        if (Schedule.MoveNext())
+        if (Schedule is (Exist<Duration> (var duration), var tail))
         {
-            await Task.Delay((TimeSpan)Schedule.Current, envIO.Token);
+            await Task.Delay((TimeSpan)duration, envIO.Token);
             var value = await Operation.RunAsync(envIO);
             var state = Folder(State, value);
-            return new IOFoldingAsync<S, A, B>(Operation, Schedule, state, Folder, Next);
+            return new IOFoldingAsync<S, A, B>(Operation, tail, state, Folder, Next);
         }
         else
         {
@@ -123,7 +126,7 @@ record IOFoldingAsync<S, A, B>(
 
 record IOFoldingSync<S, A, B>(
     IO<A> Operation,
-    IEnumerator<Duration> Schedule,
+    Iterator<Duration> Schedule,
     S State,
     Func<S, A, S> Folder,
     Func<S, K<IO, B>> Next)
@@ -140,12 +143,12 @@ record IOFoldingSync<S, A, B>(
 
     public override IO<B> Invoke(EnvIO envIO) 
     {
-        if (Schedule.MoveNext())
+        if (Schedule is (Exist<Duration> (var duration), var tail))
         {
-            Task.Delay((TimeSpan)Schedule.Current, envIO.Token).GetAwaiter().GetResult();
+            Task.Delay((TimeSpan)duration, envIO.Token).GetAwaiter().GetResult();
             var value = Operation.Run(envIO);
             var state = Folder(State, value);
-            return new IOFoldingSync<S, A, B>(Operation, Schedule, state, Folder, Next);
+            return new IOFoldingSync<S, A, B>(Operation, tail, state, Folder, Next);
         }
         else
         {

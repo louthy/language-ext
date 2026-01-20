@@ -36,14 +36,14 @@ record IOFoldWhile<S, A, B>(
             }
             var state = Folder(InitialState, value);
             
-            return new IOFoldingWhileSync<S, A, B>(Operation, Schedule.Run().GetEnumerator(), state, Folder, Predicate, Next);
+            return new IOFoldingWhileSync<S, A, B>(Operation, Schedule.Run(), state, Folder, Predicate, Next);
         }
         else
         {
             return new IOFoldingWhileInitialAsync<S, A, B>(
                 task, 
                 Operation, 
-                Schedule.Run().GetEnumerator(), InitialState, Folder, Predicate, Next);
+                Schedule.Run(), InitialState, Folder, Predicate, Next);
         }
     }
     
@@ -54,7 +54,7 @@ record IOFoldWhile<S, A, B>(
 record IOFoldingWhileInitialAsync<S, A, B>(
     ValueTask<A> First,
     IO<A> Operation,
-    IEnumerator<Duration> Schedule,
+    Iterator<Duration> Schedule,
     S State,
     Func<S, A, S> Folder,
     Func<(S State, A Value), bool> Predicate,
@@ -80,16 +80,16 @@ record IOFoldingWhileInitialAsync<S, A, B>(
         }
         state = Folder(State, value);
             
-        if (Schedule.MoveNext())
+        if (Schedule is (Exist<Duration> (var duration), var tail))
         {
-            await Task.Delay((TimeSpan)Schedule.Current, envIO.Token);
+            await Task.Delay((TimeSpan)duration, envIO.Token);
             value = await Operation.RunAsync(envIO);
             if (!Predicate((state, value)))
             {
                 return Next(State).As();
             }
             state = Folder(State, value);
-            return new IOFoldingWhileAsync<S, A, B>(Operation, Schedule, state, Folder, Predicate, Next);
+            return new IOFoldingWhileAsync<S, A, B>(Operation, tail, state, Folder, Predicate, Next);
         }
         else
         {
@@ -103,7 +103,7 @@ record IOFoldingWhileInitialAsync<S, A, B>(
 
 record IOFoldingWhileAsync<S, A, B>(
     IO<A> Operation,
-    IEnumerator<Duration> Schedule,
+    Iterator<Duration> Schedule,
     S State,
     Func<S, A, S> Folder,
     Func<(S State, A Value), bool> Predicate,
@@ -121,9 +121,9 @@ record IOFoldingWhileAsync<S, A, B>(
 
     public override async ValueTask<IO<B>> Invoke(EnvIO envIO) 
     {
-        if (Schedule.MoveNext())
+        if (Schedule is (Exist<Duration> (var duration), var tail))
         {
-            await Task.Delay((TimeSpan)Schedule.Current, envIO.Token);
+            await Task.Delay((TimeSpan)duration, envIO.Token);
             var value = await Operation.RunAsync(envIO);
             var state = State;
             if (!Predicate((state, value)))
@@ -131,7 +131,7 @@ record IOFoldingWhileAsync<S, A, B>(
                 return Next(State).As();
             }
             state = Folder(State, value);
-            return new IOFoldingWhileAsync<S, A, B>(Operation, Schedule, state, Folder, Predicate, Next);
+            return new IOFoldingWhileAsync<S, A, B>(Operation, tail, state, Folder, Predicate, Next);
         }
         else
         {
@@ -145,7 +145,7 @@ record IOFoldingWhileAsync<S, A, B>(
 
 record IOFoldingWhileSync<S, A, B>(
     IO<A> Operation,
-    IEnumerator<Duration> Schedule,
+    Iterator<Duration> Schedule,
     S State,
     Func<S, A, S> Folder,
     Func<(S State, A Value), bool> Predicate,
@@ -163,9 +163,9 @@ record IOFoldingWhileSync<S, A, B>(
 
     public override IO<B> Invoke(EnvIO envIO) 
     {
-        if (Schedule.MoveNext())
+        if (Schedule is (Exist<Duration> (var duration), var tail))
         {
-            Task.Delay((TimeSpan)Schedule.Current, envIO.Token).GetAwaiter().GetResult();
+            Task.Delay((TimeSpan)duration, envIO.Token).GetAwaiter().GetResult();
             var value = Operation.Run(envIO);
             var state = State;
             if (!Predicate((state, value)))
@@ -173,7 +173,7 @@ record IOFoldingWhileSync<S, A, B>(
                 return Next(State).As();
             }
             state = Folder(State, value);
-            return new IOFoldingWhileSync<S, A, B>(Operation, Schedule, state, Folder, Predicate, Next);
+            return new IOFoldingWhileSync<S, A, B>(Operation, tail, state, Folder, Predicate, Next);
         }
         else
         {

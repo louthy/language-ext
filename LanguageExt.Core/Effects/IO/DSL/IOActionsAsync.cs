@@ -6,7 +6,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.DSL;
 
-record IOAsyncActions<A, B>(IteratorAsync<K<IO, A>> Fas, Func<A, IO<B>> Next) : InvokeAsyncIO<B>
+record IOAsyncActions<A, B>(IteratorIO<K<IO, A>> Fas, Func<A, IO<B>> Next) : InvokeSyncIO<B>
 {
     public override IO<C> Map<C>(Func<B, C> f) => 
         new IOAsyncActions<A, C>(Fas, x => Next(x).Map(f));
@@ -17,16 +17,17 @@ record IOAsyncActions<A, B>(IteratorAsync<K<IO, A>> Fas, Func<A, IO<B>> Next) : 
     public override IO<C> BindAsync<C>(Func<B, ValueTask<K<IO, C>>> f) => 
         new IOAsyncActions<A, C>(Fas, x => Next(x).BindAsync(f));
 
-    public override async ValueTask<IO<B>> Invoke(EnvIO envIO)
-    {
-        if (await Fas.IsEmpty)
-        {
-            return IO.fail<B>(Error.New("Actions is empty"));
-        }
-        else
-        {
-            ignore(await (await Fas.Head).RunAsync(envIO));
-            return new IOAsyncActions<A, B>(await Fas.Tail, Next);
-        }
-    }
+    public override IO<B> Invoke(EnvIO envIO) =>
+        Fas.NextIO()
+           .Bind(n => n switch
+                      {
+                          (Exist<K<IO, A>> (var head), Nil<K<IO, A>> tail) =>
+                              head.Bind(Next),
+
+                          (Exist<K<IO, A>> (var head), var tail) =>
+                              head.Bind(_ => new IOAsyncActions<A, B>(tail, Next)),
+
+                          _ => throw new NotSupportedException(
+                                   "IterableNE can't be empty, so we will never get here")
+                      });
 }

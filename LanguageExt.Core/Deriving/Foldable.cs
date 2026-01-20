@@ -134,7 +134,7 @@ public static partial class Deriving
         /// than via element-by-element counting, should provide a specialised
         /// implementation.
         /// </summary>
-        static int Foldable<Supertype>.Count<A>(K<Supertype, A> ta) =>
+        static long Foldable<Supertype>.Count<A>(K<Supertype, A> ta) =>
             Subtype.Count(Supertype.Transform(ta));
 
         /// <summary>
@@ -200,8 +200,8 @@ public static partial class Deriving
         /// actions from left to right, and ignore the results.  For a version that
         /// doesn't ignore the results see `Traversable.traverse`.
         /// </summary>
-        static Unit Foldable<Supertype>.Iter<A>(Action<int, A> f, K<Supertype, A> ta) =>
-            Subtype.Iter(f, Supertype.Transform(ta));
+        static Unit Foldable<Supertype>.Iter<A>(Action<long, A> f, long initialIndex, K<Supertype, A> ta) =>
+            Subtype.Iter(f, initialIndex, Supertype.Transform(ta));
 
         /// <summary>
         /// Find the minimum value in the structure

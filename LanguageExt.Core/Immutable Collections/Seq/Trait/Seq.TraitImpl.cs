@@ -148,7 +148,7 @@ public partial class Seq :
     static bool Foldable<Seq>.IsEmpty<A>(K<Seq, A> ta) =>
         ta.As().IsEmpty;
 
-    static Option<A> Foldable<Seq>.At<A>(int index, K<Seq, A> ta)
+    static Option<A> Foldable<Seq>.At<A>(long index, K<Seq, A> ta)
     {
         var list = ta.As();
         return index >= 0 && index < list.Count

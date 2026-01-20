@@ -67,7 +67,7 @@ public abstract partial record Schedule : Semigroup<Schedule>
     /// </summary>
     /// <returns>The underlying time-series of durations</returns>
     [Pure]
-    public abstract Iterable<Duration> Run();
+    public abstract Iterator<Duration> Run();
 
     /// <summary>
     /// Intersection of two schedules. As long as they are both running it returns the max duration
@@ -165,7 +165,7 @@ public abstract partial record Schedule : Semigroup<Schedule>
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped schedule</returns>
     [Pure]
-    public Schedule Map(Func<Duration, int, Duration> f) =>
+    public Schedule Map(Func<Duration, long, Duration> f) =>
         new SchMapIndex(this, f);
 
     /// <summary>
@@ -201,7 +201,7 @@ public abstract partial record Schedule : Semigroup<Schedule>
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped schedule</returns>
     [Pure]
-    public Schedule Select(Func<Duration, int, Duration> f) =>
+    public Schedule Select(Func<Duration, long, Duration> f) =>
         new SchMapIndex(this, f);
 
     /// <summary>

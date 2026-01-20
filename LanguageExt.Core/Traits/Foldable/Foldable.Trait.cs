@@ -219,7 +219,7 @@ public interface Foldable<T> : IterableK<T>
     /// The sequence is lazy
     /// </remarks>
     static virtual Iterable<A> ToIterable<A>(K<T, A> ta) =>
-        new IterableIterator<A>(T.ForwardIterator(ta));
+        new (T.ForwardIterator(ta));
 
     /// <summary>
     /// List of elements of a structure, from left to right

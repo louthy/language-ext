@@ -23,7 +23,7 @@ public partial class Iterator
     /// <param name="items">Collection to iterate</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Iterator of the collection</returns>
-    public static Iterator<A> forward<A>(ReadOnlySpan<A> items) =>
+    public static Iterator<A> forward<A>(params ReadOnlySpan<A> items) =>
         forward(Arr.create(items));
 
     /// <summary>
