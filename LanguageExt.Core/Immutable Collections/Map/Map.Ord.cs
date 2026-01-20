@@ -24,7 +24,6 @@ namespace LanguageExt;
 [Serializable]
 [CollectionBuilder(typeof(Map), nameof(Map.createRange))]
 public readonly struct Map<OrdK, K, V> :
-    IReadOnlyDictionary<K, V>,
     IEnumerable<(K Key, V Value)>,
     IEquatable<Map<OrdK, K, V>>,
     IComparable<Map<OrdK, K, V>>,
@@ -119,17 +118,7 @@ public readonly struct Map<OrdK, K, V> :
     /// Number of items in the map
     /// </summary>
     [Pure]
-    public int Count
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.Count ?? 0;
-    }
-
-    /// <summary>
-    /// Alias of Count
-    /// </summary>
-    [Pure]
-    public int Length
+    public long Count
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => value?.Count ?? 0;
@@ -1224,15 +1213,8 @@ public readonly struct Map<OrdK, K, V> :
     /// </summary>
     [Pure]
     public Option<(K Key, V Value)> Max => Value.Max;
-    
-    [Pure]
-    IEnumerable<K> IReadOnlyDictionary<K, V>.Keys => Keys;
 
     [Pure]
-    IEnumerable<V> IReadOnlyDictionary<K, V>.Values => Values;
-
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryGetValue(K key, out V value)
     {
         var v = Find(key);
@@ -1248,11 +1230,13 @@ public readonly struct Map<OrdK, K, V> :
         }
     }
 
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
-        AsIterable().Map(p => new KeyValuePair<K, V>(p.Key, p.Value)).GetEnumerator();    
-
     public static Map<OrdK, K, V> AdditiveIdentity => 
         Empty;
+
+    /// <summary>
+    /// Get an `IReadOnlyDictionary` for this map.  No mapping is required, so this is very fast.
+    /// </summary>
+    [Pure]
+    public IReadOnlyDictionary<K, V> ToReadOnlyDictionary() =>
+        Value.ToReadOnlyDictionary();    
 }

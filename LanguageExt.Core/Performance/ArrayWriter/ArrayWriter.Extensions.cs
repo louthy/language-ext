@@ -47,7 +47,9 @@ public static class ArrayWriterExtensions
         public Span<A> ToSpan()
         {
             var (xs, start, count) = writer.ToArray();
-            return new Span<A>(xs, start, count);
+            return start + count > int.MaxValue
+                        ? throw new InvalidOperationException("Backing collection is too big to return a view")
+                        : new Span<A>(xs, (int)start, (int)count);
         }
 
         /// <summary>
@@ -73,7 +75,9 @@ public static class ArrayWriterExtensions
         public Span<A> ToSpanBack()
         {
             var (xs, start, count) = writer.ToArrayBack();
-            return new Span<A>(xs, start, count);
+            return start + count > int.MaxValue
+                       ? throw new InvalidOperationException("Backing collection is too big to return a view")
+                       : new Span<A>(xs, (int)start, (int)count);
         }
         
         /// <summary>
@@ -96,7 +100,7 @@ public static class ArrayWriterExtensions
         /// effectively disposed. 
         /// </para>
         /// </remarks>
-        public (A[] Buffer, int Start, int Count) ToArray()
+        public (A[] Buffer, long Start, long Count) ToArray()
         {
             if (Interlocked.CompareExchange(ref writer.disposed, 1, 0) == 0)
             {
@@ -108,9 +112,18 @@ public static class ArrayWriterExtensions
                 if (rented)
                 {
                     var final = new A[start + count];
-                    var bspan = new Span<A>(buffer, start, count);
-                    var fspan = new Span<A>(final, start, count);
-                    bspan.CopyTo(fspan);
+
+                    if (start + count > int.MaxValue)
+                    {
+                        Array.Copy(buffer, start, final, start, count);   
+                    }
+                    else
+                    {
+                        var bspan = new Span<A>(buffer, (int)start, (int)count);
+                        var fspan = new Span<A>(final, (int)start, (int)count);
+                        bspan.CopyTo(fspan);
+                    }
+
                     ArrayPool<A>.Shared.Return(buffer);
                     var r = (final, start, count);
                     writer.RefDispose();
@@ -125,7 +138,7 @@ public static class ArrayWriterExtensions
             }
             else
             {
-                throw new ObjectDisposedException(nameof(ArrayWriter<A>));
+                throw new ObjectDisposedException(nameof(ArrayWriter<>));
             }
         }
         
@@ -149,7 +162,7 @@ public static class ArrayWriterExtensions
         /// effectively disposed. 
         /// </para>
         /// </remarks>
-        public (A[] Buffer, int Start, int Count) ToArrayBack()
+        public (A[] Buffer, long Start, long Count) ToArrayBack()
         {
             if (Interlocked.CompareExchange(ref writer.disposed, 1, 0) == 0)
             {
@@ -161,27 +174,54 @@ public static class ArrayWriterExtensions
                 if (rented)
                 {
                     var final = new A[start + count];
-                    var bspan = new Span<A>(buffer, start, count);
-                    var fspan = new Span<A>(final, start, count);
-                    bspan.CopyTo(fspan);
-                    fspan.Reverse();
-                    ArrayPool<A>.Shared.Return(buffer);
-                    var r = (final, start, count);
-                    writer.RefDispose();
-                    return r;
+                    if (start + count > int.MaxValue)
+                    {
+                        Array.Copy(buffer, start, final, start, count);
+                        Array.Reverse(final);
+                        
+                        var ns = buffer.Length - start;
+                        ArrayPool<A>.Shared.Return(buffer);
+                        var r = (final, ns, count);
+                        writer.RefDispose();
+                        return r;
+                    }
+                    else
+                    {
+                        var bspan = new Span<A>(buffer, (int)start, (int)count);
+                        var fspan = new Span<A>(final, (int)start, (int)count);
+                        bspan.CopyTo(fspan);
+                        fspan.Reverse();
+
+                        ArrayPool<A>.Shared.Return(buffer);
+                        var r = (final, start, count);
+                        writer.RefDispose();
+                        return r;
+                    }
                 }
                 else
                 {
-                    var s = new Span<A>(buffer, start, count);
-                    s.Reverse();
-                    var r = (buffer, start, count);
-                    writer.RefDispose();
-                    return r;
+                    if (start + count > int.MaxValue)
+                    {
+                        Array.Reverse(buffer);
+                        var ns = buffer.Length - start;
+                        var r  = (buffer, ns, count);
+                        writer.RefDispose();
+                        return r;
+                    }
+                    else
+                    {
+                        var s = new Span<A>(buffer, (int)start, (int)count);
+                        s.Reverse();
+                        
+                        var r = (buffer, start, count);
+                        writer.RefDispose();
+                        return r;
+                    }
                 }
             }
             else
             {
-                throw new ObjectDisposedException(nameof(ArrayWriter<A>));
+                throw new ObjectDisposedException(nameof(ArrayWriter<>));
             }
         }
 
@@ -216,9 +256,18 @@ public static class ArrayWriterExtensions
                 if (rented)
                 {
                     var final = new A[start + count];
-                    var bspan = new Span<A>(buffer, start, count);
-                    var fspan = new Span<A>(final, start, count);
-                    bspan.CopyTo(fspan);
+
+                    if (start + count > int.MaxValue)
+                    {
+                        Array.Copy(buffer, start, final, start, count);   
+                    }
+                    else
+                    {
+                        var bspan = new Span<A>(buffer, (int)start, (int)count);
+                        var fspan = new Span<A>(final, (int)start, (int)count);
+                        bspan.CopyTo(fspan);
+                    }
+
                     ArrayPool<A>.Shared.Return(buffer);
                     var r = new Arr<A>(final, start, count);
                     writer.RefDispose();
@@ -233,8 +282,8 @@ public static class ArrayWriterExtensions
             }
             else
             {
-                throw new ObjectDisposedException(nameof(ArrayWriter<A>));
-            }
+                throw new ObjectDisposedException(nameof(ArrayWriter<>));
+            }            
         }
         
         void RefDispose()

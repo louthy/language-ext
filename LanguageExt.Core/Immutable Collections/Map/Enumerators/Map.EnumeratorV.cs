@@ -5,7 +5,7 @@ namespace LanguageExt;
 
 public struct MapValueEnumerator<K, V> : IEnumerator<V>
 {
-    internal struct NewStack : New<MapItem<K, V>[]>
+    struct NewStack : New<MapItem<K, V>[]>
     {
         public MapItem<K, V>[] New() =>
             new MapItem<K, V>[32];
@@ -14,19 +14,19 @@ public struct MapValueEnumerator<K, V> : IEnumerator<V>
     int stackDepth;
     MapItem<K, V>[] stack;
     readonly MapItem<K, V> map;
-    int left;
+    long left;
     readonly bool rev;
-    readonly int start;
+    readonly long start;
 
-    internal MapValueEnumerator(MapItem<K, V> root, bool rev, int start)
+    internal MapValueEnumerator(MapItem<K, V> root, bool rev, long start)
     {
         this.rev = rev;
         this.start = start;
         map = root;
         stack = Pool<NewStack, MapItem<K, V>[]>.Pop();
-        stackDepth = default;
-        left = default;
-        NodeCurrent = default!;
+        stackDepth = 0;
+        left = 0;
+        NodeCurrent = null!;
         Reset();
     }
 
@@ -44,17 +44,17 @@ public struct MapValueEnumerator<K, V> : IEnumerator<V>
         if (stack is not null)
         {
             Pool<NewStack, MapItem<K, V>[]>.Push(stack);
-            stack = default!;
+            stack = null!;
         }
     }
 
-    private MapItem<K, V> Next(MapItem<K, V> node) =>
+    MapItem<K, V> Next(MapItem<K, V> node) =>
         rev ? node.Left : node.Right;
 
-    private MapItem<K, V> Prev(MapItem<K, V> node) =>
+    MapItem<K, V> Prev(MapItem<K, V> node) =>
         rev ? node.Right : node.Left;
 
-    private void Push(MapItem<K, V> node)
+    void Push(MapItem<K, V> node)
     {
         while (!node.IsEmpty)
         {
@@ -75,7 +75,7 @@ public struct MapValueEnumerator<K, V> : IEnumerator<V>
             return true;
         }
 
-        NodeCurrent = default!;
+        NodeCurrent = null!;
         return false;
     }
 
@@ -102,10 +102,8 @@ public struct MapValueEnumerator<K, V> : IEnumerator<V>
             }
         }
 
-        if (!NodeCurrent.IsEmpty)
-        {
-            stack[stackDepth] = NodeCurrent;
-            stackDepth++;
-        }
+        if (NodeCurrent.IsEmpty) return;
+        stack[stackDepth] = NodeCurrent;
+        stackDepth++;
     }
 }

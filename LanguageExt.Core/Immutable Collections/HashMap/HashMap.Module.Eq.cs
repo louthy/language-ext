@@ -14,21 +14,9 @@ namespace LanguageExt;
 public partial class HashMap
 {
     /// <summary>
-    /// Clears all items from the map
-    /// </summary>
-    /// <param name="map">Map to clear</param>
-    /// <remarks>Functionally equivalent to calling Map.empty as the original structure is untouched</remarks>
-    /// <returns>Empty map</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static HashMap<EqK, K, V> clear<EqK, K, V>(HashMap<EqK, K, V> map) where EqK : Eq<K> =>
-        HashMap<EqK, K, V>.Empty;
-
-    /// <summary>
     /// Creates a new empty Map
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> empty<EqK, K, V>() where EqK : Eq<K> =>
         HashMap<EqK, K, V>.Empty;
 
@@ -36,7 +24,6 @@ public partial class HashMap
     /// Creates a new empty HashMap
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> create<EqK, K, V>() where EqK : Eq<K> =>
         HashMap<EqK, K, V>.Empty;
 
@@ -46,7 +33,6 @@ public partial class HashMap
     /// <param name="value">Single value</param>
     /// <returns>Collection with a single item in it</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> singleton<EqK, K, V>(K key, V value) where EqK : Eq<K> =>
         [(key, value)];
 
@@ -54,7 +40,6 @@ public partial class HashMap
     /// Creates a new Map seeded with the keyValues provided
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> create<EqK, K, V>(Tuple<K, V> head, params Tuple<K, V>[] tail) 
         where EqK : Eq<K> =>
         createRange<EqK, K, V>(head.Cons(tail));
@@ -63,7 +48,6 @@ public partial class HashMap
     /// Creates a new Map seeded with the keyValues provided
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> create<EqK, K, V>((K, V) head, params (K, V)[] tail)
         where EqK : Eq<K> =>
         createRange<EqK, K, V>(head.Cons(tail));
@@ -72,7 +56,6 @@ public partial class HashMap
     /// Creates a new Map seeded with the keyValues provided
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> create<EqK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail)
         where EqK : Eq<K> =>
         createRange<EqK, K, V>(head.Cons(tail));
@@ -81,7 +64,6 @@ public partial class HashMap
     /// Creates a new Map seeded with the keyValues provided
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> createRange<EqK, K, V>(IEnumerable<Tuple<K, V>> keyValues)
         where EqK : Eq<K> =>
         createRange<EqK, K, V>(keyValues.Select(static kv => (kv.Item1, kv.Item2)));
@@ -90,7 +72,6 @@ public partial class HashMap
     /// Creates a new Map seeded with the keyValues provided
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> createRange<EqK, K, V>(IEnumerable<(K, V)> keyValues)
         where EqK : Eq<K> =>
         new (new TrieMap<EqK, K, V>(keyValues));
@@ -99,7 +80,6 @@ public partial class HashMap
     /// Creates a new Map seeded with the keyValues provided
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> createRange<EqK, K, V>(ReadOnlySpan<(K, V)> keyValues)
         where EqK : Eq<K> =>
         keyValues.IsEmpty
@@ -124,7 +104,6 @@ public partial class HashMap
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
     /// <returns>New Map with the item added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> add<EqK, K, V>(HashMap<EqK, K, V> map, K key, V value) where EqK : Eq<K> =>
         map.Add(key, value);
 
@@ -138,7 +117,6 @@ public partial class HashMap
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
     /// <returns>New Map with the item added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> tryAdd<EqK, K, V>(HashMap<EqK, K, V> map, K key, V value) where EqK : Eq<K> =>
         map.TryAdd(key, value);
 
@@ -152,7 +130,6 @@ public partial class HashMap
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
     /// <returns>New Map with the item added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> addOrUpdate<EqK, K, V>(HashMap<EqK, K, V> map, K key, V value) where EqK : Eq<K> =>
         map.AddOrUpdate(key, value);
 
@@ -165,7 +142,6 @@ public partial class HashMap
     /// <exception cref="Exception">Throws Exception if Some returns null</exception>
     /// <returns>New map with the mapped value</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> addOrUpdate<EqK, K, V>(HashMap<EqK, K, V> map, K key, Func<V, V> Some, Func<V> None) where EqK : Eq<K> =>
         map.AddOrUpdate(key, Some, None);
 
@@ -178,7 +154,6 @@ public partial class HashMap
     /// <exception cref="Exception">Throws Exception if Some returns null</exception>
     /// <returns>New map with the mapped value</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> addOrUpdate<EqK, K, V>(HashMap<EqK, K, V> map, K key, Func<V, V> Some, V None) where EqK : Eq<K> =>
         map.AddOrUpdate(key, Some, None);
 
@@ -191,7 +166,6 @@ public partial class HashMap
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
     /// <returns>New Map with the items added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> addRange<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<Tuple<K, V>> keyValues) where EqK : Eq<K> =>
         map.AddRange(keyValues);
 
@@ -204,7 +178,6 @@ public partial class HashMap
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
     /// <returns>New Map with the items added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> addRange<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<(K, V)> keyValues) where EqK : Eq<K> =>
         map.AddRange(keyValues);
 
@@ -217,7 +190,6 @@ public partial class HashMap
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
     /// <returns>New Map with the items added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> addRange<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<KeyValuePair<K, V>> keyValues) where EqK : Eq<K> =>
         map.AddRange(keyValues);
 
@@ -230,7 +202,6 @@ public partial class HashMap
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
     /// <returns>New Map with the items added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> tryAddRange<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<Tuple<K, V>> keyValues) where EqK : Eq<K> =>
         map.TryAddRange(keyValues);
 
@@ -243,7 +214,6 @@ public partial class HashMap
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
     /// <returns>New Map with the items added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> tryAddRange<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<(K, V)> keyValues) where EqK : Eq<K> =>
         map.TryAddRange(keyValues);
 
@@ -256,7 +226,6 @@ public partial class HashMap
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
     /// <returns>New Map with the items added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> tryAddRange<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<KeyValuePair<K, V>> keyValues) where EqK : Eq<K> =>
         map.TryAddRange(keyValues);
 
@@ -267,7 +236,6 @@ public partial class HashMap
     /// <param name="range">Range of tuples to add</param>
     /// <returns>New Map with the items added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> addOrUpdateRange<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<Tuple<K, V>> range) where EqK : Eq<K> =>
         map.AddOrUpdateRange(range);
 
@@ -278,7 +246,6 @@ public partial class HashMap
     /// <param name="range">Range of tuples to add</param>
     /// <returns>New Map with the items added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> addOrUpdateRange<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<(K, V)> range) where EqK : Eq<K> =>
         map.AddOrUpdateRange(range);
 
@@ -291,7 +258,6 @@ public partial class HashMap
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
     /// <returns>New Map with the items added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> addOrUpdateRange<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<KeyValuePair<K, V>> range) where EqK : Eq<K> =>
         map.AddOrUpdateRange(range);
 
@@ -302,7 +268,6 @@ public partial class HashMap
     /// <param name="key">Key</param>
     /// <returns>New map with the item removed</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> remove<EqK, K, V>(HashMap<EqK, K, V> map, K key) where EqK : Eq<K> =>
         map.Remove(key);
 
@@ -312,7 +277,6 @@ public partial class HashMap
     /// <param name="key">Key to check</param>
     /// <returns>True if an item with the key supplied is in the map</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool containsKey<EqK, K, V>(HashMap<EqK, K, V> map, K key) where EqK : Eq<K> =>
         map.ContainsKey(key);
 
@@ -322,7 +286,6 @@ public partial class HashMap
     /// <param name="key">Key to check</param>
     /// <returns>True if an item with the key supplied is in the map</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool contains<EqK, K, V>(HashMap<EqK, K, V> map, KeyValuePair<K, V> kv) where EqK : Eq<K> =>
         map.Contains(kv.Key, kv.Value);
 
@@ -332,7 +295,6 @@ public partial class HashMap
     /// <param name="key">Key to check</param>
     /// <returns>True if an item with the key supplied is in the map</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool contains<EqK, K, V>(HashMap<EqK, K, V> map, Tuple<K, V> kv) where EqK : Eq<K> =>
         map.Contains(kv.Item1, kv.Item2);
 
@@ -342,7 +304,6 @@ public partial class HashMap
     /// <param name="key">Key to check</param>
     /// <returns>True if an item with the key supplied is in the map</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool contains<EqK, K, V>(HashMap<EqK, K, V> map, (K, V) kv) where EqK : Eq<K> =>
         map.Contains(kv.Item1, kv.Item2);
 
@@ -352,10 +313,8 @@ public partial class HashMap
     /// <remarks>Null is not allowed for a Key or a Value</remarks>
     /// <param name="key">Key</param>
     /// <param name="value">Value</param>
-    /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
     /// <returns>New Map with the item added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> setItem<EqK, K, V>(HashMap<EqK, K, V> map, K key, V value) where EqK : Eq<K> =>
         map.SetItem(key, value);
 
@@ -366,10 +325,8 @@ public partial class HashMap
     /// <remarks>Null is not allowed for a Key or a Value</remarks>
     /// <param name="key">Key</param>
     /// <param name="value">Value</param>
-    /// <exception cref="ArgumentNullException">Throws ArgumentNullException the value is null</exception>
     /// <returns>New Map with the item added</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> trySetItem<EqK, K, V>(HashMap<EqK, K, V> map, K key, V value) where EqK : Eq<K> =>
         map.TrySetItem(key, value);
 
@@ -378,11 +335,9 @@ public partial class HashMap
     /// it back. Silently fails if the value doesn't exist.
     /// </summary>
     /// <param name="key">Key to set</param>
-    /// <exception cref="Exception">Throws Exception if Some returns null</exception>
     /// <param name="Some">delegate to map the existing value to a new one before setting</param>
     /// <returns>New map with the item set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> trySetItem<EqK, K, V>(HashMap<EqK, K, V> map, K key, Func<V, V> Some) where EqK : Eq<K> =>
         map.TrySetItem(key, Some);
 
@@ -390,10 +345,8 @@ public partial class HashMap
     /// Atomically sets a series of items using the Tuples provided
     /// </summary>
     /// <param name="items">Items to set</param>
-    /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
     /// <returns>New map with the items set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> setItems<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<Tuple<K, V>> items) where EqK : Eq<K> =>
         map.SetItems(items);
 
@@ -401,10 +354,8 @@ public partial class HashMap
     /// Atomically sets a series of items using the Tuples provided
     /// </summary>
     /// <param name="items">Items to set</param>
-    /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
     /// <returns>New map with the items set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> setItems<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<(K, V)> items) where EqK : Eq<K> =>
         map.SetItems(items);
 
@@ -412,10 +363,8 @@ public partial class HashMap
     /// Atomically sets a series of items using the KeyValuePairs provided
     /// </summary>
     /// <param name="items">Items to set</param>
-    /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
     /// <returns>New map with the items set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> setItems<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<KeyValuePair<K, V>> items) where EqK : Eq<K> =>
         map.SetItems(items);
 
@@ -423,10 +372,8 @@ public partial class HashMap
     /// Atomically sets a series of items using the Tuples provided.
     /// </summary>
     /// <param name="items">Items to set</param>
-    /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
     /// <returns>New map with the items set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> trySetItems<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<Tuple<K, V>> items) where EqK : Eq<K> =>
         map.SetItems(items);
 
@@ -434,10 +381,8 @@ public partial class HashMap
     /// Atomically sets a series of items using the Tuples provided.
     /// </summary>
     /// <param name="items">Items to set</param>
-    /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
     /// <returns>New map with the items set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> trySetItems<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<(K, V)> items) where EqK : Eq<K> =>
         map.SetItems(items);
 
@@ -448,7 +393,6 @@ public partial class HashMap
     /// <param name="items">Items to set</param>
     /// <returns>New map with the items set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> trySetItems<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<KeyValuePair<K, V>> items) where EqK : Eq<K> =>
         map.TrySetItems(items);
 
@@ -461,7 +405,6 @@ public partial class HashMap
     /// <param name="Some">Function map the existing item to a new one</param>
     /// <returns>New map with the items set</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> trySetItems<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<K> keys, Func<V, V> Some) where EqK : Eq<K> =>
         map.TrySetItems(keys, Some);
 
@@ -471,7 +414,6 @@ public partial class HashMap
     /// <param name="key">Key to find</param>
     /// <returns>Found value</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<V> find<EqK, K, V>(HashMap<EqK, K, V> map, K key) where EqK : Eq<K> =>
         map.Find(key);
 
@@ -481,7 +423,6 @@ public partial class HashMap
     /// <param name="key">Key to find</param>
     /// <returns>Found value</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IEnumerable<V> findSeq<EqK, K, V>(HashMap<EqK, K, V> map, K key) where EqK : Eq<K> =>
         map.FindSeq(key);
 
@@ -492,7 +433,6 @@ public partial class HashMap
     /// <param name="key">Key to find</param>
     /// <returns>Found value</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static R find<EqK, K, V, R>(HashMap<EqK, K, V> map, K key, Func<V, R> Some, Func<R> None) where EqK : Eq<K> =>
         map.Find(key, Some, None);
 
@@ -503,7 +443,6 @@ public partial class HashMap
     /// <param name="key">Key to find</param>
     /// <returns>New map with the mapped value</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> setItem<EqK, K, V>(HashMap<EqK, K, V> map, K key, Func<V, V> mapper) where EqK : Eq<K> =>
         map.SetItem(key, mapper);
 
@@ -513,7 +452,6 @@ public partial class HashMap
     /// </summary>
     /// <param name="action">Action to execute</param>
     /// <returns>Unit</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Unit iter<EqK, K, V>(HashMap<EqK, K, V> map, Action<V> action) where EqK : Eq<K> =>
         map.Iter(action);
 
@@ -523,7 +461,6 @@ public partial class HashMap
     /// </summary>
     /// <param name="action">Action to execute</param>
     /// <returns>Unit</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Unit iter<EqK, K, V>(HashMap<EqK, K, V> map, Action<K, V> action) where EqK : Eq<K> =>
         map.Iter(action);
 
@@ -533,7 +470,6 @@ public partial class HashMap
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool forall<EqK, K, V>(HashMap<EqK, K, V> map, Func<V, bool> pred) where EqK : Eq<K> =>
         map.ForAll(pred);
 
@@ -543,7 +479,6 @@ public partial class HashMap
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool forall<EqK, K, V>(HashMap<EqK, K, V> map, Func<K, V, bool> pred) where EqK : Eq<K> =>
         map.ForAll(pred);
 
@@ -553,7 +488,6 @@ public partial class HashMap
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool forall<EqK, K, V>(HashMap<EqK, K, V> map, Func<(K Key, V Value), bool> pred) where EqK : Eq<K> =>
         map.ForAll(pred);
 
@@ -562,7 +496,6 @@ public partial class HashMap
     /// </summary>
     /// <returns>Mapped items in a new map</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, U> map<EqK, K, T, U>(HashMap<EqK, K, T> map, Func<T, U> f) where EqK : Eq<K> =>
         map.Select(f);
 
@@ -571,7 +504,6 @@ public partial class HashMap
     /// </summary>
     /// <returns>Mapped items in a new map</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, U> map<EqK, K, T, U>(HashMap<EqK, K, T> map, Func<K, T, U> f) where EqK : Eq<K> =>
         map.Select(f);
 
@@ -581,7 +513,6 @@ public partial class HashMap
     /// <param name="pred">Predicate</param>
     /// <returns>New map with items filtered</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> filter<EqK, K, V>(HashMap<EqK, K, V> map, Func<V, bool> predicate) where EqK : Eq<K> =>
         map.Filter(predicate);
 
@@ -591,17 +522,8 @@ public partial class HashMap
     /// <param name="pred">Predicate</param>
     /// <returns>New map with items filtered</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, V> filter<EqK, K, V>(HashMap<EqK, K, V> map, Func<K, V, bool> predicate) where EqK : Eq<K> =>
         map.Filter(predicate);
-
-    /// <summary>
-    /// Number of items in the map
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int length<EqK, K, T>(HashMap<EqK, K, T> map) where EqK : Eq<K> =>
-        map.Count;
 
     /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied
@@ -609,7 +531,6 @@ public partial class HashMap
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool exists<EqK, K, V>(HashMap<EqK, K, V> map, Func<K, V, bool> pred) where EqK : Eq<K> =>
         map.Exists(pred);
 
@@ -619,7 +540,6 @@ public partial class HashMap
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool exists<EqK, K, V>(HashMap<EqK, K, V> map, Func<(K Key, V Value), bool> pred) where EqK : Eq<K> =>
         map.Exists(pred);
 
@@ -629,7 +549,6 @@ public partial class HashMap
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool exists<EqK, K, V>(HashMap<EqK, K, V> map, Func<V, bool> pred) where EqK : Eq<K> =>
         map.Exists(pred);
 }

@@ -22,7 +22,7 @@ public partial class Map<Key> :
         }
     }
         
-    static int Foldable<Map<Key>>.Count<A>(K<Map<Key>, A> ta) =>
+    static long Foldable<Map<Key>>.Count<A>(K<Map<Key>, A> ta) =>
         ta.As().Count;
 
     static bool Foldable<Map<Key>>.IsEmpty<A>(K<Map<Key>, A> ta) =>

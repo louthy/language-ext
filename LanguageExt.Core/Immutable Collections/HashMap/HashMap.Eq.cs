@@ -59,37 +59,22 @@ public readonly struct HashMap<EqK, K, V> :
     /// <param name="key">Key</param>
     /// <returns>Optional value</returns>
     [Pure]
-    public V this[K key]
-    {
-        get => Value[key];
-    }
+    public V this[K key] => 
+        Value[key];
 
     /// <summary>
     /// Is the map empty
     /// </summary>
     [Pure]
-    public bool IsEmpty
-    {
-        get => value?.IsEmpty ?? true;
-    }
+    public bool IsEmpty => 
+        value?.IsEmpty ?? true;
 
     /// <summary>
     /// Number of items in the map
     /// </summary>
     [Pure]
-    public long Count
-    {
-        get => value?.Count ?? 0;
-    }
-
-    /// <summary>
-    /// Alias of Count
-    /// </summary>
-    [Pure]
-    public long Length
-    {
-        get => value?.Count ?? 0;
-    }
+    public long Count => 
+        value?.Count ?? 0;
 
     /// <summary>
     /// Atomically filter out items that return false when a predicate is applied

@@ -25,7 +25,6 @@ public delegate C WhenMatched<in K, in A, in B, out C>(K key, A left, B right);
 [Serializable]
 [CollectionBuilder(typeof(Map), nameof(Map.createRange))]
 public readonly struct Map<K, V> :
-    IReadOnlyDictionary<K, V>,
     IEnumerable<(K Key, V Value)>,
     IComparable<Map<K, V>>,
     IComparable,
@@ -169,17 +168,7 @@ public readonly struct Map<K, V> :
     /// Number of items in the map
     /// </summary>
     [Pure]
-    public int Count
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.Count ?? 0;
-    }
-
-    /// <summary>
-    /// Alias of Count
-    /// </summary>
-    [Pure]
-    public int Length
+    public long Count
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => value?.Count ?? 0;
@@ -1413,12 +1402,6 @@ public readonly struct Map<K, V> :
         Value.Max;
     
     [Pure]
-    IEnumerable<K> IReadOnlyDictionary<K, V>.Keys => Keys;
-
-    [Pure]
-    IEnumerable<V> IReadOnlyDictionary<K, V>.Values => Values;
-
-    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryGetValue(K key, out V value)
     {
@@ -1435,12 +1418,13 @@ public readonly struct Map<K, V> :
         }
     }
 
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
-        AsIterable().Map(p => new KeyValuePair<K, V>(p.Key, p.Value)).GetEnumerator();
-
     public static Map<K, V> AdditiveIdentity => 
         Empty;
-   
+
+    /// <summary>
+    /// Get an `IReadOnlyDictionary` for this map.  No mapping is required, so this is very fast.
+    /// </summary>
+    [Pure]
+    public IReadOnlyDictionary<K, V> ToReadOnlyDictionary() =>
+        Value.ToReadOnlyDictionary();
 }
