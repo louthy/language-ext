@@ -1,17 +1,16 @@
 using System;
 using LanguageExt.Traits;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
 public partial class IterableIO : 
     Monad<IterableIO>, 
     MonoidK<IterableIO>,
-    FoldableIO<IterableIO>
+    FoldableIO<IterableIO>,
+    NaturalEpi<IterableIO, IteratorIO>
 {
     static K<IterableIO, B> Monad<IterableIO>.Recur<A, B>(A value, Func<A, K<IterableIO, Next<A, B>>> f) =>
-        // TODO: Replace with a stack-safe version
-        Monad.unsafeRecur(value, f);
+        Monad.iterableRecurIO(value, f);
     
     static K<IterableIO, B> Monad<IterableIO>.Bind<A, B>(K<IterableIO, A> ma, Func<A, K<IterableIO, B>> f) =>
         ma.As().Bind(f);
@@ -71,4 +70,6 @@ public partial class IterableIO :
     static Iterator<A> IterableIOK<IterableIO>.ForwardIterator<A>(K<IterableIO, A> fa) =>
         fa.As().ForwardIterator();*/
 
+    static K<IterableIO, A> CoNatural<IterableIO, IteratorIO>.CoTransform<A>(K<IteratorIO, A> fa) => 
+        new IterableIO<A>(+fa);
 }

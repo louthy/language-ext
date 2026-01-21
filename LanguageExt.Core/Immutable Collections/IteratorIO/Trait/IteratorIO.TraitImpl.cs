@@ -9,7 +9,8 @@ public partial class IteratorIO :
     MonoidK<IteratorIO>,
     Alternative<IteratorIO>, 
   //Traversable<IteratorIO>,
-    FoldableIO<IteratorIO>//,
+    FoldableIO<IteratorIO>,
+    NaturalEpi<IteratorIO, IteratorIO>
     /*Natural<IteratorIO, Arr>,
     Natural<IteratorIO, Seq>,
     Natural<IteratorIO, Lst>,
@@ -89,4 +90,9 @@ public partial class IteratorIO :
     
     static K<Iterable, A> Natural<IteratorIO, Iterable>.Transform<A>(K<IteratorIO, A> fa) => 
         new IterableIteratorIO<A>(fa.As());*/
+    static K<IteratorIO, A> Natural<IteratorIO, IteratorIO>.Transform<A>(K<IteratorIO, A> fa) => 
+        fa;
+
+    static K<IteratorIO, A> CoNatural<IteratorIO, IteratorIO>.CoTransform<A>(K<IteratorIO, A> fa) => 
+        fa;
 }

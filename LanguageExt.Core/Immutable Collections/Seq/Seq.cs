@@ -7,7 +7,6 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.Traits;
@@ -53,34 +52,27 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Internal value accessor - protects against `default`
     /// </summary>
-    internal ISeqInternal<A> Value
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value ?? SeqEmptyInternal<A>.Default;
-    }
+    internal ISeqInternal<A> Value => 
+        value ?? SeqEmptyInternal<A>.Default;
 
     /// <summary>
     /// Constructor from lazy sequence
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Seq(IEnumerable<A> ma) : this(new SeqLazy<A>(ma)) { }
+    public Seq(IEnumerable<A> ma) : this(ma.AsIterator()) { }
 
     /// <summary>
     /// Constructor from lazy sequence
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq(Iterator<A> ma) : this(new SeqIterator<A>(ma)) { }
 
     /// <summary>
     /// Constructor from lazy sequence
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq(ReadOnlySpan<A> ma) : this(Seq.FromArray(ma.ToArray())) { }
 
     /// <summary>
     /// Constructor
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal Seq(ISeqInternal<A> value) =>
         this.value = value;
 
@@ -101,7 +93,6 @@ public readonly struct Seq<A> :
         tail = Tail;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlySpan<A> AsSpan() =>
         Value.AsSpan();
     
@@ -161,11 +152,8 @@ public readonly struct Seq<A> :
     /// Indexer
     /// </summary>
     /// <exception cref="IndexOutOfRangeException"></exception>
-    public A this[Index index]
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Value[index.IsFromEnd ? index.GetOffset(Count) : index.Value];
-    }
+    public A this[long index] => 
+        Value[index];
 
     /// <summary>
     /// Add an item to the end of the sequence
@@ -175,7 +163,6 @@ public readonly struct Seq<A> :
     /// can be appended
     /// </remarks>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<A> Add(A value) =>
         new (Value.Add(value));
 
@@ -183,7 +170,6 @@ public readonly struct Seq<A> :
     /// Add a range of items to the end of the sequence
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<A> Concat(IEnumerable<A> items) =>
         items switch
         {
@@ -204,7 +190,6 @@ public readonly struct Seq<A> :
     /// can be appended.  
     /// </remarks>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<A> Concat(in Lst<A> items)
     {
         if (items.Count == 0)
@@ -223,7 +208,6 @@ public readonly struct Seq<A> :
     /// can be appended.  
     /// </remarks>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<A> Concat(in ReadOnlySpan<A> items)
     {
         if (items.Length == 0)
@@ -242,7 +226,6 @@ public readonly struct Seq<A> :
     /// can be appended.  
     /// </remarks>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<A> Concat(in Set<A> items)
     {
         if (items.Count == 0)
@@ -261,7 +244,6 @@ public readonly struct Seq<A> :
     /// can be appended.  
     /// </remarks>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<A> Concat(in HashSet<A> items)
     {
         if (items.Count == 0)
@@ -279,7 +261,6 @@ public readonly struct Seq<A> :
     /// Forces evaluation of the entire lazy sequence so the items
     /// can be appended.  
     /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<A> Concat(in Stck<A> items)
     {
         if (items.Count == 0)
@@ -297,7 +278,6 @@ public readonly struct Seq<A> :
     /// Forces evaluation of the entire lazy sequence so the items
     /// can be appended.  
     /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<A> Concat(IReadOnlyCollection<A> items)
     {
         if (items.Count == 0)
@@ -317,7 +297,6 @@ public readonly struct Seq<A> :
     /// can be appended.  
     /// </remarks>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<A> Concat(in Seq<A> rhs)
     {
         switch(Value.Type)
@@ -391,12 +370,12 @@ public readonly struct Seq<A> :
                     // add rhs to concat
                     case SeqType.Lazy:
                     case SeqType.Strict:
-                        return new Seq<A>(((SeqConcat<A>)value).AddSeq(rhs.value));
+                        return new Seq<A>(value.AddSeq(rhs.value));
 
                     // lhs concat, rhs concat
                     // add rhs to concat
                     case SeqType.Concat:
-                        return new Seq<A>(((SeqConcat<A>)value).AddSeqRange(((SeqConcat<A>)rhs.value).ms));
+                        return new(value.AddSeqRange(((SeqConcat<A>)rhs.value).seqs));
                 }
                 break;
         }
@@ -407,7 +386,6 @@ public readonly struct Seq<A> :
     /// Prepend an item to the sequence
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal Seq<A> Cons(A value) =>
         new (Value.Cons(value));
 
@@ -417,42 +395,30 @@ public readonly struct Seq<A> :
     /// <remarks>
     /// If `IsEmpty` is `true` then Head is undefined and therefore returns `None`
     /// </remarks>
-    public Option<A> Head
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Value.IsEmpty 
-                   ? None
-                   : Value.Head;
-    }
+    public Option<A> Head =>
+        Value.IsEmpty 
+            ? None
+            : Value.Head;
 
     /// <summary>
     /// Tail of the sequence
     /// </summary>
-    public Seq<A> Tail
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => new (Value.Tail);
-    }
+    public Seq<A> Tail => 
+        new (Value.Tail);
 
     /// <summary>
     /// Get all items except the last one
     /// </summary>
-    public Seq<A> Init
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => new (Value.Init);
-    }
+    public Seq<A> Init => 
+        new (Value.Init);
 
     /// <summary>
     /// Last item in sequence
     /// </summary>
-    public Option<A> Last
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Value.IsEmpty
-                   ? None
-                   : Some(Value.Last);
-    }
+    public Option<A> Last =>
+        Value.IsEmpty
+            ? None
+            : Some(Value.Last);
 
     /// <summary>
     /// Returns true if the sequence is empty
@@ -461,47 +427,29 @@ public readonly struct Seq<A> :
     /// For lazy streams this will have to peek at the first 
     /// item.  So, the first item will be consumed.
     /// </remarks>
-    public bool IsEmpty
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.IsEmpty ?? true;
-    }
+    public bool IsEmpty => 
+        value?.IsEmpty ?? true;
 
     /// <summary>
     /// Returns the number of items in the sequence
     /// </summary>
     /// <returns>Number of items in the sequence</returns>
-    public int Count
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.Count ?? 0;
-    }
-        
-    /// <summary>
-    /// Alias of `Count`
-    /// </summary>
-    /// <returns>Number of items in the sequence</returns>
-    public int Length
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.Count ?? 0;
-    }
+    public long Count => 
+        value?.Count ?? 0;
 
     /// <summary>
     /// Stream as an enumerable
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<A> AsEnumerable() => 
-        this;
+        this.ForwardIterator();
 
     /// <summary>
     /// Stream as an enumerable
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Iterable<A> AsIterable() => 
-       Iterable.createRange(AsEnumerable());
+    public Iterable<A> AsIterable() =>
+        new (this.ForwardIterator());
 
     /// <summary>
     /// Match empty sequence, or multi-item sequence
@@ -511,7 +459,6 @@ public readonly struct Seq<A> :
     /// <param name="Tail">Match for a non-empty</param>
     /// <returns>Result of match function invoked</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public B Match<B>(
         Func<B> Empty,
         Func<A, Seq<A>, B> Tail) =>
@@ -527,7 +474,6 @@ public readonly struct Seq<A> :
     /// <param name="Tail">Match for a non-empty</param>
     /// <returns>Result of match function invoked</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public B Match<B>(
         Func<B> Empty,
         Func<A, B> Head,
@@ -546,7 +492,6 @@ public readonly struct Seq<A> :
     /// <param name="Sequence">Match for a non-empty</param>
     /// <returns>Result of match function invoked</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public B Match<B>(
         Func<B> Empty,
         Func<Seq<A>, B> Seq) =>
@@ -562,7 +507,6 @@ public readonly struct Seq<A> :
     /// <param name="Tail">Match for a non-empty</param>
     /// <returns>Result of match function invoked</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public B Match<B>(
         Func<B> Empty,
         Func<A, B> Head,
@@ -580,7 +524,6 @@ public readonly struct Seq<A> :
     /// Returns the original unmodified structure
     /// </returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<A> Do(Action<A> f)
     {
         this.Iter(f);
@@ -620,17 +563,10 @@ public readonly struct Seq<A> :
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped sequence</returns>
     [Pure]
-    public Seq<B> Map<B>(Func<A, B> f)
-    {
-        return new Seq<B>(new SeqLazy<B>(Yield(this)));
-        IEnumerable<B> Yield(Seq<A> items)
-        {
-            foreach (var item in items)
-            {
-                yield return f(item);
-            }
-        }
-    }
+    public Seq<B> Map<B>(Func<A, B> f) =>
+        this.ForwardIterator()
+            .Map(f)
+            .ToSeq();
     
     /// <summary>
     /// Map the sequence using the function provided
@@ -640,19 +576,10 @@ public readonly struct Seq<A> :
     /// </remarks>
     /// <returns>Mapped sequence</returns>
     [Pure]
-    public Seq<B> Map<B>(Func<A, int, B> f)
-    {
-        return new Seq<B>(new SeqLazy<B>(Yield(this)));
-        IEnumerable<B> Yield(Seq<A> items)
-        {
-            var ix = 0;
-            foreach (var item in items)
-            {
-                yield return f(item, ix);
-                ix++;
-            }
-        }
-    }
+    public Seq<B> Map<B>(Func<A, long, B> f) =>
+        this.ForwardIterator()
+            .Map(f)
+            .ToSeq();
         
     /// <summary>
     /// Map the sequence using the function provided
@@ -661,7 +588,6 @@ public readonly struct Seq<A> :
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped sequence</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<B> Select<B>(Func<A, B> f) =>
         Map(f);
 
@@ -672,20 +598,10 @@ public readonly struct Seq<A> :
     /// <param name="f">Bind function</param>
     /// <returns>Flat-mapped sequence</returns>
     [Pure]
-    public Seq<B> Bind<B>(Func<A, Seq<B>> f)
-    {
-        static IEnumerable<B> Yield(Seq<A> ma, Func<A, Seq<B>> bnd)
-        {
-            foreach (var a in ma)
-            {
-                foreach (var b in bnd(a))
-                {
-                    yield return b;
-                }
-            }
-        }
-        return new Seq<B>(Yield(this, f));
-    }
+    public Seq<B> Bind<B>(Func<A, Seq<B>> f) =>
+        this.ForwardIterator()
+            .Bind(x => f(x).ForwardIterator())
+            .ToSeq();
 
     /// <summary>
     /// Monadic bind (flatmap) of the sequence
@@ -694,20 +610,10 @@ public readonly struct Seq<A> :
     /// <param name="f">Bind function</param>
     /// <returns>Flat-mapped sequence</returns>
     [Pure]
-    public Seq<B> Bind<B>(Func<A, K<Seq, B>> f)
-    {
-        static IEnumerable<B> Yield(K<Seq, A> ma, Func<A, K<Seq, B>> bnd)
-        {
-            foreach (var a in ma.As())
-            {
-                foreach (var b in bnd(a).As())
-                {
-                    yield return b;
-                }
-            }
-        }
-        return new Seq<B>(Yield(this, f));
-    }
+    public Seq<B> Bind<B>(Func<A, K<Seq, B>> f) =>
+        this.ForwardIterator()
+            .Bind(x => f(x).ForwardIterator())
+            .ToSeq();
 
     /// <summary>
     /// Monadic bind (flatmap) of the sequence
@@ -716,20 +622,10 @@ public readonly struct Seq<A> :
     /// <param name="bind">Bind function</param>
     /// <returns>Flat-mapped sequence</returns>
     [Pure]
-    public Seq<C> SelectMany<B, C>(Func<A, Seq<B>> bind, Func<A, B, C> project)
-    {
-        static IEnumerable<C> Yield(Seq<A> ma, Func<A, Seq<B>> bnd, Func<A, B, C> prj)
-        {
-            foreach (var a in ma)
-            {
-                foreach (var b in bnd(a))
-                {
-                    yield return prj(a, b);
-                }
-            }
-        }
-        return new Seq<C>(Yield(this, bind, project));
-    }
+    public Seq<C> SelectMany<B, C>(Func<A, Seq<B>> bind, Func<A, B, C> project) =>
+        this.ForwardIterator()
+            .SelectMany(x => bind(x).ForwardIterator(), project)
+            .ToSeq();
 
     /// <summary>
     /// Filter the items in the sequence
@@ -737,20 +633,10 @@ public readonly struct Seq<A> :
     /// <param name="f">Predicate to apply to the items</param>
     /// <returns>Filtered sequence</returns>
     [Pure]
-    public Seq<A> Filter(Func<A, bool> f)
-    {
-        return new Seq<A>(new SeqLazy<A>(Yield(this, f)));
-        static IEnumerable<A> Yield(Seq<A> items, Func<A, bool> f)
-        {
-            foreach (var item in items)
-            {
-                if (f(item))
-                {
-                    yield return item;
-                }
-            }
-        }
-    }
+    public Seq<A> Filter(Func<A, bool> f) =>
+        this.ForwardIterator()
+            .Filter(f)
+            .ToSeq();
         
     /// <summary>
     /// Filter the items in the sequence
@@ -758,7 +644,6 @@ public readonly struct Seq<A> :
     /// <param name="f">Predicate to apply to the items</param>
     /// <returns>Filtered sequence</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<A> Where(Func<A, bool> f) =>
         Filter(f);
 
@@ -767,7 +652,6 @@ public readonly struct Seq<A> :
     /// </summary>
     /// <returns>True if the sequence has items in it</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Any() =>
         !IsEmpty;
 
@@ -778,21 +662,20 @@ public readonly struct Seq<A> :
     /// <typeparam name="A">Bound type</typeparam>
     /// <returns>A sequence with the values injected</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<A> Intersperse(A sep) =>
-        this.ForwardIterator().Intersperse(sep).ToSeq();
+        this.ForwardIterator()
+            .Intersperse(sep)
+            .ToSeq();
 
     /// <summary>
     /// Get the hash code for all of the items in the sequence, or 0 if empty
     /// </summary>
     /// <returns></returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode() =>
         Value.GetHashCode();
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int CompareTo(object? obj) =>
         obj switch
         {
@@ -809,7 +692,7 @@ public readonly struct Seq<A> :
     /// </summary>
     [Pure]
     public override string ToString() =>
-        Value is SeqLazy<A>
+        Value.Type == SeqType.Lazy
             ? CollectionFormat.ToShortArrayString(this)
             : CollectionFormat.ToShortArrayString(this, Count);
 
@@ -835,7 +718,6 @@ public readonly struct Seq<A> :
     /// Append operator
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> operator +(Seq<A> x, Seq<A> y) =>
         x.Concat(y);
 
@@ -843,7 +725,6 @@ public readonly struct Seq<A> :
     /// Append operator
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> operator +(A x, Seq<A> y) =>
         x.Cons(y);
 
@@ -851,7 +732,6 @@ public readonly struct Seq<A> :
     /// Append operator
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> operator +(Seq<A> x, A y) =>
         x.Add(y);
 
@@ -859,7 +739,6 @@ public readonly struct Seq<A> :
     /// Append operator
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> operator +(Seq<A> x, K<Seq, A> y) =>
         x.Concat(y.As());
 
@@ -867,7 +746,6 @@ public readonly struct Seq<A> :
     /// Append operator
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> operator +(K<Seq, A> x, Seq<A> y) =>
         x.As().Concat(y);
 
@@ -875,7 +753,6 @@ public readonly struct Seq<A> :
     /// Choice operator
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> operator |(Seq<A> x, K<Seq, A> y) =>
         x.Choose(y).As();
 
@@ -883,7 +760,6 @@ public readonly struct Seq<A> :
     /// Choice operator
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> operator |(K<Seq, A> x, Seq<A> y) =>
         x.Choose(y).As();
 
@@ -891,7 +767,6 @@ public readonly struct Seq<A> :
     /// Ordering operator
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >(Seq<A> x, Seq<A> y) =>
         x.CompareTo(y) > 0;
 
@@ -899,7 +774,6 @@ public readonly struct Seq<A> :
     /// Ordering operator
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >=(Seq<A> x, Seq<A> y) =>
         x.CompareTo(y) >= 0;
 
@@ -907,7 +781,6 @@ public readonly struct Seq<A> :
     /// Ordering  operator
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(Seq<A> x, Seq<A> y) =>
         x.CompareTo(y) < 0;
 
@@ -915,7 +788,6 @@ public readonly struct Seq<A> :
     /// Ordering  operator
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <=(Seq<A> x, Seq<A> y) =>
         x.CompareTo(y) <= 0;
 
@@ -923,7 +795,6 @@ public readonly struct Seq<A> :
     /// Equality operator
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(Seq<A> x, Seq<A> y) =>
         x.Equals(y);
 
@@ -931,7 +802,6 @@ public readonly struct Seq<A> :
     /// Non-equality operator
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(Seq<A> x, Seq<A> y) =>
         !(x == y);
 
@@ -939,7 +809,6 @@ public readonly struct Seq<A> :
     /// Equality test
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool Equals(object? obj) =>
         obj switch
         {
@@ -952,7 +821,6 @@ public readonly struct Seq<A> :
     /// Equality test
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(Seq<A> rhs) =>
         Equals<EqDefault<A>>(rhs);
 
@@ -960,94 +828,83 @@ public readonly struct Seq<A> :
     /// Equality test
     /// </summary>
     [Pure]
-    public bool Equals<EqA>(Seq<A> rhs) where EqA : Eq<A>
+    public bool Equals<EqA>(Seq<A> rhs) where EqA : Eq<A> 
     {
         // Differing lengths?
         if(Count != rhs.Count) return false;
 
         // If the hash code has been calculated on both sides then 
         // check for differences
-        if (GetHashCode() != rhs.GetHashCode())
-        {
-            return false;
-        }
-
-        // Iterate through both sides
-        using var iterA = GetEnumerator();
-        using var iterB = rhs.GetEnumerator();
-        while (iterA.MoveNext() && iterB.MoveNext())
-        {
-            if (!EqA.Equals(iterA.Current, iterB.Current))
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return GetHashCode() == rhs.GetHashCode() && 
+               this.ForwardIterator()
+                   .Equals<EqA>(rhs.ForwardIterator());
     }
 
     /// <summary>
-    /// Skip count items
+    /// Skip the specified number of items from the head of the sequence
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Seq<A> Skip(int amount) =>
-        amount < 1
-            ? this
-            : new Seq<A>(Value.Skip(amount));
+    public Seq<A> Skip(long amount) =>
+        this.ForwardIterator()
+            .Skip(amount)
+            .ToSeq();
 
     /// <summary>
-    /// Take count items
+    /// Keep skipping items while the predicate is satisfied.
+    /// </summary>
+    /// <param name="f">predicate</param>
+    /// <returns>Sequence</returns>
+    [Pure]
+    public Seq<A> SkipWhile(Func<A, bool> f) =>
+        this.ForwardIterator()
+            .SkipWhile(f)
+            .ToSeq();
+
+    /// <summary>
+    /// Keep skipping items until the predicate is satisfied.
+    /// </summary>
+    /// <param name="f">predicate</param>
+    /// <returns>Sequence</returns>
+    [Pure]
+    public Seq<A> SkipUntil(Func<A, bool> f) =>
+        this.ForwardIterator()
+            .SkipUntil(f)
+            .ToSeq();
+    
+    /// <summary>
+    /// Take the specified number of items from the head of the sequence
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Seq<A> Take(int amount) =>
-        amount < 1
-            ? Empty
-            : new Seq<A>(Value.Take(amount));
+    public Seq<A> Take(long amount) =>
+        this.ForwardIterator()
+            .Take(amount)
+            .ToSeq();
 
     /// <summary>
     /// Iterate the sequence, yielding items if they match the predicate 
     /// provided, and stopping as soon as one doesn't
     /// </summary>
+    /// <param name="f">predicate</param>
     /// <returns>A new sequence with the first items that match the 
     /// predicate</returns>
     [Pure]
-    public Seq<A> TakeWhile(Func<A, bool> pred)
-    {
-        return new Seq<A>(new SeqLazy<A>(Yield(Value, pred)));
-        IEnumerable<A> Yield(IEnumerable<A> xs, Func<A, bool> f)
-        {
-            foreach (var x in xs)
-            {
-                if (!f(x)) break;
-                yield return x;
-            }
-        }
-    }
+    public Seq<A> TakeWhile(Func<A, bool> f) =>
+        this.ForwardIterator()
+            .TakeWhile(f)
+            .ToSeq();
 
     /// <summary>
     /// Iterate the sequence, yielding items if they match the predicate 
-    /// provided, and stopping as soon as one doesn't.  An index value is 
-    /// also provided to the predicate function.
+    /// provided, and stopping as soon as one doesn't
     /// </summary>
+    /// <param name="f">predicate</param>
     /// <returns>A new sequence with the first items that match the 
     /// predicate</returns>
     [Pure]
-    public Seq<A> TakeWhile(Func<A, int, bool> pred)
-    {
-        return new Seq<A>(new SeqLazy<A>(Yield(Value, pred)));
-        IEnumerable<A> Yield(IEnumerable<A> xs, Func<A, int, bool> f)
-        {
-            var i = 0;
-            foreach (var x in xs)
-            {
-                if (!f(x, i)) break;
-                yield return x;
-                i++;
-            }
-        }
-    }
+    public Seq<A> TakeUntil(Func<A, bool> f) =>
+        this.ForwardIterator()
+            .TakeUntil(f)
+            .ToSeq();
 
     /// <summary>
     /// Returns all initial segments of the sequence, shortest first
@@ -1157,25 +1014,11 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Partition a list into two based on  a predicate
     /// </summary>
-    /// <param name="predicate">True if the item goes in the first list, false for the second list</param>
+    /// <param name="f">True if the item goes in the first list, false for the second list</param>
     /// <returns>Pair of lists</returns>
-    public (Seq<A> First, Seq<A> Second) Partition(Func<A, bool> predicate)
-    {
-        var f = Seq<A>();
-        var s = Seq<A>();
-        foreach (var item in this)
-        {
-            if (predicate(item))
-            {
-                f = f.Add(item);
-            }
-            else
-            {
-                s = s.Add(item);
-            }
-        }
-        return (f, s);
-    }
+    public (Arr<A> First, Arr<A> Second) Partition(Func<A, bool> f) =>
+        this.ForwardIterator()
+            .Partition(f);
 
     /// <summary>
     /// Compare to another sequence
@@ -1192,67 +1035,44 @@ public readonly struct Seq<A> :
     {
         // Differing lengths?
         var cmp = Count.CompareTo(rhs.Count);
-        if (cmp != 0) return cmp;
-
-        // Iterate through both sides
-        using var iterA = GetEnumerator();
-        using var iterB = rhs.GetEnumerator();
-        while (iterA.MoveNext() && iterB.MoveNext())
-        {
-            cmp = OrdA.Compare(iterA.Current, iterB.Current);
-            if (cmp != 0) return cmp;
-        }
-
-        return 0;
+        return cmp == 0
+                   ? this.ForwardIterator()
+                         .CompareTo<OrdA>(rhs.ForwardIterator())
+                   : cmp;
     }
 
     /// <summary>
     /// Force all items lazy to stream
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<A> Strict() => 
         new (Value.Strict());
 
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerator<A> GetEnumerator() =>
+    public IteratorEnumerator<A> GetEnumerator() =>
         Value.GetEnumerator();
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
+        GetEnumerator().GetEnumerator();
+
+    [Pure]
     IEnumerator IEnumerable.GetEnumerator() =>
-        Value.GetEnumerator();
+        Value.GetEnumerator().GetEnumerator();
 
     /// <summary>
     /// Implicit conversion from an untyped empty list
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Seq<A>(UnitCollection _) =>
         Empty;
 
     [Pure]
-    public Seq<B> Cast<B>()
-    {
-        IEnumerable<B> Yield(Seq<A> ma)
-        {
-            foreach (object? item in ma)
-            {
-                if( item is B b) yield return b;
-            }
-        }
-
-        return Value is IEnumerable<B> mb
-                   ? new Seq<B>(mb)
-                   : new Seq<B>(Yield(this));
-    }
+    public Seq<B> Cast<B>() =>
+        this.ForwardIterator()
+            .Cast<B>()
+            .ToSeq();
 
     internal Seq.FoldState InitFoldState() =>
         Value.InitFoldState();
-
-    internal Seq.FoldState InitFoldBackState() =>
-        // This forces evaluation of the whole Seq, so we can walk the items in reverse.
-        Seq.FoldState.FromSpanBack(AsSpan());
 
     public static Seq<A> AdditiveIdentity => 
         Empty;

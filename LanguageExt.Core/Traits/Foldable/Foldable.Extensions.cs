@@ -245,7 +245,7 @@ public static partial class FoldableExtensions
         /// <summary>
         /// Find the element at the specified index or `None` if out of range
         /// </summary>
-        public Option<A> At(int index) =>
+        public Option<A> At(long index) =>
             T.At(index, ta);
 
         /// <summary>

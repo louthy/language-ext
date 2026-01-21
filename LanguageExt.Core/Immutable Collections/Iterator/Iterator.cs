@@ -123,6 +123,22 @@ public abstract partial class Iterator<A> :
     }
 
     /// <summary>
+    /// Forces evaluation of every item in the iterator and then writes them to an `Arr` structure
+    /// </summary>
+    [Pure]
+    public (A[] Buffer, long Start, long Count) ToArray(int start = 0)
+    {
+        var writer = start == 0
+                         ? ArrayWriter<A>.Init()
+                         : ArrayWriter<A>.InitOffset(start);
+        foreach (var head in this)
+        {
+            writer.Add(head);
+        }
+        return writer.ToArray();
+    }
+
+    /// <summary>
     /// Create an `Iterable` from an `Iterator`
     /// </summary>
     [Pure]

@@ -9,78 +9,66 @@ namespace LanguageExt;
 public static class Queue
 {
     [Pure]
-    public static Que<T> singleton<T>(T item) =>
+    public static Que<A> singleton<A>(A item) =>
         [item];
     
     [Pure]
-    public static Que<T> createRange<T>(IEnumerable<T> items) =>
+    public static Que<A> createRange<A>(IEnumerable<A> items) =>
         new (items);
     
     [Pure]
-    public static Que<T> createRange<T>(ReadOnlySpan<T> items) =>
+    public static Que<A> createRange<A>(ReadOnlySpan<A> items) =>
         items.IsEmpty
-            ? Que<T>.Empty
+            ? Que<A>.Empty
             : new (items);
 
     [Pure]
-    public static Que<T> enq<T>(Que<T> queue, T value) =>
+    public static Que<A> enq<A>(Que<A> queue, A value) =>
         queue.Enqueue(value);
 
     [Pure]
-    public static T peekUnsafe<T>(Que<T> queue) =>
+    public static A peekUnsafe<A>(Que<A> queue) =>
         queue.PeekUnsafe();
 
     [Pure]
-    public static Option<T> peek<T>(Que<T> queue) =>
+    public static Option<A> peek<A>(Que<A> queue) =>
         queue.Peek();
 
     [Pure]
-    public static bool tryPeek<T>(Que<T> queue, out T value) =>
+    public static bool tryPeek<A>(Que<A> queue, out A value) =>
         queue.TryPeek(out value);
 
     [Pure]
-    public static Que<T> clear<T>(Que<T> queue) =>
+    public static Que<A> clear<A>(Que<A> queue) =>
         queue.Clear();
 
     [Pure]
-    public static Que<R> map<T, R>(Que<T> queue, Func<int, T, R> map) =>
+    public static Que<B> map<A, B>(Que<A> queue, Func<A, long, B> map) =>
         queue.Map(map);
 
     [Pure]
-    public static Que<T> filter<T>(Que<T> queue, Func<T, bool> predicate) =>
+    public static Que<A> filter<A>(Que<A> queue, Func<A, bool> predicate) =>
         queue.Filter(predicate);
 
     [Pure]
-    public static Que<U> choose<T, U>(Que<T> queue, Func<T, Option<U>> selector) =>
-        queue.Choose(selector);
-
-    [Pure]
-    public static Que<U> choose<T, U>(Que<T> queue, Func<int, T, Option<U>> selector) =>
+    public static Que<B> choose<A, B>(Que<A> queue, Func<A, Option<B>> selector) =>
         queue.Choose(selector);
     
     [Pure]
-    public static Que<T> rev<T>(Que<T> queue) =>
+    public static Que<A> rev<A>(Que<A> queue) =>
         queue.Reverse();
 
     [Pure]
-    public static Que<T> append<T>(Que<T> lhs, IEnumerable<T> rhs) =>
+    public static Que<A> append<A>(Que<A> lhs, IEnumerable<A> rhs) =>
         lhs.Append(rhs);
 
-    /// <summary>
-    /// Folds each value of the QueT into an S.
-    /// [wikipedia.org/wiki/Fold_(higher-order_function)](https://en.wikipedia.org/wiki/Fold_(higher-order_function))
-    /// </summary>
-    /// <param name="queue">Queue to fold</param>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Fold function</param>
-    /// <returns>Folded state</returns>
     [Pure]
-    public static S fold<S, T>(Que<T> queue, S state, Func<S, T, S> folder) =>
+    public static S fold<S, A>(Que<A> queue, S state, Func<S, A, S> folder) =>
         Foldable.fold(folder, state, queue);
 
     [Pure]
-    public static Que<V> zip<T, U, V>(Que<T> queue, IEnumerable<U> other, Func<T, U, V> zipper) =>
-        toQueue(Iterable.zip(queue, other, zipper));
+    public static Que<C> zip<A, B, C>(Que<A> queue, IEnumerable<B> other, Func<A, B, C> zipper) =>
+        toQueue(queue.ForwardIterator().Zip(other.AsIterator(), zipper));
 
     [Pure]
     public static Que<T> distinct<T>(Que<T> queue) =>

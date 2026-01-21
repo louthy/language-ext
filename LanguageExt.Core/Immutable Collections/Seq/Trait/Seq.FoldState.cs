@@ -12,36 +12,37 @@ public partial class Seq
     /// </summary>
     public ref struct FoldState
     {
-        readonly ref object Span;
+        readonly ref byte Span;
         readonly int Length;
         int Index;
-        readonly IEnumerator? Enum; 
+        object? Iter; 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public FoldState(ref object span, int length, int index, IEnumerator? @enum)
+        FoldState(ref byte span, int length, int index, object? @enum)
         {
             Span = ref span;
             Length = length;
             Index = index;
-            Enum = @enum;
+            Iter = @enum;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static FoldState FromSpan<A>(ReadOnlySpan<A> span) =>
-            new FoldState(ref Unsafe.As<A, object>(ref MemoryMarshal.GetReference(span)), span.Length, -1, null);
+            new (ref Unsafe.As<A, byte>(ref MemoryMarshal.GetReference(span)), span.Length, -1, null);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static FoldState FromSpanBack<A>(ReadOnlySpan<A> span) =>
-            new FoldState(ref Unsafe.As<A, object>(ref MemoryMarshal.GetReference(span)), span.Length, span.Length, null);
+            new (ref Unsafe.As<A, byte>(ref MemoryMarshal.GetReference(span)), span.Length, span.Length, null);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static FoldState FromEnumerator(IEnumerator @enum) =>
-            new FoldState(ref Unsafe.NullRef<object>(), 0, -1, @enum);
+        public static FoldState FromIterator<A>(Iterator<A> iterator) =>
+            new (ref Unsafe.NullRef<byte>(), 0, -1, iterator);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool MoveNext<A>(ref FoldState state, out A value)
         {
-            if (state.Enum is null)
+            ref var iter = ref Unsafe.As<object?, Iterator<A>?>(ref state.Iter);
+            if (iter is null)
             {
                 ref var          ix  = ref state.Index;
                 ref readonly var len = ref state.Length;
@@ -54,16 +55,17 @@ public partial class Seq
                 }
                 else
                 {
-                    var span = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<object, A>(ref state.Span), state.Length);
+                    var span = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<byte, A>(ref state.Span), state.Length);
                     value = span[ix];
                     return true;
                 }
             }
             else
             {
-                if (state.Enum.MoveNext())
+                if (iter is (Exist<A> (var head), var tail))
                 {
-                    value = (A)state.Enum.Current!;
+                    value = head;
+                    iter = tail;
                     return true;
                 }
                 else
@@ -87,7 +89,7 @@ public partial class Seq
             }
             else
             {
-                var span = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<object, A>(ref state.Span), state.Length);
+                var span = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<byte, A>(ref state.Span), state.Length);
                 value = span[ix];
                 return true;
             }

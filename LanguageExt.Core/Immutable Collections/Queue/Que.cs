@@ -86,31 +86,15 @@ public readonly struct Que<A> :
     /// Is the queue empty
     /// </summary>
     [Pure]
-    public bool IsEmpty
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.IsEmpty ?? true;
-    }
+    public bool IsEmpty => 
+        value?.IsEmpty ?? true;
 
     /// <summary>
     /// Number of items in the queue
     /// </summary>
     [Pure]
-    public int Count
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.Count ?? 0;
-    }
-
-    /// <summary>
-    /// Alias of Count
-    /// </summary>
-    [Pure]
-    public int Length
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.Count ?? 0;
-    }
+    public long Count => 
+        value?.Count ?? 0;
 
     /// <summary>
     /// Returns an empty queue 
@@ -212,7 +196,7 @@ public readonly struct Que<A> :
     /// <returns>Concatenated queue</returns>
     [Pure]
     public Que<A> Combine(Que<A> rhs) =>
-        new(IterableExtensions.AsIterable(Value).Combine(IterableExtensions.AsIterable(rhs)));
+        new(Value.AsIterator().Combine(rhs.AsIterator()));
 
     /// <summary>
     /// Subtract one queue from another

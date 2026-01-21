@@ -7,7 +7,6 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using LanguageExt.Traits;
 using LanguageExt.ClassInstances;
-using System.Runtime.CompilerServices;
 
 namespace LanguageExt;
 
@@ -20,7 +19,6 @@ public partial class Seq
     /// Monadic join
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> flatten<A>(Seq<Seq<A>> ma) =>
         ma.Bind(identity);
 
@@ -28,7 +26,6 @@ public partial class Seq
     /// Create an empty sequence
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> empty<A>() =>
         Seq<A>.Empty;
 
@@ -40,7 +37,6 @@ public partial class Seq
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Constructed sequence</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> cons<A>(A head, Seq<A> tail) =>
         head.Cons(tail);
     
@@ -48,7 +44,6 @@ public partial class Seq
     /// Create an empty sequence
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> singleton<A>(A value) =>
         [value];
 
@@ -57,7 +52,6 @@ public partial class Seq
     /// </summary>
     /// <returns>sequence</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> create<A>() =>
         Seq<A>.Empty;
 
@@ -81,7 +75,6 @@ public partial class Seq
     /// <param name="items">Items</param>
     /// <returns>sequence</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> createRange<A>(ReadOnlySpan<A> items) =>
         items.Length == 0 ? Seq<A>.Empty : new (items);
 
@@ -91,7 +84,6 @@ public partial class Seq
     /// <param name="items">Items</param>
     /// <returns>sequence</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> createRange<A>(IEnumerable<A> items) =>
         new (items);
 
@@ -100,7 +92,6 @@ public partial class Seq
     /// each item.
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> generate<A>(int count, Func<int, A> generator) =>
         Range(0, count)
            .ForwardIterator()
@@ -110,7 +101,6 @@ public partial class Seq
     /// Generates a sequence that contains one repeated value.
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> repeat<A>(A item, int count) =>
         Range(0, count).ForwardIterator().Map(_ => item).ToSeq();
 
@@ -120,7 +110,6 @@ public partial class Seq
     /// <param name="list">sequence</param>
     /// <returns>Head item</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<A> head<A>(Seq<A> list) => 
         list.Head;
 
@@ -130,7 +119,6 @@ public partial class Seq
     /// <param name="list">sequence</param>
     /// <returns>Last item</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<A> last<A>(Seq<A> list) =>
         list.Last;
 
@@ -143,7 +131,6 @@ public partial class Seq
     /// <param name="list">List</param>
     /// <returns>The initial items (all but the last)</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> init<A>(Seq<A> list) =>
         list.Init;
 
@@ -153,7 +140,6 @@ public partial class Seq
     /// <param name="list">sequence</param>
     /// <returns>Tail sequence</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> tail<A>(Seq<A> list) =>
         list.Tail;
 
@@ -166,7 +152,6 @@ public partial class Seq
     /// <param name="map">Map function</param>
     /// <returns>Mapped sequence</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<B> map<A, B>(Seq<A> list, Func<A, B> map) =>
         list.Select(map);
 
@@ -181,7 +166,6 @@ public partial class Seq
     /// <param name="map">Map function</param>
     /// <returns>Mapped sequence</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<B> map<A, B>(Seq<A> list, Func<int, A, B> map) =>
         toSeq(zip(list, Range(0, int.MaxValue).ForwardIterator().ToSeq(), (t, i) => map(i, t)));
 
@@ -193,7 +177,6 @@ public partial class Seq
     /// <param name="predicate">Predicate function</param>
     /// <returns>Filtered sequence</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> filter<A>(Seq<A> list, Func<A, bool> predicate) =>
         list.Where(predicate);
 
@@ -206,7 +189,6 @@ public partial class Seq
     /// <param name="selector">Selector function</param>
     /// <returns>Mapped and filtered sequence</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<B> choose<A, B>(Seq<A> list, Func<A, Option<B>> selector) =>
         map(filter(map(list, selector), t => t.IsSome), t => t.Value!);
 
@@ -220,7 +202,6 @@ public partial class Seq
     /// <param name="selector">Selector function</param>
     /// <returns>Mapped and filtered sequence</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<B> choose<A, B>(Seq<A> list, Func<int, A, Option<B>> selector) =>
         map(filter(map(list, selector), t => t.IsSome), t => t.Value!);
 
@@ -231,7 +212,6 @@ public partial class Seq
     /// <param name="list">sequence to reverse</param>
     /// <returns>Reversed sequence</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<T> rev<T>(Seq<T> list) =>
         toSeq(list.AsEnumerable().Reverse());
 
@@ -244,7 +224,6 @@ public partial class Seq
     /// <param name="zipper">Join function</param>
     /// <returns>Joined sequence</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<V> zip<T, U, V>(Seq<T> list, Seq<U> other, Func<T, U, V> zipper) =>
         toSeq(list.Zip(other, zipper));
 
@@ -256,7 +235,6 @@ public partial class Seq
     /// <param name="zipper">Join function</param>
     /// <returns>Joined sequence of tuples</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<(T First, U Second)> zip<T, U>(Seq<T> list, Seq<U> other) =>
         toSeq(list.Zip(other, (t, u) => (t, u)));
 
@@ -269,7 +247,6 @@ public partial class Seq
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the sequence match the predicate</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool forall<T>(Seq<T> list, Func<T, bool> pred) =>
         list.ForAll(pred);
 
@@ -280,7 +257,6 @@ public partial class Seq
     /// <param name="list">sequence</param>
     /// <returns>A new sequence with all duplicate values removed</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<T> distinct<T>(Seq<T> list) =>
         toSeq(list.Distinct());
 
@@ -291,7 +267,6 @@ public partial class Seq
     /// <param name="list">sequence</param>
     /// <returns>A new sequence with all duplicate values removed</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<T> distinct<EQ, T>(Seq<T> list) where EQ : Eq<T> =>
         toSeq(list.Distinct(new EqCompare<T>(static (x, y) => EQ.Equals(x, y), static x => EQ.GetHashCode(x))));
 
@@ -302,7 +277,6 @@ public partial class Seq
     /// <param name="list">sequence</param>
     /// <returns>A new sequence with all duplicate values removed</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<T> distinct<T, K>(Seq<T> list, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default) =>
         toSeq(list.Distinct(new EqCompare<T>(
                                 (a, b) => compare.IfNone(EqDefault<K>.Equals)(keySelector(a), keySelector(b)), 
@@ -316,35 +290,30 @@ public partial class Seq
     /// <param name="count">Number of items to take</param>
     /// <returns>A new sequence with the first 'count' items from the sequence provided</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<T> take<T>(Seq<T> list, int count) =>
         list.Take(count);
 
     /// <summary>
-    /// Iterate the sequence, yielding items if they match the predicate provided, and stopping 
-    /// as soon as one doesn't
+    /// Yield items while the predicate provided returns `true`.
     /// </summary>
     /// <typeparam name="T">sequence item type</typeparam>
     /// <param name="list">sequence</param>
     /// <param name="count">Number of items to take</param>
     /// <returns>A new sequence with the first items that match the predicate</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<T> takeWhile<T>(Seq<T> list, Func<T, bool> pred) =>
         list.TakeWhile(pred);
 
     /// <summary>
-    /// Iterate the sequence, yielding items if they match the predicate provided, and stopping 
-    /// as soon as one doesn't.  An index value is also provided to the predicate function.
+    /// Yield items until the predicate provided returns `true`.
     /// </summary>
     /// <typeparam name="T">sequence item type</typeparam>
     /// <param name="list">sequence</param>
     /// <param name="count">Number of items to take</param>
     /// <returns>A new sequence with the first items that match the predicate</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Seq<T> takeWhile<T>(Seq<T> list, Func<T, int, bool> pred) =>
-        list.TakeWhile(pred);
+    public static Seq<T> takeUntil<T>(Seq<T> list, Func<T, bool> pred) =>
+        list.TakeUntil(pred);
 
     /// <summary>
     /// The tails function returns all final segments of the argument, longest first. For example:
@@ -399,15 +368,12 @@ public partial class Seq
         return (self.Take(index), self.Skip(index));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static Seq<A> FromSingleValue<A>(A value) =>
         new (SeqStrict<A>.FromSingleValue(value));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static Seq<A> FromArray<A>(A[] value) =>
         new (new SeqStrict<A>(value, 0, value.Length, 0, 0));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static Seq<A> FromArray<A>(A[] value, int length) =>
         new (new SeqStrict<A>(value, 0, length, 0, 0));
 }

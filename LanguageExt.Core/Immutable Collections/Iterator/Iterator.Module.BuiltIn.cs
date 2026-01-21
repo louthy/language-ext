@@ -54,6 +54,24 @@ public partial class Iterator
         items.BackwardIterator();
 
     /// <summary>
+    /// Create an iterator from an array
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Iterator of the collection</returns>
+    public static Iterator<A> forward<A>(A[] items, long start, long count) =>
+        new Iterator<A>.IterArray(items, start, count);
+
+    /// <summary>
+    /// Create an iterator from an array
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Iterator of the collection</returns>
+    public static Iterator<A> backward<A>(A[] items, long start, long count) =>
+        new Iterator<A>.IterArrayBkwd(items, start, count);
+
+    /// <summary>
     /// Create an iterator from an `HashMap` collection
     /// </summary>
     /// <param name="items">Collection to iterate</param>

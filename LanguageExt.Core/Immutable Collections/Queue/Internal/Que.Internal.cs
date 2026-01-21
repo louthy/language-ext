@@ -8,7 +8,7 @@ using LanguageExt.ClassInstances;
 namespace LanguageExt;
 
 [Serializable]
-internal class QueInternal<A> : IEnumerable<A>
+class QueInternal<A> : IEnumerable<A>
 {
     public static readonly QueInternal<A> Empty = new ();
 
@@ -47,16 +47,16 @@ internal class QueInternal<A> : IEnumerable<A>
         backwardRev = q.backwardRev;
     }
 
-    private QueInternal(Stck<A> f, Stck<A> b)
+    QueInternal(Stck<A> f, Stck<A> b)
     {
         forward = f;
         backward = b;
     }
 
-    private Stck<A> BackwardRev =>
+    Stck<A> BackwardRev =>
         backwardRev ??= backward.Reverse();
 
-    public int Count =>
+    public long Count =>
         forward.Count + backward.Count;
 
     public bool IsEmpty =>

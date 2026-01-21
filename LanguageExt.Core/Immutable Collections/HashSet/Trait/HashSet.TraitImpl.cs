@@ -11,10 +11,11 @@ public partial class HashSet :
     MonoidK<HashSet>,
     Alternative<HashSet>, 
     Traversable<HashSet>,
-    Foldable<HashSet, TrieSet.FoldState> 
+    Foldable<HashSet, TrieSet.FoldState>,
+    NaturalEpi<HashSet, Iterator>
 {
     static K<HashSet, B> Monad<HashSet>.Recur<A, B>(A value, Func<A, K<HashSet, Next<A, B>>> f) =>
-        createRange(Monad.enumerableRecur(value, x =>f(x).As().AsEnumerable()));
+        Monad.iterableRecur(value, f);
     
     static K<HashSet, B> Monad<HashSet>.Bind<A, B>(K<HashSet, A> ma, Func<A, K<HashSet, B>> f)
     {
@@ -134,4 +135,7 @@ public partial class HashSet :
     static Iterator<A> IterableK<HashSet>.ForwardIterator<A>(K<HashSet, A> fa) =>
         new Iterator.IterHashSet<EqDefault<A>, A>(
             TrieSet.IteratorState<EqDefault<A>, A>.Setup(fa.As().Value.Root));
+
+    static K<HashSet, A> CoNatural<HashSet, Iterator>.CoTransform<A>(K<Iterator, A> fa) => 
+        createRange(+fa);
 }

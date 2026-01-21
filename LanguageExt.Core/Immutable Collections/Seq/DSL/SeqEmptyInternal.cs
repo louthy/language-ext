@@ -1,26 +1,24 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using LanguageExt.Common;
 
 namespace LanguageExt;
 
-internal class SeqEmptyInternal<A> : ISeqInternal<A>
+class SeqEmptyInternal<A> : ISeqInternal<A>
 {
-    public static ISeqInternal<A> Default = new SeqEmptyInternal<A>();
+    public static readonly ISeqInternal<A> Default = new SeqEmptyInternal<A>();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlySpan<A> AsSpan() =>
         ReadOnlySpan<A>.Empty;
 
     public Seq.FoldState InitFoldState() => 
         Seq.FoldState.FromSpan(AsSpan());
 
-    public A this[int index] => 
+    public A this[long index] => 
         throw new IndexOutOfRangeException();
 
-    public Option<A> At(int index) => 
+    public Option<A> At(long index) => 
         default;
 
     public A Head =>
@@ -38,7 +36,7 @@ internal class SeqEmptyInternal<A> : ISeqInternal<A>
     public A Last =>
         throw Exceptions.SequenceEmpty;
 
-    public int Count => 
+    public long Count => 
         0;
 
     public ISeqInternal<A> Add(A value) =>
@@ -47,39 +45,20 @@ internal class SeqEmptyInternal<A> : ISeqInternal<A>
     public ISeqInternal<A> Cons(A value) =>
         SeqStrict<A>.FromSingleValue(value);
 
-    public S Fold<S>(S state, Func<S, A, S> f) =>
-        state;
-
-    public S FoldBack<S>(S state, Func<S, A, S> f) =>
-        state;
-
-    public ISeqInternal<A> Skip(int amount) =>
+    public ISeqInternal<A> Skip(long amount) =>
         this;
 
     public ISeqInternal<A> Strict() =>
         this;
 
-    public ISeqInternal<A> Take(int amount) =>
+    public ISeqInternal<A> Take(long amount) =>
         this;
-        
-    public IEnumerator<A> GetEnumerator()
-    {
-        yield break;
-    }
-            
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        yield break;
-    }
 
-    public Unit Iter(Action<A> f) =>
-        default;
+    public Iterator<A> GetIterator() => 
+        Iterator<A>.Empty;
 
-    public bool Exists(Func<A, bool> f) => 
-        false;
-
-    public bool ForAll(Func<A, bool> f) =>
-        true;
+    public IteratorEnumerator<A> GetEnumerator() => 
+        throw new NotImplementedException();
 
     public SeqType Type => SeqType.Empty;
 

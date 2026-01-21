@@ -14,10 +14,11 @@ public partial class Iterator :
     Natural<Iterator, Lst>,
     Natural<Iterator, Set>,
     Natural<Iterator, Iterable>,
-    Natural<Iterator, HashSet>
+    Natural<Iterator, HashSet>,
+    NaturalEpi<Iterator, Iterator>
 {
     static K<Iterator, B> Monad<Iterator>.Recur<A, B>(A value, Func<A, K<Iterator, Next<A, B>>> f) =>
-        Monad.unsafeRecur(value, f);
+        new Recur<A, B>(f, Stck.singleton(+f(value)));
     
     static K<Iterator, B> Monad<Iterator>.Bind<A, B>(K<Iterator, A> ma, Func<A, K<Iterator, B>> f) =>
         ma.As().Bind(f);
@@ -77,7 +78,7 @@ public partial class Iterator :
         ta.As().AsIterable();
     
     static Seq<A> Foldable<Iterator>.ToSeq<A>(K<Iterator, A> ta) =>
-        new(ta.As());
+        new(+ta);
         
     static Iterator<A> IterableK<Iterator>.ForwardIterator<A>(K<Iterator, A> fa) => 
         +fa;
@@ -99,4 +100,10 @@ public partial class Iterator :
     
     static K<Iterable, A> Natural<Iterator, Iterable>.Transform<A>(K<Iterator, A> fa) => 
         new Iterable<A>(+fa);
+
+    static K<Iterator, A> Natural<Iterator, Iterator>.Transform<A>(K<Iterator, A> fa) => 
+        fa;
+
+    static K<Iterator, A> CoNatural<Iterator, Iterator>.CoTransform<A>(K<Iterator, A> fa) =>
+        fa;
 }

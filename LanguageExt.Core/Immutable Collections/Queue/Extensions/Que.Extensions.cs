@@ -16,46 +16,43 @@ public static partial class QueExtensions
             (Que<A>)queue;
     }
     
-    extension<T>(Que<T> queue)
+    extension<A>(Que<A> queue)
     {
         [Pure]
-        public Option<T> Peek() =>
+        public Option<A> Peek() =>
             Queue.peek(queue);
 
         [Pure]
-        public Que<R> Map<R>(Func<T, R> map) =>
-            toQueue(Iterable.map(queue, map));
+        public Que<B> Map<B>(Func<A, B> map) =>
+            toQueue(queue.ForwardIterator().Map(map));
 
         [Pure]
-        public Que<R> Map<R>(Func<int, T, R> map) =>
-            toQueue(Iterable.map(queue, map));
+        public Que<B> Map<B>(Func<A, long, B> map) =>
+            toQueue(queue.ForwardIterator().Map(map));
 
         [Pure]
-        public Que<T> Filter(Func<T, bool> predicate) =>
-            toQueue(Iterable.filter(queue, predicate));
+        public Que<A> Filter(Func<A, bool> predicate) =>
+            toQueue(queue.ForwardIterator().Filter(predicate));
 
         [Pure]
-        public Que<U> Choose<U>(Func<T, Option<U>> selector) =>
-            toQueue(Iterable.choose(queue, selector));
+        public Que<B> Choose<B>(Func<A, Option<B>> selector) =>
+            toQueue(queue.ForwardIterator().Choose(selector));
 
         [Pure]
-        public Que<U> Choose<U>(Func<int, T, Option<U>> selector) =>
-            toQueue(Iterable.choose(queue, selector));
-
-        [Pure]
-        public Que<T> Reverse() =>
+        public Que<A> Reverse() =>
             toQueue(toArr(queue).Reverse());
 
         [Pure]
-        public Que<T> Append(IEnumerable<T> rhs) =>
+        public Que<A> Append(IEnumerable<A> rhs) =>
             toQueue(queue.Concat(rhs));
     }
 
     [Pure]
-    public static Que<T> Distinct<T>(this Que<T> queue) =>
-        toQueue(Iterable.distinct(queue));
+    public static Que<A> Distinct<A>(this Que<A> queue) =>
+        toQueue(queue.ForwardIterator().Distinct());
 
     [Pure]
-    public static Que<T> Distinct<EQ, T>(this Que<T> list) where EQ : Eq<T> =>
-        toQueue(Iterable.distinct<EQ, T>(list));
+    public static Que<A> Distinct<EqA, A>(this Que<A> list) 
+        where EqA : Eq<A> =>
+        toQueue(list.ForwardIterator().Distinct<EqA>());
 }

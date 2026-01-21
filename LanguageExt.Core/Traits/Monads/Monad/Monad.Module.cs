@@ -233,45 +233,36 @@ public static partial class Monad
     /// <returns>Monad structure</returns>
     [Pure]
     public static K<M, B> iterableRecur<M, A, B>(A value, Func<A, K<M, Next<A, B>>> f)
-        where M : Natural<M, Iterable>, CoNatural<M, Iterable>
+        where M : Natural<M, Iterator>, CoNatural<M, Iterator>
     {
-        var iterable = Iterable.createRange(IO.lift(e => go(e.Token)));
-        return CoNatural.transform<M, Iterable, B>(iterable);
-        
-        async IAsyncEnumerable<B> go([EnumeratorCancellation] CancellationToken token)
-        {
-            List<A> values = [value];
-            List<A> next   = [];
+        return CoNatural.transform<M, Iterator, B>(recur(value, go));
+        K<Iterator, Next<A, B>> go(A next) =>
+            Natural.transform<M, Iterator, Next<A, B>>(f(next));
+    }
 
-            while (true)
-            {
-                foreach (var x in values)
-                {
-                    var iterable1 = Natural.transform<M, Iterable, Next<A, B>>(f(x)).As().AsAsyncEnumerable(token);
-                    await foreach (var mb in iterable1)
-                    {
-                        if (mb.IsDone)
-                        {
-                            yield return mb.Done;
-                        }
-                        else
-                        {
-                            next.Add(mb.Loop);
-                        }
-                    }
-                }
-
-                if (next.Count == 0)
-                {
-                    break;
-                }
-                else
-                {
-                    (values, next) = (next, values);
-                    next.Clear();
-                }
-            }
-        }
+    /// <summary>
+    /// Allow for tail-recursion by using a trampoline function that returns a monad with the bound value
+    /// wrapped by `Next`, which enables decision-making about whether to keep the computation going or not.  
+    /// </summary>
+    /// <remarks>
+    /// This is a handy pre-built version of `Monad.Recur` that works with `Iterable` (a lazy stream that supports
+    /// both synchronicity and asynchronicity).  The `Natural` and `CoNatural` constraints allow any type that can
+    /// convert to and from `Iterable` to gain this prebuilt stack-protecting recursion.  
+    /// </remarks>
+    /// <param name="value">Initial value to start the recursive process</param>
+    /// <param name="f">Bind function that returns a monad with the bound value wrapped by `Next`, which
+    /// enables decision-making about whether to recur, or not.</param>
+    /// <typeparam name="M">Monad type</typeparam>
+    /// <typeparam name="A">Loop value</typeparam>
+    /// <typeparam name="B">Done value</typeparam>
+    /// <returns>Monad structure</returns>
+    [Pure]
+    public static K<M, B> iterableRecurIO<M, A, B>(A value, Func<A, K<M, Next<A, B>>> f)
+        where M : Natural<M, IteratorIO>, CoNatural<M, IteratorIO>
+    {
+        return CoNatural.transform<M, IteratorIO, B>(recur(value, go));
+        K<IteratorIO, Next<A, B>> go(A next) =>
+            Natural.transform<M, IteratorIO, Next<A, B>>(f(next));
     }
 
     /// <summary>

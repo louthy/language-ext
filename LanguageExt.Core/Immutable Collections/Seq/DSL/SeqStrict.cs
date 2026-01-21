@@ -1,20 +1,14 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
-using System.Collections;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 
 namespace LanguageExt;
 
-internal class SeqStrict<A> : ISeqInternal<A>
+class SeqStrict<A> : ISeqInternal<A>
 {
     public const int DefaultCapacity = 8;
-    /*
-    const int HalfDefaultCapacity = DefaultCapacity >> 1;
-    */
 
     const int NoCons = 1;
     const int NoAdd = 1;
@@ -27,12 +21,12 @@ internal class SeqStrict<A> : ISeqInternal<A>
     /// <summary>
     /// Index into data where the Head is
     /// </summary>
-    internal readonly int start;
+    internal readonly long start;
 
     /// <summary>
     /// Known size of the sequence
     /// </summary>
-    internal readonly int count;
+    internal readonly long count;
 
     /// <summary>
     /// 1 if no more consing is allowed
@@ -49,15 +43,15 @@ internal class SeqStrict<A> : ISeqInternal<A>
     /// </summary>
     int selfHash;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlySpan<A> AsSpan() =>
-        new(data, start, count);
+        start + count > int.MaxValue
+            ? throw new ArgumentOutOfRangeException(nameof(count), "Sequence length exceeds maximum span size")
+            : new(data, (int)start, (int)count);
 
     /// <summary>
     /// Constructor
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public SeqStrict(A[] data, int start, int count, int consDisallowed, int addDisallowed)
+    public SeqStrict(A[] data, long start, long count, int consDisallowed, int addDisallowed)
     {
         this.data = data;
         this.start = start;
@@ -68,15 +62,13 @@ internal class SeqStrict<A> : ISeqInternal<A>
 
     public static SeqStrict<A> Empty
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => new (new A[DefaultCapacity], 4, 0, 0, 0);
     }
 
     /// <summary>
     /// Add constructor (called in the Add function only)
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public SeqStrict(A[] data, int start, int count)
+    public SeqStrict(A[] data, long start, long count)
     {
         this.data = data;
         this.start = start;
@@ -87,19 +79,15 @@ internal class SeqStrict<A> : ISeqInternal<A>
     /// <summary>
     /// Indexer
     /// </summary>
-    public A this[int index]
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => index < 0 || index >= count
-                   ? throw new IndexOutOfRangeException()
-                   : data[start + index];
-    }
+    public A this[long index] =>
+        index < 0 || index >= count
+            ? throw new IndexOutOfRangeException()
+            : data[start + index];
 
     /// <summary>
     /// Indexer
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Option<A> At(int index) =>
+    public Option<A> At(long index) =>
         index < 0 || index >= count
             ? default(Option<A>)
             : data[start + index];
@@ -111,11 +99,10 @@ internal class SeqStrict<A> : ISeqInternal<A>
     /// Forces evaluation of the entire lazy sequence so the item 
     /// can be appended
     /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ISeqInternal<A> Add(A value)
     {
         var end = start + count;
-        if (1 == Interlocked.Exchange(ref addDisallowed, 1) || end == data.Length)
+        if (1 == Interlocked.Exchange(ref addDisallowed, 1) || end == data.LongLength)
         {
             return CloneAdd(value);
         }
@@ -137,7 +124,7 @@ internal class SeqStrict<A> : ISeqInternal<A>
     public SeqStrict<A> Add2(A value)
     {
         var end = start + count;
-        if (1 == Interlocked.Exchange(ref addDisallowed, 1) || end == data.Length)
+        if (1 == Interlocked.Exchange(ref addDisallowed, 1) || end == data.LongLength)
         {
             return CloneAdd(value);
         }
@@ -151,11 +138,10 @@ internal class SeqStrict<A> : ISeqInternal<A>
     /// <summary>
     /// Add a range of items to the end of the sequence
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    SeqStrict<A> Concat(A[] items, int itemsStart, int itemsCount)
+    SeqStrict<A> Concat(A[] items, long itemsStart, long itemsCount)
     {
         var end = start + count;
-        if (1 == Interlocked.Exchange(ref addDisallowed, 1) || end + itemsCount >= data.Length)
+        if (1 == Interlocked.Exchange(ref addDisallowed, 1) || end + itemsCount >= data.LongLength)
         {
             return CloneAddRange(items, itemsStart, itemsCount);
         }
@@ -169,7 +155,6 @@ internal class SeqStrict<A> : ISeqInternal<A>
     /// <summary>
     /// Prepend an item to the sequence
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ISeqInternal<A> Cons(A value)
     {
         if (1 == Interlocked.Exchange(ref consDisallowed, 1) || start == 0)
@@ -189,7 +174,7 @@ internal class SeqStrict<A> : ISeqInternal<A>
         if (start == 0)
         {
             // Find the new size of the data array
-            var nlength = Math.Max(data.Length << 1, 1);
+            var nlength = Math.Max(data.LongLength << 1, 1);
 
             // Allocate it
             var ndata = new A[nlength];
@@ -197,13 +182,13 @@ internal class SeqStrict<A> : ISeqInternal<A>
             // Copy the old data block to the second half of the new one
             // so we have space on the left-hand-side to put the cons'd
             // value
-            Array.Copy(data, 0, ndata, data.Length, data.Length);
+            Array.Copy(data, 0, ndata, data.LongLength, data.LongLength);
 
-            // The new head position will be 1 cell to to left of the 
+            // The new head position will be 1 cell to the left of the 
             // middle of the newly allocated block.
-            var nstart = data.Length == 0
+            var nstart = data.LongLength == 0
                              ? 0
-                             : data.Length - 1;
+                             : data.LongLength - 1;
 
             // We have one more item
             var ncount = count + 1;
@@ -220,7 +205,7 @@ internal class SeqStrict<A> : ISeqInternal<A>
             // from the same Seq.  We can't keep walking along the same 
             // array, so we clone with the exact same settings and insert
 
-            var ndata  = new A[data.Length];
+            var ndata  = new A[data.LongLength];
             var nstart = start - 1;
 
             Array.Copy(data, start, ndata, start, count);
@@ -236,9 +221,9 @@ internal class SeqStrict<A> : ISeqInternal<A>
         var end = start + count;
 
         // Find the new size of the data array
-        var nlength = data.Length == end
-                          ? Math.Max(data.Length << 1, 1)
-                          : data.Length;
+        var nlength = data.LongLength == end
+                          ? Math.Max(data.LongLength << 1, 1)
+                          : data.LongLength;
 
         // Allocate it
         var ndata = new A[nlength];
@@ -246,7 +231,7 @@ internal class SeqStrict<A> : ISeqInternal<A>
         // Copy the old data block to the first half of the new one
         // so we have space on the right-hand-side to put the added
         // value
-        Array.Copy(data, 0, ndata, 0, data.Length);
+        Array.Copy(data, 0, ndata, 0, data.LongLength);
 
         // Set the value in the new data block
         ndata[end] = value;
@@ -255,12 +240,12 @@ internal class SeqStrict<A> : ISeqInternal<A>
         return new SeqStrict<A>(ndata, start, count + 1, 0, 0);
     }
 
-    SeqStrict<A> CloneAddRange(A[] values, int valuesStart, int valuesCount)
+    SeqStrict<A> CloneAddRange(A[] values, long valuesStart, long valuesCount)
     {
         var end = start + count;
 
         // Find the new size of the data array
-        var nlength = Math.Max(Math.Max(data.Length << 1, 1), end + valuesCount);
+        var nlength = Math.Max(Math.Max(data.LongLength << 1, 1), end + valuesCount);
 
         // Allocate it
         var ndata = new A[nlength];
@@ -281,24 +266,18 @@ internal class SeqStrict<A> : ISeqInternal<A>
     /// Head item in the sequence.  NOTE:  If `IsEmpty` is true then Head
     /// is undefined.  Call HeadOrNone() if for maximum safety.
     /// </summary>
-    public A Head
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => count == 0
-                   ? throw Exceptions.SequenceEmpty
-                   : data[start];
-    }
+    public A Head =>
+        count == 0
+            ? throw Exceptions.SequenceEmpty
+            : data[start];
 
     /// <summary>
     /// Tail of the sequence
     /// </summary>
-    public ISeqInternal<A> Tail
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => count < 1
-                   ? SeqEmptyInternal<A>.Default
-                   : new SeqStrict<A>(data, start + 1, count - 1, NoCons, NoAdd);
-    }
+    public ISeqInternal<A> Tail =>
+        count < 1
+            ? SeqEmptyInternal<A>.Default
+            : new SeqStrict<A>(data, start + 1, count - 1, NoCons, NoAdd);
 
     public ISeqInternal<A> Init
     {
@@ -319,40 +298,28 @@ internal class SeqStrict<A> : ISeqInternal<A>
     /// For lazy streams this will have to peek at the first 
     /// item.  So, the first item will be consumed.
     /// </remarks>
-    public bool IsEmpty
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => count == 0;
-    }
+    public bool IsEmpty => 
+        count == 0;
 
     /// <summary>
     /// Last item in sequence.  Throws if no items in sequence
     /// </summary>
-    public A Last
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get =>
-            IsEmpty
-                ? throw Exceptions.SequenceEmpty
-
-                : data[start + count - 1];
-    }
+    public A Last =>
+        IsEmpty
+            ? throw Exceptions.SequenceEmpty
+            : data[start + count - 1];
 
     /// <summary>
     /// Returns the number of items in the sequence
     /// </summary>
     /// <returns>Number of items in the sequence</returns>
-    public int Count
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => count;
-    }
+    public long Count => 
+        count;
 
     /// <summary>
     /// Skip count items
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ISeqInternal<A> Skip(int amount)
+    public ISeqInternal<A> Skip(long amount)
     {
         if (amount < 1)
         {
@@ -367,111 +334,32 @@ internal class SeqStrict<A> : ISeqInternal<A>
     }
 
     /// <summary>
-    /// Skip count items
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public SeqStrict<A> Skip2(int amount)
-    {
-        if (amount < 1)
-        {
-            return this;
-        }
-
-        var end      = start + count;
-        var newStart = start + amount;
-        return newStart < end
-                   ? new SeqStrict<A>(data, newStart, count - amount, NoCons, NoAdd)
-                   : Empty;
-    }
-
-    /// <summary>
     /// Take count items
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ISeqInternal<A> Take(int amount) =>
+    public ISeqInternal<A> Take(long amount) =>
         amount < count
             ? new SeqStrict<A>(data, start, amount, NoCons, NoAdd)
             : this;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ISeqInternal<A> Strict() =>
         this;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static SeqStrict<A> FromSingleValue(A value) =>
         new ([default!, default!, default!, default!, value, default!, default!, default!], 4, 1, 0, 0);
 
-    public IEnumerator<A> GetEnumerator()
-    {
-        var end = start + count;
-        for (var i = start; i < end; i++)
-        {
-            yield return data[i];
-        }
-    }
+    public Iterator<A> GetIterator() =>
+        Iterator.forward(data, start, count);
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        var end = start + count;
-        for (var i = start; i < end; i++)
-        {
-            yield return data[i];
-        }
-    }
-
-    public SeqStrict<A> SetItem(int index, A value)
-    {
-        var ndata = new A[data.Length];
-        Array.Copy(data, start, ndata, start, count);
-        ndata[index] = value;
-        return new SeqStrict<A>(data, start, count);
-    }
-
-    public Unit Iter(Action<A> f)
-    {
-        var end = start + count;
-        for (var i = start; i < end; i++)
-        {
-            f(data[i]);
-        }
-        return default;
-    }
-
-    public bool Exists(Func<A, bool> f)
-    {
-        var end = start + count;
-        for (var i = start; i < end; i++)
-        {
-            if(f(data[i]))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public bool ForAll(Func<A, bool> f)
-    {
-        var end = start + count;
-        for (var i = start; i < end; i++)
-        {
-            if (!f(data[i]))
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public SeqType Type => SeqType.Strict;
+    public SeqType Type => 
+        SeqType.Strict;
 
     public SeqStrict<A> Append(SeqStrict<A> right)
     {
         var end = start + count + right.count;
-        if (end > data.Length || 1 == Interlocked.Exchange(ref addDisallowed, 1))
+        if (end > data.LongLength || 1 == Interlocked.Exchange(ref addDisallowed, 1))
         {
             // Clone
-            var nsize = 8;
+            var nsize = 8L;
             while(nsize < end)
             {
                 nsize <<= 1;
@@ -489,76 +377,16 @@ internal class SeqStrict<A> : ISeqInternal<A>
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode() =>
         selfHash == 0
             ? selfHash = GetHashCode(FNV32.OffsetBasis)
             : selfHash;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetHashCode(int offsetBasis) =>
         FNV32.Hash<HashableDefault<A>, A>(data, start, count, offsetBasis);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static SeqStrict<A> FromEnumerable(IEnumerable<A> ma)
-    {
-        var arr = ma.ToArray();
-        return new SeqStrict<A>(arr, 0, arr.Length, 0, 0);
-    }
-
-    public SeqStrict<A> Rev()
-    {
-        var ndata = new A[data.Length];
-        var i     = start;
-        var j     = data.Length - start;
-        var end   = start + count;
-        for (; i < end; i++, j--)
-        {
-            ndata[j] = data[i];
-        }
-        return new SeqStrict<A>(ndata, data.Length - start, count, 0, 0);
-    }
-    
-    public SeqStrict<B> Map<B>(Func<A, B> f)
-    {
-        var ndata = new B[data.Length];
-        var end   = start + count;
-        for (var i = start; i < end; i++)
-        {
-            ndata[i] = f(data[i]);
-        }
-        return new SeqStrict<B>(ndata, start, count, 0, 0);
-    }
-    
-    public SeqStrict<B> Map<B>(Func<A, int, B> f)
-    {
-        var ndata = new B[data.Length];
-        var end   = start + count;
-        for (var i = start; i < end; i++)
-        {
-            ndata[i] = f(data[i], i - start);
-        }
-        return new SeqStrict<B>(ndata, start, count, 0, 0);
-    }
-    
-    public SeqStrict<A> Filter(Func<A, bool> f)
-    {
-        var ndata  = new A[data.Length];
-        var end    = start + count;
-        var ncount = 0;
-        for (var i = start; i < end; i++)
-        {
-            var d = data[i];
-            if (f(d))
-            {
-                ndata[start + ncount] = d;
-                ncount++;
-            }
-        }
-        return new SeqStrict<A>(ndata, start, ncount, 0, 0);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq.FoldState InitFoldState() =>
-        Seq.FoldState.FromSpan(AsSpan());        
+        start + count > int.MaxValue
+            ? Seq.FoldState.FromIterator(GetIterator())
+            : Seq.FoldState.FromSpan(AsSpan());        
 }

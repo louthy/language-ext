@@ -213,13 +213,7 @@ public readonly struct BiMap<A, B> :
     /// Number of items in the map
     /// </summary>
     [Pure]
-    public int Count => Left.Count;
-
-    /// <summary>
-    /// Alias of Count
-    /// </summary>
-    [Pure]
-    public int Length => Left.Length;
+    public long Count => Left.Count;
 
     /// <summary>
     /// Atomically updates an existing item
@@ -291,39 +285,45 @@ public readonly struct BiMap<A, B> :
     /// Enumerable of map lefts in-order
     /// </summary>
     [Pure]
-    public Iterable<A> LeftKeys => Left.Keys;
+    public Iterable<A> LeftKeys => 
+        Left.Keys;
 
     /// <summary>
     /// Enumerable of map rights in-order
     /// </summary>
     [Pure]
-    public Iterable<B> RightKeys => Right.Keys;
+    public Iterable<B> RightKeys => 
+        Right.Keys;
 
     /// <summary>
     /// Enumerable of map lefts in-rights-order
     /// </summary>
     [Pure]
-    public Iterable<B> LeftValues => Left.Values;
+    public Iterable<B> LeftValues => 
+        Left.Values;
 
     /// <summary>
     /// Enumerable of map rights in-lefts-order
     /// </summary>
     [Pure]
-    public Iterable<A> RightValues => Right.Values;
+    public Iterable<A> RightValues => 
+        Right.Values;
 
     /// <summary>
     /// Convert the map to an `IReadOnlyDictionary`
     /// </summary>
     /// <returns></returns>
     [Pure]
-    public IReadOnlyDictionary<A, B> ToDictionaryLeft() => Left;
+    public IReadOnlyDictionary<A, B> ToDictionaryLeft() => 
+        Left.ToReadOnlyDictionary();
 
     /// <summary>
     /// Convert the map to an `IReadOnlyDictionary`
     /// </summary>
     /// <returns></returns>
     [Pure]
-    public IReadOnlyDictionary<B, A> ToDictionaryRight() => Right;
+    public IReadOnlyDictionary<B, A> ToDictionaryRight() => 
+        Right.ToReadOnlyDictionary();
 
     /// <summary>
     /// Enumerable of in-order tuples that make up the map

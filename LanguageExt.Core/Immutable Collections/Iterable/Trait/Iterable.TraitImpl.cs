@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -15,7 +13,10 @@ public partial class Iterable :
     NaturalMono<Iterable, Seq>,
     NaturalMono<Iterable, Lst>,
     NaturalMono<Iterable, Set>,
-    NaturalMono<Iterable, HashSet>
+    NaturalMono<Iterable, HashSet>,
+    NaturalMono<Iterable, Iterator>,
+    CoNatural<Iterable, Iterator>
+
 {
     static K<Iterable, B> Monad<Iterable>.Recur<A, B>(A value, Func<A, K<Iterable, Next<A, B>>> f) =>
         Monad.iterableRecur(value, f);
@@ -73,4 +74,7 @@ public partial class Iterable :
 
     static Iterator<A> IterableK<Iterable>.ForwardIterator<A>(K<Iterable, A> fa) => 
         fa.As().ForwardIterator();
+
+    static K<Iterable, A> CoNatural<Iterable, Iterator>.CoTransform<A>(K<Iterator, A> fa) =>
+        new Iterable<A>(+fa);
 }

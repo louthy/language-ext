@@ -17,9 +17,11 @@ public partial class IterableNE :
     NaturalMono<IterableNE, HashSet>
 {
     static K<IterableNE, B> Monad<IterableNE>.Recur<A, B>(A value, Func<A, K<IterableNE, Next<A, B>>> f) =>
-        // TODO: We need a way of lifting an IO<IAsyncEnumerable> into IterableNE (knowing it's non-empty)
-        // Create a sub-type DSL for IterableNE, like Iterable
-        Monad.unsafeRecur(value, f);
+        +Monad.iterableRecur(value, x => f(x).ForwardIterator()) switch
+        {
+            (Exist<B> (var head), var tail) => new IterableNE<B>(head, tail),
+            _                               => throw new InvalidOperationException("Won't get here")
+        };
     
     static K<IterableNE, B> Monad<IterableNE>.Bind<A, B>(K<IterableNE, A> ma, Func<A, K<IterableNE, B>> f) =>
         ma.As().Bind(f);
