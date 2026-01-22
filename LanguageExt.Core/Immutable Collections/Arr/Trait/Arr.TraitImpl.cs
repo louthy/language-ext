@@ -148,7 +148,7 @@ public partial class Arr :
     static K<F, K<Arr, B>> Traversable<Arr>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Arr, A> ta)
     {
         return Foldable.fold(addItem, F.Pure(new SeqStrict<B>(new B[ta.As().Count], 0, 0, 0, 0)), ta)
-                       .Map(bs => new Arr<B>(bs.data.AsSpan().Slice(bs.start, bs.Count)).Kind());
+                       .Map(bs => new Arr<B>(bs.data, bs.start, bs.Count).Kind());
 
         K<F, SeqStrict<B>> addItem(K<F, SeqStrict<B>> state, A value) =>
             Applicative.lift((bs, b) => (SeqStrict<B>)bs.Add(b), state, f(value));                                            

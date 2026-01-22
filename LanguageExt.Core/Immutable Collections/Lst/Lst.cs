@@ -152,6 +152,37 @@ public readonly struct Lst<A> :
         Set: lb => la => la.Zip(lb).Map(ab => lens.Set(ab.Second, ab.First)).ToLst());
 
     /// <summary>
+    /// Returns the number of items in the sequence (potentially truncated).
+    /// </summary>
+    /// <summary>
+    /// Prefer the use of `Count` as it supports the full long range.  This is kept here to enable list
+    /// pattern-matching to work - which looks for a member called `Count` or `Length` that
+    /// is an `int`. Yep, they were that stupid.
+    /// </summary>
+    public int Length => 
+        (int)Count;
+    
+    /// <summary>
+    /// Indexer
+    /// </summary>
+    /// <summary>
+    /// This is kept here to enable list pattern-matching to work - which looks for a `this` member that supports
+    /// `Index` and `Index` only supports `int`. Yep, they were that stupid.
+    /// </summary>
+    /// <exception cref="IndexOutOfRangeException">Thrown when the index is out of the range of the structure</exception>
+    public A this[Index index] =>
+        index.IsFromEnd
+            ? this[Count - index.Value] 
+            : this[index.Value];
+
+    /// <summary>
+    /// Index accessor
+    /// </summary>
+    [Pure]
+    public A this[int index] => 
+        this[(long)index];
+
+    /// <summary>
     /// Index accessor
     /// </summary>
     [Pure]
@@ -163,7 +194,7 @@ public readonly struct Lst<A> :
             return ListModule.GetItem(Root, index);
         }
     }
-
+    
     /// <summary>
     /// Safe index accessor
     /// </summary>

@@ -1,3 +1,4 @@
+#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
 using System;
 using System.Collections;
 using LanguageExt.ClassInstances;
@@ -38,7 +39,7 @@ namespace LanguageExt
         public static VersionHashMap<K, V> Empty
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => new VersionHashMap<K, V>(VersionHashMap<LastWriteWins<V>, TString, EqDefault<K>, string, K, V>.Empty);
+            get => new(VersionHashMap<LastWriteWins<V>, TString, EqDefault<K>, string, K, V>.Empty);
         }
         
         /// <summary>
@@ -75,21 +76,8 @@ namespace LanguageExt
         /// Number of items in the map
         /// </summary>
         [Pure]
-        public int Count
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Items.Count;
-        }
-
-        /// <summary>
-        /// Alias of Count
-        /// </summary>
-        [Pure]
-        public int Length
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Items.Count;
-        }
+        public long Count => 
+            Items.Count;
 
         /// <summary>
         /// Atomically swap a key in the map.  Allows for multiple operations on the hash-map in an entirely

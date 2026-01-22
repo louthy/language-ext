@@ -95,7 +95,18 @@ public readonly struct Que<A> :
     [Pure]
     public long Count => 
         value?.Count ?? 0;
-
+    
+    /// <summary>
+    /// Returns the number of items in the sequence (potentially truncated).
+    /// </summary>
+    /// <summary>
+    /// Prefer the use of `Count` as it supports the full long range.  This is kept here to enable list
+    /// pattern-matching to work - which looks for a member called `Count` or `Length` that
+    /// is an `int`. Yep, they were that stupid.
+    /// </summary>
+    public int Length => 
+        (int)Count;
+    
     /// <summary>
     /// Returns an empty queue 
     /// </summary>

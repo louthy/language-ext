@@ -56,7 +56,7 @@ public sealed class Iterable<A> :
     [Pure]
     public long Count =>
         iterator.Count;
-
+    
     /// <summary>
     /// Stream as an enumerable
     /// </summary>

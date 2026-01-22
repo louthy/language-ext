@@ -39,27 +39,6 @@ public readonly struct Set<A> :
         value ?? Empty.Value;
 
     /// <summary>
-    /// Ctor from an enumerable 
-    /// </summary>
-    public Set(IEnumerable<A> items) : this(items, true)
-    {
-    }
-
-    /// <summary>
-    /// Ctor from an enumerable 
-    /// </summary>
-    public Set(Iterator<A> items) : this(items, true)
-    {
-    }
-
-    /// <summary>
-    /// Ctor from an enumerable 
-    /// </summary>
-    public Set(ReadOnlySpan<A> items) : this(items, true)
-    {
-    }
-
-    /// <summary>
     /// Default ctor
     /// </summary>
     internal Set(SetInternal<OrdDefault<A>, A> set) =>
@@ -76,7 +55,7 @@ public readonly struct Set<A> :
     /// Ctor that takes an initial (distinct) set of items
     /// </summary>
     /// <param name="items"></param>
-    public Set(IEnumerable<A> items, bool tryAdd) =>
+    public Set(IEnumerable<A> items, bool tryAdd = true) =>
         value = new SetInternal<OrdDefault<A>, A>(
             items, 
             tryAdd
@@ -87,7 +66,7 @@ public readonly struct Set<A> :
     /// Ctor that takes an initial (distinct) set of items
     /// </summary>
     /// <param name="items"></param>
-    public Set(Iterator<A> items, bool tryAdd) =>
+    public Set(Iterator<A> items, bool tryAdd = true) =>
         value = new SetInternal<OrdDefault<A>, A>(
             items, 
             tryAdd
@@ -98,7 +77,7 @@ public readonly struct Set<A> :
     /// Ctor that takes an initial (distinct) set of items
     /// </summary>
     /// <param name="items"></param>
-    public Set(ReadOnlySpan<A> items, bool tryAdd) =>
+    public Set(ReadOnlySpan<A> items, bool tryAdd = true) =>
         value = new SetInternal<OrdDefault<A>, A>(
             items, 
             tryAdd
@@ -477,7 +456,18 @@ public readonly struct Set<A> :
     [Pure]
     public long Count => 
         value?.Count ?? 0;
-
+    
+    /// <summary>
+    /// Returns the number of items in the sequence (potentially truncated).
+    /// </summary>
+    /// <summary>
+    /// Prefer the use of `Count` as it supports the full long range.  This is kept here to enable list
+    /// pattern-matching to work - which looks for a member called `Count` or `Length` that
+    /// is an `int`. Yep, they were that stupid.
+    /// </summary>
+    public int Length => 
+        (int)Count;
+    
     /// <summary>
     /// Returns True if 'other' is a proper subset of this set
     /// </summary>

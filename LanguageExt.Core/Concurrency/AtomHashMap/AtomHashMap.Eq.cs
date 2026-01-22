@@ -24,7 +24,6 @@ public class AtomHashMap<EqK, K, V> :
     IEnumerable<(K Key, V Value)>,
     IEquatable<HashMap<EqK, K, V>>,
     IEquatable<AtomHashMap<EqK, K, V>>,
-    IReadOnlyDictionary<K, V>,
     K<AtomHashMapEq<EqK, K>, V>
     where EqK : Eq<K>
 {
@@ -51,6 +50,15 @@ public class AtomHashMap<EqK, K, V> :
         this.Items = items.Value;
         
     /// <summary>
+    /// Take an immutable snapshot of the current state of the collection.  This can be called multiple times
+    /// to get snapshots of the state of the collection over time.
+    /// </summary>
+    /// <remarks>This is effectively a zero-cost operation because the backing value is of this type</remarks>
+    [Pure]
+    public HashMap<EqK, K, V> Snapshot() =>
+        new(Items);
+
+    /// <summary>
     /// 'this' accessor
     /// </summary>
     /// <param name="key">Key</param>
@@ -63,31 +71,26 @@ public class AtomHashMap<EqK, K, V> :
     /// Is the map empty
     /// </summary>
     [Pure]
-    public bool IsEmpty
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Items.IsEmpty;
-    }
+    public bool IsEmpty => 
+        Items.IsEmpty;
 
     /// <summary>
     /// Number of items in the map
     /// </summary>
     [Pure]
-    public int Count
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Items.Count;
-    }
+    public long Count => 
+        Items.Count;
 
     /// <summary>
-    /// Alias of Count
+    /// Returns the number of items in the sequence (potentially truncated).
     /// </summary>
-    [Pure]
-    public int Length
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Items.Count;
-    }
+    /// <summary>
+    /// Prefer to use `Count` as it supports the full long range.  This is kept here to enable list
+    /// pattern-matching to work - which looks for a member called `Count` or `Length` that
+    /// is an `int`. Yep, they were that stupid.
+    /// </summary>
+    public int Length => 
+        (int)Count;
 
     /// <summary>
     /// Atomically swap the underlying hash-map.  Allows for multiple operations on the hash-map in an entirely
@@ -1317,14 +1320,6 @@ public class AtomHashMap<EqK, K, V> :
         Items.Values;
 
     /// <summary>
-    /// Convert to a HashMap
-    /// </summary>
-    /// <remarks>This is effectively a zero cost operation, not even a single allocation</remarks>
-    [Pure]
-    public HashMap<EqK, K, V> ToHashMap() =>
-        new (Items);
-
-    /// <summary>
     /// GetEnumerator - IEnumerable interface
     /// </summary>
     public IEnumerator<(K Key, V Value)> GetEnumerator() =>
@@ -1368,7 +1363,7 @@ public class AtomHashMap<EqK, K, V> :
 
     [Pure]
     public Iterable<(K Key, V Value)> AsIterable() =>
-        IterableExtensions.AsIterable(Items);
+        Items.AsIterable();
 
     /// <summary>
     /// Implicit conversion from an untyped empty list
@@ -2172,20 +2167,11 @@ public class AtomHashMap<EqK, K, V> :
             return false;
         }
     }
-        
-    [Pure]
-    IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
-        AsIterable()
-           .Select(p => new KeyValuePair<K, V>(p.Key, p.Value))
-           .GetEnumerator() ;
-    
-    [Pure]
-    IEnumerable<K> IReadOnlyDictionary<K, V>.Keys => Keys;
-
-    [Pure]
-    IEnumerable<V> IReadOnlyDictionary<K, V>.Values => Values;
-
     [Pure]
     public IReadOnlyDictionary<K, V> ToReadOnlyDictionary() =>
-        this;
+        Items.ToReadOnlyDictionary();
+
+    [Obsolete("Use Snapshot() instead, I'm looking to standardise the way the Atom* types yield their backing value")]
+    public HashMap<EqK, K, V> ToHashMap() =>
+        new (Items);
 }

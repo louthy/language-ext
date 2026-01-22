@@ -100,7 +100,7 @@ public record VectorClock<A>(Seq<(A, long)> Entries)
     /// <summary>
     /// The number of entries in the vector clock.
     /// </summary>
-    public int Count =>
+    public long Count =>
         Entries.Count;
 
     /// <summary>

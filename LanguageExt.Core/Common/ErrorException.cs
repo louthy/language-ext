@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
-using System.Text;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -17,7 +16,7 @@ namespace LanguageExt.Common;
 /// This is a pair to the `Error` type, to allow `Error` to be converted to-and-from a classic `Exception`.
 ///
 /// This allows code that can't handle the `Error` type to still throw something that keeps the fidelity of the `Error`
-/// type, and can be converted directly to an `Error` in a `catch` block. 
+/// typle, and can be converted directly to an `Error` in a `catch` block. 
 /// </remarks>
 /// <remarks>
 /// Unlike exceptions, `Error` can be either:
@@ -29,7 +28,10 @@ namespace LanguageExt.Common;
 /// i.e. it is either created from an exception or it isn't.  This allows for expected errors to be represented
 /// without throwing exceptions.  
 /// </remarks>
-public abstract class ErrorException : Exception, IEnumerable<ErrorException>, Monoid<ErrorException>
+public abstract class ErrorException : 
+    Exception, 
+    IEnumerable<ErrorException>, 
+    Monoid<ErrorException>
 {
     protected ErrorException(int code) =>
         HResult = code;
@@ -92,13 +94,20 @@ public abstract class ErrorException : Exception, IEnumerable<ErrorException>, M
         lhs.Combine(rhs);
 
     [Pure]
-    public virtual IEnumerator<ErrorException> GetEnumerator()
-    {
-        yield return this;
-    }
+    public virtual Iterator<ErrorException> ForwardIterator() =>
+        Iterator.singleton(this).ForwardIterator();
 
     [Pure]
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    public IteratorEnumerator<ErrorException> GetEnumerator() =>
+        ForwardIterator().GetEnumerator();
+
+    [Pure]
+    IEnumerator<ErrorException> IEnumerable<ErrorException>.GetEnumerator() =>
+        GetEnumerator().GetEnumerator();
+
+    [Pure]
+    IEnumerator IEnumerable.GetEnumerator() => 
+        GetEnumerator().GetEnumerator();
 
     /// <summary>
     /// Convert the error to a string
@@ -437,10 +446,8 @@ public sealed class ManyExceptions(Seq<ErrorException> errors) : ErrorException(
             ? new ManyExceptions(Errors + m.Errors)
             : new ManyExceptions(Seq(this, error));
 
-    [Pure]
-    public override IEnumerator<ErrorException> GetEnumerator() =>
-        Errors.GetEnumerator();
-
+    public override Iterator<ErrorException> ForwardIterator() => 
+        errors.ForwardIterator();
 }
 
 

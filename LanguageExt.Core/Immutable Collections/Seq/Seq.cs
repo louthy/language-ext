@@ -58,17 +58,20 @@ public readonly struct Seq<A> :
     /// <summary>
     /// Constructor from lazy sequence
     /// </summary>
-    public Seq(IEnumerable<A> ma) : this(ma.AsIterator()) { }
+    public Seq(IEnumerable<A> ma) : 
+        this(ma.AsIterator()) { }
 
     /// <summary>
     /// Constructor from lazy sequence
     /// </summary>
-    public Seq(Iterator<A> ma) : this(new SeqIterator<A>(ma)) { }
+    public Seq(Iterator<A> ma) : 
+        this(new SeqIterator<A>(ma)) { }
 
     /// <summary>
     /// Constructor from lazy sequence
     /// </summary>
-    public Seq(ReadOnlySpan<A> ma) : this(Seq.FromArray(ma.ToArray())) { }
+    public Seq(ReadOnlySpan<A> ma) : 
+        this(Seq.FromArray(ma.ToArray())) { }
 
     /// <summary>
     /// Constructor
@@ -147,13 +150,6 @@ public readonly struct Seq<A> :
     public static Lens<Seq<A>, Seq<B>> map<B>(Lens<A, B> lens) => Lens<Seq<A>, Seq<B>>.New(
         Get: la => la.Map(lens.Get),
         Set: lb => la => la.Zip(lb).Map(ab => lens.Set(ab.Item2, ab.Item1)));
-
-    /// <summary>
-    /// Indexer
-    /// </summary>
-    /// <exception cref="IndexOutOfRangeException"></exception>
-    public A this[long index] => 
-        Value[index];
 
     /// <summary>
     /// Add an item to the end of the sequence
@@ -436,6 +432,44 @@ public readonly struct Seq<A> :
     /// <returns>Number of items in the sequence</returns>
     public long Count => 
         value?.Count ?? 0;
+
+    /// <summary>
+    /// Returns the number of items in the sequence (potentially truncated).
+    /// </summary>
+    /// <summary>
+    /// Prefer the use of `Count` as it supports the full long range.  This is kept here to enable list
+    /// pattern-matching to work - which looks for a member called `Count` or `Length` that
+    /// is an `int`. Yep, they were that stupid.
+    /// </summary>
+    public int Length => 
+        (int)Count;
+
+    /// <summary>
+    /// Indexer
+    /// </summary>
+    /// <exception cref="IndexOutOfRangeException">Thrown when the index is out of the range of the structure</exception>
+    public A this[long index] => 
+        Value[index];
+
+    /// <summary>
+    /// Indexer
+    /// </summary>
+    /// <exception cref="IndexOutOfRangeException">Thrown when the index is out of the range of the structure</exception>
+    public A this[int index] => 
+        Value[index];
+    
+    /// <summary>
+    /// Indexer
+    /// </summary>
+    /// <summary>
+    /// This is kept here to enable list pattern-matching to work - which looks for a `this` member that supports
+    /// `Index` and `Index` only supports `int`. Yep, they were that stupid.
+    /// </summary>
+    /// <exception cref="IndexOutOfRangeException">Thrown when the index is out of the range of the structure</exception>
+    public A this[Index index] =>
+        index.IsFromEnd
+            ? this[Count - index.Value] 
+            : this[(long)index.Value];
 
     /// <summary>
     /// Stream as an enumerable
@@ -881,12 +915,9 @@ public readonly struct Seq<A> :
             .ToSeq();
 
     /// <summary>
-    /// Iterate the sequence, yielding items if they match the predicate 
-    /// provided, and stopping as soon as one doesn't
+    /// Take the specified number of items while the predicate is satisfied.
     /// </summary>
     /// <param name="f">predicate</param>
-    /// <returns>A new sequence with the first items that match the 
-    /// predicate</returns>
     [Pure]
     public Seq<A> TakeWhile(Func<A, bool> f) =>
         this.ForwardIterator()
@@ -894,12 +925,9 @@ public readonly struct Seq<A> :
             .ToSeq();
 
     /// <summary>
-    /// Iterate the sequence, yielding items if they match the predicate 
-    /// provided, and stopping as soon as one doesn't
+    /// Take the specified number of items until the predicate is satisfied.
     /// </summary>
     /// <param name="f">predicate</param>
-    /// <returns>A new sequence with the first items that match the 
-    /// predicate</returns>
     [Pure]
     public Seq<A> TakeUntil(Func<A, bool> f) =>
         this.ForwardIterator()

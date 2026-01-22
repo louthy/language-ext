@@ -50,16 +50,12 @@ public readonly partial struct Arr<A> :
     readonly long length;
     readonly Atom<int>? hashCode;
 
-    A[] Value
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value ?? Empty.Value;
-    }
+    A[] Value => 
+        value ?? Empty.Value;
 
     /// <summary>
     /// Ctor
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Arr(IEnumerable<A> initial)
     {
         hashCode = Atom(0);
@@ -71,7 +67,6 @@ public readonly partial struct Arr<A> :
     /// <summary>
     /// Ctor
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Arr(ReadOnlySpan<A> initial)
     {
         hashCode = Atom(0);
@@ -83,7 +78,6 @@ public readonly partial struct Arr<A> :
     /// <summary>
     /// Ctor
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal Arr(A[] value)
     {
         hashCode = Atom(0);
@@ -95,7 +89,6 @@ public readonly partial struct Arr<A> :
     /// <summary>
     /// Ctor
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal Arr(A[] value, long start, long length)
     {
         if(start < 0) throw new ArgumentOutOfRangeException(nameof(start));
@@ -148,10 +141,12 @@ public readonly partial struct Arr<A> :
     /// <param name="start">Offset from the beginning of the array</param>
     /// <param name="count">The number of items to take. This will be clamped to the maximum number of items available</param>
     /// <returns>A read-only span of values</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown If the count is less than zero</exception>
     /// <exception cref="IndexOutOfRangeException">Thrown If the start index is outside the range of the array</exception>
     [Pure]
     public ReadOnlySpan<A> AsSpan(int start, int count)
     {
+        if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
         if (start < 0 || start >= length) throw new IndexOutOfRangeException(nameof(start));
         var t = Math.Max(0, Math.Min(count, length - start));
         return this.start + start > int.MaxValue
@@ -167,8 +162,7 @@ public readonly partial struct Arr<A> :
     /// <returns></returns>
     /// <exception cref="IndexOutOfRangeException">Thrown If the start index is outside the range of the array</exception>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Arr<A> Splice(long start)
+    public Arr<A> Slice(long start)
     {
         var arr = Value;
         if (start < 0 || start >= length) throw new IndexOutOfRangeException(nameof(start));
@@ -183,12 +177,13 @@ public readonly partial struct Arr<A> :
     /// <param name="start">Offset from the beginning of the array</param>
     /// <param name="count">The number of items to take. This will be clamped to the maximum number of items available</param>
     /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown If the count is less than zero</exception>
     /// <exception cref="IndexOutOfRangeException">Thrown If the start index is outside the range of the array</exception>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Arr<A> Splice(long start, long count)
+    public Arr<A> Slice(long start, long count)
     {
         var arr = Value;
+        if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
         if (start < 0 || start >= length) throw new IndexOutOfRangeException(nameof(start));
         var t = Math.Max(0, Math.Min(count, length - start));
         return new Arr<A>(arr, this.start + start, t);   
@@ -211,7 +206,7 @@ public readonly partial struct Arr<A> :
     public Arr<A> Tail =>
         IsEmpty
             ? this
-            : Splice(1, length - 1);
+            : Slice(1, length - 1);
     
     /// <summary>
     /// Equivalent to `Splice(0, length - 1)`
@@ -220,7 +215,7 @@ public readonly partial struct Arr<A> :
     public Arr<A> Init =>
         IsEmpty
             ? this
-            : Splice(0, length - 1);
+            : Slice(0, length - 1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Arr<A>(A[] xs) =>
@@ -283,40 +278,6 @@ public readonly partial struct Arr<A> :
         Set: lb => la => la.Zip(lb).Map(ab => lens.Set(ab.Item2, ab.Item1)).ToArr());
 
     /// <summary>
-    /// Index accessor
-    /// </summary>
-    [Pure]
-    public A this[Index index]
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => index.IsFromEnd switch
-               {
-                   false => Value[start          + index.Value],
-                   true  => Value[start + length - index.Value]
-               };
-    }
-
-    /// <summary>
-    /// Index accessor
-    /// </summary>
-    [Pure]
-    public A this[long index]
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Value[start + index];
-    }
-
-    /// <summary>
-    /// Index accessor
-    /// </summary>
-    [Pure]
-    public A this[int index]
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Value[start + index];
-    }
-
-    /// <summary>
     /// Is the stack empty
     /// </summary>
     [Pure]
@@ -337,15 +298,42 @@ public readonly partial struct Arr<A> :
     }
 
     /// <summary>
-    /// Number of items in the stack
+    /// Returns the number of items in the sequence (potentially truncated).
     /// </summary>
-    /// <remarks>
-    /// This is marked as unsafe because the structure accepts more than `int.MaxValue` items, and so this
-    /// value could be truncated.  Only use if you know the collection is small enough to fit in an `int`.
-    /// </remarks>
-    [Pure]
-    public int CountUnsafe =>
+    /// <summary>
+    /// Prefer the use of `Count` as it supports the full long range.  This is kept here to enable list
+    /// pattern-matching to work - which looks for a member called `Count` or `Length` that
+    /// is an `int`. Yep, they were that stupid.
+    /// </summary>
+    public int Length => 
         (int)Count;
+    
+    /// <summary>
+    /// Indexer
+    /// </summary>
+    /// <summary>
+    /// This is kept here to enable list pattern-matching to work - which looks for a `this` member that supports
+    /// `Index` and `Index` only supports `int`. Yep, they were that stupid.
+    /// </summary>
+    /// <exception cref="IndexOutOfRangeException">Thrown when the index is out of the range of the structure</exception>
+    public A this[Index index] =>
+        index.IsFromEnd
+            ? this[Count - index.Value] 
+            : this[(long)index.Value];
+
+    /// <summary>
+    /// Index accessor
+    /// </summary>
+    [Pure]
+    public A this[int index] => 
+        Value[start + index];
+
+    /// <summary>
+    /// Index accessor
+    /// </summary>
+    [Pure]
+    public A this[long index] => 
+        Value[start + index];
 
     /// <summary>
     /// Add an item to the end of the array
@@ -876,7 +864,7 @@ public readonly partial struct Arr<A> :
         {
             0                      => [],
             _ when amount >= Count => this,
-            _                      => Splice(0, amount)
+            _                      => Slice(0, amount)
         };
 
     [Pure]
@@ -885,7 +873,7 @@ public readonly partial struct Arr<A> :
         {
             0                      => this,
             _ when amount >= Count => [],
-            _                      => Splice(amount, Count - amount)
+            _                      => Slice(amount, Count - amount)
         };
 
     [Pure]
@@ -1004,7 +992,7 @@ public readonly partial struct Arr<A> :
         // In other cases, take chunk of length `amount` (or shorter if the
         // stream is not long enough) from the input stream and return the
         // chunk along with the rest of the stream.
-        amount = Math.Min(amount, stream.CountUnsafe);
+        amount = Math.Min(amount, stream.Length);
         var start = stream.start;
         var value = stream.Value;
         head = new Arr<A>(value, start, amount);

@@ -9,7 +9,7 @@ public abstract partial class IteratorIO<A>
     /// </summary>
     internal class IterArr(Arr<A> array, long index, long remaining) : IteratorIO<A>
     {
-        public Arr<A> Array => array.Splice(index, remaining);
+        public Arr<A> Array => array.Slice(index, remaining);
         
         (Head<A> Head, IteratorIO<A> Tail) Next() =>
             remaining == 0
@@ -26,7 +26,7 @@ public abstract partial class IteratorIO<A>
             this;
 
         public override IO<Arr<A>> ToArr() =>
-            IO.pure(array.Splice(index, remaining));
+            IO.pure(array.Slice(index, remaining));
     }
     
     /// <summary>
@@ -49,6 +49,6 @@ public abstract partial class IteratorIO<A>
             this;
 
         public override IO<Arr<A>> ToArr() =>
-            IO.pure(array.Splice(index - remaining, remaining).Reverse());
+            IO.pure(array.Slice(index - remaining, remaining).Reverse());
     }
 }

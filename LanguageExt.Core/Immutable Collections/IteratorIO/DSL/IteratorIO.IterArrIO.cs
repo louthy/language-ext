@@ -22,7 +22,7 @@ public abstract partial class IteratorIO<A>
             this;
 
         public override IO<Arr<A>> ToArr() =>
-            arrayIO.Map(arr => arr.Splice(index, remaining));
+            arrayIO.Map(arr => arr.Slice(index, remaining));
     }
     
     /// <summary>
@@ -43,6 +43,6 @@ public abstract partial class IteratorIO<A>
             this;
 
         public override IO<Arr<A>> ToArr() =>
-            arrayIO.Map(arr => arr.Splice(index - remaining, remaining).Reverse());
+            arrayIO.Map(arr => arr.Slice(index - remaining, remaining).Reverse());
     }
 }

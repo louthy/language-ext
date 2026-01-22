@@ -1,3 +1,4 @@
+#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
 using System;
 using System.Collections;
 using LanguageExt.ClassInstances;
@@ -76,17 +77,7 @@ public class VersionHashMap<ConflictV, K, V> :
     /// Number of items in the map
     /// </summary>
     [Pure]
-    public int Count
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Items.Count;
-    }
-
-    /// <summary>
-    /// Alias of Count
-    /// </summary>
-    [Pure]
-    public int Length
+    public long Count
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Items.Count;

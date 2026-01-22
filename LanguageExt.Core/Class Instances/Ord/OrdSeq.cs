@@ -33,8 +33,8 @@ public struct OrdSeq<OrdA, A> : Ord<Seq<A>>
     [Pure]
     public static int Compare(Seq<A> x, Seq<A> y)
     {
-        using var enumx = x.GetEnumerator();
-        using var enumy = y.GetEnumerator();
+        var enumx = x.GetEnumerator();
+        var enumy = y.GetEnumerator();
 
         while(true)
         {

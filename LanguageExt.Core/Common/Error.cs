@@ -852,7 +852,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     [Pure]
     [IgnoreDataMember]
     public override int Count =>
-        Errors.Count;
+        Errors.Length;
 
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override Iterable<Error> AsIterable() =>

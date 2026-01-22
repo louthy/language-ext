@@ -42,22 +42,34 @@ public class AtomSeq<A> :
     /// <summary>
     /// Constructor from lazy sequence
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public AtomSeq(IEnumerable<A> ma) : this(new SeqLazy<A>(ma)) { }
+    public AtomSeq(IEnumerable<A> ma) : 
+        this(ma.AsIterator()) { }
 
+    /// <summary>
+    /// Constructor from lazy sequence
+    /// </summary>
+    public AtomSeq(Iterator<A> ma) : 
+        this(new SeqIterator<A>(ma)) { }
+
+    /// <summary>
+    /// Constructor from lazy sequence
+    /// </summary>
+    public AtomSeq(ReadOnlySpan<A> ma) : 
+        this(Seq.FromArray(ma.ToArray())) { }
+    
     /// <summary>
     /// Constructor
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal AtomSeq(ISeqInternal<A> items) =>
         this.items = items;
-
+    
     /// <summary>
-    /// Convert to an immutable sequence
+    /// Take an immutable snapshot of the current state of the collection.  This can be called multiple times
+    /// to get snapshots of the state of the collection over time.
     /// </summary>
-    /// <remarks>This is effectively a zero cost operation, not even a single allocation</remarks>
+    /// <remarks>This is effectively a zero-cost operation because the backing value is of this type</remarks>
     [Pure]
-    public Seq<A> ToSeq() =>
+    public Seq<A> Snapshot() =>
         new (items);
 
     /// <summary>
@@ -87,12 +99,29 @@ public class AtomSeq<A> :
     /// <summary>
     /// Indexer
     /// </summary>
-    public A this[int index]
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => items[index];
-    }
-        
+    /// <exception cref="IndexOutOfRangeException">Thrown when the index is out of the range of the structure</exception>
+    public A this[long index] => 
+        items[index];
+
+    /// <summary>
+    /// Indexer
+    /// </summary>
+    public A this[int index] => 
+        items[index];
+    
+    /// <summary>
+    /// Indexer
+    /// </summary>
+    /// <summary>
+    /// This is kept here to enable list pattern-matching to work - which looks for a `this` member that supports
+    /// `Index` and `Index` only supports `int`. Yep, they were that stupid.
+    /// </summary>
+    /// <exception cref="IndexOutOfRangeException">Thrown when the index is out of the range of the structure</exception>
+    public A this[Index index] =>
+        index.IsFromEnd
+            ? this[Count - index.Value] 
+            : this[(long)index.Value];
+
     /// <summary>
     /// Atomically swap the underlying Seq.  Allows for multiple operations on the Seq in an entirely
     /// transactional and atomic way.
@@ -305,7 +334,7 @@ public class AtomSeq<A> :
         var arr = items.ToArray();
         return Concat(Seq.FromArray(arr));
     }
-        
+
     /// <summary>
     /// Add a range of items to the end of the sequence
     /// </summary>
@@ -313,112 +342,8 @@ public class AtomSeq<A> :
     /// Forces evaluation of the entire lazy sequence so the items
     /// can be appended.  
     /// </remarks>
-    public Unit Concat(Seq<A> rhs)
-    {
-        SpinWait sw = default;
-        while (true)
-        {
-            var oitems = items;
-
-            var nitems = oitems.Type switch
-                         {
-                             SeqType.Empty =>
-
-                                 // lhs is empty, so just return rhs
-                                 rhs.Value,
-
-                             SeqType.Lazy =>
-                                 rhs.Value.Type switch
-                                 {
-                                     // lhs lazy, rhs empty
-                                     // return lhs
-                                     SeqType.Empty => oitems,
-
-                                     // lhs lazy, rhs lazy
-                                     // return SeqConcat
-                                     SeqType.Lazy => new SeqConcat<A>(Seq(oitems, rhs.Value)),
-
-                                     // lhs lazy, rhs strict
-                                     // force lhs to be strict and concat the two 
-                                     SeqType.Strict =>
-                                         ((SeqStrict<A>)oitems.Strict()).Append((SeqStrict<A>)rhs.Value),
-
-                                     // lhs lazy, rhs concat
-                                     // prepend rhs with lhs
-                                     SeqType.Concat =>
-                                         ((SeqConcat<A>)rhs.Value).ConsSeq(oitems),
-
-                                     _ => throw new NotSupportedException()
-                                 },
-
-                             SeqType.Strict =>
-                                 rhs.Value.Type switch
-                                 {
-                                     // lhs strict, rhs empty
-                                     // return lhs
-                                     SeqType.Empty => oitems,
-
-                                     // lhs strict, rhs lazy
-                                     // return SeqConcat
-                                     SeqType.Lazy =>
-                                         new SeqConcat<A>(Seq(oitems, rhs.Value)),
-
-                                     // lhs strict, rhs strict
-                                     // append the two
-                                     SeqType.Strict =>
-                                         ((SeqStrict<A>)oitems).Append((SeqStrict<A>)rhs.Value),
-
-                                     // lhs strict, rhs concat
-                                     // prepend rhs with lhs
-                                     SeqType.Concat =>
-                                         ((SeqConcat<A>)rhs.Value).ConsSeq(oitems),
-
-                                     _ => throw new NotSupportedException()
-                                 },
-
-                             SeqType.Concat =>
-                                 rhs.Value.Type switch
-                                 {
-                                     // lhs concat, rhs empty
-                                     // return lhs
-                                     SeqType.Empty =>
-                                         oitems,
-
-                                     // lhs concat, rhs lazy || lhs concat, rhs strict
-                                     // add rhs to concat
-                                     SeqType.Lazy =>
-                                         ((SeqConcat<A>)oitems).AddSeq(rhs.Value),
-
-                                     SeqType.Strict =>
-                                         ((SeqConcat<A>)oitems).AddSeq(rhs.Value),
-
-                                     // lhs concat, rhs concat
-                                     // add rhs to concat
-                                     SeqType.Concat =>
-                                         ((SeqConcat<A>)oitems).AddSeqRange(((SeqConcat<A>)rhs.Value).ms),
-
-                                     _ => throw new NotSupportedException()
-                                 },
-
-                             _ => throw new NotSupportedException()
-                         };
-
-            if (ReferenceEquals(oitems, nitems))
-            {
-                // no change
-                return default;
-            }
-
-            if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
-            {
-                return default;
-            }
-            else
-            {
-                sw.SpinOnce();
-            }
-        }
-    }
+    public Unit Concat(Seq<A> rhs) =>
+        Swap(lhs => lhs + rhs);
 
     /// <summary>
     /// Prepend an item to the sequence
@@ -565,37 +490,31 @@ public class AtomSeq<A> :
     /// For lazy streams this will have to peek at the first 
     /// item.  So, the first item will be consumed.
     /// </remarks>
-    public bool IsEmpty
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => items.IsEmpty;
-    }
+    public bool IsEmpty => 
+        items.IsEmpty;
 
     /// <summary>
     /// Returns the number of items in the sequence
     /// </summary>
     /// <returns>Number of items in the sequence</returns>
-    public int Count
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => items.Count;
-    }
-        
+    public long Count => 
+        items.Count;
+
     /// <summary>
-    /// Alias of `Count`
+    /// Returns the number of items in the sequence (potentially truncated).
     /// </summary>
-    /// <returns>Number of items in the sequence</returns>
-    public int Length
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => items.Count;
-    }
+    /// <summary>
+    /// Prefer to use `Count` as it supports the full long range.  This is kept here to enable list
+    /// pattern-matching to work - which looks for a member called `Count` or `Length` that
+    /// is an `int`. Yep, they were that stupid.
+    /// </summary>
+    public int Length => 
+        (int)Count;
 
     /// <summary>
     /// Stream as an enumerable
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Iterable<A> AsIterable() => 
         items.AsIterable();
 
@@ -607,7 +526,6 @@ public class AtomSeq<A> :
     /// <param name="Tail">Match for a non-empty</param>
     /// <returns>Result of match function invoked</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public B Match<B>(Func<B> Empty, Func<A, Seq<A>, B> Tail)
     {
         var xs = items;
@@ -624,7 +542,6 @@ public class AtomSeq<A> :
     /// <param name="Tail">Match for a non-empty</param>
     /// <returns>Result of match function invoked</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public B Match<B>(
         Func<B> Empty,
         Func<A, B> Head,
@@ -646,7 +563,6 @@ public class AtomSeq<A> :
     /// <param name="Sequence">Match for a non-empty</param>
     /// <returns>Result of match function invoked</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public B Match<B>(
         Func<B> Empty,
         Func<Seq<A>, B> Seq)
@@ -686,46 +602,9 @@ public class AtomSeq<A> :
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped sequence</returns>
     [Pure]
-    public Seq<B> Map<B>(Func<A, B> f)
-    {
-        return new Seq<B>(new SeqLazy<B>(Yield(items)));
-        IEnumerable<B> Yield(ISeqInternal<A> items)
-        {
-            foreach (var item in items)
-            {
-                yield return f(item);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Map the sequence using the function provided
-    /// </summary>
-    /// <typeparam name="B"></typeparam>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped sequence</returns>
-    /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-    /// to update this data structure.  Therefore the functions must spend as little time performing the injected
-    /// behaviours as possible to avoid repeated attempts</remarks>
-    [Pure]
-    public Unit MapInPlace(Func<A, A> f)
-    {
-        SpinWait sw = default;
-        while (true)
-        {
-            var oitems = items;
-            var nitems = new SeqLazy<A>(oitems.Select(f));
-            if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
-            {
-                return default;
-            }
-            else
-            {
-                sw.SpinOnce();
-            }
-        }
-    }        
-        
+    public Unit Map(Func<A, A> f) =>
+        Swap(xs => xs.Map(f));
+    
     /// <summary>
     /// Map the sequence using the function provided
     /// </summary>
@@ -733,8 +612,7 @@ public class AtomSeq<A> :
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped sequence</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Seq<B> Select<B>(Func<A, B> f) =>
+    public Unit Select(Func<A, A> f) =>
         Map(f);
 
     /// <summary>
@@ -742,140 +620,32 @@ public class AtomSeq<A> :
     /// </summary>
     /// <typeparam name="B">Bound return value type</typeparam>
     /// <param name="f">Bind function</param>
-    /// <returns>Flatmapped sequence</returns>
-    [Pure]
-    public Seq<B> Bind<B>(Func<A, Seq<B>> f)
-    {
-        static IEnumerable<B> Yield(ISeqInternal<A> ma, Func<A, Seq<B>> bnd)
-        {
-            foreach (var a in ma)
-            {
-                foreach (var b in bnd(a))
-                {
-                    yield return b;
-                }
-            }
-        }
-        return new Seq<B>(Yield(items, f));
-    }
-        
-    /// <summary>
-    /// Monadic bind (flatmap) of the sequence
-    /// </summary>
-    /// <typeparam name="B">Bound return value type</typeparam>
-    /// <param name="f">Bind function</param>
     /// <returns>Flat-mapped sequence</returns>
-    /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-    /// to update this data structure.  Therefore the functions must spend as little time performing the injected
-    /// behaviours as possible to avoid repeated attempts</remarks>
-    public Unit BindInPlace<B>(Func<A, Seq<A>> f)
-    {
-        SpinWait sw = default;
-        while (true)
-        {
-            var oitems = items;
-            var nitems = new Seq<A>(oitems).Bind(f);
-            if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems.Value, oitems), oitems))
-            {
-                return default;
-            }
-            else
-            {
-                sw.SpinOnce();
-            }
-        }
-    } 
+    public Unit Bind(Func<A, Seq<A>> f) =>
+        Swap(xs => xs.Bind(f));
 
     /// <summary>
     /// Monadic bind (flatmap) of the sequence
     /// </summary>
     /// <typeparam name="B">Bound return value type</typeparam>
     /// <param name="bind">Bind function</param>
-    /// <returns>Flatmapped sequence</returns>
     [Pure]
-    public Seq<C> SelectMany<B, C>(Func<A, Seq<B>> bind, Func<A, B, C> project)
-    {
-        static IEnumerable<C> Yield(ISeqInternal<A> ma, Func<A, Seq<B>> bnd, Func<A, B, C> prj)
-        {
-            foreach (var a in ma)
-            {
-                foreach (var b in bnd(a))
-                {
-                    yield return prj(a, b);
-                }
-            }
-        }
-        return new Seq<C>(Yield(items, bind, project));
-    }
-
-    /// <summary>
-    /// Filter the items in the sequence
-    /// </summary>
-    /// <param name="f">Predicate to apply to the items</param>
-    /// <returns>Filtered sequence</returns>
-    [Pure]
-    public Seq<A> Filter(Func<A, bool> f)
-    {
-        return new Seq<A>(new SeqLazy<A>(Yield(items, f)));
-        static IEnumerable<A> Yield(ISeqInternal<A> items, Func<A, bool> f)
-        {
-            foreach (var item in items)
-            {
-                if (f(item))
-                {
-                    yield return item;
-                }
-            }
-        }
-    }
+    public Unit SelectMany<B>(Func<A, Seq<B>> bind, Func<A, B, A> project) =>
+        Swap(xs => xs.SelectMany(bind, project));
         
     /// <summary>
     /// Filter the items in the sequence
     /// </summary>
     /// <param name="f">Predicate to apply to the items</param>
     /// <returns>Filtered sequence</returns>
-    /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-    /// to update this data structure.  Therefore the functions must spend as little time performing the injected
-    /// behaviours as possible to avoid repeated attempts</remarks>
-    public Unit FilterInPlace(Func<A, bool> f)
-    {
-        SpinWait sw = default;
-        while (true)
-        {
-            var oitems = items;
-            var nitems = new SeqLazy<A>(oitems.Where(f));
-            if(ReferenceEquals(oitems, nitems))
-            {
-                // no change
-                return default;
-            }
-            if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
-            {
-                return default;
-            }
-            else
-            {
-                sw.SpinOnce();
-            }
-        }
-    }
-        
-    /// <summary>
-    /// Filter the items in the sequence
-    /// </summary>
-    /// <param name="f">Predicate to apply to the items</param>
-    /// <returns>Filtered sequence</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Seq<A> Where(Func<A, bool> f) =>
-        Filter(f);
+    public Unit Filter(Func<A, bool> f) =>
+        Swap(xs => xs.Filter(f));
 
     /// <summary>
     /// Returns true if the sequence has items in it
     /// </summary>
     /// <returns>True if the sequence has items in it</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Any() =>
         !IsEmpty;
 
@@ -883,52 +653,26 @@ public class AtomSeq<A> :
     /// Inject a value in between each item in the sequence 
     /// </summary>
     /// <param name="ma">Sequence to inject values into</param>
-    /// <param name="value">Item to inject</param>
+    /// <param name="sep">Separator value to inject</param>
     /// <typeparam name="A">Bound type</typeparam>
     /// <returns>A sequence with the values injected</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Unit Intersperse(A value)
-    {
-        SpinWait sw = default;
-        while (true)
-        {
-            var oitems = new Seq<A>(items);
-            var nitems = new SeqLazy<A>(oitems.Intersperse(value));
-            if(ReferenceEquals(oitems, nitems))
-            {
-                // no change
-                return default;
-            }
-            if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems.Value), oitems))
-            {
-                return default;
-            }
-            else
-            {
-                sw.SpinOnce();
-            }
-        }
-    }
+    public Unit Intersperse(A sep) =>
+        Swap(xs => xs.Intersperse(sep));
 
-    /// <summary>
-    /// Get the hash code for all of the items in the sequence, or 0 if empty
-    /// </summary>
-    /// <returns></returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode() =>
         items.GetHashCode();
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int CompareTo(object? obj) => obj switch 
-                                         {
-                                             AtomSeq<A>     s => CompareTo(s),
-                                             Seq<A>         s => CompareTo(s),
-                                             IEnumerable<A> e => CompareTo(toSeq(e)),
-                                             _                => 1
-                                         };
+    public int CompareTo(object? obj) =>
+        obj switch
+        {
+            AtomSeq<A> s     => CompareTo(s),
+            Seq<A> s         => CompareTo(s),
+            IEnumerable<A> e => CompareTo(toSeq(e)),
+            _                => 1
+        };
 
     /// <summary>
     /// Format the collection as `[a, b, c, ...]`
@@ -938,91 +682,67 @@ public class AtomSeq<A> :
     /// </summary>
     [Pure]
     public override string ToString() =>
-        items is SeqLazy<A> lz
-            ? CollectionFormat.ToShortArrayString(lz)
-            : CollectionFormat.ToShortArrayString(items, Count);
-
-    /// <summary>
-    /// Format the collection as `a, b, c, ...`
-    /// </summary>
-    [Pure]
-    public string ToFullString(string separator = ", ") =>
-        CollectionFormat.ToFullString(items, separator);
-
-    /// <summary>
-    /// Format the collection as `[a, b, c, ...]`
-    /// </summary>
-    [Pure]
-    public string ToFullArrayString(string separator = ", ") =>
-        CollectionFormat.ToFullArrayString(items, separator);
+        items.ToString() ?? "[]";
 
     /// <summary>
     /// Ordering operator
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >(AtomSeq<A> x, AtomSeq<A> y) =>
         x.CompareTo(y) > 0;
 
     /// <summary>
     /// Ordering operator
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >=(AtomSeq<A> x, AtomSeq<A> y) =>
         x.CompareTo(y) >= 0;
 
     /// <summary>
     /// Ordering  operator
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(AtomSeq<A> x, AtomSeq<A> y) =>
         x.CompareTo(y) < 0;
 
     /// <summary>
     /// Ordering  operator
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <=(AtomSeq<A> x, AtomSeq<A> y) =>
         x.CompareTo(y) <= 0;
 
     /// <summary>
     /// Equality operator
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(AtomSeq<A> x, AtomSeq<A> y) =>
         x.Equals(y);
 
     /// <summary>
     /// Non-equality operator
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(AtomSeq<A> x, AtomSeq<A> y) =>
         !(x == y);
 
     /// <summary>
     /// Equality test
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool Equals(object? obj) => obj switch 
-                                                {
-                                                    AtomSeq<A>     s => Equals(s),
-                                                    Seq<A>         s => Equals(s),
-                                                    IEnumerable<A> e => Equals(toSeq(e)),
-                                                    _                => false
-                                                };
+    public override bool Equals(object? obj) =>
+        obj switch
+        {
+            AtomSeq<A> s     => Equals(s),
+            Seq<A> s         => Equals(s),
+            IEnumerable<A> e => Equals(toSeq(e)),
+            _                => false
+        };
 
     /// <summary>
     /// Equality test
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(Seq<A> rhs) =>
-        Equals<EqDefault<A>>(rhs);
+        new Seq<A>(items).Equals(rhs);
 
     /// <summary>
     /// Equality test
     /// </summary>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(AtomSeq<A>? rhs) =>
         rhs is not null && Equals<EqDefault<A>>(rhs);
 
@@ -1030,184 +750,56 @@ public class AtomSeq<A> :
     /// Equality test
     /// </summary>
     [Pure]
-    public bool Equals<EqA>(Seq<A> rhs) where EqA : Eq<A>
-    {
-        var lhs = items;
-            
-        // Differing lengths?
-        if(lhs.Count != rhs.Count) return false;
+    public bool Equals<EqA>(Seq<A> rhs) 
+        where EqA : Eq<A> =>
+         new Seq<A>(items).Equals<EqA>(rhs);
 
-        // If the hash code has been calculated on both sides then 
-        // check for differences
-        if (lhs.GetHashCode() != rhs.GetHashCode())
-        {
-            return false;
-        }
-
-        // Iterate through both sides
-        using var iterA = lhs.GetEnumerator();
-        using var iterB = rhs.GetEnumerator();
-        while (iterA.MoveNext() && iterB.MoveNext())
-        {
-            if (!EqA.Equals(iterA.Current, iterB.Current))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-        
     /// <summary>
     /// Equality test
     /// </summary>
     [Pure]
-    public bool Equals<EqA>(AtomSeq<A> rhs) where EqA : Eq<A>
-    {
-        var lhs = items;
-            
-        // Differing lengths?
-        if(lhs.Count != rhs.Count) return false;
-
-        // If the hash code has been calculated on both sides then 
-        // check for differences
-        if (lhs.GetHashCode() != rhs.GetHashCode())
-        {
-            return false;
-        }
-
-        // Iterate through both sides
-        using var iterA = lhs.GetEnumerator();
-        using var iterB = rhs.GetEnumerator();
-        while (iterA.MoveNext() && iterB.MoveNext())
-        {
-            if (!EqA.Equals(iterA.Current, iterB.Current))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
+    public bool Equals<EqA>(AtomSeq<A> rhs) where EqA : Eq<A> =>
+        Equals<EqA>(new Seq<A>(rhs.items));
+    
     /// <summary>
     /// Skip count items
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Unit Skip(int amount)
-    {
-        SpinWait sw = default;
-        while (true)
-        {
-            var oitems = items;
-            var nitems = new SeqLazy<A>(oitems.Skip(amount));
-            if(ReferenceEquals(oitems, nitems))
-            {
-                // no change
-                return default;
-            }
-            if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
-            {
-                return default;
-            }
-            else
-            {
-                sw.SpinOnce();
-            }
-        }
-    }
+    public Unit Skip(int amount) =>
+        Swap(xs => xs.Skip(amount));
+    
+    /// <summary>
+    /// Keep skipping items while the predicate is satisfied.
+    /// </summary>
+    /// <param name="f">predicate</param>
+    public Unit SkipWhile(Func<A, bool> f) =>
+        Swap(xs => xs.SkipWhile(f));
+    
+    /// <summary>
+    /// Keep skipping items until the predicate is satisfied.
+    /// </summary>
+    /// <param name="f">predicate</param>
+    public Unit SkipUntil(Func<A, bool> f) =>
+        Swap(xs => xs.SkipUntil(f));
         
     /// <summary>
     /// Take count items
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Unit Take(int amount)
-    {
-        SpinWait sw = default;
-        while (true)
-        {
-            var oitems = items;
-            var nitems = new SeqLazy<A>(oitems.Take(amount));
-            if(ReferenceEquals(oitems, nitems))
-            {
-                // no change
-                return default;
-            }
-            if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
-            {
-                return default;
-            }
-            else
-            {
-                sw.SpinOnce();
-            }
-        }
-    }
-
-    /// <summary>
-    /// Iterate the sequence, yielding items if they match the predicate 
-    /// provided, and stopping as soon as one doesn't
-    /// </summary>
-    /// <returns>A new sequence with the first items that match the 
-    /// predicate</returns>
-    /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-    /// to update this data structure.  Therefore the functions must spend as little time performing the injected
-    /// behaviours as possible to avoid repeated attempts</remarks>
-    public Unit TakeWhile(Func<A, bool> pred)
-    {
-        SpinWait sw = default;
-        while (true)
-        {
-            var oitems = items;
-            var nitems = new SeqLazy<A>(oitems.TakeWhile(pred));
-            if(ReferenceEquals(oitems, nitems))
-            {
-                // no change
-                return default;
-            }
-            if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
-            {
-                return default;
-            }
-            else
-            {
-                sw.SpinOnce();
-            }
-        }
-    }
+    public Unit Take(int amount) =>
+        Swap(xs => xs.Take(amount));
         
     /// <summary>
-    /// Iterate the sequence, yielding items if they match the predicate 
-    /// provided, and stopping as soon as one doesn't.  An index value is 
-    /// also provided to the predicate function.
+    /// Take the specified number of items while the predicate is satisfied.
     /// </summary>
-    /// <returns>A new sequence with the first items that match the 
-    /// predicate</returns>
-    /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-    /// to update this data structure.  Therefore the functions must spend as little time performing the injected
-    /// behaviours as possible to avoid repeated attempts</remarks>
-    public Unit TakeWhile(Func<A, int, bool> pred)
-    {
-        SpinWait sw = default;
-        while (true)
-        {
-            var oitems = items;
-            var nitems = new SeqLazy<A>(oitems.TakeWhile(pred));
-            if(ReferenceEquals(oitems, nitems))
-            {
-                // no change
-                return default;
-            }
-            if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
-            {
-                return default;
-            }
-            else
-            {
-                sw.SpinOnce();
-            }
-        }
-    }
+    /// <param name="f">predicate</param>
+    public Unit TakeWhile(Func<A, bool> f) =>
+        Swap(xs => xs.TakeWhile(f));
+        
+    /// <summary>
+    /// Take the specified number of items until the predicate is satisfied.
+    /// </summary>
+    /// <param name="f">predicate</param>
+    public Unit TakeUntil(Func<A, bool> f) =>
+        Swap(xs => xs.TakeUntil(f));
 
     /// <summary>
     /// Returns all initial segments of the sequence, shortest first
@@ -1297,51 +889,16 @@ public class AtomSeq<A> :
     /// Compare to another sequence
     /// </summary>
     [Pure]
-    public int CompareTo<OrdA>(Seq<A> rhs) where OrdA : Ord<A>
-    {
-        var lhs = items;
-            
-        // Differing lengths?
-        var cmp = lhs.Count.CompareTo(rhs.Count);
-        if (cmp != 0) return cmp;
-
-        // Iterate through both sides
-        using var iterA = lhs.GetEnumerator();
-        using var iterB = rhs.GetEnumerator();
-        while (iterA.MoveNext() && iterB.MoveNext())
-        {
-            cmp = OrdA.Compare(iterA.Current, iterB.Current);
-            if (cmp != 0) return cmp;
-        }
-
-        return 0;
-    }
-        
+    public int CompareTo<OrdA>(Seq<A> rhs) where OrdA : Ord<A> =>
+        new Seq<A>(items).CompareTo<OrdA>(rhs);
         
     /// <summary>
     /// Compare to another sequence
     /// </summary>
     [Pure]
-    public int CompareTo<OrdA>(AtomSeq<A> rhs) where OrdA : Ord<A>
-    {
-        var lhs = items;
-            
-        // Differing lengths?
-        var cmp = lhs.Count.CompareTo(rhs.Count);
-        if (cmp != 0) return cmp;
-
-        // Iterate through both sides
-        using var iterA = lhs.GetEnumerator();
-        using var iterB = rhs.GetEnumerator();
-        while (iterA.MoveNext() && iterB.MoveNext())
-        {
-            cmp = OrdA.Compare(iterA.Current, iterB.Current);
-            if (cmp != 0) return cmp;
-        }
-
-        return 0;
-    }
-
+    public int CompareTo<OrdA>(AtomSeq<A> rhs) where OrdA : Ord<A> =>
+        new Seq<A>(items).CompareTo<OrdA>(new Seq<A>(rhs.items));
+    
     /// <summary>
     /// Force all items lazy to stream
     /// </summary>
@@ -1350,18 +907,30 @@ public class AtomSeq<A> :
         ignore(items.Strict());
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerator<A> GetEnumerator() =>
-        // ReSharper disable once NotDisposedResourceIsReturned
+    public IteratorEnumerator<A> GetEnumerator() =>
         items.GetEnumerator();
+    
+    [Pure]
+    IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
+        items.GetEnumerator().GetEnumerator();
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator IEnumerable.GetEnumerator() =>
-        // ReSharper disable once NotDisposedResourceIsReturned
-        items.GetEnumerator();
+        items.GetEnumerator().GetEnumerator();
+        
+    [Obsolete("Use Map instead.  If you want Map that returns a new sequence rather than mutating in-place, then call ToSeq().Map()")]
+    public Unit MapInPlace(Func<A, A> f) =>
+        Swap(xs => xs.Map(f));
 
-    [Pure]
-    public Seq<B> Cast<B>() =>
-        ToSeq().Cast<B>();
+    [Obsolete("Use Bind instead.  If you want Bind that returns a new sequence rather than mutating in-place, then call ToSeq().Bind()")]
+    public Unit BindInPlace(Func<A, Seq<A>> f) =>
+        Swap(xs => xs.Bind(f));
+ 
+    [Obsolete("Use Filter instead.  If you want a Filter that returns a new sequence rather than mutating in-place, then call ToSeq().Filter()")]
+    public Unit FilterInPlace(Func<A, bool> f) =>
+        Swap(xs => xs.Filter(f));
+    
+    [Obsolete("Use Snapshot() instead, I'm looking to standardise the way the Atom* types yield their backing value")]
+    public Seq<A> ToSeq() =>
+        new (items);
 }

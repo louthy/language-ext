@@ -30,10 +30,8 @@ public readonly struct HashSet<A> :
     readonly TrieSet<EqDefault<A>, A> value;
     internal TrieSet<EqDefault<A>, A> Value => value ?? TrieSet<EqDefault<A>, A>.Empty;
 
-    internal HashSet(TrieSet<EqDefault<A>, A> value)
-    {
+    internal HashSet(TrieSet<EqDefault<A>, A> value) => 
         this.value = value;
-    }
 
     HashSet<A> Wrap(TrieSet<EqDefault<A>, A> value) =>
         new (value);
@@ -110,31 +108,26 @@ public readonly struct HashSet<A> :
     /// Is the set empty
     /// </summary>
     [Pure]
-    public bool IsEmpty
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.IsEmpty ?? true;
-    }
+    public bool IsEmpty => 
+        value?.IsEmpty ?? true;
 
     /// <summary>
     /// Number of items in the set
     /// </summary>
     [Pure]
-    public int Count
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.Count ?? 0;
-    }
+    public int Count => 
+        value?.Count ?? 0;
 
     /// <summary>
-    /// Alias of Count
+    /// Returns the number of items in the sequence (potentially truncated).
     /// </summary>
-    [Pure]
-    public int Length
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.Count ?? 0;
-    }
+    /// <summary>
+    /// Prefer the use of `Count` as it supports the full long range.  This is kept here to enable list
+    /// pattern-matching to work - which looks for a member called `Count` or `Length` that
+    /// is an `int`. Yep, they were that stupid.
+    /// </summary>
+    public int Length => 
+        (int)Count;
         
     /// <summary>
     /// Impure iteration of the bound values in the structure

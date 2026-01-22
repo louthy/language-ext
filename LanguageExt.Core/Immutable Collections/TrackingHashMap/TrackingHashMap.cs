@@ -38,7 +38,6 @@ namespace LanguageExt;
 /// <typeparam name="V">Value</typeparam>
 [CollectionBuilder(typeof(TrackingHashMap), nameof(TrackingHashMap.createRange))]
 public readonly struct TrackingHashMap<K, V> :
-    IReadOnlyDictionary<K, V>,
     IEnumerable<(K Key, V Value)>,
     IEquatable<TrackingHashMap<K, V>>,
     Monoid<TrackingHashMap<K, V>>
@@ -132,32 +131,27 @@ public readonly struct TrackingHashMap<K, V> :
     /// Is the map empty
     /// </summary>
     [Pure]
-    public bool IsEmpty
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.IsEmpty ?? true;
-    }
+    public bool IsEmpty => 
+        value?.IsEmpty ?? true;
 
     /// <summary>
     /// Number of items in the map
     /// </summary>
     [Pure]
-    public int Count
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.Count ?? 0;
-    }
+    public long Count => 
+        value?.Count ?? 0;
 
     /// <summary>
-    /// Alias of Count
+    /// Returns the number of items in the sequence (potentially truncated).
     /// </summary>
-    [Pure]
-    public int Length
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.Count ?? 0;
-    }
-
+    /// <summary>
+    /// Prefer the use of `Count` as it supports the full long range.  This is kept here to enable list
+    /// pattern-matching to work - which looks for a member called `Count` or `Length` that
+    /// is an `int`. Yep, they were that stupid.
+    /// </summary>
+    public int Length => 
+        (int)Count;
+    
     /// <summary>
     /// Atomically filter out items that return false when a predicate is applied
     /// </summary>
@@ -175,6 +169,24 @@ public readonly struct TrackingHashMap<K, V> :
     [Pure]
     public TrackingHashMap<K, V> Filter(Func<K, V, bool> pred) =>
         Wrap(Value.FilterWithLog(pred));
+
+    /// <summary>
+    /// Atomically map values and track changes
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <returns>New map with mapped items</returns>
+    [Pure]
+    public TrackingHashMap<K, V> Map(Func<K, V, V> f) =>
+        Wrap(Value.MapWithLog(f));
+
+    /// <summary>
+    /// Atomically map values and track changes
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <returns>New map with mapped items</returns>
+    [Pure]
+    public TrackingHashMap<K, V> Map(Func<V, V> f) =>
+        Wrap(Value.MapWithLog(f));
 
     /// <summary>
     /// Atomically adds a new item to the map
@@ -653,7 +665,7 @@ public readonly struct TrackingHashMap<K, V> :
     /// <returns></returns>
     [Pure]
     public IReadOnlyDictionary<K, V> ToDictionary() =>
-        this;
+        ToReadOnlyDictionary();
 
     /// <summary>
     /// Map the map the a dictionary
@@ -1193,17 +1205,6 @@ public readonly struct TrackingHashMap<K, V> :
         Values.Fold(folder, state);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
-        AsEnumerable().Map(p => new KeyValuePair<K, V>(p.Key, p.Value)).GetEnumerator();
-    
-    [Pure]
-    IEnumerable<K> IReadOnlyDictionary<K, V>.Keys => Keys;
-    
-    [Pure]
-    IEnumerable<V> IReadOnlyDictionary<K, V>.Values => Values;
-
-    [Pure]
     public bool TryGetValue(K key, out V value)
     {
         var v = Find(key);
@@ -1225,7 +1226,7 @@ public readonly struct TrackingHashMap<K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IReadOnlyDictionary<K, V> ToReadOnlyDictionary() =>
-        this;
+        Value.ToReadOnlyDictionary();
 
     [Pure]
     [Obsolete(Change.UseCollectionIntialiser)]

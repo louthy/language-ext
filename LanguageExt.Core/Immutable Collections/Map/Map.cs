@@ -141,18 +141,6 @@ public readonly struct Map<K, V> :
                        }
                        return la;
                    });
-    
-    /// <summary>
-    /// 'this' accessor
-    /// </summary>
-    /// <param name="key">Key</param>
-    /// <returns>value</returns>
-    [Pure]
-    public V this[K key]
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Value[key];
-    }
 
     /// <summary>
     /// Is the map empty
@@ -172,6 +160,29 @@ public readonly struct Map<K, V> :
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => value?.Count ?? 0;
+    }
+    
+    /// <summary>
+    /// Returns the number of items in the sequence (potentially truncated).
+    /// </summary>
+    /// <summary>
+    /// Prefer the use of `Count` as it supports the full long range.  This is kept here to enable list
+    /// pattern-matching to work - which looks for a member called `Count` or `Length` that
+    /// is an `int`. Yep, they were that stupid.
+    /// </summary>
+    public int Length => 
+        (int)Count;
+    
+    /// <summary>
+    /// 'this' accessor
+    /// </summary>
+    /// <param name="key">Key</param>
+    /// <returns>value</returns>
+    [Pure]
+    public V this[K key]
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => Value[key];
     }
         
     /// <summary>

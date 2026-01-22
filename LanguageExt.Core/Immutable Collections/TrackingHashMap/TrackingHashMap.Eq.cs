@@ -1,4 +1,5 @@
-﻿using LanguageExt.ClassInstances;
+﻿#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
+using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 using System;
 using System.Collections;
@@ -36,7 +37,6 @@ namespace LanguageExt;
 /// <typeparam name="V">Value</typeparam>
 [CollectionBuilder(typeof(TrackingHashMap), nameof(TrackingHashMap.createRange))]
 public readonly struct TrackingHashMap<EqK, K, V> :
-    IReadOnlyDictionary<K, V>,
     IEnumerable<(K Key, V Value)>,
     IEquatable<TrackingHashMap<EqK, K, V>>,
     Monoid<TrackingHashMap<EqK, K, V>>
@@ -141,17 +141,7 @@ public readonly struct TrackingHashMap<EqK, K, V> :
     /// Number of items in the map
     /// </summary>
     [Pure]
-    public int Count
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => value?.Count ?? 0;
-    }
-
-    /// <summary>
-    /// Alias of Count
-    /// </summary>
-    [Pure]
-    public int Length
+    public long Count
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => value?.Count ?? 0;
@@ -652,7 +642,7 @@ public readonly struct TrackingHashMap<EqK, K, V> :
     /// <returns></returns>
     [Pure]
     public IReadOnlyDictionary<K, V> ToDictionary() =>
-        this;
+        Value.ToReadOnlyDictionary();
 
     /// <summary>
     /// Map the map the a dictionary
@@ -1181,17 +1171,6 @@ public readonly struct TrackingHashMap<EqK, K, V> :
         AsEnumerable().Fold((s, x) => folder(s, x.Key, x.Value), state);
 
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
-        AsEnumerable().Map(p => new KeyValuePair<K, V>(p.Key, p.Value)).GetEnumerator();
-    
-    [Pure]
-    IEnumerable<K> IReadOnlyDictionary<K, V>.Keys => Keys;
-    
-    [Pure]
-    IEnumerable<V> IReadOnlyDictionary<K, V>.Values => Values;
-
-    [Pure]
     public bool TryGetValue(K key, out V value)
     {
         var v = Find(key);
@@ -1213,7 +1192,7 @@ public readonly struct TrackingHashMap<EqK, K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IReadOnlyDictionary<K, V> ToReadOnlyDictionary() =>
-        this;
+        Value.ToReadOnlyDictionary();
 
     /// <summary>
     /// Atomically folds all items in the map (in order) using the folder function provided.

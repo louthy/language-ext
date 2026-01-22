@@ -12,6 +12,11 @@ public static partial class Deriving
         where Supertype : Foldable<Supertype>, Foldable<Supertype, Subtype>
         where Subtype : Foldable<Subtype>
     {
+
+        static K<Sub, A> transform<Super, Sub, A>(K<Super, A> ta) 
+            where Super : Traits.Natural<Super, Sub> =>
+            Super.Transform(ta);
+        
         /// <summary>
         /// Same behaviour as `Fold` but allows early exit of the operation once
         /// the predicate function becomes `false` for the state/value pair 
@@ -21,7 +26,7 @@ public static partial class Deriving
             Func<(S State, A Value), bool> predicate,
             in S initialState,
             K<Supertype, A> ta) =>
-            Subtype.FoldWhile(f, predicate, initialState, Supertype.Transform(ta));
+            Subtype.FoldWhile(f, predicate, initialState, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Fold until the `Option` returns `None`
@@ -36,7 +41,7 @@ public static partial class Deriving
             Func<S, A, Option<S>> f,
             in S initialState,
             K<Supertype, A> ta) =>
-            Subtype.FoldMaybe(f, initialState, Supertype.Transform(ta));
+            Subtype.FoldMaybe(f, initialState, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
@@ -48,7 +53,7 @@ public static partial class Deriving
             Func<(S State, A Value), bool> predicate,
             in S initialState,
             K<Supertype, A> ta) =>
-            Subtype.FoldWhileM<MS, M, A, S>(f, predicate, initialState, Supertype.Transform(ta));
+            Subtype.FoldWhileM<MS, M, A, S>(f, predicate, initialState, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Same behaviour as `Fold` but allows early exit of the operation once
@@ -59,7 +64,7 @@ public static partial class Deriving
             Func<(S State, A Value), bool> predicate,
             in S initialState,
             K<Supertype, A> ta) =>
-            Subtype.FoldUntil(f, predicate, initialState, Supertype.Transform(ta));
+            Subtype.FoldUntil(f, predicate, initialState, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Same behaviour as `Fold` but the fold operation returns a monadic type and allows
@@ -71,7 +76,7 @@ public static partial class Deriving
             Func<(S State, A Value), bool> predicate,
             in S initialState,
             K<Supertype, A> ta) =>
-            Subtype.FoldUntilM<MS, M, A, S>(f, predicate, initialState, Supertype.Transform(ta));
+            Subtype.FoldUntilM<MS, M, A, S>(f, predicate, initialState, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Right-associative fold of a structure, lazy in the accumulator.
@@ -81,7 +86,7 @@ public static partial class Deriving
         /// list, reduces the list using the binary operator, from right to left.
         /// </summary>
         static S Foldable<Supertype>.Fold<A, S>(Func<S, A, S> f, in S initialState, K<Supertype, A> ta) =>
-            Subtype.Fold(f, initialState, Supertype.Transform(ta));
+            Subtype.Fold(f, initialState, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Right-associative fold of a structure, lazy in the accumulator.
@@ -94,37 +99,37 @@ public static partial class Deriving
             Func<S, A, MS> f,
             in S initialState,
             K<Supertype, A> ta) =>
-            Subtype.FoldM<MS, M, A, S>(f, initialState, Supertype.Transform(ta));
+            Subtype.FoldM<MS, M, A, S>(f, initialState, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// List of elements of a structure, from left to right
         /// </summary>
         static Seq<A> Foldable<Supertype>.ToSeq<A>(K<Supertype, A> ta) =>
-            Subtype.ToSeq(Supertype.Transform(ta));
+            Subtype.ToSeq(transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// List of elements of a structure, from left to right
         /// </summary>
         static Lst<A> Foldable<Supertype>.ToLst<A>(K<Supertype, A> ta) =>
-            Subtype.ToLst(Supertype.Transform(ta));
+            Subtype.ToLst(transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// List of elements of a structure, from left to right
         /// </summary>
         static Arr<A> Foldable<Supertype>.ToArr<A>(K<Supertype, A> ta) =>
-            Subtype.ToArr(Supertype.Transform(ta));
+            Subtype.ToArr(transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// List of elements of a structure, from left to right
         /// </summary>
         static Iterable<A> Foldable<Supertype>.ToIterable<A>(K<Supertype, A> ta) =>
-            Subtype.ToIterable(Supertype.Transform(ta));
+            Subtype.ToIterable(transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// List of elements of a structure, from left to right
         /// </summary>
         static bool Foldable<Supertype>.IsEmpty<A>(K<Supertype, A> ta) =>
-            Subtype.IsEmpty(Supertype.Transform(ta));
+            Subtype.IsEmpty(transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Returns the size/length of a finite structure as an `int`.  The
@@ -135,49 +140,49 @@ public static partial class Deriving
         /// implementation.
         /// </summary>
         static long Foldable<Supertype>.Count<A>(K<Supertype, A> ta) =>
-            Subtype.Count(Supertype.Transform(ta));
+            Subtype.Count(transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Does an element that fits the predicate occur in the structure?
         /// </summary>
         static bool Foldable<Supertype>.Exists<A>(Func<A, bool> predicate, K<Supertype, A> ta) =>
-            Subtype.Exists(predicate, Supertype.Transform(ta));
+            Subtype.Exists(predicate, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Does the predicate hold for all elements in the structure?
         /// </summary>
         static bool Foldable<Supertype>.ForAll<A>(Func<A, bool> predicate, K<Supertype, A> ta) =>
-            Subtype.ForAll(predicate, Supertype.Transform(ta));
+            Subtype.ForAll(predicate, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Does the element exist in the structure?
         /// </summary>
         static bool Foldable<Supertype>.Contains<EqA, A>(A value, K<Supertype, A> ta) =>
-            Subtype.Contains(value, Supertype.Transform(ta));
+            Subtype.Contains(value, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Does the element exist in the structure?
         /// </summary>
         static bool Foldable<Supertype>.Contains<A>(A value, K<Supertype, A> ta) =>
-            Subtype.Contains(value, Supertype.Transform(ta));
+            Subtype.Contains(value, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Find the first element that match the predicate
         /// </summary>
         static Option<A> Foldable<Supertype>.Find<A>(Func<A, bool> predicate, K<Supertype, A> ta) =>
-            Subtype.Find(predicate, Supertype.Transform(ta));
+            Subtype.Find(predicate, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Find the elements that match the predicate
         /// </summary>
         static Iterator<A> Foldable<Supertype>.FindAll<A>(Func<A, bool> predicate, K<Supertype, A> ta) =>
-            Subtype.FindAll(predicate, Supertype.Transform(ta));
+            Subtype.FindAll(predicate, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Get the head item in the foldable or `None`
         /// </summary>
         static Option<A> Foldable<Supertype>.Head<A>(K<Supertype, A> ta) =>
-            Subtype.Head(Supertype.Transform(ta));
+            Subtype.Head(transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Map each element of a structure to an 'Applicative' action, evaluate these
@@ -185,7 +190,7 @@ public static partial class Deriving
         /// doesn't ignore the results see `Traversable.traverse`.
         /// </summary>
         static K<M, Unit> Foldable<Supertype>.IterM<MB, M, A, B>(Func<A, MB> f, K<Supertype, A> ta) =>
-            Subtype.IterM<MB, M, A, B>(f, Supertype.Transform(ta));
+            Subtype.IterM<MB, M, A, B>(f, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Map each element of a structure to an action, evaluate these
@@ -193,7 +198,7 @@ public static partial class Deriving
         /// doesn't ignore the results see `Traversable.traverse`.
         /// </summary>
         static Unit Foldable<Supertype>.Iter<A>(Action<A> f, K<Supertype, A> ta) =>
-            Subtype.Iter(f, Supertype.Transform(ta));
+            Subtype.Iter(f, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Map each element of a structure to an action, evaluate these
@@ -201,61 +206,61 @@ public static partial class Deriving
         /// doesn't ignore the results see `Traversable.traverse`.
         /// </summary>
         static Unit Foldable<Supertype>.Iter<A>(Action<long, A> f, long initialIndex, K<Supertype, A> ta) =>
-            Subtype.Iter(f, initialIndex, Supertype.Transform(ta));
+            Subtype.Iter(f, initialIndex, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Find the minimum value in the structure
         /// </summary>
         static Option<A> Foldable<Supertype>.Min<OrdA, A>(K<Supertype, A> ta) =>
-            Subtype.Min<OrdA, A>(Supertype.Transform(ta));
+            Subtype.Min<OrdA, A>(transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Find the minimum value in the structure
         /// </summary>
         static Option<A> Foldable<Supertype>.Min<A>(K<Supertype, A> ta) =>
-            Subtype.Min(Supertype.Transform(ta));
+            Subtype.Min(transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Find the maximum value in the structure
         /// </summary>
         static Option<A> Foldable<Supertype>.Max<OrdA, A>(K<Supertype, A> ta) =>
-            Subtype.Max<OrdA, A>(Supertype.Transform(ta));
+            Subtype.Max<OrdA, A>(transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Find the maximum value in the structure
         /// </summary>
         static Option<A> Foldable<Supertype>.Max<A>(K<Supertype, A> ta) =>
-            Subtype.Max(Supertype.Transform(ta));
+            Subtype.Max(transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Find the minimum value in the structure
         /// </summary>
         static A Foldable<Supertype>.Min<OrdA, A>(A initialMin, K<Supertype, A> ta) =>
-            Subtype.Min<OrdA, A>(initialMin, Supertype.Transform(ta));
+            Subtype.Min<OrdA, A>(initialMin, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Find the minimum value in the structure
         /// </summary>
         static A Foldable<Supertype>.Min<A>(A initialMin, K<Supertype, A> ta) =>
-            Subtype.Min(initialMin, Supertype.Transform(ta));
+            Subtype.Min(initialMin, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Find the maximum value in the structure
         /// </summary>
         static A Foldable<Supertype>.Max<OrdA, A>(A initialMax, K<Supertype, A> ta) =>
-            Subtype.Max<OrdA, A>(initialMax, Supertype.Transform(ta));
+            Subtype.Max<OrdA, A>(initialMax, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Find the maximum value in the structure
         /// </summary>
         static A Foldable<Supertype>.Max<A>(A initialMax, K<Supertype, A> ta) =>
-            Subtype.Max(initialMax, Supertype.Transform(ta));
+            Subtype.Max(initialMax, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Find the element at the specified index or `None` if out of range
         /// </summary>
         static Option<A> Foldable<Supertype>.At<A>(long index, K<Supertype, A> ta) =>
-            Subtype.At(index, Supertype.Transform(ta));
+            Subtype.At(index, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Partition a foldable into two sequences based on a predicate
@@ -265,9 +270,9 @@ public static partial class Deriving
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Partitioned structure</returns>
         static (Arr<A> True, Arr<A> False) Foldable<Supertype>.Partition<A>(Func<A, bool> f, K<Supertype, A> ta) =>
-            Subtype.Partition(f, Supertype.Transform(ta));
+            Subtype.Partition(f, transform<Supertype, Subtype, A>(ta));
 
         static Iterator<A> IterableK<Supertype>.ForwardIterator<A>(K<Supertype, A> fa) => 
-            Subtype.ForwardIterator(Supertype.Transform(fa));
+            Subtype.ForwardIterator(transform<Supertype, Subtype, A>(fa));
     }
 }

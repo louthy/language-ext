@@ -1,4 +1,5 @@
-﻿using System;
+﻿#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static LanguageExt.Prelude;
@@ -81,7 +82,7 @@ public static partial class TrackingHashMapExtensions
     /// Number of items in the map
     /// </summary>
     [Pure]
-    public static int Count<K, V>(this TrackingHashMap<K, V> self) =>
+    public static long Count<K, V>(this TrackingHashMap<K, V> self) =>
         self.Count;
 
     [Pure]

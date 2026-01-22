@@ -1,4 +1,5 @@
-﻿using System;
+﻿#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using LanguageExt.Traits;
@@ -522,13 +523,6 @@ public static partial class TrackingHashMap
     [Pure]
     public static TrackingHashMap<EqK, K, V> filter<EqK, K, V>(TrackingHashMap<EqK, K, V> map, Func<K, V, bool> predicate) where EqK : Eq<K> =>
         map.Filter(predicate);
-
-    /// <summary>
-    /// Number of items in the map
-    /// </summary>
-    [Pure]
-    public static int length<EqK, K, T>(TrackingHashMap<EqK, K, T> map) where EqK : Eq<K> =>
-        map.Count;
 
     /// <summary>
     /// Atomically folds all items in the map (in order) using the folder function provided.

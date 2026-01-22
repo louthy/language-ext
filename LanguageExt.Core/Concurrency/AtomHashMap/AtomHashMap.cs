@@ -25,7 +25,6 @@ public class AtomHashMap<K, V> :
     IEnumerable<(K Key, V Value)>,
     IEquatable<HashMap<K, V>>,
     IEquatable<AtomHashMap<K, V>>,
-    IReadOnlyDictionary<K, V>,
     K<AtomHashMap<K>, V>
 {
     volatile TrieMap<EqDefault<K>, K, V> Items;
@@ -34,22 +33,31 @@ public class AtomHashMap<K, V> :
     /// <summary>
     /// Creates a new atom-hashmap
     /// </summary>
-    public static AtomHashMap<K, V> Empty => new AtomHashMap<K, V>(TrieMap<EqDefault<K>, K, V>.Empty);
-        
+    public static AtomHashMap<K, V> Empty => new(TrieMap<EqDefault<K>, K, V>.Empty);
+
     /// <summary>
     /// Constructor
     /// </summary>
     /// <param name="items">Trie map</param>
     AtomHashMap(TrieMap<EqDefault<K>, K, V> items) =>
         this.Items = items;
-        
+
     /// <summary>
     /// Constructor
     /// </summary>
     /// <param name="items">Hash map</param>
     internal AtomHashMap(HashMap<K, V> items) =>
         this.Items = items.Value;
-    
+
+    /// <summary>
+    /// Take an immutable snapshot of the current state of the collection.  This can be called multiple times
+    /// to get snapshots of the state of the collection over time.
+    /// </summary>
+    /// <remarks>This is effectively a zero-cost operation because the backing value is of this type</remarks>
+    [Pure]
+    public HashMap<K, V> Snapshot() =>
+        new(Items);
+
     /// <summary>
     /// 'this' accessor
     /// </summary>
@@ -73,21 +81,19 @@ public class AtomHashMap<K, V> :
     /// Number of items in the map
     /// </summary>
     [Pure]
-    public int Count
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Items.Count;
-    }
+    public long Count =>
+        Items.Count;
 
     /// <summary>
-    /// Alias of Count
+    /// Returns the number of items in the sequence (potentially truncated).
     /// </summary>
-    [Pure]
-    public int Length
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Items.Count;
-    }
+    /// <summary>
+    /// Prefer to use `Count` as it supports the full long range.  This is kept here to enable list
+    /// pattern-matching to work - which looks for a member called `Count` or `Length` that
+    /// is an `int`. Yep, they were that stupid.
+    /// </summary>
+    public int Length =>
+        (int)Count;
 
     /// <summary>
     /// Atomically swap the underlying hash-map.  Allows for multiple operations on the hash-map in an entirely
@@ -109,11 +115,12 @@ public class AtomHashMap<K, V> :
         {
             var oitems = Items;
             var nitems = swap(new TrackingHashMap<K, V>(oitems));
-            if(ReferenceEquals(oitems, nitems.Value))
+            if (ReferenceEquals(oitems, nitems.Value))
             {
                 // no change
                 return default;
             }
+
             if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems.Value, oitems), oitems))
             {
                 AnnounceChanges(oitems, nitems.Value, nitems.Changes.Value);
@@ -144,8 +151,8 @@ public class AtomHashMap<K, V> :
             if (ovalue.IsNone) return unit;
             var nvalue   = swap((V)ovalue);
             var onChange = Change;
-            var (nitems, change) = onChange == null 
-                                       ? (oitems.SetItem(key, nvalue), Change<V>.None) 
+            var (nitems, change) = onChange == null
+                                       ? (oitems.SetItem(key, nvalue), Change<V>.None)
                                        : oitems.SetItemWithLog(key, nvalue);
             if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
             {
@@ -205,12 +212,13 @@ public class AtomHashMap<K, V> :
                                              (false, true)  => oitems.AddWithLog(key, (V)nvalue),
                                              (false, false) => (oitems, Change<V>.None)
                                          };
-                
-            if(ReferenceEquals(oitems, nitems))
+
+            if (ReferenceEquals(oitems, nitems))
             {
                 // no change
                 return default;
             }
+
             if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
             {
                 AnnounceChange(oitems, nitems, key, change);
@@ -222,82 +230,27 @@ public class AtomHashMap<K, V> :
             }
         }
     }
-        
-    /// <summary>
-    /// Atomically filter out items that return false when a predicate is applied
-    /// </summary>
-    /// <param name="pred">Predicate</param>
-    /// <returns>New map with items filtered</returns>
-    [Pure]
-    public AtomHashMap<K, V> Filter(Func<V, bool> pred) =>
-        new(Items.Filter(pred));
 
     /// <summary>
     /// Atomically filter out items that return false when a predicate is applied
     /// </summary>
-    /// <param name="pred">Predicate</param>
+    /// <param name="f">Predicate</param>
     /// <returns>New map with items filtered</returns>
     /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-    /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+    /// to update this data structure.  Therefore, the functions must spend as little time performing the injected
     /// behaviours as possible to avoid repeated attempts</remarks>
-    public Unit FilterInPlace(Func<V, bool> pred)
-    {
-        SpinWait sw = default;
-        while (true)
-        {
-            var oitems   = Items;
-            var onChange = Change;
-            var (nitems, changes) = onChange == null
-                                        ? (oitems.Filter(pred), null)
-                                        : oitems.FilterWithLog(pred);
-            if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
-            {
-                AnnounceChanges(oitems, nitems, changes);
-                return default;
-            }
-            else
-            {
-                sw.SpinOnce();
-            }
-        }
-    }
-
-    /// <summary>
-    /// Atomically filter out items that return false when a predicate is applied
-    /// </summary>
-    /// <param name="pred">Predicate</param>
-    [Pure]
-    public AtomHashMap<K, V> Filter(Func<K, V, bool> pred) =>
-        new(Items.Filter(pred));
+    public Unit Filter(Func<V, bool> f) =>
+        Swap(xs => xs.Filter(f));
 
     /// <summary>
     /// Atomically filter out items that return false when a predicate is applied
     /// </summary>
     /// <param name="pred">Predicate</param>
     /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-    /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+    /// to update this data structure.  Therefore, the functions must spend as little time performing the injected
     /// behaviours as possible to avoid repeated attempts</remarks>
-    public Unit FilterInPlace(Func<K, V, bool> pred)
-    {
-        SpinWait sw = default;
-        while (true)
-        {
-            var oitems   = Items;
-            var onChange = Change;
-            var (nitems, changes) = onChange == null
-                                        ? (oitems.Filter(pred), null)
-                                        : oitems.FilterWithLog(pred);
-            if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
-            {
-                AnnounceChanges(oitems, nitems, changes);
-                return default;
-            }
-            else
-            {
-                sw.SpinOnce();
-            }
-        }
-    }
+    public Unit Filter(Func<K, V, bool> f) =>
+        Swap(xs => xs.Filter(f));
 
     /// <summary>
     /// Atomically maps the map to a new map
@@ -306,35 +259,19 @@ public class AtomHashMap<K, V> :
     /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
     /// to update this data structure.  Therefore the functions must spend as little time performing the injected
     /// behaviours as possible to avoid repeated attempts</remarks>
-    public Unit MapInPlace(Func<V, V> f) 
-    {
-        SpinWait sw = default;
-        while (true)
-        {
-            var oitems   = Items;
-            var onChange = Change;
-            var (nitems, changes) = onChange == null
-                                        ? (oitems.Map(f), null)
-                                        : oitems.MapWithLog(f);
-            if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
-            {
-                AnnounceChanges(oitems, nitems, changes);
-                return default;
-            }
-            else
-            {
-                sw.SpinOnce();
-            }
-        }
-    }
+    public Unit Map(Func<V, V> f) =>
+        Swap(xs => xs.Map(f));
 
     /// <summary>
     /// Atomically maps the map to a new map
     /// </summary>
     /// <returns>Mapped items in a new map</returns>
-    public AtomHashMap<K, U> Map<U>(Func<K, V, U> f) =>
-        new AtomHashMap<K, U>(Items.Map(f));
-        
+    /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
+    /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+    /// behaviours as possible to avoid repeated attempts</remarks>
+    public Unit Map(Func<K, V, V> f) =>
+        Swap(xs => xs.Map(f));
+
     /// <summary>
     /// Atomically adds a new item to the map
     /// </summary>
@@ -383,10 +320,11 @@ public class AtomHashMap<K, V> :
             var (nitems, change) = onChange == null
                                        ? (oitems.TryAdd(key, value), null)
                                        : oitems.TryAddWithLog(key, value);
-            if(ReferenceEquals(oitems, nitems))
+            if (ReferenceEquals(oitems, nitems))
             {
                 return default;
             }
+
             if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
             {
                 AnnounceChange(oitems, nitems, key, change);
@@ -398,7 +336,7 @@ public class AtomHashMap<K, V> :
             }
         }
     }
-        
+
     /// <summary>
     /// Atomically adds a new item to the map.
     /// If the key already exists, the new item replaces it.
@@ -543,10 +481,11 @@ public class AtomHashMap<K, V> :
             var (nitems, changes) = onChange == null
                                         ? (oitems.TryAddRange(srange), null)
                                         : oitems.TryAddRangeWithLog(srange);
-            if(ReferenceEquals(oitems, nitems))
+            if (ReferenceEquals(oitems, nitems))
             {
                 return default;
             }
+
             if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
             {
                 AnnounceChanges(oitems, nitems, changes);
@@ -578,10 +517,11 @@ public class AtomHashMap<K, V> :
             var (nitems, changes) = onChange == null
                                         ? (oitems.TryAddRange(srange), null)
                                         : oitems.TryAddRangeWithLog(srange);
-            if(ReferenceEquals(oitems, nitems))
+            if (ReferenceEquals(oitems, nitems))
             {
                 return default;
             }
+
             if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
             {
                 AnnounceChanges(oitems, nitems, changes);
@@ -672,10 +612,11 @@ public class AtomHashMap<K, V> :
             var (nitems, change) = onChange == null
                                        ? (oitems.Remove(key), null)
                                        : oitems.RemoveWithLog(key);
-            if(ReferenceEquals(oitems, nitems))
+            if (ReferenceEquals(oitems, nitems))
             {
                 return default;
             }
+
             if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
             {
                 AnnounceChange(oitems, nitems, key, change);
@@ -733,10 +674,11 @@ public class AtomHashMap<K, V> :
         {
             var oitems = Items;
             var (nitems, value, change) = Items.FindOrAddWithLog(key, None);
-            if(ReferenceEquals(oitems, nitems))
+            if (ReferenceEquals(oitems, nitems))
             {
                 return value;
             }
+
             if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
             {
                 AnnounceChange(oitems, nitems, key, change);
@@ -763,10 +705,11 @@ public class AtomHashMap<K, V> :
         {
             var oitems = Items;
             var (nitems, nvalue, change) = Items.FindOrAddWithLog(key, value);
-            if(ReferenceEquals(oitems, nitems))
+            if (ReferenceEquals(oitems, nitems))
             {
                 return nvalue;
             }
+
             if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
             {
                 AnnounceChange(oitems, nitems, key, change);
@@ -777,7 +720,7 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    }           
+    }
 
     /// <summary>
     /// Try to find the key in the map, if it doesn't exist, add a new 
@@ -796,10 +739,11 @@ public class AtomHashMap<K, V> :
         {
             var oitems = Items;
             var (nitems, nvalue, change) = Items.FindOrMaybeAddWithLog(key, None);
-            if(ReferenceEquals(oitems, nitems))
+            if (ReferenceEquals(oitems, nitems))
             {
                 return nvalue;
             }
+
             if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
             {
                 AnnounceChange(oitems, nitems, key, change);
@@ -810,8 +754,8 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    }  
-        
+    }
+
     /// <summary>
     /// Try to find the key in the map, if it doesn't exist, add a new 
     /// item by invoking the delegate provided.
@@ -826,10 +770,11 @@ public class AtomHashMap<K, V> :
         {
             var oitems = Items;
             var (nitems, nvalue, change) = Items.FindOrMaybeAddWithLog(key, None);
-            if(ReferenceEquals(oitems, nitems))
+            if (ReferenceEquals(oitems, nitems))
             {
                 return nvalue;
             }
+
             if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
             {
                 AnnounceChange(oitems, nitems, key, change);
@@ -840,7 +785,7 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    }  
+    }
 
     /// <summary>
     /// Atomically updates an existing item
@@ -869,8 +814,8 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    }  
-        
+    }
+
     /// <summary>
     /// Retrieve a value from the map by key, map it to a new value,
     /// put it back.
@@ -888,9 +833,9 @@ public class AtomHashMap<K, V> :
         {
             var oitems   = Items;
             var onChange = Change;
-            var(nitems, change) = onChange == null
-                                      ? (oitems.SetItem(key, Some), null)
-                                      : oitems.SetItemWithLog(key, Some);
+            var (nitems, change) = onChange == null
+                                       ? (oitems.SetItem(key, Some), null)
+                                       : oitems.SetItemWithLog(key, Some);
             if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
             {
                 AnnounceChange(oitems, nitems, key, change);
@@ -901,8 +846,8 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
-        
+    }
+
     /// <summary>
     /// Atomically updates an existing item, unless it doesn't exist, in which case 
     /// it is ignored
@@ -921,10 +866,11 @@ public class AtomHashMap<K, V> :
             var (nitems, change) = onChange == null
                                        ? (oitems.TrySetItem(key, value), null)
                                        : oitems.TrySetItemWithLog(key, value);
-            if(ReferenceEquals(oitems, nitems))
+            if (ReferenceEquals(oitems, nitems))
             {
                 return default;
             }
+
             if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
             {
                 AnnounceChange(oitems, nitems, key, change);
@@ -935,8 +881,8 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
-        
+    }
+
     /// <summary>
     /// Atomically sets an item by first retrieving it, applying a map, and then putting it back.
     /// Silently fails if the value doesn't exist
@@ -958,10 +904,11 @@ public class AtomHashMap<K, V> :
             var (nitems, change) = onChange == null
                                        ? (oitems.TrySetItem(key, Some), null)
                                        : oitems.TrySetItemWithLog(key, Some);
-            if(ReferenceEquals(oitems, nitems))
+            if (ReferenceEquals(oitems, nitems))
             {
                 return default;
             }
+
             if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
             {
                 AnnounceChange(oitems, nitems, key, change);
@@ -972,8 +919,8 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
-        
+    }
+
     /// <summary>
     /// Checks for existence of a key in the map
     /// </summary>
@@ -1042,7 +989,7 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
+    }
 
     /// <summary>
     /// Atomically adds a range of items to the map
@@ -1071,8 +1018,8 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
-        
+    }
+
     /// <summary>
     /// Atomically sets a series of items using the KeyValuePairs provided
     /// </summary>
@@ -1100,7 +1047,7 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
+    }
 
     /// <summary>
     /// Atomically sets a series of items using the Tuples provided.
@@ -1129,8 +1076,8 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
-        
+    }
+
     /// <summary>
     /// Atomically sets a series of items using the KeyValuePairs provided.  If any of the 
     /// items don't exist then they're silently ignored.
@@ -1152,6 +1099,7 @@ public class AtomHashMap<K, V> :
             {
                 return default;
             }
+
             if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
             {
                 AnnounceChanges(oitems, nitems, changes);
@@ -1162,7 +1110,7 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
+    }
 
     /// <summary>
     /// Atomically sets a series of items using the Tuples provided  If any of the 
@@ -1185,6 +1133,7 @@ public class AtomHashMap<K, V> :
             {
                 return default;
             }
+
             if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
             {
                 AnnounceChanges(oitems, nitems, changes);
@@ -1195,7 +1144,7 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
+    }
 
     /// <summary>
     /// Atomically sets a series of items using the keys provided to find the items
@@ -1223,6 +1172,7 @@ public class AtomHashMap<K, V> :
             {
                 return default;
             }
+
             if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
             {
                 AnnounceChanges(oitems, nitems, changes);
@@ -1233,7 +1183,7 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
+    }
 
     /// <summary>
     /// Atomically removes a set of keys from the map
@@ -1255,6 +1205,7 @@ public class AtomHashMap<K, V> :
             {
                 return default;
             }
+
             if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
             {
                 AnnounceChanges(oitems, nitems, changes);
@@ -1265,8 +1216,8 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
-        
+    }
+
     /// <summary>
     /// Returns true if a Key/Value pair exists in the map
     /// </summary>
@@ -1293,18 +1244,10 @@ public class AtomHashMap<K, V> :
     /// <summary>
     /// Convert the map to an IDictionary
     /// </summary>
-    /// <remarks>This is effectively a zero cost operation, not even a single allocation</remarks>
+    /// <remarks>This is effectively a zero-cost operation</remarks>
     [Pure]
     public IReadOnlyDictionary<K, V> ToDictionary() =>
-        this;
-
-    /// <summary>
-    /// Convert to a HashMap
-    /// </summary>
-    /// <remarks>This is effectively a zero cost operation, not even a single allocation</remarks>
-    [Pure]
-    public HashMap<K, V> ToHashMap() =>
-        new (Items);
+        Items.ToReadOnlyDictionary();
 
     /// <summary>
     /// GetEnumerator - IEnumerable interface
@@ -1423,7 +1366,7 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
+    }
 
     public Unit Append(HashMap<K, V> rhs)
     {
@@ -1446,9 +1389,9 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
+    }
 
-    public Unit Subtract(AtomHashMap<K, V> rhs) 
+    public Unit Subtract(AtomHashMap<K, V> rhs)
     {
         if (rhs.IsEmpty) return default;
         SpinWait sw = default;
@@ -1469,9 +1412,9 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    }         
+    }
 
-    public Unit Subtract(HashMap<K, V> rhs) 
+    public Unit Subtract(HashMap<K, V> rhs)
     {
         if (rhs.IsEmpty) return default;
         SpinWait sw = default;
@@ -1492,7 +1435,7 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    }         
+    }
 
     /// <summary>
     /// Returns True if 'other' is a proper subset of this set
@@ -1572,7 +1515,7 @@ public class AtomHashMap<K, V> :
     public Unit Intersect(IEnumerable<K> rhs)
     {
         SpinWait sw   = default;
-        var      srhs = toSeq(rhs);            
+        var      srhs = toSeq(rhs);
         while (true)
         {
             var oitems   = this.Items;
@@ -1590,7 +1533,7 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
+    }
 
     /// <summary>
     /// Returns the elements that are in both this and other
@@ -1598,7 +1541,7 @@ public class AtomHashMap<K, V> :
     public Unit Intersect(IEnumerable<(K Key, V Value)> rhs)
     {
         SpinWait sw   = default;
-        var      srhs = new TrieMap<EqDefault<K>, K, V>(rhs);            
+        var      srhs = new TrieMap<EqDefault<K>, K, V>(rhs);
         while (true)
         {
             var oitems   = this.Items;
@@ -1616,15 +1559,15 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
-        
+    }
+
     /// <summary>
     /// Returns the elements that are in both this and other
     /// </summary>
     public Unit Intersect(IEnumerable<(K Key, V Value)> rhs, WhenMatched<K, V, V, V> Merge)
     {
         SpinWait sw   = default;
-        var      srhs = new TrieMap<EqDefault<K>, K, V>(rhs);            
+        var      srhs = new TrieMap<EqDefault<K>, K, V>(rhs);
         while (true)
         {
             var oitems   = this.Items;
@@ -1642,8 +1585,8 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
-        
+    }
+
     /// <summary>
     /// Returns the elements that are in both this and other
     /// </summary>
@@ -1667,8 +1610,8 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
-        
+    }
+
     /// <summary>
     /// Returns True if other overlaps this set
     /// </summary>
@@ -1690,7 +1633,7 @@ public class AtomHashMap<K, V> :
     public Unit Except(IEnumerable<K> rhs)
     {
         SpinWait sw   = default;
-        var      srhs = toSeq(rhs);            
+        var      srhs = toSeq(rhs);
         while (true)
         {
             var oitems   = this.Items;
@@ -1708,8 +1651,8 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
-        
+    }
+
     /// <summary>
     /// Returns this - other.  Only the items in this that are not in 
     /// other will be returned.
@@ -1717,7 +1660,7 @@ public class AtomHashMap<K, V> :
     public Unit Except(IEnumerable<(K Key, V Value)> rhs)
     {
         SpinWait sw   = default;
-        var      srhs = toSeq(rhs);            
+        var      srhs = toSeq(rhs);
         while (true)
         {
             var oitems   = this.Items;
@@ -1735,7 +1678,7 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
+    }
 
     /// <summary>
     /// Only items that are in one set or the other will be returned.
@@ -1761,7 +1704,7 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
+    }
 
     /// <summary>
     /// Only items that are in one set or the other will be returned.
@@ -1788,8 +1731,8 @@ public class AtomHashMap<K, V> :
                 sw.SpinOnce();
             }
         }
-    } 
-        
+    }
+
     /// <summary>
     /// Finds the union of two sets and produces a new set with 
     /// the results
@@ -1862,7 +1805,8 @@ public class AtomHashMap<K, V> :
     /// The `WhenMissing` function is called when there is a key in the right-hand side, but not the left-hand-side.
     /// This allows the `V2` value-type to be mapped to the target `V` value-type. 
     /// </remarks>
-    public Unit Union<W>(IEnumerable<(K Key, W Value)> rhs, WhenMissing<K, W, V> MapRight, WhenMatched<K, V, W, V> Merge)
+    public Unit Union<W>(IEnumerable<(K Key, W Value)> rhs, WhenMissing<K, W, V> MapRight,
+                         WhenMatched<K, V, W, V> Merge)
     {
         SpinWait sw   = default;
         var      srhs = toSeq(rhs);
@@ -1883,7 +1827,7 @@ public class AtomHashMap<K, V> :
             {
                 sw.SpinOnce();
             }
-        }            
+        }
     }
 
     /// <summary>
@@ -1931,7 +1875,7 @@ public class AtomHashMap<K, V> :
     /// <returns>Mapped items in a new map</returns>
     [Pure]
     public AtomHashMap<K, U> Select<U>(Func<V, U> f) =>
-        new (Items.Map(f));
+        new(Items.Map(f));
 
     /// <summary>
     /// Atomically maps the map to a new map
@@ -1939,7 +1883,7 @@ public class AtomHashMap<K, V> :
     /// <returns>Mapped items in a new map</returns>
     [Pure]
     public AtomHashMap<K, U> Select<U>(Func<K, V, U> f) =>
-        new (Items.Map(f));
+        new(Items.Map(f));
 
     /// <summary>
     /// Atomically filter out items that return false when a predicate is applied
@@ -1949,7 +1893,7 @@ public class AtomHashMap<K, V> :
     [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public AtomHashMap<K, V> Where(Func<V, bool> pred) =>
-        new (Items.Filter(pred));
+        new(Items.Filter(pred));
 
     /// <summary>
     /// Atomically filter out items that return false when a predicate is applied
@@ -1959,7 +1903,7 @@ public class AtomHashMap<K, V> :
     [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public AtomHashMap<K, V> Where(Func<K, V, bool> pred) =>
-        new (Items.Filter(pred));
+        new(Items.Filter(pred));
 
     /// <summary>
     /// Return true if all items in the map return true when the predicate is applied
@@ -1973,6 +1917,7 @@ public class AtomHashMap<K, V> :
         {
             if (!pred(key, value)) return false;
         }
+
         return true;
     }
 
@@ -2005,6 +1950,7 @@ public class AtomHashMap<K, V> :
         {
             if (pred(key, value)) return true;
         }
+
         return false;
     }
 
@@ -2047,6 +1993,7 @@ public class AtomHashMap<K, V> :
         {
             action(key, value);
         }
+
         return unit;
     }
 
@@ -2062,6 +2009,7 @@ public class AtomHashMap<K, V> :
         {
             action(item.Value);
         }
+
         return unit;
     }
 
@@ -2077,6 +2025,7 @@ public class AtomHashMap<K, V> :
         {
             action(item);
         }
+
         return unit;
     }
 
@@ -2092,6 +2041,7 @@ public class AtomHashMap<K, V> :
         {
             action(new KeyValuePair<K, V>(item.Key, item.Value));
         }
+
         return unit;
     }
 
@@ -2105,7 +2055,8 @@ public class AtomHashMap<K, V> :
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    void AnnounceChanges(TrieMap<EqDefault<K>, K, V> prev, TrieMap<EqDefault<K>, K, V> current, TrieMap<EqDefault<K>, K, Change<V>>? changes)
+    void AnnounceChanges(TrieMap<EqDefault<K>, K, V> prev, TrieMap<EqDefault<K>, K, V> current,
+                         TrieMap<EqDefault<K>, K, Change<V>>? changes)
     {
         if (changes is not null)
         {
@@ -2116,14 +2067,14 @@ public class AtomHashMap<K, V> :
     /////////////////////////////////////////////////////////////////////////////////////////////
     //  
     // IReadOnlyDictionary
- 
+
     [Pure]
     public IDictionary<KR, VR> ToDictionary<KR, VR>(
-        Func<(K Key, V Value), KR> keySelector, 
-        Func<(K Key, V Value), VR> valueSelector) 
+        Func<(K Key, V Value), KR> keySelector,
+        Func<(K Key, V Value), VR> valueSelector)
         where KR : notnull =>
         AsIterable().ToDictionary(keySelector, valueSelector);
-    
+
     [Pure]
     public bool TryGetValue(K key, out V value)
     {
@@ -2139,21 +2090,25 @@ public class AtomHashMap<K, V> :
             return false;
         }
     }
-        
-    [Pure]
-    IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
-        AsIterable()
-           .Select(p => new KeyValuePair<K, V>(p.Key, p.Value))
-            // ReSharper disable once NotDisposedResourceIsReturned
-           .GetEnumerator() ;
-    
-    [Pure]
-    IEnumerable<K> IReadOnlyDictionary<K, V>.Keys => Keys;
 
-    [Pure]
-    IEnumerable<V> IReadOnlyDictionary<K, V>.Values => Values;
-
+    /// <summary>
+    /// Get an `IReadOnlyDictionary` for this map.  No mapping is required, so this is very fast.
+    /// </summary>
     [Pure]
     public IReadOnlyDictionary<K, V> ToReadOnlyDictionary() =>
-        this;
+        Items.ToReadOnlyDictionary();
+
+    [Obsolete(
+        "Use Map instead.  If you want Map that returns a new sequence rather than mutating in-place, then call ToSeq().Map()")]
+    public Unit MapInPlace(Func<V, V> f) =>
+        Swap(xs => xs.Map(f));
+
+    [Obsolete(
+        "Use Filter instead.  If you want a Filter that returns a new sequence rather than mutating in-place, then call ToSeq().Filter()")]
+    public Unit FilterInPlace(Func<V, bool> f) =>
+        Swap(xs => xs.Filter(f));
+
+    [Obsolete("Use Snapshot() instead, I'm looking to standardise the way the Atom* types yield their backing value")]
+    public HashMap<K, V> ToHashMap() =>
+        new(Items);
 }

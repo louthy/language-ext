@@ -29,7 +29,7 @@ public class TokenStream
     /// <summary>
     /// Get the length of a chunk
     /// </summary>
-    public static int chunkLength<S, A>(in S tokens)
+    public static long chunkLength<S, A>(in S tokens)
         where S : TokenStream<S, A> =>
         S.ChunkLength(tokens);
 

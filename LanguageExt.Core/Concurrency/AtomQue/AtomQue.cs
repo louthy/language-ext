@@ -50,6 +50,15 @@ public class AtomQue<A> :
 
     internal AtomQue(Que<A> items) =>
         this.items = new QueInternal<A>(items);
+        
+    /// <summary>
+    /// Take an immutable snapshot of the current state of the collection.  This can be called multiple times
+    /// to get snapshots of the state of the collection over time.
+    /// </summary>
+    /// <remarks>This is effectively a zero-cost operation because the backing value is of this type</remarks>
+    [Pure]
+    public Que<A> Snapshot() =>
+        new(items);
 
     /// <summary>
     /// Impure iteration of the bound value in the structure
@@ -101,21 +110,19 @@ public class AtomQue<A> :
     /// Number of items in the queue
     /// </summary>
     [Pure]
-    public int Count
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => items.Count;
-    }
+    public long Count => 
+        items.Count;
 
     /// <summary>
-    /// Alias of Count
+    /// Returns the number of items in the sequence (potentially truncated).
     /// </summary>
-    [Pure]
-    public int Length
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => items.Count;
-    }
+    /// <summary>
+    /// Prefer to use `Count` as it supports the full long range.  This is kept here to enable list
+    /// pattern-matching to work - which looks for a member called `Count` or `Length` that
+    /// is an `int`. Yep, they were that stupid.
+    /// </summary>
+    public int Length => 
+        (int)Count;
 
     /// <summary>
     /// Clears the queue atomically
@@ -236,10 +243,6 @@ public class AtomQue<A> :
     [Pure]
     public Seq<A> ToSeq() =>
         items.ToSeq();
-    
-    [Pure]
-    public Que<A> ToQueue() =>
-        new (items);
 
     [Pure]
     public Iterable<A> AsIterable() =>
@@ -355,4 +358,8 @@ public class AtomQue<A> :
     public bool Equals(Que<A> other) =>
         GetHashCode() == other.GetHashCode() &&
         EqEnumerable<A>.Equals(items, other.Value);
+    
+    [Obsolete("Use Snapshot() instead, I'm looking to standardise the way the Atom* types yield their backing value")]
+    public Que<A> ToQueue() =>
+        new (items);
 }

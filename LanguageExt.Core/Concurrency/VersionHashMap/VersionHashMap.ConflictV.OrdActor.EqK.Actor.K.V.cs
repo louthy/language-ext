@@ -1,3 +1,4 @@
+#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
 using System;
 using System.Threading;
 using System.Collections;
@@ -81,22 +82,12 @@ public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
     /// Number of items in the map
     /// </summary>
     [Pure]
-    public int Count
+    public long Count
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Items.Count;
     }
-
-    /// <summary>
-    /// Alias of Count
-    /// </summary>
-    [Pure]
-    public int Length
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Items.Count;
-    }
-        
+    
     /// <summary>
     /// Atomically swap a key in the map.  Allows for multiple operations on the hash-map in an entirely
     /// transactional and atomic way.

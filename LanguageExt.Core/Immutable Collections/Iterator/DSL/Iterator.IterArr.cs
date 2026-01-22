@@ -9,7 +9,7 @@ public abstract partial class Iterator<A>
     /// </summary>
     internal class IterArr(Arr<A> array, long index, long remaining) : Iterator<A>
     {
-        public Arr<A> Array => array.Splice(index, remaining);
+        public Arr<A> Array => array.Slice(index, remaining);
         
         public override (Head<A> Head, Iterator<A> Tail) Next() =>
             remaining == 0
@@ -20,7 +20,7 @@ public abstract partial class Iterator<A>
             $"Arr{array}";
 
         public override Arr<A> ToArr() =>
-            array.Splice(index, remaining);
+            array.Slice(index, remaining);
     }
     
     /// <summary>
@@ -37,6 +37,6 @@ public abstract partial class Iterator<A>
             $"Arr{array}";
 
         public override Arr<A> ToArr() =>
-            array.Splice(index - remaining, remaining).Reverse();
+            array.Slice(index - remaining, remaining).Reverse();
     }
 }
