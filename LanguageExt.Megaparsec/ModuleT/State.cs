@@ -59,7 +59,7 @@ public static partial class ModuleT<MP, E, S, T, M>
     /// Get the number of tokens processed so far.
     /// </summary>
     /// <returns>Parser</returns>
-    public static readonly K<MP, int> getOffset =
+    public static readonly K<MP, long> getOffset =
         MP.Asks(x => x.Offset);
 
     /// <summary>
@@ -67,7 +67,7 @@ public static partial class ModuleT<MP, E, S, T, M>
     /// </summary>
     /// <param name="offset">Token offset</param>
     /// <returns>Parser</returns>
-    public static K<MP, Unit> setOffset(int offset) =>
+    public static K<MP, Unit> setOffset(long offset) =>
         MP.Modify(s => s with { Offset = offset });
     
     /// <summary>

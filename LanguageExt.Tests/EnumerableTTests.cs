@@ -10,7 +10,7 @@ public class EnumerableTTests
     [Fact]
     public void ChooseTest()
     {
-        var input = List(
+        var input = Lst(
             Some(1),
             Some(2),
             Some(3),
@@ -19,9 +19,9 @@ public class EnumerableTTests
             None,
             Some(5));
 
-        var actual = IterableExtensions.AsIterable(input).Choose(x => x).ToList();
+        var actual = input.Choose(x => x).ToLst();
 
-        var expected = List(1, 2, 3, 4, 5);
+        var expected = Lst(1, 2, 3, 4, 5);
 
         var toString = fun((IEnumerable items) => string.Join(", ", items));
 

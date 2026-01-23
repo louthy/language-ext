@@ -22,7 +22,7 @@ record ChooseSourceT<M, A>(Seq<SourceT<M, A>> Sources) : SourceT<M, A>
 
             // For each stream, reduce it (which writes to the merged stream), fork it, and return
             // This gives us K<M, A> that we can't run directly, so we must bind it...
-            from signal in useMaybe(Signal.countdown<M>(Sources.Count))
+            from signal in useMaybe(Signal.countdown<M>(Sources.Length))
             let trigger = trigger(signal, writer)
             let error   = error(signal, writer)
             

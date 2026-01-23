@@ -38,7 +38,7 @@ public static partial class Prelude
     [OverloadResolutionPriority(Change.Priority)]
     public static Arr<A> toArray<A>(Iterator<A> items)
     {
-        var writer = ArrayWriter<A>.Init();
+        var writer = ArrayWriterRef<A>.Init();
         foreach (var item in items)
         {
             writer.Add(item);

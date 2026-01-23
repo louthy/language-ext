@@ -160,8 +160,6 @@ static class MapModule
                         return Balance(Make(successor.KeyValue, node.Left, newRight));
                     }
                 }
-
-                break;
         }
     }
 

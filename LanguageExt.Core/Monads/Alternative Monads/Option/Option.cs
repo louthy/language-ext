@@ -512,7 +512,6 @@ public readonly struct Option<A> :
     /// </summary>
     /// <returns></returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlySpan<A> ToSpan() =>
         IsSome
             ? new([Value!])
@@ -523,7 +522,6 @@ public readonly struct Option<A> :
     /// </summary>
     /// <returns>An enumerable of zero or one items</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Arr<A> ToArray() =>
         isSome
             ? Arr.create(Value!)
@@ -534,8 +532,7 @@ public readonly struct Option<A> :
     /// </summary>
     /// <returns>An immutable list of zero or one items</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Lst<A> ToList() =>
+    public Lst<A> ToLst() =>
         isSome
             ? Lst.create(Value!)
             : [];
@@ -545,7 +542,6 @@ public readonly struct Option<A> :
     /// </summary>
     /// <returns>An enumerable sequence of zero or one items</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<A> ToSeq() =>
         isSome
             ? [Value!]
@@ -556,7 +552,6 @@ public readonly struct Option<A> :
     /// </summary>
     /// <returns>An enumerable of zero or one items</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<A> AsEnumerable() =>
         IsSome ? [Value!] : [];
 
@@ -833,116 +828,6 @@ public readonly struct Option<A> :
             : noneValue;
 
     /// <summary>
-    /// <para>
-    /// Option types are like lists of 0 or 1 items, and therefore follow the 
-    /// same rules when folding.
-    /// </para><para>
-    /// In the case of lists, 'Fold', when applied to a binary
-    /// operator, a starting value(typically the left-identity of the operator),
-    /// and a list, reduces the list using the binary operator, from left to
-    /// right:
-    /// </para>
-    /// <para>
-    /// Note that, since the head of the resulting expression is produced by
-    /// an application of the operator to the first element of the list,
-    /// 'Fold' can produce a terminating expression from an infinite list.
-    /// </para>
-    /// </summary>
-    /// <typeparam name="S">Aggregate state type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Folder function, applied if Option is in a Some state</param>
-    /// <returns>The aggregate state</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public S Fold<S>(S state, Func<S, A, S> folder) =>
-        isSome
-            ? folder(state, Value!)
-            : state;
-
-    /// <summary>
-    /// <para>
-    /// Option types are like lists of 0 or 1 items, and therefore follow the 
-    /// same rules when folding.
-    /// </para><para>
-    /// In the case of lists, 'Fold', when applied to a binary
-    /// operator, a starting value(typically the left-identity of the operator),
-    /// and a list, reduces the list using the binary operator, from left to
-    /// right:
-    /// </para>
-    /// <para>
-    /// Note that, since the head of the resulting expression is produced by
-    /// an application of the operator to the first element of the list,
-    /// 'Fold' can produce a terminating expression from an infinite list.
-    /// </para>
-    /// </summary>
-    /// <typeparam name="S">Aggregate state type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Folder function, applied if Option is in a Some state</param>
-    /// <returns>The aggregate state</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public S FoldBack<S>(S state, Func<S, A, S> folder) =>
-        isSome
-            ? folder(state, Value!)
-            : state;
-
-    /// <summary>
-    /// <para>
-    /// Option types are like lists of 0 or 1 items, and therefore follow the 
-    /// same rules when folding.
-    /// </para><para>
-    /// In the case of lists, 'Fold', when applied to a binary
-    /// operator, a starting value(typically the left-identity of the operator),
-    /// and a list, reduces the list using the binary operator, from left to
-    /// right:
-    /// </para>
-    /// <para>
-    /// Note that, since the head of the resulting expression is produced by
-    /// an application of the operator to the first element of the list,
-    /// 'Fold' can produce a terminating expression from an infinite list.
-    /// </para>
-    /// </summary>
-    /// <typeparam name="S">Aggregate state type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="Some">Folder function, applied if Option is in a Some state</param>
-    /// <param name="None">Folder function, applied if Option is in a None state</param>
-    /// <returns>The aggregate state</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public S BiFold<S>(S state, Func<S, A, S> Some, Func<S, Unit, S> None) =>
-        isSome
-            ? Some(state, Value!)
-            : None(state, unit);
-
-    /// <summary>
-    /// <para>
-    /// Option types are like lists of 0 or 1 items, and therefore follow the 
-    /// same rules when folding.
-    /// </para><para>
-    /// In the case of lists, 'Fold', when applied to a binary
-    /// operator, a starting value(typically the left-identity of the operator),
-    /// and a list, reduces the list using the binary operator, from left to
-    /// right:
-    /// </para>
-    /// <para>
-    /// Note that, since the head of the resulting expression is produced by
-    /// an application of the operator to the first element of the list,
-    /// 'Fold' can produce a terminating expression from an infinite list.
-    /// </para>
-    /// </summary>
-    /// <typeparam name="S">Aggregate state type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="Some">Folder function, applied if Option is in a Some state</param>
-    /// <param name="None">Folder function, applied if Option is in a None state</param>
-    /// <returns>The aggregate state</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public S BiFold<S>(S state, Func<S, A, S> Some, Func<S, S> None) =>
-        isSome
-            ? Some(state, Value!)
-            : None(state);
-
-    /// <summary>
     /// Projection from one value to another
     /// </summary>
     /// <typeparam name="B">Resulting functor value type</typeparam>
@@ -950,7 +835,6 @@ public readonly struct Option<A> :
     /// <param name="None">Projection function</param>
     /// <returns>Mapped functor</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Option<B> BiMap<B>(Func<A, B> Some, Func<Unit, B> None) =>
         Check.NullReturn(
             isSome
@@ -965,7 +849,6 @@ public readonly struct Option<A> :
     /// <param name="None">Projection function</param>
     /// <returns>Mapped functor</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Option<B> BiMap<B>(Func<A, B> Some, Func<B> None) =>
         isSome
             ? Some(Value!)
@@ -984,7 +867,6 @@ public readonly struct Option<A> :
     /// </summary>
     /// <returns></returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int Count() =>
         isSome ? 1 : 0;
 
@@ -1000,7 +882,6 @@ public readonly struct Option<A> :
     /// the value is the result of running applying the bound value to the 
     /// predicate supplied.</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ForAll(Func<A, bool> pred) =>
         !isSome || pred(Value!);
 
@@ -1017,7 +898,6 @@ public readonly struct Option<A> :
     /// is the result of running applying the bound value to the Some predicate 
     /// supplied.</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool BiForAll(Func<A, bool> Some, Func<Unit, bool> None) =>
         isSome
             ? Some(Value!)
@@ -1036,7 +916,6 @@ public readonly struct Option<A> :
     /// is the result of running applying the bound value to the Some predicate 
     /// supplied.</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool BiForAll(Func<A, bool> Some, Func<bool> None) =>
         isSome
             ? Some(Value!)
@@ -1053,7 +932,6 @@ public readonly struct Option<A> :
     /// is the result of running applying the bound value to the predicate 
     /// supplied.</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Exists(Func<A, bool> pred) =>
         isSome && pred(Value!);
 
@@ -1069,7 +947,6 @@ public readonly struct Option<A> :
     /// is the result of running applying the bound value to the Some predicate 
     /// supplied.</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool BiExists(Func<A, bool> Some, Func<Unit, bool> None) =>
         isSome
             ? Some(Value!)
@@ -1087,7 +964,6 @@ public readonly struct Option<A> :
     /// is the result of running applying the bound value to the Some predicate 
     /// supplied.</returns>
     [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool BiExists(Func<A, bool> Some, Func<bool> None) =>
         isSome
             ? Some(Value!)
@@ -1097,7 +973,6 @@ public readonly struct Option<A> :
     /// Invoke an action for the bound value (if in a Some state)
     /// </summary>
     /// <param name="Some">Action to invoke</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Unit Iter(Action<A> Some)
     {
         if(isSome)
@@ -1112,7 +987,6 @@ public readonly struct Option<A> :
     /// </summary>
     /// <param name="Some">Action to invoke if in a Some state</param>
     /// <param name="None">Action to invoke if in a None state</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Unit BiIter(Action<A> Some, Action<Unit> None)
     {
         if (isSome)
@@ -1131,7 +1005,6 @@ public readonly struct Option<A> :
     /// </summary>
     /// <param name="Some">Action to invoke if in a Some state</param>
     /// <param name="None">Action to invoke if in a None state</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Unit BiIter(Action<A> Some, Action None)
     {
         if (isSome)
@@ -1241,4 +1114,14 @@ public readonly struct Option<A> :
     [Pure]
     public static Option<A> Empty =>
         None;
+    
+    /// <summary>
+    /// Convert the Option to an immutable list of zero or one items
+    /// </summary>
+    /// <returns>An immutable list of zero or one items</returns>
+    [Obsolete("Use ToLst instead")]
+    public Lst<A> ToList() =>
+        isSome
+            ? Lst.create(Value!)
+            : [];
 }

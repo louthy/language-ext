@@ -455,8 +455,8 @@ public interface Foldable<T, FS> : Foldable<T>, IterableK<T, FS>
     /// <returns>Partitioned structure</returns>
     static (Arr<A> True, Arr<A> False) Foldable<T>.Partition<A>(Func<A, bool> f, K<T, A> ta)
     {
-        var @true  = ArrayWriter<A>.Init();
-        var @false = ArrayWriter<A>.Init();
+        var @true  = ArrayWriterRef<A>.Init();
+        var @false = ArrayWriterRef<A>.Init();
         
         var foldState = T.StepSetup(ta);
         while (T.Step(ta, ref foldState, out var value))

@@ -380,7 +380,7 @@ public static class ProducerT
         if (producers.Count == 0) return pure<OUT, M, Unit>(default);
 
         return from conduit in Pure(Conduit.make(settings ?? Buffer<OUT>.Unbounded))
-               from signal  in Signal.countdown<M>(producers.Count)
+               from signal  in Signal.countdown<M>(producers.Length)
                from forks   in forkEffects(producers, signal, conduit)
                from _       in conduit.ToProducerT<M>()
                from x       in forks.Traverse(f => f.Cancel).As()

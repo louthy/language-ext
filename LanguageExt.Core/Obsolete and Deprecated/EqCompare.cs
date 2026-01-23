@@ -5,7 +5,6 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-[Obsolete]
 class EqCompare<T> : IEqualityComparer<T>
 {
     readonly Func<T, T, bool> compare;

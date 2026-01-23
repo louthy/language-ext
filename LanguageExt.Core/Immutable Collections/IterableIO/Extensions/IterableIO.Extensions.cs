@@ -11,12 +11,6 @@ namespace LanguageExt;
 
 public static partial class IterableIOExtensions
 {
-    extension<A>(IAsyncEnumerable<A> xs)
-    {
-        public IterableIO<A> AsIterableIO() =>
-            IterableIO.createRange(xs);
-    }
-
     extension<A>(IterableIO<IterableIO<A>> ma)
     {
         public IterableIO<A> Flatten() =>

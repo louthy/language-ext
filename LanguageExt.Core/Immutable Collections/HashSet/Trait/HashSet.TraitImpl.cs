@@ -12,7 +12,7 @@ public partial class HashSet :
     Alternative<HashSet>, 
     Traversable<HashSet>,
     Foldable<HashSet, TrieSet.FoldState>,
-    NaturalEpi<HashSet, Iterator>
+    NaturalIso<HashSet, Iterator>
 {
     static K<HashSet, B> Monad<HashSet>.Recur<A, B>(A value, Func<A, K<HashSet, Next<A, B>>> f) =>
         Monad.iterableRecur(value, f);
@@ -135,6 +135,9 @@ public partial class HashSet :
     static Iterator<A> IterableK<HashSet>.ForwardIterator<A>(K<HashSet, A> fa) =>
         new Iterator.IterHashSet<EqDefault<A>, A>(
             TrieSet.IteratorState<EqDefault<A>, A>.Setup(fa.As().Value.Root));
+
+    static K<Iterator, A> Natural<HashSet, Iterator>.Transform<A>(K<HashSet, A> fa) =>
+        fa.ForwardIterator();
 
     static K<HashSet, A> CoNatural<HashSet, Iterator>.CoTransform<A>(K<Iterator, A> fa) => 
         createRange(+fa);

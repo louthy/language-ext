@@ -22,7 +22,7 @@ public static class Hints
     /// <typeparam name="T">Token type</typeparam>
     /// <typeparam name="E">Error type</typeparam>
     /// <returns>Hints</returns>
-    public static Hints<T> fromOffset<T, E>(int streamPos, ParseError<T, E> error) =>
+    public static Hints<T> fromOffset<T, E>(long streamPos, ParseError<T, E> error) =>
         error switch
         {
             ParseError<T, E>.Trivial(var errOffset, _, var ps) =>

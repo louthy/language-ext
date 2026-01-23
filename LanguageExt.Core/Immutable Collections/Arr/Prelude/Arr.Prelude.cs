@@ -40,7 +40,7 @@ public static partial class Prelude
     [Pure]
     public static Arr<A> toArr<A>(Iterator<A> items)
     {
-        var writer = ArrayWriter<A>.Init();
+        var writer = ArrayWriterRef<A>.Init();
         foreach (var item in items)
         {
             writer.Add(item);
@@ -54,4 +54,18 @@ public static partial class Prelude
     [Pure]
     public static Arr<T> toArr<T>(ReadOnlySpan<T> items) =>
         new (items);
+
+    /// <summary>
+    /// Create an immutable array
+    /// </summary>
+    [Pure]
+    public static Arr<char> toArr(string items)
+    {
+        var chars = new char[items.Length];
+        var fspan = items.AsSpan();
+        var tspan = new Span<char>(chars);
+        fspan.CopyTo(tspan);
+        return new Arr<char>(chars);
+    }
+    
 }

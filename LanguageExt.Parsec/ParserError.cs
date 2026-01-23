@@ -32,26 +32,26 @@ public class ParserError : IEquatable<ParserError>, IComparable<ParserError>
     }
 
     public static ParserError Unknown(Pos pos) =>
-        new ParserError(ParserErrorTag.Unknown, pos, "", List.empty<string>());
+        new ParserError(ParserErrorTag.Unknown, pos, "", Lst.empty<string>());
 
     public static ParserError SysUnexpect(Pos pos, string message) =>
-        new ParserError(ParserErrorTag.SysUnexpect, pos, message, List.empty<string>());
+        new ParserError(ParserErrorTag.SysUnexpect, pos, message, Lst.empty<string>());
 
     public static ParserError Unexpect(Pos pos, string message) =>
-        new ParserError(ParserErrorTag.Unexpect, pos, message, List.empty<string>());
+        new ParserError(ParserErrorTag.Unexpect, pos, message, Lst.empty<string>());
 
     public static ParserError Expect(Pos pos, string message, string expected) =>
-        new ParserError(ParserErrorTag.Expect, pos, message, List.create(expected));
+        new ParserError(ParserErrorTag.Expect, pos, message, Lst.create(expected));
 
     public static ParserError Message(Pos pos, string message) =>
-        new ParserError(ParserErrorTag.Message, pos, message, List.empty<string>());
+        new ParserError(ParserErrorTag.Message, pos, message, Lst.empty<string>());
 
     private static string FormatExpects(Lst<string> expects) =>
         expects.Count == 0
             ? ""
             : expects.Count == 1
                 ? $"expecting {expects.Head.ValueUnsafe()}"
-                : $"expecting {string.Join(", ", expects.Take(expects.Count - 1))} or {expects.Last.ValueUnsafe()}";
+                : $"expecting {string.Join(", ", expects.Take(expects.Length - 1))} or {expects.Last.ValueUnsafe()}";
 
     public override string ToString() =>
         $"error at {Pos}: {ToStringNoPosition()}";

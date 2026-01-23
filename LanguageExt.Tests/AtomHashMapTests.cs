@@ -77,15 +77,16 @@ public class AtomHashMapTests
     [Fact]
     public void FilterInPlaceWithKeyInvokesChange()
     {
-        var                       hashMap      = AtomHashMap(("foo", 3), ("bar", 42), ("biz", 7));
-        var                       initialValue = hashMap.ToHashMap();
-        HashMapPatch<string, int> state        = default;
+        var                        hashMap      = AtomHashMap(("foo", 3), ("bar", 42), ("biz", 7));
+        var                        initialValue = hashMap.Snapshot();
+        HashMapPatch<string, int>? state        = null;
+        
         hashMap.Change += v => state = v;
 
-        hashMap.FilterInPlace((k, i) => k[0] == 'b' && i % 2 == 0);
+        hashMap.Filter((k, i) => k[0] == 'b' && i % 2 == 0);
 
         Assert.Equal(initialValue, state.From);
-        Assert.Equal(hashMap.ToHashMap(), state.To);
+        Assert.Equal(hashMap.Snapshot(), state.To);
         Assert.Equal(
             HashMap(
                 ("foo", Change<int>.Removed(3)),
@@ -96,15 +97,15 @@ public class AtomHashMapTests
     [Fact]
     public void MapInPlaceInvokesChange()
     {
-        var                       hashMap      = AtomHashMap(("foo", 3), ("bar", 42), ("biz", 7));
-        var                       initialValue = hashMap.ToHashMap();
-        HashMapPatch<string, int> state        = default;
+        var                        hashMap      = AtomHashMap(("foo", 3), ("bar", 42), ("biz", 7));
+        var                        initialValue = hashMap.Snapshot();
+        HashMapPatch<string, int>? state        = null;
         hashMap.Change += v => state = v;
 
-        hashMap.MapInPlace(i => i * 3);
+        hashMap.Map(i => i * 3);
 
         Assert.Equal(initialValue, state.From);
-        Assert.Equal(hashMap.ToHashMap(), state.To);
+        Assert.Equal(hashMap.Snapshot(), state.To);
         Assert.Equal(
             HashMap(
                 ("foo", Change<int>.Mapped(3, 9)),

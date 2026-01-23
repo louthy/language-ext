@@ -7,10 +7,10 @@ public class AtomHashMap<Key> : Foldable<AtomHashMap<Key>, TrieMap.FoldState>
 {
     static Iterator<A> IterableK<AtomHashMap<Key>>.ForwardIterator<A>(K<AtomHashMap<Key>, A> fa) =>
         new Iterator.IterHashMapValue<EqDefault<Key>, Key, A>(
-            TrieMap.IteratorState<EqDefault<Key>, Key, A>.Setup(fa.As().ToHashMap().Value.Root));
+            TrieMap.IteratorState<EqDefault<Key>, Key, A>.Setup(fa.As().Snapshot().Value.Root));
 
     static TrieMap.FoldState IterableK<AtomHashMap<Key>, TrieMap.FoldState>.StepSetup<A>(K<AtomHashMap<Key>, A> ta) => 
-        TrieMap.FoldState.Setup(ta.As().ToHashMap().Value.Root);
+        TrieMap.FoldState.Setup(ta.As().Snapshot().Value.Root);
 
     static bool IterableK<AtomHashMap<Key>, TrieMap.FoldState>.Step<A>(K<AtomHashMap<Key>, A> ta, ref TrieMap.FoldState refState, out A value) 
     {
@@ -32,10 +32,10 @@ public class AtomHashMapEq<EqKey, Key> : Foldable<AtomHashMapEq<EqKey, Key>, Tri
 {
     static Iterator<A> IterableK<AtomHashMapEq<EqKey, Key>>.ForwardIterator<A>(K<AtomHashMapEq<EqKey, Key>, A> fa) => 
         new Iterator.IterHashMapValue<EqKey, Key, A>(
-            TrieMap.IteratorState<EqKey, Key, A>.Setup(fa.As().ToHashMap().Value.Root));
+            TrieMap.IteratorState<EqKey, Key, A>.Setup(fa.As().Snapshot().Value.Root));
 
     static TrieMap.FoldState IterableK<AtomHashMapEq<EqKey, Key>, TrieMap.FoldState>.StepSetup<A>(K<AtomHashMapEq<EqKey, Key>, A> ta) => 
-        TrieMap.FoldState.Setup(ta.As().ToHashMap().Value.Root);
+        TrieMap.FoldState.Setup(ta.As().Snapshot().Value.Root);
 
     static bool IterableK<AtomHashMapEq<EqKey, Key>, TrieMap.FoldState>.Step<A>(K<AtomHashMapEq<EqKey, Key>, A> ta, ref TrieMap.FoldState refState, out A value) 
     {

@@ -7,7 +7,7 @@ public partial class IterableIO :
     Monad<IterableIO>, 
     MonoidK<IterableIO>,
     FoldableIO<IterableIO>,
-    NaturalEpi<IterableIO, IteratorIO>
+    NaturalIso<IterableIO, IteratorIO>
 {
     static K<IterableIO, B> Monad<IterableIO>.Recur<A, B>(A value, Func<A, K<IterableIO, Next<A, B>>> f) =>
         Monad.iterableRecurIO(value, f);
@@ -69,6 +69,9 @@ public partial class IterableIO :
 
     static Iterator<A> IterableIOK<IterableIO>.ForwardIterator<A>(K<IterableIO, A> fa) =>
         fa.As().ForwardIterator();*/
+
+    static K<IteratorIO, A> Natural<IterableIO, IteratorIO>.Transform<A>(K<IterableIO, A> fa) => 
+        fa.As().iterator;
 
     static K<IterableIO, A> CoNatural<IterableIO, IteratorIO>.CoTransform<A>(K<IteratorIO, A> fa) => 
         new IterableIO<A>(+fa);

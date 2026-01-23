@@ -888,7 +888,7 @@ public readonly partial struct Arr<A> :
     public Arr<C> SelectMany<B, C>(Func<A, K<Arr, B>> bind, Func<A, B, C> project)
     {
         var ma     = this;
-        var writer = ArrayWriter<C>.Init();
+        var writer = ArrayWriterRef<C>.Init();
 
         foreach (var a in ma.ForwardIteratorRef<Arr, Arr.FoldState, A>())
         {

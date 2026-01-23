@@ -833,7 +833,7 @@ public class AtomSeq<A> :
     /// </example>
     /// <returns>Initial segments of the sequence</returns>
     public Seq<Seq<A>> NonEmptyInits =>
-        ToSeq().NonEmptyInits;
+        Snapshot().NonEmptyInits;
 
     /// <summary>
     /// Returns all final segments of the argument, longest first.
@@ -850,7 +850,7 @@ public class AtomSeq<A> :
     /// </example>
     /// <returns>Initial segments of the sequence</returns>
     public Seq<Seq<A>> Tails =>
-        ToSeq().Tails;
+        Snapshot().Tails;
 
     /// <summary>
     /// Returns all final segments of the argument, longest first.
@@ -867,7 +867,7 @@ public class AtomSeq<A> :
     /// </example>
     /// <returns>Initial segments of the sequence</returns>
     public Seq<Seq<A>> NonEmptyTails =>
-        ToSeq().NonEmptyTails;
+        Snapshot().NonEmptyTails;
 
     /// <summary>
     /// Compare to another sequence

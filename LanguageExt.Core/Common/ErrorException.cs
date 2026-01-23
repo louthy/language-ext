@@ -447,7 +447,7 @@ public sealed class ManyExceptions(Seq<ErrorException> errors) : ErrorException(
             : new ManyExceptions(Seq(this, error));
 
     public override Iterator<ErrorException> ForwardIterator() => 
-        errors.ForwardIterator();
+        Errors.ForwardIterator();
 }
 
 

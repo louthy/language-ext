@@ -96,7 +96,7 @@ static class Internal
                   List<T>         results = new List<T>();
                   ParserError     error   = null;
                   ParserResult<T> last    = null;
-                  int             count   = ps.Count;
+                  int             count   = ps.Length;
 
                   foreach (var p in ps)
                   {

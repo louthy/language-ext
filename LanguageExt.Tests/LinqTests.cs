@@ -11,15 +11,15 @@ public class LinqTests
     public void EnumerableString()
     {
         var opt  = Some("pre ");
-        var list = Some(new[] { "hello", "world" }.AsEnumerable());
+        var list = Some(Iterable("hello", "world"));
 
         var res = from a in opt.ToIterable()
                   from x in list.ToIterable()
                   from y in x
                   select a + y;
 
-        Assert.True(res.Head.ValueUnsafe()        == "pre hello");
-        Assert.True(res.Tail.Head.ValueUnsafe() == "pre world");
+        Assert.True(res.Take(1)         == Iterable("pre hello"));
+        Assert.True(res.Skip(1).Take(1) == Iterable("pre world"));
 
         opt = None;
 
@@ -36,14 +36,14 @@ public class LinqTests
     public void MixedLinq()
     {
         var oa = Some(1);
-        var lb = List(2, 3, 4, 5);
+        var lb = Lst(2, 3, 4, 5);
 
         var r1 =
-            from a in oa.Map(x => List(x)) // a : int
-            from b in Some(lb)             // b : int
+            from a in oa.Map(x => Lst(x)) // a : int
+            from b in Some(lb)            // b : int
             select a + b;
 
-        Assert.True(r1 == Some(List(1, 2, 3, 4, 5)));
+        Assert.True(r1 == Some(Lst(1, 2, 3, 4, 5)));
     }
 
     [Fact]
@@ -73,7 +73,7 @@ public class LinqTests
     [Fact]
     public void WithEitherRightList()
     {
-        var res = from v in toSeq(GetEitherValue(true))
+        var res = from v in GetEitherValue(true).ToSeq()
                   from r in Range(1, 10)
                   select v * r;
 
@@ -87,7 +87,7 @@ public class LinqTests
     [Fact]
     public void WithEitherLeftList()
     {
-        var res = from v in toSeq(GetEitherValue(false))
+        var res = from v in GetEitherValue(false).ToSeq()
                   from r in Range(1, 10)
                   select v * r;
 
@@ -97,7 +97,7 @@ public class LinqTests
     [Fact]
     public void WhereArrayTest()
     {
-        var res1 = from v in Array(1, 2, 3, 4, 5)
+        var res1 = from v in Arr(1, 2, 3, 4, 5)
                    where v < 3
                    select v;
 
@@ -151,10 +151,10 @@ public class LinqTests
     [Fact]
     public void OptionLst1()
     {
-        var list = List(1, 2, 3, 4);
+        var list = Lst(1, 2, 3, 4);
         var opt  = Some(5);
 
-        var res = from y in opt.ToList()
+        var res = from y in opt.ToLst()
                   from x in list
                   select x + y;
     }

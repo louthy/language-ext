@@ -90,7 +90,7 @@ namespace LanguageExt.Parsec
                 var results = new List<O>();
                 ParserError error = null;
                 ParserResult<I,O> last = null;
-                int count = ps.Count;
+                int count = ps.Length;
 
                 foreach (var p in ps)
                 {

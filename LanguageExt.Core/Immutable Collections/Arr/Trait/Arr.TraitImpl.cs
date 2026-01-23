@@ -20,7 +20,7 @@ public partial class Arr :
 {
     static K<Arr, B> Monad<Arr>.Bind<A, B>(K<Arr, A> ma, Func<A, K<Arr, B>> f)
     {
-        var writer = ArrayWriter<B>.Init();
+        var writer = ArrayWriterRef<B>.Init();
         
         var astate = ma.StepSetup<Arr, FoldState, A>();
         while (ma.Step(ref astate, out var a))
@@ -46,7 +46,7 @@ public partial class Arr :
 
     static K<Arr, B> Applicative<Arr>.Apply<A, B>(K<Arr, Func<A, B>> mf, K<Arr, A> ma)
     {
-        var writer = ArrayWriter<B>.Init();
+        var writer = ArrayWriterRef<B>.Init();
         
         var fstate = mf.StepSetup<Arr, FoldState, Func<A, B>>();
         while (mf.Step(ref fstate, out var f))
@@ -62,7 +62,7 @@ public partial class Arr :
 
     static K<Arr, B> Applicative<Arr>.Apply<A, B>(K<Arr, Func<A, B>> mf, Memo<Arr, A> ma)
     {
-        var writer = ArrayWriter<B>.Init();
+        var writer = ArrayWriterRef<B>.Init();
         
         var fstate = mf.StepSetup<Arr, FoldState, Func<A, B>>();
         while (mf.Step(ref fstate, out var f))
@@ -87,7 +87,7 @@ public partial class Arr :
     {
         var fa     = +ma;
         var fb     = +mb;
-        var writer = ArrayWriter<A>.Init(fa.Count + fb.Count);
+        var writer = ArrayWriterRef<A>.Init(fa.Count + fb.Count);
         writer.AddRange(fa.AsSpan());
         writer.AddRange(fb.AsSpan());
         return writer.ToArr();

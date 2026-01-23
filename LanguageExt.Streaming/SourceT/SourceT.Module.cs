@@ -216,9 +216,31 @@ public partial class SourceT
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     [Pure]
+    public static SourceT<M, A> liftIO<M, A>(IterableIO<A> items) 
+        where M : MonadIO<M> =>
+        new IteratorAsyncSourceT<M, A>(items.Map(M.Pure).ForwardIteratorIO());
+
+    /// <summary>
+    /// Make an `Iterable` into a source of values
+    /// </summary>
+    /// <param name="items">Iterable to lift</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
+    [Pure]
     public static SourceT<M, A> liftM<M, A>(Iterable<K<M, A>> items) 
         where M : MonadIO<M> =>
         new IteratorSyncSourceT<M, A>(items.ForwardIterator());
+
+    /// <summary>
+    /// Make an `Iterable` into a source of values
+    /// </summary>
+    /// <param name="items">Iterable to lift</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
+    [Pure]
+    public static SourceT<M, A> liftMIO<M, A>(IterableIO<K<M, A>> items) 
+        where M : MonadIO<M> =>
+        new IteratorAsyncSourceT<M, A>(items.ForwardIteratorIO());
 
     /// <summary>
     /// Make an `IterableNE` into a source of values
@@ -260,9 +282,31 @@ public partial class SourceT
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Source of values</returns>
     [Pure]
+    public static SourceT<M, A> liftIO<M, A>(IteratorIO<A> items) 
+        where M : MonadIO<M> =>
+        new IteratorAsyncSourceT<M, A>(items.Map(M.Pure));
+
+    /// <summary>
+    /// Make an `Iterator` into a source of values
+    /// </summary>
+    /// <param name="items">Iterator to lift</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
+    [Pure]
     public static SourceT<M, A> liftM<M, A>(Iterator<K<M, A>> items) 
         where M : MonadIO<M> =>
         new IteratorSyncSourceT<M, A>(items);
+
+    /// <summary>
+    /// Make an `Iterator` into a source of values
+    /// </summary>
+    /// <param name="items">Iterator to lift</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Source of values</returns>
+    [Pure]
+    public static SourceT<M, A> liftMIO<M, A>(IteratorIO<K<M, A>> items) 
+        where M : MonadIO<M> =>
+        new IteratorAsyncSourceT<M, A>(items);
 
     /// <summary>
     /// Make an `IObservable` into a source of values
@@ -273,7 +317,7 @@ public partial class SourceT
     [Pure]
     public static SourceT<M, A> lift<M, A>(IObservable<A> items) 
         where M : MonadIO<M> =>
-        new ObservablePureSourceT<M, A>(items);
+        new IteratorAsyncSourceT<M, A>(IteratorIO.forward(items).Map(M.Pure));
 
     /// <summary>
     /// Make an `IObservable` into a source of values
@@ -284,7 +328,7 @@ public partial class SourceT
     [Pure]
     public static SourceT<M, A> liftM<M, A>(IObservable<K<M, A>> items) 
         where M : MonadIO<M> =>
-        new ObservableSourceT<M, A>(items);
+        new IteratorAsyncSourceT<M, A>(IteratorIO.forward(items));
     
     /// <summary>
     /// Merge sources into a single source

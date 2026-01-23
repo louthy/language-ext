@@ -41,6 +41,18 @@ public static class PipeT
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
+    public static PipeT<IN, OUT, M, Unit> yieldAllIO<F, M, IN, OUT>(K<F, OUT> values)
+        where F : IterableKIO<F>
+        where M : MonadIO<M> =>
+        yieldAllIO<M, IN, OUT>(values.ForwardIteratorIO());
+
+    /// <summary>
+    /// Yield all values downstream
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
     public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(Iterator<OUT> values)
         where M : MonadIO<M> =>
         new PipeTYieldAll<IN, OUT, M, Unit>(values.Select(yield<M, IN, OUT>), pure<IN, OUT, M, Unit>);
@@ -52,9 +64,31 @@ public static class PipeT
     /// <typeparam name="OUT">Stream value to produce</typeparam>
     /// <typeparam name="M">Lifted monad type</typeparam>
     /// <returns></returns>
+    public static PipeT<IN, OUT, M, Unit> yieldAllIO<M, IN, OUT>(IteratorIO<OUT> values)
+        where M : MonadIO<M> =>
+        new PipeTYieldAllIO<IN, OUT, M, Unit>(values.Select(yield<M, IN, OUT>), pure<IN, OUT, M, Unit>);
+
+    /// <summary>
+    /// Yield all values downstream
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
     public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(Iterable<OUT> values)
         where M : MonadIO<M> =>
         yieldAll<Iterable, M, IN, OUT>(values);
+
+    /// <summary>
+    /// Yield all values downstream
+    /// </summary>
+    /// <typeparam name="IN">Stream value to consume</typeparam>
+    /// <typeparam name="OUT">Stream value to produce</typeparam>
+    /// <typeparam name="M">Lifted monad type</typeparam>
+    /// <returns></returns>
+    public static PipeT<IN, OUT, M, Unit> yieldAll<M, IN, OUT>(IterableIO<OUT> values)
+        where M : MonadIO<M> =>
+        yieldAllIO<IterableIO, M, IN, OUT>(values);
 
     /// <summary>
     /// Yield all values downstream
@@ -410,7 +444,6 @@ public static class PipeT
                 }
                 else
                 {
-                    sch.Dispose();
                     sch = Time.Run().ForwardIterator();
                     var nstate = state;
                     state = Init;
@@ -493,7 +526,6 @@ public static class PipeT
                 }
                 else
                 {
-                    sch.Dispose();
                     sch = Time.Run().ForwardIterator();
                     var nstate = state;
                     state = Init;
@@ -576,7 +608,6 @@ public static class PipeT
                 }
                 else
                 {
-                    sch.Dispose();
                     sch = Time.Run().ForwardIterator();
                     var nstate = state;
                     state = Init;

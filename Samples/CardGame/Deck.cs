@@ -30,7 +30,7 @@ public record Deck(Seq<Card> Cards)
     /// Return the number of cards remaining in the deck 
     /// </summary>
     public static Game<int> cardsRemaining =>
-        deck.Map(d => d.Cards.Count);
+        deck.Map(d => (int)d.Cards.Count);
 
     /// <summary>
     /// Deal a card from the deck
@@ -56,7 +56,7 @@ public record Deck(Seq<Card> Cards)
         IO.lift(() =>
         {
             var random = new Random((int)DateTime.Now.Ticks);
-            var array  = L.Iterable.generate(52, ix => new Card(ix)).ToArray();
+            var array  = L.Iterable.generate(52, ix => new Card((int)ix)).ToArray();
             random.Shuffle(array);
             return new Deck(array.ToSeqUnsafe());
         });

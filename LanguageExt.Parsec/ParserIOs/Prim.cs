@@ -7,6 +7,7 @@ using static LanguageExt.Parsec.Common;
 using static LanguageExt.Parsec.InternalIO;
 using static LanguageExt.Parsec.ItemIO;
 using static LanguageExt.Parsec.ParserResultIO;
+using Array = System.Array;
 
 namespace LanguageExt.Parsec
 {
@@ -309,7 +310,7 @@ namespace LanguageExt.Parsec
                     if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
                     {
                         // eok, eerr
-                        return EmptyError<I, Seq<O>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'many' is applied to a parser that accepts an empty string.", List.empty<string>()), inp.TokenPos);
+                        return EmptyError<I, Seq<O>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'many' is applied to a parser that accepts an empty string.", Lst.empty<string>()), inp.TokenPos);
                     }
 
                     // cerr
@@ -396,10 +397,10 @@ namespace LanguageExt.Parsec
         public static Parser<I, Lst<O>> optionalList<I, O>(Parser<I, O> p) =>
             inp =>
             {
-                var r = p.Map(x => List.create(x))(inp);
+                var r = p.Map(x => Lst.create(x))(inp);
                 return r.Reply.Tag == ReplyTag.OK
                     ? r
-                    : EmptyOK(List.empty<O>(), inp);
+                    : EmptyOK(Lst.empty<O>(), inp);
             };
 
         /// <summary>
@@ -414,7 +415,7 @@ namespace LanguageExt.Parsec
                 var r = p.Map(x => new[] { x })(inp);
                 return r.Reply.Tag == ReplyTag.OK
                     ? r
-                    : EmptyOK(new O [0], inp);
+                    : EmptyOK(Array.Empty<O>(), inp);
             };
 
         /// <summary>

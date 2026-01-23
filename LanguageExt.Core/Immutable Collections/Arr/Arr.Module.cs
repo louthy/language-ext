@@ -30,7 +30,7 @@ public partial class Arr
     /// <returns>Collection with a single item in it</returns>
     [Pure]
     public static Arr<A> singleton<A>(A value) =>
-        [value];
+        new(new[] { value });
     
     /// <summary>
     /// Create an array from a initial set of items

@@ -14,9 +14,7 @@ public partial class Iterable :
     NaturalMono<Iterable, Lst>,
     NaturalMono<Iterable, Set>,
     NaturalMono<Iterable, HashSet>,
-    NaturalMono<Iterable, Iterator>,
-    CoNatural<Iterable, Iterator>
-
+    NaturalIso<Iterable, Iterator>
 {
     static K<Iterable, B> Monad<Iterable>.Recur<A, B>(A value, Func<A, K<Iterable, Next<A, B>>> f) =>
         Monad.iterableRecur(value, f);
@@ -72,8 +70,11 @@ public partial class Iterable :
     static K<Iterable, A> CoNatural<Iterable, Iterable>.CoTransform<A>(K<Iterable, A> fa) => 
         fa;
 
-    static Iterator<A> IterableK<Iterable>.ForwardIterator<A>(K<Iterable, A> fa) => 
-        fa.As().ForwardIterator();
+    static Iterator<A> IterableK<Iterable>.ForwardIterator<A>(K<Iterable, A> fa) =>
+        fa.As().iterator;
+
+    static K<Iterator, A> Natural<Iterable, Iterator>.Transform<A>(K<Iterable, A> fa) =>
+        fa.As().iterator;
 
     static K<Iterable, A> CoNatural<Iterable, Iterator>.CoTransform<A>(K<Iterator, A> fa) =>
         new Iterable<A>(+fa);

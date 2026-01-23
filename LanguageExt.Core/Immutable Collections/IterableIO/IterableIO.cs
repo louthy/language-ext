@@ -1,4 +1,5 @@
-﻿using System;
+﻿#pragma warning disable CS0660, CS0661
+using System;
 using System.Linq;
 using System.Numerics;
 using System.Threading;

@@ -82,7 +82,7 @@ public partial class Option :
         fa.As().ToArr();
 
     static K<Lst, A> Natural<Option, Lst>.Transform<A>(K<Option, A> fa) =>
-        fa.As().ToLst();
+        FoldableExtensions.ToLst(fa.As());
 
     static K<Seq, A> Natural<Option, Seq>.Transform<A>(K<Option, A> fa) =>
         fa.As().ToSeq();

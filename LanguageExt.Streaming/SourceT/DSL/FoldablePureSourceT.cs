@@ -9,13 +9,7 @@ record FoldablePureSourceT<F, M, A>(K<F, A> Items) : SourceT<M, A>
 {
     internal override K<M, Reduced<S>> ReduceInternalM<S>(S state, ReducerM<M, K<M, A>, S> reducer)
     {
-        return from i in steps()
-               from r in Monad.recur((Iter: i, State: state), go)
-               from _ in release(i)
-               select r;
-
-        IO<Iterator<A>> steps() =>
-            use(() => Items.ForwardIterator().Using());
+        return Monad.recur((Iter: Items.ForwardIterator(), State: state), go);
 
         K<M, Next<(Iterator<A> Iter, S State), Reduced<S>>> go((Iterator<A> Iter, S State) step) =>
             IO.token >> (t => t.IsCancellationRequested

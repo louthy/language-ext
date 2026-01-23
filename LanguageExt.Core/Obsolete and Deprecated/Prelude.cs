@@ -9,7 +9,7 @@ public static partial class Prelude
     [Obsolete("Use toLst instead")]
     [OverloadResolutionPriority(Change.Priority)]
     public static Lst<T> toList<T>(Option<T> option) =>
-        option.ToList();
+        option.ToLst();
     
     [Obsolete("FinSucc has been deprecated in favour of `Fin.Succ` or `Prelude.Pure`")]
     [OverloadResolutionPriority(Change.Priority)]

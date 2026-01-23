@@ -25,22 +25,22 @@ public class Page : ComponentBase
                                    await base.OnInitializedAsync();
                                    return unit;
                                });
-    
-    protected new virtual Eff<Runtime, Unit> OnAfterRender(bool firstRender) =>
+
+    new Eff<Runtime, Unit> OnAfterRender(bool firstRender) =>
         liftEff<Runtime, Unit>(async _ =>
                                {
                                    await base.OnAfterRenderAsync(firstRender);
                                    return unit;
                                });
 
-    protected new virtual Eff<Runtime, Unit> OnParametersSet() =>
+    new Eff<Runtime, Unit> OnParametersSet() =>
         liftEff<Runtime, Unit>(async _ =>
                                {
                                    await base.OnParametersSetAsync();
                                    return unit;
                                });
-    
-    protected new virtual Eff<Runtime, Unit> SetParameters(ParameterView parameters) =>
+
+    Eff<Runtime, Unit> SetParameters(ParameterView parameters) =>
         liftEff<Runtime, Unit>(async _ =>
                                {
                                    await base.SetParametersAsync(parameters);

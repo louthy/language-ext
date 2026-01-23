@@ -19,7 +19,7 @@ namespace LanguageExt;
 /// </para>
 /// </remarks>
 /// <typeparam name="A">Value type</typeparam>
-public struct ArrayWriter<A>
+public ref struct ArrayWriterRef<A>
 {
     /// <summary>
     /// Rented buffers may as well start at a reasonable size so that we're not doing
@@ -70,7 +70,7 @@ public struct ArrayWriter<A>
     /// <param name="buffer">Backing buffer</param>
     /// <param name="start">Start offset</param>
     /// <param name="count">Number of items written</param>
-    ArrayWriter(A[] buffer, long start, bool rented)
+    ArrayWriterRef(A[] buffer, long start, bool rented)
     {
         this.start = start;
         this.buffer = buffer;
@@ -117,7 +117,7 @@ public struct ArrayWriter<A>
     /// </para>
     /// </remarks>
     /// <returns>ArrayWriter</returns>
-    public static ArrayWriter<A> Init() =>
+    public static ArrayWriterRef<A> Init() =>
         new (ArrayPool<A>.Shared.Rent(MinimumRentedSize), 0, true);
 
     /// <summary>
@@ -137,7 +137,7 @@ public struct ArrayWriter<A>
     /// </remarks>
     /// <param name="initialCapacity">The initial capacity of the backing array.  Use this if you have an idea ahead of
     /// time of what the space requirements will be.  If you don't know, use the other `Init` overload.</param>
-    public static ArrayWriter<A> Init(long initialCapacity) =>
+    public static ArrayWriterRef<A> Init(long initialCapacity) =>
         new (new A[PowerOf2(AssertMinOwnedSize(initialCapacity))], 0L, false);
 
     /// <summary>
@@ -162,7 +162,7 @@ public struct ArrayWriter<A>
     /// <param name="offset">The offset into the array. Sometimes you may want to leave some space
     /// at the start of the array, so you have a pre-buffer, use this to reserve some capacity at the start.</param>
     /// <returns>ArrayWriter</returns>
-    public static ArrayWriter<A> InitOffset(long offset) =>
+    public static ArrayWriterRef<A> InitOffset(long offset) =>
         // We use the offset for the size here in case the initialOffset is bigger than the 
         // minimum rented size.  This is to avoid having to resize the array immediately.
         PowerOf2(AssertMinRentedSize(offset)) switch
@@ -193,7 +193,7 @@ public struct ArrayWriter<A>
     /// at the start of the array, so you have a pre-buffer, use this to reserve some capacity at the start.</param>
     /// <returns>ArrayWriter</returns>
     /// <exception cref="ArgumentOutOfRangeException">If the initialOffset is greater than the initialCapacity</exception>
-    public static ArrayWriter<A> InitOffset(long initialCapacity, long offset) =>
+    public static ArrayWriterRef<A> InitOffset(long initialCapacity, long offset) =>
         offset > initialCapacity
             ? throw new ArgumentOutOfRangeException(nameof(offset))
             : new (new A[PowerOf2(AssertMinOwnedSize(initialCapacity))], offset, false);
@@ -203,7 +203,7 @@ public struct ArrayWriter<A>
     /// </summary>
     /// <param name="writer">Writer to add to</param>
     /// <param name="value">Value to write</param>
-    internal static void Add(ref ArrayWriter<A> writer, A value)
+    internal static void Add(ref ArrayWriterRef<A> writer, A value)
     {
         Expand(ref writer);
         var     start  = writer.start;
@@ -218,7 +218,7 @@ public struct ArrayWriter<A>
     /// </summary>
     /// <param name="writer">Writer to add to</param>
     /// <param name="values">Values to write</param>
-    internal static void AddRange(ref ArrayWriter<A> writer, ReadOnlySpan<A> values)
+    internal static void AddRange(ref ArrayWriterRef<A> writer, ReadOnlySpan<A> values)
     {
         Expand(ref writer, values.Length);
         ref var count  = ref writer.count;
@@ -226,7 +226,7 @@ public struct ArrayWriter<A>
         count+=values.Length;
     }
 
-    static void Expand(ref ArrayWriter<A> writer)
+    static void Expand(ref ArrayWriterRef<A> writer)
     {
         var     start  = writer.start;
         ref var count  = ref writer.count;
@@ -257,7 +257,7 @@ public struct ArrayWriter<A>
         rented = nlength <= int.MaxValue;
     }
 
-    static void Expand(ref ArrayWriter<A> writer, long needed)
+    static void Expand(ref ArrayWriterRef<A> writer, long needed)
     {
         var     start  = writer.start;
         ref var count  = ref writer.count;

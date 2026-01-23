@@ -82,8 +82,8 @@ public class SourceTTests
     public void Or_operator_should_merge_two_sources()
     {
         // Arrange
-        var source1 = SourceT.lift<IO, int>([1, 2, 3]);
-        var source2 = SourceT.lift<IO, int>([10, 20, 30]);
+        var source1 = SourceT.liftS<IO, int>([1, 2, 3]);
+        var source2 = SourceT.liftS<IO, int>([10, 20, 30]);
 
         // Act
         var merged = source1 | source2;

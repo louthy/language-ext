@@ -26,8 +26,8 @@ namespace LanguageExt.Parsec
                 IdentLetter: either(alphaNum, oneOf("_'")),
                 OpStart: oneOf(":!#$%&*+./<=>?@\\^|-~"),
                 OpLetter: oneOf(":!#$%&*+./<=>?@\\^|-~"),
-                ReservedOpNames: List<string>(),
-                ReservedNames: List<string>(),
+                ReservedOpNames: Lst<string>(),
+                ReservedNames: Lst<string>(),
                 CaseSensitive: true
                 );
 
@@ -46,8 +46,8 @@ namespace LanguageExt.Parsec
                 IdentLetter: either(alphaNum, oneOf("_'")),
                 OpStart: oneOf(@"!%&*+.<=>?@\^|-~"),
                 OpLetter: oneOf(@"!%&*+.<=>?@\^|-~"),
-                ReservedOpNames: List<string>(),
-                ReservedNames: List<string>(),
+                ReservedOpNames: Lst<string>(),
+                ReservedNames: Lst<string>(),
                 CaseSensitive: true
                 );
 
@@ -56,8 +56,8 @@ namespace LanguageExt.Parsec
         /// </summary>
         public readonly static GenLanguageDef Haskell98Def =
             HaskellStyle.With(
-                ReservedOpNames: List.create("::", "..", "=", "\\", "|", "<-", "->", "@", "~", "=>"),
-                ReservedNames: List.create(
+                ReservedOpNames: Lst.create("::", "..", "=", "\\", "|", "<-", "->", "@", "~", "=>"),
+                ReservedNames: Lst.create(
                     "let", "in", "case", "of", "if", "then", "else",
                     "data", "type",
                     "class", "default", "deriving", "do", "import",

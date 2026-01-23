@@ -78,7 +78,7 @@ public class GenLanguageDef
     /// Empty definition, use With to build
     /// </summary>
     public static readonly GenLanguageDef Empty =
-        new ("", "", "", true, zero<char>(), zero<char>(), zero<char>(), zero<char>(), List.empty<string>(), List.empty<string>(), true);
+        new ("", "", "", true, zero<char>(), zero<char>(), zero<char>(), zero<char>(), Lst.empty<string>(), Lst.empty<string>(), true);
 
     GenLanguageDef(
         string commentStart,

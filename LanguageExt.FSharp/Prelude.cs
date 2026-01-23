@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.FSharp.Core;
 using Microsoft.FSharp.Collections;
 using static LanguageExt.Prelude;
@@ -38,7 +39,7 @@ public static class FSharp
     /// Convert an F# Map into a LanguageExt Map (Map K V)
     /// </summary>
     public static Map<K, V> fs<K, V>(FSharpMap<K, V> fsMap) =>
-        Map.addRange(Map<K, V>(), Iterable.map(fsMap, identity));
+        toMap(fsMap.Select(kv => (kv.Key, kv.Value)));
 
     /// <summary>
     /// Convert a LanguageExt Map (Map K V) into an F# Map

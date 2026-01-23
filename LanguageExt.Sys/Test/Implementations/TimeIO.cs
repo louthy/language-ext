@@ -4,25 +4,29 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Sys.Test.Implementations;
 
-public class TimeIO : Sys.Traits.TimeIO, IDisposable
+public class TimeIO : Sys.Traits.TimeIO
 {
     readonly Atom<DateTime> now;
-    readonly IEnumerator<Duration> ticks;
+    Iterator<Duration> ticks;
 
     public TimeIO(TestTimeSpec spec)
     {
         now = Atom(spec.Start);
-        ticks = spec.Schedule.Run().GetEnumerator();
+        ticks = spec.Schedule.Run();
     }
-
-    public void Dispose() =>
-        ticks.Dispose();
 
     void Tick() =>
         now.Swap(n =>
                  {
-                     if (!ticks.MoveNext()) throw new TimeoutException("We've reached the heat death of the universe");
-                     return n.AddMilliseconds(ticks.Current);
+                     if (ticks is (Exist<Duration>(var head), var tail))
+                     {
+                         ticks = tail;
+                         return n.AddMilliseconds(head);
+                     }
+                     else
+                     {
+                         throw new TimeoutException("We've reached the heat death of the universe");
+                     }
                  });
 
     /// <summary>

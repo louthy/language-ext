@@ -34,7 +34,7 @@ record ParsecTTokens<E, S, T, M>(Func<S, S, bool> Test, in S Chunk) :
             return eerr(unexpect(s.Offset, ErrorItem.EndOfInput<T>()), s);
         }
         
-        ParseError<T, E> unexpect(int pos1, ErrorItem<T> u) =>
+        ParseError<T, E> unexpect(long pos1, ErrorItem<T> u) =>
             ParseError.Trivial<T, E>(pos1, u, ErrorItem.Tokens<S, T>(Chunk));
     }
 }

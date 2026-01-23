@@ -62,7 +62,7 @@ public class MonadTests
 
         var calcIsCountCorrect = from count in Reader.asks((Bindings env) => lookupVar("count", env))
                                  from bindings in ask<Bindings>()
-                                 select count == Map.length(bindings.Map);
+                                 select count == bindings.Map.Length;
 
         var sampleBindings = Bindings.New(("count", 3), ("1", 1), ("b", 2));
 

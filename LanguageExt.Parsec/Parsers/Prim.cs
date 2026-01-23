@@ -348,7 +348,7 @@ public static class Prim
                 if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
                 {
                     // eok, eerr
-                    return EmptyError<Seq<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'many' is applied to a parser that accepts an empty string.", List.empty<string>()));
+                    return EmptyError<Seq<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'many' is applied to a parser that accepts an empty string.", Lst.empty<string>()));
                 }
 
                 // cerr
@@ -404,7 +404,7 @@ public static class Prim
                 if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
                 {
                     // eok, eerr
-                    return EmptyError<Seq<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'manyn' is applied to a parser that accepts an empty string.", List.empty<string>()));
+                    return EmptyError<Seq<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'manyn' is applied to a parser that accepts an empty string.", Lst.empty<string>()));
                 }
 
                 // cerr
@@ -463,7 +463,7 @@ public static class Prim
                       if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
                       {
                           // eok, eerr
-                          return EmptyError<Seq<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'manyn0' is applied to a parser that accepts an empty string.", List.empty<string>()));
+                          return EmptyError<Seq<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'manyn0' is applied to a parser that accepts an empty string.", Lst.empty<string>()));
                       }
 
                       // cerr
@@ -546,10 +546,10 @@ public static class Prim
     public static Parser<Lst<T>> optionalList<T>(Parser<T> p) =>
         inp =>
         {
-            var r = p.Map(x => List.create(x))(inp);
+            var r = p.Map(x => Lst.create(x))(inp);
             return r.Reply.Tag == ReplyTag.OK
                        ? r
-                       : EmptyOK(List.empty<T>(), inp);
+                       : EmptyOK(Lst.empty<T>(), inp);
         };
 
     /// <summary>

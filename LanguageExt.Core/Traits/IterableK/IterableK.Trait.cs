@@ -4,7 +4,7 @@ namespace LanguageExt.Traits;
 /// Allows the acquisition of an iterator that iterates from beginning to end 
 /// </summary>
 /// <typeparam name="F">Trait implementation type</typeparam>
-public interface IterableK<F> : Natural<F, Iterator>
+public interface IterableK<F>// : Natural<F, Iterator>
     where F : IterableK<F>
 {
     /// <summary>
@@ -14,12 +14,6 @@ public interface IterableK<F> : Natural<F, Iterator>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>Iterator</returns>
     static abstract Iterator<A> ForwardIterator<A>(K<F, A> fa);
-
-    /// <summary>
-    /// Default implementation of Natural.Transform to Iterator
-    /// </summary>
-    static K<Iterator, A> Natural<F, Iterator>.Transform<A>(K<F, A> fa) => 
-        F.ForwardIterator(fa);
 }
 
 /// <summary>

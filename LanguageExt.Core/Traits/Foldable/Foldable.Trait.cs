@@ -204,7 +204,7 @@ public interface Foldable<T> : IterableK<T>
     /// </summary>
     static virtual Arr<A> ToArr<A>(K<T, A> ta)
     {
-        var writer = ArrayWriter<A>.Init();
+        var writer = ArrayWriterRef<A>.Init();
         foreach(var head in T.ForwardIterator(ta))
         {
             writer.Add(head);
@@ -481,8 +481,8 @@ public interface Foldable<T> : IterableK<T>
     /// <returns>Partitioned structure</returns>
     static virtual (Arr<A> True, Arr<A> False) Partition<A>(Func<A, bool> f, K<T, A> ta)
     {
-        var @true  = ArrayWriter<A>.Init();
-        var @false = ArrayWriter<A>.Init();
+        var @true  = ArrayWriterRef<A>.Init();
+        var @false = ArrayWriterRef<A>.Init();
         foreach(var head in T.ForwardIterator(ta))
         {
             if (f(head))

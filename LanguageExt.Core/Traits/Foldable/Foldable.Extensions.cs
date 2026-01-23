@@ -247,6 +247,12 @@ public static partial class FoldableExtensions
         /// </summary>
         public Option<A> At(long index) =>
             T.At(index, ta);
+        
+        /// <summary>
+        /// Find the element at the specified index or `None` if out of range
+        /// </summary>
+        public Option<A> At(int index) =>
+            T.At(index, ta);
 
         /// <summary>
         /// Partition a foldable into two sequences based on a predicate

@@ -284,8 +284,8 @@ public interface FoldableBack<T, FS> : FoldableBack<T>, IterableBackK<T, FS>
     /// <returns>Partitioned structure</returns>
     static (Arr<A> True, Arr<A> False) FoldableBack<T>.PartitionBack<A>(Func<A, bool> f, K<T, A> ta)
     {
-        var @true = ArrayWriter<A>.Init();
-        var @false = ArrayWriter<A>.Init();
+        var @true = ArrayWriterRef<A>.Init();
+        var @false = ArrayWriterRef<A>.Init();
 
         var foldState = T.StepBackSetup(ta);
         while (T.StepBack(ta, ref foldState, out var value))

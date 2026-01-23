@@ -7,5 +7,5 @@ namespace LanguageExt;
 public class AtomQue : Foldable<AtomQue>
 {
     public static Iterator<A> ForwardIterator<A>(K<AtomQue, A> fa) => 
-        fa.As().ToQueue().ForwardIterator();
+        fa.As().Snapshot().ForwardIterator();
 }

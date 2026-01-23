@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Megaparsec;
 
@@ -11,7 +12,7 @@ namespace LanguageExt.Megaparsec;
 /// <param name="start">Start of text</param>
 /// <param name="length">Length of text</param>
 [CollectionBuilder(typeof(PString), nameof(PString.From))]
-public readonly struct PString(string value, int start, int length) :
+public readonly struct PString(Arr<char> value, long start, long length) :
     TokenStream<PString, char>,
     IEquatable<PString>,
     IComparable<PString>
@@ -19,32 +20,40 @@ public readonly struct PString(string value, int start, int length) :
     /// <summary>
     /// Backing string
     /// </summary>
-    string Value => value;
+    Arr<char> Value => value;
     
     /// <summary>
     /// Start position in the backing string
     /// </summary>
-    int Start => start;
+    long Start => start;
     
     /// <summary>
     /// Number of characters in the backing string
     /// </summary>
-    int Length => length;
+    long Length => length;
     
     /// <summary>
     /// Empty parser string
     /// </summary>
     public static readonly PString Empty = 
-        new("", 0, 0);
+        new(Arr<char>.Empty, 0, 0);
 
-    public PString(string Value) : this(Value, 0, Value.Length)
+    public PString(ReadOnlySpan<char> value) : this(toArr(value), 0, value.Length)
+    {
+    }
+
+    public PString(ReadOnlySpan<char> value, long start, long length) : this(toArr(value), start, length)
+    {
+    }
+
+    public PString(string Value) : this(toArr(Value), 0, Value.Length)
     {
     }
     
     public static PString From(string value) =>
         new (value);
 
-    public char this[int ix] =>
+    public char this[long ix] =>
         ix < 0 || ix >= Length 
             ? throw new IndexOutOfRangeException() 
             : Value[Start + ix];
@@ -56,7 +65,7 @@ public readonly struct PString(string value, int start, int length) :
                 ? Value[Start + Length - ix.Value]
                 : Value[Start          + ix.Value];
     
-    public PString Splice(int offset, int amount)
+    public PString Slice(int offset, int amount)
     {
         if (amount < 0) return Empty;
         return amount - offset < Length
@@ -64,7 +73,7 @@ public readonly struct PString(string value, int start, int length) :
             : this;
     }    
     
-    public PString Splice(int amount)
+    public PString Slice(int amount)
     {
         if (amount < 0) return Empty;
         return amount < Length
@@ -73,7 +82,9 @@ public readonly struct PString(string value, int start, int length) :
     }
 
     public override string ToString() => 
-        new (Value.AsSpan(Start, Length));
+        Start + Length > int.MaxValue
+            ? "..."
+            : new (Value.AsSpan((int)Start, (int)Length));
 
     public PStringEnum GetEnumerator() =>
         new (this);
@@ -88,15 +99,15 @@ public readonly struct PString(string value, int start, int length) :
         new ([token]);
 
     static PString TokenStream<PString, char>.TokenToChunk(in char token) => 
-        new (token.ToString(), 0, 1);
+        new (Arr.singleton(token), 0, 1);
 
     static PString TokenStream<PString, char>.TokensToChunk(in ReadOnlySpan<char> token) => 
         new (new string(token), 0, token.Length);
 
     static ReadOnlySpan<char> TokenStream<PString, char>.ChunkToTokens(in PString tokens) => 
-        tokens.Value.AsSpan(tokens.Start, tokens.Length);
+        tokens.Value.AsSpan((int)tokens.Start, (int)tokens.Length);
 
-    static int TokenStream<PString, char>.ChunkLength(in PString tokens) => 
+    static long TokenStream<PString, char>.ChunkLength(in PString tokens) => 
         tokens.Length;
 
     static bool TokenStream<PString, char>.Take1(in PString stream, out char head, out PString tail)
@@ -117,7 +128,7 @@ public readonly struct PString(string value, int start, int length) :
         }
     }
 
-    static bool TokenStream<PString, char>.Take(int amount, in PString stream, out PString head, out PString tail)
+    static bool TokenStream<PString, char>.Take(long amount, in PString stream, out PString head, out PString tail)
     {
         // If the requested length `amount` is 0 (or less), `false` should
         // not be returned, instead `true` and `(out Empty, out stream)` should be returned.
@@ -172,24 +183,24 @@ public readonly struct PString(string value, int start, int length) :
     public bool Equals(PString other)
     {
         if(Length != other.Length) return false;
-        var spanA = Value.AsSpan(Start, Length);
-        var spanB = other.Value.AsSpan(other.Start, other.Length);
+        var spanA = Value.AsSpan((int)Start, (int)Length);
+        var spanB = other.Value.AsSpan((int)other.Start, (int)other.Length);
         return spanA.Equals(spanB, StringComparison.Ordinal);
     }
     
     public int CompareTo(PString other)
     {
-        var spanA = Value.AsSpan(Start, Length);
-        var spanB = other.Value.AsSpan(other.Start, other.Length);
+        var spanA = Value.AsSpan((int)Start, (int)Length);
+        var spanB = other.Value.AsSpan((int)other.Start, (int)other.Length);
         return spanA.CompareTo(spanB, StringComparison.Ordinal);
     }
     
     public struct PStringEnum
     {
-        readonly int start;
-        readonly string target;
-        readonly int end;
-        int current;
+        readonly long start;
+        readonly Arr<char> target;
+        readonly long end;
+        long current;
 
         internal PStringEnum(PString ps)
         {
@@ -208,6 +219,6 @@ public readonly struct PString(string value, int start, int length) :
             current = start;
 
         public char Current => 
-            target[current];
+            target[(int)current];
     }
 }

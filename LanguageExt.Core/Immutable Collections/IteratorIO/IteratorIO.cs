@@ -320,7 +320,7 @@ public abstract partial class IteratorIO<A> :
     /// </summary>
     [Pure]
     public IteratorIO<B> ApplyBack<B>(IteratorIO<Func<A, B>> ff) =>
-        ff.Bind(f => Map(f));
+        +ff.Bind(Map);
 
     /// <summary>
     /// Skip a specified number of items from the start of the IteratorIO. 

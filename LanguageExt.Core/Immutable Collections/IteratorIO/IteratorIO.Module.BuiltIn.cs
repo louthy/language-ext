@@ -27,6 +27,15 @@ public partial class IteratorIO
         new IteratorIO<A>.AsyncEnumerable(items);
 
     /// <summary>
+    /// Create an IteratorIO from an `IObservable` collection
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>IteratorIO of the collection</returns>
+    public static IteratorIO<A> forward<A>(IObservable<A> items) =>
+        liftIO(IO.lift(e => forward(items.ToAsyncEnumerable(e.Token))));
+
+    /// <summary>
     /// Create an IteratorIO from a `ReadOnlySpan` collection
     /// </summary>
     /// <param name="items">Collection to iterate</param>

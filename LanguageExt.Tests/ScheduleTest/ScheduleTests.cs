@@ -235,9 +235,9 @@ public sealed class ScheduleTests
     static Seq<DateTime> FromDuration(Duration duration)
     {
         var now = DateTime.Now;
-        return IterableExtensions.AsIterable(Range(0, (int)((TimeSpan)duration).TotalSeconds))
-                                 .Map(i => now + TimeSpan.FromSeconds(i))
-                                 .ToSeq();
+        return Range(0, (int)((TimeSpan)duration).TotalSeconds)
+              .Map(i => now + TimeSpan.FromSeconds(i))
+              .ToSeq();
     }
 
     [Pure]

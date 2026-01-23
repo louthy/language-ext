@@ -14,7 +14,7 @@ public abstract partial class Iterator<A>
             return go().Next();
             Iterator<A> go()
             {
-                var writer = ArrayWriter<A>.Init();
+                var writer = ArrayWriterRef<A>.Init();
 
                 for (var i = iter; i is (Exist<A> (var head), var tail); i = tail)
                 {

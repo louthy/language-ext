@@ -134,16 +134,6 @@ public class ListTests
     }
 
     [Fact]
-    public void UnfoldTupleTest()
-    {
-        var test = Lst(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181);
-
-        var fibs = Iterable.take(Iterable.unfold( (0, 1), (a, b) => Some((a, b, a + b)) ), 20);
-
-        Assert.True(test.SequenceEqual(fibs));
-    }
-
-    [Fact]
     public void UnfoldSingleTest()
     {
         var e = new Exception("Outer", new Exception("Inner"));
@@ -220,7 +210,7 @@ public class ListTests
 
         var sideEffectByAction = 0;
 
-        expression.Iter(i => sideEffectByAction += i * i);
+        expression.AsIterable().Iter(i => sideEffectByAction += i * i);
         Assert.Equal(2     + 3     + 5, embeddedSideEffectResult);
         Assert.Equal(2 * 2 + 3 * 3 + 5 * 5, sideEffectByAction);
     }
@@ -236,25 +226,11 @@ public class ListTests
 
         Assert.Equal(0, embeddedSideEffectResult);
 
-        var sideEffectByAction = 0;
+        var sideEffectByAction = 0L;
 
-        expression.Iter((pos, i) => sideEffectByAction += i * pos);
+        expression.AsIterable().Iter((i, pos) => sideEffectByAction += i * pos);
         Assert.Equal(2     + 3     + 5, embeddedSideEffectResult);
         Assert.Equal(2 * 0 + 3 * 1 + 5 * 2, sideEffectByAction);
-    }
-
-    [Fact]
-    public void ConsumeTest()
-    {
-        var embeddedSideEffectResult = 0;
-        System.Collections.Generic.IEnumerable<int> expression = from dummy in Some(unit).ToIterable()
-                                                                 from i in Lst(2, 3, 5)
-                                                                 let _ = fun(() => embeddedSideEffectResult += i)()
-                                                                 select i;
-
-        Assert.Equal(0, embeddedSideEffectResult);
-        expression.Consume();
-        Assert.Equal(2 + 3 + 5, embeddedSideEffectResult);
     }
 
     [Fact]
@@ -340,7 +316,7 @@ public class ListTests
     [Fact]
     public void SetItemManyTest()
     {
-        var range = IterableExtensions.AsIterable(Range(0, 100)).ToLst();
+        var range = Range(0, 100).ToLst();
         for (var i = 0; i < 100; i++)
         {
             range = range.SetItem(i, i * 2);
@@ -359,7 +335,7 @@ public class ListTests
     [Fact]
     public void RemoveAtInsertManyTest()
     {
-        var range = IterableExtensions.AsIterable(Range(0, 100)).ToLst();
+        var range = Range(0, 100).ToLst();
         for (var i = 0; i < 100; i++)
         {
             range = range.RemoveAt(i);

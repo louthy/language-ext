@@ -45,11 +45,5 @@ public record Expiries(Expiry From, Expiry To, MonthSpan Step) : Range<Expiries,
                        ? (new Exist<Expiry>(head), Iterator.empty<Expiry>())
                        : (new Exist<Expiry>(head), new Iter(next, From, To, Step));
         }
-
-        public override IO<(Head<Expiry> Head, Iterator<Expiry> Tail)> NextIO() => 
-            IO.pure(Next());
-
-        public override Iterator<Expiry> Using() =>
-            this;
     }
 }

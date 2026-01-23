@@ -13,13 +13,19 @@ public static partial class ArrExtensions
     [Pure]
     public static Arr<A> Flatten<A>(this Arr<Arr<A>> mma)
     {
-        var writer = ArrayWriter<A>.Init();
+        var writer = ArrayWriterRef<A>.Init();
         var state = mma.StepSetup<Arr, Arr.FoldState, Arr<A>>();
         while (mma.Step(ref state, out var ma))
         {
             writer.AddRange(ma.AsSpan());
         }
         return writer.ToArr();
+    }
+
+    extension<A>(K<Arr, char> ma)
+    {
+        public string ToString() => 
+            new (ma.As().AsSpan());
     }
 
     extension<A>(K<Arr, A> ma)
@@ -34,7 +40,7 @@ public static partial class ArrExtensions
         [Pure]
         public Arr<A> Filter(Func<A, bool> f)
         {
-            var writer = ArrayWriter<A>.Init(ma.Count);
+            var writer = ArrayWriterRef<A>.Init(ma.Count);
         
             var state = ma.StepSetup<Arr, Arr.FoldState, A>();
             while (ma.Step(ref state, out var a))
@@ -47,7 +53,7 @@ public static partial class ArrExtensions
         [Pure]
         public Arr<B> Map<B>(Func<A, B> f) 
         {
-            var writer = ArrayWriter<B>.Init(ma.Count);
+            var writer = ArrayWriterRef<B>.Init(ma.Count);
         
             var state = ma.StepSetup<Arr, Arr.FoldState, A>();
             while (ma.Step(ref state, out var a))
@@ -60,7 +66,7 @@ public static partial class ArrExtensions
         [Pure]
         public Arr<B> Bind<B>(Func<A, Arr<B>> f)
         {
-            var writer = ArrayWriter<B>.Init();
+            var writer = ArrayWriterRef<B>.Init();
         
             var astate = ma.StepSetup<Arr, Arr.FoldState, A>();
             while (ma.Step(ref astate, out var a))

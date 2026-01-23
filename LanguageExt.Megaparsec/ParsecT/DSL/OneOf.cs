@@ -31,7 +31,7 @@ record ParsecTOneOf<E, S, T, M, EqT>(S tokens) : ParsecT<E, S, T, M, T>
             return eerr(unexpect(s.Offset, ErrorItem.EndOfInput<T>(), ts), s);
         }
         
-        ParseError<T, E> unexpect(int pos1, ErrorItem<T> u, ReadOnlySpan<T> tokens) =>
+        ParseError<T, E> unexpect(long pos1, ErrorItem<T> u, ReadOnlySpan<T> tokens) =>
             ParseError.Trivial<T, E>(pos1, u, ErrorItem.Tokens(tokens));
     }
 }

@@ -5,11 +5,11 @@ namespace LanguageExt;
 public class AtomSeq : Foldable<AtomSeq, Seq.FoldState>
 {
     public static Iterator<A> ForwardIterator<A>(K<AtomSeq, A> fa) => 
-        fa.As().ToSeq().ForwardIterator();
+        fa.As().Snapshot().ForwardIterator();
 
     public static Seq.FoldState StepSetup<A>(K<AtomSeq, A> ta) => 
-        ta.As().ToSeq().StepSetup<Seq, Seq.FoldState, A>();
+        ta.As().Snapshot().StepSetup<Seq, Seq.FoldState, A>();
 
     public static bool Step<A>(K<AtomSeq, A> ta, ref Seq.FoldState refState, out A value) =>
-        IterableK.step(ta.As().ToSeq(), ref refState, out value);
+        IterableK.step(ta.As().Snapshot(), ref refState, out value);
 }

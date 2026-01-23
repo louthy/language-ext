@@ -114,7 +114,7 @@ public abstract partial class Iterator<A> :
     [Pure]
     public virtual Arr<A> ToArr()
     {
-        var writer = ArrayWriter<A>.Init();
+        var writer = ArrayWriterRef<A>.Init();
         foreach (var head in this)
         {
             writer.Add(head);
@@ -129,8 +129,8 @@ public abstract partial class Iterator<A> :
     public (A[] Buffer, long Start, long Count) ToArray(int start = 0)
     {
         var writer = start == 0
-                         ? ArrayWriter<A>.Init()
-                         : ArrayWriter<A>.InitOffset(start);
+                         ? ArrayWriterRef<A>.Init()
+                         : ArrayWriterRef<A>.InitOffset(start);
         foreach (var head in this)
         {
             writer.Add(head);
@@ -259,7 +259,7 @@ public abstract partial class Iterator<A> :
     /// </summary>
     [Pure]
     public Iterator<B> ApplyBack<B>(Iterator<Func<A, B>> ff) =>
-        ff.Bind(f => Map(f));
+        +ff.Bind(Map);
 
     /// <summary>
     /// Skip a specified number of items from the start of the IteratorIO. 

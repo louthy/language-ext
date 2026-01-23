@@ -184,9 +184,9 @@ public class HashMapTests
     {
         int max = 100000;
 
-        var items = IterableExtensions.AsIterable(Range(1, max))
-                                      .Map( _ => (Key: Guid.NewGuid(), Value: Guid.NewGuid()))
-                                      .ToSeq();
+        var items = Range(1, max)
+                   .Map(_ => (Key: Guid.NewGuid(), Value: Guid.NewGuid()))
+                   .ToSeq();
 
         var m = HashMap<Guid, Guid>().AddRange(items);
         Assert.True(m.Count == max);

@@ -107,7 +107,7 @@ public static class Discussion1527
         where M : MonadIO<M>, Alternative<M>
     {
         return from token in M.LiftIO(IO.token)
-               from value in SourceT.lift<M, DateTime>(go(token).AsIterableAsync())
+               from value in SourceT.liftIO<M, DateTime>(go(token).AsIterableIO())
                select value;
         
         static async IAsyncEnumerable<DateTime> go([EnumeratorCancellation] CancellationToken token)
