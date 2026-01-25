@@ -549,7 +549,12 @@ public abstract partial class Iterator<A> :
 
     [Pure]
     public override string ToString() =>
+        // This is so the debugger doesn't consume lazy sequences while we're debugging them 
+        #if DEBUG
+        "...";
+        #else
         CollectionFormat.ToShortArrayString(AsEnumerable());
+        #endif
 
     /// <summary>
     /// Format the collection as `a, b, c, ...`

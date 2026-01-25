@@ -726,9 +726,14 @@ public readonly struct Seq<A> :
     /// </summary>
     [Pure]
     public override string ToString() =>
+        // This is so the debugger doesn't consume lazy sequences while we're debugging them 
+        #if DEBUG
+        "...";
+        #else
         Value.Type == SeqType.Lazy
             ? CollectionFormat.ToShortArrayString(this)
             : CollectionFormat.ToShortArrayString(this, Count);
+        #endif
 
     /// <summary>
     /// Format the collection as `a, b, c, ...`

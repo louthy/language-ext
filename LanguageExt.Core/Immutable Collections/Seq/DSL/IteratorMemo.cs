@@ -14,8 +14,21 @@ class IteratorMemo<A>(Iterator<A> ma) : Iterator<A>
 {
     const int DefaultCapacity = 32;
     A[] data = new A[DefaultCapacity];
+    
+    /// <summary>
+    /// The count of elements in the sequence.  This is the 'true' count of the sequence,
+    /// and is updated atomically after each value is written to the last element position.
+    /// </summary>
     long count;
-    long ncount = -1;
+    
+    /// <summary>
+    /// This is the 'live' count value that can be updated atomically with CompareExchange, but when
+    /// it's updated, the element at `ncount - 1` is not set (it's `null` or `default`).  So, although
+    /// we're updating the value atomically, we can't safely share this value anywhere until the element
+    /// has been written to. The `count` field is the atomic count value that is set after that write
+    /// operation is complete and should be used as the true external count of elements in the structure.
+    /// </summary>
+    long ncount;
     int? hash;
     
     Iterator<A>? iter = ma;
@@ -29,30 +42,36 @@ class IteratorMemo<A>(Iterator<A> ma) : Iterator<A>
     public Option<A> Get(long index)
     {
         SpinWait sw = default;
+            
         while (true)
         {
+            // Save the latest count value in a local variable so that we can
+            // work from a known set of 'local truths'.  If `lcount` goes out of
+            // sync with `count` and `ncount` then we know another thread has got
+            // in before us and we'll have to spin once and go around.
+            var lcount = ncount;
+            
             // Early out if the data has already been streamed
-            if (index < count)
+            if (index < lcount)
             {
                 return data[index];
             }
 
-            // If there's nothing left to stream, we must be done
-            var liter = iter;
-            var lcount = index - 1;
-
-            // lcount is a lagging counter that gets moved on by 1 here.  It's the 
-            // gatekeeper to moving along the iterator.  
-            if (Interlocked.CompareExchange(ref ncount, index, lcount) == lcount)
+            if (iter is null)
             {
-                if (liter is (Exist<A>(var value), var tail))
+                return default;
+            }
+
+            if (Interlocked.CompareExchange(ref ncount, lcount + 1, lcount) == lcount)
+            {
+                if (iter is (Exist<A>(var value), var tail))
                 {
                     // Next
                     iter = tail;
                     
                     // If we've run out of space, double it and copy.  
                     // Note, this operation is atomic 
-                    if (index >= data.LongLength)
+                    if (ncount >= data.LongLength)
                     {
                         var ndata = new A[data.LongLength << 1];
                         Array.Copy(data, ndata, data.LongLength);
@@ -60,20 +79,15 @@ class IteratorMemo<A>(Iterator<A> ma) : Iterator<A>
                     }
 
                     // Store the value 
-                    data[index] = value;
-
-                    // Now, by updating the actual `count` we have essentially done an 
-                    // atomic operation to get the value from the iterator and store it
-                    // in our internal memory.
-                    count = index + 1;
-
-                    return value;
+                    data[lcount] = value;
+                    
+                    // Complete the atomic operation
+                    count = ncount;
                 }
                 else
                 {
                     // End of the iterator
                     iter = null;
-                    ncount = count - 1;
                     return default;
                 }
             }
@@ -90,25 +104,18 @@ class IteratorMemo<A>(Iterator<A> ma) : Iterator<A>
         while (true)
         {
             if(iter is null) return count;
+            var lcount = ncount;
             
-            var index = count;
-            
-            // If there's nothing left to stream, we must be done
-            var liter  = iter;
-            var lcount = index - 1;
-
-            // lcount is a lagging counter that gets moved on by 1 here.  It's the 
-            // gatekeeper to moving along the iterator.  
-            if (Interlocked.CompareExchange(ref ncount, index, lcount) == lcount)
+            if (Interlocked.CompareExchange(ref ncount, lcount + 1, lcount) == lcount)
             {
-                if (liter is (Exist<A>(var value), var tail))
+                if (iter is (Exist<A>(var value), var tail))
                 {
                     // Next
                     iter = tail;
                     
                     // If we've run out of space, double it and copy.  
                     // Note, this operation is atomic 
-                    if (index >= data.LongLength)
+                    if (ncount >= data.LongLength)
                     {
                         var ndata = new A[data.LongLength << 1];
                         Array.Copy(data, ndata, data.LongLength);
@@ -116,18 +123,15 @@ class IteratorMemo<A>(Iterator<A> ma) : Iterator<A>
                     }
 
                     // Store the value 
-                    data[index] = value;
-
-                    // Now, by updating the actual `count` we have essentially done an 
-                    // atomic operation to get the value from the iterator and store it
-                    // in our internal memory.
-                    count = index + 1;
+                    data[lcount] = value;
+                    
+                    // Complete the atomic operation
+                    count = ncount;
                 }
                 else
                 {
                     // End of the iterator
                     iter = null;
-                    ncount = count - 1;
                     return count;
                 }
             }
