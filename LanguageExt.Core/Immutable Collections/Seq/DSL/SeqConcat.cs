@@ -10,13 +10,21 @@ class SeqConcat<A> : ISeqInternal<A>
     
     int selfHash;
 
-    public SeqConcat(Seq<ISeqInternal<A>> ms)
+    public SeqConcat(Seq<ISeqInternal<A>> sequences)  
     {
-        seqs = ms;
+        seqs = DeConcat(sequences);
         iterator = seqs.IsEmpty
                        ? Iterator<A>.Empty
                        : seqs.Tail.Fold((xs, seq) => xs + seq.GetIterator(), seqs[0].GetIterator());
     }
+
+    static Seq<ISeqInternal<A>> DeConcat(Seq<ISeqInternal<A>> seqs) =>
+        seqs.Bind(DeConcat);
+
+    static Seq<ISeqInternal<A>> DeConcat(ISeqInternal<A> seq) =>
+        seq is SeqConcat<A> sc 
+            ? sc.seqs.Bind(DeConcat) 
+            : [seq];
 
     public ReadOnlySpan<A> AsSpan() =>
         Strict().AsSpan();
@@ -31,8 +39,52 @@ class SeqConcat<A> : ISeqInternal<A>
         }
     }
 
-    public Option<A> At(long index) =>
-        iterator.At(index);
+    public Option<A> At(long index)
+    {
+        foreach (var seq in seqs)
+        {
+            switch (seq.Type)
+            {
+                case SeqType.Empty:
+                    // Empty streams yield no values
+                    return default;
+                
+                case SeqType.Lazy:
+                    // This should stream up to the required index and no more; or if the index
+                    // lies beyond the sequence, it will consume everything in the lazy stream,
+                    // which is expected.
+                    var ox = seq.At(index);
+                    
+                    // If we found our element, return
+                    if (ox.IsSome) return ox;
+                    
+                    // Otherwise, we've consumed the entire lazy stream, so we're able to read the 
+                    // Count value and have it be meaningful.  Use that to move onto the next sequence
+                    // in the concatenation.
+                    index -= seq.Count;
+                    break;
+                
+                case SeqType.Strict when index < seq.Count:
+                    // We're within the strict sequence, so return the element
+                    return seq[index];
+                    
+                case SeqType.Strict:
+                    // We're beyond the strict sequence, so move onto the next one
+                    index -= seq.Count;
+                    continue;
+
+                case SeqType.Concat:
+                    // We are removing the SeqConcat values from the sequence in the constructor.
+                    // So, this should never happen.
+                    throw new InvalidOperationException("Concatenated sequences not supported: should have been flattened in the constructor");
+                
+                default:
+                    throw new InvalidOperationException("Unexpected sequence type");
+            }
+        }
+        // Index out of range
+        return default;
+    }
 
     public SeqType Type =>
         SeqType.Concat;
@@ -165,35 +217,6 @@ class SeqConcat<A> : ISeqInternal<A>
 
     public Seq.FoldState InitFoldState() =>
         Seq.FoldState.FromIterator(iterator);
-
-    ISeqInternal<A> Flatten()
-    {
-        var total = 0L;
-        foreach (var s in seqs)
-        {
-            s.Strict();
-            total = s.Count;
-        }
-
-        var cap = 8L;
-        while(cap < total)
-        {
-            cap <<= 1;
-        }
-
-        var data    = new A[cap];
-        var start   = (cap - total) >> 1;
-        var current = start;
-
-        foreach(var s in seqs)
-        {
-            var strict = (SeqStrict<A>)s;
-            Array.Copy(strict.data, strict.start, data, current, strict.count);
-            current += strict.count;
-        }
-        return new SeqStrict<A>(data, start, total, 0, 0);
-    }
-        
 
     public override int GetHashCode() =>
         selfHash == 0

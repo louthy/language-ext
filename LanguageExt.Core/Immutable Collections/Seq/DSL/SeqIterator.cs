@@ -24,11 +24,7 @@ class SeqIterator<A> : ISeqInternal<A>
         };
 
     public Option<A> At(long index) => 
-        memo.Get(index) switch
-        {
-            { IsSome: true, Value: var value } => value!,
-            _                                  => throw new IndexOutOfRangeException()
-        };
+        memo.Get(index);
 
     public ISeqInternal<A> Add(A value) => 
         new SeqConcat<A>([this, SeqStrict<A>.FromSingleValue(value)]);

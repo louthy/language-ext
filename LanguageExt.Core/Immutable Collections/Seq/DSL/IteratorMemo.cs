@@ -45,14 +45,8 @@ class IteratorMemo<A>(Iterator<A> ma) : Iterator<A>
             
         while (true)
         {
-            // Save the latest count value in a local variable so that we can
-            // work from a known set of 'local truths'.  If `lcount` goes out of
-            // sync with `count` and `ncount` then we know another thread has got
-            // in before us and we'll have to spin once and go around.
-            var lcount = ncount;
-            
             // Early out if the data has already been streamed
-            if (index < lcount)
+            if (index < count)
             {
                 return data[index];
             }
@@ -62,6 +56,12 @@ class IteratorMemo<A>(Iterator<A> ma) : Iterator<A>
                 return default;
             }
 
+            // Save the latest count value in a local variable so that we can
+            // work from a known set of 'local truths'.  If `lcount` goes out of
+            // sync with `count` and `ncount` then we know another thread has got
+            // in before us and we'll have to spin once and go around.
+            var lcount = ncount;
+            
             if (Interlocked.CompareExchange(ref ncount, lcount + 1, lcount) == lcount)
             {
                 if (iter is (Exist<A>(var value), var tail))
