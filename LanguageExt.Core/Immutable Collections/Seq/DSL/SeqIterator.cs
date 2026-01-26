@@ -6,6 +6,7 @@ class SeqIterator<A> : ISeqInternal<A>
 {
     const int MinimumSize = 8;
     readonly IteratorMemo<A> memo;
+    int? hash;
 
     public SeqIterator(Iterator<A> iterator) =>
         memo = new IteratorMemo<A>(iterator);
@@ -116,11 +117,15 @@ class SeqIterator<A> : ISeqInternal<A>
         return size;
     }
 
-    public override int GetHashCode() =>
-        GetHashCode(FNV32.OffsetBasis);
+    public override int GetHashCode()
+    {
+        if(hash is not null) return hash.Value;
+        hash = GetHashCode(FNV32.OffsetBasis);
+        return hash.Value;
+    }
 
     public int GetHashCode(int offsetBasis) => 
-        memo.GetHashCode();
+        memo.GetHashCode(offsetBasis);
 
     public ReadOnlySpan<A> AsSpan() 
     {

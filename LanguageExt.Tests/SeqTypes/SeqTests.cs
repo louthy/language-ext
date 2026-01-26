@@ -342,21 +342,11 @@ public class SeqTests
     [Fact]
     public void SeqConcatTest()
     {
-        var seq1 = (from x in new[] { 1 }.AsIterable()
-                    select x).ToSeq();
+        var seq1 = Iterable(1).ToSeq();
+        var seq2 = Iterable(2).ToSeq();
+        var seq3 = Iterable(3).ToSeq();
 
-        var seq2 = (from x in new[] { 2 }.AsIterable()
-                    select x).ToSeq();
-
-
-        var seq3 = (from x in new[] { 3 }.AsIterable()
-                    select x).ToSeq();
-
-        Assert.Equal(
-            Seq(1, 2, 3),
-            seq1
-               .Concat(seq2)
-               .Concat(seq3));
+        Assert.True(Seq(1, 2, 3) == seq1.Concat(seq2).Concat(seq3));
     }
 
     [Fact]

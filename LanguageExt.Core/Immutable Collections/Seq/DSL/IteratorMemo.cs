@@ -162,8 +162,10 @@ class IteratorMemo<A>(Iterator<A> ma) : Iterator<A>
     public override int GetHashCode()
     {
         if (hash is not null) return hash.Value;
-        GetAll();
-        hash = FNV32.Hash<HashableDefault<A>, A>(data, 0, count); 
+        hash = GetHashCode(FNV32.OffsetBasis);
         return hash.Value;
     }
+
+    public int GetHashCode(int offsetBasis) =>
+        FNV32.Hash<HashableDefault<A>, A>(data, 0, count, offsetBasis); 
 }
