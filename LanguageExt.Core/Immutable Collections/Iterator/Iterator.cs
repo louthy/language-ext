@@ -266,7 +266,7 @@ public abstract partial class Iterator<A> :
     /// </summary>
     [Pure]
     public Iterator<A> Skip(long amount) =>
-        new OpSkip(this, amount);
+        new OpSkip(this, Math.Max(0, amount));
 
     /// <summary>
     /// Skip items at the start of the sequence whilst the predicate returns true. 
@@ -287,7 +287,7 @@ public abstract partial class Iterator<A> :
     /// </summary>
     [Pure]
     public Iterator<A> Take(long amount) =>
-        new OpTake(this, amount);
+        new OpTake(this, Math.Max(0, amount));
 
     /// <summary>
     /// Take items from the sequence whilst the predicate returns true.   

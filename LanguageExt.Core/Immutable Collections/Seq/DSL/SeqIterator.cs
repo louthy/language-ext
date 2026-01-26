@@ -116,6 +116,9 @@ class SeqIterator<A> : ISeqInternal<A>
         return size;
     }
 
+    public override int GetHashCode() =>
+        GetHashCode(FNV32.OffsetBasis);
+
     public int GetHashCode(int offsetBasis) => 
         memo.GetHashCode();
 

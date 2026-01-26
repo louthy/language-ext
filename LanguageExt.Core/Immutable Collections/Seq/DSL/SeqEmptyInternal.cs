@@ -58,7 +58,7 @@ class SeqEmptyInternal<A> : ISeqInternal<A>
         Iterator<A>.Empty;
 
     public IteratorEnumerator<A> GetEnumerator() => 
-        throw new NotImplementedException();
+        new (Iterator<A>.Empty);
 
     public SeqType Type => SeqType.Empty;
 
