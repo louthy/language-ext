@@ -28,7 +28,7 @@ namespace LanguageExt;
 /// </remarks>
 /// <typeparam name="A">Type of the values in the sequence</typeparam>
 [CollectionBuilder(typeof(Seq), nameof(Seq.createRange))]
-public readonly struct Seq<A> :
+public readonly partial struct Seq<A> :
     IEnumerable<A>,
     IComparable<Seq<A>>, 
     IEquatable<Seq<A>>, 
@@ -614,16 +614,6 @@ public readonly struct Seq<A> :
         this.ForwardIterator()
             .Map(f)
             .ToSeq();
-        
-    /// <summary>
-    /// Map the sequence using the function provided
-    /// </summary>
-    /// <typeparam name="B"></typeparam>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped sequence</returns>
-    [Pure]
-    public Seq<B> Select<B>(Func<A, B> f) =>
-        Map(f);
 
     /// <summary>
     /// Monadic bind (flatmap) of the sequence
@@ -650,18 +640,6 @@ public readonly struct Seq<A> :
             .ToSeq();
 
     /// <summary>
-    /// Monadic bind (flatmap) of the sequence
-    /// </summary>
-    /// <typeparam name="B">Bound return value type</typeparam>
-    /// <param name="bind">Bind function</param>
-    /// <returns>Flat-mapped sequence</returns>
-    [Pure]
-    public Seq<C> SelectMany<B, C>(Func<A, Seq<B>> bind, Func<A, B, C> project) =>
-        this.ForwardIterator()
-            .SelectMany(x => bind(x).ForwardIterator(), project)
-            .ToSeq();
-
-    /// <summary>
     /// Filter the items in the sequence
     /// </summary>
     /// <param name="f">Predicate to apply to the items</param>
@@ -671,15 +649,6 @@ public readonly struct Seq<A> :
         this.ForwardIterator()
             .Filter(f)
             .ToSeq();
-        
-    /// <summary>
-    /// Filter the items in the sequence
-    /// </summary>
-    /// <param name="f">Predicate to apply to the items</param>
-    /// <returns>Filtered sequence</returns>
-    [Pure]
-    public Seq<A> Where(Func<A, bool> f) =>
-        Filter(f);
 
     /// <summary>
     /// Returns true if the sequence has items in it
@@ -726,14 +695,9 @@ public readonly struct Seq<A> :
     /// </summary>
     [Pure]
     public override string ToString() =>
-        // This is so the debugger doesn't consume lazy sequences while we're debugging them 
-        #if DEBUG
-        "...";
-        #else
         Value.Type == SeqType.Lazy
             ? CollectionFormat.ToShortArrayString(this)
             : CollectionFormat.ToShortArrayString(this, Count);
-        #endif
 
     /// <summary>
     /// Format the collection as `a, b, c, ...`

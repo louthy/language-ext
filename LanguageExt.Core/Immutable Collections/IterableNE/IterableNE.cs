@@ -17,7 +17,7 @@ namespace LanguageExt;
 /// This always has a Head value and a Tail of length 0 to `n`.   
 /// </remarks>
 /// <typeparam name="A">Type of the values in the sequence</typeparam>
-public class IterableNE<A>(A Head, Iterator<A> Tail) :
+public partial class IterableNE<A>(A Head, Iterator<A> Tail) :
     IEnumerable<A>,
     Semigroup<IterableNE<A>>,
     IComparable<IterableNE<A>>,
@@ -186,7 +186,7 @@ public class IterableNE<A>(A Head, Iterator<A> Tail) :
 
     [Pure]
     public override bool Equals(object? obj) =>
-        obj is Iterable<A> rhs && Equals(rhs);
+        obj is IterableNE<A> rhs && Equals(rhs);
 
     [Pure]
     public static bool operator ==(IterableNE<A>? lhs, IterableNE<A>? rhs) =>
@@ -470,37 +470,8 @@ public class IterableNE<A>(A Head, Iterator<A> Tail) :
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped sequence</returns>
     [Pure]
-    public IterableNE<B> Select<B>(Func<A, B> f) =>
-        Map(f);
-
-    /// <summary>
-    /// Map the sequence using the function provided
-    /// </summary>
-    /// <typeparam name="B"></typeparam>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped sequence</returns>
-    [Pure]
     public IterableNE<B> Select<B>(Func<A, long, B> f) =>
         Map(f);
-
-    /// <summary>
-    /// Filter the items in the sequence
-    /// </summary>
-    /// <param name="f">Predicate to apply to the items</param>
-    /// <returns>Filtered sequence</returns>
-    [Pure]
-    public Iterable<A> Where(Func<A, bool> f) =>
-        Filter(f);
-
-    /// <summary>
-    /// Monadic bind (flatmap) of the sequence
-    /// </summary>
-    /// <typeparam name="B">Bound return value type</typeparam>
-    /// <param name="f">Bind function</param>
-    /// <returns>Flat-mapped sequence</returns>
-    [Pure]
-    public IterableNE<B> SelectMany<B>(Func<A, IterableNE<B>> f) =>
-        Bind(f);
 
     /// <summary>
     /// Monadic bind (flatmap) of the sequence
@@ -511,16 +482,6 @@ public class IterableNE<A>(A Head, Iterator<A> Tail) :
     [Pure]
     public Iterable<B> SelectMany<B>(Func<A, Iterable<B>> f) =>
         Bind(f);
-
-    /// <summary>
-    /// Monadic bind (flatmap) of the sequence
-    /// </summary>
-    /// <typeparam name="B">Bound return value type</typeparam>
-    /// <param name="bind">Bind function</param>
-    /// <returns>Flat-mapped sequence</returns>
-    [Pure]
-    public IterableNE<C> SelectMany<B, C>(Func<A, IterableNE<B>> bind, Func<A, B, C> project) =>
-        Bind(x => bind(x).Map(y => project(x, y)));
 
     /// <summary>
     /// Monadic bind (flatmap) of the sequence

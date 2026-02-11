@@ -64,42 +64,42 @@ public static partial class RangeExtensions
         /// </summary>
         [Pure]
         public S Aggregate<S>(S state, Func<S, A, S> folder) =>
-            Foldable.fold(folder, state, ma);
+            ma.ForwardIterator().Aggregate(state, folder);
 
         /// <summary>
         /// Returns the number of elements in a range.
         /// </summary>
         [Pure]
         public long Count() =>
-            Foldable.count(ma);
+            ma.ForwardIterator().Count();
 
         /// <summary>
         /// Determines whether any element of a range satisfies a condition.
         /// </summary>
         [Pure]
         public bool Any(Func<A, bool> predicate) =>
-            Foldable.exists(predicate, ma);
+            ma.ForwardIterator().Any(predicate);
 
         /// <summary>
         /// Determines whether all elements of a range satisfy a condition.
         /// </summary>
         [Pure]
         public bool All(Func<A, bool> predicate) =>
-            Foldable.forAll(predicate, ma);
+            ma.ForwardIterator().ForAll(predicate);
 
         /// <summary>
         /// Returns the first element of a range.
         /// </summary>
         [Pure]
         public A First() =>
-            Foldable.head(ma).IfNone(() => throw new InvalidOperationException("Range is empty"));
+            ma.ForwardIterator().First();
 
         /// <summary>
         /// Returns the first element of a range, or a default value if the range contains no elements.
         /// </summary>
         [Pure]
         public A? FirstOrDefault() =>
-            Foldable.head(ma).IfNone(default(A)!);
+            ma.ForwardIterator().FirstOrDefault();
 
         /// <summary>
         /// Bypasses a specified number of elements in a range and then returns the remaining elements.
@@ -131,6 +131,6 @@ public static partial class RangeExtensions
         /// </summary>
         [Pure]
         public A Sum() =>
-            Foldable.sum(ma);
+            ma.ForwardIterator().Sum();
     }
 }

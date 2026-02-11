@@ -19,7 +19,7 @@ namespace LanguageExt;
 /// </remarks>
 /// <typeparam name="A">Value type</typeparam>
 [CollectionBuilder(typeof(Iterable), nameof(Iterable.create))]
-public sealed class Iterable<A> :
+public sealed partial class Iterable<A> :
     IEnumerable<A>,
     Monoid<Iterable<A>>,
     IComparable<Iterable<A>>,
@@ -463,47 +463,8 @@ public sealed class Iterable<A> :
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped sequence</returns>
     [Pure]
-    public Iterable<B> Select<B>(Func<A, B> f) =>
-        new(iterator.Map(f));
-
-    /// <summary>
-    /// Map the sequence using the function provided
-    /// </summary>
-    /// <typeparam name="B"></typeparam>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped sequence</returns>
-    [Pure]
     public Iterable<B> Select<B>(Func<A, long, B> f) =>
         new(iterator.Map(f));
-
-    /// <summary>
-    /// Filter the items in the sequence
-    /// </summary>
-    /// <param name="f">Predicate to apply to the items</param>
-    /// <returns>Filtered sequence</returns>
-    [Pure]
-    public Iterable<A> Where(Func<A, bool> f) =>
-        new(iterator.Filter(f));
-
-    /// <summary>
-    /// Monadic bind (flatmap) of the sequence
-    /// </summary>
-    /// <typeparam name="B">Bound return value type</typeparam>
-    /// <param name="f">Bind function</param>
-    /// <returns>Flat-mapped sequence</returns>
-    [Pure]
-    public Iterable<B> SelectMany<B>(Func<A, Iterable<B>> f) =>
-        new(iterator.Bind(x => f(x).iterator));
-
-    /// <summary>
-    /// Monadic bind (flatmap) of the sequence
-    /// </summary>
-    /// <typeparam name="B">Bound return value type</typeparam>
-    /// <param name="bind">Bind function</param>
-    /// <returns>Flat-mapped sequence</returns>
-    [Pure]
-    public Iterable<C> SelectMany<B, C>(Func<A, Iterable<B>> bind, Func<A, B, C> project) =>
-        new(iterator.SelectMany(x => bind(x).iterator, project));
 
     [Pure]
     public IEnumerator<A> GetEnumerator() =>
