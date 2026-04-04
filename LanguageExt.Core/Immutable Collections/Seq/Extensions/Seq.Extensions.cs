@@ -124,12 +124,6 @@ public static partial class SeqExtensions
     extension<A>(K<Seq, A> list)
     {
         /// <summary>
-        /// Downcast operator
-        /// </summary>
-        public Seq<A> As() =>
-            (Seq<A>)list;
-
-        /// <summary>
         /// Applies the given function 'selector' to each element of the sequence. Returns a sequence that 
         /// consists of the results for each element where the function returns Some(f(x)).
         /// </summary>

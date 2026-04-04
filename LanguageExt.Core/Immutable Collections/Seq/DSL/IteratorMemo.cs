@@ -45,23 +45,17 @@ class IteratorMemo<A>(Iterator<A> ma) : Iterator<A>
             
         while (true)
         {
-            // Early out if the data has already been streamed
-            if (index < count)
+            var lcount = count;
+            if (index < lcount)
             {
                 return data[index];
             }
-
+            
             if (iter is null)
             {
                 return default;
             }
-
-            // Save the latest count value in a local variable so that we can
-            // work from a known set of 'local truths'.  If `lcount` goes out of
-            // sync with `count` and `ncount` then we know another thread has got
-            // in before us and we'll have to spin once and go around.
-            var lcount = ncount;
-            
+        
             if (Interlocked.CompareExchange(ref ncount, lcount + 1, lcount) == lcount)
             {
                 if (iter is (Exist<A>(var value), var tail))
@@ -83,12 +77,17 @@ class IteratorMemo<A>(Iterator<A> ma) : Iterator<A>
                     
                     // Complete the atomic operation
                     count = ncount;
+                    
+                    // Continue, we may need to load more values before we get to the 
+                    // index we're looking for.
                 }
                 else
                 {
                     // End of the iterator
                     iter = null;
-                    return default;
+                    
+                    // Continue, give a chance to collect the value from the array instead.
+                    // This is because another thread may have updated iter without us knowing.
                 }
             }
             else
@@ -132,7 +131,9 @@ class IteratorMemo<A>(Iterator<A> ma) : Iterator<A>
                 {
                     // End of the iterator
                     iter = null;
-                    return count;
+                    
+                    // Continue, give a chance to collect the value from the array instead.
+                    // This is because another thread may have updated iter without us knowing.
                 }
             }
             else

@@ -14,17 +14,6 @@ public static partial class IterableExtensions
         public Iterable<A> Flatten() =>
             ma.Bind(identity);
     }
-
-    /// <param name="items">sequence</param>
-    /// <typeparam name="A">sequence item type</typeparam>
-    extension<A>(K<Iterable, A> items)
-    {
-        public Iterable<A> As() =>
-            (Iterable<A>)items;
-        
-        public IterableIO<A> AsIterableIO() =>
-            new(IteratorIO.lift(items.As().iterator));
-    }
     
     /// <param name="items">sequence</param>
     /// <typeparam name="A">sequence item type</typeparam>

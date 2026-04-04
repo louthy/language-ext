@@ -14,7 +14,7 @@ namespace LanguageExt.Tests
             var jvc = JsonConvert.SerializeObject(vc1);
             var vc2 = JsonConvert.DeserializeObject<VectorClock<char>>(jvc);
 
-            Assert.Equal(vc1, vc2);
+            Assert.True(vc1 == vc2);
         }
 
         [Fact]
@@ -26,8 +26,9 @@ namespace LanguageExt.Tests
             var vc3 = VectorClock.max(vc1, vc2);
             
             var exp = VectorClock.fromList(Seq(('a', 1L), ('b', 2L), ('c', 3L)));
-
-            Assert.Equal(vc3, exp);
+            
+            Assert.True(vc3.GetHashCode() == exp.GetHashCode(), "Hashcodes should be equal");
+            Assert.True(vc3 == exp);
         }
 
         [Fact]

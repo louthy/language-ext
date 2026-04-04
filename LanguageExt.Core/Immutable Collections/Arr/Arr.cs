@@ -846,20 +846,39 @@ public readonly partial struct Arr<A> :
     [Pure]
     public Arr<B> Bind<B>(Func<A, Arr<B>> f)
     {
-        var res = new List<B>();
+        var ma     = this;
+        var writer = ArrayWriterRef<B>.Init();
 
-        foreach (var t in this)
+        foreach (var a in ma.ForwardIteratorRef<Arr, Arr.FoldState, A>())
         {
-            foreach (var u in f(t))
+            var mb = f(a);
+            foreach (var b in mb.ForwardIteratorRef<Arr, Arr.FoldState, B>())
             {
-                res.Add(u);
+                writer.Add(b);
             }
         }
-        return new Arr<B>(res);
+        return writer.ToArr();
     }
 
     [Pure]
-    public Arr<A> Take(int amount) =>
+    public Arr<B> Bind<B>(Func<A, K<Arr, B>> f)
+    {
+        var ma     = this;
+        var writer = ArrayWriterRef<B>.Init();
+
+        foreach (var a in ma.ForwardIteratorRef<Arr, Arr.FoldState, A>())
+        {
+            var mb = +f(a);
+            foreach (var b in mb.ForwardIteratorRef<Arr, Arr.FoldState, B>())
+            {
+                writer.Add(b);
+            }
+        }
+        return writer.ToArr();
+    }
+
+    [Pure]
+    public Arr<A> Take(long amount) =>
         amount switch
         {
             0                      => [],
@@ -868,38 +887,13 @@ public readonly partial struct Arr<A> :
         };
 
     [Pure]
-    public Arr<A> Skip(int amount) =>
+    public Arr<A> Skip(long amount) =>
         amount switch
         {
             0                      => this,
             _ when amount >= Count => [],
             _                      => Slice(amount, Count - amount)
         };
-
-    [Pure]
-    public Arr<A> Where(Func<A, bool> f) =>
-        Filter(f);
-
-    [Pure]
-    public Arr<B> Select<B>(Func<A, B> f) =>
-        Map(f);
-
-    [Pure]
-    public Arr<C> SelectMany<B, C>(Func<A, K<Arr, B>> bind, Func<A, B, C> project)
-    {
-        var ma     = this;
-        var writer = ArrayWriterRef<C>.Init();
-
-        foreach (var a in ma.ForwardIteratorRef<Arr, Arr.FoldState, A>())
-        {
-            var mb     = +bind(a);
-            foreach (var b in mb.ForwardIteratorRef<Arr, Arr.FoldState, B>())
-            {
-                writer.Add(project(a, b));
-            }
-        }
-        return writer.ToArr();
-    }
 
     /// <summary>
     /// Convert to a queryable 

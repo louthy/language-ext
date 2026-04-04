@@ -193,11 +193,11 @@ public class SeqModuleTests
 
         var results = tasks.Select(t => t.Result).ToArray();
 
-        seq.Iter((i, x) => Assert.True(x != 0, $"Invalid value in the sequence at index {i}"));
+        seq.Iter((i, x) => Assert.True(x == i + 1, $"Invalid value in the sequence at index {i}"));
 
-        foreach (var task in tasks)
+        foreach (var result in results)
         {
-            Assert.True(task.Result == sum, $"Result is {task.Result}, should be: {sum}");
+            Assert.True(result == sum, $"Result is {result}, should be: {sum}");
         }
     }
 }

@@ -6,49 +6,75 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public sealed partial class Iterable<A>
+public readonly partial struct Arr<A>
 {
     /// <summary>
     /// Projects each element of a range into a new form.
     /// </summary>
     [Pure]
-    public Iterable<B> Select<B>(Func<A, B> f) =>
+    public Arr<B> Select<B>(Func<A, B> f) =>
         Map(f);
 
     /// <summary>
     /// Filters a range of values based on a predicate.
     /// </summary>
     [Pure]
-    public Iterable<A> Where(Func<A, bool> f) =>
+    public Arr<A> Where(Func<A, bool> f) =>
         Filter(f);
 
     /// <summary>
     /// Monadic bind
     /// </summary>
     [Pure]
-    public Iterable<B> SelectMany<B>(Func<A, Iterable<B>> f) =>
+    public Arr<B> SelectMany<B>(Func<A, Arr<B>> f) =>
         Bind(f);
 
     /// <summary>
     /// Monadic bind
     /// </summary>
     [Pure]
-    public Iterable<B> SelectMany<B>(Func<A, K<Iterable, B>> f) =>
+    public Arr<B> SelectMany<B>(Func<A, K<Arr, B>> f) =>
         Bind(f);
 
     /// <summary>
     /// Monadic bind and project
     /// </summary>
     [Pure]
-    public Iterable<C> SelectMany<B, C>(Func<A, Iterable<B>> bind, Func<A, B, C> project) =>
-        new(iterator.SelectMany(x => bind(x).iterator, project));
+    public Arr<C> SelectMany<B, C>(Func<A, Arr<B>> bind, Func<A, B, C> project)
+    {
+        var ma     = this;
+        var writer = ArrayWriterRef<C>.Init();
+
+        foreach (var a in ma.ForwardIteratorRef<Arr, Arr.FoldState, A>())
+        {
+            var mb = bind(a);
+            foreach (var b in mb.ForwardIteratorRef<Arr, Arr.FoldState, B>())
+            {
+                writer.Add(project(a, b));
+            }
+        }
+        return writer.ToArr();
+    }
 
     /// <summary>
     /// Monadic bind and project
     /// </summary>
     [Pure]
-    public Iterable<C> SelectMany<B, C>(Func<A, K<Iterable, B>> bind, Func<A, B, C> project) =>
-        new(iterator.SelectMany(x => bind(x).As().iterator, project));
+    public Arr<C> SelectMany<B, C>(Func<A, K<Arr, B>> bind, Func<A, B, C> project)
+    {
+        var ma     = this;
+        var writer = ArrayWriterRef<C>.Init();
+
+        foreach (var a in ma.ForwardIteratorRef<Arr, Arr.FoldState, A>())
+        {
+            var mb = +bind(a);
+            foreach (var b in mb.ForwardIteratorRef<Arr, Arr.FoldState, B>())
+            {
+                writer.Add(project(a, b));
+            }
+        }
+        return writer.ToArr();
+    }
 
     /// <summary>
     /// Applies an accumulator function over a range.
@@ -89,27 +115,20 @@ public sealed partial class Iterable<A>
     /// Bypasses a specified number of elements in a range and then returns the remaining elements.
     /// </summary>
     [Pure]
-    public Iterable<A> Skip(int count) =>
-        new(this.ForwardIterator().Skip(count));
+    public Arr<A> Skip(int count) =>
+        Skip((long)count);
 
     /// <summary>
     /// Returns a specified number of contiguous elements from the start of a range.
     /// </summary>
     [Pure]
-    public Iterable<A> Take(int count) =>
-        new(this.ForwardIterator().Take(count));
-
-    /// <summary>
-    /// Converts a range to an array.
-    /// </summary>
-    [Pure]
-    public A[] ToArray() =>
-        this.ToArr().ToArray();
+    public Arr<A> Take(int count) =>
+        Take((long)count);
 }
 
-public static partial class IterableExtensions
+public static partial class ArrExtensions
 {
-    extension<A>(Iterable<A> ma)
+    extension<A>(Arr<A> ma)
         where A : INumber<A>
     {
         /// <summary>

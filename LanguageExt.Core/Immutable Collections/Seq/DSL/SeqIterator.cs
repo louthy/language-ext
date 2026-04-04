@@ -124,8 +124,11 @@ class SeqIterator<A> : ISeqInternal<A>
         return hash.Value;
     }
 
-    public int GetHashCode(int offsetBasis) => 
-        memo.GetHashCode(offsetBasis);
+    public int GetHashCode(int offsetBasis)
+    {
+        memo.GetAll();
+        return memo.GetHashCode(offsetBasis);
+    }
 
     public ReadOnlySpan<A> AsSpan() 
     {

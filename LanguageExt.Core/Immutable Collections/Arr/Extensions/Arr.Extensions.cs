@@ -80,9 +80,5 @@ public static partial class ArrExtensions
             }
             return writer.ToArr();
         }
-        
-        [Pure]
-        public Arr<A> As() =>
-            (Arr<A>)ma;
     }    
 }

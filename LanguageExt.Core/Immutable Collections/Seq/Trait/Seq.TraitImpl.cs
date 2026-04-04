@@ -173,5 +173,5 @@ public partial class Seq :
           .Map(bs => bs.Kind());
 
     static Iterator<A> IterableK<Seq>.ForwardIterator<A>(K<Seq, A> fa) =>
-        new Iterator<A>.IterSeq(+fa);
+        fa.As().Value.GetIterator();
 }

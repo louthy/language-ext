@@ -55,7 +55,14 @@ public readonly struct Set<A> :
     /// Ctor that takes an initial (distinct) set of items
     /// </summary>
     /// <param name="items"></param>
-    public Set(IEnumerable<A> items, bool tryAdd = true) =>
+    public Set(IEnumerable<A> items) : this(items, true)
+    {}
+
+    /// <summary>
+    /// Ctor that takes an initial (distinct) set of items
+    /// </summary>
+    /// <param name="items"></param>
+    public Set(IEnumerable<A> items, bool tryAdd) =>
         value = new SetInternal<OrdDefault<A>, A>(
             items, 
             tryAdd
