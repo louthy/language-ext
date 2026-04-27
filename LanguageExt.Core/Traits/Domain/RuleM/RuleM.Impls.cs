@@ -4,12 +4,12 @@ using System.Text;
 
 namespace LanguageExt.Traits.Domain;
 
-public static partial class RuleK2
+public static partial class RuleM
 {
     public class All<R1, R2, M, A>
-        : RuleK2<All<R1, R2, M, A>, M, A>
-        where R1 : RuleK2<R1, M, A>, new()
-        where R2 : RuleK2<R2, M, A>, new()
+        : RuleM<All<R1, R2, M, A>, M, A>
+        where R1 : RuleM<R1, M, A>, new()
+        where R2 : RuleM<R2, M, A>, new()
         where M : Monad<M>
     {
         public R1 First => R1.Instance;
@@ -23,9 +23,9 @@ public static partial class RuleK2
 }
 
     public class Any<R1, R2, M, A>
-        : RuleK2<Any<R1, R2, M, A>, M, A>
-        where R1 : RuleK2<R1, M, A>, new()
-        where R2 : RuleK2<R2, M, A>, new()
+        : RuleM<Any<R1, R2, M, A>, M, A>
+        where R1 : RuleM<R1, M, A>, new()
+        where R2 : RuleM<R2, M, A>, new()
         where M : Monad<M>
     {
         public R1 First => R1.Instance;
@@ -37,8 +37,8 @@ public static partial class RuleK2
             select r1Val || r2Val;
     }
 
-    public class Not<R, M, A> : RuleK2<Not<R, M, A>, M, A>
-        where R : RuleK2<R, M, A>, new()
+    public class Not<R, M, A> : RuleM<Not<R, M, A>, M, A>
+        where R : RuleM<R, M, A>, new()
         where M : Monad<M>
     {
         public R NegatedRule => R.Instance;
@@ -49,7 +49,7 @@ public static partial class RuleK2
     }
 
 
-    public class Lift<R, M, A> : RuleK2<Lift<R, M, A>, M, A>
+    public class Lift<R, M, A> : RuleM<Lift<R, M, A>, M, A>
         where R : Rule<R, A>, new()
         where M : Monad<M>
     {

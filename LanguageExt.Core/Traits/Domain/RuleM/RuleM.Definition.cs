@@ -4,8 +4,8 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Traits.Domain;
 
-public interface RuleK2<SELF, M, A> : Rule<SELF>
-    where SELF : RuleK2<SELF, M, A>, new()
+public interface RuleM<SELF, M, A> : Rule<SELF>
+    where SELF : RuleM<SELF, M, A>, new()
     where M : Monad<M>
 {
     public static abstract K<M, bool> Check(A value);

@@ -1,5 +1,6 @@
 using System.Numerics;
 using System.Runtime.Intrinsics;
+using DomainTypesExamples.Invariants;
 using LanguageExt;
 using LanguageExt.Common;
 using LanguageExt.Traits.Domain;
@@ -14,11 +15,11 @@ namespace DomainTypesExamples;
 /// Operations are performed using SIMD instructions for performance, but if `A`
 /// is not an intrinsic then an exception will be thrown.
 /// </remarks>
-/// <typeparam name="D">Dimension type</typeparam>
+/// <typeparam name="DimSize">Dimension type</typeparam>
 /// <typeparam name="A">Value type</typeparam>
-public class Vector<D, A> :
-    DomainType<Vector<D, A>, Arr<A>>,
-    VectorSpace<Vector<D, A>, A>
+public class Vector<DimSize, A> :
+    DomainType<Vector<DimSize, A>, Arr<A>>,
+    VectorSpace<Vector<DimSize, A>, A>
     where A : 
         IAdditiveIdentity<A, A>,
         IAdditionOperators<A, A, A>,
@@ -26,28 +27,29 @@ public class Vector<D, A> :
         IMultiplyOperators<A, A, A>,
         IDivisionOperators<A, A, A>,
         IUnaryNegationOperators<A, A>
-    where D : Dimension
+    where DimSize : DimensionSize
 {
     readonly Arr<A> Values;
     
     private Vector(Arr<A> values)
     {
-        if(values.Count != D.Size) throw new ArgumentException(nameof(values));
+        if(values.Count != DimSize.Value) throw new ArgumentException(nameof(values));
         Values = values;
     }
 
-    public static Fin<Vector<D, A>> From(Arr<A> repr) =>
-        repr.Count == D.Size
-            ? new Vector<D, A>(repr)
-            : Error.New($"Array isn't the correct size.  Expected: {D.Size}, got: {repr.Count}");
+    public static Fin<Vector<DimSize, A>> From(Arr<A> repr) =>
+        SizeEqualsTo<DimSize, Arr<int>>
+            .Validate(repr,
+            (r, v) => Error.New($"Array isn't the correct size. " +
+                                $"Expected: {r.Value}, got: {v}"));
 
     public Arr<A> To() => 
         Values;
 
     public override bool Equals(object? obj) =>
-        obj is Vector<D, A> rhs && Equals(rhs);
+        obj is Vector<DimSize, A> rhs && Equals(rhs);
 
-    public virtual bool Equals(Vector<D, A>? other)
+    public virtual bool Equals(Vector<DimSize, A>? other)
     {
         var ia = Values.GetEnumerator();
         var ib = (other?.To() ?? Arr.empty<A>()).GetEnumerator();
@@ -62,15 +64,15 @@ public class Vector<D, A> :
     public override int GetHashCode() =>
         hash(Values);
 
-    public static bool operator ==(Vector<D, A>? left, Vector<D, A>? right) => 
+    public static bool operator ==(Vector<DimSize, A>? left, Vector<DimSize, A>? right) => 
         left?.Equals(right) ?? right is null;
 
-    public static bool operator !=(Vector<D, A>? left, Vector<D, A>? right) => 
+    public static bool operator !=(Vector<DimSize, A>? left, Vector<DimSize, A>? right) => 
         !(left == right);
 
-    public static Vector<D, A> operator -(Vector<D, A> value)
+    public static Vector<DimSize, A> operator -(Vector<DimSize, A> value)
     {
-        var vector = new A[D.Size];
+        var vector = new A[DimSize.Value];
         var ix     = 0;
         foreach (var x in value.To())
         {
@@ -79,11 +81,11 @@ public class Vector<D, A> :
         return new(Arr.create(vector));
     }
 
-    public static Vector<D, A> operator +(Vector<D, A> left, Vector<D, A> right) 
+    public static Vector<DimSize, A> operator +(Vector<DimSize, A> left, Vector<DimSize, A> right) 
     {
-        var vector = new A[D.Size];
-        var rem    = D.Size % Vector<A>.Count;
-        var total  = D.Size - rem;
+        var vector = new A[DimSize.Value];
+        var rem    = DimSize.Value % Vector<A>.Count;
+        var total  = DimSize.Value - rem;
         var larray = left.Values;
         var rarray = right.Values;
 
@@ -96,18 +98,18 @@ public class Vector<D, A> :
         }
 
         // Perform the remainder of the operation that couldn't fit into a SIMD intrinsic
-        for (var i = D.Size - rem; i < D.Size; i++)
+        for (var i = DimSize.Value - rem; i < DimSize.Value; i++)
         {
             vector[i] = left.Values[i] + right.Values[i];
         }        
         return new(Arr.create(vector));
     }
     
-    public static Vector<D, A> operator -(Vector<D, A> left, Vector<D, A> right) 
+    public static Vector<DimSize, A> operator -(Vector<DimSize, A> left, Vector<DimSize, A> right) 
     {
-        var vector = new A[D.Size];
-        var rem    = D.Size % Vector<A>.Count;
-        var total  = D.Size - rem;
+        var vector = new A[DimSize.Value];
+        var rem    = DimSize.Value % Vector<A>.Count;
+        var total  = DimSize.Value - rem;
         var larray = left.Values;
         var rarray = right.Values;
 
@@ -120,7 +122,7 @@ public class Vector<D, A> :
         }
 
         // Perform the remainder of the operation that couldn't fit into a SIMD intrinsic
-        for (var i = D.Size - rem; i < D.Size; i++)
+        for (var i = DimSize.Value - rem; i < DimSize.Value; i++)
         {
             vector[i] = left.Values[i] - right.Values[i];
         }        
@@ -130,11 +132,11 @@ public class Vector<D, A> :
     /// <summary>
     /// Returns a new vector whose values are the product of each pair of elements in two specified vectors.
     /// </summary>
-    public static Vector<D, A> operator *(Vector<D, A> left, Vector<D, A> right) 
+    public static Vector<DimSize, A> operator *(Vector<DimSize, A> left, Vector<DimSize, A> right) 
     {
-        var vector = new A[D.Size];
-        var rem    = D.Size % Vector<A>.Count;
-        var total  = D.Size - rem;
+        var vector = new A[DimSize.Value];
+        var rem    = DimSize.Value % Vector<A>.Count;
+        var total  = DimSize.Value - rem;
         var larray = left.Values;
         var rarray = right.Values;
 
@@ -147,18 +149,18 @@ public class Vector<D, A> :
         }
 
         // Perform the remainder of the operation that couldn't fit into a SIMD intrinsic
-        for (var i = D.Size - rem; i < D.Size; i++)
+        for (var i = DimSize.Value - rem; i < DimSize.Value; i++)
         {
             vector[i] = left.Values[i] * right.Values[i];
         }        
         return new(Arr.create(vector));
     }
 
-    public static Vector<D, A> operator *(Vector<D, A> left, A right) 
+    public static Vector<DimSize, A> operator *(Vector<DimSize, A> left, A right) 
     {
-        var vector = new A[D.Size];
-        var rem    = D.Size % Vector<A>.Count;
-        var total  = D.Size - rem;
+        var vector = new A[DimSize.Value];
+        var rem    = DimSize.Value % Vector<A>.Count;
+        var total  = DimSize.Value - rem;
         var larray = left.Values;
 
         // Perform the operation using SIMD intrinsics
@@ -169,18 +171,18 @@ public class Vector<D, A> :
         }
 
         // Perform the remainder of the operation that couldn't fit into a SIMD intrinsic
-        for (var i = D.Size - rem; i < D.Size; i++)
+        for (var i = DimSize.Value - rem; i < DimSize.Value; i++)
         {
             vector[i] = left.Values[i] * right;
         }        
         return new(Arr.create(vector));
     }
 
-    public static Vector<D, A> operator /(Vector<D, A> left, A right) 
+    public static Vector<DimSize, A> operator /(Vector<DimSize, A> left, A right) 
     {
-        var vector = new A[D.Size];
-        var rem    = D.Size % Vector<A>.Count;
-        var total  = D.Size - rem;
+        var vector = new A[DimSize.Value];
+        var rem    = DimSize.Value % Vector<A>.Count;
+        var total  = DimSize.Value - rem;
         var larray = left.Values;
 
         // Perform the operation using SIMD intrinsics
@@ -191,7 +193,7 @@ public class Vector<D, A> :
         }
 
         // Perform the remainder of the operation that couldn't fit into a SIMD intrinsic
-        for (var i = D.Size - rem; i < D.Size; i++)
+        for (var i = DimSize.Value - rem; i < DimSize.Value; i++)
         {
             vector[i] = left.Values[i] / right;
         }        
@@ -201,7 +203,7 @@ public class Vector<D, A> :
     /// <summary>
     /// Calculate the dot product between two vectors 
     /// </summary>
-    public A Dot(Vector<D, A> rhs) =>
+    public A Dot(Vector<DimSize, A> rhs) =>
         (this * rhs).Sum();
 
     /// <summary>
@@ -209,8 +211,8 @@ public class Vector<D, A> :
     /// </summary>
     public A Sum()
     {
-        var rem   = D.Size % 16;
-        var total = D.Size - rem;
+        var rem   = DimSize.Value % 16;
+        var total = DimSize.Value - rem;
         var array = Values;
         var sum   = A.AdditiveIdentity;
 
@@ -225,7 +227,7 @@ public class Vector<D, A> :
         }
         
         // Perform the remainder of the operation that couldn't fit into a SIMD intrinsic
-        for (var i = D.Size - rem; i < D.Size; i++)
+        for (var i = DimSize.Value - rem; i < DimSize.Value; i++)
         {
             sum += array[i];
         }        

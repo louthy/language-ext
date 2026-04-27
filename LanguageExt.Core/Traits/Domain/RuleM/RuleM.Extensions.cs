@@ -3,10 +3,10 @@ using LanguageExt.Common;
 
 namespace LanguageExt.Traits.Domain;
 
-public static partial class RuleK2Extensions
+public static partial class RuleMExtensions
 {
     extension<SELF, M, A>(SELF)
-        where SELF : RuleK2<SELF, M, A>, new()
+        where SELF : RuleM<SELF, M, A>, new()
         where M : Monad<M>
     {
         public static FinT<M, A> Validate(A value, Func<SELF, A, K<M, Error>> Fail) =>

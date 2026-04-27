@@ -16,7 +16,7 @@ public interface Rule<SELF, A> : Rule<SELF>
 {
     public static abstract bool Check(A value);
 
-    public static virtual RuleK.Lift<SELF, M, A> ToRuleK<M>() 
+    public static virtual RuleM.Lift<SELF, M, A> ToRuleK<M>() 
         where M : Monad<M> => 
         new();
 
@@ -25,6 +25,3 @@ public interface Rule<SELF, A> : Rule<SELF>
 
 }
 
-public interface ComposedRule<R1, R2, A>
-    where R1 : Rule<R1, A>, new()
-    where R2 : Rule<R2, A>, new();
