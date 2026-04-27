@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using LanguageExt.Common;
+using LanguageExt.Traits.Domain;
 using Xunit;
 
 namespace LanguageExt.Tests;
@@ -15,6 +16,16 @@ public sealed class InMemoryExistingEmails : Const<IO<Seq<string>>>
     public static IO<Seq<string>> Value =>
         IO.pure<Seq<string>>([First, Second]);
 }
+
+public sealed class OtherInMemoryExistingEmails : Const<IO<Seq<string>>>
+{
+    public const string First = "other.email1@gmail.com";
+    public const string Second = "h.f.alvarez.r@gmail.com";
+
+    public static IO<Seq<string>> Value =>
+        IO.pure<Seq<string>>([First, Second]);
+}
+
 
 
 public sealed class ExistingEmail<Emails> 
@@ -61,26 +72,13 @@ public sealed class RuleKTest
 
         Assert.True(resultM.Run().IsSucc);
     }
-
-    [Fact]
-    public void Validate_ShouldReturnSuccess_PureOverload()
-    {
-        const string value = InMemoryExistingEmails.First;
-
-        var resultM = ExistingEmail<InMemoryExistingEmails>
-            .Validate(value, Error (r, v) => throw new UnreachableException())
-            .Run();
-
-        Assert.True(resultM.Run().IsSucc);
-    }
-
     [Fact]
     public void Validate_ShouldReturnSuccess_ParameterlessOverload()
     {
         const string value = InMemoryExistingEmails.First;
 
         var resultM = ExistingEmail<InMemoryExistingEmails>
-            .Validate(value, Error () => throw new UnreachableException())
+            .Validate(value, K<IO, Error> () => throw new UnreachableException())
             .Run();
 
         Assert.True(resultM.Run().IsSucc);
@@ -92,7 +90,7 @@ public sealed class RuleKTest
         const string value = InMemoryExistingEmails.First;
 
         var resultM = ExistingEmail<InMemoryExistingEmails>
-            .Validate(value, Error.New("Que"))
+            .Validate(value, IO.pure(Error.New("Que")))
             .Run();
 
         Assert.True(resultM.Run().IsSucc);
@@ -119,31 +117,6 @@ public sealed class RuleKTest
 
         var result = mResult.Run();
 
-        Assert.True(result.IsFail);
-        Assert.Equal(errorMsg, result.FailSpan().ToArray()[0].Message);
-    }
-
-    [Fact]
-    public void Validate_ShouldReturnError_DetailAssertParamsOfFailDelegate_PureOverload()
-    {
-        const string value = "12345678901234567";
-        const string errorMsg = "Invalid value through Func<R, V, Error>";
-
-        var mResult = ExistingEmail<InMemoryExistingEmails>
-            .Validate(value,
-                     (rule, fValue) =>
-                     {
-                         Assert.Equal(value, fValue);
-                         Assert.IsType<ExistingEmail<InMemoryExistingEmails>>(rule);
-                         Assert.Equal(InMemoryExistingEmails.Value.Run(), rule.Max.Run());
-
-                         return Error.New(errorMsg);
-                     })
-                     .Run();
-
-        var result = mResult.Run();
-
-        Assert.True(result.IsFail);
         Assert.Equal(errorMsg, result.FailValue.Message);
     }
 
@@ -154,7 +127,7 @@ public sealed class RuleKTest
         const string errorMsg = "Invalid value through Func<Error>";
 
         var mResult = ExistingEmail<InMemoryExistingEmails>
-            .Validate(value, () => Error.New(errorMsg))
+            .Validate(value, () => IO.pure(Error.New(errorMsg)))
             .Run();
 
         var result = mResult.Run();
@@ -170,12 +143,91 @@ public sealed class RuleKTest
         const string errorMsg = "Invalid value through Error";
 
         var mResult = ExistingEmail<InMemoryExistingEmails>
-            .Validate(value, Error.New(errorMsg))
+            .Validate(value, IO.pure(Error.New(errorMsg)))
             .Run();
 
         var result = mResult.Run();
 
         Assert.True(result.IsFail);
         Assert.Equal(errorMsg, result.FailValue.Message);
+    }
+
+    [Fact]
+    public void Not_ShouldNegate()
+    {
+        const string notExistEmail = "1";
+        const string existEmail = InMemoryExistingEmails.First;
+
+        Func<string, string> errorMsg = val => $"The email {val} already exists";
+
+        var expErrorMsg = errorMsg(existEmail);
+
+        var mSuccess = ruleForK<IO, string>
+            .Not<ExistingEmail<InMemoryExistingEmails>>
+            .Validate(notExistEmail, K<IO, Error> (r, v) => throw new UnreachableException())
+            .Run();
+
+        var mFailure = ruleForK<IO, string>
+            .Not<ExistingEmail<InMemoryExistingEmails>>
+            .Validate(
+                existEmail, 
+                K<IO, Error> (r, v) => IO.pure(Error.New(errorMsg(v))))
+            .Run();
+
+        Assert.Equal(notExistEmail, mSuccess.Run().SuccValue);
+        Assert.Equal(expErrorMsg, mFailure.Run().FailValue.Message);
+    }
+
+    [Fact]
+    public void All_ShouldVerifyDuplicatedInMemory()
+    {
+        const string validValue = InMemoryExistingEmails.Second;
+        const string invalidValue = InMemoryExistingEmails.First;
+
+        Func<string, string> errorMsg =
+            val => $"The email {val} is NOT duplicated";
+
+        var expErrorMsg = errorMsg(invalidValue);
+
+        var mValid = ruleForK<IO, string>
+            .All<ExistingEmail<InMemoryExistingEmails>, ExistingEmail<OtherInMemoryExistingEmails>>
+            .Validate(validValue, K<IO, Error> (r, v) => throw new UnreachableException())
+            .Run();
+
+        var mInvalid = ruleForK<IO, string>
+            .All<ExistingEmail<InMemoryExistingEmails>, ExistingEmail<OtherInMemoryExistingEmails>>
+            .Validate(invalidValue, 
+                K<IO, Error> (r, v) => IO.pure(Error.New(errorMsg(v))))
+            .Run();
+
+        Assert.Equal(validValue, mValid.Run().SuccValue);
+        Assert.Equal(expErrorMsg, mInvalid.Run().FailValue.Message);
+    }
+
+    [Fact]
+    public void Any_ShouldVerifyIfExistsInAnyMemory()
+    {
+        const string validValue = InMemoryExistingEmails.First;
+        const string invalidValue = "a1";
+
+        Func<string, string> errorMsg =
+            val => $"The email {val} does not exists in one of the lists";
+
+        var expErrorMsg = errorMsg(invalidValue);
+
+        var mValid = ruleForK<IO, string>
+            .Any<ExistingEmail<InMemoryExistingEmails>, ExistingEmail<OtherInMemoryExistingEmails>>
+            .Validate(validValue, K<IO, Error> (r, v) => throw new UnreachableException())
+            .Run();
+
+        var mInvalid = ruleForK<IO, string>
+            .Any<ExistingEmail<InMemoryExistingEmails>, ExistingEmail<OtherInMemoryExistingEmails>>
+            .Validate(invalidValue, 
+                K<IO, Error> (r, v) => IO.pure(Error.New(errorMsg(v))))
+            .Run();
+
+        Assert.Equal(validValue, mValid.Run().SuccValue);
+        Assert.Equal(expErrorMsg, mInvalid.Run().FailValue.Message);
+
     }
 }
