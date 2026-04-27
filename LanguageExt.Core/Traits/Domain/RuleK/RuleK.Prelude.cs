@@ -5,25 +5,21 @@ namespace LanguageExt;
 
 public static partial class Prelude
 {
-    public partial class ruleForK2<M, A>
-        where M : Monad<M>
+    public partial class ruleFor<F, A>
+        where F : Functor<F>
     {
         public sealed class All<R1, R2>
-            : RuleK2.All<R1, R2, M, A>, RuleK2<All<R1, R2>, M, A>
-            where R1 : RuleK2<R1, M, A>, new()
-            where R2 : RuleK2<R2, M, A>, new();
+            : RuleK.All<R1, R2, F, A>, RuleK<All<R1, R2>, F, A>
+            where R1 : RuleK<R1, F, A>, new()
+            where R2 : RuleK<R2, F, A>, new();
 
         public sealed class Any<R1, R2>
-            : RuleK2.Any<R1, R2, M, A>, RuleK2<Any<R1, R2>, M, A>
-            where R1 : RuleK2<R1, M, A>, new()
-            where R2 : RuleK2<R2, M, A>, new();
+            : RuleK.Any<R1, R2, F, A>, RuleK<Any<R1, R2>, F, A>
+            where R1 : RuleK<R1, F, A>, new()
+            where R2 : RuleK<R2, F, A>, new();
 
         public sealed class Not<R>
-            : RuleK2.Not<R, M, A>, RuleK2<Not<R>, M, A>
-            where R : RuleK2<R, M, A>, new();
-
-        public sealed class Lift<R>
-            : RuleK2.Lift<R, M, A>, RuleK2<Lift<R>, M, A>
-            where R : Rule<R, A>, new();
+            : RuleK.Not<R, F, A>, RuleK<Not<R>, F, A>
+            where R : RuleK<R, F, A>, new();
     }
 }

@@ -4,58 +4,42 @@ using System.Text;
 
 namespace LanguageExt.Traits.Domain;
 
-public static partial class RuleK2
+public static partial class RuleK
 {
-    public class All<R1, R2, M, A>
-        : RuleK2<All<R1, R2, M, A>, M, A>
-        where R1 : RuleK2<R1, M, A>, new()
-        where R2 : RuleK2<R2, M, A>, new()
-        where M : Monad<M>
+    public class All<R1, R2, F, A>
+        : RuleK<All<R1, R2, F, A>, F, A>
+        where R1 : RuleK<R1, F, A>, new()
+        where R2 : RuleK<R2, F, A>, new()
+        where F : Functor<F>
     {
         public R1 First => R1.Instance;
 
         public R2 Second => R2.Instance;
 
-        public static K<M, bool> Check(A value) =>
-            from r1Val in R1.Check(value)
-            from r2Val in R2.Check(value)
-            select r1Val && r2Val;
-}
-
-    public class Any<R1, R2, M, A>
-        : RuleK2<Any<R1, R2, M, A>, M, A>
-        where R1 : RuleK2<R1, M, A>, new()
-        where R2 : RuleK2<R2, M, A>, new()
-        where M : Monad<M>
-    {
-        public R1 First => R1.Instance;
-        public R2 Second => R2.Instance;
-
-        public static K<M, bool> Check(A value) =>
-            from r1Val in R1.Check(value)
-            from r2Val in R2.Check(value)
-            select r1Val || r2Val;
+        public static bool Check(K<F, A> value) =>
+            R1.Check(value) && R2.Check(value);
     }
 
-    public class Not<R, M, A> : RuleK2<Not<R, M, A>, M, A>
-        where R : RuleK2<R, M, A>, new()
-        where M : Monad<M>
+    public class Any<R1, R2, F, A>
+        : RuleK<Any<R1, R2, F, A>, F, A>
+        where R1 : RuleK<R1, F, A>, new()
+        where R2 : RuleK<R2, F, A>, new()
+        where F : Functor<F>
+    {
+        public R1 First => R1.Instance;
+        public R2 Second => R2.Instance;
+
+        public static bool Check(K<F, A> value) =>
+            R1.Check(value) || R2.Check(value);
+    }
+
+    public class Not<R, F, A> : RuleK<Not<R, F, A>, F, A>
+        where R : RuleK<R, F, A>, new()
+        where F : Functor<F>
     {
         public R NegatedRule => R.Instance;
 
-        public static K<M, bool> Check(A value) =>
-            from rVal in R.Check(value)
-            select !rVal;
-    }
-
-
-    public class Lift<R, M, A> : RuleK2<Lift<R, M, A>, M, A>
-        where R : Rule<R, A>, new()
-        where M : Monad<M>
-    {
-        public R Lifted => R.Instance;
-
-        public static K<M, bool> Check(A value) =>
-            M.Pure(R.Check(value));
+        public static bool Check(K<F, A> value) =>
+            !R.Check(value);
     }
 }
