@@ -10,7 +10,6 @@ public static partial class RuleK
         : RuleK<All<R1, R2, F, A>, F, A>
         where R1 : RuleK<R1, F, A>, new()
         where R2 : RuleK<R2, F, A>, new()
-        where F : Functor<F>
     {
         public R1 First => R1.Instance;
 
@@ -24,7 +23,6 @@ public static partial class RuleK
         : RuleK<Any<R1, R2, F, A>, F, A>
         where R1 : RuleK<R1, F, A>, new()
         where R2 : RuleK<R2, F, A>, new()
-        where F : Functor<F>
     {
         public R1 First => R1.Instance;
         public R2 Second => R2.Instance;
@@ -33,9 +31,9 @@ public static partial class RuleK
             R1.Check(value) || R2.Check(value);
     }
 
-    public class Not<R, F, A> : RuleK<Not<R, F, A>, F, A>
+    public class Not<R, F, A> 
+        : RuleK<Not<R, F, A>, F, A>
         where R : RuleK<R, F, A>, new()
-        where F : Functor<F>
     {
         public R NegatedRule => R.Instance;
 
