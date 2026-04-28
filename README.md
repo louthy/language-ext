@@ -275,6 +275,10 @@ These work a little like type-aliasing but they impart semantic meaning and some
 | `Core`   | `VectorSpace<SELF, SCALAR>`          | Scalable values; can add and subtract self, but can only multiply and divide by a scalar. Can also negate.                                                                                                                                        |
 | `Core`   | `Amount <SELF, SCALAR>`              | Quantities, such as the amount of money in USD on a bank account or a file size in bytes. Derives `VectorSpace`, `IdentifierLike`, `DomainType`, and is orderable (comparable).                                                                   |
 | `Core`   | `Locus <SELF, DISTANCE, SCALAR>`     | Works with space-like structures. Spaces have absolute and relative distances. Has an origin/zero point and derives `DomainType`, `IdentifierLike`, `AmountLike` and `VectorSpace`.  `DISTANCE` must also be an `AmountLike<SELF, REPR, SCALAR>`. |
+| `Core` | `Rule<SELF, A>` | An encapsulation of a local Domain Invariant that applies to lower-kind values `A`, like primitives, value objects, aggregate roots, etc. |
+| `Core` | `RuleK<SELF, F, A>` | Same as `Rule<SELF, A>`, encapsulates a local Domain Invariant that applies to higher-kind values `K<F, A>`, like `Seq<A>`, `Option<A>`, etc. |
+| `Core` | `RuleM<SELF, M, A>` | An encapsulation of a non-local Domain Invariant that aplies to lower-kind values `A`, like primitives, value objects, aggregate roots, etc. <br/>It can have different capabilities depending on the monad `M` used. |
+| `Core` | `RuleT<SELF, T, M, A>` | Same as `RuleM<SELF, M, A>`, encapsulates a non-local Domain Invariant that applies to higher-kind values `K<T, K<M, A>>`, like `OptionT<IO>`, `ChronicleT<Eff<RT>>`, etc. <br/>It can have different capabilities depending on the monad `T` and `M` used. |
 
 _These features are still a little in-flux as of 17th Oct 2024 - they may evolve, be renamed, or removed - but I like the idea!_
 
