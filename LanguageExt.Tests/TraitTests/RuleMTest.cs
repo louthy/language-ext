@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using LanguageExt.Common;
+using LanguageExt.Core.Traits.Domain.RuleK.RuleM;
 using LanguageExt.Traits.Domain;
 using Xunit;
 

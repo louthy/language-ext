@@ -5,6 +5,7 @@ using System.Text;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 using LanguageExt.Traits.Domain;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace LanguageExt.Tests;
@@ -40,66 +41,49 @@ public sealed class N16 : Const<int>
 public sealed class RuleTest
 {
     [Fact]
-    public void Check_ShouldReturnTrue()
+    public void Check_ShouldValidateLength()
     {
-        const string value = "1234567890123456";
+        const string validValue = "1234567890123456";
+        const string invalidValue = "12345678901234567";
 
-        var valueChecked = MaxLength<N16>.Check(value);
+        var validResult = MaxLength<N16>.Check(validValue);
+        var invalidResult = MaxLength<N16>.Check(invalidValue);
 
-        Assert.True(valueChecked);
+        Assert.True(validResult);
+        Assert.False(invalidResult);
     }
 
     [Fact]
-    public void Check_ShouldReturnFalse()
-    {
-        const string value = "12345678901234567";
-
-        var valueChecked = MaxLength<N16>.Check(value);
-        
-        Assert.False(valueChecked);
-    }
-
-    [Fact]
-    public void Validate_ShouldReturnSuccess_PureOverLoad()
+    public void Validate_ShouldReturnSuccess()
     {
         const string value = "1234567890123456";
 
-        var mResult = MaxLength<N16>.Validate(
+        var mResult1 = MaxLength<N16>.Validate(
             value,
             (_, _) => throw new UnreachableException());
 
-        Assert.True(mResult.IsSucc);
-    }
-
-    [Fact]
-    public void Validate_ShouldReturnSuccess_ParameterlessOverLoad()
-    {
-        const string value = "1234567890123456";
-
-        var mResult = MaxLength<N16>.Validate(
+        var mResult2 = MaxLength<N16>.Validate(
             value, () => throw new UnreachableException());
 
-        Assert.True(mResult.IsSucc);
-    }
 
-    [Fact]
-    public void Validate_ShouldReturnSuccess_DirectOverLoad()
-    {
-        const string value = "1234567890123456";
-
-        var mResult = MaxLength<N16>.Validate(
+        var mResult3 = MaxLength<N16>.Validate(
             value, Error.New("Que"));
 
-        Assert.True(mResult.IsSucc);
+
+        Assert.Equal(value, mResult1.SuccValue);
+        Assert.Equal(value, mResult2.SuccValue);
+        Assert.Equal(value, mResult3.SuccValue);
     }
 
     [Fact]
     public void Validate_ShouldReturnError_DetailAssertParamsOfFailDelegate_PureOverload()
     {
         const string value = "12345678901234567";
-        const string errorMsg = "Invalid value through Func<R, V, Error>";
+        const string errorMsg1 = "Invalid value through Func<R, V, Error>";
+        const string errorMsg2 = "Invalid value through Func<Error>";
+        const string errorMsg3 = "Invalid value through Error";
 
-        var mResult = MaxLength<N16>.Validate(
+        var mResult1 = MaxLength<N16>.Validate(
             value,
             (rule, fValue) =>
             {
@@ -107,38 +91,19 @@ public sealed class RuleTest
                 Assert.IsType<MaxLength<N16>>(rule);
                 Assert.Equal(N16.Value, rule.Max);
 
-                return Error.New(errorMsg);
+                return Error.New(errorMsg1);
             });
 
-        Assert.True(mResult.IsFail);
-        Assert.Equal(errorMsg, mResult.FailValue.Message);
+        var mResult2 = MaxLength<N16>.Validate(
+            value, () => Error.New(errorMsg2));
+
+        var mResult3 = MaxLength<N16>.Validate(value, Error.New(errorMsg3));
+
+        Assert.Equal(errorMsg1, mResult1.FailValue.Message);
+        Assert.Equal(errorMsg2, mResult2.FailValue.Message);
+        Assert.Equal(errorMsg3, mResult3.FailValue.Message);
     }
-
-    [Fact]
-    public void Validate_ShouldReturnError_DetailAssertParamsOfFailDelegate_ParameterlessOverload()
-    {
-        const string value = "12345678901234567";
-        const string errorMsg = "Invalid value through Func<Error>";
-
-        var mResult = MaxLength<N16>.Validate(
-            value, () => Error.New(errorMsg));
-
-        Assert.True(mResult.IsFail);
-        Assert.Equal(errorMsg, mResult.FailValue.Message);
-    }
-
-    [Fact]
-    public void Validate_ShouldReturnError_DetailAssertParamsOfFailDelegate_DirectValue()
-    {
-        const string value = "12345678901234567";
-        const string errorMsg = "Invalid value through Error";
-
-        var mResult = MaxLength<N16>.Validate(value, Error.New(errorMsg));
-
-        Assert.True(mResult.IsFail);
-        Assert.Equal(errorMsg, mResult.FailValue.Message);
-    }
-
+    
     [Fact]
     public void Not_ShouldNegateMaxLength()
     {

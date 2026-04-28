@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using LanguageExt;
+using LanguageExt.Traits;
+using LanguageExt.Traits.Domain;
 
-namespace LanguageExt.Traits.Domain;
+namespace LanguageExt.Core.Traits.Domain.RuleK.RuleM;
 
 public static partial class RuleM
 {

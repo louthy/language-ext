@@ -1,7 +1,8 @@
 ﻿using System;
 using LanguageExt.Common;
+using LanguageExt.Traits;
 
-namespace LanguageExt.Traits.Domain;
+namespace LanguageExt.Core.Traits.Domain.RuleK.RuleM;
 
 public static partial class RuleMExtensions
 {
