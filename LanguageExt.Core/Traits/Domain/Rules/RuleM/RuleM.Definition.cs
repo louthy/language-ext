@@ -1,18 +1,18 @@
 ﻿using System;
 using LanguageExt.Common;
-using LanguageExt.Traits;
-using LanguageExt.Traits.Domain;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Core.Traits.Domain.RuleK.RuleM;
+namespace LanguageExt.Traits.Domain;
 
-public interface RuleM<SELF, M, A> : Rule<SELF>
+public interface RuleM<SELF, M, A>
     where SELF : RuleM<SELF, M, A>, new()
     where M : Monad<M>
 {
+    public static virtual SELF Instance { get; } = new();
+
     public static abstract K<M, bool> Check(A v);
 
-    public static virtual FinT<M, A> Validate(
+    public static virtual FinT<M, A> ValidateM(
         A v, 
         Func<SELF, A, K<M, Error>> Fail) =>
         from followsRule in SELF.Check(v)

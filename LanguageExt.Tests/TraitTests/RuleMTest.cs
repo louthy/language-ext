@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using LanguageExt.Common;
-using LanguageExt.Core.Traits.Domain.RuleK.RuleM;
 using LanguageExt.Traits.Domain;
 using Xunit;
 
@@ -65,7 +64,7 @@ public sealed class RuleMTest
     {
         const string value = InMemoryExistingEmails.First;
 
-        var resultM = ExistingEmail<InMemoryExistingEmails>.Validate(value, K<IO, Error> (r, v) => throw new UnreachableException())
+        var resultM = ExistingEmail<InMemoryExistingEmails>.ValidateM(value, K<IO, Error> (r, v) => throw new UnreachableException())
             .Run();
 
         Assert.True(resultM.Run().IsSucc);
@@ -76,7 +75,7 @@ public sealed class RuleMTest
         const string value = InMemoryExistingEmails.First;
 
         var resultM = ExistingEmail<InMemoryExistingEmails>
-            .Validate(value, K<IO, Error> () => throw new UnreachableException())
+            .ValidateM(value, K<IO, Error> () => throw new UnreachableException())
             .Run();
 
         Assert.True(resultM.Run().IsSucc);
@@ -88,7 +87,7 @@ public sealed class RuleMTest
         const string value = InMemoryExistingEmails.First;
 
         var resultM = ExistingEmail<InMemoryExistingEmails>
-            .Validate(value, IO.pure(Error.New("Que")))
+            .ValidateM(value, IO.pure(Error.New("Que")))
             .Run();
 
         Assert.True(resultM.Run().IsSucc);
@@ -101,7 +100,7 @@ public sealed class RuleMTest
         const string errorMsg = "Invalid value through Func<R, V, K<M, Error>>";
 
         var mResult = ExistingEmail<InMemoryExistingEmails>
-            .Validate(value,
+            .ValidateM(value,
                 (rule, fValue) =>
 
                 {
@@ -125,7 +124,7 @@ public sealed class RuleMTest
         const string errorMsg = "Invalid value through Func<Error>";
 
         var mResult = ExistingEmail<InMemoryExistingEmails>
-            .Validate(value, () => IO.pure(Error.New(errorMsg)))
+            .ValidateM(value, () => IO.pure(Error.New(errorMsg)))
             .Run();
 
         var result = mResult.Run();
@@ -141,7 +140,7 @@ public sealed class RuleMTest
         const string errorMsg = "Invalid value through Error";
 
         var mResult = ExistingEmail<InMemoryExistingEmails>
-            .Validate(value, IO.pure(Error.New(errorMsg)))
+            .ValidateM(value, IO.pure(Error.New(errorMsg)))
             .Run();
 
         var result = mResult.Run();
@@ -160,14 +159,14 @@ public sealed class RuleMTest
 
         var expErrorMsg = errorMsg(existEmail);
 
-        var mSuccess = ruleMFor<IO, string>
+        var mSuccess = RuleM<IO>.For<string>
             .Not<ExistingEmail<InMemoryExistingEmails>>
-            .Validate(notExistEmail, K<IO, Error> (r, v) => throw new UnreachableException())
+            .ValidateM(notExistEmail, K<IO, Error> (r, v) => throw new UnreachableException())
             .Run();
 
-        var mFailure = ruleMFor<IO, string>
+        var mFailure = RuleM<IO>.For<string>
             .Not<ExistingEmail<InMemoryExistingEmails>>
-            .Validate(
+            .ValidateM(
                 existEmail, 
                 K<IO, Error> (r, v) => IO.pure(Error.New(errorMsg(v))))
             .Run();
@@ -187,14 +186,14 @@ public sealed class RuleMTest
 
         var expErrorMsg = errorMsg(invalidValue);
 
-        var mValid = ruleMFor<IO, string>
+        var mValid = RuleM<IO>.For<string>
             .All<ExistingEmail<InMemoryExistingEmails>, ExistingEmail<OtherInMemoryExistingEmails>>
-            .Validate(validValue, K<IO, Error> (r, v) => throw new UnreachableException())
+            .ValidateM(validValue, K<IO, Error> (r, v) => throw new UnreachableException())
             .Run();
 
-        var mInvalid = ruleMFor<IO, string>
+        var mInvalid = RuleM<IO>.For<string>
             .All<ExistingEmail<InMemoryExistingEmails>, ExistingEmail<OtherInMemoryExistingEmails>>
-            .Validate(invalidValue, 
+            .ValidateM(invalidValue, 
                 K<IO, Error> (r, v) => IO.pure(Error.New(errorMsg(v))))
             .Run();
 
@@ -213,14 +212,14 @@ public sealed class RuleMTest
 
         var expErrorMsg = errorMsg(invalidValue);
 
-        var mValid = ruleMFor<IO, string>
+        var mValid = RuleM<IO>.For<string>
             .Any<ExistingEmail<InMemoryExistingEmails>, ExistingEmail<OtherInMemoryExistingEmails>>
-            .Validate(validValue, K<IO, Error> (r, v) => throw new UnreachableException())
+            .ValidateM(validValue, K<IO, Error> (r, v) => throw new UnreachableException())
             .Run();
 
-        var mInvalid = ruleMFor<IO, string>
+        var mInvalid = RuleM<IO>.For<string>
             .Any<ExistingEmail<InMemoryExistingEmails>, ExistingEmail<OtherInMemoryExistingEmails>>
-            .Validate(invalidValue, 
+            .ValidateM(invalidValue, 
                 K<IO, Error> (r, v) => IO.pure(Error.New(errorMsg(v))))
             .Run();
 

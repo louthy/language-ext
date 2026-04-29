@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using LanguageExt.Common;
-using LanguageExt.Traits;
 using LanguageExt.Traits.Domain;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace LanguageExt.Tests;
@@ -51,14 +46,14 @@ public sealed class RuleKTest
     {
         var value = "1234567890123456".AsIterable().ToSeq();
 
-        var mResult1 = MaxSize<N16, Seq, char>.Validate(
+        var mResult1 = MaxSize<N16, Seq, char>.ValidateK(
             value,
             (_, _) => throw new UnreachableException());
 
-        var mResult2 = MaxSize<N16, Seq, char>.Validate(
+        var mResult2 = MaxSize<N16, Seq, char>.ValidateK(
             value, () => throw new UnreachableException());
 
-        var mResult3 = MaxSize<N16, Seq, char>.Validate(
+        var mResult3 = MaxSize<N16, Seq, char>.ValidateK(
             value, Error.New("Que"));
 
         Assert.Equal(value, mResult1.SuccValue);
@@ -75,7 +70,7 @@ public sealed class RuleKTest
         const string errorMsgEp = "Invalid value through Func<Error>";
         const string errorMsgDv = "Invalid value through Error";
 
-        var mResult1 = MaxSize<N16, Seq, char>.Validate(
+        var mResult1 = MaxSize<N16, Seq, char>.ValidateK(
             value,
             (rule, fValue) =>
             {
@@ -86,10 +81,10 @@ public sealed class RuleKTest
                 return Error.New(errorMsgRv);
             });
 
-        var mResult2 = MaxSize<N16, Seq, char>.Validate(
+        var mResult2 = MaxSize<N16, Seq, char>.ValidateK(
             value, () => Error.New(errorMsgEp));
 
-        var mResult3 = MaxSize<N16, Seq, char>.Validate(value, Error.New(errorMsgDv));
+        var mResult3 = MaxSize<N16, Seq, char>.ValidateK(value, Error.New(errorMsgDv));
 
         Assert.Equal(errorMsgRv, mResult1.FailValue.Message);
         Assert.Equal(errorMsgEp, mResult2.FailValue.Message);
@@ -108,9 +103,9 @@ public sealed class RuleKTest
 
         var expErrorMsg = errorMsg(invalidValue);
 
-        var mInvalid = ruleFor<Seq, char>
+        var mInvalid = Rule.ForK<Seq, char>
             .Not<MaxSize<N16, Seq, char>>
-            .Validate(invalidValue.Kind(),
+            .ValidateK(invalidValue.Kind(),
                 (r, value) =>
                 {
                     Assert.Equal(N16.Value, r.NegatedRule.Max);
@@ -118,9 +113,9 @@ public sealed class RuleKTest
                 });
 
 
-        var mValid = ruleFor<Seq, char>
+        var mValid = Rule.ForK<Seq, char>
             .Not<MaxSize<N16, Seq, char>>
-            .Validate(validValue, () => throw new UnreachableException());
+            .ValidateK(validValue, () => throw new UnreachableException());
 
         Assert.Equal(validValue, mValid.SuccValue);
         Assert.Equal(expErrorMsg, mInvalid.FailValue.Message);
@@ -141,30 +136,34 @@ public sealed class RuleKTest
         var expErrorShort = errorMsg(invalidShortValue);
         var expErrorLong = errorMsg(invalidLongValue);
 
-        var mShortInvalid = ruleFor<Seq, char>
+        var mShortInvalid = Rule.ForK<Seq, char>
             .All<MinSize<N2, Seq, char>, MaxSize<N16, Seq, char>>
-            .Validate(invalidShortValue,
-                (minRule, maxRule, value) =>
+            .ValidateK(invalidShortValue,
+                (rule, value) =>
                 {
-                    Assert.Equal(N2.Value, minRule.Instance.Min);
-                    Assert.Equal(N16.Value, maxRule.Instance.Max);
+                    var (f, s) = rule;
+
+                    Assert.Equal(N2.Value, f.Min);
+                    Assert.Equal(N16.Value, s.Max);
 
                     return Error.New(errorMsg(value.As()));
                 });
-        var mLongInvalid = ruleFor<Seq, char>
+        var mLongInvalid = Rule.ForK<Seq, char>
             .All<MinSize<N2, Seq, char>, MaxSize<N16, Seq, char>>
-            .Validate(invalidLongValue,
-                (minRule, maxRule, value) =>
+            .ValidateK(invalidLongValue,
+                (rule, value) =>
                 {
-                    Assert.Equal(N2.Value, minRule.Instance.Min);
-                    Assert.Equal(N16.Value, maxRule.Instance.Max);
-                    
+                    var (f, s) = rule;
+
+                    Assert.Equal(N2.Value, f.Min);
+                    Assert.Equal(N16.Value, s.Max);
+
                     return Error.New(errorMsg(value.As()));
                 });
 
-        var mValid = ruleFor<Seq, char>
+        var mValid = Rule.ForK<Seq, char>
             .All<MinSize<N2, Seq, char>, MaxSize<N16, Seq, char>>
-            .Validate(validValue, () => throw new UnreachableException());
+            .ValidateK(validValue, () => throw new UnreachableException());
 
         Assert.Equal(validValue, mValid.SuccValue);
         Assert.Equal(expErrorShort, mShortInvalid.FailValue.Message);
@@ -185,24 +184,26 @@ public sealed class RuleKTest
 
         var expError = errorMsg(invalidValue);
 
-        var mInvalid = ruleFor<Seq, char>
+        var mInvalid = Rule.ForK<Seq, char>
             .Any<MinSize<N16, Seq, char>, MaxSize<N2, Seq, char>>
-            .Validate(invalidValue,
-                (minRule, maxRule, value) =>
+            .ValidateK(invalidValue,
+                (rule, value) =>
                 {
-                    Assert.Equal(N16.Value, minRule.Instance.Min);
-                    Assert.Equal(N2.Value, maxRule.Instance.Max);
+                    var (f, s) = rule;
+
+                    Assert.Equal(N16.Value, f.Min);
+                    Assert.Equal(N2.Value, s.Max);
 
                     return Error.New(errorMsg(value.As()));
                 });
 
-        var mLongValid = ruleFor<Seq, char>
+        var mLongValid = Rule.ForK<Seq, char>
             .Any<MinSize<N16, Seq, char>, MaxSize<N2, Seq, char>>
-            .Validate(validLongValue, () => throw new UnreachableException());
+            .ValidateK(validLongValue, () => throw new UnreachableException());
 
-        var mShortValid = ruleFor<Seq, char>
+        var mShortValid = Rule.ForK<Seq, char>
             .Any<MinSize<N16, Seq, char>, MaxSize<N2, Seq, char>>
-            .Validate(validShortValue, () => throw new UnreachableException());
+            .ValidateK(validShortValue, () => throw new UnreachableException());
 
         Assert.Equal(validLongValue, mLongValid.SuccValue);
         Assert.Equal(validShortValue, mShortValid.SuccValue);

@@ -7,22 +7,31 @@ using Xunit;
 
 namespace LanguageExt.Tests;
 
-public sealed class UserId : DomainType<UserId, string>, Identifier<UserId>
+public sealed class UserId 
+    : DomainType<UserId, string>, 
+      Identifier<UserId>
 {
     private readonly string _value;
 
     private UserId(string value) =>
         _value = value;
 
-    public static Fin<UserId> From(string repr) => 
-        Guid.TryParse(repr, out _) 
-            ? new UserId(repr) 
-            : Error.New("Invalid length");
-
     public string To() => _value;
 
     public bool Equals(UserId? other) => 
         _value.Equals(other?._value);
+
+    public override bool Equals(object? obj) => 
+        ReferenceEquals(this, obj) || 
+        obj is UserId other && Equals(other);
+
+    public override int GetHashCode() => 
+        _value.GetHashCode();
+
+    public static Fin<UserId> From(string repr) =>
+        Guid.TryParse(repr, out _)
+            ? new UserId(repr)
+            : Error.New("Invalid length");
 
     public static bool operator ==(UserId? left, UserId? right) => 
         object.Equals(left, right);
@@ -135,20 +144,20 @@ public sealed class RuleTTest
         var tryValue = userId1;
 
         var mResult1 = DoesUserExists<RT>
-            .Validate(IO.pure(tryValue),
+            .ValidateT(IO.pure(tryValue),
                       K<ReaderT<RT, IO>, Error> (_, _) => throw new UnreachableException())
             .Run().As()
             .Run(new RT(users)).As()
             .Run();
 
         var mResult2 = DoesUserExists<RT>
-            .Validate(IO.pure(tryValue), K<ReaderT<RT, IO>, Error> () => throw new UnreachableException())
+            .ValidateT(IO.pure(tryValue), K<ReaderT<RT, IO>, Error> () => throw new UnreachableException())
             .Run().As()
             .Run(new RT(users)).As()
             .Run();
 
         var mResult3 = DoesUserExists<RT>
-            .Validate(IO.pure(tryValue), 
+            .ValidateT(IO.pure(tryValue), 
                       ReaderT<RT, IO>.pure(Error.New("No deberia de llegar, nunca")))
             .Run().As()
             .Run(new RT(users)).As()
@@ -178,21 +187,21 @@ public sealed class RuleTTest
         const string expMsg3 = "Good try, I'm proud";
 
         var mResult1 = DoesUserExists<RT>
-            .Validate(IO.pure(tryValue1),
+            .ValidateT(IO.pure(tryValue1),
                 (_, v) => ReaderT<RT, IO>.pure(Error.New(buildMsg(v))))
             .Run().As()
             .Run(new RT(users)).As()
             .Run();
 
         var mResult2 = DoesUserExists<RT>
-            .Validate(IO.pure(tryValue2), 
+            .ValidateT(IO.pure(tryValue2), 
                 () => ReaderT<RT, IO>.pure(Error.New(expMsg2)))
             .Run().As()
             .Run(new RT(users)).As()
             .Run();
 
         var mResult3 = DoesUserExists<RT>
-            .Validate(IO.pure(tryValue3),
+            .ValidateT(IO.pure(tryValue3),
                 ReaderT<RT, IO>.pure(Error.New(expMsg3)))
             .Run().As()
             .Run(new RT(users)).As()
@@ -218,17 +227,17 @@ public sealed class RuleTTest
 
         var expMsg1 = buildMsg(tryValue1);
 
-        var mResult1 = ruleTFor<ReaderT<RT, IO>, IO, UserId>
+        var mResult1 = RuleT<ReaderT<RT, IO>, IO>.For<UserId>
             .Not<DoesUserExists<RT>>
-            .Validate(IO.pure(tryValue1),
+            .ValidateT(IO.pure(tryValue1),
                 (_, v) => ReaderT<RT, IO>.pure(Error.New(buildMsg(v))))
             .Run().As()
             .Run(new RT(users)).As()
             .Run();
 
-        var mResult2 = ruleTFor<ReaderT<RT, IO>, IO, UserId>
+        var mResult2 = RuleT<ReaderT<RT, IO>, IO>.For<UserId>
             .Not<DoesUserExists<RT>>
-            .Validate(IO.pure(tryValue2),
+            .ValidateT(IO.pure(tryValue2),
                 (_, v) => ReaderT<RT, IO>.pure(Error.New(buildMsg(v))))
             .Run().As()
             .Run(new RT(users)).As()
@@ -259,25 +268,25 @@ public sealed class RuleTTest
         var expNotActiveMsg1 = buildMsgIsNotActive(tryValue1);
         var expNotExistsMsg3 = buildMsgDoesNotExists(tryValue3);
 
-        var mResult1 = ruleTFor<ReaderT<RT, IO>, IO, UserId>
+        var mResult1 = RuleT<ReaderT<RT, IO>, IO>.For<UserId>
             .All<DoesUserExists<RT>, IsUserActive<RT>>
-            .Validate(IO.pure(tryValue1),
+            .ValidateT(IO.pure(tryValue1),
                 (r, v) => ReaderT<RT, IO>.pure(Error.New(buildMsgIsNotActive(v))))
             .Run().As()
             .Run(new RT(users)).As()
             .Run();
 
-        var mResult2 = ruleTFor<ReaderT<RT, IO>, IO, UserId>
+        var mResult2 = RuleT<ReaderT<RT, IO>, IO>.For<UserId>
             .All<DoesUserExists<RT>, IsUserActive<RT>>
-            .Validate(IO.pure(tryValue2),
+            .ValidateT(IO.pure(tryValue2),
                 (r, v) => ReaderT<RT, IO>.pure(Error.New("no, jamas")))
             .Run().As()
             .Run(new RT(users)).As()
             .Run();
 
-        var mResult3 = ruleTFor<ReaderT<RT, IO>, IO, UserId>
+        var mResult3 = RuleT<ReaderT<RT, IO>, IO>.For<UserId>
             .All<DoesUserExists<RT>, IsUserActive<RT>>
-            .Validate(IO.pure(tryValue3),
+            .ValidateT(IO.pure(tryValue3),
                 (r, v) => ReaderT<RT, IO>.pure(Error.New(buildMsgDoesNotExists(v))))
             .Run().As()
             .Run(new RT(users)).As()
@@ -310,25 +319,25 @@ public sealed class RuleTTest
 
         var expInvalid3 = buildMsgIsNotActiveOrOldEnought(tryValue3);
 
-        var mResult1 = ruleTFor<ReaderT<RT, IO>, IO, UserId>
+        var mResult1 = RuleT<ReaderT<RT, IO>, IO>.For<UserId>
             .Any<IsUserActive<RT>, UserWasAddedBefore2021<RT>>
-            .Validate(IO.pure(tryValue1),
+            .ValidateT(IO.pure(tryValue1),
                 (r, v) => ReaderT<RT, IO>.pure(Error.New("no, jamas")))
             .Run().As()
             .Run(new RT(users)).As()
             .Run();
 
-        var mResult2 = ruleTFor<ReaderT<RT, IO>, IO, UserId>
+        var mResult2 = RuleT<ReaderT<RT, IO>, IO>.For<UserId>
             .Any<IsUserActive<RT>, UserWasAddedBefore2021<RT>>
-            .Validate(IO.pure(tryValue2),
+            .ValidateT(IO.pure(tryValue2),
                 (r, v) => ReaderT<RT, IO>.pure(Error.New("no, jamas")))
             .Run().As()
             .Run(new RT(users)).As()
             .Run();
 
-        var mResult3 = ruleTFor<ReaderT<RT, IO>, IO, UserId>
+        var mResult3 = RuleT<ReaderT<RT, IO>, IO>.For<UserId>
             .Any<IsUserActive<RT>, UserWasAddedBefore2021<RT>>
-            .Validate(IO.pure(tryValue3),
+            .ValidateT(IO.pure(tryValue3),
                 (r, v) => ReaderT<RT, IO>.pure(Error.New(buildMsgIsNotActiveOrOldEnought(v))))
             .Run().As()
             .Run(new RT(users)).As()

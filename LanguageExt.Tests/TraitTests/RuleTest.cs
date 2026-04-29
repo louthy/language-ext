@@ -63,16 +63,20 @@ public sealed class RuleTest
             (_, _) => throw new UnreachableException());
 
         var mResult2 = MaxLength<N16>.Validate(
+            value, (_) => throw new UnreachableException());
+
+        var mResult3 = MaxLength<N16>.Validate(
             value, () => throw new UnreachableException());
 
 
-        var mResult3 = MaxLength<N16>.Validate(
+        var mResult4 = MaxLength<N16>.Validate(
             value, Error.New("Que"));
 
 
         Assert.Equal(value, mResult1.SuccValue);
         Assert.Equal(value, mResult2.SuccValue);
         Assert.Equal(value, mResult3.SuccValue);
+        Assert.Equal(value, mResult4.SuccValue);
     }
 
     [Fact]
@@ -80,8 +84,9 @@ public sealed class RuleTest
     {
         const string value = "12345678901234567";
         const string errorMsg1 = "Invalid value through Func<R, V, Error>";
-        const string errorMsg2 = "Invalid value through Func<Error>";
-        const string errorMsg3 = "Invalid value through Error";
+        const string errorMsg2 = "Invalid value through Func<V, Error>";
+        const string errorMsg3 = "Invalid value through Func<Error>";
+        const string errorMsg4 = "Invalid value through Error";
 
         var mResult1 = MaxLength<N16>.Validate(
             value,
@@ -95,13 +100,23 @@ public sealed class RuleTest
             });
 
         var mResult2 = MaxLength<N16>.Validate(
-            value, () => Error.New(errorMsg2));
+            value, (v) =>
+            {
+                Assert.Equal(value, v);
 
-        var mResult3 = MaxLength<N16>.Validate(value, Error.New(errorMsg3));
+                return Error.New(errorMsg2);
+            });
+
+        var mResult3 = MaxLength<N16>.Validate(
+            value, () => Error.New(errorMsg3));
+
+        var mResult4 = MaxLength<N16>.Validate(
+            value, Error.New(errorMsg4));
 
         Assert.Equal(errorMsg1, mResult1.FailValue.Message);
         Assert.Equal(errorMsg2, mResult2.FailValue.Message);
         Assert.Equal(errorMsg3, mResult3.FailValue.Message);
+        Assert.Equal(errorMsg4, mResult4.FailValue.Message);
     }
     
     [Fact]
@@ -116,7 +131,7 @@ public sealed class RuleTest
 
         var expErrorMsg = errorMsg(invalidValue);
 
-        var mInvalid = ruleFor<string>
+        var mInvalid = Rule.For<string>
             .Not<MaxLength<N16>>
             .Validate(invalidValue, 
                 (r, value) =>
@@ -126,7 +141,7 @@ public sealed class RuleTest
                 });
 
 
-        var mValid = ruleFor<string>
+        var mValid = Rule.For<string>
             .Not<MaxLength<N16>>
             .Validate(validValue, () => throw new UnreachableException());
 
@@ -149,26 +164,31 @@ public sealed class RuleTest
         var expErrorShort = errorMsg(invalidShortValue);
         var expErrorLong = errorMsg(invalidLongValue);
 
-        var mShortInvalid = ruleFor<string>
+        var mShortInvalid = Rule.For<string>
             .All<MinLength<N2>, MaxLength<N16>>
             .Validate(invalidShortValue,
-                (minRule, maxRule, value) =>
+                (rule, value) =>
                 {
-                    Assert.Equal(N2.Value, minRule.Instance.Min);
-                    Assert.Equal(N16.Value, maxRule.Instance.Max);
+                    var (f, s) = rule;
+
+                    Assert.Equal(N2.Value, f.Min);
+                    Assert.Equal(N16.Value, s.Max);
                     return Error.New(errorMsg(value));
                 });
-        var mLongInvalid = ruleFor<string>
+        var mLongInvalid = Rule.For<string>
             .All<MinLength<N2>, MaxLength<N16>>
             .Validate(invalidLongValue,
-                (minRule, maxRule, value) =>
+                (rule, value) =>
                 {
-                    Assert.Equal(N2.Value, minRule.Instance.Min);
-                    Assert.Equal(N16.Value, maxRule.Instance.Max);
+                    var (f, s) = rule;
+
+                    Assert.Equal(N2.Value, f.Min);
+                    Assert.Equal(N16.Value, s.Max);
+
                     return Error.New(errorMsg(value));
                 });
 
-        var mValid = ruleFor<string>
+        var mValid = Rule.For<string>
             .All<MinLength<N2>, MaxLength<N16>>
             .Validate(validValue, () => throw new UnreachableException());
 
@@ -191,22 +211,24 @@ public sealed class RuleTest
 
         var expError = errorMsg(invalidValue);
         
-        var mInvalid = ruleFor<string>
+        var mInvalid = Rule.For<string>
             .Any<MinLength<N16>, MaxLength<N2>>
             .Validate(invalidValue,
-                (minRule, maxRule, value) =>
+                (rule, value) =>
                 {
-                    Assert.Equal(N16.Value, minRule.Instance.Min);
-                    Assert.Equal(N2.Value, maxRule.Instance.Max);
+                    var (f, s) = rule;
+
+                    Assert.Equal(N16.Value, f.Min);
+                    Assert.Equal(N2.Value, s.Max);
 
                     return Error.New(errorMsg(value));
                 });
 
-        var mLongValid = ruleFor<string>
+        var mLongValid = Rule.For<string>
             .Any<MinLength<N16>, MaxLength<N2>>
             .Validate(validLongValue, () => throw new UnreachableException());
 
-        var mShortValid = ruleFor<string>
+        var mShortValid = Rule.For<string>
             .Any<MinLength<N16>, MaxLength<N2>>
             .Validate(validShortValue, () => throw new UnreachableException());
 
