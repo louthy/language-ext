@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 
@@ -289,26 +290,27 @@ public interface Foldable<T> : IterableK<T>
         T.Contains<EqDefault<A>, A>(value, ta);
     
     /// <summary>
-    /// Find the first element that match the predicate
+    /// Find the first element that matches the predicate
     /// </summary>
-    static virtual Option<A> Find<A>(Func<A, bool> predicate, K<T, A> ta)
+    static virtual Option<A> Find<A>(
+        Option<long> startIndex, 
+        Option<long> count, 
+        Func<A, bool> predicate, 
+        K<T, A> ta)
     {
-        foreach(var head in T.ForwardIterator(ta))
-        {
-            if(predicate(head)) return Some(head);
-        }
-        return default;
-    }
+        var iter = T.ForwardIterator(ta);
+        var ix   = startIndex.IfNone(0);
+        var cnt  = count.IfNone(long.MaxValue);
+        
+        for (; ix > 0L && iter is (Exist<A>, var t); iter = t, ix--) 
+            /* skipping head */;
 
-    /// <summary>
-    /// Find the elements that match the predicate
-    /// </summary>
-    /// <remarks>
-    /// The sequence is lazy
-    /// </remarks>
-    static virtual Iterator<A> FindAll<A>(Func<A, bool> predicate, K<T, A> ta) =>
-        T.ForwardIterator(ta)
-         .Filter(predicate);
+        for (var n = 0L; n < cnt && iter is (Exist<A> (var h), var t); n++, iter = t)
+        {
+            if (predicate(h)) return h;
+        }
+        return None;
+    }
 
     /// <summary>
     /// Get the head item in the foldable or `None`
@@ -473,7 +475,35 @@ public interface Foldable<T> : IterableK<T>
     }
 
     /// <summary>
-    /// Partition a foldable into two sequences based on a predicate
+    /// Find the first index of an element in the structure that matches the predicate
+    /// </summary>
+    /// <param name="startIndex">Initial index to start the search</param>
+    /// <param name="count">Maximum number of elements to test before giving up</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+    static virtual Option<long> IndexOf<A>(
+        Option<long> startIndex, 
+        Option<long> count, 
+        Func<A, bool> predicate, 
+        K<T, A> ta)
+    {
+        var iter = T.ForwardIterator(ta);
+        var ix   = startIndex.IfNone(0);
+        var cnt  = count.IfNone(long.MaxValue);
+        
+        for (; ix > 0L && iter is (Exist<A>, var t); iter = t, ix--) 
+            /* skipping head */;
+
+        for (var n = 0L; n < cnt && iter is (Exist<A> (var h), var t); n++, iter = t)
+        {
+            if (predicate(h)) return n;
+        }
+        return None;
+    }
+    
+    /// <summary>
+    /// Partition foldable into two sequences based on a predicate
     /// </summary>
     /// <param name="f">Predicate function</param>
     /// <param name="ta">Foldable structure</param>

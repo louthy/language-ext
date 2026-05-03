@@ -38,8 +38,17 @@ public partial class Arr :
     static K<Arr, B> Monad<Arr>.Recur<A, B>(A value, Func<A, K<Arr, Next<A, B>>> f) =>
         createRange(Monad.enumerableRecur(value, x => f(x).As().AsEnumerable()));
 
-    static K<Arr, B> Functor<Arr>.Map<A, B>(Func<A, B> f, K<Arr, A> ma) => 
-        ma.As().Map(f);
+    static K<Arr, B> Functor<Arr>.Map<A, B>(Func<A, B> f, K<Arr, A> ma)
+    {
+        var writer = ArrayWriterRef<B>.Init();
+        var astate = ma.StepSetup<Arr, FoldState, A>();
+        while (ma.Step(ref astate, out var a))
+        {
+            var b = f(a);
+            writer.Add(b);
+        }
+        return writer.ToArr();
+    }
 
     static K<Arr, A> Applicative<Arr>.Pure<A>(A value) =>
         singleton(value);

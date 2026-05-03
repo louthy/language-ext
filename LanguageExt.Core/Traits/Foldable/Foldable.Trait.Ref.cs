@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Traits;
 
@@ -155,25 +156,13 @@ public interface Foldable<T, FS> : Foldable<T>, IterableK<T, FS>
     /// </summary>
     static Arr<A> Foldable<T>.ToArr<A>(K<T, A> ta)
     {
-        var buffer = new A[32];
-        var max    = buffer.Length;
-        var length = 0;
-        
-        // TODO: Use ArrayWriter
-        
+        var writer    = ArrayWriterRef<A>.Init();
         var foldState = T.StepSetup(ta);
         while (T.Step(ta, ref foldState, out var value))
         {
-            if (length == max)
-            {
-                max <<= 1;
-                var newBuffer = new A[max];
-                System.Array.Copy(buffer, 0, newBuffer, 0, length);
-                buffer = newBuffer;
-            }
-            buffer[length++] = value;
+            writer.Add(value);
         }
-        return new Arr<A>(buffer, 0, length);
+        return writer.ToArr();
     }
 
     /// <summary>
@@ -258,16 +247,26 @@ public interface Foldable<T, FS> : Foldable<T>, IterableK<T, FS>
     }
 
     /// <summary>
-    /// Find the first element that match the predicate
+    /// Find the first element that matches the predicate
     /// </summary>
-    static Option<A> Foldable<T>.Find<A>(Func<A, bool> predicate, K<T, A> ta)
+    static Option<A> Foldable<T>.Find<A>(
+        Option<long> startIndex, 
+        Option<long> count, 
+        Func<A, bool> predicate, 
+        K<T, A> ta)
     {
         var foldState = T.StepSetup(ta);
-        while (T.Step(ta, ref foldState, out var value))
+        var ix        = startIndex.IfNone(0);
+        var cnt       = count.IfNone(long.MaxValue);
+        
+        for (; ix > 0L && T.Step(ta, ref foldState, out _); ix--) 
+            /* skipping head */;
+
+        for (var n = 0L; n < cnt && T.Step(ta, ref foldState, out var h); n++)
         {
-            if(predicate(value)) return value;
+            if (predicate(h)) return h;
         }
-        return default;
+        return None;
     }
 
     /// <summary>
@@ -376,12 +375,6 @@ public interface Foldable<T, FS> : Foldable<T>, IterableK<T, FS>
         }
         return current;
     }
-
-    /// <summary>
-    /// Find the maximum value in the structure
-    /// </summary>
-    static Option<A> Foldable<T>.Max<A>(K<T, A> ta) =>
-        T.Max<OrdDefault<A>, A>(ta);
     
     /// <summary>
     /// Find the minimum value in the structure
@@ -402,12 +395,6 @@ public interface Foldable<T, FS> : Foldable<T>, IterableK<T, FS>
     }
 
     /// <summary>
-    /// Find the minimum value in the structure
-    /// </summary>
-    static A Foldable<T>.Min<A>(A initialMin, K<T, A> ta) =>
-        T.Min<OrdDefault<A>, A>(initialMin, ta);
-
-    /// <summary>
     /// Find the maximum value in the structure
     /// </summary>
     static A Foldable<T>.Max<OrdA, A>(A initialMax, K<T, A> ta)
@@ -426,12 +413,6 @@ public interface Foldable<T, FS> : Foldable<T>, IterableK<T, FS>
     }
 
     /// <summary>
-    /// Find the maximum value in the structure
-    /// </summary>
-    static A Foldable<T>.Max<A>(A initialMax, K<T, A> ta) =>
-        T.Max<OrdDefault<A>, A>(initialMax, ta);
-
-    /// <summary>
     /// Find the element at the specified index or `None` if out of range
     /// </summary>
     static Option<A> Foldable<T>.At<A>(long index, K<T, A> ta)
@@ -447,7 +428,35 @@ public interface Foldable<T, FS> : Foldable<T>, IterableK<T, FS>
     }
 
     /// <summary>
-    /// Partition a foldable into two sequences based on a predicate
+    /// Find the first index of an element in the structure that matches the predicate
+    /// </summary>
+    /// <param name="startIndex">Initial index to start the search</param>
+    /// <param name="count">Maximum number of elements to test before giving up</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+    static Option<long> Foldable<T>.IndexOf<A>(
+        Option<long> startIndex, 
+        Option<long> count, 
+        Func<A, bool> predicate, 
+        K<T, A> ta)
+    {
+        var foldState = T.StepSetup(ta);
+        var ix        = startIndex.IfNone(0);
+        var cnt       = count.IfNone(long.MaxValue);
+        
+        for (; ix > 0L && T.Step(ta, ref foldState, out _); ix--) 
+            /* skipping head */;
+
+        for (var n = 0L; n < cnt && T.Step(ta, ref foldState, out var h); n++)
+        {
+            if (predicate(h)) return n;
+        }
+        return None;
+    }
+
+    /// <summary>
+    /// Partition foldable into two sequences based on a predicate
     /// </summary>
     /// <param name="f">Predicate function</param>
     /// <param name="ta">Foldable structure</param>

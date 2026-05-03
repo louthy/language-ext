@@ -144,13 +144,6 @@ public static partial class FoldableIOExtensions
             T.HeadIO(ta);
 
         /// <summary>
-        /// Iterate over the structure from left to right, applying the monadic action to each element.
-        /// </summary>
-        public K<M, Unit> IterM<M, B>(Func<A, K<M, B>> f)
-            where M : MonadIO<M> =>
-            T.IterM<K<M, B>, M, A, B>(f, ta);
-
-        /// <summary>
         /// Iterate over the structure from left to right, applying the action to each element.
         /// </summary>
         public IO<Unit> IterIO(Action<A> f) =>
@@ -175,6 +168,20 @@ public static partial class FoldableIOExtensions
     /// <typeparam name="A">Value type</typeparam>
     extension<T, M, A>(K<T, A> ta)
         where T : FoldableIO<T>
+        where M : MonadIO<M>
+    {
+        
+        /// <summary>
+        /// Iterate over the structure from left to right, applying the monadic action to each element.
+        /// </summary>
+        public K<M, Unit> IterM<B>(Func<A, K<M, B>> f) =>
+            T.IterM<K<M, B>, M, A, B>(f, ta);
+    }
+
+    /// <param name="ta">FoldableIO structure</param>
+    /// <typeparam name="A">Value type</typeparam>
+    extension<T, M, A>(K<T, A> ta)
+        where T : FoldableIO<T>
         where M : MonadIO<M>, Alternative<M>
     {
         /// <summary>
@@ -182,6 +189,12 @@ public static partial class FoldableIOExtensions
         /// </summary>
         public K<M, A> HeadM() => 
             T.HeadM<M, A>(ta);
+        
+        /// <summary>
+        /// Find the first element that match the predicate or `Alternative.Empty`
+        /// </summary>
+        public K<M, A> FindM(Func<A, bool> predicate) =>
+            T.FindM<M, A>(predicate, ta);
     }
 
     /// <param name="ta">FoldableIO structure</param>

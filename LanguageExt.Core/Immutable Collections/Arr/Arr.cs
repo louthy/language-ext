@@ -355,13 +355,6 @@ public readonly partial struct Arr<A> :
         InsertRange(Count, items);
 
     /// <summary>
-    /// Clear the array
-    /// </summary>
-    [Pure]
-    public Arr<A> Clear() =>
-        Empty;
-
-    /// <summary>
     /// Get enumerator
     /// </summary>
     [Pure]
@@ -372,8 +365,15 @@ public readonly partial struct Arr<A> :
     /// Get enumerator
     /// </summary>
     [Pure]
-    public IEnumerator<A> GetEnumerator() =>
+    IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
         AsEnumerable().GetEnumerator();
+    
+    /// <summary>
+    /// Get enumerator
+    /// </summary>
+    [Pure]
+    public Enumerator GetEnumerator() =>
+        new (this);
     
     /// <summary>
     /// Get enumerator
@@ -386,70 +386,6 @@ public readonly partial struct Arr<A> :
         {
             yield return iter.Current;
         }
-    }
-
-    /// <summary>
-    /// Find the index of an item
-    /// </summary>
-    [Pure]
-    public long IndexOf(A item, long index = 0, long count = -1, IEqualityComparer<A>? equalityComparer = null)
-    {
-        var eq = equalityComparer ?? EqualityComparer<A>.Default;
-        ignore(Value);
-
-        for (; index >= 0 && index < length && count != 0; index++, count--)
-        {
-            if (eq.Equals(item, this[index])) return index;
-        }
-        return -1;
-    }
-
-    /// <summary>
-    /// Find the index of an item
-    /// </summary>
-    [Pure]
-    public long LastIndexOf(A item, long index = -1, long count = -1, IEqualityComparer<A>? equalityComparer = null)
-    {
-        var eq = equalityComparer ?? EqualityComparer<A>.Default;
-
-        ignore(Value);
-        index = index < 0 ? length - 1 : index;
-
-        for (; index >= 0 && index < length && count != 0; index--, count--)
-        {
-            if (eq.Equals(item, this[index])) return index;
-        }
-        return -1;
-    }
-
-    /// <summary>
-    /// Find the index of an item
-    /// </summary>
-    [Pure]
-    public long IndexOf<EQ>(A item, long index = 0, long count = -1) where EQ : Eq<A>
-    {
-        ignore(Value);
-        for (; index < length && count != 0; index++, count--)
-        {
-            if (EQ.Equals(item, this[index])) return index;
-        }
-        return -1;
-    }
-
-    /// <summary>
-    /// Find the index of an item
-    /// </summary>
-    [Pure]
-    public long LastIndexOf<EQ>(A item, long index = -1, long count = -1) where EQ : Eq<A>
-    {
-        ignore(Value);
-        index = index < 0 ? length - 1 : index;
-
-        for (; index >= 0 && index < length && count != 0; index--, count--)
-        {
-            if (EQ.Equals(item, this[index])) return index;
-        }
-        return -1;
     }
 
     /// <summary>
@@ -529,10 +465,10 @@ public readonly partial struct Arr<A> :
     [Pure]
     public Arr<A> Remove(A valueToRemove, IEqualityComparer<A> equalityComparer)
     {
-        var index = IndexOf(valueToRemove, 0, -1, equalityComparer);
-        return index < 0
+        var index = this.IndexOf(valueToRemove, equalityComparer);
+        return index.IsNone
                    ? this
-                   : RemoveAt(index);
+                   : RemoveAt((long)index);
     }
 
     /// <summary>
@@ -541,40 +477,14 @@ public readonly partial struct Arr<A> :
     [Pure]
     public Arr<A> Remove<EQ>(A valueToRemove) where EQ : Eq<A>
     {
-        var index = IndexOf<EQ>(valueToRemove);
-        return index < 0
+        var index = this.IndexOf<EQ, Arr, A>(valueToRemove);
+        return index.IsNone
                    ? this
-                   : RemoveAt(index);
-    }
-
-    /// <summary>
-    /// Remove all items that match a predicate
-    /// </summary>
-    [Pure]
-    public Arr<A> RemoveAll(Predicate<A> pred)
-    {
-        if (IsEmpty) return this;
-
-        List<long>? removeIndices = null;
-        for (var i = 0L; i < Count; i++)
-        {
-            if (pred(this[i]))
-            {
-                if (removeIndices == null)
-                {
-                    removeIndices = new List<long>();
-                }
-                removeIndices.Add(i);
-            }
-        }
-
-        return removeIndices != null
-                   ? RemoveAtRange(removeIndices.ToArray())
-                   : this;
+                   : RemoveAt((long)index);
     }
 
     [Pure]
-    private Arr<A> RemoveAtRange(params ReadOnlySpan<long> remove)
+    Arr<A> RemoveAtRange(params ReadOnlySpan<long> remove)
     {
         var arr = Value;
         if (remove.Length == 0) return this;
@@ -703,15 +613,17 @@ public readonly partial struct Arr<A> :
     /// Map
     /// </summary>
     [Pure]
-    public Arr<B> Map<B>(Func<A, B> map)
+    public Arr<B> Map<B>(Func<A, B> f)
     {
-        var arr      = Value;
-        var newArray = new B[length];
-        for (var i = 0; i < length; i++)
+        var ma     = this;
+        var writer = ArrayWriterRef<B>.Init();
+        var fs     = IterableK.stepSetup<Arr, Arr.FoldState, A>(ma);
+
+        while (IterableK.step(ma, ref fs, out var x))
         {
-            newArray[i] = map(arr[start + i]);
+            writer.Add(f(x));
         }
-        return new Arr<B>(newArray);
+        return writer.ToArr();
     }
     
     /// <summary>
@@ -739,13 +651,26 @@ public readonly partial struct Arr<A> :
     public K<M, Arr<B>> TraverseM<M, B>(Func<A, K<M, B>> f) 
         where M : Monad<M> =>
         M.Map(x => x.As(), Traversable.traverseM(f, this));
-    
+
     /// <summary>
     /// Filter
     /// </summary>
     [Pure]
-    public Arr<A> Filter(Func<A, bool> pred) =>
-        RemoveAll(x => !pred(x));
+    public Arr<A> Filter(Func<A, bool> f)
+    {
+        var ma     = this;
+        var writer = ArrayWriterRef<A>.Init();
+        var fs     = IterableK.stepSetup<Arr, Arr.FoldState, A>(ma);
+
+        while (IterableK.step(ma, ref fs, out var x))
+        {
+            if (f(x))
+            {
+                writer.Add(x);
+            }
+        }
+        return writer.ToArr();
+    }
 
     [Pure]
     public static Arr<A> operator +(Arr<A> lhs, A rhs) =>

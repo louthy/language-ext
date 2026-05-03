@@ -216,13 +216,6 @@ public static class Foldable
         ta.Find(predicate);
 
     /// <summary>
-    /// Find the elements that match the predicate
-    /// </summary>
-    public static Iterator<A> findAll<T, A>(Func<A, bool> predicate, K<T, A> ta) 
-        where T : Foldable<T> =>
-        ta.FindAll(predicate);
-
-    /// <summary>
     /// Computes the sum of the numbers of a structure.
     /// </summary>
     public static A sum<T, A>(K<T, A> ta) 

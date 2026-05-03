@@ -55,7 +55,6 @@ public class FoldableNonEmptyOrderedCollectionsTestSuite<F>
         suite.HeadSomeTest();
         suite.ProductTest();
         suite.SumTest();
-        suite.FindAllTest();
         suite.FindFalseTest();
         suite.FindTrueTest();
         suite.ContainsEqFalseTest();
@@ -240,12 +239,6 @@ public class FoldableNonEmptyOrderedCollectionsTestSuite<F>
         var notExpect = ItemsCount * 2;
         var res       = Construct(Items).Find(x => x == notExpect);
         Assert.True(res == None, $"{typeof(F).Name} | FindFalseTest failed");
-    }
-
-    void FindAllTest()
-    {
-        var res = Construct(Items).FindAll(x => x > 97);
-        Assert.True(res.AsIterable() == Iterable(98, 99), $"{typeof(F).Name} | FindAllTest failed");
     }
 
     void SumTest()

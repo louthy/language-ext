@@ -79,7 +79,7 @@ public class RangePerfTests
     
     public static void Bench(Seq<(string Name, Action Action)> actions)
     {
-        for (var warmup = 0; warmup < 2000; warmup++)
+        for (var warmup = 0; warmup < 1000; warmup++)
         {
             if(warmup % 100 == 0) Console.WriteLine($"Warmup #{warmup}");
             foreach (var action in actions) action.Action();

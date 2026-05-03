@@ -18,7 +18,8 @@ public readonly partial struct Arr<A>
             end = arr.start   + arr.length;
         }
 
-        public readonly A Current => arr[index];
+        public readonly A Current => 
+            arr[index];
 
         public bool MoveNext() => 
             ++index < end;

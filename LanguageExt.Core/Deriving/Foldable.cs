@@ -169,14 +169,12 @@ public static partial class Deriving
         /// <summary>
         /// Find the first element that match the predicate
         /// </summary>
-        static Option<A> Foldable<Supertype>.Find<A>(Func<A, bool> predicate, K<Supertype, A> ta) =>
-            Subtype.Find(predicate, transform<Supertype, Subtype, A>(ta));
-
-        /// <summary>
-        /// Find the elements that match the predicate
-        /// </summary>
-        static Iterator<A> Foldable<Supertype>.FindAll<A>(Func<A, bool> predicate, K<Supertype, A> ta) =>
-            Subtype.FindAll(predicate, transform<Supertype, Subtype, A>(ta));
+        static Option<A> Foldable<Supertype>.Find<A>(
+            Option<long> startIndex,
+            Option<long> count,
+            Func<A, bool> predicate,
+            K<Supertype, A> ta) =>
+            Subtype.Find(startIndex, count, predicate, transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
         /// Get the head item in the foldable or `None`
@@ -250,6 +248,12 @@ public static partial class Deriving
         static A Foldable<Supertype>.Max<OrdA, A>(A initialMax, K<Supertype, A> ta) =>
             Subtype.Max<OrdA, A>(initialMax, transform<Supertype, Subtype, A>(ta));
 
+        static K<M, A> Foldable<Supertype>.HeadM<M, A>(K<Supertype, A> ta) => 
+            Subtype.HeadM<M, A>(Supertype.Transform(ta));
+
+        static Iterator<A> Foldable<Supertype>.Intersperse<A>(A sep, K<Supertype, A> ta) => 
+            Subtype.Intersperse(sep, transform<Supertype, Subtype, A>(ta));
+
         /// <summary>
         /// Find the maximum value in the structure
         /// </summary>
@@ -261,9 +265,24 @@ public static partial class Deriving
         /// </summary>
         static Option<A> Foldable<Supertype>.At<A>(long index, K<Supertype, A> ta) =>
             Subtype.At(index, transform<Supertype, Subtype, A>(ta));
+                
+        /// <summary>
+        /// Find the first index of an element in the structure that matches the predicate
+        /// </summary>
+        /// <param name="startIndex">Initial index to start the search</param>
+        /// <param name="count">Maximum number of elements to test before giving up</param>
+        /// <param name="ta">Foldable structure</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        static Option<long> Foldable<Supertype>.IndexOf<A>(
+            Option<long> startIndex, 
+            Option<long> count, 
+            Func<A, bool> predicate, 
+            K<Supertype, A> ta) => 
+            Subtype.IndexOf(startIndex, count, predicate, Supertype.Transform(ta));
 
         /// <summary>
-        /// Partition a foldable into two sequences based on a predicate
+        /// Partition foldable into two sequences based on a predicate
         /// </summary>
         /// <param name="f">Predicate function</param>
         /// <param name="ta">Foldable structure</param>

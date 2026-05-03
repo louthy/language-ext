@@ -1,8 +1,6 @@
 ﻿using Xunit;
 using System;
 using System.Linq;
-using static LanguageExt.List;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests;
 
@@ -11,7 +9,7 @@ public class ArrayTests
     [Fact]
     public void ConsTest1()
     {
-        var test = 1.Cons(2.Cons(3.Cons(4.Cons(empty<int>()))));
+        var test = 1.Cons(2.Cons(3.Cons(4.Cons(Lst.empty<int>()))));
 
         var array = test.ToArray();
 
@@ -24,7 +22,7 @@ public class ArrayTests
     [Fact]
     public void ListConstruct()
     {
-        var test = Array(1, 2, 3, 4, 5);
+        var test = Arr(1, 2, 3, 4, 5);
 
         var array = test.ToArray();
 
@@ -38,7 +36,7 @@ public class ArrayTests
     [Fact]
     public void MapTestFluent()
     {
-        var res = Array(1, 2, 3, 4, 5)
+        var res = Arr(1, 2, 3, 4, 5)
                  .Map(x => x * 10)
                  .Filter(x => x > 20)
                  .Fold((x, s) => s + x, 0);
@@ -49,7 +47,7 @@ public class ArrayTests
     [Fact]
     public void ReduceTestFluent()
     {
-        var res = Array(1, 2, 3, 4, 5)
+        var res = Arr(1, 2, 3, 4, 5)
                  .Map(x => x * 10)
                  .Filter(x => x > 20)
                  .Reduce((x, s) => s + x);
@@ -60,7 +58,7 @@ public class ArrayTests
     [Fact]
     public void ReverseListTest1()
     {
-        var list = Array(1, 2, 3, 4, 5);
+        var list = Arr(1, 2, 3, 4, 5);
         var rev  = list.Reverse();
 
         Assert.True(rev[0] == 5);
@@ -70,7 +68,7 @@ public class ArrayTests
     [Fact]
     public void ReverseListTest2()
     {
-        var list = Array(1, 2, 3, 4, 5);
+        var list = Arr(1, 2, 3, 4, 5);
         var rev  = list.Reverse();
 
         Assert.True(rev.IndexOf(1) == 4, "Should have been 4, actually is: " + rev.IndexOf(1));
@@ -80,23 +78,23 @@ public class ArrayTests
     [Fact]
     public void ReverseListTest3()
     {
-        var list = Array(1, 1, 2, 2, 2);
+        var list = Arr(1, 1, 2, 2, 2);
         var rev  = list.Reverse();
 
-        Assert.True(rev.LastIndexOf(1) == 4, "Should have been 4, actually is: " + rev.LastIndexOf(1));
-        Assert.True(rev.LastIndexOf(2) == 2, "Should have been 2, actually is: " + rev.LastIndexOf(5));
+        Assert.True(rev.IndexOfBack(1) == 0, "Should have been 0, actually is: " + rev.IndexOfBack(1));
+        Assert.True(rev.IndexOfBack(2) == 2, "Should have been 2, actually is: " + rev.IndexOfBack(2));
     }
 
     [Fact]
     public void OpEqualTest()
     {
-        var goodOnes = Array(
-            (List(1, 2, 3), List(1, 2, 3)),
+        var goodOnes = Arr(
+            (Lst(1, 2, 3), Lst(1, 2, 3)),
             (Lst<int>.Empty, Lst<int>.Empty)
         );
-        var badOnes = Array(
-            (List(1, 2, 3), List(1, 2, 4)),
-            (List(1, 2, 3), Lst<int>.Empty)
+        var badOnes = Arr(
+            (Lst(1, 2, 3), Lst(1, 2, 4)),
+            (Lst(1, 2, 3), Lst<int>.Empty)
         );
 
         goodOnes.Iter(t => t.Iter((fst, snd) =>
@@ -123,13 +121,13 @@ public class ArrayTests
     [Fact]
     public void EqualsTest()
     {
-        Assert.False(Array(1, 2, 3).Equals(Array<int>()));
-        Assert.False(Array<int>().Equals(Array(1, 2, 3)));
-        Assert.True(Array<int>().Equals(Array<int>()));
-        Assert.True(Array(1).Equals(Array(1)));
-        Assert.True(Array(1, 2).Equals(Array(1, 2)));
-        Assert.False(Array(1, 2).Equals(Array(1, 2, 3)));
-        Assert.False(Array(1, 2, 3).Equals(Array(1, 2)));
+        Assert.False(Arr(1, 2, 3).Equals(Arr<int>()));
+        Assert.False(Arr<int>().Equals(Arr(1, 2, 3)));
+        Assert.True(Arr<int>().Equals(Arr<int>()));
+        Assert.True(Arr(1).Equals(Arr(1)));
+        Assert.True(Arr(1, 2).Equals(Arr(1, 2)));
+        Assert.False(Arr(1, 2).Equals(Arr(1, 2, 3)));
+        Assert.False(Arr(1, 2, 3).Equals(Arr(1, 2)));
     }
 
 
@@ -137,7 +135,7 @@ public class ArrayTests
     public void itemLensGetShouldGetExistingValue()
     {
         var expected = "3";
-        var array    = Array("0", "1", "2", "3", "4", "5");
+        var array    = Arr("0", "1", "2", "3", "4", "5");
         var actual   = Arr<string>.item(3).Get(array);
 
         Assert.Equal(expected, actual);
@@ -148,7 +146,7 @@ public class ArrayTests
     {
         Assert.Throws<IndexOutOfRangeException>(() =>
                                                 {
-                                                    var array  = Array("0", "1", "2", "3", "4", "5");
+                                                    var array  = Arr("0", "1", "2", "3", "4", "5");
                                                     var actual = Arr<string>.item(10).Get(array);
                                                 });
     }
@@ -157,7 +155,7 @@ public class ArrayTests
     public void itemOrNoneLensGetShouldGetExistingValue()
     {
         var expected = "3";
-        var array    = Array("0", "1", "2", "3", "4", "5");
+        var array    = Arr("0", "1", "2", "3", "4", "5");
         var actual   = Arr<string>.itemOrNone(3).Get(array);
 
         Assert.Equal(expected, actual);
@@ -167,7 +165,7 @@ public class ArrayTests
     public void itemOrNoneLensGetShouldReturnNoneForNonExistingValue()
     {
         var expected = Option<string>.None;
-        var array    = Array("0", "1", "2", "3", "4", "5");
+        var array    = Arr("0", "1", "2", "3", "4", "5");
         var actual   = Arr<string>.itemOrNone(10).Get(array);
 
         Assert.Equal(expected, actual);

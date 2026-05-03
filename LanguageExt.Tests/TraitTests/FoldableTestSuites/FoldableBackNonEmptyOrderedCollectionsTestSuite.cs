@@ -58,7 +58,6 @@ public class FoldableBackNonEmptyOrderedCollectionsTestSuite<F>
         suite.PartitionTest();
         suite.AtTest();
         suite.LastSomeTest();
-        suite.FindAllBackTest();
         suite.FindBackFalseTest();
         suite.FindBackTrueTest();
         suite.ContainsEqFalseTest();
@@ -230,12 +229,6 @@ public class FoldableBackNonEmptyOrderedCollectionsTestSuite<F>
         var notExpect = ItemsCount * 2;
         var res       = Construct(ItemsR).FindBack(x => x == notExpect);
         Assert.True(res == None, $"{typeof(F).Name} | FindBackFalseTest failed");
-    }
-
-    void FindAllBackTest()
-    {
-        var res = Construct(ItemsR).FindAllBack(x => x > 97);
-        Assert.True(res.AsIterable() == Iterable(99, 98), $"{typeof(F).Name} | FindAllBackTest failed");
     }
 
     void LastSomeTest()

@@ -232,16 +232,26 @@ public interface FoldableBack<T, FS> : FoldableBack<T>, IterableBackK<T, FS>
     }
 
     /// <summary>
-    /// Find the last element that match the predicate
+    /// Find the last element that matches the predicate
     /// </summary>
-    static Option<A> FoldableBack<T>.FindBack<A>(Func<A, bool> predicate, K<T, A> ta)
+    static Option<A> FoldableBack<T>.FindBack<A>(
+        Option<long> endIndex, 
+        Option<long> count, 
+        Func<A, bool> predicate, 
+        K<T, A> ta)
     {
         var foldState = T.StepBackSetup(ta);
-        while (T.StepBack(ta, ref foldState, out var value))
+        var ix        = endIndex.IfNone(0);
+        var cnt       = count.IfNone(long.MaxValue);
+        
+        for (; ix > 0 && T.StepBack(ta, ref foldState, out _); ix--) 
+            /* skipping head */;
+
+        for (var n = 0; n < cnt && T.StepBack(ta, ref foldState, out var h); n++)
         {
-            if(predicate(value)) return value;
+            if (predicate(h)) return h;
         }
-        return default;
+        return None;
     }
 
     /// <summary>
@@ -276,7 +286,35 @@ public interface FoldableBack<T, FS> : FoldableBack<T>, IterableBackK<T, FS>
     }
 
     /// <summary>
-    /// Partition a foldable into two sequences based on a predicate
+    /// Find the last index of an element in the structure that matches the predicate
+    /// </summary>
+    /// <param name="endIndex">Initial index to start the search</param>
+    /// <param name="count">Maximum number of elements to test before giving up</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+    static Option<long> FoldableBack<T>.IndexOfBack<A>(
+        Option<long> endIndex, 
+        Option<long> count, 
+        Func<A, bool> predicate, 
+        K<T, A> ta)
+    {
+        var foldState = T.StepBackSetup(ta);
+        var ix        = endIndex.IfNone(0);
+        var cnt       = count.IfNone(long.MaxValue);
+        
+        for (; ix > 0 && T.StepBack(ta, ref foldState, out _); ix--) 
+            /* skipping head */;
+
+        for (var n = 0; n < cnt && T.StepBack(ta, ref foldState, out var h); n++)
+        {
+            if (predicate(h)) return n;
+        }
+        return None;
+    }
+
+    /// <summary>
+    /// Partition foldable into two sequences based on a predicate
     /// </summary>
     /// <param name="f">Predicate function</param>
     /// <param name="ta">Foldable structure</param>

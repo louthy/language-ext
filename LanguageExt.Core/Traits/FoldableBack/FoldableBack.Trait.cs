@@ -295,27 +295,27 @@ public interface FoldableBack<T> : IterableBackK<T>
         T.ContainsBack<EqDefault<A>, A>(value, ta);
     
     /// <summary>
-    /// Find the last element that match the predicate
+    /// Find the first element that matches the predicate
     /// </summary>
-    static virtual Option<A> FindBack<A>(Func<A, bool> predicate, K<T, A> ta)
+    static virtual Option<A> FindBack<A>(
+        Option<long> startIndex, 
+        Option<long> count, 
+        Func<A, bool> predicate, 
+        K<T, A> ta)
     {
-        foreach(var head in T.BackwardIterator(ta))
-        {
-            if(predicate(head)) return Some(head);
-        }
-        return default;
-    }
+        var iter = T.BackwardIterator(ta);
+        var ix   = startIndex.IfNone(0);
+        var cnt  = count.IfNone(long.MaxValue);
+        
+        for (; ix > 0 && iter is (Exist<A>, var t); iter = t, ix--) 
+            /* skipping head */;
 
-    /// <summary>
-    /// Find the elements that match the predicate
-    /// </summary>
-    /// <remarks>
-    /// The sequence is lazy, but note, if the original foldable structure is lazy,
-    /// then it will need to be consumed in its entirety before the values are yielded.
-    /// </remarks>
-    static virtual Iterator<A> FindAllBack<A>(Func<A, bool> predicate, K<T, A> ta) =>
-        T.BackwardIterator(ta)
-         .Filter(predicate);
+        for (var n = 0; n < cnt && iter is (Exist<A> (var h), var t); n++, iter = t)
+        {
+            if (predicate(h)) return h;
+        }
+        return None;
+    }
 
     /// <summary>
     /// Get the last item in the foldable or `None`
@@ -344,6 +344,34 @@ public interface FoldableBack<T> : IterableBackK<T>
         return default;
     }
 
+    /// <summary>
+    /// Find the last index of an element in the structure that matches the predicate
+    /// </summary>
+    /// <param name="endIndex">Initial index to start the search (from the end of the foldable structure)</param>
+    /// <param name="count">Maximum number of elements to test before giving up</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+    static virtual Option<long> IndexOfBack<A>(
+        Option<long> endIndex, 
+        Option<long> count, 
+        Func<A, bool> predicate, 
+        K<T, A> ta)
+    {
+        var iter = T.BackwardIterator(ta);
+        var ix   = endIndex.IfNone(0);
+        var cnt  = count.IfNone(long.MaxValue);
+        
+        for (; ix > 0 && iter is (Exist<A>, var t); iter = t, ix--) 
+            /* skipping head */;
+
+        for (var n = 0; n < cnt && iter is (Exist<A> (var h), var t); n++, iter = t)
+        {
+            if (predicate(h)) return n;
+        }
+        return None;
+    }
+    
     /// <summary>
     /// Partition a foldable into two sequences based on a predicate
     /// </summary>

@@ -218,13 +218,6 @@ public class FoldableDefaultsTests
         var res = FList.New(1, 2, 3, 4, 5).Find(x => x == 6);
         Assert.True(res == None);
     }
-        
-    [Fact]
-    public static void FindAllTest()
-    {
-        var res = FList.New(1, 2, 3, 4, 5).FindAll(x => x > 3);
-        Assert.True(res.AsIterable() == Iterable(4, 5));
-    }
 
     [Fact]
     public static void SumTest()

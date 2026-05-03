@@ -163,14 +163,27 @@ public static partial class Deriving
         /// <summary>
         /// Find the last element that match the predicate
         /// </summary>
-        static Option<A> FoldableBack<Supertype>.FindBack<A>(Func<A, bool> predicate, K<Supertype, A> ta) =>
-            Subtype.FindBack(predicate, Supertype.Transform(ta));
+        static Option<A> FoldableBack<Supertype>.FindBack<A>(
+            Option<long> startIndex, 
+            Option<long> count,
+            Func<A, bool> predicate, 
+            K<Supertype, A> ta) =>
+            Subtype.FindBack(startIndex, count, predicate, Supertype.Transform(ta));
 
         /// <summary>
-        /// Find the elements that match the predicate
+        /// Find the last index of an element in the structure that matches the predicate
         /// </summary>
-        static Iterator<A> FoldableBack<Supertype>.FindAllBack<A>(Func<A, bool> predicate, K<Supertype, A> ta) =>
-            Subtype.FindAllBack(predicate, Supertype.Transform(ta));
+        /// <param name="startIndex">Initial index to start the search</param>
+        /// <param name="count">Maximum number of elements to test before giving up</param>
+        /// <param name="ta">Foldable structure</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        static Option<long> FoldableBack<Supertype>.IndexOfBack<A>(
+            Option<long> startIndex, 
+            Option<long> count, 
+            Func<A, bool> predicate, 
+            K<Supertype, A> ta) => 
+            Subtype.IndexOfBack(startIndex, count, predicate, Supertype.Transform(ta));
 
         /// <summary>
         /// Get the head item in the foldable or `None`

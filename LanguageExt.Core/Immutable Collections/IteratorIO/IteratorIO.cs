@@ -93,6 +93,41 @@ public abstract partial class IteratorIO<A> :
     public abstract IO<(Head<A> Head, IteratorIO<A> Tail)> NextIO();
 
     /// <summary>
+    /// Consume the next item in the sequence
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This will lazily consume the next item in the IteratorIO. `Head` will be `Exist〈A〉` if the IteratorIO
+    /// is not empty, otherwise it will be `Nil〈A〉`.  `Tail` will be the remainder of the IteratorIO.
+    /// </para> 
+    /// </remarks>
+    /// <example>
+    /// It is possible to use the deconstructor in a for-loop to repeatedly consume the iterable thing. The
+    /// deconstructor simply calls `Next` to extract the head and tail of the IteratorIO:
+    /// <code>
+    ///     for (var i = iter; i is (Exist&lt;A&gt; h, var t); i = t)
+    ///     {
+    ///         yield return h.Value;
+    ///     }
+    /// </code>
+    /// Or, use `foreach`, which will also deal with the disposal properly:
+    /// <code>
+    ///     foreach (var value in iter.Using())
+    ///     {
+    ///         yield return value;
+    ///     }
+    /// </code>
+    /// </example>
+    /// <remarks>
+    /// See <see cref="Using" /> documentation for best `IDisposable` practices.
+    /// </remarks>
+    public K<M, (A Head, IteratorIO<A> Tail)> NextM<M>()
+        where M : MonadIO<M>, Alternative<M> =>
+        NextIO() >> (ht => ht is (Exist<A> (var h), { } t)
+                                ? M.Pure((h, t))
+                                : M.Empty<(A, IteratorIO<A>)>());
+    
+    /// <summary>
     /// This will 'prime' an IteratorIO so that calling `Dispose` on the `IteratorIO` returned from this method will
     /// correctly release any backing resources. 
     /// </summary>

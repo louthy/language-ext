@@ -179,13 +179,6 @@ public static class FoldableBack
         ta.FindBack(predicate);
 
     /// <summary>
-    /// Find the elements that match the predicate
-    /// </summary>
-    public static Iterator<A> findAll<T, A>(Func<A, bool> predicate, K<T, A> ta) 
-        where T : FoldableBack<T> =>
-        ta.FindAllBack(predicate);
-
-    /// <summary>
     /// Get the head item in the foldable or `None`
     /// </summary>
     public static Option<A> last<T, A>(K<T, A> ta) 

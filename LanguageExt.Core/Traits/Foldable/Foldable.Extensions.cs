@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Numerics;
+using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -182,16 +184,22 @@ public static partial class FoldableExtensions
             T.Contains(value, ta);
 
         /// <summary>
-        /// Find the first element that match the predicate
+        /// Find the first element that matches the predicate
+        /// </summary>
+        public Option<A> Find(long startIndex, long count, Func<A, bool> predicate) =>
+            T.Find(startIndex, count, predicate, ta);
+    
+        /// <summary>
+        /// Find the first element that matches the predicate
+        /// </summary>
+        public Option<A> Find(long startIndex, Func<A, bool> predicate) =>
+            T.Find(startIndex, None, predicate, ta);
+    
+        /// <summary>
+        /// Find the first element that matches the predicate
         /// </summary>
         public Option<A> Find(Func<A, bool> predicate) =>
-            T.Find(predicate, ta);
-
-        /// <summary>
-        /// Find the elements that match the predicate
-        /// </summary>
-        public Iterator<A> FindAll(Func<A, bool> predicate) =>
-            T.FindAll(predicate, ta);
+            T.Find(None, None, predicate, ta);
 
         /// <summary>
         /// Get the head item in the foldable or `None`
@@ -255,7 +263,103 @@ public static partial class FoldableExtensions
             T.At(index, ta);
 
         /// <summary>
-        /// Partition a foldable into two sequences based on a predicate
+        /// Find the first index of an element in the structure that matches the predicate
+        /// </summary>
+        /// <param name="startIndex">Initial index to start the search</param>
+        /// <param name="count">Maximum number of elements to test before giving up</param>
+        /// <param name="ta">Foldable structure</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOf(Option<long> startIndex, Option<long> count, Func<A, bool> predicate) =>
+            T.IndexOf(startIndex, count, predicate, ta);    
+
+        /// <summary>
+        /// Find the first index of an element in the structure that matches the predicate
+        /// </summary>
+        /// <param name="startIndex">Initial index to start the search</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOf(Option<long> startIndex, Func<A, bool> predicate) =>
+            T.IndexOf(startIndex, None, predicate, ta);    
+
+        /// <summary>
+        /// Find the first index of an element in the structure that matches the predicate
+        /// </summary>
+        /// <param name="ta">Foldable structure</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOf(Func<A, bool> predicate) =>
+            T.IndexOf(None, None, predicate, ta);    
+
+        /// <summary>
+        /// Find the first index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="startIndex">Initial index to start the search</param>
+        /// <param name="count">Maximum number of elements to test before giving up</param>
+        /// <param name="item">Element to search for</param>
+        /// <param name="eq">Equality comparer</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOf(Option<long> startIndex, Option<long> count, A item, IEqualityComparer<A> eq) =>
+            T.IndexOf(startIndex, count, x => eq.Equals(item, x), ta);    
+
+        /// <summary>
+        /// Find the first index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="startIndex">Initial index to start the search</param>
+        /// <param name="item">Element to search for</param>
+        /// <param name="eq">Equality comparer</param>
+        /// <param name="ta">Foldable structure</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOf(Option<long> startIndex, A item, IEqualityComparer<A> eq) => 
+            T.IndexOf(startIndex, None, x => eq.Equals(item, x), ta);    
+
+        /// <summary>
+        /// Find the first index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="item">Element to search for</param>
+        /// <param name="eq">Equality comparer</param>
+        /// <param name="ta">Foldable structure</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOf(A item, IEqualityComparer<A> eq) => 
+            T.IndexOf(None, None, x => eq.Equals(item, x), ta);
+
+        /// <summary>
+        /// Find the first index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="startIndex">Initial index to start the search</param>
+        /// <param name="count">Maximum number of elements to test before giving up</param>
+        /// <param name="item">Element to search for</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOf(Option<long> startIndex, Option<long> count, A item) =>
+            ta.IndexOf<EqDefault<A>, T, A>(startIndex, count, item);    
+
+        /// <summary>
+        /// Find the first index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="startIndex">Initial index to start the search</param>
+        /// <param name="item">Element to search for</param>
+        /// <param name="ta">Foldable structure</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOf(Option<long> startIndex, A item) => 
+            ta.IndexOf<EqDefault<A>, T, A>(startIndex, item);    
+
+        /// <summary>
+        /// Find the first index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="item">Element to search for</param>
+        /// <param name="ta">Foldable structure</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOf(A item) => 
+            ta.IndexOf<EqDefault<A>, T, A>(item);    
+
+        /// <summary>
+        /// Partition foldable into two sequences based on a predicate
         /// </summary>
         /// <param name="f">Predicate function</param>
         /// <param name="ta">Foldable structure</param>
@@ -295,6 +399,33 @@ public static partial class FoldableExtensions
         /// </summary>
         public bool Contains(A value) =>
             T.Contains<EqA, A>(value, ta);
+
+        /// <summary>
+        /// Find the first index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="startIndex">Initial index to start the search</param>
+        /// <param name="count">Maximum number of elements to test before giving up</param>
+        /// <param name="item">Element to search for</param>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOf(Option<long> startIndex, Option<long> count, A item) =>
+            T.IndexOf(startIndex, count, x => EqA.Equals(item, x), ta);    
+
+        /// <summary>
+        /// Find the first index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="startIndex">Initial index to start the search</param>
+        /// <param name="item">Element to search for</param>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOf(Option<long> startIndex, A item) =>
+            T.IndexOf(startIndex, None, x => EqA.Equals(item, x), ta);    
+
+        /// <summary>
+        /// Find the first index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="item">Element to search for</param>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOf(A item) => 
+            T.IndexOf(None, None, x => EqA.Equals(item, x), ta);    
     }
     
     /// <param name="ta">Foldable structure</param>

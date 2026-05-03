@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -14,10 +16,89 @@ public static partial class FoldableBackExtensions
         /// <summary>
         /// Find the element at the specified index or `None` if out of range
         /// </summary>
-        public Option<A> At(Index index) =>
+        public Option<A> At(LongIndex index) =>
             index.IsFromEnd
                 ? T.AtBack(index.Value - 1, ta)
                 : T.At(index.Value, ta);
+
+        /// <summary>
+        /// Find the last index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="index">Initial index to start the search</param>
+        /// <param name="count">Maximum number of elements to test before giving up</param>
+        /// <param name="item">Element to search for</param>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<LongIndex> IndexOf(
+            LongIndex index, 
+            long count, 
+            Func<A, bool> predicate) =>
+            index.IsFromEnd
+                ? T.IndexOfBack(index.Value - 1, count, predicate, ta) * (ix => LongIndex.FromEnd(ix + 1))
+                : T.IndexOf(index.Value, count, predicate, ta)         * LongIndex.FromStart;
+
+        /// <summary>
+        /// Find the last index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="index">Initial index to start the search</param>
+        /// <param name="item">Element to search for</param>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<LongIndex> IndexOf(
+            LongIndex index, 
+            Func<A, bool> predicate) =>
+            index.IsFromEnd
+                ? T.IndexOfBack(index.Value - 1, None, predicate, ta) * (ix => LongIndex.FromEnd(ix + 1))
+                : T.IndexOf(index.Value, None, predicate, ta)         * LongIndex.FromStart;
+
+        /// <summary>
+        /// Find the first element that matches the predicate
+        /// </summary>
+        public Option<A> Find(LongIndex index, long count, Func<A, bool> predicate) =>
+            index.IsFromEnd
+                ? T.FindBack(index.Value - 1, count, predicate, ta)
+                : T.Find(index.Value, count, predicate, ta);
+    
+        /// <summary>
+        /// Find the first element that matches the predicate
+        /// </summary>
+        public Option<A> Find(LongIndex index, Func<A, bool> predicate) =>
+            index.IsFromEnd
+                ? T.FindBack(index.Value - 1, None, predicate, ta)
+                : T.Find(index.Value, None, predicate, ta);
+    }
+    
+    /// <param name="ta">Foldable structure</param>
+    /// <typeparam name="A">Value type</typeparam>
+    extension<EqA, T, A>(K<T, A> ta)
+        where T : Foldable<T>, FoldableBack<T>
+        where EqA : Eq<A>
+    {
+        /// <summary>
+        /// Find the last index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="startIndex">Initial index to start the search</param>
+        /// <param name="count">Maximum number of elements to test before giving up</param>
+        /// <param name="item">Element to search for</param>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<LongIndex> IndexOf(
+            LongIndex startIndex,
+            long count,
+            A item) =>
+            startIndex.IsFromEnd
+                 ? T.IndexOfBack(startIndex.Value - 1, count, x => EqA.Equals(item, x), ta) * (ix => LongIndex.FromEnd(ix + 1))
+                 : T.IndexOf(startIndex.Value, count, x => EqA.Equals(item, x), ta) * LongIndex.FromStart;
+
+        /// <summary>
+        /// Find the last index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="startIndex">Initial index to start the search</param>
+        /// <param name="item">Element to search for</param>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<LongIndex> IndexOf(
+            LongIndex startIndex,
+            A item) =>
+            startIndex.IsFromEnd
+                ? T.IndexOfBack(startIndex.Value - 1, None, x => EqA.Equals(item, x), ta) * (ix => LongIndex.FromEnd(ix + 1))
+                : T.IndexOf(startIndex.Value, None, x => EqA.Equals(item, x), ta) * LongIndex.FromStart;
     }
     
     /// <param name="f">Mapping operation</param>
@@ -201,16 +282,22 @@ public static partial class FoldableBackExtensions
             T.ContainsBack(value, ta);
 
         /// <summary>
-        /// Find the last element that match the predicate
+        /// Find the first element that matches the predicate
+        /// </summary>
+        public Option<A> FindBack(long endIndex, long count, Func<A, bool> predicate) =>
+            T.FindBack(endIndex, count, predicate, ta);
+    
+        /// <summary>
+        /// Find the first element that matches the predicate
+        /// </summary>
+        public Option<A> FindBack(long endIndex, Func<A, bool> predicate) =>
+            T.FindBack(endIndex, None, predicate, ta);
+    
+        /// <summary>
+        /// Find the first element that matches the predicate
         /// </summary>
         public Option<A> FindBack(Func<A, bool> predicate) =>
-            T.FindBack(predicate, ta);
-
-        /// <summary>
-        /// Find the elements that match the predicate
-        /// </summary>
-        public Iterator<A> FindAllBack(Func<A, bool> predicate) =>
-            T.FindAllBack(predicate, ta);
+            T.FindBack(None, None, predicate, ta);
 
         /// <summary>
         /// Get the head item in the foldable or `None`
@@ -221,9 +308,100 @@ public static partial class FoldableBackExtensions
         /// <summary>
         /// Find the element at the specified index or `None` if out of range
         /// </summary>
-        public Option<A> AtBack(int index) =>
+        public Option<A> AtBack(long index) =>
             T.AtBack(index, ta);
 
+        /// <summary>
+        /// Find the last index of an element in the structure that matches the predicate
+        /// </summary>
+        /// <param name="endIndex">Initial index to start the search (from the end of the foldable structure)</param>
+        /// <param name="count">Maximum number of elements to test before giving up</param>
+        /// <param name="ta">Foldable structure</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOfBack(long endIndex, long count, Func<A, bool> predicate) =>
+            T.IndexOfBack(endIndex, count, predicate, ta);    
+
+        /// <summary>
+        /// Find the last index of an element in the structure that matches the predicate
+        /// </summary>
+        /// <param name="endIndex">Initial index to start the search (from the end of the foldable structure)</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOfBack(long endIndex, Func<A, bool> predicate) =>
+            T.IndexOfBack(endIndex, None, predicate, ta);    
+
+        /// <summary>
+        /// Find the last index of an element in the structure that matches the predicate
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOfBack(Func<A, bool> predicate) =>
+            T.IndexOfBack(None, None, predicate, ta);    
+
+        /// <summary>
+        /// Find the last index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="endIndex">Initial index to start the search (from the end of the foldable structure)</param>
+        /// <param name="count">Maximum number of elements to test before giving up</param>
+        /// <param name="item">Element to search for</param>
+        /// <param name="eq">Equality comparer</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOfBack(long endIndex, long count, A item, IEqualityComparer<A> eq) =>
+            T.IndexOfBack(endIndex, count, x => eq.Equals(item, x), ta);    
+
+        /// <summary>
+        /// Find the last index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="endIndex">Initial index to start the search (from the end of the foldable structure)</param>
+        /// <param name="item">Element to search for</param>
+        /// <param name="eq">Equality comparer</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOfBack(long endIndex, A item, IEqualityComparer<A> eq) =>
+            T.IndexOfBack(endIndex, None, x => eq.Equals(item, x), ta);    
+
+        /// <summary>
+        /// Find the last index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="item">Element to search for</param>
+        /// <param name="eq">Equality comparer</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOfBack(A item, IEqualityComparer<A> eq) => 
+            T.IndexOfBack(None, None, x => eq.Equals(item, x), ta);    
+
+        /// <summary>
+        /// Find the last index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="endIndex">Initial index to start the search (from the end of the foldable structure)</param>
+        /// <param name="count">Maximum number of elements to test before giving up</param>
+        /// <param name="item">Element to search for</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOfBack(long endIndex, long count, A item) =>
+            ta.IndexOfBack<EqDefault<A>, T, A>(endIndex, count, item);    
+
+        /// <summary>
+        /// Find the last index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="endIndex">Initial index to start the search (from the end of the foldable structure)</param>
+        /// <param name="item">Element to search for</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOfBack(long endIndex, A item) =>
+            ta.IndexOfBack<EqDefault<A>, T, A>(endIndex, item);    
+
+        /// <summary>
+        /// Find the last index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="item">Element to search for</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOfBack(A item) => 
+            ta.IndexOfBack<EqDefault<A>, T, A>(item);    
+        
         /// <summary>
         /// Partition a foldable into two sequences based on a predicate
         /// </summary>
@@ -246,6 +424,33 @@ public static partial class FoldableBackExtensions
         /// </summary>
         public bool ContainsBack(A value) =>
             T.ContainsBack<EqA, A>(value, ta);
+        
+        /// <summary>
+        /// Find the last index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="endIndex">Initial index to start the search</param>
+        /// <param name="count">Maximum number of elements to test before giving up</param>
+        /// <param name="item">Element to search for</param>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOfBack(long endIndex, long count, A item) =>
+            T.IndexOfBack(endIndex, count, x => EqA.Equals(item, x), ta);    
+
+        /// <summary>
+        /// Find the last index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="endIndex">Initial index to start the search</param>
+        /// <param name="item">Element to search for</param>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOfBack(long endIndex, A item) => 
+            T.IndexOfBack(endIndex, None, x => EqA.Equals(item, x), ta);    
+
+        /// <summary>
+        /// Find the last index of an element in the structure that matches the element provided
+        /// </summary>
+        /// <param name="item">Element to search for</param>
+        /// <returns>`Some(index)` if the predicate returns `true`, otherwise `None`</returns>
+        public Option<long> IndexOfBack(A item) =>
+            T.IndexOfBack(None, None, x => EqA.Equals(item, x), ta);    
     }
     
     /// <param name="ta">Foldable structure</param>

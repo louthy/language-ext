@@ -278,6 +278,21 @@ public interface FoldableIO<T> : IterableKIO<T>
         T.ContainsIO<EqDefault<A>, A>(value, ta);
 
     /// <summary>
+    /// Find the first element that match the predicate or `Alternative.Empty`
+    /// </summary>
+    static virtual K<M, A> FindM<M, A>(Func<A, bool> predicate, K<T, A> ta)
+        where M : MonadIO<M>, Alternative<M>
+    {
+        return Monad.recur(T.ForwardIteratorIO(ta), go);
+
+        K<M, Next<IteratorIO<A>, A>> go(IteratorIO<A> iter) =>
+            iter.NextM<M>() *
+            (n => predicate(n.Head)
+                      ? Next.Done<IteratorIO<A>, A>(n.Head)
+                      : Next.Loop<IteratorIO<A>, A>(n.Tail));
+    }
+
+    /// <summary>
     /// Find the first element that match the predicate
     /// </summary>
     static virtual IO<Option<A>> FindIO<A>(Func<A, bool> predicate, K<T, A> ta)
@@ -294,22 +309,19 @@ public interface FoldableIO<T> : IterableKIO<T>
     }
 
     /// <summary>
+    /// Get the head item in the `FoldableIO` or `Alternative.Empty`
+    /// </summary>
+    static virtual K<M, A> HeadM<M, A>(K<T, A> ta)
+        where M : MonadIO<M>, Alternative<M> =>
+        T.ForwardIteratorIO(ta).NextM<M>() * (n => n.Head);
+        
+    /// <summary>
     /// Get the head item in the FoldableIO or `None`
     /// </summary>
     static virtual IO<Option<A>> HeadIO<A>(K<T, A> ta) =>
         T.ForwardIteratorIO(ta).NextIO() * (n => n is (Exist<A> (var head), _)
                                                      ? Some(head)
                                                      : None);
-
-    /// <summary>
-    /// Get the head item in the `FoldableIO` or `Alternative.Empty`
-    /// </summary>
-    static virtual K<M, A> HeadM<M, A>(K<T, A> ta)
-        where M : MonadIO<M>, Alternative<M> =>
-        M.LiftIO(T.ForwardIteratorIO(ta).NextIO() * (n => n is (Exist<A> (var head), _)
-                                                              ? M.Pure(head)
-                                                              : M.Empty<A>()))
-         .Flatten();
 
     /// <summary>
     /// Map each element of a structure to a monadic action, evaluate these
@@ -357,7 +369,6 @@ public interface FoldableIO<T> : IterableKIO<T>
                       ? IO.lift(() => f(input.Ix, head)) * (_ => Next.Loop<(long, IteratorIO<A>), Unit>((input.Ix + 1L, tail)))
                       : IO.pure(Next.Done<(long, IteratorIO<A>), Unit>(default)));
     }
-    
         
     /// <summary>
     /// Inject a value in between each item in the enumerable 

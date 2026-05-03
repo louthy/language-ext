@@ -23,10 +23,12 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
+        ReverseListTest3();
+        
         //RangePerfTests.Run();
         //RangeTests.Run();
         //FoldStepTests.Run();
-        //FoldPerfTests.Run();
+        FoldPerfTests.Run();
         //Discussion1527.Run();
         //SourceTTests.Run();
         //Issues.Discussion1527.Run();
@@ -52,9 +54,19 @@ public class Program
         //Console.WriteLine(PipesTestBed.effect.RunEffect().Run(Runtime.New()).Result);
         //Issue1230.Run();
         //Issue1234.Test();
-        SequenceParallelTest.Run();
+        //SequenceParallelTest.Run();
         //FreeTests.Test();
 
         Console.WriteLine("Goodbye, World");
     }
+    
+    static void ReverseListTest3()
+    {
+        var list = Arr(1, 1, 2, 2, 2);
+        var rev  = list.Reverse();
+
+        Console.WriteLine(rev.IndexOfBack(1) == 4 ? "OK" : "Should have been 4, actually is: " + rev.IndexOfBack(1));
+        Console.WriteLine(rev.IndexOfBack(2) == 2 ? "OK" : "Should have been 2, actually is: " + rev.IndexOfBack(5));
+    }
+
 }

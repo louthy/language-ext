@@ -47,7 +47,6 @@ public class FoldableUnorderedCollectionsTestSuite<F>
         suite.IterTest();
         suite.ProductTest();
         suite.SumTest();
-        suite.FindAllTest();
         suite.FindFalseTest();
         suite.FindTrueTest();
         suite.ContainsEqFalseTest();
@@ -209,14 +208,6 @@ public class FoldableUnorderedCollectionsTestSuite<F>
         var notExpect = ItemsCount * 2;
         var res       = Construct(Items).Find(x => x == notExpect);
         Assert.True(res == None, $"{typeof(F).Name} | FindFalseTest failed");
-    }
-
-    void FindAllTest()
-    {
-        var res = Construct(Items).FindAll(x => x > 97);
-        var array = res.ToArr();
-        
-        Assert.True(array == Arr(99, 98) || array == Arr(98, 99), $"{typeof(F).Name} | FindAllTest failed");
     }
 
     void SumTest()
