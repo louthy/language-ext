@@ -32,8 +32,8 @@
     <InternalsVisibleTo Include="LanguageExt.Tests" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="README.nuget.md" Pack="true" PackagePath="\"/>
-    <None Include="..\Images\lang-ext-small.png" Pack="true" PackagePath="\"/>
+    <None Include="README.nuget.md" Pack="true" PackagePath="\" />
+    <None Include="..\Images\lang-ext-small.png" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" />

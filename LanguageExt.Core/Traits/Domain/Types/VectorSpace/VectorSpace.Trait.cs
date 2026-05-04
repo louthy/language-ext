@@ -21,11 +21,22 @@ namespace LanguageExt.Traits.Domain;
 /// operations defined on the elements of this set: addition, subtraction, and scalar multiplication, such that
 /// behaviors of these operations satisfy a few natural axioms.
 /// </summary>
-/// <remarks>This is the same as `VectorSpace` but with ordering</remarks>
 /// <typeparam name="SELF">Type implementing this interface</typeparam>
 /// <typeparam name="SCALAR">Scalar units</typeparam>
-public interface Amount<SELF, SCALAR> :
-    VectorSpace<SELF, SCALAR>,
-    IComparable<SELF>,
-    IComparisonOperators<SELF, SELF, bool>
-    where SELF : Amount<SELF, SCALAR>;
+public interface VectorSpace<SELF, SCALAR> :
+    DomainSet<SELF>,
+    IUnaryNegationOperators<SELF, SELF>,
+    IAdditiveIdentity<SELF, SELF>,
+    IAdditionOperators<SELF, SELF, SELF>,
+    ISubtractionOperators<SELF, SELF, SELF>,
+    IMultiplyOperators<SELF, SCALAR, SELF>,
+    IDivisionOperators<SELF, SCALAR, SELF>
+    where SELF : VectorSpace<SELF, SCALAR>
+    where SCALAR : notnull
+{
+    /// <summary>
+    /// Returns the origin of the vector space.
+    /// </summary>
+    /// <returns>The origin point of the vector space.</returns>
+    public static virtual SELF Origin => SELF.AdditiveIdentity;
+}

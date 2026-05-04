@@ -215,118 +215,118 @@ public sealed class DomainTypeTests
     [Fact]
     public void TestPreludeNewM_FailureCase()
     {
-        var f1 = NewM<OnlyTrueBoolean>(false);
+        var f1 = New<OnlyTrueBoolean>(false);
         Assert.True(f1.IsFail, "OnlyTrueBoolean(false) should fail");
 
-        var f2 = NewM<OnlyDigitChar>('a');
+        var f2 = New<OnlyDigitChar>('a');
         Assert.True(f2.IsFail, "OnlyDigitChar('a') should fail");
 
-        var f3 = NewM<OnlyDigitString>("12a");
+        var f3 = New<OnlyDigitString>("12a");
         Assert.True(f3.IsFail, "OnlyDigitString(\"12a\") should fail");
 
-        var f4 = NewM<OddOnlyByte>(2);
+        var f4 = New<OddOnlyByte>(2);
         Assert.True(f4.IsFail, "OddOnlyByte(2) should fail");
 
-        var f5 = NewM<OddOnlyInt16>(2);
+        var f5 = New<OddOnlyInt16>(2);
         Assert.True(f5.IsFail, "OddOnlyInt16(2) should fail");
 
-        var f6 = NewM<OddOnlyUInt16>(2);
+        var f6 = New<OddOnlyUInt16>(2);
         Assert.True(f6.IsFail, "OddOnlyUInt16(2) should fail");
 
-        var f7 = NewM<OddOnlyInt32>(2);
+        var f7 = New<OddOnlyInt32>(2);
         Assert.True(f7.IsFail, "OddOnlyInt32(2) should fail");
 
-        var f8 = NewM<OddOnlyUInt32>(2u);
+        var f8 = New<OddOnlyUInt32>(2u);
         Assert.True(f8.IsFail, "OddOnlyUInt32(2) should fail");
 
-        var f9 = NewM<OddOnlyInt64>(2L);
+        var f9 = New<OddOnlyInt64>(2L);
         Assert.True(f9.IsFail, "OddOnlyInt64(2) should fail");
 
-        var f10 = NewM<OddOnlyUInt64>(2UL);
+        var f10 = New<OddOnlyUInt64>(2UL);
         Assert.True(f10.IsFail, "OddOnlyUInt64(2) should fail");
 
-        var f11 = NewM<PositiveOnlySingle>(-5f);
+        var f11 = New<PositiveOnlySingle>(-5f);
         Assert.True(f11.IsFail, "PositiveOnlySingle(-5) should fail");
 
-        var f12 = NewM<PositiveOnlyDouble>(-5d);
+        var f12 = New<PositiveOnlyDouble>(-5d);
         Assert.True(f12.IsFail, "PositiveOnlyDouble(-5) should fail");
 
-        var f13 = NewM<PositiveOnlyDecimal>(-5m);
+        var f13 = New<PositiveOnlyDecimal>(-5m);
         Assert.True(f13.IsFail, "PositiveOnlyDecimal(-5) should fail");
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var f14 = NewM<PastOnlyDate>(today.AddDays(+1));
+        var f14 = New<PastOnlyDate>(today.AddDays(+1));
         Assert.True(f14.IsFail, "PastOnlyDate(today + 1 day) should fail");
 
         var noon = TimeOnly.FromTimeSpan(TimeSpan.FromHours(18));
-        var f15 = NewM<MorningOnlyTime>(noon);
+        var f15 = New<MorningOnlyTime>(noon);
         Assert.True(f15.IsFail, "MorningOnlyTime(18:00) should fail");
 
         var now = DateTime.UtcNow.AddDays(1);
-        var f16 = NewM<PastOnlyDateTime>(now);
+        var f16 = New<PastOnlyDateTime>(now);
         Assert.True(f16.IsFail, "PastOnlyDateTime(now + 1 day) should fail");
 
         var nowOffset = DateTimeOffset.UtcNow.AddDays(-1);
-        var f17 = NewM<FutureOnlyDateTimeOffset>(nowOffset);
+        var f17 = New<FutureOnlyDateTimeOffset>(nowOffset);
         Assert.True(f17.IsFail, "FutureOnlyDateTimeOffset(now - 1 day) should fail");
     }
 
     [Fact]
     public void TestPreludeNewM_SuccessCase()
     {
-        var f1 = NewM<OnlyTrueBoolean>(true);
+        var f1 = New<OnlyTrueBoolean>(true);
         Assert.True(f1.IsSucc, "OnlyTrueBoolean(true) should succeed");
 
-        var f2 = NewM<OnlyDigitChar>('5');
+        var f2 = New<OnlyDigitChar>('5');
         Assert.True(f2.IsSucc, "OnlyDigitChar('5') should succeed");
 
-        var f3 = NewM<OnlyDigitString>("123");
+        var f3 = New<OnlyDigitString>("123");
         Assert.True(f3.IsSucc, "OnlyDigitString(\"123\") should succeed");
 
-        var f4 = NewM<OddOnlyByte>(3);
+        var f4 = New<OddOnlyByte>(3);
         Assert.True(f4.IsSucc, "OddOnlyByte(3) should succeed");
 
-        var f5 = NewM<OddOnlyInt16>(3);
+        var f5 = New<OddOnlyInt16>(3);
         Assert.True(f5.IsSucc, "OddOnlyInt16(3) should succeed");
 
-        var f6 = NewM<OddOnlyUInt16>(3);
+        var f6 = New<OddOnlyUInt16>(3);
         Assert.True(f6.IsSucc, "OddOnlyUInt16(3) should succeed");
 
-        var f7 = NewM<OddOnlyInt32>(3);
+        var f7 = New<OddOnlyInt32>(3);
         Assert.True(f7.IsSucc, "OddOnlyInt32(3) should succeed");
 
-        var f8 = NewM<OddOnlyUInt32>(3u);
+        var f8 = New<OddOnlyUInt32>(3u);
         Assert.True(f8.IsSucc, "OddOnlyUInt32(3) should succeed");
 
-        var f9 = NewM<OddOnlyInt64>(3L);
+        var f9 = New<OddOnlyInt64>(3L);
         Assert.True(f9.IsSucc, "OddOnlyInt64(3) should succeed");
 
-        var f10 = NewM<OddOnlyUInt64>(3UL);
+        var f10 = New<OddOnlyUInt64>(3UL);
         Assert.True(f10.IsSucc, "OddOnlyUInt64(3) should succeed");
 
-        var f11 = NewM<PositiveOnlySingle>(5f);
+        var f11 = New<PositiveOnlySingle>(5f);
         Assert.True(f11.IsSucc, "PositiveOnlySingle(5) should succeed");
 
-        var f12 = NewM<PositiveOnlyDouble>(5d);
+        var f12 = New<PositiveOnlyDouble>(5d);
         Assert.True(f12.IsSucc, "PositiveOnlyDouble(5) should succeed");
 
-        var f13 = NewM<PositiveOnlyDecimal>(5m);
+        var f13 = New<PositiveOnlyDecimal>(5m);
         Assert.True(f13.IsSucc, "PositiveOnlyDecimal(5) should succeed");
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var f14 = NewM<PastOnlyDate>(today.AddDays(-1));
+        var f14 = New<PastOnlyDate>(today.AddDays(-1));
         Assert.True(f14.IsSucc, "PastOnlyDate(today - 1 day) should succeed");
 
         var morning = TimeOnly.FromTimeSpan(TimeSpan.FromHours(10));
-        var f15 = NewM<MorningOnlyTime>(morning);
+        var f15 = New<MorningOnlyTime>(morning);
         Assert.True(f15.IsSucc, "MorningOnlyTime(10:00) should succeed");
 
         var now = DateTime.UtcNow.AddDays(-1);
-        var f16 = NewM<PastOnlyDateTime>(now);
+        var f16 = New<PastOnlyDateTime>(now);
         Assert.True(f16.IsSucc, "PastOnlyDateTime(now - 1 day) should succeed");
 
         var nowOffset = DateTimeOffset.UtcNow.AddDays(1);
-        var f17 = NewM<FutureOnlyDateTimeOffset>(nowOffset);
+        var f17 = New<FutureOnlyDateTimeOffset>(nowOffset);
         Assert.True(f17.IsSucc, "FutureOnlyDateTimeOffset(now + 1 day) should succeed");
 
     }
@@ -334,89 +334,89 @@ public sealed class DomainTypeTests
     [Fact]
     public void TestPreludeNew_FailureCase()
     {
-        Func<object?> f1 = () => New<OnlyTrueBoolean>(false);
+        Func<object?> f1 = () => Unsafe<OnlyTrueBoolean>(false);
         Assert.Throws<WrappedErrorExpectedException>(f1);
         
-        Func<object?> f2 = () => New<OnlyDigitChar>('a');
+        Func<object?> f2 = () => Unsafe<OnlyDigitChar>('a');
         Assert.Throws<WrappedErrorExpectedException>(f2);
         
-        Func<object?> f3 = () => New<OnlyDigitString>("abc");
+        Func<object?> f3 = () => Unsafe<OnlyDigitString>("abc");
         Assert.Throws<WrappedErrorExpectedException>(f3);
         
-        Func<object?> f4 = () => New<OddOnlyByte>(2);
+        Func<object?> f4 = () => Unsafe<OddOnlyByte>(2);
         Assert.Throws<WrappedErrorExpectedException>(f4);
         
-        Func<object?> f5 = () => New<OddOnlyInt16>(2);
+        Func<object?> f5 = () => Unsafe<OddOnlyInt16>(2);
         Assert.Throws<WrappedErrorExpectedException>(f5);
         
-        Func<object?> f6 = () => New<OddOnlyUInt16>(2);
+        Func<object?> f6 = () => Unsafe<OddOnlyUInt16>(2);
         Assert.Throws<WrappedErrorExpectedException>(f6);
         
-        Func<object?> f7 = () => New<OddOnlyInt32>(2);
+        Func<object?> f7 = () => Unsafe<OddOnlyInt32>(2);
         Assert.Throws<WrappedErrorExpectedException>(f7);
         
-        Func<object?> f8 = () => New<OddOnlyUInt32>(2u);
+        Func<object?> f8 = () => Unsafe<OddOnlyUInt32>(2u);
         Assert.Throws<WrappedErrorExpectedException>(f8);
         
-        Func<object?> f9 = () => New<OddOnlyInt64>(2L);
+        Func<object?> f9 = () => Unsafe<OddOnlyInt64>(2L);
         Assert.Throws<WrappedErrorExpectedException>(f9);
         
-        Func<object?> f10 = () => New<OddOnlyUInt64>(2UL);
+        Func<object?> f10 = () => Unsafe<OddOnlyUInt64>(2UL);
         Assert.Throws<WrappedErrorExpectedException>(f10);
         
-        Func<object?> f11 = () => New<PositiveOnlySingle>(-5f);
+        Func<object?> f11 = () => Unsafe<PositiveOnlySingle>(-5f);
         Assert.Throws<WrappedErrorExpectedException>(f11);
         
-        Func<object?> f12 = () => New<PositiveOnlyDouble>(-5d);
+        Func<object?> f12 = () => Unsafe<PositiveOnlyDouble>(-5d);
         Assert.Throws<WrappedErrorExpectedException>(f12);
         
-        Func<object?> f13 = () => New<PositiveOnlyDecimal>(-5m);
+        Func<object?> f13 = () => Unsafe<PositiveOnlyDecimal>(-5m);
         Assert.Throws<WrappedErrorExpectedException>(f13);
         
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        Func<object?> f14 = () => New<PastOnlyDate>(today.AddDays(+1));
+        Func<object?> f14 = () => Unsafe<PastOnlyDate>(today.AddDays(+1));
         Assert.Throws<WrappedErrorExpectedException>(f14);
         
         var morning = TimeOnly.FromTimeSpan(TimeSpan.FromHours(18));
-        Func<object?> f15 = () => New<MorningOnlyTime>(morning);
+        Func<object?> f15 = () => Unsafe<MorningOnlyTime>(morning);
         Assert.Throws<WrappedErrorExpectedException>(f15);
         
         var now = DateTime.UtcNow.AddDays(+1);
-        Func<object?> f16 = () => New<PastOnlyDateTime>(now);
+        Func<object?> f16 = () => Unsafe<PastOnlyDateTime>(now);
         Assert.Throws<WrappedErrorExpectedException>(f16);
         
         var nowOffset = DateTimeOffset.UtcNow.AddDays(-1);
-        Func<object?> f17 = () => New<FutureOnlyDateTimeOffset>(nowOffset);
+        Func<object?> f17 = () => Unsafe<FutureOnlyDateTimeOffset>(nowOffset);
         Assert.Throws<WrappedErrorExpectedException>(f17);
     }
 
     [Fact]
     public void TestPreludeNew_SuccessCase()
     {
-        _ = New<OnlyTrueBoolean>(true);
-        _ = New<OnlyDigitChar>('5');
-        _ = New<OnlyDigitString>("123");
-        _ = New<OddOnlyByte>(3);
-        _ = New<OddOnlyInt16>(3);
-        _ = New<OddOnlyUInt16>(3);
-        _ = New<OddOnlyInt32>(3);
-        _ = New<OddOnlyUInt32>(3u);
-        _ = New<OddOnlyInt64>(3L);
-        _ = New<OddOnlyUInt64>(3UL);
-        _ = New<PositiveOnlySingle>(5f);
-        _ = New<PositiveOnlyDouble>(5d);
-        _ = New<PositiveOnlyDecimal>(5m);
+        _ = Unsafe<OnlyTrueBoolean>(true);
+        _ = Unsafe<OnlyDigitChar>('5');
+        _ = Unsafe<OnlyDigitString>("123");
+        _ = Unsafe<OddOnlyByte>(3);
+        _ = Unsafe<OddOnlyInt16>(3);
+        _ = Unsafe<OddOnlyUInt16>(3);
+        _ = Unsafe<OddOnlyInt32>(3);
+        _ = Unsafe<OddOnlyUInt32>(3u);
+        _ = Unsafe<OddOnlyInt64>(3L);
+        _ = Unsafe<OddOnlyUInt64>(3UL);
+        _ = Unsafe<PositiveOnlySingle>(5f);
+        _ = Unsafe<PositiveOnlyDouble>(5d);
+        _ = Unsafe<PositiveOnlyDecimal>(5m);
         
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        _ = New<PastOnlyDate>(today.AddDays(-1));
+        _ = Unsafe<PastOnlyDate>(today.AddDays(-1));
         
         var morning = TimeOnly.FromTimeSpan(TimeSpan.FromHours(10));
-        _ = New<MorningOnlyTime>(morning);
+        _ = Unsafe<MorningOnlyTime>(morning);
         
         var now = DateTime.UtcNow.AddDays(-1);
-        _ = New<PastOnlyDateTime>(now);
+        _ = Unsafe<PastOnlyDateTime>(now);
         
         var nowOffset = DateTimeOffset.UtcNow.AddDays(1);
-        _ = New<FutureOnlyDateTimeOffset>(nowOffset);
+        _ = Unsafe<FutureOnlyDateTimeOffset>(nowOffset);
     }
 }

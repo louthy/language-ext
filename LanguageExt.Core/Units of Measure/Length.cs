@@ -15,7 +15,7 @@ namespace LanguageExt;
 public readonly struct Length :
     IComparable,
     DomainType<Length, double>,
-    Amount<Length, double> 
+    Magnitude<Length, double> 
 {
     readonly double Value;
 
