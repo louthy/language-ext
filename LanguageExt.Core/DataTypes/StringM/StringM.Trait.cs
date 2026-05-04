@@ -9,7 +9,7 @@ namespace LanguageExt;
 /// </summary>
 /// <param name="Value">Contained value</param>
 public interface StringM<SELF> :
-    DomainType<SELF, string>,
+    DomainTypeFactory<SELF, string>,
     Identifier<SELF>,
     IComparable<SELF>,
     ISpanParsable<SELF>,

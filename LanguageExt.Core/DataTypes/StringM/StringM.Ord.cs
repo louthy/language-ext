@@ -5,7 +5,7 @@ namespace LanguageExt;
 
 public readonly record struct StringOrdinalM(string Value) : StringM<StringOrdinalM>
 {
-    static Fin<StringOrdinalM> DomainType<StringOrdinalM, string>.From(string repr) =>
+    static Fin<StringOrdinalM> DomainFactory<StringOrdinalM, StringOrdinalM, string>.From(string repr) =>
         new StringOrdinalM(repr);
 
     public static StringOrdinalM From(string repr) => 
@@ -27,7 +27,7 @@ public readonly record struct StringOrdinalM(string Value) : StringM<StringOrdin
 
 public readonly record struct StringOrdinalIgnoreCaseM(string Value) : StringM<StringOrdinalIgnoreCaseM>
 {
-    static Fin<StringOrdinalIgnoreCaseM> DomainType<StringOrdinalIgnoreCaseM, string>.From(string repr) =>
+    static Fin<StringOrdinalIgnoreCaseM> DomainFactory<StringOrdinalIgnoreCaseM, StringOrdinalIgnoreCaseM, string>.From(string repr) =>
         new StringOrdinalIgnoreCaseM(repr);
 
     public static StringInvariantM From(string repr) => 
@@ -49,7 +49,7 @@ public readonly record struct StringOrdinalIgnoreCaseM(string Value) : StringM<S
 
 public readonly record struct StringCultureM(string Value) : StringM<StringCultureM>
 {
-    static Fin<StringCultureM> DomainType<StringCultureM, string>.From(string repr) =>
+    static Fin<StringCultureM> DomainFactory<StringCultureM, StringCultureM, string>.From(string repr) =>
         new StringCultureM(repr);
 
     public static StringCultureM From(string repr) => 
@@ -71,7 +71,7 @@ public readonly record struct StringCultureM(string Value) : StringM<StringCultu
 
 public readonly record struct StringCultureIgnoreCaseM(string Value) : StringM<StringCultureIgnoreCaseM>
 {
-    static Fin<StringCultureIgnoreCaseM> DomainType<StringCultureIgnoreCaseM, string>.From(string repr) =>
+    static Fin<StringCultureIgnoreCaseM> DomainFactory<StringCultureIgnoreCaseM, StringCultureIgnoreCaseM, string>.From(string repr) =>
         new StringCultureIgnoreCaseM(repr);
 
     public static StringCultureIgnoreCaseM From(string repr) => 
@@ -113,7 +113,7 @@ public readonly record struct StringInvariantM(string Value) : StringM<StringInv
 
 public readonly record struct StringInvariantIgnoreCaseM(string Value) : StringM<StringInvariantIgnoreCaseM>
 {
-    static Fin<StringInvariantIgnoreCaseM> DomainType<StringInvariantIgnoreCaseM, string>.From(string repr) =>
+    static Fin<StringInvariantIgnoreCaseM> DomainFactory<StringInvariantIgnoreCaseM, StringInvariantIgnoreCaseM, string>.From(string repr) =>
         new StringInvariantIgnoreCaseM(repr);
 
     public static StringInvariantIgnoreCaseM From(string repr) => 

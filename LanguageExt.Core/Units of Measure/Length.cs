@@ -149,7 +149,7 @@ public readonly struct Length :
     public double To() =>
         Value;
 
-    public static Length AdditiveIdentity { get; }
+    public static Length AdditiveIdentity { get; } = new Length(0);
 }
 
 public static class UnitsLengthExtensions

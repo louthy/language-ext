@@ -9,7 +9,7 @@ namespace LanguageExt;
 /// <param name="Value">Contained value</param>
 public readonly record struct StringM(string Value) : StringM<StringM> 
 {
-    static Fin<StringM> DomainType<StringM, string>.From(string repr) =>
+    static Fin<StringM> DomainFactory<StringM, StringM, string>.From(string repr) =>
         new StringM(repr);
 
     public static StringM From(string repr) => 

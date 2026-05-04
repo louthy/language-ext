@@ -57,6 +57,7 @@ public interface DerivedTypeFactory<SELF, BASE, REPR> :
     /// <inheritdoc/>
     static Fin<SELF> DomainFactory<SELF, SELF, REPR>.From(REPR repr) => 
         BASE.From(repr).Map(SELF.New);
+
 }
 
 /// <summary>
