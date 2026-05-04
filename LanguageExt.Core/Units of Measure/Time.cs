@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt.Traits.Domain;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -13,9 +14,8 @@ namespace LanguageExt;
 /// Implicitly convertible to TimeSpan
 /// </summary>
 public readonly struct Time :
-    IComparable<Time>,
-    IEquatable<Time>,
-    IComparable
+    DomainType<Time, double>,
+    Magnitude<Time, double>
 {
     readonly double Value;
 
@@ -31,6 +31,8 @@ public readonly struct Time :
     public bool Equals(Time other, double epsilon) =>
         Math.Abs(other.Value - Value) < epsilon;
 
+    public double To() => Value;
+
     public override bool Equals(object? obj) =>
         obj is Time time && Equals(time);
 
@@ -40,25 +42,25 @@ public readonly struct Time :
     public int CompareTo(object? obj) =>
         obj switch
         {
-            null       => 1,
+            null => 1,
             Time other => CompareTo(other),
-            _          => throw new ArgumentException($"must be of type {nameof(Time)}")
+            _ => throw new ArgumentException($"must be of type {nameof(Time)}")
         };
 
     public int CompareTo(Time other) =>
         Value.CompareTo(other.Value);
 
     public Time Add(Time rhs) =>
-        new (Value + rhs.Value);
+        new(Value + rhs.Value);
 
     public Time Subtract(Time rhs) =>
-        new (Value - rhs.Value);
+        new(Value - rhs.Value);
 
     public Time Multiply(double rhs) =>
-        new (Value * rhs);
+        new(Value * rhs);
 
     public Time Divide(double rhs) =>
-        new (Value / rhs);
+        new(Value / rhs);
 
     public static Time operator *(Time lhs, double rhs) =>
         lhs.Multiply(rhs);
@@ -67,7 +69,7 @@ public readonly struct Time :
         rhs.Multiply(lhs);
 
     public static TimeSq operator *(Time lhs, Time rhs) =>
-        new (lhs.Value * rhs.Value);
+        new(lhs.Value * rhs.Value);
 
     public static TimeSq operator ^(Time lhs, int power) =>
         power == 2
@@ -111,22 +113,22 @@ public readonly struct Time :
         lhs.Value <= rhs.Value;
 
     public Time Pow(double power) =>
-        new (Math.Pow(Value, power));
+        new(Math.Pow(Value, power));
 
     public Time Round() =>
-        new (Math.Round(Value));
+        new(Math.Round(Value));
 
     public Time Sqrt() =>
-        new (Math.Sqrt(Value));
+        new(Math.Sqrt(Value));
 
     public Time Abs() =>
-        new (Math.Abs(Value));
+        new(Math.Abs(Value));
 
     public Time Min(Time rhs) =>
-        new (Math.Min(Value, rhs.Value));
+        new(Math.Min(Value, rhs.Value));
 
     public Time Max(Time rhs) =>
-        new (Math.Max(Value, rhs.Value));
+        new(Math.Max(Value, rhs.Value));
 
     public TimeSpan ToTimeSpan() =>
         TimeSpan.FromSeconds(Value);
@@ -135,13 +137,22 @@ public readonly struct Time :
         value.ToTimeSpan();
 
     public static implicit operator Time(TimeSpan value) =>
-        new (value.TotalSeconds);
+        new(value.TotalSeconds);
 
-    public double Seconds       => Value;
-    public double Milliseconds  => Value * 1000.0;
-    public double Minutes       => Value / 60.0;
-    public double Hours         => Value / 3600.0;
-    public double Days          => Value / 86400.0;
+    public double Seconds => Value;
+    public double Milliseconds => Value * 1000.0;
+    public double Minutes => Value / 60.0;
+    public double Hours => Value / 3600.0;
+    public double Days => Value / 86400.0;
+
+    public static Time operator -(Time value) =>
+        new(-value.Value);
+
+    public static Time From(double repr) =>
+        new(repr);
+
+    public static Time AdditiveIdentity { get; } = new(0);
+
 }
 
 public static class UnitsTimeExtensions

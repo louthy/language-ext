@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt.Traits.Domain;
 
 namespace LanguageExt;
 
@@ -12,9 +13,8 @@ namespace LanguageExt;
 /// accessors (MetresPerSecond2, etc.) or divide by 1.MetresPerSecond2()
 /// </summary>
 public readonly struct Accel :
-    IComparable<Accel>,
-    IEquatable<Accel>,
-    IComparable
+    DomainType<Accel, double>,
+    Magnitude<Accel, double>
 {
     readonly double Value;
 
@@ -29,6 +29,8 @@ public readonly struct Accel :
 
     public bool Equals(Accel other, double epsilon) =>
         Math.Abs(other.Value - Value) < epsilon;
+
+    public double To() => Value;
 
     public override bool Equals(object? obj) =>
         obj is Accel accel && Equals(accel);
@@ -132,6 +134,14 @@ public readonly struct Accel :
         new (Math.Max(Value, rhs.Value));
 
     public double MetresPerSecond2 => Value;
+
+    public static Accel operator -(Accel value) => 
+        new(-value.Value);
+
+    public static Accel From(double repr) =>
+        new(repr);
+
+    public static Accel AdditiveIdentity { get; } = new(0);
 }
 
 public static class UnitsAccelExtensions

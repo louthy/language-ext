@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt.Traits.Domain;
 
 namespace LanguageExt;
 
@@ -6,9 +7,8 @@ namespace LanguageExt;
 /// Numeric time-span squared value
 /// </summary>
 public readonly struct TimeSq :
-    IComparable<TimeSq>,
-    IEquatable<TimeSq>,
-    IComparable
+    DomainType<TimeSq, double>,
+    Magnitude<TimeSq, double>
 {
     readonly double Value;
 
@@ -23,6 +23,8 @@ public readonly struct TimeSq :
 
     public bool Equals(TimeSq other, double epsilon) =>
         Math.Abs(other.Value - Value) < epsilon;
+
+    public double To() => Value;
 
     public override bool Equals(object? obj) =>
         obj is TimeSq sq && Equals(sq);
@@ -105,4 +107,12 @@ public readonly struct TimeSq :
         new (Math.Max(Value, rhs.Value));
 
     public double Seconds2 => Value;
+    public static TimeSq operator -(TimeSq value) => 
+        new(-value.Value);
+
+
+    public static TimeSq From(double repr) =>
+        new(repr);
+
+    public static TimeSq AdditiveIdentity { get; } = new(0);
 }

@@ -13,7 +13,6 @@ namespace LanguageExt;
 /// accessors (Metres, Centimetres, etc.) or divide by 1.Metre()
 /// </summary>
 public readonly struct Length :
-    IComparable,
     DomainType<Length, double>,
     Magnitude<Length, double> 
 {
@@ -144,14 +143,13 @@ public readonly struct Length :
     public double Nanometres    => Value * 1000000000.0;
     public double Angstroms     => Value * 10000000000.0;
     
-    static Fin<Length> DomainType<Length, double>.From(double repr) =>
-        new Length(repr);
-
     public static Length From(double repr) => 
         new (repr);
     
     public double To() =>
         Value;
+
+    public static Length AdditiveIdentity { get; }
 }
 
 public static class UnitsLengthExtensions

@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt.Traits.Domain;
 
 namespace LanguageExt;
 
@@ -7,9 +8,8 @@ namespace LanguageExt;
 /// Handles unit conversions automatically
 /// </summary>
 public readonly struct VelocitySq :
-    IComparable<VelocitySq>,
-    IEquatable<VelocitySq>,
-    IComparable
+    DomainType<VelocitySq, double>,
+    Magnitude<VelocitySq, double>
 {
     readonly double Value;
 
@@ -24,6 +24,8 @@ public readonly struct VelocitySq :
 
     public bool Equals(VelocitySq other, double epsilon) =>
         Math.Abs(other.Value - Value) < epsilon;
+
+    public double To() => Value;
 
     public override bool Equals(object? obj) =>
         obj is VelocitySq sq && Equals(sq);
@@ -106,4 +108,11 @@ public readonly struct VelocitySq :
         new (Math.Max(Value, rhs.Value));
 
     public double MetresPerSecond2 => Value;
+    public static VelocitySq operator -(VelocitySq value) => 
+        new(-value.Value);
+
+
+    public static VelocitySq From(double repr) =>
+        new(repr);
+    public static VelocitySq AdditiveIdentity { get; } = new (0);
 }

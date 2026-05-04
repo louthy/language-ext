@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt.Traits.Domain;
 
 namespace LanguageExt;
 
@@ -12,9 +13,8 @@ namespace LanguageExt;
 /// accessors (SqMetres, SqCentimetres, etc.) or divide by 1.SqMetre()
 /// </summary>
 public readonly struct Area :
-    IComparable<Area>,
-    IEquatable<Area>,
-    IComparable
+    DomainType<Area, double>,
+    Magnitude<Area, double>
 {
     readonly double Value;
 
@@ -29,6 +29,8 @@ public readonly struct Area :
 
     public bool Equals(Area other, double epsilon) =>
         Math.Abs(other.Value - Value) < epsilon;
+
+    public double To() => Value;
 
     public override bool Equals(object? obj) =>
         obj is Area area && Equals(area);
@@ -116,10 +118,17 @@ public readonly struct Area :
     public Area Max(Area rhs) =>
         new Area(Math.Max(Value, rhs.Value));
 
+    public static Area From(double repr) =>
+        new(repr);
+
     public double SqKilometres  => Value * 0.000001;
     public double SqMetres      => Value;
     public double SqCentimetres => Value * 10000.0;
     public double SqMillimetres => Value * 1000000.0;
+    public static Area operator -(Area value) => 
+        new Area(-value.Value);
+
+    public static Area AdditiveIdentity { get; } = new(0);
 }
 
 public static class UnitsAreaExtensions

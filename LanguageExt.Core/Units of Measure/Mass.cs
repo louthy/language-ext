@@ -1,11 +1,11 @@
 using System;
+using LanguageExt.Traits.Domain;
 
 namespace LanguageExt;
 
 public readonly struct Mass : 
-    IComparable<Mass>, 
-    IEquatable<Mass>, 
-    IComparable
+    DomainType<Mass, double>, 
+    Magnitude<Mass, double>
 {
     readonly double Value;
 
@@ -28,6 +28,8 @@ public readonly struct Mass :
 
     public bool Equals(Mass other, double epsilon) =>
         Math.Abs(other.Kilograms - Kilograms) < epsilon;
+
+    public double To() => Value;
 
     public override bool Equals(object?  obj) =>
         obj is Mass m && Equals(m);
@@ -107,6 +109,13 @@ public readonly struct Mass :
     public double Stones => Pounds      / 14.0;
     public double ImperialTons => Value / 0.000984207;
     public double ShortTons => Value    / 0.00110231;
+    public static Mass operator -(Mass value) =>
+        new (-value.Value);
+
+    public static Mass From(double repr) =>
+        new(repr);
+
+    public static Mass AdditiveIdentity { get; } = new(0);
 }
 
 public static class UnitsMassExtensions

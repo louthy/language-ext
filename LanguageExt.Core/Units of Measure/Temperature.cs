@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using LanguageExt.Traits.Domain;
 using static LanguageExt.Prelude;
+using static LanguageExt.Temperature;
 
 namespace LanguageExt;
 
 public readonly struct Temperature :
-    IComparable<Temperature>,
-    IEquatable<Temperature>,
-    IComparable
+    DomainType<Temperature, double>,
+    Magnitude<Temperature, double>
 {
     internal enum UnitType
     {
@@ -58,6 +59,8 @@ public readonly struct Temperature :
 
     public override int GetHashCode() =>
         Value.GetHashCode();
+
+    public double To() => Value;
 
     public override bool Equals(object? obj) =>
         obj is Temperature t && Equals(t);
@@ -336,6 +339,16 @@ public readonly struct Temperature :
                           },
             _ => throw new NotSupportedException(Type.ToString())
         };
+
+    public static Temperature operator -(Temperature value) => 
+        new(value.Type, -value.Value);
+
+
+    public static Temperature From(double repr) =>
+        new(UnitType.C, repr);
+
+    public static Temperature AdditiveIdentity { get; } = new(UnitType.C, 0);
+
 }
 
 public static class UnitsTemperatureExtensions

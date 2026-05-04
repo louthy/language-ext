@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt.Traits.Domain;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -13,9 +14,8 @@ namespace LanguageExt;
 /// accessors (MetresPerSecond, etc.) or divide by 1.MetrePerSecond()
 /// </summary>
 public readonly struct Velocity :
-    IComparable<Velocity>,
-    IEquatable<Velocity>,
-    IComparable
+    DomainType<Velocity, double>,
+    Magnitude<Velocity, double>
 {
     readonly double Value;
 
@@ -30,6 +30,8 @@ public readonly struct Velocity :
 
     public bool Equals(Velocity other, double epsilon) =>
         Math.Abs(other.Value - Value) < epsilon;
+
+    public double To() => Value;
 
     public override bool Equals(object? obj) =>
         obj is Velocity velocity && Equals(velocity);
@@ -134,6 +136,13 @@ public readonly struct Velocity :
     public double MilesPerSecond      => Value                                    / 1609.344000006437376000025749504;
     public double MilesPerHour        => Value / 1609.344000006437376000025749504 * 3600.0;
     public double Knots               => Value                                    / 0.51444444444444;
+    public static Velocity operator -(Velocity value) => 
+        new(-value.Value);
+
+
+    public static Velocity From(double repr) =>
+        new(repr);
+    public static Velocity AdditiveIdentity { get; } = new(0);
 }
 
 public static class UnitsVelocityExtensions
