@@ -9,7 +9,8 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests;
 
-public sealed class OnlyTrueBoolean : DomainType<OnlyTrueBoolean, bool>
+public sealed class OnlyTrueBoolean : 
+    DomainTypeFactory<OnlyTrueBoolean, bool>
 {
     private readonly bool _value;
 
@@ -22,7 +23,8 @@ public sealed class OnlyTrueBoolean : DomainType<OnlyTrueBoolean, bool>
     public bool To() => _value;
 }
 
-public sealed class OnlyDigitChar : DomainType<OnlyDigitChar, char>
+public sealed class OnlyDigitChar : 
+    DomainTypeFactory<OnlyDigitChar, char>
 {
     private readonly char _value;
 
@@ -35,7 +37,8 @@ public sealed class OnlyDigitChar : DomainType<OnlyDigitChar, char>
     public char To() => _value;
 }
 
-public sealed class OnlyDigitString : DomainType<OnlyDigitString, string>
+public sealed class OnlyDigitString : 
+    DomainTypeFactory<OnlyDigitString, string>
 {
     private readonly string _value;
 
@@ -48,7 +51,8 @@ public sealed class OnlyDigitString : DomainType<OnlyDigitString, string>
     public string To() => _value;
 }
 
-public sealed class OddOnlyByte : DomainType<OddOnlyByte, byte>
+public sealed class OddOnlyByte : 
+    DomainTypeFactory<OddOnlyByte, byte>
 {
     private readonly byte _value;
 
@@ -61,7 +65,8 @@ public sealed class OddOnlyByte : DomainType<OddOnlyByte, byte>
     public byte To() => _value;
 }
 
-public sealed class OddOnlyInt16 : DomainType<OddOnlyInt16, short>
+public sealed class OddOnlyInt16 : 
+    DomainTypeFactory<OddOnlyInt16, short>
 {
     private readonly short _value;
 
@@ -74,7 +79,7 @@ public sealed class OddOnlyInt16 : DomainType<OddOnlyInt16, short>
     public short To() => _value;
 }
 
-public sealed class OddOnlyUInt16 : DomainType<OddOnlyUInt16, ushort>
+public sealed class OddOnlyUInt16 : DomainTypeFactory<OddOnlyUInt16, ushort>
 {
     private readonly ushort _value;
 
@@ -87,7 +92,8 @@ public sealed class OddOnlyUInt16 : DomainType<OddOnlyUInt16, ushort>
     public ushort To() => _value;
 }
 
-public sealed class OddOnlyInt32 : DomainType<OddOnlyInt32, int>
+public sealed class OddOnlyInt32 : 
+    DomainTypeFactory<OddOnlyInt32, int>
 {
     private readonly int _value;
 
@@ -100,7 +106,8 @@ public sealed class OddOnlyInt32 : DomainType<OddOnlyInt32, int>
     public int To() => _value;
 }
 
-public sealed class OddOnlyUInt32 : DomainType<OddOnlyUInt32, uint>
+public sealed class OddOnlyUInt32 : 
+    DomainTypeFactory<OddOnlyUInt32, uint>
 {
     private readonly uint _value;
 
@@ -113,7 +120,8 @@ public sealed class OddOnlyUInt32 : DomainType<OddOnlyUInt32, uint>
     public uint To() => _value;
 }
 
-public sealed class OddOnlyInt64 : DomainType<OddOnlyInt64, long>
+public sealed class OddOnlyInt64 : 
+    DomainTypeFactory<OddOnlyInt64, long>
 {
     private readonly long _value;
 
@@ -126,7 +134,8 @@ public sealed class OddOnlyInt64 : DomainType<OddOnlyInt64, long>
     public long To() => _value;
 }
 
-public sealed class OddOnlyUInt64 : DomainType<OddOnlyUInt64, ulong>
+public sealed class OddOnlyUInt64 : 
+    DomainTypeFactory<OddOnlyUInt64, ulong>
 {
     private readonly ulong _value;
 
@@ -139,7 +148,8 @@ public sealed class OddOnlyUInt64 : DomainType<OddOnlyUInt64, ulong>
     public ulong To() => _value;
 }
 
-public sealed class PositiveOnlySingle : DomainType<PositiveOnlySingle, float>
+public sealed class PositiveOnlySingle : 
+    DomainTypeFactory<PositiveOnlySingle, float>
 {
     private readonly float _value;
     private PositiveOnlySingle(float value) =>
@@ -149,7 +159,8 @@ public sealed class PositiveOnlySingle : DomainType<PositiveOnlySingle, float>
     public float To() => _value;
 }
 
-public sealed class PositiveOnlyDouble : DomainType<PositiveOnlyDouble, double>
+public sealed class PositiveOnlyDouble : 
+    DomainTypeFactory<PositiveOnlyDouble, double>
 {
     private readonly double _value;
     private PositiveOnlyDouble(double value) =>
@@ -159,7 +170,8 @@ public sealed class PositiveOnlyDouble : DomainType<PositiveOnlyDouble, double>
     public double To() => _value;
 }
 
-public sealed class PositiveOnlyDecimal : DomainType<PositiveOnlyDecimal, decimal>
+public sealed class PositiveOnlyDecimal : 
+    DomainTypeFactory<PositiveOnlyDecimal, decimal>
 {
     private readonly decimal _value;
     private PositiveOnlyDecimal(decimal value) =>
@@ -169,7 +181,8 @@ public sealed class PositiveOnlyDecimal : DomainType<PositiveOnlyDecimal, decima
     public decimal To() => _value;
 }
 
-public sealed class PastOnlyDate : DomainType<PastOnlyDate, DateOnly>
+public sealed class PastOnlyDate : 
+    DomainTypeFactory<PastOnlyDate, DateOnly>
 {
     private readonly DateOnly _value;
     private PastOnlyDate(DateOnly value) =>
@@ -179,7 +192,8 @@ public sealed class PastOnlyDate : DomainType<PastOnlyDate, DateOnly>
     public DateOnly To() => _value;
 }
 
-public sealed class MorningOnlyTime : DomainType<MorningOnlyTime, TimeOnly>
+public sealed class MorningOnlyTime : 
+    DomainTypeFactory<MorningOnlyTime, TimeOnly>
 {
     private readonly TimeOnly _value;
     private MorningOnlyTime(TimeOnly value) =>
@@ -189,7 +203,8 @@ public sealed class MorningOnlyTime : DomainType<MorningOnlyTime, TimeOnly>
     public TimeOnly To() => _value;
 }
 
-public sealed class PastOnlyDateTime : DomainType<PastOnlyDateTime, DateTime>
+public sealed class PastOnlyDateTime : 
+    DomainTypeFactory<PastOnlyDateTime, DateTime>
 {
     private readonly DateTime _value;
     private PastOnlyDateTime(DateTime value) =>
@@ -199,7 +214,8 @@ public sealed class PastOnlyDateTime : DomainType<PastOnlyDateTime, DateTime>
     public DateTime To() => _value;
 }
 
-public sealed class FutureOnlyDateTimeOffset : DomainType<FutureOnlyDateTimeOffset, DateTimeOffset>
+public sealed class FutureOnlyDateTimeOffset : 
+    DomainTypeFactory<FutureOnlyDateTimeOffset, DateTimeOffset>
 {
     private readonly DateTimeOffset _value;
     private FutureOnlyDateTimeOffset(DateTimeOffset value) =>
@@ -208,7 +224,6 @@ public sealed class FutureOnlyDateTimeOffset : DomainType<FutureOnlyDateTimeOffs
         repr > DateTimeOffset.UtcNow ? new FutureOnlyDateTimeOffset(repr) : Error.New("Invalid value");
     public DateTimeOffset To() => _value;
 }
-
 
 public sealed class DomainTypeTests
 {

@@ -4,11 +4,12 @@ using System.Text;
 using LanguageExt.Traits.Domain;
 using Xunit;
 
-namespace LanguageExt.Tests;
+namespace LanguageExt.Tests.TraitTests.Domain;
 
 public sealed class MichelinStart 
     : Maintainer<MichelinStart, uint>
 {
+
     private readonly uint _value;
 
     public static MichelinStart One { get; } = new(1);
@@ -26,6 +27,12 @@ public sealed class MichelinStart
 
     public uint To() => _value;
 
+    public bool Equals(MichelinStart? other) =>
+        _value.Equals(other?._value);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is MichelinStart other && Equals(other);
+
+    public override int GetHashCode() => (int)_value;
+
     public static Seq<MichelinStart> All { get; } =
     [
         One,
@@ -34,6 +41,12 @@ public sealed class MichelinStart
         Four,
         Five
     ];
+
+    public static bool operator ==(MichelinStart? left, MichelinStart? right) =>
+        left?._value == right?._value;
+
+    public static bool operator !=(MichelinStart? left, MichelinStart? right) =>
+        !(left == right);
 }
 
 public sealed class MaintainerTests

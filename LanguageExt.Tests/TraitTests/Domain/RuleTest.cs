@@ -8,7 +8,7 @@ using LanguageExt.Traits.Domain;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace LanguageExt.Tests;
+namespace LanguageExt.Tests.TraitTests.Domain;
 
 public sealed class MaxLength<MAX> : Rule<MaxLength<MAX>, string>
     where MAX : Const<int>

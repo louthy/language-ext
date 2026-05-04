@@ -4,7 +4,7 @@ using LanguageExt.Common;
 using LanguageExt.Traits.Domain;
 using Xunit;
 
-namespace LanguageExt.Tests;
+namespace LanguageExt.Tests.TraitTests.Domain;
 
 public sealed class MaxSize<MAX, F, A> : RuleK<MaxSize<MAX, F, A>, F, A>
     where MAX : Const<int>
