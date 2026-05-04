@@ -1,16 +1,17 @@
+using LanguageExt.Traits;
+
 namespace DomainTypesExamples;
 
-public interface Dimension
+public interface DimensionSize : Const<int>
 {
-    public static abstract int Size { get; } 
 }
 
-public class D3 : Dimension
+public class D3 : DimensionSize
 {
-    public static int Size => 3;
+    public static int Value => 3;
 }
 
-public class D128 : Dimension
+public class D128 : DimensionSize
 {
-    public static int Size => 128;
+    public static int Value => 128;
 }

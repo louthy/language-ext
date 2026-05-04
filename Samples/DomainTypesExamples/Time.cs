@@ -1,4 +1,6 @@
+using DomainTypesExamples.Invariants;
 using LanguageExt;
+using LanguageExt.Common;
 using LanguageExt.Traits.Domain;
 
 namespace DomainTypesExamples;
@@ -7,11 +9,11 @@ public readonly record struct Time(long Timestamp) :
     DomainType<Time, long>,
     Locus<Time, TimeSpan, long>
 {
-    static Fin<Time> DomainType<Time, long>.From(long repr) => 
-        new Time(repr);
-
-    public static Time From(long repr) => 
-        new (repr);
+    public static Fin<Time> From(long repr) =>
+        NonNegative<long>
+            .Validate(repr, Fail: (r, v) => 
+                Error.New($"Time cannot be negative (Sent: {v}, minimal: {r.Zero})"))
+            .Map(v => new Time(v));
 
     public long To() =>
         Timestamp;
