@@ -25,6 +25,7 @@ El dominio se organiza en dos pilares principales:
 
 - **Types** → definen qué son los valores
 - **Factories** → definen cómo se crean
+- **Rules** → definen qué deben cumplir
 
 ### Types
 
@@ -50,14 +51,28 @@ Aquí se define:
 - cómo manejar errores de construcción
 - cómo encapsular efectos cuando son necesarios
 
+### Rules
+
+Contienen las abstracciones que modelan invariantes del dominio.
+
+Una rule representa una condición que un valor debe cumplir para ser considerado válido.
+
+Aquí se define:
+- cómo expresar validaciones de forma reutilizable
+- cómo componer múltiples invariantes
+- cómo desacoplar validación de construcción
+
+Las rules pueden ser utilizadas por factories o directamente en lógica de dominio.
+
 ## Flujo conceptual
 
 El flujo natural dentro del sistema es:
 
 1. Datos externos entran al sistema (API, base de datos, archivos, etc.)
 2. Esos datos pasan por **Factories**
-3. Si son válidos, se transforman en **Types**
-4. A partir de ese punto, todo opera sobre valores de dominio válidos
+3. Se aplican **Rules** para validar invariantes
+4. Si son válidos, se transforman en **Types**
+5. A partir de ese punto, todo opera sobre valores de dominio válidos
 
 Esto reduce la necesidad de validaciones repetidas y aumenta la confianza al componer lógica.
 
@@ -118,6 +133,10 @@ Todos estos son valores que nacen en el dominio y que el resto del sistema debe 
 ## Filosofía
 
 El dominio es la fuente de verdad del sistema.
+
+Types definen significado.  
+Rules definen restricciones.  
+Factories definen construcción.
 
 Mientras más expresivo y preciso sea, menos complejidad se filtra hacia otras capas.
 

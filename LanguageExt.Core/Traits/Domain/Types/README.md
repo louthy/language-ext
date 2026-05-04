@@ -85,17 +85,28 @@ Conceptual examples:
 - calculated totals
 - normalized values
 - projections
-
+- 
 ### DomainSet
 
-Represents sets of valid values defined by the domain.
+Represents open sets of valid values with identity defined by the domain.
 
-Used when the domain defines a closed or constrained set.
+Used when the domain defines a set with unique, generated values.
 
 Conceptual examples:
-- states
+- A product SKU
+- A book Slug
+
+### Maintainer
+
+Represents closed sets of valid values with identity defined by the domain.
+
+Used when the domain defines a set of related unique values. It works like a discrimnated union, but on a value level.
+
+Conceptual examples:
+- possible states
 - categories
-- allowed options
+- valid options
+
 
 ### Algebraic spaces
 

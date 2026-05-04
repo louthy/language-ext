@@ -25,6 +25,7 @@ The domain is organized around two main pillars:
 
 - **Types** → define what values are
 - **Factories** → define how values are created
+- **Rules** → define what values must satisfy
 
 ### Types
 
@@ -50,14 +51,28 @@ Here we define:
 - how construction errors are handled
 - how effects are encapsulated when needed
 
+### Rules
+Contain the abstractions that model domain invariants.
+
+A rule represents a condition that a value must satisfy to be considered valid.
+
+Here we define:
+
+- how to express reusable validation
+- how to compose multiple invariants
+- how to decouple validation from construction
+
+Rules can be used by factories or directly in domain logic.
+
 ## Conceptual Flow
 
 The natural flow in the system is:
 
-1. External data enters the system (API, database, files, etc.)
-2. That data goes through **Factories**
-3. If valid, it becomes **Types**
-4. From that point on, everything operates on valid domain values
+1. External data enters the system (API, database, files, etc.).
+2. Data flows through **Factories**
+3. **Rules** are applied to validate invariants
+4. If valid, it becomes **Types**
+5. From that point on, everything operates on valid domain values
 
 This reduces repeated validation and increases confidence when composing logic.
 
@@ -119,8 +134,12 @@ These are values born in the domain that the rest of the system must respect.
 
 The domain is the source of truth of the system.
 
-The more expressive and precise it is, the less complexity leaks into other layers.
+Types define meaning.  
+Rules define constraints.  
+Factories define construction.
+
+The clearer this contract is, the less complexity leaks into other layers.
 
 The goal is not to model everything upfront, but to enable progressive evolution without losing consistency.
 
-Clear types + controlled construction = fewer errors and faster development.
+Clear types + explicit rules + controlled construction = fewer errors and faster development.

@@ -88,9 +88,19 @@ Ejemplos conceptuales:
 
 ### DomainSet
 
-Representa conjuntos de valores válidos dentro del dominio.
+Representa conjuntos abiertos (con identidad) de valores válidos dentro del dominio.
 
-Se usa cuando el dominio define un conjunto permitido o cerrado.
+Su principal utilidad es para señalar que tipos de dominio son unicos, pero generados.
+
+Ejemplos conceptuales:
+- SKU de un producto
+- Slug de un libro
+
+### Maintainer
+
+Representa conjuntos cerrados (con identidad) de valores de un dominio.
+
+Señala tipos de dominio que tienen un conjunto limitado de valores, funcionando como una union discriminada, pero a nivel de valores, no tipo.
 
 Ejemplos conceptuales:
 - estados posibles
