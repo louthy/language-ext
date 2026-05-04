@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using LanguageExt.Traits.Domain;
 
 namespace DomainTypesExamples.Invariants;
 
