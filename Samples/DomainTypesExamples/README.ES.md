@@ -4,7 +4,7 @@ Este ejemplo modela un pequeño dominio de **seguimiento de jornada laboral**.
 
 El objetivo es demostrar cómo los tipos de dominio, factories, reglas, traits algebraicos y capacidades con efectos pueden trabajar juntos para construir un modelo de dominio seguro y componible.
 
-El ejemplo incluye usuarios, jornadas de trabajo, bloques de trabajo, duraciones, fechas y generación de datos en tiempo de ejecución. Muestra cómo valores externos o primitivos se transforman en valores de dominio con significado, cómo se aplican invariantes durante la construcción y cómo luego estos valores pueden componerse de forma segura.
+El ejemplo incluye usuarios, jornadas de trabajo, bloques de trabajo, pagos en base al día, duraciones, fechas y generación de datos en tiempo de ejecución. Muestra cómo valores externos o primitivos se transforman en valores de dominio con significado, cómo se aplican invariantes durante la construcción y cómo luego estos valores pueden componerse de forma segura.
 
 ---
 
@@ -17,7 +17,7 @@ El flujo representado es el siguiente:
 * La fecha de creación se obtiene desde el reloj del sistema
 * Se generan jornadas de trabajo
 * Cada jornada contiene bloques de trabajo como trabajo efectivo, almuerzo y descanso
-* El sistema calcula tiempo total, tiempo efectivo y posibles excesos
+* El sistema calcula tiempo total, tiempo efectivo y posibles excesos, a la vez que determina el pago asociado
 
 Esto demuestra tanto construcción pura como construcción con efectos (tiempo, random, secuencias).
 

@@ -9,6 +9,11 @@ var random = new InMemoryRandomIO();
 
 var runtime = new Runtime(time, sequence, random);
 
+var paymentPolicy =
+    from rate in PaymentRate.From(0.5m * uf)
+    from policy in PaymentPolicy.From(rate, overtimeMultiplier: 1.5m)
+    select policy;
+
 GenerateWorkPeriod<Runtime> generatePeriod =
     overtime => from effHours in nextRandom<Runtime>(min: 1, max: 4)
 
@@ -54,7 +59,7 @@ GenerateWorkDay<Runtime> generateBlockDay =
         select day;
 
 GenerateDetailUser detailUser =
-    user =>
+    (policy, user) =>
     {
         var (id, name, createdAt, workDays) = user;
 
@@ -66,11 +71,21 @@ GenerateDetailUser detailUser =
         {
             var (at, blocks) = day.To();
 
+            var payment = policy.Calculate(day);
+
             Console.WriteLine($"  Date: {at}");
             Console.WriteLine($"    Blocks: {blocks.Count}");
             Console.WriteLine($"    Tracked: {Display(day.TrackedDuration)}");
             Console.WriteLine($"    Effective: {Display(day.EffectiveDuration)}");
             Console.WriteLine($"    Overtime: {Display(day.Overtime)}");
+
+            Console.WriteLine($"    Payment for normal hours: {payment.Normal}");
+            Console.WriteLine($"    Payment for overtime: {payment.Over}");
+            Console.WriteLine($"    Total payment: {payment.Total}");
+
+            var clpTotal = payment.Total.Convert<CLP>(ufToClp);
+
+            Console.WriteLine($"    In CLP: {clpTotal}");
 
             foreach (var block in blocks)
             {
@@ -89,14 +104,16 @@ var process =
 
     from workDayHernan1 in generateBlockDay(0)
 
-    from hernanAfterWork1 in detailUser(hernan with
+    from policy in paymentPolicy
+
+    from hernanAfterWork1 in detailUser(policy, hernan with
     {
         WorkDays = hernan.WorkDays.Add(workDayHernan1)
     })
 
     from workDayHernan2 in generateBlockDay(2)
 
-    from _1 in detailUser(hernanAfterWork1 with
+    from _1 in detailUser(policy, hernanAfterWork1 with
     {
         WorkDays = hernanAfterWork1.WorkDays.Add(workDayHernan2)
     })
@@ -105,14 +122,14 @@ var process =
 
     from workDayLeon1 in generateBlockDay(0)
 
-    from leonAfterWork1 in detailUser(leon with
+    from leonAfterWork1 in detailUser(policy, leon with
     {
         WorkDays = leon.WorkDays.Add(workDayLeon1)
     })
 
     from workDayLeon2 in generateBlockDay(5)
 
-    from _2 in detailUser(leonAfterWork1 with
+    from _2 in detailUser(policy, leonAfterWork1 with
     {
         WorkDays = leonAfterWork1.WorkDays.Add(workDayLeon2)
     })
@@ -143,7 +160,7 @@ static string Display(Time value)
     return $"{hours:0}h {minutes:00}m";
 }
 
-public delegate IO<User> GenerateDetailUser(User user);
+public delegate IO<User> GenerateDetailUser(PaymentPolicy policy, User user);
 
 public delegate FinT<Eff<RT>, WorkDay> GenerateWorkDay<RT>(int overtime);
 

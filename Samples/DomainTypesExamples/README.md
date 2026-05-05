@@ -4,7 +4,7 @@ This sample models a small **workday tracking domain**.
 
 The goal is to demonstrate how domain types, factories, rules, algebraic traits, and effectful capabilities can work together to build a safe and composable domain model.
 
-The sample includes users, work days, work blocks, durations, dates, and generated runtime data. It shows how external or primitive values are converted into meaningful domain values, how invariants are enforced during construction, and how valid values can later be composed safely.
+The sample includes users, work days, work blocks, durations, dates, payments, and generated runtime data. It shows how external or primitive values are converted into meaningful domain values, how invariants are enforced during construction, and how valid values can later be composed safely.
 
 ### What the sample models
 
@@ -15,7 +15,7 @@ The example represents a basic work tracking flow:
 * The creation date is obtained from the runtime clock
 * Work days are generated
 * Each work day contains work blocks such as effective work, lunch, and rest
-* The system calculates tracked time, effective time, and overtime
+* The system calculates tracked time, effective time, and overtime, aswell of related payments
 
 This demonstrates both pure domain construction and effectful construction using runtime capabilities like time, random values, and sequences.
 
