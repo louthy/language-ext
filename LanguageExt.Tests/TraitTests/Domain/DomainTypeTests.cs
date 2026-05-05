@@ -10,21 +10,26 @@ using static LanguageExt.Prelude;
 namespace LanguageExt.Tests;
 
 public sealed class OnlyTrueBoolean : 
-    DomainTypeFactory<OnlyTrueBoolean, bool>
+    DomainTypeFactory<OnlyTrueBoolean, bool>,
+    DomainTypeFactoryM<OnlyTrueBoolean, Identity, bool>
 {
     private readonly bool _value;
 
     private OnlyTrueBoolean(bool value) =>
         _value = value;
 
+    public bool To() => _value;
+
     public static Fin<OnlyTrueBoolean> From(bool repr) =>
         repr ? new OnlyTrueBoolean(repr) : Error.New("Invalid value");
 
-    public bool To() => _value;
+    public static FinT<Identity, OnlyTrueBoolean> FromM(bool repr) =>
+        From(repr);
 }
 
 public sealed class OnlyDigitChar : 
-    DomainTypeFactory<OnlyDigitChar, char>
+    DomainTypeFactory<OnlyDigitChar, char>,
+    DomainTypeFactoryM<OnlyDigitChar, Identity, char>
 {
     private readonly char _value;
 
@@ -34,11 +39,15 @@ public sealed class OnlyDigitChar :
     public static Fin<OnlyDigitChar> From(char repr) =>
         char.IsDigit(repr) ? new OnlyDigitChar(repr) : Error.New("Invalid value");
 
+    public static FinT<Identity, OnlyDigitChar> FromM(char repr) =>
+        From(repr);
+
     public char To() => _value;
 }
 
 public sealed class OnlyDigitString : 
-    DomainTypeFactory<OnlyDigitString, string>
+    DomainTypeFactory<OnlyDigitString, string>,
+    DomainTypeFactoryM<OnlyDigitString, Identity, string>
 {
     private readonly string _value;
 
@@ -48,11 +57,15 @@ public sealed class OnlyDigitString :
     public static Fin<OnlyDigitString> From(string repr) =>
         repr.All(char.IsDigit) ? new OnlyDigitString(repr) : Error.New("Invalid value");
 
+    public static FinT<Identity, OnlyDigitString> FromM(string repr) =>
+        From(repr);
+
     public string To() => _value;
 }
 
 public sealed class OddOnlyByte : 
-    DomainTypeFactory<OddOnlyByte, byte>
+    DomainTypeFactory<OddOnlyByte, byte>,
+    DomainTypeFactoryM<OddOnlyByte, Identity, byte>
 {
     private readonly byte _value;
 
@@ -62,11 +75,15 @@ public sealed class OddOnlyByte :
     public static Fin<OddOnlyByte> From(byte repr) =>
         repr % 2 == 1 ? new OddOnlyByte(repr) : Error.New("Invalid value");
 
+    public static FinT<Identity, OddOnlyByte> FromM(byte repr) =>
+        From(repr);
+
     public byte To() => _value;
 }
 
 public sealed class OddOnlyInt16 : 
-    DomainTypeFactory<OddOnlyInt16, short>
+    DomainTypeFactory<OddOnlyInt16, short>,
+    DomainTypeFactoryM<OddOnlyInt16, Identity, short>
 {
     private readonly short _value;
 
@@ -76,10 +93,15 @@ public sealed class OddOnlyInt16 :
     public static Fin<OddOnlyInt16> From(short repr) =>
         repr % 2 == 1 ? new OddOnlyInt16(repr) : Error.New("Invalid value");
 
+    public static FinT<Identity, OddOnlyInt16> FromM(short repr) =>
+        From(repr);
+
     public short To() => _value;
 }
 
-public sealed class OddOnlyUInt16 : DomainTypeFactory<OddOnlyUInt16, ushort>
+public sealed class OddOnlyUInt16 : 
+    DomainTypeFactory<OddOnlyUInt16, ushort>,
+    DomainTypeFactoryM<OddOnlyUInt16, Identity, ushort>
 {
     private readonly ushort _value;
 
@@ -89,11 +111,15 @@ public sealed class OddOnlyUInt16 : DomainTypeFactory<OddOnlyUInt16, ushort>
     public static Fin<OddOnlyUInt16> From(ushort repr) =>
         repr % 2 == 1 ? new OddOnlyUInt16(repr) : Error.New("Invalid value");
 
+    public static FinT<Identity, OddOnlyUInt16> FromM(ushort repr) =>
+        From(repr);
+
     public ushort To() => _value;
 }
 
 public sealed class OddOnlyInt32 : 
-    DomainTypeFactory<OddOnlyInt32, int>
+    DomainTypeFactory<OddOnlyInt32, int>,
+    DomainTypeFactoryM<OddOnlyInt32, Identity, int>
 {
     private readonly int _value;
 
@@ -103,11 +129,15 @@ public sealed class OddOnlyInt32 :
     public static Fin<OddOnlyInt32> From(int repr) =>
         repr % 2 == 1 ? new OddOnlyInt32(repr) : Error.New("Invalid value");
 
+    public static FinT<Identity, OddOnlyInt32> FromM(int repr) =>
+        From(repr);
+
     public int To() => _value;
 }
 
 public sealed class OddOnlyUInt32 : 
-    DomainTypeFactory<OddOnlyUInt32, uint>
+    DomainTypeFactory<OddOnlyUInt32, uint>,
+    DomainTypeFactoryM<OddOnlyUInt32, Identity, uint>
 {
     private readonly uint _value;
 
@@ -117,11 +147,15 @@ public sealed class OddOnlyUInt32 :
     public static Fin<OddOnlyUInt32> From(uint repr) =>
         repr % 2 == 1 ? new OddOnlyUInt32(repr) : Error.New("Invalid value");
 
+    public static FinT<Identity, OddOnlyUInt32> FromM(uint repr) =>
+        From(repr);
+
     public uint To() => _value;
 }
 
 public sealed class OddOnlyInt64 : 
-    DomainTypeFactory<OddOnlyInt64, long>
+    DomainTypeFactory<OddOnlyInt64, long>,
+    DomainTypeFactoryM<OddOnlyInt64, Identity, long>
 {
     private readonly long _value;
 
@@ -131,11 +165,15 @@ public sealed class OddOnlyInt64 :
     public static Fin<OddOnlyInt64> From(long repr) =>
         repr % 2 == 1 ? new OddOnlyInt64(repr) : Error.New("Invalid value");
 
+    public static FinT<Identity, OddOnlyInt64> FromM(long repr) =>
+        From(repr);
+
     public long To() => _value;
 }
 
 public sealed class OddOnlyUInt64 : 
-    DomainTypeFactory<OddOnlyUInt64, ulong>
+    DomainTypeFactory<OddOnlyUInt64, ulong>,
+    DomainTypeFactoryM<OddOnlyUInt64, Identity, ulong>
 {
     private readonly ulong _value;
 
@@ -145,84 +183,146 @@ public sealed class OddOnlyUInt64 :
     public static Fin<OddOnlyUInt64> From(ulong repr) =>
         repr % 2 == 1 ? new OddOnlyUInt64(repr) : Error.New("Invalid value");
 
+    public static FinT<Identity, OddOnlyUInt64> FromM(ulong repr) =>
+        From(repr);
+
     public ulong To() => _value;
 }
 
 public sealed class PositiveOnlySingle : 
-    DomainTypeFactory<PositiveOnlySingle, float>
+    DomainTypeFactory<PositiveOnlySingle, float>,
+    DomainTypeFactoryM<PositiveOnlySingle, Identity, float>
 {
     private readonly float _value;
     private PositiveOnlySingle(float value) =>
         _value = value;
     public static Fin<PositiveOnlySingle> From(float repr) =>
         repr > 0 ? new PositiveOnlySingle(repr) : Error.New("Invalid value");
+
+    public static FinT<Identity, PositiveOnlySingle> FromM(float repr) =>
+        From(repr);
     public float To() => _value;
 }
 
 public sealed class PositiveOnlyDouble : 
-    DomainTypeFactory<PositiveOnlyDouble, double>
+    DomainTypeFactory<PositiveOnlyDouble, double>,
+    DomainTypeFactoryM<PositiveOnlyDouble, Identity, double>
 {
     private readonly double _value;
     private PositiveOnlyDouble(double value) =>
         _value = value;
     public static Fin<PositiveOnlyDouble> From(double repr) =>
         repr > 0 ? new PositiveOnlyDouble(repr) : Error.New("Invalid value");
+
+    public static FinT<Identity, PositiveOnlyDouble> FromM(double repr) =>
+        From(repr);
     public double To() => _value;
 }
 
 public sealed class PositiveOnlyDecimal : 
-    DomainTypeFactory<PositiveOnlyDecimal, decimal>
+    DomainTypeFactory<PositiveOnlyDecimal, decimal>,
+    DomainTypeFactoryM<PositiveOnlyDecimal, Identity, decimal>
 {
     private readonly decimal _value;
     private PositiveOnlyDecimal(decimal value) =>
         _value = value;
     public static Fin<PositiveOnlyDecimal> From(decimal repr) =>
         repr > 0 ? new PositiveOnlyDecimal(repr) : Error.New("Invalid value");
+
+    public static FinT<Identity, PositiveOnlyDecimal> FromM(decimal repr) =>
+        From(repr);
     public decimal To() => _value;
 }
 
 public sealed class PastOnlyDate : 
-    DomainTypeFactory<PastOnlyDate, DateOnly>
+    DomainTypeFactory<PastOnlyDate, DateOnly>,
+    DomainTypeFactoryM<PastOnlyDate, Identity, DateOnly>
 {
     private readonly DateOnly _value;
     private PastOnlyDate(DateOnly value) =>
         _value = value;
     public static Fin<PastOnlyDate> From(DateOnly repr) =>
         repr < DateOnly.FromDateTime(DateTime.UtcNow) ? new PastOnlyDate(repr) : Error.New("Invalid value");
+
+    public static FinT<Identity, PastOnlyDate> FromM(DateOnly repr) =>
+        From(repr);
     public DateOnly To() => _value;
 }
 
 public sealed class MorningOnlyTime : 
-    DomainTypeFactory<MorningOnlyTime, TimeOnly>
+    DomainTypeFactory<MorningOnlyTime, TimeOnly>,
+    DomainTypeFactoryM<MorningOnlyTime, Identity, TimeOnly>
 {
     private readonly TimeOnly _value;
     private MorningOnlyTime(TimeOnly value) =>
         _value = value;
     public static Fin<MorningOnlyTime> From(TimeOnly repr) =>
         repr < TimeOnly.FromTimeSpan(TimeSpan.FromHours(12)) ? new MorningOnlyTime(repr) : Error.New("Invalid value");
+
+    public static FinT<Identity, MorningOnlyTime> FromM(TimeOnly repr) =>
+        From(repr);
+
     public TimeOnly To() => _value;
 }
 
 public sealed class PastOnlyDateTime : 
-    DomainTypeFactory<PastOnlyDateTime, DateTime>
+    DomainTypeFactory<PastOnlyDateTime, DateTime>,
+    DomainTypeFactoryM<PastOnlyDateTime, Identity, DateTime>
 {
     private readonly DateTime _value;
     private PastOnlyDateTime(DateTime value) =>
         _value = value;
     public static Fin<PastOnlyDateTime> From(DateTime repr) =>
         repr < DateTime.UtcNow ? new PastOnlyDateTime(repr) : Error.New("Invalid value");
+
+    public static FinT<Identity, PastOnlyDateTime> FromM(DateTime repr) =>
+        From(repr);
     public DateTime To() => _value;
 }
 
 public sealed class FutureOnlyDateTimeOffset : 
-    DomainTypeFactory<FutureOnlyDateTimeOffset, DateTimeOffset>
+    DomainTypeFactory<FutureOnlyDateTimeOffset, DateTimeOffset>,
+    DomainTypeFactoryM<FutureOnlyDateTimeOffset, Identity, DateTimeOffset>
 {
     private readonly DateTimeOffset _value;
     private FutureOnlyDateTimeOffset(DateTimeOffset value) =>
         _value = value;
     public static Fin<FutureOnlyDateTimeOffset> From(DateTimeOffset repr) =>
         repr > DateTimeOffset.UtcNow ? new FutureOnlyDateTimeOffset(repr) : Error.New("Invalid value");
+
+    public static FinT<Identity, FutureOnlyDateTimeOffset> FromM(DateTimeOffset repr) =>
+        From(repr);
     public DateTimeOffset To() => _value;
+}
+
+public sealed class NonEmptyGuid :
+    DomainTypeFactory<NonEmptyGuid, Guid>,
+    DomainTypeFactoryM<NonEmptyGuid, Identity, Guid>
+{
+    private readonly Guid _value;
+    private NonEmptyGuid(Guid value) =>
+        _value = value;
+    public static Fin<NonEmptyGuid> From(Guid repr) =>
+        repr != Guid.Empty ? new NonEmptyGuid(repr) : Error.New("Invalid value");
+
+    public static FinT<Identity, NonEmptyGuid> FromM(Guid repr) =>
+        From(repr);
+    public Guid To() => _value;
+}
+
+public sealed class LongTimeSpan :
+    DomainTypeFactory<LongTimeSpan, TimeSpan>,
+    DomainTypeFactoryM<LongTimeSpan, Identity, TimeSpan>
+{
+    private readonly TimeSpan _value;
+    private LongTimeSpan(TimeSpan value) =>
+        _value = value;
+    public static Fin<LongTimeSpan> From(TimeSpan repr) =>
+        repr >= TimeSpan.FromHours(6) ? new LongTimeSpan(repr) : Error.New("Invalid value");
+
+    public static FinT<Identity, LongTimeSpan> FromM(TimeSpan repr) =>
+        From(repr);
+    public TimeSpan To() => _value;
 }
 
 public sealed class DomainTypeTests
@@ -230,119 +330,131 @@ public sealed class DomainTypeTests
     [Fact]
     public void TestPreludeNewM_FailureCase()
     {
-        var f1 = New<OnlyTrueBoolean>(false);
+        var f1 = New<Identity, OnlyTrueBoolean>(false).Run().As().Value;
         Assert.True(f1.IsFail, "OnlyTrueBoolean(false) should fail");
 
-        var f2 = New<OnlyDigitChar>('a');
+        var f2 = New<Identity, OnlyDigitChar>('a').Run().As().Value;
         Assert.True(f2.IsFail, "OnlyDigitChar('a') should fail");
 
-        var f3 = New<OnlyDigitString>("12a");
+        var f3 = New<Identity, OnlyDigitString>("12a").Run().As().Value;
         Assert.True(f3.IsFail, "OnlyDigitString(\"12a\") should fail");
 
-        var f4 = New<OddOnlyByte>(2);
+        var f4 = New<Identity, OddOnlyByte>(2).Run().As().Value;
         Assert.True(f4.IsFail, "OddOnlyByte(2) should fail");
 
-        var f5 = New<OddOnlyInt16>(2);
+        var f5 = New<Identity, OddOnlyInt16>(2).Run().As().Value;
         Assert.True(f5.IsFail, "OddOnlyInt16(2) should fail");
 
-        var f6 = New<OddOnlyUInt16>(2);
+        var f6 = New<Identity, OddOnlyUInt16>(2).Run().As().Value;
         Assert.True(f6.IsFail, "OddOnlyUInt16(2) should fail");
 
-        var f7 = New<OddOnlyInt32>(2);
+        var f7 = New<Identity, OddOnlyInt32>(2).Run().As().Value;
         Assert.True(f7.IsFail, "OddOnlyInt32(2) should fail");
 
-        var f8 = New<OddOnlyUInt32>(2u);
+        var f8 = New<Identity, OddOnlyUInt32>(2u).Run().As().Value;
         Assert.True(f8.IsFail, "OddOnlyUInt32(2) should fail");
 
-        var f9 = New<OddOnlyInt64>(2L);
+        var f9 = New<Identity, OddOnlyInt64>(2L).Run().As().Value;
         Assert.True(f9.IsFail, "OddOnlyInt64(2) should fail");
 
-        var f10 = New<OddOnlyUInt64>(2UL);
+        var f10 = New<Identity, OddOnlyUInt64>(2UL).Run().As().Value;
         Assert.True(f10.IsFail, "OddOnlyUInt64(2) should fail");
 
-        var f11 = New<PositiveOnlySingle>(-5f);
+        var f11 = New<Identity, PositiveOnlySingle>(-5f).Run().As().Value;
         Assert.True(f11.IsFail, "PositiveOnlySingle(-5) should fail");
 
-        var f12 = New<PositiveOnlyDouble>(-5d);
+        var f12 = New<Identity, PositiveOnlyDouble>(-5d).Run().As().Value;
         Assert.True(f12.IsFail, "PositiveOnlyDouble(-5) should fail");
 
-        var f13 = New<PositiveOnlyDecimal>(-5m);
+        var f13 = New<Identity, PositiveOnlyDecimal>(-5m).Run().As().Value;
         Assert.True(f13.IsFail, "PositiveOnlyDecimal(-5) should fail");
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var f14 = New<PastOnlyDate>(today.AddDays(+1));
+        var f14 = New<Identity, PastOnlyDate>(today.AddDays(+1)).Run().As().Value;
         Assert.True(f14.IsFail, "PastOnlyDate(today + 1 day) should fail");
 
         var noon = TimeOnly.FromTimeSpan(TimeSpan.FromHours(18));
-        var f15 = New<MorningOnlyTime>(noon);
+        var f15 = New<Identity, MorningOnlyTime>(noon).Run().As().Value;
         Assert.True(f15.IsFail, "MorningOnlyTime(18:00) should fail");
 
         var now = DateTime.UtcNow.AddDays(1);
-        var f16 = New<PastOnlyDateTime>(now);
+        var f16 = New<Identity, PastOnlyDateTime>(now).Run().As().Value;
         Assert.True(f16.IsFail, "PastOnlyDateTime(now + 1 day) should fail");
 
         var nowOffset = DateTimeOffset.UtcNow.AddDays(-1);
-        var f17 = New<FutureOnlyDateTimeOffset>(nowOffset);
+        var f17 = New<Identity, FutureOnlyDateTimeOffset>(nowOffset).Run().As().Value;
         Assert.True(f17.IsFail, "FutureOnlyDateTimeOffset(now - 1 day) should fail");
+
+        var f18 = New<Identity, NonEmptyGuid>(Guid.Empty).Run().As().Value;
+        Assert.True(f18.IsFail, "NonEmptyGuid(Guid.Empty) should fail");
+
+        var f19 = New<Identity, LongTimeSpan>(TimeSpan.FromHours(1)).Run().As().Value;
+        Assert.True(f19.IsFail, "LongTimeSpan(TimeSpan.FromHours(1)) should fail");
     }
 
     [Fact]
     public void TestPreludeNewM_SuccessCase()
     {
-        var f1 = New<OnlyTrueBoolean>(true);
+        var f1 = New<Identity, OnlyTrueBoolean>(true).Run().As().Value;
         Assert.True(f1.IsSucc, "OnlyTrueBoolean(true) should succeed");
 
-        var f2 = New<OnlyDigitChar>('5');
+        var f2 = New<Identity, OnlyDigitChar>('5').Run().As().Value;
         Assert.True(f2.IsSucc, "OnlyDigitChar('5') should succeed");
 
-        var f3 = New<OnlyDigitString>("123");
+        var f3 = New<Identity, OnlyDigitString>("123").Run().As().Value;
         Assert.True(f3.IsSucc, "OnlyDigitString(\"123\") should succeed");
 
-        var f4 = New<OddOnlyByte>(3);
+        var f4 = New<Identity, OddOnlyByte>(3).Run().As().Value;
         Assert.True(f4.IsSucc, "OddOnlyByte(3) should succeed");
 
-        var f5 = New<OddOnlyInt16>(3);
+        var f5 = New<Identity, OddOnlyInt16>(3).Run().As().Value;
         Assert.True(f5.IsSucc, "OddOnlyInt16(3) should succeed");
 
-        var f6 = New<OddOnlyUInt16>(3);
+        var f6 = New<Identity, OddOnlyUInt16>(3).Run().As().Value;
         Assert.True(f6.IsSucc, "OddOnlyUInt16(3) should succeed");
 
-        var f7 = New<OddOnlyInt32>(3);
+        var f7 = New<Identity, OddOnlyInt32>(3).Run().As().Value;
         Assert.True(f7.IsSucc, "OddOnlyInt32(3) should succeed");
 
-        var f8 = New<OddOnlyUInt32>(3u);
+        var f8 = New<Identity, OddOnlyUInt32>(3u).Run().As().Value;
         Assert.True(f8.IsSucc, "OddOnlyUInt32(3) should succeed");
 
-        var f9 = New<OddOnlyInt64>(3L);
+        var f9 = New<Identity, OddOnlyInt64>(3L).Run().As().Value;
         Assert.True(f9.IsSucc, "OddOnlyInt64(3) should succeed");
 
-        var f10 = New<OddOnlyUInt64>(3UL);
+        var f10 = New<Identity, OddOnlyUInt64>(3UL).Run().As().Value;
         Assert.True(f10.IsSucc, "OddOnlyUInt64(3) should succeed");
 
-        var f11 = New<PositiveOnlySingle>(5f);
+        var f11 = New<Identity, PositiveOnlySingle>(5f).Run().As().Value;
         Assert.True(f11.IsSucc, "PositiveOnlySingle(5) should succeed");
 
-        var f12 = New<PositiveOnlyDouble>(5d);
+        var f12 = New<Identity, PositiveOnlyDouble>(5d).Run().As().Value;
         Assert.True(f12.IsSucc, "PositiveOnlyDouble(5) should succeed");
 
-        var f13 = New<PositiveOnlyDecimal>(5m);
+        var f13 = New<Identity, PositiveOnlyDecimal>(5m).Run().As().Value;
         Assert.True(f13.IsSucc, "PositiveOnlyDecimal(5) should succeed");
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var f14 = New<PastOnlyDate>(today.AddDays(-1));
+        var f14 = New<Identity, PastOnlyDate>(today.AddDays(-1)).Run().As().Value;
         Assert.True(f14.IsSucc, "PastOnlyDate(today - 1 day) should succeed");
 
         var morning = TimeOnly.FromTimeSpan(TimeSpan.FromHours(10));
-        var f15 = New<MorningOnlyTime>(morning);
+        var f15 = New<Identity, MorningOnlyTime>(morning).Run().As().Value;
         Assert.True(f15.IsSucc, "MorningOnlyTime(10:00) should succeed");
 
         var now = DateTime.UtcNow.AddDays(-1);
-        var f16 = New<PastOnlyDateTime>(now);
+        var f16 = New<Identity, PastOnlyDateTime>(now).Run().As().Value;
         Assert.True(f16.IsSucc, "PastOnlyDateTime(now - 1 day) should succeed");
 
         var nowOffset = DateTimeOffset.UtcNow.AddDays(1);
-        var f17 = New<FutureOnlyDateTimeOffset>(nowOffset);
+        var f17 = New<Identity, FutureOnlyDateTimeOffset>(nowOffset).Run().As().Value;
         Assert.True(f17.IsSucc, "FutureOnlyDateTimeOffset(now + 1 day) should succeed");
+
+        var f18 = New<Identity, NonEmptyGuid>(Guid.CreateVersion7()).Run().As().Value;
+        Assert.True(f18.IsSucc, "NonEmptyGuid(Guid.CreateVersion7()) should succeed");
+
+        var f19 = New<Identity, LongTimeSpan>(TimeSpan.FromHours(9)).Run().As().Value;
+        Assert.True(f19.IsSucc, "LongTimeSpan(TimeSpan.FromHours(9)) should succeed");
 
     }
 
