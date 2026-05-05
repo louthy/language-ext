@@ -41,7 +41,8 @@ namespace LanguageExt.Traits.Domain;
 /// <item>Temperature differences</item>
 /// </list>
 /// </remarks>
-public interface Magnitude<SELF, SCALAR> : 
+public interface Magnitude<SELF, SCALAR> :
+    DomainType<SELF>,
     VectorSpace<SELF, SCALAR>,
     IComparable<SELF>,
     IComparisonOperators<SELF, SELF, bool>

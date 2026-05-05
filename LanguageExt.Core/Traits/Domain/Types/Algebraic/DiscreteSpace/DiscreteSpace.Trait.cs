@@ -9,8 +9,7 @@ namespace LanguageExt.Traits.Domain;
 /// <typeparam name="SELF">
 /// The concrete domain set type.
 /// </typeparam>
-public interface DomainSet<SELF> : 
-    DomainType<SELF>,
+public interface DiscreteSpace<SELF> : 
     IEquatable<SELF>,
     IEqualityOperators<SELF, SELF, bool>
-    where SELF : DomainSet<SELF>;
+    where SELF : DiscreteSpace<SELF>;

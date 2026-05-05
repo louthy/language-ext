@@ -6,7 +6,9 @@ namespace LanguageExt.Traits.Domain;
 /// <typeparam name="SELF">
 /// The concrete identifier type.
 /// </typeparam>
-public interface Identifier<SELF> : DomainSet<SELF>
+public interface Identifier<SELF> : 
+    DomainType<SELF>,
+    DiscreteSpace<SELF>
     where SELF : Identifier<SELF>;
 
 /// <summary>

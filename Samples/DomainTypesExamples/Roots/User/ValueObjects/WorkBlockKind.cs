@@ -2,7 +2,7 @@
 
 public abstract record WorkBlockKind(string Value)
     : DomainType<WorkBlockKind, string>,
-      DomainSet<WorkBlockKind>
+      DiscreteSpace<WorkBlockKind>
 {
     public string To() => Value;
 

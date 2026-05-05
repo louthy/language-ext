@@ -5,7 +5,8 @@
 /// </summary>
 /// <typeparam name="SELF">Self type.</typeparam>
 public interface Maintainer<SELF> :
-    DomainSet<SELF>
+    DomainType<SELF>,
+    DiscreteSpace<SELF>
     where SELF : Maintainer<SELF>
 {
     /// <summary>

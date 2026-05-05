@@ -1,3 +1,5 @@
+using LanguageExt;
+
 # Domain / Types
 
 This folder contains the abstractions that model domain types.
@@ -85,16 +87,6 @@ Conceptual examples:
 - calculated totals
 - normalized values
 - projections
-- 
-### DomainSet
-
-Represents open sets of valid values with identity defined by the domain.
-
-Used when the domain defines a set with unique, generated values.
-
-Conceptual examples:
-- A product SKU
-- A book Slug
 
 ### Maintainer
 
@@ -111,6 +103,18 @@ Conceptual examples:
 ### Algebraic spaces
 
 These traits model mathematical structures that enable safe and expressive composition.
+    
+> Most of this Traits serves as base for the domain traits
+    
+### DiscreteSpace
+
+Represents open sets of valid values with identity defined by the domain.
+
+Used when the domain defines a set with unique, generated values.
+
+Conceptual examples:
+- A product SKU
+- A book Slug
 
 #### VectorSpace
 

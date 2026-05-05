@@ -1,7 +1,3 @@
-// TODO: Decide whether you want to develop this idea or not
-// https://mmapped.blog/posts/25-domain-types.html
-
-using System;
 using System.Numerics;
 
 namespace LanguageExt.Traits.Domain;
@@ -45,7 +41,7 @@ namespace LanguageExt.Traits.Domain;
 /// </list>
 /// </remarks>
 public interface AffineSpace<SELF, DISTANCE, DISTANCE_SCALAR> : 
-    DomainSet<SELF>,
+    DiscreteSpace<SELF>,
     IAdditionOperators<SELF, DISTANCE, SELF>,
     ISubtractionOperators<SELF, SELF, DISTANCE>
     where SELF : AffineSpace<SELF, DISTANCE, DISTANCE_SCALAR>

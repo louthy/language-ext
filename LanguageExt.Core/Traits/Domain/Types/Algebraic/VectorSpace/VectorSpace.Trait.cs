@@ -1,4 +1,3 @@
-using System;
 using System.Numerics;
 
 namespace LanguageExt.Traits.Domain;
@@ -24,7 +23,7 @@ namespace LanguageExt.Traits.Domain;
 /// <typeparam name="SELF">Type implementing this interface</typeparam>
 /// <typeparam name="SCALAR">Scalar units</typeparam>
 public interface VectorSpace<SELF, SCALAR> :
-    DomainSet<SELF>,
+    DiscreteSpace<SELF>,
     IUnaryNegationOperators<SELF, SELF>,
     IAdditiveIdentity<SELF, SELF>,
     IAdditionOperators<SELF, SELF, SELF>,

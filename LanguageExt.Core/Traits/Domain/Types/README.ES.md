@@ -86,16 +86,6 @@ Ejemplos conceptuales:
 - un valor normalizado
 - una proyección de otro tipo
 
-### DomainSet
-
-Representa conjuntos abiertos (con identidad) de valores válidos dentro del dominio.
-
-Su principal utilidad es para señalar que tipos de dominio son unicos, pero generados.
-
-Ejemplos conceptuales:
-- SKU de un producto
-- Slug de un libro
-
 ### Maintainer
 
 Representa conjuntos cerrados (con identidad) de valores de un dominio.
@@ -110,6 +100,16 @@ Ejemplos conceptuales:
 ### Espacios algebraicos
 
 Estos traits modelan estructuras matemáticas que permiten composición segura y expresiva.
+
+> Muchos de estos traits sirven de base para los traits de dominio
+
+#### DiscreteSpace
+
+Representa conjuntos abiertos (con identidad) de valores válidos dentro del dominio.
+
+Ejemplos conceptuales:
+- SKU de un producto
+- Slug de un libro
 
 #### VectorSpace
 
@@ -129,12 +129,6 @@ Ejemplos conceptuales:
 - posiciones en el tiempo
 - ubicaciones
 - estados con transición
-
-#### ComplexSpace
-
-Representa composiciones más complejas entre valores.
-
-Se usa cuando un tipo no es simplemente un valor aislado, sino una combinación estructurada de otros.
 
 ## Extensions
 
