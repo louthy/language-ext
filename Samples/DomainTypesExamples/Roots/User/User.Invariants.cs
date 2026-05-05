@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DomainTypesExamples.ValueObjects;
-using LanguageExt.Traits;
+﻿using LanguageExt.Traits;
 
 namespace DomainTypesExamples.Roots;
 
@@ -19,7 +15,7 @@ public sealed class DailyBlocksWithinTwelveHours
     public static bool Check(K<Seq, WorkBlock> value) =>
         value.As()
             .Fold(
-                0,
-                (total, block) => total + block.Duration.ToBase().TotalMinutesValue())
-        <= N720.Value;
+                Time.AdditiveIdentity,
+                (total, block) => total + block.Duration.ToBase())
+        <= 12 * hour;
 }
