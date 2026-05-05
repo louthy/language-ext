@@ -21,11 +21,6 @@ public interface Maintainer<SELF> :
 /// <typeparam name="SELF">Self type.</typeparam>
 /// <typeparam name="REPR">Canonical representation type.</typeparam>
 public interface Maintainer<SELF, REPR> :
-    Maintainer<SELF>
-    where SELF : Maintainer<SELF, REPR>
-{
-    /// <summary>
-    /// Returns the canonical representation of this maintained value.
-    /// </summary>
-    REPR To();
-}
+    Maintainer<SELF>,
+    DomainType<SELF, REPR> 
+    where SELF : Maintainer<SELF, REPR>;
