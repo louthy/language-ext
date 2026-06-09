@@ -11,6 +11,10 @@ public partial class Lst :
     MonoidK<Lst>,
     Alternative<Lst>, 
     Traversable<Lst>,
+    Indexable<Lst, int>, 
+    Indexable<Lst, long>, 
+    Indexable<Lst, Index>, 
+    Indexable<Lst, LongIndex>, 
     Foldable<Lst, Lst.FoldState>,
     FoldableBack<Lst, Lst.FoldState>
 {
@@ -122,22 +126,6 @@ public partial class Lst :
 
     static bool Foldable<Lst>.IsEmpty<A>(K<Lst, A> ta) =>
         ta.As().IsEmpty;
-
-    static Option<A> Foldable<Lst>.At<A>(long index, K<Lst, A> ta)
-    {
-        var list = ta.As().Value;
-        return index >= 0 && index < list.Count
-                   ? Some(list[index])
-                   : Option<A>.None;
-    }
-
-    static Option<A> FoldableBack<Lst>.AtBack<A>(long index, K<Lst, A> ta)
-    {
-        var list = ta.As().Value;
-        return index >= 0 && index < list.Count
-                   ? Some(list[list.Count - 1 - index])
-                   : Option<A>.None;
-    }
         
     static Arr<A> Foldable<Lst>.ToArr<A>(K<Lst, A> ta) =>
         new(ta.As());
@@ -190,4 +178,44 @@ public partial class Lst :
 
     static Iterator<A> IterableBackK<Lst>.BackwardIterator<A>(K<Lst, A> fa) => 
         new Iterator<A>.IterLstBkwd(new IteratorState<A>(fa.As().Value.Root));
+
+    static Option<A> Indexable<Lst, long>.At<A>(long index, K<Lst, A> ta) 
+    {
+        var arr = ta.As();
+        return index >= 0 && index < arr.Count
+                   ? Some(arr[index])
+                   : Option<A>.None;
+    }
+
+    static Option<A> Indexable<Lst, int>.At<A>(int index, K<Lst, A> ta) 
+    {
+        var arr = ta.As();
+        return index >= 0 && index < arr.Count
+                   ? Some(arr[index])
+                   : Option<A>.None;
+    }
+
+    static Option<A> Indexable<Lst, Index>.At<A>(Index index, K<Lst, A> ta) 
+    {
+        var arr = ta.As();
+        return index.IsFromEnd
+                   ? index.Value > 0 && index.Value <= arr.Count
+                         ? Some(arr[arr.Count - index.Value])
+                         : None
+                   : index.Value >= 0 && index.Value < arr.Count
+                       ? Some(arr[index.Value])
+                       : None;
+    }
+
+    static Option<A> Indexable<Lst, LongIndex>.At<A>(LongIndex index, K<Lst, A> ta) 
+    {
+        var arr = ta.As();
+        return index.IsFromEnd
+                   ? index.Value > 0 && index.Value <= arr.Count
+                         ? Some(arr[arr.Count - index.Value])
+                         : None
+                   : index.Value >= 0 && index.Value < arr.Count
+                       ? Some(arr[index.Value])
+                       : None;
+    }    
 }

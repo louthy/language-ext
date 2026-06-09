@@ -8,7 +8,8 @@ namespace LanguageExt;
 /// <summary>
 /// General purpose range trait implementation
 /// </summary>
-public partial class Range : Foldable<Range, Range.IteratorState>
+public partial class Range : 
+    Foldable<Range, Range.IteratorState>
 {
     static Iterator<A> IterableK<Range>.ForwardIterator<A>(K<Range, A> fa)
     {

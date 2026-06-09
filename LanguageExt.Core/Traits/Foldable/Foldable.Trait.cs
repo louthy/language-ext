@@ -460,20 +460,7 @@ public interface Foldable<T> : IterableK<T>
     static virtual A Max<A>(A initialMax, K<T, A> ta) =>
         T.Max<OrdDefault<A>, A>(ta).IfNone(initialMax);
 
-    /// <summary>
-    /// Find the element at the specified index or `None` if out of range
-    /// </summary>
-    static virtual Option<A> At<A>(long index, K<T, A> ta)
-    {
-        var ix = 0L;
-        foreach(var head in T.ForwardIterator(ta))
-        {
-            if(ix == index) return head;
-            ix++;
-        }
-        return default;
-    }
-
+    
     /// <summary>
     /// Find the first index of an element in the structure that matches the predicate
     /// </summary>

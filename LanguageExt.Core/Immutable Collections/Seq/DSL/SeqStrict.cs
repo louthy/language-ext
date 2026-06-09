@@ -79,18 +79,26 @@ class SeqStrict<A> : ISeqInternal<A>
     /// <summary>
     /// Indexer
     /// </summary>
-    public A this[long index] =>
-        index < 0 || index >= count
-            ? throw new IndexOutOfRangeException()
-            : data[start + index];
+    public A this[LongIndex index] =>
+        index.IsFromEnd
+            ? index.Value > 0 && index.Value <= count
+                  ? data[start + count - index.Value]
+                  : throw new IndexOutOfRangeException()
+            : index.Value >= 0 && index.Value < count
+                ? data[start + index.Value]
+                : throw new IndexOutOfRangeException();
 
     /// <summary>
     /// Indexer
     /// </summary>
-    public Option<A> At(long index) =>
-        index < 0 || index >= count
-            ? default(Option<A>)
-            : data[start + index];
+    public Option<A> At(LongIndex index) =>
+        index.IsFromEnd
+            ? index.Value > 0 && index.Value <= count
+                  ? data[start + count - index.Value]
+                  : default(Option<A>)
+            : index.Value >= 0 && index.Value < count
+                ? data[start + index.Value]
+                : default(Option<A>);
 
     /// <summary>
     /// Add an item to the end of the sequence

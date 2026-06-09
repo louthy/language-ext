@@ -249,18 +249,6 @@ public static partial class FoldableExtensions
         /// </summary>
         public A Max(A initialMax) =>
             T.Max(initialMax, ta);
-        
-        /// <summary>
-        /// Find the element at the specified index or `None` if out of range
-        /// </summary>
-        public Option<A> At(long index) =>
-            T.At(index, ta);
-        
-        /// <summary>
-        /// Find the element at the specified index or `None` if out of range
-        /// </summary>
-        public Option<A> At(int index) =>
-            T.At(index, ta);
 
         /// <summary>
         /// Find the first index of an element in the structure that matches the predicate

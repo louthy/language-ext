@@ -39,8 +39,15 @@ class IteratorMemo<A>(Iterator<A> ma) : Iterator<A>
     public A[] Data =>
         data;
 
-    public Option<A> Get(long index)
+    public Option<A> Get(LongIndex lindex)
     {
+        var index = lindex.Value;
+        if (lindex.IsFromEnd)
+        {
+            // Read all items and then make the index relative to the start
+            index = GetAll() - lindex.Value;
+        }
+        
         SpinWait sw = default;
             
         while (true)

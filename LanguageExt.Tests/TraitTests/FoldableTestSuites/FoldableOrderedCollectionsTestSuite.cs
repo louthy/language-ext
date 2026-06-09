@@ -45,7 +45,6 @@ public class FoldableOrderedCollectionsTestSuite<F>
         suite.FoldUntilValueTest();
         suite.FoldUntilMTest();
         suite.PartitionTest();
-        suite.AtTest();
         suite.AverageTest();
         suite.MaxOrdTest();
         suite.MaxTest();
@@ -325,35 +324,6 @@ public class FoldableOrderedCollectionsTestSuite<F>
         
         // Subtract 1 because 0 is in our list
         Assert.True(res == ItemsCount / 2 - 1, $"{typeof(F).Name} | AverageTest failed");
-    }
-
-    void AtTest()
-    {
-        var foldable = Construct(Items);
-        var r0       = foldable.At(0);
-        var r1       = foldable.At(1);
-        var r2       = foldable.At(2);
-        var r3       = foldable.At(3);
-        var r4       = foldable.At(4);
-        var r95      = foldable.At(95);
-        var r96      = foldable.At(96);
-        var r97      = foldable.At(97);
-        var r98      = foldable.At(98);
-        var r99      = foldable.At(99);
-        var x100     = foldable.At(100);
-        
-        
-        Assert.True(r0   == Some(0), $"{typeof(F).Name} | AtTest r0 failed");
-        Assert.True(r1   == Some(1), $"{typeof(F).Name} | AtTest r1 failed");
-        Assert.True(r2   == Some(2), $"{typeof(F).Name} | AtTest r2 failed");
-        Assert.True(r3   == Some(3), $"{typeof(F).Name} | AtTest r3 failed");
-        Assert.True(r4   == Some(4), $"{typeof(F).Name} | AtTest r4 failed");
-        Assert.True(r95  == Some(95), $"{typeof(F).Name} | AtTest r95 failed");
-        Assert.True(r96  == Some(96), $"{typeof(F).Name} | AtTest r96 failed");
-        Assert.True(r97  == Some(97), $"{typeof(F).Name} | AtTest r97 failed");
-        Assert.True(r98  == Some(98), $"{typeof(F).Name} | AtTest r98 failed");
-        Assert.True(r99  == Some(99), $"{typeof(F).Name} | AtTest r99 failed");
-        Assert.True(x100 == None, $"{typeof(F).Name} | AtTest x100 failed");
     }
 
     void PartitionTest()

@@ -259,12 +259,6 @@ public static partial class Deriving
         /// </summary>
         static A Foldable<Supertype>.Max<A>(A initialMax, K<Supertype, A> ta) =>
             Subtype.Max(initialMax, transform<Supertype, Subtype, A>(ta));
-
-        /// <summary>
-        /// Find the element at the specified index or `None` if out of range
-        /// </summary>
-        static Option<A> Foldable<Supertype>.At<A>(long index, K<Supertype, A> ta) =>
-            Subtype.At(index, transform<Supertype, Subtype, A>(ta));
                 
         /// <summary>
         /// Find the first index of an element in the structure that matches the predicate

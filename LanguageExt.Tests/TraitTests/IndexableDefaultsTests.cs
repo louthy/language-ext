@@ -1,0 +1,338 @@
+using System;
+using LanguageExt.ClassInstances;
+using Xunit;
+
+namespace LanguageExt.Tests.TraitTests;
+
+public class IndexableDefaultsTests
+{
+    [Fact]
+    public static void FoldTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).Fold((s, x) => s + x, 0);
+        Assert.True(res == 15);
+    }
+        
+    [Fact]
+    public static void FoldMNoneTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5)
+                       .FoldM((s, x) => x == 4 ? None : Some(s + x), 0);
+        
+        Assert.True(res.As() == None);
+    }
+        
+    [Fact]
+    public static void FoldMSomeTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5)
+                       .FoldM((s, x) => Some(s + x), 0);
+        
+        Assert.True(res.As() == Some(15));
+    }
+
+    [Fact]
+    public static void FoldWhileStateTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).FoldWhile((s, x) => s + x, s => s.State < 3, 0);
+        Assert.True(res == 3);
+    }
+    
+    [Fact]
+    public static void FoldWhileValueTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).FoldWhile((s, x) => s + x, s => s.Value < 4, 0);
+        Assert.True(res == 6);
+    }
+    
+    [Fact]
+    public static void FoldMaybeTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5)
+                       .FoldMaybe((s, x) => x == 4 ? None : Some(s + x), 0);
+        
+        Assert.True(res == 6);
+    }
+    
+    [Fact]
+    public static void FoldWhileMTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5)
+                       .FoldWhileM((s, x) => Some(s + x), x => x.Value < 4, 0);
+        
+        Assert.True(res.As() == Some(6));
+    }
+    
+    [Fact]
+    public static void FoldUntilStateTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).FoldUntil((s, x) => s + x, s => s.State == 3, 0);
+        Assert.True(res == 3);
+    }
+    
+    [Fact]
+    public static void FoldUntilValueTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).FoldUntil((s, x) => s + x, s => s.Value == 3, 0);
+        Assert.True(res == 6);
+    }
+
+    [Fact]
+    public static void FoldUntilMTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5)
+                       .FoldUntilM((s, x) => Some(s + x), x => x.Value == 3, 0);
+        
+        Assert.True(res.As() == Some(6));
+    }
+
+    [Fact]
+    public static void ToSeqTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).ToSeq();
+        Assert.True(res == Seq(1, 2, 3, 4, 5));
+    }
+
+    [Fact]
+    public static void ToLstTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).ToLst();
+        Assert.True(res == Lst(1, 2, 3, 4, 5));
+    }
+
+    [Fact]
+    public static void ToArrTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).ToArr();
+        Assert.True(res == Arr(1, 2, 3, 4, 5));
+    }
+
+    [Fact]
+    public static void ToIterableTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).ToIterable();
+        Assert.True(res == Iterable(1, 2, 3, 4, 5));
+    }
+
+    [Fact]
+    public static void IsEmptyFalseTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).IsEmpty;
+        Assert.False(res);
+    }
+
+    [Fact]
+    public static void IsEmptyTrueTest()
+    {
+        var res = FList.New<int>().IsEmpty;
+        Assert.True(res);
+    }
+
+    [Fact]
+    public static void CountTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).Count;
+        Assert.True(res == 5);
+    }
+    
+    [Fact]
+    public static void ExistsTrueTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).Exists(x => x == 3);
+        Assert.True(res);
+    }
+    
+    [Fact]
+    public static void ExistsFalseTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).Exists(x => x == 6);
+        Assert.False(res);
+    }
+    
+    [Fact]
+    public static void ExistsEmptyIsFalseTest()
+    {
+        var res = FList.New<int>().Exists(x => x == 6);
+        Assert.False(res);
+    }
+    
+    [Fact]
+    public static void ForAllTrueTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).ForAll(x => x < 6);
+        Assert.True(res);
+    }
+    
+    [Fact]
+    public static void ForAllFalseTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).ForAll(x => x < 3);
+        Assert.False(res);
+    }
+    
+    [Fact]
+    public static void ForAllEmptyIsTrueTest()
+    {
+        var res = FList.New<int>().ForAll(x => x < 5);
+        Assert.True(res);
+    }
+    
+    [Fact]
+    public static void ContainsTrueTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).Contains(3);
+        Assert.True(res);
+    }
+    
+    [Fact]
+    public static void ContainsFalseTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).Contains(6);
+        Assert.False(res);
+    }
+    
+    [Fact]
+    public static void ContainsEqTrueTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).Contains<EqInt, FList, int>(3);
+        Assert.True(res);
+    }
+    
+    [Fact]
+    public static void ContainsEqFalseTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).Contains<EqInt, FList, int>(6);
+        Assert.False(res);
+    }
+        
+    [Fact]
+    public static void FindTrueTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).Find(x => x == 3);
+        Assert.True(res == Some(3));
+    }
+    
+    [Fact]
+    public static void FindFalseTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).Find(x => x == 6);
+        Assert.True(res == None);
+    }
+
+    [Fact]
+    public static void SumTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).Sum();
+        Assert.True(res == 15);
+    }
+        
+    [Fact]
+    public static void ProductTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).Product();
+        Assert.True(res == 120);
+    }
+        
+    [Fact]
+    public static void HeadSomeTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).Head;
+        Assert.True(res == Some(1));
+    }
+        
+    [Fact]
+    public static void HeadNoneTest()
+    {
+        var res = FList.New<int>().Head;
+        Assert.True(res == None);
+    }
+        
+    [Fact]
+    public static void LastSomeTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).Last;
+        Assert.True(res == Some(5));
+    }
+        
+    [Fact]
+    public static void LastNoneTest()
+    {
+        var res = FList.New<int>().Last;
+        Assert.True(res == None);
+    }
+            
+    [Fact]
+    public static void IterTest()
+    {
+        var atom = Atom(0);
+        var comp = FList.New(1, 2, 3, 4, 5)
+                        .IterM(x => atom.SwapIO(v => v + x));
+        
+        ignore(comp.Run());
+        
+        Assert.True(atom.Value == 15);
+    }
+        
+    [Fact]
+    public static void MinTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).Min();
+        Assert.True(res == Some(1));
+    }
+        
+    [Fact]
+    public static void MinOrdTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).Min<OrdInt, FList, int>();
+        Assert.True(res == 1);
+    }
+        
+    [Fact]
+    public static void MaxTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).Max();
+        Assert.True(res == Some(5));
+    }
+        
+    [Fact]
+    public static void MaxOrdTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).Max<OrdInt, FList, int>();
+        Assert.True(res == 5);
+    }
+        
+    [Fact]
+    public static void AverageTest()
+    {
+        var res = FList.New(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0).Average();
+        Assert.True(Math.Abs(res - 5.5) < 0.0000001);
+    }
+        
+    [Fact]
+    public static void AtTest()
+    {
+        var foldable = FList.New(1, 2, 3, 4, 5);
+        var r0       = foldable.At(0);
+        var r1       = foldable.At(1);
+        var r2       = foldable.At(2);
+        var r3       = foldable.At(3);
+        var r4       = foldable.At(4);
+        var x5       = foldable.At(5);
+        
+        Assert.True(r0 == Some(1));
+        Assert.True(r1 == Some(2));
+        Assert.True(r2 == Some(3));
+        Assert.True(r3 == Some(4));
+        Assert.True(r4 == Some(5));
+        Assert.True(x5 == None);
+    }
+        
+    [Fact]
+    public static void PartitionTest()
+    {
+        var res = FList.New(1, 2, 3, 4, 5).Partition(x => (x & 1) == 0);
+        
+        Assert.True(res.True == [2, 4]);
+        Assert.True(res.False == [1, 3, 5]);
+    }
+}

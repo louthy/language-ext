@@ -413,21 +413,6 @@ public interface Foldable<T, FS> : Foldable<T>, IterableK<T, FS>
     }
 
     /// <summary>
-    /// Find the element at the specified index or `None` if out of range
-    /// </summary>
-    static Option<A> Foldable<T>.At<A>(long index, K<T, A> ta)
-    {
-        var ix        = 0L;
-        var foldState = T.StepSetup(ta);
-        while (T.Step(ta, ref foldState, out var value))
-        {
-            if (ix == index) return value;
-            ix++;
-        }
-        return default;
-    }
-
-    /// <summary>
     /// Find the first index of an element in the structure that matches the predicate
     /// </summary>
     /// <param name="startIndex">Initial index to start the search</param>

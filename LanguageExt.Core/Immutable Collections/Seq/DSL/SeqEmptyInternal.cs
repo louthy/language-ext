@@ -15,10 +15,10 @@ class SeqEmptyInternal<A> : ISeqInternal<A>
     public Seq.FoldState InitFoldState() => 
         Seq.FoldState.FromSpan(AsSpan());
 
-    public A this[long index] => 
+    public A this[LongIndex index] => 
         throw new IndexOutOfRangeException();
 
-    public Option<A> At(long index) => 
+    public Option<A> At(LongIndex index) => 
         default;
 
     public A Head =>

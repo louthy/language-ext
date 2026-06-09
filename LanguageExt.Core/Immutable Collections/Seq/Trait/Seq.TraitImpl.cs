@@ -10,6 +10,10 @@ public partial class Seq :
     MonoidK<Seq>,
     Alternative<Seq>, 
     Traversable<Seq>,
+    Indexable<Seq, int>, 
+    Indexable<Seq, long>, 
+    Indexable<Seq, Index>, 
+    Indexable<Seq, LongIndex>, 
     Foldable<Seq, Seq.FoldState>
 {
     static K<Seq, B> Monad<Seq>.Recur<A, B>(A value, Func<A, K<Seq, Next<A, B>>> f)
@@ -148,14 +152,18 @@ public partial class Seq :
     static bool Foldable<Seq>.IsEmpty<A>(K<Seq, A> ta) =>
         ta.As().IsEmpty;
 
-    static Option<A> Foldable<Seq>.At<A>(long index, K<Seq, A> ta)
-    {
-        var list = ta.As();
-        return index >= 0 && index < list.Count
-                   ? Some(list[index])
-                   : Option<A>.None;
-    }
+    static Option<A> Indexable<Seq, long>.At<A>(long index, K<Seq, A> ta) => 
+        ta.As().Value.At(index);
 
+    static Option<A> Indexable<Seq, int>.At<A>(int index, K<Seq, A> ta) => 
+        ta.As().Value.At(index);
+
+    static Option<A> Indexable<Seq, Index>.At<A>(Index index, K<Seq, A> ta) => 
+        ta.As().Value.At(index);
+
+    static Option<A> Indexable<Seq, LongIndex>.At<A>(LongIndex index, K<Seq, A> ta) => 
+        ta.As().Value.At(index);
+    
     static Option<A> Foldable<Seq>.Head<A>(K<Seq, A> ta) =>
         ta.As().Head;
     

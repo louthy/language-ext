@@ -9,7 +9,10 @@ public static class FListExtensions
         (FList<A>)self;
 }
 
-public class FList : Foldable<FList>, FoldableBack<FList>
+public class FList : 
+    Foldable<FList>, 
+    FoldableBack<FList>,
+    Indexable<FList, int>
 {
     public static FList<A> New<A>(params A[] values) =>
         new (values);
@@ -33,4 +36,11 @@ public class FList : Foldable<FList>, FoldableBack<FList>
                                 { Values: var items } =>
                                     Iterator.cons(items[^1], new FList<A>(items.Take(items.Length - 1).ToArray()).BackwardIterator())
                             });
+
+    public static Option<A> At<A>(int index, K<FList, A> ta) =>
+        ta.As().Values switch
+        {
+            var values when values.Length < index => values[index],
+            _                                     => Option<A>.None
+        };
 }

@@ -17,14 +17,14 @@ class SeqIterator<A> : ISeqInternal<A>
     public SeqType Type => 
         SeqType.Lazy;
 
-    public A this[long index] =>
+    public A this[LongIndex index] =>
         memo.Get(index) switch
         {
             { IsSome: true, Value: var value } => value!,
             _                                  => throw new IndexOutOfRangeException()
         };
 
-    public Option<A> At(long index) => 
+    public Option<A> At(LongIndex index) => 
         memo.Get(index);
 
     public ISeqInternal<A> Add(A value) => 

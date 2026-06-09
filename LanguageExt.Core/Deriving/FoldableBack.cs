@@ -192,12 +192,6 @@ public static partial class Deriving
             Subtype.Last(Supertype.Transform(ta));
 
         /// <summary>
-        /// Find the element at the specified index or `None` if out of range
-        /// </summary>
-        static Option<A> FoldableBack<Supertype>.AtBack<A>(long index, K<Supertype, A> ta) =>
-            Subtype.AtBack(index, Supertype.Transform(ta));
-
-        /// <summary>
         /// Partition a foldable into two sequences based on a predicate
         /// </summary>
         /// <param name="f">Predicate function</param>

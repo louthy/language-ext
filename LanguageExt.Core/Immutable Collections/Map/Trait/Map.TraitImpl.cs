@@ -7,6 +7,7 @@ namespace LanguageExt;
 public partial class Map<Key> : 
     Foldable<Map<Key>, Map.FoldState>,
     FoldableBack<Map<Key>, Map.FoldState>,
+    Indexable<Map<Key>, Key>,
     Functor<Map<Key>>, 
     MonoidK<Map<Key>>
 {
@@ -91,4 +92,7 @@ public partial class Map<Key> :
 
     static Iterator<A> IterableBackK<Map<Key>>.BackwardIterator<A>(K<Map<Key>, A> fa) => 
         new Iterator.IterMapValueBkwd<Key, A>(new Map.IteratorState<Key, A>(fa.As().Value.Root));
+
+    static Option<A> Indexable<Map<Key>, Key>.At<A>(Key index, K<Map<Key>, A> ta) => 
+        ta.As()[index];
 }

@@ -56,7 +56,6 @@ public class FoldableBackNonEmptyOrderedCollectionsTestSuite<F>
         suite.FoldBackUntilValueTest();
         suite.FoldBackUntilMTest();
         suite.PartitionTest();
-        suite.AtTest();
         suite.LastSomeTest();
         suite.FindBackFalseTest();
         suite.FindBackTrueTest();
@@ -235,35 +234,6 @@ public class FoldableBackNonEmptyOrderedCollectionsTestSuite<F>
     {
         var res = Construct(ItemsR).Last;
         Assert.True(res == Some(ItemsCount - 1), $"{typeof(F).Name} | LastSomeTest failed");
-    }
-
-    void AtTest()
-    {
-        var foldable = Construct(ItemsR);
-        var r0       = foldable.AtBack(0);
-        var r1       = foldable.AtBack(1);
-        var r2       = foldable.AtBack(2);
-        var r3       = foldable.AtBack(3);
-        var r4       = foldable.AtBack(4);
-        var r95      = foldable.AtBack(95);
-        var r96      = foldable.AtBack(96);
-        var r97      = foldable.AtBack(97);
-        var r98      = foldable.AtBack(98);
-        var r99      = foldable.AtBack(99);
-        var x100     = foldable.AtBack(100);
-        
-        
-        Assert.True(r0   == Some(0), $"{typeof(F).Name} | AtTest r0 failed");
-        Assert.True(r1   == Some(1), $"{typeof(F).Name} | AtTest r1 failed");
-        Assert.True(r2   == Some(2), $"{typeof(F).Name} | AtTest r2 failed");
-        Assert.True(r3   == Some(3), $"{typeof(F).Name} | AtTest r3 failed");
-        Assert.True(r4   == Some(4), $"{typeof(F).Name} | AtTest r4 failed");
-        Assert.True(r95  == Some(95), $"{typeof(F).Name} | AtTest r95 failed");
-        Assert.True(r96  == Some(96), $"{typeof(F).Name} | AtTest r96 failed");
-        Assert.True(r97  == Some(97), $"{typeof(F).Name} | AtTest r97 failed");
-        Assert.True(r98  == Some(98), $"{typeof(F).Name} | AtTest r98 failed");
-        Assert.True(r99  == Some(99), $"{typeof(F).Name} | AtTest r99 failed");
-        Assert.True(x100 == None, $"{typeof(F).Name} | AtTest x100 failed");
     }
 
     void PartitionTest()

@@ -329,21 +329,7 @@ public interface FoldableBack<T> : IterableBackK<T>
                    _                       => None
                };
     }
-
-    /// <summary>
-    /// Find the element at the specified index (from the end) or `None` if out of range
-    /// </summary>
-    static virtual Option<A> AtBack<A>(long index, K<T, A> ta)
-    {
-        var ix = 0L;
-        foreach(var head in T.BackwardIterator(ta))
-        {
-            if(ix == index) return head;
-            ix++;
-        }
-        return default;
-    }
-
+    
     /// <summary>
     /// Find the last index of an element in the structure that matches the predicate
     /// </summary>

@@ -6,6 +6,7 @@ namespace LanguageExt;
 
 public partial class HashMapEq<EqKey, Key> : 
     Foldable<HashMapEq<EqKey, Key>, TrieMap.FoldState>, 
+    Indexable<HashMapEq<EqKey, Key>, Key>,
     MonoidK<HashMapEq<EqKey, Key>>,
     Functor<HashMapEq<EqKey, Key>>
     where EqKey : Eq<Key>
@@ -45,4 +46,7 @@ public partial class HashMapEq<EqKey, Key> :
     public static Iterator<A> ForwardIterator<A>(K<HashMapEq<EqKey, Key>, A> fa) => 
         new Iterator.IterHashMapValue<EqKey, Key, A>(
             TrieMap.IteratorState<EqKey, Key, A>.Setup(fa.As().Value.Root));
+
+    static Option<A> Indexable<HashMapEq<EqKey, Key>, Key>.At<A>(Key index, K<HashMapEq<EqKey, Key>, A> ta) => 
+        ta.As().Value.Find(index);
 }

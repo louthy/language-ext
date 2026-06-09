@@ -14,14 +14,6 @@ public static partial class FoldableBackExtensions
         where T : Foldable<T>, FoldableBack<T>
     {
         /// <summary>
-        /// Find the element at the specified index or `None` if out of range
-        /// </summary>
-        public Option<A> At(LongIndex index) =>
-            index.IsFromEnd
-                ? T.AtBack(index.Value - 1, ta)
-                : T.At(index.Value, ta);
-
-        /// <summary>
         /// Find the last index of an element in the structure that matches the element provided
         /// </summary>
         /// <param name="index">Initial index to start the search</param>
@@ -304,12 +296,6 @@ public static partial class FoldableBackExtensions
         /// </summary>
         public Option<A> Last =>
             T.Last(ta);
-        
-        /// <summary>
-        /// Find the element at the specified index or `None` if out of range
-        /// </summary>
-        public Option<A> AtBack(long index) =>
-            T.AtBack(index, ta);
 
         /// <summary>
         /// Find the last index of an element in the structure that matches the predicate

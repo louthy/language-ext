@@ -271,21 +271,6 @@ public interface FoldableBack<T, FS> : FoldableBack<T>, IterableBackK<T, FS>
     }
 
     /// <summary>
-    /// Find the element at the specified index or `None` if out of range
-    /// </summary>
-    static Option<A> FoldableBack<T>.AtBack<A>(long index, K<T, A> ta)
-    {
-        var ix        = 0L;
-        var foldState = T.StepBackSetup(ta);
-        while (T.StepBack(ta, ref foldState, out var value))
-        {
-            if (ix == index) return value;
-            ix++;
-        }
-        return default;
-    }
-
-    /// <summary>
     /// Find the last index of an element in the structure that matches the predicate
     /// </summary>
     /// <param name="endIndex">Initial index to start the search</param>

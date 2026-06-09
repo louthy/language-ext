@@ -174,6 +174,19 @@ public readonly struct Lst<A> :
         index.IsFromEnd
             ? this[Count - index.Value] 
             : this[index.Value];
+    
+    /// <summary>
+    /// Indexer
+    /// </summary>
+    /// <summary>
+    /// This is kept here to enable list pattern-matching to work - which looks for a `this` member that supports
+    /// `Index` and `Index` only supports `int`. Yep, they were that stupid.
+    /// </summary>
+    /// <exception cref="IndexOutOfRangeException">Thrown when the index is out of the range of the structure</exception>
+    public A this[LongIndex index] =>
+        index.IsFromEnd
+            ? this[Count - index.Value] 
+            : this[index.Value];
 
     /// <summary>
     /// Index accessor

@@ -336,13 +336,6 @@ public static class Foldable
         ta.Average();
 
     /// <summary>
-    /// Find the element at the specified index or `None` if out of range
-    /// </summary>
-    public static Option<A> at<T, A>(K<T, A> ta, int index)
-        where T : Foldable<T> =>
-        ta.At(index);
-
-    /// <summary>
     /// Partition a foldable into two sequences based on a predicate
     /// </summary>
     /// <param name="f">Predicate function</param>

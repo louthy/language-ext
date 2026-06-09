@@ -15,8 +15,8 @@ enum SeqType
 interface ISeqInternal<A> : IEnumerable<A>
 {
     SeqType Type { get; }
-    A this[long index] { get; }
-    Option<A> At(long index);
+    A this[LongIndex index] { get; }
+    Option<A> At(LongIndex index);
     ISeqInternal<A> Add(A value);
     ISeqInternal<A> Cons(A value);
     A Head { get; }

@@ -5,7 +5,8 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 public partial class HashMap<Key> : 
-    Foldable<HashMap<Key>, TrieMap.FoldState>, 
+    Foldable<HashMap<Key>, TrieMap.FoldState>,
+    Indexable<HashMap<Key>, Key>,
     Functor<HashMap<Key>>, 
     MonoidK<HashMap<Key>>
 {
@@ -46,4 +47,7 @@ public partial class HashMap<Key> :
     static Iterator<A> IterableK<HashMap<Key>>.ForwardIterator<A>(K<HashMap<Key>, A> fa) =>
         new Iterator.IterHashMapValue<EqDefault<Key>, Key, A>(
             TrieMap.IteratorState<EqDefault<Key>, Key, A>.Setup(fa.As().Value.Root));
+
+    static Option<A> Indexable<HashMap<Key>, Key>.At<A>(Key index, K<HashMap<Key>, A> ta) => 
+        ta.As().Value.Find(index);
 }

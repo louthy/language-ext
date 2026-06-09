@@ -1,4 +1,3 @@
-using System;
 using LanguageExt.ClassInstances;
 using Xunit;
 
@@ -210,25 +209,6 @@ public class FoldableBackDefaultsTests
     {
         var res = FList.New<int>().Last;
         Assert.True(res == None);
-    }
-        
-    [Fact]
-    public static void AtTest()
-    {
-        var foldable = FList.New(1, 2, 3, 4, 5);
-        var r0       = foldable.AtBack(0);
-        var r1       = foldable.AtBack(1);
-        var r2       = foldable.AtBack(2);
-        var r3       = foldable.AtBack(3);
-        var r4       = foldable.AtBack(4);
-        var x5       = foldable.AtBack(5);
-        
-        Assert.True(r0 == Some(5));
-        Assert.True(r1 == Some(4));
-        Assert.True(r2 == Some(3));
-        Assert.True(r3 == Some(2));
-        Assert.True(r4 == Some(1));
-        Assert.True(x5 == None);
     }
         
     [Fact]

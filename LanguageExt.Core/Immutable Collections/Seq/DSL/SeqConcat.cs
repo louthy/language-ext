@@ -29,7 +29,7 @@ class SeqConcat<A> : ISeqInternal<A>
     public ReadOnlySpan<A> AsSpan() =>
         Strict().AsSpan();
 
-    public A this[long index]
+    public A this[LongIndex index]
     {
         get
         {
@@ -39,49 +39,102 @@ class SeqConcat<A> : ISeqInternal<A>
         }
     }
 
-    public Option<A> At(long index)
+    public Option<A> At(LongIndex lindex)
     {
-        foreach (var seq in seqs)
+        if (lindex.IsFromEnd)
         {
-            switch (seq.Type)
+            var index = lindex.Value;
+            for (var i = seqs.Count - 1; i >= 0; i--)
             {
-                case SeqType.Empty:
-                    // Empty streams yield no values
-                    return default;
-                
-                case SeqType.Lazy:
-                    // This should stream up to the required index and no more; or if the index
-                    // lies beyond the sequence, it will consume everything in the lazy stream,
-                    // which is expected.
-                    var ox = seq.At(index);
-                    
-                    // If we found our element, return
-                    if (ox.IsSome) return ox;
-                    
-                    // Otherwise, we've consumed the entire lazy stream, so we're able to read the 
-                    // Count value and have it be meaningful.  Use that to move onto the next sequence
-                    // in the concatenation.
-                    index -= seq.Count;
-                    break;
-                
-                case SeqType.Strict when index < seq.Count:
-                    // We're within the strict sequence, so return the element
-                    return seq[index];
-                    
-                case SeqType.Strict:
-                    // We're beyond the strict sequence, so move onto the next one
-                    index -= seq.Count;
-                    continue;
+                var seq = seqs[i];
+                switch (seq.Type)
+                {
+                    case SeqType.Empty:
+                        // Empty streams yield no values
+                        return default;
 
-                case SeqType.Concat:
-                    // We are removing the SeqConcat values from the sequence in the constructor.
-                    // So, this should never happen.
-                    throw new InvalidOperationException("Concatenated sequences not supported: should have been flattened in the constructor");
-                
-                default:
-                    throw new InvalidOperationException("Unexpected sequence type");
+                    case SeqType.Lazy:
+                        // This should stream up to the required index and no more; or if the index
+                        // lies beyond the sequence, it will consume everything in the lazy stream,
+                        // which is expected.
+                        var ox = seq.At(LongIndex.FromEnd(index));
+
+                        // If we found our element, return
+                        if (ox.IsSome) return ox;
+
+                        // Otherwise, we've consumed the entire lazy stream, so we're able to read the 
+                        // Count value and have it be meaningful.  Use that to move onto the next sequence
+                        // in the concatenation.
+                        index -= seq.Count;
+                        break;
+
+                    case SeqType.Strict when index <= seq.Count:
+                        // We're within the strict sequence, so return the element
+                        return seq.At(LongIndex.FromEnd(index));
+
+                    case SeqType.Strict:
+                        // We're beyond the strict sequence, so move onto the next one
+                        index -= seq.Count;
+                        continue;
+
+                    case SeqType.Concat:
+                        // We are removing the SeqConcat values from the sequence in the constructor.
+                        // So, this should never happen.
+                        throw new InvalidOperationException(
+                            "Concatenated sequences not supported: should have been flattened in the constructor");
+
+                    default:
+                        throw new InvalidOperationException("Unexpected sequence type");
+                }
             }
         }
+        else
+        {
+            var index = lindex.Value;
+            foreach (var seq in seqs)
+            {
+                switch (seq.Type)
+                {
+                    case SeqType.Empty:
+                        // Empty streams yield no values
+                        return default;
+
+                    case SeqType.Lazy:
+                        // This should stream up to the required index and no more; or if the index
+                        // lies beyond the sequence, it will consume everything in the lazy stream,
+                        // which is expected.
+                        var ox = seq.At(index);
+
+                        // If we found our element, return
+                        if (ox.IsSome) return ox;
+
+                        // Otherwise, we've consumed the entire lazy stream, so we're able to read the 
+                        // Count value and have it be meaningful.  Use that to move onto the next sequence
+                        // in the concatenation.
+                        index -= seq.Count;
+                        break;
+
+                    case SeqType.Strict when index < seq.Count:
+                        // We're within the strict sequence, so return the element
+                        return seq.At(index);
+
+                    case SeqType.Strict:
+                        // We're beyond the strict sequence, so move onto the next one
+                        index -= seq.Count;
+                        continue;
+
+                    case SeqType.Concat:
+                        // We are removing the SeqConcat values from the sequence in the constructor.
+                        // So, this should never happen.
+                        throw new InvalidOperationException(
+                            "Concatenated sequences not supported: should have been flattened in the constructor");
+
+                    default:
+                        throw new InvalidOperationException("Unexpected sequence type");
+                }
+            }
+        }
+
         // Index out of range
         return default;
     }

@@ -186,13 +186,6 @@ public static class FoldableBack
         ta.Last;
 
     /// <summary>
-    /// Find the element at the specified index or `None` if out of range
-    /// </summary>
-    public static Option<A> at<T, A>(K<T, A> ta, int index)
-        where T : FoldableBack<T> =>
-        ta.AtBack(index);
-
-    /// <summary>
     /// Partition a foldable into two sequences based on a predicate
     /// </summary>
     /// <param name="f">Predicate function</param>
