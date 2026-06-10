@@ -40,7 +40,7 @@ public class FList :
     public static Option<A> At<A>(int index, K<FList, A> ta) =>
         ta.As().Values switch
         {
-            var values when values.Length < index => values[index],
+            var values when index < values.Length => values[index],
             _                                     => Option<A>.None
         };
 }
