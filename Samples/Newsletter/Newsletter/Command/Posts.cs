@@ -47,7 +47,7 @@ public static class Posts<M, RT>
     static K<M, string> readFirstFile(string folder) =>
         from fs in Directory<M, RT>.enumerateFiles(folder, "*.json")
                                    .Bind(fs => fs.OrderDescending()
-                                                 .AsIterable()
+                                                 .AsIterableStrict()
                                                  .Take(1)
                                                  .Traverse(File<M, RT>.readAllText))
         from rs in fs.ToSeq() switch

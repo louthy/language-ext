@@ -22,6 +22,24 @@ public static partial class FallibleExtensions
         fma.Fold((ms, ma) => ms.Bind(s => ma.Bind(_ => M.Pure(s))
                                             .Catch(e => M.Pure(s.Add(e)))),
                  M.Pure(Seq.empty<Error>()));
+
+    /// <summary>
+    /// Partitions a foldable of effects into successes and failures,
+    /// and returns only the failures.
+    /// </summary>
+    /// <typeparam name="F">Foldable type</typeparam>
+    /// <typeparam name="M">Fallible monadic type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="fma">Foldable of fallible monadic values</param>
+    /// <returns>A collection of `Error` values</returns>
+    public static K<M, Seq<Error>> FailsIO<F, M, A>(
+        this K<F, K<M, A>> fma)
+        where M : MonadIO<M>, Fallible<M>
+        where F : FoldableIO<F> =>
+        M.LiftIO(fma.FoldIO((ms, ma) => ms.Bind(s => ma.Bind(_ => M.Pure(s))
+                                                       .Catch(e => M.Pure(s.Add(e)))),
+                            M.Pure(Seq.empty<Error>())))
+         .Flatten();
     
     /// <summary>
     /// Partitions a collection of effects into successes and failures,

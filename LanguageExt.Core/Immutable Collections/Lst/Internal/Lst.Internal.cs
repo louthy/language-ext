@@ -211,16 +211,9 @@ class LstInternal<A> :
     public Iterable<A> FindRange(long index, long count)
     {
         if (index < 0 || index >= Count || count < 0) throw new ArgumentOutOfRangeException(nameof(index));
-        return Iterable.createRange(Go());
-
-        IEnumerable<A> Go()
-        {
-            var iter = new ListEnumerator<A>(Root, index, count);
-            while (iter.MoveNext())
-            {
-                yield return iter.Current;
-            }
-        }
+        var state = Lst.IteratorState<A>.Setup(Root);
+        var iter  = new Iterator<A>.IterLstFwd(state).Skip(index).Take(count);
+        return iter.AsIterable();
     }
 
    public Lst<A> Filter(Func<A, bool> pred)

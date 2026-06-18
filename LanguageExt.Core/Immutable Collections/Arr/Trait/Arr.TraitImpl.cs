@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Linq;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
@@ -20,7 +21,8 @@ public partial class Arr :
     Natural<Arr, Set>,
     Natural<Arr, HashSet>,
     Foldable<Arr, Arr.FoldState>,
-    FoldableBack<Arr, Arr.FoldState>
+    FoldableBack<Arr, Arr.FoldState>,
+    Countable<Arr>
 {
     static K<Arr, B> Monad<Arr>.Bind<A, B>(K<Arr, A> ma, Func<A, K<Arr, B>> f)
     {
@@ -112,12 +114,66 @@ public partial class Arr :
     static K<Arr, A> Choice<Arr>.Choose<A>(K<Arr, A> ma, Memo<Arr, A> mb) => 
         ma.IsEmpty ? mb.Value : ma;
 
-    static long Foldable<Arr>.Count<A>(K<Arr, A> ta) =>
-        ta.As().Count;
-
     static bool Foldable<Arr>.IsEmpty<A>(K<Arr, A> ta) =>
         ta.As().IsEmpty;
 
+    /// <summary>
+    /// Sort the items in the foldable structure in the order dictated by the ordering function
+    /// </summary>
+    /// <param name="comparer">Ordering function</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <returns>An array of sorted values</returns>
+    static Arr<A> Foldable<Arr>.Sort<A>(Comparison<A> comparer, K<Arr, A> ta)
+    {
+        var arr = ta.As();
+        var cnt = arr.Count; 
+        if (cnt <= 0) return Arr<A>.Empty;
+        if (cnt >= int.MaxValue) throw new ArgumentException("Arr: Foldable.Sort: structure too large");
+        
+        var xs  = ta.As().AsSpan();
+        var yss = new A[cnt];
+        var ys  = new Span<A>(yss);
+        
+        xs.CopyTo(ys);
+        ys.Sort(comparer);
+        
+        return new Arr<A>(yss, 0, cnt);
+    }
+    
+    /// <summary>
+    /// Sort the items in the foldable structure in the order dictated by the ordering function using the key selector.
+    /// </summary>
+    /// <param name="key">Key selector function</param>
+    /// <param name="comparer">Ordering function</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <returns>An array of sorted values</returns>
+    static Arr<A> Foldable<Arr>.Sort<A, Key>(Func<A, Key> key, Comparison<Key> comparer, K<Arr, A> ta)
+    {
+        var arr = ta.As();
+        var cnt = arr.Count; 
+        if (cnt <= 0) return Arr<A>.Empty;
+        if (cnt >= int.MaxValue) throw new ArgumentException("Arr: Foldable.Sort: structure too large");
+        
+        var xs  = ta.As().AsSpan();
+        var yss = new A[cnt];
+        var ys  = new Span<A>(yss);
+        xs.CopyTo(ys);
+
+        var ks = ArrayPool<Key>.Shared.Rent((int)cnt);
+        var ix = 0L;
+        foreach (var x in xs)
+        {
+            ks[ix] = key(x);
+            ix++;
+        }
+        
+        ks.Sort(ys, comparer);
+        
+        ArrayPool<Key>.Shared.Return(ks);
+        
+        return new Arr<A>(yss, 0, cnt);
+    }
+    
     static FoldState IterableK<Arr, FoldState>.StepSetup<A>(K<Arr, A> ta) =>
         FoldState.Setup(ta.As().AsSpan());
 
@@ -221,4 +277,7 @@ public partial class Arr :
                        ? Some(arr[index.Value])
                        : None;
     }
+
+    static long Countable<Arr>.Count<A>(K<Arr, A> fa) => 
+        fa.As().Count;
 }

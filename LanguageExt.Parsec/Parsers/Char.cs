@@ -15,9 +15,9 @@ public static class Char
 {
     static Char()
     {
-        space = satisfy(System.Char.IsWhiteSpace).label("space");
+        space = satisfy(char.IsWhiteSpace).label("space");
         spaces = skipMany(space).label("white space");
-        control = satisfy(System.Char.IsControl).label("control");
+        control = satisfy(char.IsControl).label("control");
         tab = satisfy(c => c == '\t').label("tab");
 #pragma warning disable CS0618 // Type or member is obsolete
         newline = satisfy(c => c == '\n').label("lf new-line");
@@ -29,16 +29,16 @@ public static class Char
                 select nl)
            .label("crlf new-line");
         endOfLine = either(LF, CRLF).label("new-line");
-        digit = satisfy(System.Char.IsDigit).label("digit");
-        letter = satisfy(System.Char.IsLetter).label("letter");
-        alphaNum = satisfy(System.Char.IsLetterOrDigit).label("letter or digit");
-        lower = satisfy(System.Char.IsLower).label("lowercase letter");
-        upper = satisfy(System.Char.IsUpper).label("uppercase letter");
-        punctuation = satisfy(System.Char.IsPunctuation).label("punctuation");
-        separator = satisfy(System.Char.IsSeparator).label("separator");
-        symbolchar = satisfy(System.Char.IsSymbol).label("symbolchar");
+        digit = satisfy(char.IsDigit).label("digit");
+        letter = satisfy(char.IsLetter).label("letter");
+        alphaNum = satisfy(char.IsLetterOrDigit).label("letter or digit");
+        lower = satisfy(char.IsLower).label("lowercase letter");
+        upper = satisfy(char.IsUpper).label("uppercase letter");
+        punctuation = satisfy(char.IsPunctuation).label("punctuation");
+        separator = satisfy(char.IsSeparator).label("separator");
+        symbolchar = satisfy(char.IsSymbol).label("symbolchar");
         octDigit = satisfy(c => "01234567".Contains(c)).label("octal digit");
-        hexDigit = satisfy(c => System.Char.IsDigit(c) || "abcdefABCDEF".Contains(c)).label("hexadecimal digit");
+        hexDigit = satisfy(c => char.IsDigit(c) || "abcdefABCDEF".Contains(c)).label("hexadecimal digit");
         anyChar = satisfy(_ => true);
     }
 
@@ -249,12 +249,12 @@ public static class Char
     /// Parse a string
     /// </summary>
     public static Parser<string> str(string s) =>
-        asString(chain(toSeq(s.AsIterable().Map(ch)))).label($"'{s}'");
+        asString(chain(toSeq(s.Select(ch)))).label($"'{s}'");
 
     /// <summary>
     /// Parse a string case insensitive (char by char)
     /// <typeparam name="EQ">Eq〈char〉 trait</typeparam>
     /// </summary>
     public static Parser<string> str<EQ>(string s) where EQ: Eq<char>  =>
-        asString(chain(toSeq(s.AsIterable().Map(ch<EQ>)))).label($"'{s}'");
+        asString(chain(toSeq(s.Select(ch<EQ>)))).label($"'{s}'");
 }

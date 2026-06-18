@@ -41,7 +41,7 @@ public partial class IteratorIO
     /// <param name="items">Collection to iterate</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>IteratorIO of the collection</returns>
-    public static IteratorIO<A> forward<A>(ReadOnlySpan<A> items) =>
+    public static IteratorIO<A> forward<A>(params ReadOnlySpan<A> items) =>
         forward(Arr.create(items));
 
     /// <summary>
@@ -50,7 +50,7 @@ public partial class IteratorIO
     /// <param name="items">Collection to iterate</param>
     /// <typeparam name="A">Value type</typeparam>
     /// <returns>IteratorIO of the collection</returns>
-    public static IteratorIO<A> backward<A>(ReadOnlySpan<A> items) =>
+    public static IteratorIO<A> backward<A>(params ReadOnlySpan<A> items) =>
         backward(Arr.create(items));
 
     /// <summary>

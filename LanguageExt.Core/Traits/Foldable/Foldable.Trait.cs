@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
+#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
 
 namespace LanguageExt.Traits;
 
@@ -227,24 +228,6 @@ public interface Foldable<T> : IterableK<T>
     /// </summary>
     static virtual bool IsEmpty<A>(K<T, A> ta) =>
         T.ForwardIterator(ta) is (Nil<A>, _);
-
-    /// <summary>
-    /// Returns the size/length of a finite structure as an `int`.  The
-    /// default implementation just counts elements starting with the leftmost.
-    /// 
-    /// Instances for structures that can compute the element count faster
-    /// than via element-by-element counting, should provide a specialised
-    /// implementation.
-    /// </summary>
-    static virtual long Count<A>(K<T, A> ta)
-    {
-        var count = 0L;
-        foreach(var _ in T.ForwardIterator(ta))
-        {
-            count++;
-        }
-        return count;
-    }
 
     /// <summary>
     /// Does an element that fits the predicate occur in the structure?
@@ -531,5 +514,51 @@ public interface Foldable<T> : IterableK<T>
             iter is (Exist<A> (var h), var t)
                 ? Iterator.cons(sep, Iterator.cons(h, () => prependToAll(t)))
                 : Iterator.empty<A>();
+    }
+
+    /// <summary>
+    /// Sort the items in the foldable structure in the order dictated by the OrdA constraint
+    /// </summary>
+    /// <param name="ta">Foldable structure</param>
+    /// <returns>An array of sorted values</returns>
+    static virtual Arr<A> Sort<OrdA, A>(K<T, A> ta)
+        where OrdA : Ord<A> =>
+        ta.Sort(OrdComparer<OrdA, A>.Default.Compare);
+
+    /// <summary>
+    /// Sort the items in the foldable structure in the order dictated by the ordering function
+    /// </summary>
+    /// <param name="comparer">Ordering function</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <returns>An array of sorted values</returns>
+    static virtual Arr<A> Sort<A>(Comparison<A> comparer, K<T, A> ta)
+    {
+        var ys = ArrayWriterRef<A>.Init();
+        foreach(var x in T.ForwardIterator(ta))
+        {
+            ys.Add(x);
+        }
+        ys.MutableView.Sort(comparer);
+        return ys.ToArr();
+    }
+    
+    /// <summary>
+    /// Sort the items in the foldable structure in the order dictated by the ordering function using the key selector.
+    /// </summary>
+    /// <param name="key">Key selector function</param>
+    /// <param name="comparer">Ordering function</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <returns>An array of sorted values</returns>
+    static virtual Arr<A> Sort<A, Key>(Func<A, Key> key, Comparison<Key> comparer, K<T, A> ta)
+    {
+        var ks = ArrayWriterRef<Key>.Init();
+        var ys = ArrayWriterRef<A>.Init();
+        foreach(var x in T.ForwardIterator(ta))
+        {
+            ks.Add(key(x));
+            ys.Add(x);
+        }
+        ks.MutableView.Sort(ys.MutableView, comparer);
+        return ys.ToArr();
     }
 }

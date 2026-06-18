@@ -452,8 +452,12 @@ public readonly struct HashSet<EqA, A> :
 
     [Pure]
     public Iterable<A> AsIterable() =>
-        Iterable.createRange(this);
-
+        ForwardIterator().AsIterable();
+    
+    [Pure]
+    public Iterator<A> ForwardIterator() =>
+        new Iterator.IterHashSet<EqA, A>(TrieSet.IteratorState<EqA, A>.Setup(Value.Root));
+             
     /// <summary>
     /// Implicit conversion from an untyped empty list
     /// </summary>

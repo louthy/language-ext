@@ -197,13 +197,6 @@ public sealed partial class Iterable<A> :
     /// Add a range of items to the end of the sequence
     /// </summary>
     [Pure]
-    public Iterable<A> Concat(IEnumerable<A> items) =>
-        new(iterator.Combine(Iterator.forward(items)));
-
-    /// <summary>
-    /// Add a range of items to the end of the sequence
-    /// </summary>
-    [Pure]
     public Iterable<A> Concat(Iterable<A> items) =>
         new(iterator.Combine(items.iterator));
 

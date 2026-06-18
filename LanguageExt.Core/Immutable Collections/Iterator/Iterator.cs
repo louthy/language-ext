@@ -1,3 +1,4 @@
+#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -146,6 +147,13 @@ public abstract partial class Iterator<A> :
         new (this);
 
     /// <summary>
+    /// Skip the first item
+    /// </summary>
+    /// <returns>An iterator</returns>
+    public Iterator<A> Tail() =>
+        Skip(1);
+
+    /// <summary>
     /// Wrap this iterator in an iterator that will cache the values as they're processed so
     /// that subsequent iterations use the cached values rather than the underlying iterator.
     /// </summary>
@@ -262,6 +270,122 @@ public abstract partial class Iterator<A> :
         +ff.Bind(Map);
 
     /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterator<A> Order() =>
+        new Iterator.OpSort<A>(this, OrdDefault<A>.Compare);
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterator<A> Order<OrdA>()
+        where OrdA : Ord<A> =>
+        new Iterator.OpSort<A>(this, OrdComparer<OrdA, A>.Default.Compare);
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterator<A> Order(IComparer<A>? comparer) =>
+        comparer switch
+        {
+            null => new Iterator.OpSort<A>(this, OrdDefault<A>.Compare),
+            _    => new Iterator.OpSort<A>(this, comparer.Compare)
+        };
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterator<A> OrderBy<K>(Func<A, K> keySelector) => 
+        new Iterator.OpSort<A, K>(this, keySelector, OrdDefault<K>.Compare);
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterator<A> OrderBy<OrdK, K>(Func<A, K> keySelector) 
+        where OrdK : Ord<K> => 
+        new Iterator.OpSort<A, K>(this, keySelector, OrdComparer<OrdK, K>.Default.Compare);
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterator<A> OrderBy<K>(Func<A, K> keySelector, IComparer<K>? comparer) =>
+        comparer switch
+        {
+            null => new Iterator.OpSort<A, K>(this, keySelector, OrdDefault<K>.Compare),
+            _    => new Iterator.OpSort<A, K>(this, keySelector, comparer.Compare)
+        };
+    
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterator<A> OrderDescending() =>
+        new Iterator.OpSort<A>(this, OrdDefault<A>.CompareDesc);
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterator<A> OrderDescending<OrdA>()
+        where OrdA : Ord<A> =>
+        new Iterator.OpSort<A>(this, (x, y) => -OrdComparer<OrdA, A>.Default.Compare(x, y));
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterator<A> OrderDescending(IComparer<A>? comparer) =>
+        comparer switch
+        {
+            null => new Iterator.OpSort<A>(this, OrdDefault<A>.CompareDesc),
+            _    => new Iterator.OpSort<A>(this, (x, y) => -comparer.Compare(x, y))
+        };
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterator<A> OrderByDescending<K>(Func<A, K> keySelector) => 
+        new Iterator.OpSort<A, K>(this, keySelector, OrdDefault<K>.CompareDesc);
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterator<A> OrderByDescending<OrdK, K>(Func<A, K> keySelector) 
+        where OrdK : Ord<K> => 
+        new Iterator.OpSort<A, K>(this, keySelector, (x, y) => -OrdComparer<OrdK, K>.Default.Compare(x, y));
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterator<A> OrderByDescending<K>(Func<A, K> keySelector, IComparer<K>? comparer) =>
+        comparer switch
+        {
+            null => new Iterator.OpSort<A, K>(this, keySelector, OrdDefault<K>.CompareDesc),
+            _    => new Iterator.OpSort<A, K>(this, keySelector, (x, y) => -comparer.Compare(x, y))
+        };
+    
+    /// <summary>
     /// Skip a specified number of items from the start of the IteratorIO. 
     /// </summary>
     [Pure]
@@ -331,7 +455,15 @@ public abstract partial class Iterator<A> :
     /// </summary>
     [Pure]
     public Iterator<A> Combine(Iterator<A> other) =>
+        // TODO: Optimise to spot lhs and rhs OpCombine types 
         new OpCombine(this, other);
+
+    /// <summary>
+    /// Concatenate two iterators
+    /// </summary>
+    [Pure]
+    public Iterator<A> Combine(Func<Iterator<A>> other) =>
+        new OpCombine2(this, other);
 
     /// <summary>
     /// Reverse the sequence of the iterator
@@ -367,6 +499,41 @@ public abstract partial class Iterator<A> :
         new OpMerge(this, other);
 
     /// <summary>
+    /// Unions together two Iterator sequences. 
+    /// </summary>
+    /// <remarks>
+    /// Whilst there are items in both sequences, each is yielded, one after the other. Once one sequence runs
+    /// out of items, the items that are remaining in the other sequence are yielded alone.
+    /// </remarks>
+    [Pure]
+    public Iterator<A> Union(Iterator<A> other, Func<A, A, A> join) =>
+        new Iterator.OpUnion<A, A>(this, other, Some, (x, y) => Some(join(x, y)));
+
+    /// <summary>
+    /// Unions together two Iterator sequences.  Each pair of items is munged into a single value using the `join`
+    /// function. 
+    /// </summary>
+    /// <remarks>
+    /// Whilst there are items in both sequences, each is yielded, one after the other. Once one sequence runs
+    /// out of items, the items that are remaining in the other sequence are yielded alone.
+    /// </remarks>
+    [Pure]
+    public Iterator<A> Union(Iterator<A> other, Func<A, A, Option<A>> join) =>
+        new Iterator.OpUnion<A, A>(this, other, Some, join);
+
+    /// <summary>
+    /// Unions together two Iterator sequences.  Each pair of items is munged into a single value using the `join`
+    /// function. 
+    /// </summary>
+    /// <remarks>
+    /// Whilst there are items in both sequences, each is yielded, one after the other. Once one sequence runs
+    /// out of items, the items that are remaining in the other sequence are yielded alone.
+    /// </remarks>
+    [Pure]
+    public Iterator<B> Union<B>(Iterator<A> other, Func<A, Option<B>> choose, Func<A, A, Option<B>> join) =>
+        new Iterator.OpUnion<A, B>(this, other, choose, join);
+
+    /// <summary>
     /// Zips the items of two sequences together
     /// </summary>
     /// <remarks>
@@ -399,6 +566,22 @@ public abstract partial class Iterator<A> :
     [Pure]
     public virtual Iterator<A> Append(A value) =>
         new Iterator.Add<A>([], this, [value]);
+
+    /// <summary>
+    /// Repeat the sequence forever. 
+    /// </summary>
+    /// <returns>An infinitely long sequence</returns>
+    [Pure]
+    public Iterator<A> Repeat() =>
+        Repeat(Iterator.forever(Duration.Zero));
+
+    /// <summary>
+    /// Repeat the sequence based on the provided durations. 
+    /// </summary>
+    /// <returns>An iterator</returns>
+    [Pure]
+    public Iterator<A> Repeat(Iterator<Duration> durations) =>
+        new Iterator.OpRepeat<A>(this, durations);
 
     /// <summary>
     /// Combine two sequences
@@ -515,20 +698,36 @@ public abstract partial class Iterator<A> :
             }
         }
     }
+    
+    /// <summary>
+    /// Get the number of items in the sequence O(n)
+    /// </summary>
+    /// <returns>Forces evaluation of the `Iterator`</returns>
+    [Pure]
+    public virtual long Count
+    {
+        get
+        {
+            var count = 0L;
+            for (var iter  = this; iter is (Exist<A>, var tail); iter = tail)
+            {
+                count++;
+            }
+            return count;
+        }
+    }
 
     [Pure]
     public override int GetHashCode()
     {
-        var iter = this;
         var hash = OffsetBasis;
-        while (iter is (Exist<A> (var head), var tail))
+        for (var iter  = this; iter is (Exist<A>(var head), var tail); iter = tail)
         {
             var itemHash = head?.GetHashCode() ?? 0;
             unchecked
             {
                 hash = (hash ^ itemHash) * Prime;
             }
-            iter = tail;
         }
         return hash;
     }

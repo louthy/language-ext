@@ -50,10 +50,9 @@ public static class Token
         Parser<Unit>       inCommentSingle  = null;
         Func<string, bool> isReservedName   = null;
 
-        var startEnd = (def.CommentEnd.AsIterator() + def.CommentStart.AsIterator())
+        var startEnd = (def.CommentEnd + def.CommentStart)
                             .Distinct()
-                            .ToArray()
-                            .Buffer;
+                            .ToArray();
 
         inCommentMulti =
             choice(
@@ -98,10 +97,10 @@ public static class Token
             select unit;
 
         var whiteSpace =
-            def.CommentLine == null && def.CommentStart == null ? skipMany(simpleSpace.label(""))
-            : def.CommentStart == null                          ? skipMany(either(simpleSpace, multiLineComment).label(""))
-            : def.CommentLine  == null                          ? skipMany(either(simpleSpace, oneLineComment).label(""))
-                                                                  : skipMany(choice(simpleSpace, oneLineComment, multiLineComment).label(""));
+            def.CommentLine is null && def.CommentStart is null ? skipMany(simpleSpace.label(""))
+            : def.CommentStart is null                          ? skipMany(either(simpleSpace, multiLineComment).label(""))
+            : def.CommentLine  is null                          ? skipMany(either(simpleSpace, oneLineComment).label(""))
+                                                                : skipMany(choice(simpleSpace, oneLineComment, multiLineComment).label(""));
 
         var lexemeStr      = lexemeDef<string>(whiteSpace);
         var lexemeCh       = lexemeDef<char>(whiteSpace);

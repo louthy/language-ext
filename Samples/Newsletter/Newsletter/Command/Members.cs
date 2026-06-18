@@ -27,7 +27,7 @@ public static class Members<M, RT>
     static K<M, string> readFirstFile(string folder) =>
         Directory<M, RT>.enumerateFiles(folder, "*.csv")
                         .Map(fs => fs.OrderDescending()
-                                     .AsIterable()
+                                     .AsSeq()
                                      .Head)
                         .Bind(path => path.Match(
                                   Some: pure<M, string>,
@@ -39,9 +39,8 @@ public static class Members<M, RT>
         using var reader  = new StreamReader(path);
         using var csv     = new CsvReader(reader, config);
         return csv.GetRecords<Row>()
-                  .AsIterable()
-                  .Map(r => new Member(r.id, r.email, r.name, r.subscribed_to_emails == "true", r.tiers == "Supporter"))
-                  .ToSeq()
+                  .Select(r => new Member(r.id, r.email, r.name, r.subscribed_to_emails == "true", r.tiers == "Supporter"))
+                  .AsSeq()
                   .Strict();
     }
 

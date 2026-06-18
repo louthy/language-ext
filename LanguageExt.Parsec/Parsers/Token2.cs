@@ -50,7 +50,7 @@ public static class Token2
         Parser<Unit>       inCommentSingle  = null;
         Func<string, bool> isReservedName   = null;
 
-        var startEnd = (def.CommentEnd.AsIterator() + def.CommentStart.AsIterator()).Distinct().ToArray().Buffer;
+        var startEnd = (def.CommentEnd + def.CommentStart).Distinct().ToArray();
 
         inCommentMulti =
             choice(

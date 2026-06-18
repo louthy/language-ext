@@ -97,7 +97,6 @@ public struct ListEnumerator<T> : IEnumerator<T>
         return false;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Reset()
     {
         var skip = start;

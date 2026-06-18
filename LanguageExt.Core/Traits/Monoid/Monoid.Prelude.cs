@@ -27,15 +27,16 @@ public static class Monoid
     [Pure]
     public static A combine<A>(A mx, A my, A mz, params A[] xs)
         where A : Monoid<A> =>
-        xs.AsIterable().Fold(combine, combine(combine(mx, my), mz));
+        Iterator.forward(xs)
+                .Fold(combine, combine(combine(mx, my), mz));
 
     /// <summary>
     /// Fold a list using the monoid.
     /// </summary>
     [Pure]
-    public static A combine<A>(IEnumerable<A> xs)
+    public static A combine<A>(Iterable<A> xs)
         where A : Monoid<A> =>
-        xs.AsIterable().Fold(combine, A.Empty);
+        xs.Fold(combine<A>, A.Empty);
 
     /// <summary>
     /// Fold a list using the monoid.

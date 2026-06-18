@@ -168,18 +168,6 @@ public static class Foldable
         ta.IsEmpty;
 
     /// <summary>
-    /// Returns the size/length of a finite structure as an `int`.  The
-    /// default implementation just counts elements starting with the leftmost.
-    /// 
-    /// Instances for structures that can compute the element count faster
-    /// than via element-by-element counting, should provide a specialised
-    /// implementation.
-    /// </summary>
-    public static long count<T, A>(K<T, A> ta) 
-        where T : Foldable<T> =>
-        ta.Count;
-
-    /// <summary>
     /// Does an element that fits the predicate occur in the structure?
     /// </summary>
     public static bool exists<T, A>(Func<A, bool> predicate, K<T, A> ta) 
@@ -355,4 +343,35 @@ public static class Foldable
     public static Iterator<A> intersperse<T, A>(A sep, K<T, A> ta)
         where T : Foldable<T> =>
         ta.Intersperse(sep);
+
+    /// <summary>
+    /// Sort the items in the foldable structure in the order dictated by the OrdA constraint
+    /// </summary>
+    /// <param name="ta">Foldable structure</param>
+    /// <returns>An array of sorted values</returns>
+    public static Arr<A> sort<OrdA, T, A>(K<T, A> ta)
+        where OrdA : Ord<A>
+        where T : Foldable<T> =>
+        T.Sort<OrdA, A>(ta);
+
+    /// <summary>
+    /// Sort the items in the foldable structure in the order dictated by the ordering function
+    /// </summary>
+    /// <param name="comparer">Ordering function</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <returns>An array of sorted values</returns>
+    public static Arr<A> sort<T, A>(Comparison<A> comparer, K<T, A> ta)
+        where T : Foldable<T> =>
+        T.Sort(comparer, ta);
+
+    /// <summary>
+    /// Sort the items in the foldable structure in the order dictated by the ordering function using the key selector.
+    /// </summary>
+    /// <param name="key">Key selector function</param>
+    /// <param name="comparer">Ordering function</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <returns>An array of sorted values</returns>
+    public static Arr<A> sort<T, A, Key>(Func<A, Key> key, Comparison<Key> comparer, K<T, A> ta)
+        where T : Foldable<T> =>
+        T.Sort(key, comparer, ta);
 }

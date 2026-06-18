@@ -224,7 +224,8 @@ public readonly struct Set<A> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
     /// <returns>Range of values</returns>
     [Pure]
-    public Iterable<A> FindRange(A keyFrom, A keyTo) => Value.FindRange(keyFrom, keyTo);
+    public Iterable<A> FindRange(A keyFrom, A keyTo) => 
+        Value.FindRange(keyFrom, keyTo);
 
     /// <summary>
     /// Retrieve the value from previous item to specified key
@@ -683,8 +684,12 @@ public readonly struct Set<A> :
         toSeq(this);
 
     [Pure]
-    public Iterable<A> AsEnumerable() =>
-        Iterable.createRange(this);
+    public Iterable<A> AsIterable() =>
+        Value.AsIterable();
+
+    [Pure]
+    public IEnumerable<A> AsEnumerable() =>
+        Value.AsIterable();
 
     [Pure]
     public Set<B> Select<B>(Func<A, B> f) =>
@@ -701,7 +706,7 @@ public readonly struct Set<A> :
 
         IEnumerable<B> Yield()
         {
-            foreach (var x in self.AsEnumerable())
+            foreach (var x in self.AsIterable())
             {
                 foreach (var y in f(x))
                 {
@@ -719,7 +724,7 @@ public readonly struct Set<A> :
 
         IEnumerable<C> Yield()
         {
-            foreach(var x in self.AsEnumerable())
+            foreach(var x in self.AsIterable())
             {
                 foreach(var y in bind(x))
                 {
@@ -731,8 +736,8 @@ public readonly struct Set<A> :
     }
 
     [Pure]
-    public Iterable<A> Skip(int amount) =>
-        Value.Skip(amount);
+    public Set<A> Skip(int amount) =>
+        Wrap(Value.Skip(amount));
 
     [Pure]
     public int CompareTo(Set<A> other) =>

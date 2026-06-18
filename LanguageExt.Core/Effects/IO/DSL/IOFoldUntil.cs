@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using LanguageExt.DSL;
 using LanguageExt.Traits;
 
 namespace LanguageExt.DSL;
@@ -51,7 +49,7 @@ record IOFoldUntil<S, A, B>(
 record IOFoldingUntilInitialAsync<S, A, B>(
     ValueTask<A> First,
     IO<A> Operation,
-    Iterator<Duration> Schedule,
+    IteratorIO<Duration> Schedule,
     S State,
     Func<S, A, S> Folder,
     Func<(S State, A Value), bool> Predicate,
@@ -75,8 +73,10 @@ record IOFoldingUntilInitialAsync<S, A, B>(
         {
             return Next(state).As();
         }
-            
-        if (Schedule is (Exist<Duration> (var duration), var tail))
+           
+        var schedule = await Schedule.NextIO().RunAsync(envIO);
+        
+        if (schedule is (Exist<Duration> (var duration), var tail))
         {
             await Task.Delay((TimeSpan)duration, envIO.Token);
             value = await Operation.RunAsync(envIO);
@@ -97,7 +97,7 @@ record IOFoldingUntilInitialAsync<S, A, B>(
 
 record IOFoldingUntilAsync<S, A, B>(
     IO<A> Operation,
-    Iterator<Duration> Schedule,
+    IteratorIO<Duration> Schedule,
     S State,
     Func<S, A, S> Folder,
     Func<(S State, A Value), bool> Predicate,
@@ -115,7 +115,8 @@ record IOFoldingUntilAsync<S, A, B>(
 
     public override async ValueTask<IO<B>> Invoke(EnvIO envIO) 
     {
-        if (Schedule is (Exist<Duration> (var duration), var tail))
+        var schedule = await Schedule.NextIO().RunAsync(envIO);
+        if (schedule is (Exist<Duration> (var duration), var tail))
         {
             await Task.Delay((TimeSpan)duration, envIO.Token);
             var value = await Operation.RunAsync(envIO);
@@ -136,7 +137,7 @@ record IOFoldingUntilAsync<S, A, B>(
 
 record IOFoldingUntilSync<S, A, B>(
     IO<A> Operation,
-    Iterator<Duration> Schedule,
+    IteratorIO<Duration> Schedule,
     S State,
     Func<S, A, S> Folder,
     Func<(S State, A Value), bool> Predicate,
@@ -154,7 +155,8 @@ record IOFoldingUntilSync<S, A, B>(
 
     public override IO<B> Invoke(EnvIO envIO) 
     {
-        if (Schedule is (Exist<Duration> (var duration), var tail))
+        var schedule = Schedule.NextIO().Run(envIO);
+        if (schedule is (Exist<Duration> (var duration), var tail))
         {
             Task.Delay((TimeSpan)duration, envIO.Token).GetAwaiter().GetResult();
             var value = Operation.Run(envIO);

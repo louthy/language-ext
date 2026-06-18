@@ -132,17 +132,6 @@ public static partial class Deriving
             Subtype.IsEmpty(transform<Supertype, Subtype, A>(ta));
 
         /// <summary>
-        /// Returns the size/length of a finite structure as an `int`.  The
-        /// default implementation just counts elements starting with the leftmost.
-        /// 
-        /// Instances for structures that can compute the element count faster
-        /// than via element-by-element counting, should provide a specialised
-        /// implementation.
-        /// </summary>
-        static long Foldable<Supertype>.Count<A>(K<Supertype, A> ta) =>
-            Subtype.Count(transform<Supertype, Subtype, A>(ta));
-
-        /// <summary>
         /// Does an element that fits the predicate occur in the structure?
         /// </summary>
         static bool Foldable<Supertype>.Exists<A>(Func<A, bool> predicate, K<Supertype, A> ta) =>

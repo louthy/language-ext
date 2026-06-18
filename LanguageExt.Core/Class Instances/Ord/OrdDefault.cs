@@ -1,4 +1,5 @@
-﻿using LanguageExt.Traits;
+﻿using System;
+using LanguageExt.Traits;
 using System.Diagnostics.Contracts;
 using LanguageExt.Traits.Resolve;
 
@@ -19,6 +20,15 @@ public struct OrdDefault<A> : Ord<A>
     [Pure]
     public static int Compare(A x, A y) =>
         OrdResolve<A>.Compare(x, y);
+    /// <summary>
+    /// Equality test
+    /// </summary>
+    /// <param name="x">The left hand side of the equality operation</param>
+    /// <param name="y">The right hand side of the equality operation</param>
+    /// <returns>True if x and y are equal</returns>
+    [Pure]
+    public static int CompareDesc(A x, A y) =>
+        -OrdResolve<A>.Compare(x, y);
 
     [Pure]
     public static bool Equals(A x, A y) =>

@@ -67,8 +67,9 @@ public static class Queue
         Foldable.fold(folder, state, queue);
 
     [Pure]
-    public static Que<C> zip<A, B, C>(Que<A> queue, IEnumerable<B> other, Func<A, B, C> zipper) =>
-        toQueue(queue.ForwardIterator().Zip(other.AsIterator(), zipper));
+    public static Que<C> zip<T, A, B, C>(Que<A> queue, K<T, B> other, Func<A, B, C> zipper) 
+        where T : IterableK<T> =>
+        toQueue(queue.ForwardIterator().Zip(other.ForwardIterator(), zipper));
 
     [Pure]
     public static Que<T> distinct<T>(Que<T> queue) =>

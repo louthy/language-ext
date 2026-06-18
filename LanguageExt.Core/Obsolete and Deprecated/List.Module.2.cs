@@ -108,22 +108,22 @@ public static partial class List
     [Obsolete("Use Iterable.tail")]
     [OverloadResolutionPriority(Change.Priority)]
     public static Iterable<T> tail<T>(IEnumerable<T> list) =>
-        list.Skip(1).AsIterable();
+        list.Skip(1).AsIterableStrict();
 
     [Obsolete("Use Iterable.map")]
     [OverloadResolutionPriority(Change.Priority)]
     public static Iterable<R> map<T, R>(IEnumerable<T> list, Func<T, R> map) =>
-        list.Select(map).AsIterable();
+        list.Select(map).AsIterableStrict();
 
     [Obsolete("Use Iterable.map")]
     [OverloadResolutionPriority(Change.Priority)]
     public static Iterable<R> map<T, R>(IEnumerable<T> list, Func<int, T, R> map) =>
-        zip(list, Range(0, int.MaxValue).ForwardIterator().AsIterable(), (t, i) => map(i, t)).AsIterable();
+        zip(list, Range(0, int.MaxValue).ForwardIterator().AsIterable(), (t, i) => map(i, t)).AsIterableStrict();
 
     [Obsolete("Use Iterable.filter")]
     [OverloadResolutionPriority(Change.Priority)]
     public static Iterable<T> filter<T>(IEnumerable<T> list, Func<T, bool> predicate) =>
-        list.Where(predicate).AsIterable();
+        list.Where(predicate).AsIterableStrict();
 
     [Obsolete("Use Iterable.choose")]
     [OverloadResolutionPriority(Change.Priority)]
@@ -140,7 +140,7 @@ public static partial class List
     public static Iterable<R> collect<T, R>(IEnumerable<T> list, Func<T, IEnumerable<R>> map) =>
         (from t in list
          from r in map(t)
-         select r).AsIterable();
+         select r).AsIterableStrict();
 
     [Obsolete("This is just Foldable.Sum, so convert to an Iterable with AsIterable and use Foldable.sum")]
     [OverloadResolutionPriority(Change.Priority)]
@@ -165,19 +165,19 @@ public static partial class List
     [Obsolete("Use Iterable.reverse")]
     [OverloadResolutionPriority(Change.Priority)]
     public static Iterable<T> rev<T>(IEnumerable<T> list) =>
-        list.Reverse().AsIterable();
+        list.Reverse().AsIterableStrict();
 
     [Obsolete("Use Iterable `+` operator")]
     [OverloadResolutionPriority(Change.Priority)]
     public static Iterable<T> append<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) =>
-        lhs.ConcatFast(rhs).AsIterable();
+        lhs.ConcatFast(rhs).AsIterableStrict();
 
     [Obsolete("Use Iterable `+` operator")]
     [OverloadResolutionPriority(Change.Priority)]
     public static Iterable<T> append<T>(IEnumerable<T> x, IEnumerable<IEnumerable<T>> xs) =>
         xs.HeadAndTailSafe()
           .Match(
-               None: x.AsIterable,
+               None: x.AsIterableStrict,
                Some: tuple => append(x, append(tuple.Head, tuple.Tail)));
 
     [Obsolete("Use Iterable `+` operator")]
@@ -186,7 +186,7 @@ public static partial class List
         lists.Length == 0
             ? Iterable.empty<T>()
             : lists.Length == 1
-                ? lists[0].AsIterable()
+                ? lists[0].AsIterableStrict()
                 : append(lists[0], lists.Skip(1));
 
     [Obsolete("Use AsIterable() then Foldable.fold")]

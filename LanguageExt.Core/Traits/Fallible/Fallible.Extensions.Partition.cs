@@ -25,6 +25,26 @@ public static partial class FallibleExtensions
                      s => ma.Bind(a => M.Pure((s.Fails, s.Succs.Add(a))))
                             .Catch(e => M.Pure((s.Fails.Add(e), s.Succs)))),
                  M.Pure((Fails: Seq.empty<Error>(), Succs: Seq.empty<A>())));
+
+    /// <summary>
+    /// Partitions a foldable of effects into two lists.
+    /// All the `Fail` elements are extracted, in order, to the first
+    /// component of the output.  Similarly, the `Succ` elements are extracted
+    /// to the second component of the output.
+    /// </summary>
+    /// <typeparam name="F">Foldable type</typeparam>
+    /// <typeparam name="M">Fallible monadic type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="fma">Foldable of fallible monadic values</param>
+    /// <returns>A tuple containing an `Error` sequence and a `Succ` sequence</returns>
+    public static K<M, (Seq<Error> Fails, Seq<A> Succs)> PartitionFallibleIO<F, M, A>(
+        this K<F, K<M, A>> fma)
+        where M : MonadIO<M>, Fallible<M>
+        where F : FoldableIO<F> =>
+        M.LiftIO(fma.FoldIO((ms, ma) => ms.Bind(s => ma.Bind(a => M.Pure((s.Fails, s.Succs.Add(a))))
+                                                       .Catch(e => M.Pure((s.Fails.Add(e), s.Succs)))),
+                            M.Pure((Fails: Seq.empty<Error>(), Succs: Seq.empty<A>()))))
+         .Flatten();
     
     /// <summary>
     /// Partitions a collection of effects into two lists.
@@ -83,8 +103,8 @@ public static partial class FallibleExtensions
     /// <returns>A tuple containing an `Error` sequence and a `Succ` sequence</returns>
     public static K<M, (Seq<Error> Fails, Seq<A> Succs)> PartitionFallible<M, A>(
         this IEnumerable<K<M, A>> fma)
-        where M : Monad<M>, Fallible<M> =>
-        Iterable.createRange(fma).PartitionFallible();
+        where M : MonadIO<M>, Fallible<M> =>
+        IterableIO.createRange(fma).PartitionFallibleIO();
     
     /// <summary>
     /// Partitions a collection of effects into two lists.

@@ -59,6 +59,46 @@ public abstract partial record Schedule
     [Pure]
     public static Schedule TimeSeries(HashSet<Duration> durations) =>
         new SchItems(durations.ForwardIterator());
+
+    /// <summary>
+    /// `Schedule` constructor that recurs for the specified durations
+    /// </summary>
+    /// <param name="durations">durations to apply</param>
+    [Pure]
+    public static Schedule TimeSeries(Iterator<Duration> durations) =>
+        new SchItems(durations);
+
+    /// <summary>
+    /// `Schedule` constructor that recurs for the specified durations
+    /// </summary>
+    /// <param name="durations">durations to apply</param>
+    [Pure]
+    public static Schedule TimeSeries(IteratorIO<Duration> durations) =>
+        new SchItems2(durations);
+
+    /// <summary>
+    /// `Schedule` constructor that recurs for the specified durations
+    /// </summary>
+    /// <param name="durations">durations to apply</param>
+    [Pure]
+    public static Schedule TimeSeries(Iterable<Duration> durations) =>
+        new SchItems(durations.ForwardIterator());
+
+    /// <summary>
+    /// `Schedule` constructor that recurs for the specified durations
+    /// </summary>
+    /// <param name="durations">durations to apply</param>
+    [Pure]
+    public static Schedule TimeSeries(IterableNE<Duration> durations) =>
+        new SchItems(durations.ForwardIterator());
+
+    /// <summary>
+    /// `Schedule` constructor that recurs for the specified durations
+    /// </summary>
+    /// <param name="durations">durations to apply</param>
+    [Pure]
+    public static Schedule TimeSeries(IterableIO<Duration> durations) =>
+        new SchItems2(durations.ForwardIteratorIO());
     
     /// <summary>
     /// `ScheduleTransformer` constructor which provides mapping capabilities for `Schedule` instances

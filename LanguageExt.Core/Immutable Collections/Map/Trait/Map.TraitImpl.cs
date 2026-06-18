@@ -5,11 +5,12 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 public partial class Map<Key> : 
-    Foldable<Map<Key>, Map.FoldState>,
-    FoldableBack<Map<Key>, Map.FoldState>,
-    Indexable<Map<Key>, Key>,
+    MonoidK<Map<Key>>,
     Functor<Map<Key>>, 
-    MonoidK<Map<Key>>
+    Countable<Map<Key>>,
+    Indexable<Map<Key>, Key>,
+    Foldable<Map<Key>, Map.FoldState>,
+    FoldableBack<Map<Key>, Map.FoldState>
 {
     static K<Map<Key>, B> Functor<Map<Key>>.Map<A, B>(Func<A, B> f, K<Map<Key>, A> ma)
     {
@@ -23,7 +24,7 @@ public partial class Map<Key> :
         }
     }
         
-    static long Foldable<Map<Key>>.Count<A>(K<Map<Key>, A> ta) =>
+    static long Countable<Map<Key>>.Count<A>(K<Map<Key>, A> ta) =>
         ta.As().Count;
 
     static bool Foldable<Map<Key>>.IsEmpty<A>(K<Map<Key>, A> ta) =>

@@ -7,7 +7,7 @@ namespace LanguageExt.Sys.Test.Implementations;
 public class TimeIO : Sys.Traits.TimeIO
 {
     readonly Atom<DateTime> now;
-    Iterator<Duration> ticks;
+    IteratorIO<Duration> ticks;
 
     public TimeIO(TestTimeSpec spec)
     {
@@ -18,7 +18,8 @@ public class TimeIO : Sys.Traits.TimeIO
     void Tick() =>
         now.Swap(n =>
                  {
-                     if (ticks is (Exist<Duration>(var head), var tail))
+                     var t = ticks.NextIO().Run();
+                     if (t is (Exist<Duration>(var head), var tail))
                      {
                          ticks = tail;
                          return n.AddMilliseconds(head);

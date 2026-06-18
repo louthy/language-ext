@@ -37,7 +37,7 @@ HashMap<string, string> loadUserSecrets()
     var json          = JsonDocument.Parse(text);
     return json.RootElement
                .EnumerateObject()
-               .AsIterable()
+               .AsIterableStrict()
                .Map(e => (e.Name, e.Value.GetString() ?? ""))
                .ToHashMap();
 }

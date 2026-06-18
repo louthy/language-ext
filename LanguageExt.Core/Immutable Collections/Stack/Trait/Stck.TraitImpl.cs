@@ -5,8 +5,9 @@ namespace LanguageExt;
 
 public partial class Stck :
     Monad<Stck>,
-    Foldable<Stck, Stck.FoldState>,
-    MonoidK<Stck>
+    MonoidK<Stck>,
+    Countable<Stck>,
+    Foldable<Stck, Stck.FoldState>
 {
     static K<Stck, A> SemigroupK<Stck>.Combine<A>(K<Stck, A> lhs, K<Stck, A> rhs) => 
         +lhs + +rhs;
@@ -105,4 +106,7 @@ public partial class Stck :
             Stck<A>.Top(var t, var r) => Iterator.cons(t, () => r.ForwardIterator()),
             _                         => Iterator.empty<A>()
         };
+
+    static long Countable<Stck>.Count<A>(K<Stck, A> fa) => 
+        fa.As().Count;
 }

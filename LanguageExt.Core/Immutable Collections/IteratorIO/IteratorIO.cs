@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
+#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
 
 namespace LanguageExt;
 
@@ -178,6 +179,13 @@ public abstract partial class IteratorIO<A> :
     public abstract IteratorIO<A> Using();
 
     /// <summary>
+    /// Skip the first item
+    /// </summary>
+    /// <returns>An iterator</returns>
+    public IteratorIO<A> Tail() =>
+        Skip(1);
+    
+    /// <summary>
     /// Create an `IEnumerable` from an `IteratorIO`
     /// </summary>
     [Pure]
@@ -340,13 +348,6 @@ public abstract partial class IteratorIO<A> :
     /// Monad bind
     /// </summary>
     [Pure]
-    public IteratorIO<B> Bind<B>(Func<A, K<IteratorIO, B>> f) =>
-        Map(f).Flatten();
-
-    /// <summary>
-    /// Monad bind
-    /// </summary>
-    [Pure]
     public IteratorIO<C> SelectMany<B, C>(Func<A, IteratorIO<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
@@ -357,6 +358,122 @@ public abstract partial class IteratorIO<A> :
     public IteratorIO<B> ApplyBack<B>(IteratorIO<Func<A, B>> ff) =>
         +ff.Bind(Map);
 
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public IteratorIO<A> Order() =>
+        new IteratorIO.OpSort<A>(this, OrdDefault<A>.Compare);
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public IteratorIO<A> Order<OrdA>()
+        where OrdA : Ord<A> =>
+        new IteratorIO.OpSort<A>(this, OrdComparer<OrdA, A>.Default.Compare);
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public IteratorIO<A> Order(IComparer<A>? comparer) =>
+        comparer switch
+        {
+            null => new IteratorIO.OpSort<A>(this, OrdDefault<A>.Compare),
+            _    => new IteratorIO.OpSort<A>(this, comparer.Compare)
+        };
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public IteratorIO<A> OrderBy<K>(Func<A, K> keySelector) => 
+        new IteratorIO.OpSort<A, K>(this, keySelector, OrdDefault<K>.Compare);
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public IteratorIO<A> OrderBy<OrdK, K>(Func<A, K> keySelector) 
+        where OrdK : Ord<K> => 
+        new IteratorIO.OpSort<A, K>(this, keySelector, OrdComparer<OrdK, K>.Default.Compare);
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public IteratorIO<A> OrderBy<K>(Func<A, K> keySelector, IComparer<K>? comparer) =>
+        comparer switch
+        {
+            null => new IteratorIO.OpSort<A, K>(this, keySelector, OrdDefault<K>.Compare),
+            _    => new IteratorIO.OpSort<A, K>(this, keySelector, comparer.Compare)
+        };
+    
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public IteratorIO<A> OrderDescending() =>
+        new IteratorIO.OpSort<A>(this, OrdDefault<A>.CompareDesc);
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public IteratorIO<A> OrderDescending<OrdA>()
+        where OrdA : Ord<A> =>
+        new IteratorIO.OpSort<A>(this, (x, y) => -OrdComparer<OrdA, A>.Default.Compare(x, y));
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public IteratorIO<A> OrderDescending(IComparer<A>? comparer) =>
+        comparer switch
+        {
+            null => new IteratorIO.OpSort<A>(this, OrdDefault<A>.CompareDesc),
+            _    => new IteratorIO.OpSort<A>(this, (x, y) => -comparer.Compare(x, y))
+        };
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public IteratorIO<A> OrderByDescending<K>(Func<A, K> keySelector) => 
+        new IteratorIO.OpSort<A, K>(this, keySelector, OrdDefault<K>.CompareDesc);
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public IteratorIO<A> OrderByDescending<OrdK, K>(Func<A, K> keySelector) 
+        where OrdK : Ord<K> => 
+        new IteratorIO.OpSort<A, K>(this, keySelector, (x, y) => -OrdComparer<OrdK, K>.Default.Compare(x, y));
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public IteratorIO<A> OrderByDescending<K>(Func<A, K> keySelector, IComparer<K>? comparer) =>
+        comparer switch
+        {
+            null => new IteratorIO.OpSort<A, K>(this, keySelector, OrdDefault<K>.CompareDesc),
+            _    => new IteratorIO.OpSort<A, K>(this, keySelector, (x, y) => -comparer.Compare(x, y))
+        };
+    
     /// <summary>
     /// Skip a specified number of items from the start of the IteratorIO. 
     /// </summary>
@@ -422,6 +539,13 @@ public abstract partial class IteratorIO<A> :
         new OpCombine(this, other);
 
     /// <summary>
+    /// Concatenate two IteratorIOs
+    /// </summary>
+    [Pure]
+    public IteratorIO<A> Combine(Func<IteratorIO<A>> other) =>
+        new OpCombine2(this, other);
+
+    /// <summary>
     /// Reverse the sequence of the IteratorIO
     /// </summary>
     /// <remarks>
@@ -453,6 +577,41 @@ public abstract partial class IteratorIO<A> :
     [Pure]
     public IteratorIO<A> Merge(IteratorIO<A> other) =>
         new OpMerge(this, other);
+
+    /// <summary>
+    /// Unions together two IteratorIO sequences. 
+    /// </summary>
+    /// <remarks>
+    /// Whilst there are items in both sequences, each is yielded, one after the other. Once one sequence runs
+    /// out of items, the items that are remaining in the other sequence are yielded alone.
+    /// </remarks>
+    [Pure]
+    public IteratorIO<A> Union(IteratorIO<A> other, Func<A, A, A> join) =>
+        new IteratorIO.OpUnion<A, A>(this, other, Some, (x, y) => Some(join(x, y)));
+
+    /// <summary>
+    /// Unions together two IteratorIO sequences.  Each pair of items is munged into a single value using the `join`
+    /// function. 
+    /// </summary>
+    /// <remarks>
+    /// Whilst there are items in both sequences, each is yielded, one after the other. Once one sequence runs
+    /// out of items, the items that are remaining in the other sequence are yielded alone.
+    /// </remarks>
+    [Pure]
+    public IteratorIO<A> Union(IteratorIO<A> other, Func<A, A, Option<A>> join) =>
+        new IteratorIO.OpUnion<A, A>(this, other, Some, join);
+
+    /// <summary>
+    /// Unions together two IteratorIO sequences.  Each pair of items is munged into a single value using the `join`
+    /// function. 
+    /// </summary>
+    /// <remarks>
+    /// Whilst there are items in both sequences, each is yielded, one after the other. Once one sequence runs
+    /// out of items, the items that are remaining in the other sequence are yielded alone.
+    /// </remarks>
+    [Pure]
+    public IteratorIO<B> Union<B>(IteratorIO<A> other, Func<A, Option<B>> choose, Func<A, A, Option<B>> join) =>
+        new IteratorIO.OpUnion<A, B>(this, other, choose, join);
 
     /// <summary>
     /// Zips the items of two sequences together
@@ -489,10 +648,33 @@ public abstract partial class IteratorIO<A> :
         new IteratorIO.Add<A>(this, [value]);
 
     /// <summary>
+    /// Repeat the sequence forever. 
+    /// </summary>
+    /// <returns>An infinitely long sequence</returns>
+    [Pure]
+    public IteratorIO<A> Repeat() =>
+        Repeat(Iterator.forever(Duration.Zero));
+
+    /// <summary>
+    /// Repeat the sequence based on the provided durations. 
+    /// </summary>
+    /// <returns>An iterator</returns>
+    [Pure]
+    public IteratorIO<A> Repeat(Iterator<Duration> durations) =>
+        new IteratorIO.OpRepeat<A>(this, durations);
+    
+    /// <summary>
     /// Combine two sequences
     /// </summary>
     [Pure]
     public static IteratorIO<A> operator +(IteratorIO<A> ma, IteratorIO<A> mb) =>
+        ma.Combine(mb);
+    
+    /// <summary>
+    /// Combine two sequences
+    /// </summary>
+    [Pure]
+    public static IteratorIO<A> operator +(IteratorIO<A> ma, Func<IteratorIO<A>> mb) =>
         ma.Combine(mb);
 
     /// <summary>

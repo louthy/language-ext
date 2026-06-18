@@ -253,7 +253,7 @@ internal class TrieSet<EqK, K> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode() =>
         hash == 0
-            ? (hash = FNV32.Hash<EqK, K>(AsEnumerable()))
+            ? (hash = FNV32.Hash<EqK, K>(AsIterable()))
             : hash;
 
     /// <summary>
@@ -292,21 +292,21 @@ internal class TrieSet<EqK, K> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieSet<EqU, U> Map<EqU, U>(Func<K, U> f) 
         where EqU : Eq<U> =>
-        new (AsEnumerable().Select(f), true);
+        new (AsIterable().Select(f), true);
 
     /// <summary>
     /// Map from K to K
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieSet<EqK, K> Map(Func<K, K> f) =>
-        new (AsEnumerable().Select(f), true);
+        new (AsIterable().Select(f), true);
 
     /// <summary>
     /// Filter
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TrieSet<EqK, K> Filter(Func<K, bool> f) =>
-        new (AsEnumerable().Filter(f), false);
+        new (AsIterable().Filter(f), false);
 
     /// <summary>
     /// Associative union
@@ -1091,8 +1091,11 @@ internal class TrieSet<EqK, K> :
         }
     }
 
-    public Iterable<K> AsEnumerable() =>
-        Root.AsIterable();
+    public Iterable<K> AsIterable() =>
+        ForwardIterator().AsIterable();
+
+    public Iterator<K> ForwardIterator() =>
+        new Iterator.IterHashSet<EqK, K>(TrieSet.IteratorState<EqK, K>.Setup(Root));
 
     public IEnumerator<K> GetEnumerator() =>
         Root.GetEnumerator();
@@ -1219,8 +1222,8 @@ internal class TrieSet<EqK, K> :
 
     public override string ToString() =>
         count < 50
-            ? $"[{ string.Join(", ", AsEnumerable()) }]"
-            : $"[{ string.Join(", ", AsEnumerable().Take(50)) } ... ]";
+            ? $"[{ string.Join(", ", AsIterable()) }]"
+            : $"[{ string.Join(", ", AsIterable().Take(50)) } ... ]";
 
     public bool TryGetValue(K key, out K value)
     {
@@ -1238,5 +1241,5 @@ internal class TrieSet<EqK, K> :
     }
 
     IEnumerator<K> IEnumerable<K>.GetEnumerator() =>
-        AsEnumerable().GetEnumerator();
+        AsIterable().GetEnumerator();
 }

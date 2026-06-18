@@ -37,13 +37,6 @@ public static partial class LstExtensions
         /// </summary>
         public Lst<A> As() =>
             (Lst<A>)list;
-
-        /// <summary>
-        /// Provide a sorted Lst
-        /// </summary>
-        [Pure]
-        public Lst<A> Sort<OrdA>() where OrdA : Ord<A> =>
-            list.As().OrderBy(identity, OrdComparer<OrdA, A>.Default).AsIterable().ToLst();
         
         /// <summary>
         /// Reverse the list

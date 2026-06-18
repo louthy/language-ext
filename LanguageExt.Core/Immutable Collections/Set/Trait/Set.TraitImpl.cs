@@ -7,13 +7,14 @@ namespace LanguageExt;
 public partial class Set : 
     Monad<Set>,
     MonoidK<Set>,
+    Countable<Set>,
     Alternative<Set>, 
     Traversable<Set>,
     Foldable<Set, Set.FoldState>,
     FoldableBack<Set, Set.FoldState>
 {
     static K<Set, B> Monad<Set>.Recur<A, B>(A value, Func<A, K<Set, Next<A, B>>> f) =>
-        createRange(Monad.enumerableRecur(value, x =>f(x).As().AsEnumerable()));
+        createRange(Monad.enumerableRecur(value, x =>f(x).As().AsIterable()));
     
     static K<Set, B> Monad<Set>.Bind<A, B>(K<Set, A> ma, Func<A, K<Set, B>> f)
     {
@@ -93,9 +94,6 @@ public partial class Set :
     static bool Foldable<Set>.Contains<EqA, A>(A value, K<Set, A> ta) =>
         ta.As().Contains(value);
 
-    static long Foldable<Set>.Count<A>(K<Set, A> ta) =>
-        ta.As().Count;
-
     static FoldState IterableK<Set, FoldState>.StepSetup<A>(K<Set, A> ta) => 
         FoldState.Setup( ta.As().Value.Root);
 
@@ -170,4 +168,7 @@ public partial class Set :
 
     static Iterator<A> IterableBackK<Set>.BackwardIterator<A>(K<Set, A> fa) => 
         new Iterator<A>.IterSetBkwd(new IteratorState<A>(fa.As().Value.Root));
+
+    static long Countable<Set>.Count<A>(K<Set, A> fa) => 
+        fa.As().Count;
 }

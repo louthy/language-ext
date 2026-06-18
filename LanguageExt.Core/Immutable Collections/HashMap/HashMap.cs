@@ -604,7 +604,7 @@ public readonly struct HashMap<K, V> :
         Func<(K Key, V Value), KR> keySelector, 
         Func<(K Key, V Value), VR> valueSelector)
         where KR : notnull =>
-        AsIterable().ToDictionary(x => keySelector(x), x => valueSelector(x));
+        AsIterable().ToDictionary(keySelector, valueSelector);
 
     /// <summary>
     /// GetEnumerator - IEnumerable interface
@@ -654,6 +654,14 @@ public readonly struct HashMap<K, V> :
     public Iterable<(K Key, V Value)> AsIterable() =>
         Value.AsIterable();
 
+    [Pure]
+    public IEnumerable<(K Key, V Value)> AsEnumerable() =>
+        Value.AsIterable();
+
+    [Pure]
+    public Iterator<(K Key, V Value)> ForwardIterator() =>
+        Value.ForwardIterator();
+    
     /// <summary>
     /// Implicit conversion from an untyped empty list
     /// </summary>

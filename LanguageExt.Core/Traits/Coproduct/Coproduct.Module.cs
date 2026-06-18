@@ -43,7 +43,7 @@ public static class Coproduct
     /// <typeparam name="A">Left value type</typeparam>
     /// <typeparam name="B">Right value type</typeparam>
     /// <returns>Two left and right sequences</returns>
-    public static (Seq<A> Lefts, Seq<B> Rights) partitionSequence<F, A, B>(IEnumerable<K<F, A, B>> fabs)
+    public static (Seq<A> Lefts, Seq<B> Rights) partitionSequence<F, A, B>(Iterable<K<F, A, B>> fabs)
         where F : Coproduct<F> =>
-        F.Partition(fabs.AsIterable());     
+        F.Partition(fabs);     
 }

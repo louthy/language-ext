@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
+#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
 
 namespace LanguageExt.Traits;
 
@@ -172,26 +173,6 @@ public interface Foldable<T, FS> : Foldable<T>, IterableK<T, FS>
     {
         var foldState = T.StepSetup(ta);
         return !T.Step(ta, ref foldState, out _);
-    }
-
-    /// <summary>
-    /// Returns the size/length of a finite structure as an `int`.  The
-    /// default implementation just counts elements starting with the leftmost.
-    /// 
-    /// Instances for structures that can compute the element count faster
-    /// than via element-by-element counting, should provide a specialised
-    /// implementation.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static long Foldable<T>.Count<A>(K<T, A> ta)
-    {
-        var foldState = T.StepSetup(ta);
-        var state     = 0L;
-        while (T.Step(ta, ref foldState, out _))
-        {
-            state++;
-        }
-        return state;
     }
 
     /// <summary>
@@ -466,4 +447,43 @@ public interface Foldable<T, FS> : Foldable<T>, IterableK<T, FS>
         }
         return (@true.ToArr(), @false.ToArr());
     }
+
+    /// <summary>
+    /// Sort the items in the foldable structure in the order dictated by the ordering function
+    /// </summary>
+    /// <param name="comparer">Ordering function</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <returns>An array of sorted values</returns>
+    static Arr<A> Foldable<T>.Sort<A>(Comparison<A> comparer, K<T, A> ta)
+    {
+        var ys = ArrayWriterRef<A>.Init();
+        var fs = T.StepSetup(ta);
+        while (T.Step(ta, ref fs, out var x))
+        {
+            ys.Add(x);
+        }
+        ys.MutableView.Sort(comparer);
+        return ys.ToArr();
+    }
+    
+    /// <summary>
+    /// Sort the items in the foldable structure in the order dictated by the ordering function using the key selector.
+    /// </summary>
+    /// <param name="key">Key selector function</param>
+    /// <param name="comparer">Ordering function</param>
+    /// <param name="ta">Foldable structure</param>
+    /// <returns>An array of sorted values</returns>
+    static Arr<A> Foldable<T>.Sort<A, Key>(Func<A, Key> key, Comparison<Key> comparer, K<T, A> ta)
+    {
+        var ks = ArrayWriterRef<Key>.Init();
+        var ys = ArrayWriterRef<A>.Init();
+        var fs = T.StepSetup(ta);
+        while (T.Step(ta, ref fs, out var x))
+        {
+            ks.Add(key(x));
+            ys.Add(x);
+        }
+        ks.MutableView.Sort(ys.MutableView, comparer);
+        return ys.ToArr();
+    }    
 }

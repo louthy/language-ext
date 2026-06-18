@@ -34,8 +34,12 @@ public static partial class ArrExtensions
         /// Provide a sorted Arr
         /// </summary>
         [Pure]
-        public  Arr<A> Sort<OrdA>() where OrdA : Ord<A> =>
-            ma.As().OrderBy(x => x, OrdComparer<OrdA, A>.Default).AsIterable().ToArr();
+        public Arr<A> Sort<OrdA>() where OrdA : Ord<A>
+        {
+            var arr = ma.As().OrderBy(x => x, OrdComparer<OrdA, A>.Default).ToArray();
+            return new Arr<A>(arr);
+        }
+            
         
         [Pure]
         public Arr<A> Filter(Func<A, bool> f)

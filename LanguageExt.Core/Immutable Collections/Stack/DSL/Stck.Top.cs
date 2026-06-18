@@ -1,5 +1,4 @@
 using System.Diagnostics.Contracts;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -30,6 +29,18 @@ public abstract partial record Stck<A>
         [Pure]
         public override bool IsEmpty =>
             false;
+
+        /// <summary>
+        /// Number of items in the stack
+        /// </summary>
+        public override long Count { get; } = 
+            Rest.Count + 1;
+
+        /// <summary>
+        /// Number of items in the stack truncated to an `int`
+        /// </summary>
+        public override int Length => 
+            (int)Count;
 
         /// <summary>
         /// Return the item on the top of the stack without affecting the stack itself.

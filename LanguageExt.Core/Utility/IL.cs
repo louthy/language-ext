@@ -508,7 +508,7 @@ public static class IL
 
         // Implement FNV 1a hashing algorithm - [Fowler–Noll–Vo hash function](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash)
         var expr = Fields()
-                  .AsIterable()
+                  .AsIterableStrict()
                   .Fold((state, field) =>
                             Expression.Multiply(
                                 fnvPrime,
@@ -574,7 +574,7 @@ public static class IL
         var expr = Expression.AndAlso(
             typesEqual,
             fields
-               .AsIterable()
+               .AsIterableStrict()
                .Fold((state, field) =>
                          Expression.AndAlso(
                              state,
@@ -639,7 +639,7 @@ public static class IL
         var expr = Expression.AndAlso(
             typesEqual,
             fields
-               .AsIterable()
+               .AsIterableStrict()
                .Fold((state, field) =>
                          Expression.AndAlso(
                              state,
@@ -809,8 +809,9 @@ public static class IL
                     Expression.Call(sb, appendString, tmpStr)));
         }
 
-        var inner = Expression.Block(
-            fields.Select(fieldExpr).AsIterable().Intersperse(Expression.Call(sb, appendString, Expression.Constant(", "))));
+        var inner = Expression.Block(fields.Select(fieldExpr)
+                                           .AsIterableStrict()
+                                           .Intersperse(Expression.Call(sb, appendString, Expression.Constant(", "))));
             
         var outer = Expression.Block(
             Expression.Assign(sb, Expression.New(stringBuilder)),

@@ -34,15 +34,15 @@ public static partial class MonoidK
     [Pure]
     public static K<M, A> combine<M, A>(K<M, A> mx, K<M, A> my, K<M, A> mz, params K<M, A>[] xs)
         where M : MonoidK<M> =>
-        xs.AsIterable().Fold(combine, combine(combine(mx, my), mz));
+        Iterator.forward(xs).Fold(combine, combine(combine(mx, my), mz));
 
     /// <summary>
     /// Fold a list using the monoid.
     /// </summary>
     [Pure]
-    public static K<M, A> combine<M, A>(IEnumerable<K<M, A>> xs)
+    public static K<M, A> combine<M, A>(Iterable<K<M, A>> xs)
         where M : MonoidK<M> =>
-        xs.AsIterable().Fold(combine, M.Empty<A>());
+        xs.Fold(combine, M.Empty<A>());
 
     /// <summary>
     /// Fold a list using the monoid.

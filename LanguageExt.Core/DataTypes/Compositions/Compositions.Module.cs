@@ -170,7 +170,15 @@ public static class Compositions
     /// Convert a compositions list into a list of elements. The other direction
     /// is provided in the 'Data.Foldable.Foldable' instance.This will perform O(n log n) element compositions.
     /// </summary>
+    public static Compositions<A> fromList<A>(Iterable<A> ma)
+        where A : Monoid<A> =>
+        ma.Fold((s, x) => s.Combine(singleton(x)), Compositions<A>.Empty);
+    
+    /// <summary>
+    /// Convert a compositions list into a list of elements. The other direction
+    /// is provided in the 'Data.Foldable.Foldable' instance.This will perform O(n log n) element compositions.
+    /// </summary>
     public static Compositions<A> fromList<A>(IEnumerable<A> ma)
         where A : Monoid<A> =>
-        ma.AsIterable().Fold((s, x) => s.Combine(singleton(x)), Compositions<A>.Empty);
+        ma.AsIterableStrict().Fold((s, x) => s.Combine(singleton(x)), Compositions<A>.Empty);
 }

@@ -3,6 +3,7 @@ using LanguageExt.Traits;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
 
 namespace LanguageExt;
 
@@ -38,17 +39,6 @@ public partial class Iterable
     /// <param name="items">Items</param>
     /// <returns>sequence</returns>
     [Pure]
-    public static Iterable<A> create<A>(params A[] items) =>
-        items.Length == 0
-            ? Iterable<A>.Empty
-            : Iterable<A>.FromSpan(items);
-
-    /// <summary>
-    /// Create a sequence from an initial set of items
-    /// </summary>
-    /// <param name="items">Items</param>
-    /// <returns>sequence</returns>
-    [Pure]
     public static Iterable<A> create<A>(ReadOnlySpan<A> items) =>
         items.Length == 0 
             ? Iterable<A>.Empty 
@@ -60,8 +50,178 @@ public partial class Iterable
     /// <param name="items">Items</param>
     /// <returns>sequence</returns>
     [Pure]
-    public static Iterable<A> createRange<A>(IEnumerable<A> items) =>
-        new (items.AsIterator());
+    public static Iterable<A> create<A>(params A[] items) =>
+        items.Length == 0
+            ? Iterable<A>.Empty
+            : Iterable<A>.FromSpan(items);
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static Iterable<A> create<T, A>(K<T, A> items)
+        where T : IterableK<T> =>
+        items.ForwardIterator().AsIterable();
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static Iterable<A> create<A>(Arr<A> items) =>
+        create<Arr, A>(items);
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static Iterable<(K Key, V Value)> create<K, V>(HashMap<K, V> items) =>
+        items.AsIterable();
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static Iterable<(K Key, V Value)> create<EqK, K, V>(HashMap<EqK, K, V> items) 
+        where EqK : Eq<K> =>
+        items.AsIterable();
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static Iterable<A> create<A>(HashSet<A> items) =>
+        create<HashSet, A>(items);
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static Iterable<A> create<EqA, A>(HashSet<EqA, A> items) 
+        where EqA : Eq<A> =>
+        items.AsIterable();
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static Iterable<A> create<A>(IterableNE<A> items) =>
+        items.Head.Cons(items.Tail).AsIterable();
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static Iterable<A> create<A>(Iterator<A> items) =>
+        items.AsIterable();
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static Iterable<A> create<A>(Lst<A> items) =>
+        create<Lst, A>(items);
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static Iterable<(K Key, V Value)> create<K, V>(Map<K, V> items) =>
+        items.AsIterable();
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static Iterable<(K Key, V Value)> create<OrdK, K, V>(Map<OrdK, K, V> items) 
+        where OrdK : Ord<K> =>
+        items.AsIterable();
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static Iterable<A> create<A>(Que<A> items) =>
+        create<Que, A>(items);
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static Iterable<A> create<A>(Seq<A> items) =>
+        create<Seq, A>(items);
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static Iterable<A> create<A>(Set<A> items) =>
+        create<Set, A>(items);
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static Iterable<A> create<OrdA, A>(Set<OrdA, A> items) 
+        where OrdA : Ord<A> =>
+        items.AsIterable();
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static Iterable<A> create<A>(Stck<A> items) =>
+        create<Stck, A>(items);
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static Iterable<(K Key, V Value)> create<K, V>(TrackingHashMap<K, V> items) =>
+        items.AsIterable();
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static Iterable<(K Key, V Value)> create<EqK, K, V>(TrackingHashMap<EqK, K, V> items) 
+        where EqK : Eq<K> =>
+        items.AsIterable();
 
     /// <summary>
     /// Generates a sequence of A using the provided delegate to initialise

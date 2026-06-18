@@ -40,19 +40,31 @@ public class AtomSeq<A> :
     volatile ISeqInternal<A> items;
 
     /// <summary>
-    /// Constructor from lazy sequence
+    /// Constructor
     /// </summary>
     public AtomSeq(IEnumerable<A> ma) : 
-        this(ma.AsIterator()) { }
+        this(ma.AsIteratorStrict()) { }
 
     /// <summary>
-    /// Constructor from lazy sequence
+    /// Constructor
+    /// </summary>
+    public AtomSeq(Seq<A> ma) : 
+        this(ma.Value) { }
+
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    public AtomSeq(Iterable<A> ma) : 
+        this(new SeqIterator<A>(ma.ForwardIterator())) { }
+
+    /// <summary>
+    /// Constructor
     /// </summary>
     public AtomSeq(Iterator<A> ma) : 
         this(new SeqIterator<A>(ma)) { }
 
     /// <summary>
-    /// Constructor from lazy sequence
+    /// Constructor
     /// </summary>
     public AtomSeq(ReadOnlySpan<A> ma) : 
         this(Seq.FromArray(ma.ToArray())) { }
@@ -516,7 +528,7 @@ public class AtomSeq<A> :
     /// </summary>
     [Pure]
     public Iterable<A> AsIterable() => 
-        items.AsIterable();
+        items.GetIterator().AsIterable();
 
     /// <summary>
     /// Match empty sequence, or multi-item sequence

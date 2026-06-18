@@ -87,6 +87,16 @@ public struct ArrayWriter<A>
             : count > int.MaxValue
                 ? throw new InvalidOperationException("Backing collection is too big to return a view")
                 : new (buffer, (int)start, (int)count);
+
+    /// <summary>
+    /// Get a mutable span of the values written so far.  This is a snapshot of the values only.
+    /// </summary>
+    public Span<A> MutableView =>
+        start > int.MaxValue
+            ? throw new InvalidOperationException("Backing collection is too big to return a view")
+            : count > int.MaxValue
+                ? throw new InvalidOperationException("Backing collection is too big to return a view")
+                : new (buffer, (int)start, (int)count);
     
     /// <summary>
     /// Get a span of values of the empty remaining space in the buffer

@@ -26,6 +26,27 @@ public static partial class FallibleExtensionsE
                            s => ma.Map(a => (s.Fails, s.Succs.Add(a)))
                                   .Catch((E e) => M.Pure((s.Fails.Add(e), s.Succs)))),
                  M.Pure((Fails: Seq.empty<E>(), Succs: Seq.empty<A>())));
+
+    /// <summary>
+    /// Partitions a foldable of effects into two lists.
+    /// All the `Fail` elements are extracted, in order, to the first
+    /// component of the output.  Similarly, the `Succ` elements are extracted
+    /// to the second component of the output.
+    /// </summary>
+    /// <typeparam name="E">Error type</typeparam>
+    /// <typeparam name="F">Foldable type</typeparam>
+    /// <typeparam name="M">Fallible monadic type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="fma">Foldable of fallible monadic values</param>
+    /// <returns>A tuple containing an `Error` sequence and a `Succ` sequence</returns>
+    public static K<M, (Seq<E> Fails, Seq<A> Succs)> PartitionFallibleIO<E, F, M, A>(
+        this K<F, K<M, A>> fma)
+        where M : MonadIO<M>, Fallible<E, M>
+        where F : FoldableIO<F> =>
+        M.LiftIO(fma.FoldIO((ms, ma) => ms.Bind(s => ma.Map(a => (s.Fails, s.Succs.Add(a)))
+                                                       .Catch((E e) => M.Pure((s.Fails.Add(e), s.Succs)))),
+                            M.Pure((Fails: Seq.empty<E>(), Succs: Seq.empty<A>()))))
+         .Flatten();
     
     /// <summary>
     /// Partitions a collection of effects into two lists.
@@ -88,8 +109,8 @@ public static partial class FallibleExtensionsE
     /// <returns>A tuple containing an `Error` sequence and a `Succ` sequence</returns>
     public static K<M, (Seq<E> Fails, Seq<A> Succs)> PartitionFallible<E, M, A>(
         this IEnumerable<K<M, A>> fma)
-        where M : Monad<M>, Fallible<E, M> =>
-        Iterable.createRange(fma).PartitionFallible<E, Iterable, M, A>();
+        where M : MonadIO<M>, Fallible<E, M> =>
+        IterableIO.createRange(fma).PartitionFallibleIO<E, IterableIO, M, A>();
     
     /// <summary>
     /// Partitions a collection of effects into two lists.

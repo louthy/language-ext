@@ -158,41 +158,6 @@ static class SetModule
         }
     }
 
-    /// <summary>
-    /// TODO: I suspect this is suboptimal, it would be better with a custom Enumerator 
-    /// that maintains a stack of nodes to retrace.
-    /// </summary>
-    [Pure]
-    public static IEnumerable<K> FindRange<OrdK, K>(SetItem<K> node, K a, K b) where OrdK : Ord<K>
-    {
-        while (true)
-        {
-            if (node.IsEmpty)
-            {
-                yield break;
-            }
-
-            if (OrdK.Compare(node.Key, a) < 0)
-            {
-                node = node.Right;
-            }
-            else if (OrdK.Compare(node.Key, b) > 0)
-            {
-                node = node.Left;
-            }
-            else
-            {
-                foreach (var item in FindRange<OrdK, K>(node.Left, a, b))
-                {
-                    yield return item;
-                }
-
-                yield return node.Key;
-                node = node.Right;
-            }
-        }
-    }
-
     [Pure]
     public static Option<K> TryFind<OrdK, K>(SetItem<K> node, K key) where OrdK : Ord<K>
     {
@@ -216,7 +181,65 @@ static class SetModule
             }
         }
     }
+    
+    public static Arr<A> FindRangeStrict<OrdA, A>(SetItem<A> node, A a, A b) where OrdA : Ord<A>
+    {
+        var writer = ArrayWriter<A>.Init();
+        go(node, ref writer);
+        return writer.ToArr();
 
+        void go(SetItem<A> n, ref ArrayWriter<A> output)
+        {
+            while (true)
+            {
+                if (n.IsEmpty)
+                {
+                    return;
+                }
+
+                if (OrdA.Compare(n.Key, a) < 0)
+                {
+                    n = n.Right;
+                }
+                else if (OrdA.Compare(n.Key, b) > 0)
+                {
+                    n = n.Left;
+                }
+                else
+                {
+                    go(n.Left, ref output);
+                    writer.Add(n.Key);
+                    n = n.Right;
+                }
+            }
+        }
+    }
+
+    public static Iterable<A> FindRange<OrdA, A>(SetItem<A> node, A a, A b) where OrdA : Ord<A>
+    {
+        return go(node).AsIterable();
+
+        Iterator<A> go(SetItem<A> n)
+        {
+            if (n.IsEmpty)
+            {
+                return Iterator<A>.Empty;
+            }
+            else if (OrdA.Compare(n.Key, a) < 0)
+            {
+                return go(n.Right);
+            }
+            else if (OrdA.Compare(n.Key, b) > 0)
+            {
+                return go(n.Left);
+            }
+            else
+            {
+                return go(n.Left) + n.Key.Cons(() => go(n.Right));
+            }
+        }
+    }
+    
     [Pure]
     public static SetItem<K> Skip<K>(SetItem<K> node, long amount)
     {

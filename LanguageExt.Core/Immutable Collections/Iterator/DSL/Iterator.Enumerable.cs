@@ -7,6 +7,11 @@ public abstract partial class Iterator<A>
     /// <summary>
     /// Enumerable Iterator
     /// </summary>
+    /// <remarks>
+    ///
+    ///     DO NOT DELETE - this is used by Seq (at least for now) to wrap `IEnumerable`.
+    /// 
+    /// </remarks>
     internal class Enumerable(IEnumerable<A> enumerable) : Iterator<A>
     {
         public override (Head<A> Head, Iterator<A> Tail) Next()

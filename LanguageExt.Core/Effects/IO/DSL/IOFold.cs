@@ -51,7 +51,7 @@ record IOFold<S, A, B>(
 record IOFoldingInitialAsync<S, A, B>(
     ValueTask<A> First,
     IO<A> Operation,
-    Iterator<Duration> Schedule,
+    IteratorIO<Duration> Schedule,
     S State,
     Func<S, A, S> Folder,
     Func<S, K<IO, B>> Next)
@@ -68,10 +68,11 @@ record IOFoldingInitialAsync<S, A, B>(
 
     public override async ValueTask<IO<B>> Invoke(EnvIO envIO) 
     {
-        var value = await First;
-        var state = Folder(State, value);
+        var value    = await First;
+        var state    = Folder(State, value);
+        var schedule = await Schedule.NextIO().RunAsync(envIO);
             
-        if (Schedule is (Exist<Duration> (var duration), var tail))
+        if (schedule is (Exist<Duration> (var duration), var tail))
         {
             await Task.Delay((TimeSpan)duration, envIO.Token);
             value = await Operation.RunAsync(envIO);
@@ -90,7 +91,7 @@ record IOFoldingInitialAsync<S, A, B>(
 
 record IOFoldingAsync<S, A, B>(
     IO<A> Operation,
-    Iterator<Duration> Schedule,
+    IteratorIO<Duration> Schedule,
     S State,
     Func<S, A, S> Folder,
     Func<S, K<IO, B>> Next)
@@ -107,7 +108,8 @@ record IOFoldingAsync<S, A, B>(
 
     public override async ValueTask<IO<B>> Invoke(EnvIO envIO) 
     {
-        if (Schedule is (Exist<Duration> (var duration), var tail))
+        var schedule = await Schedule.NextIO().RunAsync(envIO);
+        if (schedule is (Exist<Duration> (var duration), var tail))
         {
             await Task.Delay((TimeSpan)duration, envIO.Token);
             var value = await Operation.RunAsync(envIO);
@@ -126,7 +128,7 @@ record IOFoldingAsync<S, A, B>(
 
 record IOFoldingSync<S, A, B>(
     IO<A> Operation,
-    Iterator<Duration> Schedule,
+    IteratorIO<Duration> Schedule,
     S State,
     Func<S, A, S> Folder,
     Func<S, K<IO, B>> Next)
@@ -143,7 +145,8 @@ record IOFoldingSync<S, A, B>(
 
     public override IO<B> Invoke(EnvIO envIO) 
     {
-        if (Schedule is (Exist<Duration> (var duration), var tail))
+        var schedule = Schedule.NextIO().Run(envIO);
+        if (schedule is (Exist<Duration> (var duration), var tail))
         {
             Task.Delay((TimeSpan)duration, envIO.Token).GetAwaiter().GetResult();
             var value = Operation.Run(envIO);

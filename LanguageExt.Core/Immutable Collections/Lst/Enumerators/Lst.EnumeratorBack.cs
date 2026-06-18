@@ -68,6 +68,7 @@ public struct ListEnumeratorBack<T> : IEnumerator<T>
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool MoveNext()
     {
         if (count > 0 && remaining > 0 && top > 0)

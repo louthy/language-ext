@@ -39,7 +39,7 @@ public static partial class IterableExtensions
         /// <returns>IterableNE</returns>
         [Pure]
         public IterableNE<A> AsIterableNE(A head) =>
-            IterableNE.create(head, ma.AsIterator());
+            IterableNE.cons(head, ma.ForwardIterator().AsIterable());
 
         /// <summary>
         /// Create an iterable from an `Iterable` collection

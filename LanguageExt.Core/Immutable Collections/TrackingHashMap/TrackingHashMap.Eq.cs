@@ -652,7 +652,7 @@ public readonly struct TrackingHashMap<EqK, K, V> :
         Func<(K Key, V Value), KR> keySelector, 
         Func<(K Key, V Value), VR> valueSelector) 
         where KR : notnull =>
-        AsEnumerable().ToDictionary(x => keySelector(x), x => valueSelector(x));
+        AsIterable().ToDictionary(x => keySelector(x), x => valueSelector(x));
 
     /// <summary>
     /// GetEnumerator - IEnumerable interface
@@ -668,7 +668,7 @@ public readonly struct TrackingHashMap<EqK, K, V> :
 
     [Pure]
     public Seq<(K Key, V Value)> ToSeq() =>
-        toSeq(AsEnumerable());
+        toSeq(AsIterable());
 
     /// <summary>
     /// Allocation free conversion to a HashMap
@@ -685,25 +685,33 @@ public readonly struct TrackingHashMap<EqK, K, V> :
     /// </summary>
     [Pure]
     public override string ToString() =>
-        CollectionFormat.ToShortArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), Count);
+        CollectionFormat.ToShortArrayString(AsIterable().Map(kv => $"({kv.Key}: {kv.Value})"), Count);
 
     /// <summary>
     /// Format the collection as `(key: value), (key: value), (key: value), ...`
     /// </summary>
     [Pure]
     public string ToFullString(string separator = ", ") =>
-        CollectionFormat.ToFullString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
+        CollectionFormat.ToFullString(AsIterable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
     /// <summary>
     /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
     /// </summary>
     [Pure]
     public string ToFullArrayString(string separator = ", ") =>
-        CollectionFormat.ToFullArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
+        CollectionFormat.ToFullArrayString(AsIterable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
     [Pure]
-    public Iterable<(K Key, V Value)> AsEnumerable() =>
+    public Iterable<(K Key, V Value)> AsIterable() =>
         Value.AsIterable();
+
+    [Pure]
+    public IEnumerable<(K Key, V Value)> AsEnumerable() =>
+        Value.AsIterable();
+
+    [Pure]
+    public IEnumerable<(K Key, V Value)> ForwardIterator() =>
+        Value.ForwardIterator();
 
     /// <summary>
     /// Implicit conversion from an untyped empty list
@@ -1009,7 +1017,7 @@ public readonly struct TrackingHashMap<EqK, K, V> :
     [Pure]
     public bool ForAll(Func<K, V, bool> pred)
     {
-        foreach (var item in AsEnumerable())
+        foreach (var item in AsIterable())
         {
             if (!pred(item.Key, item.Value)) return false;
         }
@@ -1023,7 +1031,7 @@ public readonly struct TrackingHashMap<EqK, K, V> :
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
     public bool ForAll(Func<(K Key, V Value), bool> pred) =>
-        AsEnumerable().Map(kv => (kv.Key, kv.Value)).ForAll(pred);
+        AsIterable().Map(kv => (kv.Key, kv.Value)).ForAll(pred);
 
     /// <summary>
     /// Return true if *all* items in the map return true when the predicate is applied
@@ -1032,7 +1040,7 @@ public readonly struct TrackingHashMap<EqK, K, V> :
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
     public bool ForAll(Func<KeyValuePair<K, V>, bool> pred) =>
-        AsEnumerable().Map(kv => new KeyValuePair<K, V>(kv.Key, kv.Value)).ForAll(pred);
+        AsIterable().Map(kv => new KeyValuePair<K, V>(kv.Key, kv.Value)).ForAll(pred);
 
     /// <summary>
     /// Return true if all items in the map return true when the predicate is applied
@@ -1050,7 +1058,7 @@ public readonly struct TrackingHashMap<EqK, K, V> :
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     public bool Exists(Func<K, V, bool> pred)
     {
-        foreach (var item in AsEnumerable())
+        foreach (var item in AsIterable())
         {
             if (pred(item.Key, item.Value)) return true;
         }
@@ -1064,7 +1072,7 @@ public readonly struct TrackingHashMap<EqK, K, V> :
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
     public bool Exists(Func<(K Key, V Value), bool> pred) =>
-        AsEnumerable().Map(kv => (kv.Key, kv.Value)).Exists(pred);
+        AsIterable().Map(kv => (kv.Key, kv.Value)).Exists(pred);
 
     /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied
@@ -1073,7 +1081,7 @@ public readonly struct TrackingHashMap<EqK, K, V> :
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
     public bool Exists(Func<KeyValuePair<K, V>, bool> pred) =>
-        AsEnumerable().Map(kv => new KeyValuePair<K, V>(kv.Key, kv.Value)).Exists(pred);
+        AsIterable().Map(kv => new KeyValuePair<K, V>(kv.Key, kv.Value)).Exists(pred);
 
     /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied
@@ -1168,7 +1176,7 @@ public readonly struct TrackingHashMap<EqK, K, V> :
     /// <returns>Folded state</returns>
     [Pure]
     public S Fold<S>(Func<S, K, V, S> folder, S state) =>
-        AsEnumerable().Fold((s, x) => folder(s, x.Key, x.Value), state);
+        AsIterable().Fold((s, x) => folder(s, x.Key, x.Value), state);
 
     [Pure]
     public bool TryGetValue(K key, out V value)

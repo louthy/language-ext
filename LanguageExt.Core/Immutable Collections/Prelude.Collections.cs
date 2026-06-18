@@ -39,23 +39,16 @@ public static partial class Prelude
     /// </summary>
     [Pure]
     public static Seq<A> Sort<OrdA, A>(this Seq<A> xs) where OrdA : Ord<A> =>
-        xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).AsIterable().ToSeq();
+        xs.AsIterable()
+          .OrderBy(identity, OrdComparer<OrdA, A>.Default)
+          .AsSeq();
 
     /// <summary>
     /// Forever sequence of units
     /// </summary>
     [Pure]
-    public static IterableNE<Unit> Units
-    {
-        get
-        {
-            return IterableNE.create(unit, Go().AsIterable());
-            IEnumerable<Unit> Go()
-            {
-                while (true) yield return default;
-            }
-        }
-    }
+    public static IterableNE<Unit> Units =>
+        IterableNE.cons(unit, Iterator.forever(unit).AsIterable());
 
     /// <summary>
     /// Lazy sequence of natural numbers up to Int32.MaxValue
@@ -65,14 +58,9 @@ public static partial class Prelude
     {
         get
         {
-            return Go().AsIterable();
-            IEnumerable<int> Go()
-            {
-                for (var i = 0; i < int.MaxValue; i++)
-                {
-                    yield return i;
-                }
-            }
+            return go(0).AsIterable();
+            Iterator<int> go(int x) =>
+                Iterator.cons(x, () => go(x + 1));
         }
     }
 
@@ -84,14 +72,9 @@ public static partial class Prelude
     {
         get
         {
-            return Go().AsIterable();
-            IEnumerable<long> Go()
-            {
-                for (var i = 0L; i < long.MaxValue; i++)
-                {
-                    yield return i;
-                }
-            }
+            return go(0).AsIterable();
+            Iterator<long> go(long x) =>
+                Iterator.cons(x, () => go(x + 1));
         }
     }
 

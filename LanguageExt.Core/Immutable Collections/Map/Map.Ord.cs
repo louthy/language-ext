@@ -474,7 +474,8 @@ public readonly struct Map<OrdK, K, V> :
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
     /// <returns>Range of values</returns>
     [Pure]
-    public Iterable<(K Key, V Value)> FindRangePairs(K keyFrom, K keyTo) => Value.FindRangePairs(keyFrom, keyTo);
+    public Iterable<(K Key, V Value)> FindRangePairs(K keyFrom, K keyTo) => 
+        Value.FindRangePairs(keyFrom, keyTo);
 
     /// <summary>
     /// Skips 'amount' values and returns a new tree without the 
@@ -483,31 +484,26 @@ public readonly struct Map<OrdK, K, V> :
     /// <param name="amount">Amount to skip</param>
     /// <returns>New tree</returns>
     [Pure]
-    public Iterable<(K Key, V Value)> Skip(int amount) => Value.Skip(amount);
+    public Map<OrdK, K, V> Skip(int amount) => 
+        Wrap(Value.Skip(amount));
 
     /// <summary>
-    /// Checks for existence of a key in the map
+    /// Checks for the existence of a key in the map
     /// </summary>
     /// <param name="key">Key to check</param>
     /// <returns>True if an item with the key supplied is in the map</returns>
     [Pure]
-    public bool ContainsKey(K key) => Value.ContainsKey(key);
+    public bool ContainsKey(K key) => 
+        Value.ContainsKey(key);
 
     /// <summary>
-    /// Checks for existence of a key in the map
+    /// Checks for the existence of a key in the map
     /// </summary>
     /// <param name="key">Key to check</param>
     /// <returns>True if an item with the key supplied is in the map</returns>
     [Pure]
-    public bool Contains(K key, V value) => Value.Contains(key, value);
-
-    /// <summary>
-    /// Clears all items from the map 
-    /// </summary>
-    /// <remarks>Functionally equivalent to calling Map.empty as the original structure is untouched</remarks>
-    /// <returns>Empty map</returns>
-    [Pure]
-    public Map<OrdK, K, V> Clear() => Wrap(Value.Clear());
+    public bool Contains(K key, V value) => 
+        Value.Contains(key, value);
 
     /// <summary>
     /// Atomically sets a series of items using the KeyValuePairs provided
@@ -516,7 +512,8 @@ public readonly struct Map<OrdK, K, V> :
     /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
     /// <returns>New map with the items set</returns>
     [Pure]
-    public Map<OrdK, K, V> SetItems(IEnumerable<KeyValuePair<K, V>> items) => Wrap(Value.SetItems(items));
+    public Map<OrdK, K, V> SetItems(IEnumerable<KeyValuePair<K, V>> items) => 
+        Wrap(Value.SetItems(items));
 
     /// <summary>
     /// Atomically sets a series of items using the Tuples provided.
@@ -525,7 +522,8 @@ public readonly struct Map<OrdK, K, V> :
     /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
     /// <returns>New map with the items set</returns>
     [Pure]
-    public Map<OrdK, K, V> SetItems(IEnumerable<Tuple<K, V>> items) => Wrap(Value.SetItems(items));
+    public Map<OrdK, K, V> SetItems(IEnumerable<Tuple<K, V>> items) => 
+        Wrap(Value.SetItems(items));
 
     /// <summary>
     /// Atomically sets a series of items using the Tuples provided.
@@ -534,7 +532,8 @@ public readonly struct Map<OrdK, K, V> :
     /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
     /// <returns>New map with the items set</returns>
     [Pure]
-    public Map<OrdK, K, V> SetItems(IEnumerable<(K, V)> items) => Wrap(Value.SetItems(items));
+    public Map<OrdK, K, V> SetItems(IEnumerable<(K, V)> items) => 
+        Wrap(Value.SetItems(items));
 
     /// <summary>
     /// Atomically sets a series of items using the KeyValuePairs provided.  If any of the 
@@ -543,7 +542,8 @@ public readonly struct Map<OrdK, K, V> :
     /// <param name="items">Items to set</param>
     /// <returns>New map with the items set</returns>
     [Pure]
-    public Map<OrdK, K, V> TrySetItems(IEnumerable<KeyValuePair<K, V>> items) => Wrap(Value.TrySetItems(items));
+    public Map<OrdK, K, V> TrySetItems(IEnumerable<KeyValuePair<K, V>> items) => 
+        Wrap(Value.TrySetItems(items));
 
     /// <summary>
     /// Atomically sets a series of items using the Tuples provided  If any of the 
@@ -552,7 +552,8 @@ public readonly struct Map<OrdK, K, V> :
     /// <param name="items">Items to set</param>
     /// <returns>New map with the items set</returns>
     [Pure]
-    public Map<OrdK, K, V> TrySetItems(IEnumerable<Tuple<K, V>> items) => Wrap(Value.TrySetItems(items));
+    public Map<OrdK, K, V> TrySetItems(IEnumerable<Tuple<K, V>> items) => 
+        Wrap(Value.TrySetItems(items));
 
     /// <summary>
     /// Atomically sets a series of items using the Tuples provided  If any of the 
@@ -561,7 +562,8 @@ public readonly struct Map<OrdK, K, V> :
     /// <param name="items">Items to set</param>
     /// <returns>New map with the items set</returns>
     [Pure]
-    public Map<OrdK, K, V> TrySetItems(IEnumerable<(K, V)> items) => Wrap(Value.TrySetItems(items));
+    public Map<OrdK, K, V> TrySetItems(IEnumerable<(K, V)> items) => 
+        Wrap(Value.TrySetItems(items));
 
     /// <summary>
     /// Atomically sets a series of items using the keys provided to find the items
@@ -572,7 +574,8 @@ public readonly struct Map<OrdK, K, V> :
     /// <param name="Some">Function map the existing item to a new one</param>
     /// <returns>New map with the items set</returns>
     [Pure]
-    public Map<OrdK, K, V> TrySetItems(IEnumerable<K> keys, Func<V, V> Some) => Wrap(Value.TrySetItems(keys, Some));
+    public Map<OrdK, K, V> TrySetItems(IEnumerable<K> keys, Func<V, V> Some) => 
+        Wrap(Value.TrySetItems(keys, Some));
 
     /// <summary>
     /// Atomically removes a set of keys from the map
@@ -580,7 +583,8 @@ public readonly struct Map<OrdK, K, V> :
     /// <param name="keys">Keys to remove</param>
     /// <returns>New map with the items removed</returns>
     [Pure]
-    public Map<OrdK, K, V> RemoveRange(IEnumerable<K> keys) => Wrap(Value.RemoveRange(keys));
+    public Map<OrdK, K, V> RemoveRange(IEnumerable<K> keys) => 
+        Wrap(Value.RemoveRange(keys));
 
     /// <summary>
     /// Returns true if a Key/Value pair exists in the map
@@ -588,19 +592,22 @@ public readonly struct Map<OrdK, K, V> :
     /// <param name="pair">Pair to find</param>
     /// <returns>True if exists, false otherwise</returns>
     [Pure]
-    public bool Contains(KeyValuePair<K, V> pair) => Value.Contains(pair);
+    public bool Contains(KeyValuePair<K, V> pair) => 
+        Value.Contains(pair);
 
     /// <summary>
     /// Enumerable of map keys
     /// </summary>
     [Pure]
-    public Iterable<K> Keys => Value.Keys;
+    public Iterable<K> Keys =>
+        Value.Keys;
 
     /// <summary>
     /// Enumerable of map values
     /// </summary>
     [Pure]
-    public Iterable<V> Values => Value.Values;
+    public Iterable<V> Values => 
+        Value.Values;
 
     /// <summary>
     /// Map the map the a dictionary
@@ -673,7 +680,8 @@ public readonly struct Map<OrdK, K, V> :
     public Iterable<(K Key, V Value)> AsIterable() => 
         Value.AsIterable();
 
-    [Pure] public IEnumerable<(K Key, V Value)> AsEnumerable() => 
+    [Pure] 
+    public IEnumerable<(K Key, V Value)> AsEnumerable() => 
         Value.AsEnumerable();
 
     internal Map<OrdK, K, V> SetRoot(MapItem<K, V> root) => 

@@ -34,7 +34,7 @@ namespace LanguageExt
                 .Where(f =>
                 {
                     if (!f.IsPublic || f.IsStatic) return false;
-                    if (Intersects(f.CustomAttributes.AsIterable().Map(a => a.AttributeType.Name).ToArray(), excludeAttrsSet)) return false;
+                    if (Intersects(f.CustomAttributes.Select(a => a.AttributeType.Name).ToArray(), excludeAttrsSet)) return false;
                     return true;
                 });
 
@@ -45,7 +45,7 @@ namespace LanguageExt
                                     .OrderBy(p => p.MetadataToken)
 #endif
                                     .Where(p => p.CanRead && (p.GetMethod?.IsPublic ?? false) && !IsStatic(p))
-                                    .Where(p => !Intersects(p.CustomAttributes.AsIterable().Map(a => a.AttributeType.Name).ToArray(), excludeAttrsSet))
+                                    .Where(p => !Intersects(p.CustomAttributes.Select(a => a.AttributeType.Name).ToArray(), excludeAttrsSet))
                                     .ToArray();
 
             var backingFields = typeof(A)

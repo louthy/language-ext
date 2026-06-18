@@ -160,12 +160,6 @@ public static partial class FoldableExtensions
             T.IsEmpty(ta);
 
         /// <summary>
-        /// Return the number of items in a foldable structure
-        /// </summary>
-        public long Count =>
-            T.Count(ta);
-
-        /// <summary>
         /// Does an element that fits the predicate occur in the structure?
         /// </summary>
         public bool Exists(Func<A, bool> predicate) =>
@@ -363,6 +357,25 @@ public static partial class FoldableExtensions
         /// <returns>An iterable with the values injected</returns>
         public Iterator<A> Intersperse(A sep) =>
             T.Intersperse(sep, ta);
+
+        /// <summary>
+        /// Sort the items in the foldable structure in the order dictated by the ordering function
+        /// </summary>
+        /// <param name="comparer">Ordering function</param>
+        /// <param name="ta">Foldable structure</param>
+        /// <returns>An array of sorted values</returns>
+        public Arr<A> Sort(Comparison<A> comparer) =>
+            T.Sort(comparer, ta);
+    
+        /// <summary>
+        /// Sort the items in the foldable structure in the order dictated by the ordering function using the key selector.
+        /// </summary>
+        /// <param name="key">Key selector function</param>
+        /// <param name="comparer">Ordering function</param>
+        /// <param name="ta">Foldable structure</param>
+        /// <returns>An array of sorted values</returns>
+        public Arr<A> Sort<Key>(Func<A, Key> key, Comparison<Key> comparer) =>
+            T.Sort(key, comparer, ta);
     }
 
     extension<T, M, A>(K<T, A> ta)
@@ -422,7 +435,6 @@ public static partial class FoldableExtensions
         where T : Foldable<T>
         where OrdA : Ord<A>
     {
-
         /// <summary>
         /// Find the minimum value in the structure
         /// </summary>
@@ -446,6 +458,14 @@ public static partial class FoldableExtensions
         /// </summary>
         public A Max(A initialMax) =>
             T.Max<OrdA, A>(initialMax, ta);
+        
+        /// <summary>
+        /// Sort the items in the foldable structure in the order dictated by the OrdA constraint
+        /// </summary>
+        /// <param name="ta">Foldable structure</param>
+        /// <returns>An array of sorted values</returns>
+        public Arr<A> Sort() =>
+            T.Sort<OrdA, A>(ta);
     }
     
     /// <param name="ta">Foldable structure</param>

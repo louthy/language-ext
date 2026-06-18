@@ -19,5 +19,5 @@ public static class JsonExtensions
     public static Iterable<JsonElement> Enumerate(this JsonElement element) =>
         element
             .EnumerateArray()
-            .AsIterable();
+            .AsIterableStrict();
 }

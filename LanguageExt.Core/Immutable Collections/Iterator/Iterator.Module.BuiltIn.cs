@@ -9,15 +9,6 @@ namespace LanguageExt;
 public partial class Iterator
 {
     /// <summary>
-    /// Create an iterator from an `IEnumerable` collection
-    /// </summary>
-    /// <param name="items">Collection to iterate</param>
-    /// <typeparam name="A">Value type</typeparam>
-    /// <returns>Iterator of the collection</returns>
-    public static Iterator<A> forward<A>(IEnumerable<A> items) =>
-        new Iterator<A>.Enumerable(items);
-
-    /// <summary>
     /// Create an iterator from a `ReadOnlySpan` collection
     /// </summary>
     /// <param name="items">Collection to iterate</param>
@@ -52,6 +43,24 @@ public partial class Iterator
     /// <returns>Iterator of the collection</returns>
     public static Iterator<A> backward<A>(Arr<A> items) =>
         items.BackwardIterator();
+
+    /// <summary>
+    /// Create an iterator from an array
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Iterator of the collection</returns>
+    public static Iterator<A> forward<A>(A[] items) =>
+        new Iterator<A>.IterArray(items, 0, items.Length);
+
+    /// <summary>
+    /// Create an iterator from an array
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Iterator of the collection</returns>
+    public static Iterator<A> backward<A>(A[] items) =>
+        new Iterator<A>.IterArrayBkwd(items, items.Length - 1, items.Length);
 
     /// <summary>
     /// Create an iterator from an array
@@ -175,4 +184,26 @@ public partial class Iterator
     /// <returns>Iterator of the collection</returns>
     public static Iterator<A> backward<A>(Set<A> items) =>
         items.BackwardIterator();
+    
+    /// <summary>
+    /// Create an iterator from a `Set` collection
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Iterator of the collection</returns>
+    public static Iterator<A> forward<A>(System.Collections.Generic.List<A> items) =>
+        items.Count == 0 
+            ? Iterator<A>.Empty
+            : new Iterator<A>.IterGenList(items, 0, items.Count);
+
+    /// <summary>
+    /// Create an iterator from a `Set` collection
+    /// </summary>
+    /// <param name="items">Collection to iterate</param>
+    /// <typeparam name="A">Value type</typeparam>
+    /// <returns>Iterator of the collection</returns>
+    public static Iterator<A> backward<A>(System.Collections.Generic.List<A> items) =>
+        items.Count == 0 
+            ? Iterator<A>.Empty
+            : new Iterator<A>.IterGenListBkwd(items, items.Count - 1, items.Count);
 }

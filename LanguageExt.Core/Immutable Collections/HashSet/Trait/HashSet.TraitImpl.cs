@@ -12,7 +12,8 @@ public partial class HashSet :
     Alternative<HashSet>, 
     Traversable<HashSet>,
     Foldable<HashSet, TrieSet.FoldState>,
-    NaturalIso<HashSet, Iterator>
+    NaturalIso<HashSet, Iterator>,
+    Countable<HashSet>
 {
     static K<HashSet, B> Monad<HashSet>.Recur<A, B>(A value, Func<A, K<HashSet, Next<A, B>>> f) =>
         Monad.iterableRecur(value, f);
@@ -100,9 +101,6 @@ public partial class HashSet :
     static bool Foldable<HashSet>.Contains<EqA, A>(A value, K<HashSet, A> ta) =>
         ta.As().Contains(value);
 
-    static long Foldable<HashSet>.Count<A>(K<HashSet, A> ta) =>
-        ta.As().Count;
-
     static TrieSet.FoldState IterableK<HashSet, TrieSet.FoldState>.StepSetup<A>(K<HashSet, A> ta) => 
         TrieSet.FoldState.Setup(ta.As().Value.Root);
 
@@ -141,4 +139,7 @@ public partial class HashSet :
 
     static K<HashSet, A> CoNatural<HashSet, Iterator>.CoTransform<A>(K<Iterator, A> fa) => 
         createRange(+fa);
+
+    static long Countable<HashSet>.Count<A>(K<HashSet, A> fa) => 
+        fa.As().Count;
 }

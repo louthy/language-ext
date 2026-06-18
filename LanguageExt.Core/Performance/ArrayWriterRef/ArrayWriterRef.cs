@@ -70,7 +70,7 @@ public ref struct ArrayWriterRef<A>
     /// <param name="buffer">Backing buffer</param>
     /// <param name="start">Start offset</param>
     /// <param name="count">Number of items written</param>
-    ArrayWriterRef(A[] buffer, long start, bool rented)
+    internal ArrayWriterRef(A[] buffer, long start, bool rented)
     {
         this.start = start;
         this.buffer = buffer;
@@ -82,6 +82,16 @@ public ref struct ArrayWriterRef<A>
     /// Get a read-only span of the values written so far.  This is a snapshot of the values only.
     /// </summary>
     public ReadOnlySpan<A> View =>
+        start > int.MaxValue
+            ? throw new InvalidOperationException("Backing collection is too big to return a view")
+            : count > int.MaxValue
+                ? throw new InvalidOperationException("Backing collection is too big to return a view")
+                : new (buffer, (int)start, (int)count);
+
+    /// <summary>
+    /// Get a mutable span of the values written so far.  This is a snapshot of the values only.
+    /// </summary>
+    public Span<A> MutableView =>
         start > int.MaxValue
             ? throw new InvalidOperationException("Backing collection is too big to return a view")
             : count > int.MaxValue

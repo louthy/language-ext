@@ -14,5 +14,6 @@ public static partial class IteratorIOExtensions
         
         public static IteratorIO<A> operator >> (K<IteratorIO, A> ma, Lower lower) =>
             (IteratorIO<A>)ma;
+        
     }
 }

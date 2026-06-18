@@ -59,7 +59,7 @@ public readonly partial struct Seq<A> :
     /// Constructor from lazy sequence
     /// </summary>
     public Seq(IEnumerable<A> ma) : 
-        this(ma.AsIterator()) { }
+        this(new Iterator<A>.Enumerable(ma)) { }
 
     /// <summary>
     /// Constructor from lazy sequence

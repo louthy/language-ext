@@ -39,17 +39,21 @@ record FoldUntilTransducerM2<M, A, S>(
 {
     public override ReducerM<M, A, S1> Reduce<S1>(ReducerM<M, S, S1> reducer)
     {
+        // TODO: This needs checking since it's changed to an IteratorIO
         var state = State;
-        var sch   = Duration.Zero.Cons(Schedule.Run()).GetEnumerator();
+        var sch   = Duration.Zero.Cons(Schedule.Run()).ForwardIteratorIO();
         return (s1, x) =>
                {
                    state = Folder(state, x);
                    if (Pred(state, x))
                    {
+                       var nxt = sch.NextIO().Run();
+                       
                        // Schedule
-                       if (sch.MoveNext())
+                       if (nxt is (Exist<Duration> (var d), var tail))
                        {
-                           if (!sch.Current.IsZero) Task.Delay((TimeSpan)sch.Current).GetAwaiter().GetResult();
+                           sch = tail;
+                           if (!d.IsZero) Task.Delay((TimeSpan)d).GetAwaiter().GetResult();
                        }
                        else
                        {

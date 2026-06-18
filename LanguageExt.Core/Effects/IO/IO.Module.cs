@@ -178,7 +178,7 @@ public partial class IO
     /// <returns>Unit</returns>
     [Pure]
     public static IO<Unit> yieldFor(Duration duration) =>
-        Math.Abs(duration.Milliseconds) < 0.00000001
+        duration.IsZero
             ? unitIO
             : liftAsync(e => yieldFor(duration, e.Token));
 

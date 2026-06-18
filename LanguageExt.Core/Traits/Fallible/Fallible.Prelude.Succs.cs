@@ -22,6 +22,21 @@ public static partial class Prelude
         fma.Succs();
     
     /// <summary>
+    /// Partitions a foldable of effects into successes and failures,
+    /// and returns only the failures.
+    /// </summary>
+    /// <typeparam name="F">Foldable type</typeparam>
+    /// <typeparam name="M">Fallible monadic type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="fma">Foldable of fallible monadic values</param>
+    /// <returns>A collection of `Error` values</returns>
+    public static K<M, Seq<A>> succsIO<F, M, A>(
+        K<F, K<M, A>> fma)
+        where M : MonadIO<M>, Fallible<M>
+        where F : FoldableIO<F> =>
+        fma.SuccsIO();
+    
+    /// <summary>
     /// Partitions a collection of effects into successes and failures,
     /// and returns only the failures.
     /// </summary>
@@ -68,10 +83,10 @@ public static partial class Prelude
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="fma">Collection of fallible monadic values</param>
     /// <returns>A collection of `Error` values</returns>
-    public static K<M, Seq<A>> succs<M, A>(
+    public static K<M, Seq<A>> succsIO<M, A>(
         IEnumerable<K<M, A>> fma)
-        where M : Monad<M>, Fallible<M> =>
-        LanguageExt.Iterable.createRange(fma).Succs();
+        where M : MonadIO<M>, Fallible<M> =>
+        LanguageExt.IterableIO.createRange(fma).SuccsIO();
     
     /// <summary>
     /// Partitions a collection of effects into successes and failures,

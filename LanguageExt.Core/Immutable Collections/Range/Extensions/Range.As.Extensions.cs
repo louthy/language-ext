@@ -39,7 +39,7 @@ public static partial class RangeExtensions
         /// <returns>IterableNE</returns>
         [Pure]
         public IterableNE<A> AsIterableNE(A head) =>
-            IterableNE.create(head, ma.AsIterator());
+            IterableNE.cons(head, ma.AsIterable());
 
         /// <summary>
         /// Create an iterable from an `Iterable` collection

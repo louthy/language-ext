@@ -26,8 +26,7 @@ public record PlayerState(Seq<Card> Cards, bool StickState)
              .Map(s => s.Sum<Seq, int>())
              .Distinct() 
              .OrderBy(s => s)
-             .AsIterable()
-             .ToSeq();
+             .AsSeq();
 
     public bool StillInTheGame() =>
         !Scores.Exists(s => s == 21) && 

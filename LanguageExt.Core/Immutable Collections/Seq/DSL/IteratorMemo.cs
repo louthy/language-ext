@@ -33,7 +33,7 @@ class IteratorMemo<A>(Iterator<A> ma) : Iterator<A>
     
     Iterator<A>? iter = ma;
 
-    public long Count =>
+    public override long Count =>
         count;
 
     public A[] Data =>

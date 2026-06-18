@@ -536,7 +536,9 @@ public abstract partial class Fin<A> :
 
     [Pure, MethodImpl(Opt.Default)]
     public Iterable<A> ToIterable() =>
-        Iterable.createRange(AsEnumerable());
+        IsSucc
+            ? Iterable.singleton(SuccValue)
+            : Iterable.empty<A>();
     
     [Pure, MethodImpl(Opt.Default)]
     public Lst<A> ToList() =>

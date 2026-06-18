@@ -224,14 +224,8 @@ public abstract record Error : Monoid<Error>
         lhs.Combine(rhs);
 
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual Iterable<Error> AsIterable()
-    {
-        return Iterable.createRange(go());
-        IEnumerable<Error> go() 
-        {
-            yield return this;
-        }
-    }
+    public virtual Iterable<Error> AsIterable() =>
+        Iterable.singleton(this);
 
     /// <summary>
     /// Convert the error to a string
@@ -862,7 +856,7 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
     internal static Error FromAggregate(AggregateException? e)
     {
         if (e is null) return Common.Errors.None;
-        var errs = e.InnerExceptions.SelectMany(x => New(x).AsIterable()).AsIterable().ToSeq();
+        var errs = e.InnerExceptions.SelectMany(x => New(x).AsIterable()).AsSeq();
         if (errs.Count == 0) return Common.Errors.None;
         if (errs.Count == 1) return (Error)errs.Head;
         return Many(errs);

@@ -15,10 +15,6 @@ public static class EnumerableOptimal
             : new ConcatEnum<A>(Seq(ma, mb));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Iterable<A> ConcatFast<A>(this Iterable<A> ma, IEnumerable<A> mb) =>
-        ma.Concat(Iterable.createRange(mb));
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static IEnumerable<B> BindFast<A, B>(this IEnumerable<A>? ma, Func<A, IEnumerable<B>> f) =>
         ma is null
             ? System.Linq.Enumerable.Empty<B>()

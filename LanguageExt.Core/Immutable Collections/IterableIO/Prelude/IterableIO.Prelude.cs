@@ -32,15 +32,11 @@ public static partial class Prelude
         new (value ?? IteratorIO<A>.Empty);
         
     [Pure]
-    public static Iterable<A> toIterableIO<A>(IEnumerable<A>? value) =>
+    public static IterableIO<A> toIterableIO<A>(IEnumerable<A>? value) =>
         value switch
         {
-            null                => LanguageExt.Iterable<A>.Empty,
-            Iterable<A> iter    => iter, 
-            Seq<A> seq          => seq.AsIterable(),
-            Arr<A> arr          => arr.AsIterable(),
-            A[] array           => Iterable(array),
-            _                   => new Iterable<A>(value.AsIterator())
+            null             => LanguageExt.IterableIO<A>.Empty,
+            _                => new IterableIO<A>(value.AsIteratorIO())
         };
     
     [Pure]

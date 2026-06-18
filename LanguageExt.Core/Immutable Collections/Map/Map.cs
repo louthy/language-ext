@@ -557,7 +557,20 @@ public readonly struct Map<K, V> :
     /// <returns>Range of values</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Iterable<V> FindRange(K keyFrom, K keyTo) => Value.FindRange(keyFrom, keyTo);
+    public Iterable<V> FindRange(K keyFrom, K keyTo) => 
+        Value.FindRange(keyFrom, keyTo);
+
+    /// <summary>
+    /// Retrieve a range of values 
+    /// </summary>
+    /// <param name="keyFrom">Range start (inclusive)</param>
+    /// <param name="keyTo">Range to (inclusive)</param>
+    /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
+    /// <returns>Range of values</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Arr<V> FindRangeStrict(K keyFrom, K keyTo) => 
+        Value.FindRangeStrict(keyFrom, keyTo);
 
     /// <summary>
     /// Retrieve a range of values 
@@ -568,7 +581,20 @@ public readonly struct Map<K, V> :
     /// <returns>Range of key, values</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Iterable<(K Key, V Value)> FindRangePairs(K keyFrom, K keyTo) => Value.FindRangePairs(keyFrom, keyTo);
+    public Iterable<(K Key, V Value)> FindRangePairs(K keyFrom, K keyTo) => 
+        Value.FindRangePairs(keyFrom, keyTo);
+
+    /// <summary>
+    /// Retrieve a range of values 
+    /// </summary>
+    /// <param name="keyFrom">Range start (inclusive)</param>
+    /// <param name="keyTo">Range to (inclusive)</param>
+    /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
+    /// <returns>Range of key, values</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Arr<(K Key, V Value)> FindRangePairsStrict(K keyFrom, K keyTo) => 
+        Value.FindRangePairsStrict(keyFrom, keyTo);
 
     /// <summary>
     /// Skips 'amount' values and returns a new tree without the 
@@ -578,7 +604,8 @@ public readonly struct Map<K, V> :
     /// <returns>New tree</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Iterable<(K Key, V Value)> Skip(int amount) => Value.Skip(amount);
+    public Map<K, V> Skip(int amount) => 
+        Wrap(Value.Skip(amount));
 
     /// <summary>
     /// Checks for the existence of a key in the map
@@ -587,7 +614,8 @@ public readonly struct Map<K, V> :
     /// <returns>True if an item with the key supplied is in the map</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool ContainsKey(K key) => Value.ContainsKey(key);
+    public bool ContainsKey(K key) => 
+        Value.ContainsKey(key);
 
     /// <summary>
     /// Checks for the existence of a key in the map
@@ -596,7 +624,8 @@ public readonly struct Map<K, V> :
     /// <returns>True if an item with the key supplied is in the map</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Contains(K key, V value) => Value.Contains(key, value);
+    public bool Contains(K key, V value) => 
+        Value.Contains(key, value);
 
     /// <summary>
     /// Clears all items from the map 
@@ -605,7 +634,8 @@ public readonly struct Map<K, V> :
     /// <returns>Empty map</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Map<K, V> Clear() => Wrap(Value.Clear());
+    public Map<K, V> Clear() => 
+        Wrap(Value.Clear());
 
     /// <summary>
     /// Atomically adds a range of items to the map
@@ -615,7 +645,8 @@ public readonly struct Map<K, V> :
     /// <returns>New Map with the items added</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Map<K, V> AddRange(IEnumerable<KeyValuePair<K, V>> pairs) => Wrap(Value.AddRange(pairs));
+    public Map<K, V> AddRange(IEnumerable<KeyValuePair<K, V>> pairs) => 
+        Wrap(Value.AddRange(pairs));
 
     /// <summary>
     /// Atomically sets a series of items using the KeyValuePairs provided
@@ -625,7 +656,8 @@ public readonly struct Map<K, V> :
     /// <returns>New map with the items set</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Map<K, V> SetItems(IEnumerable<KeyValuePair<K, V>> items) => Wrap(Value.SetItems(items));
+    public Map<K, V> SetItems(IEnumerable<KeyValuePair<K, V>> items) => 
+        Wrap(Value.SetItems(items));
 
     /// <summary>
     /// Atomically sets a series of items using the Tuples provided.
@@ -635,7 +667,8 @@ public readonly struct Map<K, V> :
     /// <returns>New map with the items set</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Map<K, V> SetItems(IEnumerable<Tuple<K, V>> items) => Wrap(Value.SetItems(items));
+    public Map<K, V> SetItems(IEnumerable<Tuple<K, V>> items) => 
+        Wrap(Value.SetItems(items));
 
     /// <summary>
     /// Atomically sets a series of items using the Tuples provided.

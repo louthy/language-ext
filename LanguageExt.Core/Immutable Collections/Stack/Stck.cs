@@ -25,6 +25,16 @@ public abstract partial record Stck<A> :
     public static Stck<A> Empty { get; } = new Nil();
 
     /// <summary>
+    /// Number of items in the stack
+    /// </summary>
+    public abstract long Count { get; }
+
+    /// <summary>
+    /// Number of items in the stack truncated to an `int`
+    /// </summary>
+    public abstract int Length { get; }
+
+    /// <summary>
     /// Reference version for use in pattern-matching
     /// </summary>
     [Pure]
@@ -88,8 +98,15 @@ public abstract partial record Stck<A> :
     /// </summary>
     /// <returns>Iterable</returns>
     [Pure]
-    public IEnumerable<A> AsIterable() =>
-        AsEnumerable().AsIterable();
+    public Iterable<A> AsIterable()
+    {
+        return go(this).AsIterable();
+
+        Iterator<A> go(Stck<A> top) =>
+            top is Top t
+                ? Iterator.cons(t.Value, () => go(t.Rest)) 
+                : Iterator.empty<A>();
+    }
 
     /// <summary>
     /// Convert this type to a lazy sequence

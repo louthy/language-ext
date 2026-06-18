@@ -595,9 +595,13 @@ public readonly struct Set<OrdA, A> :
         toSeq(this);
 
     [Pure]
-    public Iterable<A> AsEnumerable() => 
-        Iterable.createRange(this);
+    public Iterable<A> AsIterable() => 
+        Value.AsIterable();
 
+    [Pure]
+    public IEnumerable<A> AsEnumerable() =>
+        Value.AsIterable();
+    
     [Pure]
     public Set<OrdA, A> Where(Func<A, bool> pred) =>
         Filter(pred);
@@ -609,7 +613,7 @@ public readonly struct Set<OrdA, A> :
 
         IEnumerable<B> Yield()
         {
-            foreach (var x in self.AsEnumerable())
+            foreach (var x in self.AsIterable())
             {
                 foreach (var y in f(x))
                 {
@@ -627,7 +631,7 @@ public readonly struct Set<OrdA, A> :
 
         IEnumerable<A> Yield()
         {
-            foreach (var x in self.AsEnumerable())
+            foreach (var x in self.AsIterable())
             {
                 foreach (var y in f(x))
                 {
@@ -639,8 +643,8 @@ public readonly struct Set<OrdA, A> :
     }
 
     [Pure]
-    public Iterable<A> Skip(int amount) =>
-        Value.Skip(amount);
+    public Set<OrdA, A> Skip(int amount) =>
+        Wrap(Value.Skip(amount));
 
     [Pure]
     public int CompareTo(Set<OrdA, A> other) =>

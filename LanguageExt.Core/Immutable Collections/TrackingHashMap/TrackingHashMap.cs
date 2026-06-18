@@ -21,8 +21,8 @@ namespace LanguageExt;
 /// empty state of the collection, or since the last call to `Snapshot()`.
 ///
 /// The fact that the changes are represented as a single-value `HashMap` shows that the tracked changes are not an
-/// ever increasing log of changes, but instead a morphism between one previous state of the `TrackingHashMap` and
-/// another.  Therefore there's at most one morphism for each key, and potentially none.
+/// ever-increasing log of changes, but instead a morphism between one previous state of the `TrackingHashMap` and
+/// another.  Therefore, there's at most one morphism for each key, and potentially none.
 ///
 /// The morphisms are:
 ///
@@ -675,7 +675,7 @@ public readonly struct TrackingHashMap<K, V> :
         Func<(K Key, V Value), KR> keySelector, 
         Func<(K Key, V Value), VR> valueSelector) 
         where KR : notnull =>
-        AsEnumerable().ToDictionary(x => keySelector(x), x => valueSelector(x));
+        AsIterable().ToDictionary(x => keySelector(x), x => valueSelector(x));
 
     /// <summary>
     /// GetEnumerator - IEnumerable interface
@@ -691,7 +691,7 @@ public readonly struct TrackingHashMap<K, V> :
 
     [Pure]
     public Seq<(K Key, V Value)> ToSeq() =>
-        toSeq(AsEnumerable());
+        toSeq(AsIterable());
 
     /// <summary>
     /// Allocation free conversion to a HashMap
@@ -708,25 +708,33 @@ public readonly struct TrackingHashMap<K, V> :
     /// </summary>
     [Pure]
     public override string ToString() =>
-        CollectionFormat.ToShortArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), Count);
+        CollectionFormat.ToShortArrayString(AsIterable().Map(kv => $"({kv.Key}: {kv.Value})"), Count);
 
     /// <summary>
     /// Format the collection as `(key: value), (key: value), (key: value), ...`
     /// </summary>
     [Pure]
     public string ToFullString(string separator = ", ") =>
-        CollectionFormat.ToFullString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
+        CollectionFormat.ToFullString(AsIterable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
     /// <summary>
     /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
     /// </summary>
     [Pure]
     public string ToFullArrayString(string separator = ", ") =>
-        CollectionFormat.ToFullArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
+        CollectionFormat.ToFullArrayString(AsIterable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
     [Pure]
-    public Iterable<(K Key, V Value)> AsEnumerable() =>
+    public Iterable<(K Key, V Value)> AsIterable() =>
         Value.AsIterable();
+
+    [Pure]
+    public IEnumerable<(K Key, V Value)> AsEnumerable() =>
+        Value.AsIterable();
+
+    [Pure]
+    public IEnumerable<(K Key, V Value)> ForwardIterator() =>
+        Value.ForwardIterator();
 
     /// <summary>
     /// Implicit conversion from an untyped empty list
@@ -1032,7 +1040,7 @@ public readonly struct TrackingHashMap<K, V> :
     [Pure]
     public bool ForAll(Func<K, V, bool> pred)
     {
-        foreach (var item in AsEnumerable())
+        foreach (var item in AsIterable())
         {
             if (!pred(item.Key, item.Value)) return false;
         }
@@ -1046,7 +1054,7 @@ public readonly struct TrackingHashMap<K, V> :
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
     public bool ForAll(Func<(K Key, V Value), bool> pred) =>
-        AsEnumerable().Map(kv => (kv.Key, kv.Value)).ForAll(pred);
+        AsIterable().Map(kv => (kv.Key, kv.Value)).ForAll(pred);
 
     /// <summary>
     /// Return true if *all* items in the map return true when the predicate is applied
@@ -1055,7 +1063,7 @@ public readonly struct TrackingHashMap<K, V> :
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
     public bool ForAll(Func<KeyValuePair<K, V>, bool> pred) =>
-        AsEnumerable().Map(kv => new KeyValuePair<K, V>(kv.Key, kv.Value)).ForAll(pred);
+        AsIterable().Map(kv => new KeyValuePair<K, V>(kv.Key, kv.Value)).ForAll(pred);
 
     /// <summary>
     /// Return true if all items in the map return true when the predicate is applied
@@ -1073,7 +1081,7 @@ public readonly struct TrackingHashMap<K, V> :
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     public bool Exists(Func<K, V, bool> pred)
     {
-        foreach (var item in AsEnumerable())
+        foreach (var item in AsIterable())
         {
             if (pred(item.Key, item.Value)) return true;
         }
@@ -1087,7 +1095,7 @@ public readonly struct TrackingHashMap<K, V> :
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
     public bool Exists(Func<(K Key, V Value), bool> pred) =>
-        AsEnumerable().Map(kv => ( kv.Key, kv.Value)).Exists(pred);
+        AsIterable().Map(kv => ( kv.Key, kv.Value)).Exists(pred);
 
     /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied
@@ -1096,7 +1104,7 @@ public readonly struct TrackingHashMap<K, V> :
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
     public bool Exists(Func<KeyValuePair<K, V>, bool> pred) =>
-        AsEnumerable().Map(kv => new KeyValuePair<K, V>(kv.Key, kv.Value)).Exists(pred);
+        AsIterable().Map(kv => new KeyValuePair<K, V>(kv.Key, kv.Value)).Exists(pred);
 
     /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied
@@ -1191,7 +1199,7 @@ public readonly struct TrackingHashMap<K, V> :
     /// <returns>Folded state</returns>
     [Pure]
     public S Fold<S>(Func<S, K, V, S> folder, S state) =>
-        AsEnumerable().Fold((s, x) => folder(s, x.Key, x.Value), state);
+        AsIterable().Fold((s, x) => folder(s, x.Key, x.Value), state);
 
     /// <summary>
     /// Atomically folds all items in the map (in order) using the folder function provided.

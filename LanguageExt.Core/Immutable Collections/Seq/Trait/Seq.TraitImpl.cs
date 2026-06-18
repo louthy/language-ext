@@ -129,9 +129,6 @@ public partial class Seq :
     static K<Seq, A> SemigroupK<Seq>.Combine<A>(K<Seq, A> ma, K<Seq, A> mb) =>
         ma.As() + mb.As();
 
-    static long Foldable<Seq>.Count<A>(K<Seq, A> ta) =>
-        ta.As().Count;
-
     static FoldState IterableK<Seq, FoldState>.StepSetup<A>(K<Seq, A> ta) => 
         ta.As().InitFoldState();
 

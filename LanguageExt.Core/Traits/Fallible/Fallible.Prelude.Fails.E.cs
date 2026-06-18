@@ -67,10 +67,10 @@ public static partial class FallibleExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="fma">Collection of fallible monadic values</param>
     /// <returns>A collection of `E` values</returns>
-    public static K<M, Seq<E>> fails<E, M, A>(
+    public static K<M, Seq<E>> failsIO<E, M, A>(
         IEnumerable<K<M, A>> fma)
-        where M : Monad<M>, Fallible<E, M> =>
-        Iterable.createRange(fma).Fails<E, Iterable, M, A>();
+        where M : MonadIO<M>, Fallible<E, M> =>
+        IterableIO.createRange(fma).FailsIO<E, IterableIO, M, A>();
     
     /// <summary>
     /// Partitions a collection of effects into successes and failures,

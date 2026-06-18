@@ -19,6 +19,6 @@ public class ScheduleTests
     {
         var results = Schedule.linear(1 * sec) | Schedule.recurs(3) | Schedule.repeat(3);
 
-        Console.WriteLine(results.Run().ToSeq());
+        Console.WriteLine(results.Run());
     }
 }

@@ -24,4 +24,19 @@ public abstract partial class IteratorIO
         public override IteratorIO<A> Append(A value) => 
             new LiftIO<A>(lifted * (i => i.Append(value)));
     }
+    
+    /// <summary>
+    /// Lift an IO value into an IteratorIO
+    /// </summary>
+    internal class LiftIO2<A>(IO<A> lifted) : IteratorIO<A>
+    {
+        public override IO<(Head<A> Head, IteratorIO<A> Tail)> NextIO() =>
+            lifted * Head.ExistIO;
+        
+        public override string ToString() => 
+            "LiftIO";
+
+        public override IteratorIO<A> Using() =>
+            this;
+    }
 }

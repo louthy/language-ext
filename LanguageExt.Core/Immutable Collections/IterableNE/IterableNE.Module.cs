@@ -33,7 +33,7 @@ public partial class IterableNE
     /// <param name="items">Items</param>
     /// <returns>sequence</returns>
     [Pure]
-    public static IterableNE<A> create<A>(A head, params ReadOnlySpan<A> tail) =>
+    public static IterableNE<A> cons<A>(A head, params ReadOnlySpan<A> tail) =>
         new (head, Iterator.forward(tail));
 
     /// <summary>
@@ -42,16 +42,7 @@ public partial class IterableNE
     /// <param name="items">Items</param>
     /// <returns>sequence</returns>
     [Pure]
-    public static IterableNE<A> create<A>(A head, IEnumerable<A> tail) =>
-        new (head, Iterator.forward(tail));
-
-    /// <summary>
-    /// Create a sequence from an initial set of items
-    /// </summary>
-    /// <param name="items">Items</param>
-    /// <returns>sequence</returns>
-    [Pure]
-    public static IterableNE<A> create<A>(A head, Iterable<A> tail) =>
+    public static IterableNE<A> cons<A>(A head, Iterable<A> tail) =>
         new (head, tail.ForwardIterator());
 
     /// <summary>
@@ -60,7 +51,7 @@ public partial class IterableNE
     /// <param name="items">Items</param>
     /// <returns>sequence</returns>
     [Pure]
-    public static IterableNE<A> create<A>(A head, IterableNE<A> tail) =>
+    public static IterableNE<A> cons<A>(A head, IterableNE<A> tail) =>
         new(head, Iterator.cons(tail.Head, tail.Tail));
 
     /// <summary>
@@ -71,7 +62,7 @@ public partial class IterableNE
     public static Option<IterableNE<A>> generate<A>(long count, Func<long, A> generator) =>
         count < 1
             ? None
-            : create(generator(0L), Range(1L, count).Select(generator));
+            : cons(generator(0L), Range(1L, count).Map(generator).AsIterable());
 
     /// <summary>
     /// Generates a sequence that contains one repeated value.
@@ -80,7 +71,7 @@ public partial class IterableNE
     public static Option<IterableNE<A>> repeat<A>(A item, long count) =>
         count < 1
             ? None
-            : create(item, Range(1L, count).Select(_ => item));
+            : cons(item, Range(1L, count).Map(_ => item).AsIterable());
 
     /// <summary>
     /// Get the item at the head (first) of the sequence

@@ -375,15 +375,17 @@ public static class PipeT
     public static PipeT<IN, OUT, M, A> repeat<IN, OUT, M, A>(Schedule schedule, PipeT<IN, OUT, M, A> ma)
         where M : MonadIO<M>
     {
-        return from s in pure<IN, OUT, M, Iterator<Duration>>(schedule.Run().ForwardIterator())
+        return from s in pure<IN, OUT, M, IteratorIO<Duration>>(schedule.Run().ForwardIteratorIO())
                from r in ma
                from t in go(s, ma, r)
                select t;
 
-        static PipeT<IN, OUT, M, A> go(Iterator<Duration> schedule, PipeT<IN, OUT, M, A> ma, A latest) =>
-            schedule is (Exist<Duration> (var head), var tail)
-                ? liftIO<IN, OUT, M, Unit>(IO.yieldFor(head)) >> (_ => ma >> (x => go(tail, ma, x))) >> lower
-                : pure<IN, OUT, M, A>(latest); 
+        static PipeT<IN, OUT, M, A> go(IteratorIO<Duration> schedule, PipeT<IN, OUT, M, A> ma, A latest) =>
+            schedule.NextIO() >>
+            (n => n is (Exist<Duration> (var head), var tail)
+                      ? liftIO<IN, OUT, M, Unit>(IO.yieldFor(head)) >> (_ => ma >> (x => go(tail, ma, x))) >> lower
+                      : pure<IN, OUT, M, A>(latest)) >> 
+            lower;
     }
 
     /// <summary>
@@ -430,12 +432,13 @@ public static class PipeT
         PipeT<IN, OUT, M, A> Item)
         where M : MonadIO<M>
     {
+        // TODO: This needs checking since it's changed to an IteratorIO
         var state = Init;
-        var sch   = Time.Run().ForwardIterator();
-        return Item.Bind(
-            x =>
+        var sch   = Time.Run().ForwardIteratorIO();
+        return +Item.Bind(
+            x => sch.NextIO() >> (n => 
             {
-                if (sch is (Exist<Duration> (var head), var tail))
+                if (n is (Exist<Duration> (var head), var tail))
                 {
                     state = Fold(state, x);
                     var delay = head;
@@ -444,12 +447,12 @@ public static class PipeT
                 }
                 else
                 {
-                    sch = Time.Run().ForwardIterator();
+                    sch = Time.Run().ForwardIteratorIO();
                     var nstate = state;
                     state = Init;
                     return yield<M, IN, OUT>(nstate);
                 }
-            });
+            }));
     }
     
     /// <summary>
@@ -512,12 +515,14 @@ public static class PipeT
         PipeT<IN, OUT, M, A> Item)
         where M : MonadIO<M>
     {
+        // TODO: This needs checking since it's changed to an IteratorIO
         var state = Init;
-        var sch   = Time.Run().ForwardIterator();
-        return Item.Bind(
-            x =>
+        var sch   = Time.Run().ForwardIteratorIO();
+        
+        return +Item.Bind(
+            x => sch.NextIO() >> (n => 
             {
-                if (sch is (Exist<Duration> (var head), var tail) && !Pred((state, x)))
+                if (n is (Exist<Duration> (var head), var tail) && !Pred((state, x)))
                 {
                     state = Fold(state, x);
                     var delay = head;
@@ -526,12 +531,12 @@ public static class PipeT
                 }
                 else
                 {
-                    sch = Time.Run().ForwardIterator();
+                    sch = Time.Run().ForwardIteratorIO();
                     var nstate = state;
                     state = Init;
                     return yield<M, IN, OUT>(nstate);
                 }
-            });
+            }));
     }
         
     /// <summary>
@@ -594,12 +599,14 @@ public static class PipeT
         PipeT<IN, OUT, M, A> Item)
         where M : MonadIO<M>
     {
+        // TODO: This needs checking since it's changed to an IteratorIO
         var state = Init;
-        var sch   = Time.Run().ForwardIterator();
-        return Item.Bind(
-            x =>
+        var sch   = Time.Run().ForwardIteratorIO();
+        
+        return +Item.Bind(
+            x => sch.NextIO() >> (n => 
             {
-                if (sch is (Exist<Duration> (var head), var tail) && Pred((state, x)))
+                if (n is (Exist<Duration> (var head), var tail) && Pred((state, x)))
                 {
                     state = Fold(state, x);
                     var delay = head;
@@ -608,12 +615,12 @@ public static class PipeT
                 }
                 else
                 {
-                    sch = Time.Run().ForwardIterator();
+                    sch = Time.Run().ForwardIteratorIO();
                     var nstate = state;
                     state = Init;
                     return yield<M, IN, OUT>(nstate);
                 }
-            });
+            }));
     }
     
     /// <summary>

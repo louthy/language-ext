@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using LanguageExt.Sys.Traits;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
@@ -189,7 +190,7 @@ public class Activity<M, RT>
     public static K<M, HashMap<string, string?>> baggage =>
         currentActivity.Map(
             a => a is not null
-                     ? a.Baggage.AsIterable().Map(kv => (kv.Key, kv.Value)).ToHashMap()
+                     ? a.Baggage.Select(kv => (kv.Key, kv.Value)).AsHashMap()
                      : HashMap<string, string?>());
 
     /// <summary>
@@ -225,7 +226,7 @@ public class Activity<M, RT>
     public static K<M, HashMap<string, string?>> tags =>
         currentActivity.Map(
             a => a is not null
-                     ? a.Tags.AsIterable().Map(kv => (kv.Key, kv.Value)).ToHashMap()
+                     ? a.Tags.Select(kv => (kv.Key, kv.Value)).AsHashMap()
                      : HashMap<string, string?>());
 
     /// <summary>
@@ -234,7 +235,7 @@ public class Activity<M, RT>
     public static K<M, HashMap<string, object?>> tagObjects =>
         currentActivity.Map(
             a => a is not null
-                     ? a.TagObjects.AsIterable().Map(kv => (kv.Key, kv.Value)).ToHashMap()
+                     ? a.TagObjects.Select(kv => (kv.Key, kv.Value)).AsHashMap()
                      : HashMap<string, object?>());
 
     /// <summary>
@@ -269,7 +270,7 @@ public class Activity<M, RT>
     public static K<M, Seq<ActivityEvent>> events =>
         currentActivity.Map(
             a => a is not null
-                     ? a.Events.AsIterable().ToSeq()
+                     ? a.Events.AsSeq()
                      : Seq<ActivityEvent>());
 
     /// <summary>
@@ -292,7 +293,7 @@ public class Activity<M, RT>
     public static K<M, Seq<ActivityLink>> links =>
         currentActivity.Map(
             a => a is not null
-                     ? a.Links.AsIterable().ToSeq()
+                     ? a.Links.AsSeq()
                      : Seq<ActivityLink>());
 
     /// <summary>
@@ -300,7 +301,7 @@ public class Activity<M, RT>
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
     public static K<M, Option<Activity>> current =>
-        currentActivity.Map(a => Optional(a));
+        currentActivity.Map(Optional);
 
     /// <summary>
     /// Read the parent ID of the current activity

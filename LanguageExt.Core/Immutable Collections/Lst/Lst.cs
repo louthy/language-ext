@@ -207,16 +207,6 @@ public readonly struct Lst<A> :
             return ListModule.GetItem(Root, index);
         }
     }
-    
-    /// <summary>
-    /// Safe index accessor
-    /// </summary>
-    [Pure]
-    public Option<A> At(long index)
-    {
-        if (index < 0 || index >= Root.Count) return default;
-        return ListModule.GetItem(Root, index);
-    }
 
     /// <summary>
     /// Number of items in the list
@@ -252,25 +242,6 @@ public readonly struct Lst<A> :
         new (list);
 
     /// <summary>
-    /// Find if a value is in the collection
-    /// </summary>
-    /// <param name="value">Value to test</param>
-    /// <returns>True if collection contains value</returns>
-    [Pure]
-    public bool Contains(A value) =>
-        Value.AsIterable().Find(a => EqDefault<A>.Equals(a, value)).IsSome;
-
-    /// <summary>
-    /// Contains with provided Eq class instance
-    /// </summary>
-    /// <typeparam name="EqA">Eq class instance</typeparam>
-    /// <param name="value">Value to test</param>
-    /// <returns>True if collection contains value</returns>
-    [Pure]
-    public bool Contains<EqA>(A value) where EqA : Eq<A> =>
-        Value.AsIterable().Find(a => EqA.Equals(a, value)).IsSome;
-
-    /// <summary>
     /// Add an item to the end of the list
     /// </summary>
     [Pure]
@@ -290,23 +261,16 @@ public readonly struct Lst<A> :
     [Pure]
     public Lst<A> Clear() =>
         Empty;
-    
-    /// <summary>
-    /// Find the index of an item
-    /// </summary>
-    [Pure]
-    public long IndexOf(A item, long index = 0, long count = -1, IEqualityComparer<A>? equalityComparer = null) =>
-        Value.IndexOf(item, index, count, equalityComparer);
 
     /// <summary>
-    /// Insert value at specified index
+    /// Insert value at the specified index
     /// </summary>
     [Pure]
     public Lst<A> Insert(long index, A value) =>
         Wrap(Value.Insert(index, value));
 
     /// <summary>
-    /// Insert range of values at specified index
+    /// Insert range of values at the specified index
     /// </summary>
     [Pure]
     public Lst<A> InsertRange(long index, IEnumerable<A> items) =>
@@ -390,10 +354,6 @@ public readonly struct Lst<A> :
     public ListEnumeratorBack<A> GetEnumeratorBack() =>
         new (Root, 0);
 
-    [Pure]
-    public Seq<A> ToSeq() =>
-        toSeq(this);
-
     /// <summary>
     /// Format the collection as `[a, b, c, ...]`
     /// The ellipsis is used for collections over 50 items
@@ -420,7 +380,7 @@ public readonly struct Lst<A> :
 
     [Pure]
     public Iterable<A> AsIterable() =>
-        Iterable.createRange(this);
+        Iterable.create(this);
 
     [Pure]
     public Lst<A> Skip(long amount) =>
@@ -518,12 +478,7 @@ public readonly struct Lst<A> :
 
     [Pure]
     public override bool Equals(object? obj) =>
-        obj switch
-        {
-            Lst<A> s         => Equals(s),
-            IEnumerable<A> e => Equals(e.AsIterable().ToLst()),
-            _                => false
-        };
+        obj is Lst<A> s && Equals(s);
 
     /// <summary>
     /// Get the hash code
@@ -538,9 +493,9 @@ public readonly struct Lst<A> :
     public int CompareTo(object? obj) =>
         obj switch
         {
-            Lst<A> s         => CompareTo(s),
-            IEnumerable<A> e => CompareTo(e.AsIterable().ToLst()),
-            _                => 1
+            Lst<A> s => CompareTo(s),
+            null     => 1,
+            _        => -1
         };
 
     [Pure]

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -22,6 +20,24 @@ public static partial class FallibleExtensionsE
         fma.Fold((ms, ma) => ms.Bind(s => ma.Bind(_ => M.Pure(s))
                                             .Catch((E e) => M.Pure(s.Add(e)))),
                  M.Pure(Seq.empty<E>()));
+
+    /// <summary>
+    /// Partitions a foldable of effects into successes and failures,
+    /// and returns only the failures.
+    /// </summary>
+    /// <typeparam name="F">Foldable type</typeparam>
+    /// <typeparam name="M">Fallible monadic type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="fma">Foldable of fallible monadic values</param>
+    /// <returns>A collection of `E` values</returns>
+    public static K<M, Seq<E>> FailsIO<E, F, M, A>(
+        this K<F, K<M, A>> fma)
+        where M : MonadIO<M>, Fallible<E, M>
+        where F : FoldableIO<F> =>
+        M.LiftIO(fma.FoldIO((ms, ma) => ms.Bind(s => ma.Bind(_ => M.Pure(s))
+                                                       .Catch((E e) => M.Pure(s.Add(e)))),
+                            M.Pure(Seq.empty<E>())))
+         .Flatten();
     
     /// <summary>
     /// Partitions a collection of effects into successes and failures,

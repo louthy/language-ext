@@ -2699,9 +2699,6 @@ internal class TrieMap<EqK, K, V> :
         }
     }
 
-    public Iterable<(K Key, V Value)> AsIterable() =>
-        Root.AsIterable();
-
     public IEnumerator<(K Key, V Value)> GetEnumerator() =>
         // ReSharper disable once NotDisposedResourceIsReturned
         Root.GetEnumerator();
@@ -2836,6 +2833,12 @@ internal class TrieMap<EqK, K, V> :
 
     string TupleToString((K Key, V Value) tuple) =>
         $"({tuple.Key}, {tuple.Value})";
+
+    public Iterable<(K Key, V Value)> AsIterable() =>
+        ForwardIterator().AsIterable();
+
+    public Iterator<(K Key, V Value)> ForwardIterator() =>
+        new Iterator.IterHashMap<EqK, K, V>(TrieMap.IteratorState<EqK, K, V>.Setup(Root));
 
     public Iterable<K> Keys =>
         AsIterable().Map(kv => kv.Key);

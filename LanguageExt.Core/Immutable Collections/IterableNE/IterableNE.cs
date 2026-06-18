@@ -219,14 +219,14 @@ public partial class IterableNE<A>(A Head, Iterator<A> Tail) :
     /// Add a range of items to the end of the sequence
     /// </summary>
     [Pure]
-    public IterableNE<A> Concat(IEnumerable<A> items) =>
-        new (Head, Tail.ForwardIterator() + Iterator.forward(items));
+    public IterableNE<A> Concat(Iterable<A> items) =>
+        new (Head, Tail.ForwardIterator() + items.ForwardIterator());
 
     /// <summary>
     /// Add a range of items to the end of the sequence
     /// </summary>
     [Pure]
-    public IterableNE<A> Concat(Iterable<A> items) =>
+    public IterableNE<A> Concat(IterableNE<A> items) =>
         new (Head, Tail.ForwardIterator() + items.ForwardIterator());
 
     /// <summary>

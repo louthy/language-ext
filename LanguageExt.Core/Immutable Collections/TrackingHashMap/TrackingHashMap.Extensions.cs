@@ -34,49 +34,85 @@ public static partial class TrackingHashMapExtensions
     /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
-    public static TrackingHashMap<K1, TrackingHashMap<K2, V>> ToTrackingHashMap<K1, K2, V>(this IEnumerable<(K1, K2, V)> items) =>
-        items.AsIterable().Fold((s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3),
-                                TrackingHashMap<K1, TrackingHashMap<K2, V>>());
+    public static TrackingHashMap<K1, TrackingHashMap<K2, V>> ToTrackingHashMap<K1, K2, V>(this IEnumerable<(K1, K2, V)> items)
+    {
+        var s = TrackingHashMap<K1, TrackingHashMap<K2, V>>();
+        foreach (var x in items)
+        {
+            s = s.AddOrUpdate(x.Item1, x.Item2, x.Item3);
+        }
+        return s;
+    }
 
     /// <summary>
     /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
-    public static TrackingHashMap<K1, TrackingHashMap<K2, V>> ToTrackingHashMap<K1, K2, V>(this IEnumerable<Tuple<K1, K2, V>> items) =>
-        items.AsIterable().Fold((s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3),
-                                TrackingHashMap<K1, TrackingHashMap<K2, V>>());
+    public static TrackingHashMap<K1, TrackingHashMap<K2, V>> ToTrackingHashMap<K1, K2, V>(this IEnumerable<Tuple<K1, K2, V>> items)
+    {
+        var s = TrackingHashMap<K1, TrackingHashMap<K2, V>>();
+        foreach (var x in items)
+        {
+            s = s.AddOrUpdate(x.Item1, x.Item2, x.Item3);
+        }
+        return s;
+    }
 
     /// <summary>
     /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
-    public static TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, V>>> ToTrackingHashMap<K1, K2, K3, V>(this IEnumerable<(K1, K2, K3, V)> items) =>
-        items.AsIterable().Fold((s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4),
-                                TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, V>>>());
+    public static TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, V>>> ToTrackingHashMap<K1, K2, K3, V>(this IEnumerable<(K1, K2, K3, V)> items)
+    {
+        var s = TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, V>>>();
+        foreach (var x in items)
+        {
+            s = s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4);
+        }
+        return s;
+    }
 
     /// <summary>
     /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
-    public static TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, V>>> ToTrackingHashMap<K1, K2, K3, V>(this IEnumerable<Tuple<K1, K2, K3, V>> items) =>
-        items.AsIterable().Fold((s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4),
-                                TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, V>>>());
+    public static TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, V>>> ToTrackingHashMap<K1, K2, K3, V>(this IEnumerable<Tuple<K1, K2, K3, V>> items)
+    {
+        var s = TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, V>>>();
+        foreach (var x in items)
+        {
+            s = s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4);
+        }
+        return s;
+    }
 
     /// <summary>
     /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
-    public static TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, TrackingHashMap<K4, V>>>> ToTrackingHashMap<K1, K2, K3, K4, V>(this IEnumerable<(K1, K2, K3, K4, V)> items) =>
-        items.AsIterable().Fold((s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5),
-                                TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, TrackingHashMap<K4, V>>>>());
+    public static TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, TrackingHashMap<K4, V>>>> ToTrackingHashMap<K1, K2, K3, K4, V>(this IEnumerable<(K1, K2, K3, K4, V)> items)
+    {
+        var s = TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, TrackingHashMap<K4, V>>>>();
+        foreach (var x in items)
+        {
+            s = s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5);
+        }
+        return s;
+    }
 
     /// <summary>
     /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
-    public static TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, TrackingHashMap<K4, V>>>> ToTrackingHashMap<K1, K2, K3, K4, V>(this IEnumerable<Tuple<K1, K2, K3, K4, V>> items) =>
-        items.AsIterable().Fold((s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5),
-                                TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, TrackingHashMap<K4, V>>>>());
+    public static TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, TrackingHashMap<K4, V>>>> ToTrackingHashMap<K1, K2, K3, K4, V>(this IEnumerable<Tuple<K1, K2, K3, K4, V>> items)
+    {
+        var s = TrackingHashMap<K1, TrackingHashMap<K2, TrackingHashMap<K3, TrackingHashMap<K4, V>>>>();
+        foreach (var x in items)
+        {
+            s = s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5);
+        }
+        return s;
+    }
 
     /// <summary>
     /// Number of items in the map

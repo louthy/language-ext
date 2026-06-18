@@ -272,14 +272,14 @@ public static class Patch
     /// </summary>
     public static Iterable<A> apply<EqA, A>(Patch<EqA, A> patch, IEnumerable<A> va) where EqA : Eq<A>
     {
-        if (patch.Edits.Count == 0) return va.AsIterable();
+        if (patch.Edits.Count == 0) return va.AsIterableStrict();
         var i = SpanArray<A>.New(va);
 
         var dlength = i.Count + sizeChange(patch);
         var d       = SpanArray<A>.New(dlength);
 
         go(patch.Edits, i, d, 0);
-        return d.AsIterable();
+        return d.AsIterableStrict();
  
         static Unit go(Seq<Edit<EqA, A>> edits, SpanArray<A> src, SpanArray<A> dest, int si)
         {

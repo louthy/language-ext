@@ -207,7 +207,7 @@ public readonly struct Que<A> :
     /// <returns>Concatenated queue</returns>
     [Pure]
     public Que<A> Combine(Que<A> rhs) =>
-        new(Value.AsIterator().Combine(rhs.AsIterator()));
+        new(this.ForwardIterator().Combine(rhs.ForwardIterator()));
 
     /// <summary>
     /// Subtract one queue from another

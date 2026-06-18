@@ -23,6 +23,18 @@ public abstract partial record Stck<A>
             true;
 
         /// <summary>
+        /// Number of items in the stack
+        /// </summary>
+        public override long Count => 
+            0;
+
+        /// <summary>
+        /// Number of items in the stack truncated to an `int`
+        /// </summary>
+        public override int Length => 
+            0;
+        
+        /// <summary>
         /// Return the item on the top of the stack without affecting the stack itself.
         /// </summary>
         /// <returns>Top item value or None if the stack is empty.</returns>

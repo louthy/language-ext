@@ -37,7 +37,7 @@ public class FunctorLawTests
     [Fact]
     public void IterableNE()
     {
-        var fa = LE.IterableNE.create(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        var fa = LE.IterableNE.cons(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         FunctorLaw<IterableNE>.assert(fa);
     }
     

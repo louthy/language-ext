@@ -83,10 +83,10 @@ public static partial class Prelude
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="fma">Collection of fallible monadic values</param>
     /// <returns>A tuple containing an `Error` sequence and a `Succ` sequence</returns>
-    public static K<M, (Seq<E> Fails, Seq<A> Succs)> partitionFallible<E, M, A>(
+    public static K<M, (Seq<E> Fails, Seq<A> Succs)> partitionFallibleIO<E, M, A>(
         IEnumerable<K<M, A>> fma)
-        where M : Monad<M>, Fallible<E, M> =>
-        LanguageExt.Iterable.createRange(fma).PartitionFallible<E, Iterable, M, A>();
+        where M : MonadIO<M>, Fallible<E, M> =>
+        LanguageExt.IterableIO.createRange(fma).PartitionFallibleIO<E, IterableIO, M, A>();
     
     /// <summary>
     /// Partitions a collection of effects into two lists.

@@ -49,8 +49,9 @@ record FoldUntilTransducer2<A, S>(
 {
     public override ReducerIO<A, S1> Reduce<S1>(ReducerIO<S, S1> reducer)
     {
+        // TODO: This needs checking since it's changed to an IteratorIO
         var state = State;
-        var sch   = Duration.Zero.Cons(Schedule.Run()).GetEnumerator();
+        var sch   = Duration.Zero.Cons(Schedule.Run()).ForwardIteratorIO();
         return (s1, x) =>
                    IO.liftVAsync(async e =>
                                  {
@@ -58,10 +59,13 @@ record FoldUntilTransducer2<A, S>(
                                      state = Folder(state, x);
                                      if (Pred(state, x))
                                      {
+                                         var nxt = await sch.NextIO().RunAsync(e);
+                                         
                                          // Schedule
-                                         if (sch.MoveNext())
+                                         if (nxt is (Exist<Duration> (var d), var tail))
                                          {
-                                             if (!sch.Current.IsZero) await Task.Delay((TimeSpan)sch.Current);
+                                             sch = tail;
+                                             if (!d.IsZero) await Task.Delay((TimeSpan)d);
                                          }
                                          else
                                          {

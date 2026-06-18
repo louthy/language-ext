@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using LanguageExt.ClassInstances;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -105,6 +107,130 @@ public sealed partial class Iterable<A>
     [Pure]
     public A[] ToArray() =>
         this.ToArr().ToArray();
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterable<A> Order() =>
+        this.ForwardIterator()
+            .Order()
+            .AsIterable();
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterable<A> Order<OrdA>() 
+        where OrdA : Ord<A> =>
+        this.ForwardIterator()
+            .Order<OrdA>()
+            .AsIterable();
+
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterable<A> Order(IComparer<A>? comparer) =>
+        this.ForwardIterator()
+            .Order(comparer)
+            .AsIterable();
+
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterable<A> OrderBy<K>(Func<A, K> keySelector) => 
+        this.ForwardIterator()
+            .OrderBy(keySelector)
+            .AsIterable();
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterable<A> OrderBy<OrdK, K>(Func<A, K> keySelector) 
+        where OrdK : Ord<K> => 
+        this.ForwardIterator()
+            .OrderBy<OrdK, K>(keySelector)
+            .AsIterable();
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterable<A> OrderBy<K>(Func<A, K> keySelector, IComparer<K>? comparer) =>
+        this.ForwardIterator()
+            .OrderBy(keySelector, comparer)
+            .AsIterable();
+
+    /// <summary>
+    /// Yield items in ascending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterable<A> OrderDescending<OrdA>() 
+        where OrdA : Ord<A> =>
+        this.ForwardIterator()
+            .OrderDescending<OrdA>()
+            .AsIterable();
+
+    /// <summary>
+    /// Yield items in descending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterable<A> OrderDescending() =>
+        this.ForwardIterator()
+            .OrderDescending()
+            .AsIterable();
+
+    /// <summary>
+    /// Yield items in descending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterable<A> OrderDescending(IComparer<A>? comparer) =>
+        OrderByDescending(Prelude.identity, comparer);
+
+    /// <summary>
+    /// Yield items in descending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterable<A> OrderByDescending<K>(Func<A, K> keySelector) => 
+        this.ForwardIterator()
+            .OrderByDescending(keySelector)
+            .AsIterable();
+
+    /// <summary>
+    /// Yield items in descending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterable<A> OrderByDescending<OrdK, K>(Func<A, K> keySelector) 
+        where OrdK : Ord<K> => 
+        this.ForwardIterator()
+            .OrderByDescending<OrdK, K>(keySelector)
+            .AsIterable();
+
+    /// <summary>
+    /// Yield items in descending order 
+    /// </summary>
+    /// <returns>Iterable</returns>
+    [Pure]
+    public Iterable<A> OrderByDescending<K>(Func<A, K> keySelector, IComparer<K>? comparer) => 
+        this.ForwardIterator()
+            .OrderByDescending(keySelector, comparer)
+            .AsIterable();
 }
 
 public static partial class IterableExtensions

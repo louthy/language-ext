@@ -8,12 +8,10 @@ public partial class HashMapEq<EqKey, Key> :
     Foldable<HashMapEq<EqKey, Key>, TrieMap.FoldState>, 
     Indexable<HashMapEq<EqKey, Key>, Key>,
     MonoidK<HashMapEq<EqKey, Key>>,
-    Functor<HashMapEq<EqKey, Key>>
+    Functor<HashMapEq<EqKey, Key>>,
+    Countable<HashMapEq<EqKey, Key>>
     where EqKey : Eq<Key>
 {
-    static long Foldable<HashMapEq<EqKey, Key>>.Count<A>(K<HashMapEq<EqKey, Key>, A> ta) =>
-        ta.As().Count;
-
     static TrieMap.FoldState IterableK<HashMapEq<EqKey, Key>, TrieMap.FoldState>.StepSetup<A>(K<HashMapEq<EqKey, Key>, A> ta) => 
         TrieMap.FoldState.Setup(ta.As().Value.Root);
 
@@ -49,4 +47,7 @@ public partial class HashMapEq<EqKey, Key> :
 
     static Option<A> Indexable<HashMapEq<EqKey, Key>, Key>.At<A>(Key index, K<HashMapEq<EqKey, Key>, A> ta) => 
         ta.As().Value.Find(index);
+
+    static long Countable<HashMapEq<EqKey, Key>>.Count<A>(K<HashMapEq<EqKey, Key>, A> fa) => 
+        fa.As().Count;
 }

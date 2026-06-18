@@ -562,7 +562,7 @@ public readonly partial struct Arr<A> :
 
     [Pure]
     public Iterable<A> AsIterable() =>
-        Iterable.createRange(this);
+        Iterable.create<Arr, A>(this);
 
     [Pure]
     public Seq<A> ToSeq() =>

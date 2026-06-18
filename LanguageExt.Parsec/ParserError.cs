@@ -57,11 +57,14 @@ public class ParserError : IEquatable<ParserError>, IComparable<ParserError>
         $"error at {Pos}: {ToStringNoPosition()}";
 
     public string ToStringNoPosition() =>
-        (Tag == ParserErrorTag.Unexpect ? $"unexpected {Msg}"
-         : Tag == ParserErrorTag.SysUnexpect ? $"unexpected {Msg}"
-         : Tag == ParserErrorTag.Message ? Msg
-         : Tag == ParserErrorTag.Expect ? $"unexpected {Msg}, {FormatExpects(Expected.Filter(x => !string.IsNullOrEmpty(x)).Distinct().AsIterable().ToLst())}"
-                                          : "unknown error");
+        Tag switch
+        {
+            ParserErrorTag.Unexpect    => $"unexpected {Msg}",
+            ParserErrorTag.SysUnexpect => $"unexpected {Msg}",
+            ParserErrorTag.Message     => Msg,
+            ParserErrorTag.Expect      => $"unexpected {Msg}, {FormatExpects(Expected.Filter(x => !string.IsNullOrEmpty(x)).Distinct().AsLst())}",
+            _                          => "unknown error"
+        };
 
     public bool Equals(ParserError? other) =>
         other is not null && Tag == other.Tag && Msg == other.Msg;

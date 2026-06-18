@@ -9,6 +9,7 @@ namespace LanguageExt;
 public partial class Lst : 
     Monad<Lst>, 
     MonoidK<Lst>,
+    Countable<Lst>,
     Alternative<Lst>, 
     Traversable<Lst>,
     Indexable<Lst, int>, 
@@ -121,7 +122,7 @@ public partial class Lst :
             state.Bind(bs => f(value).Bind(b => F.Pure(bs.Add(b)))); 
     }    
 
-    static long Foldable<Lst>.Count<A>(K<Lst, A> ta) =>
+    static long Countable<Lst>.Count<A>(K<Lst, A> ta) =>
         ta.As().Count;
 
     static bool Foldable<Lst>.IsEmpty<A>(K<Lst, A> ta) =>
@@ -134,7 +135,7 @@ public partial class Lst :
         ta.As();
 
     static Iterable<A> Foldable<Lst>.ToIterable<A>(K<Lst, A> ta) =>
-        Iterable.createRange (ta.As());
+        Iterable.create (ta.As());
 
     static FoldState IterableK<Lst, FoldState>.StepSetup<A>(K<Lst, A> ta) => 
         FoldState.Setup(ta.As().Value.Root);

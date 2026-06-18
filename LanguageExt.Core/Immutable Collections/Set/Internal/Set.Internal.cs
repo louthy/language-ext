@@ -51,30 +51,31 @@ internal class SetInternal<OrdA, A> :
             ? hashCode = FNV32.Hash<OrdA, A>(AsIterable())
             : hashCode;
 
-    public Iterable<A> AsIterable()
-    {
-        IEnumerable<A> Yield()
-        {
-            using var iter = GetEnumerator();
-            while (iter.MoveNext())
-            {
-                yield return iter.Current;
-            }
-        }
-        return Iterable.createRange(Yield());
-    }
+    public Iterable<A> AsIterable() =>
+        new Iterator<A>.IterSetFwd(Set.IteratorState<A>.Setup(Root)).AsIterable();
 
-    public Iterable<A> Skip(int amount)
+    public SetInternal<OrdA, A> Skip(long amount)
     {
-        return Iterable.createRange(Go());
-        IEnumerable<A> Go()
+        var skip = amount;
+        var node = Root;
+
+        while (!node.IsEmpty && skip != node.Left.Count)
         {
-            using var iter = new SetModule.SetEnumerator<A>(Root, false, amount);
-            while (iter.MoveNext())
+            if (skip < node.Left.Count)
             {
-                yield return iter.Current;
+                node = node.Left;
+            }
+            else
+            {
+                skip -= node.Left.Count + 1;
+                node = node.Right;
             }
         }
+
+        return new SetInternal<OrdA, A>(
+            node.IsEmpty
+                ? SetItem<A>.Empty
+                : SetModule.Add<OrdA, A>(node.Right, node.Key));
     }
 
     /// <summary>

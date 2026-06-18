@@ -528,20 +528,20 @@ public abstract record IO<A> :
         Schedule schedule,
         Func<A, bool> predicate)
     {
-        return go(schedule.PrependZero.Run().ForwardIterator(), default!);
+        return go(schedule.PrependZero.Run(), default!);
 
-        IO<A> go(Iterator<Duration> iter, A value) =>
-            iter switch
-            {
-                (Exist<Duration> (var head), var tail) =>
-                    IO.yieldFor(head)
-                      .Bind(_ => Bracket()
-                               .Bind(v => predicate(v)
-                                              ? IO.pure(v)
-                                              : go(tail, v))),
+        IO<A> go(IteratorIO<Duration> iter, A value) =>
+            iter.NextIO() >> (n => n switch
+                                   {
+                                       (Exist<Duration> (var head), var tail) =>
+                                           IO.yieldFor(head)
+                                             .Bind(_ => Bracket()
+                                                      .Bind(v => predicate(v)
+                                                                     ? IO.pure(v)
+                                                                     : go(tail, v))),
 
-                _ => IO.pure(value)
-            };
+                                       _ => IO.pure(value)
+                                   });
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -641,16 +641,16 @@ public abstract record IO<A> :
     /// </remarks>
     public virtual IO<A> RetryUntil(Schedule schedule, Func<Error, bool> predicate)
     {
-        return go(schedule.PrependZero.Run().ForwardIterator(), Errors.None);
+        return go(schedule.PrependZero.Run(), Errors.None);
 
-        IO<A> go(Iterator<Duration> iter, Error error) =>
-            iter is (Exist<Duration> (var head), var tail)
-                ? IO.yieldFor(head)
-                    .Bind(_ => BracketFail()
-                             .Catch(e => predicate(e)
-                                             ? IO.fail<A>(e)
-                                             : go(tail, e)))
-                : IO.fail<A>(error);
+        IO<A> go(IteratorIO<Duration> iter, Error error) =>
+            iter.NextIO() >> (n => n is (Exist<Duration> (var head), var tail)
+                                       ? IO.yieldFor(head)
+                                           .Bind(_ => BracketFail()
+                                                    .Catch(e => predicate(e)
+                                                                    ? IO.fail<A>(e)
+                                                                    : go(tail, e)))
+                                       : IO.fail<A>(error));
     }
 
     /// <summary>

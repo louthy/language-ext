@@ -116,15 +116,15 @@ class QueInternal<A> : IEnumerable<A>
         toSeq(forward.AsIterable().ConcatFast(BackwardRev));
 
     public Iterable<A> AsIterable() =>
-        forward.AsIterable().ConcatFast(BackwardRev).AsIterable();
+        forward.AsIterable() + BackwardRev.AsIterable();
 
     public IEnumerator<A> GetEnumerator() =>
-        forward.AsIterable().ConcatFast(BackwardRev).GetEnumerator();
+        (forward.AsIterable() + BackwardRev.AsIterable()).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() =>
         forward.AsIterable().ConcatFast(BackwardRev).GetEnumerator();
 
-    public Iterator<A> GetIterator() =>
+    public Iterator<A> ForwardIterator() =>
         forward.ForwardIterator() + backward.Reverse().ForwardIterator();
 
     public static QueInternal<A> operator +(QueInternal<A> lhs, QueInternal<A> rhs) =>

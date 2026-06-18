@@ -2,6 +2,7 @@
 using System;
 using LanguageExt.Traits;
 using System.Collections.Generic;
+using Microsoft.VisualBasic.CompilerServices;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -186,70 +187,119 @@ static class MapModule
         }
     }
 
-    /// <summary>
-    /// TODO: I suspect this is suboptimal, it would be better with a custom Enumerator 
-    /// that maintains a stack of nodes to retrace.
-    /// </summary>
-    public static IEnumerable<V> FindRange<OrdK, K, V>(MapItem<K, V> node, K a, K b) where OrdK : Ord<K>
+    public static Arr<V> FindRangeStrict<OrdK, K, V>(MapItem<K, V> node, K a, K b) where OrdK : Ord<K>
     {
-        while (true)
-        {
-            if (node.IsEmpty)
-            {
-                yield break;
-            }
+        var writer = ArrayWriter<V>.Init();
+        go(node, ref writer);
+        return writer.ToArr();
 
-            if (OrdK.Compare(node.KeyValue.Key, a) < 0)
+        void go(MapItem<K, V> n, ref ArrayWriter<V> output)
+        {
+            while (true)
             {
-                node = node.Right;
-            }
-            else if (OrdK.Compare(node.KeyValue.Key, b) > 0)
-            {
-                node = node.Left;
-            }
-            else
-            {
-                foreach (var item in FindRange<OrdK, K, V>(node.Left, a, b))
+                if (n.IsEmpty)
                 {
-                    yield return item;
+                    return;
                 }
 
-                yield return node.KeyValue.Value;
-                node = node.Right;
+                if (OrdK.Compare(n.KeyValue.Key, a) < 0)
+                {
+                    n = n.Right;
+                }
+                else if (OrdK.Compare(n.KeyValue.Key, b) > 0)
+                {
+                    n = n.Left;
+                }
+                else
+                {
+                    go(n.Left, ref output);
+                    writer.Add(n.KeyValue.Value);
+                    n = n.Right;
+                }
             }
         }
     }
 
-    /// <summary>
-    /// TODO: I suspect this is suboptimal, it would be better with a custom Enumerator 
-    /// that maintains a stack of nodes to retrace.
-    /// </summary>
-    public static IEnumerable<(K, V)> FindRangePairs<OrdK, K, V>(MapItem<K, V> node, K a, K b) where OrdK : Ord<K>
+    public static Iterable<V> FindRange<OrdK, K, V>(MapItem<K, V> node, K a, K b) where OrdK : Ord<K>
     {
-        while (true)
-        {
-            if (node.IsEmpty)
-            {
-                yield break;
-            }
+        return go(node).AsIterable();
 
-            if (OrdK.Compare(node.KeyValue.Key, a) < 0)
+        Iterator<V> go(MapItem<K, V> n)
+        {
+            if (n.IsEmpty)
             {
-                node = node.Right;
+                return Iterator<V>.Empty;
             }
-            else if (OrdK.Compare(node.KeyValue.Key, b) > 0)
+            else if (OrdK.Compare(n.KeyValue.Key, a) < 0)
             {
-                node = node.Left;
+                return go(n.Right);
+            }
+            else if (OrdK.Compare(n.KeyValue.Key, b) > 0)
+            {
+                return go(n.Left);
             }
             else
             {
-                foreach (var item in FindRangePairs<OrdK, K, V>(node.Left, a, b))
+                return go(n.Left) + n.KeyValue.Value.Cons(() => go(n.Right));
+            }
+        }
+    }
+
+    public static Arr<(K Key, V Value)> FindRangePairsStrict<OrdK, K, V>(MapItem<K, V> node, K a, K b) where OrdK : Ord<K>
+    {
+        var writer = ArrayWriter<(K Key, V Value)>.Init();
+        go(node, writer);
+        return writer.ToArr();
+
+        void go(MapItem<K, V> n, in ArrayWriter<(K Key, V Value)> output)
+        {
+            while (true)
+            {
+                if (n.IsEmpty)
                 {
-                    yield return item;
+                    return;
                 }
 
-                yield return node.KeyValue;
-                node = node.Right;
+                if (OrdK.Compare(n.KeyValue.Key, a) < 0)
+                {
+                    n = n.Right;
+                }
+                else if (OrdK.Compare(n.KeyValue.Key, b) > 0)
+                {
+                    n = n.Left;
+                }
+                else
+                {
+                    go(n.Left, output);
+                    writer.Add(n.KeyValue);
+                    n = n.Right;
+                }
+            }
+        }
+    }
+    
+
+    public static Iterable<(K Key, V Value)> FindRangePairs<OrdK, K, V>(MapItem<K, V> node, K a, K b) where OrdK : Ord<K>
+    {
+        return go(node).AsIterable();
+
+        Iterator<(K Key, V Value)> go(MapItem<K, V> n)
+        {
+            if (n.IsEmpty)
+            {
+                return Iterator<(K Key, V Value)>.Empty;
+            }
+            else if (OrdK.Compare(n.KeyValue.Key, a) < 0)
+            {
+                return go(n.Right);
+            }
+            else if (OrdK.Compare(n.KeyValue.Key, b) > 0)
+            {
+                return go(n.Left);
+            }
+            else
+            {
+                return go(n.Left) + n.KeyValue.Cons(() => go(n.Right));
             }
         }
     }

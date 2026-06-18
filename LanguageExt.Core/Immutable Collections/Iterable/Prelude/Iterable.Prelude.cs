@@ -38,7 +38,7 @@ public static partial class Prelude
         };
     
     [Pure]
-    public static Iterable<A> toIterable<A>(IEnumerable<A>? value) =>
+    public static Iterable<A> toIterable<A>(IList<A>? value) =>
         value switch
         {
             null                => L.Iterable<A>.Empty,

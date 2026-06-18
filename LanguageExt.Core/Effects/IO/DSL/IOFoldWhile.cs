@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using LanguageExt.DSL;
 using LanguageExt.Traits;
 
 namespace LanguageExt.DSL;
@@ -34,6 +32,7 @@ record IOFoldWhile<S, A, B>(
             {
                 return Next(InitialState).As();
             }
+
             var state = Folder(InitialState, value);
             
             return new IOFoldingWhileSync<S, A, B>(Operation, Schedule.Run(), state, Folder, Predicate, Next);
@@ -54,7 +53,7 @@ record IOFoldWhile<S, A, B>(
 record IOFoldingWhileInitialAsync<S, A, B>(
     ValueTask<A> First,
     IO<A> Operation,
-    Iterator<Duration> Schedule,
+    IteratorIO<Duration> Schedule,
     S State,
     Func<S, A, S> Folder,
     Func<(S State, A Value), bool> Predicate,
@@ -79,8 +78,9 @@ record IOFoldingWhileInitialAsync<S, A, B>(
             return Next(state).As();
         }
         state = Folder(State, value);
+        var schedule = await Schedule.NextIO().RunAsync(envIO);
             
-        if (Schedule is (Exist<Duration> (var duration), var tail))
+        if (schedule is (Exist<Duration> (var duration), var tail))
         {
             await Task.Delay((TimeSpan)duration, envIO.Token);
             value = await Operation.RunAsync(envIO);
@@ -103,7 +103,7 @@ record IOFoldingWhileInitialAsync<S, A, B>(
 
 record IOFoldingWhileAsync<S, A, B>(
     IO<A> Operation,
-    Iterator<Duration> Schedule,
+    IteratorIO<Duration> Schedule,
     S State,
     Func<S, A, S> Folder,
     Func<(S State, A Value), bool> Predicate,
@@ -121,7 +121,8 @@ record IOFoldingWhileAsync<S, A, B>(
 
     public override async ValueTask<IO<B>> Invoke(EnvIO envIO) 
     {
-        if (Schedule is (Exist<Duration> (var duration), var tail))
+        var schedule = await Schedule.NextIO().RunAsync(envIO);
+        if (schedule is (Exist<Duration> (var duration), var tail))
         {
             await Task.Delay((TimeSpan)duration, envIO.Token);
             var value = await Operation.RunAsync(envIO);
@@ -145,7 +146,7 @@ record IOFoldingWhileAsync<S, A, B>(
 
 record IOFoldingWhileSync<S, A, B>(
     IO<A> Operation,
-    Iterator<Duration> Schedule,
+    IteratorIO<Duration> Schedule,
     S State,
     Func<S, A, S> Folder,
     Func<(S State, A Value), bool> Predicate,
@@ -163,7 +164,8 @@ record IOFoldingWhileSync<S, A, B>(
 
     public override IO<B> Invoke(EnvIO envIO) 
     {
-        if (Schedule is (Exist<Duration> (var duration), var tail))
+        var schedule = Schedule.NextIO().Run(envIO);
+        if (schedule is (Exist<Duration> (var duration), var tail))
         {
             Task.Delay((TimeSpan)duration, envIO.Token).GetAwaiter().GetResult();
             var value = Operation.Run(envIO);

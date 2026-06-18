@@ -56,7 +56,7 @@ public static class CreditCard
            .As(); 
 
     static Validation<Error, Iterable<int>> ValidateAllDigits(string value) =>
-        value.AsIterable()
+        value.AsIterableStrict()
              .Traverse(CharToDigit)
              .As();
 
@@ -64,11 +64,11 @@ static Validation<Error, int> ValidateInt(string value) =>
     ValidateAllDigits(value).Map(_ => int.Parse(value));
 
     static Validation<Error, string> ValidateLength(string value, int length) =>
-        ValidateLength(value.AsIterable(), length)
+        ValidateLength(value.AsArr(), length)
             .Map(_ => value);
 
     static Validation<Error, K<F, A>> ValidateLength<F, A>(K<F, A> fa, int length)
-        where F : Foldable<F> =>
+        where F : Foldable<F>, Countable<F> =>
         fa.Count == length
             ? Pure(fa)
             : Fail(Error.New($"expected length to be {length}, but got: {fa.Count}"));
