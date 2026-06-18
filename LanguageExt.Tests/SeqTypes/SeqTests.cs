@@ -45,7 +45,7 @@ public class SeqTests
             }
         }
 
-        var seq = Numbers().AsIterable().ToSeq();
+        var seq = Numbers().AsSeq();
 
         var a = seq.Take(5).Sum();
         Assert.True(a == 10);
@@ -276,31 +276,31 @@ public class SeqTests
     [Fact]
     public void TakeWhileTest()
     {
-        var str = "                          <p>The</p>".AsIterable();
+        var str = "                          <p>The</p>".AsIterableStrict();
         Assert.Equal("                          ",
-                     String.Join("", str.ToSeq().TakeWhile(ch => ch == ' ')));
+                     string.Join("", str.AsIterableStrict().TakeWhile(ch => ch == ' ')));
     }
 
     [Fact]
     public void TakeWhileIndex()
     {
-        var str = "                          <p>The</p>".AsIterable();
+        var str = "                          <p>The</p>".AsIterableStrict();
         Assert.Equal("                          ",
-                     String.Join("", str.ToSeq().TakeWhile((ch, index) => index != 26)));
+                     string.Join("", str.AsIterableStrict().TakeWhile((ch, index) => index != 26)));
     }
 
     [Fact]
     public void TakeWhile_HalfDefaultCapacityTest()
     {
-        var str = "1234".AsIterable();
-        Assert.Equal("1234", String.Join("", str.ToSeq().TakeWhile(ch => true)));
+        var str = "1234".AsIterableStrict();
+        Assert.Equal("1234", string.Join("", str.AsIterableStrict().TakeWhile(ch => true)));
     }
 
     [Fact]
     public void TakeWhileIndex_HalfDefaultCapacityTest()
     {
-        var str = "1234".AsIterable();
-        Assert.Equal("1234", String.Join("", str.ToSeq().TakeWhile((ch, index) => true)));
+        var str = "1234".AsIterableStrict();
+        Assert.Equal("1234", string.Join("", str.AsIterableStrict().TakeWhile((ch, index) => true)));
     }
         
     [Fact]

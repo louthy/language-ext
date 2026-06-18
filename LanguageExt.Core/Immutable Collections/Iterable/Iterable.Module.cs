@@ -61,6 +61,28 @@ public partial class Iterable
     /// <param name="items">Items</param>
     /// <returns>sequence</returns>
     [Pure]
+    public static Iterable<A> create<A>(IList<A> items) =>
+        items.Count == 0
+            ? Iterable<A>.Empty
+            : new Iterator<A>.IterGenList(items, 0, items.Count).AsIterable();
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
+    public static Iterable<A> create<A>(List<A> items) =>
+        items.Count == 0
+            ? Iterable<A>.Empty
+            : new Iterator<A>.IterGenList(items, 0, items.Count).AsIterable();
+
+    /// <summary>
+    /// Create a sequence from an initial set of items
+    /// </summary>
+    /// <param name="items">Items</param>
+    /// <returns>sequence</returns>
+    [Pure]
     public static Iterable<A> create<T, A>(K<T, A> items)
         where T : IterableK<T> =>
         items.ForwardIterator().AsIterable();

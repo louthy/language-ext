@@ -18,7 +18,8 @@ public sealed class ScheduleTests
         result
            .Run()
            .Take(10)
-           .AsEnumerable() 
+           .AsEnumerable()
+           .Run() 
            .Should()
            .HaveCount(10)
            .And
@@ -32,6 +33,7 @@ public sealed class ScheduleTests
         result
            .Run()
            .AsEnumerable() 
+           .Run() 
            .Should()
            .BeEmpty();
     }
@@ -43,6 +45,7 @@ public sealed class ScheduleTests
         result
            .Run()
            .AsEnumerable() 
+           .Run() 
            .Should()
            .ContainSingle(x => x == Duration.Zero);
     }
@@ -54,6 +57,7 @@ public sealed class ScheduleTests
         result
            .Run()
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(1 * sec, 2 * sec, 3 * sec);
     }
@@ -68,6 +72,7 @@ public sealed class ScheduleTests
         result
            .Run()
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(2 * sec, 4 * sec);
     }
@@ -79,6 +84,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .AsEnumerable() 
+           .Run() 
            .Should()
            .HaveCount(5)
            .And
@@ -93,6 +99,7 @@ public sealed class ScheduleTests
            .Run()
            .Take(5)
            .AsEnumerable() 
+           .Run() 
            .Should()
            .HaveCount(5)
            .And
@@ -107,6 +114,7 @@ public sealed class ScheduleTests
            .Run()
            .Take(5)
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(1 * sec, 2 * sec, 3 * sec, 4 * sec, 5 * sec);
     }
@@ -119,6 +127,7 @@ public sealed class ScheduleTests
            .Run()
            .Take(5)
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(100, 300, 500, 700, 900);
     }
@@ -131,6 +140,7 @@ public sealed class ScheduleTests
            .Run()
            .Take(5)
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(1 * sec, 2 * sec, 4 * sec, 8 * sec, 16 * sec);
     }
@@ -143,6 +153,7 @@ public sealed class ScheduleTests
            .Run()
            .Take(5)
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(1 * sec, 3 * sec, 9 * sec, 27 * sec, 81 * sec);
     }
@@ -155,6 +166,7 @@ public sealed class ScheduleTests
            .Run()
            .Take(6)
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(1 * sec, 1 * sec, 2 * sec, 3 * sec, 5 * sec, 8 * sec);
     }
@@ -168,6 +180,7 @@ public sealed class ScheduleTests
            .Run()
            .Take(5)
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(0 * sec, 10 * sec, 10 * sec, 10 * sec, 10 * sec);
     }
@@ -180,8 +193,10 @@ public sealed class ScheduleTests
         results
            .Run()
            .Take(5)
-           .Max().ValueUnsafe()
-           .Should().Be(25 * sec);
+           .Max()
+           .ValueUnsafe()
+           .Should()
+           .Be(25 * sec);
     }
 
     [Fact]
@@ -202,6 +217,7 @@ public sealed class ScheduleTests
            .Run()
            .Take(5)
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(1 * sec, 2 * sec, 4 * sec, 5 * sec, 5 * sec);
     }
@@ -214,6 +230,7 @@ public sealed class ScheduleTests
            .Run()
            .Take(5)
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(5 * sec, 5 * sec, 5 * sec, 8 * sec, 16 * sec);
     }
@@ -227,6 +244,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(1 * sec, 2 * sec, 3 * sec, 4 * sec, 5 * sec, 6 * sec);
     }
@@ -265,6 +283,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(0, 0, 0, 0);
     }
@@ -281,6 +300,7 @@ public sealed class ScheduleTests
            .Run()
            .Take(3)
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(0, 4 * sec, 1 * sec);
     }
@@ -297,6 +317,7 @@ public sealed class ScheduleTests
            .Run()
            .Take(3)
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(4 * sec, 4 * sec, 3 * sec);
     }
@@ -313,6 +334,7 @@ public sealed class ScheduleTests
            .Run()
            .Take(3)
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(37 * sec, 2 * sec, 16 * sec);
     }
@@ -329,6 +351,7 @@ public sealed class ScheduleTests
            .Run()
            .Take(3)
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(37 * min, 2 * min, 16 * min);
     }
@@ -346,6 +369,7 @@ public sealed class ScheduleTests
            .Run()
            .Take(4)
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(2 * hours, 23 * hours, 21 * hour, 24 * hours);
     }
@@ -363,6 +387,7 @@ public sealed class ScheduleTests
            .Run()
            .Take(4)
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(4 * days, 2 * days, 5 * days, 7 * days);
     }
@@ -383,8 +408,8 @@ public sealed class ScheduleTests
         var res = withJitter.ToArray();
         Assert.True(res.Length == 5);
         Assert.True(res.Zip(noJitter)
-                       .AsIterable()
-                       .Filter(p => p.Item1 > p.Item2 && p.Item1 - p.Item2 <= 100)
+                       .AsIterableStrict()
+                       .Filter(p => p.First > p.Second && p.First - p.Second <= 100)
                        .Any());
     }
 
@@ -402,8 +427,8 @@ public sealed class ScheduleTests
         var res = withJitter.ToArray();
         Assert.True(res.Length == 5);
         Assert.True(res.Zip(noJitter)
-                       .AsIterable()
-                       .Filter(p => p.Item1 > p.Item2 && p.Item1 - p.Item2 <= p.Item2 * 1.5)
+                       .AsIterableStrict()
+                       .Filter(p => p.First > p.Second && p.First - p.Second <= p.Second * 1.5)
                        .Any());
     }
 
@@ -425,6 +450,7 @@ public sealed class ScheduleTests
            .Run()
            .Take(4)
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(10 * sec, 20 * sec, 10 * sec, 20 * sec);
     }
@@ -438,6 +464,7 @@ public sealed class ScheduleTests
            .Run()
            .Take(12)
            .AsEnumerable() 
+           .Run() 
            .Should()
            .Equal(1 * sec, 5 * sec, 20 * sec,
                   1 * sec, 5 * sec, 20 * sec,
@@ -453,6 +480,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .AsEnumerable() 
+           .Run() 
            .Should()
            .HaveCount(9)
            .And
@@ -469,6 +497,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .AsEnumerable() 
+           .Run() 
            .Should()
            .HaveCount(6)
            .And
@@ -485,6 +514,7 @@ public sealed class ScheduleTests
         results
            .Run()
            .AsEnumerable() 
+           .Run() 
            .Should()
            .HaveCount(6)
            .And
@@ -508,10 +538,13 @@ public sealed class ScheduleTests
           | Schedule.recurs(5);
 
         schedule1.Run().AsEnumerable()
+                 .Run() 
                  .Should().HaveCount(5);
         schedule2.Run().AsEnumerable()
+                 .Run() 
                  .Should().HaveCount(5);
         schedule3.Run().AsEnumerable()
+                 .Run() 
                  .Should().HaveCount(5);
     }
 
@@ -521,6 +554,7 @@ public sealed class ScheduleTests
         var schedule = Schedule.linear(1 * ms).Map((x, i) => x % 2 == 0 ? x + i : x - i).Take(4);
         schedule.Run()
                 .AsEnumerable() 
+                .Run() 
                 .Should().Equal(1 * ms, 3 * ms, 1 * ms, 7 * ms);
     }
 
@@ -529,6 +563,7 @@ public sealed class ScheduleTests
     {
         var schedule = Schedule.linear(1 * ms).Filter(x => x % 2 == 0).Take(4);
         schedule.Run().AsEnumerable()
+                .Run() 
                 .Should().Equal(2 * ms, 4 * ms, 6 * ms, 8 * ms);
     }
 
@@ -549,6 +584,7 @@ public sealed class ScheduleTests
 
         schedule.Run()
                 .AsEnumerable()
+                .Run() 
                 .Should()
                 .Equal(2 * ms, 1 * ms,
                        2 * ms, 3 * ms,
@@ -571,6 +607,7 @@ public sealed class ScheduleTests
             select Math.Pow(even, odd);
 
         schedule.Run().AsEnumerable()
+                .Run() 
                 .Should().Equal(2 * ms, 8 * ms, 4 * ms, 64 * ms);
     }
 }

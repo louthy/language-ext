@@ -203,7 +203,7 @@ public abstract partial class IteratorIO<A> :
             }
         }
     }
-
+    
     /// <summary>
     /// Create an `AsyncEnumerable` from an `IteratorIO`
     /// </summary>
@@ -222,13 +222,6 @@ public abstract partial class IteratorIO<A> :
             }
         }
     }
-
-    /// <summary>
-    /// Create an `Iterable` from an `Iterator`
-    /// </summary>
-    [Pure]
-    public IterableIO<A> AsIterable() =>
-        new (this);
 
     /// <summary>
     /// Forces evaluation of every item in the IteratorIO and then writes them to an `Arr` structure

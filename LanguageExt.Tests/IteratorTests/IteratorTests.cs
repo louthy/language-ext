@@ -13,7 +13,7 @@ public class IteratorTests
     {
         // Arrange
         var numbers = new List<int> { 1, 2, 3, 4 };
-        var iterator = Iterable.createRange(numbers);
+        var iterator = Iterable.create(numbers);
 
         // Act and Assert
         Assert.False(iterator.IsEmpty);                             // Iterator should not be empty
@@ -29,7 +29,7 @@ public class IteratorTests
     {
         // Arrange
         var numbers = Enumerable.Range(1, 1000).ToList();
-        var iterator = Iterable.createRange(numbers).ForwardIterator();
+        var iterator = Iterable.create(numbers).ForwardIterator();
 
         // Act
         var tasks = Enumerable.Range(0, 5).Select(
@@ -81,7 +81,7 @@ public class IteratorTests
     {
         // Arrange
         var threads        = 5;
-        var numbers        = Enumerable.Range(1, 1000).AsIterable();
+        var numbers        = Enumerable.Range(1, 1000).AsIterableStrict();
         var iterator       = numbers.ForwardIterator();
         var resultingLists = new List<List<int>>();
 
