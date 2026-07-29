@@ -75,9 +75,8 @@ public partial class ValidationT<F, M> :
         K<ValidationT<F, M>, A> ma,
         K<ValidationT<F, M>, A> mb) =>
         new ValidationT<F, M, A>(monoid => M.Bind(ma.As().Run(monoid),
-                                                  ea => ea.IsSuccess
-                                                            ? M.Pure(ea)
-                                                            : M.Map(eb => ea.CombineFirst(eb.As(), monoid), 
+                                                  ea =>
+                                                            M.Map(eb => ea.CombineFirst(eb.As(), monoid),
                                                                     mb.As().Run(monoid))));
 
     static K<ValidationT<F, M>, A> Choice<ValidationT<F, M>>.Choose<A>(
