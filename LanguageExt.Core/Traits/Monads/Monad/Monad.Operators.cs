@@ -111,4 +111,16 @@ public static partial class MonadExtensions
         public static K<M, A> operator >> (K<M, A> lhs, K<IO, Unit> rhs) =>
             lhs >> (x => (_ => x) * rhs);
     }
+        
+    extension<M, A, B, C>(Func<A, K<M, B>> self) where M : Monad<M>
+    {
+        /// <summary>
+        /// Kleisli composition operator overload. Composes two monad-returning functions, equivalent to Haskell's `>=>` or "fish" operator
+        /// </summary>
+        /// <param name="bind1">The first function to compose</param>
+        /// <param name="bind2">The second function to compose</param>
+        /// <returns></returns>
+        public static Func<A, K<M, C>> operator >> (Func<A, K<M, B>> bind1, Func<B, K<M, C>> bind2) =>
+            a => bind1(a) >> bind2;
+    }
 }
