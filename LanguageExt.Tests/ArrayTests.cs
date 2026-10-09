@@ -9,6 +9,14 @@ namespace LanguageExt.Tests;
 public class ArrayTests
 {
     [Fact]
+    public void IndexTest()
+    {
+        var arr = Array(1, 2, 3, 4, 5);
+        Assert.True(arr[0] == 1);
+        Assert.True(arr[^1] == 5);
+    }
+    
+    [Fact]
     public void ConsTest1()
     {
         var test = 1.Cons(2.Cons(3.Cons(4.Cons(empty<int>()))));

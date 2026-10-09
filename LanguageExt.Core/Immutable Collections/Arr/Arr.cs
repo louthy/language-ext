@@ -256,11 +256,7 @@ public readonly struct Arr<A> :
     public A this[Index index]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => index.IsFromEnd switch
-               {
-                   false => Value[start          + index.Value],
-                   true  => Value[start + length - index.Value - 1]
-               };
+        get => Value[start + index.GetOffset(length)];
     }
 
     /// <summary>
