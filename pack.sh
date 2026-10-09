@@ -1,8 +1,8 @@
 # Artifacts is where the DLLs are compiled to 
-Artifacts=/media/paul/raid/dev/artifacts
+Artifacts=/mnt/raid/dev/artifacts
 
 # $LangExtRoot is where the source code root should be
-LangExtRoot=/media/paul/raid/dev/language-ext
+LangExtRoot=/mnt/raid/dev/language-ext
 
 sh clean.sh
 sh docs.sh

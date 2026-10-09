@@ -1,11 +1,11 @@
 # $BestFormBin is where the bestform.exe is compiled to 
-BestFormBin=/media/paul/raid/dev/best-form/bestform
+BestFormBin=/mnt/raid/dev/best-form/bestform
 
 # $LangExtRoot is where the source code root should be
-LangExtRoot=/media/paul/raid/dev/language-ext
+LangExtRoot=/mnt/raid/dev/language-ext
 
 # $LangExtDocs is where the docs root should be
-LangExtDocs=/media/paul/raid/dev/louthy.github.io
+LangExtDocs=/mnt/raid/dev/louthy.github.io
 
 echo cleaning the docs
 
