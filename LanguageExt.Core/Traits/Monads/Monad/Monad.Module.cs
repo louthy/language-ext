@@ -236,7 +236,7 @@ public static partial class Monad
         where M : Natural<M, Iterable>, CoNatural<M, Iterable>
     {
         var iterable = Iterable.createRange(IO.lift(e => go(e.Token)));
-        return CoNatural.transform<M, Iterable, B>(iterable);
+        return Prelude.cotransform<M, Iterable, B>(iterable);
         
         async IAsyncEnumerable<B> go([EnumeratorCancellation] CancellationToken token)
         {
@@ -247,7 +247,7 @@ public static partial class Monad
             {
                 foreach (var x in values)
                 {
-                    var iterable1 = Natural.transform<M, Iterable, Next<A, B>>(f(x)).As().AsAsyncEnumerable(token);
+                    var iterable1 = Prelude.transform<M, Iterable, Next<A, B>>(f(x)).As().AsAsyncEnumerable(token);
                     await foreach (var mb in iterable1)
                     {
                         if (mb.IsDone)

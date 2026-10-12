@@ -79,5 +79,5 @@ public partial class EitherT<L, M> :
         fa.As().BindLeft(l => Predicate(l) ? Fail(l).As() : EitherT.Left<L, M, A>(l));
 
     static K<OptionT<M>, A> Natural<EitherT<L, M>, OptionT<M>>.Transform<A>(K<EitherT<L, M>, A> fa) => 
-        new OptionT<M, A>(fa.As().runEither.Map(Natural.transform<Either<L>, Option, A>).Map(ma => ma.As()));
+        new OptionT<M, A>(fa.As().runEither.Map(Prelude.transform<Either<L>, Option, A>).Map(ma => ma.As()));
 }

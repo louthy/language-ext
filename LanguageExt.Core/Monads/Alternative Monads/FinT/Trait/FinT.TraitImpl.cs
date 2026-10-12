@@ -99,11 +99,11 @@ public partial class FinT<M> :
         fa.As().BindFail(l => Predicate(l) ? Fail(l).As() : FinT.Fail<M, A>(l));
 
     static K<EitherT<Error, M>, A> Natural<FinT<M>, EitherT<Error, M>>.Transform<A>(K<FinT<M>, A> fa) => 
-        new EitherT<Error, M, A>(fa.As().runFin.Map(Natural.transform<Fin, Either<Error>, A>).Map(ma => ma.As()));
+        new EitherT<Error, M, A>(fa.As().runFin.Map(Prelude.transform<Fin, Either<Error>, A>).Map(ma => ma.As()));
 
     static K<OptionT<M>, A> Natural<FinT<M>, OptionT<M>>.Transform<A>(K<FinT<M>, A> fa) => 
-        new OptionT<M, A>(fa.As().runFin.Map(Natural.transform<Fin, Option, A>).Map(ma => ma.As()));
+        new OptionT<M, A>(fa.As().runFin.Map(Prelude.transform<Fin, Option, A>).Map(ma => ma.As()));
 
     static K<TryT<M>, A> Natural<FinT<M>, TryT<M>>.Transform<A>(K<FinT<M>, A> fa) => 
-        new TryT<M, A>(fa.As().runFin.Map(Natural.transform<Fin, Try, A>).Map(ma => ma.As()));
+        new TryT<M, A>(fa.As().runFin.Map(Prelude.transform<Fin, Try, A>).Map(ma => ma.As()));
 }
