@@ -172,18 +172,11 @@ public static class QueryExtensions
     public static Lst<T> Freeze<T>(this IQueryable<T> list) =>
         Query.freeze(list);
 
-    public static IQueryable<V> Zip<T, U, V>(this IQueryable<T> list, IEnumerable<U> other,
-                                             Expression<Func<T, U, V>> zipper) =>
-        Query.zip(list, other, zipper);
-
     public static int Length<T>(this IQueryable<T> list) =>
         Query.length(list);
 
     public static bool ForAll<T>(this IQueryable<T> list, Expression<Func<T, bool>> pred) =>
         Query.forall(list, pred);
-
-    public static IQueryable<T> Distinct<T>(this IQueryable<T> list) =>
-        Query.distinct(list);
 
     public static bool Exists<T>(this IQueryable<T> list, Expression<Func<T, bool>> pred) =>
         Query.exists(list, pred);
